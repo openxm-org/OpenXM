@@ -1,2415 +1,2415 @@
-(Jimport("nk_restriction.rr");(B
+import("nk_restriction.rr");
 
-(Jmodule ns_twistedlog;(B
+module ns_twistedlog;
 
-(Jlocalf mkd,mkd_,mke,mke_;(B
-(Jlocalf dp_dtol,dp_etop,ltop;(B
-(Jlocalf gauss,excp_gauss,leadInd;(B
-(Jlocalf t_in,m_in,c_in,reducible;(B
-(Jlocalf normal_form_weyl,w_normal_form_weyl,sp_weyl,buchberger_weyl;(B
-(Jlocalf normal_form,w_normal_form,sp,buchberger;(B
-(Jlocalf v_homo,v_order;(B
+localf mkd,mkd_,mke,mke_;
+localf dp_dtol,dp_etop,ltop;
+localf gauss,excp_gauss,leadInd;
+localf t_in,m_in,c_in,reducible;
+localf normal_form_weyl,w_normal_form_weyl,sp_weyl,buchberger_weyl;
+localf normal_form,w_normal_form,sp,buchberger;
+localf v_homo,v_order;
 
-(Jlocalf adjoint;(B
-(Jlocalf twisted_log_cohomology,twisted_deRham;(B
-(Jlocalf difference_equation;(B
-(Jlocalf differential_equation;(B
+localf adjoint;
+localf twisted_log_cohomology,twisted_deRham;
+localf difference_equation;
+localf differential_equation;
 
-(Jlocalf monomial_sum,monomial_quotient;(B
-(Jlocalf combination,homogeneous;(B
-(Jlocalf monomial_hilbert_poly,hilbelt_function,hilbelt_poly,affine_hilbelt_poly;(B
-(Jlocalf holonomic;(B
+localf monomial_sum,monomial_quotient;
+localf combination,homogeneous;
+localf monomial_hilbert_poly,hilbelt_function,hilbelt_poly,affine_hilbelt_poly;
+localf holonomic;
 
-(Jlocalf mkt,mky,mkx;(B
+localf mkt,mky,mkx;
 
-(Jlocalf example6_5;(B
-(Jlocalf example6_6;(B
-(Jlocalf example6_9;(B
-(Jlocalf example6_10;(B
-(Jlocalf example7_1;(B
-(Jlocalf example7_2;(B
-(Jlocalf example7_4;(B
-(Jlocalf example7_5;(B
-(Jlocalf example7_6;(B
+localf example6_5;
+localf example6_6;
+localf example6_9;
+localf example6_10;
+localf example7_1;
+localf example7_2;
+localf example7_4;
+localf example7_5;
+localf example7_6;
 
-(Jlocalf time_f1,time_f1_a;(B
-(Jlocalf time_f2,time_f2_a;(B
-(Jlocalf time_f3,time_f3_a;(B
-(Jlocalf time_f4,time_f4_a;(B
-(Jlocalf time_g;(B
-(Jlocalf time_h,time_h_a;(B
+localf time_f1,time_f1_a;
+localf time_f2,time_f2_a;
+localf time_f3,time_f3_a;
+localf time_f4,time_f4_a;
+localf time_g;
+localf time_h,time_h_a;
 
-(Jdef mkd(L){(B
-	(Jreturn strtov("d" + rtostr(L));(B
-(J}(B
+def mkd(L){
+	return strtov("d" + rtostr(L));
+}
 
-(Jdef mkd_(L,N){(B
-	(Jreturn strtov("d" + rtostr(L) + "_" + rtostr(N));(B
-(J}(B
+def mkd_(L,N){
+	return strtov("d" + rtostr(L) + "_" + rtostr(N));
+}
 
-(Jdef mke(L){(B
-	(Jreturn strtov("e" + rtostr(L));(B
-(J}(B
+def mke(L){
+	return strtov("e" + rtostr(L));
+}
 
-(Jdef mke_(L,N){(B
-	(Jreturn strtov("e" + rtostr(L) + "_" + rtostr(N));(B
-(J}(B
+def mke_(L,N){
+	return strtov("e" + rtostr(L) + "_" + rtostr(N));
+}
 
-(Jdef dp_dtol(F,V){(B
-	(JN = length(V);(B
-	(JVF = 0;(B
-	(Jwhile (F != 0) {(B
-		(JE = dp_etov(dp_ht(F));(B
-		(JM = 0;(B
-		(Jfor (I = 0; I < N; I++)(B
-			(JM += rtostr(V[I]) + rtostr(E[I]);(B
-		(JVF += dp_hc(F) * strtov(M);(B
-		(JF = dp_rest(F);(B
-	(J}(B
-	(Jreturn VF;(B
-(J}(B
+def dp_dtol(F,V){
+	N = length(V);
+	VF = 0;
+	while (F != 0) {
+		E = dp_etov(dp_ht(F));
+		M = 0;
+		for (I = 0; I < N; I++)
+			M += rtostr(V[I]) + rtostr(E[I]);
+		VF += dp_hc(F) * strtov(M);
+		F = dp_rest(F);
+	}
+	return VF;
+}
 
-(Jdef dp_etop(F,V,M){(B
-	(JN = length(V);(B
-	(JNM = N*M;(B
-	(JP = 0;(B
-	(Jwhile (F != 0) {(B
-		(JE = dp_etov(dp_ht(F));(B
-		(Jif (E[NM] != 0) {(B
-			(JP += dp_hc(F);(B
-			(JF = dp_rest(F);(B
-		(J} else {(B
-			(Jfor (I = 0; I < NM; I++)(B
-				(Jif (E[I] != 0)(B
-					(Jbreak;(B
-			(JCN = idiv(I,M);(B
-			(JCM = I % M;(B
-			(JP += dp_hc(F) * V[CN]^(CM + 1);(B
-			(JF = dp_rest(F);(B
-		(J}(B
-	(J}(B
-	(Jreturn P;(B
-(J}(B
+def dp_etop(F,V,M){
+	N = length(V);
+	NM = N*M;
+	P = 0;
+	while (F != 0) {
+		E = dp_etov(dp_ht(F));
+		if (E[NM] != 0) {
+			P += dp_hc(F);
+			F = dp_rest(F);
+		} else {
+			for (I = 0; I < NM; I++)
+				if (E[I] != 0)
+					break;
+			CN = idiv(I,M);
+			CM = I % M;
+			P += dp_hc(F) * V[CN]^(CM + 1);
+			F = dp_rest(F);
+		}
+	}
+	return P;
+}
 
-(Jdef ltop(P,V,M){(B
-	(JN = length(V);(B
-	(JW = newvect(N);(B
-	(Jfor (I = 0; I < N; I++)(B
-		(JW[I] = 1;(B
-	(JW = vtol(W);(B
-	(JB = nk_restriction.gen(W,M);(B
-	(JB = map(dp_vtoe,map(ltov,B));(B
-	(JNB = length(B);(B
-	(JBX = map(dp_dtop,B,V);(B
-	(JBXX = map(dp_dtol,B,V);(B
-	(JDP = dp_ptod(P,BXX);(B
-	(JPP = 0;(B
-	(Jwhile (DP != 0) {(B
-		(JEP = dp_etov(dp_ht(DP));(B
-		(Jfor (I = 0; I < NB; I++)(B
-			(Jif (EP[I] != 0)(B
-				(Jbreak;(B
-		(JPP += dp_hc(DP) * BX[I];(B
-		(JDP = dp_rest(DP);(B
-	(J}(B
-	(Jreturn PP;(B
-(J}(B
+def ltop(P,V,M){
+	N = length(V);
+	W = newvect(N);
+	for (I = 0; I < N; I++)
+		W[I] = 1;
+	W = vtol(W);
+	B = nk_restriction.gen(W,M);
+	B = map(dp_vtoe,map(ltov,B));
+	NB = length(B);
+	BX = map(dp_dtop,B,V);
+	BXX = map(dp_dtol,B,V);
+	DP = dp_ptod(P,BXX);
+	PP = 0;
+	while (DP != 0) {
+		EP = dp_etov(dp_ht(DP));
+		for (I = 0; I < NB; I++)
+			if (EP[I] != 0)
+				break;
+		PP += dp_hc(DP) * BX[I];
+		DP = dp_rest(DP);
+	}
+	return PP;
+}
 
-(Jdef gauss(A)(B
-(J{(B
-	(JMN = size(A);(B
-	(JM = MN[0];(B
-	(JN = MN[1];(B
-	(JLeadInd = newvect(M);(B
-	(Jfor( I = 0; I < M; I++ )(B
-		(JLeadInd[I] = leadInd(A[I],N);(B
-	(Jfor( J = 0; J < N; J++ ){(B
-		(JI0 = -1;(B
-		(Jfor( I = 0; I < M && I0 == -1; I++ ){(B
-			(Jif( LeadInd[I] == J ){(B
-				(JC = A[I][J];(B
-				(JI0 = I;(B
-				(Jfor( K = J; K < N; K++ )(B
-					(JA[I][K] = red(A[I][K]/C);(B
-			(J}(B
-		(J}(B
-		(Jif( I0 >= 0 ){(B
-			(Jfor( I = 0; I < M; I++ ){(B
-				(JC = A[I][J];(B
-				(Jif( I != I0 && C != 0 ){(B
-					(Jfor( K = J; K < N; K++ )(B
-						(JA[I][K] = red(A[I][K]-C*A[I0][K]);(B
-					(JLeadInd[I] = leadInd(A[I],N);(B
-				(J}(B
-			(J}(B
-		(J}(B
-	(J}(B
-	(Jreturn ([A,LeadInd]);(B
-(J}(B
+def gauss(A)
+{
+	MN = size(A);
+	M = MN[0];
+	N = MN[1];
+	LeadInd = newvect(M);
+	for( I = 0; I < M; I++ )
+		LeadInd[I] = leadInd(A[I],N);
+	for( J = 0; J < N; J++ ){
+		I0 = -1;
+		for( I = 0; I < M && I0 == -1; I++ ){
+			if( LeadInd[I] == J ){
+				C = A[I][J];
+				I0 = I;
+				for( K = J; K < N; K++ )
+					A[I][K] = red(A[I][K]/C);
+			}
+		}
+		if( I0 >= 0 ){
+			for( I = 0; I < M; I++ ){
+				C = A[I][J];
+				if( I != I0 && C != 0 ){
+					for( K = J; K < N; K++ )
+						A[I][K] = red(A[I][K]-C*A[I0][K]);
+					LeadInd[I] = leadInd(A[I],N);
+				}
+			}
+		}
+	}
+	return ([A,LeadInd]);
+}
 
-(Jdef excp_gauss(A)(B
-(J{(B
-	(JExcpList = [];(B
-	(JMN = size(A);(B
-	(JM = MN[0];(B
-	(JN = MN[1];(B
-	(JLeadInd = newvect(M);(B
-	(Jfor( I = 0; I < M; I++ )(B
-		(JLeadInd[I] = leadInd(A[I],N);(B
-	(Jfor( J = 0; J < N; J++ ){(B
-		(JI0 = -1;(B
-		(Jfor( I = 0; I < M && I0 == -1; I++ ){(B
-			(Jif( LeadInd[I] == J ){(B
-				(JC = A[I][J];(B
-				(JExcpList = cons(C,ExcpList);(B
-				(JI0 = I;(B
-				(Jfor( K = J; K < N; K++ )(B
-					(JA[I][K] = red(A[I][K]/C);(B
-			(J}(B
-		(J}(B
-		(Jif( I0 >= 0 ){(B
-			(Jfor( I = 0; I < M; I++ ){(B
-				(JC = A[I][J];(B
-				(Jif( I != I0 && C != 0 ){(B
-					(Jfor( K = J; K < N; K++ )(B
-						(JA[I][K] = red(A[I][K]-C*A[I0][K]);(B
-					(JLeadInd[I] = leadInd(A[I],N);(B
-				(J}(B
-			(J}(B
-		(J}(B
-	(J}(B
-	(Jreturn ([A,LeadInd,ExcpList]);(B
-(J}(B
+def excp_gauss(A)
+{
+	ExcpList = [];
+	MN = size(A);
+	M = MN[0];
+	N = MN[1];
+	LeadInd = newvect(M);
+	for( I = 0; I < M; I++ )
+		LeadInd[I] = leadInd(A[I],N);
+	for( J = 0; J < N; J++ ){
+		I0 = -1;
+		for( I = 0; I < M && I0 == -1; I++ ){
+			if( LeadInd[I] == J ){
+				C = A[I][J];
+				ExcpList = cons(C,ExcpList);
+				I0 = I;
+				for( K = J; K < N; K++ )
+					A[I][K] = red(A[I][K]/C);
+			}
+		}
+		if( I0 >= 0 ){
+			for( I = 0; I < M; I++ ){
+				C = A[I][J];
+				if( I != I0 && C != 0 ){
+					for( K = J; K < N; K++ )
+						A[I][K] = red(A[I][K]-C*A[I0][K]);
+					LeadInd[I] = leadInd(A[I],N);
+				}
+			}
+		}
+	}
+	return ([A,LeadInd,ExcpList]);
+}
 
-(Jdef t_in(F, VL, Order)(B
-(J{(B
-	(JOldOrder = dp_ord();(B
-	(Jdp_ord(Order);(B
-	(JNM = nm(F);(B
-	(JDNM = dp_ptod(NM,VL);(B
-	(JDIN = dp_hm(DNM);(B
-	(JIN = dp_dtop(DIN,VL);(B
-	(JIN = IN / dn(F);(B
-	(JIN = red(IN);(B
-	(Jdp_ord(Order);(B
-	(Jreturn IN;(B
-(J}(B
-(Jdef m_in(F, VL, Order)(B
-(J{(B
-	(JOldOrder = dp_ord();(B
-	(Jdp_ord(Order);(B	
-	(JNM = nm(F);(B
-	(JDNM = dp_ptod(NM,VL);(B
-	(JDIN = dp_ht(DNM);(B
-	(JIN = dp_dtop(DIN,VL);(B
-	(Jdp_ord(Order);(B
-	(Jreturn IN;(B
-(J}(B
+def t_in(F, VL, Order)
+{
+	OldOrder = dp_ord();
+	dp_ord(Order);
+	NM = nm(F);
+	DNM = dp_ptod(NM,VL);
+	DIN = dp_hm(DNM);
+	IN = dp_dtop(DIN,VL);
+	IN = IN / dn(F);
+	IN = red(IN);
+	dp_ord(Order);
+	return IN;
+}
+def m_in(F, VL, Order)
+{
+	OldOrder = dp_ord();
+	dp_ord(Order);	
+	NM = nm(F);
+	DNM = dp_ptod(NM,VL);
+	DIN = dp_ht(DNM);
+	IN = dp_dtop(DIN,VL);
+	dp_ord(Order);
+	return IN;
+}
 
-(Jdef c_in(F, VL, Order)(B
-(J{(B
-	(JOldOrder = dp_ord();(B
-	(Jdp_ord(Order);(B	
-	(JNM = nm(F);(B
-	(JDNM = dp_ptod(NM,VL);(B	
-	(JLC = dp_hc(DNM);(B
-	(JLC = LC / dn(F);(B
-	(JLC = red(LC);(B
-	(Jdp_ord(OldOrder);(B
-	(Jreturn LC;(B
-(J}(B
+def c_in(F, VL, Order)
+{
+	OldOrder = dp_ord();
+	dp_ord(Order);	
+	NM = nm(F);
+	DNM = dp_ptod(NM,VL);	
+	LC = dp_hc(DNM);
+	LC = LC / dn(F);
+	LC = red(LC);
+	dp_ord(OldOrder);
+	return LC;
+}
 
-(Jdef reducible(R, G, VL, Order)(B
-(J{(B
-	(JM = length(G);(B
-	(JInR = m_in(R, VL, Order);(B
-	(Jfor (I = 0; I < M; I++) {(B
-		(JInG = m_in(G[I], VL, Order);(B
-		(JT = tdiv(InR, InG);(B
-		(Jif (T != 0)(B
-			(Jreturn I;(B
-	(J}(B
-	(Jreturn -1;(B
-(J}(B
+def reducible(R, G, VL, Order)
+{
+	M = length(G);
+	InR = m_in(R, VL, Order);
+	for (I = 0; I < M; I++) {
+		InG = m_in(G[I], VL, Order);
+		T = tdiv(InR, InG);
+		if (T != 0)
+			return I;
+	}
+	return -1;
+}
 
-(Jdef normal_form(F, G, VL, Order)(B
-(J{(B
-	(JM = length(G);(B
-	(JQ = newvect(M);(B
-	(JR = 0;(B
-	(JLC = [c_in(F, VL, Order)];(B
-	(Jwhile (F != 0) {(B
-		(JL = w_normal_form(F, G, VL, Order);(B
-		(JRR = L[0];(B
-		(JQQ = L[1];(B
-		(JLC = append(LC, L[2]);(B
-		(JF = RR - t_in(RR, VL, Order);(B
-		(JLC = cons(c_in(F, VL, Order), LC);(B
-		(JR += t_in(RR, VL, Order);(B
-		(JQ += QQ;(B
-		(JR = red(R);(B
-		(JQ = map(red, Q);(B
-	(J}(B
-	(Jreturn [R, Q, LC];(B
-(J}(B
+def normal_form(F, G, VL, Order)
+{
+	M = length(G);
+	Q = newvect(M);
+	R = 0;
+	LC = [c_in(F, VL, Order)];
+	while (F != 0) {
+		L = w_normal_form(F, G, VL, Order);
+		RR = L[0];
+		QQ = L[1];
+		LC = append(LC, L[2]);
+		F = RR - t_in(RR, VL, Order);
+		LC = cons(c_in(F, VL, Order), LC);
+		R += t_in(RR, VL, Order);
+		Q += QQ;
+		R = red(R);
+		Q = map(red, Q);
+	}
+	return [R, Q, LC];
+}
 
-(Jdef w_normal_form(F, G, VL, Order)(B
-(J{(B
-	(JM = length(G);(B
-	(JQ = newvect(M);(B
-	(JR = F;(B
-	(JLC = [c_in(F, VL, Order)];(B
-	(Jwhile ((Index = reducible(R, G, VL, Order)) != -1) {(B
-		(JS = G[Index];(B
-		(JD = tdiv(m_in(R, VL, Order), m_in(S, VL, Order));(B
-		(JX = c_in(R, VL, Order) / c_in(S, VL, Order);(B
-		(JT = X*D*S;(B
-		(JQ[Index] += X*D;(B
-		(JR -= T;(B
-		(JQ[Index] = red(Q[Index]);(B
-		(JR = red(R);(B
-		(JLC = cons(c_in(F, VL, Order),LC);(B
-	(J}(B	
-	(Jreturn [R, Q, LC];(B
-(J}(B
+def w_normal_form(F, G, VL, Order)
+{
+	M = length(G);
+	Q = newvect(M);
+	R = F;
+	LC = [c_in(F, VL, Order)];
+	while ((Index = reducible(R, G, VL, Order)) != -1) {
+		S = G[Index];
+		D = tdiv(m_in(R, VL, Order), m_in(S, VL, Order));
+		X = c_in(R, VL, Order) / c_in(S, VL, Order);
+		T = X*D*S;
+		Q[Index] += X*D;
+		R -= T;
+		Q[Index] = red(Q[Index]);
+		R = red(R);
+		LC = cons(c_in(F, VL, Order),LC);
+	}	
+	return [R, Q, LC];
+}
 
-(Jdef sp(F, G, VL, Order)(B
-(J{(B
-	(JInF = m_in(F, VL, Order);(B
-	(JInG = m_in(G, VL, Order);(B
-	(JLCF = c_in(F, VL, Order);(B
-	(JLCG = c_in(G, VL, Order);(B
-	(JLCM = lcm(InF, InG);(B
-	(JMF = tdiv(LCM, InF);(B
-	(JMG = tdiv(LCM, InG);(B
-	(JSp = MF * F - red(LCF/LCG) * MG * G;(B
-	(Jreturn red(Sp);(B
-(J}(B
+def sp(F, G, VL, Order)
+{
+	InF = m_in(F, VL, Order);
+	InG = m_in(G, VL, Order);
+	LCF = c_in(F, VL, Order);
+	LCG = c_in(G, VL, Order);
+	LCM = lcm(InF, InG);
+	MF = tdiv(LCM, InF);
+	MG = tdiv(LCM, InG);
+	Sp = MF * F - red(LCF/LCG) * MG * G;
+	return red(Sp);
+}
 
-(Jdef buchberger(L, VL, Order)(B
-(J{(B
-	(JLC = [];(B
-	(JN = length(L);(B
-	(Jfor (I = 0; I < N; I++)(B
-		(JLC = cons(c_in(L[I], VL, Order), LC);(B
+def buchberger(L, VL, Order)
+{
+	LC = [];
+	N = length(L);
+	for (I = 0; I < N; I++)
+		LC = cons(c_in(L[I], VL, Order), LC);
 	
-	(JJlist = [];(B
-	(Jfor (I = 0; I < N; I++)(B
-		(JJlist = append(Jlist,[[I, J]]);(B
-	(Jwhile (Jlist != []) {(B
-		(JIndex = car(Jlist);(B
-		(JJlist = cdr(Jlist);(B
-		(JSp = sp(L[Index[0]], L[Index[1]], VL, Order);(B
-		(JLC = cons(c_in(SP, VL, Order), LC);(B
-		(JResult = normal_form(Sp, L, VL, Order);(B
-		(JR = Result[0];(B
-		(JLC = append(LC, Result[2]);(B
-		(Jif (R != 0) {(B
-			(JL = append(L, [R]);(B
-			(JN = length(L);(B
-			(Jfor (I = 0; I < N-1; I++)(B
-				(JJlist = append(Jlist, [[I, N-1]]);(B
-		(J}(B
-	(J}(B
-	(Jreturn [L,LC];(B
-(J}(B
+	Jlist = [];
+	for (I = 0; I < N; I++)
+		Jlist = append(Jlist,[[I, J]]);
+	while (Jlist != []) {
+		Index = car(Jlist);
+		Jlist = cdr(Jlist);
+		Sp = sp(L[Index[0]], L[Index[1]], VL, Order);
+		LC = cons(c_in(SP, VL, Order), LC);
+		Result = normal_form(Sp, L, VL, Order);
+		R = Result[0];
+		LC = append(LC, Result[2]);
+		if (R != 0) {
+			L = append(L, [R]);
+			N = length(L);
+			for (I = 0; I < N-1; I++)
+				Jlist = append(Jlist, [[I, N-1]]);
+		}
+	}
+	return [L,LC];
+}
 
 
-(Jdef normal_form_weyl(F, G, VL, Order)(B
-(J{(B
-	(JM = length(G);(B
-	(JQ = newvect(M);(B
-	(JR = 0;(B
-	(JLC = [c_in(F, VL, Order)];(B
-	(Jwhile (F != 0) {(B
-		(JL = w_normal_form_weyl(F, G, VL, Order);(B
-		(JRR = L[0];(B
-		(JQQ = L[1];(B
-		(JLC = append(LC, L[2]);(B
-		(JF = RR - t_in(RR, VL, Order);(B
-		(JLC = cons(c_in(F, VL, Order), LC);(B
-		(JR += t_in(RR, VL, Order);(B
-		(JQ += QQ;(B
-		(JR = red(R);(B
-		(JQ = map(red, Q);(B
-	(J}(B
-	(Jreturn [R, Q, LC];(B
-(J}(B
+def normal_form_weyl(F, G, VL, Order)
+{
+	M = length(G);
+	Q = newvect(M);
+	R = 0;
+	LC = [c_in(F, VL, Order)];
+	while (F != 0) {
+		L = w_normal_form_weyl(F, G, VL, Order);
+		RR = L[0];
+		QQ = L[1];
+		LC = append(LC, L[2]);
+		F = RR - t_in(RR, VL, Order);
+		LC = cons(c_in(F, VL, Order), LC);
+		R += t_in(RR, VL, Order);
+		Q += QQ;
+		R = red(R);
+		Q = map(red, Q);
+	}
+	return [R, Q, LC];
+}
 
-(Jdef w_normal_form_weyl(F, G, VL, Order)(B
-(J{(B
-	(JM = length(G);(B
-	(JQ = newvect(M);(B
-	(JR = F;(B
-	(JLC = [c_in(F, VL, Order)];(B
-	(Jwhile ((Index = reducible(R, G, VL, Order)) != -1) {(B
-		(JS = G[Index];(B
-		(JD = tdiv(m_in(R, VL, Order), m_in(S, VL, Order));(B
-		(JX = c_in(R, VL, Order) / c_in(S, VL, Order);(B
-		(JT = X * nk_restriction.weyl_mul(D, nm(S), VL) / dn(S);(B
-		(JQ[Index] += X*D;(B
-		(JR -= T;(B
-		(JQ[Index] = red(Q[Index]);(B
-		(JR = red(R);(B
-		(JLC = cons(c_in(F, VL, Order),LC);(B
-	(J}(B	
-	(Jreturn [R, Q, LC];(B
-(J}(B
+def w_normal_form_weyl(F, G, VL, Order)
+{
+	M = length(G);
+	Q = newvect(M);
+	R = F;
+	LC = [c_in(F, VL, Order)];
+	while ((Index = reducible(R, G, VL, Order)) != -1) {
+		S = G[Index];
+		D = tdiv(m_in(R, VL, Order), m_in(S, VL, Order));
+		X = c_in(R, VL, Order) / c_in(S, VL, Order);
+		T = X * nk_restriction.weyl_mul(D, nm(S), VL) / dn(S);
+		Q[Index] += X*D;
+		R -= T;
+		Q[Index] = red(Q[Index]);
+		R = red(R);
+		LC = cons(c_in(F, VL, Order),LC);
+	}	
+	return [R, Q, LC];
+}
 
-(Jdef sp_weyl(F, G, VL, Order)(B
-(J{(B
-	(JInF = m_in(F, VL, Order);(B
-	(JInG = m_in(G, VL, Order);(B
-	(JLCF = c_in(F, VL, Order);(B
-	(JLCG = c_in(G, VL, Order);(B
-	(JLCM = lcm(InF, InG);(B
-	(JMF = tdiv(LCM, InF);(B
-	(JMG = tdiv(LCM, InG);(B
-	(JSp = nk_restriction.weyl_mul(MF, nm(F), VL) / dn(F) - red(LCF/LCG) * nk_restriction.weyl_mul(MG, nm(G), VL) / dn(G);(B
-	(Jreturn red(Sp);(B
-(J}(B
+def sp_weyl(F, G, VL, Order)
+{
+	InF = m_in(F, VL, Order);
+	InG = m_in(G, VL, Order);
+	LCF = c_in(F, VL, Order);
+	LCG = c_in(G, VL, Order);
+	LCM = lcm(InF, InG);
+	MF = tdiv(LCM, InF);
+	MG = tdiv(LCM, InG);
+	Sp = nk_restriction.weyl_mul(MF, nm(F), VL) / dn(F) - red(LCF/LCG) * nk_restriction.weyl_mul(MG, nm(G), VL) / dn(G);
+	return red(Sp);
+}
 
-(Jdef buchberger_weyl(L, VL, Order)(B
-(J{(B
-	(JLC = [];(B
-	(JN = length(L);(B
-	(Jfor (I = 0; I < N; I++)(B
-		(JLC = cons(c_in(L[I], VL, Order), LC);(B
+def buchberger_weyl(L, VL, Order)
+{
+	LC = [];
+	N = length(L);
+	for (I = 0; I < N; I++)
+		LC = cons(c_in(L[I], VL, Order), LC);
 	
-	(JJlist = [];(B
-	(Jfor (I = 0; I < N; I++)(B
-		(JJlist = append(Jlist,[[I, J]]);(B
-	(Jwhile (Jlist != []) {(B
-		(JIndex = car(Jlist);(B
-		(JJlist = cdr(Jlist);(B
-		(JSp = sp_weyl(L[Index[0]], L[Index[1]], VL, Order);(B
-		(JLC = cons(c_in(SP, VL, Order), LC);(B
-		(JResult = normal_form_weyl(Sp, L, VL, Order);(B
-		(JR = Result[0];(B
-		(JLC = append(LC, Result[2]);(B
-		(Jif (R != 0) {(B
-			(JL = append(L, [R]);(B
-			(JN = length(L);(B
-			(Jfor (I = 0; I < N-1; I++)(B
-				(JJlist = append(Jlist, [[I, N-1]]);(B
-		(J}(B
-	(J}(B
-	(Jreturn [L,LC];(B
-(J}(B
+	Jlist = [];
+	for (I = 0; I < N; I++)
+		Jlist = append(Jlist,[[I, J]]);
+	while (Jlist != []) {
+		Index = car(Jlist);
+		Jlist = cdr(Jlist);
+		Sp = sp_weyl(L[Index[0]], L[Index[1]], VL, Order);
+		LC = cons(c_in(SP, VL, Order), LC);
+		Result = normal_form_weyl(Sp, L, VL, Order);
+		R = Result[0];
+		LC = append(LC, Result[2]);
+		if (R != 0) {
+			L = append(L, [R]);
+			N = length(L);
+			for (I = 0; I < N-1; I++)
+				Jlist = append(Jlist, [[I, N-1]]);
+		}
+	}
+	return [L,LC];
+}
 
-(Jdef v_homo(F,V,DV,W)(B
-(J{(B
-	(JN = length(V);(B
-	(JVDV = append(V,DV);(B
-	(JVDVH = append(VDV,[h]);(B
-	(JDF = dp_ptod(F,VDV);(B
-	(JF = dp_ptod(F,VDVH);(B	
-	(JWL = [];(B
-	(JMIN = [];(B
-	(Jwhile (DF != 0) {(B
-		(JIndex = dp_etov(dp_ht(DF));(B
-		(JWW = 0;(B
-		(Jfor (I = 0; I < N; I++)(B
-			(JWW += W[I] * Index[I];(B
-		(Jfor (I = 0; I < N; I++)(B
-			(JWW -= W[I] * Index[I+N];(B
-		(Jif (MIN == []) {(B
-			(JMIN = WW;(B
-		(J} else if (WW < MIN) {(B
-			(JMIN = WW;(B
-		(J}(B
-		(JWL = cons(WW,WL);(B
-		(JDF = dp_rest(DF);(B
-	(J}(B
-	(JWL = ltov(reverse(WL));(B
-	(JNL = length(WL);(B
-	(Jfor (I = 0; I < NL; I++)(B
-		(JWL[I] -= MIN;(B
-	(JHF = 0;(B
-	(Jfor (I = 0; I < NL; I++) {(B
-		(JLM = dp_etov(dp_ht(F));(B
-		(JLC = dp_hc(F);(B
-		(JLM[2*N] = WL[I];(B
-		(JHF += LC * dp_vtoe(LM);(B
-		(JF = dp_rest(F);(B
-	(J}(B
-	(Jreturn dp_dtop(HF,VDVH);(B
-(J}(B
+def v_homo(F,V,DV,W)
+{
+	N = length(V);
+	VDV = append(V,DV);
+	VDVH = append(VDV,[h]);
+	DF = dp_ptod(F,VDV);
+	F = dp_ptod(F,VDVH);	
+	WL = [];
+	MIN = [];
+	while (DF != 0) {
+		Index = dp_etov(dp_ht(DF));
+		WW = 0;
+		for (I = 0; I < N; I++)
+			WW += W[I] * Index[I];
+		for (I = 0; I < N; I++)
+			WW -= W[I] * Index[I+N];
+		if (MIN == []) {
+			MIN = WW;
+		} else if (WW < MIN) {
+			MIN = WW;
+		}
+		WL = cons(WW,WL);
+		DF = dp_rest(DF);
+	}
+	WL = ltov(reverse(WL));
+	NL = length(WL);
+	for (I = 0; I < NL; I++)
+		WL[I] -= MIN;
+	HF = 0;
+	for (I = 0; I < NL; I++) {
+		LM = dp_etov(dp_ht(F));
+		LC = dp_hc(F);
+		LM[2*N] = WL[I];
+		HF += LC * dp_vtoe(LM);
+		F = dp_rest(F);
+	}
+	return dp_dtop(HF,VDVH);
+}
 
-(Jdef v_order(N)(B
-(J{(B
-	(JM = newmat(2*N+3,2*N+2);(B
-	(JM[0][N] = 1;(B
-	(Jfor (I = 0; I < 2*(N+1); I++)(B
-		(JM[1][I] = 1;(B
-	(Jfor (I = 0; I < 2*N+1; I++)(B
-		(JM[I+2][2*N+1-I] = -1;(B
+def v_order(N)
+{
+	M = newmat(2*N+3,2*N+2);
+	M[0][N] = 1;
+	for (I = 0; I < 2*(N+1); I++)
+		M[1][I] = 1;
+	for (I = 0; I < 2*N+1; I++)
+		M[I+2][2*N+1-I] = -1;
 	
-	(Jreturn M;(B
-(J}(B
+	return M;
+}
 
 
-(Jdef leadInd(V,M){(B
-	(JIndex = -1;(B
-	(Jfor( I = 0; I < M && Index == -1; I++ )(B
-		(Jif( V[I] != 0 )(B
-		(J    Index = I;(B
-	(Jreturn(Index);(B
-(J}(B
+def leadInd(V,M){
+	Index = -1;
+	for( I = 0; I < M && Index == -1; I++ )
+		if( V[I] != 0 )
+		    Index = I;
+	return(Index);
+}
 
-(Jdef adjoint(P,VL,DVL)(B
-(J{(B
-	(JN = length(VL);(B
-	(JVLL = append(VL,DVL);(B
-	(JDP = dp_ptod(P,VLL);(B
+def adjoint(P,VL,DVL)
+{
+	N = length(VL);
+	VLL = append(VL,DVL);
+	DP = dp_ptod(P,VLL);
 	
-	(JS = 0;(B
-	(JEX = newvect(2*N);(B
-	(JEDX = newvect(2*N);(B
+	S = 0;
+	EX = newvect(2*N);
+	EDX = newvect(2*N);
 	
-	(Jwhile(DP != 0) {(B
-		(JM = dp_etov(dp_ht(DP));(B
-		(JC = dp_hc(DP);(B
-		(JSum = 0;(B
-		(Jfor( I = 0; I < N; I++ )(B
-			(JEX[I] = M[I];(B
-		(Jfor( I = 0; I < N; I++ ){(B
-			(JEDX[N+I] = M[N+I];(B
-			(JSum += M[N+I];(B
-		(J}(B
-		(JS += C * (-1)^Sum * dp_weyl_mul(dp_vtoe(EDX),dp_vtoe(EX));(B
-		(JDP = dp_rest(DP);(B
-	(J}(B
-	(Jreturn dp_dtop(S,VLL);(B
-(J}(B
+	while(DP != 0) {
+		M = dp_etov(dp_ht(DP));
+		C = dp_hc(DP);
+		Sum = 0;
+		for( I = 0; I < N; I++ )
+			EX[I] = M[I];
+		for( I = 0; I < N; I++ ){
+			EDX[N+I] = M[N+I];
+			Sum += M[N+I];
+		}
+		S += C * (-1)^Sum * dp_weyl_mul(dp_vtoe(EDX),dp_vtoe(EX));
+		DP = dp_rest(DP);
+	}
+	return dp_dtop(S,VLL);
+}
 
-(Jdef twisted_log_cohomology(F,P,V)(B
-(J{(B
-	(Jif ( type(Exp=getopt(exp)) == 2) ; else Exp = 0;(B
-	(Jif ( type(Check=getopt(check)) == -1 ) Check = 0;(B
-	(Jif ( type(S0=getopt(s0)) == -1 ) S0 = -1;(B
-	(Jif ( type(Excp=getopt(excp)) == -1 ) Excp = -1;(B
+def twisted_log_cohomology(F,P,V)
+{
+	if ( type(Exp=getopt(exp)) == 2) ; else Exp = 0;
+	if ( type(Check=getopt(check)) == -1 ) Check = 0;
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(Excp=getopt(excp)) == -1 ) Excp = -1;
 	
-	(JN = length(F);(B
+	N = length(F);
 	
-	(Jif( length(P) != N ){(B
-		(Jprint("error : number of parameters is not equal length of factorization");(B
-		(Jreturn;(B
-	(J}(B
-	(JVnum = length(V);(B
+	if( length(P) != N ){
+		print("error : number of parameters is not equal length of factorization");
+		return;
+	}
+	Vnum = length(V);
 	
-	(JDV = map(mkd,V);(B
+	DV = map(mkd,V);
 	
-	(JFF = 1;(B
-	(Jfor( I = 0; I < N; I++ )(B
-		(JFF *= F[I];(B
+	FF = 1;
+	for( I = 0; I < N; I++ )
+		FF *= F[I];
 	
-	(JL = newvect(Vnum + 1);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JL[I] = (-1)^(I+1) * diff(FF,V[I]);(B
-	(JL[Vnum] = FF;(B
-	(JL = vtol(L);(B
+	L = newvect(Vnum + 1);
+	for (I = 0; I < Vnum; I++)
+		L[I] = (-1)^(I+1) * diff(FF,V[I]);
+	L[Vnum] = FF;
+	L = vtol(L);
 	
-	(JL = newsyz.module_syz(L,V,1,0);(B
-	(JL = L[0];(B
+	L = newsyz.module_syz(L,V,1,0);
+	L = L[0];
 	
-	(JNL = length(L);(B
-	(JDL = [];(B
-	(Jfor( I = 0; I < NL; I++ ){(B
-		(JM = 0;(B
-		(Jfor (K = 0; K < Vnum; K++)(B
-			(JM += (-1)^(K+1) * L[I][K] * DV[K];(B
-		(JM -= L[I][Vnum];(B
-		(Jfor (J = 0; J < N; J++) { (B
-			(JMJ = 0;(B
-			(Jfor (K = 0; K < Vnum; K++)(B
-				(JMJ += (-1)^K * L[I][K] * diff(F[J],V[K]);(B
-			(JMJ = P[J] * sdiv(MJ,F[J]);(B
-			(JM += MJ;(B
-		(J}(B
-		(Jif ( Exp ) {(B
-			(JME = 0;(B
-			(Jfor (K = 0; K < Vnum; K++)(B
-				(JME += (-1)^K * L[I][K] * diff(Exp,V[K]);(B
-			(JM += ME;(B
-		(J}(B
-		(JDL = cons(M,DL);(B
-	(J}(B
+	NL = length(L);
+	DL = [];
+	for( I = 0; I < NL; I++ ){
+		M = 0;
+		for (K = 0; K < Vnum; K++)
+			M += (-1)^(K+1) * L[I][K] * DV[K];
+		M -= L[I][Vnum];
+		for (J = 0; J < N; J++) { 
+			MJ = 0;
+			for (K = 0; K < Vnum; K++)
+				MJ += (-1)^K * L[I][K] * diff(F[J],V[K]);
+			MJ = P[J] * sdiv(MJ,F[J]);
+			M += MJ;
+		}
+		if ( Exp ) {
+			ME = 0;
+			for (K = 0; K < Vnum; K++)
+				ME += (-1)^K * L[I][K] * diff(Exp,V[K]);
+			M += ME;
+		}
+		DL = cons(M,DL);
+	}
 	
-	(Jif (Check)(B
-		(Jholonomic(DL,V,DV);(B
+	if (Check)
+		holonomic(DL,V,DV);
 	
-	(JFDL = map(nk_restriction.fourier_trans,DL,V,DV);(B
-	(JParam = vars(P);(B
-	(JW = newvect(Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JW[I] = 1;(B
-	(JW = vtol(W);(B
+	FDL = map(nk_restriction.fourier_trans,DL,V,DV);
+	Param = vars(P);
+	W = newvect(Vnum);
+	for (I = 0; I < Vnum; I++)
+		W[I] = 1;
+	W = vtol(W);
 	
-	(Jif (Excp == -1) {(B
-		(Jif (S0 == -1) {(B
-			(Jif (Param == [])(B
-				(JResult = nk_restriction.restriction(FDL,V,DV,W);(B
-			(Jelse (B
-				(JResult = nk_restriction.restriction(FDL,V,DV,W | param = Param);(B
-			(Jif( Result == 0 )(B
-				(Jreturn 0;(B
+	if (Excp == -1) {
+		if (S0 == -1) {
+			if (Param == [])
+				Result = nk_restriction.restriction(FDL,V,DV,W);
+			else 
+				Result = nk_restriction.restriction(FDL,V,DV,W | param = Param);
+			if( Result == 0 )
+				return 0;
 	
-			(JGenerator = Result[0];(B
-			(JGen = Result[1];(B
-		(J} else {(B
-				(JWW = newvect(2 *Vnum);(B
-			(Jfor (I = 0; I < Vnum; I++)(B
-				(JWW[I] = -1;(B
-			(Jfor (I = 0; I < Vnum; I++)(B
-				(JWW[Vnum + I] = 1;(B
-			(JWW = vtol(WW);(B
+			Generator = Result[0];
+			Gen = Result[1];
+		} else {
+				WW = newvect(2 *Vnum);
+			for (I = 0; I < Vnum; I++)
+				WW[I] = -1;
+			for (I = 0; I < Vnum; I++)
+				WW[Vnum + I] = 1;
+			WW = vtol(WW);
 		
-			(JVDV = append(V,DV);(B
-			(JVDVH = append(VDV,[h]);(B
-			(JFDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);(B
-			(JGBH = nd_weyl_gr(FDLH,VDVH,0,11);(B
-			(JGB = map(subst,GBH,h,1);(B
+			VDV = append(V,DV);
+			VDVH = append(VDV,[h]);
+			FDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);
+			GBH = nd_weyl_gr(FDLH,VDVH,0,11);
+			GB = map(subst,GBH,h,1);
 		
-			(JNN = length(GB);(B
-			(JVarV  = append(V, DV);(B
-			(JOrderGB = newvect(NN);(B
-			(Jfor (I = 0; I < NN; I++) (B
-				(JOrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); (B
+			NN = length(GB);
+			VarV  = append(V, DV);
+			OrderGB = newvect(NN);
+			for (I = 0; I < NN; I++) 
+				OrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); 
 		
-			(JGenerator = [];(B
-			(Jfor (I = 0; I < NN; I++ ) {(B
-				(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-				(Jwhile (B != []) {(B
-					(JIndex = car(B);(B
-					(JD = 1;(B
-					(Jfor (J = 0; J < Vnum; J++) {(B
-						(JD *= DV[J]^Index[J];(B
-					(J}(B
-					(JP = nk_restriction.weyl_mul(D, GB[I], VarV);(B
-					(Jfor (J = 0; J < Vnum; J++)(B
-						(JP = subst(P, V[J], 0);(B
-					(Jif (P != 0)(B
-						(JGenerator = cons(P, Generator);(B
-					(JB = cdr(B);(B
-				(J}(B
-			(J}(B
-			(JGen = nk_restriction.gen(W,S0);(B
-		(J}(B
+			Generator = [];
+			for (I = 0; I < NN; I++ ) {
+				B = nk_restriction.gen(W, S0 - OrderGB[I]);
+				while (B != []) {
+					Index = car(B);
+					D = 1;
+					for (J = 0; J < Vnum; J++) {
+						D *= DV[J]^Index[J];
+					}
+					P = nk_restriction.weyl_mul(D, GB[I], VarV);
+					for (J = 0; J < Vnum; J++)
+						P = subst(P, V[J], 0);
+					if (P != 0)
+						Generator = cons(P, Generator);
+					B = cdr(B);
+				}
+			}
+			Gen = nk_restriction.gen(W,S0);
+		}
 	
-		(JMat = newmat(Vnum,Vnum);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JMat[I][I] = 1;(B
+		Mat = newmat(Vnum,Vnum);
+		for (I = 0; I < Vnum; I++)
+			Mat[I][I] = 1;
 	
-		(JOldOrder = dp_ord();(B
-		(Jdp_ord(Mat);(B
+		OldOrder = dp_ord();
+		dp_ord(Mat);
 	
-		(JGen = map(dp_vtoe,map(ltov,Gen));(B
-		(JGennum = length(Gen);(B
+		Gen = map(dp_vtoe,map(ltov,Gen));
+		Gennum = length(Gen);
 	
-		(JM = [];(B
-		(Jwhile( Generator != [] ){(B
-			(JDP = dp_ptod(car(Generator),DV);(B
-			(JLP = newvect(Gennum);(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( DP == 0 )(B
-					(Jbreak;(B
-				(Jif( dp_ht(DP) == Gen[I] ){(B
-					(JLP[I] = dp_hc(DP);(B
-					(JDP = dp_rest(DP);(B
-				(J}(B
-			(J}(B
-			(JM = cons(vtol(LP),M);(B
-			(JGenerator = cdr(Generator);(B
-		(J}(B
+		M = [];
+		while( Generator != [] ){
+			DP = dp_ptod(car(Generator),DV);
+			LP = newvect(Gennum);
+			for( I = 0; I < Gennum; I++ ){
+				if( DP == 0 )
+					break;
+				if( dp_ht(DP) == Gen[I] ){
+					LP[I] = dp_hc(DP);
+					DP = dp_rest(DP);
+				}
+			}
+			M = cons(vtol(LP),M);
+			Generator = cdr(Generator);
+		}
 	
-		(JM = newmat(length(M),Gennum,M);(B
-		(JIndex = (gauss(M))[1];(B
-		(JCrt = newvect(Gennum);(B
-		(Jfor( I = 0; I < length(Index); I++ )(B
-			(Jif(Index[I] > -1)(B
-				(JCrt[Index[I]] = 1;(B
-		(JBase = [];(B
-		(Jfor( I = 0; I < Gennum; I++ ){(B
-			(Jif( Crt[I] == 0 )(B
-				(JBase = append(Base,[Gen[I]]);(B
-		(J}(B
-		(Jdp_ord(OldOrder);(B
-		(Jprint("dimension : " + rtostr(length(Base)));(B
-		(Jreturn map(dp_dtop,Base,V);(B
-	(J} else {(B
-		(JHFDL = map(v_homo,FDL,V,DV,W);(B
+		M = newmat(length(M),Gennum,M);
+		Index = (gauss(M))[1];
+		Crt = newvect(Gennum);
+		for( I = 0; I < length(Index); I++ )
+			if(Index[I] > -1)
+				Crt[Index[I]] = 1;
+		Base = [];
+		for( I = 0; I < Gennum; I++ ){
+			if( Crt[I] == 0 )
+				Base = append(Base,[Gen[I]]);
+		}
+		dp_ord(OldOrder);
+		print("dimension : " + rtostr(length(Base)));
+		return map(dp_dtop,Base,V);
+	} else {
+		HFDL = map(v_homo,FDL,V,DV,W);
 	
-		(JVDV = append(V,DV);(B
-		(JVH = append(V,[h]);(B
-		(JDVH = append(DV,[dh]);(B
-		(JVDVH = append(VH, DVH);(B
+		VDV = append(V,DV);
+		VH = append(V,[h]);
+		DVH = append(DV,[dh]);
+		VDVH = append(VH, DVH);
 	
-		(JBB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));(B
+		BB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));
 	
-		(JGB = map(nm,map(subst,BB[0],h,1));(B
-		(JExcpList = BB[1];(B
+		GB = map(nm,map(subst,BB[0],h,1));
+		ExcpList = BB[1];
 	
-		(JVnum2 = 2*Vnum;(B
+		Vnum2 = 2*Vnum;
 	
-		(Jdp_weyl_set_weight(W);(B
+		dp_weyl_set_weight(W);
 	
-		(JM = newmat(Vnum2,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum2; J++ )(B
-			(JM[0][J] = 1;(B
-		(Jfor ( I = 1; I < Vnum2; I++ )(B
-			(JM[I][Vnum2-I] = -1;(B
+		M = newmat(Vnum2,Vnum2);
+		for ( J = 0; J < Vnum2; J++ )
+			M[0][J] = 1;
+		for ( I = 1; I < Vnum2; I++ )
+			M[I][Vnum2-I] = -1;
 	
-		(JMW = newmat(Vnum2+1,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum; J++ )(B
-			(JMW[0][J] = -W[J];(B
-		(Jfor ( ; J < Vnum2; J++ )(B
-			(JMW[0][J] = W[J-Vnum];(B
-		(Jfor ( I = 1; I <= Vnum2; I++ )(B
-			(Jfor ( J = 0; J < Vnum2; J++ )(B
-				(JMW[I][J] = M[I-1][J];(B
+		MW = newmat(Vnum2+1,Vnum2);
+		for ( J = 0; J < Vnum; J++ )
+			MW[0][J] = -W[J];
+		for ( ; J < Vnum2; J++ )
+			MW[0][J] = W[J-Vnum];
+		for ( I = 1; I <= Vnum2; I++ )
+			for ( J = 0; J < Vnum2; J++ )
+				MW[I][J] = M[I-1][J];
 
-		(JGIN = map(initial_part,GB,VDV,MW,W);(B
-		(Jfor ( I = 0, T = 0; I < Vnum; I++ )(B
-			(JT += W[I]*V[I]*DV[I];(B
-		(JBF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,Param,T);(B
+		GIN = map(initial_part,GB,VDV,MW,W);
+		for ( I = 0, T = 0; I < Vnum; I++ )
+			T += W[I]*V[I]*DV[I];
+		BF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,Param,T);
 	
-		(JL = fctr(BF);(B
-		(JBFF = L;(B
-		(JL = cdr(L);(B
-		(JNL = length(L);(B
-		(JS0 = [];(B
-		(Jfor (I = 0; I < NL; I++) {(B
-			(JT = L[I][0];(B
-			(Jif ( vars(T) == [s] ) {(B
-				(JRoot = -coef(T, 0, s) / coef(T, 1, s);(B
-				(Jif (dn(Root) == 1) {(B
-					(Jif (S0 == []) {(B
-						(JS0 = Root;(B
-					(J} else if (Root > S0) {(B
-						(JS0 = Root;(B
-					(J} (B
-				(J}(B
-			(J} else {(B
-				(JExcpList = cons(coef(T, 0, s), ExcpList);(B
-			(J}(B
-		(J}(B
+		L = fctr(BF);
+		BFF = L;
+		L = cdr(L);
+		NL = length(L);
+		S0 = [];
+		for (I = 0; I < NL; I++) {
+			T = L[I][0];
+			if ( vars(T) == [s] ) {
+				Root = -coef(T, 0, s) / coef(T, 1, s);
+				if (dn(Root) == 1) {
+					if (S0 == []) {
+						S0 = Root;
+					} else if (Root > S0) {
+						S0 = Root;
+					} 
+				}
+			} else {
+				ExcpList = cons(coef(T, 0, s), ExcpList);
+			}
+		}
 		
-		(Jprint("generic bfct : " + rtostr(BFF), 1);(B
-		(Jprint("S0 : " + rtostr(S0), 1);(B	
+		print("generic bfct : " + rtostr(BFF), 1);
+		print("S0 : " + rtostr(S0), 1);	
 		
-		(JWW = newvect(Vnum2);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[I] = -1;(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[Vnum + I] = 1;(B
-		(JWW = vtol(WW);(B
+		WW = newvect(Vnum2);
+		for (I = 0; I < Vnum; I++)
+			WW[I] = -1;
+		for (I = 0; I < Vnum; I++)
+			WW[Vnum + I] = 1;
+		WW = vtol(WW);
 		
-		(JNN = length(GB);(B
-		(JOrderGB = newvect(NN);(B
-		(Jfor (I = 0; I < NN; I++) (B
-			(JOrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); (B
+		NN = length(GB);
+		OrderGB = newvect(NN);
+		for (I = 0; I < NN; I++) 
+			OrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); 
 	
-		(JGenerator = [];(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JD = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JD *= DV[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(D, GB[I], VDV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, V[J], 0);(B
-				(Jif (P != 0)(B
-					(JGenerator = cons(P, Generator);(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(JGen = nk_restriction.gen(W,S0);(B
-		(Jprint("B_{S0} length : " + rtostr(length(Gen)),1);(B
+		Generator = [];
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, S0 - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				D = 1;
+				for (J = 0; J < Vnum; J++) {
+					D *= DV[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(D, GB[I], VDV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, V[J], 0);
+				if (P != 0)
+					Generator = cons(P, Generator);
+				B = cdr(B);
+			}
+		}
+		Gen = nk_restriction.gen(W,S0);
+		print("B_{S0} length : " + rtostr(length(Gen)),1);
 		
-		(JMat = newmat(Vnum,Vnum);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JMat[I][I] = 1;(B
+		Mat = newmat(Vnum,Vnum);
+		for (I = 0; I < Vnum; I++)
+			Mat[I][I] = 1;
 	
-		(JOldOrder = dp_ord();(B
-		(Jdp_ord(Mat);(B
+		OldOrder = dp_ord();
+		dp_ord(Mat);
 	
-		(JGen = map(dp_vtoe,map(ltov,Gen));(B
-		(JGennum = length(Gen);(B
+		Gen = map(dp_vtoe,map(ltov,Gen));
+		Gennum = length(Gen);
 	
-		(JM = [];(B
-		(Jwhile( Generator != [] ){(B
-			(JDP = dp_ptod(car(Generator),DV);(B
-			(JLP = newvect(Gennum);(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( DP == 0 )(B
-					(Jbreak;(B
-				(Jif( dp_ht(DP) == Gen[I] ){(B
-					(JLP[I] = dp_hc(DP);(B
-					(JDP = dp_rest(DP);(B
-				(J}(B
-			(J}(B
-			(JM = cons(vtol(LP),M);(B
-			(JGenerator = cdr(Generator);(B
-		(J}(B
+		M = [];
+		while( Generator != [] ){
+			DP = dp_ptod(car(Generator),DV);
+			LP = newvect(Gennum);
+			for( I = 0; I < Gennum; I++ ){
+				if( DP == 0 )
+					break;
+				if( dp_ht(DP) == Gen[I] ){
+					LP[I] = dp_hc(DP);
+					DP = dp_rest(DP);
+				}
+			}
+			M = cons(vtol(LP),M);
+			Generator = cdr(Generator);
+		}
 	
-		(JM = newmat(length(M),Gennum,M);(B
-		(JM = excp_gauss(M);(B
-		(JIndex = M[1];(B
-		(JExcpList = append(M[2],ExcpList);(B
-		(JCrt = newvect(Gennum);(B
-		(Jfor( I = 0; I < length(Index); I++ )(B
-			(Jif(Index[I] > -1)(B
-				(JCrt[Index[I]] = 1;(B
-		(JBase = [];(B
-		(Jfor( I = 0; I < Gennum; I++ ){(B
-			(Jif( Crt[I] == 0 )(B
-				(JBase = append(Base,[Gen[I]]);(B
-		(J}(B
-		(Jdp_ord(OldOrder);(B
-		(Jprint("dimension : " + rtostr(length(Base)));(B
+		M = newmat(length(M),Gennum,M);
+		M = excp_gauss(M);
+		Index = M[1];
+		ExcpList = append(M[2],ExcpList);
+		Crt = newvect(Gennum);
+		for( I = 0; I < length(Index); I++ )
+			if(Index[I] > -1)
+				Crt[Index[I]] = 1;
+		Base = [];
+		for( I = 0; I < Gennum; I++ ){
+			if( Crt[I] == 0 )
+				Base = append(Base,[Gen[I]]);
+		}
+		dp_ord(OldOrder);
+		print("dimension : " + rtostr(length(Base)));
 		
-		(JExcpSet = [];(B
-		(Jwhile (ExcpList != []) {(B
-			(JM = car(ExcpList);(B
-			(JExcpList = cdr(ExcpList);(B
-			(Jif (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))(B
-			(JExcpSet = cons(nm(M),ExcpSet);(B
-			(Jif (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))(B
-				(JExcpSet = cons(dn(M),ExcpSet);(B
-		(J}(B
-		(JFExcpSet = [];(B
-		(Jwhile (ExcpSet != []) {(B
-			(JES = car(ExcpSet);(B
-			(JExcpSet = cdr(ExcpSet);(B
-			(JFExcpSet = append(FExcpSet,fctr(ES));(B
-		(J}(B
-		(Jwhile (FExcpSet != []) {(B
-			(JM = car(FExcpSet)[0];(B
-			(JFExcpSet = cdr(FExcpSet);(B
-			(Jif (type(M) == 2 && !member(M,ExcpSet))(B
-				(JExcpSet = cons(M,ExcpSet);(B
-		(J}(B		
-		(Jreturn [map(dp_dtop,Base,V),ExcpSet];(B
-	(J}(B
-(J}(B
+		ExcpSet = [];
+		while (ExcpList != []) {
+			M = car(ExcpList);
+			ExcpList = cdr(ExcpList);
+			if (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))
+			ExcpSet = cons(nm(M),ExcpSet);
+			if (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))
+				ExcpSet = cons(dn(M),ExcpSet);
+		}
+		FExcpSet = [];
+		while (ExcpSet != []) {
+			ES = car(ExcpSet);
+			ExcpSet = cdr(ExcpSet);
+			FExcpSet = append(FExcpSet,fctr(ES));
+		}
+		while (FExcpSet != []) {
+			M = car(FExcpSet)[0];
+			FExcpSet = cdr(FExcpSet);
+			if (type(M) == 2 && !member(M,ExcpSet))
+				ExcpSet = cons(M,ExcpSet);
+		}		
+		return [map(dp_dtop,Base,V),ExcpSet];
+	}
+}
 
-(Jdef twisted_deRham(F,A,V)(B
-(J{(B
-	(JDV = map(mkd,V);(B
-	(JVnum = length(V);(B
-	(JL = ann(F);(B
-	(JBF = bfct(F);(B
-	(JBFF = cdr(fctr(BF));(B
-	(JN = length(BFF);(B
-	(JR = newvect(N);(B
-	(JR0 = newvect(N);(B
-	(Jfor (I = 0; I < N; I++) {(B
-		(JR[I] = -subst(BFF[I][0],s,0)/coef(BFF[I][0],1,s);(B
-		(JR0[I] = 1;(B
-	(J}(B
-	(JR1 = A * R0 - R;(B
-	(JCrt = -1;(B
-	(Jfor (I = 0; I < N; I++)(B
-		(Jif (R1[I] > 0 && dn(R1[I]) == 1) {(B
-			(JCrt = I;(B
-			(Jbreak;(B
-		(J}(B
-	(Jif (Crt == -1)(B
-		(JL = map(subst,L,s,A);(B
-	(Jelse {(B
-		(JLL = map(subst,L,s,V[I]);(B
-		(JLL = cons(F^R1[I],LL);(B
-		(JLL = newsyz.module_syz(LL,append(V,DV),1,0 | weyl = 1);(B
-		(JLL = LL[0];(B
-		(JL = [];(B
-		(Jfor (; LL != []; LL = cdr(LL))(B
-			(JL = cons((car(LL))[0],L);(B
-	(J}(B
+def twisted_deRham(F,A,V)
+{
+	DV = map(mkd,V);
+	Vnum = length(V);
+	L = ann(F);
+	BF = bfct(F);
+	BFF = cdr(fctr(BF));
+	N = length(BFF);
+	R = newvect(N);
+	R0 = newvect(N);
+	for (I = 0; I < N; I++) {
+		R[I] = -subst(BFF[I][0],s,0)/coef(BFF[I][0],1,s);
+		R0[I] = 1;
+	}
+	R1 = A * R0 - R;
+	Crt = -1;
+	for (I = 0; I < N; I++)
+		if (R1[I] > 0 && dn(R1[I]) == 1) {
+			Crt = I;
+			break;
+		}
+	if (Crt == -1)
+		L = map(subst,L,s,A);
+	else {
+		LL = map(subst,L,s,V[I]);
+		LL = cons(F^R1[I],LL);
+		LL = newsyz.module_syz(LL,append(V,DV),1,0 | weyl = 1);
+		LL = LL[0];
+		L = [];
+		for (; LL != []; LL = cdr(LL))
+			L = cons((car(LL))[0],L);
+	}
 	
-	(JFL = map(nk_restriction.fourier_trans,L,V,DV);(B
-	(JW = newvect(Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JW[I] = 1;(B
-	(JW = vtol(W);(B
-	(JResult = nk_restriction.restriction(FL,V,DV,W);(B
-	(Jif( Result == 0 )(B
-		(Jreturn 0;(B
+	FL = map(nk_restriction.fourier_trans,L,V,DV);
+	W = newvect(Vnum);
+	for (I = 0; I < Vnum; I++)
+		W[I] = 1;
+	W = vtol(W);
+	Result = nk_restriction.restriction(FL,V,DV,W);
+	if( Result == 0 )
+		return 0;
 	
-	(JGenerator = Result[0];(B
-	(JGen = Result[1];(B
+	Generator = Result[0];
+	Gen = Result[1];
 	
-	(JMat = newmat(Vnum,Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JMat[I][I] = 1;(B
+	Mat = newmat(Vnum,Vnum);
+	for (I = 0; I < Vnum; I++)
+		Mat[I][I] = 1;
 	
-	(JOrdOrder = dp_ord();(B
-	(Jdp_ord(Mat);(B
+	OrdOrder = dp_ord();
+	dp_ord(Mat);
 	
-	(JGen = map(dp_vtoe,map(ltov,Gen));(B
-	(JGennum = length(Gen);(B
+	Gen = map(dp_vtoe,map(ltov,Gen));
+	Gennum = length(Gen);
 	
-	(JM = [];(B
-	(Jwhile( Generator != [] ){(B
-		(JDP = dp_ptod(car(Generator),DV);(B
-		(JLP = newvect(Gennum);(B
-		(Jfor( I = 0; I < Gennum; I++ ){(B
-			(Jif( DP == 0 )(B
-				(Jbreak;(B
-			(Jif( dp_ht(DP) == Gen[I] ){(B
-				(JLP[I] = dp_hc(DP);(B
-				(JDP = dp_rest(DP);(B
-			(J}(B
-		(J}(B
-		(JM = cons(vtol(LP),M);(B
-		(JGenerator = cdr(Generator);(B
-	(J}(B
+	M = [];
+	while( Generator != [] ){
+		DP = dp_ptod(car(Generator),DV);
+		LP = newvect(Gennum);
+		for( I = 0; I < Gennum; I++ ){
+			if( DP == 0 )
+				break;
+			if( dp_ht(DP) == Gen[I] ){
+				LP[I] = dp_hc(DP);
+				DP = dp_rest(DP);
+			}
+		}
+		M = cons(vtol(LP),M);
+		Generator = cdr(Generator);
+	}
 	
-	(JM = newmat(length(M),Gennum,M);(B
-	(JIndex = (gauss(M))[1];(B
-	(JCrt = newvect(Gennum);(B
-	(Jfor( I = 0; I < length(Index); I++ )(B
-		(Jif(Index[I] > -1)(B
-			(JCrt[Index[I]] = 1;(B
-	(JBase = [];(B
-	(Jfor( I = 0; I < Gennum; I++ ){(B
-		(Jif( Crt[I] == 0 )(B
-			(JBase = append(Base,[Gen[I]]);(B
-	(J}(B
-	(Jdp_ord(OldOrder);(B
-	(Jprint("dimension : " + rtostr(length(Base)));(B
-	(Jreturn map(dp_dtop,Base,V);(B	
-(J}(B
+	M = newmat(length(M),Gennum,M);
+	Index = (gauss(M))[1];
+	Crt = newvect(Gennum);
+	for( I = 0; I < length(Index); I++ )
+		if(Index[I] > -1)
+			Crt[Index[I]] = 1;
+	Base = [];
+	for( I = 0; I < Gennum; I++ ){
+		if( Crt[I] == 0 )
+			Base = append(Base,[Gen[I]]);
+	}
+	dp_ord(OldOrder);
+	print("dimension : " + rtostr(length(Base)));
+	return map(dp_dtop,Base,V);	
+}
 
-(Jdef difference_equation(F,P,V)(B
-(J{(B
-	(Jif ( type(IH = getopt(inhomo)) == -1 ) IH = 0;(B
-	(Jif ( type(Exp = getopt(exp)) == 2 ) ; else Exp = 0;(B
-	(JShift = getopt(shift);(B
-	(Jif (nk_restriction.subset([Shift],P)) ; else Shift = 0;(B
-	(Jif ( type(Order = getopt(order)) == 1 ) ; else Order = -1;(B
-	(Jif ( type(Check = getopt(check)) == -1 ) Check = 0;(B
-	(Jif ( type(Excp = getopt(excp)) == -1 ) Excp = 0;(B
+def difference_equation(F,P,V)
+{
+	if ( type(IH = getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Exp = getopt(exp)) == 2 ) ; else Exp = 0;
+	Shift = getopt(shift);
+	if (nk_restriction.subset([Shift],P)) ; else Shift = 0;
+	if ( type(Order = getopt(order)) == 1 ) ; else Order = -1;
+	if ( type(Check = getopt(check)) == -1 ) Check = 0;
+	if ( type(Excp = getopt(excp)) == -1 ) Excp = 0;
 	
-	(Jif ( Excp && ( IH || Shift || (Order != -1)) ) {(B
-		(Jprint("error : we can not use excp with inhomo and shift and order");(B
-		(Jreturn ;(B
-	(J}(B
+	if ( Excp && ( IH || Shift || (Order != -1)) ) {
+		print("error : we can not use excp with inhomo and shift and order");
+		return ;
+	}
 	
-	(JN = length(F);(B
-	(JVnum = length(V);(B
-	(Jif( length(P) != N ){(B
-		(Jprint("error : number of parameters is not equal number of factors");(B
-		(Jreturn;(B
-	(J}(B
+	N = length(F);
+	Vnum = length(V);
+	if( length(P) != N ){
+		print("error : number of parameters is not equal number of factors");
+		return;
+	}
 	
-	(JDV = map(mkd,V);(B
+	DV = map(mkd,V);
 	
-	(JFF = 1;(B
-	(Jfor( I = 0; I < N; I++ )(B
-		(JFF *= F[I];(B
+	FF = 1;
+	for( I = 0; I < N; I++ )
+		FF *= F[I];
 	
-	(JL = newvect(Vnum + 1);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JL[I] = (-1)^(I+1) * diff(FF,V[I]);(B
-	(JL[Vnum] = FF;(B
-	(JL = vtol(L);(B
+	L = newvect(Vnum + 1);
+	for (I = 0; I < Vnum; I++)
+		L[I] = (-1)^(I+1) * diff(FF,V[I]);
+	L[Vnum] = FF;
+	L = vtol(L);
 	
-	(JL = newsyz.module_syz(L,V,1,0);(B
-	(JL = L[0];(B
+	L = newsyz.module_syz(L,V,1,0);
+	L = L[0];
 	
-	(JNL = length(L);(B
-	(JDL = [];(B
-	(Jfor( I = 0; I < NL; I++ ){(B
-		(JM = 0;(B
-		(Jfor (K = 0; K < Vnum; K++)(B
-			(JM += (-1)^(K+1) * L[I][K] * DV[K];(B
-		(JM -= L[I][Vnum];(B
-		(Jfor (J = 0; J < N; J++) { (B
-			(JMJ = 0;(B
-			(Jfor (K = 0; K < Vnum; K++)(B
-				(JMJ += (-1)^K * L[I][K] * diff(F[J],V[K]);(B
-			(JMJ = P[J] * sdiv(MJ,F[J]);(B
-			(JM += MJ;(B
-		(J}(B
-		(Jif ( Exp ) {(B
-			(JME = 0;(B
-			(Jfor (K = 0; K < Vnum; K++)(B
-				(JME += (-1)^K * L[I][K] * diff(Exp,V[K]);(B
-			(JM += ME;(B
-		(J}(B
-		(JDL = cons(M,DL);(B
-	(J}(B
+	NL = length(L);
+	DL = [];
+	for( I = 0; I < NL; I++ ){
+		M = 0;
+		for (K = 0; K < Vnum; K++)
+			M += (-1)^(K+1) * L[I][K] * DV[K];
+		M -= L[I][Vnum];
+		for (J = 0; J < N; J++) { 
+			MJ = 0;
+			for (K = 0; K < Vnum; K++)
+				MJ += (-1)^K * L[I][K] * diff(F[J],V[K]);
+			MJ = P[J] * sdiv(MJ,F[J]);
+			M += MJ;
+		}
+		if ( Exp ) {
+			ME = 0;
+			for (K = 0; K < Vnum; K++)
+				ME += (-1)^K * L[I][K] * diff(Exp,V[K]);
+			M += ME;
+		}
+		DL = cons(M,DL);
+	}
 	
-	(Jif (Check)(B
-		(Jholonomic(DL,V,DV);(B
+	if (Check)
+		holonomic(DL,V,DV);
 	
-	(JFDL = map(nk_restriction.fourier_trans,DL,V,DV);(B
+	FDL = map(nk_restriction.fourier_trans,DL,V,DV);
 	
-	(JPV = newvect(N);(B
-	(JPL = [];(B
-	(Jfor (I = 0; I < N; I++)(B
-		(Jif (type(P[I]) == 2) {(B
-			(JPV[I] = var(P[I]);(B
-			(JPL = append(PL,[PV[I]]);(B
-		(J}(B
+	PV = newvect(N);
+	PL = [];
+	for (I = 0; I < N; I++)
+		if (type(P[I]) == 2) {
+			PV[I] = var(P[I]);
+			PL = append(PL,[PV[I]]);
+		}
 	
-	(JW = newvect(Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JW[I] = 1;(B
-	(JW = vtol(W);(B
+	W = newvect(Vnum);
+	for (I = 0; I < Vnum; I++)
+		W[I] = 1;
+	W = vtol(W);
 	
-	(JWW = newvect(2 *Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JWW[I] = -1;(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JWW[Vnum + I] = 1;(B
-	(JWW = vtol(WW);(B
+	WW = newvect(2 *Vnum);
+	for (I = 0; I < Vnum; I++)
+		WW[I] = -1;
+	for (I = 0; I < Vnum; I++)
+		WW[Vnum + I] = 1;
+	WW = vtol(WW);
 	
-	(Jif ( !Excp ) {(B
-		(Jif (Order == -1) {(B
-			(JResult = nk_restriction.generic_bfct_and_gr(FDL, V, DV, W | param = PL);(B
-			(JBF = Result[0];(B
-			(JGB = Result[1];(B
-		(J} else {(B
-			(JVDV = append(V,DV);(B
-			(JVDVH = append(VDV,[h]);(B
-			(JFDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);(B
-			(JGBH = nd_weyl_gr(FDLH,VDVH,0,11);(B
-			(JGB = map(subst,GBH,h,1);(B
-		(J}(B
+	if ( !Excp ) {
+		if (Order == -1) {
+			Result = nk_restriction.generic_bfct_and_gr(FDL, V, DV, W | param = PL);
+			BF = Result[0];
+			GB = Result[1];
+		} else {
+			VDV = append(V,DV);
+			VDVH = append(VDV,[h]);
+			FDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);
+			GBH = nd_weyl_gr(FDLH,VDVH,0,11);
+			GB = map(subst,GBH,h,1);
+		}
 		
-		(JNN = length(GB);(B
-		(JVarV  = append(V, DV);(B
-		(JOrderGB = newvect(NN);(B
-		(Jfor (I = 0; I < NN; I++) (B
-			(JOrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); (B
+		NN = length(GB);
+		VarV  = append(V, DV);
+		OrderGB = newvect(NN);
+		for (I = 0; I < NN; I++) 
+			OrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); 
 	
-		(Jif (Order == -1) {(B
-			(JL = fctr(BF);(B
-			(JBFF = L;(B
-			(JL = cdr(L);(B
-			(JS0 = [];(B
-			(Jfor (I = 0; I < length(L); I++) {(B
-				(JT = L[I][0];(B
-				(Jif ( vars(T) == [s] ) {(B
-					(JRoot = -coef(T, 0, s) / coef(T, 1, s);(B
-					(Jif (dn(Root) == 1) {(B
-						(Jif (S0 == []) {(B
-							(JS0 = Root;(B
-						(J} else if (Root > S0) {(B
-							(JS0 = Root;(B
-						(J} (B
-					(J}(B
-				(J}(B
-			(J}(B
-			(Jif (S0 == [] || S0 < 0)(B
-				(Jreturn 0;(B
+		if (Order == -1) {
+			L = fctr(BF);
+			BFF = L;
+			L = cdr(L);
+			S0 = [];
+			for (I = 0; I < length(L); I++) {
+				T = L[I][0];
+				if ( vars(T) == [s] ) {
+					Root = -coef(T, 0, s) / coef(T, 1, s);
+					if (dn(Root) == 1) {
+						if (S0 == []) {
+							S0 = Root;
+						} else if (Root > S0) {
+							S0 = Root;
+						} 
+					}
+				}
+			}
+			if (S0 == [] || S0 < 0)
+				return 0;
 	
-			(JGenerator = [];(B
-			(Jfor (I = 0; I < NN; I++ ) {(B
-				(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-				(Jwhile (B != []) {(B
-					(JIndex = car(B);(B
-					(JD = 1;(B
-					(Jfor (J = 0; J < Vnum; J++) {(B
-						(JD *= DV[J]^Index[J];(B
-					(J}(B
-					(JP = nk_restriction.weyl_mul(D, GB[I], VarV);(B
-					(Jfor (J = 0; J < Vnum; J++)(B
-						(JP = subst(P, V[J], 0);(B
-					(Jif (P != 0)(B
-						(JGenerator = cons(P, Generator);(B
-					(JB = cdr(B);(B
-				(J}(B
-			(J}(B
+			Generator = [];
+			for (I = 0; I < NN; I++ ) {
+				B = nk_restriction.gen(W, S0 - OrderGB[I]);
+				while (B != []) {
+					Index = car(B);
+					D = 1;
+					for (J = 0; J < Vnum; J++) {
+						D *= DV[J]^Index[J];
+					}
+					P = nk_restriction.weyl_mul(D, GB[I], VarV);
+					for (J = 0; J < Vnum; J++)
+						P = subst(P, V[J], 0);
+					if (P != 0)
+						Generator = cons(P, Generator);
+					B = cdr(B);
+				}
+			}
 	
-			(JMat = newmat(Vnum,Vnum);(B
-			(Jfor (I = 0; I < Vnum; I++)(B
-				(JMat[I][I] = 1;(B
+			Mat = newmat(Vnum,Vnum);
+			for (I = 0; I < Vnum; I++)
+				Mat[I][I] = 1;
 	
-			(JOldOrder = dp_ord();(B
-			(Jdp_ord(Mat);(B
+			OldOrder = dp_ord();
+			dp_ord(Mat);
 		
-			(JGen = nk_restriction.gen(W,S0);(B
-			(JGen = map(dp_vtoe,map(ltov,Gen));(B
-			(JGennum = length(Gen);(B
+			Gen = nk_restriction.gen(W,S0);
+			Gen = map(dp_vtoe,map(ltov,Gen));
+			Gennum = length(Gen);
 	
-			(JM = [];(B
-			(Jwhile( Generator != [] ){(B
-				(JDP = dp_ptod(car(Generator),DV);(B
-				(JLP = newvect(Gennum);(B
-				(Jfor( I = 0; I < Gennum; I++ ){(B
-					(Jif( DP == 0 )(B
-						(Jbreak;(B
-					(Jif( dp_ht(DP) == Gen[I] ){(B
-						(JLP[I] = dp_hc(DP);(B
-						(JDP = dp_rest(DP);(B
-					(J}(B
-				(J}(B
-				(JM = cons(vtol(LP),M);(B
-				(JGenerator = cdr(Generator);(B
-			(J}(B
+			M = [];
+			while( Generator != [] ){
+				DP = dp_ptod(car(Generator),DV);
+				LP = newvect(Gennum);
+				for( I = 0; I < Gennum; I++ ){
+					if( DP == 0 )
+						break;
+					if( dp_ht(DP) == Gen[I] ){
+						LP[I] = dp_hc(DP);
+						DP = dp_rest(DP);
+					}
+				}
+				M = cons(vtol(LP),M);
+				Generator = cdr(Generator);
+			}
 			
-			(JM = newmat(length(M),Gennum,M);(B
-			(JIndex = (gauss(M))[1];(B
+			M = newmat(length(M),Gennum,M);
+			Index = (gauss(M))[1];
 			
-			(JCrt = newvect(Gennum);(B
-			(Jfor( I = 0; I < length(Index); I++ )(B
-				(Jif(Index[I] > -1)(B
-				(JCrt[Index[I]] = 1;(B
-			(JBase = [];(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( Crt[I] == 0 )(B
-					(JBase = append(Base,[Gen[I]]);(B
-			(J}(B
-			(JOrder = length(Base);(B
-		(J}(B
-		(Jdp_ord(OldOrder);(B
-		(Jprint("Order : " + rtostr(Order));(B
+			Crt = newvect(Gennum);
+			for( I = 0; I < length(Index); I++ )
+				if(Index[I] > -1)
+				Crt[Index[I]] = 1;
+			Base = [];
+			for( I = 0; I < Gennum; I++ ){
+				if( Crt[I] == 0 )
+					Base = append(Base,[Gen[I]]);
+			}
+			Order = length(Base);
+		}
+		dp_ord(OldOrder);
+		print("Order : " + rtostr(Order));
 	
-		(Jif ( Shift ) {(B
-			(Jfor (S = 0; S < N; S++)(B
-				(Jif (var(PV[S]) == Shift)(B
-					(Jbreak;(B
-			(JMax = dp_td(dp_ptod(F[S], V)) * Order;(B
-		(J} else {(B
-			(JMax = 0;(B
-			(Jfor (I = 0; I < N; I++) (B
-			(Jif (Max < dp_td(dp_ptod(F[I], V)))(B
-					(JMax = dp_td(dp_ptod(F[I], V));(B
-			(JMax = Max * Order;(B
-		(J}(B
+		if ( Shift ) {
+			for (S = 0; S < N; S++)
+				if (var(PV[S]) == Shift)
+					break;
+			Max = dp_td(dp_ptod(F[S], V)) * Order;
+		} else {
+			Max = 0;
+			for (I = 0; I < N; I++) 
+			if (Max < dp_td(dp_ptod(F[I], V)))
+					Max = dp_td(dp_ptod(F[I], V));
+			Max = Max * Order;
+		}
 	
-		(JGenerator = [];(B
-		(JGB = map(nk_restriction.inv_fourier_trans, GB, V, DV);(B
-		(JGB = map(adjoint, GB, V, DV);(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, Max - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JX = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JX *= V[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(GB[I], X, VarV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, DV[J], 0);(B
-				(Jif (P != 0) {(B
-					(JP = dp_dtol(dp_ptod(P,V),V);(B
-					(Jif ( IH ) {(B
-						(JXX = dp_dtol(dp_ptod(X,V),V);(B
-						(JGenerator = cons([P,I,XX], Generator);(B
-					(J} else(B
-						(JGenerator = cons(P,Generator);(B
-				(J}(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(Jif ( IH ) {(B
-			(JGenVect = [];(B
-			(Jwhile (Generator != []){(B
-				(JVect = newvect(NN + 1);(B
-				(JInit = car(Generator);(B
-				(JVect[0] = Init[0];(B
-				(JVect[Init[1] + 1] = Init[2];(B
-				(JGenVect = cons(vtol(Vect),GenVect);(B
-				(JGenerator = cdr(Generator);(B
-(J (B			(J}(B
-		(J}(B
+		Generator = [];
+		GB = map(nk_restriction.inv_fourier_trans, GB, V, DV);
+		GB = map(adjoint, GB, V, DV);
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, Max - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				X = 1;
+				for (J = 0; J < Vnum; J++) {
+					X *= V[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(GB[I], X, VarV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, DV[J], 0);
+				if (P != 0) {
+					P = dp_dtol(dp_ptod(P,V),V);
+					if ( IH ) {
+						XX = dp_dtol(dp_ptod(X,V),V);
+						Generator = cons([P,I,XX], Generator);
+					} else
+						Generator = cons(P,Generator);
+				}
+				B = cdr(B);
+			}
+		}
+		if ( IH ) {
+			GenVect = [];
+			while (Generator != []){
+				Vect = newvect(NN + 1);
+				Init = car(Generator);
+				Vect[0] = Init[0];
+				Vect[Init[1] + 1] = Init[2];
+				GenVect = cons(vtol(Vect),GenVect);
+				Generator = cdr(Generator);
+ 			}
+		}
 	
-		(JElim = map(ltov,nk_restriction.gen(W, Max));(B
-		(JElim = map(dp_dtol,map(dp_vtoe,Elim),V);(B
+		Elim = map(ltov,nk_restriction.gen(W, Max));
+		Elim = map(dp_dtol,map(dp_vtoe,Elim),V);
 		
-		(JEV = [];(B
-		(Jif ( Shift ) {(B
-			(Jfor (J = 1; J <= Order; J++)(B
-				(JEV = append(EV,[mke_(PV[S],J)]);(B
-		(J} else {(B
-			(Jfor (I = 0; I < N; I++)(B
-				(Jif (PV[I] != 0) (B
-					(Jfor (J = 1; J <= Order; J++)(B
-						(JEV = append(EV,[mke_(PV[I],J)]);(B
-		(J}(B
-		(JEV = append(EV,[mke_(0,0)]);(B
-		(JVars = append(Elim, EV);(B
-		(Jif ( IH ){(B
-			(JVect = newvect(NN + 1);(B
-			(JVect[0] = mke_(0,0) - dp_dtol(dp_ptod(1,V),V);(B
-			(JR = [vtol(Vect)];(B
-			(Jif( Shift ) {(B
-				(Jfor (J = 1; J <= Order; J++) {(B
-					(JVect = newvect(NN + 1);(B
-					(JVect[0] = mke_(PV[S],J) - dp_dtol(dp_ptod(F[S]^J,V),V);(B
-					(JR = cons(vtol(Vect),R);(B
-				(J}(B
-			(J} else {(B
-				(Jfor (I = 0; I < N; I++)(B
-					(Jif (PV[I] != 0) {(B
-						(Jfor (J = 1; J <= Order; J++) {(B
-							(JVect = newvect(NN + 1);(B
-							(JVect[0] = mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V);(B
-							(JR = cons(vtol(Vect),R);(B
-						(J}(B
-				(J}(B
-			(J}(B
-			(JG = append(R,GenVect);(B
-			(JG = nd_gr(G,Vars,0,[1,2]);(B
-		(J} else { (B
-			(JR = [mke_(0,0) - dp_dtol(dp_ptod(1,V),V)];(B
-			(Jif( Shift ) {(B
-				(Jfor (J = 1; J <= Order; J++)(B
-					(JR = cons(mke_(PV[S],J) - dp_dtol(dp_ptod(F[S]^J,V),V),R);(B
-			(J} else {(B
-				(Jfor (I = 0; I < N; I++)(B
-					(Jif (PV[I] != 0) {(B
-						(Jfor (J = 1; J <= Order; J++)(B
-							(JR = cons(mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V),R);(B	
-					(J}(B
-			(J}(B
-			(JG = append(R,Generator);(B
-			(JG = nd_gr(G,Vars,0,2);(B
-		(J}(B
-		(JEVP = append(EV,PL);(B
-		(JEq = [];(B
-		(Jif( Shift )(B
-			(JEP = [mke(Shift)];(B
-		(Jelse(B
-			(JEP = map(mke,PL);(B
-		(Jwhile (G != []) {(B
-			(JInit = car(G);(B
-			(Jif ( IH ) {(B
-				(JList = [];(B
-				(Jif (nk_restriction.subset(vars(Init[0]), EVP) && Init[0] != 0) {(B
-					(JPP = dp_etop(dp_ptod(Init[0],EV),EP,Order);(B
-					(JList = cons(PP,List);(B
-					(JCrt = 0;(B
-					(Jfor (I = 0; I < NN; I ++)(B
-						(Jif(Init[I + 1] != 0) {(B
-						(JCrt = 1;(B
-						(JList = append(List, [[GB[I],ltop(Init[I + 1],V,Max)]]);(B
-						(J}(B
-					(Jif (Crt == 0)(B
-						(JList = append(List, [[]]);(B
-					(JEq = cons(List,Eq);(B
-			(J}(B
-			(J} else {(B
-				(Jif (nk_restriction.subset(vars(Init), EVP)){(B
-					(JInit = dp_etop(dp_ptod(Init,EV),EP,Order);(B
-					(JEq = cons(Init,Eq);(B
-				(J}(B
-			(J}(B
-			(JG = cdr(G);(B
-		(J}(B
-		(Jreturn Eq;(B
-	(J} else {(B
-		(JHFDL = map(v_homo,FDL,V,DV,W);(B
+		EV = [];
+		if ( Shift ) {
+			for (J = 1; J <= Order; J++)
+				EV = append(EV,[mke_(PV[S],J)]);
+		} else {
+			for (I = 0; I < N; I++)
+				if (PV[I] != 0) 
+					for (J = 1; J <= Order; J++)
+						EV = append(EV,[mke_(PV[I],J)]);
+		}
+		EV = append(EV,[mke_(0,0)]);
+		Vars = append(Elim, EV);
+		if ( IH ){
+			Vect = newvect(NN + 1);
+			Vect[0] = mke_(0,0) - dp_dtol(dp_ptod(1,V),V);
+			R = [vtol(Vect)];
+			if( Shift ) {
+				for (J = 1; J <= Order; J++) {
+					Vect = newvect(NN + 1);
+					Vect[0] = mke_(PV[S],J) - dp_dtol(dp_ptod(F[S]^J,V),V);
+					R = cons(vtol(Vect),R);
+				}
+			} else {
+				for (I = 0; I < N; I++)
+					if (PV[I] != 0) {
+						for (J = 1; J <= Order; J++) {
+							Vect = newvect(NN + 1);
+							Vect[0] = mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V);
+							R = cons(vtol(Vect),R);
+						}
+				}
+			}
+			G = append(R,GenVect);
+			G = nd_gr(G,Vars,0,[1,2]);
+		} else { 
+			R = [mke_(0,0) - dp_dtol(dp_ptod(1,V),V)];
+			if( Shift ) {
+				for (J = 1; J <= Order; J++)
+					R = cons(mke_(PV[S],J) - dp_dtol(dp_ptod(F[S]^J,V),V),R);
+			} else {
+				for (I = 0; I < N; I++)
+					if (PV[I] != 0) {
+						for (J = 1; J <= Order; J++)
+							R = cons(mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V),R);	
+					}
+			}
+			G = append(R,Generator);
+			G = nd_gr(G,Vars,0,2);
+		}
+		EVP = append(EV,PL);
+		Eq = [];
+		if( Shift )
+			EP = [mke(Shift)];
+		else
+			EP = map(mke,PL);
+		while (G != []) {
+			Init = car(G);
+			if ( IH ) {
+				List = [];
+				if (nk_restriction.subset(vars(Init[0]), EVP) && Init[0] != 0) {
+					PP = dp_etop(dp_ptod(Init[0],EV),EP,Order);
+					List = cons(PP,List);
+					Crt = 0;
+					for (I = 0; I < NN; I ++)
+						if(Init[I + 1] != 0) {
+						Crt = 1;
+						List = append(List, [[GB[I],ltop(Init[I + 1],V,Max)]]);
+						}
+					if (Crt == 0)
+						List = append(List, [[]]);
+					Eq = cons(List,Eq);
+			}
+			} else {
+				if (nk_restriction.subset(vars(Init), EVP)){
+					Init = dp_etop(dp_ptod(Init,EV),EP,Order);
+					Eq = cons(Init,Eq);
+				}
+			}
+			G = cdr(G);
+		}
+		return Eq;
+	} else {
+		HFDL = map(v_homo,FDL,V,DV,W);
 	
-		(JVDV = append(V,DV);(B
-		(JVH = append(V,[h]);(B
-		(JDVH = append(DV,[dh]);(B
-		(JVDVH = append(VH, DVH);(B
+		VDV = append(V,DV);
+		VH = append(V,[h]);
+		DVH = append(DV,[dh]);
+		VDVH = append(VH, DVH);
 	
-		(JBB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));(B
+		BB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));
 	
-		(JGB = map(nm,map(subst,BB[0],h,1));(B
-		(JExcpList = BB[1];(B
+		GB = map(nm,map(subst,BB[0],h,1));
+		ExcpList = BB[1];
 	
-		(JVnum2 = 2*Vnum;(B
+		Vnum2 = 2*Vnum;
 	
-		(Jdp_weyl_set_weight(W);(B
+		dp_weyl_set_weight(W);
 	
-		(JM = newmat(Vnum2,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum2; J++ )(B
-			(JM[0][J] = 1;(B
-		(Jfor ( I = 1; I < Vnum2; I++ )(B
-			(JM[I][Vnum2-I] = -1;(B
+		M = newmat(Vnum2,Vnum2);
+		for ( J = 0; J < Vnum2; J++ )
+			M[0][J] = 1;
+		for ( I = 1; I < Vnum2; I++ )
+			M[I][Vnum2-I] = -1;
 	
-		(JMW = newmat(Vnum2+1,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum; J++ )(B
-			(JMW[0][J] = -W[J];(B
-		(Jfor ( ; J < Vnum2; J++ )(B
-			(JMW[0][J] = W[J-Vnum];(B
-		(Jfor ( I = 1; I <= Vnum2; I++ )(B
-			(Jfor ( J = 0; J < Vnum2; J++ )(B
-				(JMW[I][J] = M[I-1][J];(B
+		MW = newmat(Vnum2+1,Vnum2);
+		for ( J = 0; J < Vnum; J++ )
+			MW[0][J] = -W[J];
+		for ( ; J < Vnum2; J++ )
+			MW[0][J] = W[J-Vnum];
+		for ( I = 1; I <= Vnum2; I++ )
+			for ( J = 0; J < Vnum2; J++ )
+				MW[I][J] = M[I-1][J];
 
-		(JGIN = map(initial_part,GB,VDV,MW,W);(B
-		(Jfor ( I = 0, T = 0; I < Vnum; I++ )(B
-			(JT += W[I]*V[I]*DV[I];(B
-		(JBF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,PL,T);(B
+		GIN = map(initial_part,GB,VDV,MW,W);
+		for ( I = 0, T = 0; I < Vnum; I++ )
+			T += W[I]*V[I]*DV[I];
+		BF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,PL,T);
 	
-		(JL = fctr(BF);(B
-		(JBFF = L;(B
-		(JL = cdr(L);(B
-		(JNL = length(L);(B
-		(JS0 = [];(B
-		(Jfor (I = 0; I < NL; I++) {(B
-			(JT = L[I][0];(B
-			(Jif ( vars(T) == [s] ) {(B
-				(JRoot = -coef(T, 0, s) / coef(T, 1, s);(B
-				(Jif (dn(Root) == 1) {(B
-					(Jif (S0 == []) {(B
-						(JS0 = Root;(B
-					(J} else if (Root > S0) {(B
-						(JS0 = Root;(B
-					(J} (B
-				(J}(B
-			(J} else {(B
-				(JExcpList = cons(coef(T, 0, s), ExcpList);(B
-			(J}(B
-		(J}(B
+		L = fctr(BF);
+		BFF = L;
+		L = cdr(L);
+		NL = length(L);
+		S0 = [];
+		for (I = 0; I < NL; I++) {
+			T = L[I][0];
+			if ( vars(T) == [s] ) {
+				Root = -coef(T, 0, s) / coef(T, 1, s);
+				if (dn(Root) == 1) {
+					if (S0 == []) {
+						S0 = Root;
+					} else if (Root > S0) {
+						S0 = Root;
+					} 
+				}
+			} else {
+				ExcpList = cons(coef(T, 0, s), ExcpList);
+			}
+		}
 		
-		(JWW = newvect(Vnum2);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[I] = -1;(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[Vnum + I] = 1;(B
-		(JWW = vtol(WW);(B
+		WW = newvect(Vnum2);
+		for (I = 0; I < Vnum; I++)
+			WW[I] = -1;
+		for (I = 0; I < Vnum; I++)
+			WW[Vnum + I] = 1;
+		WW = vtol(WW);
 		
-		(JNN = length(GB);(B
-		(JOrderGB = newvect(NN);(B
-		(Jfor (I = 0; I < NN; I++) (B
-			(JOrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); (B
+		NN = length(GB);
+		OrderGB = newvect(NN);
+		for (I = 0; I < NN; I++) 
+			OrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); 
 	
-		(JGenerator = [];(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JD = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JD *= DV[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(D, GB[I], VDV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, V[J], 0);(B
-				(Jif (P != 0)(B
-					(JGenerator = cons(P, Generator);(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(JGen = nk_restriction.gen(W,S0);(B
+		Generator = [];
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, S0 - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				D = 1;
+				for (J = 0; J < Vnum; J++) {
+					D *= DV[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(D, GB[I], VDV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, V[J], 0);
+				if (P != 0)
+					Generator = cons(P, Generator);
+				B = cdr(B);
+			}
+		}
+		Gen = nk_restriction.gen(W,S0);
 		
-		(JMat = newmat(Vnum,Vnum);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JMat[I][I] = 1;(B
+		Mat = newmat(Vnum,Vnum);
+		for (I = 0; I < Vnum; I++)
+			Mat[I][I] = 1;
 	
-		(JOldOrder = dp_ord();(B
-		(Jdp_ord(Mat);(B
+		OldOrder = dp_ord();
+		dp_ord(Mat);
 	
-		(JGen = map(dp_vtoe,map(ltov,Gen));(B
-		(JGennum = length(Gen);(B
+		Gen = map(dp_vtoe,map(ltov,Gen));
+		Gennum = length(Gen);
 	
-		(JM = [];(B
-		(Jwhile( Generator != [] ){(B
-			(JDP = dp_ptod(car(Generator),DV);(B
-			(JLP = newvect(Gennum);(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( DP == 0 )(B
-					(Jbreak;(B
-				(Jif( dp_ht(DP) == Gen[I] ){(B
-					(JLP[I] = dp_hc(DP);(B
-					(JDP = dp_rest(DP);(B
-				(J}(B
-			(J}(B
-			(JM = cons(vtol(LP),M);(B
-			(JGenerator = cdr(Generator);(B
-		(J}(B
+		M = [];
+		while( Generator != [] ){
+			DP = dp_ptod(car(Generator),DV);
+			LP = newvect(Gennum);
+			for( I = 0; I < Gennum; I++ ){
+				if( DP == 0 )
+					break;
+				if( dp_ht(DP) == Gen[I] ){
+					LP[I] = dp_hc(DP);
+					DP = dp_rest(DP);
+				}
+			}
+			M = cons(vtol(LP),M);
+			Generator = cdr(Generator);
+		}
 	
-		(JM = newmat(length(M),Gennum,M);(B
-		(JM = excp_gauss(M);(B
-		(JIndex = M[1];(B
-		(JExcpList = append(M[2],ExcpList);(B
-		(JCrt = newvect(Gennum);(B
-		(Jfor( I = 0; I < length(Index); I++ )(B
-			(Jif(Index[I] > -1)(B
-				(JCrt[Index[I]] = 1;(B
-		(JBase = [];(B
-		(Jfor( I = 0; I < Gennum; I++ ){(B
-			(Jif( Crt[I] == 0 )(B
-				(JBase = append(Base,[Gen[I]]);(B
-		(J}(B
-		(JOrder = length(Base);(B
-		(Jdp_ord(OldOrder);(B
-		(Jprint("Order : " + rtostr(Order));(B
+		M = newmat(length(M),Gennum,M);
+		M = excp_gauss(M);
+		Index = M[1];
+		ExcpList = append(M[2],ExcpList);
+		Crt = newvect(Gennum);
+		for( I = 0; I < length(Index); I++ )
+			if(Index[I] > -1)
+				Crt[Index[I]] = 1;
+		Base = [];
+		for( I = 0; I < Gennum; I++ ){
+			if( Crt[I] == 0 )
+				Base = append(Base,[Gen[I]]);
+		}
+		Order = length(Base);
+		dp_ord(OldOrder);
+		print("Order : " + rtostr(Order));
 		
-		(JMax = 0;(B
-		(Jfor (I = 0; I < N; I++) (B
-			(Jif (Max < dp_td(dp_ptod(F[I], V)))(B
-				(JMax = dp_td(dp_ptod(F[I], V));(B
-		(JMax = Max * Order;(B
+		Max = 0;
+		for (I = 0; I < N; I++) 
+			if (Max < dp_td(dp_ptod(F[I], V)))
+				Max = dp_td(dp_ptod(F[I], V));
+		Max = Max * Order;
 		
-		(JVarV = append(V,DV);(B
-		(JGenerator = [];(B
-		(JGB = map(nk_restriction.inv_fourier_trans, GB, V, DV);(B
-		(JGB = map(adjoint, GB, V, DV);(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, Max - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JX = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JX *= V[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(GB[I], X, VarV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, DV[J], 0);(B
-				(Jif (P != 0) {(B
-					(JP = dp_dtol(dp_ptod(P,V),V);(B
-					(JGenerator = cons(P,Generator);(B
-				(J}(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(JElim = map(ltov,nk_restriction.gen(W, Max));(B
-		(JElim = map(dp_dtol,map(dp_vtoe,Elim),V);(B
+		VarV = append(V,DV);
+		Generator = [];
+		GB = map(nk_restriction.inv_fourier_trans, GB, V, DV);
+		GB = map(adjoint, GB, V, DV);
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, Max - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				X = 1;
+				for (J = 0; J < Vnum; J++) {
+					X *= V[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(GB[I], X, VarV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, DV[J], 0);
+				if (P != 0) {
+					P = dp_dtol(dp_ptod(P,V),V);
+					Generator = cons(P,Generator);
+				}
+				B = cdr(B);
+			}
+		}
+		Elim = map(ltov,nk_restriction.gen(W, Max));
+		Elim = map(dp_dtol,map(dp_vtoe,Elim),V);
 		
-		(JEV = [];(B
-		(Jfor (I = 0; I < N; I++)(B
-			(Jif (PV[I] != 0) (B
-				(Jfor (J = 1; J <= Order; J++)(B
-					(JEV = append(EV,[mke_(PV[I],J)]);(B
+		EV = [];
+		for (I = 0; I < N; I++)
+			if (PV[I] != 0) 
+				for (J = 1; J <= Order; J++)
+					EV = append(EV,[mke_(PV[I],J)]);
 	
-		(JEV = append(EV,[mke_(0,0)]);(B
-		(JVars = append(Elim, EV);(B
-		(JR = [mke_(0,0) - dp_dtol(dp_ptod(1,V),V)];(B
-		(Jfor (I = 0; I < N; I++)(B
-			(Jif (PV[I] != 0) {(B
-				(Jfor (J = 1; J <= Order; J++)(B
-					(JR = cons(mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V),R);(B	
-			(J}(B
-		(JG = append(R,Generator);(B
-		(JG = buchberger(G,Vars,2);(B
-		(JExcpList = append(ExcpList,G[1]);(B
-		(JG = map(nm,G[0]);(B	
+		EV = append(EV,[mke_(0,0)]);
+		Vars = append(Elim, EV);
+		R = [mke_(0,0) - dp_dtol(dp_ptod(1,V),V)];
+		for (I = 0; I < N; I++)
+			if (PV[I] != 0) {
+				for (J = 1; J <= Order; J++)
+					R = cons(mke_(PV[I],J) - dp_dtol(dp_ptod(F[I]^J,V),V),R);	
+			}
+		G = append(R,Generator);
+		G = buchberger(G,Vars,2);
+		ExcpList = append(ExcpList,G[1]);
+		G = map(nm,G[0]);	
 	
-		(JEVP = append(EV,PL);(B
-		(JEq = [];(B
-		(JEP = map(mke,PL);(B
+		EVP = append(EV,PL);
+		Eq = [];
+		EP = map(mke,PL);
 	
-		(Jwhile (G != []) {(B
-			(JInit = car(G);(B
-			(Jif (nk_restriction.subset(vars(Init), EVP)){(B
-				(JInit = dp_etop(dp_ptod(Init,EV),EP,Order);(B
-				(JEq = cons(Init,Eq);(B
-			(J}(B
-		(JG = cdr(G);(B
-		(J}(B
+		while (G != []) {
+			Init = car(G);
+			if (nk_restriction.subset(vars(Init), EVP)){
+				Init = dp_etop(dp_ptod(Init,EV),EP,Order);
+				Eq = cons(Init,Eq);
+			}
+		G = cdr(G);
+		}
 
-		(JExcpSet = [];(B
-		(Jwhile (ExcpList != []) {(B
-			(JM = car(ExcpList);(B
-			(JExcpList = cdr(ExcpList);(B
-			(Jif (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))(B
-			(JExcpSet = cons(nm(M),ExcpSet);(B
-			(Jif (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))(B
-				(JExcpSet = cons(dn(M),ExcpSet);(B
-		(J}(B
-		(JFExcpSet = [];(B
-		(Jwhile (ExcpSet != []) {(B
-			(JES = car(ExcpSet);(B
-			(JExcpSet = cdr(ExcpSet);(B
-			(JFExcpSet = append(FExcpSet,fctr(ES));(B
-		(J}(B
-		(Jwhile (FExcpSet != []) {(B
-			(JM = car(FExcpSet)[0];(B
-			(JFExcpSet = cdr(FExcpSet);(B
-			(Jif (type(M) == 2 && !member(M,ExcpSet))(B
-				(JExcpSet = cons(M,ExcpSet);(B
-		(J}(B
-		(Jreturn [Eq,ExcpSet];(B
-	(J}(B
-(J}(B
+		ExcpSet = [];
+		while (ExcpList != []) {
+			M = car(ExcpList);
+			ExcpList = cdr(ExcpList);
+			if (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))
+			ExcpSet = cons(nm(M),ExcpSet);
+			if (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))
+				ExcpSet = cons(dn(M),ExcpSet);
+		}
+		FExcpSet = [];
+		while (ExcpSet != []) {
+			ES = car(ExcpSet);
+			ExcpSet = cdr(ExcpSet);
+			FExcpSet = append(FExcpSet,fctr(ES));
+		}
+		while (FExcpSet != []) {
+			M = car(FExcpSet)[0];
+			FExcpSet = cdr(FExcpSet);
+			if (type(M) == 2 && !member(M,ExcpSet))
+				ExcpSet = cons(M,ExcpSet);
+		}
+		return [Eq,ExcpSet];
+	}
+}
 
-(Jdef differential_equation(Exp,F,P,V,X)(B
-(J{(B
-	(Jif ( type(IH = getopt(inhomo)) == -1 ) IH = 0;(B
-	(JDiff = getopt(diff);(B
-	(Jif (nk_restriction.subset([Diff],X)) ; else Diff = 0;(B
-	(Jif ( type(Order = getopt(order)) == 1 ) ; else Order = -1;(B
-	(Jif ( type(Check = getopt(check)) == -1) Check = 0;(B
-	(Jif ( type(Excp = getopt(excp)) == -1 ) Excp = 0;(B
+def differential_equation(Exp,F,P,V,X)
+{
+	if ( type(IH = getopt(inhomo)) == -1 ) IH = 0;
+	Diff = getopt(diff);
+	if (nk_restriction.subset([Diff],X)) ; else Diff = 0;
+	if ( type(Order = getopt(order)) == 1 ) ; else Order = -1;
+	if ( type(Check = getopt(check)) == -1) Check = 0;
+	if ( type(Excp = getopt(excp)) == -1 ) Excp = 0;
 	
-	(Jif ( Excp && ( IH || Shift || (Order != -1)) ) {(B
-		(Jprint("error : we can not use option excp with inhomo and shift and order");(B
-		(Jreturn ;(B
-	(J}(B
+	if ( Excp && ( IH || Shift || (Order != -1)) ) {
+		print("error : we can not use option excp with inhomo and shift and order");
+		return ;
+	}
 	
-	(JParam = P;(B
-	(JN = length(F);(B
-	(JVnum = length(V);(B
-	(JXnum = length(X);(B
+	Param = P;
+	N = length(F);
+	Vnum = length(V);
+	Xnum = length(X);
 	
-	(Jif( length(P) != N ){(B
-		(Jprint("error : number of parameter is not equal number of factors");(B
-		(Jreturn;(B
-	(J}(B
+	if( length(P) != N ){
+		print("error : number of parameter is not equal number of factors");
+		return;
+	}
 	
-	(JDV = map(mkd,V);(B
+	DV = map(mkd,V);
 	
-	(JFF = 1;(B
-	(Jfor( I = 0; I < N; I++ )(B
-		(JFF *= F[I];(B
+	FF = 1;
+	for( I = 0; I < N; I++ )
+		FF *= F[I];
 	
-	(JL = newvect(Vnum + 1);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JL[I] = (-1)^(I+1) * diff(FF,V[I]);(B
-	(JL[Vnum] = FF;(B
-	(JL = vtol(L);(B
+	L = newvect(Vnum + 1);
+	for (I = 0; I < Vnum; I++)
+		L[I] = (-1)^(I+1) * diff(FF,V[I]);
+	L[Vnum] = FF;
+	L = vtol(L);
 	
-	(JL = newsyz.module_syz(L,V,1,0);(B
-	(JL = L[0];(B
+	L = newsyz.module_syz(L,V,1,0);
+	L = L[0];
 	
-	(JNL = length(L);(B
-	(JDL = [];(B
-	(Jfor( I = 0; I < NL; I++ ){(B
-		(JM = 0;(B
-		(Jfor (K = 0; K < Vnum; K++)(B
-			(JM += (-1)^(K+1) * L[I][K] * DV[K];(B
-		(JM -= L[I][Vnum];(B
-		(Jfor (J = 0; J < N; J++) { (B
-			(JMJ = 0;(B
-			(Jfor (K = 0; K < Vnum; K++)(B
-				(JMJ += (-1)^K * L[I][K] * diff(F[J],V[K]);(B
-			(JMJ = P[J] * sdiv(MJ,F[J]);(B
-			(JM += MJ;(B
-		(J}(B
-		(JME = 0;(B
-		(Jfor (K = 0; K < Vnum; K++)(B
-			(JME += (-1)^K * L[I][K] * diff(Exp,V[K]);(B
-		(JM += ME;(B
-		(JDL = cons(M,DL);(B
-	(J}(B
+	NL = length(L);
+	DL = [];
+	for( I = 0; I < NL; I++ ){
+		M = 0;
+		for (K = 0; K < Vnum; K++)
+			M += (-1)^(K+1) * L[I][K] * DV[K];
+		M -= L[I][Vnum];
+		for (J = 0; J < N; J++) { 
+			MJ = 0;
+			for (K = 0; K < Vnum; K++)
+				MJ += (-1)^K * L[I][K] * diff(F[J],V[K]);
+			MJ = P[J] * sdiv(MJ,F[J]);
+			M += MJ;
+		}
+		ME = 0;
+		for (K = 0; K < Vnum; K++)
+			ME += (-1)^K * L[I][K] * diff(Exp,V[K]);
+		M += ME;
+		DL = cons(M,DL);
+	}
 	
-	(Jif (Check)(B
-		(Jholonomic(DL,V,DV);(B
+	if (Check)
+		holonomic(DL,V,DV);
 	
-	(JFDL = map(nk_restriction.fourier_trans,DL,V,DV);(B
+	FDL = map(nk_restriction.fourier_trans,DL,V,DV);
 	
-	(JW = newvect(Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JW[I] = 1;(B
-	(JW = vtol(W);(B
+	W = newvect(Vnum);
+	for (I = 0; I < Vnum; I++)
+		W[I] = 1;
+	W = vtol(W);
 		
-	(JPV = newvect(N);(B
-	(JPL = [];(B
-	(Jfor (I = 0; I < N; I++)(B
-		(Jif (type(P[I]) == 2) {(B
-			(JPV[I] = var(P[I]);(B
-			(JPL = append(PL,[PV[I]]);(B
-		(J}(B
+	PV = newvect(N);
+	PL = [];
+	for (I = 0; I < N; I++)
+		if (type(P[I]) == 2) {
+			PV[I] = var(P[I]);
+			PL = append(PL,[PV[I]]);
+		}
 	
 	
-	(JWW = newvect(2 * Vnum);(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JWW[I] = -1;(B
-	(Jfor (I = 0; I < Vnum; I++)(B
-		(JWW[Vnum + I] = 1;(B
-	(JWW = vtol(WW);(B
+	WW = newvect(2 * Vnum);
+	for (I = 0; I < Vnum; I++)
+		WW[I] = -1;
+	for (I = 0; I < Vnum; I++)
+		WW[Vnum + I] = 1;
+	WW = vtol(WW);
 	
-	(Jif ( !Excp ) {(B
-		(Jif (Order == -1) {(B
-			(JResult = nk_restriction.generic_bfct_and_gr(FDL, V, DV, W | param = PL);(B
-			(JBF = Result[0];(B
-			(JGB = Result[1];(B
-		(J} else {(B
-			(JVDV = append(V,DV);(B
-			(JVDVH = append(VDV,[h]);(B
-			(JFDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);(B
-			(JGBH = nd_weyl_gr(FDLH,VDVH,0,11);(B
-			(JGB = map(subst,GBH,h,1);(B
-		(J}(B
+	if ( !Excp ) {
+		if (Order == -1) {
+			Result = nk_restriction.generic_bfct_and_gr(FDL, V, DV, W | param = PL);
+			BF = Result[0];
+			GB = Result[1];
+		} else {
+			VDV = append(V,DV);
+			VDVH = append(VDV,[h]);
+			FDLH = map(dp_dtop,map(dp_homo,map(dp_ptod,FDL,VDV)),VDVH);
+			GBH = nd_weyl_gr(FDLH,VDVH,0,11);
+			GB = map(subst,GBH,h,1);
+		}
 	
-		(JNN = length(GB);(B
-		(JVarV  = append(V, DV);(B
-		(JOrderGB = newvect(NN);(B
-		(Jfor (I = 0; I < NN; I++) (B
-			(JOrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); (B	
+		NN = length(GB);
+		VarV  = append(V, DV);
+		OrderGB = newvect(NN);
+		for (I = 0; I < NN; I++) 
+			OrderGB[I] = nk_restriction.ord_w(GB[I], VarV, WW); 	
 	
-		(Jif (Order == -1) {(B
-			(JL = fctr(BF);(B
-			(JBFF = L;(B
-			(JL = cdr(L);(B
-			(JS0 = [];(B
-			(Jfor (I = 0; I < length(L); I++) {(B
-				(JT = L[I][0];(B
-				(Jif ( vars(T) == [s] ) {(B
-					(JRoot = -coef(T, 0, s) / coef(T, 1, s);(B
-					(Jif (dn(Root) == 1) {(B
-						(Jif (S0 == []) {(B
-							(JS0 = Root;(B
-						(J} else if (Root > S0) {(B
-							(JS0 = Root;(B
-						(J} (B
-					(J}(B
-				(J}(B
-			(J}(B
+		if (Order == -1) {
+			L = fctr(BF);
+			BFF = L;
+			L = cdr(L);
+			S0 = [];
+			for (I = 0; I < length(L); I++) {
+				T = L[I][0];
+				if ( vars(T) == [s] ) {
+					Root = -coef(T, 0, s) / coef(T, 1, s);
+					if (dn(Root) == 1) {
+						if (S0 == []) {
+							S0 = Root;
+						} else if (Root > S0) {
+							S0 = Root;
+						} 
+					}
+				}
+			}
 		
-			(Jif (S0 == [] || S0 < 0)(B
-				(Jreturn 0;(B
+			if (S0 == [] || S0 < 0)
+				return 0;
 	
-			(JGenerator = [];(B
-			(Jfor (I = 0; I < NN; I++ ) {(B
-				(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-				(Jwhile (B != []) {(B
-					(JIndex = car(B);(B
-					(JD = 1;(B
-					(Jfor (J = 0; J < Vnum; J++) {(B
-						(JD *= DV[J]^Index[J];(B
-					(J}(B
-					(JP = nk_restriction.weyl_mul(D, GB[I], VarV);(B
-					(Jfor (J = 0; J < Vnum; J++)(B
-						(JP = subst(P, V[J], 0);(B
-					(Jif (P != 0)(B
-						(JGenerator = cons(P, Generator);(B
-					(JB = cdr(B);(B
-				(J}(B
-			(J}(B
+			Generator = [];
+			for (I = 0; I < NN; I++ ) {
+				B = nk_restriction.gen(W, S0 - OrderGB[I]);
+				while (B != []) {
+					Index = car(B);
+					D = 1;
+					for (J = 0; J < Vnum; J++) {
+						D *= DV[J]^Index[J];
+					}
+					P = nk_restriction.weyl_mul(D, GB[I], VarV);
+					for (J = 0; J < Vnum; J++)
+						P = subst(P, V[J], 0);
+					if (P != 0)
+						Generator = cons(P, Generator);
+					B = cdr(B);
+				}
+			}
 		
-			(JMat = newmat(Vnum,Vnum);(B
-			(Jfor (I = 0; I < Vnum; I++)(B
-				(JMat[I][I] = 1;(B
+			Mat = newmat(Vnum,Vnum);
+			for (I = 0; I < Vnum; I++)
+				Mat[I][I] = 1;
 	
-			(JOldOrder = dp_ord();(B
-			(Jdp_ord(Mat);(B
+			OldOrder = dp_ord();
+			dp_ord(Mat);
 	
-			(JGen = nk_restriction.gen(W,S0);(B
-			(JGen = map(dp_vtoe,map(ltov,Gen));(B
-			(JGennum = length(Gen);(B
+			Gen = nk_restriction.gen(W,S0);
+			Gen = map(dp_vtoe,map(ltov,Gen));
+			Gennum = length(Gen);
 	
-			(JM = [];(B
-			(Jwhile( Generator != [] ){(B
-				(JDP = dp_ptod(car(Generator),DV);(B
-				(JLP = newvect(Gennum);(B
-				(Jfor( I = 0; I < Gennum; I++ ){(B
-					(Jif( DP == 0 )(B
-						(Jbreak;(B
-					(Jif( dp_ht(DP) == Gen[I] ){(B
-						(JLP[I] = dp_hc(DP);(B
-						(JDP = dp_rest(DP);(B
-					(J}(B
-				(J}(B
-				(JM = cons(vtol(LP),M);(B
-				(JGenerator = cdr(Generator);(B
-			(J}(B
+			M = [];
+			while( Generator != [] ){
+				DP = dp_ptod(car(Generator),DV);
+				LP = newvect(Gennum);
+				for( I = 0; I < Gennum; I++ ){
+					if( DP == 0 )
+						break;
+					if( dp_ht(DP) == Gen[I] ){
+						LP[I] = dp_hc(DP);
+						DP = dp_rest(DP);
+					}
+				}
+				M = cons(vtol(LP),M);
+				Generator = cdr(Generator);
+			}
 	
-			(JM = newmat(length(M),Gennum,M);(B
-			(JIndex = (gauss(M))[1];(B
+			M = newmat(length(M),Gennum,M);
+			Index = (gauss(M))[1];
 	
-			(JCrt = newvect(Gennum);(B
-			(Jfor( I = 0; I < length(Index); I++ )(B
-				(Jif(Index[I] > -1)(B
-					(JCrt[Index[I]] = 1;(B
-			(JBase = [];(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( Crt[I] == 0 )(B
-					(JBase = append(Base,[Gen[I]]);(B
-			(J}(B
-			(Jdp_ord(OldOrder);(B
-			(JOrder = length(Base);(B
-		(J}(B
-		(Jprint("Order : " + rtostr(Order));(B
+			Crt = newvect(Gennum);
+			for( I = 0; I < length(Index); I++ )
+				if(Index[I] > -1)
+					Crt[Index[I]] = 1;
+			Base = [];
+			for( I = 0; I < Gennum; I++ ){
+				if( Crt[I] == 0 )
+					Base = append(Base,[Gen[I]]);
+			}
+			dp_ord(OldOrder);
+			Order = length(Base);
+		}
+		print("Order : " + rtostr(Order));
 	
-		(Jif ( Diff ) {(B
-			(Jfor (S = 0; S < Xnum; S++)(B
-				(Jif (var(X[S]) == Diff)(B
-					(Jbreak;(B
-			(JMax = dp_td(dp_ptod(diff(Exp,X[S]), V)) * Order;(B
-		(J} else {(B
-			(JMax = 0;(B
-			(Jfor (I = 0; I < Xnum; I++) (B
-				(Jif (Max < dp_td(dp_ptod(diff(Exp,X[I]), V)))(B
-					(JMax = dp_td(dp_ptod(diff(Exp,X[I]), V));(B
-			(JMax = Max * Order;(B
-		(J}(B
+		if ( Diff ) {
+			for (S = 0; S < Xnum; S++)
+				if (var(X[S]) == Diff)
+					break;
+			Max = dp_td(dp_ptod(diff(Exp,X[S]), V)) * Order;
+		} else {
+			Max = 0;
+			for (I = 0; I < Xnum; I++) 
+				if (Max < dp_td(dp_ptod(diff(Exp,X[I]), V)))
+					Max = dp_td(dp_ptod(diff(Exp,X[I]), V));
+			Max = Max * Order;
+		}
 	
-		(JGenerator = [];(B
-		(JGB = map(nk_restriction.inv_fourier_trans, GB, V, DV);(B
-		(JGB = map(adjoint, GB, V, DV);(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, Max - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JT = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JT *= V[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(GB[I], T, VarV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, DV[J], 0);(B
-				(Jif (P != 0) {(B
-					(JP = dp_dtol(dp_ptod(P,V),V);(B
-					(Jif ( IH ) {(B
-						(JTT = dp_dtol(dp_ptod(T,V),V);(B
-						(JGenerator = cons([P,I,TT], Generator);(B
-					(J} else(B
-						(JGenerator = cons(P,Generator);(B
-				(J}(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
+		Generator = [];
+		GB = map(nk_restriction.inv_fourier_trans, GB, V, DV);
+		GB = map(adjoint, GB, V, DV);
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, Max - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				T = 1;
+				for (J = 0; J < Vnum; J++) {
+					T *= V[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(GB[I], T, VarV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, DV[J], 0);
+				if (P != 0) {
+					P = dp_dtol(dp_ptod(P,V),V);
+					if ( IH ) {
+						TT = dp_dtol(dp_ptod(T,V),V);
+						Generator = cons([P,I,TT], Generator);
+					} else
+						Generator = cons(P,Generator);
+				}
+				B = cdr(B);
+			}
+		}
 		
-		(Jif ( IH ) {(B
-			(JGenVect = [];(B
-			(Jwhile (Generator != []){(B
-				(JVect = newvect(NN + 1);(B
-				(JInit = car(Generator);(B
-				(JVect[0] = Init[0];(B
-				(JVect[Init[1] + 1] = Init[2];(B
-				(JGenVect = cons(vtol(Vect),GenVect);(B
-				(JGenerator = cdr(Generator);(B
-(J (B			(J}(B
-		(J}(B
+		if ( IH ) {
+			GenVect = [];
+			while (Generator != []){
+				Vect = newvect(NN + 1);
+				Init = car(Generator);
+				Vect[0] = Init[0];
+				Vect[Init[1] + 1] = Init[2];
+				GenVect = cons(vtol(Vect),GenVect);
+				Generator = cdr(Generator);
+ 			}
+		}
 	
-		(JElim = map(ltov,nk_restriction.gen(W,Max));(B
-		(JElim = map(dp_dtol,map(dp_vtoe,Elim),V);(B
+		Elim = map(ltov,nk_restriction.gen(W,Max));
+		Elim = map(dp_dtol,map(dp_vtoe,Elim),V);
 	
-		(JDX = [];(B
-		(Jif ( Diff ) {(B
-			(Jfor (J = 1; J <= Order; J++)(B
-			(JDX = append(DX,[mkd_(X[S],J)]);(B
-		(J} else {(B
-			(Jfor (I = 0; I < Xnum; I++) (B
-				(Jfor (J = 1; J <= Order; J++)(B
-					(JDX = append(DX,[mkd_(X[I],J)]);(B
-		(J}(B
-		(JDX = append(DX,[mkd_(0,0)]);(B
-		(JVars = append(Elim, DX);(B
+		DX = [];
+		if ( Diff ) {
+			for (J = 1; J <= Order; J++)
+			DX = append(DX,[mkd_(X[S],J)]);
+		} else {
+			for (I = 0; I < Xnum; I++) 
+				for (J = 1; J <= Order; J++)
+					DX = append(DX,[mkd_(X[I],J)]);
+		}
+		DX = append(DX,[mkd_(0,0)]);
+		Vars = append(Elim, DX);
 	
-		(Jif ( IH ){(B
-			(JVect = newvect(NN + 1);(B
-			(JVect[0] = mkd_(0,0) - dp_dtol(dp_ptod(1,V),V);(B
-			(JR = [vtol(Vect)];(B
-			(Jif( Diff ) {(B
-				(JH = diff(Exp,X[S]);(B
-				(Jfor (J = 1; J <= Order; J++) {(B
-					(JVect = newvect(NN + 1);(B
-					(JVect[0] = mkd_(X[S],J) - dp_dtol(dp_ptod(H,V),V);(B
-					(JR = cons(vtol(Vect),R);(B
-				(JH = diff(Exp,X[S]) * H + diff(H,X[S]);(B
-				(J}(B
-			(J} else {(B
-				(Jfor (I = 0; I < Xnum; I++) {(B
-					(JH = diff(Exp,X[I]);(B
-					(Jfor (J = 1; J <= Order; J++) {(B
-						(JVect = newvect(NN + 1);(B
-						(JVect[0] = mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V);(B
-						(JR = cons(vtol(Vect),R);(B
-						(JH = diff(Exp,X[I]) * H + diff(H,X[I]);(B
-					(J}(B
-				(J}(B
-			(J}(B
-			(JG = append(R,GenVect);(B
-			(JG = nd_gr(G,Vars,0,[1,2]);(B
-		(J} else {(B
-			(JR = [mkd_(0,0) - dp_dtol(dp_ptod(1,V),V)];(B
-			(Jif( Diff ) {(B
-				(JH = diff(Exp,X[S]);(B
-				(Jfor (J = 1; J <= Order; J++) {(B
-					(JR = cons(mkd_(X[S],J) - dp_dtol(dp_ptod(H,V),V),R);(B
-					(JH = diff(Exp,X[S]) * H + diff(H,X[S]);(B
-				(J}(B
-			(J} else {(B
-				(Jfor (I = 0; I < Xnum; I++) {(B
-					(JH = diff(Exp,X[I]);(B
-					(Jfor (J = 1; J <= Order; J++) {(B
-						(JR = cons(mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V),R);(B
-						(JH = diff(Exp,X[I]) * H + diff(H,X[I]);(B
-					(J}(B
-				(J}(B
-			(J}(B
-			(JG = append(R,Generator);(B
-			(JG = nd_gr(G,Vars,0,2);(B
-		(J}(B
+		if ( IH ){
+			Vect = newvect(NN + 1);
+			Vect[0] = mkd_(0,0) - dp_dtol(dp_ptod(1,V),V);
+			R = [vtol(Vect)];
+			if( Diff ) {
+				H = diff(Exp,X[S]);
+				for (J = 1; J <= Order; J++) {
+					Vect = newvect(NN + 1);
+					Vect[0] = mkd_(X[S],J) - dp_dtol(dp_ptod(H,V),V);
+					R = cons(vtol(Vect),R);
+				H = diff(Exp,X[S]) * H + diff(H,X[S]);
+				}
+			} else {
+				for (I = 0; I < Xnum; I++) {
+					H = diff(Exp,X[I]);
+					for (J = 1; J <= Order; J++) {
+						Vect = newvect(NN + 1);
+						Vect[0] = mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V);
+						R = cons(vtol(Vect),R);
+						H = diff(Exp,X[I]) * H + diff(H,X[I]);
+					}
+				}
+			}
+			G = append(R,GenVect);
+			G = nd_gr(G,Vars,0,[1,2]);
+		} else {
+			R = [mkd_(0,0) - dp_dtol(dp_ptod(1,V),V)];
+			if( Diff ) {
+				H = diff(Exp,X[S]);
+				for (J = 1; J <= Order; J++) {
+					R = cons(mkd_(X[S],J) - dp_dtol(dp_ptod(H,V),V),R);
+					H = diff(Exp,X[S]) * H + diff(H,X[S]);
+				}
+			} else {
+				for (I = 0; I < Xnum; I++) {
+					H = diff(Exp,X[I]);
+					for (J = 1; J <= Order; J++) {
+						R = cons(mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V),R);
+						H = diff(Exp,X[I]) * H + diff(H,X[I]);
+					}
+				}
+			}
+			G = append(R,Generator);
+			G = nd_gr(G,Vars,0,2);
+		}
 	
-		(JDXXP = append(append(DX,X),vars(Param));(B
-		(JEq = [];(B
-		(Jif( Diff )(B
-			(JDDX = [mkd(Diff)];(B
-		(Jelse(B
-			(JDDX = map(mkd,X);(B
+		DXXP = append(append(DX,X),vars(Param));
+		Eq = [];
+		if( Diff )
+			DDX = [mkd(Diff)];
+		else
+			DDX = map(mkd,X);
 	
-		(Jwhile (G != []) {(B
-			(JInit = car(G);(B
-			(Jif ( IH ) {(B
-				(JList = [];(B
-				(Jif (nk_restriction.subset(vars(Init[0]), DXXP) && Init[0] != 0) {(B
-					(JPP = dp_etop(dp_ptod(Init[0],DX),DDX,Order);(B
-					(JList = cons(PP,List);(B
-					(JCrt = 0;(B
-					(Jfor (I = 0; I < NN; I ++)(B
-						(Jif(Init[I + 1] != 0) {(B
-							(JCrt = 1;(B
-							(JList = append(List, [[GB[I],ltop(Init[I + 1],V,Max)]]);(B
-						(J}(B
-						(Jif (Crt == 0)(B
-						(JList = append(List, [[]]);(B
-					(JEq = cons(List,Eq);(B
-				(J}(B
-			(J} else {(B
-				(Jif (nk_restriction.subset(vars(Init), DXXP)){(B
-					(JInit = dp_etop(dp_ptod(Init,DX),DDX,Order);(B
-					(JEq = cons(Init,Eq);(B
-				(J}(B
-			(J}(B
-			(JG = cdr(G);(B
-		(J}(B
-		(Jreturn Eq;(B
-	(J} else {(B
-		(JHFDL = map(v_homo,FDL,V,DV,W);(B
+		while (G != []) {
+			Init = car(G);
+			if ( IH ) {
+				List = [];
+				if (nk_restriction.subset(vars(Init[0]), DXXP) && Init[0] != 0) {
+					PP = dp_etop(dp_ptod(Init[0],DX),DDX,Order);
+					List = cons(PP,List);
+					Crt = 0;
+					for (I = 0; I < NN; I ++)
+						if(Init[I + 1] != 0) {
+							Crt = 1;
+							List = append(List, [[GB[I],ltop(Init[I + 1],V,Max)]]);
+						}
+						if (Crt == 0)
+						List = append(List, [[]]);
+					Eq = cons(List,Eq);
+				}
+			} else {
+				if (nk_restriction.subset(vars(Init), DXXP)){
+					Init = dp_etop(dp_ptod(Init,DX),DDX,Order);
+					Eq = cons(Init,Eq);
+				}
+			}
+			G = cdr(G);
+		}
+		return Eq;
+	} else {
+		HFDL = map(v_homo,FDL,V,DV,W);
 	
-		(JVDV = append(V,DV);(B
-		(JVH = append(V,[h]);(B
-		(JDVH = append(DV,[dh]);(B
-		(JVDVH = append(VH, DVH);(B
+		VDV = append(V,DV);
+		VH = append(V,[h]);
+		DVH = append(DV,[dh]);
+		VDVH = append(VH, DVH);
 	
-		(JBB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));(B
+		BB = buchberger_weyl(HFDL, VDVH, v_order(Vnum));
 	
-		(JGB = map(nm,map(subst,BB[0],h,1));(B
-		(JExcpList = BB[1];(B
+		GB = map(nm,map(subst,BB[0],h,1));
+		ExcpList = BB[1];
 	
-		(JVnum2 = 2*Vnum;(B
+		Vnum2 = 2*Vnum;
 	
-		(Jdp_weyl_set_weight(W);(B
+		dp_weyl_set_weight(W);
 	
-		(JM = newmat(Vnum2,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum2; J++ )(B
-			(JM[0][J] = 1;(B
-		(Jfor ( I = 1; I < Vnum2; I++ )(B
-			(JM[I][Vnum2-I] = -1;(B
+		M = newmat(Vnum2,Vnum2);
+		for ( J = 0; J < Vnum2; J++ )
+			M[0][J] = 1;
+		for ( I = 1; I < Vnum2; I++ )
+			M[I][Vnum2-I] = -1;
 	
-		(JMW = newmat(Vnum2+1,Vnum2);(B
-		(Jfor ( J = 0; J < Vnum; J++ )(B
-			(JMW[0][J] = -W[J];(B
-		(Jfor ( ; J < Vnum2; J++ )(B
-			(JMW[0][J] = W[J-Vnum];(B
-		(Jfor ( I = 1; I <= Vnum2; I++ )(B
-			(Jfor ( J = 0; J < Vnum2; J++ )(B
-				(JMW[I][J] = M[I-1][J];(B
+		MW = newmat(Vnum2+1,Vnum2);
+		for ( J = 0; J < Vnum; J++ )
+			MW[0][J] = -W[J];
+		for ( ; J < Vnum2; J++ )
+			MW[0][J] = W[J-Vnum];
+		for ( I = 1; I <= Vnum2; I++ )
+			for ( J = 0; J < Vnum2; J++ )
+				MW[I][J] = M[I-1][J];
 
-		(JGIN = map(initial_part,GB,VDV,MW,W);(B
-		(Jfor ( I = 0, T = 0; I < Vnum; I++ )(B
-			(JT += W[I]*V[I]*DV[I];(B
-		(JBF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,PL,T);(B
+		GIN = map(initial_part,GB,VDV,MW,W);
+		for ( I = 0, T = 0; I < Vnum; I++ )
+			T += W[I]*V[I]*DV[I];
+		BF = nk_restriction.weyl_minipoly_by_elim2(GIN,V,DV,PL,T);
 	
-		(JL = fctr(BF);(B
-		(JBFF = L;(B
-		(JL = cdr(L);(B
-		(JNL = length(L);(B
-		(JS0 = [];(B
-		(Jfor (I = 0; I < NL; I++) {(B
-			(JT = L[I][0];(B
-			(Jif ( vars(T) == [s] ) {(B
-				(JRoot = -coef(T, 0, s) / coef(T, 1, s);(B
-				(Jif (dn(Root) == 1) {(B
-					(Jif (S0 == []) {(B
-						(JS0 = Root;(B
-					(J} else if (Root > S0) {(B
-						(JS0 = Root;(B
-					(J} (B
-				(J}(B
-			(J} else {(B
-				(JExcpList = cons(coef(T, 0, s), ExcpList);(B
-			(J}(B
-		(J}(B
+		L = fctr(BF);
+		BFF = L;
+		L = cdr(L);
+		NL = length(L);
+		S0 = [];
+		for (I = 0; I < NL; I++) {
+			T = L[I][0];
+			if ( vars(T) == [s] ) {
+				Root = -coef(T, 0, s) / coef(T, 1, s);
+				if (dn(Root) == 1) {
+					if (S0 == []) {
+						S0 = Root;
+					} else if (Root > S0) {
+						S0 = Root;
+					} 
+				}
+			} else {
+				ExcpList = cons(coef(T, 0, s), ExcpList);
+			}
+		}
 		
-		(JWW = newvect(Vnum2);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[I] = -1;(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JWW[Vnum + I] = 1;(B
-		(JWW = vtol(WW);(B
+		WW = newvect(Vnum2);
+		for (I = 0; I < Vnum; I++)
+			WW[I] = -1;
+		for (I = 0; I < Vnum; I++)
+			WW[Vnum + I] = 1;
+		WW = vtol(WW);
 		
-		(JNN = length(GB);(B
-		(JOrderGB = newvect(NN);(B
-		(Jfor (I = 0; I < NN; I++) (B
-			(JOrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); (B
+		NN = length(GB);
+		OrderGB = newvect(NN);
+		for (I = 0; I < NN; I++) 
+			OrderGB[I] = nk_restriction.ord_w(GB[I], VDV, WW); 
 	
-		(JGenerator = [];(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, S0 - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JD = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JD *= DV[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(D, GB[I], VDV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, V[J], 0);(B
-				(Jif (P != 0)(B
-					(JGenerator = cons(P, Generator);(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(JGen = nk_restriction.gen(W,S0);(B
+		Generator = [];
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, S0 - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				D = 1;
+				for (J = 0; J < Vnum; J++) {
+					D *= DV[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(D, GB[I], VDV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, V[J], 0);
+				if (P != 0)
+					Generator = cons(P, Generator);
+				B = cdr(B);
+			}
+		}
+		Gen = nk_restriction.gen(W,S0);
 		
-		(JMat = newmat(Vnum,Vnum);(B
-		(Jfor (I = 0; I < Vnum; I++)(B
-			(JMat[I][I] = 1;(B
+		Mat = newmat(Vnum,Vnum);
+		for (I = 0; I < Vnum; I++)
+			Mat[I][I] = 1;
 	
-		(JOldOrder = dp_ord();(B
-		(Jdp_ord(Mat);(B
+		OldOrder = dp_ord();
+		dp_ord(Mat);
 	
-		(JGen = map(dp_vtoe,map(ltov,Gen));(B
-		(JGennum = length(Gen);(B
+		Gen = map(dp_vtoe,map(ltov,Gen));
+		Gennum = length(Gen);
 	
-		(JM = [];(B
-		(Jwhile( Generator != [] ){(B
-			(JDP = dp_ptod(car(Generator),DV);(B
-			(JLP = newvect(Gennum);(B
-			(Jfor( I = 0; I < Gennum; I++ ){(B
-				(Jif( DP == 0 )(B
-					(Jbreak;(B
-				(Jif( dp_ht(DP) == Gen[I] ){(B
-					(JLP[I] = dp_hc(DP);(B
-					(JDP = dp_rest(DP);(B
-				(J}(B
-			(J}(B
-			(JM = cons(vtol(LP),M);(B
-			(JGenerator = cdr(Generator);(B
-		(J}(B
+		M = [];
+		while( Generator != [] ){
+			DP = dp_ptod(car(Generator),DV);
+			LP = newvect(Gennum);
+			for( I = 0; I < Gennum; I++ ){
+				if( DP == 0 )
+					break;
+				if( dp_ht(DP) == Gen[I] ){
+					LP[I] = dp_hc(DP);
+					DP = dp_rest(DP);
+				}
+			}
+			M = cons(vtol(LP),M);
+			Generator = cdr(Generator);
+		}
 	
-		(JM = newmat(length(M),Gennum,M);(B
-		(JM = excp_gauss(M);(B
-		(JIndex = M[1];(B
-		(JExcpList = append(M[2],ExcpList);(B
-		(JCrt = newvect(Gennum);(B
-		(Jfor( I = 0; I < length(Index); I++ )(B
-			(Jif(Index[I] > -1)(B
-				(JCrt[Index[I]] = 1;(B
-		(JBase = [];(B
-		(Jfor( I = 0; I < Gennum; I++ ){(B
-			(Jif( Crt[I] == 0 )(B
-				(JBase = append(Base,[Gen[I]]);(B
-		(J}(B
-		(JOrder = length(Base);(B
-		(Jdp_ord(OldOrder);(B
-		(Jprint("Order : " + rtostr(Order));(B
+		M = newmat(length(M),Gennum,M);
+		M = excp_gauss(M);
+		Index = M[1];
+		ExcpList = append(M[2],ExcpList);
+		Crt = newvect(Gennum);
+		for( I = 0; I < length(Index); I++ )
+			if(Index[I] > -1)
+				Crt[Index[I]] = 1;
+		Base = [];
+		for( I = 0; I < Gennum; I++ ){
+			if( Crt[I] == 0 )
+				Base = append(Base,[Gen[I]]);
+		}
+		Order = length(Base);
+		dp_ord(OldOrder);
+		print("Order : " + rtostr(Order));
 		
-		(JMax = 0;(B
-		(Jfor (I = 0; I < N; I++) (B
-			(Jif (Max < dp_td(dp_ptod(F[I], V)))(B
-				(JMax = dp_td(dp_ptod(F[I], V));(B
-		(JMax = Max * Order;(B
+		Max = 0;
+		for (I = 0; I < N; I++) 
+			if (Max < dp_td(dp_ptod(F[I], V)))
+				Max = dp_td(dp_ptod(F[I], V));
+		Max = Max * Order;
 		
-		(JVarV = append(V,DV);(B
-		(JGenerator = [];(B
-		(JGB = map(nk_restriction.inv_fourier_trans, GB, V, DV);(B
-		(JGB = map(adjoint, GB, V, DV);(B
-		(Jfor (I = 0; I < NN; I++ ) {(B
-			(JB = nk_restriction.gen(W, Max - OrderGB[I]);(B
-			(Jwhile (B != []) {(B
-				(JIndex = car(B);(B
-				(JT = 1;(B
-				(Jfor (J = 0; J < Vnum; J++) {(B
-					(JT *= V[J]^Index[J];(B
-				(J}(B
-				(JP = nk_restriction.weyl_mul(GB[I], T, VarV);(B
-				(Jfor (J = 0; J < Vnum; J++)(B
-					(JP = subst(P, DV[J], 0);(B
-				(Jif (P != 0) {(B
-					(JP = dp_dtol(dp_ptod(P,V),V);(B
-					(JGenerator = cons(P,Generator);(B
-				(J}(B
-				(JB = cdr(B);(B
-			(J}(B
-		(J}(B
-		(JElim = map(ltov,nk_restriction.gen(W, Max));(B
-		(JElim = map(dp_dtol,map(dp_vtoe,Elim),V);(B
+		VarV = append(V,DV);
+		Generator = [];
+		GB = map(nk_restriction.inv_fourier_trans, GB, V, DV);
+		GB = map(adjoint, GB, V, DV);
+		for (I = 0; I < NN; I++ ) {
+			B = nk_restriction.gen(W, Max - OrderGB[I]);
+			while (B != []) {
+				Index = car(B);
+				T = 1;
+				for (J = 0; J < Vnum; J++) {
+					T *= V[J]^Index[J];
+				}
+				P = nk_restriction.weyl_mul(GB[I], T, VarV);
+				for (J = 0; J < Vnum; J++)
+					P = subst(P, DV[J], 0);
+				if (P != 0) {
+					P = dp_dtol(dp_ptod(P,V),V);
+					Generator = cons(P,Generator);
+				}
+				B = cdr(B);
+			}
+		}
+		Elim = map(ltov,nk_restriction.gen(W, Max));
+		Elim = map(dp_dtol,map(dp_vtoe,Elim),V);
 		
-		(JDX = [];(B
-		(Jfor (I = 0; I < Xnum; I++)(B
-				(Jfor (J = 1; J <= Order; J++)(B
-					(JDX = append(DX,[mkd_(X[I],J)]);(B
+		DX = [];
+		for (I = 0; I < Xnum; I++)
+				for (J = 1; J <= Order; J++)
+					DX = append(DX,[mkd_(X[I],J)]);
 	
-		(JDX = append(DX,[mkd_(0,0)]);(B
-		(JVars = append(Elim, DX);(B
-		(JR = [mkd_(0,0) - dp_dtol(dp_ptod(1,V),V)];(B
-		(Jfor (I = 0; I < Xnum; I++) {(B
-			(JH = diff(Exp,X[I]);(B
-			(Jfor (J = 1; J <= Order; J++) {(B
-				(JR = cons(mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V),R);(B
-				(JH = diff(Exp,X[I]) * H + diff(H,X[I]);(B
-			(J}(B
-		(J}(B
+		DX = append(DX,[mkd_(0,0)]);
+		Vars = append(Elim, DX);
+		R = [mkd_(0,0) - dp_dtol(dp_ptod(1,V),V)];
+		for (I = 0; I < Xnum; I++) {
+			H = diff(Exp,X[I]);
+			for (J = 1; J <= Order; J++) {
+				R = cons(mkd_(X[I],J) - dp_dtol(dp_ptod(H,V),V),R);
+				H = diff(Exp,X[I]) * H + diff(H,X[I]);
+			}
+		}
 		
-		(JG = append(R,Generator);(B
-		(JG = buchberger(G,Vars,2);(B
-		(JExcpList = append(ExcpList,G[1]);(B
-		(JG = map(nm,G[0]);(B	
+		G = append(R,Generator);
+		G = buchberger(G,Vars,2);
+		ExcpList = append(ExcpList,G[1]);
+		G = map(nm,G[0]);	
 		
-		(JDXXP = append(append(DX,X),vars(Param));(B
-		(JEq = [];(B
-		(JDDX = map(mkd,X);(B
+		DXXP = append(append(DX,X),vars(Param));
+		Eq = [];
+		DDX = map(mkd,X);
 		
-		(Jwhile (G != []) {(B
-			(JInit = car(G);(B
-			(Jif (nk_restriction.subset(vars(Init), DXXP)){(B
-				(JInit = dp_etop(dp_ptod(Init,DX),DDX,Order);(B
-				(JEq = cons(Init,Eq);(B
-			(J}(B
-		(JG = cdr(G);(B
-		(J}(B
+		while (G != []) {
+			Init = car(G);
+			if (nk_restriction.subset(vars(Init), DXXP)){
+				Init = dp_etop(dp_ptod(Init,DX),DDX,Order);
+				Eq = cons(Init,Eq);
+			}
+		G = cdr(G);
+		}
 
-		(JExcpSet = [];(B
-		(Jwhile (ExcpList != []) {(B
-			(JM = car(ExcpList);(B
-			(JExcpList = cdr(ExcpList);(B
-			(Jif (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))(B
-			(JExcpSet = cons(nm(M),ExcpSet);(B
-			(Jif (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))(B
-				(JExcpSet = cons(dn(M),ExcpSet);(B
-		(J}(B
-		(JFExcpSet = [];(B
-		(Jwhile (ExcpSet != []) {(B
-			(JES = car(ExcpSet);(B
-			(JExcpSet = cdr(ExcpSet);(B
-			(JFExcpSet = append(FExcpSet,fctr(ES));(B
-		(J}(B
-		(Jwhile (FExcpSet != []) {(B
-			(JM = car(FExcpSet)[0];(B
-			(JFExcpSet = cdr(FExcpSet);(B
-			(Jif (type(M) == 2 && !member(M,ExcpSet))(B
-				(JExcpSet = cons(M,ExcpSet);(B
-		(J}(B
-		(Jreturn [Eq,ExcpSet];(B
-	(J}(B
-(J}(B	
+		ExcpSet = [];
+		while (ExcpList != []) {
+			M = car(ExcpList);
+			ExcpList = cdr(ExcpList);
+			if (type(NM = nm(M)) == 2 && !member(NM,ExcpSet) && !member(-NM,ExcpSet))
+			ExcpSet = cons(nm(M),ExcpSet);
+			if (type(DN = dn(M)) == 2 && !member(DN,ExcpSet) && !member(-DN,ExcpSet))
+				ExcpSet = cons(dn(M),ExcpSet);
+		}
+		FExcpSet = [];
+		while (ExcpSet != []) {
+			ES = car(ExcpSet);
+			ExcpSet = cdr(ExcpSet);
+			FExcpSet = append(FExcpSet,fctr(ES));
+		}
+		while (FExcpSet != []) {
+			M = car(FExcpSet)[0];
+			FExcpSet = cdr(FExcpSet);
+			if (type(M) == 2 && !member(M,ExcpSet))
+				ExcpSet = cons(M,ExcpSet);
+		}
+		return [Eq,ExcpSet];
+	}
+}	
 
-(Jdef monomial_sum(I,M)(B
-(J{(B
-	(JJ = [M];(B
-	(Jwhile(I != []){(B
-		(Jif(srem(car(I),M) != 0)(B
-			(JJ = cons(I[0],J);(B
-		(JI = cdr(I);(B
-	(J}(B
-	(JJ = reverse(J);(B
-	(Jreturn J;(B
-(J}(B
+def monomial_sum(I,M)
+{
+	J = [M];
+	while(I != []){
+		if(srem(car(I),M) != 0)
+			J = cons(I[0],J);
+		I = cdr(I);
+	}
+	J = reverse(J);
+	return J;
+}
 
-(Jdef monomial_quotient(I,M)(B
-(J{(B
-	(JL = length(I);(B
-	(JI = newvect(L,I);(B
-	(Jfor( N = 0; N < L; N++ ){(B
-		(Jif(deg(I[N],M) > 0)(B
-			(JI[N] = sdiv(I[N],M);(B
-		(Jif(I[N] == 1)(B
-			(Jreturn [1];(B
-	(J}(B
-	(JI = vtol(I);(B
-	(Jreturn I;(B
-(J}(B
+def monomial_quotient(I,M)
+{
+	L = length(I);
+	I = newvect(L,I);
+	for( N = 0; N < L; N++ ){
+		if(deg(I[N],M) > 0)
+			I[N] = sdiv(I[N],M);
+		if(I[N] == 1)
+			return [1];
+	}
+	I = vtol(I);
+	return I;
+}
 
-(Jdef combination(F,N){(B
-	(JG = 1;(B
-	(Jif(N == -1){(B
-		(Jif(F == -1)(B
-			(Jreturn 1;(B
-		(Jelse(B
-			(Jreturn 0;(B
-	(J}else if(N == 0)(B
-		(Jreturn 1;(B
-	(Jelse{(B
-		(Jwhile(N > 0){(B
-			(JG *= F/N;(B
-			(JF--;(B
-			(JN--;(B
-		(J}(B
-	(J}(B
-	(Jreturn G;(B
-(J}(B
+def combination(F,N){
+	G = 1;
+	if(N == -1){
+		if(F == -1)
+			return 1;
+		else
+			return 0;
+	}else if(N == 0)
+		return 1;
+	else{
+		while(N > 0){
+			G *= F/N;
+			F--;
+			N--;
+		}
+	}
+	return G;
+}
 
-(Jdef homogeneous(I,Order){(B
-	(JI=nd_gr(I,Order,0,0);(B
-	(JL=length(I);(B
+def homogeneous(I,Order){
+	I=nd_gr(I,Order,0,0);
+	L=length(I);
 	
-	(JI=newvect(L,I);(B
-	(Jfor(I0=0;I0<L;I0++){(B
-		(JI[I0]=dp_homo(dp_ptod(I[I0],Order));(B
-	(J}(B
+	I=newvect(L,I);
+	for(I0=0;I0<L;I0++){
+		I[I0]=dp_homo(dp_ptod(I[I0],Order));
+	}
 
-	(JOrder=append(Order,[h]);(B
-	(Jfor(I0=0;I0<L;I0++){(B
-		(JI[I0]=dp_dtop(I[I0],Order);(B
-	(J}(B
-	(Jreturn(vtol(I));(B
-(J}(B
+	Order=append(Order,[h]);
+	for(I0=0;I0<L;I0++){
+		I[I0]=dp_dtop(I[I0],Order);
+	}
+	return(vtol(I));
+}
 
-(Jdef monomial_hilbert_poly(I,Order)(B
-(J{(B
-	(JI = nd_gr(I,Order,0,0);(B
-	(JS = length(I);(B
-	(JT = length(Order);(B
+def monomial_hilbert_poly(I,Order)
+{
+	I = nd_gr(I,Order,0,0);
+	S = length(I);
+	T = length(Order);
 	
-	(Jif(I == [0])(B
-		(Jreturn 1;(B
+	if(I == [0])
+		return 1;
 	
-	(Jif(I == [1])(B
-		(Jreturn 0;(B
+	if(I == [1])
+		return 0;
 	
-	(Jfor( M = 0; M < S; M++ ){(B
-		(Jif(dp_td(dp_ptod(I[M],Order)) > 1)(B
-			(Jbreak;(B
-	(J}(B
-	(Jif( M == S ){(B
-		(JF = (1-t)^S;(B
-		(Jreturn F;(B
-	(J}(B
+	for( M = 0; M < S; M++ ){
+		if(dp_td(dp_ptod(I[M],Order)) > 1)
+			break;
+	}
+	if( M == S ){
+		F = (1-t)^S;
+		return F;
+	}
 	
-	(JCrt = 0;(B
-	(Jfor( N = 0; N < T; N++ ){(B
-		(Jfor( M = 0; M < S; M++ ){(B
-			(Jif((dp_td(dp_ptod(I[M],Order)) > 1) && (deg(I[M],Order[N]) >= 1)){(B
-				(JCrt = 1;(B
-				(Jbreak;(B
-			(J}(B
-		(J}(B
-		(Jif(Crt == 1)(B
-			(Jbreak;(B
-	(J}(B
-	(JI1 = monomial_sum(I,Order[N]);(B
-	(JI2 = monomial_quotient(I,Order[N]);(B
+	Crt = 0;
+	for( N = 0; N < T; N++ ){
+		for( M = 0; M < S; M++ ){
+			if((dp_td(dp_ptod(I[M],Order)) > 1) && (deg(I[M],Order[N]) >= 1)){
+				Crt = 1;
+				break;
+			}
+		}
+		if(Crt == 1)
+			break;
+	}
+	I1 = monomial_sum(I,Order[N]);
+	I2 = monomial_quotient(I,Order[N]);
 	
-	(JF1 = monomial_hilbert_poly(I1,Order);(B
-	(JF2 = monomial_hilbert_poly(I2,Order);(B
+	F1 = monomial_hilbert_poly(I1,Order);
+	F2 = monomial_hilbert_poly(I2,Order);
 	
-	(JF = F1+t*F2;(B
-	(Jreturn F;(B
-(J}(B
+	F = F1+t*F2;
+	return F;
+}
 
-(Jdef hilbelt_function(I,Order){(B
+def hilbelt_function(I,Order){
 	
-	(JList = [];(B
-	(JPlist = [];(B
+	List = [];
+	Plist = [];
 	
-	(JI = nd_gr(I,Order,0,0);(B
-	(JL = length(I);(B
-	(JI = newvect(L,I);(B
+	I = nd_gr(I,Order,0,0);
+	L = length(I);
+	I = newvect(L,I);
 	
-	(Jfor( I0 = 0; I0 < L; I0++ ){(B
-		(JI[I0] = dp_hm(dp_ptod(I[I0],Order));(B
-		(JI[I0] = dp_dtop(I[I0],Order);(B
-	(J}(B
+	for( I0 = 0; I0 < L; I0++ ){
+		I[I0] = dp_hm(dp_ptod(I[I0],Order));
+		I[I0] = dp_dtop(I[I0],Order);
+	}
 	
-	(JI = vtol(I);(B
+	I = vtol(I);
 	
-	(Jreturn monomial_hilbert_poly(I,Order);(B
-(J}(B
+	return monomial_hilbert_poly(I,Order);
+}
 
-(Jdef hilbelt_poly(I,Order){(B
-	(JF = hilbelt_function(I,Order);(B
-	(JN = length(Order);(B
+def hilbelt_poly(I,Order){
+	F = hilbelt_function(I,Order);
+	N = length(Order);
 	
-	(JG = F;(B
-	(Jwhile((F = tdiv(G,1-t)) != 0){(B
-		(JG = F;(B
-		(JN--;(B
-	(J}(B
-	(JG = dp_ptod(G,[t]);(B
-	(JP = 0;(B
-	(JD = dp_td(G);(B
-	(Jfor( I0 = D; I0 >= 0; I0-- ){(B
-		(JP += dp_hc(G) * combination(N-1+x-I0,N-1);(B
-		(JG = dp_rest(G);(B
-	(J}(B
+	G = F;
+	while((F = tdiv(G,1-t)) != 0){
+		G = F;
+		N--;
+	}
+	G = dp_ptod(G,[t]);
+	P = 0;
+	D = dp_td(G);
+	for( I0 = D; I0 >= 0; I0-- ){
+		P += dp_hc(G) * combination(N-1+x-I0,N-1);
+		G = dp_rest(G);
+	}
 	
-	(Jreturn P;(B
-(J}(B
+	return P;
+}
 
-(Jdef affine_hilbelt_poly(I,Order){(B
-	(JI = homogeneous(I,Order);(B
-	(JOrder = append(Order,[h]);(B
+def affine_hilbelt_poly(I,Order){
+	I = homogeneous(I,Order);
+	Order = append(Order,[h]);
 	
-	(Jreturn hilbelt_poly(I,Order);(B
-(J}(B
+	return hilbelt_poly(I,Order);
+}
 
 
-(Jdef holonomic(I,V,DV){(B
-	(JL = length(V);(B
+def holonomic(I,V,DV){
+	L = length(V);
 	
-	(JVDV = append(V,DV);(B
+	VDV = append(V,DV);
 	
-	(JM = newmat(2*L+1,2*L);(B
-	(Jfor( J0 = L; J0 < 2*L ;J0++ )(B
-		(JM[0][J0] = 1;(B
-	(Jfor( J0 = 0; J0 < 2*L; J0++ )(B
-		(JM[1][J0] = 1;(B
-	(Jfor( I0 = 2; I0 < 2*L+1; I0++)(B
-		(JM[I0][2*L-I0+1] = -1;(B
+	M = newmat(2*L+1,2*L);
+	for( J0 = L; J0 < 2*L ;J0++ )
+		M[0][J0] = 1;
+	for( J0 = 0; J0 < 2*L; J0++ )
+		M[1][J0] = 1;
+	for( I0 = 2; I0 < 2*L+1; I0++)
+		M[I0][2*L-I0+1] = -1;
 	
-	(JG = nd_weyl_gr(I,VDV,0,M);(B
-	(JN = length(G);(B
+	G = nd_weyl_gr(I,VDV,0,M);
+	N = length(G);
 	
-	(JOldOrder = dp_ord();(B
-	(Jdp_ord(M);(B
+	OldOrder = dp_ord();
+	dp_ord(M);
 	
-	(JG = map(dp_ptod,G,VDV);(B
-	(JDIN = map(dp_ht,G);(B	
-	(JIN = map(dp_dtop,DIN,VDV);(B
+	G = map(dp_ptod,G,VDV);
+	DIN = map(dp_ht,G);	
+	IN = map(dp_dtop,DIN,VDV);
 	
-	(JP = affine_hilbelt_poly(IN,VDV);(B
-	(Jprint("Hilbert polynomial : ",0);(B
-	(Jprint(P);(B
-	(JD = deg(P,x);(B
-	(Jdp_ord(OldOrder);(B
-	(Jif(D == L){(B
-		(Jprint("holonomic : Yes");(B
-		(JIN = ltov(IN);(B
-		(Jfor( I0 = 0; I0 < N; I0++ ){(B
-			(Jfor( K = 0; K < L; K++ )(B
-				(JIN[I0] = subst(IN[I0],V[K],1);(B
-		(J}(B
-		(JIN = vtol(IN);(B
+	P = affine_hilbelt_poly(IN,VDV);
+	print("Hilbert polynomial : ",0);
+	print(P);
+	D = deg(P,x);
+	dp_ord(OldOrder);
+	if(D == L){
+		print("holonomic : Yes");
+		IN = ltov(IN);
+		for( I0 = 0; I0 < N; I0++ ){
+			for( K = 0; K < L; K++ )
+				IN[I0] = subst(IN[I0],V[K],1);
+		}
+		IN = vtol(IN);
 		
-		(Jif(dp_td(dp_ptod(IN[0],DV)) == 0){(B
-			(JR = 0;(B
-		(J}else{(B
-			(JSM = dp_mbase(map(dp_ptod,IN,DV));(B
-			(JR = length(SM);(B
-		(J}(B
+		if(dp_td(dp_ptod(IN[0],DV)) == 0){
+			R = 0;
+		}else{
+			SM = dp_mbase(map(dp_ptod,IN,DV));
+			R = length(SM);
+		}
 		
-		(Jprint("holonomic rank : ",0);(B
-		(Jprint(R);(B
-		(Jreturn map(dp_dtop,SM,DV);(B
-	(J}else{(B
-		(Jprint("holonomic : No");(B
-		(Jreturn -1;(B
-	(J}(B
-(J}(B
+		print("holonomic rank : ",0);
+		print(R);
+		return map(dp_dtop,SM,DV);
+	}else{
+		print("holonomic : No");
+		return -1;
+	}
+}
 
-(Jdef mkt(L){(B
-	(Jreturn strtov("t" + rtostr(L));(B
-(J}(B
+def mkt(L){
+	return strtov("t" + rtostr(L));
+}
 
-(Jdef mkx(I,J){(B
-	(Jreturn strtov("x" + rtostr(I) + rtostr(J));(B
-(J}(B
+def mkx(I,J){
+	return strtov("x" + rtostr(I) + rtostr(J));
+}
 
-(Jdef mky(L){(B
-	(Jreturn strtov("y" + rtostr(L));(B
-(J}(B
+def mky(L){
+	return strtov("y" + rtostr(L));
+}
 
-(Jdef example6_5()(B
-(J{(B
-	(Jreturn difference_equation([x,y,1-x-y],[a,b,c],[x,y]|inhomo=1);(B
-(J}(B
+def example6_5()
+{
+	return difference_equation([x,y,1-x-y],[a,b,c],[x,y]|inhomo=1);
+}
 
-(Jdef example6_6()(B
-(J{(B
-	(Jprint("System:");(B
-	(Jprint(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]));(B
+def example6_6()
+{
+	print("System:");
+	print(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]));
 
-	(Jprint("Equation with respect to E_a:");(B
-	(Jprint(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = a));(B
-	(Jprint("Equation with respect to E_b:");(B
-	(Jprint(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = b));(B
-	(Jprint("Equation with respect to E_c:");(B
-	(Jprint(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = c));(B
-	(Jprint("Equation with respect to E_d:");(B
-	(Jprint(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = d));(B
-(J}(B
+	print("Equation with respect to E_a:");
+	print(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = a));
+	print("Equation with respect to E_b:");
+	print(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = b));
+	print("Equation with respect to E_c:");
+	print(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = c));
+	print("Equation with respect to E_d:");
+	print(difference_equation([x,y,1-x-y,1-2*x],[a,b,c,d],[x,y]|shift = d));
+}
 
-(Jdef example6_9()(B
-(J{(B
-	(Jreturn difference_equation([x+y*z,y+z*x,z+x*y],[a,b,c],[x,y]);(B
-(J}(B
+def example6_9()
+{
+	return difference_equation([x+y*z,y+z*x,z+x*y],[a,b,c],[x,y]);
+}
 
-(J/* (1,,1,1,-1,-1,-1)-filteration $@$K4X$9$k(J graded module M_S $@$N<!85$r7W;;(J */(B
-(Jdef example6_10(S)(B
-(J{(B
-	(Jreturn twisted_log_cohomology([x*z+y,x^4+y^5+x*y^4],[a,b],[x,y]|S0 = S);(B
-(J}(B
+/* (1,,1,1,-1,-1,-1)-filteration ¤Ë´Ø¤¹¤ë graded module M_S ¤Î¼¡¸µ¤ò·×»» */
+def example6_10(S)
+{
+	return twisted_log_cohomology([x*z+y,x^4+y^5+x*y^4],[a,b],[x,y]|S0 = S);
+}
 
-(Jdef example7_1()(B
-(J{(B
-	(Jreturn differential_equation(t1*x+t2*y,[x^2+y^2-1],[-1],[x,y],[t1,t2]);(B
-(J}(B
+def example7_1()
+{
+	return differential_equation(t1*x+t2*y,[x^2+y^2-1],[-1],[x,y],[t1,t2]);
+}
 
-(Jdef example7_2()(B
-(J{(B
-	(Jreturn differential_equation(t1*x^2+t2*y^2,[x+y],[a],[x,y],[t1,t2]);(B
-(J}(B
+def example7_2()
+{
+	return differential_equation(t1*x^2+t2*y^2,[x+y],[a],[x,y],[t1,t2]);
+}
 
-(Jdef example7_4()(B
-(J{(B
-	(Jprint("System");(B
-	(Jprint(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]));(B
-	(Jprint("Equation with respect to x1");(B
-	(Jprint(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]|diff = x1));(B
-	(Jprint("Equation with respect to x2");(B
-	(Jprint(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]|diff = x2));(B
-(J}(B
+def example7_4()
+{
+	print("System");
+	print(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]));
+	print("Equation with respect to x1");
+	print(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]|diff = x1));
+	print("Equation with respect to x2");
+	print(differential_equation(x1*t^2+x2*t^3,[t],[a],[t],[x1,x2]|diff = x2));
+}
 
-(Jdef example7_5()(B
-(J{(B
-	(Jreturn differential_equation(x1*t2*t3+x2*t1^2*t3+x3*t3,[t1,t2,t3],[b1,b2,b3],[t1,t2,t3],[x1,x2,x3]);(B
-(J}(B
+def example7_5()
+{
+	return differential_equation(x1*t2*t3+x2*t1^2*t3+x3*t3,[t1,t2,t3],[b1,b2,b3],[t1,t2,t3],[x1,x2,x3]);
+}
 
-(J/* S^N $@>e$N(J Fisher-Bingham integral $@$KIU?o$9$k(J twisted log cohomology $@$r7W;;(J*/(B
-(Jdef example7_6(N)(B
-(J{(B
-	(JH = -1;(B
-	(Jfor (I = 1; I <= N+1; I++)(B
-		(JH += mkt(I)^2;(B
-	(JExp = 0;(B
-	(Jfor (I = 1; I <= N+1; I++)(B
-		(JExp += mkx(I,I)*mkt(I)^2 + mky(I)*mkt(I);(B
-	(Jfor (J = 1; J <= N+1; J++)(B
-		(Jfor (I = 1; I < J; I++)(B
-			(JExp += 2*mkx(I,J)*mkt(I)*mkt(J);(B
+/* S^N ¾å¤Î Fisher-Bingham integral ¤ËÉÕ¿ï¤¹¤ë twisted log cohomology ¤ò·×»»*/
+def example7_6(N)
+{
+	H = -1;
+	for (I = 1; I <= N+1; I++)
+		H += mkt(I)^2;
+	Exp = 0;
+	for (I = 1; I <= N+1; I++)
+		Exp += mkx(I,I)*mkt(I)^2 + mky(I)*mkt(I);
+	for (J = 1; J <= N+1; J++)
+		for (I = 1; I < J; I++)
+			Exp += 2*mkx(I,J)*mkt(I)*mkt(J);
 	
-	(JT = [];(B
-	(JY = [];(B
-	(JX = [];(B
-	(Jfor (I = 1; I <= N+1; I++){(B
-		(JT = cons(mkt(I),T);(B
-		(JY = cons(mky(I),Y);(B
-	(J}(B
-	(JT = reverse(T);(B
-	(JY = reverse(Y);(B
-	(Jfor (J = 1; J <= N+1; J++)(B
-		(Jfor (I = 1; I < J; I++)(B
-			(JX = cons(mkx(I,J),X);(B
-	(JX = reverse(X);(B
-	(Jfor (I = 0; I <= N ;I++)(B
-		(JX = cons(mkx(N+1-I,N+1-I),X);(B
+	T = [];
+	Y = [];
+	X = [];
+	for (I = 1; I <= N+1; I++){
+		T = cons(mkt(I),T);
+		Y = cons(mky(I),Y);
+	}
+	T = reverse(T);
+	Y = reverse(Y);
+	for (J = 1; J <= N+1; J++)
+		for (I = 1; I < J; I++)
+			X = cons(mkx(I,J),X);
+	X = reverse(X);
+	for (I = 0; I <= N ;I++)
+		X = cons(mkx(N+1-I,N+1-I),X);
 	
-	(Jfor (I = 0; I <= N; I++)(B
-		(JExp = subst(Exp,X[I],1/(I+1));(B
-	(Jfor (I = N+1; I < length(X); I++)(B
-		(JExp = subst(Exp,X[I],1/2);(B
-	(Jfor (I = 0; I <= N; I++)(B
-		(JExp = subst(Exp,Y[I],1/2);(B
+	for (I = 0; I <= N; I++)
+		Exp = subst(Exp,X[I],1/(I+1));
+	for (I = N+1; I < length(X); I++)
+		Exp = subst(Exp,X[I],1/2);
+	for (I = 0; I <= N; I++)
+		Exp = subst(Exp,Y[I],1/2);
 	
-	(JT0 = time();(B
-	(JBase = twisted_log_cohomology([H],[0],T | exp = Exp);(B
-	(JT1 = time();(B
-	(Jreturn ["Dimension",length(Base),"Time",T1[0]-T0[0]];(B
-(J}(B
+	T0 = time();
+	Base = twisted_log_cohomology([H],[0],T | exp = Exp);
+	T1 = time();
+	return ["Dimension",length(Base),"Time",T1[0]-T0[0]];
+}
 
-(J/*$@0J2<$O(J timing data $@MQ$N4X?t(J*/(B
+/*°Ê²¼¤Ï timing data ÍÑ¤Î´Ø¿ô*/
 
-(Jdef time_f1()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x];(B
-	(JP = [a,b,c,d];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f1()
+{
+	F = [x,y,1-x-y,1-2*x];
+	P = [a,b,c,d];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_f2()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y];(B
-	(JP = [a,b,c,d];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f2()
+{
+	F = [x,y,1-x-y,1-2*x-3*y];
+	P = [a,b,c,d];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_f3()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y,1-x];(B
-	(JP = [a,b,c,d,e];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
-(Jdef time_f4()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y,1-2*y];(B
-	(JP = [a,b,c,d,e];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f3()
+{
+	F = [x,y,1-x-y,1-2*x-3*y,1-x];
+	P = [a,b,c,d,e];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
+def time_f4()
+{
+	F = [x,y,1-x-y,1-2*x-3*y,1-2*y];
+	P = [a,b,c,d,e];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_g(P,Q)(B
-(J{(B
-	(JF = x^P+y^Q+x*y^(Q-1);(B
-	(JT0 = time();(B
-	(JE = ns_twistedlog.difference_equation([F],[a],[x,y]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,a],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_g(P,Q)
+{
+	F = x^P+y^Q+x*y^(Q-1);
+	T0 = time();
+	E = ns_twistedlog.difference_equation([F],[a],[x,y]);
+	T1 = time();
+	return ["Integrand",[F,a],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_h(P,Q)(B
-(J{(B
-	(JF = x^P+y^Q+x*y^(Q-1);(B
-	(JG = x+y;(B
-	(JT0 = time();(B
-	(JE = ns_twistedlog.difference_equation([F,G],[a,b],[x,y]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[[F,G],[a,b]],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_h(P,Q)
+{
+	F = x^P+y^Q+x*y^(Q-1);
+	G = x+y;
+	T0 = time();
+	E = ns_twistedlog.difference_equation([F,G],[a,b],[x,y]);
+	T1 = time();
+	return ["Integrand",[[F,G],[a,b]],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_f1_a()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x];(B
-	(JP = [a,b,c,d];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V|shift = P[0]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f1_a()
+{
+	F = [x,y,1-x-y,1-2*x];
+	P = [a,b,c,d];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V|shift = P[0]);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_f2_a()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y];(B
-	(JP = [a,b,c,d];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V|shift = P[0]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f2_a()
+{
+	F = [x,y,1-x-y,1-2*x-3*y];
+	P = [a,b,c,d];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V|shift = P[0]);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_f3_a()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y,1-x];(B
-	(JP = [a,b,c,d,e];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V|shift = P[0]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
-(Jdef time_f4_a()(B
-(J{(B
-	(JF = [x,y,1-x-y,1-2*x-3*y,1-2*y];(B
-	(JP = [a,b,c,d,e];(B
-	(JV = [x,y];(B
-	(JT0 = time();(B
-	(Jdifference_equation(F,P,V|shift = P[0]);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[F,P],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_f3_a()
+{
+	F = [x,y,1-x-y,1-2*x-3*y,1-x];
+	P = [a,b,c,d,e];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V|shift = P[0]);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
+def time_f4_a()
+{
+	F = [x,y,1-x-y,1-2*x-3*y,1-2*y];
+	P = [a,b,c,d,e];
+	V = [x,y];
+	T0 = time();
+	difference_equation(F,P,V|shift = P[0]);
+	T1 = time();
+	return ["Integrand",[F,P],"Time",T1[0]-T0[0]];
+}
 
-(Jdef time_h_a(P,Q)(B
-(J{(B
-	(JF = x^P+y^Q+x*y^(Q-1);(B
-	(JG = x+y;(B
-	(JT0 = time();(B
-	(JE = ns_twistedlog.difference_equation([F,G],[a,b],[x,y]|shift = a);(B
-	(JT1 = time();(B
-	(Jreturn ["Integrand",[[F,G],[a,b]],"Time",T1[0]-T0[0]];(B
-(J}(B
+def time_h_a(P,Q)
+{
+	F = x^P+y^Q+x*y^(Q-1);
+	G = x+y;
+	T0 = time();
+	E = ns_twistedlog.difference_equation([F,G],[a,b],[x,y]|shift = a);
+	T1 = time();
+	return ["Integrand",[[F,G],[a,b]],"Time",T1[0]-T0[0]];
+}
 
-(Jendmodule$(B
-(Jend$(B
+endmodule$
+end$
