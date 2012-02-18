@@ -1,14 +1,15 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.17 2008/03/19 07:11:53 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.18 2010/08/18 07:33:10 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
-DISTNAME=gc6.8
+DISTNAME=gc-7.2alpha6
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
-PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc6.diff
+#PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc6.diff
+PATCHFILES = 
 
 all : build
 
