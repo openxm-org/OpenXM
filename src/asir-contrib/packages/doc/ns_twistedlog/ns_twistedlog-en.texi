@@ -1,0 +1,124 @@
+\input texinfo
+@def@colon{:}
+
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@setfilename asir-contrib-ns_twistedlog
+@settitle ns_twistedlog Manual
+@titlepage
+@title ns_twistedlog Manual
+@subtitle Edition : 2012.02.16
+@author OpenXM.org
+@end titlepage
+
+@synindex vr fn
+@node Top,, (dir), (dir)
+
+@menu
+* Function Manual::
+* Index::
+@end menu
+
+@node Function Manual,,, Top
+@chapter Function Manual
+
+@menu
+* Outline::
+* Notation::
+* Functions::
+@end menu
+
+@node Outline,,, Function Manual
+@section Outline
+
+
+
+@node Notation,,,Function Manual
+@section Notation
+
+@node Functions,,, Function Manual
+@section Functions
+
+@menu
+* ns_twistedlog.twisted_log_cohomology::
+@end menu
+
+@node intersect,,, Functions
+
+@node ns_twistedlog.twisted_log_cohomology,,, Functions
+@subsection @code{ns_twistedlog.twisted_log_cohomology}
+@findex ns_twistedlog.twisted_log_cohomology
+
+@table @t
+@item ns_twistedlog.twisted_log_cohomology(@var{FL},@var{PL},@var{VL}) 
+:: It returns a basis of the middle dimentional twisted logarithmic cohomology group. 
+@end table
+
+@table @var
+@item @var{FL}
+A list of polynomials.
+@item @var{PL}
+A list of the parameters.
+@item @var{VL}
+A list of the variables.
+@end table
+
+@itemize @bullet
+@item  Details have not been written. See Japanse documents and examples.
+@end itemize
+
+@example
+
+@end example
+
+
+@example
+[0] import("ns_twistedlog.rr");
+[1] ns_twistedlog.twisted_log_cohomology([x,y,1-x-y],[a,b,c],[x,y]);
+-- nd_weyl_gr :0.003848sec(0.008291sec)
+-- weyl_minipoly_by_elim :0.006988sec(0.007177sec)
+-- generic_bfct_and_gr :0.01325sec(0.02175sec)
+generic bfct : [[-1,1],[s,1],[s+a+b+c-1,1]]
+S0 : 0
+B_{S0} length : 1
+-- fctr(BF) + base :0.001454sec(0.005543sec)
+dimension : 1
+[1]
+
+[2] ns_twistedlog.twisted_log_cohomology([x,y,1-x-y],[-1,-2,-3],[x,y]);
+-- nd_weyl_gr :0.001845sec(0.001838sec)
+-- weyl_minipoly_by_elim :0.003972sec(0.003971sec)
+-- generic_bfct_and_gr :0.007363sec(0.007584sec)
+generic bfct : [[-1,1],[s,1],[s-7,1]]
+S0 : 7
+B_{S0} length : 36
+-- fctr(BF) + base :0.02438sec(0.03323sec)
+dimension : 3
+[y^2*x^5,y^7,1]
+
+[3] ns_twistedlog.twisted_log_cohomology([x*z+y,x^4+y^5+x*y^4],[0,0],[x,y,z]);
+-- nd_weyl_gr :0.004sec(0.0028sec)
+weyl_minipoly_by_elim : b-function does not exist
+stopped in weyl_minipoly_by_elim2 at line 378 in file "/usr/local/ox/OpenXM/src/asir-contrib/packages/src/nk_restriction.rr"
+378                     error("weyl_minipoly_by_elim : b-function does not exist");
+(debug)
+@end example
+
+
+
+
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+
+@bye
