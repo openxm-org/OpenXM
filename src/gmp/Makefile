@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.17 2009/11/07 12:05:42 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.18 2009/12/03 05:45:35 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=gmp-4.3.1
-DISTFILES=${DISTNAME}.tar.gz
+DISTNAME=gmp-5.0.4
+DISTFILES=${DISTNAME}.tar.bz2
 WRKSRC=work/${DISTNAME}
 #PATCHFILES = gmp.diff
 PATCHFILES = 
@@ -21,7 +21,7 @@ fetch:
 
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
-	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xjvf -) ; \
 	fi 
 	@touch work/.extract_done
 
@@ -32,9 +32,6 @@ patch: extract
 	            cat $$i | (cd ${WRKSRC}; patch -p0) ; \
             fi ; \
         done ; \
-        if [ `uname` = Darwin -a `uname -m` = i386 ]; then \
-            (cd ${WRKSRC}/mpn/x86; ${RM} *dive_1* */*dive_1* */*/*dive_1* */*mode1o* */*/*mode1o*) ; \
-        fi ; \
 	fi
 	@touch work/.patch_done
 
