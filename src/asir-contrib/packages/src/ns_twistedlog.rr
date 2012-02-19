@@ -638,6 +638,15 @@ def twisted_log_cohomology(F,P,V)
 		print("dimension : " + rtostr(length(Base)));
 		return map(dp_dtop,Base,V);
 	} else {
+		NotInt = [];
+		while (P != []) {
+			A = car(P);
+			P = cdr(P);
+			if (vars(A) != [])
+				NotInt = cons(A,NotInt);
+		}
+		NotInt = reverse(NotInt);
+		
 		HFDL = map(v_homo,FDL,V,DV,W);
 	
 		VDV = append(V,DV);
@@ -679,6 +688,7 @@ def twisted_log_cohomology(F,P,V)
 		L = cdr(L);
 		NL = length(L);
 		S0 = [];
+		NonPosInt = [];
 		for (I = 0; I < NL; I++) {
 			T = L[I][0];
 			if ( vars(T) == [s] ) {
@@ -691,7 +701,7 @@ def twisted_log_cohomology(F,P,V)
 					} 
 				}
 			} else {
-				ExcpList = cons(coef(T, 0, s), ExcpList);
+				NonPosInt = cons(-coef(T, 0, s) / coef(T, 1, s), NonPosInt);
 			}
 		}
 		
@@ -793,7 +803,7 @@ def twisted_log_cohomology(F,P,V)
 			if (type(M) == 2 && !member(M,ExcpSet))
 				ExcpSet = cons(M,ExcpSet);
 		}		
-		return [map(dp_dtop,Base,V),ExcpSet];
+		return ["Basis",map(dp_dtop,Base,V),"Not integer",NotInt,"Not non-negative integer",NonPosInt, "Not zero",ExcpSet];
 	}
 }
 
@@ -1206,6 +1216,15 @@ def difference_equation(F,P,V)
 		}
 		return Eq;
 	} else {
+		NotInt = [];
+		while (P != []) {
+			A = car(P);
+			P = cdr(P);
+			if (vars(A) != [])
+				NotInt = cons(A,NotInt);
+		}
+		NotInt = reverse(NotInt);
+		
 		HFDL = map(v_homo,FDL,V,DV,W);
 	
 		VDV = append(V,DV);
@@ -1247,6 +1266,7 @@ def difference_equation(F,P,V)
 		L = cdr(L);
 		NL = length(L);
 		S0 = [];
+		NotPosInt = [];
 		for (I = 0; I < NL; I++) {
 			T = L[I][0];
 			if ( vars(T) == [s] ) {
@@ -1259,7 +1279,7 @@ def difference_equation(F,P,V)
 					} 
 				}
 			} else {
-				ExcpList = cons(coef(T, 0, s), ExcpList);
+				NotPosInt = cons(-coef(T, 0, s) / coef(T, 1, s), NotPosInt);
 			}
 		}
 		
@@ -1421,7 +1441,7 @@ def difference_equation(F,P,V)
 			if (type(M) == 2 && !member(M,ExcpSet))
 				ExcpSet = cons(M,ExcpSet);
 		}
-		return [Eq,ExcpSet];
+		return ["Operator",Eq,"Not integer",NotInt,"Not non-negative integer",NotPosInt,"Not zero",ExcpSet];
 	}
 }
 
@@ -1760,6 +1780,15 @@ def differential_equation(Exp,F,P,V,X)
 		}
 		return Eq;
 	} else {
+		NotInt = [];
+		while (P != []) {
+			A = car(P);
+			P = cdr(P);
+			if (vars(A) != [])
+				NotInt = cons(A,NotInt);
+		}
+		NotInt = reverse(NotInt);
+		
 		HFDL = map(v_homo,FDL,V,DV,W);
 	
 		VDV = append(V,DV);
@@ -1801,6 +1830,7 @@ def differential_equation(Exp,F,P,V,X)
 		L = cdr(L);
 		NL = length(L);
 		S0 = [];
+		NotPosInt = [];
 		for (I = 0; I < NL; I++) {
 			T = L[I][0];
 			if ( vars(T) == [s] ) {
@@ -1813,7 +1843,7 @@ def differential_equation(Exp,F,P,V,X)
 					} 
 				}
 			} else {
-				ExcpList = cons(coef(T, 0, s), ExcpList);
+				NotPosInt = cons(-coef(T, 0, s) / coef(T, 1, s), NotPosInt);
 			}
 		}
 		
@@ -1977,7 +2007,7 @@ def differential_equation(Exp,F,P,V,X)
 			if (type(M) == 2 && !member(M,ExcpSet))
 				ExcpSet = cons(M,ExcpSet);
 		}
-		return [Eq,ExcpSet];
+		return ["Operator",Eq,"Not integer",NotInt,"Not non-negative integer",NotPosInt,"Not zero",ExcpSet];
 	}
 }	
 
