@@ -1,0 +1,75 @@
+\documentclass{jarticle}
+
+\begin{document}
+\begin{center}
+{\bf twistedLogCohomology(List,List) -- 2変数多項式に付随する twisted logarithmic cohomology 群を計算}
+\end{center}
+\begin{flushleft}
+
+{\bf 概要}
+
+\begin{itemize}
+\item 使用方法: twistedLogCohomology(F,A)
+\item 関数名: twistedLogCohomology
+\item 入力:
+  \begin{itemize}
+	\item F, 2変数多項式のリスト
+	\item A, 有理数のリスト
+  \end{itemize}
+\item 出力:
+  \begin{itemize}
+	\item ハッシュテーブル. 次のものを要素として含む: $\{$ Bfunction, CohomologyGroups, LogBasis, OmegaRes, PreCycles, VResolution   $\}$
+  \end{itemize}
+\end{itemize}
+
+{\bf 説明}
+
+Twisted logarithmic cohomology 群の基底はハッシュテーブル LogBasis に含まれる. 
+$H^1$ と $H^2$ の基底は分子のみ出力される. 
+以下の例では $H^1$ の基底は 
+$\{ \frac{y^2dx-xydy}{x(x+y)}, \frac{2x^2dx+2xydx}{x(x+y)} \}$, 
+$H^2$ の基底は $\{ \frac{ydxdy}{x(x+y)} \}$ である. 
+
+{\footnotesize 
+\begin{verbatim}
+i1 : loadPackage "Dmodules";
+
+i2 : load "twistedLogCohomology.m2";
+
+i3 : R = QQ[x,y];
+
+i4 : twistedLogCohomology({x,x+y},{-1,0})
+Warning: not a generic weight vector.  Could be difficult...
+
+o5 = HashTable{BFunction => (s - 1)                                                                    }
+                                                    1
+               CohomologyGroups => HashTable{0 => QQ }
+                                                    2
+                                             1 => QQ
+                                                    1
+                                             2 => QQ
+               LogBasis => HashTable{0 => | x |                    }
+                                     1 => | y2dx-xydy 2x2dx+2xydx |
+                                     2 => | ydxdy |
+                                             1                       2                       1
+               OmegaRes => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0
+                                                                                                    
+                           0                       1                       2                       3
+               PreCycles => HashTable{0 => | -x2-xy |}
+                                           | -x     |
+                                      1 => | 0  -2x |
+                                           | -y 0   |
+                                           | 0  0   |
+                                      2 => | y |
+                                                1                       3                       2
+               VResolution => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0
+                                                                                                       
+                              0                       1                       2                       3
+
+o5 : HashTable
+
+\end{verbatim}
+}
+
+\end{flushleft}
+\end{document}
