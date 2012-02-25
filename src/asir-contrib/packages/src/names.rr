@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.114 2011/05/02 05:49:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.115 2012/01/28 04:12:50 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20120128), Copyright 2000-2011, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20120225), Copyright 2000-2012, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -53,6 +53,7 @@ load("mt_graph.rr")$
 load("oh_number.rr")$
 import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
+import("noro_pd.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
@@ -358,6 +359,7 @@ def poly_grobner_basis(I) {
   V = getopt(v);
   OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  print("Warning: This is obsolete. It will be updated soon. Please use nd_gr, ...");
   return taka_poly_grobner_basis(I|option_list=OL);
 }
 /*&usage begin: poly_hilbert_polynomial(I|s,v)
@@ -515,7 +517,7 @@ def poly_sort(F) {
 
 /*&usage begin: poly_toric_ideal(A,V)
  It returns generators of the affine toric ideal defined by the matrix(list) A.
- V is a list of variables.
+ V is the list of variables.
  example: poly_toric_ideal([[1,1,1,1],[0,1,2,3]],base_var_list(x,0,3));
 end: */
 def poly_toric_ideal(A,V) {
@@ -526,13 +528,67 @@ def poly_toric_ideal(A,V) {
 /*&usage begin: poly_weight_to_omatrix(W,V)
  It translates the weight vector {W} into a matrix, which is used to set
  the order in asir Grobner basis functions.
- {V} is a list of variables.
+ {V} is the list of variables.
  example: M=poly_weight_to_omatrix([2,1,0],[x,y,z]);
           nd_gr([x^3+z^3-1,x*y*z-1,y^2+z^2-1,[x,y,z],0,M);
 end: */
 def poly_weight_to_omatrix(W,V) { 
   Opt = getopt();
   return taka_poly_weight_vector(W,V | option_list=Opt);
+}
+
+
+/*&usage begin: poly_prime_dec(I,V)
+ It computes the prime ideal decomposition of the radical of I. 
+ {V} is a list of variables.
+ example: B=[x00*x11-x01*x10,x01*x12-x02*x11,x02*x13-x03*x12,x03*x14-x04*x13,
+          -x11*x20+x21*x10,-x21*x12+x22*x11,-x22*x13+x23*x12,-x23*x14+x24*x13];
+          V=[x00,x01,x02,x03,x04,x10,x11,x12,x13,x14,x20,x21,x22,x23,x24];
+          poly_prime_dec(B,V | radical=1);
+end: */
+def poly_prime_dec(I,V) { 
+  Opt = getopt();
+  return noro_pd.prime_dec(W,V | option_list=Opt);
+}
+
+/*&usage begin: poly_ideal_intersection(I,J,V,Ord)
+ It computes the intersection of the ideal {I} and {J}
+ {V} is the list of variables. {Ord} is the order.
+ example:
+     A=[j*h*g*f*e*d*b,j*i*g*d*c*b,j*i*h*g*d*b,j*i*h*e*b,i*e*c*b,z]$
+     B=[a*d-j*c,b*c,d*e-f*g*h]$
+     V=[a,b,c,d,e,f,g,h,i,j,z]$
+     poly_ideal_intersection(A,B,V,0);
+end: */
+def poly_ideal_intersection(I,J,V,Ord) { 
+  Opt = getopt();
+  return noro_pd.ideal_intersection(I,J,V,Ord | option_list=Opt);
+}
+
+/*&usage begin: poly_ideal_colon(I,J,V)
+ It computes the colon ideal {I}:{J}
+ {V} is the list of variables. 
+ example:
+  B=[(x+y+z)^50,(x-y+z)^50]$
+  V=[x,y,z]$
+  B=poly_ideal_colon(B,[(x+y+z)^49,(x-y+z)^49],V);
+end: */
+def poly_ideal_colon(I,J,V) { 
+  Opt = getopt();
+  return noro_pd.ideal_colon(I,J,V | option_list=Opt);
+}
+
+/*&usage begin: poly_ideal_saturation(I,J,V)
+ It computes the saturation ideal of I by J. 
+ {V} is the list of variables. 
+ example:
+  B=[(x+y+z)^50,(x-y+z)^50]$
+  V=[x,y,z]$
+  B=poly_ideal_saturation(B,[(x+y+z)^49,(x-y+z)^49],V);
+end: */
+def poly_ideal_saturation(I,J,V) { 
+  Opt = getopt();
+  return noro_pd.ideal_saturation(I,J,V | option_list=Opt);
 }
 
 
