@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.21 2011/04/27 10:57:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.22 2011/04/29 11:12:04 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -336,6 +336,70 @@ def taka_poly_elimination_poly(F,V,VV) {
 }
 
 def taka_poly_grobner_basis(I) {
+  II = I;
+  /* option order */
+  Or = getopt(order);
+  if (type(Or) == -1) {
+    Or = 0;
+  }
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    if (type(I) == LIST && length(I) > 0 && type(I[0]) == QUOTE) {
+       I = quote_to_obj(I); QuoteIn = 1;
+       V = taka_poly_get_variables(I);
+    }else{
+       V = taka_poly_get_variables(I);
+    }
+  }
+  Gb = 0;
+  if (type(I) == STRUCT) {
+    if (struct_type(I) == POLY_IDEAL) {
+      I = II->Generators;
+      V = II->Ring->Variables;
+      Or = II->Ring->Order;
+      if (II->Grobner) {
+         Gb = 1;
+      }else {
+         Gb = 0;
+      }
+      R = II->Ring;
+    }else{
+      error("Argument should be ideal.");
+    }
+  }else{
+    R = new__poly_ring(V,Or,base_Q,0);
+  }
+  if (!Gb) {
+    Or = taka_poly_build_order(Or,V);
+    /* print(V); print(Or); */
+    G = nd_gr_trace(I,V,1,1,Or);
+    if (QuoteIn) G = quote_to_quote(G);
+  }else{
+    G = II->Generators;
+  }
+  SS = new__poly_ideal(R,G,1);
+  return SS;
+}
+/* Or=[[1,1,0,0]] weight vector,
+   Number
+*/
+def taka_poly_build_order(Or,V) {
+  if (type(Or) <= 1) return(Or);
+  /* Block order */
+  if ((type(Or) == 4) && (rtostr(Or[0]) == "block")) return(cdr(Or));
+  /* weight vectors. Matrix order */
+  N = length(V);
+  M = newmat(N,N);
+  for (J=0; J<N; J++) M[0][J] = 1;
+  for (I=1; I<N; I++) M[I][N-I] = -1; 
+  M = matrix_matrix_to_list(M);
+  M2 = append(Or,M);
+  M2 = newmat(length(M2),N,M2);
+  return(M2);
+}
+
+def taka_poly_grobner_basis_v1(I) {
   II = I;
   /* option order */
   Or = getopt(order);
