@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.23 2012/02/26 01:06:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.24 2012/02/27 08:11:29 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -336,6 +336,8 @@ def taka_poly_elimination_poly(F,V,VV) {
 }
 
 def taka_poly_grobner_basis(I) {
+  Opt = getopt();
+  Opt = base_rebuild_opt(Opt | remove_keys=["order","v","str"]);
   II = I;
   /* option order */
   Or = getopt(order);
@@ -375,8 +377,8 @@ def taka_poly_grobner_basis(I) {
   }
   if (!Gb) {
     Or = taka_poly_build_order(Or,V);
-    /* print(V); print(Or); */
-    G = nd_gr_trace(I,V,1,1,Or);
+    /* print(V); print(Or);*/
+    G = nd_gr_trace(I,V,1,1,Or | option_list=Opt);
     if (QuoteIn) G = quote_to_quote(G);
   }else{
     G = II->Generators;
@@ -393,6 +395,13 @@ def taka_poly_build_order(Or,V) {
   /* Block order */
   if ((type(Or) == 4) && (rtostr(Or[0]) == "block")) return(cdr(Or));
   /* weight vectors. Matrix order */
+  if (type(Or) == 6) { /* matrix */
+    Or=matrix_matrix_to_list(Or);
+  } else if (type(Or) == 5) { /* vector */
+    Or=[matrix_matrix_to_list(Or)];
+  } else if ((type(Or) == 4) && (type(Or[0]) != 4)) {
+    Or = [Or];
+  }
   N = length(V);
   M = newmat(N,N);
   for (J=0; J<N; J++) M[0][J] = 1;
