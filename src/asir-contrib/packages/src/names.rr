@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.118 2012/02/26 00:24:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.119 2012/02/26 01:06:53 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20120226), Copyright 2000-2012, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20120227), Copyright 2000-2012, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -352,7 +352,7 @@ def poly_expand(F) {
  description:
  The optional variable v is a list of variables which defines the ring 
  of polynomials.
- example: A = poly_grobner_basis([x^2+y^2-4,x*y-1]|order=2,v=[y,x]);
+ example: A = poly_grobner_basis([x^2+y^2-4,x*y-1]|order=2,v=[y,x],str=1);
           A->Generators;
           A->Ring->Variables;
           A->Ring->Order;
@@ -360,11 +360,9 @@ def poly_expand(F) {
           C = poly_grobner_basis([x^2+y^2-4,x*y-1]|order=[block,[0,1],[0,1]],v=[y,x]);
 end: */
 def poly_grobner_basis(I) {
-  Or = getopt(order);
-  V = getopt(v);
-  OL = [["order",Or],["v",V]];
+  Opt = getopt();
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_grobner_basis(I|option_list=OL);
+  return taka_poly_grobner_basis(I|option_list=Opt);
 }
 /*&usage begin: poly_hilbert_polynomial(I|s,v)
  It returns the Hilbert polynomial of the ideal I.

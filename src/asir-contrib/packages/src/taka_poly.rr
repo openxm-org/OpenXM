@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.22 2011/04/29 11:12:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.23 2012/02/26 01:06:53 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -352,6 +352,9 @@ def taka_poly_grobner_basis(I) {
        V = taka_poly_get_variables(I);
     }
   }
+  Str = getopt(str);
+  if (type(Str) == -1) Str=0;
+
   Gb = 0;
   if (type(I) == STRUCT) {
     if (struct_type(I) == POLY_IDEAL) {
@@ -378,7 +381,8 @@ def taka_poly_grobner_basis(I) {
   }else{
     G = II->Generators;
   }
-  SS = new__poly_ideal(R,G,1);
+  if (Str) SS = new__poly_ideal(R,G,1);
+  else SS = G;
   return SS;
 }
 /* Or=[[1,1,0,0]] weight vector,
@@ -804,7 +808,7 @@ def taka_poly_dblock(N) {
 }
 
 def taka_poly_gr_w(F,V,W) {
-    G=poly_grobner_basis(F | v=V, order=[W]);
+    G=poly_grobner_basis(F | v=V, order=[W],str=1);
     return(G->Generators);
 }
 def taka_poly_in_w(F,V,W) {
