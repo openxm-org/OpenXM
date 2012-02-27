@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.27 2011/04/29 11:12:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.28 2012/01/28 04:12:50 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -371,6 +371,24 @@ def taka_base_var_list(Name,B,T) {
   /* it does not work. base_makelist(quote(eval_str(Name+rtostr(k))),k,B,T);*/
   L=map(eval_str,L);
   return(L);
+}
+
+/* 
+  taka_base_rebuild_opt(Opt | remove_keys=["hoge","foo"]);
+*/ 
+def taka_base_rebuild_opt(Opt) {
+  Rkeys=getopt(remove_keys);
+  if (type(Rkeys) < 0) Rkeys=0;
+  if (Rkeys != 0) {
+    A = [];
+    while (Opt != []) {
+      O1 = car(Opt); Opt=cdr(Opt);
+      if (! base_memberq(rtostr(O1[0]),Rkeys)) A = cons(O1,A); 
+    }
+  }else{
+    A=Opt;
+  }  
+  return(A);
 }
 
 Taka_base_loaded = 1$

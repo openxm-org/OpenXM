@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.119 2012/02/26 01:06:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.120 2012/02/27 08:11:29 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20120227), Copyright 2000-2012, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20120228), Copyright 2000-2012, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -186,6 +186,17 @@ def base_prune(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_prune(A,S);
 }
+
+/*&usage begin: base_rebuild_opt(Opt)
+ It rebuilt the option list  {Opt}
+ example: base_rebuild_opt([[key1,1],[key2,3]] | remove_keys=["key2"]);
+ example_description: it returns [[key1,1]]
+end: */
+def base_rebuild_opt(Opt) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_rebuild_opt(Opt | option_list=getopt());
+}
+
 /*&usage begin: base_replace(S,Rule)
  It rewrites {S} by using the rule {Rule}
  example: base_replace(x^2+y^2,[[x,a+1],[y,b]]);
