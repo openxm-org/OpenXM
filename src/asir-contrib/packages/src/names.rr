@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.120 2012/02/27 08:11:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.121 2012/02/27 23:27:32 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -382,12 +382,17 @@ def poly_grobner_basis(I) {
  example: poly_hilbert_polynomial([x1*y1,x1*y2,x2*y1,x2*y2]|s=k,v=[x1,x2,y1,y2]);
 end: */
 def poly_hilbert_polynomial(I)  { 
-  /* return(subst(hilbert_polynomial(I,V),h,S));  */
-  S = getopt(s);
-  V = getopt(v);
-  OL = [["s",S],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_hilbert_polynomial(I|option_list=OL);
+  return taka_poly_hilbert_polynomial(I|option_list=getopt());
+}
+
+/*&usage begin: poly_in(I|order,v)
+ It is an alias of poly_initial().
+ example: poly_in([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
+end: */
+def poly_in(I) {
+  OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  return taka_poly_initial(I|option_list=getopt());
 }
 
 /*&usage begin: poly_initial(I|order,v)
@@ -398,13 +403,11 @@ def poly_hilbert_polynomial(I)  {
 ${\rm in}_\prec (I)$
 @end tex
  example: poly_initial([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
+    poly_initial([x^2+y^2-4,x*y-1]|order=0,v=[x,y],gb=1);
 end: */
 def poly_initial(I) {
-  Or = getopt(order);
-  V = getopt(v);
-  OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_initial(I|option_list=OL);
+  return taka_poly_initial(I|option_list=getopt());
 }
 
 /*&usage begin: poly_initial_coefficients(I|order,v)
@@ -415,11 +418,8 @@ def poly_initial(I) {
  example: poly_initial_coefficients([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
 end: */
 def poly_initial_coefficients(I) {
-  Or = getopt(order);
-  V = getopt(v);
-  OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_initial_coefficients(I | option_list=OL);
+  return taka_poly_initial_coefficients(I | option_list=getopt());
 }
 
 /*&usage begin: poly_initial_term(F|weight,order,v)

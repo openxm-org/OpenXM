@@ -1,5 +1,20 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.24 2012/02/27 08:11:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.25 2012/02/27 23:44:40 takayama Exp $ */
 #include "tags.h"
+
+/*  tests
+ F=[x^2+y^2+z^2-1,x*y+y*z+z*x-1,x*y*z-1];
+ poly_grobner_basis(F);
+ poly_grobner_basis(F | order=[10,3,0], v=[x,y,z]);
+ poly_grobner_basis(F | order=[10,3,0], v=[x,y,z], str=1);
+ poly_initial(F); 
+ poly_initial(F | gb=1); 
+ poly_initial(F | order=[1,1,0]);
+ poly_in(F);
+ F2=[x^2+y^2-1,x*y-1]; 
+ poly_hilbert_polynomial(F2);
+ poly_in(F2 | v=[x], gb=1);
+ poly_initial_coefficients(F2 | v=[x],gb=1);
+*/
 
 def taka_poly_solve_poly1(F,V) {
   if (type(F) == 3) { /* Rational */
@@ -376,7 +391,7 @@ def taka_poly_grobner_basis(I) {
     R = new__poly_ring(V,Or,base_Q,0);
   }
   if (!Gb) {
-    Or = taka_poly_build_order(Or,V);
+    Or = taka_poly_build_order(Or);
     /* print(V); print(Or);*/
     G = nd_gr_trace(I,V,1,1,Or | option_list=Opt);
     if (QuoteIn) G = quote_to_quote(G);
@@ -390,7 +405,7 @@ def taka_poly_grobner_basis(I) {
 /* Or=[[1,1,0,0]] weight vector,
    Number
 */
-def taka_poly_build_order(Or,V) {
+def taka_poly_build_order(Or) {
   if (type(Or) <= 1) return(Or);
   /* Block order */
   if ((type(Or) == 4) && (rtostr(Or[0]) == "block")) return(cdr(Or));
@@ -402,7 +417,7 @@ def taka_poly_build_order(Or,V) {
   } else if ((type(Or) == 4) && (type(Or[0]) != 4)) {
     Or = [Or];
   }
-  N = length(V);
+  N = length(Or[0]);
   M = newmat(N,N);
   for (J=0; J<N; J++) M[0][J] = 1;
   for (I=1; I<N; I++) M[I][N-I] = -1; 
@@ -412,6 +427,7 @@ def taka_poly_build_order(Or,V) {
   return(M2);
 }
 
+/* old version 1 */
 def taka_poly_grobner_basis_v1(I) {
   II = I;
   /* option order */
@@ -480,9 +496,12 @@ def taka_poly_hilbert_polynomial(I) {
     V = taka_poly_get_variables(I);
   }
   Gb = 0;
+  if (type(getopt(gb)) > 0) Gb=1;
+  if (type(getopt(grobner_basis)) > 0) Gb=1;
+  /* printf("Gb=%a\n",Gb); */
   if (type(I) == STRUCT) {
    if (struct_type(I) == POLY_IDEAL) {
-     if (I->Grobner) {
+     if ((I->Grobner) && (I->Ring->Order == 0)) {
        Gb = 1;
      }
      G = I->Generators;
@@ -491,41 +510,19 @@ def taka_poly_hilbert_polynomial(I) {
      G = I;
   }
   if (!Gb) {
-    A=gr(G,V,0); 
-    B=map(dp_ht,map(dp_ptod,A,V));
+    C=poly_initial(G | v=V,order=0); 
   }else{
-    if (I->Ring->Order != 0) {
-     /*
-      Use poly_initial instead. 
-      print("Warning. It computes the hilbert polynomial for initial.");
-      print("         If the order is not graded order, it DOES NOT return");
-      print("         the hilbert polynomial for the original ideal.");
-     */
-      A = gr(G,V,0);
-    }else{
-      dp_ord(I->Ring->Order);
-      A = G;
-    }
-    B=map(dp_ht,map(dp_ptod,A,V));
+    C=poly_initial(G | v=V,order=0,gb=1);
   }
-  C=map(dp_dtop,B,V);
   H = sm1.hilbert([C,V]);
   return subst(H,h,S);
 }
 
-def taka_poly_initial(I) {
-  II = I;
-  /* option order */
-  Or = getopt(order);
-  if (type(Or) == -1) {
-    Or = 0;
-  }
-  /* option v */
-  V = getopt(v);
-  if (type(V) == -1) {
-    V = taka_poly_get_variables(I);
-  }
-  Gb = 0;
+def taka_poly_initial_aux(I) {
+  II=I;
+  Gb=0; Or=0;
+  if (type(getopt(gb)) > 0) Gb=1;
+  if (type(getopt(grobner_basis)) > 0) Gb=1;
   if (type(I) == STRUCT) {
     if (struct_type(I) == POLY_IDEAL) {
       I = II->Generators;
@@ -534,75 +531,42 @@ def taka_poly_initial(I) {
       if (II->Grobner) {
          Gb = 1;
       }else {
-         Gb = 0;
+         error("The ideal must be a Grobner basis.");
       }
       R = II->Ring;
     }else{
       error("Argument should be ideal.");
     }
   }else{
-    R = new__poly_ring(V,Or,base_Q,0);
+    if (type(getopt(order)) >= 0) Or= getopt(order);
+    if (type(getopt(v)) > 0) V=getopt(v);
+    else V=taka_poly_get_variables(I);
   }
+  Opt = base_rebuild_opt(getopt() | remove_keys=["gb","grobner_basis"]);
   if (!Gb) {
-    G = gr(I,V,Or);
-  }else{
-    G = II->Generators;
-  }
+    G = poly_grobner_basis(I | option_list=Opt);
+  }else G=I;
 
-  dp_ord(Or);
+  dp_ord(taka_poly_build_order(Or));
   G2 = map(dp_ptod,G,V);
-  /* G3 = map(dp_hm,G2); */
+  return([G2,V]);
+}
+def taka_poly_initial(I) {
+  A = taka_poly_initial_aux(I | option_list=getopt());
+  G2=A[0]; V=A[1];
   G3 = map(dp_ht,G2); 
   G4 = map(dp_dtop,G3,V);
-
-  if (R->Weyl) {
-    R = new__poly_ring(R->Variables,R->Order,R->K,0);
-    /* New ring is commutative. */
-  }
-  SS = new__poly_ideal(R,G4,1);
+  SS = G4;
+  /* SS = new__poly_ideal(R,G4,1); */
   return SS;
 }
 
 def taka_poly_initial_coefficients(I) {
-  II = I;
-  /* option order */
-  Or = getopt(order);
-  if (type(Or) == -1) {
-    Or = 0;
-  }
-  /* option v */
-  V = getopt(v);
-  if (type(V) == -1) {
-    V = taka_poly_get_variables(I);
-  }
-  Gb = 0;
-  if (type(I) == STRUCT) {
-    if (struct_type(I) == POLY_IDEAL) {
-      I = II->Generators;
-      V = II->Ring->Variables;
-      Or = II->Ring->Order;
-      if (II->Grobner) {
-         Gb = 1;
-      }else {
-         Gb = 0;
-      }
-      R = II->Ring;
-    }else{
-      error("Argument should be ideal.");
-    }
-  }else{
-    R = new__poly_ring(V,Or,base_Q,0);
-  }
-  if (!Gb) {
-    G = gr(I,V,Or);
-  }else{
-    G = II->Generators;
-  }
-
-  dp_ord(Or);
-  G2 = map(dp_ptod,G,V);
+  A = taka_poly_initial_aux(I | option_list=getopt());
+  G2=A[0]; V=A[1];
   G3 = map(dp_hc,G2); 
-  return G3;
+  SS = G3;
+  return SS;
 }
 
 def taka_poly_initial_term(F) {
