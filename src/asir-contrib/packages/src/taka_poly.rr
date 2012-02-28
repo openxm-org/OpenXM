@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.25 2012/02/27 23:44:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.26 2012/02/28 11:29:50 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -14,6 +14,8 @@
  poly_hilbert_polynomial(F2);
  poly_in(F2 | v=[x], gb=1);
  poly_initial_coefficients(F2 | v=[x],gb=1);
+
+ poly_in_w([x^2+y^2-1,x*y-x] | v=[x,y],weight=[1,0]);
 */
 
 def taka_poly_solve_poly1(F,V) {
@@ -538,6 +540,8 @@ def taka_poly_initial_aux(I) {
       error("Argument should be ideal.");
     }
   }else{
+    /* weight or order is used */
+    if (type(getopt(weight)) >= 0) Or=getopt(weight); 
     if (type(getopt(order)) >= 0) Or= getopt(order);
     if (type(getopt(v)) > 0) V=getopt(v);
     else V=taka_poly_get_variables(I);
@@ -549,7 +553,7 @@ def taka_poly_initial_aux(I) {
 
   dp_ord(taka_poly_build_order(Or));
   G2 = map(dp_ptod,G,V);
-  return([G2,V]);
+  return([G2,V,Or]);
 }
 def taka_poly_initial(I) {
   A = taka_poly_initial_aux(I | option_list=getopt());
@@ -784,15 +788,22 @@ def taka_poly_gr_w(F,V,W) {
     G=poly_grobner_basis(F | v=V, order=[W],str=1);
     return(G->Generators);
 }
-def taka_poly_in_w(F,V,W) {
+def taka_poly_in_w(F) {
   if (type(F) == LIST) {
-    G = taka_poly_gr_w(F,V,W);
+    A = taka_poly_initial_aux(F | option_list=getopt());
+    V = A[1];
+    W= A[2];
+    G = map(dp_dtop,A[0],V);
     L=[];
     for (; G != []; G=cdr(G)) {
        L=cons(poly_initial_term(car(G) | v=V, weight=W)[0],L);
     }
     return reverse(L);
   }
+  if (getopt(v) > 0) V=getopt(v);
+  else V = taka_poly_get_variables(F);
+  if (getopt(weight) > 0) W=getopt(weight);
+  if (getopt(order) > 0) W=getopt(order);
   G=poly_initial_term(F | v=V, weight=W)[0];
   return(G);
 }

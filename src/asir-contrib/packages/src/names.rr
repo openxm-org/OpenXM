@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.121 2012/02/27 23:27:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.122 2012/02/28 11:29:50 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20120228), Copyright 2000-2012, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20120229), Copyright 2000-2012, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -482,15 +482,16 @@ def poly_r_omatrix(N) {
   return taka_poly_dblock(N | option_list=Opt);
 }
 
-/*&usage begin: poly_in_w(F,V,W)
+/*&usage begin: poly_in_w(F | v, weight,gb)
  It returns the initial term or the initial ideal in_w(F)
- for the weight vector W.
- example: poly_in_w([x^2+y^2-1,x*y-1],[x,y],[1,0]);
+ for the weight vector given by order.
+ F is s single polynomial or a list of polynomials. 
+ example: poly_in_w([x^2+y^2-1,x*y-x] | v=[x,y],weight=[1,0]);
  ref: poly_weight_to_omatrix(W,V), poly_grobner_basis, poly_gr_w
 end: */
-def poly_in_w(F,V,W) { 
+def poly_in_w(F) { 
   Opt = getopt();
-  return taka_poly_in_w(F,V,W | option_list=Opt);
+  return taka_poly_in_w(F | option_list=Opt);
 }
 
 /*&usage begin: poly_ord_w(F,V,W)
