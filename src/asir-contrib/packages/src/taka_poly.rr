@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.26 2012/02/28 11:29:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.27 2012/02/28 23:14:12 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -800,10 +800,12 @@ def taka_poly_in_w(F) {
     }
     return reverse(L);
   }
+  W = 0;
   if (getopt(v) > 0) V=getopt(v);
   else V = taka_poly_get_variables(F);
-  if (getopt(weight) > 0) W=getopt(weight);
-  if (getopt(order) > 0) W=getopt(order);
+  if (type(getopt(weight)) >= 0) W = getopt(weight);
+  if (type(getopt(order)) >= 0) W=getopt(order); 
+  /* printf("W=%a, type(W)=%a\n",W,type(W)); */
   G=poly_initial_term(F | v=V, weight=W)[0];
   return(G);
 }
