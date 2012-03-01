@@ -1,75 +1,75 @@
-(J\documentclass{jarticle}(B
+\documentclass{jarticle}
 
-(J\begin{document}(B
-(J\begin{center}(B
-(J{\bf twistedLogCohomology(List,List) -- 2$@JQ?tB?9`<0$KIU?o$9$k(J twisted logarithmic cohomology $@72$r7W;;(J}(B
-(J\end{center}(B
-(J\begin{flushleft}(B
+\begin{document}
+\begin{center}
+{\bf twistedLogCohomology(List,List) -- 2ÊÑ¿ôÂ¿¹à¼°¤ËÉÕ¿ï¤¹¤ë twisted logarithmic cohomology ·²¤ò·×»»}
+\end{center}
+\begin{flushleft}
 
-(J{\bf $@35MW(J}(B
+{\bf ³µÍ×}
 
-(J\begin{itemize}(B
-(J\item $@;HMQJ}K!(J: twistedLogCohomology(F,A)(B
-(J\item $@4X?tL>(J: twistedLogCohomology(B
-(J\item $@F~NO(J:(B
-(J  \begin{itemize}(B
-	(J\item F, 2$@JQ?tB?9`<0$N%j%9%H(B
-	(J\item A, $@M-M}?t$N%j%9%H(B
-(J  \end{itemize}(B
-(J\item $@=PNO(J:(B
-(J  \begin{itemize}(B
-	(J\item $@%O%C%7%e%F!<%V%k(J. $@<!$N$b$N$rMWAG$H$7$F4^$`(J: $\{$ Bfunction, CohomologyGroups, LogBasis, OmegaRes, PreCycles, VResolution   $\}$(B
-(J  \end{itemize}(B
-(J\end{itemize}(B
+\begin{itemize}
+\item »ÈÍÑÊýË¡: twistedLogCohomology(F,A)
+\item ´Ø¿ôÌ¾: twistedLogCohomology
+\item ÆþÎÏ:
+  \begin{itemize}
+	\item F, 2ÊÑ¿ôÂ¿¹à¼°¤Î¥ê¥¹¥È
+	\item A, Í­Íý¿ô¤Î¥ê¥¹¥È
+  \end{itemize}
+\item ½ÐÎÏ:
+  \begin{itemize}
+	\item ¥Ï¥Ã¥·¥å¥Æ¡¼¥Ö¥ë. ¼¡¤Î¤â¤Î¤òÍ×ÁÇ¤È¤·¤Æ´Þ¤à: $\{$ Bfunction, CohomologyGroups, LogBasis, OmegaRes, PreCycles, VResolution   $\}$
+  \end{itemize}
+\end{itemize}
 
-(J{\bf $@@bL@(J}(B
+{\bf ÀâÌÀ}
 
-(JTwisted logarithmic cohomology $@72$N4pDl$O%O%C%7%e%F!<%V%k(J LogBasis $@$K4^$^$l$k(J. (B
-(J$H^1$ $@$H(J $H^2$ $@$N4pDl$OJ,;R$N$_=PNO$5$l$k(J. (B
-$@0J2<$NNc$G$O(J $H^1$ $@$N4pDl$O(J (B
-(J$\{ \frac{y^2dx-xydy}{x(x+y)}, \frac{2x^2dx+2xydx}{x(x+y)} \}$, (B
-(J$H^2$ $@$N4pDl$O(J $\{ \frac{ydxdy}{x(x+y)} \}$ $@$G$"$k(J. (B
+Twisted logarithmic cohomology ·²¤Î´ðÄì¤Ï¥Ï¥Ã¥·¥å¥Æ¡¼¥Ö¥ë LogBasis ¤Ë´Þ¤Þ¤ì¤ë. 
+$H^1$ ¤È $H^2$ ¤Î´ðÄì¤ÏÊ¬»Ò¤Î¤ß½ÐÎÏ¤µ¤ì¤ë. 
+°Ê²¼¤ÎÎã¤Ç¤Ï $H^1$ ¤Î´ðÄì¤Ï 
+$\{ \frac{y^2dx-xydy}{x(x+y)}, \frac{2x^2dx+2xydx}{x(x+y)} \}$, 
+$H^2$ ¤Î´ðÄì¤Ï $\{ \frac{ydxdy}{x(x+y)} \}$ ¤Ç¤¢¤ë. 
 
-(J{\footnotesize (B
-(J\begin{verbatim}(B
-(Ji1 : loadPackage "Dmodules";(B
+{\footnotesize 
+\begin{verbatim}
+i1 : loadPackage "Dmodules";
 
-(Ji2 : load "twistedLogCohomology.m2";(B
+i2 : load "twistedLogCohomology.m2";
 
-(Ji3 : R = QQ[x,y];(B
+i3 : R = QQ[x,y];
 
-(Ji4 : twistedLogCohomology({x,x+y},{-1,0})(B
-(JWarning: not a generic weight vector.  Could be difficult...(B
+i4 : twistedLogCohomology({x,x+y},{-1,0})
+Warning: not a generic weight vector.  Could be difficult...
 
-(Jo5 = HashTable{BFunction => (s - 1)                                                                    }(B
-(J                                                    1(B
-(J               CohomologyGroups => HashTable{0 => QQ }(B
-(J                                                    2(B
-(J                                             1 => QQ(B
-(J                                                    1(B
-(J                                             2 => QQ(B
-(J               LogBasis => HashTable{0 => | x |                    }(B
-(J                                     1 => | y2dx-xydy 2x2dx+2xydx |(B
-(J                                     2 => | ydxdy |(B
-(J                                             1                       2                       1(B
-(J               OmegaRes => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0(B
-(J                                                                                                    (B
-(J                           0                       1                       2                       3(B
-(J               PreCycles => HashTable{0 => | -x2-xy |}(B
-(J                                           | -x     |(B
-(J                                      1 => | 0  -2x |(B
-(J                                           | -y 0   |(B
-(J                                           | 0  0   |(B
-(J                                      2 => | y |(B
-(J                                                1                       3                       2(B
-(J               VResolution => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0(B
-(J                                                                                                       (B
-(J                              0                       1                       2                       3(B
+o5 = HashTable{BFunction => (s - 1)                                                                    }
+                                                    1
+               CohomologyGroups => HashTable{0 => QQ }
+                                                    2
+                                             1 => QQ
+                                                    1
+                                             2 => QQ
+               LogBasis => HashTable{0 => | x |                    }
+                                     1 => | y2dx-xydy 2x2dx+2xydx |
+                                     2 => | ydxdy |
+                                             1                       2                       1
+               OmegaRes => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0
+                                                                                                    
+                           0                       1                       2                       3
+               PreCycles => HashTable{0 => | -x2-xy |}
+                                           | -x     |
+                                      1 => | 0  -2x |
+                                           | -y 0   |
+                                           | 0  0   |
+                                      2 => | y |
+                                                1                       3                       2
+               VResolution => (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- (QQ[x, y, dx, dy])  <-- 0
+                                                                                                       
+                              0                       1                       2                       3
 
-(Jo5 : HashTable(B
+o5 : HashTable
 
-(J\end{verbatim}(B
-(J}(B
+\end{verbatim}
+}
 
-(J\end{flushleft}(B
-(J\end{document}(B
+\end{flushleft}
+\end{document}
