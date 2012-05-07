@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.25 2007/08/20 05:47:34 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.26 2008/08/08 05:41:27 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -29,7 +29,9 @@ distclean: clean
 
 fetch:
 	@if [ ! -f .fetch_done ]; then \
-		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+		for i in ${DISTFILES}; do \
+			${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+		done \
 	fi
 	@touch .fetch_done
 
