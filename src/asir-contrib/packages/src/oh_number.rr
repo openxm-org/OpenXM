@@ -3,6 +3,20 @@ localf rats_prec;
 localf rats;
 localf to_continued_fraction;
 localf continued_fraction_to_rat;
+localf sign, abs;
+localf deval;
+
+def sign(X) {
+    return (X==0)? 0: (X<0)? -1: 1;
+}
+
+def abs(A) {
+    return A>=0? A: -A;
+}
+
+def deval(A) {
+    return ::deval(eval(A*exp(0)));
+}
 
 def rats_prec(X,K) {
     L = to_continued_fraction(X,K|rev=no);
@@ -31,7 +45,7 @@ def to_continued_fraction(X,K) {
     }
     if (Flag) {
 /*      Q = number_round(X);  // number_round is not implemented. */
-        Q = rint(deval(X));
+        Q = rint(::deval(X));
         L = cons(Q,L); 
     }
     if(getopt(rev)!=no) {
