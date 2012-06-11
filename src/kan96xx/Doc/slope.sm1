@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/slope.sm1,v 1.2 2001/06/18 03:12:21 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/slope.sm1,v 1.3 2005/10/20 11:22:27 takayama Exp $
 (oxasir.sm1.loaded) boundp not {
    [(parse) (oxasir.sm1)  pushfile] extension
 } { } ifelse
@@ -582,8 +582,14 @@ $Imported commands:  slope $ message
  (When slope.geometric is one, it outputs the geometric slopes.)
  (As to the algorithm, see A.Assi, F.J.Castro-Jimenez and J.M.Granger)
  ( How to calculate the slopes of a D-module, Compositio Math, 104, 1-17, 1996)
- (Note that the signs of the slopes are negative, but the absolute values)
+ (Note that the signs of the slopes s' are negative, but the absolute values -s')
  (of the slopes are returned.)
+ $In other words, when pF+qV is the gap, -s'=q/p is returned.$
+ $Note that s=1-1/s' is called the slope in recent literatures. Solutions belongs to O(s).$
+ $The number s satisfies 1<= s.$  
+ $We have r=s-1=-1/s', and kappa=1/r=-s',$
+ $which is used 1/Gamma(1+m*r) factor and exp(-tau^kappa)$
+ $in the Borel and Laplace transformations respectively.$
  $Example 1: [ [(x^4 Dx + 3)] (x) [0 1] [-1 1]] slope :: $
  $          The solution is exp(x^(-3)). $
  $Example 2: [ [(x^3 Dx^2 + (x + x^2) Dx + 1)] [(x)] $
