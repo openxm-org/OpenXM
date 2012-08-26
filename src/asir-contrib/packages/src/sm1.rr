@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.4 2008/06/04 01:46:52 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.5 2008/08/12 04:50:16 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -512,7 +512,9 @@ def isListOfPoly(A) {
   if (type(A) !=4 ) return(0);
   N = length(A);
   for (I=0; I<N; I++) {
-    if (!(type(A[I]) == 0 || type(A[I]) == 1 || type(A[I]) == 2 ||
+    if (type(A[I]) == 4) {
+      if (!isListOfPoly(A[I])) return(0);
+    } else if (!(type(A[I]) == 0 || type(A[I]) == 1 || type(A[I]) == 2 ||
           type(A[I]) == 7 || type(A[I]) == 9)) {
       return(0);
     }
@@ -1357,6 +1359,12 @@ def saturation(A) {
  a tangent cone algorithm. h[0,1](D)-homogenization is used.
  If the option rv="dp" (return_value="dp") is given, 
  the answer is returned in distributed polynomials.
+
+ Note. Functions in the category ecart changes the global environment 
+   in the sm1 server. If you interrupted these functions,
+   run sm1.ecartd_gb with a small input and terminate it normally.
+   Then, the global environment is reset to the normal state.
+  Reference. G. Granger, T. Oaku, N. Takayama, Tangent cone algorithm for homogeized differential operators, 2005.
  example:
  input1
    F=[2*(1-x-y)*dx+1,2*(1-x-y)*dy+1]$
@@ -1367,6 +1375,11 @@ def saturation(A) {
  input2
    F=[2*(1-x-y)*dx+h,2*(1-x-y)*dy+h]$
    FF=[F,"x,y",[[dx,1,dy,1],[x,-1,y,-1,dx,1,dy,1]],["noAutoHomogenize",1]]$
+   sm1.ecartd_gb(FF);
+ input3
+   F=[[x^2,y+x],[x+y,y^3], [2*x^2+x*y,y+x+x*y^3]]$
+   FF=[F,"x,y",[[dx,1,dy,1],[x, -1, y, -1,dx, 1, dy, 1]],
+             ["degreeShift",[[0,1],[-3,1]]]]$
    sm1.ecartd_gb(FF);
 end: */
 def ecartd_gb(A) {
@@ -1410,11 +1423,17 @@ def ecartd_gb(A) {
 /*&usage begin: sm1.ecartd_reduction(F,A)
  It returns a reduced form of {F} in terms of {A} by using
  a tangent cone algorithm. h[0,1](D)-homogenization is used.
+ When the output is {G}, {G}[3] is {F} and 
+ G[0]-(G[1]*A-sum(k,G[2][k]*G[3][k]))=0 holds.
+ {F} must be (0,1)-hohomogenized (see sm1.ecart_homogenize01Ideal).
+ This function does not check if the given order is admissible for the ecart
+ reduction. To do this check, use sm1.ecartd_gb.
  example:
  input
    F=[2*(1-x-y)*dx+h,2*(1-x-y)*dy+h]$
    FF=[F,"x,y",[[dx,1,dy,1],[x,-1,y,-1]]]$
-   sm1.ecartd_reduction(dx+dy,FF);
+   G=sm1.ecartd_reduction(dx+dy,FF);
+   G[0]-(G[1]*(dx+dy)+G[2][0]*F[0]+G[2][1]*F[1]);
 end: */
 def ecartd_reduction(F,A) {
   SM1L_FIND_PROC(P);
