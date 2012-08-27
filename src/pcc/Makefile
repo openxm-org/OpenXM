@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/pcc/Makefile,v 1.1 2011/05/13 07:32:39 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -9,6 +9,7 @@ DISTFILES=${DISTNAME}.tgz
 WRKSRC=work/${DISTNAME}
 BUILDDIR=${WRKSRC}/cc/cpp
 PATCHFILES = pcc.diff
+CC=gcc
 
 all : build 
 
