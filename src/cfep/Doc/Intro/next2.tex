@@ -18,7 +18,7 @@
 
 \title{ {\bf 超入門 Cfep/asir (MacOS X)} }
 \author{  高山信毅 }
-\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26, 2009-09-19 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
+\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26, 2009-09-19, 2012-08-27 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
 \makeindex
 
 \begin{document}
@@ -1237,6 +1237,154 @@ for (T=0; T<=deval(2*@pi); T = T+E) {
 複雑な機能を実現する.
 このようなアプローチをとることにより, ``困難が分割'' される.
 
+円の例をしばらく離れ,
+簡単な関数の例をとり関数の書き方を説明しよう.
+前の節では $2$ の巾の表を作成するプログラムを書いた.
+これを元に次のような関数を作る.
+\begin{screen}
+\begin{verbatim}
+def power_table(N) {
+  X=2;
+  for (I=1; I<=N; I++) {
+    print(X^I);
+  }
+}
+power_table(8);
+\end{verbatim}
+\end{screen}
+関数の定義は次のように {\tt def} 命令で行なう.
+\begin{verbatim}
+def  関数名(引数) {
+  関数本体 
+}
+\end{verbatim}
+上の例では関数名は {\tt power\_table} であり, 引数(argument)は {\tt N} である.
+関数名は英数字と {\tt \_} を用いてつける.
+ただし数字や大文字ではじまる名前をつけることはできない.
+処理内容を連想させるような名前をつけるのが望ましい.
+{\tt def} 命令では関数を定義するだけで実行は行なわない.
+実行させるには, 上の例のように {\tt power\_table(8);} と引数の部分に実際の数字等を入れて
+呼び出す.
+
+引数は二つ以上あってもよくて,たとえば,
+\begin{screen}
+\begin{verbatim}
+def power_table2(X,N) {
+  for (I=1; I<=N; I++) {
+    print(X^I);
+  }
+}
+power_table2(3,8);
+\end{verbatim}
+\end{screen}
+なる関数定義と最後の行のその呼び出しは 
+$3^i$ を $i=1, \ldots, 8$ の範囲で計算して表示する.
+このような関数を用意しておけば,
+$2^i$, $3^i$, $5^i$, $1 \leq i \leq 10$ の表を表示したいとすると,
+\begin{screen}
+\begin{verbatim}
+power_table2(2,10);
+power_table2(3,10);
+power_table2(5,10);
+\end{verbatim}
+\end{screen}
+と書くだけで良く, プログラムも短くなり, かつ整理されているので, 読みやすくなる.
+
+さて, {\tt power\_table2(2,3);} を実行すると
+\begin{screen}
+\begin{verbatim}
+2
+4
+8
+0
+\end{verbatim}
+\end{screen}
+と表示される. 
+最後の 0 は一体何であろうか?
+これは実は関数の値である. 
+関数の値のことを戻り値ともいう.
+戻値を指定するには, {\tt return} 文を用いる.
+\begin{flushleft}
+\begin{minipage}[t]{7cm}
+\begin{screen}
+\begin{verbatim}
+def twotimes(N) {
+  S=2*N;
+  return(S);
+}
+\end{verbatim}
+\end{screen}
+\end{minipage} \quad
+%
+\begin{minipage}[t]{7cm}
+関数 {\tt twotimes(N)} は
+$2N$ の値を計算して戻す. \\
+この定義を書いておいて
+\begin{verbatim}
+A=twotimes(10);
+B=twotimes(100);
+print(A+B);
+\end{verbatim}
+を実行すると, {\tt A} には $20$ が代入され, {\tt B} には $200$ が代入され,
+{\tt print}文により $220$ が出力される.
+そのあと $0$ が出力されるがこれは {\tt print}文の戻り値である.
+\end{minipage} \\
+\end{flushleft}
+
+\noindent  
+関数の戻り値 (return value) は {\tt return} 文で
+指定する.
+いまの場合は変数 {\tt S} の値である.
+なお, {\tt print} と {\tt return}  は違う.
+{\tt print} は画面に値を印刷するのに対して,
+{\tt return} は関数の値を戻す働きを持つ.
+{\tt print} 文では, 関数の値を戻すことはできない.
+
+``戻り値''(return value) という言い方は計算機言語特有の言いまわしである.
+``関数 {\tt twotimes} は引数の2倍を計算して結果を戻す'' みたいに使う.
+上の例でいえば {\tt A=twotimes(10)} としたとき,
+戻り値が関数の値として変数 {\tt A} に代入される.
+
+
+関数のなかで利用されている変数と引数は,
+その関数の実行中のみ生成される変数であり,
+さらにその関数外部の同名の変数の値を変えない.
+このように一時的に生成される変数を局所変数 (local variable) とよぶ.
+関数の中で変数の値を変更したら, その関数の外の同じ名前の変数の
+値もかわってしまうとしたら, 処理を分割した利点がすくない.
+そこででてきた概念がこの ``局所変数''
+の概念である.
+上のプログラム例では,
+{\tt N}, {\tt S} が局所変数である.
+局所変数はその関数のなかだけで有効な変数である.
+これを, ``局所変数のスコープはその関数のなかだけ'' という
+言いかたをする. 
+局所変数の考え方は, 計算機言語の歴史では大発明の一つである.
+
+\noindent
+例:
+%%%%%%%%%%  mini page template %%%%%%%%%%%%
+\begin{flushleft}
+\begin{minipage}[t]{7cm}
+\begin{screen}
+\begin{verbatim}
+S=3;
+twotimes(2);
+print(S);
+\end{verbatim}
+\end{screen}
+\end{minipage} \quad
+%
+\begin{minipage}[t]{7cm}
+このプログラムの {\tt S} と関数 {\tt twotimes} のなかの変数  {\tt S} は別物
+である.
+したがって, {\tt twotimes} の終了時点で関数 {\tt twotimes} のなかの変数 {\tt S}
+の値は $6$ であるが,  {\tt print} 文で {\tt S} の値を表示させてみても
+やはり $3$ のままである.
+\end{minipage} \\
+\end{flushleft}
+
+
 %<C
 \begin{figure}[tbh]
 \scalebox{0.6}{\includegraphics{Figs/circleFunc.eps}}
@@ -1248,7 +1396,7 @@ for (T=0; T<=deval(2*@pi); T = T+E) {
 以下のように関数 {\tt circle(X,Y,R,Color)}を定義 ({\tt def}) する.
 この関数を $R$ や $Color$ を変化させながら呼ぶことにより,
 図\ref{fig:circleFunc} のような同心円の図を描くことが可能となる.
-関数について詳しくは ``asir ドリル'' を参照してほしい.
+関数についてさらに詳しくは ``asir ドリル'' を参照してほしい.
 
 \begin{screen}
 \begin{verbatim}
@@ -1276,10 +1424,15 @@ for (P = 0.4; P<0.5; P = P+0.01) {
 }
 \end{verbatim}
 \end{screen}
+{\tt (Qx,Qy)} と {\tt (Px,Py)} は
+{\tt E} だけ偏角が異る.
+円を多面体で近似して描画している. \\
 -----プログラムの詳しい解説まだ.
 
 \begin{problem} \rm
 \begin{enumerate}
+\item このプログラムの関数を用いて接する半径の同じ円を二つ描画するプログラムを書きなさい.
+\item 円を塗り潰す関数を作れ.
 \item 分度器を描くプログラムを作れ.
 \item (発展課題) この分度器, 糸, おもり, わりばし, 板, cfep/asir によるプログラム等を用いて,
 木やビルの高さを測定する機械とソフトウエアシステムを開発せよ.
@@ -1301,6 +1454,50 @@ cfep上級編, OpenGL のプログラムを参考に
 \end{problem}
 
 
+\noindent
+\fbox{\bf 実習の落とし穴}\\
+\begin{enumerate}
+\item unix 版, windows 版では asir ドリルにあるように
+\verb@ end$ @ %$
+をプログラムの最後に書かないと行けないが, cfep/asir ではこの命令は
+計算エンジンの停止命令となるので書いてはいけない.
+ただし\underline{行の頭}に\underline{空白をいれずに}書いてある 
+\verb@ end$ @ %$
+は自動削除されるので, unix, windows 版共通のプログラムを書くときは
+空白を入れずに行の頭に書いておくと便利である.
+\item 空白や改行は原則自由に挿入していいが, 空白を入れてはいけない表現がある.
+たとえば
+\begin{verbatim}
+0.1
+\end{verbatim}
+と書くべきところを
+\begin{verbatim}
+0. 1
+\end{verbatim}
+と $1$ の前に空白を入れるとエラーとなる. 
+数字には空白を入れてはいけない.
+理由は asir ドリルの構文解析の章を読むと理解できると思う.
+\item {\tt sin\ x} なる表現は受け付けてくれない. 
+必ず括弧がいる. つまり {\tt sin(x)} と書く.
+\item 掛け算の {\tt *} は省略できない.
+\end{enumerate}
+
+\noindent
+\HHH
+{\tt [1,2,3]} のように {\tt []} で囲った表現をリスト(list)と呼ぶ.
+関数の戻り値を数の組にしたいときはリストを値として戻すと良い.
+{\tt print} 文で多くの数を一行で表示したいときもリストを使うと便利である.
+{\tt L} をリストとするとき {\tt L[0]} でリストの最初(0番目)の元,
+{\tt L[1]} でリストの1番目の元, ... を表す. 
+詳しくは asir ドリル参照.
+\begin{screen}
+\begin{verbatim}
+L=[3,2,1];
+print(L);
+print(L[0]+L[1]+L[2]);
+\end{verbatim}
+\end{screen}
+%%Note: misc-2010/10/keisan-1/note-ja.txt  講義の進度.
 
 \chapter{For 文による数列の計算}
 
