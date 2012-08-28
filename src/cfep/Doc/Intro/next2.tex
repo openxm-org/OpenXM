@@ -18,7 +18,7 @@
 
 \title{ {\bf 超入門 Cfep/asir (MacOS X)} }
 \author{  高山信毅 }
-\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26, 2009-09-19, 2012-08-27 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
+\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26, 2009-09-19, 2012-08-28 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
 \makeindex
 
 \begin{document}
@@ -1483,7 +1483,7 @@ cfep上級編, OpenGL のプログラムを参考に
 \end{enumerate}
 
 \noindent
-\HHH
+\HHH.
 {\tt [1,2,3]} のように {\tt []} で囲った表現をリスト(list)と呼ぶ.
 関数の戻り値を数の組にしたいときはリストを値として戻すと良い.
 {\tt print} 文で多くの数を一行で表示したいときもリストを使うと便利である.
@@ -1569,6 +1569,13 @@ $$  \mbox{{\bf 変数名}} {\tt = }  \mbox{{\bf 式}} {\tt  ;} $$
 まとめよ.  {\tt print([I,X,Y])} をはさむことによりこの表が正しいことを
 たしかめよ.
 \end{problem}
+表は次のような形式で書く.
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+{\tt I} & 0&1&2&3&4 \\ \hline
+{\tt X} & &&&& \\ \hline
+{\tt Y} & &&&& \\ \hline
+\end{tabular}
 
 \begin{problem} \rm
 プログラムのバグ(bug)とはなにか? 
@@ -1576,8 +1583,19 @@ $$  \mbox{{\bf 変数名}} {\tt = }  \mbox{{\bf 式}} {\tt  ;} $$
 
 \section{円を描く数列}
 
-数列の計算を用いると, $\cos$ や $\sin$ の計算をやらずに円を描くことが
-できる.
+前の章で円を描く関数を紹介した.
+$\sin$,$\cos$ の計算に時間がかかる計算機では, なるべく
+これら三角関数を用いないで円を描画する必要がある.
+
+一つの方法は $s=\tan \frac{t}{2}$ とおくと
+$\cos t = \frac{1+s^2}{1-s^2}$,
+$\sin t = \frac{2s}{1-s^2}$
+と書けるという公式を使う方法である.
+$s$ はタンジェントで定義されていることを忘れてしまえばよい.  
+
+もう一つは
+数列の計算を用いて, $\cos$ や $\sin$ の計算をやらずに円を描く
+方法である.
 %%Prog: cfep/tests/2006-03-11-circle-dda.rr
 \begin{screen}
 \begin{verbatim}
@@ -1631,6 +1649,13 @@ cfep/asir ではこの {\tt end} を書いてはいけない.
 なにか図を描くプログラムを書きなさい. (定番ドラエモンでもよい)
 \end{problem}
 
+\noindent
+\fbox{ノート}.
+著者の場合, 週に1コマ講義, 演習1コマでは, ここまでで3週である.
+上のレポート問題が最初のレポート.
+3週目の演習の時間からとりかかり, 5週目の演習の時間に発表.
+4週目からは asirドリル.
+
 \chapter{cfep 上級編}
 
 \section{\TeX によるタイプセット(実験的)}
@@ -1640,7 +1665,8 @@ cfep/asir ではこの {\tt end} を書いてはいけない.
 {\tt latex}, {\tt dvipng} がインストールされてい
 ないと動作しない.
 これらはたとえば {\tt fink}  から \TeX をインストールしたり,
-{\tt ptex\_package\_2005v2.1.dmg} などで Mac 用の pTeX をインストールしておけばよい.
+{\tt ptex\_package\_2005v2.1.dmg} (最近の状況は ptex package macosx で検索)
+などで Mac 用の pTeX をインストールしておけばよい.
 \TeX を用いた仕上り例は図\ref{fig:sl2}を見よ. 
 なお, \TeX でタイプセットする場合ホームの下に
 \verb@OpenXM_tmp@ なる作業用のフォルダが作成される.
