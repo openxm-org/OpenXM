@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.46 2005/09/27 06:10:43 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.47 2006/12/21 05:29:49 takayama Exp $  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -940,6 +940,7 @@ struct object KdataConversion(obj,key)
       rob = newObjectArray(0);
       return rob;
     }else{
+      /* fprintf(stderr,"key=%s\n",key); */
       warningKan("Sorry. The data conversion from null to this data type has not supported yet.\n");
     }
     break;

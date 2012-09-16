@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.26 2009/08/26 04:54:40 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.27 2009/09/04 11:13:11 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -652,6 +652,11 @@ k0 server で変換 ({\tt QuoteMode(1); }.
 trans/polymake.sm1 は, 組み込みマクロとなる.
 doPolymake は local のものを呼ぶ.
 
+\section{2012-9-16,  syz}
+
+syz が存在しない場合に syz (hol.sm1) が warning を出力する件.
+getRing を 空リストに対してやっていることが原因.
+kanExport0.c の data\_conversion の key を出力することにより debug. 
 
 \end{document}
 
