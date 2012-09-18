@@ -1,0 +1,1027 @@
+/*
+$OpenXM$
+Koev-Edelman for higher order derivatives.
+Series solution obtained by an interpolation and Koev-Edelman evaluation.
+Previous version: misc-2011/10/wishart/Prog/mh.rr
+*/
+
+module tk_jack$
+localf permutation;
+localf mysum;
+localf partition_a;
+localf partition;
+localf plength;
+localf ptrans;
+localf ptrans0;
+localf huk;
+localf hdk;
+localf jjk;
+localf ppoch;
+localf qk;
+localf bb;
+localf beta;
+localf enum_hstrip;
+localf xn;
+localf jack;
+localf zonal;
+localf mhgj;
+localf mh_t;
+localf mh_t2;
+localf mtest1;
+localf mtest1b;
+localf mtest2;
+localf mtest3;
+localf q3_10;
+localf q3_5;
+localf mtest4;
+localf mtest4b;
+localf nk;
+localf plength2;
+localf myeq;
+localf genDarray;
+localf check1;
+localf pListPartition;
+localf pListPartition2;
+localf pExec_0;
+localf pListHS;
+localf pListHS2;
+localf hsExec_0;
+localf pmn;
+localf pExec_darray;
+localf genDarray2;
+localf isHStrip;
+localf hsExec_beta;
+localf genBeta;
+localf checkBeta1;
+localf checkBeta2;
+localf psublen;
+localf genJack;
+localf checkJack1;
+localf mhdiff;
+localf checkJack2;
+localf listJack;
+
+
+static Alpha$
+Alpha=2$
+static Darray$
+Darray=0$
+static Parray$
+Parray=0$
+/* cf. base_permutation */
+def permutation(N) {
+  if (N == 1) return([newvect(1,[0])]);
+  A=[];
+  AA = permutation(N-1);
+  M = length(AA);
+  for (I=0; I<M; I++) {
+    PP = AA[I];
+    for (J=0; J<N; J++) {
+      P = newvect(N); 
+      for (K=0,KK=0; K<N; K++) {
+        if (K == J) {
+          P[K] = N-1; KK++;
+        }else{
+          P[K] = PP[K-KK];
+        }
+      }
+      A = cons(P,A);
+    }
+  }
+  return(reverse(A));
+}
+
+def mysum(L) {
+  N=length(L);
+  S=0;
+  for (I=0; I<N; I++) S += L[I];
+  return(S);
+}
+/*
+ x_0+...+x_{N-1} <= K
+*/
+def partition_a(N,K) {
+  Ans = [];
+  if (N < 1) return([]);
+  if (N == 1)  {
+    for (I=0; I<=K; I++) {
+       Ans=cons([I],Ans);
+    }
+    return( reverse(Ans) );
+  }else{
+    K1 = partition_a(N-1,K);
+    Ans = [];
+    for (I=0; I<length(K1); I++) {
+      P = K1[I];
+      Psize = mysum(P); Plast=P[N-2];
+      for (J=0; J<=K-Psize; J++) {
+         if (J <= Plast) {
+            Ans=cons(append(P,[J]),Ans);
+         }
+       }      
+     }
+     return(reverse(Ans));
+  }
+}
+
+/*
+ x_0+...+x_{N-1} = K
+*/
+def partition(N,K) {
+  P = partition_a(N,K);
+  Ans=[];
+  for (I=0; I<length(P); I++) {
+    if (mysum(P[I]) == K) Ans=cons(P[I],Ans);
+  }
+  return(Ans);
+}
+
+/*
+ (3,2,2,0,0) --> 3
+*/
+def plength(P) {
+  for (I=0; I<length(P); I++) {
+    if (P[I] == 0) return(I);
+  }
+  return(length(P));
+}
+
+/*  
+ ptrans(P)  returns P'
+*/
+def ptrans(P) {
+  L = length(P);
+  if (type(P) == 4) P = newvect(L,P);
+  else P = matrix_clone(P);
+  return(ptrans0(P));
+}
+def ptrans0(P) {
+  if (length(P) == 0) return [];
+  if (P[0] == 0) return [];
+  L = plength(P);
+  for (I=0; I<L; I++) {
+    P[I] -= 1;
+  }
+  return( cons(L,ptrans0(P)) );
+}
+/*
+  upper hook length
+  h_kappa^*(K)
+*/
+def huk(K,I,J) {
+  /* extern Alpha; */
+  A=Alpha;
+  /*printf("h^k(%a,%a,%a,%a)\n",K,I,J,A);*/
+  Kp = ptrans(K);
+  H=Kp[J-1]-I+A*(K[I-1]-J+1);
+  return(H);
+} 
+
+/*
+  lower hook length
+  h^kappa_*(K)
+*/
+def hdk(K,I,J) {
+  /* extern Alpha; */
+  A = Alpha;
+  /*printf("h_k(%a,%a,%a,%a)\n",K,I,J,A);*/
+  Kp = ptrans(K);
+  H=Kp[J-1]-I+1+A*(K[I-1]-J);
+  return(H);
+} 
+/*
+  j_kappa.  cf. Stanley.
+*/
+def jjk(K) {
+  /* extern Alpha; */
+  A=Alpha;
+  V=1;
+  L=plength(K);
+  for (I=0; I<L; I++) {
+    for (J=0; J<K[I]; J++) {
+      V *= huk(K,I+1,J+1)*hdk(K,I+1,J+1);
+    }
+  }
+  return(V);
+}
+/*
+  (a)_kappa^\alpha, Pochhammer symbol
+  Note that  ppoch(a,[n]) = (a)_n, Alpha=2
+*/
+def ppoch(A,K) {
+  /* extern Alpha; */
+  V = 1;
+  L=plength(K);
+  for (I=0; I<L; I++) {
+    for (J=0; J<K[I]; J++) {
+      II = I+1; JJ = J+1;
+      V *= (A-(II-1)/Alpha+JJ-1);
+    }
+  }
+  return(V);
+}
+/* Q_kappa
+*/
+def qk(K,A,B) {
+  /* extern Alpha; */
+  P = length(A);
+  Q = length(B);
+  V = Alpha^(mysum(K))/jjk(K);
+  for (I=0; I<P; I++) V = V*ppoch(A[I],K);
+  for (I=0; I<Q; I++) V = V/ppoch(B[I],K);
+  return(V);
+}
+
+/*
+ B^nu_{kappa,mu}(i,j)
+ bb(N,K,M,I,J)
+*/
+def bb(N,K,M,I,J) {
+  Kp = ptrans(K);
+  Mp = ptrans(M);
+/*  printf("K=%a, Kp=%a\n",K,Kp);
+  printf("M=%a, Mp=%a\n",M,Mp); */
+  if ((length(Kp) < J) || (length(Mp) < J)) return(hdk(N,I,J));
+  if (Kp[J-1] == Mp[J-1]) return(huk(N,I,J));
+  else return(hdk(N,I,J));
+}
+/*
+  beta_{kappa,mu}
+  beta(K,M)
+*/
+def beta(K,M) {
+  V = 1;
+
+  L=plength(K);
+  for (I=0; I<L; I++) {
+    for (J=0; J<K[I]; J++) {
+      II = I+1; JJ = J+1;
+      V *= bb(K,K,M,II,JJ);
+      /* printf("%a,%a,%a\n",I,J,V); */
+    }
+  }
+
+  L=plength(M);
+  for (I=0; I<L; I++) {
+    for (J=0; J<M[I]; J++) {
+      II = I+1; JJ = J+1;
+      V /= bb(M,K,M,II,JJ);
+      /* printf("%a,%a,%a\n",I,J,V); */
+    }
+  }
+
+  return(V);
+}
+/*
+  enumerate horizontal strip of kappa.
+  K_i >= M_i >=K_{i+1}
+*/
+def enum_hstrip(K) {
+  if (plength(K) == 1) {
+    Ans=[];
+    for (I=0; I<=K[0]; I++) Ans=cons([I],Ans);
+    return(Ans);
+  }
+  if (type(K) != 4) K = vtol(K);
+  L = enum_hstrip(cdr(K));
+  Ans = [];
+  for (I=K[1]; I<=K[0]; I++) {
+    for (J=0; J<length(L); J++) {
+      Ans = cons(cons(I,L[J]),Ans);
+    }
+  }
+}
+def xn(N) {
+  Ans=[];
+  for (I=1; I<=N; I++) {
+    Ans = cons(util_v(x,[I]),Ans);
+  }
+  return reverse(Ans);
+}
+/*
+  zonal([n],1);
+  zonal([2,1],2);
+*/
+/*
+   previous name of the zonal() was jack(). 
+*/
+def zonal(K,N) {
+  /* extern Alpha; */
+  if (length(K) == 0) return(1);
+  if (K[0] == 0) return(1);
+  if (N == 1) {
+     F=util_v(x,[1])^mysum(K);
+     L=plength(K);
+     for (I=0; I<L; I++) {
+       for (J=0; J<K[I]; J++) {
+         II = I+1; JJ = J+1;
+         F *= (N-(II-1)+Alpha*(JJ-1));
+       }
+     }
+     return(F);
+  }
+  F = 0;
+  P = enum_hstrip(K);
+  for (I=0; I<length(P); I++) {
+    M = P[I];
+    F += zonal(M,N-1)*util_v(x,[N])^(mysum(K)-mysum(M))*beta(K,M);
+  }
+  return(F);
+}
+def jack(K,N,A) {
+  Alpha = A;
+  F=zonal(K,N);
+  A = 2; /* default value */
+  return(F);
+}
+
+/*
+ cf. w1m.rr 
+  matrix hypergeometric by jack
+  N variables, up to degree M.
+*/
+def mhgj(A,B,N,M) {
+  F = 0;
+  P = partition_a(N,M);
+  for (I=0; I<length(P); I++) {
+     K = P[I];
+     F += qk(K,A,B)*zonal(K,N);
+  }
+  return(F);
+}
+
+static M_qk$
+M_qk=0$
+def mh_t(A,B,N,M) {
+  /* extern M_qk; */
+  genJack(M,N);
+  M_qk = newvect(P_pmn);
+  F = 0;
+  for (K=0; K<P_pmn; K++) {
+     Kap = Parray[K];
+     M_qk[K] = qk(Kap,A,B);
+     F += M_qk[K]*M_jack[N][0][K];
+  }
+  return(F);
+}
+def mh_t2(J) {
+  /* extern M_qk; */
+  if (type(M_qk) == 0) error("Call mh_t first.");
+  F = 0; 
+  for (K=0; K<P_pmn; K++) {
+     F += M_qk[K]*M_jack[M_n][J][K];
+  }
+  return(F);
+}
+
+/* passed */
+def mtest1() {
+  F=mhgj([3/2],[3/2+10/2],2,3);
+  F=base_replace(F,[[x_1,y_0],[x_2,y_1]]);
+  /* load w1m.rr */
+  G=mhg(4,4,10,2)[0]; /* upto degree 4, n=10, 2 variables */
+  return(F-G);
+}
+def mtest1b() {
+  N=3;  M=6; M_df=1;
+  F=mh_t([3/2],[3/2+10/2],N,M);
+  Rule=[];
+  printf("mh_t=%a\n",deval(base_replace(F,Rule)));
+  for (I=1; I<=N; I++) {
+    Rule=cons([util_v(x,[I]),deval(I/10)],Rule);
+  }
+  printf("Rule=%a\n",Rule);
+  for (J=0; J<2^N; J++) 
+	/* %% printf("J=%a, D^J mh_t=%a\n",J,deval(base_replace(mhdiff(F,J,N),Rule))); */
+	printf("J=%a, D^J mh_t2=%a\n",J,deval(base_replace(mh_t2(J),Rule)));
+/*
+J=0, D^J mh_t=1.15017
+J=1, D^J mh_t=0.267
+J=2, D^J mh_t=0.269995
+J=3, D^J mh_t=0.0603364
+J=4, D^J mh_t=0.273035
+J=5, D^J mh_t=0.0610073
+J=6, D^J mh_t=0.0616832
+J=7, D^J mh_t=0.0132583  by diff %%
+
+J=0, D^J mh_t2=1.15017
+J=1, D^J mh_t2=0.267
+J=2, D^J mh_t2=0.269995
+J=3, D^J mh_t2=0.0603364
+J=4, D^J mh_t2=0.273035
+J=5, D^J mh_t2=0.0610073
+J=6, D^J mh_t2=0.0616832
+J=7, D^J mh_t2=0.0132583 by table diff
+*/
+}
+
+def mtest2() {
+  F=mhgj([3/2],[3/2+9/2],2,5);
+  F=base_replace(F,[[x_1,y_0],[x_2,y_1]]);
+  /* load w1m.rr */
+  G=mhg(5,5,9,2)[0]; /* upto degree 5, n=9, 2 variables */
+  return(F-G);
+}
+
+/* passed when the mtest3(Deg)[0] == 0 or close to 0 
+  mtest3(1); mtest3(2); ...
+*/
+def mtest3(Deg) {
+  N=10; M=3; /* M number of variables */
+  F=mhgj([(M+1)/2],[(M+1)/2+N/2],M,Deg);
+  F=base_replace(F,[[x_1,y_0],[x_2,y_1],[x_3,y_2]]);
+  /* load w1m.rr */
+  G=mhg(Deg,Deg+1,N,M)[0]; 
+  return([F-G,F]);
+}
+
+/* The quotient of (3.10) of Koev-Edelman K=kappa, M=mu, SK=k */
+def q3_10(K,M,SK) {
+  /* extern Alpha;*/
+  Mp = ptrans(M);
+  ML = M; if (type(ML) != 4) ML=vtol(ML); 
+  N = newvect(plength(ML),ML); N[SK-1] = N[SK-1]-1; N = vtol(N);
+  T = SK-Alpha*M[SK-1];
+  Q = T+1; 
+  V = Alpha;
+  for (R=1; R<=SK; R++) {
+    Ur = Q-R+Alpha*K[R-1];
+    V *= Ur/(Ur+Alpha-1);
+  }
+  for (R=1; R<=SK-1; R++) {
+    Vr = T-R+Alpha*M[R-1];
+    V *= (Vr+Alpha)/Vr;
+  }
+  for (R=1; R<=M[SK-1]-1; R++) {
+    Wr = Mp[R-1]-T-Alpha*R;
+    V *= (Wr+Alpha)/Wr;
+  }
+  return(V);
+}
+
+def q3_5(A,B,K,I) {
+  /* extern Alpha; */
+  Kp = ptrans(K);
+  P=length(A); Q = length(B);
+  C = -(I-1)/Alpha+K[I-1]-1;
+  D = K[I-1]*Alpha-I;
+
+  V=1; 
+
+  for (J=1; J<=P; J++)  {
+     V *= (A[J-1]+C);
+  }
+  for (J=1; J<=Q; J++) {
+     V /= (B[J-1]+C);
+  }
+
+  for (J=1; J<=K[I-1]-1; J++) {
+     Ej = D-J*Alpha+Kp[J-1];
+     Gj = Ej+1;
+     V *= (Gj-Alpha)*Ej/(Gj*(Ej+Alpha));
+  } 
+  for (J=1; J<=I-1; J++) {
+     Fj=K[J-1]*Alpha-J-D;
+     Hj=Fj+Alpha;
+     Lj=Hj*Fj;
+     V *= (Lj-Fj)/(Lj+Hj);
+  }
+  return(V);
+}
+
+def mtest4() {
+  A=[3/2];B=[3/2+10/2];
+  K=[3,2];I=2; Ki=[3,1];
+  V1=q3_5(A,B,K,I);
+  V2=qk(K,A,B)/qk(Ki,A,B);
+  return([V1,V2]);
+}
+def mtest4b() {
+  K=[3,2]; 
+  M=[2,1]; N=[2,0]; SK=2;
+  V1=q3_10(K,M,SK);
+  V2=beta(K,N)/beta(K,M);
+  return([V1,V2]);
+}
+
+/* nk in (4.1),
+*/
+def nk(KK) {
+  /* extern Darray; */
+  N = plength(KK);
+  if (N == 0) return(0);
+  if (N == 1) return(KK[0]);
+  K = newvect(plength(KK)); 
+  for (I=0; I<N; I++) K[I] = KK[I];
+  if (type(K) != 4) K = vtol(K);
+  Kpp = reverse(K);
+  Ki = car(Kpp);
+  Kpp = reverse(cdr(Kpp));  /* K = (Kpp,Ki) */
+  return(Darray[nk(Kpp)]+Ki-1);
+}
+def plength2(P1,P2) {
+  S1 = plength(P1); S2 = plength(P2);
+  if (S1 > S2) return(1);
+  else if (S1 == S2) {
+    S1=mysum(P1); S2=mysum(P2);
+    if(S1 > S2) return(1);
+    else if (S1 == S2) return(0);
+    else return(-1);
+  }
+  else return(-1);
+}
+def myeq(P1,P2) {
+  if (plength(P1) != plength(P2)) return(0);
+  for (I=0; I<plength(P1); I++) {
+    if (P1[I] != P2[I]) return(0);
+  }
+  return(1);
+}
+/*
+  M is a degree, N is a number of variables
+  genDarray(3,3);
+  N(0)=0;
+  N(1)=1;
+  N(2)=2;
+  N(3)=3;
+  N(1,1)=4;  D[1] = 4
+  N(2,1)=5;  D[2] = 5;
+  N(1,1,1)=6; D[4] = 6;
+  still buggy.
+*/
+def genDarray(M,N) {
+  /*extern Darray;
+  extern Parray; */
+  L = partition_a(N,M);
+  L = qsort(newvect(length(L),L),plength2);
+  Pmn = length(L);
+  printf("Degree M = %a, N of vars N = %a, Pmn=%a\n",M,N,Pmn);
+  printf("L=%a\n",L);
+  if (Darray==0) Darray=newvect(Pmn+1);
+  Nk = newvect(Pmn+1);
+  for (I=0; I<Pmn; I++) Nk[I] = I;
+  for (I=0; I<Pmn; I++) {
+     K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
+     Ksize = plength(K);
+     Kone=newvect(Ksize+1); for(J=0; J<Ksize; J++) Kone[J]=K[J]; Kone[Ksize] = 1;
+     /* if (myeq(K,[1,1])) printf("I=%a,Kone=%a\n",I,Kone); */
+     for (J=0; J<Pmn; J++) {
+        if (myeq(L[J],Kone)) Darray[I] = J; /* J is the next of I */
+     }
+  }
+  printf("Darray=%a\n",Darray);
+  Parray = L;
+}
+
+def check1() {
+  /* extern Darray;
+  extern Parray; */
+  L = Parray;
+  for ( I=0; I<length(L); I++) {
+    P=L[I]; Psize = plength(P);
+    PP=newvect(Psize+1); for(J=0; J<Psize; J++) PP[J]=P[J]; PP[Psize] = 1;
+    if ((Psize==0) || (PP[Psize] <= PP[Psize-1])) {
+      printf("Darray(nk(%a)=%a)=%a  == (nk(%a)=%a)?\n",P,nk(P),Darray[nk(P)],PP,nk(PP)); 
+      /* Darray[nk(P)] = nk(PP); */
+    }     
+  }
+}
+
+/*
+Prob: how to generate Parray and Darray efficiently.
+genDarray(4,3); check1() have error message.
+*/
+
+static M_kap$
+static M_n$  /* digits */
+static M_m$  /* | | <= M_m */
+static M_plist$ /* to save a list. asir only */
+static M_pExec$
+
+def pListPartition(M,N) {
+  /* initialize */
+  M_n = N;
+  M_m = M;
+  M_kap = newvect(M_n+1);
+  M_plist = [];
+  /* end of initialize */
+  (*M_pExec)();  /* exec for 0 */
+  for (I=1; I<=M_n; I++) { 
+    pListPartition2(M_m,1,I,M_m);
+  }
+  M_plist = reverse(M_plist);
+  return(1);
+}
+
+/*
+  Enumerate all such that
+  Less >= M_kap[From], ..., M_kap[To],  |(M_kap[From],...,M_kap[To])|<=M, 
+*/
+def pListPartition2(Less,From,To,M) {
+  if (To < From) {
+     (*M_pExec)(); return(0);
+  }
+  for (I=1; (I<=Less) && (I<=M) ; I++) {
+    M_kap[From] = I;
+    R = pListPartition2(I,From+1,To,M-I);
+  } 
+  return(1);
+}
+
+/*
+  Implement works for partition here.
+*/
+M_pExec=pExec_0$
+def pExec_0() {
+  M_plist = cons(cdr(vtol(M_kap)),M_plist);
+  printf("pExec:%a\n", M_kap);
+}
+
+/* Test.
+  Compare pListPartition(4,3);  genDarray(4,3);
+  Compare pListPartition(5,3);  genDarray(5,3);
+
+*/
+
+/*
+  List all horizontal strips.
+  Kap[0] is a dummy, Start from Kap[1].
+*/
+static HS_mu$
+static HS_n$
+static HS_plist$
+static HS_hsExec$
+def pListHS(Kap,N) {
+  HS_n = N;
+  HS_mu = newvect(N+1);
+  HS_plist = [];
+  pListHS2(1,N,Kap);
+  HS_plist = reverse(HS_plist);
+}
+
+def pListHS2(From,To,Kap) {
+  if (To <From) {(*HS_hsExec)(); return(0);}
+  if (From == HS_n) More=0; else More=Kap[From+1];
+  for (I=Kap[From]; I>= More; I--) {
+    HS_mu[From] = I;
+    pListHS2(From+1,To,Kap);
+  } 
+  return(1);
+}
+
+def hsExec_0() {
+  HS_plist = cons(cdr(vtol(HS_mu)),HS_plist);
+  printf("hsExec: %a\n",HS_mu);
+}
+
+HS_hsExec = hsExec_0$
+
+/*
+  pListHS([0,4,2,1],3);
+*/
+
+/* The number of partitions <= M, with N parts.
+  (0,0,...,0) is excluded.
+*/
+static P_pki$
+static P_pmn$
+def pmn(M,N) {
+  Min_m_n = (M>N?N:M);
+  P_pki=newmat(Min_m_n+1,M+1);
+  for (I=1; I<=M; I++) P_pki[1][I] = 1;
+  for (K=1; K<=Min_m_n; K++) P_pki[K][0] = 0;
+  S = M;
+  for (K=2; K<=Min_m_n; K++) {
+    for (I=1; I<=M; I++) {
+      if (I-K < 0) T=0; else T=P_pki[K][I-K];
+      P_pki[K][I] = P_pki[K-1][I-1]+T;
+      S += P_pki[K][I];
+    }
+  }
+  P_pmn=S;
+  return(S);
+}
+
+static DR_parray$
+DR_parray=0$
+def pExec_darray() {
+  pExec_0();
+  K = cdr(vtol(M_kap));
+  Parray[DR_parray] = K;
+  DR_parray++;
+}
+def genDarray2(M,N) {
+  /* extern Darray;
+  extern Parray;
+  extern M_pExec; */
+  Pmn = pmn(M,N)+1;
+  printf("Degree M = %a, N of vars N = %a, Pmn+1=%a\n",M,N,Pmn);
+  Darray=newvect(Pmn);
+  Parray=newvect(Pmn); DR_parray=0;
+  M_pExec = pExec_darray;  
+  pListPartition(M,N);  /* pExec_darray() is executed for all partitions */
+  L = Parray;
+
+  Nk = newvect(Pmn+1);
+  for (I=0; I<Pmn; I++) Nk[I] = I;
+  for (I=0; I<Pmn; I++) {
+     K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
+     Ksize = plength(K);
+     Kone=newvect(Ksize+1); for(J=0; J<Ksize; J++) Kone[J]=K[J]; Kone[Ksize] = 1;
+     for (J=0; J<Pmn; J++) {
+        if (myeq(L[J],Kone)) Darray[I] = J; /* J is the next of I */
+     }
+  }
+  printf("Darray=%a\n",Darray);
+}
+
+static M_beta$   /* M_beta[0][*] value of beta_{kappa,mu}, M_beta[1][*] N_mu */
+static M_beta_pt$
+static M_beta_kap$
+def isHStrip(Kap,Nu) {
+  N1 = plength(Kap); N2 = plength(Nu);
+  if (N2 > N1) return(0);
+  for (I=0; I<N2; I++) {
+    if (I >= N1-1) P = 0; else P=Kap[I+1]; 
+    if (Kap[I] < Nu[I]) return(0);
+    if (Nu[I]  < P) return(0);
+  }
+  return(1);
+}
+def hsExec_beta() {
+  hsExec_0();
+  /* printf("M_beta_pt=%a\n",M_beta_pt); */
+  Mu = cdr(vtol(HS_mu));
+  if (M_beta_pt == 0) {
+    M_beta[0][0] = 1; M_beta[1][0] = nk(Mu); 
+    M_beta_pt++; return;
+  }
+
+  N = HS_n;
+  Nmu = nk(Mu);
+  M_beta[1][M_beta_pt] = Nmu;
+  Kapt = ptrans(M_beta_kap);
+  /* Mu, Nu are exchanged in this code. cf. the K-E paper  */
+  Nu = newvect(N,Mu);
+  for (I=0; I<N; I++) {
+    Nu[I]++;
+    if (!isHStrip(M_beta_kap,Nu)) {Nu[I]--; continue;}
+    Nnu = nk(Nu);
+    Nut = ptrans(Nu);
+    Done=0;
+    for (J=M_beta_pt-1; J>=0; J--) {
+      if (M_beta[1][J] == Nnu) {
+         K=I+1;
+         /* Check other conditions. */
+         RRMax = Nu[I]-1;
+         if ((plength(Kapt) < RRMax) || (plength(Nut) < RRMax)) {
+             printf(" is not taken (length). \n"); break;
+         }
+         OK=1; 
+         for (RR=0; RR<RRMax; RR++) {
+            if (Kapt[RR] != Nut[RR]) { OK=0; break;}
+         }
+         if (!OK) {printf(" is not taken.\n"); break; }
+         printf("Found at J=%a, K=%a, Nu=%a, Mu=%a, q3_10(Kap,Nu,K)=%a\n",
+                J,K,Nu,Mu,q3_10(M_beta_kap,Nu,K));
+         /* check done. */
+         M_beta[0][M_beta_pt]=M_beta[0][J]*q3_10(M_beta_kap,Nu,K);
+         Done = 1; break;
+      } 
+    }
+    if (Done) break; else Nu[I]--;
+  }
+  if (!Done) { M_beta[0][M_bea_pt] = nn; printf("Not found\n"); /* error("Not found."); */ }
+  M_beta_pt++;
+}
+def genBeta(Kap) {
+  /* extern M_beta;
+  extern M_beta_pt;
+  extern M_beta_kap;
+  extern HS_hsExec;
+  extern P_pmn; */
+  printf("Kappa=%a, M_pmn=%a\n",Kap,P_pmn);
+  M_beta = newmat(2,P_pmn+1);
+  M_beta_pt = 0;
+  for (I=0; I<=M_pmn; I++) for (J=0; J<2; J++) M_beta[J][I] = n;
+  N = plength(Kap);
+  HS_hsExec = hsExec_beta;
+  M_beta_kap = Kap;
+  pListHS(cons(0,Kap),N);
+}
+/*
+  genDarray2(4,3);
+  genBeta([2,2,0]);
+  genBeta([2,1,1]);
+*/
+
+def checkBeta1() {
+  genDarray2(4,3);
+  Kap = [2,2,0];
+  printf("Kap=%a\n",Kap);
+  genBeta(Kap);
+  for (I=0; I<M_beta_pt; I++) {
+    Mu = Parray[M_beta[1][I]];
+    Beta_km = M_beta[0][I];
+    printf("Mu=%a,",Mu);
+    printf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
+  }
+}
+def checkBeta2() {
+  genDarray2(3,3);
+  Kap = [2,1,0];
+  printf("Kap=%a\n",Kap);
+  genBeta(Kap);
+  for (I=0; I<M_beta_pt; I++) {
+    Mu = Parray[M_beta[1][I]];
+    Beta_km = M_beta[0][I];
+    printf("Mu=%a,",Mu);
+    printf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
+  }
+}
+
+def psublen(Kap,Mu) {
+  L1 = plength(Kap);
+  L2 = plength(Mu);
+  if (L2 > L1) error("psub, length mismatches.");
+  A = 0;
+  for (I=0; I<L2; I++) {
+    if (Kap[I] < Mu[I]) error("psub, not Kap >= Mu"); 
+    A += Kap[I]-Mu[I];
+  }
+  for (I=L2; I<L1; I++) A += Kap[I];
+  return(A);
+}
+/* Table of Jack polynomials
+  Jack[1]* one variable.
+  Jack[2]* two variables.
+   ...
+  Jack[M_n]* n variables.
+  Jack[P][J]*  
+       D^J(P variables jack of p variables). Example. J=001 d_1, 010 d_2, 100 d_3
+       0<=J<=2^{M_n}-1
+  Jack[P][J][nk(Kappa)]  Jack_Kappa, Kappa is a partition.
+  0<=nk(Kappa)<=pmn(M_m,M_n)  
+*/
+static M_jack$ 
+static M_df$ /* Compute differentials? */
+static M_2n$ /* 2^N */
+
+def genJack(M,N) {
+  /* extern M_jack;
+  extern M_2n;
+  extern P_pmn; */
+  M_jack = newvect(N+1);
+  M_2n = 2^N;
+  Pmn = pmn(M,N);  /*P_pmn is initializeded. 
+                     Warning. It is reset when pmn is called.*/
+  for (I=0; I<=N; I++) M_jack[I] = newmat(M_2n,Pmn+1);
+  genDarray2(M,N); /* Darray, Parray is initialized */
+  for (I=1; I<=N; I++) (M_jack[I])[0][0] = 1; 
+  if (M_df) {
+    for (I=1; I<=N; I++) {
+      for (J=1; J<M_2n; J++) (M_jack[I])[J][0] = 0;
+    }
+  }
+
+  for (K=1; K<=M; K++) {
+    (M_jack[1])[0][K] = zonal([K],1);
+    if (M_df) {
+      (M_jack[1])[1][K] = diff(zonal([K],1),x_1);
+      for (J=2; J<M_2n; J++) (M_jack[1])[J][K] = 0;
+    }
+  }
+  for (I=1; I<=N; I++) {
+    for (K=M+1; K<Pmn+1; K++) {
+      (M_jack[I])[0][K] = nn;
+      if (M_df) {
+        for (J=1; J<M_2n; J++) {
+          if (J >= 2^I) (M_jack[I])[J][K] = 0;
+	  else (M_jack[I])[J][K] = nn;
+        }
+      }
+    }
+  }
+
+  /* Start to evaluate the entries of the table */
+  for (K=1; K<=Pmn; K++) {
+    Kap = Parray[K];
+    L = plength(Kap);
+    for (I=1; I<=L-1; I++) {
+      (M_jack[I])[0][K] = 0;
+      if (M_df) {
+        for (J=1; J<M_2n; J++) (M_jack[I])[J][K] = 0;
+      } 
+    }
+    printf("Kappa=%a\n",Kap);
+    /* Enumerate horizontal strip of Kappa */
+    genBeta(Kap);  /* M_beta_pt stores the number of hs */
+    /* Nv is the number of variables */
+    for (Nv = (L==1?2:L); Nv <= N; Nv++) {
+      Jack = 0;
+      for (H=0; H<M_beta_pt; H++) {
+        Nk = M_beta[1][H];
+        Mu = Parray[Nk];
+        /* Beta_km = M_beta[0][H]; */
+        Beta_km = beta(Kap,Mu); /* do not use the M_beta table. It's buggy. */
+        printf("Nv(number of variables)=%a, Mu=%a, Beta_km=%a\n",Nv,Mu,Beta_km);
+        P = psublen(Kap,Mu);
+        Jack += (M_jack[Nv-1])[0][Nk]*Beta_km*util_v(x,[Nv])^P;
+      }
+      M_jack[Nv][0][K] = Jack;
+      if (M_df) {
+        /* The case of M_df > 0. */ 
+        for (J=1; J<M_2n; J++) {
+      Jack = 0;
+      for (H=0; H<M_beta_pt; H++) {
+        Nk = M_beta[1][H];
+        Mu = Parray[Nk];
+        /* Beta_km = M_beta[0][H]; */
+        Beta_km = beta(Kap,Mu); /* do not use the M_beta table. It's buggy. */
+        printf("M_df: Nv(number of variables)=%a, Mu=%a, Beta_km=%a\n",Nv,Mu,Beta_km);
+        P = psublen(Kap,Mu);
+        if (iand(J ,ishift(1,-(Nv-1)))) {
+          JJ = iand(J, ixor(ishift(1,-(Nv-1)),0xffff));
+          Jack += (M_jack[Nv-1])[JJ][Nk]*Beta_km*P*util_v(x,[Nv])^(P-1);
+        }else{
+          Jack += (M_jack[Nv-1])[J][Nk]*Beta_km*util_v(x,[Nv])^P;
+        }
+      }
+      M_jack[Nv][J][K] = Jack;
+        } /* end of J loop */
+      }
+    }
+  }
+}  
+
+/* checkJack1(3,3) --> buggy when we use genBeta 
+*/
+def checkJack1(M,N) {
+  genJack(M,N);
+  for (I=1; I<=N; I++) {
+    for (K=0; K<=P_pmn; K++) {
+       printf("Nv=%a,Kap=%a, TableJack-Jack=%a\n",
+              I,Parray[K],M_jack[I][0][K]-zonal(Parray[K],I));
+    }
+  }
+  Rule=[];
+  for (I=1; I<=N; I++) {
+    Rule=cons([util_v(x,[I]),deval(I/10)],Rule);
+  }
+  printf("Rule=%a\n",Rule);
+  for (I=1; I<=N; I++) {
+    for (K=0; K<=P_pmn; K++) {
+       printf("Nv=%a,Kap=%a, Jack=%a\n",
+              I,Parray[K],base_replace(M_jack[I][0][K],Rule));
+    }
+  }
+}
+def mhdiff(F,J,N) {
+  for (I=1; I<=N; I++) {
+    if (iand(J,ishift(1,-(I-1)))) F = diff(F,util_v(x,[I]));
+  } 
+  return(F);
+}
+/*
+ checkJack2(3,3), checkJack2(6,3), checkJack2(6,4);
+*/
+def checkJack2(M,N) {
+  /* extern M_df; */
+  M_df=1;
+  genJack(M,N);
+  for (I=1; I<=N; I++) {
+    for (K=1; K<=P_pmn; K++) {
+       Jack=zonal(Parray[K],I);
+       for (J=0; J<M_2n; J++) {
+         T = M_jack[I][J][K]-mhdiff(Jack,J,M_n);
+         printf("Nv=%a, J(diff)=%a, Kap=%a, TableJack-Jack=%a\n",
+                I,J,Parray[K],T);
+         if (T != 0) error("checkJack2");
+       }
+    }
+  }
+  Rule=[];
+  for (I=1; I<=N; I++) {
+    Rule=cons([util_v(x,[I]),deval(I/10)],Rule);
+  }
+  printf("Rule=%a\n",Rule);
+  for (I=1; I<=N; I++) {
+    for (K=0; K<=P_pmn; K++) {
+      for (J=0; J<M_2n; J++) 
+      printf("Nv=%a,J(diff)=%a, Kap=%a, D^J Jack=%a\n",
+              I,J,Parray[K],base_replace(M_jack[I][J][K],Rule));
+    }
+  }
+}
+
+def listJack(M,N) {
+  genJack(M,N);
+  printf("\\begin{eqnarray*}\n");
+  for (K=0; K<=P_pmn; K++) {
+    Kap = Parray[K];
+    printf("J_{%a}(x_1,x_2,x_3)&=&  %a\\\\\n",Kap,print_tex_form(poly_sort(M_jack[3][0][K])));
+  }
+  printf("\\end{eqnarray*}\n");
+}
+endmodule$
+end$

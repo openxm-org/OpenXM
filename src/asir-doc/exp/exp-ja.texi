@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.44 2011/12/09 02:18:48 nisiyama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.45 2012/02/26 01:25:30 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2010 年 9 月
+@subtitle 2012 年 9 月
 
 @author  by Risa/Asir committers
 @page
@@ -138,6 +138,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * tk_pfn.graph::
 * tk_rk.runge_kutta_4::
 * tk_rk.runge_kutta_4_linear::
+* tk_rk.zonal::
 @end menu
 
 @node クオート,,, 実験的仕様の関数
@@ -3508,6 +3509,59 @@ Todo: exp 以外の特殊関数についてのsimplification の機能.
 @item 
 この関数は 2010.01 に M.Fujimoto により最初の版が書かれた. 
 OpenXM/src/asir-contrib/packages/src/fj_simplify.rr
+@end itemize
+
+@node tk_jack.zonal,,, 実験的仕様の関数
+@subsection @code{tk_jack.zonal}
+@findex tk_jack.zonal
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item tk_jack.zonel(@var{p},@var{n})
+:: 分割 p に対する n 変数の zonal 多項式を出力する. 
+@end table
+
+@table @var
+@item return
+多項式. x_1, x_2, ... が変数.
+@item p
+数のリスト. p=[p0,p1,...] の時 p0>=p1>=...>0. 
+@item n
+自然数
+@end table
+
+@itemize @bullet
+@item
+この関数は
+Koev-Edelman による Pieri 型公式を用いた Jack symmetric function の計算
+アルゴリズムの実装である.
+詳しくは Wikipedia 英語版 Jack symmetric function の項を参照.
+@item zonal(P,N) = jack(P,N,2) である.
+@end itemize
+
+@example
+load("tk_jack.rr");
+[1434] tk_jack.zonal([3,2,1],3);
+(112*x_3*x_2^2+112*x_3^2*x_2)*x_1^3+(112*x_3*x_2^3+168*x_3^2*x_2^2+112*x_3^3*x_2)*x_1^2+(112*x_3^2*x_2^3+112*x_3^3*x_2^2)*x_1
+[1435] tk_jack.zonal([1,1],3);
+(2*x_2+2*x_3)*x_1+2*x_3*x_2
+[1436]  tk_jack.jack([1,1],3,2);
+(2*x_2+2*x_3)*x_1+2*x_3*x_2
+@end example
+
+@table @t
+@item 参照
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+この関数は wishart 分布に従う対称行列の第一固有値が x 以下である確率の計算を 
+holonomic gradient method でやるためにその初期値を計算する C のプログラムが
+必要であった. それを debug するためにとりあえず書いたもの.
+@item 最適化をまだまださぼってる.
 @end itemize
 
 @comment -----------  以下は見本. 消すな.
