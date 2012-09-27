@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.5 2008/08/12 04:50:16 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.6 2012/08/26 01:35:43 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -995,6 +995,7 @@ def div_v(V,S) {
 
 
 def rat_to_p_aux(T) {  /* cf. rat2plist2 */
+  if (T == 0) return([0,1]);
   T = red(T);
   T1 = nm(T); T1a = ptozp(T1); 
   T1b = red(T1a/T1);
