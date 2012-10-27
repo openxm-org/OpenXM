@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.8 2009/02/22 02:34:41 ohara Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.9 2011/04/29 12:05:48 takayama Exp $
 # targets
 # all :
 #     do nothing
@@ -22,6 +22,7 @@ install : clean-for-install
 	for d in ${LIB_FOLDERS} ; do \
 		mkdir -p ${LIBDIR}/$$d ; \
 		${INSTALL_DATA} $$d/*.rr ${LIBDIR}/$$d ; \
+		${INSTALL_DATA} $$d/*.rb ${LIBDIR}/$$d ; \
 	done
 	${INSTALL_DATA} y_prime/Makefile  ${LIBDIR}/y_prime
 
