@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.27 2009/09/04 11:13:11 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.28 2012/09/16 01:53:08 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -642,6 +642,7 @@ debug 用に便利なコマンド.
  rr (UNDEF) getNode ::
  i-hg/crest09/Prog/fan*.sm1 (private)
 \end{verbatim}
+%$
 
 関係あるfiles.
 Doc/cgi.sm1, trans/, 
@@ -657,6 +658,22 @@ doPolymake は local のものを呼ぶ.
 syz が存在しない場合に syz (hol.sm1) が warning を出力する件.
 getRing を 空リストに対してやっていることが原因.
 kanExport0.c の data\_conversion の key を出力することにより debug. 
+
+\section{2012-10-29, doPolymake}
+
+doPolymake の仕組みを見て, 処理の bug を修正する予定.
+shell.c に help を追加.
+\begin{verbatim}
+  [(parse) (cgi.sm1) pushfile] extension
+  /doPolymake {doPolymake.OoHG} def
+  [(keep_tmp_files) (1)] oxshell
+ /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell
+\end{verbatim}
+{\tt \$TMP} に 作業ファイルを保存.
+{\tt kan96xx/trans} で データ形式の変換.
+作業ファイルの生成は 
+{\tt generateTMPfiles()} ({\tt util/ox\_pathfinder.c}).
+
 
 \end{document}
 

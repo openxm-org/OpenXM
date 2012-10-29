@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.13 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.14 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -97,7 +97,8 @@ void KoxShellHelp(char *key,FILE *fp) {
   }else if (strcmp(key,"keep_tmp_files")==0) {
     s[0] = "keep_tmp_files value";
     s[1] = "If value is zero, then temporary files are removed after execution.";
-    s[2] = NULL;
+    s[2] = "Example 1: [(keep_tmp_files) (1)] oxshell ; temporary files will be kept in /tmp or $TMP or ...";
+    s[3] = NULL;
   }else{
   }
   i = 0;
