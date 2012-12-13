@@ -624,7 +624,8 @@ def a_perfect_graph(N)
 
 def toric_ideal(A, VL)
 {
-	G = groebner(A);
+	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
+	G = groebner(A|quiet=Quiet);
 	G = map(v_to_binom, G, VL);
 	return G;	
 }
