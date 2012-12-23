@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.41 2005/09/27 06:10:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.42 2010/08/30 04:17:17 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -460,12 +460,18 @@ struct object Kextension(struct object obj)
 	obj2 = getoa(obj,2);
     rob = Kjoin(obj1,obj2);
   }else if (strcmp(key,"ostype")==0) {
-    rob = newObjectArray(1);
-    /* Hard encode the OS type. */
+    /* Hard encode the OS type.  cpp -dM /dev/null */
 #if defined(__CYGWIN__)
+    rob = newObjectArray(1);
     putoa(rob,0,KpoString("windows"));
 #else
+    rob = newObjectArray(2);
     putoa(rob,0,KpoString("unix"));
+#if defined(__APPLE__)
+    putoa(rob,1,KpoString("mac"));
+#else
+    putoa(rob,1,KpoString("generic"));
+#endif
 #endif
   }else if (strcmp(key,"stringToArgv")==0) {
     if (size != 2) errorKan1("%s\n","[(stringToArgv) a ] extension b");
