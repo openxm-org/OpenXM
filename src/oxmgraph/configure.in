@@ -17,7 +17,7 @@ case "${host}" in
 *)
     CPPFLAGS="${CPPFLAGS} -I /usr/local/include"
     AC_CHECK_HEADER(GL/glut.h, [], [TARGET=""])
-    LIBS="-L /usr/local/lib -lglut"
+    LIBS="-L /usr/local/lib -lGLU -lglut"
     ;;
 esac
 
