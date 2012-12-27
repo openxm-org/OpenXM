@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/int-parts/gc.texi,v 1.1 2001/04/23 05:45:35 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/int-parts/gc.texi,v 1.2 2003/04/19 10:36:28 noro Exp $
 \JP @chapter $B%a%b%j4IM}(B
 \EG @chapter Memory management
 
@@ -48,6 +48,9 @@ p $B$N;X$9NN0h$r3+J|$9$k(B. Risa $B$G$O(B, $B$"$kNN0h$,$I$3$+$i$I$N0L;X$5$l
 $B%s%?$r4^$^$J$$$3$H$,J,$+$C$F$$$kNN0hMQ$K(B @code{GC_malloc_atomic()} $B$,MQ(B
 $B0U$5$l$F$$$k(B. GC $B%k!<%A%s$O(B, @code{GC_malloc_atomic()} $B$K$h$j3d$jEv$F$i(B
 $B$l$?NN0h$NFbIt$O%9%-%c%s$7$J$$$N$G(B, GC $B$N8zN($,NI$/$J$k(B. 
+
+$B$J$*(B, version 7 $B0J9_$N(B GC $B$rMQ$$$F$$$k>l9g(B, $B$3$l$i$N4X?t$rD>@\8F$S=P$7$F(B
+$B$O$$$1$J$$(B. $BI,$:A08e=hM}$D$-$N4X?t(B (@code{Risa_}$B$r$D$1$?$b$N(B)$B$r8F$S=P$9$3$H(B.
 \E
 \BEG
 @example
@@ -149,6 +152,136 @@ P p1,p2,*pr;
 $BItJ,<0$,:G=*7k2L$KMQ$$$i$l$F$$$k$3$H$,$"$k$?$a(B, $BCm0U$,I,MW$G$"$k(B. $BFC$K(B, 
 $BG[Ns$r=q$-49$($kI,MW$,$"$k>l9g$J$I$K$O(B, $BG[Ns$=$N$b$N$r?7$7$/@8@.$7$F(B, $B@.(B
 $BJ,$r%3%T!<$7$F$+$iMQ$$$kI,MW$,$"$k(B.
+\E
+\BEG
+\E
+
+\JP @section GC version 7 $B$K4X$9$kCm0U(B
+\EG @section Notices on GC version 7
+
+\BJP
+version 6 $B$^$G$N(B Boehm GC $B$K$*$$$F$O(B, GC $B$KF~$kA0$K$9$Y$F$N(B signal $B$r%^%9%/$7(B,
+$B=P$?$"$H%^%9%/$r%/%j%"$9$k(B, $B$H$$$&A`:n$r<+F0E*$K9T$C$F$$$?(B. $B7k2L$H$7$F(B, 
+GC $BCf$K<u$1$?(B signal $B$OJ]N1$5$l(B, GC $BCf$K(B signal $B$K$h$jBg0hC&=P$9$k$H$$$&4m81$O$J$/(B,
+$B$^$?(B, GC $BCf$N(B signal $B$O(B GC $B8e$K3N<B$K=hM}$9$k$3$H$,$G$-$?(B.
+
+$B$7$+$7(B, version 7 $B$K$*$$$F$O$3$N;EAH$_$,GQ;_$5$l$?(B. $B$3$N7k2L(B, $BNc$($P(B, GC $BCf$K(B SIGINT $B$,(B
+$B=hM}$5$l$F$7$^$&$H(B, $B%a%b%j4IM}$N%F!<%V%k$,GK2u$5$l(B, $B$=$l0J9_M=4|$;$L>uBV$K$J$k2DG=@-(B
+$B$,$"$k(B. $B<B:](B, $BBg0hJQ?t$KJ];}$5$l$F$$$k%G!<%?$,;2>H$G$-$J$/$J$C$?$j(B, $B=q$-49$o$C$?$j$H$$$&(B
+$B$3$H$,5/$-$?(B.
+
+$B$3$l$KBP$9$kBP=hK!$H$7$F(B, @code{GC_malloc()} $B$J$I$N3d$jEv$F4X?t$rD>@\8F$S=P$5$:(B, $B$3$l$i$KBP$9$k(B
+$BA08e=hM}$r9T$&4X?t$r8F$S=P$9$h$&$K$7$?(B. $BNc$($P(B @code{GC_malloc()} $B$KBP$9$k4X?t$O<!$N$h$&$K$J$k(B.
+
+@example
+int in_gc, caught_intr;
+
+void *Risa_GC_malloc(size_t d)
+@{
+  void *ret;
+
+  in_gc = 1;
+  ret = (void *)GC_malloc(d);
+  in_gc = 0;
+  if ( caught_intr ) @{ caught_intr = 0; int_handler(); @}
+  if ( !ret )
+    error("GC_malloc : failed to allocate memory");
+  return ret;
+@}
+@end example
+@code{in_gc} $B$,(B 1 $B$N$H$-(B, GC $BCf$G$"$k$3$H<($9(B. 
+$B$^$?(B, @code{caught_intr} $B$,(B 1 $B$N$H$-(B, @code{in_gc}$B$,(B1 $B$N4V$K(B SIGINT $B$r<u$1$?$3$H$rI=$9(B.
+$B$3$N>l9g(B, SIGINT handler $B$G$"$k(B @code{int_handler()}
+$B$G$O(B, $BC1$K(B @code{caught_intr} $B$r(B 1 $B$K$7$F2?$b$;$:$K(B return $B$9$k(B.
+@example
+extern int ox_int_received, critical_when_signal;
+extern int in_gc, caught_intr;
+
+void int_handler(int sig)
+@{
+  extern NODE PVSS;
+  NODE t;
+
+
+  if ( do_file ) @{
+    ExitAsir();
+  @}
+  if ( critical_when_signal ) @{
+    ox_int_received = 1;
+    return;
+  @}
+  if ( in_gc ) @{
+    caught_intr = 1;
+    return;
+  @}
+  ...
+@end example
+GC $BCf$K(B SIGINT $B$,$"$C$?>l9g(B, @code{in_gc}$B$,(B 0 $B$H$J$C$?$"$H$K(B,
+@code{caught_intr} $B$r(B0 $B$K$7$F(B SIGINT $B=hM}4X?t(B @code{int_handler()} $B$r8F(B
+$B$S=P$9(B. $B$3$N$h$&$K$9$k$3$H$G(B, version 6 $B$HF1MM$K(B, GC $BFb$G<u$1$?(B SIGINT
+$B$N=hM}$NJ]N1$*$h$S(B GC$B8e$N=hM}$r9T$&$3$H$,$G$-$k(B.
+
+$B$J$*(B, OX server $B$H$7$FF0:nCf$K$O(B SIGINT $B$NB>$K(B
+SIGUSR1 $B$r<u$1<h$k2DG=@-$,$"$k(B. $B$3$N>l9g(B,
+$BCfCG$G$-$J$$(B OX $BDL?.4X?t$NA08e$G(B@code{begin_critical()},
+@code{end_critical()}$B$,<B9T$5$l(B, @code{ciritical_when_signal},
+@code{ox_usr1_sent} $B$K$h$j(BSIGUSR1 $B=hM}$NJ]N1$,<B8=$5$l$F$$$k(B.
+
+@example
+int ox_usr1_sent, ox_int_received, critical_when_signal;
+void ox_usr1_handler(int sig)
+@{
+  NODE t;
+
+  signal(SIGUSR1,ox_usr1_handler);
+  if ( critical_when_signal ) @{
+    fprintf(stderr,"usr1 : critical\n");
+    ox_usr1_sent = 1;
+  @} else @{
+    ox_flushing = 1;
+    ...
+    ox_resetenv("usr1 : return to toplevel by SIGUSR1");
+  @}
+@}
+
+void begin_critical() @{
+  critical_when_signal = 1;
+@}
+
+void end_critical() @{
+  critical_when_signal = 0;
+  if ( ox_usr1_sent ) @{
+    ox_usr1_sent = 0;
+  ox_usr1_handler(SIGUSR1);
+  @}
+  if ( ox_int_received ) @{
+    ox_int_received = 0; int_handler(SIGINT);
+  @}
+@}
+@end example
+@noindent
+$B$3$N>l9g(B, OX server $BFb$G$N(B GC $BCf$K<u$1<h$C$?(B SIGINT $B$r$I$&$9$k$+$H$$$&(B
+$BLdBj$,@8$:$k(B. $B$3$l$K$D$$$F$O(B, OX server $BFb$G$N(B GC $BCf$K<u$1<h$C$?(B
+SIGINT $B$O(B @code{ox_int_received} $B$K5-O?$9$k$@$1$H$9$k(B. 
+(@code{int_handler()} $BFb$G(B, @code{in_gc} $B$h$j@h$K(B
+@code{critical_when_signal} $B$r8+$F$$$k$3$H$KCm0U(B.)
+$B7k2L$H$7$F(B, $BBP1~(B
+$B$9$k(B @code{int_handler()} $B$N=hM}$O(B, $B<!$K(B @code{end_critical()} $B$,8F$P$l$?$H(B
+$B$-$K$D$$$G$K<B9T$5$l$k$3$H$K$J$j(B, $BB(1~@-$,$J$/$J$k$,(B, SIGINT $B$O(B $B<jF0$G(B
+$B$N$_Aw$i$l$k$N$G(B, $B$3$NE@$O5$$K$9$kI,MW$O$J$$(B.  
+
+$BA08e=hM}$D$-$N%a%b%j3d$jEv$F4X?t(B @samp{parse/gc_risa.c} $B$GDj5A$5$l$F$$$k(B.
+@example
+void *Risa_GC_malloc(size_t d)
+void *Risa_GC_malloc_atomic(size_t d)
+void *GC_malloc_atomic(int n)
+void *Risa_GC_malloc_atomic_ignore_off_page(size_t d)
+void *Risa_GC_realloc(void *p,size_t d)
+void Risa_GC_free(void *p)
+@end example
+$B$=$l$>$l(B, @code{Risa_} $B$,$J$$4X?t$KBP1~$7$F$$$k(B. 
+$B$^$?(B, @samp{include/ca.h}$BFb$N%a%b%j3d$jEv$F4XO"%^%/%m$b(B, $B$9$Y$F(B
+$B$3$l$i$NA08e=hM}$D$-4X?t$r8F$V$h$&$KJQ99$7$?(B.
 \E
 \BEG
 \E
