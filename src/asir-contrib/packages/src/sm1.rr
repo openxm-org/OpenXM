@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.7 2012/09/27 00:44:09 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.8 2013/01/22 01:11:28 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -1011,6 +1011,18 @@ def num_aux0(P) {
   return(P[0]);
 }
 
+/*&usage begin: sm1.rat_to_p(F)
+  It returns the denominator of F and the numerator of F.
+  They are returned in a list.
+  All elements of the denominator and numerator are polynomial objects with integer coefficients. Note that dn and nm do not regard rational numbers as a factional object
+  and this function is necessary to send data to sm1, which accept only integers and
+  does not accept rational numbers.
+  example:
+     sm1.rat_to_p(1/2*x+1);
+       [x+2,2]
+     sm1.rat_to_p([1/2*x,1/3*x]);
+       [[3*x,2*x],6]
+end: */
 def rat_to_p(T) {
   if (type(T) == 4) {
      A = map(rat_to_p,T);
