@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.6 2012/08/26 01:35:43 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.7 2012/09/27 00:44:09 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -90,6 +90,7 @@ localf rrank$
 localf auto_reduce$
 localf slope$
 localf restriction$
+localf integration$
 localf ahg$
 localf bfunction$
 localf generalized_bfunction$
@@ -1283,7 +1284,9 @@ def slope(II,V,FF,VF) {
  in the list of variable {V}. We are using wbfRoots to get the roots of 
  b-functions, so we can use only generic weight vector for now.
  example: sm1.restriction([dx^2-x,dy^2-1],[x,y],[y]);
- algorithm: T.Oaku and N.Takayama, math.AG/9805006, http://xxx.langl.gov
+   The output [[n0,F0],[n1,F1],...] means that H^0=D^n0/F0, H^(-1)=D^n1/F1, ...
+   The free basis of the vector space D^n is denoted by e0, e1, ... 
+ algorithm: T.Oaku and N.Takayama, math.AG/9805006, http://xxx.lanl.gov
 end: */
 def restriction(II,V,R) {
   SM1L_FIND_PROC(P);
@@ -1304,6 +1307,43 @@ def restriction(II,V,R) {
   }
   push_int0(P,A);
   sm1(P," restriction ");
+  ox_check_errors2(P);
+  R = pop(P);
+  return(R);
+}
+
+/*&usage begin: sm1.integration(I,V,R|degree)
+ It computes the integration of {I} as a D-module to the set defined by {R}.
+ {V} is the list of variables.
+ When the optional variable {degree}=d is given, only the integrations
+ from 0 to d are computed.
+ Note that, in case of vector input,  INTEGRATION VARIABLES MUST APPEAR FIRST
+ in the list of variable {V}. We are using wbfRoots to get the roots of 
+ b-functions, so we can use only generic weight vector for now.
+ example: sm1.integration([dt - (3*t^2-x), dx + t],[t,x],[t]);
+   The output [[n0,F0],[n1,F1],...] means that H^0=D^n0/F0, H^(-1)=D^n1/F1, ...
+   The free basis of the vector space D^n is denoted by e0, e1, ... 
+ algorithm: T.Oaku and N.Takayama, math.AG/9805006, http://www.arxiv.org
+end: */
+def integration(II,V,R) {
+  SM1L_FIND_PROC(P);
+  Opt = getopt();
+  Deg = -1;
+  for (I=0; I < length(Opt); I++) {
+    if (Opt[I][0] == "degree") {
+      Deg = eval_str(rtostr(Opt[I][1]));
+    }else{
+      print(Opt[I][0],0);
+      error("sm1.  : restriction: unknown option.");
+    }
+  }
+  if (Deg < 0) {
+    A =[II,R,[V,[ ]]];
+  }else{  
+    A = [II,R,[V,[ ]],Deg];
+  }
+  push_int0(P,A);
+  sm1(P," integration ");
   ox_check_errors2(P);
   R = pop(P);
   return(R);
