@@ -1,4 +1,4 @@
-/*  $OpenXM$ */
+/*  $OpenXM: OpenXM/src/k097/lib/restriction/restriction.k,v 1.1 2000/12/10 10:04:04 takayama Exp $ */
 load["lib/minimal/minimal-test.k"];;
 Load_sm1(["Srestall_s.sm1","lib/restriction/Srestall_s.sm1"],"Srestall_s.sm1.loaded");
 
@@ -108,3 +108,48 @@ def nonquasi(p,q) {
   return(Ans);
 }
 
+def t_addD(v) {
+  return(AddString(["D",ToString(v)]));
+}
+def Sintegration(gg,v,intv) {
+  local i,vstr,n,dv,wv,vall;
+  II=Map(gg,"ToString");
+  v = Map(v,"ToString");
+  intv = Map(intv,"ToString");
+  vstr=" "; n=Length(v);
+  for (i=0; i<n-1; i++) {
+    vstr=AddString([vstr,v[i],","]);
+  }
+  vstr=AddString([vstr,v[n-1]]);
+  dv=Map(v,"t_addD");
+  wv=[ ];  
+  for (i=0; i<n; i++) { wv = Join(wv,[v[i],-1]); }
+  for (i=0; i<n; i++) { wv = Join(wv,[dv[i],1]); }
+  /* Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]); */
+  Sweyl(vstr,[wv]);
+  II=Map(II,"Poly");
+  /* sm1(" II 0 get { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set "); */
+  vall = Join(v,dv);
+  sm1(" II { vall laplace0 } map /II set "); 
+  pp = Map(II,"Spoly");
+  Println("Step1: Laplace transform "); Println(pp);
+  Res = Sminimal(pp);
+  Res0 = Res[0];
+  Println("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
+  /* R = BfRoots1(Res0[0],"x,y"); */
+  R = BfRoots1(Res0[0],vstr);
+  Println("Step3: computing the cohomology of the truncated complex.");
+  Print("Roots and b-function are "); Println(R);
+  R0 = R[0];
+  /* Ans=Srestall(Res0, ["x", "y"], ["x", "y"],R0[Length(R0)-1]); */
+  Ans=Srestall(Res0, v, intv,R0[Length(R0)-1]);
+  Print("Answer is "); Println(Ans[0]);
+  return(Ans);
+}
+HelpAdd(["Sintegration",
+[ "Sintegration(gg,v,intv) evaluates the dimensions of all integrations of",
+  "gg along the list of variables intv. Here, v is a list of variables.",
+  "Interation variables intv must be in the first part of v.",
+  "Sintegration uses the function Srestall.",
+  "Example: RingD(\"x,t\"); Sintegration([Dt-(3*t^2-x),Dx+t],[t,x],[t]):"
+]]);
