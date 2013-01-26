@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/k097/lib/restriction/restriction.k,v 1.1 2000/12/10 10:04:04 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/k097/lib/restriction/restriction.k,v 1.2 2013/01/24 00:27:54 takayama Exp $ */
 load["lib/minimal/minimal-test.k"];;
 Load_sm1(["Srestall_s.sm1","lib/restriction/Srestall_s.sm1"],"Srestall_s.sm1.loaded");
 
@@ -108,8 +108,24 @@ def nonquasi(p,q) {
   return(Ans);
 }
 
+/* should be moved to slib.k */
+def UseSmallD() {
+  sm1("[(Strict)] system_variable /aaa.strict set ");
+  sm1("[(Strict) 0] system_variable ");
+  /* kan96xx/Doc/callsm1.sm1 */
+  sm1("/@@@.Dsymbol (d) def /aaaDsymbol (d) def ");
+  sm1("/@@@.Esymbol (ee0) def ");
+  sm1("/@@@.Hsymbol (hh) def ");
+  sm1("[(Strict) aaa.strict] system_variable ");
+}
+HelpAdd(["UseSmallD",
+[ "UseSmallD() changes the Dsymbol to d and E,H symbols to ee0,hh",
+  "@@@.Dsymbol can be refered by aaaDsymbol."
+]]);
+
 def t_addD(v) {
-  return(AddString(["D",ToString(v)]));
+  sm1(" /aaaDsymbol @@@.Dsymbol def ");
+  return(AddString([aaaDsymbol,ToString(v)])); /* add x->Dx */
 }
 def Sintegration(gg,v,intv) {
   local i,vstr,n,dv,wv,vall;
