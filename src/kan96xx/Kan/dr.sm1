@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.52 2005/11/21 09:12:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.53 2006/02/04 02:44:39 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4527,6 +4527,48 @@ $ [ff ff] fromVectors :: $
   arg1
 } def
 
+[(univ2poly)
+[(list univ2poly list2)
+ (Change universal numbers in list to an element of a ring of polynomials)
+ (defined by other elements in list. If there is no polynomial element,)
+ (the current ring is used.)
+]] putUsages
+/univ2poly {
+  /arg1 set
+  [/aa /rg /ag /ans] pushVariables
+  [
+    arg1 /aa set 
+    [(CurrentRingp)] system_variable /rg set
+    aa getRing /ag set
+    ag tag 0 { } {
+      ag ring_def
+    } ifelse
+    aa univ2poly.aux /ans set
+    rg ring_def
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/univ2poly.aux {
+  /arg1 set
+  [/aa /ans] pushVariables
+  [
+    arg1 /aa set 
+    aa getRing
+    aa tag 6 eq {
+      aa { univ2poly.aux} map /ans set
+    }{
+      aa tag 15 eq, aa tag 1 eq, or { aa toString . /ans set } { 
+        aa /ans set
+      } ifelse
+    } ifelse
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
 ;
 
 
