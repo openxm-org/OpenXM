@@ -1,10 +1,10 @@
-/*  $OpenXM: OpenXM/src/k097/lib/restriction/restriction.k,v 1.2 2013/01/24 00:27:54 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/k097/lib/restriction/restriction.k,v 1.3 2013/01/26 03:21:52 takayama Exp $ */
 load["lib/minimal/minimal-test.k"];;
 Load_sm1(["Srestall_s.sm1","lib/restriction/Srestall_s.sm1"],"Srestall_s.sm1.loaded");
 
 def Srestall(gg,ttxx,tt,k1) {
   local cohom, gg, ttxx, tt, k1, cohom0, cohomd,ans;
-  sm1("gg dehomogenize /gg set");
+  sm1("gg univ2poly dehomogenize /gg set");
   gg = ToString_array(gg);
   sm1(" [(x) ring_of_differential_operators [[(x) 1]] weight_vector 0] define_ring ]");
   sm1("[(Homogenize_vec) 1] system_variable");
