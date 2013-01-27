@@ -1,0 +1,115 @@
+/* $OpenXM$
+*/
+module k0;
+localf init_K0_proc$
+localf find_proc$
+localf k0$
+localf k0str$
+localf addQuote$
+localf buildArg$
+localf checkVar$
+localf integration$
+
+static K0_proc$
+
+def init_K0_proc() {
+  K0_proc = -1$
+}
+init_K0_proc() $
+
+#define    K0L_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = find_proc();\
+                          }
+def find_proc() {
+  if (K0_proc == -1) {
+     A = ox_get_serverinfo();
+     /* Look for ox_sm1. Not yet written */
+     /* Start sm1 automatically if there is not ox_sm1 */
+     K0_proc = sm1.find_proc();
+     sm1.sm1(K0_proc," k0connectr ");
+     k0(K0_proc," load[\"lib/all.k\"];; ");
+     /*  @@@.Dsymbol is changed.  */
+     k0(K0_proc," UseSmallD(); ");
+  }
+  return(K0_proc);
+}
+
+def k0(P,S) {
+  S = "oxk0.ccc ("+S+";) oxsubmit oxk0.ccc oxpopcmo ";
+  sm1.sm1(P,S); 
+}
+def k0str(P,S) {
+  S = "oxk0.ccc ("+S+";) oxsubmit oxk0.ccc oxpopstring ";
+  sm1.sm1(P,S); 
+}
+
+/*
+ How to pass the argument to k0?
+*/
+def addQuote(F) {
+  if (type(F) == 4) {
+    L = map(addQuote,F);
+    return(rtostr(L)); 
+  }
+  S ="\"" + rtostr(F) + "\"";
+  return(S);
+}
+def buildArg(Func,Arg) {
+  N = length(Arg);
+  S=rtostr(Func)+"(";
+  for (I=0; I<N-1; I++) S += addQuote(Arg[I])+",";
+  S += addQuote(Arg[N-1])+")";
+  printf("msg by k0.rr buildArg: %a\n",S);
+  return(S);
+}
+def checkVar(V) {
+  if (type(V) == 4) {
+    for (I=0; I<length(V); I++) {
+      if (!checkVar(V[I])) return(0);
+    }
+    return(1);
+  }
+  V = rtostr(V);
+  Dv = "d"+V;
+  V = eval_str(V); Dv=eval_str(Dv);
+  F=(V+Dv+1)^2;
+  if (var(F) != Dv) {
+    printf("Warning: %a*%a is intepreted as %a*%a. cf. ord()\n",V,Dv,Dv,V); 
+    return(0);
+  }
+  return(1);
+}
+/*&usage begin: k0.integration(I,V,R)
+  It computes D-module theoretic integration of the left ideal {I} in D.
+  {V} is a list of variables and {R} is a list of integration variables.
+  The variables in {R} must in the first part of {V}.
+  It uses the minimal filtered resolution of D/{I}.
+  When the return value is [Dims,[R0,R1,...]],
+  Dims is still buggy and ignore it.
+  R0 is a presentation of the 0-th integration, 
+  R1 is a presentation of the 1-th (-1-th) integration ...
+  When R0=[N,Rel], the integration module is D^N/Rel. 
+  Bases of D^N is expressed as 1, e_, e_^2, ..., e_^(N-1).
+  example: k0.integration([dt-(3*t^2-x),dx+t],[t,x],[t]);
+end: */
+def integration(II,V,R) {
+  K0L_FIND_PROC(P);
+  S=buildArg("Sintegration",[II,V,R]);
+  /* check if, e.g.,  dx*x does not happen. */ 
+  if (!checkVar(V)) {
+    printf("k0.checkVar(%a) fails in k0.integration.",V); return(0);
+  }
+  k0str(P,S); 
+  /* k0(P,S) causes an warning in ring def.  Try,
+     (ox.sm1) run ; k0connectr ;
+     oxk0.ccc  oxk0.ccc (Sintegration(["Dt-(3*t^2-x)","Dx+t"],["t","x"],["t"]);) oxsubmit ;
+     oxk0.ccc oxpopcmo ::
+   */ 
+  ox_check_errors2(P);
+  R = sm1.pop(P);
+  return(eval_str(R));
+}
+
+endmodule;
+end$
