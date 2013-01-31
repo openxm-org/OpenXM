@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.55 2006/03/03 02:30:09 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.56 2006/12/21 05:29:49 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -796,7 +796,14 @@ ox.verbose { oxhelp } {  } ifelse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%   Aux functions for ox_asir
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/ox_asirConnectMethod { asirconnectr /oxasir.ccc set } def
+/ox_asirConnectMethod { 
+  asirconnectr /oxasir.ccc set 
+  [(getenv) (OX_ASIR_LOAD_FILE)] extension tag 0 eq { 0 }
+  { /oxasir.loadfile [$load("$[(getenv) (OX_ASIR_LOAD_FILE)] extension $");$] 
+    cat  def
+    oxasir.ccc oxasir.loadfile oxsubmit
+    oxasir.ccc oxpopcmo } ifelse
+} def
 /oxasir.loadmethod 1 def   %% "..." oxsendcmo (load) ox...
 /oxasir.verbose 0   def
 /oxasir.ccc load isArray 
