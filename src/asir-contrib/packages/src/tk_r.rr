@@ -1,0 +1,54 @@
+/* $OpenXM$ */
+/*
+  See also,
+  src/asir-port/cgi/cgi-asir-r-markov.sh
+  src/R/r-client/Roxm/ in the R package format.  Get Markov basis by cgi-asir
+*/
+import("nk_gfan_4ti2/nk_4ti2.rr")$
+/* #define TEST */
+
+#ifndef TEST
+module tk_r;
+localf asir2r_list$
+localf asir2r_c$
+localf markov$
+#endif
+
+def asir2r_list(L) {
+  if (!((type(L) >= 4) && (type(L) <=6))) return rtostr(L);
+  if (type(L) == 5) L = vtol(L);
+  if (type(L) == 6) L = matrix_matrix_to_list(L);
+  if (length(L) == 0) return "list()";
+  L = map(asir2r_list,L);
+  S = "list(";
+  for (I=0; I<length(L)-1; I++)  S += L[I]+",";
+  S += L[length(L)-1]+")";
+  return S;
+}
+
+def asir2r_c(L) {
+  if (!((type(L) >= 4) && (type(L) <=6))) return rtostr(L);
+  if (type(L) == 5) L = vtol(L);
+  if (type(L) == 6) L = matrix_matrix_to_list(L);
+  if (length(L) == 0) return "c()";
+  L = map(asir2r_c,L);
+  S = "c(";
+  for (I=0; I<length(L)-1; I++)  S += L[I]+",";
+  S += L[length(L)-1]+")";
+  return S;
+}
+
+/*
+example: markov([[1,2,3]]);
+example: markov([[1,1,1,1],[0,1,0,1],[0,0,1,1]]);
+*/
+def markov(L) {
+  M=nk_4ti2.markov(L);
+  return asir2r_list(map(asir2r_c,M));  
+}
+
+#ifndef TEST
+endmodule$
+#endif
+
+end$
