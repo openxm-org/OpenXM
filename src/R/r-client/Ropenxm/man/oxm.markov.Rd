@@ -1,36 +1,57 @@
+% $OpenXM$
 \name{oxm.markov}
 \alias{oxm.markov}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-  It obtains the Markov basis for a given set of points by an OpenXM server.
+  The function oxm.markov obtains the Markov basis for a given set of points by 4ti2 through an OpenXM server.
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+  The function oxm.markov obtains the Markov basis for a given set of points by 4ti2 through an OpenXM server.
+  It is provided also for a sample implementation to call OpenXM servers from R.
 }
 \usage{
-oxm.markov(mat)
+oxm.markov(mat,url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{mat}{
-%%     ~~Describe \code{mat} here~~
-}
+     A matrix which represents a set of integer points. 
+     Each column of the matrix is each point of the set.
+  }
+  \item{url}{
+    This argument specifies the URL of an OpenXM server.  
+  The default is an anonymous server in public set by the openxm.org. 
+  Note that all inputs are recorded in the server 
+  and the privacy policy of the public server declares 
+  that the record is used only for debugging and for security tasks.  
+  You can specify your own server.
+  }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  A general algorithm to obtain the Markov basis for a set of points
+  was given in
+  "P.Diaconis and B.Sturmfels, Algebraic algorithms for sampling from
+   conditional distributions, Annals of Statistics, 26, (1998) 363--397".
+  4ti2 is an efficient implementation of this algorithm.
+  The function oxm.markov calls the 4ti2 through an OpenXM server.
+  In order to set up your own server, 
+  please refer to \url{http://www.openxm.org.}
+  The function utilizes \code{\link{oxm.matrix_r2tfb}} and 
+  \code{\link[RCurl]{postForm}}.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+The output is given by a list with the following named entries.
+  \item{markov}{Markov basis in a list.}
+  \item{text}{The string returned from the server. It is used to get errors.}
 }
 \references{
-%% ~put references to the literature/web site here ~
+  \url{http://www.4ti2.de}
+
+  P.Diaconis and B.Sturmfels (1998), Algebraic algorithms for sampling from
+  conditional distributions, Annals of Statistics, 26, 363--397.
 }
 \author{
-%%  ~~who you are~~
+%%
 }
 \note{
 %%  ~~further notes~~
@@ -39,17 +60,19 @@ oxm.markov(mat)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{oxm.matrix_r2tfb}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function(mat) { return(mat); }
+## =====================================================
+## Example 1. Markov basis of 2 x 3 contingency table.
+## =====================================================
+mat<-matrix(c(1,0,0,0, 1,0,1,0, 1,0,0,1,
+              1,1,0,0, 1,1,1,0, 1,1,0,1),nrow=4,ncol=6)
+mb<-oxm.markov(mat)
+mb$markov
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ Markov basis }
+\keyword{ 4ti2 }
+\keyword{ OpenXM }

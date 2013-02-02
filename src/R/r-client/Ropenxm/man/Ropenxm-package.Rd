@@ -1,42 +1,46 @@
+%% $OpenXM$
 \name{Ropenxm-package}
 \alias{Ropenxm-package}
 \alias{Ropenxm}
 \docType{package}
 \title{
-OpenXM interface for R
+An OpenXM interface for R and its sample uses.
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+The OpenXM is an infrastructure for mathematical communication. 
+The OpenXM proposes protocols for mathematical computation (OpenXM-RFC's). 
+This package provides an interface to OpenXM servers and also some sample functions to call OpenXM servers.
 }
 \details{
 \tabular{ll}{
 Package: \tab Ropenxm\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2013-02-01\cr
-License: \tab What license is it under?\cr
+Date: \tab 2013-02-02\cr
+License: \tab BSD\cr
 LazyLoad: \tab yes\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+OpenXM servers are called by utilizing the package RCurl through
+OpenXM-RFC 104 (OoHP, OpenXM over HTTP POST, 2004).
+Translation functions of the data format for OpenXM are implemented in the package.
+The function \code{\link{oxm.matrix_r2tfb}} is a typical data translation function.
+The function \code{\link{oxm.markov}} is a sample function to get a Markov basis
+through an OpenXM server.
 }
 \author{
-Who wrote it
-
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Nobuki Takayama (takayama@math.kobe-u.ac.jp)
 }
 \references{
-~~ Literature or other references for background information ~~
+ \url{http://www.openxm.org}
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+\code{\link{oxm.markov}}
+\code{\link{oxm.matrix_r2tfb}}
 }
 \examples{
-  oxm.markov(list(c(1,2,3)))
+\dontrun{
+example(oxm.matrix_r2tfb)
+example(oxm.markov)
+}
 }

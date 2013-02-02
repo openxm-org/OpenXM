@@ -1,14 +1,16 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/R/r-client/Ropenxm/R/oxm.markov.R,v 1.3 2013/02/02 01:34:41 takayama Exp $
 oxm.markov <-
 function(mat=matrix(c(1,2,3),nrow=1,ncol=3),
    url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh") { 
-  cmd<-oxm.matrix_r2asir(mat,s="r_markov([",s.end="])");
+  cmd<-oxm.matrix_r2tfb(mat,s="r_markov([",s.end="])");
   ans<-postForm(url,oxMessageBody=cmd,style="POST");
-  mar<-eval(parse(text=ans));
+  pos<-pmatch("list(",c(ans),nomatch=0);
+  if (pos !=0) {mar<-eval(parse(text=ans));
+  }else {mar<-NA;}
   return(list(markov=mar,text=ans));
 }
 
-oxm.matrix_r2asir<-
+oxm.matrix_r2tfb<-
 function(mat=matrix(c(1,2,3,4),nrow=2,ncol=2),s="[",s.end="]") {
   m<-dim(mat)[1];n<-dim(mat)[2];
   for (i in seq(1:m)) {
