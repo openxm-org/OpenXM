@@ -1,3 +1,4 @@
+#$OpenXM$
 oxm.markov <-
 function(mat=matrix(c(1,2,3),nrow=1,ncol=3),
    url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh") { 
