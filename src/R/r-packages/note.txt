@@ -1,0 +1,42 @@
+$OpenXM$
+
+See also OpenXM/src/hgm/note.txt
+
+* C source codes.
+ C sources and headers should be developed and edited in the directory
+ OpenXM/src/hgm in order to provide a standalone mode without R
+ in the OpenXM project.
+ They are copied by rsync to hgm/src from OpenXM/src/hgm/
+ See the Makefile.
+
+* How to develope and tests.
+(1) Develope the system in OpenXM/src/hgm as a standalone system.
+    See OpenXM/src/hgm/so3 as an example.
+(2) Add rsync-[projectname] to OpenXM/src/R/r-packages/Makefile
+    See the example of the project so3.
+(3) Example in the case of hgm.
+    R CMD check hgm
+        It generates pdf documents and shared libraries.
+        hgm.Rcheck/hgm-Ex.Rout contains the result of the execution of examples
+        embedded in the documents in man.
+        hgm.Rcheck/hgm-manual.pdf is the PDF manual.
+
+    See also http://fe.math.kobe-u.ac.jp/Movies/oxvh,
+       2012-09-05-r-package[.mov]
+       2013-02-06-Ropenxm[.mov] 
+
+    R CMD INSTALL hgm
+        R
+        library(hgm)
+        You can check hgm.so3nc by hand.
+    R CMD REMOVE hgm
+        It is used to remove the test library.
+   
+    R --help
+
+* Notes.
+    library.dynam()   shows a list of shared libraries loaded.
+    dyn.load("hgm.so") can be used to load shared library by hand.
+    getwd() gets the current working directory.
+
+ 
