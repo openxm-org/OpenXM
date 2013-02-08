@@ -17,8 +17,10 @@ void so3_evalByS(int deg,double a,double b,double c,double t,double f[4]);
 
 #define MDEG 20
 
-int SO3_Quiet = 0;
-int SO3_Deg = 10;
+#define SO3_QUIET_DEFAULT 0
+#define SO3_Deg_DEFAULT 10
+int SO3_Quiet = SO3_QUIET_DEFAULT;
+int SO3_Deg = SO3_Deg_DEFAULT;
 #ifdef STANDALONE
 main(int argc,char *argv[]) {
   double a[3];
@@ -53,6 +55,8 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
   double y[4];
   double t0;
   int i,j;
+  SO3_Quiet = SO3_QUIET_DEFAULT;
+  SO3_Deg = SO3_Deg_DEFAULT;
   if (*quiet) SO3_Quiet = 1;
   if (*deg) {
     SO3_Deg = *deg;
@@ -69,7 +73,7 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
     *out = 0.0; return;
   }
   a[0] = *in1; a[1] = *in2; a[2] = *in3;
-  fprintf(stderr,"DEBUG: %lf,%lf,%lf,%lf\n",t0,a[0],a[1],a[2]);
+  //  fprintf(stderr,"DEBUG: %lf,%lf,%lf,%lf\n",t0,a[0],a[1],a[2]);
   so3_nc(a,t0,y);
 // printf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
   if (!SO3_Quiet) printf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);

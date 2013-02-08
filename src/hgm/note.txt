@@ -1,0 +1,30 @@
+$OpenXM$
+
+
+See also note.txt under OpenXM/src/R/r-packages/hgm.
+
+* Naming of C functions.
+   C functions in this folder may also be used in r-packages.
+   They are loaded dynamically from shared libraries.
+   Then, it is recommended to use the following naming conventions
+   to define C functions.
+   When the directory name is xxyy, all (non-static) functions should have
+   a name starting with xxyy_ and global variables a anme starting with
+   XXYY_.
+   For example, all function names in so3 start with so3_ and
+   all global variables in so3 start with SO3_.  See the directory so3/src.
+
+* The main() functions for the standalon mode should be enclosed as
+  #ifdef STANDALONE  ~~~ main ~~~~  #else  ~~~~~ #endif
+  In order to generate R-shared libraries, the main function should not
+  be included.
+  See the file so3/src/so3_nc.c as an example.
+
+* A subset of gsl should be put under gsl-t-[numbers].
+  The subset is necessary to generate a shared library for R.
+  The R project does not recommend to include the full set of GSL.
+  Please use #ifdef USE_GSL_LIB ~~~~ #else ~~~~ #endif.
+  See so3/src/so3_nc.c and so3/src/Makefile as an example.
+
+
+Ref: http://fe.math.kobe-u.ac.jp/Movies/oxvh

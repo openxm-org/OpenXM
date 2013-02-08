@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.1 2013/02/07 07:38:23 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.2 2013/02/08 01:27:01 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -39,9 +39,9 @@ partial differential equations.
   (\url{http://www.gnu.org/software/gsl/}).
   Then, it might cause a conflict with the package gsl
   (see \code{\link[gsl]{gsl-package}}).
-  When you use the package gsl, it is recommeded to unload the shared libraries
-  of the package hgm by \code{library.dynam.unload("hgm")}
-  (see \code{\link[base]{library.dynam.unload}}).
+%  When you use the package gsl, it is recommeded to unload the shared libraries
+%  of the package hgm by \code{library.dynam.unload("hgm")}<--error, todo.
+%  (see \code{\link[base]{library.dynam.unload}}).
 }
 \references{
 \itemize{

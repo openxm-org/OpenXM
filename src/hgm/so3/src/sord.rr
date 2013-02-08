@@ -1,0 +1,582 @@
+/* sord.rd (for SO, Ohara project). 
+  This is based on wishart/Prog/rd.rr.
+  cf. h-mle/SO/Notes/note-so3.tex
+*/
+import("ok_diff.rr")$
+
+/*
+  p(yi) = yi
+  q(yi,yj) = 1/(yi^2-yj^2)
+*/
+dp_ord(0)$
+function p(x)$
+function q(x,y)$
+
+def pp(Yi) { return 1/Yi; }
+def qq(Yi,Yj) { return 1/(Yi^2-Yj^2); }
+
+
+/* (modified) Muirhead operators */
+def mh(I,M) {
+  E=newvect(M); E[I] = 2;
+  L = dp_vtoe(E);
+  Ei=newvect(M); Ei[I]=1;
+  L += (p-M)*p(util_v(y,[I]))*dp_vtoe(Ei); 
+  for (J=0; J<M; J++) {
+    Ej=newvect(M); Ej[J]=1;
+    if (J != I) 
+      L += q(util_v(y,[I]),util_v(y,[J]))*
+           (util_v(y,[I])*dp_vtoe(Ei)-(util_v(y,[J])*dp_vtoe(Ej)));
+  } 
+  L -= dp_vtoe(newvect(M));
+  return(L);
+}
+
+def getRuleq(M,N) {
+  R = [];
+  for (I=0; I<M; I++) {
+    for (J=0; J<M; J++) {
+      if (I!=J) {
+       Yi = util_v(y,[I]);
+       Yj = util_v(y,[J]);
+       for (Ki=0; Ki<=N; Ki++) {
+         for (Kj=0; Kj<=N; Kj++) {
+            R = cons([diffn(q(Yi,Yj),[Ki,Kj],[Yi,Yj]),
+                  red(diffn(qq(Yi,Yj),[Ki,Kj],[Yi,Yj]))],R);
+         }
+       }
+      }
+    }
+  }
+  return(R);
+}
+
+def getRuleq2(M,N) {
+  R = [];
+  for (I=0; I<M; I++) {
+    for (J=0; J<M; J++) {
+      if(I!=J) {
+       Yi = util_v(y,[I]);
+       Yj = util_v(y,[J]);
+       for (Ki=0; Ki<=N; Ki++) {
+         for (Kj=0; Kj<=N; Kj++) {
+            R = cons([diffn(q(Yi,Yj),[Ki,Kj],[Yi,Yj]), /* Ki,Kj: order of differentiation */
+                      util_v(qq,[I,J,Ki,Kj])],R);
+         }
+       }
+      }
+    }
+  }
+  return(R);
+}
+
+def getRulep(M,N) {
+  R = [];
+  for (I=0; I<M; I++) {
+       Yi = util_v(y,[I]);
+       for (Ki=0; Ki<=N; Ki++) {
+            R = cons([diffn(p(Yi),[Ki],[Yi]),
+                  red(diffn(pp(Yi),[Ki],[Yi]))],R);
+       }
+  }
+  return(R);
+}
+
+def getRulep2(M,N) {
+  R = [];
+  for (I=0; I<M; I++) {
+       Yi = util_v(y,[I]);
+       for (Ki=0; Ki<=N; Ki++) {
+            R = cons([diffn(p(Yi),[Ki],[Yi]),
+                  util_v(pp,[I,Ki])],R);
+       }
+  }
+  return(R);
+}
+
+/* K! */
+def mfac(K) {
+  N=length(K);
+  A=1;
+  for (I=0; I<N; I++) A *= fac(K[I]);
+  return(A);
+}
+
+def mfac2(E,K) {
+  N=length(K);
+  A=1;
+  for (I=0; I<N; I++) 
+    for (J=0; J<K[I]; J++) {
+      A *= E[I]-J;
+    }
+  return(A);
+}
+/* diff(y^e,k). Returns distributed polynom. */
+def mdiff(E,K) {
+  C = mfac2(E,K);
+  return(C*dp_vtoe(E-K));
+}
+
+def diffn(F,K,V) {
+  N = length(V);
+  for (I=0; I<N; I++) {
+    for (J=0; J<K[I]; J++) {
+       F = diff(F,V[I]);
+    }
+  }
+  return(F);
+}
+/* K is a vector, G is a dist poly. V is a var list 
+*/
+def ddiff(G,K,V) {
+  if (G == 0) return(0);
+  A = 0;
+  while (G != 0) {
+    A += diffn(dp_hc(G),K,V)*dp_ht(G);
+    G = dp_rest(G);
+  }
+  return(A);
+}
+/* F is a monomial, G is a polynomial. note 2011.10.22
+ for debug --> test1();
+ */ 
+def mpmul(F,G,V) {
+  if (type(F)<=3) return(F*G);
+  if (dp_rest(F) != 0) error("mpmul(F,G,V), F must be a monomial.");
+  N = length(V);
+  E = dp_etov(F); C = dp_hc(F);
+  P=1;
+  for (I=0; I<N; I++) {
+     P *= (1+V[I])^E[I];
+  }
+  if (type(V) == 5) V=vtol(V);
+  P = dp_ptod(P,V);
+
+  A = 0;
+  while (P!= 0) {
+    K = dp_etov(dp_hm(P)); P = dp_rest(P);
+    A += (1/mfac(K))*mdiff(E,K)*ddiff(G,K,V);
+  }
+  return(C*A);
+}
+
+def test1() {
+  F=x*dx^2*dy; 
+  G=x*y*dx^2+(x-y)*dx*dy+(1+x+y)^2;
+  A=sm1.mul(F,G,[x,y]);
+  V=[dx,dy];
+  A1=mpmul(dp_ptod(F,V),dp_ptod(G,V),[x,y]);
+  A1=dp_dtop(A1,V);
+  return(A-A1);
+}
+
+def dp_ptod0(F,Type) {
+  A = F+dp_hm(Type);
+  A = A-dp_hm(Type);
+  return(A);
+}
+/* reduce F by G */
+def red1(F,G,V) {
+  if (F == 0) return([F,0]);
+  A = 0;
+  Q = 0;
+  while (F != 0) {
+    if (dp_redble(F,G)) {
+      Q0 = dp_ptod0((dp_hc(F)/dp_hc(G)),F)*dp_subd(F,G);
+      R = mpmul(-Q0,dp_rest(G),V);
+      /* R = -Q0*dp_rest(G); */
+      A += R; Q += Q0;
+    }else{
+      A += dp_hm(F);
+    }
+    F = dp_rest(F);
+  }
+  return([A,Q]);
+}
+
+/*
+This returns error because coef of dist poly must not be rational.
+*/
+def test2() {
+  F = a*<<2,1>> + b*<<1,1>> + p*<<0,0>>;
+  G = c*<<1,1>> - d*<<0,0>>;
+  return(red1(F,G,[x,y]));
+}
+
+def test3() {
+  F0=(a/b)+<<1,0>>;
+  F =F0-<<1,0>>;
+  print(F);
+  G = c*<<1,0>>;
+  H = F*G;
+  print(type(dp_hm(H)));
+  return(rtostr(H)); /* ask noro  2011.10.23 */
+}
+
+def test2b() {
+  F = a*<<2,1>> + b*<<1,1>> + p*<<0,0>>;
+  G = (1/2)*<<1,1>> - d*<<0,0>>;
+  A=red1(F,G,[x,y]);
+  print(F-A[1]*G-A[0]);
+  return(A);
+}
+
+/* G is a set */
+def redall0(F,G,V) {
+  N = length(G);
+  Q = newvect(N);
+  Reducible = 1;
+  while (Reducible) {
+    Reducible = 0;
+    for (I=0; I<N; I++) {
+      if (dp_redble(F,G[I])) {
+          A = red1(F,G[I],V);
+          Q[I] += A[1];
+          F = A[0];
+          if (F == 0) return([F,Q]);
+          Reducible = 1;
+      }
+    }
+  }
+  return([F,Q]);
+}
+def redall(F,G,V) {
+  Q = newvect(length(V));
+  if (F == 0) return [F,Q];
+  R = 0;
+  while (F != 0) {
+    A = redall0(F,G,V);
+    Q = Q+A[1];
+    R += dp_hm(A[0]);
+    F = dp_rest(A[0]);
+  }
+  return([R,Q]);
+}
+
+def test4() {
+  F = a*<<1,2>>+b*<<2,0>>;
+  G = [(1/2)*<<1,1>>+c*<<0,0>>,(1/3)*<<2,0>>+d*<<0,0>>];
+  A=redall(F,G,[x,y]);
+  print(F-A[1][0]*G[0]-A[1][1]*G[1]-A[0]);
+  return(A);
+}
+
+def test5() {
+  dp_ord(0);
+  M=2;
+  G = [mh(0,M),mh(1,M)];
+  A=redall(<<2,1>>,G,[y_0,y_1]);
+  return(A[0]);
+}
+
+/* red for dp */
+def dpred0(F) {
+  A = 0;
+  while (F!=0) {
+    A += red(dp_hc(F))*dp_ht(F); /* asir does not accept */
+    F = dp_rest(F);
+  }
+  return(A);
+}
+
+def test6() {
+  M=2;
+  G = [mh(0,M),mh(1,M)];
+  V = [y_0,y_1];
+  S=mpmul(<<0,2>>,G[0],V)-mpmul(<<2,0>>,G[1],V);
+  A=redall(S,G,V);
+  Rule = append(getRulep(2,2),getRuleq(2,2));
+  /* A = dpred(base_replace(A[0],Rule)); */
+  A = red(dp_dtop(base_replace(A[0],Rule),[dy_1,dy_2]));
+  return(A);
+}
+
+def myelim(L,V) {
+  F=1;
+  for (I=0; I<length(V); I++) F = F*V[I];
+  V = vars(V);
+  A = [];
+  for (I=0; I<length(L); I++) {
+    if (vars(L[I]) == V) A=cons(L[I],A);
+  }
+  return(reverse(A));  
+}
+
+/* rel_o(2) is fine, but others return no relations 
+   2011.11.24 at Kanazawa
+*/
+def rel_o(N) {
+  T = newmat(N,N); 
+  for (I=0; I<N; I++) for (J=0; J<N; J++) T[I][J] = util_v(t,[I,J]);  
+  V0 = []; V1 = [];
+  for (I=0; I<N; I++) V0 = cons(util_v(t,[I,I]),V0);
+  for (I=0; I<N; I++) for (J=0; J<N; J++) 
+    if (I != J) V1 = cons(util_v(t,[I,J]),V1);
+  V = append(V1,V0);
+  print(V);
+  T2 = matrix_transpose(T)*T - matrix_identity_matrix(N);
+  L = base_flatten(T2);
+/*  L = cons(matrix_det(T)-1,L); */
+  return myelim(nd_gr(L,V,0,2),V0);
+}
+
+/* Evaluation of normalization constant */
+def fac2(N) {
+  if (N < -1) error("not implemented.");
+  if (N == -1) return 1; /* cf. google: double factorial */
+  if (N == 0) return 1; 
+  return N*fac2(N-2);
+}
+/* cf. etrcalc.r */
+extern S_dm$
+extern S_ZR$
+S_dm = 20$
+S_ZR = 2$
+extern S_fct$
+extern S_dfct$
+extern S_Etens$
+S_fct=newvect(S_ZR+S_dm+1)$
+S_dfct=newvect(S_ZR+4*S_dm+1)$
+S_Etens=newvect(S_ZR+S_dm+1)$
+for (I=0; I<S_ZR+S_dm+1; I++) S_Etens[I] = newmat(S_ZR+S_dm+1,S_ZR+S_dm+1)$
+def comb(N,K) {
+  return fac(N)/(fac(K)*fac(N-K));
+}
+def init_table() {
+  S_fct[S_ZR] = 1;
+  for (I=1; I<=S_dm; I++) S_fct[S_ZR+I] = fac(I);
+  S_dfct[S_ZR-1] = S_dfct[S_ZR] = 1;
+  for (I=1; I<=4*S_dm; I++) S_dfct[S_ZR+I] = fac2(I);
+  for (K=0; K<=S_dm; K++) {
+  for (L=0; L<=S_dm; L++) {
+  for (M=0; M<=S_dm; M++) {
+   if (((K-L) % 2 == 0) && ((L-M) % 2 == 0)) {
+    E=0;
+    for (I=0; I<=idiv(L,2); I++) { /* L-N=2*I */
+      A0 = comb(L,2*I);
+      A1 = S_dfct[S_ZR+K+M]*S_dfct[S_ZR+2*I-1]/S_dfct[S_ZR+K+M+2*I+1];
+      A2 = S_dfct[S_ZR+K+L-2*I-1]*S_dfct[S_ZR+2*I-1]/S_dfct[S_ZR+K+L];
+      A3 = S_dfct[S_ZR+M+L-2*I-1]*S_dfct[S_ZR+2*I-1]/S_dfct[S_ZR+M+L];
+      E = E + A0*A1*A2*A3;
+    }
+    (S_Etens[S_ZR+K])[S_ZR+L][S_ZR+M] = E;
+   }else{
+    (S_Etens[S_ZR+K])[S_ZR+L][S_ZR+M] = 0;
+   }
+  }}}
+}
+
+def so_int_d(N) {
+  F=0;
+  if (S_fct[S_ZR] != 1) {print("Initializing table."); init_table();}
+  if (N > S_dm) error("Approximation degree is too big.");
+  Kmax = Lmax = Mmax = N-1;
+  for (K=0; K<=Kmax; K++)for (L=0; L<=Lmax; L++)for (M=0; M<=Mmax; M++) {{{
+    F = F+dp_vtoe(newvect(3,[K,L,M]))*
+          (S_Etens[S_ZR+K][S_ZR+L][S_ZR+M]/(S_fct[S_ZR+K]*S_fct[S_ZR+L]*S_fct[S_ZR+M]));
+  }}}
+  return F;
+}
+
+def degmin(L) {
+  L = dp_ptod(L,vars(L));
+  D = 1000; /* big */
+  while (L != 0) {
+    T = dp_etov(L);
+    if (T[0]+T[1]+T[2] < D) D = T[0]+T[1]+T[2];
+    L = dp_rest(L);
+  }
+  return(D);
+}
+def check1(P) {
+  V = [y_0,y_1,y_2];
+  DV = [dy_0,dy_1,dy_2];
+  L0 = mh(0,3);  
+  L1 = mh(1,3);
+  L2 = mh(2,3);
+  L = [L0,L1,L2];
+  R = append(getRulep(3,0),getRuleq(3,0));  
+  R = append(R,[[p,3]]);
+  L = map(dp_dtop,L,DV);
+  L = base_replace(L,R);
+  L = map(nm,L);
+  print(L);
+  F = dp_dtop(so_int_d(S_dm-P),V);
+  A=map(odiff_act,L,F,V);  dp_ord(0);
+  return(A);
+}
+/*
+Use odiff_act(L,F,V), ord(0);  cf. wishart/Prog/w1.rr
+*/
+/* ---- done ---- */
+
+/* dicimal to binary vector of size N */
+def dtobv(A,N) {
+  B = newvect(N);
+  for (I=0; I<N; I++) {
+    B[I] = A % 2;
+    A = idiv(A,2);
+  }
+  return(B);
+}
+def bvtod(B) {
+  N = length(B);
+  A = 0;
+  for (I=0; I<N; I++) A += B[I]*2^I;
+  return(A);
+}
+
+def mhbase(M) {
+  A = [];
+  for (I=0; I<2^M; I++) {
+     A = cons(dp_vtoe(dtobv(I,M)),A);
+  }
+  return reverse(A);
+}
+
+def mhv(M) {
+  V = newvect(M);
+  for (I=0; I<M; I++) V[I] = util_v(y,[I]);
+  return V;
+}
+/*
+ F = mhbase(M);
+ dF/y_II = P_II F,
+ Returns P_II
+ p, q are not reduced.
+*/
+def mhmat0(M,II) {
+  V = mhv(M);
+  B = mhbase(M);
+  D = newvect(M); D[II] = 1;  D = dp_vtoe(D);
+  DB = newvect(2^M);
+  for (I=0; I<2^M; I++) DB[I] = mpmul(D,B[I],V);
+  G = newvect(M);
+  for (I=0; I<M; I++) G[I] = mh(I,M);
+  P = newmat(2^M,2^M);
+  for (I=0; I<2^M; I++) {
+     F=redall(DB[I],G,V); F=F[0];
+     while (F!=0) {
+        J = bvtod(dp_etov(dp_ht(F)));
+        P[I][J] = dp_hc(F);
+        F = dp_rest(F);
+     }
+  } 
+  return(P);
+}
+
+def mhmat(M,II) {
+  Rule = append(getRuleq(M,1),getRulep(M,1));
+  return map(red,base_replace(mhmat0(M,II),Rule));
+}
+
+def mhmat2(M,II) {
+  Rule = append(getRuleq2(M,1),getRulep2(M,1));
+  return base_replace(mhmat0(M,II),Rule);
+}
+
+def test7() {
+  P0 = mhmat(2,0);
+  P1 = mhmat(2,1);
+  /*  Check the integrability conditions.
+     dF/dy_0 = P0 F, dF/dy_1 = P1 F
+     d^2F/dy_1 dy_0 = dP0/dy_1 F + P0 dF/dy_1, 
+     d^2F/dy_0 dy_1 = dP1/dy_0 F + P1 dF/dy_0, 
+     dP0/dy_1 + P0*P1 = dP1/dy_0 + P1*P0
+  */
+  A0= map(diff,P0,y_1) + P0*P1;
+  A1= map(diff,P1,y_0) + P1*P0;
+  return map(red,A0-A1); /* it should return 0 */
+}
+/* It is easy to get up to mhmat0(6,0), but mhmat(5,0) seems to take a time. */
+
+/*
+  y_0 = S0*t, y_1 = S1*t
+  eigen2(3,1,2);
+*/
+def eigen2(N,S0,S1) {
+  P0 = mhmat(2,0);
+  P1 = mhmat(2,1);
+  Rule = [[y_0,S0*t^(-1)],[y_1,S1*t^(-1)],[a,3/2],[c,3/2+N/2]];
+  P0 = base_replace(P0,Rule);
+  P1 = base_replace(P1,Rule);
+/*  print(P0);
+  print(P1); */
+  Rule2 = [[t,0]];
+  P0 = base_replace(P0,Rule2);
+  P1 = base_replace(P1,Rule2);
+
+  D = newmat(4,4);
+  Dii = -(S0+S1)-s;
+  for (I=0; I<4; I++) D[I][I] = Dii;
+  E0 = D + S0*P0+S1*P1;
+  E1 = det(E0);
+  if (length(vars(E1)) > 1) return(fctr(E1));
+  else return(pari(roots,E1));
+  /*
+  E=matrix_eigenvalues(E0);
+  return(E);
+  */
+}
+
+def eigen3(N,S0,S1,S2) {
+  P0 = mhmat(3,0);
+  P1 = mhmat(3,1);
+  P2 = mhmat(3,2);
+  Rule = [[y_0,S0*t^(-1)],[y_1,S1*t^(-1)],[y_2,S2*t^(-1)],
+          [a,4/2],[c,4/2+N/2]];
+  P0 = base_replace(P0,Rule);
+  P1 = base_replace(P1,Rule);
+  P2 = base_replace(P2,Rule);
+  Rule2 = [[t,0]];
+  P0 = base_replace(P0,Rule2);
+  P1 = base_replace(P1,Rule2);
+  P2 = base_replace(P2,Rule2);
+
+  D = newmat(8,8);
+  Dii = -(S0+S1+S2)-s;
+  for (I=0; I<8; I++) D[I][I] = Dii;
+  E0 = D + S0*P0+S1*P1 + S2*P2;
+  E1=det(E0);
+  if (length(vars(E1)) > 1) return(fctr(E1));
+  else return(pari(roots,E1));
+}
+
+def getSer(N) {
+  F=so_int_d(N);
+  F=dp_dtop(F,[x,y,z]);
+  G=[F,diff(F,x),diff(F,y),diff(F,z)];
+  G=base_replace(G,[[x,a*t],[y,b*t],[z,c*t]]);
+  G=[G[0]*exp(0),G[1]*exp(0),G[2]*exp(0),G[3]*exp(0)];
+  G=map(eval,G);
+  G=map(deval,G);
+  return(G);
+}
+def getSer2(N) {
+  F=so_int_d(N);
+  F=dp_dtop(F,[x,y,z]);
+  G=[F,diff(F,x),diff(F,y),diff(F,z)];
+  G=[G[0]*exp(0),G[1]*exp(0),G[2]*exp(0),G[3]*exp(0)];
+  G=map(eval,G);
+  G=map(deval,G);
+  return(G);
+}
+
+def foo1(N) {
+  F=getSer(N);
+  Rule=[[a,-5.614],[b,3.079],[c,2.387],[t,1]]; /* Commets */
+  Val=base_replace(F,Rule);
+  return(Val);
+}
+
+def forC(N) {
+  F=so_int_d(N);
+  while (F!=0) {
+     E=dp_etov(dp_ht(F));
+     C=deval(eval(dp_hc(F)*exp(0)));
+     printf("Tnc[%a][%a][%a]=%a;\n",E[0],E[1],E[2],C);
+     F=dp_rest(F);
+  }
+} 
+
+end$
