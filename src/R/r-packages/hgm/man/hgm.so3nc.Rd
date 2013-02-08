@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.1 2013/02/07 07:38:23 takayama Exp $
 \name{hgm.so3nc}
 \alias{hgm.so3nc}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,10 +11,18 @@
   distribution on SO(3).
 }
 \usage{
-hgm.so3nc(x,y,z,t0=0.0,q=0,deg=0)
+hgm.so3nc(a,b,c,t0=0.0,q=0,deg=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
+  \item{a}{}
+  \item{b}{}
+  \item{c}{
+     This function evaluates the normalization constant for the parameter
+     Theta=diag(theta_{ii}) of the Fisher distribution on SO(3).
+     The variables a,b,c stand for the parameters
+     theta_{11}, theta_{22}, theta_{33} respectively.
+  }
   \item{t0}{
      It is the initial point to evaluate the series. If it is set to 0.0,
      a default value is used.
@@ -24,26 +32,29 @@ hgm.so3nc(x,y,z,t0=0.0,q=0,deg=0)
   }
   \item{deg}{
      It gives the approximation degree of the power series approximation
-     of the normalization constant.
+     of the normalization constant near the origin.
      If it is 0, a default value is used.
   }
 }
 \details{
-  A general algorithm to obtain the normalization constant 
+  The normalization constant c(Theta) 
+  of the Fisher distribution on SO(3) is defined  by
+  integral( exp(trace( transpose(Theta) X)) )
+  where X is the integration variable and runs over S0(3) and
+  Theta is a 3 x 3 matrix parameter.
+  A general HGM algorithm to evaluate the normalization constant 
   is given in the reference below.
-%  please refer to \url{http://www.openxm.org.}
-%  The function utilizes \code{\link{oxm.matrix_r2tfb}} and 
+  We use the Corollary 1 and the series expansion in 3.2 for the evaluation.
 %  \code{\link[RCurl]{postForm}}.
 }
 \value{
-The output is double.
+The output is c(Theta).
 }
 \references{
-\url{http://arxiv.org/abs/1110.0721}
-
 Tomonari Sei, Hiroki Shibata, Akimichi Takemura, Katsuyoshi Ohara, Nobuki Takayama,
 Properties and applications of Fisher distribution on the rotation group,
-arxiv:1110.0721
+\url{http://arxiv.org/abs/1110.0721},
+to appear in Journal of Multivariate Analysis.
 }
 \author{
 Nobuki Takayama
@@ -62,9 +73,16 @@ Nobuki Takayama
 ## Example 1. Computing normalization constant of the Fisher distribution on SO(3)
 ## =====================================================
 hgm.so3nc(1,2,3)
+
+## =====================================================
+## Example 2. Asteroid data in the paper
+## =====================================================
+hgm.so3nc(19.6,0.831,-0.671)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ Normalization constant }
 \keyword{ Holonomic gradient method }
+\keyword{ HGM }
+\keyword{ Fisher distribution on SO(3)}
 
