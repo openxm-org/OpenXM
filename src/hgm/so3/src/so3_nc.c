@@ -100,8 +100,17 @@ void so3_nc(double a[3],double t0,double y[4]) {
   double r;
   double y0[4];
   double myerr,myerr2;
+  double aa;
   deg = SO3_Deg;
-  for (i=0; i<4; i++) SO3_A[i]=a[i];
+  for (i=0; i<3; i++) SO3_A[i]=a[i];
+
+  /* When the argument is small, eval it only by series */
+  aa = 0.0; for (i=0; i<3; i++) aa += a[i]*a[i];
+  if (aa < 0.01) {
+    so3_evalByS(deg,a[0],a[1],a[2], 1.0, y);
+    return;
+  }
+
   SO3_R = 0.0;
   r = a[0]-a[1]-a[2]; if (r > SO3_R) SO3_R = r;
   r = -a[0]+a[1]-a[2]; if (r > SO3_R) SO3_R = r;
