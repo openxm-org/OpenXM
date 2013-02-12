@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include <math.h>
 #ifdef USE_GSL_LIB
