@@ -1,5 +1,5 @@
 %$Id$
-%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.3 2005/02/27 07:08:11 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.4 2005/02/27 08:22:56 takayama Exp $
 [(parse) (ox.sm1) pushfile] extension
 [(parse) (cgi.sm1) pushfile] extension
 
@@ -130,6 +130,9 @@ def
     $Execution CPU time limit is $ 
     cgiasir.tlimit toString  (  seconds.) nl nl
     (</pre>) nl
+    [(getenv)  (CGI_ASIR_MSG)] extension tag 0 eq not {
+     [(getenv) (CGI_ASIR_MSG)] extension nl nl
+    } {  } ifelse
     (<form method="POST">) nl
     (<input type=submit>) nl
     (<textarea name="oxMessageBody") nl
