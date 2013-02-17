@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/misc/packages/Linux/Debian2/OpenXM/download/openxm-install.sh,v 1.2 2010/02/15 23:21:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/Debian2/OpenXM/download/openxm-install.sh,v 1.3 2010/07/20 08:06:05 takayama Exp $
 #Set OpenXM_HOME properly to use this script.  See debian/openxm.postinst
 version=`cat $OpenXM_HOME/download/version.txt`
 os=`dpkg --print-architecture`
@@ -21,7 +21,12 @@ _agree() {
 	echo "Will you go ahead?"
 	echo "------------------------------------------------------------------"
 	echo "y: yes, n: no"
-	read -p "(y/n)" ans
+    if [ -f "/tmp/i-agree-with-asir-license" ]; then
+      ans="y" 
+    else
+  	 read  -p "(y/n/v)" ans
+    fi
+
 	if [ $ans = "y" ]; then
 		return
 	fi
