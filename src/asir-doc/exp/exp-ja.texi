@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.45 2012/02/26 01:25:30 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.46 2012/09/18 11:41:18 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title $B<B83E*;EMM$N4X?t(B
 @subtitle Risa/Asir $B<B83E*;EMM4X?t@bL@=q(B
 @subtitle 1.0 $BHG(B
-@subtitle 2012 $BG/(B 9 $B7n(B
+@subtitle 2013 $BG/(B 2 $B7n(B
 
 @author  by Risa/Asir committers
 @page
@@ -139,6 +139,7 @@ ChangeLog $B$N9`L\$O(B www.openxm.org $B$N(B cvsweb $B$G(B
 * tk_rk.runge_kutta_4::
 * tk_rk.runge_kutta_4_linear::
 * tk_rk.zonal::
+* getpid::
 @end menu
 
 @node $B%/%*!<%H(B,,, $B<B83E*;EMM$N4X?t(B
@@ -2094,6 +2095,44 @@ ChangeLog
 @end itemize
 
 
+@node getpid,,, $B%7%9%F%`(B
+@subsection @code{getpid}
+@findex getpid
+
+@comment --- $B4X?t$N4JC1$J@bL@(B ---
+@comment --- @itemx $B$OJ#?t$KBP$7$F@bL@$r0l$D$D$1$k>l9g$K;H$&(B ---
+@table @t
+@item getpid()
+@end table
+
+@table @var
+@item return
+$B@0?t(B
+@end table
+
+@itemize @bullet
+@item asir $B$N%W%m%;%9HV9f$rLa$9(B.
+@item $B%W%m%;%9HV9f$O(B asir, ox_asir $BEy$GFHN)$7$?%W%m%;%9$KBP$7$F%7%9%F%`Fb$G0l0U=P$"$k(B.
+@end itemize
+
+@example
+[219] getpid()
+3214
+@end example
+
+
+@comment --- ChangeLog $B$r=q$/(B. $BF05!(B. $B%=!<%9%3!<%I$N0LCV(B. $BJQ99F|;~(B $B$J$I(B CVS$B%5!<%P$r8+$k$?$a(B
+@comment --- openxm $B$N30It$+$i$N4sM?$b=R$Y$k(B. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item $B$3$N4X?t$O(B ox_work_dir() $B4X?t$,0l0U$J:n6H%U%!%$%kL>$rF@$k$?$a$K;H$o$l$F$$$k(B.
+src/asir-contrib/packages/src/misc/rr 1.3,
+asir2000/builtin/file.c 1.28, rat.c 1.5,
+asir2000/parse/puref.c 1.9 $B$r;2>H(B (2013/02/15, 18).
+@end itemize
+
+
 @comment ****************************************************************
 
 
@@ -3564,7 +3603,7 @@ holonomic gradient method $B$G$d$k$?$a$K$=$N=i4|CM$r7W;;$9$k(B C $B$N%W%m%0%i
 @item $B:GE,2=$r$^$@$^$@$5$\$C$F$k(B.
 @end itemize
 
-@comment -----------  $B0J2<$O8+K\(B. $B>C$9$J(B.
+@comment -----------  $B0J2<$O8+K\(B. $B>C$9$J(B.  template
 @comment ****************************************************************
 @comment --- $B"~"~"~"~(B  $B0J2<B>$N4X?t$K$D$$$F??;w$7$F5-=R$9$k(B. $B"~"~"~"~(B
 @comment $B?7$7$$4X?t$N@bL@$r=q$/$?$a$N%F%s%W%l!<%H$G$"$k(B. $B>C$9$J(B.
