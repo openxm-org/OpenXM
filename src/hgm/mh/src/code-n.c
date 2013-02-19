@@ -1,15 +1,21 @@
 /*
+$OpenXM$
 License: LGPL
+Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
  */
 #include <stdio.h>
 #include <stdlib.h> 
 #include <math.h>
 
+static void error_code(char *s);
+static void showf(char *s,double *v,int m);
+static void showd(char *s,int *v,int m);
+
 extern int MH_M;
 extern int MH_RANK;
 
-int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
+static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
 #define join(k,jj) ( (1 << k) | jj)
 #define delete(k,jj) ( (~(1 << k)) & jj)
 #define member(k,ii) ( (1 << k) & ii)
@@ -22,9 +28,9 @@ int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
   p(x) = exp(-bsum*x)*x^(MH_M*(c-a))
   f is p(x)*pd{J}F
  */
-void rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
+void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 { extern double *MH_Beta; /* beta = (1/2)*\simga^(-1) */
-  extern double *Ng;   /* freedom */
+  extern double *MH_Ng;   /* freedom */
   extern int MH_Mg;       /* number of variables, MH_Mg=MH_M */
   static int initialized = 0;
   /* static double b[MH_M]; */
@@ -54,14 +60,14 @@ void rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   static double *f2=NULL;
 
   if (!initialized) {
-    b = (double *)mymalloc(sizeof(double)*MH_M);
-    bitSize = (int *)mymalloc(sizeof(int)*MH_RANK);
-    invbitSize = (int *)mymalloc(sizeof(int)*MH_RANK);
+    b = (double *)mh_malloc(sizeof(double)*MH_M);
+    bitSize = (int *)mh_malloc(sizeof(int)*MH_RANK);
+    invbitSize = (int *)mh_malloc(sizeof(int)*MH_RANK);
 
-    f2 = (double *)mymalloc(sizeof(double)*MH_M*MH_RANK);
-    yik = (double *)mymalloc(sizeof(double)*MH_M*MH_M);
-    yik2 = (double *)mymalloc(sizeof(double)*MH_M*MH_M);
-    y   = (double *)mymalloc(sizeof(double)*MH_M);
+    f2 = (double *)mh_malloc(sizeof(double)*MH_M*MH_RANK);
+    yik = (double *)mh_malloc(sizeof(double)*MH_M*MH_M);
+    yik2 = (double *)mh_malloc(sizeof(double)*MH_M*MH_M);
+    y   = (double *)mh_malloc(sizeof(double)*MH_M);
 
     m = MH_Mg;
     if (m != MH_M) error_code("MH_M != m. MH_M is given by -DMH_M...");
@@ -69,8 +75,8 @@ void rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 
     if(MH_Beta != NULL) for (i=0;i<MH_M;i++) b[i]=MH_Beta[i];
     else error_code("MH_Beta is null.");
-    if (Ng != NULL) c=a+*(Ng)/2;  /* set c, a+n/2, n is given by the option n */
-    else error_code("Ng is null.");
+    if (MH_Ng != NULL) c=a+*(MH_Ng)/2;  /* set c, a+n/2, n is given by the option n */
+    else error_code("MH_Ng is null.");
 
     bsum = 0; for (i=0; i<m; i++) bsum += b[i];
 
@@ -149,13 +155,13 @@ void rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   }
 }
 
-error_code(char *s) {
+static void error_code(char *s) {
   fprintf(stderr,"%s",s);
-  exit(10);
+  mh_exit(10);
 }
 
 /* for debug */
-showf(char *s,double *v,int m) {
+static void showf(char *s,double *v,int m) {
   int i;
   printf("%s=\n",s);
   for (i=0; i<m; i++) {
@@ -164,7 +170,7 @@ showf(char *s,double *v,int m) {
   printf("\n");
 }
 
-showd(char *s,int *v,int m) {
+static void showd(char *s,int *v,int m) {
   int i;
   printf("%s=\n",s);
   for (i=0; i<m; i++) {
