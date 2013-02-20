@@ -1,14 +1,17 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.1 2013/02/19 08:03:14 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.2 2013/02/20 01:06:38 takayama Exp $
  */
 #include <stdio.h>
 #include "sfile.h"
 #define SSIZE 5
+
+#ifdef TEST
 void *mh_malloc(int size) { return((void *)malloc(size)); }
+#endif
 
 struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   struct SFILE *sfp;
-  sfp = mh_malloc(sizeof(struct SFILE));
+  sfp = (struct SFILE *)mh_malloc(sizeof(struct SFILE));
   sfp->byFile=0; sfp->s=NULL; sfp->pt=0; sfp->len=0;sfp->limit=0; sfp->fp=NULL;
   sfp->forRead=1; sfp->copied=0;
   
@@ -27,7 +30,8 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
 	return(sfp);
   }else if (strcmp(mode,"w")==0) {
 	sfp->byFile=0;
-	sfp->s=mh_malloc(SSIZE);
+	sfp->s=(char *)mh_malloc(SSIZE);
+	sfp->s[0]=0;
 	sfp->pt=0;
 	sfp->len=0;
 	sfp->limit= SSIZE;
@@ -80,6 +84,7 @@ int mh_fputs(char *str,struct SFILE *sfp) {
 
 /* Note: copy the resulting string sfp->s before mh_fclose */
 int mh_fclose(struct SFILE *sfp) {
+  if (!sfp) return(-1);
   if (sfp->byFile) return fclose(sfp->fp);
   if (! (sfp->forRead)) {
 	if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
@@ -103,6 +108,7 @@ int mh_outstr(char *str,int size,struct SFILE *sfp) {
 }
 
 
+#ifdef TEST
 /* for debugging */
 dump(struct SFILE *sfp) {
   printf("byFile=%d\n",sfp->byFile);
@@ -142,3 +148,4 @@ main() {
   mh_outstr(str,TESTSIZE,sfp);
   mh_fclose(sfp);
 }
+#endif

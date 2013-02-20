@@ -1,12 +1,13 @@
 /*
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
-$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.3 2013/02/20 01:06:38 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "sfile.h"
 
 extern int MH_RANK;
 extern int MH_M;
@@ -17,8 +18,8 @@ extern int MH_Mg;
 extern double *MH_Beta; extern double *MH_Ng; extern double MH_X0g;
 extern int MH_RawName;
 double MH_Hg = 0.001;
-static FILE *Gf=NULL;
-static FILE *Df =NULL;
+static struct SFILE *Gf =NULL;
+static struct SFILE *Df =NULL;
 int MH_P95=0;
 int MH_Verbose=0;
 static mypower(int x,int n) {
@@ -31,6 +32,7 @@ mh_gopen_file() {
   FILE *fp;
   char fname[1024];
   int i;
+  extern int MH_byFile;
   Gf=NULL;
   Df=NULL;
   if (MH_Verbose) {
@@ -46,29 +48,31 @@ mh_gopen_file() {
     if (!MH_RawName) {
       sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"-m%d-n%lf-x0%lf-b",MH_Mg,*MH_Ng,MH_X0g);
       for (i=0; i<MH_Mg; i++) {
-	sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"%lf,",MH_Beta[i]);
+		sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"%lf,",MH_Beta[i]);
       }
       sprintf(&(MH_Dfname[strlen(MH_Dfname)]),".txt");
     }
-    Df = fopen(MH_Dfname,"w");
+    Df = mh_fopen(MH_Dfname,"w",MH_byFile);
     if (Df == NULL) {
       fprintf(stderr,"Error to open the file %s\n",MH_Dfname);
       return(-1);
     }
   }
   if (MH_Gfname != NULL) {
-    Gf = fopen(MH_Gfname,"w");
+    Gf = mh_fopen(MH_Gfname,"w",MH_byFile);
     if (Gf == NULL) {
       fprintf(stderr,"Error to open the file %s\n",MH_Gfname);
       return(-1);
     }
   }else return(1);
-  sprintf(fname,"%s-gp.txt",MH_Gfname);
-  fp = fopen(fname,"w");
-  fprintf(fp,"set xrange [0:20]\n");
-  fprintf(fp,"set yrange [0:1.2]\n");
-  fprintf(fp,"plot \"%s\" title \"by hg\" with lines\n",MH_Gfname);
-  fclose(fp);
+  if (MH_byFile) {
+	sprintf(fname,"%s-gp.txt",MH_Gfname);
+	fp = fopen(fname,"w");
+	fprintf(fp,"set xrange [0:20]\n");
+	fprintf(fp,"set yrange [0:1.2]\n");
+	fprintf(fp,"plot \"%s\" title \"by hg\" with lines\n",MH_Gfname);
+	fclose(fp);
+  }
   return(0);
 }
 /*
@@ -88,18 +92,21 @@ static void show_v(double x,double *v, int n)
   int i;
   static int counter=0;
   extern int MH_Dp;
+  char swork[MH_SSIZE];
 
   if ((counter % MH_Dp) != 0) { counter++; return;} else counter=1;
-  fprintf(Df,"%lf\n",x);
-  for (i = 0; i < n; i++) fprintf(Df," %le\n", v[i]);
+  sprintf(swork,"%lf\n",x); mh_fputs(swork,Df);
+  for (i = 0; i < n; i++) {sprintf(swork," %le\n", v[i]); mh_fputs(swork,Df);}
 }
 
-double mh_rkmain(double x0,double y0[],double xn)
+struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
 {
   static int initialized=0;
   int i;
   double h;
   double x;
+  char swork[MH_SSIZE];
+  struct MH_RESULT result;
   extern int MH_deallocate;
   /*
   double y[MH_RANK];
@@ -118,7 +125,7 @@ double mh_rkmain(double x0,double y0[],double xn)
 	if (ty) mh_free(ty);
     y = k1 = k2 = k3 = k4 = temp = ty = NULL;
 	initialized=0;
-	return(0.0);
+	return(result);
   }
   if (!initialized) {
     y = (double *)mh_malloc(sizeof(double)*MH_RANK);
@@ -135,7 +142,10 @@ double mh_rkmain(double x0,double y0[],double xn)
     y[i] = y0[i];
   for (x = x0; (h>0?(x<xn):(x>xn)); x += h) {
 	if (Df) show_v(x,y, MH_RANK);
-	if (Gf) fprintf(Gf,"%lf %le\n",x,y[0]);
+	if (Gf) {
+	  sprintf(swork,"%lf %le\n",x,y[0]);
+	  mh_fputs(swork,Gf);
+	}
         /* Output 95% point */
 	if (MH_P95) {
 	  if ((MH_P95==1) && (y[0] >= 0.95)) {
@@ -172,7 +182,13 @@ double mh_rkmain(double x0,double y0[],double xn)
       y[i] = y[i] + 1.0/6.0 * k1[i] + 1.0/3.0 * k2[i] + 1.0/3.0 * k3[i] + 1.0/6.0 * k4[i];
   }
   printf("x=%lf, y[0]=%lg\n",x,y[0]);
-  if (Df) fclose(Df);
-  if (Gf) fclose(Gf);
-  return x;
+  result.x = x;
+  result.rank = MH_RANK;
+  result.y = (double *)mh_malloc(sizeof(double)*MH_RANK); /* todo, how to free it */
+  for (i=0; i<MH_RANK; i++) (result.y)[i] = y[i];
+  result.size=2;
+  result.sfpp = (struct SFILE **)mh_malloc(sizeof(struct SFILE *)*(result.size)); /* todo, free */
+  (result.sfpp)[0] = Df;  
+  (result.sfpp)[1] = Gf;
+  return result;
 }

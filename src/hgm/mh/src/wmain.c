@@ -1,19 +1,21 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.3 2013/02/20 01:06:38 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "sfile.h"
 #define SMAX 4096
-#define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(-1); }}
+#define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(NULL); }}
 int MH_deallocate=0;
 
 extern char *MH_Gfname;
 extern char *MH_Dfname;
 
 /* global variables. They are set in setParam() */
+int MH_byFile=1;
 int MH_RANK;
 int MH_M;
 
@@ -32,7 +34,6 @@ extern int MH_Verbose;
 
 extern int MH_P95;  /* 95 % points */
 int mh_gopen_file(void);
-double mh_rkmain(double x0,double y0[],double xn);
 static int setParamTest(void);
 static int setParamDefault(void);
 static int setParam(char *fname);
@@ -42,7 +43,7 @@ static int showParam(void);
 #ifdef DEBUG
 char *MH_Dfname; char *MH_Gfname; double MH_Hg;
 int mh_gopen_file(void) { }
-double mh_rkmain(double x0,double y0[],double xn) { }
+struct MH_RESULT mh_rkmain(double x0,double y0[],double xn) { }
 #endif
 
 void mh_freeWorkArea(void) {
@@ -74,18 +75,21 @@ static mypower(int x,int n) {
 }
 #ifdef STANDALONE
 main(int argc,char *argv[]) {
+/*  mh_main(argc,argv);
+  mh_freeWorkArea(); */
   mh_main(argc,argv);
-  mh_freeWorkArea();
-  return mh_main(argc,argv);
 }
 #endif
-mh_main(int argc,char *argv[]) {
+struct MH_RESULT *mh_main(int argc,char *argv[]) {
   static double *y0;
   double x0,xn;
   double ef;
   int i,rank;
+  struct MH_RESULT *rp=NULL;
   extern int MH_deallocate;
-  if (MH_deallocate) { if (y0) mh_free(y0); return(0); }
+  extern int MH_byFile;
+  MH_byFile=1;
+  if (MH_deallocate) { if (y0) mh_free(y0); return(rp); }
   setParam(NULL); MH_Gfname = MH_Dfname = NULL; MH_Verbose=1;
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--idata")==0) {
@@ -94,11 +98,11 @@ mh_main(int argc,char *argv[]) {
 	}else if (strcmp(argv[i],"--gnuplotf")==0) {
 	  inci(i);
 	  MH_Gfname = (char *)mh_malloc(SMAX);
-	  strncpy(MH_Gfname,argv[i],SMAX-1);
+	  strcpy(MH_Gfname,argv[i]);
 	}else if (strcmp(argv[i],"--dataf")==0) {
 	  inci(i);
 	  MH_Dfname = (char *)mh_malloc(SMAX);
-	  strncpy(MH_Dfname,argv[i],SMAX-1);
+	  strcpy(MH_Dfname,argv[i]);
 	}else if (strcmp(argv[i],"--xmax")==0) {
       inci(i);
 	  sscanf(argv[i],"%lf",&Xng);
@@ -106,7 +110,7 @@ mh_main(int argc,char *argv[]) {
       inci(i);
 	  sscanf(argv[i],"%lg",&MH_Hg);
 	}else if (strcmp(argv[i],"--help")==0) {
-	  mh_usage(); return(0);
+	  mh_usage(); return(rp);
 	}else if (strcmp(argv[i],"--raw")==0) {
 	  MH_RawName = 1;
 	}else if (strcmp(argv[i],"--test")==0) {
@@ -117,10 +121,12 @@ mh_main(int argc,char *argv[]) {
 	  MH_P95=1;
 	}else if (strcmp(argv[i],"--verbose")==0) {
 	  MH_Verbose=1;
+	}else if (strcmp(argv[i],"--bystring")==0) {
+	  MH_byFile = 0;
 	}else {
 	  fprintf(stderr,"Unknown option %s\n",argv[i]);
 	  mh_usage();
-	  return(-1);
+	  return(rp);
 	}
   }
   if (MH_Verbose) showParam();
@@ -132,7 +138,9 @@ mh_main(int argc,char *argv[]) {
   for (i=0; i<rank; i++) y0[i] = ef*Iv[i];
   mh_gopen_file();
   if (MH_Verbose) {for (i=0; i<rank; i++) printf("%lf\n",y0[i]); }
-  mh_rkmain(x0,y0,xn);
+  rp = (struct MH_RESULT*) mh_malloc(sizeof(struct MH_RESULT));
+  *rp=mh_rkmain(x0,y0,xn);
+  return(rp);
 }
 
 mh_usage() {
@@ -204,10 +212,10 @@ static setParamDefault() {
   Xng = 10.0;
 }
 
-next(FILE *fp,char *s,char *msg) {
+next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
-	if (!fgets(s,SMAX,fp)) {
+	if (!mh_fgets(s,SMAX,sfp)) {
 	  fprintf(stderr,"Data format error at %s\n",msg);
 	  mh_exit(-1);
 	}
@@ -217,9 +225,10 @@ next(FILE *fp,char *s,char *msg) {
 static setParam(char *fname) {
   int rank;
   char s[SMAX];
-  FILE *fp;
+  struct SFILE *fp;
   int i;
   extern int MH_deallocate;
+  extern int MH_byFile;
   if (MH_deallocate) {
 	if (MH_Beta) mh_free(MH_Beta);
 	if (MH_Ng) mh_free(MH_Ng);
@@ -228,7 +237,7 @@ static setParam(char *fname) {
   }
   if (fname == NULL) return(setParamDefault());
 
-  if ((fp=fopen(fname,"r")) == NULL) {
+  if ((fp=mh_fopen(fname,"r",MH_byFile)) == NULL) {
 	fprintf(stderr,"File %s is not found.\n",fname);
 	mh_exit(-1);
   }
@@ -266,7 +275,7 @@ static setParam(char *fname) {
 
   next(fp,s,"Xng (the last point, cf. --xmax)");
   sscanf(s,"%lf",&Xng);
-  fclose(fp);
+  mh_fclose(fp);
 }
 
 showParam() {
