@@ -42,6 +42,7 @@ main(int argc,char *argv[]) {
   struct MH_RESULT *rp;
   struct SFILE *sfp;
   char *argv2[10];
+  mh_exit(0x7fffffff); /* standalone mode */
   if (argc != 2) { mh_main(argc,argv); return(0);}
   fp = fopen(argv[1],"r");
   if (fp == NULL) {

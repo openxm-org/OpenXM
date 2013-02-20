@@ -1,13 +1,32 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.2 2013/02/20 01:06:38 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.3 2013/02/20 05:20:49 takayama Exp $
  */
 #include <stdio.h>
 #include "sfile.h"
 #define SSIZE 5
 
-#ifdef TEST
-void *mh_malloc(int size) { return((void *)malloc(size)); }
-#endif
+void *mh_malloc(int s) {
+  void *p;
+  p = (void*)malloc(s);
+  if (p == NULL) {
+	fprintf(stderr,"No memory.\n"); mh_exit(-1);
+  }
+  return(p);
+}
+mh_free(void *p) {
+  free(p);
+  return(0);
+}
+
+mh_exit(int n) {
+  static int standalone=0;
+  if (n == 0x7fffffff) { standalone=1; return(0);}
+  if (standalone) exit(n);
+  else {
+	fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
+	return(n);
+  }
+}
 
 struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   struct SFILE *sfp;

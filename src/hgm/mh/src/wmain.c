@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.3 2013/02/20 01:06:38 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.4 2013/02/20 05:20:49 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -55,18 +55,6 @@ void mh_freeWorkArea(void) {
   mh_rf(0.0, NULL, 0, NULL, 0);
   MH_deallocate=0; /* switch to the normal mode. */
 }
-void *mh_malloc(int s) {
-  void *p;
-  p = (void*)malloc(s);
-  if (p == NULL) {
-	fprintf(stderr,"No memory.\n"); mh_exit(-1);
-  }
-  return(p);
-}
-mh_free(void *p) {
-  free(p);
-  return(0);
-}
 static mypower(int x,int n) {
   int a,i;
   a = 1;
@@ -75,6 +63,7 @@ static mypower(int x,int n) {
 }
 #ifdef STANDALONE
 main(int argc,char *argv[]) {
+  mh_exit(0x7fffffff); /* standalone mode */
 /*  mh_main(argc,argv);
   mh_freeWorkArea(); */
   mh_main(argc,argv);
@@ -296,11 +285,3 @@ showParam() {
   printf("%%Xng=\n%lf\n",Xng);
 }
 
-mh_exit(int n) {
-#ifdef STANDALONE
-  exit(n);
-#else
-  /* todo, use setjmp, longjmp */
-  fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
-#endif  
-}
