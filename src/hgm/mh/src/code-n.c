@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -33,6 +33,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   extern double *MH_Ng;   /* freedom */
   extern int MH_Mg;       /* number of variables, MH_Mg=MH_M */
   static int initialized = 0;
+  extern int MH_deallocate;
   /* static double b[MH_M]; */
   static double *b;
   static double bsum = 0;
@@ -59,6 +60,18 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   /* double f2[MH_M][MH_RANK];*/
   static double *f2=NULL;
 
+  if (MH_deallocate && initialized) {
+	if (b) mh_free(b);
+	if (bitSize) mh_free(bitSize);
+	if (invbitSize) mh_free(invbitSize);
+	if (f2) mh_free(f2);
+	if (yik) mh_free(yik);
+	if (yik2) mh_free(yik2);
+	if (y) mh_free(y);
+    b = f2 = yik = yik2 = y = NULL;
+    bitSize = invbitSize = NULL;
+	initialized = 0; return;
+  }
   if (!initialized) {
     b = (double *)mh_malloc(sizeof(double)*MH_M);
     bitSize = (int *)mh_malloc(sizeof(int)*MH_RANK);

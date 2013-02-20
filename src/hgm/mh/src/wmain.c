@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -8,6 +8,8 @@ License: LGPL
 #include <string.h>
 #define SMAX 4096
 #define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(-1); }}
+int MH_deallocate=0;
+
 extern char *MH_Gfname;
 extern char *MH_Dfname;
 
@@ -43,6 +45,15 @@ int mh_gopen_file(void) { }
 double mh_rkmain(double x0,double y0[],double xn) { }
 #endif
 
+void mh_freeWorkArea(void) {
+  extern int MH_deallocate;
+  MH_deallocate=1; /* switch to deallocation mode. */
+  mh_main(0,NULL); 
+  setParam(NULL);  
+  mh_rkmain(0.0, NULL, 0.0);
+  mh_rf(0.0, NULL, 0, NULL, 0);
+  MH_deallocate=0; /* switch to the normal mode. */
+}
 void *mh_malloc(int s) {
   void *p;
   p = (void*)malloc(s);
@@ -63,14 +74,18 @@ static mypower(int x,int n) {
 }
 #ifdef STANDALONE
 main(int argc,char *argv[]) {
-  return mh_main(argc,char *argv[]);
+  mh_main(argc,argv);
+  mh_freeWorkArea();
+  return mh_main(argc,argv);
 }
 #endif
 mh_main(int argc,char *argv[]) {
-  double *y0;
+  static double *y0;
   double x0,xn;
   double ef;
   int i,rank;
+  extern int MH_deallocate;
+  if (MH_deallocate) { if (y0) mh_free(y0); return(0); }
   setParam(NULL); MH_Gfname = MH_Dfname = NULL; MH_Verbose=1;
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--idata")==0) {
@@ -204,6 +219,13 @@ static setParam(char *fname) {
   char s[SMAX];
   FILE *fp;
   int i;
+  extern int MH_deallocate;
+  if (MH_deallocate) {
+	if (MH_Beta) mh_free(MH_Beta);
+	if (MH_Ng) mh_free(MH_Ng);
+	if (Iv) mh_free(Iv);
+	return(0);
+  }
   if (fname == NULL) return(setParamDefault());
 
   if ((fp=fopen(fname,"r")) == NULL) {
@@ -269,6 +291,7 @@ mh_exit(int n) {
 #ifdef STANDALONE
   exit(n);
 #else
+  /* todo, use setjmp, longjmp */
   fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
 #endif  
 }

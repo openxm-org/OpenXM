@@ -1,5 +1,5 @@
 /*
-  $OpenXM$
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.1 2013/02/19 08:03:14 takayama Exp $
  */
 #include <stdio.h>
 #include "sfile.h"
@@ -10,7 +10,7 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   struct SFILE *sfp;
   sfp = mh_malloc(sizeof(struct SFILE));
   sfp->byFile=0; sfp->s=NULL; sfp->pt=0; sfp->len=0;sfp->limit=0; sfp->fp=NULL;
-  sfp->forRead=1;
+  sfp->forRead=1; sfp->copied=0;
   
   if (byFile) {
 	sfp->byFile = 1;
@@ -82,10 +82,26 @@ int mh_fputs(char *str,struct SFILE *sfp) {
 int mh_fclose(struct SFILE *sfp) {
   if (sfp->byFile) return fclose(sfp->fp);
   if (! (sfp->forRead)) {
-	if (sfp->s != NULL) free(sfp->s);
+	if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
+	if (sfp->s != NULL) { free(sfp->s); sfp->s = NULL; }
   }
   free(sfp);
 }
+
+int mh_outstr(char *str,int size,struct SFILE *sfp) {
+  int i;
+  if (sfp->byFile) {
+	fprintf(stderr,"Error in mh_outstr. mh_outstr is called in the file i/o mode.\n");
+	return 0;
+  }
+  if (size) str[0] = 0;
+  for (i = 0; (i<size-1) && (i<sfp->len); i++) {
+	str[i] = (sfp->s)[i]; str[i+1] = 0;
+  }
+  sfp->copied=1;
+  return(i);
+}
+
 
 /* for debugging */
 dump(struct SFILE *sfp) {
@@ -97,9 +113,10 @@ dump(struct SFILE *sfp) {
   printf("fp=%p\n",sfp->fp);
 }
 
+#define TESTSIZE 1024
 main() {
   struct SFILE *sfp;
-  char str[1024];
+  char str[TESTSIZE];
   int i;
 /*
   sfp = mh_fopen("hoge\nafo\nbho\ncat\ndot\ndolphin\n","r",0);
@@ -122,6 +139,6 @@ main() {
   }
   mh_fputs("end end\n",sfp);
   printf("result=%s\n",sfp->s);
-  /* strcpy(str,sfp->s);
-	 mh_fclose(sfp); */
+  mh_outstr(str,TESTSIZE,sfp);
+  mh_fclose(sfp);
 }

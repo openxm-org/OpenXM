@@ -1,7 +1,7 @@
 /*
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,7 +99,8 @@ double mh_rkmain(double x0,double y0[],double xn)
   static int initialized=0;
   int i;
   double h;
-  double x; 
+  double x;
+  extern int MH_deallocate;
   /*
   double y[MH_RANK];
   double k1[MH_RANK], k2[MH_RANK], k3[MH_RANK], k4[MH_RANK];
@@ -107,6 +108,18 @@ double mh_rkmain(double x0,double y0[],double xn)
   double ty[MH_RANK];
   */
   static double *y,*k1,*k2,*k3,*k4,*temp,*ty;
+  if (MH_deallocate && initialized) {
+	if (y) mh_free(y);
+	if (k1) mh_free(k1);
+	if (k2) mh_free(k2);
+	if (k3) mh_free(k3);
+	if (k4) mh_free(k4);
+	if (temp) mh_free(temp);
+	if (ty) mh_free(ty);
+    y = k1 = k2 = k3 = k4 = temp = ty = NULL;
+	initialized=0;
+	return(0.0);
+  }
   if (!initialized) {
     y = (double *)mh_malloc(sizeof(double)*MH_RANK);
     k1 = (double *)mh_malloc(sizeof(double)*MH_RANK);
