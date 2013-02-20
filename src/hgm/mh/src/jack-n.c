@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.1 2013/02/20 05:56:16 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -23,25 +23,25 @@ Changelog:
 /****** from mh-n.c *****/ 
 #define M_n 3
 /* global variables. They are set in setParam() */
-int Mg;  /* n */
-int Mapprox; /* m, approximation degree */
-double *Beta; /* beta[0], ..., beta[m-1] */
-double *Ng;   /* freedom n.  c=(m+1)/2+n/2; Note that it is a pointer */
-double X0g;   /* initial point */
-double *Iv;   /* Initial values of mhg sorted by mhbase() in rd.rr at beta*x0 */
-double Ef;   /* exponential factor at beta*x0 */
-double Hg;   /* step size of rk defined in rk.c */
-int Dp;      /* Data sampling period */
-double Xng=0.0;   /* the last point */
-int Sample = 1;
+static int Mg;  /* n */
+static int Mapprox; /* m, approximation degree */
+static double *Beta; /* beta[0], ..., beta[m-1] */
+static double *Ng;   /* freedom n.  c=(m+1)/2+n/2; Note that it is a pointer */
+static double X0g;   /* initial point */
+static double *Iv;   /* Initial values of mhg sorted by mhbase() in rd.rr at beta*x0 */
+static double Ef;   /* exponential factor at beta*x0 */
+static double Hg;   /* step size of rk defined in rk.c */
+static int Dp;      /* Data sampling period */
+static double Xng=0.0;   /* the last point */
+static int Sample = 1;
 
 /* for sample inputs */
-double *Iv2; 
-double Ef2; 
+static double *Iv2; 
+static double Ef2; 
 
 #ifdef NAN
 #else
-#define NAN  3.40282e+38  /* for old 32 bit machines. なんちゃってです. */
+#define NAN  3.40282e+38  /* for old 32 bit machines. Todo, configure */
 #endif
 
 /* #define M_n  3  defined in the Makefile */ /* number of variables */
@@ -49,49 +49,113 @@ double Ef2;
 #define M_m_MAX 200
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
-int Debug = 0;
-int Alpha = 2;;
-int *Darray = NULL;
-int **Parray = NULL; /* array of partitions of size M_n */
-int *ParraySize = NULL; /* length of each partitions */
-int M_kap[M_n];
-int M_m=M_m_MAX-2;   /* | | <= M_m, bug do check of M_m <=M_m_MAX-2 */
+static int Debug = 0;
+static int Alpha = 2;;
+static int *Darray = NULL;
+static int **Parray = NULL; /* array of partitions of size M_n */
+static int *ParraySize = NULL; /* length of each partitions */
+static int M_kap[M_n];
+static int M_m=M_m_MAX-2;   /* | | <= M_m, bug do check of M_m <=M_m_MAX-2 */
 void (*M_pExec)(void);
-int HS_mu[M_n];
-int HS_n=M_n;
+static int HS_mu[M_n];
+static int HS_n=M_n;
 void (*HS_hsExec)(void);
-double M_x[M_n];
+static double M_x[M_n];
 
 /* They are used in pmn */
-int *P_pki=NULL;
-int P_pmn=0;
+static int *P_pki=NULL;
+static int P_pmn=0;
 
 /* It is used genDarray2(), list partitions... */
-int DR_parray=0;
+static int DR_parray=0;
 
 /* Used in genBeta() and enumeration of horizontal strip. */
-double *M_beta_0=NULL;  /* M_beta[0][*] value of beta_{kappa,mu}, M_beta[1][*] N_mu */
-int *M_beta_1=NULL;
-int M_beta_pt=0;
-int M_beta_kap[M_n];
-int UseTable = 0;
+static double *M_beta_0=NULL;  /* M_beta[0][*] value of beta_{kappa,mu}, M_beta[1][*] N_mu */
+static int *M_beta_1=NULL;
+static int M_beta_pt=0;
+static int M_beta_kap[M_n];
+static int UseTable = 0;
 
-double **M_jack; 
-int M_df=1; /* Compute differentials? */
-int M_2n=0; /* 2^N */
+static double **M_jack; 
+static int M_df=1; /* Compute differentials? */
+static int M_2n=0; /* 2^N */
 
-double Xarray[M_n][M_m_MAX];  
+static double Xarray[M_n][M_m_MAX];  
 /* (x_1, ..., x_n) */
 /* Xarray[i][0]  x_{i+1}^0, Xarray[i][1], x_{i+1}^1, ... */
 
-double *M_qk=NULL;  /* saves pochhammerb */
-double M_rel_error=0.0; /* relative errors */
+static double *M_qk=NULL;  /* saves pochhammerb */
+static double M_rel_error=0.0; /* relative errors */
 
-double jack1(int K);
-double jack1diff(int k);
-double xval(int i,int p); /* x_i^p */
+/* prototypes */
+static void *mymalloc(int size);
+static myfree(void *p);
+static myerror(char *s);
+static double jack1(int K);
+static double jack1diff(int k);
+static double xval(int i,int p); /* x_i^p */
+static int mysum(int L[]);
+static int plength(int P[]);
+static int plength_t(int P[]);
+static void ptrans(int P[M_n],int Pt[]);
+static test_ptrans();
+static int huk(int K[],int I,int J);
+static int hdk(int K[],int I,int J);
+static double jjk(int K[]);
+static double ppoch(double A,int K[]);
+static double ppoch2(double A,double B,int K[]);
+static double mypower(double x,int n);
+static double qk(int K[],double A[A_LEN],double B[B_LEN]);
+static int bb(int N[],int K[],int M[],int I,int J);
+static double beta(int K[],int M[]);
+static printp(int kappa[]);
+static printp2(int kappa[]);
+static test_beta();
+static double q3_10(int K[],int M[],int SK);
+static double q3_5(double A[],double B[],int K[],int I);
+static void mtest4();
+static void mtest4b();
+static int nk(int KK[]);
+static int plength2(int P1[],int P2[]);
+static int myeq(int P1[],int P2[]);
+static int pListPartition(int M,int N);
+static int pListPartition2(int Less,int From,int To, int M);
+static void pExec_0();
+static int pListHS(int Kap[],int N);
+static int pListHS2(int From,int To,int Kap[]);
+static void hsExec_0();
+static int pmn(int M,int N);
+static int *cloneP(int a[]);
+static copyP(int p[],int a[]);
+static void pExec_darray(void);
+static genDarray2(int M,int N);
+static isHStrip(int Kap[],int Nu[]);
+static void hsExec_beta(void);
+static genBeta(int Kap[]);
+static checkBeta1();
+static int psublen(int Kap[],int Mu[]);
+static genJack(int M,int N);
+static checkJack1(int M,int N);
+static checkJack2(int M,int N);
+static mtest1b();
 
-void *mymalloc(int size) {
+static int imypower(int x,int n);
+static usage();
+static setParamDefault();
+static next(FILE *fp,char *s,char *msg);
+static int gopen_file(void);
+static int setParam(char *fname);
+static int showParam(void);
+static double iv_factor(void);
+static double gammam(double a,int n);
+static double mypower(double a,int n);
+
+double mh_t(double A[A_LEN],double B[B_LEN],int N,int M);
+double mh_t2(int J);
+int jk_main(int argc,char *argv[]);
+
+
+static void *mymalloc(int size) {
   void *p;
   if (Debug) printf("mymalloc(%d)\n",size);
   p = (void *)malloc(size);
@@ -101,10 +165,10 @@ void *mymalloc(int size) {
   }
   return(p);
 }
-myfree(void *p) { free(p); }
-myerror(char *s) { fprintf(stderr,"%s\n",s); }
+static myfree(void *p) { free(p); }
+static myerror(char *s) { fprintf(stderr,"%s\n",s); }
 
-double jack1(int K) {
+static double jack1(int K) {
   double F;
   extern int Alpha;
   int I,J,L,II,JJ,N;
@@ -117,7 +181,7 @@ double jack1(int K) {
   }
   return(F);
 }
-double jack1diff(int K) {
+static double jack1diff(int K) {
   double F;
   extern int Alpha;
   int I,J,S,L,II,JJ,N;
@@ -131,7 +195,7 @@ double jack1diff(int K) {
   return(F);
 }
 
-double xval(int ii,int p) { /* x_i^p */
+static double xval(int ii,int p) { /* x_i^p */
   extern double M_x[];
   double F;
   int i,j;
@@ -158,7 +222,7 @@ double xval(int ii,int p) { /* x_i^p */
   return(Xarray[ii-1][p]);
 }
 
-int mysum(int L[]) {
+static int mysum(int L[]) {
   int S,I,N;
   N=M_n;
   S=0;
@@ -169,7 +233,7 @@ int mysum(int L[]) {
 /*
  (3,2,2,0,0) --> 3
 */
-int plength(int P[]) {
+static int plength(int P[]) {
   int I;
   for (I=0; I<M_n; I++) {
     if (P[I] == 0) return(I);
@@ -177,7 +241,7 @@ int plength(int P[]) {
   return(M_n);
 }
 /* plength for transpose */
-int plength_t(int P[]) {  
+static int plength_t(int P[]) {  
   int I;
   for (I=0; I<M_m; I++) {
     if (P[I] == 0) return(I);
@@ -188,7 +252,7 @@ int plength_t(int P[]) {
 /*  
  ptrans(P)  returns Pt
 */
-void ptrans(int P[M_n],int Pt[]) { /* Pt[M_m] */
+static void ptrans(int P[M_n],int Pt[]) { /* Pt[M_m] */
   extern int M_m;
   int i,j,len;
   int p[M_n];
@@ -201,7 +265,7 @@ void ptrans(int P[M_n],int Pt[]) { /* Pt[M_m] */
   }
 }
 
-test_ptrans() {
+static test_ptrans() {
   extern int M_m;
   int p[M_n0]={5,3,2};
   int pt[10];
@@ -216,7 +280,7 @@ test_ptrans() {
   upper hook length
   h_kappa^*(K)
 */
-int huk(int K[],int I,int J) {
+static int huk(int K[],int I,int J) {
   extern int Alpha;
   int Kp[M_m_MAX];
   int A,H;
@@ -231,7 +295,7 @@ int huk(int K[],int I,int J) {
   lower hook length
   h^kappa_*(K)
 */
-int hdk(int K[],int I,int J) {
+static int hdk(int K[],int I,int J) {
   extern int Alpha;
   int Kp[M_m_MAX];
   int A,H;
@@ -244,7 +308,7 @@ int hdk(int K[],int I,int J) {
 /*
   j_kappa.  cf. Stanley.
 */
-double jjk(int K[]) {
+static double jjk(int K[]) {
   extern int Alpha;
   int A,L,I,J;
   double V;
@@ -263,7 +327,7 @@ double jjk(int K[]) {
   (a)_kappa^\alpha, Pochhammer symbol
   Note that  ppoch(a,[n]) = (a)_n, Alpha=2
 */
-double ppoch(double A,int K[]) {
+static double ppoch(double A,int K[]) {
   extern int Alpha;
   double V;
   int L,I,J,II,JJ;
@@ -277,7 +341,7 @@ double ppoch(double A,int K[]) {
   }
   return(V);
 }
-double ppoch2(double A,double B,int K[]) {
+static double ppoch2(double A,double B,int K[]) {
   extern int Alpha;
   double V;
   int L,I,J,II,JJ;
@@ -292,7 +356,7 @@ double ppoch2(double A,double B,int K[]) {
   }
   return(V);
 }
-double mypower(double x,int n) {
+static double mypower(double x,int n) {
   int i;
   double v;
   if (n < 0) return(1/mypower(x,-n));
@@ -302,14 +366,14 @@ double mypower(double x,int n) {
 }
 /* Q_kappa
 */
-double qk(int K[],double A[A_LEN],double B[B_LEN]) {
+static double qk(int K[],double A[A_LEN],double B[B_LEN]) {
   extern int Alpha;
   int P,Q,I;
   double V;
   P = A_LEN;
   Q = B_LEN;
   V = mypower((double) Alpha,mysum(K))/jjk(K);
-  /* 誤差対策, temporary. */
+  /* to reduce numerical errors, temporary. */
   if (P == Q) {
     for (I=0; I<P; I++) V = V*ppoch2(A[I],B[I],K);
   }
@@ -324,7 +388,7 @@ double qk(int K[],double A[A_LEN],double B[B_LEN]) {
  B^nu_{kappa,mu}(i,j)
  bb(N,K,M,I,J)
 */
-int bb(int N[],int K[],int M[],int I,int J) {
+static int bb(int N[],int K[],int M[],int I,int J) {
   int Kp[M_m_MAX]; int Mp[M_m_MAX];
   ptrans(K,Kp); 
   ptrans(M,Mp); 
@@ -342,7 +406,7 @@ int bb(int N[],int K[],int M[],int I,int J) {
   beta_{kappa,mu}
   beta(K,M)
 */
-double beta(int K[],int M[]) {
+static double beta(int K[],int M[]) {
   double V;
   int L,I,J,II,JJ;
   V = 1;
@@ -367,7 +431,7 @@ double beta(int K[],int M[]) {
 
   return(V);
 }
-printp(int kappa[]) {
+static printp(int kappa[]) {
   int i;
   printf("(");
   for (i=0; i<M_n; i++) {
@@ -375,7 +439,7 @@ printp(int kappa[]) {
     else printf("%d)",kappa[i]);
   }
 }
-printp2(int kappa[]) {
+static printp2(int kappa[]) {
   int i,ell;
   printf("(");
   ell = plength_t(kappa);
@@ -385,7 +449,7 @@ printp2(int kappa[]) {
   }
 }
 
-test_beta() {
+static test_beta() {
   int kappa[M_n0]={2,1,0};
   int mu1[M_n0]={1,0,0};
   int mu2[M_n0]={1,1,0};
@@ -417,7 +481,7 @@ def mhgj(A,B,N,M) {
 
 
 /* The quotient of (3.10) of Koev-Edelman K=kappa, M=mu, SK=k */
-double q3_10(int K[],int M[],int SK) {
+static double q3_10(int K[],int M[],int SK) {
   extern int Alpha;
   int Mp[M_m_MAX];
   int ML[M_n];
@@ -446,7 +510,7 @@ double q3_10(int K[],int M[],int SK) {
   return(V);
 }
 
-double q3_5(double A[],double B[],int K[],int I) {
+static double q3_5(double A[],double B[],int K[],int I) {
   extern int Alpha;
   int Kp[M_m_MAX];
   double C,D,V,Ej,Fj,Gj,Hj,Lj;
@@ -479,7 +543,7 @@ double q3_5(double A[],double B[],int K[],int I) {
   return(V);
 }
 
-void mtest4() {
+static void mtest4() {
   double A[A_LEN] = {1.5};
   double B[B_LEN]={6.5};
   int K[M_n0] = {3,2,0};
@@ -490,7 +554,7 @@ void mtest4() {
   V2=qk(K,A,B)/qk(Ki,A,B);
   printf("%lf== %lf?\n",V1,V2);
 }
-void mtest4b() {
+static void mtest4b() {
   int K[M_n0]={3,2,0}; 
   int M[M_n0]={2,1,0}; 
   int N[M_n0]={2,0};
@@ -505,7 +569,7 @@ void mtest4b() {
 
 /* nk in (4.1),
 */
-int nk(int KK[]) {
+static int nk(int KK[]) {
   extern int *Darray;
   int N,I,Ki;
   int Kpp[M_n];
@@ -519,7 +583,7 @@ int nk(int KK[]) {
   /* K = (Kpp,Ki) */
   return(Darray[nk(Kpp)]+Ki-1);
 }
-int plength2(int P1[],int P2[]) {
+static int plength2(int P1[],int P2[]) {
   int S1,S2;
   S1 = plength(P1); S2 = plength(P2);
   if (S1 > S2) return(1);
@@ -531,7 +595,7 @@ int plength2(int P1[],int P2[]) {
   }
   else return(-1);
 }
-int myeq(int P1[],int P2[]) {
+static int myeq(int P1[],int P2[]) {
   int I,L1;
   if ((L1=plength(P1)) != plength(P2)) return(0);
   for (I=0; I<L1; I++) {
@@ -552,7 +616,7 @@ int myeq(int P1[],int P2[]) {
   still buggy.
 */
 
-int pListPartition(int M,int N) {
+static int pListPartition(int M,int N) {
   extern int M_m;
   extern int M_kap[];
   int I;
@@ -575,7 +639,7 @@ int pListPartition(int M,int N) {
   Enumerate all such that
   Less >= M_kap[From], ..., M_kap[To],  |(M_kap[From],...,M_kap[To])|<=M, 
 */
-int pListPartition2(int Less,int From,int To, int M) {
+static int pListPartition2(int Less,int From,int To, int M) {
   int I,R;
   if (To < From) {
      (*M_pExec)(); return(0);
@@ -590,7 +654,7 @@ int pListPartition2(int Less,int From,int To, int M) {
 /*
   partition に対してやる仕事をこちらへ書く.
 */
-void pExec_0() {
+static void pExec_0() {
   if (Debug) {
 	printf("M_kap=");
 	printp(M_kap);
@@ -616,7 +680,7 @@ main() {
   List all horizontal strips.
   Kap[0] is not a dummy in C code. !(Start from Kap[1].)
 */
-int pListHS(int Kap[],int N) {
+static int pListHS(int Kap[],int N) {
   extern int HS_n;
   extern int HS_mu[];
   int i;
@@ -626,7 +690,7 @@ int pListHS(int Kap[],int N) {
   pListHS2(1,N,Kap);
 }
 
-int pListHS2(int From,int To,int Kap[]) {
+static int pListHS2(int From,int To,int Kap[]) {
   int More,I;
   if (To <From) {(*HS_hsExec)(); return(0);}
   if (From == HS_n) More=0; else More=Kap[From];
@@ -637,7 +701,7 @@ int pListHS2(int From,int To,int Kap[]) {
   return(1);
 }
 
-void hsExec_0() {
+static void hsExec_0() {
   int i;
   if(Debug) {printf("hsExec: "); printp(HS_mu); printf("\n");}
 }
@@ -657,7 +721,7 @@ main() {
   (0,0,...,0) is excluded.
 */
 #define aP_pki(i,j) P_pki[(i)*(M+1)+(j)]
-int pmn(int M,int N) {
+static int pmn(int M,int N) {
   int Min_m_n,I,K,S,T,i,j;
   extern int P_pmn;
   extern int *P_pki;
@@ -691,19 +755,19 @@ int pmn(int M,int N) {
 main() {pmn(4,3); printf("P_pmn=%d\n",P_pmn);}
 */
 
-int *cloneP(int a[]) {
+static int *cloneP(int a[]) {
   int *p;
   int i;
   p = (int *) mymalloc(sizeof(int)*M_n);
   for (i=0; i<M_n; i++) p[i] = a[i];
   return(p);
 }
-copyP(int p[],int a[]) {
+static copyP(int p[],int a[]) {
   int i;
   for (i=0; i<M_n; i++) p[i] = a[i];
 }
 
-void pExec_darray(void) {
+static void pExec_darray(void) {
   extern int DR_parray;
   extern int M_kap[];
   extern int **Parray;
@@ -715,7 +779,7 @@ void pExec_darray(void) {
   ParraySize[DR_parray] = mysum(K);
   DR_parray++;
 }
-genDarray2(int M,int N) {
+static genDarray2(int M,int N) {
   extern int *Darray;
   extern int **Parray;
   extern int DR_parray;
@@ -766,7 +830,7 @@ genDarray2(int M,int N) {
 /* main() {  genDarray2(4,3);}  */
 
 /* M_beta_0[*] value of beta_{kappa,mu}, M_beta_1[*] N_mu */
-isHStrip(int Kap[],int Nu[]) {
+static isHStrip(int Kap[],int Nu[]) {
   int N1,N2,I,P;
   N1 = plength(Kap); N2 = plength(Nu);
   if (N2 > N1) return(0);
@@ -778,7 +842,7 @@ isHStrip(int Kap[],int Nu[]) {
   return(1);
 }
 
-void hsExec_beta(void) {
+static void hsExec_beta(void) {
   int *Mu;
   int N,Nmu,Nnu,Done,J,K,OK,I,RR;
   int Kapt[M_m_MAX];
@@ -841,7 +905,7 @@ void hsExec_beta(void) {
   /* Fix the bug of mh.rr */
   M_beta_pt++;
 }
-genBeta(int Kap[]) {
+static genBeta(int Kap[]) {
   extern double *M_beta_0;
   extern int *M_beta_1;
   extern int M_beta_pt;
@@ -865,7 +929,7 @@ genBeta(int Kap[]) {
   genBeta([2,1,1]);
 */
 
-checkBeta1() {
+static checkBeta1() {
   int Kap[3] = {2,2,0};
   int Kap2[3] = {2,1,0};
   int I;
@@ -912,7 +976,7 @@ def checkBeta2() {
 
 /* main() { checkBeta1(); } */
 
-int psublen(int Kap[],int Mu[]) {
+static int psublen(int Kap[],int Mu[]) {
   int L1,L2,A,I;
   L1 = plength(Kap);
   L2 = plength(Mu);
@@ -940,7 +1004,7 @@ int psublen(int Kap[],int Mu[]) {
 */
 
 #define aM_jack(i,j,k) ((M_jack[i])[(j)*(Pmn+1)+(k)])
-genJack(int M,int N) {
+static genJack(int M,int N) {
   extern double **M_jack;
   extern int M_2n;
   extern int P_pmn;
@@ -1046,7 +1110,7 @@ genJack(int M,int N) {
 
 /* checkJack1(3,3) 
 */
-checkJack1(int M,int N) {
+static checkJack1(int M,int N) {
   int I,K;
   extern int P_pmn;
   extern double M_x[];
@@ -1069,7 +1133,7 @@ checkJack1(int M,int N) {
 /*main() {  checkJack1(3,3);  }*/
 
 
-checkJack2(int M,int N) {
+static checkJack2(int M,int N) {
   int I,K,J;
   extern int P_pmn;
   extern double M_x[];
@@ -1146,7 +1210,7 @@ double mh_t2(int J) {
   return(F);
 }
 
-mtest1b() {
+static mtest1b() {
   double A[1] = {1.5};
   double B[1] = {1.5+5};
   int I,N,M,J;
@@ -1177,15 +1241,7 @@ mtest1b() {
 #define SMAX 4096
 #define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(-1); }}
 
-int gopen_file(void);
-int setParam(char *fname);
-int showParam(void);
-double iv_factor(void);
-double gammam(double a,int n);
-double mh_t(double a[],double b[],int n,int m);
-double mh_t2(int j);
-double mypower(double a,int n);
-int imypower(int x,int n) {
+static int imypower(int x,int n) {
   int i;
   int v;
   if (n < 0) {myerror("imypower"); exit(-1);}
@@ -1193,9 +1249,11 @@ int imypower(int x,int n) {
   for (i=0; i<n; i++) v *= x;
   return(v);
 }
-void *mymalloc(int);
 
 main(int argc,char *argv[]) {
+  jk_main(argc,argv);
+}
+jk_main(int argc,char *argv[]) {
   double *y0;
   double x0,xn;
   double ef;
@@ -1255,7 +1313,7 @@ main(int argc,char *argv[]) {
   showParam();
 }
 
-usage() {
+static usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"mh-m [--idata input_data_file --x0 x0 --degree approxm]\n");
   fprintf(stderr,"\nThe command mh-m [options] generates an input for w-m, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
@@ -1282,7 +1340,7 @@ usage() {
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
 }
 
-setParamDefault() {
+static setParamDefault() {
   int rank;
   int i;
   Mg = M_n ;
@@ -1307,7 +1365,7 @@ setParamDefault() {
   Xng = 10.0;
 }
 
-next(FILE *fp,char *s,char *msg) {
+static next(FILE *fp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
 	if (!fgets(s,SMAX,fp)) {
@@ -1317,7 +1375,7 @@ next(FILE *fp,char *s,char *msg) {
 	if (s[0] != '%') return(0);
   }
 }
-setParam(char *fname) {
+static setParam(char *fname) {
   int rank;
   char s[SMAX];
   FILE *fp;
@@ -1366,7 +1424,7 @@ setParam(char *fname) {
   fclose(fp);
 }
 
-showParam() {
+static showParam() {
   int rank,i;
   rank = imypower(2,Mg);
   printf("%%Mg=\n%d\n",Mg);
@@ -1386,7 +1444,7 @@ showParam() {
   printf("%%Xng=\n%lf\n",Xng);
 }
 
-double gammam(double a,int n) {
+static double gammam(double a,int n) {
   double v,v2;
   int i;
   v=mypower(sqrt(M_PI),(n*(n-1))/2);
@@ -1398,7 +1456,7 @@ double gammam(double a,int n) {
   return(v*exp(v2));
 }
 
-double iv_factor(void) {
+static double iv_factor(void) {
   double v1;
   double t;
   double b;

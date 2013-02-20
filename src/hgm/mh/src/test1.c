@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "sfile.h"
-/* test of the --string mode 
+/* $OpenXM$ 
+  test of the --string mode 
   ./test1 Testdata/tmp-idata2.txt >tt.xt
   diff tt.txt Testdata/tmp-data2-out.txt
 */
