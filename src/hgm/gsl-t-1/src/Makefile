@@ -1,5 +1,5 @@
 #CC=gcc
-AR=libtool
+AR=ar
 RANLIB=ranlib
 gsl-t-1.a: t-control.o t-cstd.o t-evolve.o t-rkf45.o t-step.o t-coerce.o t-error.o 	
 	if [ ${AR} = ar ]; then \
@@ -12,6 +12,7 @@ gsl-t-1.a: t-control.o t-cstd.o t-evolve.o t-rkf45.o t-step.o t-coerce.o t-error
 clean:
 	rm -f *.o *~ gsl-t-1.a
 
+# Only the MacOS X accepts the above libtool options.
 ## test implementation including the minimum codes from the gsl 4.47
 ## @s/2012/12/23-gsl* (gsl 4.47 code).  See ode-initval, err, sys
 ## h-mle/SO/Prog/hgm
