@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.2 2013/02/20 07:53:44 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.3 2013/02/21 07:30:56 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -24,6 +24,7 @@ Changelog:
 /****** from mh-n.c *****/
 static int JK_byFile=1;
 #define M_n_default 3
+#define Sample_default 1
 static int M_n=0;
 /* global variables. They are set in setParam() */
 static int Mg;  /* n */
@@ -36,7 +37,7 @@ static double Ef;   /* exponential factor at beta*x0 */
 static double Hg;   /* step size of rk defined in rk.c */
 static int Dp;      /* Data sampling period */
 static double Xng=0.0;   /* the last point */
-static int Sample = 1;
+static int Sample = Sample_default;
 
 /* for sample inputs */
 static double *Iv2; 
@@ -201,6 +202,7 @@ int jk_initializeWorkArea() {
   M_df=1;
   M_2n=0;
   M_rel_error=0.0;
+  Sample = Sample_default;
 }
 
 static void *mymalloc(int size) {
