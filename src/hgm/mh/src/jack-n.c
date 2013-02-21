@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.4 2013/02/21 07:51:57 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.5 2013/02/21 12:14:08 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -23,6 +23,7 @@ Changelog:
 
 /****** from mh-n.c *****/
 static int JK_byFile=1;
+static int JK_deallocate=0;
 #define M_n_default 3
 #define Sample_default 1
 static int M_n=0;
@@ -54,7 +55,7 @@ static double Ef2;
 #define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
-static int Debug = 1;
+static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
 static int **Parray = NULL; /* array of partitions of size M_n */
@@ -166,6 +167,7 @@ int jk_freeWorkArea() {
 	      Nk in genDarray2 will not be deallocated.
    */
   int i;
+  JK_deallocate=1;
   if (Darray) {myfree(Darray); Darray=NULL;}
   if (Parray) {myfree(Parray); Parray=NULL;}
   if (ParraySize) {myfree(ParraySize); ParraySize=NULL;}
@@ -179,9 +181,13 @@ int jk_freeWorkArea() {
   }
   if (M_qk) {myfree(M_qk); M_qk=NULL;}
   if (P_pki) {myfree(P_pki); P_pki=NULL;}
+  JK_deallocate=0;
 }
 int jk_initializeWorkArea() {
   int i,j;
+  JK_deallocate=1;
+  xval(0,0);
+  JK_deallocate=0;
   Darray=NULL;
   Parray=NULL;
   ParraySize=NULL;
@@ -253,6 +259,7 @@ static double xval(int ii,int p) { /* x_i^p */
   double F;
   int i,j;
   static init=0;
+  if (JK_deallocate) { init=0; return(0.0);}
   if (!init) {
     for (i=1; i<=M_n; i++) {
       for (j=0; j<M_m_MAX; j++) {
@@ -1130,6 +1137,7 @@ static genJack(int M,int N) {
 		printp(Mu); printf("\n");}
         P = psublen(Kap,Mu);
         Jack += aM_jack(Nv-1,0,Nk)*Beta_km*xval(Nv,P); /* util_v(x,[Nv])^P;*/
+		if (Debug) printf("xval(%d,%d)=%lf\n",Nv,P,xval(Nv,P));
       }
       aM_jack(Nv,0,K) = Jack;
       if (M_df) {
