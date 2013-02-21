@@ -5,23 +5,26 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.1 2013/02/20 05:56:16 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.2 2013/02/20 07:53:44 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
-jack-n.c, translated from mh.rr. License: LGPL
+jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
-cf. 20-my-note-mh-jack-n.pdf,  2011-12-14*.mov
+cf. 20-my-note-mh-jack-n.pdf,  /Movies/oxvh/priv-j1/2011-12-14-ke-mh-jack.mov
 Todo:
 1. Cash the transposes of partitions.
 2. Use the recurrence to obtain beta().
 3. Easier input data file format for mh-n.c
 Changelog:
+2012.02.21, porting to OpenXM/src/hgm
 2011.12.22, --table option, which is experimental.
 2011.12.19, bug fix.  jjk() should return double. It can become more than max int.
 2011.12.15, mh.r --> jack-n.c
 */
 
-/****** from mh-n.c *****/ 
-#define M_n 3
+/****** from mh-n.c *****/
+static int JK_byFile=1;
+#define M_n_default 3
+static int M_n=0;
 /* global variables. They are set in setParam() */
 static int Mg;  /* n */
 static int Mapprox; /* m, approximation degree */
@@ -47,6 +50,7 @@ static double Ef2;
 /* #define M_n  3  defined in the Makefile */ /* number of variables */
 #define M_n0 3 /* used for tests. Must be equal to M_n */
 #define M_m_MAX 200
+#define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
 static int Debug = 0;
@@ -54,13 +58,13 @@ static int Alpha = 2;;
 static int *Darray = NULL;
 static int **Parray = NULL; /* array of partitions of size M_n */
 static int *ParraySize = NULL; /* length of each partitions */
-static int M_kap[M_n];
+static int M_kap[M_nmx];
 static int M_m=M_m_MAX-2;   /* | | <= M_m, bug do check of M_m <=M_m_MAX-2 */
 void (*M_pExec)(void);
-static int HS_mu[M_n];
-static int HS_n=M_n;
+static int HS_mu[M_nmx];
+static int HS_n=M_nmx;      /* It is initialized to M_n in jk_main */
 void (*HS_hsExec)(void);
-static double M_x[M_n];
+static double M_x[M_nmx];
 
 /* They are used in pmn */
 static int *P_pki=NULL;
@@ -73,14 +77,14 @@ static int DR_parray=0;
 static double *M_beta_0=NULL;  /* M_beta[0][*] value of beta_{kappa,mu}, M_beta[1][*] N_mu */
 static int *M_beta_1=NULL;
 static int M_beta_pt=0;
-static int M_beta_kap[M_n];
+static int M_beta_kap[M_nmx];
 static int UseTable = 0;
 
 static double **M_jack; 
 static int M_df=1; /* Compute differentials? */
 static int M_2n=0; /* 2^N */
 
-static double Xarray[M_n][M_m_MAX];  
+static double Xarray[M_nmx][M_m_MAX];  
 /* (x_1, ..., x_n) */
 /* Xarray[i][0]  x_{i+1}^0, Xarray[i][1], x_{i+1}^1, ... */
 
@@ -97,7 +101,7 @@ static double xval(int i,int p); /* x_i^p */
 static int mysum(int L[]);
 static int plength(int P[]);
 static int plength_t(int P[]);
-static void ptrans(int P[M_n],int Pt[]);
+static void ptrans(int P[M_nmx],int Pt[]);
 static test_ptrans();
 static int huk(int K[],int I,int J);
 static int hdk(int K[],int I,int J);
@@ -142,18 +146,62 @@ static mtest1b();
 static int imypower(int x,int n);
 static usage();
 static setParamDefault();
-static next(FILE *fp,char *s,char *msg);
+static next(struct SFILE *fp,char *s,char *msg);
 static int gopen_file(void);
 static int setParam(char *fname);
-static int showParam(void);
+static int showParam(struct SFILE *fp);
 static double iv_factor(void);
 static double gammam(double a,int n);
 static double mypower(double a,int n);
 
 double mh_t(double A[A_LEN],double B[B_LEN],int N,int M);
 double mh_t2(int J);
-int jk_main(int argc,char *argv[]);
+struct MH_RESULT *jk_main(int argc,char *argv[]);
+int jk_freeWorkArea();
+int jk_initializeWorkArea();
 
+int jk_freeWorkArea() {
+  /* bug, p in the cloneP will not be deallocated.
+	      Nk in genDarray2 will not be deallocated.
+   */
+  int i;
+  if (Darray) {myfree(Darray); Darray=NULL;}
+  if (Parray) {myfree(Parray); Parray=NULL;}
+  if (ParraySize) {myfree(ParraySize); ParraySize=NULL;}
+  if (M_beta_0) {myfree(M_beta_0); M_beta_0=NULL;}
+  if (M_beta_1) {myfree(M_beta_1); M_beta_1=NULL;}
+  if (M_jack) {
+	for (i=0; M_jack[i] != NULL; i++) {
+	  myfree(M_jack[i]); M_jack[i] = NULL;
+	}
+	myfree(M_jack); M_jack=NULL;
+  }
+  if (M_qk) {myfree(M_qk); M_qk=NULL;}
+  if (P_pki) {myfree(P_pki); P_pki=NULL;}
+}
+int jk_initializeWorkArea() {
+  int i,j;
+  Darray=NULL;
+  Parray=NULL;
+  ParraySize=NULL;
+  M_beta_0=NULL;
+  M_beta_1=NULL;
+  M_jack=NULL;
+  M_qk=NULL;
+  for (i=0; i<M_nmx; i++) M_kap[i]=HS_mu[i]=0;
+  for (i=0; i<M_nmx; i++) M_x[i]=0;
+  for (i=0; i<M_nmx; i++) for (j=0; j<M_m_MAX; j++) Xarray[i][j]=0;
+  M_m=M_m_MAX-2; 
+  Alpha = 2;
+  HS_n=M_nmx; 
+  P_pki=NULL;
+  P_pmn=0;
+  DR_parray=0;
+  M_beta_pt=0;
+  M_df=1;
+  M_2n=0;
+  M_rel_error=0.0;
+}
 
 static void *mymalloc(int size) {
   void *p;
@@ -161,12 +209,12 @@ static void *mymalloc(int size) {
   p = (void *)malloc(size);
   if (p == NULL) {
     fprintf(stderr,"No more memory.\n");
-    exit(-1);
+    mh_exit(-1);
   }
   return(p);
 }
 static myfree(void *p) { free(p); }
-static myerror(char *s) { fprintf(stderr,"%s\n",s); }
+static myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
 
 static double jack1(int K) {
   double F;
@@ -217,7 +265,7 @@ static double xval(int ii,int p) { /* x_i^p */
   if (p < 0) {
     myerror("xval, p is negative.");
     printf("ii=%d, p=%d\n",ii,p);
-    exit(-1);
+    mh_exit(-1);
   }
   return(Xarray[ii-1][p]);
 }
@@ -252,10 +300,10 @@ static int plength_t(int P[]) {
 /*  
  ptrans(P)  returns Pt
 */
-static void ptrans(int P[M_n],int Pt[]) { /* Pt[M_m] */
+static void ptrans(int P[M_nmx],int Pt[]) { /* Pt[M_m] */
   extern int M_m;
   int i,j,len;
-  int p[M_n];
+  int p[M_nmx];
   for (i=0; i<M_n; i++) p[i] = P[i];
   for (i=0; i<M_m+1; i++) Pt[i] = 0;
   for (i=0; i<M_m; i++) {
@@ -484,8 +532,8 @@ def mhgj(A,B,N,M) {
 static double q3_10(int K[],int M[],int SK) {
   extern int Alpha;
   int Mp[M_m_MAX];
-  int ML[M_n];
-  int N[M_n];
+  int ML[M_nmx];
+  int N[M_nmx];
   int i,R;
   double T,Q,V,Ur,Vr,Wr;
   ptrans(M,Mp);
@@ -572,7 +620,7 @@ static void mtest4b() {
 static int nk(int KK[]) {
   extern int *Darray;
   int N,I,Ki;
-  int Kpp[M_n];
+  int Kpp[M_nmx];
   int i;
   N = plength(KK);
   if (N == 0) return(0);
@@ -622,7 +670,7 @@ static int pListPartition(int M,int N) {
   int I;
   /* initialize */
   if (M_n != N) {
-    fprintf(stderr,"M_n != N\n"); exit(-1);
+    fprintf(stderr,"M_n != N\n"); mh_exit(-1);
   }
   M_m = M;
   /* M_plist = []; */
@@ -788,7 +836,7 @@ static genDarray2(int M,int N) {
   int **L;
   int *Nk;
   int *K;
-  int Kone[M_n];
+  int Kone[M_nmx];
 
   M_m = M;
   Pmn = pmn(M,N)+1;
@@ -847,7 +895,7 @@ static void hsExec_beta(void) {
   int N,Nmu,Nnu,Done,J,K,OK,I,RR;
   int Kapt[M_m_MAX];
   int Nut[M_m_MAX];
-  int Nu[M_n];
+  int Nu[M_nmx];
   int rrMax;
   hsExec_0();
   /* printf("M_beta_pt=%a\n",M_beta_pt); */
@@ -1013,11 +1061,12 @@ static genJack(int M,int N) {
   int *Kap,*Mu;
   double Jack,Beta_km;
   int Nk,JJ;
-  M_jack = (double **) mymalloc(sizeof(double *)*(N+1));
+  M_jack = (double **) mymalloc(sizeof(double *)*(N+2));
   M_2n = imypower(2,N);
   Pmn = pmn(M,N);  /*P_pmn is initializeded. 
                      Warning. It is reset when pmn is called.*/
   for (I=0; I<=N; I++) M_jack[I] = (double *)mymalloc(sizeof(double)*(M_2n*(Pmn+1))); /* newmat(M_2n,Pmn+1); */
+  M_jack[N+1] = NULL;
   genDarray2(M,N); /* Darray, Parray is initialized */
   for (I=1; I<=N; I++) aM_jack(I,0,0) = 1; 
   if (M_df) {
@@ -1026,6 +1075,7 @@ static genJack(int M,int N) {
     }
   }
 
+  /* N must satisfies N > 0 */
   for (K=1; K<=M; K++) {
     aM_jack(1,0,K) = jack1(K);
     if (M_df) {
@@ -1201,7 +1251,7 @@ double mh_t2(int J) {
   int K;
   int Pmn;
   extern int P_pmn;
-  if (M_qk == NULL) {myerror("Call mh_t first."); exit(-1); }
+  if (M_qk == NULL) {myerror("Call mh_t first."); mh_exit(-1); }
   F = 0; 
   Pmn = P_pmn;
   for (K=0; K<P_pmn; K++) {
@@ -1239,21 +1289,27 @@ static mtest1b() {
 /****** from mh-n.c *****/ 
 
 #define SMAX 4096
-#define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(-1); }}
+#define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(NULL); }}
 
 static int imypower(int x,int n) {
   int i;
   int v;
-  if (n < 0) {myerror("imypower"); exit(-1);}
+  if (n < 0) {myerror("imypower"); mh_exit(-1);}
   v = 1;
   for (i=0; i<n; i++) v *= x;
   return(v);
 }
 
+#ifdef STANDALONE
 main(int argc,char *argv[]) {
+  mh_exit(MH_RESET_EXIT);
+/*  jk_main(argc,argv);
+	printf("second run.\n"); */
   jk_main(argc,argv);
 }
-jk_main(int argc,char *argv[]) {
+#endif
+
+struct MH_RESULT *jk_main(int argc,char *argv[]) {
   double *y0;
   double x0,xn;
   double ef;
@@ -1262,13 +1318,19 @@ jk_main(int argc,char *argv[]) {
   extern double M_x[];
   extern double *Beta;
   extern int M_2n;
+  char swork[1024];
+  struct MH_RESULT *ans=NULL;
+  struct SFILE *ofp = NULL;
+  int idata=0;
+  JK_byFile = 1;
+  jk_initializeWorkArea();
   Debug = 0;
   UseTable = 1;
-  setParam(NULL);  Mapprox=6;
+  Mapprox=6;
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--idata")==0) {
 	  inci(i);
-	  setParam(argv[i]);
+	  setParam(argv[i]); idata=1;
 	}else if (strcmp(argv[i],"--degree")==0) {
 	  inci(i);
 	  sscanf(argv[i],"%d",&Mapprox);
@@ -1281,19 +1343,31 @@ jk_main(int argc,char *argv[]) {
 	  Debug = 1;
 	}else if (strcmp(argv[i],"--help")==0) {
 	  usage(); return(0);
+	}else if (strcmp(argv[i],"--bystring")==0) {
+	  if (idata) {fprintf(stderr,"--bystring must come before --idata option.\n"); mh_exit(-1);}
+	  JK_byFile = 0;
 	}else {
 	  fprintf(stderr,"Unknown option %s\n",argv[i]);
 	  usage();
-	  return(-1);
+	  return(NULL);
 	}
   }
+  if (!idata) setParam(NULL);  
 
-  printf("%%%%Use --help option to see the help.\n");
-  printf("%%%%Mapprox=%d\n",Mapprox);
+  /* Initialize global variables */
+  M_n = Mg;
+  HS_n=M_n;
+  if (!JK_byFile) ans = (struct MH_RESULT *)mymalloc(sizeof(struct MH_RESULT));
+  else ans = NULL;
+  /* Output by a file=stdout */
+  ofp = mh_fopen("stdout","w",JK_byFile);
+
+  sprintf(swork,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
+  sprintf(swork,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
   if (M_n != Mg) {
-	myerror("Mg must be equal to M_n\n"); exit(-1);
+	myerror("Mg must be equal to M_n\n"); mh_exit(-1);
   }
-  if (Debug) showParam();
+  if (Debug) showParam(ofp);
   for (i=0; i<M_n; i++) {
 	M_x[i] = Beta[i]*X0g;
   } 
@@ -1302,15 +1376,28 @@ jk_main(int argc,char *argv[]) {
   if (Debug) printf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
   mh_t(a,b,M_n,Mapprox);
   if (imypower(2,M_n) != M_2n) {
-	printf("M_n=%d,M_2n=%d\n",M_n,M_2n);
-	myerror("2^M_n != M_2n\n"); exit(-1);
+	sprintf(swork,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
+	myerror("2^M_n != M_2n\n"); mh_exit(-1);
   }
-  printf("%%%%M_rel_error=%lg\n",M_rel_error);
+  sprintf(swork,"%%%%M_rel_error=%lg\n",M_rel_error); mh_fputs(swork,ofp);
   for (j=0; j<M_2n; j++) {
 	Iv[j] = mh_t2(j);
   }
   Ef = iv_factor();
-  showParam();
+  showParam(ofp);
+
+  /* return the result */
+  if (!JK_byFile) {
+	ans->x = X0g;
+	ans->rank = imypower(2,Mg);
+	ans->y = (double *)mymalloc(sizeof(double)*(ans->rank));
+	for (i=0; i<ans->rank; i++) (ans->y)[i] = Iv[i];
+	ans->size=1;
+	ans->sfpp = (struct SFILE **)mymalloc(sizeof(struct SFILE *)*(ans->size));
+	(ans->sfpp)[0] = ofp;
+  }
+  jk_freeWorkArea();
+  return(ans);
 }
 
 static usage() {
@@ -1343,7 +1430,7 @@ static usage() {
 static setParamDefault() {
   int rank;
   int i;
-  Mg = M_n ;
+  Mg = M_n_default ;
   rank = imypower(2,Mg);
   Beta = (double *)mymalloc(sizeof(double)*Mg);
   for (i=0; i<Mg; i++) Beta[i] = 1.0+i;
@@ -1365,12 +1452,12 @@ static setParamDefault() {
   Xng = 10.0;
 }
 
-static next(FILE *fp,char *s,char *msg) {
+static next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
-	if (!fgets(s,SMAX,fp)) {
+	if (!mh_fgets(s,SMAX,sfp)) {
 	  fprintf(stderr,"Data format error at %s\n",msg);
-	  exit(-1);
+	  mh_exit(-1);
 	}
 	if (s[0] != '%') return(0);
   }
@@ -1378,14 +1465,14 @@ static next(FILE *fp,char *s,char *msg) {
 static setParam(char *fname) {
   int rank;
   char s[SMAX];
-  FILE *fp;
+  struct SFILE *fp;
   int i;
   if (fname == NULL) return(setParamDefault());
 
   Sample = 0;
-  if ((fp=fopen(fname,"r")) == NULL) {
-	fprintf(stderr,"File %s is not found.\n",fname);
-	exit(-1);
+  if ((fp=mh_fopen(fname,"r",JK_byFile)) == NULL) {
+	if (JK_byFile) fprintf(stderr,"File %s is not found.\n",fp->s);
+	mh_exit(-1);
   }
   next(fp,s,"Mg(m)");
   sscanf(s,"%d",&Mg);
@@ -1421,27 +1508,29 @@ static setParam(char *fname) {
 
   next(fp,s,"Xng (the last point, cf. --xmax)");
   sscanf(s,"%lf",&Xng);
-  fclose(fp);
+  mh_fclose(fp);
 }
 
-static showParam() {
+static showParam(struct SFILE *fp) {
   int rank,i;
+  char swork[1024];
   rank = imypower(2,Mg);
-  printf("%%Mg=\n%d\n",Mg);
+  sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
   for (i=0; i<Mg; i++) {
-	printf("%%Beta[%d]=\n%lf\n",i,Beta[i]);
+	sprintf(swork,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
   }
-  printf("%%Ng=\n%lf\n",*Ng);
-  printf("%%X0g=\n%lf\n",X0g);
+  sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+  sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
   for (i=0; i<rank; i++) {
-	printf("%%Iv[%d]=\n%lg\n",i,Iv[i]);
-	if (Sample && (M_n == 2) && (X0g == 0.3))
-	  printf("%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]);
+	sprintf(swork,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
+	if (Sample && (M_n == 2) && (X0g == 0.3)) {
+	  sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
+	}
   }
-  printf("%%Ef=\n%lg\n",Ef);
-  printf("%%Hg=\n%lf\n",Hg);
-  printf("%%Dp=\n%d\n",Dp);
-  printf("%%Xng=\n%lf\n",Xng);
+  sprintf(swork,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
+  sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
+  sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
+  sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
 }
 
 static double gammam(double a,int n) {

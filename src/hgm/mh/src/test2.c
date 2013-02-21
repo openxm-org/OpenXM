@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "sfile.h"
-/* $OpenXM: OpenXM/src/hgm/mh/src/test1.c,v 1.3 2013/02/20 07:53:44 takayama Exp $ 
+/* $OpenXM$
   test of the --string mode 
-  ./test1 Testdata/tmp-idata2.txt >tt.xt
-  diff tt.txt Testdata/tmp-data2-out.txt
+  ./test2 Testdata/tmp-idata3.txt >tt.xt
+  diff tt.txt Testdata/tmp-data3-out2.txt
 */
+
+struct MH_RESULT *jk_main(int argc, char *argv[]);
 
 char *readAsString(FILE *fp) {
   static char *s = NULL;
@@ -44,7 +46,7 @@ main(int argc,char *argv[]) {
   struct SFILE *sfp;
   char *argv2[10];
   mh_exit(MH_RESET_EXIT); /* standalone mode */
-  if (argc != 2) { mh_main(argc,argv); return(0);}
+  if (argc != 2) { jk_main(argc,argv); return(0);}
   fp = fopen(argv[1],"r");
   if (fp == NULL) {
 	fprintf(stderr,"File %s is not found.\n",argv[1]); return(-1);
@@ -55,27 +57,28 @@ main(int argc,char *argv[]) {
   argv2[1] = "--bystring";
   argv2[2] = "--idata";
   argv2[3] = s;
-  argv2[4] = "--dataf";
-  argv2[5] = "aa";
-  rp=mh_main(6,argv2);
+  rp=jk_main(4,argv2);
+  if (rp == NULL) {
+	fprintf(stderr,"rp is NULL.\n"); exit(-1);
+  }
 
   sfp = (rp->sfpp)[0];
   if (sfp) {
 	printf("0, len=%d\n",sfp->len);
-	if (sfp->s) printf("%s",sfp->s);
+	for (i=0; i<sfp->len; i++) putchar((sfp->s)[i]);
+	/* if (sfp->s) printf("%s",sfp->s); */
   }
-
-  sfp = (rp->sfpp)[1];
-  if (sfp) {
-	printf("1, len=%d\n",sfp->len);
-	if (sfp->s) printf("1:%s",sfp->s);
-  }
+  fprintf(stderr,"x=%lf, y[0]=%lf\n",rp->x,rp->y[0]);  
   fflush(NULL);
 
   /* deallocate the memory */
   for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
-  mh_freeWorkArea();
 
   /* second try */
-  rp=mh_main(6,argv2);
+  printf("Second try.\n"); 
+  jk_main(1,NULL);
+  printf("Third try.\n"); 
+  rp=jk_main(4,argv2);
+  fprintf(stderr,"x=%lf, y[0]=%lf\n",rp->x,rp->y[0]);  
+  fflush(NULL);
 }

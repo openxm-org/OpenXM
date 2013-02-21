@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.4 2013/02/20 05:20:49 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.5 2013/02/20 05:56:16 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -38,6 +38,7 @@ static int setParamTest(void);
 static int setParamDefault(void);
 static int setParam(char *fname);
 static int showParam(void);
+static int next(struct SFILE *fp,char *s, char *msg);
 
 /* #define DEBUG */
 #ifdef DEBUG
@@ -63,7 +64,7 @@ static mypower(int x,int n) {
 }
 #ifdef STANDALONE
 main(int argc,char *argv[]) {
-  mh_exit(0x7fffffff); /* standalone mode */
+  mh_exit(MH_RESET_EXIT); /* standalone mode */
 /*  mh_main(argc,argv);
   mh_freeWorkArea(); */
   mh_main(argc,argv);
@@ -201,7 +202,7 @@ static setParamDefault() {
   Xng = 10.0;
 }
 
-next(struct SFILE *sfp,char *s,char *msg) {
+static next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
 	if (!mh_fgets(s,SMAX,sfp)) {

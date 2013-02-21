@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.3 2013/02/20 05:20:49 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.4 2013/02/20 05:56:16 takayama Exp $
  */
 #include <stdio.h>
 #include "sfile.h"
@@ -20,7 +20,7 @@ mh_free(void *p) {
 
 mh_exit(int n) {
   static int standalone=0;
-  if (n == 0x7fffffff) { standalone=1; return(0);}
+  if (n == MH_RESET_EXIT) { standalone=1; return(0);}
   if (standalone) exit(n);
   else {
 	fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
@@ -36,7 +36,11 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   
   if (byFile) {
 	sfp->byFile = 1;
-	sfp->fp = fopen(name,mode);
+	if (strcmp(name,"stdout")==0) {
+	  sfp->fp = stdout;
+	}else{
+	  sfp->fp = fopen(name,mode);
+	}
 	if (sfp->fp == NULL) return(NULL);
 	else return(sfp);
   }else if (strcmp(mode,"r")==0) {
@@ -89,7 +93,7 @@ int mh_fputs(char *str,struct SFILE *sfp) {
   s = sfp->s; len = sfp->len; pt = sfp->pt; limit=sfp->limit;
   inputLen=strlen(str);
   if (inputLen+len+1 > limit) {
-	limit *= 2;
+	limit = (inputLen+len+1)*2;
 	s = (char *) mh_malloc(limit);
 	if (s == NULL) return(EOF);
 	strcpy(s,sfp->s);
@@ -97,6 +101,7 @@ int mh_fputs(char *str,struct SFILE *sfp) {
   }
   strcpy(&(s[len]),str);
   len += inputLen;
+  /* printf("mh_fputs(%d):[%s]\n",len,s); */
   sfp->s=s; sfp->len=len; sfp->limit=limit;
   return(0);
 }
