@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.3 2013/02/21 07:30:56 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.4 2013/02/21 07:51:57 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -54,8 +54,8 @@ static double Ef2;
 #define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
-static int Debug = 0;
-static int Alpha = 2;;
+static int Debug = 1;
+static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
 static int **Parray = NULL; /* array of partitions of size M_n */
 static int *ParraySize = NULL; /* length of each partitions */
@@ -192,6 +192,7 @@ int jk_initializeWorkArea() {
   for (i=0; i<M_nmx; i++) M_kap[i]=HS_mu[i]=0;
   for (i=0; i<M_nmx; i++) M_x[i]=0;
   for (i=0; i<M_nmx; i++) for (j=0; j<M_m_MAX; j++) Xarray[i][j]=0;
+  for (i=0; i<M_nmx; i++) M_beta_kap[i]=0;
   M_m=M_m_MAX-2; 
   Alpha = 2;
   HS_n=M_nmx; 
@@ -203,6 +204,8 @@ int jk_initializeWorkArea() {
   M_2n=0;
   M_rel_error=0.0;
   Sample = Sample_default;
+  Xng=0.0;
+  M_n=0;
 }
 
 static void *mymalloc(int size) {
@@ -1063,6 +1066,7 @@ static genJack(int M,int N) {
   int *Kap,*Mu;
   double Jack,Beta_km;
   int Nk,JJ;
+  if (Debug) printf("genJack(%d,%d)\n",M,N);
   M_jack = (double **) mymalloc(sizeof(double *)*(N+2));
   M_2n = imypower(2,N);
   Pmn = pmn(M,N);  /*P_pmn is initializeded. 
@@ -1153,6 +1157,7 @@ static genJack(int M,int N) {
         }
       }
       aM_jack(Nv,J,K) = Jack;
+      if (Debug) printf("aM_jack(%d,%d,%d) = %lf\n",Nv,J,K,Jack);
         } /* end of J loop */
       }
     }
@@ -1326,7 +1331,6 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   int idata=0;
   JK_byFile = 1;
   jk_initializeWorkArea();
-  Debug = 0;
   UseTable = 1;
   Mapprox=6;
   for (i=1; i<argc; i++) {
