@@ -9,12 +9,15 @@ check-hgm: rsync-gsl-t-1 rsync-so3
 build-hgm: rsync-gsl-t-1 rsync-so3
 	R CMD build hgm
 
-rsync: rsync-gsl-t-1 rsync-so3
+rsync: rsync-gsl-t-1 rsync-so3 rsync-mh
 rsync-gsl-t-1: 
 	${RSYNC} ../../hgm/gsl-t-1/src/*.c hgm/src/
 	${RSYNC} ../../hgm/gsl-t-1/src/*.h hgm/src/
 rsync-so3:
 	${RSYNC} ../../hgm/so3/src/*.c hgm/src/
+rsync-mh:
+	${RSYNC} --exclude test1.c --exclude test2.c ../../hgm/mh/src/*.c hgm/src/
+	${RSYNC} ../../hgm/mh/src/*.h hgm/src/
 
 copy-web: build-hgm
 	scp hgm*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/HOME/${USER}/2012/tmp
