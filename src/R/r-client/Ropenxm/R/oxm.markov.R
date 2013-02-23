@@ -1,7 +1,7 @@
-#$OpenXM: OpenXM/src/R/r-client/Ropenxm/R/oxm.markov.R,v 1.4 2013/02/02 05:16:44 takayama Exp $
+#$OpenXM: OpenXM/src/R/r-client/Ropenxm/R/oxm.markov.R,v 1.5 2013/02/06 07:39:32 takayama Exp $
 oxm.markov <-
 function(mat=matrix(c(1,2,3),nrow=1,ncol=3),
-   url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh") { 
+   url="http://asir.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh") { 
   cmd<-oxm.matrix_r2tfb(mat,s="r_markov([",s.end="])");
   ans<-postForm(url,oxMessageBody=cmd,style="POST");
   pos<-pmatch("list(",c(ans),nomatch=0);

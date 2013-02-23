@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-client/Ropenxm/man/oxm.markov.Rd,v 1.2 2013/02/02 05:16:44 takayama Exp $
 \name{oxm.markov}
 \alias{oxm.markov}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -10,7 +10,7 @@
   It is provided also for a sample implementation to call OpenXM servers from R.
 }
 \usage{
-oxm.markov(mat,url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh")
+oxm.markov(mat,url="http://asir.math.kobe-u.ac.jp/cgi-bin/cgi-asir-r-markov.sh")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
