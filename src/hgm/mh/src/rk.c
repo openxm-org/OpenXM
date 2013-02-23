@@ -1,7 +1,7 @@
 /*
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
-$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.3 2013/02/20 01:06:38 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.4 2013/02/20 05:20:49 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,7 +181,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     for (i = 0; i < MH_RANK; i++)
       y[i] = y[i] + 1.0/6.0 * k1[i] + 1.0/3.0 * k2[i] + 1.0/3.0 * k3[i] + 1.0/6.0 * k4[i];
   }
-  printf("x=%lf, y[0]=%lg\n",x,y[0]);
+  if (MH_Verbose) printf("x=%lf, y[0]=%lg\n",x,y[0]);
   result.x = x;
   result.rank = MH_RANK;
   result.y = (double *)mh_malloc(sizeof(double)*MH_RANK); /* todo, how to free it */

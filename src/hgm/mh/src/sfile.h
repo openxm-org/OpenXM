@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.4 2013/02/20 05:56:16 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.5 2013/02/21 07:30:56 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -36,3 +36,5 @@ int mh_exit(int n);
 struct MH_RESULT *mh_main(int argc,char *argv[]);
 /* prototypes in rk.c*/
 struct MH_RESULT mh_rkmain(double x0,double y0[],double xn);
+/* prototype in jack-n.c */
+struct MH_RESULT *jk_main(int argc,char *argv[]);

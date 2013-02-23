@@ -1,7 +1,9 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.4 2013/02/20 05:56:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.5 2013/02/21 07:30:56 takayama Exp $
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "sfile.h"
 #define SSIZE 5
 

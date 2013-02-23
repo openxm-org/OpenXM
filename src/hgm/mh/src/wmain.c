@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.5 2013/02/20 05:56:16 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.6 2013/02/21 07:30:56 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -147,7 +147,7 @@ mh_usage() {
   fprintf(stderr," Ef: a scalar factor to the initial value. It may set to 1.\n");
   fprintf(stderr," MH_Hg: h (step size), MH_X0g: starting value of x, Xng: terminating value of x\n");
   fprintf(stderr," MH_Dp: output data is stored in every MH_Dp steps when output_data_file is specified.\n");
-  fprintf(stderr," --95: output the 95% point. --verbose: verbose mode.\n");
+  fprintf(stderr," --95: output the 95%% point. --verbose: verbose mode.\n");
   fprintf(stderr," The line started with %% is a comment line.\n");
   fprintf(stderr," An example format of the input_data_file can be obtained by executing w-2 with no option.\n");
   fprintf(stderr,"\nExamples:\n");
