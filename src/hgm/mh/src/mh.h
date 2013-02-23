@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 struct cWishart {
   double x;
   double rank;
