@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.2 2013/02/23 06:01:53 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -21,8 +21,7 @@ struct cWishart *new_cWishart(int rank) {
   return(cwp);
 }
 
-static
-struct cWishart *cwishart_gen(int m,int n,double beta[],double x0,
+struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
 			      int approxDeg,double h, int dp, double x,int mode) {
   struct SFILE *fp;
   char swork[WSIZE];
@@ -117,7 +116,7 @@ struct cWishart *cwishart_gen(int m,int n,double beta[],double x0,
    Wishart matrix by Series */
 struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
 			       int approxDeg,double h, int dp, double x) {
-  return(cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,0));
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,0));
 }
 
 /* Cumulative probability distribution function of the first eigenvalue of
@@ -125,7 +124,7 @@ struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 				 int approxDeg, double h, int dp , double x)
 {
-  return(cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,1));
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,1));
 }
 
 #ifdef STANDALONE

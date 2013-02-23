@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.2 2013/02/23 06:01:53 takayama Exp $ */
 struct cWishart {
   double x;
   double rank;
@@ -15,4 +15,6 @@ struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
    Wishart matrix by HGM */
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 				 int approxDeg, double h, int dp, double x);
+struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
+				 int approxDeg,double h, int dp, double x,int mode); 
 struct cWishart *new_cWishart(int rank);
