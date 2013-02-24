@@ -1,11 +1,12 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.5 2013/02/21 07:30:56 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.6 2013/02/23 06:01:15 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sfile.h"
 #define SSIZE 5
+int MH_DEBUG = 0;
 
 void *mh_malloc(int s) {
   void *p;
@@ -16,6 +17,7 @@ void *mh_malloc(int s) {
   return(p);
 }
 mh_free(void *p) {
+  if (MH_DEBUG) printf("mh_free at %p\n",p);
   free(p);
   return(0);
 }

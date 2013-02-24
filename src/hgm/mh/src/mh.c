@@ -1,9 +1,9 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.2 2013/02/23 06:01:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.3 2013/02/23 07:00:21 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
 #define WSIZE 1024
-
+extern int MH_DEBUG;
 static imypower(int x,int n) {
   int a,i;
   a = 1;
@@ -68,16 +68,17 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   argv[5] = (char *)mh_malloc(128);
   sprintf(argv[5],"%d",approxDeg);
 
-  rp=jk_main(6,argv);
+  rp=jk_main(6,argv); 
   if (rp == NULL) {
     fprintf(stderr,"rp is NULL.\n"); return(NULL);
   }
   cw = new_cWishart(rank);
   cw->x = rp->x;
   cw->rank = rp->rank;
-  for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];
-  sfp = (rp->sfpp)[0];
-  cw->aux = (char *) mh_malloc(sfp->len+1);
+  /* todo, the following line seems to cause seg fault. */
+  for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];  
+  sfp = (rp->sfpp)[0]; 
+  cw->aux = (char *) mh_malloc(sfp->len+1); 
   mh_outstr((char *)cw->aux,sfp->len+1,sfp);
   /* deallocate the memory */
   for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
@@ -135,7 +136,7 @@ main() {
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     /* printf("%s",(char *)cw->aux); */
-  }
+  } 
   cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);

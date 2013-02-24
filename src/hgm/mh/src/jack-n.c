@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.5 2013/02/21 12:14:08 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.6 2013/02/21 23:07:38 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -55,7 +55,7 @@ static double Ef2;
 #define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
-static int Debug = 0;
+static int Debug = 1;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
 static int **Parray = NULL; /* array of partitions of size M_n */
@@ -175,6 +175,7 @@ int jk_freeWorkArea() {
   if (M_beta_1) {myfree(M_beta_1); M_beta_1=NULL;}
   if (M_jack) {
 	for (i=0; M_jack[i] != NULL; i++) {
+	  if (Debug) printf("Free M_jack[%d]\n",i);
 	  myfree(M_jack[i]); M_jack[i] = NULL;
 	}
 	myfree(M_jack); M_jack=NULL;
@@ -224,7 +225,10 @@ static void *mymalloc(int size) {
   }
   return(p);
 }
-static myfree(void *p) { free(p); }
+static myfree(void *p) {
+  if (Debug) printf("free at %p\n",p);
+  free(p);
+}
 static myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
 
 static double jack1(int K) {
@@ -1410,7 +1414,9 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
 	ans->sfpp = (struct SFILE **)mymalloc(sizeof(struct SFILE *)*(ans->size));
 	(ans->sfpp)[0] = ofp;
   }
+  if (Debug) printf("jk_freeWorkArea() starts\n");
   jk_freeWorkArea();
+  if (Debug) printf("jk_freeWorkArea() has finished.\n");
   return(ans);
 }
 
