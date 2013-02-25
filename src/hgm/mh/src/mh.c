@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.3 2013/02/23 07:00:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.4 2013/02/24 21:36:49 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -75,16 +75,21 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   cw = new_cWishart(rank);
   cw->x = rp->x;
   cw->rank = rp->rank;
-  /* todo, the following line seems to cause seg fault. */
+  if (rank !=  cw->rank) {
+    fprintf(stderr,"Rank error.\n"); return(NULL);
+  }
   for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];  
   sfp = (rp->sfpp)[0]; 
-  cw->aux = (char *) mh_malloc(sfp->len+1); 
-  mh_outstr((char *)cw->aux,sfp->len+1,sfp);
+  cw->aux = (char *) mh_malloc((sfp->len)+1); 
+  mh_outstr((char *)(cw->aux),(sfp->len)+1,sfp);
+  /* todo, the following line seems to cause seg fault. */
   /* deallocate the memory */
   for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
   /* todo, mh_free_??(rp);  free Iv's */
   if (mode == 0) return(cw);
 
+  if (MH_DEBUG) printf("\n\n%s\n",(char *)cw->aux);
+  /* This output is strange. */
   /* Starting HGM */
   argv[3] = (char *)cw->aux;
   argv[4] = "--dataf";

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.6 2013/02/21 23:07:38 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.7 2013/02/24 21:36:49 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -151,7 +151,7 @@ static setParamDefault();
 static next(struct SFILE *fp,char *s,char *msg);
 static int gopen_file(void);
 static int setParam(char *fname);
-static int showParam(struct SFILE *fp);
+static int showParam(struct SFILE *fp,int fd);
 static double iv_factor(void);
 static double gammam(double a,int n);
 static double mypower(double a,int n);
@@ -218,7 +218,7 @@ int jk_initializeWorkArea() {
 static void *mymalloc(int size) {
   void *p;
   if (Debug) printf("mymalloc(%d)\n",size);
-  p = (void *)malloc(size);
+  p = (void *)mh_malloc(size);
   if (p == NULL) {
     fprintf(stderr,"No more memory.\n");
     mh_exit(-1);
@@ -226,8 +226,8 @@ static void *mymalloc(int size) {
   return(p);
 }
 static myfree(void *p) {
-  if (Debug) printf("free at %p\n",p);
-  free(p);
+  if (Debug) printf("myFree at %p\n",p);
+  mh_free(p);
 }
 static myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
 
@@ -979,7 +979,7 @@ static genBeta(int Kap[]) {
   if (Debug) {printp(Kap); printf("<-Kappa, P_pmn=%d\n",P_pmn);}
   /* M_beta = newmat(2,P_pmn+1); */
   M_beta_0 = (double *)mymalloc(sizeof(double)*(P_pmn+1));
-  M_beta_1 = (int *)mymalloc(sizeof(double)*(P_pmn+1));
+  M_beta_1 = (int *)mymalloc(sizeof(int)*(P_pmn+1));
   M_beta_pt = 0;
   for (I=0; I<=P_pmn; I++) {M_beta_0[I] = NAN; M_beta_1[I] = -1;}
   N = plength(Kap);
@@ -1250,7 +1250,7 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   F = 0; F2=0;
   M_df=1;
   genJack(M,N);
-  M_qk = (double *)mymalloc(sizeof(double)*P_pmn);
+  M_qk = (double *)mymalloc(sizeof(double)*(P_pmn+1)); /* found a bug. */
   Pmn = P_pmn;
   size = ParraySize[P_pmn];
   for (K=0; K<=P_pmn; K++) {
@@ -1385,7 +1385,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   if (M_n != Mg) {
 	myerror("Mg must be equal to M_n\n"); mh_exit(-1);
   }
-  if (Debug) showParam(ofp);
+  if (Debug) showParam(NULL,1);
   for (i=0; i<M_n; i++) {
 	M_x[i] = Beta[i]*X0g;
   } 
@@ -1402,7 +1402,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
 	Iv[j] = mh_t2(j);
   }
   Ef = iv_factor();
-  showParam(ofp);
+  showParam(ofp,0);
 
   /* return the result */
   if (!JK_byFile) {
@@ -1531,9 +1531,12 @@ static setParam(char *fname) {
   mh_fclose(fp);
 }
 
-static showParam(struct SFILE *fp) {
+static showParam(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
+  if (fd) {
+    fp = mh_fopen("stdout","w",1);
+  }
   rank = imypower(2,Mg);
   sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
   for (i=0; i<Mg; i++) {

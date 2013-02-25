@@ -1,15 +1,18 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.6 2013/02/23 06:01:15 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.7 2013/02/24 21:36:49 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sfile.h"
 #define SSIZE 5
-int MH_DEBUG = 0;
+int MH_DEBUG = 1;
 
 void *mh_malloc(int s) {
   void *p;
+  static int total=0;
+  total += s;
+  if (MH_DEBUG) printf("mh_malloc total allocated memory: %f M\n",(float)total/(float)(1024*1024));
   p = (void*)malloc(s);
   if (p == NULL) {
 	fprintf(stderr,"No memory.\n"); mh_exit(-1);
@@ -17,8 +20,9 @@ void *mh_malloc(int s) {
   return(p);
 }
 mh_free(void *p) {
+  return(0);
   if (MH_DEBUG) printf("mh_free at %p\n",p);
-  free(p);
+  free(p); /* free in mh_free */
   return(0);
 }
 
@@ -101,7 +105,7 @@ int mh_fputs(char *str,struct SFILE *sfp) {
 	s = (char *) mh_malloc(limit);
 	if (s == NULL) return(EOF);
 	strcpy(s,sfp->s);
-    free(sfp->s);
+    mh_free(sfp->s);
   }
   strcpy(&(s[len]),str);
   len += inputLen;
@@ -116,9 +120,9 @@ int mh_fclose(struct SFILE *sfp) {
   if (sfp->byFile) return fclose(sfp->fp);
   if (! (sfp->forRead)) {
 	if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
-	if (sfp->s != NULL) { free(sfp->s); sfp->s = NULL; }
+	if (sfp->s != NULL) { mh_free(sfp->s); sfp->s = NULL; }
   }
-  free(sfp);
+  mh_free(sfp);
 }
 
 int mh_outstr(char *str,int size,struct SFILE *sfp) {
