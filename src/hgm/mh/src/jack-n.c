@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.7 2013/02/24 21:36:49 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.8 2013/02/25 12:11:23 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -55,7 +55,7 @@ static double Ef2;
 #define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
-static int Debug = 1;
+static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
 static int **Parray = NULL; /* array of partitions of size M_n */
