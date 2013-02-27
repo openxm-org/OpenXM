@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.2 2013/02/19 08:03:14 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.3 2013/02/20 01:06:37 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -7,6 +7,7 @@ cf. @s/2011/12/01-my-note-code-n.pdf
 #include <stdio.h>
 #include <stdlib.h> 
 #include <math.h>
+#include "sfile.h"
 
 static void error_code(char *s);
 static void showf(char *s,double *v,int m);
