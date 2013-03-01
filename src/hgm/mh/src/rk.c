@@ -1,7 +1,7 @@
 /*
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
-$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.4 2013/02/20 05:20:49 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.5 2013/02/23 06:01:15 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,13 +22,13 @@ static struct SFILE *Gf =NULL;
 static struct SFILE *Df =NULL;
 int MH_P95=0;
 int MH_Verbose=0;
-static mypower(int x,int n) {
+static int mypower(int x,int n) {
   int a,i;
   a = 1;
   for (i=0; i<n; i++) a = a*x;
   return(a);
 }
-mh_gopen_file() {
+int mh_gopen_file() {
   FILE *fp;
   char fname[1024];
   int i;

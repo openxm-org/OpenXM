@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.8 2013/02/25 12:11:23 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.9 2013/02/25 12:12:52 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,13 +19,13 @@ void *mh_malloc(int s) {
   }
   return(p);
 }
-mh_free(void *p) {
+int mh_free(void *p) {
   if (MH_DEBUG) printf("mh_free at %p\n",p);
   free(p); /* free in mh_free */
   return(0);
 }
 
-mh_exit(int n) {
+int mh_exit(int n) {
   static int standalone=0;
   if (n == MH_RESET_EXIT) { standalone=1; return(0);}
   if (standalone) exit(n);

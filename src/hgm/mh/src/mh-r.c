@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.1 2013/02/23 07:00:21 takayama Exp $
  R interface module
 */
 
@@ -7,7 +7,7 @@
 #include "mh.h"
 #define WSIZE 1024
 
-Rmh_cwishart_gen(int *mp,int *np,double *beta,double *x0p,
+int Rmh_cwishart_gen(int *mp,int *np,double *beta,double *x0p,
 		int *approxDegp,double *hp, int *dpp, double *xp,
 		 int *modep,int *rankp,double *xy) {
   struct cWishart *cw;

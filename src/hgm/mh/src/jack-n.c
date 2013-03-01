@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.8 2013/02/25 12:11:23 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.9 2013/02/25 12:12:52 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -95,8 +95,8 @@ static double M_rel_error=0.0; /* relative errors */
 
 /* prototypes */
 static void *mymalloc(int size);
-static myfree(void *p);
-static myerror(char *s);
+static int myfree(void *p);
+static int myerror(char *s);
 static double jack1(int K);
 static double jack1diff(int k);
 static double xval(int i,int p); /* x_i^p */
@@ -104,7 +104,7 @@ static int mysum(int L[]);
 static int plength(int P[]);
 static int plength_t(int P[]);
 static void ptrans(int P[M_nmx],int Pt[]);
-static test_ptrans();
+static int test_ptrans();
 static int huk(int K[],int I,int J);
 static int hdk(int K[],int I,int J);
 static double jjk(int K[]);
@@ -114,9 +114,9 @@ static double mypower(double x,int n);
 static double qk(int K[],double A[A_LEN],double B[B_LEN]);
 static int bb(int N[],int K[],int M[],int I,int J);
 static double beta(int K[],int M[]);
-static printp(int kappa[]);
-static printp2(int kappa[]);
-static test_beta();
+static int printp(int kappa[]);
+static int printp2(int kappa[]);
+static int test_beta();
 static double q3_10(int K[],int M[],int SK);
 static double q3_5(double A[],double B[],int K[],int I);
 static void mtest4();
@@ -132,23 +132,23 @@ static int pListHS2(int From,int To,int Kap[]);
 static void hsExec_0();
 static int pmn(int M,int N);
 static int *cloneP(int a[]);
-static copyP(int p[],int a[]);
+static int copyP(int p[],int a[]);
 static void pExec_darray(void);
-static genDarray2(int M,int N);
-static isHStrip(int Kap[],int Nu[]);
+static int genDarray2(int M,int N);
+static int isHStrip(int Kap[],int Nu[]);
 static void hsExec_beta(void);
-static genBeta(int Kap[]);
-static checkBeta1();
+static int genBeta(int Kap[]);
+static int checkBeta1();
 static int psublen(int Kap[],int Mu[]);
-static genJack(int M,int N);
-static checkJack1(int M,int N);
-static checkJack2(int M,int N);
-static mtest1b();
+static int genJack(int M,int N);
+static int checkJack1(int M,int N);
+static int checkJack2(int M,int N);
+static int mtest1b();
 
 static int imypower(int x,int n);
-static usage();
-static setParamDefault();
-static next(struct SFILE *fp,char *s,char *msg);
+static int usage();
+static int setParamDefault();
+static int next(struct SFILE *fp,char *s,char *msg);
 static int gopen_file(void);
 static int setParam(char *fname);
 static int showParam(struct SFILE *fp,int fd);
@@ -225,11 +225,11 @@ static void *mymalloc(int size) {
   }
   return(p);
 }
-static myfree(void *p) {
+static int myfree(void *p) {
   if (Debug) printf("myFree at %p\n",p);
   mh_free(p);
 }
-static myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
+static int myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
 
 static double jack1(int K) {
   double F;
@@ -262,7 +262,7 @@ static double xval(int ii,int p) { /* x_i^p */
   extern double M_x[];
   double F;
   int i,j;
-  static init=0;
+  static int init=0;
   if (JK_deallocate) { init=0; return(0.0);}
   if (!init) {
     for (i=1; i<=M_n; i++) {
@@ -329,7 +329,7 @@ static void ptrans(int P[M_nmx],int Pt[]) { /* Pt[M_m] */
   }
 }
 
-static test_ptrans() {
+static int test_ptrans() {
   extern int M_m;
   int p[M_n0]={5,3,2};
   int pt[10];
@@ -495,7 +495,7 @@ static double beta(int K[],int M[]) {
 
   return(V);
 }
-static printp(int kappa[]) {
+static int printp(int kappa[]) {
   int i;
   printf("(");
   for (i=0; i<M_n; i++) {
@@ -503,7 +503,7 @@ static printp(int kappa[]) {
     else printf("%d)",kappa[i]);
   }
 }
-static printp2(int kappa[]) {
+static int printp2(int kappa[]) {
   int i,ell;
   printf("(");
   ell = plength_t(kappa);
@@ -513,7 +513,7 @@ static printp2(int kappa[]) {
   }
 }
 
-static test_beta() {
+static int test_beta() {
   int kappa[M_n0]={2,1,0};
   int mu1[M_n0]={1,0,0};
   int mu2[M_n0]={1,1,0};
@@ -826,7 +826,7 @@ static int *cloneP(int a[]) {
   for (i=0; i<M_n; i++) p[i] = a[i];
   return(p);
 }
-static copyP(int p[],int a[]) {
+static int copyP(int p[],int a[]) {
   int i;
   for (i=0; i<M_n; i++) p[i] = a[i];
 }
@@ -843,7 +843,7 @@ static void pExec_darray(void) {
   ParraySize[DR_parray] = mysum(K);
   DR_parray++;
 }
-static genDarray2(int M,int N) {
+static int genDarray2(int M,int N) {
   extern int *Darray;
   extern int **Parray;
   extern int DR_parray;
@@ -894,7 +894,7 @@ static genDarray2(int M,int N) {
 /* main() {  genDarray2(4,3);}  */
 
 /* M_beta_0[*] value of beta_{kappa,mu}, M_beta_1[*] N_mu */
-static isHStrip(int Kap[],int Nu[]) {
+static int isHStrip(int Kap[],int Nu[]) {
   int N1,N2,I,P;
   N1 = plength(Kap); N2 = plength(Nu);
   if (N2 > N1) return(0);
@@ -969,7 +969,7 @@ static void hsExec_beta(void) {
   /* Fix the bug of mh.rr */
   M_beta_pt++;
 }
-static genBeta(int Kap[]) {
+static int genBeta(int Kap[]) {
   extern double *M_beta_0;
   extern int *M_beta_1;
   extern int M_beta_pt;
@@ -993,7 +993,7 @@ static genBeta(int Kap[]) {
   genBeta([2,1,1]);
 */
 
-static checkBeta1() {
+static int checkBeta1() {
   int Kap[3] = {2,2,0};
   int Kap2[3] = {2,1,0};
   int I;
@@ -1068,7 +1068,7 @@ static int psublen(int Kap[],int Mu[]) {
 */
 
 #define aM_jack(i,j,k) ((M_jack[i])[(j)*(Pmn+1)+(k)])
-static genJack(int M,int N) {
+static int genJack(int M,int N) {
   extern double **M_jack;
   extern int M_2n;
   extern int P_pmn;
@@ -1179,7 +1179,7 @@ static genJack(int M,int N) {
 
 /* checkJack1(3,3) 
 */
-static checkJack1(int M,int N) {
+static int checkJack1(int M,int N) {
   int I,K;
   extern int P_pmn;
   extern double M_x[];
@@ -1202,11 +1202,11 @@ static checkJack1(int M,int N) {
 /*main() {  checkJack1(3,3);  }*/
 
 
-static checkJack2(int M,int N) {
+static int checkJack2(int M,int N) {
   int I,K,J;
   extern int P_pmn;
   extern double M_x[];
-  extern M_df;
+  extern int M_df;
   int Pmn; /* used in aM_jack */
   M_df=1;
   /* initialize x vars. */
@@ -1279,7 +1279,7 @@ double mh_t2(int J) {
   return(F);
 }
 
-static mtest1b() {
+static int mtest1b() {
   double A[1] = {1.5};
   double B[1] = {1.5+5};
   int I,N,M,J;
@@ -1420,7 +1420,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   return(ans);
 }
 
-static usage() {
+static int usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"mh-m [--idata input_data_file --x0 x0 --degree approxm]\n");
   fprintf(stderr,"\nThe command mh-m [options] generates an input for w-m, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
@@ -1447,7 +1447,7 @@ static usage() {
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
 }
 
-static setParamDefault() {
+static int setParamDefault() {
   int rank;
   int i;
   Mg = M_n_default ;
@@ -1472,7 +1472,7 @@ static setParamDefault() {
   Xng = 10.0;
 }
 
-static next(struct SFILE *sfp,char *s,char *msg) {
+static int next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
 	if (!mh_fgets(s,SMAX,sfp)) {
@@ -1482,7 +1482,7 @@ static next(struct SFILE *sfp,char *s,char *msg) {
 	if (s[0] != '%') return(0);
   }
 }
-static setParam(char *fname) {
+static int setParam(char *fname) {
   int rank;
   char s[SMAX];
   struct SFILE *fp;
@@ -1531,7 +1531,7 @@ static setParam(char *fname) {
   mh_fclose(fp);
 }
 
-static showParam(struct SFILE *fp,int fd) {
+static int showParam(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
   if (fd) {

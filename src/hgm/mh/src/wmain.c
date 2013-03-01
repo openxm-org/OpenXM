@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.6 2013/02/21 07:30:56 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.7 2013/02/23 06:01:15 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -56,7 +56,7 @@ void mh_freeWorkArea(void) {
   mh_rf(0.0, NULL, 0, NULL, 0);
   MH_deallocate=0; /* switch to the normal mode. */
 }
-static mypower(int x,int n) {
+static int mypower(int x,int n) {
   int a,i;
   a = 1;
   for (i=0; i<n; i++) a = a*x;
@@ -133,7 +133,7 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   return(rp);
 }
 
-mh_usage() {
+int mh_usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"w-m [--idata input_data_file --gnuplotf gnuplot_file_name\n");
   fprintf(stderr," --dataf output_data_file --raw --xmax xmax --test m --step h]\n");
@@ -163,7 +163,7 @@ mh_usage() {
   fprintf(stderr,"  tmp-graph is the table of x and the values of Pr({y | y<x}).\n");
 }
 
-static setParamTest() {
+static int setParamTest() {
   int rank;
   int i;
   extern int Testrank;
@@ -183,7 +183,7 @@ static setParamTest() {
   MH_Dp = 1;
   Xng = 10.0;
 }
-static setParamDefault() {
+static int setParamDefault() {
   int rank;
   MH_M=MH_Mg = 2 ;
   MH_RANK=rank = mypower(2,MH_Mg);
@@ -202,7 +202,7 @@ static setParamDefault() {
   Xng = 10.0;
 }
 
-static next(struct SFILE *sfp,char *s,char *msg) {
+static int next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
 	if (!mh_fgets(s,SMAX,sfp)) {
@@ -212,7 +212,7 @@ static next(struct SFILE *sfp,char *s,char *msg) {
 	if (s[0] != '%') return(0);
   }
 }
-static setParam(char *fname) {
+static int setParam(char *fname) {
   int rank;
   char s[SMAX];
   struct SFILE *fp;
@@ -268,7 +268,7 @@ static setParam(char *fname) {
   mh_fclose(fp);
 }
 
-showParam() {
+int showParam() {
   int rank,i;
   rank = mypower(2,MH_Mg);
   printf("%%MH_Mg=\n%d\n",MH_Mg);
