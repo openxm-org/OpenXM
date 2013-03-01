@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.1 2013/02/23 07:00:21 takayama Exp $
 \name{hgm.cwishart}
 \alias{hgm.cwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -15,30 +15,45 @@ hgm.cwishart(m,n,beta,x0,approxdeg,h,dp,x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{m}{}
-  \item{n}{}
-  \item{beta}{
+  \item{m}{The dimension of the Wishart matrix.}
+  \item{n}{The degree of freedome (a parameter of the Wishart distribution)}
+  \item{beta}{The eigenvalues of the inverse of the covariant matrix
+(a parameter of the Wishart distribution)
   }
+  \item{x0}{The point to evaluate the matrix hypergeometric series. x0>0}
   \item{approxdeg}{
+    Zonal polynomials upto the approxdeg are calculated to evaluate
+   values near the origin. A zonal polynomial is determined by a given
+   partition (k1,...,km). We call the sum k1+...+km the degree.
   }
   \item{h}{
+   A (small) step size for the Runge-Kutta method. h>0.
   }
   \item{dp}{
+    Sampling interval of solutions by the Runge-Kutta method.
   }
-  \item{x}{}
+  \item{x}{
+    The first value of this function is the Prob(L1 < x)
+    where L1 is the first eigenvalue of the Wishart matrix.
+  }
 }
 \details{
-  It is evaluated by the Koev-Edelman algorithm near the origin and
-  and by the HGM when x is far from the origin.
+  It is evaluated by the Koev-Edelman algorithm when x is near the origin and
+  by the HGM when x is far from the origin.
+  We can obtain more accurate result when the variables h, x0 are smaller
+  and the approxdeg is more larger.
 %  \code{\link[RCurl]{postForm}}.
 }
 \value{
-The output is x, y[0], ...,  y[0] is the value of the cumulative distribution
-function at x.  y[1],... are some derivatives.
+The output is x, y[0], ..., y[2^m],  
+y[0] is the value of the cumulative distribution
+function P(L1 < x) at x.  y[1],...,y[2^m] are some derivatives.
+See the reference below.
 }
 \references{
-HNTT, 
-\url{http://arxiv.org/abs/??},
+H.Hashiguchi, Y.Numata, N.Takayama, A.Takemura,
+Holonomic gradient method for the distribution function of the largest root of a Wishart matrix
+\url{http://arxiv.org/abs/1201.0472},
 }
 \author{
 Nobuki Takayama

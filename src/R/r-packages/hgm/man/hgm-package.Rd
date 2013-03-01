@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.2 2013/02/08 01:27:01 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.3 2013/02/08 02:59:42 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -61,9 +61,11 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 \keyword{ HGD }
 \seealso{
 \code{\link{hgm.so3nc}}
+\code{\link{hgm.cwishart}}
 }
 \examples{
 \dontrun{
 example(hgm.so3nc)
+example(hgm.cwishart)
 }
 }
