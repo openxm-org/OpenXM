@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.5 2013/02/21 07:30:56 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.6 2013/02/23 06:01:15 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -28,6 +28,7 @@ int mh_outstr(char *str,int size,struct SFILE *sfp);
 void *mh_malloc(int s);
 int mh_free(void *p);
 int mh_exit(int n);
+void mh_check_intr(int interval);
 
 #define MH_SSIZE 1024
 #define MH_RESET_EXIT 0x7fffffff
@@ -38,3 +39,4 @@ struct MH_RESULT *mh_main(int argc,char *argv[]);
 struct MH_RESULT mh_rkmain(double x0,double y0[],double xn);
 /* prototype in jack-n.c */
 struct MH_RESULT *jk_main(int argc,char *argv[]);
+

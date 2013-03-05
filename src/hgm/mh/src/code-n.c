@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.3 2013/02/20 01:06:37 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.4 2013/02/27 23:11:13 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -61,6 +61,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   /* double f2[MH_M][MH_RANK];*/
   static double *f2=NULL;
 
+  mh_check_intr(100);
   if (MH_deallocate && initialized) {
 	if (b) mh_free(b);
 	if (bitSize) mh_free(bitSize);

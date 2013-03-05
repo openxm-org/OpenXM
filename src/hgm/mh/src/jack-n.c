@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.9 2013/02/25 12:12:52 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.10 2013/03/01 05:26:25 takayama Exp $
 Ref: copied from this11/misc-2011/A1/wishart/Prog
 jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
 Koev-Edelman for higher order derivatives.
@@ -705,6 +705,7 @@ static int pListPartition(int M,int N) {
 */
 static int pListPartition2(int Less,int From,int To, int M) {
   int I,R;
+  mh_check_intr(100);
   if (To < From) {
      (*M_pExec)(); return(0);
   }
@@ -871,6 +872,7 @@ static int genDarray2(int M,int N) {
   Nk = (int *) mymalloc(sizeof(int)*(Pmn+1));
   for (I=0; I<Pmn; I++) Nk[I] = I;
   for (I=0; I<Pmn; I++) {
+    mh_check_intr(100);
      K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
      Ksize = plength(K);
      if (Ksize >= M_n) {
@@ -1147,6 +1149,7 @@ static int genJack(int M,int N) {
       if (M_df) {
         /* The case of M_df > 0. */ 
         for (J=1; J<M_2n; J++) {
+	  mh_check_intr(100);
       Jack = 0;
       for (H=0; H<M_beta_pt; H++) {
         Nk = M_beta_1[H];
@@ -1254,6 +1257,7 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   Pmn = P_pmn;
   size = ParraySize[P_pmn];
   for (K=0; K<=P_pmn; K++) {
+    mh_check_intr(100);
 	Kap = Parray[K];
 	M_qk[K] = qk(Kap,A,B);
 	F += M_qk[K]*aM_jack(N,0,K);
@@ -1319,7 +1323,7 @@ static int imypower(int x,int n) {
   return(v);
 }
 
-#ifdef STANDALONE
+#ifdef STANDALONE2
 main(int argc,char *argv[]) {
   mh_exit(MH_RESET_EXIT);
 /*  jk_main(argc,argv);

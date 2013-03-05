@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.4 2013/02/12 23:51:51 takayama Exp $ */
 #include <stdio.h>
 #include <math.h>
 #ifdef USE_GSL_LIB
@@ -183,6 +183,9 @@ Ref: Note: See the Corollary 1 of the paper rotation.c on this function func.
 int so3_func(double t, const double y[], double f[], void *params)
 {
   extern double SO3_A[3];
+#ifndef STANDALONE
+  mh_check_intr(100);
+#endif
   f[0] = SO3_A[0]*y[1]+SO3_A[1]*y[2]+SO3_A[2]*y[3]               -SO3_R*y[0];
   f[1] = SO3_A[0]*y[0]+SO3_A[2]*y[2]+SO3_A[1]*y[3] - (2/t)*y[1]  -SO3_R*y[1];
   f[2] = SO3_A[1]*y[0]+SO3_A[2]*y[1]+SO3_A[0]*y[3] - (2/t)*y[2]  -SO3_R*y[2];

@@ -1,15 +1,26 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.10 2013/03/01 05:26:25 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.11 2013/03/05 00:43:29 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sfile.h"
 #ifndef STANDALONE
 #include <R.h>
+#include <R_ext/Utils.h>
 #endif
+#include "sfile.h"
 #define SSIZE 5
 int MH_DEBUG = 0;
+
+void mh_check_intr(int interval) {
+  static int intr=0;
+  if (intr >= interval) {
+    intr = 0;
+#ifndef STANDALONE
+    R_CheckUserInterrupt();
+#endif
+  }else intr++;
+}
 
 void *mh_malloc(int s) {
   void *p;

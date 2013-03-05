@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.7 2013/02/23 06:01:15 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.8 2013/03/01 05:26:25 takayama Exp $
 License: LGPL
  */
 #include <stdio.h>
@@ -62,7 +62,7 @@ static int mypower(int x,int n) {
   for (i=0; i<n; i++) a = a*x;
   return(a);
 }
-#ifdef STANDALONE
+#ifdef STANDALONE2
 main(int argc,char *argv[]) {
   mh_exit(MH_RESET_EXIT); /* standalone mode */
 /*  mh_main(argc,argv);
