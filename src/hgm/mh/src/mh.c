@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.4 2013/02/24 21:36:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.5 2013/02/25 12:11:23 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -22,7 +22,12 @@ struct cWishart *new_cWishart(int rank) {
 }
 
 struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
-			      int approxDeg,double h, int dp, double x,int mode) {
+			      int approxDeg,double h, int dp, double x,int modep[]) {
+  /*
+     modep[0]. Do Koev-Edelman (ignored for now).
+     modep[1]. Do the HGM
+     modep[2]. Return modep[2] intermediate data.
+   */
   struct SFILE *fp;
   char swork[WSIZE];
   char *argv[WSIZE];
@@ -86,7 +91,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   /* deallocate the memory */
   for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
   /* todo, mh_free_??(rp);  free Iv's */
-  if (mode == 0) return(cw);
+  if (!modep[1]) return(cw);
 
   if (MH_DEBUG) printf("\n\n%s\n",(char *)cw->aux);
   /* This output is strange. */
@@ -122,7 +127,8 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
    Wishart matrix by Series */
 struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
 			       int approxDeg,double h, int dp, double x) {
-  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,0));
+  int modep[]={1,0,0};
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));
 }
 
 /* Cumulative probability distribution function of the first eigenvalue of
@@ -130,7 +136,8 @@ struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 				 int approxDeg, double h, int dp , double x)
 {
-  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,1));
+  int modep[]={1,1,0};
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));
 }
 
 #ifdef STANDALONE
