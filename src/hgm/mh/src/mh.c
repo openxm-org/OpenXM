@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.5 2013/02/25 12:11:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.6 2013/03/05 06:00:52 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -144,6 +144,10 @@ struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 main() {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
+  struct SFILE *sfp;
+  char *s;
+  char str[1024];
+  double x;
   cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
@@ -152,7 +156,13 @@ main() {
   cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
+    s = (char *)cw->aux;
     /* printf("%s",(char *)cw->aux); */
+    sfp = mh_fopen(s,"r",0);
+    while (mh_fgets(str,1024,sfp)) {
+      sscanf(str,"%lg",&x); printf("%lg\n",x);
+    }
+    mh_fclose(sfp);
   }
 }
 main1() {
