@@ -1,10 +1,13 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.9 2013/02/25 12:12:52 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.10 2013/03/01 05:26:25 takayama Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sfile.h"
+#ifndef STANDALONE
+#include <R.h>
+#endif
 #define SSIZE 5
 int MH_DEBUG = 0;
 
@@ -13,7 +16,11 @@ void *mh_malloc(int s) {
   static int total=0;
   total += s;
   if (MH_DEBUG) printf("mh_malloc total allocated memory: %f M\n",(float)total/(float)(1024*1024));
+#ifdef STANDALONE
   p = (void*)malloc(s);
+#else
+  p = (void *)R_alloc(1,s);
+#endif
   if (p == NULL) {
 	fprintf(stderr,"No memory.\n"); mh_exit(-1);
   }
@@ -21,11 +28,14 @@ void *mh_malloc(int s) {
 }
 int mh_free(void *p) {
   if (MH_DEBUG) printf("mh_free at %p\n",p);
+#ifdef STANDALONE
   free(p); /* free in mh_free */
+#endif
   return(0);
 }
 
 int mh_exit(int n) {
+#ifdef STANDALONE
   static int standalone=0;
   if (n == MH_RESET_EXIT) { standalone=1; return(0);}
   if (standalone) exit(n);
@@ -33,6 +43,9 @@ int mh_exit(int n) {
 	fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
 	return(n);
   }
+#else
+  error("mh_exit(%d) is called.\n",n);
+#endif
 }
 
 struct SFILE *mh_fopen(char *name,char *mode,int byFile) {

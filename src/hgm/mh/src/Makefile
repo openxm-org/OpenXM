@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.7 2013/02/23 06:01:15 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.8 2013/02/24 21:36:49 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 # gdb hgm_w-n with the -g option.
@@ -24,9 +24,9 @@ test2: test2.c jack-n.c sfile.h sfile.o
 	${CC} ${OPT2} -o test2 test2.c jack-n.c sfile.o -lm
 
 wmain.o : wmain.c sfile.h
-	${CC} ${OPT2} -c wmain.c
+	${CC} ${OPT} -c wmain.c
 jack-n.o : jack-n.c  sfile.h
-	${CC} ${OPT2} -c jack-n.c
+	${CC} ${OPT} -c jack-n.c
 mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o sfile.o
 	${CC} ${OPT} -o mh mh.c jack-n.o wmain.o rk.o code-n.o sfile.o -lm
 
@@ -35,3 +35,7 @@ clean:
 
 test3b:
 	(cd Testdata ; ./test3b.sh )
+test2.sh:
+	(cd Testdata ; ./test2.sh )
+test3.sh:
+	(cd Testdata ; ./test3.sh )
