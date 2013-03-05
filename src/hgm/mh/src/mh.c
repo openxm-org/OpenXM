@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.6 2013/03/05 06:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.7 2013/03/05 06:35:54 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -112,7 +112,6 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
     cw->aux = (char *) mh_malloc(sfp->len+1);
     mh_outstr((char *)cw->aux,sfp->len+1,sfp);
   }
-
   sfp = (rp->sfpp)[1];
   if (sfp) {
     cw->aux2 = (char *) mh_malloc(sfp->len+1);
