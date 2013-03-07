@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.7 2013/03/07 03:00:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.8 2013/03/07 05:23:31 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +10,8 @@
 #include "sfile.h"
 #include "mh.h"
 
+#include "t-gsl_errno.h"
+#include "t-gsl_odeiv.h"
 extern int MH_RANK;
 extern int MH_M;
 
@@ -23,6 +25,12 @@ static struct SFILE *Gf =NULL;
 static struct SFILE *Df =NULL;
 int MH_P95=0;
 int MH_Verbose=0;
+
+int mh_rf_for_gsl(double t,const double y[],double f[],void *params) {
+  mh_rf(t,(double *)y,MH_RANK,f,MH_RANK);
+  return(GSL_SUCCESS);
+}
+
 static int mypower(int x,int n) {
   int a,i;
   a = 1;
@@ -141,6 +149,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
   h = MH_Hg;
   for (i = 0; i < MH_RANK; i++)
     y[i] = y0[i];
+#ifdef NO_GSL
   for (x = x0; (h>0?(x<xn):(x>xn)); x += h) {
     if (Df) show_v(x,y, MH_RANK);
     if (Gf) {
@@ -182,6 +191,57 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     for (i = 0; i < MH_RANK; i++)
       y[i] = y[i] + 1.0/6.0 * k1[i] + 1.0/3.0 * k2[i] + 1.0/3.0 * k3[i] + 1.0/6.0 * k4[i];
   }
+#else
+  {
+    extern int MH_Dp;
+    double dh;
+    double mh_dp_orig;
+    double x1;
+    const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
+    gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, MH_RANK); 
+    gsl_odeiv_control *c = gsl_odeiv_control_y_new(0.0, 1e-10);
+    /* We should use the relative error.
+       hgm.cwishart(m=5,n=20,beta=c(1,2,3,4,5),x=20,x0=2,approxdeg=20);
+       0.977
+       hgm.cwishart(m=8,n=20,beta=c(1,2,3,4,5,5.6,5.7,5.8),x=30,x0=1,approxdeg=20);
+       0.962 (non-gsl) or 0.969 (gsl)
+     */
+    gsl_odeiv_evolve *e = gsl_odeiv_evolve_alloc(MH_RANK);
+    gsl_odeiv_system sys = {mh_rf_for_gsl, NULL, 0, NULL};
+    sys.dimension = MH_RANK;
+    /* printf("MH_RANK=%d\n",MH_RANK); */
+    if (x0 >= xn) {fprintf(stderr,"Error: x0 < x must hold.\n"); mh_exit(-30);}
+    x = x0;
+    if (MH_Dp > 0) dh = MH_Dp*h; else dh=xn-x0;
+    mh_dp_orig = MH_Dp; MH_Dp=1;
+    while (x < xn)  {
+      if (Df) show_v(x,y, MH_RANK);
+      if (Gf) {
+        sprintf(swork,"%lf %le\n",x,y[0]);
+        mh_fputs(swork,Gf);
+      }
+      /* Output 95% point */
+      if (MH_P95) {
+        if ((MH_P95==1) && (y[0] >= 0.95)) {
+          printf("x=%le, y[0]=%lf\n",x,y[0]);
+          MH_P95=2;
+        }else if ((MH_P95==2) && (y[0] >=0.9500000001)) {
+          printf("x=%le, y[0]=%lf\n",x,y[0]);
+          MH_P95=0;
+        }
+      }
+      x1 = x+dh;
+      while ((x < x1) && (x < xn)) {
+        int status = gsl_odeiv_evolve_apply(e, c, s, &sys, &x, x1, &h, y);
+        if (status != GSL_SUCCESS) break;
+      }
+    }
+    gsl_odeiv_evolve_free(e);
+    gsl_odeiv_control_free(c);
+    gsl_odeiv_step_free(s);
+    MH_Dp=mh_dp_orig;
+  }
+#endif
   if (MH_Verbose) printf("x=%lf, y[0]=%lg\n",x,y[0]);
   result.x = x;
   result.rank = MH_RANK;

@@ -1,4 +1,4 @@
-RSYNC=rsync -Cavz
+RSYNC=rsync -Cavz --safe-links
 
 usage:
 	@echo "check-hgm, build-hgm"

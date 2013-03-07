@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.9 2013/03/07 03:00:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.10 2013/03/07 05:23:31 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -151,7 +151,7 @@ main() {
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     /* printf("%s",(char *)cw->aux); */
-  } 
+  }
   cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
