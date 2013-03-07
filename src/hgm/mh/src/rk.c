@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.8 2013/03/07 05:23:31 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.9 2013/03/07 07:02:18 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -199,12 +199,14 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     double x1;
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, MH_RANK); 
-    gsl_odeiv_control *c = gsl_odeiv_control_y_new(0.0, 1e-10);
+    gsl_odeiv_control *c = gsl_odeiv_control_y_new(1e-18, 1e-6);
     /* We should use the relative error.
        hgm.cwishart(m=5,n=20,beta=c(1,2,3,4,5),x=20,x0=2,approxdeg=20);
        0.977
        hgm.cwishart(m=8,n=20,beta=c(1,2,3,4,5,5.6,5.7,5.8),x=30,x0=1,approxdeg=20);
-       0.962 (non-gsl) or 0.969 (gsl)
+       0.962 (non-gsl) or 0.969 (gsl, abs error 0.0, relative error 1e-10), 
+       NaN abs=0, rel=1e-5 or abs=1e-18, rel=1e-6
+       ./mh causes NaN when rel error is 1e-10 on old 32bit machines.
      */
     gsl_odeiv_evolve *e = gsl_odeiv_evolve_alloc(MH_RANK);
     gsl_odeiv_system sys = {mh_rf_for_gsl, NULL, 0, NULL};
@@ -233,7 +235,10 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
       x1 = x+dh;
       while ((x < x1) && (x < xn)) {
         int status = gsl_odeiv_evolve_apply(e, c, s, &sys, &x, x1, &h, y);
-        if (status != GSL_SUCCESS) break;
+        if (status != GSL_SUCCESS) {
+	  fprintf(stderr,"gsl_odeiv_evolve_apply failed.\n");
+	  break;
+	}
       }
     }
     gsl_odeiv_evolve_free(e);
