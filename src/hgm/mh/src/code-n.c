@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.4 2013/02/27 23:11:13 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.5 2013/03/05 05:26:07 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -63,16 +63,16 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 
   mh_check_intr(100);
   if (MH_deallocate && initialized) {
-	if (b) mh_free(b);
-	if (bitSize) mh_free(bitSize);
-	if (invbitSize) mh_free(invbitSize);
-	if (f2) mh_free(f2);
-	if (yik) mh_free(yik);
-	if (yik2) mh_free(yik2);
-	if (y) mh_free(y);
+        if (b) mh_free(b);
+        if (bitSize) mh_free(bitSize);
+        if (invbitSize) mh_free(invbitSize);
+        if (f2) mh_free(f2);
+        if (yik) mh_free(yik);
+        if (yik2) mh_free(yik2);
+        if (y) mh_free(y);
     b = f2 = yik = yik2 = y = NULL;
     bitSize = invbitSize = NULL;
-	initialized = 0; return;
+        initialized = 0; return;
   }
   if (!initialized) {
     b = (double *)mh_malloc(sizeof(double)*MH_M);
@@ -98,7 +98,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     for (i=0; i<MH_RANK; i++) bitSize[i] = bitcount(i);
     for (i=0, k=0; i<=MH_M; i++) {
       for (j=0; j<MH_RANK; j++) {
-	if (bitSize[j] == i) {invbitSize[k] = j; k++; }
+        if (bitSize[j] == i) {invbitSize[k] = j; k++; }
       }
     }
     initialized = 1;
@@ -109,8 +109,8 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   for (i=0; i<MH_M; i++) {
     for (k=0; k<MH_M; k++) {
       if (i != k) {
-	yik[idxM(i,k)] = y[k]/(y[i]-y[k]);
-	yik2[idxM(i,k)] = y[i]/((y[i]-y[k])*(y[i]-y[k]));
+        yik[idxM(i,k)] = y[k]/(y[i]-y[k]);
+        yik2[idxM(i,k)] = y[i]/((y[i]-y[k])*(y[i]-y[k]));
       }
     }
   }
@@ -124,7 +124,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     f2[idxRank(i,0)] = -((c-y[i])*f[join(i,0)]-a*f[0]);
     for (k=0; k<MH_M; k++) {
       if (i!=k) {
-	f2[idxRank(i,0)] += -0.5*yik[idxM(i,k)]*(f[join(i,0)]-f[join(k,0)]);
+        f2[idxRank(i,0)] += -0.5*yik[idxM(i,k)]*(f[join(i,0)]-f[join(k,0)]);
       }
     }
     f2[idxRank(i,0)] = f2[idxRank(i,0)]/y[i];
@@ -136,17 +136,17 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
       ii = join(i,jj);
       rijj = -( (c-y[i])*f[ii]-a*f[jj] );
       for (k=0; k<MH_M; k++) {
-	if (!member(k,ii)) rijj += -(0.5)*yik[idxM(i,k)]*(f[ii]-f[join(k,jj)]);
-	if (member(k,jj)) {
-	  rijj += -(0.5)*yik[idxM(i,k)]*f[ii];
-	  rijj += -(0.5)*yik2[idxM(i,k)]*(f[join(i,delete(k,jj))]-f[jj]);
-	}
+        if (!member(k,ii)) rijj += -(0.5)*yik[idxM(i,k)]*(f[ii]-f[join(k,jj)]);
+        if (member(k,jj)) {
+          rijj += -(0.5)*yik[idxM(i,k)]*f[ii];
+          rijj += -(0.5)*yik2[idxM(i,k)]*(f[join(i,delete(k,jj))]-f[jj]);
+        }
       }
       f2[idxRank(i,jj)] = rijj;
       for (k = 0; k<MH_M; k++) {
-	if (member(k,jj)) {
-	  f2[idxRank(i,jj)] += (0.5)*yik[idxM(i,k)]*f2[idxRank(k,delete(k,jj))];
-	}
+        if (member(k,jj)) {
+          f2[idxRank(i,jj)] += (0.5)*yik[idxM(i,k)]*f2[idxRank(k,delete(k,jj))];
+        }
       }
       f2[idxRank(i,jj)] = f2[idxRank(i,jj)]/y[i];
     }
@@ -157,9 +157,9 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     val[jj] = 0;
     for (i=0; i<MH_M; i++) {
       if (member(i,jj)) {
-	val[jj] += b[i]*f2[idxRank(i,delete(i,jj))];
+        val[jj] += b[i]*f2[idxRank(i,delete(i,jj))];
       }else{
-	val[jj] += b[i]*f[join(i,jj)];
+        val[jj] += b[i]*f[join(i,jj)];
       }
     }
   }
@@ -205,6 +205,6 @@ showf2(char *s,double *v,int m,int n) {
   }
   printf("\n");
   printf("member(0,0)=%d, member(0,1)=%d, member(0,2)=%d,member(0,3)=%d\n",
-	 member(0,0),member(0,1),member(0,2),member(0,3));
+         member(0,0),member(0,1),member(0,2),member(0,3));
 }
 

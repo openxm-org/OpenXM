@@ -5,20 +5,20 @@
 #include <string.h>
 #include "sfile.h"
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.10 2013/03/01 05:26:25 takayama Exp $
-Ref: copied from this11/misc-2011/A1/wishart/Prog
-jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
-Koev-Edelman for higher order derivatives.
-cf. 20-my-note-mh-jack-n.pdf,  /Movies/oxvh/priv-j1/2011-12-14-ke-mh-jack.mov
-Todo:
-1. Cash the transposes of partitions.
-2. Use the recurrence to obtain beta().
-3. Easier input data file format for mh-n.c
-Changelog:
-2012.02.21, porting to OpenXM/src/hgm
-2011.12.22, --table option, which is experimental.
-2011.12.19, bug fix.  jjk() should return double. It can become more than max int.
-2011.12.15, mh.r --> jack-n.c
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.11 2013/03/05 05:26:07 takayama Exp $
+  Ref: copied from this11/misc-2011/A1/wishart/Prog
+  jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
+  Koev-Edelman for higher order derivatives.
+  cf. 20-my-note-mh-jack-n.pdf,  /Movies/oxvh/priv-j1/2011-12-14-ke-mh-jack.mov
+  Todo:
+  1. Cash the transposes of partitions.
+  2. Use the recurrence to obtain beta().
+  3. Easier input data file format for mh-n.c
+  Changelog:
+  2012.02.21, porting to OpenXM/src/hgm
+  2011.12.22, --table option, which is experimental.
+  2011.12.19, bug fix.  jjk() should return double. It can become more than max int.
+  2011.12.15, mh.r --> jack-n.c
 */
 
 /****** from mh-n.c *****/
@@ -164,8 +164,8 @@ int jk_initializeWorkArea();
 
 int jk_freeWorkArea() {
   /* bug, p in the cloneP will not be deallocated.
-	      Nk in genDarray2 will not be deallocated.
-   */
+     Nk in genDarray2 will not be deallocated.
+  */
   int i;
   JK_deallocate=1;
   if (Darray) {myfree(Darray); Darray=NULL;}
@@ -174,11 +174,11 @@ int jk_freeWorkArea() {
   if (M_beta_0) {myfree(M_beta_0); M_beta_0=NULL;}
   if (M_beta_1) {myfree(M_beta_1); M_beta_1=NULL;}
   if (M_jack) {
-	for (i=0; M_jack[i] != NULL; i++) {
-	  if (Debug) printf("Free M_jack[%d]\n",i);
-	  myfree(M_jack[i]); M_jack[i] = NULL;
-	}
-	myfree(M_jack); M_jack=NULL;
+    for (i=0; M_jack[i] != NULL; i++) {
+      if (Debug) printf("Free M_jack[%d]\n",i);
+      myfree(M_jack[i]); M_jack[i] = NULL;
+    }
+    myfree(M_jack); M_jack=NULL;
   }
   if (M_qk) {myfree(M_qk); M_qk=NULL;}
   if (P_pki) {myfree(P_pki); P_pki=NULL;}
@@ -267,11 +267,11 @@ static double xval(int ii,int p) { /* x_i^p */
   if (!init) {
     for (i=1; i<=M_n; i++) {
       for (j=0; j<M_m_MAX; j++) {
-	if (j != 0) {
-	  Xarray[i-1][j] = M_x[i-1]*Xarray[i-1][j-1];
-	}else{
-	  Xarray[i-1][0] = 1;
-	}
+        if (j != 0) {
+          Xarray[i-1][j] = M_x[i-1]*Xarray[i-1][j-1];
+        }else{
+          Xarray[i-1][0] = 1;
+        }
       }
     }
     init = 1;
@@ -295,7 +295,7 @@ static int mysum(int L[]) {
 }
 
 /*
- (3,2,2,0,0) --> 3
+  (3,2,2,0,0) --> 3
 */
 static int plength(int P[]) {
   int I;
@@ -314,7 +314,7 @@ static int plength_t(int P[]) {
 }
 
 /*  
- ptrans(P)  returns Pt
+    ptrans(P)  returns Pt
 */
 static void ptrans(int P[M_nmx],int Pt[]) { /* Pt[M_m] */
   extern int M_m;
@@ -429,7 +429,7 @@ static double mypower(double x,int n) {
   return(v);
 }
 /* Q_kappa
-*/
+ */
 static double qk(int K[],double A[A_LEN],double B[B_LEN]) {
   extern int Alpha;
   int P,Q,I;
@@ -449,8 +449,8 @@ static double qk(int K[],double A[A_LEN],double B[B_LEN]) {
 }
 
 /*
- B^nu_{kappa,mu}(i,j)
- bb(N,K,M,I,J)
+  B^nu_{kappa,mu}(i,j)
+  bb(N,K,M,I,J)
 */
 static int bb(int N[],int K[],int M[],int I,int J) {
   int Kp[M_m_MAX]; int Mp[M_m_MAX];
@@ -458,8 +458,8 @@ static int bb(int N[],int K[],int M[],int I,int J) {
   ptrans(M,Mp); 
 
   /*
-  printp(K); printf("K<--, "); printp2(Kp); printf("<--Kp\n");
-  printp(M); printf("M<--, "); printp2(Mp); printf("<--Mp\n");
+    printp(K); printf("K<--, "); printp2(Kp); printf("<--Kp\n");
+    printp(M); printf("M<--, "); printp2(Mp); printf("<--Mp\n");
   */
 
   if ((plength_t(Kp) < J) || (plength_t(Mp) < J)) return(hdk(N,I,J));
@@ -527,20 +527,20 @@ static int test_beta() {
 
 
 /*
- cf. w1m.rr 
+  cf. w1m.rr 
   matrix hypergeometric by jack
   N variables, up to degree M.
 */
 /* todo
-def mhgj(A,B,N,M) {
-  F = 0;
-  P = partition_a(N,M);
-  for (I=0; I<length(P); I++) {
-     K = P[I];
-     F += qk(K,A,B)*jack(K,N);
-  }
-  return(F);
-}
+   def mhgj(A,B,N,M) {
+   F = 0;
+   P = partition_a(N,M);
+   for (I=0; I<length(P); I++) {
+   K = P[I];
+   F += qk(K,A,B)*jack(K,N);
+   }
+   return(F);
+   }
 */
 
 
@@ -587,22 +587,22 @@ static double q3_5(double A[],double B[],int K[],int I) {
   V=1; 
 
   for (J=1; J<=P; J++)  {
-     V *= (A[J-1]+C);
+    V *= (A[J-1]+C);
   }
   for (J=1; J<=Q; J++) {
-     V /= (B[J-1]+C);
+    V /= (B[J-1]+C);
   }
 
   for (J=1; J<=K[I-1]-1; J++) {
-     Ej = D-J*Alpha+Kp[J-1];
-     Gj = Ej+1;
-     V *= (Gj-Alpha)*Ej/(Gj*(Ej+Alpha));
+    Ej = D-J*Alpha+Kp[J-1];
+    Gj = Ej+1;
+    V *= (Gj-Alpha)*Ej/(Gj*(Ej+Alpha));
   } 
   for (J=1; J<=I-1; J++) {
-     Fj=K[J-1]*Alpha-J-D;
-     Hj=Fj+Alpha;
-     Lj=Hj*Fj;
-     V *= (Lj-Fj)/(Lj+Hj);
+    Fj=K[J-1]*Alpha-J-D;
+    Hj=Fj+Alpha;
+    Lj=Hj*Fj;
+    V *= (Lj-Fj)/(Lj+Hj);
   }
   return(V);
 }
@@ -632,7 +632,7 @@ static void mtest4b() {
 /* main() { mtest4(); mtest4b(); } */
 
 /* nk in (4.1),
-*/
+ */
 static int nk(int KK[]) {
   extern int *Darray;
   int N,I,Ki;
@@ -707,7 +707,7 @@ static int pListPartition2(int Less,int From,int To, int M) {
   int I,R;
   mh_check_intr(100);
   if (To < From) {
-     (*M_pExec)(); return(0);
+    (*M_pExec)(); return(0);
   }
   for (I=1; (I<=Less) && (I<=M) ; I++) {
     M_kap[From-1] = I;
@@ -721,23 +721,23 @@ static int pListPartition2(int Less,int From,int To, int M) {
 */
 static void pExec_0() {
   if (Debug) {
-	printf("M_kap=");
-	printp(M_kap);
-	printf("\n");
+    printf("M_kap=");
+    printp(M_kap);
+    printf("\n");
   }
 }
 
 /* Test.
-  Compare pListPartition(4,3);  genDarray(4,3);
-  Compare pListPartition(5,3);  genDarray(5,3);
+   Compare pListPartition(4,3);  genDarray(4,3);
+   Compare pListPartition(5,3);  genDarray(5,3);
 
 */
 
 /*
-main() {
+  main() {
   M_pExec = pExec_0;
   pListPartition(5,3);
-}
+  }
 */
 
 
@@ -775,15 +775,15 @@ static void hsExec_0() {
   pListHS([0,4,2,1],3);
 */
 /*
-main() {
+  main() {
   int Kap[3]={4,2,1};
   HS_hsExec = hsExec_0;
   pListHS(Kap,3);
-}
+  }
 */
 
 /* The number of partitions <= M, with N parts.
-  (0,0,...,0) is excluded.
+   (0,0,...,0) is excluded.
 */
 #define aP_pki(i,j) P_pki[(i)*(M+1)+(j)]
 static int pmn(int M,int N) {
@@ -817,7 +817,7 @@ static int pmn(int M,int N) {
 }
 
 /*
-main() {pmn(4,3); printf("P_pmn=%d\n",P_pmn);}
+  main() {pmn(4,3); printf("P_pmn=%d\n",P_pmn);}
 */
 
 static int *cloneP(int a[]) {
@@ -873,22 +873,22 @@ static int genDarray2(int M,int N) {
   for (I=0; I<Pmn; I++) Nk[I] = I;
   for (I=0; I<Pmn; I++) {
     mh_check_intr(100);
-     K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
-     Ksize = plength(K);
-     if (Ksize >= M_n) {
-       if (Debug) {fprintf(stderr,"Ksize >= M_n\n");}
-	   continue;
-     }
-     for (i=0; i<M_n; i++) Kone[i] = 0;
-     for(J=0; J<Ksize; J++) Kone[J]=K[J]; Kone[Ksize] = 1;
-     for (J=0; J<Pmn; J++) {
-        if (myeq(L[J],Kone)) Darray[I] = J; /* J is the next of I */
-     }
+    K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
+    Ksize = plength(K);
+    if (Ksize >= M_n) {
+      if (Debug) {fprintf(stderr,"Ksize >= M_n\n");}
+      continue;
+    }
+    for (i=0; i<M_n; i++) Kone[i] = 0;
+    for(J=0; J<Ksize; J++) Kone[J]=K[J]; Kone[Ksize] = 1;
+    for (J=0; J<Pmn; J++) {
+      if (myeq(L[J],Kone)) Darray[I] = J; /* J is the next of I */
+    }
   }
   if (Debug) {
-	printf("Darray=\n");
-	for (i=0; i<Pmn; i++) printf("%d\n",Darray[i]);
-	printf("-----------\n");
+    printf("Darray=\n");
+    for (i=0; i<Pmn; i++) printf("%d\n",Darray[i]);
+    printf("-----------\n");
   }
 }
 
@@ -938,27 +938,27 @@ static void hsExec_beta(void) {
     Done=0;
     for (J=M_beta_pt-1; J>=0; J--) {
       if (M_beta_1[J] == Nnu) {
-         K=I+1;
-		 if (Debug) {
-		   printf("Found at J=%d, K=%d, q3_10(Kap,Nu,K)=%lf,Nu,Mu= \n",
-				  J,K,q3_10(M_beta_kap,Nu,K));
-		   printp(Nu); printf("\n");
-		   printp(Mu); printf("\n");
-		 }
-         /* Check other conditions. See Numata's mail on Dec 24, 2011. */
-		 rrMax = Nu[I]-1;		 
-         if ((plength_t(Kapt) < rrMax) || (plength_t(Nut) < rrMax)) {
-             if (Debug) printf(" is not taken (length). \n");
-			 break;
-         }
-         OK=1; 
-         for (RR=0; RR<rrMax; RR++) {
-            if (Kapt[RR] != Nut[RR]) { OK=0; break;}
-         }
-         if (!OK) { if (Debug) printf(" is not taken.\n"); break; }
-         /* check done. */
-         M_beta_0[M_beta_pt]=M_beta_0[J]*q3_10(M_beta_kap,Nu,K);
-         Done = 1; break;
+        K=I+1;
+        if (Debug) {
+          printf("Found at J=%d, K=%d, q3_10(Kap,Nu,K)=%lf,Nu,Mu= \n",
+                 J,K,q3_10(M_beta_kap,Nu,K));
+          printp(Nu); printf("\n");
+          printp(Mu); printf("\n");
+        }
+        /* Check other conditions. See Numata's mail on Dec 24, 2011. */
+        rrMax = Nu[I]-1;                 
+        if ((plength_t(Kapt) < rrMax) || (plength_t(Nut) < rrMax)) {
+          if (Debug) printf(" is not taken (length). \n");
+          break;
+        }
+        OK=1; 
+        for (RR=0; RR<rrMax; RR++) {
+          if (Kapt[RR] != Nut[RR]) { OK=0; break;}
+        }
+        if (!OK) { if (Debug) printf(" is not taken.\n"); break; }
+        /* check done. */
+        M_beta_0[M_beta_pt]=M_beta_0[J]*q3_10(M_beta_kap,Nu,K);
+        Done = 1; break;
       } 
     }
     if (Done) break; else Nu[I]--;
@@ -1006,38 +1006,38 @@ static int checkBeta1() {
   for (I=0; I<M_beta_pt; I++) {
     Mu = Parray[M_beta_1[I]];
     Beta_km = M_beta_0[I];
-	if (Debug) {
-	  printp(Kap); printf("<--Kap, ");
-	  printp(Mu); printf("<--Mu,");
-	  printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap,Mu));
-	}
+    if (Debug) {
+      printp(Kap); printf("<--Kap, ");
+      printp(Mu); printf("<--Mu,");
+      printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap,Mu));
+    }
   }
   if (Debug) printf("-------------------------------------\n");
   genBeta(Kap2);
   for (I=0; I<M_beta_pt; I++) {
     Mu = Parray[M_beta_1[I]];
     Beta_km = M_beta_0[I];
-	if (Debug) {
-	  printp(Kap2); printf("<--Kap, ");
-	  printp(Mu); printf("<--Mu,");
-	  printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap2,Mu));
-	}
+    if (Debug) {
+      printp(Kap2); printf("<--Kap, ");
+      printp(Mu); printf("<--Mu,");
+      printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap2,Mu));
+    }
   }
 }
 
 /*
-def checkBeta2() {
+  def checkBeta2() {
   genDarray2(3,3);
   Kap = [2,1,0];
   printf("Kap=%a\n",Kap);
   genBeta(Kap);
   for (I=0; I<M_beta_pt; I++) {
-    Mu = Parray[M_beta[1][I]];
-    Beta_km = M_beta[0][I];
-    printf("Mu=%a,",Mu);
-    printf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
+  Mu = Parray[M_beta[1][I]];
+  Beta_km = M_beta[0][I];
+  printf("Mu=%a,",Mu);
+  printf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
   }
-}
+  }
 */
 
 /* main() { checkBeta1(); } */
@@ -1058,15 +1058,15 @@ static int psublen(int Kap[],int Mu[]) {
 
 
 /* Table of Jack polynomials
-  Jack[1]* one variable.
-  Jack[2]* two variables.
+   Jack[1]* one variable.
+   Jack[2]* two variables.
    ...
-  Jack[M_n]* n variables.
-  Jack[P][J]*  
-       D^J(P variables jack of p variables). Example. J=001 d_1, 010 d_2, 100 d_3
-       0<=J<=2^{M_n}-1
-  Jack[P][J][nk(Kappa)]  Jack_Kappa, Kappa is a partition.
-  0<=nk(Kappa)<=pmn(M_m,M_n)  
+   Jack[M_n]* n variables.
+   Jack[P][J]*  
+   D^J(P variables jack of p variables). Example. J=001 d_1, 010 d_2, 100 d_3
+   0<=J<=2^{M_n}-1
+   Jack[P][J][nk(Kappa)]  Jack_Kappa, Kappa is a partition.
+   0<=nk(Kappa)<=pmn(M_m,M_n)  
 */
 
 #define aM_jack(i,j,k) ((M_jack[i])[(j)*(Pmn+1)+(k)])
@@ -1108,7 +1108,7 @@ static int genJack(int M,int N) {
       if (M_df) {
         for (J=1; J<M_2n; J++) {
           if (J >= 2^I) aM_jack(I,J,K) = 0;
-	  else aM_jack(I,J,K) = NAN;
+          else aM_jack(I,J,K) = NAN;
         }
       }
     }
@@ -1133,46 +1133,46 @@ static int genJack(int M,int N) {
       for (H=0; H<M_beta_pt; H++) {
         Nk = M_beta_1[H];
         Mu = Parray[Nk];
-	if (UseTable) {
-	  Beta_km = M_beta_0[H];
-	}else{
-	  Beta_km = beta(Kap,Mu);
-  /* do not use the M_beta table. It's buggy. UseTable is experimental.*/
-	}
+        if (UseTable) {
+          Beta_km = M_beta_0[H];
+        }else{
+          Beta_km = beta(Kap,Mu);
+          /* do not use the M_beta table. It's buggy. UseTable is experimental.*/
+        }
         if (Debug) {printf("Nv(number of variables)=%d, Beta_km=%lf, Mu=",Nv,Beta_km);
-		printp(Mu); printf("\n");}
+          printp(Mu); printf("\n");}
         P = psublen(Kap,Mu);
         Jack += aM_jack(Nv-1,0,Nk)*Beta_km*xval(Nv,P); /* util_v(x,[Nv])^P;*/
-		if (Debug) printf("xval(%d,%d)=%lf\n",Nv,P,xval(Nv,P));
+        if (Debug) printf("xval(%d,%d)=%lf\n",Nv,P,xval(Nv,P));
       }
       aM_jack(Nv,0,K) = Jack;
       if (M_df) {
         /* The case of M_df > 0. */ 
         for (J=1; J<M_2n; J++) {
-	  mh_check_intr(100);
-      Jack = 0;
-      for (H=0; H<M_beta_pt; H++) {
-        Nk = M_beta_1[H];
-        Mu = Parray[Nk];
-	if (UseTable) {
-	  Beta_km = M_beta_0[H];
-	}else{
-	  Beta_km = beta(Kap,Mu); /* do not use the M_beta table. It's buggy. */
-	}
-        if (Debug) {printf("M_df: Nv(number of variables)=%d, Beta_km=%lf, Mu= ",Nv,Beta_km);
-		printp(Mu); printf("\n"); }
-        P = psublen(Kap,Mu);
-        if (J & (1 << (Nv-1))) {
-          JJ = J & ((1 << (Nv-1)) ^ 0xffff);  /* NOTE!! Up to 16 bits. mh-15 */
-	  if (P != 0) {
-	    Jack += aM_jack(Nv-1,JJ,Nk)*Beta_km*P*xval(Nv,P-1);
-	  }
-        }else{
-          Jack += aM_jack(Nv-1,J,Nk)*Beta_km*xval(Nv,P);
-        }
-      }
-      aM_jack(Nv,J,K) = Jack;
-      if (Debug) printf("aM_jack(%d,%d,%d) = %lf\n",Nv,J,K,Jack);
+          mh_check_intr(100);
+          Jack = 0;
+          for (H=0; H<M_beta_pt; H++) {
+            Nk = M_beta_1[H];
+            Mu = Parray[Nk];
+            if (UseTable) {
+              Beta_km = M_beta_0[H];
+            }else{
+              Beta_km = beta(Kap,Mu); /* do not use the M_beta table. It's buggy. */
+            }
+            if (Debug) {printf("M_df: Nv(number of variables)=%d, Beta_km=%lf, Mu= ",Nv,Beta_km);
+              printp(Mu); printf("\n"); }
+            P = psublen(Kap,Mu);
+            if (J & (1 << (Nv-1))) {
+              JJ = J & ((1 << (Nv-1)) ^ 0xffff);  /* NOTE!! Up to 16 bits. mh-15 */
+              if (P != 0) {
+                Jack += aM_jack(Nv-1,JJ,Nk)*Beta_km*P*xval(Nv,P-1);
+              }
+            }else{
+              Jack += aM_jack(Nv-1,J,Nk)*Beta_km*xval(Nv,P);
+            }
+          }
+          aM_jack(Nv,J,K) = Jack;
+          if (Debug) printf("aM_jack(%d,%d,%d) = %lf\n",Nv,J,K,Jack);
         } /* end of J loop */
       }
     }
@@ -1181,7 +1181,7 @@ static int genJack(int M,int N) {
 
 
 /* checkJack1(3,3) 
-*/
+ */
 static int checkJack1(int M,int N) {
   int I,K;
   extern int P_pmn;
@@ -1230,11 +1230,11 @@ static int checkJack2(int M,int N) {
   for (I=1; I<=N; I++) {
     for (K=0; K<=P_pmn; K++) {
       for (J=0; J<M_2n; J++) {
-		printp(Parray[K]);
-		printf("<--Kap, Nv=%d,J(diff)=%d, D^J Jack=%lf\n",
-			   I,J,aM_jack(I,J,K));
-	  }
-	}
+        printp(Parray[K]);
+        printf("<--Kap, Nv=%d,J(diff)=%d, D^J Jack=%lf\n",
+               I,J,aM_jack(I,J,K));
+      }
+    }
   }
 }
 
@@ -1258,12 +1258,12 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   size = ParraySize[P_pmn];
   for (K=0; K<=P_pmn; K++) {
     mh_check_intr(100);
-	Kap = Parray[K];
-	M_qk[K] = qk(Kap,A,B);
-	F += M_qk[K]*aM_jack(N,0,K);
-	if (ParraySize[K] < size) F2 += M_qk[K]*aM_jack(N,0,K);
-	if (Debug) printf("ParraySize[K] = %d, size=%d\n",ParraySize[K],size);
-	if (Debug && (ParraySize[K] == size)) printf("M_qk[K]=%lg, aM_jack=%lg\n",M_qk[K],aM_jack(N,0,K));
+    Kap = Parray[K];
+    M_qk[K] = qk(Kap,A,B);
+    F += M_qk[K]*aM_jack(N,0,K);
+    if (ParraySize[K] < size) F2 += M_qk[K]*aM_jack(N,0,K);
+    if (Debug) printf("ParraySize[K] = %d, size=%d\n",ParraySize[K],size);
+    if (Debug && (ParraySize[K] == size)) printf("M_qk[K]=%lg, aM_jack=%lg\n",M_qk[K],aM_jack(N,0,K));
   }
   M_rel_error = F-F2;
   return(F);
@@ -1278,7 +1278,7 @@ double mh_t2(int J) {
   F = 0; 
   Pmn = P_pmn;
   for (K=0; K<P_pmn; K++) {
-     F += M_qk[K]*aM_jack(M_n,J,K);
+    F += M_qk[K]*aM_jack(M_n,J,K);
   }
   return(F);
 }
@@ -1294,8 +1294,8 @@ static int mtest1b() {
   }
   mh_t(A,B,N,M);
   for (J=0; J<M_2n; J++) {
-	F=mh_t2(J);
-	printf("J=%d, D^J mh_t=%lf\n",J,F);
+    F=mh_t2(J);
+    printf("J=%d, D^J mh_t=%lf\n",J,F);
   }
 }
 
@@ -1326,8 +1326,8 @@ static int imypower(int x,int n) {
 #ifdef STANDALONE2
 main(int argc,char *argv[]) {
   mh_exit(MH_RESET_EXIT);
-/*  jk_main(argc,argv);
-	printf("second run.\n"); */
+  /*  jk_main(argc,argv);
+      printf("second run.\n"); */
   jk_main(argc,argv);
 }
 #endif
@@ -1350,29 +1350,29 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   UseTable = 1;
   Mapprox=6;
   for (i=1; i<argc; i++) {
-	if (strcmp(argv[i],"--idata")==0) {
-	  inci(i);
-	  setParam(argv[i]); idata=1;
-	}else if (strcmp(argv[i],"--degree")==0) {
-	  inci(i);
-	  sscanf(argv[i],"%d",&Mapprox);
-	}else if (strcmp(argv[i],"--x0")==0) {
-	  inci(i);
-	  sscanf(argv[i],"%lg",&X0g);
-	}else if (strcmp(argv[i],"--notable")==0) {
-	  UseTable = 0;
-	}else if (strcmp(argv[i],"--debug")==0) {
-	  Debug = 1;
-	}else if (strcmp(argv[i],"--help")==0) {
-	  usage(); return(0);
-	}else if (strcmp(argv[i],"--bystring")==0) {
-	  if (idata) {fprintf(stderr,"--bystring must come before --idata option.\n"); mh_exit(-1);}
-	  JK_byFile = 0;
-	}else {
-	  fprintf(stderr,"Unknown option %s\n",argv[i]);
-	  usage();
-	  return(NULL);
-	}
+    if (strcmp(argv[i],"--idata")==0) {
+      inci(i);
+      setParam(argv[i]); idata=1;
+    }else if (strcmp(argv[i],"--degree")==0) {
+      inci(i);
+      sscanf(argv[i],"%d",&Mapprox);
+    }else if (strcmp(argv[i],"--x0")==0) {
+      inci(i);
+      sscanf(argv[i],"%lg",&X0g);
+    }else if (strcmp(argv[i],"--notable")==0) {
+      UseTable = 0;
+    }else if (strcmp(argv[i],"--debug")==0) {
+      Debug = 1;
+    }else if (strcmp(argv[i],"--help")==0) {
+      usage(); return(0);
+    }else if (strcmp(argv[i],"--bystring")==0) {
+      if (idata) {fprintf(stderr,"--bystring must come before --idata option.\n"); mh_exit(-1);}
+      JK_byFile = 0;
+    }else {
+      fprintf(stderr,"Unknown option %s\n",argv[i]);
+      usage();
+      return(NULL);
+    }
   }
   if (!idata) setParam(NULL);  
 
@@ -1387,36 +1387,36 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   sprintf(swork,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
   sprintf(swork,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
   if (M_n != Mg) {
-	myerror("Mg must be equal to M_n\n"); mh_exit(-1);
+    myerror("Mg must be equal to M_n\n"); mh_exit(-1);
   }
   if (Debug) showParam(NULL,1);
   for (i=0; i<M_n; i++) {
-	M_x[i] = Beta[i]*X0g;
+    M_x[i] = Beta[i]*X0g;
   } 
   a[0] = ((double)Mg+1.0)/2.0;
   b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
   if (Debug) printf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
   mh_t(a,b,M_n,Mapprox);
   if (imypower(2,M_n) != M_2n) {
-	sprintf(swork,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
-	myerror("2^M_n != M_2n\n"); mh_exit(-1);
+    sprintf(swork,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
+    myerror("2^M_n != M_2n\n"); mh_exit(-1);
   }
   sprintf(swork,"%%%%M_rel_error=%lg\n",M_rel_error); mh_fputs(swork,ofp);
   for (j=0; j<M_2n; j++) {
-	Iv[j] = mh_t2(j);
+    Iv[j] = mh_t2(j);
   }
   Ef = iv_factor();
   showParam(ofp,0);
 
   /* return the result */
   if (!JK_byFile) {
-	ans->x = X0g;
-	ans->rank = imypower(2,Mg);
-	ans->y = (double *)mymalloc(sizeof(double)*(ans->rank));
-	for (i=0; i<ans->rank; i++) (ans->y)[i] = Iv[i];
-	ans->size=1;
-	ans->sfpp = (struct SFILE **)mymalloc(sizeof(struct SFILE *)*(ans->size));
-	(ans->sfpp)[0] = ofp;
+    ans->x = X0g;
+    ans->rank = imypower(2,Mg);
+    ans->y = (double *)mymalloc(sizeof(double)*(ans->rank));
+    for (i=0; i<ans->rank; i++) (ans->y)[i] = Iv[i];
+    ans->size=1;
+    ans->sfpp = (struct SFILE **)mymalloc(sizeof(struct SFILE *)*(ans->size));
+    (ans->sfpp)[0] = ofp;
   }
   if (Debug) printf("jk_freeWorkArea() starts\n");
   jk_freeWorkArea();
@@ -1479,11 +1479,11 @@ static int setParamDefault() {
 static int next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
-	if (!mh_fgets(s,SMAX,sfp)) {
-	  fprintf(stderr,"Data format error at %s\n",msg);
-	  mh_exit(-1);
-	}
-	if (s[0] != '%') return(0);
+    if (!mh_fgets(s,SMAX,sfp)) {
+      fprintf(stderr,"Data format error at %s\n",msg);
+      mh_exit(-1);
+    }
+    if (s[0] != '%') return(0);
   }
 }
 static int setParam(char *fname) {
@@ -1495,8 +1495,8 @@ static int setParam(char *fname) {
 
   Sample = 0;
   if ((fp=mh_fopen(fname,"r",JK_byFile)) == NULL) {
-	if (JK_byFile) fprintf(stderr,"File %s is not found.\n",fp->s);
-	mh_exit(-1);
+    if (JK_byFile) fprintf(stderr,"File %s is not found.\n",fp->s);
+    mh_exit(-1);
   }
   next(fp,s,"Mg(m)");
   sscanf(s,"%d",&Mg);
@@ -1505,7 +1505,7 @@ static int setParam(char *fname) {
   Beta = (double *)mymalloc(sizeof(double)*Mg);
   for (i=0; i<Mg; i++) {
     next(fp,s,"Beta");
-	sscanf(s,"%lf",&(Beta[i]));
+    sscanf(s,"%lf",&(Beta[i]));
   }
 
   Ng = (double *)mymalloc(sizeof(double));
@@ -1517,8 +1517,8 @@ static int setParam(char *fname) {
   
   Iv = (double *)mymalloc(sizeof(double)*rank);
   for (i=0; i<rank; i++) {
-	next(fp,s,"Iv(initial values)");
-	sscanf(s,"%lg",&(Iv[i]));
+    next(fp,s,"Iv(initial values)");
+    sscanf(s,"%lg",&(Iv[i]));
   }
 
   next(fp,s,"Ef(exponential factor)");
@@ -1544,15 +1544,15 @@ static int showParam(struct SFILE *fp,int fd) {
   rank = imypower(2,Mg);
   sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
   for (i=0; i<Mg; i++) {
-	sprintf(swork,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
+    sprintf(swork,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
   }
   sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
   sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
   for (i=0; i<rank; i++) {
-	sprintf(swork,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
-	if (Sample && (M_n == 2) && (X0g == 0.3)) {
-	  sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
-	}
+    sprintf(swork,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
+    if (Sample && (M_n == 2) && (X0g == 0.3)) {
+      sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
+    }
   }
   sprintf(swork,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
   sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
@@ -1589,7 +1589,7 @@ static double iv_factor(void) {
   detSigma = 1.0/(b*mypower(2.0,M_n));
 
   c = gammam(((double)(M_n+1))/2.0, M_n)/
-     ( mypower(sqrt(2), M_n*n)*mypower(sqrt(detSigma),n)*gammam(((double)(M_n+n+1))/2.0,M_n) );
+    ( mypower(sqrt(2), M_n*n)*mypower(sqrt(detSigma),n)*gammam(((double)(M_n+n+1))/2.0,M_n) );
   return( c*v1);
 }
 

@@ -1,8 +1,8 @@
 /*
-License: LGPL
-Ref: Copied from this11/misc-2011/A1/wishart/Prog
-$OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.5 2013/02/23 06:01:15 takayama Exp $
- */
+  License: LGPL
+  Ref: Copied from this11/misc-2011/A1/wishart/Prog
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.6 2013/03/01 05:26:25 takayama Exp $
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -40,15 +40,15 @@ int mh_gopen_file() {
     fprintf(stderr,"MH_Dfname=%s\n",MH_Dfname);
   }
   if (MH_RANK != mypower(2,MH_Mg)) {
-	fprintf(stderr,"rk.c MH_RANK=%d is not equal to 2^MH_Mg=%d. input_data_file is broken.\n",MH_RANK,mypower(2,MH_Mg));
-	mh_usage();
-	mh_exit(-1);
+    fprintf(stderr,"rk.c MH_RANK=%d is not equal to 2^MH_Mg=%d. input_data_file is broken.\n",MH_RANK,mypower(2,MH_Mg));
+    mh_usage();
+    mh_exit(-1);
   }
   if (MH_Dfname != NULL) {
     if (!MH_RawName) {
       sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"-m%d-n%lf-x0%lf-b",MH_Mg,*MH_Ng,MH_X0g);
       for (i=0; i<MH_Mg; i++) {
-		sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"%lf,",MH_Beta[i]);
+        sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"%lf,",MH_Beta[i]);
       }
       sprintf(&(MH_Dfname[strlen(MH_Dfname)]),".txt");
     }
@@ -66,26 +66,26 @@ int mh_gopen_file() {
     }
   }else return(1);
   if (MH_byFile) {
-	sprintf(fname,"%s-gp.txt",MH_Gfname);
-	fp = fopen(fname,"w");
-	fprintf(fp,"set xrange [0:20]\n");
-	fprintf(fp,"set yrange [0:1.2]\n");
-	fprintf(fp,"plot \"%s\" title \"by hg\" with lines\n",MH_Gfname);
-	fclose(fp);
+    sprintf(fname,"%s-gp.txt",MH_Gfname);
+    fp = fopen(fname,"w");
+    fprintf(fp,"set xrange [0:20]\n");
+    fprintf(fp,"set yrange [0:1.2]\n");
+    fprintf(fp,"plot \"%s\" title \"by hg\" with lines\n",MH_Gfname);
+    fclose(fp);
   }
   return(0);
 }
 /*
-        Runge-Kutta
-        y_{n+1} = y_n + 1/6 k_1 + 1/3 k_2 + 1/3 k_3 + 1/6 k_4
-        k_1 = h f(x_n, y_n)
-        k_2 = h f(x_n + 1/2 h, y_n + 1/2 k_1)
-        k_3 = h f(x_n + 1/2 h, y_n + 1/2 k_2)
-        k_4 = h f(x_n + h, y_n + k_3)
+  Runge-Kutta
+  y_{n+1} = y_n + 1/6 k_1 + 1/3 k_2 + 1/3 k_3 + 1/6 k_4
+  k_1 = h f(x_n, y_n)
+  k_2 = h f(x_n + 1/2 h, y_n + 1/2 k_1)
+  k_3 = h f(x_n + 1/2 h, y_n + 1/2 k_2)
+  k_4 = h f(x_n + h, y_n + k_3)
 */
 
 /* ベクトル値関数 rk is defined in tmp-code-?.c,
- f(x, y) (x : scalar, y : vector) */ 
+   f(x, y) (x : scalar, y : vector) */ 
 
 static void show_v(double x,double *v, int n)
 {
@@ -109,23 +109,23 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
   struct MH_RESULT result;
   extern int MH_deallocate;
   /*
-  double y[MH_RANK];
-  double k1[MH_RANK], k2[MH_RANK], k3[MH_RANK], k4[MH_RANK];
-  double temp[MH_RANK];
-  double ty[MH_RANK];
+    double y[MH_RANK];
+    double k1[MH_RANK], k2[MH_RANK], k3[MH_RANK], k4[MH_RANK];
+    double temp[MH_RANK];
+    double ty[MH_RANK];
   */
   static double *y,*k1,*k2,*k3,*k4,*temp,*ty;
   if (MH_deallocate && initialized) {
-	if (y) mh_free(y);
-	if (k1) mh_free(k1);
-	if (k2) mh_free(k2);
-	if (k3) mh_free(k3);
-	if (k4) mh_free(k4);
-	if (temp) mh_free(temp);
-	if (ty) mh_free(ty);
+    if (y) mh_free(y);
+    if (k1) mh_free(k1);
+    if (k2) mh_free(k2);
+    if (k3) mh_free(k3);
+    if (k4) mh_free(k4);
+    if (temp) mh_free(temp);
+    if (ty) mh_free(ty);
     y = k1 = k2 = k3 = k4 = temp = ty = NULL;
-	initialized=0;
-	return(result);
+    initialized=0;
+    return(result);
   }
   if (!initialized) {
     y = (double *)mh_malloc(sizeof(double)*MH_RANK);
@@ -135,27 +135,27 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     k4 = (double *)mh_malloc(sizeof(double)*MH_RANK);
     temp = (double *)mh_malloc(sizeof(double)*MH_RANK);
     ty = (double *)mh_malloc(sizeof(double)*MH_RANK);
-	initialized=1;
+    initialized=1;
   }
   h = MH_Hg;
   for (i = 0; i < MH_RANK; i++)
     y[i] = y0[i];
   for (x = x0; (h>0?(x<xn):(x>xn)); x += h) {
-	if (Df) show_v(x,y, MH_RANK);
-	if (Gf) {
-	  sprintf(swork,"%lf %le\n",x,y[0]);
-	  mh_fputs(swork,Gf);
-	}
-        /* Output 95% point */
-	if (MH_P95) {
-	  if ((MH_P95==1) && (y[0] >= 0.95)) {
-	    printf("x=%le, y[0]=%lf\n",x,y[0]);
-	    MH_P95=2;
-	  }else if ((MH_P95==2) && (y[0] >=0.9500000001)) {
-	    printf("x=%le, y[0]=%lf\n",x,y[0]);
-	    MH_P95=0;
-	  }
-	}
+    if (Df) show_v(x,y, MH_RANK);
+    if (Gf) {
+      sprintf(swork,"%lf %le\n",x,y[0]);
+      mh_fputs(swork,Gf);
+    }
+    /* Output 95% point */
+    if (MH_P95) {
+      if ((MH_P95==1) && (y[0] >= 0.95)) {
+        printf("x=%le, y[0]=%lf\n",x,y[0]);
+        MH_P95=2;
+      }else if ((MH_P95==2) && (y[0] >=0.9500000001)) {
+        printf("x=%le, y[0]=%lf\n",x,y[0]);
+        MH_P95=0;
+      }
+    }
     mh_rf(x, y, MH_RANK, temp, MH_RANK);
     for (i = 0; i < MH_RANK; i++)
       k1[i] = h * temp[i];

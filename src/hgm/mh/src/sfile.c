@@ -1,6 +1,6 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.11 2013/03/05 00:43:29 takayama Exp $
- */
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.12 2013/03/05 05:26:07 takayama Exp $
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +33,7 @@ void *mh_malloc(int s) {
   p = (void *)R_alloc(1,s);
 #endif
   if (p == NULL) {
-	fprintf(stderr,"No memory.\n"); mh_exit(-1);
+    fprintf(stderr,"No memory.\n"); mh_exit(-1);
   }
   return(p);
 }
@@ -51,8 +51,8 @@ int mh_exit(int n) {
   if (n == MH_RESET_EXIT) { standalone=1; return(0);}
   if (standalone) exit(n);
   else {
-	fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
-	return(n);
+    fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
+    return(n);
   }
 #else
   error("mh_exit(%d) is called.\n",n);
@@ -66,34 +66,34 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   sfp->forRead=1; sfp->copied=0;
   
   if (byFile) {
-	sfp->byFile = 1;
-	if (strcmp(name,"stdout")==0) {
-	  sfp->fp = stdout;
-	}else{
-	  sfp->fp = fopen(name,mode);
-	}
-	if (sfp->fp == NULL) return(NULL);
-	else return(sfp);
+    sfp->byFile = 1;
+    if (strcmp(name,"stdout")==0) {
+      sfp->fp = stdout;
+    }else{
+      sfp->fp = fopen(name,mode);
+    }
+    if (sfp->fp == NULL) return(NULL);
+    else return(sfp);
   }else if (strcmp(mode,"r")==0) {
-	sfp->byFile=0;
-	sfp->s=name;
-	sfp->pt=0;
-	sfp->len=strlen(name);
-	sfp->limit=sfp->len+1;
-	sfp->forRead=1;
-	return(sfp);
+    sfp->byFile=0;
+    sfp->s=name;
+    sfp->pt=0;
+    sfp->len=strlen(name);
+    sfp->limit=sfp->len+1;
+    sfp->forRead=1;
+    return(sfp);
   }else if (strcmp(mode,"w")==0) {
-	sfp->byFile=0;
-	sfp->s=(char *)mh_malloc(SSIZE);
-	sfp->s[0]=0;
-	sfp->pt=0;
-	sfp->len=0;
-	sfp->limit= SSIZE;
-	sfp->forRead=0;
-	return(sfp);
+    sfp->byFile=0;
+    sfp->s=(char *)mh_malloc(SSIZE);
+    sfp->s[0]=0;
+    sfp->pt=0;
+    sfp->len=0;
+    sfp->limit= SSIZE;
+    sfp->forRead=0;
+    return(sfp);
   }else{
-	fprintf(stderr,"Error: unknown mode %s in the string mode.\n",mode);
-	return NULL;
+    fprintf(stderr,"Error: unknown mode %s in the string mode.\n",mode);
+    return NULL;
   }
 }
 
@@ -106,13 +106,13 @@ char *mh_fgets(char *str,int size,struct SFILE *sfp) {
   if (pt >= len) return NULL;
   if (size != 0) str[0]=0;
   for (i=0; i<size-1; i++) {
-	if (s[pt] != 0) {
-	  str[i] = s[pt]; str[i+1] = 0;
-	  pt++; sfp->pt = pt;
-	  if (s[pt] == 0) return str;
-	  if (pt >= len) return str;
-	  if (str[i] == '\n') return str;
-	}
+    if (s[pt] != 0) {
+      str[i] = s[pt]; str[i+1] = 0;
+      pt++; sfp->pt = pt;
+      if (s[pt] == 0) return str;
+      if (pt >= len) return str;
+      if (str[i] == '\n') return str;
+    }
   }
   return str;
 }
@@ -124,10 +124,10 @@ int mh_fputs(char *str,struct SFILE *sfp) {
   s = sfp->s; len = sfp->len; pt = sfp->pt; limit=sfp->limit;
   inputLen=strlen(str);
   if (inputLen+len+1 > limit) {
-	limit = (inputLen+len+1)*2;
-	s = (char *) mh_malloc(limit);
-	if (s == NULL) return(EOF);
-	strcpy(s,sfp->s);
+    limit = (inputLen+len+1)*2;
+    s = (char *) mh_malloc(limit);
+    if (s == NULL) return(EOF);
+    strcpy(s,sfp->s);
     mh_free(sfp->s);
   }
   strcpy(&(s[len]),str);
@@ -142,8 +142,8 @@ int mh_fclose(struct SFILE *sfp) {
   if (!sfp) return(-1);
   if (sfp->byFile) return fclose(sfp->fp);
   if (! (sfp->forRead)) {
-	if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
-	if (sfp->s != NULL) { mh_free(sfp->s); sfp->s = NULL; }
+    if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
+    if (sfp->s != NULL) { mh_free(sfp->s); sfp->s = NULL; }
   }
   mh_free(sfp);
 }
@@ -151,12 +151,12 @@ int mh_fclose(struct SFILE *sfp) {
 int mh_outstr(char *str,int size,struct SFILE *sfp) {
   int i;
   if (sfp->byFile) {
-	fprintf(stderr,"Error in mh_outstr. mh_outstr is called in the file i/o mode.\n");
-	return 0;
+    fprintf(stderr,"Error in mh_outstr. mh_outstr is called in the file i/o mode.\n");
+    return 0;
   }
   if (size) str[0] = 0;
   for (i = 0; (i<size-1) && (i<sfp->len); i++) {
-	str[i] = (sfp->s)[i]; str[i+1] = 0;
+    str[i] = (sfp->s)[i]; str[i+1] = 0;
   }
   sfp->copied=1;
   return(i);
@@ -179,24 +179,24 @@ main() {
   struct SFILE *sfp;
   char str[TESTSIZE];
   int i;
-/*
-  sfp = mh_fopen("hoge\nafo\nbho\ncat\ndot\ndolphin\n","r",0);
-  while (mh_fgets(str,1024,sfp)) {
-	printf(str);
-  }
-  mh_fclose(sfp);
+  /*
+    sfp = mh_fopen("hoge\nafo\nbho\ncat\ndot\ndolphin\n","r",0);
+    while (mh_fgets(str,1024,sfp)) {
+    printf(str);
+    }
+    mh_fclose(sfp);
 
-  sfp = mh_fopen("sfile.h","r",1);
-  while (mh_fgets(str,1024,sfp)) {
-	printf(str);
-  }
-  mh_fclose(sfp);
-*/
+    sfp = mh_fopen("sfile.h","r",1);
+    while (mh_fgets(str,1024,sfp)) {
+    printf(str);
+    }
+    mh_fclose(sfp);
+  */
   sfp = mh_fopen("","w",0);
   for (i=0; i<3; i++) {
-	mh_fputs("hoge\n",sfp);
-	mh_fputs("hage\n",sfp);
-	dump(sfp);
+    mh_fputs("hoge\n",sfp);
+    mh_fputs("hage\n",sfp);
+    dump(sfp);
   }
   mh_fputs("end end\n",sfp);
   printf("result=%s\n",sfp->s);

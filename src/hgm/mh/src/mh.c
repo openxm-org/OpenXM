@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.7 2013/03/05 06:35:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.8 2013/03/05 07:03:37 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -22,7 +22,7 @@ struct cWishart *new_cWishart(int rank) {
 }
 
 struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
-			      int approxDeg,double h, int dp, double x,int modep[]) {
+                              int approxDeg,double h, int dp, double x,int modep[]) {
   /*
      modep[0]. Do Koev-Edelman (ignored for now).
      modep[1]. Do the HGM
@@ -125,7 +125,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by Series */
 struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
-			       int approxDeg,double h, int dp, double x) {
+                               int approxDeg,double h, int dp, double x) {
   int modep[]={1,0,0};
   return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));
 }
@@ -133,7 +133,7 @@ struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by HGM */
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
-				 int approxDeg, double h, int dp , double x)
+                                 int approxDeg, double h, int dp , double x)
 {
   int modep[]={1,1,0};
   return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));

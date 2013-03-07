@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.3 2013/02/23 07:00:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.4 2013/03/05 06:00:52 takayama Exp $ */
 struct cWishart {
   double x;
   double rank;
@@ -10,11 +10,11 @@ struct cWishart {
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by Series */
 struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
-			       int approxDeg,double h, int dp, double x);
+                               int approxDeg,double h, int dp, double x);
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by HGM */
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
-				 int approxDeg, double h, int dp, double x);
+                                 int approxDeg, double h, int dp, double x);
 struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
-				 int approxDeg,double h, int dp, double x,int modep[]); 
+                                 int approxDeg,double h, int dp, double x,int modep[]); 
 struct cWishart *new_cWishart(int rank);

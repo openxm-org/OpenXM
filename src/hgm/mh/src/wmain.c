@@ -1,7 +1,7 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.8 2013/03/01 05:26:25 takayama Exp $
-License: LGPL
- */
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.9 2013/03/05 05:26:07 takayama Exp $
+  License: LGPL
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -65,8 +65,8 @@ static int mypower(int x,int n) {
 #ifdef STANDALONE2
 main(int argc,char *argv[]) {
   mh_exit(MH_RESET_EXIT); /* standalone mode */
-/*  mh_main(argc,argv);
-  mh_freeWorkArea(); */
+  /*  mh_main(argc,argv);
+      mh_freeWorkArea(); */
   mh_main(argc,argv);
 }
 #endif
@@ -82,42 +82,42 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   if (MH_deallocate) { if (y0) mh_free(y0); return(rp); }
   setParam(NULL); MH_Gfname = MH_Dfname = NULL; MH_Verbose=1;
   for (i=1; i<argc; i++) {
-	if (strcmp(argv[i],"--idata")==0) {
-	  inci(i);
-	  setParam(argv[i]); MH_Verbose=0;
-	}else if (strcmp(argv[i],"--gnuplotf")==0) {
-	  inci(i);
-	  MH_Gfname = (char *)mh_malloc(SMAX);
-	  strcpy(MH_Gfname,argv[i]);
-	}else if (strcmp(argv[i],"--dataf")==0) {
-	  inci(i);
-	  MH_Dfname = (char *)mh_malloc(SMAX);
-	  strcpy(MH_Dfname,argv[i]);
-	}else if (strcmp(argv[i],"--xmax")==0) {
+    if (strcmp(argv[i],"--idata")==0) {
       inci(i);
-	  sscanf(argv[i],"%lf",&Xng);
-	}else if (strcmp(argv[i],"--step")==0) {
+      setParam(argv[i]); MH_Verbose=0;
+    }else if (strcmp(argv[i],"--gnuplotf")==0) {
       inci(i);
-	  sscanf(argv[i],"%lg",&MH_Hg);
-	}else if (strcmp(argv[i],"--help")==0) {
-	  mh_usage(); return(rp);
-	}else if (strcmp(argv[i],"--raw")==0) {
-	  MH_RawName = 1;
-	}else if (strcmp(argv[i],"--test")==0) {
-	  inci(i);
-	  sscanf(argv[i],"%d",&Testrank);
-	  setParamTest();
-	}else if (strcmp(argv[i],"--95")==0) {
-	  MH_P95=1;
-	}else if (strcmp(argv[i],"--verbose")==0) {
-	  MH_Verbose=1;
-	}else if (strcmp(argv[i],"--bystring")==0) {
-	  MH_byFile = 0;
-	}else {
-	  fprintf(stderr,"Unknown option %s\n",argv[i]);
-	  mh_usage();
-	  return(rp);
-	}
+      MH_Gfname = (char *)mh_malloc(SMAX);
+      strcpy(MH_Gfname,argv[i]);
+    }else if (strcmp(argv[i],"--dataf")==0) {
+      inci(i);
+      MH_Dfname = (char *)mh_malloc(SMAX);
+      strcpy(MH_Dfname,argv[i]);
+    }else if (strcmp(argv[i],"--xmax")==0) {
+      inci(i);
+      sscanf(argv[i],"%lf",&Xng);
+    }else if (strcmp(argv[i],"--step")==0) {
+      inci(i);
+      sscanf(argv[i],"%lg",&MH_Hg);
+    }else if (strcmp(argv[i],"--help")==0) {
+      mh_usage(); return(rp);
+    }else if (strcmp(argv[i],"--raw")==0) {
+      MH_RawName = 1;
+    }else if (strcmp(argv[i],"--test")==0) {
+      inci(i);
+      sscanf(argv[i],"%d",&Testrank);
+      setParamTest();
+    }else if (strcmp(argv[i],"--95")==0) {
+      MH_P95=1;
+    }else if (strcmp(argv[i],"--verbose")==0) {
+      MH_Verbose=1;
+    }else if (strcmp(argv[i],"--bystring")==0) {
+      MH_byFile = 0;
+    }else {
+      fprintf(stderr,"Unknown option %s\n",argv[i]);
+      mh_usage();
+      return(rp);
+    }
   }
   if (MH_Verbose) showParam();
   x0 = MH_X0g;
@@ -205,11 +205,11 @@ static int setParamDefault() {
 static int next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
-	if (!mh_fgets(s,SMAX,sfp)) {
-	  fprintf(stderr,"Data format error at %s\n",msg);
-	  mh_exit(-1);
-	}
-	if (s[0] != '%') return(0);
+    if (!mh_fgets(s,SMAX,sfp)) {
+      fprintf(stderr,"Data format error at %s\n",msg);
+      mh_exit(-1);
+    }
+    if (s[0] != '%') return(0);
   }
 }
 static int setParam(char *fname) {
@@ -220,16 +220,16 @@ static int setParam(char *fname) {
   extern int MH_deallocate;
   extern int MH_byFile;
   if (MH_deallocate) {
-	if (MH_Beta) mh_free(MH_Beta);
-	if (MH_Ng) mh_free(MH_Ng);
-	if (Iv) mh_free(Iv);
-	return(0);
+    if (MH_Beta) mh_free(MH_Beta);
+    if (MH_Ng) mh_free(MH_Ng);
+    if (Iv) mh_free(Iv);
+    return(0);
   }
   if (fname == NULL) return(setParamDefault());
 
   if ((fp=mh_fopen(fname,"r",MH_byFile)) == NULL) {
-	fprintf(stderr,"File %s is not found.\n",fname);
-	mh_exit(-1);
+    fprintf(stderr,"File %s is not found.\n",fname);
+    mh_exit(-1);
   }
   next(fp,s,"MH_Mg(m)");
   sscanf(s,"%d",&MH_Mg); MH_M=MH_Mg;
@@ -238,7 +238,7 @@ static int setParam(char *fname) {
   MH_Beta = (double *)mh_malloc(sizeof(double)*MH_Mg);
   for (i=0; i<MH_Mg; i++) {
     next(fp,s,"MH_Beta");
-	sscanf(s,"%lf",&(MH_Beta[i]));
+    sscanf(s,"%lf",&(MH_Beta[i]));
   }
 
   MH_Ng = (double *)mh_malloc(sizeof(double));
@@ -250,8 +250,8 @@ static int setParam(char *fname) {
   
   Iv = (double *)mh_malloc(sizeof(double)*rank);
   for (i=0; i<rank; i++) {
-	next(fp,s,"Iv(initial values)");
-	sscanf(s,"%lg",&(Iv[i]));
+    next(fp,s,"Iv(initial values)");
+    sscanf(s,"%lg",&(Iv[i]));
   }
 
   next(fp,s,"Ef(exponential factor)");
@@ -273,12 +273,12 @@ int showParam() {
   rank = mypower(2,MH_Mg);
   printf("%%MH_Mg=\n%d\n",MH_Mg);
   for (i=0; i<MH_Mg; i++) {
-	printf("%%MH_Beta[%d]=\n%lf\n",i,MH_Beta[i]);
+    printf("%%MH_Beta[%d]=\n%lf\n",i,MH_Beta[i]);
   }
   printf("%%MH_Ng=\n%lf\n",*MH_Ng);
   printf("%%MH_X0g=\n%lf\n",MH_X0g);
   for (i=0; i<rank; i++) {
-	printf("%%Iv[%d]=\n%lg\n",i,Iv[i]);
+    printf("%%Iv[%d]=\n%lg\n",i,Iv[i]);
   }
   printf("%%Ef=\n%lf\n",Ef);
   printf("%%MH_Hg=\n%lf\n",MH_Hg);
