@@ -1,13 +1,14 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.6 2013/03/01 05:26:25 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.7 2013/03/07 03:00:43 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include "sfile.h"
+#include "mh.h"
 
 extern int MH_RANK;
 extern int MH_M;

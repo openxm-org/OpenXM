@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.12 2013/03/05 05:26:07 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.13 2013/03/07 03:00:43 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -146,6 +146,7 @@ int mh_fclose(struct SFILE *sfp) {
     if (sfp->s != NULL) { mh_free(sfp->s); sfp->s = NULL; }
   }
   mh_free(sfp);
+  return(0);
 }
 
 int mh_outstr(char *str,int size,struct SFILE *sfp) {

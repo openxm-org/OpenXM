@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.5 2013/03/05 05:26:07 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.6 2013/03/07 03:00:43 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -8,10 +8,12 @@ cf. @s/2011/12/01-my-note-code-n.pdf
 #include <stdlib.h> 
 #include <math.h>
 #include "sfile.h"
+#include "mh.h"
 
 static void error_code(char *s);
 static void showf(char *s,double *v,int m);
-static void showd(char *s,int *v,int m);
+static void showf(char *s,double *v,int m);
+static void showf2(char *s,double *v,int m,int n);
 
 extern int MH_M;
 extern int MH_RANK;
@@ -194,7 +196,7 @@ static void showd(char *s,int *v,int m) {
   printf("\n");
 }
 
-showf2(char *s,double *v,int m,int n) {
+static void showf2(char *s,double *v,int m,int n) {
   int i,j;
   printf("%s=\n",s);
   for (i=0; i<m; i++) {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.4 2013/02/12 23:51:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.5 2013/03/05 05:26:07 takayama Exp $ */
 #include <stdio.h>
 #include <math.h>
 #ifdef USE_GSL_LIB
@@ -9,12 +9,17 @@
 #include "t-gsl_odeiv.h"
 #endif
 
+#ifndef STANDALONE
+void mh_check_intr(int n);
+#endif
+
 /* gcc evalnc.c -lgsl -lblas -lm */
 /* gcc evalnc.c `pkg-config --cflags gsl` `pkg-config --libs gsl` */
 
 int so3_func();
 void so3_nc(double a[3],double t0,double y[4]);
 void so3_evalByS(int deg,double a,double b,double c,double t,double f[4]);
+int so3_usage(void);
 
 #define MDEG 20
 
@@ -82,13 +87,14 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
 }
 #endif
 
-so3_usage() {
+int so3_usage(void) {
   fprintf(stderr,"Usage: so3_nc a b c returns nc(a,b,c) and its gradients\n");
   fprintf(stderr,"   where nc is the normalization constant\n" );
   fprintf(stderr,"   of the Fisher distribution on SO(3) for the diagonal matrix diag(a,b,c).\n");
   fprintf(stderr,"   See http://arxiv.org/abs/1110.0721\n");
   fprintf(stderr,"Options:  --quiet  --t0 T0 --deg DEG\n");
   fprintf(stderr,"   Series is evaluated at T0*(a,b,c) and the value is extended to (a,b,c) by diff. eq.\n");
+  return(0);
 }
 
 /* Evaluate normalization constant */

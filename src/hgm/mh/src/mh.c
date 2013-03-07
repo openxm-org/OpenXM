@@ -1,10 +1,10 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.8 2013/03/05 07:03:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.9 2013/03/07 03:00:43 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
 #define WSIZE 1024
 extern int MH_DEBUG;
-static imypower(int x,int n) {
+static int imypower(int x,int n) {
   int a,i;
   a = 1;
   for (i=0; i<n; i++) a = a*x;

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.11 2013/03/05 05:26:07 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.12 2013/03/07 03:00:43 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -183,6 +183,7 @@ int jk_freeWorkArea() {
   if (M_qk) {myfree(M_qk); M_qk=NULL;}
   if (P_pki) {myfree(P_pki); P_pki=NULL;}
   JK_deallocate=0;
+  return(0);
 }
 int jk_initializeWorkArea() {
   int i,j;
@@ -213,6 +214,7 @@ int jk_initializeWorkArea() {
   Sample = Sample_default;
   Xng=0.0;
   M_n=0;
+  return(0);
 }
 
 static void *mymalloc(int size) {
@@ -227,9 +229,9 @@ static void *mymalloc(int size) {
 }
 static int myfree(void *p) {
   if (Debug) printf("myFree at %p\n",p);
-  mh_free(p);
+  return(mh_free(p));
 }
-static int myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar();}
+static int myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar(); return(0);}
 
 static double jack1(int K) {
   double F;
@@ -337,6 +339,7 @@ static int test_ptrans() {
   M_m = 10;
   ptrans(p,pt);
   if (Debug) {for (i=0; i<10; i++) printf("%d,",pt[i]);  printf("\n");}
+  return(0);
 }
 
 
@@ -502,6 +505,7 @@ static int printp(int kappa[]) {
     if (i <M_n-1) printf("%d,",kappa[i]);
     else printf("%d)",kappa[i]);
   }
+  return(0);
 }
 static int printp2(int kappa[]) {
   int i,ell;
@@ -511,6 +515,7 @@ static int printp2(int kappa[]) {
     if (i <ell+1-1) printf("%d,",kappa[i]);
     else printf("%d)",kappa[i]);
   }
+  return(0);
 }
 
 static int test_beta() {
@@ -752,7 +757,7 @@ static int pListHS(int Kap[],int N) {
   HS_n = N;
   /* Clear HS_mu. Do not forget when N < M_n  */
   for (i=0; i<M_n; i++) HS_mu[i] = 0;
-  pListHS2(1,N,Kap);
+  return(pListHS2(1,N,Kap));
 }
 
 static int pListHS2(int From,int To,int Kap[]) {
@@ -830,6 +835,7 @@ static int *cloneP(int a[]) {
 static int copyP(int p[],int a[]) {
   int i;
   for (i=0; i<M_n; i++) p[i] = a[i];
+  return(0);
 }
 
 static void pExec_darray(void) {
@@ -890,6 +896,7 @@ static int genDarray2(int M,int N) {
     for (i=0; i<Pmn; i++) printf("%d\n",Darray[i]);
     printf("-----------\n");
   }
+  return(0);
 }
 
 
@@ -965,7 +972,7 @@ static void hsExec_beta(void) {
   }
   if (!Done) {
     if (Debug) printf("BUG: not found M_beta_pt=%d.\n",M_beta_pt);
-    /* M_beta_0[M_beta_pt] = NAN; /* error("Not found."); */
+    /* M_beta_0[M_beta_pt] = NAN;  error("Not found."); */
     M_beta_0[M_beta_pt] = beta(M_beta_kap,Mu); 
   }
   /* Fix the bug of mh.rr */
@@ -1023,6 +1030,7 @@ static int checkBeta1() {
       printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap2,Mu));
     }
   }
+  return(0);
 }
 
 /*
@@ -1201,6 +1209,7 @@ static int checkJack1(int M,int N) {
   }
   for (I=1; I<=N; I++) printf("%lf, ",M_x[I-1]);
   printf("<--x\n");
+  return(0);
 }
 /*main() {  checkJack1(3,3);  }*/
 
@@ -1236,6 +1245,7 @@ static int checkJack2(int M,int N) {
       }
     }
   }
+  return(0);
 }
 
 /* main() { checkJack2(3,3); } */
@@ -1449,6 +1459,7 @@ static int usage() {
   fprintf(stderr,"[6] ./mh-3 --degree 15 >test2.txt\n");
   fprintf(stderr,"    ./w-3 --idata test2.txt --gnuplotf test-g\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
+  return(0);
 }
 
 static int setParamDefault() {
@@ -1474,6 +1485,7 @@ static int setParamDefault() {
   Hg = 0.001;
   Dp = 1;
   Xng = 10.0;
+  return(0);
 }
 
 static int next(struct SFILE *sfp,char *s,char *msg) {
@@ -1485,6 +1497,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
     }
     if (s[0] != '%') return(0);
   }
+  return(0);
 }
 static int setParam(char *fname) {
   int rank;
@@ -1533,6 +1546,7 @@ static int setParam(char *fname) {
   next(fp,s,"Xng (the last point, cf. --xmax)");
   sscanf(s,"%lf",&Xng);
   mh_fclose(fp);
+  return(0);
 }
 
 static int showParam(struct SFILE *fp,int fd) {
@@ -1558,6 +1572,7 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
   sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
   sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
+  return(0);
 }
 
 static double gammam(double a,int n) {
