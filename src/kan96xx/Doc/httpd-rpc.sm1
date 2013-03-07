@@ -1,7 +1,8 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.15 2010/02/08 01:08:39 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.16 2012/12/23 02:33:16 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
+/httpd.textmode 1 def  %% It does not work on some browsers.
 
 /httpd_action {  
    httpd_action_allow_file_transfer  
@@ -404,19 +405,24 @@ oxNoX
 
 /send-page-result {
   /arg1 set
-  [/in-send-page-result /result] pushVariables
+  [/in-send-page-result /result /hlen /msg1 /msg2] pushVariables
   [
    /result arg1 def
+   /msg1 (<html> <body> <pre>)  def
+   /msg2  (</pre> </body> </html>) def
+   httpd.textmode { 0 /hlen set }
+   { msg1 length msg2 length add 3 add /hlen set } ifelse
    (HTTP/0.9 200 OK) sendln
    (Connection: close) sendln
-   [(Content-length: ) result length toString ] cat sendln
-   (Content-Type: text/html) sendln
-   %(Content-Type: text/plain) sendln  % It does not work on some browsers.
+   [(Content-length: ) result length hlen add toString ] cat sendln
+   httpd.textmode
+   { (Content-Type: text/plain) sendln }  % It does not work on some browsers.
+   { (Content-Type: text/html) sendln } ifelse
    0 sendln
 
-   (<html> <body> <pre>) sendln
+   httpd.textmode { } { msg1 sendln } ifelse
    result sendln
-   (</pre> </body> </html>) sendln
+   httpd.textmode { } { msg2 sendln } ifelse
    0 sendln
    [(flush)] extension
   ] pop

@@ -1,6 +1,7 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.20 2010/02/08 01:08:39 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.21 2012/12/23 01:27:54 takayama Exp $
 %% common modules for httpd on sm1.
 % [(Strict) 1] system_variable  % for debugging.
+/httpd.rawplus 0 def
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
   [(getenv) (OpenXM_PSTOIMG_TYPE)] extension
@@ -416,7 +417,7 @@ def
          i 3 add /i set
        } { 
          c 43 eq { % c == +
-           s j 32 put
+           httpd.rawplus { s j 43 put } { s j 32 put } ifelse
            j 1 add /j set
            i 1 add /i set
           } {
