@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.10 2013/03/07 03:00:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.11 2013/03/07 05:23:31 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -65,10 +65,24 @@ static int mypower(int x,int n) {
 }
 #ifdef STANDALONE2
 main(int argc,char *argv[]) {
+  int strategy=STRATEGY_DEFAULT;
+  double err[2]={-1.0,-1.0};
+  int i;
+  for (i=1; i<argc; i++) {
+    if (strcmp(argv[i],"--strategy")==0) {
+      i++; sscanf(argv[i],"%d",&strategy);
+    }else if (strcmp(argv[i],"--abserr")==0) {
+      i++; sscanf(argv[i],"%lg",&(err[0]));
+    }else if (strcmp(argv[i],"--relerr")==0) {
+      i++; sscanf(argv[i],"%lg",&(err[1]));
+    }else ;
+  }
+  mh_set_strategy(strategy,err);
   mh_exit(MH_RESET_EXIT); /* standalone mode */
   /*  mh_main(argc,argv);
       mh_freeWorkArea(); */
   mh_main(argc,argv);
+  /* showParam(); */
 }
 #endif
 struct MH_RESULT *mh_main(int argc,char *argv[]) {
@@ -114,6 +128,12 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
       MH_Verbose=1;
     }else if (strcmp(argv[i],"--bystring")==0) {
       MH_byFile = 0;
+	}else if (strcmp(argv[i],"--strategy")==0) {
+	  i++; /* ignore */
+	}else if (strcmp(argv[i],"--abserr")==0) {
+	  i++; /* ignore */
+	}else if (strcmp(argv[i],"--relerr")==0) {
+	  i++; /* ignore */
     }else {
       fprintf(stderr,"Unknown option %s\n",argv[i]);
       mh_usage();
@@ -271,6 +291,9 @@ static int setParam(char *fname) {
 
 int showParam() {
   int rank,i;
+  extern int MH_strategy;
+  extern double MH_abserr;
+  extern double MH_relerr;
   rank = mypower(2,MH_Mg);
   printf("%%MH_Mg=\n%d\n",MH_Mg);
   for (i=0; i<MH_Mg; i++) {
@@ -285,5 +308,7 @@ int showParam() {
   printf("%%MH_Hg=\n%lf\n",MH_Hg);
   printf("%%MH_Dp=\n%d\n",MH_Dp);
   printf("%%Xng=\n%lf\n",Xng);
+  printf("%%strategy=%d\n",MH_strategy);
+  printf("%%abserr=%lg, relerr=%lg\n",MH_abserr,MH_relerr);
 }
 

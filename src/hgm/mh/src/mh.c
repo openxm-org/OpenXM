@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.10 2013/03/07 05:23:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.11 2013/03/07 07:02:18 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -140,13 +140,31 @@ struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 }
 
 #ifdef STANDALONE
-main() {
+main(int argc,char *argv[]) {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
   struct SFILE *sfp;
   char *s;
   char str[1024];
   double x;
+  int i,show;
+  int strategy=0;
+  double err[2]={-1.0,-1.0};
+  show=1;
+  for (i=1; i<argc; i++) {
+	if (strcmp(argv[i],"--strategy")==0) {
+	  i++; sscanf(argv[i],"%d",&strategy);
+	}else if (strcmp(argv[i],"--abserr")==0) {
+	  i++; sscanf(argv[i],"%lg",&(err[0]));
+	}else if (strcmp(argv[i],"--relerr")==0) {
+	  i++; sscanf(argv[i],"%lg",&(err[1]));
+	}else if (strcmp(argv[i],"--quiet")==0) {
+	  show=0;
+	}else{
+	  fprintf(stderr,"Unknown option.\n");
+	}
+  }
+  mh_set_strategy(strategy,err);
   cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
@@ -157,11 +175,13 @@ main() {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     s = (char *)cw->aux;
     /* printf("%s",(char *)cw->aux); */
-    sfp = mh_fopen(s,"r",0);
-    while (mh_fgets(str,1024,sfp)) {
-      sscanf(str,"%lg",&x); printf("%lg\n",x);
+    if (show) {
+      sfp = mh_fopen(s,"r",0);
+      while (mh_fgets(str,1024,sfp)) {
+        sscanf(str,"%lg",&x); printf("%lg\n",x);
+      }
+      mh_fclose(sfp);
     }
-    mh_fclose(sfp);
   }
 }
 main1() {

@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.10 2013/03/05 05:26:07 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.11 2013/03/07 07:02:18 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -51,3 +51,6 @@ test2.sh:
 	(cd Testdata ; ./test2.sh )
 test3.sh:
 	(cd Testdata ; ./test3.sh )
+test2-a.sh:
+	(cd Testdata ; ./test2-a.sh )
+	@echo "Test of the adaptive method."

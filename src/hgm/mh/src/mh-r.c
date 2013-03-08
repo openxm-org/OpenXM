@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.5 2013/03/05 07:03:37 takayama Exp $
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.6 2013/03/07 05:23:31 takayama Exp $
  R interface module
 */
 
@@ -32,5 +32,11 @@ int Rmh_cwishart_gen(int *mp,int *np,double *beta,double *x0p,
       xy[i] = x;
     }
   }
+  return(0);
+}
+
+int Rmh_set_strategy(int *m,double *err,double *ans) {
+  mh_set_strategy(*m,err);
+  ans[0] = 0.0;
   return(0);
 }

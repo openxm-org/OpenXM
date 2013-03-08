@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.9 2013/03/07 07:02:18 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.10 2013/03/07 11:12:13 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +25,13 @@ static struct SFILE *Gf =NULL;
 static struct SFILE *Df =NULL;
 int MH_P95=0;
 int MH_Verbose=0;
+int MH_strategy=STRATEGY_DEFAULT;  /* 0: rk4, 1:a-rk4 (adaptive) */
+double MH_abserr = 1e-10;
+double MH_relerr = 1e-10;
+/* D_i = MH_abserr + MH_relerr*|y_i|
+   If observed error E > D*110/100, the stepsize will be decreased.
+   cf. GSL, 26.3 Adaptive Step-size control.
+*/
 
 int mh_rf_for_gsl(double t,const double y[],double f[],void *params) {
   mh_rf(t,(double *)y,MH_RANK,f,MH_RANK);
@@ -149,7 +156,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
   h = MH_Hg;
   for (i = 0; i < MH_RANK; i++)
     y[i] = y0[i];
-#ifdef NO_GSL
+if (MH_strategy == 0) {
   for (x = x0; (h>0?(x<xn):(x>xn)); x += h) {
     if (Df) show_v(x,y, MH_RANK);
     if (Gf) {
@@ -191,7 +198,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     for (i = 0; i < MH_RANK; i++)
       y[i] = y[i] + 1.0/6.0 * k1[i] + 1.0/3.0 * k2[i] + 1.0/3.0 * k3[i] + 1.0/6.0 * k4[i];
   }
-#else
+}else
   {
     extern int MH_Dp;
     double dh;
@@ -199,7 +206,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     double x1;
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, MH_RANK); 
-    gsl_odeiv_control *c = gsl_odeiv_control_y_new(1e-18, 1e-6);
+    gsl_odeiv_control *c = gsl_odeiv_control_y_new(MH_abserr, MH_relerr);
     /* We should use the relative error.
        hgm.cwishart(m=5,n=20,beta=c(1,2,3,4,5),x=20,x0=2,approxdeg=20);
        0.977
@@ -246,7 +253,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     gsl_odeiv_step_free(s);
     MH_Dp=mh_dp_orig;
   }
-#endif
+
   if (MH_Verbose) printf("x=%lf, y[0]=%lg\n",x,y[0]);
   result.x = x;
   result.rank = MH_RANK;
@@ -257,4 +264,16 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
   (result.sfpp)[0] = Df;  
   (result.sfpp)[1] = Gf;
   return result;
+}
+
+
+/*
+ rk4  MH_strategy==0;
+ a-rk4  MH_strategy==1;  adaptive
+ a-rk4-m  MH_strategy==2;  adaptive and multiply
+*/
+void mh_set_strategy(int s,double err[2]) {
+  MH_strategy = s;
+  if (err[0] >= 0.0) MH_abserr = err[0];
+  if (err[1] >= 0.0) MH_relerr = err[1];
 }

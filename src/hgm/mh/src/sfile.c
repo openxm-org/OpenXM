@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.13 2013/03/07 03:00:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.14 2013/03/07 05:23:31 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -163,6 +163,10 @@ int mh_outstr(char *str,int size,struct SFILE *sfp) {
   return(i);
 }
 
+void mh_error(char *s,int code) {
+  fprintf(stderr,"Error: %s\n",s);
+  mh_exit(code);
+}
 
 #ifdef TEST
 /* for debugging */

@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.6 2013/02/23 06:01:15 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.7 2013/03/05 05:26:07 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -29,6 +29,7 @@ void *mh_malloc(int s);
 int mh_free(void *p);
 int mh_exit(int n);
 void mh_check_intr(int interval);
+void mh_error(char *s,int code);
 
 #define MH_SSIZE 1024
 #define MH_RESET_EXIT 0x7fffffff
