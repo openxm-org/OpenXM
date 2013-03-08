@@ -1,10 +1,12 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.2 2013/03/05 06:00:52 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.3 2013/03/08 04:54:00 takayama Exp $
 "hgm.cwishart" <-
 function(m=3,n=5,beta=c(1,2,3),x0=0.2,approxdeg=-1,h=0.01,dp=20,x=10,
          mode=c(1,1,0),method="rk4",err=c(-1.0,-1.0)) { 
   nstrategy<-0;
   mm<-charmatch(method,c("rk4","a-rk4","a-rk4-m"));
   if (!is.na(mm)) nstrategy<- (mm-1);
+
+  if ((m>=200) || (m<=0)) stop("Invalid size of m."); #200 is M_m_MAX in jack-n.c
 
   if (!is.loaded("hgm")) library.dynam("hgm",package="hgm",lib.loc=NULL);
 

@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.11 2013/03/07 05:23:31 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.12 2013/03/08 04:54:01 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -86,7 +86,7 @@ main(int argc,char *argv[]) {
 }
 #endif
 struct MH_RESULT *mh_main(int argc,char *argv[]) {
-  static double *y0;
+  static double *y0=NULL;
   double x0,xn;
   double ef;
   int i,rank;

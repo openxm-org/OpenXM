@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.1 2013/02/07 07:38:23 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.2 2013/02/08 01:27:01 takayama Exp $
 \name{hgm.so3nc}
 \alias{hgm.so3nc}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,7 +11,7 @@
   distribution on SO(3).
 }
 \usage{
-hgm.so3nc(a,b,c,t0=0.0,q=0,deg=0)
+hgm.so3nc(a,b,c,t0=0.0,q=1,deg=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
