@@ -1,17 +1,17 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.2 2013/03/01 05:27:08 takayama Exp $
-\name{hgm.cwishart}
-\alias{hgm.cwishart}
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.3 2013/03/08 07:32:28 takayama Exp $
+\name{hgm.pwishart}
+\alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-    The function hgm.cwishart evaluates the cumulative distribution function
+    The function hgm.pwishart evaluates the cumulative distribution function
   of random wishart matrix.
 }
 \description{
-    The function hgm.cwishart evaluates the cumulative distribution function
+    The function hgm.pwishart evaluates the cumulative distribution function
   of random wishart matrix of size m times m.
 }
 \usage{
-hgm.cwishart(m,n,beta,x0,approxdeg,h,dp,x,mode,method,err)
+hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,7 +21,7 @@ hgm.cwishart(m,n,beta,x0,approxdeg,h,dp,x,mode,method,err)
 (a parameter of the Wishart distribution).
     The beta is equal to inverse(sigma)/2.
   }
-  \item{x0}{The point to evaluate the matrix hypergeometric series. x0>0}
+  \item{q0}{The point to evaluate the matrix hypergeometric series. q0>0}
   \item{approxdeg}{
     Zonal polynomials upto the approxdeg are calculated to evaluate
    values near the origin. A zonal polynomial is determined by a given
@@ -33,8 +33,8 @@ hgm.cwishart(m,n,beta,x0,approxdeg,h,dp,x,mode,method,err)
   \item{dp}{
     Sampling interval of solutions by the Runge-Kutta method.
   }
-  \item{x}{
-    The second value y[0] of this function is the Prob(L1 < x)
+  \item{q}{
+    The second value y[0] of this function is the Prob(L1 < q)
     where L1 is the first eigenvalue of the Wishart matrix.
   }
   \item{mode}{
@@ -91,11 +91,11 @@ Nobuki Takayama
 ## =====================================================
 ## Example 1. 
 ## =====================================================
-hgm.cwishart(m=3,n=5,beta=c(1,2,3),x=10)
+hgm.pwishart(m=3,n=5,beta=c(1,2,3),q=10)
 ## =====================================================
 ## Example 2. 
 ## =====================================================
-b<-hgm.cwishart(m=4,n=10,beta=c(1,2,3,4),x0=1,x=10,approxdeg=20,mode=c(1,1,(16+1)*100));
+b<-hgm.pwishart(m=4,n=10,beta=c(1,2,3,4),q0=1,q=10,approxdeg=20,mode=c(1,1,(16+1)*100));
 c<-matrix(b,ncol=16+1,byrow=1);
 #plot(c)
 }

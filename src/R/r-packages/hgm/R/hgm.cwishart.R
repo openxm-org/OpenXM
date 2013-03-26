@@ -1,7 +1,8 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.3 2013/03/08 04:54:00 takayama Exp $
-"hgm.cwishart" <-
-function(m=3,n=5,beta=c(1,2,3),x0=0.2,approxdeg=-1,h=0.01,dp=20,x=10,
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.4 2013/03/08 07:32:28 takayama Exp $
+"hgm.pwishart" <-
+function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
          mode=c(1,1,0),method="rk4",err=c(-1.0,-1.0)) { 
+  x<-q; x0<-q0;
   nstrategy<-0;
   mm<-charmatch(method,c("rk4","a-rk4","a-rk4-m"));
   if (!is.na(mm)) nstrategy<- (mm-1);
