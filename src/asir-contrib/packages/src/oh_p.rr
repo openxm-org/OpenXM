@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.12 2011/09/07 22:05:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.13 2011/09/08 10:43:30 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -266,7 +266,7 @@ def foreach(Func,Set,Args) {
 	/* ここまで */
 
     /* 制御変数 */
-    Busy=0; // Busy==1 ならばJobを新規に割り当てできない
+    Busy=0; /* Busy==1 ならばJobを新規に割り当てできない */
     Unused   = Set;
     Running  = [];     /* the list of identity numbers of running servers */
     Finished = [];

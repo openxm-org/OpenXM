@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.7 2011/09/12 09:35:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.8 2013/07/29 15:11:18 ohara Exp $ */
 
 module oh_base;
 
@@ -174,9 +174,9 @@ def mul(L) {
 /* Find an element which is matched with Key or Value in an associated list.
    Output its index. */
 def assoc_index(Assoc,Key) {
-    K=0; // key
+    K=0; /* key */
     if(getopt(key)==value) {
-        K=1; // value
+        K=1; /* value */
     }
     N=length(Assoc);
     for(I=0; I<N; I++) {
@@ -184,7 +184,7 @@ def assoc_index(Assoc,Key) {
             return I;
         }
     }
-    return -1; // no match
+    return -1; /* no match */
 }
 
 /* Find the elements which is matched with Value in an associated list.
@@ -197,7 +197,7 @@ def assoc_index_r(Assoc,Value) {
             L=cons(I,L);
         }
     }
-    return reverse(L); // no match
+    return reverse(L); /* no match */
 }
 
 /* Output the set of the keys of associated list. */
