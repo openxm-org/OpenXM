@@ -1,0 +1,294 @@
+/* $OpenXM$
+  By Kinji Kimura
+Example.
+P=x^2+a*x+b$
+Q=x^3+c*x^2+d$
+load("kk_mat_res.rr")$
+MAT=kk_res.seki_res(x,P,Q)$
+
+If the degree of det is relatively small,
+R=kk_res.det_minor(MAT)$
+else
+R=kk_res.det_berkowitz(MAT)$
+
+*/
+module kk_res;
+localf det_minor;
+localf det_berkowitz;
+localf seki_res;
+
+def det_minor(A){
+
+        N=size(A)[0]$
+
+	if(N==1){
+		return(A[0][0])$
+	}
+
+	CT=newmat(N,N+1)$
+	X=newvect(N)$
+	Y=newvect(N)$
+	Q=newvect(N)$
+
+	CT[0][0]=1$
+	CT[0][1]=1$
+	for(L=1;L<N;L++){
+		CT[L][0]=1$
+		for(J=1;J<=L;J++){
+			CT[L][J]=CT[L-1][J-1]+CT[L-1][J]$
+		}
+		CT[L][L+1]=1$
+	}
+
+	P=newvect(N)$
+	for(L=0;L<N;L++){
+		P[N-1-L]=A[0][L]$
+	}
+
+	SIG0S=-1$
+
+	for(L=1;L<N;L++){
+	
+		for(K=0;K<=L;K++){
+			X[K]=1$
+		}
+
+		for(K=L+1;K<N;K++){
+			X[K]=0$
+		}
+
+		for(K=0;K<N;K++){
+			Y[K]=0$
+		}
+
+		R=CT[N-1][L+1]$
+		P0=newvect(R)$
+
+		K=L$
+
+		M=1$
+		while(K!=-1){
+	
+			K=0$
+			for(J=0;J<N;J++){
+				if(X[J]==1){
+					Q[K]=J$
+					K=K+1$
+				}
+			}
+
+			SIG0=SIG0S$
+
+			S=R-M$
+			P0[S]=0$
+			for(J=0;J<=L;J++){
+				U=0$
+				V=L-1$
+				B1=N-2$
+
+				for(K=L;K>J;K--){
+					for(B2=B1;B2>=Q[K];B2--){
+						U=U+CT[B2][V]$
+					}
+					B1=B2-1$
+					V=V-1$
+				}
+
+				for(K=J-1;K>=0;K--){
+					for(B2=B1;B2>=Q[K];B2--){
+						U=U+CT[B2][V]$
+					}
+					B1=B2-1$
+					V=V-1$
+				}
+
+				P0[S]=P0[S]+(SIG0*A[L][Q[J]])*P[U]$
+				SIG0=-SIG0$
+			}
+
+			M=M+1$
+
+			for(K=0;K<N;K++){
+				if(X[K]!=0){
+					break$
+				}
+			}
+			SMALL=K$
+
+			C=1$
+			for(K=SMALL;(C!=0) && (K<N);K++){
+				if((X[K]==1) && (C==1)){
+				        X[K]=0$
+				}
+				else{
+					if((X[K]==0) && (C==1)){
+						X[K]=1$
+						C=0$
+					}
+				} 
+			}
+
+			for(K=0;K<N;K++){
+				if(X[K]!=0){
+					break$
+				}
+			}
+			NEW_SMALL=K$
+
+			if(NEW_SMALL<N){
+				ONES=NEW_SMALL-SMALL-1$
+
+				for(K=0;K<ONES;K++){
+					if(X[K]==0){
+						X[K]=1$
+					}
+				}
+			}
+
+			for(K=N-1;K>=0;K--){
+				if(X[K]!=Y[K]){
+					break$
+				}
+			}
+
+		}
+
+		P=P0$
+		SIG0S=-SIG0S$
+
+	}
+
+	return(P[0])$
+
+}
+
+def det_berkowitz(A){
+
+   N=size(A)[0]$
+
+   if (N==1){
+     return(A[0][0])$
+   }
+
+   X=newvect(2)$
+   Z=newvect(N)$
+   R=newvect(N-1)$
+
+   X[1]=-A[0][0]$
+
+   for(Cr=1;Cr<=N-1;Cr++){
+
+     Y=newvect(Cr+2)$
+
+     Z[0]=-A[Cr][Cr]$
+
+     S0=newvect(Cr)$
+     for(Ct=1;Ct<=Cr;Ct++){
+       R[Ct-1]=A[Cr][Ct-1]$
+       S0[Ct-1]=A[Ct-1][Cr]$
+     }
+
+     if (Cr<N-1){
+       Y[1]=Z[0]+X[1]$
+     }
+
+     for(Cs=2;Cs<=Cr+1;Cs++){
+
+       for(Ct=Cs-1;Ct>=1;Ct--){
+         Z[Ct]=Z[Ct-1]$ 
+       }
+
+       Z[0]=0$
+       for(Ct=0;Ct<Cr;Ct++){
+         Z[0]=Z[0]-R[Ct]*S0[Ct]$
+       }
+
+       if (Cs!=Cr+1){
+         S1=newvect(Cr)$
+         for(Cu=0;Cu<Cr;Cu++){
+           S1[Cu]=0$
+           for(Cv=0;Cv<Cr;Cv++){
+             S1[Cu]=S1[Cu]+A[Cu][Cv]*S0[Cv]$
+           }
+         }
+         S0=S1$
+       }
+
+       if(Cr<N-1){
+         if(Cs<Cr+1){
+           Y[Cs]=Z[0]$
+           for(Ct=1;Ct<Cs;Ct++){
+              Y[Cs]=Y[Cs]+Z[Ct]*X[Ct]$
+           }
+           Y[Cs]=Y[Cs]+X[Cs]$
+         }
+         else{
+           Y[Cs]=Z[0]$
+           for(Ct=1;Ct<Cs;Ct++){
+              Y[Cs]=Y[Cs]+Z[Ct]*X[Ct]$
+           }
+         }
+       }else{
+         if(Cs==Cr+1){
+           for(Ct=1;Ct<Cs;Ct++){
+             Z[0]=Z[0]+Z[Ct]*X[Ct]$
+           }
+         }
+       }
+
+     }
+
+     X=Y$
+   }
+
+   if (irem(N,2)==1)
+      return(-Z[0])$
+   else
+      return(Z[0])$
+ 
+}
+
+def seki_res(C,A,B){
+
+	M=deg(A,C)$
+	N=deg(B,C)$
+
+	if(M>=N){
+		L=M$
+		S=N$
+	}
+	else{
+		L=N$
+		S=M$
+		T=A$
+		A=B$
+		B=T$
+	}
+
+	MAT=newmat(L,L)$
+
+	for(I=0;I<(L-S);I++)
+		for(J=0;J<=S;J++)
+			MAT[I][J+I]=coef(B,J,C)$
+
+	B=C^(L-S)*B$
+
+	F=srem(A,C^L)$
+	G=srem(B,C^L)$
+	H=coef(A,L,C)*G-coef(B,L,C)*F$
+	for(J=0;J<L;J++){
+		MAT[2*L-S-L][J]=coef(H,J,C)$
+	}
+
+	for(I=L-1;I>L-S;I--){
+		H=C*srem(H,C^(L-1))+coef(A,I,C)*G-coef(B,I,C)*F$
+		for(J=0;J<L;J++){
+			MAT[2*L-S-I][J]=coef(H,J,C)$
+		}
+	}
+
+	return MAT$
+}
+endmodule$
+end$
+
