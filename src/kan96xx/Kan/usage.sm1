@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.11 2004/09/17 00:47:09 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.12 2005/06/15 02:22:51 takayama Exp $
 %% usage.sm1
 %%  [(key word)
 %%    [(   )
@@ -171,6 +171,17 @@
    (         Dx and Dy are corresponding differential operators to the )
    (         space variables x and y.  Try show_ring to see the commutation)
    (         relations.)
+   (Example: contiguity of 1F1. Eb b = (b-1) Eb)
+   ( [ [(x) (a,b)] ring_of_differential_difference_operators )
+   (  [[(Dx) 1]] weight_vector 0] define_ring )
+   ( [ ( x Dx (x Dx+b-1) -x (x Dx+a) ). )
+   ( ( (x Dx +b-1) - (b-1) Eb ). ] /ff set )
+   ( ff {dehomogenize homogenize} map /ff2 set )
+   ( [ff2] groebner /gg set )
+   ( gg dehomogenize 0 get /gg set )
+   ( gg [(Dx)] eliminatev /gg2 set )
+   ( gg2 pmat )
+
  ]
 ] putUsages
 
