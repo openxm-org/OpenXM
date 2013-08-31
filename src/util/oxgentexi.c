@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.13 2005/07/21 11:29:16 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.14 2005/08/15 16:28:59 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +32,18 @@ struct item *getItem(void);
 char *str(char *key);
 char *str2(char *key,int size);
 int cmpItem(struct item *it,struct item *it2);
+void printItem(struct item *it);
+void shell(struct item *v[],int n);
+void printMenu(FILE *fp, struct item **it, int n);
+void printBye();
+void printTitlePage(char *title, char *author,char *infoName);
+void printItem(struct item *it);
+void printTexi(FILE *fp, struct item *it);
+void printTexi_common(FILE *fp,struct item *it);
+void printTexi0(FILE *fp, struct item *it);
+void printTexi1(FILE *fp, struct item *it);
+void outputExample(FILE *fp,char *s);
+void outputOfExample(char *com);
 
 char *S;
 int Ssize = 256;
@@ -47,9 +59,10 @@ char *Author = NULL;
 char *InfoName = NULL;
 int NoSorting = 0;
 
+int
 main(int argc,char *argv[]) {
   char *t;
-  int p,c,n,i;
+  int c,n,i;
   struct item *tt;
   struct item *items[ITEMMAX];
 
@@ -143,6 +156,7 @@ main(int argc,char *argv[]) {
   exit(0);  
 }
 
+int
 genInclude(char *name) {
   char fname[4098];
   FILE *fp;
@@ -162,6 +176,7 @@ genInclude(char *name) {
   return 0;
 }
 
+int
 cmpItem(struct item *it,struct item *it2) {
   return strcmp(it->sortKey,it2->sortKey);
 }
@@ -175,7 +190,8 @@ struct item * newItem(){
   memset(a, 0, sizeof(struct item));
   return a;
 }
-  
+
+int
 nextToken(char *key,int n) {
   static int pos = 0;
   int i = 0;
@@ -213,6 +229,7 @@ nextToken(char *key,int n) {
   return pos;
 }
 
+void
 printItem(struct item *it) {
   int i;
   if (it == NULL) return;
@@ -271,7 +288,7 @@ char *str2(char *key,int size) {
   return s;
 }
 char *getCategory(char *key) {
-  int i,n;
+  int i;
   char *s;
   s = str(key);
   for (i=0; i<strlen(s); i++) {
@@ -283,9 +300,9 @@ char *getCategory(char *key) {
   return s;
 }
 char *getCategory2(char *key) {
-  int i,n;
+  int i;
   char *s;
-  int count;
+  int count=0;
   s = str(key);
   for (i=0; i<strlen(s); i++) {
     if ((s[i] == '_') || (s[i] == '.')) count++;
@@ -447,6 +464,7 @@ struct item *getItem() {
   return it;
 }
 
+void
 shell(struct item *v[],int n) {
   int gap,i,j;
   struct item *temp;
@@ -462,6 +480,7 @@ shell(struct item *v[],int n) {
   }
 }
 
+void
 printMenu(FILE *fp, struct item **it, int n) {
   int i,m;
 
@@ -476,12 +495,14 @@ printMenu(FILE *fp, struct item **it, int n) {
   }
 }
 
+void
 printTexi(FILE *fp, struct item *it) {
-  int i;
-  if (it->type == 1) return printTexi1(fp,it);
-  else return printTexi0(fp,it);
+  if (it->type == 1) printTexi1(fp,it);
+  else printTexi0(fp,it);
+  return;
 }
 
+void
 printTexi_common(FILE *fp,struct item *it) {
   int i;
   if ((it->shortDescription != NULL) || (it->refc >0)
@@ -537,6 +558,7 @@ printTexi_common(FILE *fp,struct item *it) {
   fprintf(fp,"\n");
 }
 
+void
 printTexi0(FILE *fp, struct item *it) {
   int i;
 
@@ -610,6 +632,7 @@ printTexi0(FILE *fp, struct item *it) {
   printTexi_common(fp,it);  
 }
 
+void
 printTexi1(FILE *fp, struct item *it) {
   int i;
   /* For  it->type == 1 */
@@ -637,6 +660,7 @@ printTexi1(FILE *fp, struct item *it) {
   printTexi_common(fp,it);  
 }
 
+void
 outputExample(FILE *fp,char *s) {
   int i;
   /* Remove unnecessary spaces at the tail. */
@@ -661,6 +685,7 @@ outputExample(FILE *fp,char *s) {
   }
 }
 
+void
 outputOfExample(char *com) {
   FILE *fp2;
   int c;
@@ -688,6 +713,7 @@ outputOfExample(char *com) {
   putchar('\n');
 }
 
+void
 printTitlePage(char *title, char *author,char *infoName) {
   printf("\\input texinfo\n");
   printf("@def@colon{:}\n\n");
@@ -711,6 +737,7 @@ printTitlePage(char *title, char *author,char *infoName) {
   printf("@node Top,, (dir), (dir)\n\n");
 }
 
+void
 printBye() {
   printf("@node Index,,, Top\n");
   printf("@unnumbered Index\n");

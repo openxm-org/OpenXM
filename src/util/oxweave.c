@@ -15,7 +15,7 @@
 \section{前書き}
 */
 /* OpenXM: OpenXM/src/kxx/oxweave.c,v 1.7 2001/05/06 07:53:01 takayama Exp 
-   $OpenXM: OpenXM/src/util/oxweave.c,v 1.2 2003/08/22 16:08:23 ohara Exp $
+   $OpenXM: OpenXM/src/util/oxweave.c,v 1.3 2005/07/03 08:27:38 ohara Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +23,11 @@
 
 void usage();
 void findEndTag(int tagc,char *tagv[],int rule);
+int findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]);
 void skipToEndTag(int tagc,char *tagv[],int rule);
+int notEOF();
+void irregularExit();
+int wcmp(char *s);
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
 */
@@ -66,6 +70,7 @@ int OutputtingTaggedSegment = 0;
 int BeginVerbatim = 0;
 
 /*&jp \section{プログラム本体} */
+int
 main(int argc,char *argv[]) {
   extern char *EndComment0;
   extern char *EndComment1;
@@ -155,6 +160,7 @@ void usage() {
 #define inc(a) ((a+1) % BSIZE)
 /*&jp \noindent {\tt wread()} は 標準入力よりのデータを読めるだけ
 リングバッファ {\tt Buf} へ読み込む.*/
+int
 wread() {
   int c,i;
   static int eof = 0;
@@ -198,6 +204,7 @@ int wgetc(int p) {
   無視すべきタグのときは, タグ内部をスキップしたのち
   {\tt findNextTag} を再帰的に呼ぶ.
   */
+int
 findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
   int i;
   int c,d;
@@ -264,7 +271,8 @@ void findEndTag(int tagc,char *tagv[],int rule) {
       if (LevelState1 > 0 && Recursive) {
         wgetc(strlen(tagv[i]));
         printf("%s",tagv[i]);
-        return(findEndTag(tagc,tagv,rule));
+		findEndTag(tagc,tagv,rule);
+        return;
       }else{
         wgetc(strlen(tagv[i]));
         if (strcmp(tagv[i],"\n")==0) putchar('\n');
@@ -300,7 +308,8 @@ void skipToEndTag(int tagc,char *tagv[],int rule) {
         LevelState2--;
         if (LevelState2 > 0 && Recursive) {
           wgetc(strlen(EndComment0));
-          return(skipToEndTag(tagc,tagv,rule));
+          skipToEndTag(tagc,tagv,rule);
+          return;
         }else{
           wgetc(strlen(EndComment0));
           return;  /* our state is 0. */
@@ -311,7 +320,8 @@ void skipToEndTag(int tagc,char *tagv[],int rule) {
         LevelState2--;
         if (LevelState2 > 0 && Recursive) {
           wgetc(strlen(EndComment0));
-          return(skipToEndTag(tagc,tagv,rule));
+          skipToEndTag(tagc,tagv,rule);
+          return;
         }else{
           wgetc(strlen(EndComment1));
           return;  /* our state is 0. */
@@ -323,7 +333,8 @@ void skipToEndTag(int tagc,char *tagv[],int rule) {
           LevelState2--;
           if (LevelState2 > 0 && Recursive) {
             wgetc(strlen(EndComment0));
-            return(skipToEndTag(tagc,tagv,rule));
+            skipToEndTag(tagc,tagv,rule);
+            return;
           }else{
             wgetc(strlen(tagv[i]));
             return;  /* our state is 0. */
@@ -350,6 +361,7 @@ void skipToEndTag(int tagc,char *tagv[],int rule) {
 {\tt s} が 0xa,0 のときは, Buf[Head] が 0xa なら, 0 を戻す.
 そうでないなら, -1 を戻す.
 */    
+int
 wcmp(char *s) {
   int n;
   int i,j;
@@ -371,12 +383,14 @@ wcmp(char *s) {
   } else return(1);
 }
 
+int
 notEOF() {
   wread();
   if (Buf[Head] != -1) return(1);
   else return(0);
 }
 
+void
 irregularExit() {
   if (BeginVerbatim == 1) {
     if (!Plain) printf("\\end{verbatim\x07d}\n");
