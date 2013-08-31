@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.6 2009/02/15 01:31:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.7 2011/05/02 06:39:51 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +6,7 @@
 #include <time.h>
 int ReplaceLine=0;
 int Verbose=0;
+void usage();
 
 char *readAsString(FILE *fp) {
   static char *s = NULL;
@@ -144,8 +145,7 @@ replaceOneWord(char *fname,char *old, char *new) {
 	fprintf(stderr,"No more memory.\n"); exit(10);
   }
   sprintf(fnameBackup,"%s.%ld.oxreplace-tmp.old",fname,(long) time(NULL));
-  sprintf(comm,"cp %s %s",fname,fnameBackup);
-  system(comm);
+  rename(fname,fnameBackup);
 
   fpOrig = fopen(fnameBackup,"r");
   fp = fopen(fname,"w");
@@ -184,10 +184,8 @@ replaceOneWord(char *fname,char *old, char *new) {
   return 0;
 }
 
-
-usage() {
+void usage() {
   fprintf(stderr,"oxreplace [--old oword [--new nword | --newfile filename] --f rule_file_name --replaceLine] \n");
   fprintf(stderr,"          [file1 file2 ... ] \n");
   fprintf(stderr,"    Use --oldx or --newx to give a word in hexadecimal codes\n");
 }
-
