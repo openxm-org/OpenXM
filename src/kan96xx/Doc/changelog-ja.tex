@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.28 2012/09/16 01:53:08 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.29 2012/10/29 02:51:41 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -673,6 +673,22 @@ shell.c に help を追加.
 {\tt kan96xx/trans} で データ形式の変換.
 作業ファイルの生成は 
 {\tt generateTMPfiles()} ({\tt util/ox\_pathfinder.c}).
+
+\section{2013-09-20, doPolymake}
+bug fix. 有理数を accept. oxshell のマニュアルを更新.
+
+class の利用法を思い出す.
+\begin{verbatim}
+ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))]
+         doPolymake /rr set 
+rr 1 get /ff set
+ff (array) dc ::     % class を array へ変換.
+\end{verbatim}
+{\tt primitive.c} で class を search.
+KclassDataConversion() 関数を読めばよいことがわかる.
+grep すると {\tt kclass.c} を探せばいい.
+ここに tag がいろいろある.
+usage に note-class を追加.
 
 
 \end{document}

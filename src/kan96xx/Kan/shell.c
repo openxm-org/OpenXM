@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.14 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.15 2012/10/29 02:51:41 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -84,7 +84,9 @@ void KoxShellHelp(char *key,FILE *fp) {
     s[1] = "cmdname arg1 arg2 ... ";
     s[2] = "Example 1: /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell";
     s[3] = "Example 2: [(polymake) (stringInOut://afo.poly) (FACETS)] oxshell";
-    s[4] = NULL;
+    s[4] = "A temporary file afo.poly* with the contents of the variable afo.poly is generated under $TMP and \"polymake $TMP FACETS\" will be executed. cf. kan96xx/trans/doPolymake.sm1, Doc/oxshell.oxw, Doc/changelog-ja.tex";
+    s[5] = "Example 3: [(ls) (-l) (>) (stringOut://ff)] oxshell";
+    s[6] = NULL;
   }else if (strcmp(key,"redirect")==0) {
     s[0] = "The following redirect operators are implemented.";
     s[1] = "< > 2>";
