@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.3 2003/12/06 02:49:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.4 2013/09/20 04:43:29 takayama Exp $
 % It is a polymake interface
 
 /polymake.start {
@@ -37,8 +37,9 @@
  (The variable @@@doPolymake.vars keeps session logs with the polymake)
  (Example:)
 % ( [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell )
- $ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1]])))]$
+ $ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))]$
  (         doPolymake /rr set )
+ ( Keys---properties are FACETS, CONE_DIM, LINEARITY_DIM, FEASIBLE, AFFINE_FULL, ... )
 ]] putUsages
 /doPolymake {
   /arg1 set
@@ -58,7 +59,7 @@
     @@@polymake.k0.ccc oxpopcmo /ptree set 
     @@@polymake.k0.ccc ( QuoteMode(0); ) oxexecutestring 
     [(treeToPolymake) ptree] extension /pNative set 
-    [pNative pAction] /@@@doPolymake.vars set %for debug
+    [ptree pNative pAction] /@@@doPolymake.vars set %for debug
 %% step 2: calling the polymake
     [(polymake) (stringInOut://pNative) pAction] addStdoutStderr 
     oxshell pop

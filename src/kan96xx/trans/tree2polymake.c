@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/tree2polymake.c,v 1.1 2003/11/24 08:16:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/tree2polymake.c,v 1.2 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "../Kan/datatype.h"
@@ -61,7 +61,7 @@ int arrayToPolymakeS(struct object ob,FILE2 *fp,int format) {
       if (ob1.tag == Sarray) {
         r=(arrayToPolymakeS(ob1,fp,format)<0?-1:r);
       }else{
-        r=(integerToPolymakeS(ob1,fp)<0?-1:r);
+        r=(rationalToPolymakeS(ob1,fp)<0?-1:r);
         if (i != n-1) fp2fputc(' ',fp);
       }
     }
@@ -75,7 +75,7 @@ int arrayToPolymakeS(struct object ob,FILE2 *fp,int format) {
         r=(arrayToPolymakeS(ob1,fp,format)<0?-1:r);
         if (i==n-1) fp2fputc('}',fp);
       }else{
-        r=(integerToPolymakeS(ob1,fp)<0?-1:r);
+        r=(rationalToPolymakeS(ob1,fp)<0?-1:r);
         if (i != n-1) fp2fputc(' ',fp);
       }
     }
