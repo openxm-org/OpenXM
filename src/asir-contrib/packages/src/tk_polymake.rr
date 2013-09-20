@@ -1,0 +1,100 @@
+/* $OpenXM$ */
+module polymake;
+localf callp$
+localf get_data$
+localf  log$
+localf hint$
+localf polymake$
+localf facets$
+localf gale_transform$
+localf volume$
+
+static Polymake_log$
+
+def callp(S) {
+  oxshell.find_proc();
+  ox_push_cmo(P,S);
+  oxshell.sm1(P," doPolymake ");
+  R = ox_pop_cmo(P);
+  oxshell.sm1(P," @@@doPolymake.vars ");
+  Polymake_log = ox_pop_cmo(P);
+  if (type(R) != 4) {
+    print(R);
+    ox_check_errors(P);
+    hint();error("Output format error for R in polymake.callp.");
+  }
+  if (length(R) != 3) {
+    print(R);
+    ox_check_errors(P);
+    hint(); error("Output format error for R polymake.callp.");
+  }
+  return R;
+}
+def get_data(T,Key) {
+  if (type(T) != 4) {hint(); error("polymake.get_data: the return value T is 0."); }
+  N = length(T);
+  for (I=2; I<N; I++) {
+    D = T[I];
+    if (D[1] == Key) {
+      TT = D[2]; 
+    }
+  }
+  if (TT == 0) {hint(); error("polymake.get_data: no Key in the data T");}
+  return TT;
+}
+def log() {
+  return Polymake_log;
+}
+def hint() {
+  print("Hint for debug: the source code is tk_polymake.rr.");
+  print("   Use polymake.log() to see the output of polymake.");
+}
+
+/*
+  polymake("FACETS","POINT",[[1,0,0],[1,2,0],[1,0,3],[1,1,1/2]]);
+*/
+def polymake(Prop,Htype,H) {
+  if (type(H) != 4) error("H must be a list.");
+  if (type(Prop) != 7) error("Htype must be a string.");
+  if (type(Prop) != 7) error("Prop must be a string.");
+  S = [Prop,"polymake.data(polymake."+Htype+"("+rtostr(H)+"))"];
+  print(S);
+  R = callp(S);
+  T = R[1];
+  TT=get_data(T,Prop);
+  return(TT);
+}
+/* bug, it does not work. */
+def gale_transform(A) {
+  if (type(A) != 4) error("polymake.gale_transform: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("polymake.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("polymake.gale_transform: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  return polymake("GALE_TRANSFORM","POINTS",A);
+}
+
+def volume(A) {
+  if (type(A) != 4) error("polymake.volume: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("polymake.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("polymake.volume: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  return polymake("VOLUME","POINTS",A);
+}
+
+def facets(A) {
+  if (type(A) != 4) error("oxshell.facets: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("oxshell.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("oxshell.facets: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  return polymake("FACETS","POINTS",A);
+}
+
+endmodule;
+
+end$
