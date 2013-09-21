@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.4 2013/09/20 04:43:29 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.5 2013/09/20 05:12:24 takayama Exp $
 % It is a polymake interface
 
 /polymake.start {
@@ -14,6 +14,7 @@
      k0connectr /@@@polymake.k0.ccc oxk0.ccc def /oxk0.ccc [ ] def
      @@@polymake.k0.ccc oxsetmathcap @@@polymake.k0.ccc oxmathcap
   } {  } ifelse
+  [(parse) ( 1 )] extension pop % BUG, dummy to avoid bus error on mac.2013.09.21 
   [(which) (polymake)] oxshell tag 0 eq {
      [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell
      [(which) (polymake)] oxshell tag 0 eq {
