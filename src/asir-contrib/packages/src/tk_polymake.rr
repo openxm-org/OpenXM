@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.1 2013/09/20 07:47:28 takayama Exp $ */
 module polymake;
 localf callp$
 localf get_data$
@@ -50,15 +50,15 @@ def hint() {
   print("   Use polymake.log() to see the output of polymake.");
 }
 
-/*
-  polymake("FACETS","POINT",[[1,0,0],[1,2,0],[1,0,3],[1,1,1/2]]);
+/* Example
+  polymake("FACETS","POINTS",[[1,0,0],[1,2,0],[1,0,3],[1,1,1/2]]);
 */
 def polymake(Prop,Htype,H) {
   if (type(H) != 4) error("H must be a list.");
   if (type(Prop) != 7) error("Htype must be a string.");
   if (type(Prop) != 7) error("Prop must be a string.");
   S = [Prop,"polymake.data(polymake."+Htype+"("+rtostr(H)+"))"];
-  print(S);
+  /* print(S); */
   R = callp(S);
   T = R[1];
   TT=get_data(T,Prop);
