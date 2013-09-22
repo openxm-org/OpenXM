@@ -1,4 +1,4 @@
-/* $OpenXM$ 
+/* $OpenXM: OpenXM/src/kan96xx/trans/oxdecode_post.c,v 1.1 2013/09/22 01:07:38 takayama Exp $ 
 Decompose a given multi-part post message to URL encoded one for cgi.sm1
 */
 
@@ -92,8 +92,11 @@ char *urlEncoding(char *s) {
 
   pos = pos2;
   for (i=pos2; i<strlen(s); i++) {
-    if ((s[i] == '\n') && (s[i+1] == '\n')) {
+    if ((s[i] == '\n') && (s[i+1] == '\n')) { /* \n\n */
 	pos = i+2; break;
+    }  
+    if ((s[i] == 0xd) && (s[i+1] == '\n') && (s[i+2] == 0xd) && (s[i+3] == '\n')) { /* 0d, 0x */
+	pos = i+4; break;
     }  
   }
   pos2 = pos-1;
