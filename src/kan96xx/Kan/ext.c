@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.42 2010/08/30 04:17:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.43 2012/12/23 01:27:54 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <time.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -177,6 +179,11 @@ struct object Kextension(struct object obj)
         else {
         system(KopString(getoa(obj,1))); exit(0);
         } */
+  }else if (strcmp(key,"date")==0) {
+    if (size != 1) errorKan1("%s\n","[(date)] extension.");
+    struct timeval tm;
+    gettimeofday(&tm,NULL);
+    rob = KpoString(ctime(&((time_t)tm.tv_sec)));
   }else if (strcmp(key,"defaultPolyRing")==0) {
     if (size != 2) errorKan1("%s\n","[(defaultPolyRing) n] extension.");
     rob = KdefaultPolyRing(getoa(obj,1));

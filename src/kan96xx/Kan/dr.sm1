@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.54 2013/01/26 10:48:26 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.55 2013/09/22 01:06:20 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4576,7 +4576,8 @@ $ [ff ff] fromVectors :: $
   [
     arg1 /ss set
     (/tmp/sm1log.txt) (a) file /fd set
-    fd , ss (string) dc , writestring 
+    fd , [[(date)] extension
+          ss (string) dc] cat , writestring 
     fd closefile
   ] pop
   popVariables

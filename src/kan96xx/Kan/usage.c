@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.48 2006/12/21 05:29:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.49 2011/10/05 05:46:14 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -145,6 +145,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(parse) string] extension result-integer \n");
     fppp(fp,"  [(chattr) num literal] extension result-object \n");
     fppp(fp,"  [(chattrs) num ] extension result-object \n");
+    fppp(fp,"  [(date)] extension date-string \n");
     fppp(fp,"  [(defaultPolyRing) num ] extension result-object \n");
     fppp(fp,"  [(flush) ] extension null \n");
     fppp(fp,"  [(getAttribute) obj key] extension value \n");
