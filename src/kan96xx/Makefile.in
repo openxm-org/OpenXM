@@ -1,4 +1,4 @@
-#  $OpenXM$
+#  $OpenXM: OpenXM/src/kan96xx/Makefile.in,v 1.1 2004/06/24 12:45:15 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -50,6 +50,7 @@ install: install-exec install-man
 install-exec: clean-for-install all-sm1
 	install Kan/sm1 ${OpenXM_bin}
 	install trans/polymake2tfb ${OpenXM_bin}
+	install trans/oxdecode_post ${OpenXM_bin}
 install-man :  
 	-cp Doc/sm1.1 ${OpenXM_HOME}/man/man1
 install-document:  

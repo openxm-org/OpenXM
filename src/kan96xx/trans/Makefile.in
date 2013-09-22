@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/kan96xx/trans/Makefile.in,v 1.4 2003/12/13 07:10:18 takayama Exp $
+# $OpenXM: OpenXM/src/kan96xx/trans/Makefile.in,v 1.5 2004/06/24 12:45:15 takayama Exp $
 #OpenXM_HOME=../../..
 OpenXM_HOME=@prefix@
 OpenXM_include=${OpenXM_HOME}/include
@@ -12,7 +12,7 @@ LIBS=@LIBS@
 YACC=@YACC@
 KANHEADERS=../Kan/datatype.h ../Kan/stackm.h ../Kan/extern.h ../Kan/gradedset.h ../Kan/extern2.h ../Kan/kclass.h ../plugin/file2.h
 
-all: trans.a polymake2tfb
+all: trans.a polymake2tfb oxdecode_post
 
 configure: Makefile
 
@@ -41,6 +41,6 @@ yy_polymake.tab.h : yy_polymake.y yylex_polymake.h
 	${YACC} -d -b yy_polymake -p PM yy_polymake.y
 
 clean:
-	rm -r -f *.o *~ *.tab.* polymake2tfb
+	rm -r -f *.o *~ *.tab.* polymake2tfb oxdecode_post
 distclean: clean
 
