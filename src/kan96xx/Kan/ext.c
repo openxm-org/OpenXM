@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.43 2012/12/23 01:27:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.44 2013/09/22 01:26:07 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -109,6 +109,7 @@ struct object Kextension(struct object obj)
   char *abc;
   char *abc2;
   extern struct context *CurrentContextp;
+  struct timeval tm;
 #if (__CYGWIN__)
   extern sigjmp_buf EnvOfStackMachine;
 #else
@@ -181,7 +182,6 @@ struct object Kextension(struct object obj)
         } */
   }else if (strcmp(key,"date")==0) {
     if (size != 1) errorKan1("%s\n","[(date)] extension.");
-    struct timeval tm;
     gettimeofday(&tm,NULL);
     rob = KpoString(ctime(&((time_t)tm.tv_sec)));
   }else if (strcmp(key,"defaultPolyRing")==0) {
