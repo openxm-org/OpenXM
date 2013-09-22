@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.30 2013/09/20 06:02:18 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.31 2013/09/22 05:17:17 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -720,5 +720,13 @@ attr(,"Content-Type")
 {\tt cgiPolymake.log} に 1 を代入しておくと(既定値)
 sm1log で /tmp/sm1log.txt に post message を記録.
 date 関数を追加.
+
+curl を用いた呼び出しのテスト.
+\begin{verbatim}
+(cgi.sm1) run
+/cgiQueryPolymake { cgiQueryPolymake.curl } def
+ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))] /ff set
+ff doPolymake.OoHG /rr set
+\end{verbatim}
 \end{document}
 
