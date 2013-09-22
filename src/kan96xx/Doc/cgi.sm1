@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.12 2004/12/29 01:42:13 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.13 2013/09/22 01:07:38 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -231,7 +231,61 @@ def
 % ------------  client side script ---------------
 /cgiQueryPolymake.hostname (polymake.math.kobe-u.ac.jp) def
 /cgiQueryPolymake.cginame (/cgi-bin/cgi-polymake.sh) def
-/cgiQueryPolymake {
+%/cgiQueryPolymake { cgiQueryPolymake.curl } def
+/cgiQueryPolymake { cgiQueryPolymake.native } def
+/cgiQueryPolymake.curl {
+  /arg2 set /arg1 set
+  [/saction /sfile /ff /ff1 /sss2 /goo /pp /pp2 /key /body /fd] pushVariables
+  [
+    /saction arg1 def /sfile arg2 def
+% step1. Generate query in URL encoding.
+     [(http://) cgiQueryPolymake.hostname cgiQueryPolymake.cginame] cat
+     /ff1 set
+% full URL necessary for virtual host of apache.
+     [[(oxMessageBody)
+       [saction ( )
+        sfile nl ] cat
+       ]
+     ] /ff set
+
+     ff 0 get 0 get /key set
+     ff 0 get 1 get /body set
+% step 2. Call the server and get the response in pp  
+     /cgi.verbose 1 def
+     (/tmp/sm1-q-cgi.txt) (w) file /fd set
+     fd body writestring
+     fd closefile
+     [(curl) (--form) [key (=@/tmp/sm1-q-cgi.txt)] cat  ff1] /ff set
+     ff message
+     ff
+     addStdoutStderr oxshell
+     @@@stdout /pp set
+     pp message
+     @@2stderr message
+     (-----) message
+     % For the case of error.
+     [(regexec) (200 OK) [pp]] extension length 0 eq {
+        (sss2=) message
+        sss2 message
+        (pp=) message
+        pp message
+        (cgi.sm1: there seems to be an error in the HTTP connection.) 
+     } { } ifelse
+
+     cgi.verbose { pp message } {  } ifelse
+     [(cgiHttpToKeyValuePair) pp] extension /pp2 set
+
+% step 3. Analyze the response.
+     [pp2 (Content-Body) getNode
+      pp2 (oxshell-stdout) getNode
+      pp2 (oxshell-stderr) getNode 
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/cgiQueryPolymake.native {
   /arg2 set /arg1 set
   [/saction /sfile /ff /ff1 /sss2 /goo /pp /pp2] pushVariables
   [
@@ -307,7 +361,7 @@ def
   [
     arg1 0 get /pAction set
     arg1 1 get /pData set
-    polymake.start
+    polymake.start.OoHG
 
     /pError [ ] def
 %% step 1:  polymake tfb ===> polymake native data

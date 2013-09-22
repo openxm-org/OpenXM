@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.29 2012/10/29 02:51:41 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.30 2013/09/20 06:02:18 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -690,6 +690,35 @@ grep すると {\tt kclass.c} を探せばいい.
 ここに tag がいろいろある.
 usage に note-class を追加.
 
+\section{2013-09-22, oxdecode\_post}
 
+mime 形式の post message を URL encoding に変換
+(mime の判定等は現状なんちゃって).
+これで, reverse proxy 経由でも正常動作.
+
+\begin{verbatim}
+cat t.txt
+FACETS POINTS
+1 0 0
+1 1 0
+1 0 1
+
+ curl -F oxMessageBody=@t.txt http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh
+\end{verbatim}
+
+\begin{verbatim}
+library(RCurl);
+postForm("http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh",
+  oxMessageBody="FACETS POINTS\n1 0 0\n1 1 0\n1 0 1")
+[1] "POINTS\n1 0 0\n1 1 0\n1 0 1\r\n\nFACETS\n1 -1 -1\n0 1 0\n0 0 1\n\n
+ AFFINE_HULL\n\n\n_version 2.0\n_application polytope\n\n"
+attr(,"Content-Type")
+                  charset 
+"text/plain"      "UTF-8" 
+\end{verbatim}
+
+{\tt cgiPolymake.log} に 1 を代入しておくと(既定値)
+sm1log で /tmp/sm1log.txt に post message を記録.
+date 関数を追加.
 \end{document}
 

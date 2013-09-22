@@ -1,6 +1,7 @@
-% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.5 2013/09/20 05:12:24 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.6 2013/09/21 04:48:36 takayama Exp $
 % It is a polymake interface
 
+/@@@polymake.ask.which 1 def
 /polymake.start {
   (ox.k0.loaded) boundp {  }
   { [(parse) (ox.sm1) pushfile] extension 
@@ -15,12 +16,14 @@
      @@@polymake.k0.ccc oxsetmathcap @@@polymake.k0.ccc oxmathcap
   } {  } ifelse
   [(parse) ( 1 )] extension pop % BUG, dummy to avoid bus error on mac.2013.09.21 
+ @@@polymake.ask.which {
   [(which) (polymake)] oxshell tag 0 eq {
      [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell
      [(which) (polymake)] oxshell tag 0 eq {
        (Polymake is not installed in this system.) error
      } {  } ifelse
   } {  } ifelse
+ } { } ifelse
   [(which) (polymake2tfb)] oxshell tag 0 eq {
      (polymake2tfb is not installed in this system.) error
   } {  } ifelse
