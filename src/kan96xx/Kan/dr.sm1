@@ -1,9 +1,9 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.53 2006/02/04 02:44:39 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.54 2013/01/26 10:48:26 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
 @@@.quiet {   }
-{ (macro package : dr.sm1,   9/26,1995 --- Version 12/10, 2000. ) message } ifelse
+{ (macro package : dr.sm1,   9/26,1995 --- Version 09/22, 2013. ) message } ifelse
 
 /ctrlC-hook {
 %%% define your own routing in case of error.
@@ -4569,6 +4569,19 @@ $ [ff ff] fromVectors :: $
   popVariables
   arg1
 } def
+
+/sm1log {
+  /arg1 set
+  [/ss /fd ] pushVariables
+  [
+    arg1 /ss set
+    (/tmp/sm1log.txt) (a) file /fd set
+    fd , ss (string) dc , writestring 
+    fd closefile
+  ] pop
+  popVariables
+} def
+
 ;
 
 
