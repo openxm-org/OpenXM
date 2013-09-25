@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile.in,v 1.1 2004/06/24 12:45:15 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile.in,v 1.2 2013/09/22 01:07:38 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -62,6 +62,7 @@ install-for-debug : clean-for-install
 	else \
 	  ln -f -s ../src/kan96xx/Kan/sm1 ${OpenXM_bin_debug}/sm1 ; \
 	  ln -f -s ../src/kan96xx/trans/polymake2tfb ${OpenXM_bin_debug}/polymake2tfb ; \
+	  ln -f -s ../src/kan96xx/trans/oxdecode_post ${OpenXM_bin_debug}/oxdecode_post ; \
 	fi
 
 
