@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.31 2013/09/22 05:17:17 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.32 2013/09/22 08:07:51 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -728,5 +728,25 @@ curl を用いた呼び出しのテスト.
  [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))] /ff set
 ff doPolymake.OoHG /rr set
 \end{verbatim}
+
+\section{2013-09-25, usePolymake.*}
+polymake のスイッチ. version により振る舞いが違うので注意.
+
+各種 log の場所.
+\begin{enumerate}
+\item server side. {\tt /tmp/sm1log.txt}: cgi-post の encoded 文字列.
+\item server side.  cgi-polymake.sh に tee を追加すると, oxdecode\_post 前の文字列を
+保存できる.
+\item client side. oxshell で work file を {\tt \$TMP} に残すには
+oxshell の usage を見て, keep\_tmp\_files を使う.
+local 版では {\tt @@@doPolymake.vars} に記録あり.
+asir では {\tt polymake.log()} に格納.
+\item {\tt usePolymake.OoHG.curl} の時は {\tt /tmp/sm1-q-cgi*.txt}
+に cgi に問い合わせる時の文字列が格納される.
+\end{enumerate}
+
+なお mac 版は error で bus error を起こす場合あり. 
+サンプル code は, {\tt misc-2013/09/genpos/mac.sm1}. 
+これは ticket.
 \end{document}
 

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.14 2013/09/22 05:17:17 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.15 2013/09/22 08:07:51 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -341,8 +341,9 @@ def
  (If not, it calls http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh)
  (to make a computation in polymake.)
  (See doPolymake for the syntax. doPolymake.OoHG may overrides doPolymake.)
- (If you use curl to call the server set as follows after loading cgi.sm1)
- (/cgiQueryPolymake { cgiQueryPolymake.curl } def)
+ (If you use curl to call the server execute) 
+ (   usePolymake.OoHG.curl)
+ (after loading cgi.sm1) 
 ]] putUsages
 /doPolymake.OoHG  {
   /arg1 set
@@ -369,7 +370,7 @@ def
 % cgi-polymake
        (Trying web service.) message
        pAction pNative  cgiQueryPolymake /doPolymake.OoHG.result set
-
+       doPolymake.OoHG.result /@@@doPolymake.vars set
       [(regexec) (Not Found) [doPolymake.OoHG.result 0 get ]] 
       extension length 0 eq not {
          doPolymake.OoHG.result message
@@ -419,6 +420,39 @@ def
      (polymake2tfb is not installed in this system.) error
   } {  } ifelse
 } def
+
+
+/usePolymake.local {
+  /doPolymake { doPolymake.local } def
+  /polymake.start { polymake.start.local } def
+} def
+
+/usePolymake.OoHG.native {
+  /doPolymake { doPolymake.OoHG } def
+  /polymake.start { polymake.start.OoHG } def
+  /cgiQueryPolymake { cgiQueryPolymake.native } def
+} def
+
+/usePolymake.OoHG.curl {
+  /doPolymake { doPolymake.OoHG } def
+  /polymake.start { polymake.start.OoHG } def
+  /cgiQueryPolymake { cgiQueryPolymake.curl } def
+} def
+
+[(usePolymake.OoHG.native)
+[(doPolymake = doPolymake.OoHG with cgiQueryPolymake.native)
+ (cf. doPolymake.OoHG)
+]] putUsages
+
+[(usePolymake.OoHG.curl)
+[(doPolymake = doPolymake.OoHG with cgiQueryPolymake.curl)
+ (It should be used when cgiQueryPolymake.native does not work)
+ (over, e.g., a reverse proxy.)
+ (The command curl is required.  cf. cgi.verbose, doPolymake.OoHG)
+]] putUsages
+
+
+
 
 
  

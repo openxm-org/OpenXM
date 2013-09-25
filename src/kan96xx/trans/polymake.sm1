@@ -1,8 +1,9 @@
-% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.6 2013/09/21 04:48:36 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.7 2013/09/22 05:17:17 takayama Exp $
 % It is a polymake interface
 
 /@@@polymake.ask.which 1 def
-/polymake.start {
+/polymake.start { polymake.start.local } def
+/polymake.start.local {
   (ox.k0.loaded) boundp {  }
   { [(parse) (ox.sm1) pushfile] extension 
     /@@@polymake.k0.ccc [ ] def
@@ -39,13 +40,15 @@
  (polymake, polymake2tfb, ox_k0 must be installed.)
  (cf. @@@polymake.k0.ccc, kan96xx/Doc/oxshell.*, kan96xx/trans/polymake.sm1, oxshell )
  (The variable @@@doPolymake.vars keeps session logs with the polymake)
+ (See also usePolymake.local, usePolymake.OoHG.native and usePolymake.OoHG.curl in cgi.sm1)
  (Example:)
 % ( [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell )
  $ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))]$
  (         doPolymake /rr set )
  ( Keys---properties are FACETS, CONE_DIM, LINEARITY_DIM, FEASIBLE, AFFINE_FULL, ... )
 ]] putUsages
-/doPolymake {
+/doPolymake { doPolymake.local } def
+/doPolymake.local {
   /arg1 set
   [/in-doPolymake  /pAction /pData /pNative /ptree
    /pResult  /pError

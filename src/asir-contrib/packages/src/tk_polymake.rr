@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.1 2013/09/20 07:47:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.2 2013/09/21 01:18:33 takayama Exp $ */
 module polymake;
+localf start$
 localf callp$
 localf get_data$
 localf  log$
@@ -11,8 +12,24 @@ localf volume$
 
 static Polymake_log$
 
+def start() {
+  Local = 1;
+  OoHG_native=0;
+  OoHG_curl=0; /* local mode is the default */
+  if (type(getopt(uselocal)) >0) Local = 1;
+  if (type(getopt(oohg_native)) >0) OoHG_native=1;
+  if (type(getopt(oohg_curl)) >0) OoHG_curl=1;
+  if (OoHG_native || OoHG_curl) printf("oohg_native=%a, oohg_curl=%a\n",OoHG_native, OoHG_curl);
+  else printf("Use local polymake via sm1 and ox_k0.");
+  P=oxshell.find_proc();
+  oxshell.sm1(0," [(parse) (cgi.sm1) pushfile] extension ");
+  if (Local) oxshell.sm1(0," usePolymake.local ");
+  if (OoHG_native) oxshell.sm1(0," usePolymake.OoHG.native ");
+  if (OoHG_curl) oxshell.sm1(0," usePolymake.OoHG.curl ");
+}
+
 def callp(S) {
-  oxshell.find_proc();
+  P=oxshell.find_proc();
   ox_push_cmo(P,S);
   oxshell.sm1(P," doPolymake ");
   R = ox_pop_cmo(P);
@@ -55,7 +72,7 @@ def hint() {
 */
 def polymake(Prop,Htype,H) {
   if (type(H) != 4) error("H must be a list.");
-  if (type(Prop) != 7) error("Htype must be a string.");
+  if (type(Htype) != 7) error("Htype must be a string.");
   if (type(Prop) != 7) error("Prop must be a string.");
   S = [Prop,"polymake.data(polymake."+Htype+"("+rtostr(H)+"))"];
   /* print(S); */
