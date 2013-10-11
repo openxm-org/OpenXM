@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.15 2013/09/22 08:07:51 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.16 2013/09/25 07:30:52 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -231,8 +231,9 @@ def
 % ------------  client side script ---------------
 /cgiQueryPolymake.hostname (polymake.math.kobe-u.ac.jp) def
 /cgiQueryPolymake.cginame (/cgi-bin/cgi-polymake.sh) def
-%/cgiQueryPolymake { cgiQueryPolymake.curl } def
-/cgiQueryPolymake { cgiQueryPolymake.native } def
+%This host and cgi are version 2.0 polymake.  dim, ... are different with new versions.
+/cgiQueryPolymake { cgiQueryPolymake.curl } def
+%/cgiQueryPolymake { cgiQueryPolymake.native } def
 /cgiQueryPolymake.curl {
   /arg2 set /arg1 set
   [/saction /sfile /ff /ff1 /sss2 /goo /pp /pp2 /key /body /fd] pushVariables
@@ -337,9 +338,11 @@ def
 %/polymake.start { polymake.start.OoHG } def
 
 [(doPolymake.OoHG)
-[(It first looks for local polymake. If there is, it calls the local polymake.)
- (If not, it calls http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh)
+[(doPolymake.local calls the local polymake.)
+ (This function calls http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh)
  (to make a computation in polymake.)
+ (The host name and the cgi name are set to the variable)
+ (   cgiQueryPolymake.hostname  and cgiQueryPolymake.cginame)
  (See doPolymake for the syntax. doPolymake.OoHG may overrides doPolymake.)
  (If you use curl to call the server execute) 
  (   usePolymake.OoHG.curl)
@@ -434,14 +437,23 @@ def
 } def
 
 /usePolymake.OoHG.curl {
+  [(which) (curl)] oxshell tag 0 eq {
+     (Error in usePolymake.OoHG.curl: curl is not found.) error
+  } { } ifelse
   /doPolymake { doPolymake.OoHG } def
   /polymake.start { polymake.start.OoHG } def
   /cgiQueryPolymake { cgiQueryPolymake.curl } def
 } def
 
+[(usePolymake.local)
+[(doPolymake calls local polymake) 
+]] putUsages
+
 [(usePolymake.OoHG.native)
 [(doPolymake = doPolymake.OoHG with cgiQueryPolymake.native)
  (cf. doPolymake.OoHG)
+ (hostname is set in cgiQueryPolymake.hostname)
+ (cginame is set in  cgiQueryPolymake.cginame)
 ]] putUsages
 
 [(usePolymake.OoHG.curl)
@@ -449,6 +461,8 @@ def
  (It should be used when cgiQueryPolymake.native does not work)
  (over, e.g., a reverse proxy.)
  (The command curl is required.  cf. cgi.verbose, doPolymake.OoHG)
+ (hostname is set in cgiQueryPolymake.hostname)
+ (cginame is set in  cgiQueryPolymake.cginame)
 ]] putUsages
 
 

@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.17 2009/09/04 11:13:11 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.18 2009/12/11 02:09:09 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -273,11 +273,9 @@ dhcone.printGrobnerFan
 or
 {
   (Polymake is not installed in this system or @@@polymake.web is set.)  message
-  /doPolymake {doPolymake.OoHG} def    
-  (Using doPolymake.OoHG ) message 
-  /polymake.start {polymake.start.OoHG} def 
-  (Using polymake.start.OoHG ) message 
-} { (Local polymake will be used.) message } ifelse
+  usePolymake.OoHG.curl
+  (Using doPolymake.OoHG.curl ) message 
+} { usePolymake.local (Local polymake will be used.) message } ifelse
 
 /cone.debug 1 def
 
