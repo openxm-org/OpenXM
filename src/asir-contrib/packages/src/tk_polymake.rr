@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.2 2013/09/21 01:18:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.3 2013/09/25 07:30:52 takayama Exp $ */
 module polymake;
 localf start$
 localf callp$
@@ -9,23 +9,67 @@ localf polymake$
 localf facets$
 localf gale_transform$
 localf volume$
+localf cone_dim_for_v200$
+localf cone_dim_for_v212$
+localf cone_dim$
+
 
 static Polymake_log$
+static Polymake_version$
 
-def start() {
+def start() 
+"Examples. polymake.start(|oohg_curl=1); or polymake.start(|uselocal=1);"
+{
+  Polymake_version = 212; /* default */
   Local = 1;
   OoHG_native=0;
   OoHG_curl=0; /* local mode is the default */
+
+  OoHG_hostname=0;
+  OoHG_cginame=0;
+
   if (type(getopt(uselocal)) >0) Local = 1;
-  if (type(getopt(oohg_native)) >0) OoHG_native=1;
-  if (type(getopt(oohg_curl)) >0) OoHG_curl=1;
-  if (OoHG_native || OoHG_curl) printf("oohg_native=%a, oohg_curl=%a\n",OoHG_native, OoHG_curl);
-  else printf("Use local polymake via sm1 and ox_k0.");
+  if (type(getopt(oohg_native)) >0) { OoHG_native=1; Local=0;}
+  if (type(getopt(oohg_curl)) >0) { OoHG_curl=1; Local=0;}
+  if (OoHG_native || OoHG_curl) {
+    Polymake_version=200; /* default on the net */
+    printf("oohg_native=%a, oohg_curl=%a\n",OoHG_native, OoHG_curl);
+  } else {
+     printf("Use local polymake via sm1 and ox_k0.\n");
+     if ((shell("which polymake") != 0)) {
+       error("Error: The polymake does not seem to be installed. Use oohg_curl option.");
+     }  
+  }
   P=oxshell.find_proc();
-  oxshell.sm1(0," [(parse) (cgi.sm1) pushfile] extension ");
-  if (Local) oxshell.sm1(0," usePolymake.local ");
-  if (OoHG_native) oxshell.sm1(0," usePolymake.OoHG.native ");
-  if (OoHG_curl) oxshell.sm1(0," usePolymake.OoHG.curl ");
+  oxshell.sm1(P," [(parse) (cgi.sm1) pushfile] extension ");
+  if (Local) oxshell.sm1(P," usePolymake.local ");
+  if (OoHG_native) oxshell.sm1(P," usePolymake.OoHG.native ");
+  if (OoHG_curl) oxshell.sm1(P," usePolymake.OoHG.curl ");
+
+  if (type(getopt(version)) >0) Polymake_version=eval_str(rtostr(getopt(version)));
+
+  /* not tested. cf. cgi.sm1 */
+  if (type(getopt(oohg_hostname)) >0) OoHG_hostname=getopt(oohg_hostname);
+  if (type(getopt(oohg_cginame)) > 0) OoHG_cginame=getopt(oohg_cginame);
+  if (OoHG_hostname) {
+    if (Local) printf("oohg_hostname is ignored.");
+    else {
+      ox_push_cmo(P,OoHG_hostname);
+      oxshell.sm1(P," /cgiQueryPolymake.hostname set ");
+    }
+  }
+  if (OoHG_cginame) {
+    if (Local) printf("oohg_cginame is ignored.");
+    else {
+      ox_push_cmo(P,OoHG_cginame);
+      oxshell.sm1(P," /cgiQueryPolymake.cginame set ");
+    }
+  }
+  return [["version",Polymake_version],
+          ["uselocal",Local],["oohg_native",OoHG_native],
+          ["oohg_curl",OoHG_curl],
+          ["oohg_hostname",OoHG_hostname],
+          ["oohg_cginame",OoHG_cginame]];
 }
 
 def callp(S) {
@@ -70,7 +114,9 @@ def hint() {
 /* Example
   polymake("FACETS","POINTS",[[1,0,0],[1,2,0],[1,0,3],[1,1,1/2]]);
 */
-def polymake(Prop,Htype,H) {
+def polymake(Prop,Htype,H) 
+"Example: polymake.polymake(\"FACETS\",\"POINTS\",[[1,0,0],[1,2,0],[1,0,3],[1,1,1/2]]);" 
+{
   if (type(H) != 4) error("H must be a list.");
   if (type(Htype) != 7) error("Htype must be a string.");
   if (type(Prop) != 7) error("Prop must be a string.");
@@ -110,6 +156,38 @@ def facets(A) {
    if (A[I][0] != 1) error("oxshell.facets: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
   }
   return polymake("FACETS","POINTS",A);
+}
+
+def cone_dim(Htype,H) {
+  if (Polymake_version == 200) 
+    return cone_dim_for_v200(Htype,H);
+  else
+    return cone_dim_for_v212(Htype,H);
+}
+
+def cone_dim_for_v212(Htype,H) {
+  return polymake.polymake("CONE_DIM",Htype,H);
+}
+
+def cone_dim_for_v200(Htype,H) {
+  Prop="DIM";
+  if (type(H) != 4) error("H must be a list.");
+  S = [Prop,"polymake.data(polymake."+Htype+"("+rtostr(H)+"))"];
+  /* print(S); */
+  R = callp(S);
+  T = R[1];
+
+  TT=0; N = length(T); Key=Prop;
+  for (I=2; I<N; I++) {
+    D = T[I];
+    if (D[1] == Key) {
+      TT = D[2]; 
+    }
+  }
+  if (TT == 0) { return [[0]]; }
+
+  TT=get_data(T,Prop);
+  return([[TT[0][0]+1]]);
 }
 
 endmodule;
