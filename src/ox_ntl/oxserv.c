@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.7 2004/07/11 00:32:17 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.8 2008/09/19 10:55:40 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,6 @@
 #include "oxserv.h"
 #include "oxstack.h"
 
-#include "gmp.h"
 #include "gc/gc.h"
 
 #define DPRINTF(x)	printf x; (void)fflush(stdout)
@@ -31,7 +30,7 @@ do {                                 \
         if (C != NULL) {             \
 		if ((C)->c) { FREE((C)->c); } \
 		oxserv_delete_cmo_usr(((C)->p)); \
-		free(C);             \
+		oxserv_free(C, 0);             \
 		C = NULL;            \
 	}                            \
 } while (0)
@@ -482,12 +481,10 @@ oxserv_sm_executeFunction(void)
 	int total;
 	oxstack_node **arg;
 
-
 	if (G_userExecuteFunction == NULL) {
 		oxserv_push_errormes("G_userExecuteFunction not defined");
 		return ;
 	}
-
 
 	p1 = oxstack_pop();
 	p2 = oxstack_pop();
@@ -518,16 +515,16 @@ printf("command name=%s\n", name->s);
 
 	total = cnt->i;
 
-printf("command name=%s, i=%d\n", name->s, total);
-	arg = (oxstack_node **)malloc(total * sizeof(oxstack_node *));
+	arg = (oxstack_node **)oxserv_malloc(total * sizeof(oxstack_node *));
 	for (i = 0; i < total; i++) {
 		arg[i] = oxstack_pop();
 		if (arg[i] == NULL) {
 			oxserv_push_errormes("stack underflow in executeFunction");
 
-			for (i--; i >= 0; i--)
+			for (i--; i >= 0; i--) {
 				oxserv_delete_cmo(arg[i]);
-			free(arg);
+			}
+			oxserv_free(arg, 0);
 			return ;
 		}
 	}
@@ -542,7 +539,7 @@ printf("command name=%s, i=%d\n", name->s, total);
 
 	oxserv_delete_cmo(p1);
 	oxserv_delete_cmo(p2);
-	free(arg);
+	oxserv_free(arg, 0);
 }
 
 /*****************************************************************************
@@ -688,8 +685,7 @@ oxserv_execute_sm_command(OXFILE *fd, int code)
 		oxstack_pop();
 		break;
 	case SM_executeFunction: /* 269 */
-		if (G_userExecuteFunction)
-			oxserv_sm_executeFunction();
+		oxserv_sm_executeFunction();
 		break;
 	case SM_pushCMOtag: /* 277 */
 		oxserv_sm_pushCMOtag();
@@ -908,8 +904,6 @@ int
 main(int argc, char *argv[])
 {
 	int fd = 10;
-	int i;
-	int ret;
 
 	dfp = fopen("/tmp/oxserv,log", "w");
 	OXFILE *oxfp = oxf_open(fd);
@@ -918,13 +912,13 @@ main(int argc, char *argv[])
 	ox_stderr_init(dfp);
 
 	fprintf(dfp, "set start\n"); fflush(dfp);
-        oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, oxserv_executeFunction, NULL);
+	oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, oxserv_executeFunction, NULL);
 
-	fprintf(df10p, "init start\n"); fflush(dfp);
+	fprintf(dfp, "init start\n"); fflush(dfp);
 	oxserv_init(oxfp, 0, "$Date$", "oxserv", NULL, NULL);
 
 	fprintf(dfp, "recv start\n"); fflush(dfp);
-	ret = oxserv_receive(oxfp);
+	oxserv_receive(oxfp);
 
 	oxserv_dest();
 	oxf_close(oxfp);

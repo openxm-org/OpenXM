@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.5 2004/07/05 10:08:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.6 2008/09/19 10:55:40 iwane Exp $ */
 
 /*
 [1208] ox_launch(0, "/home/openxm/OpenXM/src/ox_ntl/ox_ntl");
@@ -9,10 +9,13 @@
 [1231] ox_shutdown(0);
 0
  */
+#include <string.h>
+
 #include "ox_toolkit.h"
 #include "oxserv.h"
 #include "oxstack.h"
 #include "ntl.h"
+
 
 #define VERSION 0x00000001
 #define ID_STRING "$Revision$"
@@ -23,6 +26,7 @@ ntl_executeFunction(const char *func, oxstack_node **arg, int argc)
 {
 	oxstack_node *ans;
 	int i;
+	char unknown_mes[50] = "Unknown Function";
 
 	enum {
 		RET_CMO,
@@ -47,7 +51,7 @@ ntl_executeFunction(const char *func, oxstack_node **arg, int argc)
 		}
 	}
 
-	oxstack_push_cmo((cmo *)new_cmo_error2((cmo *)new_cmo_string("Unknown Function")));
+	oxstack_push_cmo((cmo *)new_cmo_error2((cmo *)new_cmo_string(unknown_mes)));
 }
 
 
@@ -56,7 +60,8 @@ int
 main(int argc, char *argv[])
 {
 	const int fd = 3;
-	int ret;
+	char oxntl[10] = "ox_ntl";
+	char id[30] = ID_STRING;
 
 	OXFILE *oxfp;
 
@@ -68,15 +73,16 @@ main(int argc, char *argv[])
 	oxserv_set(OXSERV_SET_DELETE_CMO, (void *)(void (*)())delete_cmon, NULL);
 	oxserv_set(OXSERV_SET_GET_CMOTAG, (void *)(void (*)())get_cmon_tag, NULL);
 	oxserv_set(OXSERV_SET_CONVERT_CMO, (void *)(void (*)())convert_cmon, NULL);
-	oxserv_init(oxfp, VERSION, ID_STRING, "ox_ntl", NULL, NULL);
+	oxserv_init(oxfp, VERSION, id, oxntl, NULL, NULL);
 
 printf("\n\n");
-printf("MAPLE=%s\n", getenv("MAPLE"));
-printf("PATH=%s\n", getenv("PATH"));
-printf("LD_LIBRARY_PATH=%s\n", getenv("LD_LIBRARY_PATH"));
-sleep(10000);
-	ret = oxserv_receive(oxfp);
+printf("$MAPLE=%s\n", getenv("MAPLE"));
+printf("$PATH=%s\n", getenv("PATH"));
+printf("$LD_LIBRARY_PATH=%s\n", getenv("LD_LIBRARY_PATH"));
 
+
+
+	oxserv_receive(oxfp);
 	oxserv_dest();
 	oxf_close(oxfp);
 

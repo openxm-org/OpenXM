@@ -1,9 +1,11 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.5 2003/11/27 14:19:50 iwane Exp $ */
 
 #include <NTL/ZZX.h>
 #include <NTL/mat_ZZ.h>
 
-#include <strstream>
+#include <sstream>
+#include <string>
+#include <string.h>
 
 #include "ntl.h"
 
@@ -148,18 +150,17 @@ cmo_zz *
 ZZ_to_cmo_zz(const ZZ &z)
 {
 	cmo_zz *c;
-	char *ptr;
+	const char *ptr;
 
-	std::ostrstream sout;
+	std::ostringstream sout;
 	sout << z << '\0';
-	ptr = sout.str();
+	std::string tmp = sout.str();
+	ptr = tmp.c_str();
 
 	BLOCK_NEW_CMO();
-	c = new_cmo_zz_set_string(ptr);
+	c = new_cmo_zz_set_string((char*)ptr);
 	UNBLOCK_NEW_CMO();
 	
-	delete [] ptr;
-
 	return (c);
 }
 
@@ -339,7 +340,7 @@ cmo_to_ZZX(ZZX &f, cmo *m, cmo_indeterminate *&x)
 			return (NTL_FAILURE);
 		}
 		{
-			std::istrstream sin(str, strlen(str));
+			std::istringstream sin(str);
 			sin >> f;
 		}
 		break;
@@ -348,14 +349,12 @@ cmo_to_ZZX(ZZX &f, cmo *m, cmo_indeterminate *&x)
 		cmo_recursive_polynomial *rec = (cmo_recursive_polynomial *)m;
 		cmo_polynomial_in_one_variable *poly = (cmo_polynomial_in_one_variable *)rec->coef;
 		cell *el;
-		int len;
 
 		if (poly->tag != CMO_POLYNOMIAL_IN_ONE_VARIABLE) {
 			return (NTL_FAILURE);
 		}
 
 		el = list_first((cmo_list *)poly);
-		len = list_length((cmo_list *)poly);
 
 		f = 0;
 
@@ -495,7 +494,6 @@ vec_pair_ZZX_long_to_cmo(vec_pair_ZZX_long &factors, cmo_indeterminate *x)
 cmo *
 convert_cmon(cmo *p)
 {
-
 	switch (p->tag) {
 	case CMON_ZZ:
 	{

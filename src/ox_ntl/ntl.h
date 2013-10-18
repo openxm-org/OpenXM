@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.5 2008/09/19 10:55:40 iwane Exp $ */
 
 #ifndef __NTL_H__
 #define __NTL_H__
@@ -20,6 +20,7 @@
 #define	CMON_ZZX             (CMO_PRIVATE + 3)
 #define	CMON_FACTORS         (CMO_PRIVATE + 4)
 
+using namespace NTL;
 
 typedef struct cmon_mat_zz_tag {
 	int tag;

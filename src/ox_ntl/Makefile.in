@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.4 2004/07/11 00:32:17 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.5 2008/09/19 10:55:40 iwane Exp $
 # @configure_input@ ###
 
 #
@@ -47,17 +47,15 @@ LIBS=-lgmp -lox -lgc @LIBS@
 LDFLAGS=@LDFLAGS@ -L$(LIBDIR) -L$(NTL_LIBDIR) -L.
 
 DISTDIR=$(OpenXM_HOME)/../OpenXM_dist
-DISTFILEDIR=ntl-5.3.1
-DISTFILE=ntl-5.3.1.tar.gz
+DISTFILEDIR=ntl-6.0.0
+DISTFILE=ntl-6.0.0.tar.gz
 WORK=$(PWD)/work
 
 GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=$(OpenXM_HOME) GMP_INCDIR=$(OpenXM_HOME)/include GMP_LIBDIR=$(OpenXM_HOME)/lib
 
-
 # lint
 LINT=lint
 LINTFLAGS=-I$(PREFIX)/include
-
 
 .SUFFIXES: .cpp .o .c
 
@@ -70,7 +68,7 @@ OBJCP=$(SRCP:.cpp=.o)
 all: $(PROG)
 
 $(PROG): $(OBJCP) $(PROGL2)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJCP) -o $@ -l$(PROGL) -lntl 
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJCP) -o $@ -lntl -l$(PROGL) $(LIBS)
 
 $(PROGL2): $(OBJCC)
 	$(CC) -shared $(LDFLAGS) $(OBJCC) -o $@ $(LIBS)
@@ -98,6 +96,9 @@ install: all
 	$(CP) $(PROG) $(PREFIX)/bin
 	$(CP) $(PROGL2) $(PREFIX)/lib
 
+install_lib: $(PROGL2)
+	$(CP) $(PROGL2) $(PREFIX)/lib
+
 clean:
 	-$(RM) -f $(OBJC) $(OBJCC) $(OBJCP)
 	-$(RM) -f $(PROG) $(PROGL2) ox_ntl_debug oxserv_debug
@@ -109,14 +110,14 @@ lint:
 
 fetch-ntl:
 	@if [ ! -f .fetch-ntl-done ]; then \
-		$(OpenXM_HOME)/bin/oxfetch.sh ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE) $(DISTDIR); \
+		curl -L -o $(DISTDIR)/$(DISTFILE) http://www.shoup.net/ntl/$(DISTFILE) && \
 		touch .fetch-ntl-done; \
 	fi
 
 extract-ntl: fetch-ntl
 	-@mkdir -p $(WORK)
 	@if [ ! -f .extract-ntl-done ]; then \
-		(cd $(WORK); tar xvzf $(DISTDIR)/$(DISTFILE)); \
+		(cd $(WORK); tar xvzf $(DISTDIR)/$(DISTFILE)) && \
 		touch .extract-ntl-done; \
 	fi
 
@@ -131,23 +132,23 @@ build-ntl: patch-ntl
 		(cd $(WORK)/$(DISTFILEDIR)/src; \
 		export LD_LIBRARY_PATH=$(OpenXM_HOME)/lib; \
 		./configure LIBDIR=$(NTL_LIBDIR) PREFIX=$(PREFIX) $(GMPOPT); \
-		$(MAKE)); \
+		$(MAKE)) && \
 		touch .build-ntl-done; \
 	fi
 
 install-ntl: build-ntl
 	@if [ ! -f .install-ntl-done ]; then \
-		(cd $(WORK)/$(DISTFILEDIR)/src; $(MAKE) install); \
+		(cd $(WORK)/$(DISTFILEDIR)/src; $(MAKE) install) && \
 		touch .install-ntl-done; \
 	fi
 
 #########################################
 # DEBUG
 #########################################
-ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp
-	$(CXX) $(CXXFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o -o $@ -lntl -lgmp -lox -lgc
+ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp cmon.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -g -D__NTL_DEBUG=1 $(LDFLAGS) cmon.o ntl.cpp ntlconv.cpp -o $@ -lntl -l$(PROGL) $(LIBS)
 
 oxserv_debug: oxserv.h oxserv.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g -D__OXSERV_DEBUG=1 $(LDFLAGS) oxserv.c oxstack.o -o $@ $(LIBS)
 
 
