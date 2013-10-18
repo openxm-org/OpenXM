@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_maple/Makefile,v 1.5 2008/09/19 13:01:05 iwane Exp $
 
 PROG=ox_maple
 
@@ -10,7 +10,7 @@ MAKE ?= make
 CFLAGS += -Wall -g -O2 -I$(OpenXM_HOME)/include -I$(OpenXM_HOME)/src/ox_ntl -I$(MAPLE)/extern/include  
 
 
-LIBS_MPL= -L$(MAPLE)/bin.IBM_INTEL_LINUX -lmaplec
+LIBS_MPL= -L$(MAPLE)/bin.IBM_INTEL_LINUX -lmaplec -Wl,--no-as-needed -lrt
 LIBS= -loxsv -lox -lgmp -lgc 
 LDFLAGS= -L$(OpenXM_HOME)/lib 
 
@@ -19,19 +19,20 @@ DEFS += -D__GMP_FALE_H__
 
 .SUFFIXES: .o .c
 
-
 SRCC= m2c.c c2m.c oxmaples.c
 
 OBJC = $(SRCC:.c=.o) 
 
 all:: $(PROG) libsimple.so  libsimple2.so
 
-$(PROG): $(OBJC) main.o 
+$(PROG): $(OBJC) main.o $(OpenXM_HOME)/lib/liboxsv.so
 	$(CC) $(OBJC) main.o -o $@ $(LIBS_MPL) $(LDFLAGS) $(LIBS)
+
+$(OpenXM_HOME)/lib/liboxsv.so:
+	(cd ../ox_ntl; make liboxsv.so && make install_lib)
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< $(DEFS)
-
 
 clean:
 	-$(RM) -f $(OBJC)  main.o local.o
