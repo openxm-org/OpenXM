@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.33 2005/03/03 07:25:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.34 2007/03/14 10:30:54 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -387,13 +387,20 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
 static void receive_mpz(OXFILE *oxfp, mpz_ptr mpz)
 {
     int i;
+	int n = sizeof(mpz->_mp_d[0]) / sizeof(int);
     int size  = receive_int32(oxfp);
     int len   = abs(size);
-    resize_mpz(mpz, size);
+	int *ptr;
+	if (n == 1) {
+	    resize_mpz(mpz, size);
+	} else {
+	    resize_mpz(mpz, (size+1) / n);
+	}
 
-    for(i=0; i<len; i++) {
-        mpz->_mp_d[i] = receive_int32(oxfp);
-    }
+	ptr = (int *)mpz->_mp_d;
+	for(i= len-1; i>=0; i--) {
+		ptr[i] = receive_int32(oxfp);
+	}
 }
 
 void send_ox_command(OXFILE *oxfp, int sm_command)
@@ -705,10 +712,12 @@ void send_cmo(OXFILE *oxfp, cmo* c)
 static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
 {
     int i;
-    int len = abs(mpz->_mp_size);
-    send_int32(oxfp, mpz->_mp_size);
+	int n = sizeof(mpz->_mp_d[0]) / sizeof(int);
+    int len = abs(mpz->_mp_size) * n;
+	int *ptr = (int *)mpz->_mp_d;
+    send_int32(oxfp, mpz->_mp_size * n);
     for(i=0; i<len; i++) {
-        send_int32(oxfp, mpz->_mp_d[i]);
+        send_int32(oxfp, ptr[i]);
     }
     return 0;
 }
