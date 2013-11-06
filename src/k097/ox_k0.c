@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.6 2004/09/05 00:51:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.7 2004/09/17 02:42:58 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -342,7 +342,7 @@ nullserver_simplest(int fd) {
   int c;
   while(1) {
     c = readOneByte(fd);
-    if (c == '@') { return; }
+    if (c == '@') { return 0; }
   }
 }
 

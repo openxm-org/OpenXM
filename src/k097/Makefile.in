@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.4 2004/03/03 03:07:42 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.5 2004/06/24 11:59:22 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -62,7 +62,7 @@ Stable/sm1symbo.h : Stable/reserved.txt
 	(cd Stable; make)
 
 clean:
-	rm -f simple d0 k0 test0 *.o *~  simple.output asir-tmp.t asir-tmp.tt asir-tmp-out.t asir-tmp-out.tt k2
+	rm -f simple d0 k0 test0 *.o *~  simple.output asir-tmp.t asir-tmp.tt asir-tmp-out.t asir-tmp-out.tt k2 .*_done
 	(cd Stable; make clean)
 	(cd try; make clean)
 ##	rm -f simple.tab.c simple.tab.h

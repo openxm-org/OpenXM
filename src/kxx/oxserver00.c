@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.15 2004/09/05 00:51:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.16 2004/09/17 02:42:58 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -364,7 +364,7 @@ nullserver_simplest(int fd) {
   int c;
   while(1) {
     c = readOneByte(fd);
-    if (c == '@') { return; }
+    if (c == '@') { return 0; }
   }
 }
 

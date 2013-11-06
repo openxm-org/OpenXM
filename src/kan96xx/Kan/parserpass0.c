@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.4 2005/07/03 11:08:54 ohara Exp $ */
 /* parserpass0.c */
 /*  In this preprocessor, for example, the expression
       x^2+y^2-4+x y;
@@ -182,7 +182,7 @@ static putstr(str,kind)
   int k; char *newbuf;
   if (kind == INIT) {
     ptr = 0;
-    return;
+    return 0;
   }
 
   i=0;
@@ -204,6 +204,7 @@ static putstr(str,kind)
       Buflimit *= 2;
     }
   }
+  return 0;
 }
   
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.16 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.17 2006/05/06 09:40:26 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -605,7 +605,7 @@ KCerror(char *s)   /* You need this function. Otherwise, you get core. */
 	ungetc(MARK_CHAR,stdin);
 	while (fsgetc(Inop) > MARK_CHAR) ;
   }
-  return ;
+  return 0;
   LONGJMP(KCenvOfParser,2);
   exit(1); 
 }
@@ -617,11 +617,11 @@ readcomment() {
     if (c == EOF) {
       fprintf(stderr,"%d: Unexpected end of file in a comment.\n",Linenumber);
       fsungetc(c,Inop); /* should change */
-      return;
+      return 0;
     }
     if (c == '*') {
       c = fsgetc(Inop);
-      if (c == '/') return;
+      if (c == '/') return 0;
     }
   }
 }

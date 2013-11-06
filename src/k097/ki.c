@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.6 2003/12/05 14:02:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.7 2005/06/16 05:07:24 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -46,7 +46,7 @@ sendKan(int p) {
   int result;
   extern int InSendmsg2;
   signal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */
-  if (p == 10) {printf("In(%d)= ",n++); return;}
+  if (p == 10) {printf("In(%d)= ",n++); return 0;}
   if (p == 0 && DebugCompiler) printf("sendKan[%s]\n",Kbuff); 
   /* printf("sendKan[%s]\n",Kbuff);   */
   if (strlen(Kbuff) != 0) {
@@ -157,7 +157,7 @@ execFile(char *s)
 	    fprintf(stderr,"Fatal error: Cannot open the system macro %s in %s, %s, %s nor %s.\n",
 		    s,tname2,tname3,tname4,tname);
 	    exit(11);
-	    return;
+	    return 0;
 	  }
 	}
       }

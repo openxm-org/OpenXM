@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.12 2004/08/28 12:50:06 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.13 2005/06/16 05:07:24 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -162,7 +162,7 @@ dumpCmoBuf(struct cmoBuffer *cb)
   char *s;
   if (cb->isStream) {
     printf("cmoBuffer is directed to a stream.\n");
-    return;
+    return 0;
   }
   size = cb->pos;
   s = (char *)(cb->buf);
@@ -173,6 +173,7 @@ dumpCmoBuf(struct cmoBuffer *cb)
     printf("%3x",(int)(unsigned char)s[i]);
   }
   putchar('\n');
+  return 0;
 }
 
 /* This obsolete function is used to write data

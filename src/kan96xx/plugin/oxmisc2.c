@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.25 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.26 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "ox_kan.h"
@@ -384,7 +384,7 @@ struct object KoxIsThereErrorClient(struct object ob)
 int oxClientToObject(oxclientp client,struct object rob)
 {
   struct object ob = OINIT;
-  if (client == NULL) return;
+  if (client == NULL) return 0;
   /* rob = newObjectArray(N_OF_CLIENT_FIELDS); */
   if (rob.tag != Sarray) {
     errorOxmisc2("oxClientToObject(): the second argument must be an array.");
@@ -658,7 +658,7 @@ struct object KoxWatch(struct object client,struct object f)
     }else{
       WatchStream = 0;
     }
-    return;
+    return rob;
   }
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
