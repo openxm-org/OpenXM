@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.20 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.21 2005/07/03 11:08:54 ohara Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -9,6 +9,7 @@
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
+#include "extern2.h"
 #include "gradedset.h"
 #include "kclass.h"
 #include <sys/types.h>
