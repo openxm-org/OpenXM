@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.7 2011/05/02 06:39:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.8 2013/08/31 13:44:08 ohara Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +7,7 @@
 int ReplaceLine=0;
 int Verbose=0;
 void usage();
+int replaceOneWord(char *fname,char *old, char *new);
 
 char *readAsString(FILE *fp) {
   static char *s = NULL;
@@ -38,7 +39,7 @@ char *readAsString(FILE *fp) {
   return s;
 }
 
-matches(char *word,char *s,int j) {
+int matches(char *word,char *s,int j) {
   int i;
   for (i=0; i<j; i++) {
     if (word[i] != s[i]) return 0;
@@ -46,7 +47,7 @@ matches(char *word,char *s,int j) {
   return 1;
 }
 
-isHexc(int c) {
+int isHexc(int c) {
   if ((c >= '0') && (c<='9')) return 1;
   if ((c >= 'A') && (c<='F')) return 1;
   if ((c >= 'a') && (c<='f')) return 1;
@@ -78,7 +79,7 @@ char *hex2str(char hstr[]) {
   else return s;
 }
 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   int i;
   char *old = NULL;
   char *new = NULL;
@@ -116,12 +117,12 @@ main(int argc, char *argv[]) {
 	  }
 	}
   }
-  exit(0);
+  return 0;
 }
 	
 #define DEBUG 1
 
-replaceOneWord(char *fname,char *old, char *new) {
+int replaceOneWord(char *fname,char *old, char *new) {
   FILE *fp;
   FILE *fpOrig;
   char *s;
