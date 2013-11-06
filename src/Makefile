@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.160 2010/07/31 10:00:59 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.161 2011/05/13 08:14:30 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -219,7 +219,8 @@ clean:
 
 distclean: clean
 	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
-	           ox_toolkit oxc pari phc phcpack tigers oxmgraph pcc ; do \
+	           ox_toolkit oxc pari phc phcpack tigers oxmgraph pcc \
+                   asir-doc k097 ox_cdd util; do \
 		(cd $$i; ${MAKE} distclean); \
 	done
 	-(cd ${BINDIR} && rm -f  d0 k0 ox ox_sm1 oxlog oxweave sm1)
