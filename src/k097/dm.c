@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/dm.c,v 1.3 2003/07/21 12:41:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/dm.c,v 1.4 2005/06/16 05:07:24 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -36,10 +36,10 @@ void *mymalloc(int size) {
   return((void *)malloc(size));
 }
 
-void *GC_malloc(int size) {
+void *GC_malloc(size_t size) {
   return((void *)malloc(size));
 }
-void *sGC_malloc(int size) {
+void *sGC_malloc(size_t size) {
   return ((void *) GC_malloc(size));
 }
 

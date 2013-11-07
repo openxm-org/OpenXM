@@ -1,10 +1,13 @@
-/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.1 2003/05/14 07:09:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.2 2005/06/16 05:07:24 takayama Exp $ */
 /* This is imported from kxx/sm1stackmachine.c */
 #include <stdio.h>
 #include <setjmp.h>
+#include <string.h>
 #include "../kxx/ox_kan.h"
 #include "../kxx/serversm.h"
 extern int OXprintMessage;
+void *GC_malloc(size_t size);
+void *sGC_malloc(size_t size);
 
 /*  server stack machine */
 

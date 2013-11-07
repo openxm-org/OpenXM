@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.h,v 1.4 2005/06/09 04:47:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.5 2005/06/16 05:07:24 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
 
@@ -169,6 +169,9 @@ int K00getIncetanceVariable(char *s);
 void K00recoverFromError();
 int K00declareClass(char *name,char *supername);
 void K00toPrimitiveClass();
+
+void *GC_malloc(size_t size);
+void *sGC_malloc(size_t size);
 
 
 

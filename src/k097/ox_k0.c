@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.7 2004/09/17 02:42:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.8 2013/11/06 06:23:23 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <signal.h>
 #include <setjmp.h>
+#include <string.h>
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "../kxx/ox_kan.h"
 #include "../kxx/serversm.h"
