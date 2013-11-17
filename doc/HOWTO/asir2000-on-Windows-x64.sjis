@@ -1,33 +1,53 @@
-$OpenXM$
+$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.1 2009/03/09 16:18:07 ohara Exp $
 
-Risa/Asir for Windows Vista x64 のビルド方法
+Risa/Asir for Windows のビルド方法 (x64 対応)
 
 0. 必要な物
 
-・Windows Vista Business x64 Edition
-・Visual Studio 2008 professional
-・Cygwin
+・Windows 7 x64 または Windows Vista x64
+・Visual Studio 2010 または Visual Studio 2008
+・Cygwin (bash, gzip, tar, patch, coreutils, perl が必要です。)
+  ソースの展開および、texi2html に用いる。
+
+また、インストーラ(Windows installer 形式ファイル)を作成するには、
+・WiX toolset ver.3.7 (http://wixtoolset.org)
+をインストールし、${WIX}/bin/ に PATH を通すこと。
 
 1. ソースの取得
 
-CVS クライアントを用いて、OpenXM_contrib2 を checkout する.
+CVS クライアント(例えば、TortoiseCVS, http://www.tortoisecvs.org/)を用いて、
+OpenXM および OpenXM_contrib2 を checkout する.
+また、OpenXM_dist/ に gc-7.2b.tar.gz, pari-2.0.17.beta.tgz を置く。
 
-2. gc-7.1 ソースの準備
+2. ビルド (64bit 版)
 
-OpenXM_contrib2/windows/ に gc-7.1 のソースを展開し, 差分
-OpenXM_contrib2/asir2000/gc-7.0-risa.diff をソースに当てる.
-
-この作業を補助するためにスクリプトが用意されている.
-OpenXM_contrib2/../OpenXM_dist に gc-7.1.tar.gz を置き,
-Cygwin プロンプトから次のように入力する.
-
-$ cd OpenXM_contrib2/windows
-$ ./extract_gc.sh
-
-3. ビルド
-
-「Visual Studio 2008 x64 Win64 コマンドプロンプト」から
+「Visual Studio x64 Win64 コマンド プロンプト (2010)」から
 次のように入力する.
 
 C> cd OpenXM_contrib2\windows
-C> makebin64
+C> makepkg.bat
+C> nmake msi
+
+makepkg で、asir 以下に全バイナリ・ヘルプが生成される。
+これを zip でアーカイブしたものが、asir_win64_XXXX.zip である。
+XXXX には日付が入る。例えば、2013年11月23日ならば、2013.11.23 となる。
+
+また、nmake msi と打つことによって、Windows installer 形式
+asir_win64_XXXX.msi を生成する。
+
+最後に、次のように入力すると、中間生成ファイル(ヘルプを除く)をすべて消去する。
+
+C> nmake distclean
+
+余計なファイルを消去したので、そのまま、32bit 版の作成に入ることができる。
+
+3. ビルド (32bit 版)
+
+「Visual Studio コマンド プロンプト (2010)」から
+次のように入力する.
+
+C> cd OpenXM_contrib2\windows
+C> makepkg.bat
+C> nmake msi
+
+asir_win32_XXXX.zip および、asir_win32_XXXX.msi が作成される。
