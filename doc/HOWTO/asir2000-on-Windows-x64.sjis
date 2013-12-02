@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.1 2009/03/09 16:18:07 ohara Exp $
+$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.2 2013/11/17 18:59:22 ohara Exp $
 
 Risa/Asir for Windows のビルド方法 (x64 対応)
 
@@ -51,3 +51,30 @@ C> makepkg.bat
 C> nmake msi
 
 asir_win32_XXXX.zip および、asir_win32_XXXX.msi が作成される。
+
+付録 A. インストーラのアップデート方法
+
+*** 事前に WiX tutorial などを読んでおくこと! ***
+
+OpenXM_contrib2/windows/ 以下にある *.wxs がインストーラのソースである。インストーラを
+ビルドするには、Makefile に記載されている情報が必要である。Makefile に書かれている、
+UPGRADEID=B7A582F5-0484-4030-9D38-BFAE00707F0D
+の行は、「決して変更してはいけない」。変更するとアップグレードできなくなる。
+
+Risa/Asir に改良が加えられたとき、インストーラもアップグレードしなければならない。
+まず、Makefile に
+PRODUCTVER=1.0.12
+のような行があるので、このバージョンをあげる(例えば 1.0.13 にする)。次に、Makefile に
+PRODUCTID=...
+という行(2か所ある)がある。これは各バージョンに対応しているので、この右辺を必ず変更する
+こと。右辺は GUIDまたはUUID と呼ばれる 16 バイトの整数値であり、
+guidgen.exe (Microsoft で配布) や FreeBSD では、uuidgen コマンドなどで生成できる。
+
+インストールするファイルが増えたり減ったりしたときには、*.wxs も変更しなければならない。
+asir/ および asir/bin/ 以下のファイルは asir.wxs で、それ以外のディレクトリの下にある
+ファイルは _*.wxs で管理されている。Makefile のコメント中に _*.wxs の自動生成に用いる
+ルールが記載されているが、これを用いて生成したファイルで _*.wxs を上書きしないこと。
+インストールされる各ファイルに対して、それぞれ GUID が与えられているが、一度決められた
+この GUID を変更すべきではないからである。(自動生成すると変わってしまう)
+基本的に各 Component 要素が、一つのファイルに対応しているので、WiXedit などで追加して
+いけばよい。
