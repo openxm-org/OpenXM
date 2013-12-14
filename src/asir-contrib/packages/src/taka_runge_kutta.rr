@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.18 2010/09/29 00:33:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.19 2013/05/22 04:44:16 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -464,6 +464,7 @@ def runge_kutta_4_linear(FF,X0,Y,S0,Ys,T0,H) {
 def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
   if (T0 < S0) {
     /* opposite direction */
+    if (H<0) H=-H;
     return taka_runge_kutta_reverse(
       taka_runge_kutta_4a_linear(map(taka_minus,base_replace(FF,[[X0,-X0]])),X0,Y,-S0,Ys,-T0,H));
   }
