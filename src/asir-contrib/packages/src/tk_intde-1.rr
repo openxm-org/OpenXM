@@ -1,0 +1,178 @@
+/* $OpenXM$ 
+  original: h-mle/Prog/intde1.rr
+*/
+
+#define debug_v(x) print([I,Err,Efs,Hoff,Pi2, Epsln, Epsh, H0, Ehp, Ehm, Epst, Ba, Ir, H, Iback, Irback, T, Ep, Em, Xw, Xa, Wg, Fa, Fb, Errt, Errh, Errd])
+
+module tk_intde_1;
+localf ueval$
+localf intde$
+localf int2de$
+localf intde0$
+localf int3de_orig$
+localf myheaviside$
+localf detest1$
+localf detest2$
+localf detest3$
+static O_nfunc$
+
+def ueval(F,X,A) {
+  O_nfunc++; 
+  if (type(F) == 17) { /* quote */
+    F=base_replace(F,[[X,A]]);
+    return eval(eval_quote(F)*exp(0));
+  }else{ return eval(subst(F,X,A));}
+}
+/* This function intde is based on ooura's intde package.  intde1.c 
+  http://www.kurims.kyoto-u.ac.jp/~ooura/intde-j.html
+  Eps = (absolute error)/(integral_a^b |f(x)| dx
+  Return[1] >= 0 : normal termination.
+*/
+def intde(F, A, B, Eps)
+{   I=0; Err=0; /* return value */
+    /* ---- adjustable parameter ---- */
+    Mmax = 256;
+    Efs = 0.1; Hoff = 8.5;
+    if (type(getopt(v)) >= 0) X=getopt(v);
+    else X = x;
+    /* int m,
+    double pi2, epsln, epsh, h0, ehp, ehm, epst, ba, ir, h, iback, 
+        irback, t, ep, em, xw, xa, wg, fa, fb, errt, errh, errd;
+    */
+    A = eval(A*exp(0)); B=eval(B*exp(0)); Eps = eval(Eps*exp(0));    
+    Pi2 = eval(@pi/2);
+    Epsln = 1 - eval(log(Efs * Eps));
+    Epsh = eval((Efs * Eps)^(1/2));
+    H0 = Hoff / Epsln;
+    Ehp = eval(exp(H0));
+    Ehm = 1 / Ehp;
+    Epst = eval(exp(-Ehm * Epsln));
+    Ba = B - A;
+    Ir = ueval(F,X,((A + B) * 0.5)) * (Ba * 0.25);
+    I = Ir * (2 * Pi2);
+    Err = number_abs(I) * Epst;
+    H = 2 * H0;
+    M = 1;
+    do {
+        Iback = I;
+        Irback = Ir;
+        T = H * 0.5;
+        do {
+            Em = eval(exp(T));
+            Ep = Pi2 * Em;
+            Em = Pi2 / Em;
+            do {
+                Xw = 1 / (1 + eval(exp(Ep - Em)));
+                Xa = Ba * Xw;
+                Wg = Xa * (1 - Xw);
+                Fa = ueval(F,X,(A + Xa)) * Wg;
+                Fb = ueval(F,X,(B - Xa)) * Wg;
+                Ir += Fa + Fb;
+                I += (Fa + Fb) * (Ep + Em);
+                Errt = (number_abs(Fa) + number_abs(Fb)) * (Ep + Em);
+                if (M == 1) Err += Errt * Epst;
+                Ep *= Ehp;
+                Em *= Ehm;
+/* debug_v(1);  */
+            } while ((Errt > Err) || (Xw > Epsh));
+            T += H;
+        } while (T < H0);
+        if (M == 1) {
+            Errh = (Err / Epst) * Epsh * H0;
+            Errd = 1 + 2 * Errh;
+        } else {
+            Errd = H * (number_abs(I - 2 * Iback) + 4 * number_abs(Ir - 2 * Irback));
+        }
+        H *= 0.5;
+        M *= 2;
+    } while ((Errd > Errh) && (M < Mmax));
+    I *= H;
+    if (Errd > Errh) {
+        Err = -Errd * M;
+    } else {
+        Err = Errh * Epsh * M / (2 * Efs);
+    }
+    return [I,Err];
+}
+
+def detest1() {
+  O_nfunc=0;
+  A=intde(1/(x^(1/2)),0.0,1.0,10^(-15));
+  /* A=intde(x^2,0,1,10^(-15)); */
+  printf("O_nfunc=%a\n",O_nfunc);
+  return A;
+}
+
+def myheaviside(X) {
+  if (X < 0) return 0; else return 1;
+}
+
+def detest2() {
+  O_nfunc=0;
+  A=intde(quote(myheaviside(y)),0.0,1.0,10^(-15) | v=y);
+  printf("O_nfunc=%a\n",O_nfunc);
+  return A;
+}
+
+def intde0(F,A,B,Eps,X) {
+  In=intde(F,A,B,Eps | v=X);
+  if (In[1] < 0) error("Precision error.");
+  return In[0];
+}
+
+/* Double integral */
+def int2de(F,D,Eps) {
+  if (type(getopt(x)) >= 0) X=getopt(x);
+  else X = x;
+  if (type(getopt(y)) >= 0) Y=getopt(y);
+  else Y = y;
+
+  A1=D[0][0]; B1=D[0][1]; /* x */
+  A2=D[1][0]; B2=D[1][1]; /* y */
+  G=quote(intde0(f,a1,b1,eps,xx));
+  G=base_replace(G,[[f,F],[a1,A1],[b1,B1],[eps,Eps],[xx,X]]);
+  In=intde(G,A2,B2,Eps | v=Y);
+  return In;
+}
+
+def detest3() {
+  O_nfunc=0;
+  A=int2de((x+y)^2*x,[[0,1],[0,2]],10^(-15));
+  /* (x+y)^3*x/3 --> int((x+2)^3*x/3-x^4/3,0,1) */
+  printf("O_nfunc=%a\n",O_nfunc);
+  printf("True value=3.1666... \n");
+  return A;
+}
+/* Why do we have exprparse : syntax error? */
+
+/* triple integral --> undefined arithmetic */
+def int3de_orig(F,D,Eps) {
+  if (type(getopt(x)) >= 0) X=getopt(x);
+  else X = x;
+  if (type(getopt(y)) >= 0) Y=getopt(y);
+  else Y = y;
+  if (type(getopt(z)) >= 0) Z=getopt(z);
+  else Z = z;
+
+  A1=D[0][0]; B1=D[0][1]; /* x */
+  A2=D[1][0]; B2=D[1][1]; /* y */
+  A3=D[2][0]; B3=D[2][1]; /* y */
+  DD=[[A1,B1],[A2,B2]];
+  G=quote(int2de(f,dd,eps));
+  G=base_replace(G,[[f,F],[dd,DD],[eps,Eps]]);
+  In=intde(G,A3,B3,Eps | v=Z);
+  return In;
+}
+
+
+endmodule;
+
+
+/* 
+ Changelog:
+  2010.05.23. This package is modified from misc-2010/05/intde/intde1.rr (obsolte).
+*/
+
+end$
+
+
