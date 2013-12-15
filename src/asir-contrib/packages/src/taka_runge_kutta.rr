@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.21 2013/12/15 08:27:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.22 2013/12/15 10:52:36 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -498,7 +498,7 @@ def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
     A=taka_runge_kutta_4_linear(FF,X0,Y,S0,Ys,H,T0 | option_list=Opt);
     T=A[0];
     if (T0-T[0] > 0) {
-      B=taka_runge_kutta_4_linear(FF,X0,Y,T[0],cdr(T),T0-T[0],0 | option_list=append(Opt,[["onestep",1]]));
+      B=taka_runge_kutta_4_linear(FF,X0,Y,T[0],cdr(T),T0-T[0],T0+(T0-T[0])/10 | option_list=append(Opt,[["onestep",1]]));
       T=B[0];
       A=cons(T,A);
     }
