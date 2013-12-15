@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.19 2013/05/22 04:44:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.20 2013/12/14 04:38:58 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -297,7 +297,7 @@ def taka_runge_kutta_4_test2() {
    taka_plot_auto(T);
 }
 
-def taka_runge_kutta_replace_linear(V,F,Y,N,X,Xk,Rule_vector) {
+def taka_runge_kutta_replace_linear(V,F,Y,N,X,Xk,Rule_vector,Inhom) {
 extern Tk_rk_deep_eval;
   if (Tk_rk_deep_eval) {
     V1=base_replace(F,[[X,Xk]]);
@@ -311,6 +311,15 @@ extern Tk_rk_deep_eval;
     else
       V[I] = V1[I];
   }
+  if (Inhom != 0) {
+    /* printf("X=%a, Xk=%a\n",X,Xk); */
+    if (Tk_rk_deep_eval) {
+      V1=map(eval,base_replace(Inhom,[[X,Xk]]));
+    }else{
+      V1=base_replace_n(Inhom,[[X,Xk]]);
+    }
+    for (I=0; I<N; I++) V[I] += V1[I];
+  }
 }
 
 /* Y is a dummy */
@@ -323,6 +332,12 @@ def taka_runge_kutta_4_linear(F,X,Y,X0,Y0,H,X1) {
   OneStep = getopt(onestep);
   if (type(OneStep) <= 0) OneStep = 0; else OneStep = 1;
   if (OneStep) X1=X0+2*H;
+  Inhom = getopt(inhom); 
+  if (type(Inhom) < 0) Inhom = 0;
+  /* else printf("inhom=%a, onestep=%a\n",Inhom,OneStep); */ /* for debug */ 
+  if (type(Inhom) == 4) {
+     Inhom = newvect(length(Inhom),Inhom);
+  }
   if ((H<0) && (X1-X0)>0) error("taka_runge_kutta_4_linear, X1-X0 should be <0");
   if ((H>0) && (X1-X0)<0) error("taka_runge_kutta_4_linear, X1-X0 should be >0");
   Ans = [];
@@ -349,10 +364,10 @@ def taka_runge_kutta_4_linear(F,X,Y,X0,Y0,H,X1) {
   Xk = X0;
 
   while (H<0? Xk > X1: Xk < X1) {
-    taka_runge_kutta_replace_linear(K1,F,Y,N,X,Xk,Yk);
-    taka_runge_kutta_replace_linear(K2,F,Y,N,X,Xk+H*(1/2),Yk+K1*(1/2)*H);
-    taka_runge_kutta_replace_linear(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H);
-    taka_runge_kutta_replace_linear(K4,F,Y,N,X,Xk+H,Yk+K3*H);
+    taka_runge_kutta_replace_linear(K1,F,Y,N,X,Xk,Yk,Inhom);
+    taka_runge_kutta_replace_linear(K2,F,Y,N,X,Xk+H*(1/2),Yk+K1*(1/2)*H,Inhom);
+    taka_runge_kutta_replace_linear(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H,Inhom);
+    taka_runge_kutta_replace_linear(K4,F,Y,N,X,Xk+H,Yk+K3*H,Inhom);
     Yk1 = Yk+H*(K1/6+K2/3+K3/3+K4/6);
     if (Taka_Runge_kutta_debug) print([Xk,Yk[0]]);
     if (Taka_Runge_kutta_save_data) {
@@ -458,23 +473,25 @@ def runge_kutta_4(FF,X0,Y,S0,Ys,T0,H) {
    return taka_runge_kutta_4a(FF,X0,Y,S0,Ys,T0,H);
 }
 def runge_kutta_4_linear(FF,X0,Y,S0,Ys,T0,H) {
-   return taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H);
+   Opt = getopt();
+   return taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H | option_list=Opt);
 }
 
 def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
+  Opt = getopt();
   if (T0 < S0) {
     /* opposite direction */
     if (H<0) H=-H;
     return taka_runge_kutta_reverse(
-      taka_runge_kutta_4a_linear(map(taka_minus,base_replace(FF,[[X0,-X0]])),X0,Y,-S0,Ys,-T0,H));
+      taka_runge_kutta_4a_linear(map(taka_minus,base_replace(FF,[[X0,-X0]])),X0,Y,-S0,Ys,-T0,H | option_list=Opt));
   }
   if (H >= T0-S0) {
-    A=taka_runge_kutta_4_linear(FF,X0,Y,S0,Ys,T0-S0,0 | onestep=1);
+    A=taka_runge_kutta_4_linear(FF,X0,Y,S0,Ys,T0-S0,0 | option_list=append(Opt,[["onestep",1]]));
   }else{
-    A=taka_runge_kutta_4_linear(FF,X0,Y,S0,Ys,H,T0);
+    A=taka_runge_kutta_4_linear(FF,X0,Y,S0,Ys,H,T0 | option_list=Opt);
     T=A[0];
     if (T0-T[0] > 0) {
-      B=taka_runge_kutta_4_linear(FF,X0,Y,T[0],cdr(T),T0-T[0],0 | onestep=1);
+      B=taka_runge_kutta_4_linear(FF,X0,Y,T[0],cdr(T),T0-T[0],0 | option_list=append(Opt,[["onestep",1]]));
       T=B[0];
       A=cons(T,A);
     }
@@ -507,6 +524,7 @@ localf tryA$
 localf tryA2$
 localf geq$
 localf test1$
+localf rcheck1$
 
 def re(L) {
   return map(re2,L);
@@ -564,6 +582,20 @@ Print[N[D[-2*Gamma[1/2]^2*Hypergeometric2F1[1/2,1/2,1,z],z] /. {z->p2}]]
 */
  print("math:  [0.8495+0.3835*I, -7.64079 - 2.0799*I, -1.16364 - 4.14709*I] ");
  print("It was Buggy tryA2() and tryA() --> fixed. see log of 1.8");
+}
+
+def rcheck1() {
+  /* f'=f/z+z*cos(z) where f=z*sin(z) */
+  Tk_rk_deep_eval=1;
+  Step = 0.01;
+  X0 = 3.14/2;
+  X = 3.14;
+  Iv=[X0*1];
+  Eq=[[1/z]]; Inhom = [z*cos(z)];
+  A=tk_rk.runge_kutta_4_linear(Eq,z,[],X0,Iv,X,Step | inhom=Inhom, onestep=1);
+  print(A);
+  A=tk_rk.runge_kutta_4_linear(Eq,z,[],X0,Iv,X,Step | inhom=Inhom);
+  return A;
 }
 
 endmodule;
