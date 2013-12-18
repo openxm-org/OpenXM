@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.22 2013/12/15 10:52:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.23 2013/12/15 23:25:59 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -483,8 +483,8 @@ def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
     /* opposite direction */
     if (H<0) H=-H;
     Opt = [];
-    if (getopt(onestep) >= 0) Opt=[["onestep",getopt(onestep)]];
-    if (getopt(inhom) >= 0) Inhom = getopt(inhom);
+    if (type(getopt(onestep)) >= 0) Opt=[["onestep",getopt(onestep)]];
+    if (type(getopt(inhom)) >= 0) Inhom = getopt(inhom); else Inhom = 0;
     if (Inhom != 0) {
       Inhom = map(taka_minus,base_replace(Inhom,[[X0,-X0]])); 
       Opt = append(Opt,[["inhom",Inhom]]);
