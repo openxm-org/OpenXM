@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.161 2011/05/13 08:14:30 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.162 2013/11/06 00:32:59 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -24,7 +24,7 @@ all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-util install-k
 all-oxc: configure-oxc install-oxtoolkit 
 	(cd oxc; ${MAKE} all)
 
-all-asir: configure-asir install-pari
+all-asir: configure-asir install-pari install-gmp
 	(cd asir2000; ${MAKE} all)
 
 all-gnuplot: configure-gnuplot
