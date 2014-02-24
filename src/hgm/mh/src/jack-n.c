@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.12 2013/03/07 03:00:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.13 2013/03/07 05:23:31 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1436,28 +1436,30 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
 
 static int usage() {
   fprintf(stderr,"Usages:\n");
-  fprintf(stderr,"mh-m [--idata input_data_file --x0 x0 --degree approxm]\n");
-  fprintf(stderr,"\nThe command mh-m [options] generates an input for w-m, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
-  fprintf(stderr,"The mh-m uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
+  fprintf(stderr,"hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
+  fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
+  fprintf(stderr,"The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
   fprintf(stderr,"The degree of the approximation (Mapprox) is given by the --degree option.\n");
   fprintf(stderr,"Parameters are specified by the input_data_file. Otherwise, default values are used.\n");
   fprintf(stderr,"The format of the input_data_file. The orders of the input numbers must be kept.\n");
   fprintf(stderr," Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
-  fprintf(stderr," Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros. \n");
+  fprintf(stderr," (Add a comment line %Ng= before the data Ng to check the number of beta.)\n");
+  fprintf(stderr," X0g: starting value of x(when --x0 option is used, this value is used)\n");
+  fprintf(stderr," Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
   fprintf(stderr," Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
-  fprintf(stderr," Hg: h (step size) which is for w-m, X0g: starting value of x(when --x0 option is used, this value is used), Xng: terminating value of x which is for w-m.\n");
-  fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified, which is for w-m.\n");
+  fprintf(stderr," Hg: h (step size) which is for hgm_w-n, \n"); 
+  fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified, which is for hgm_w-n.\n");
+  fprintf(stderr," Xng: terminating value of x which is for hgm_w-n.\n");
   fprintf(stderr," The line started with %% is a comment line.\n");
   fprintf(stderr," With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
-  fprintf(stderr," An example format of the input_data_file can be obtained by executing mh-m with no option.\n");
+  fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
   fprintf(stderr,"\nExamples:\n");
-  fprintf(stderr,"[1] ./mh-2 \n");
-  fprintf(stderr,"[2] ./mh-2 --x0 0.3 \n");
-  fprintf(stderr,"[3] ./mh-3 --x0 0.1 \n");
-  fprintf(stderr,"[4] ./mh-3 --x0 0.1 --degree 15 \n");
-  fprintf(stderr,"[5] ./mh-3 --idata test.txt --degree 15 \n");
-  fprintf(stderr,"[6] ./mh-3 --degree 15 >test2.txt\n");
-  fprintf(stderr,"    ./w-3 --idata test2.txt --gnuplotf test-g\n");
+  fprintf(stderr,"[1] ./hgm_jack-n \n");
+  fprintf(stderr,"[2] ./hgm_jack-n --x0 0.1 \n");
+  fprintf(stderr,"[3] ./hgm_jack-n --x0 0.1 --degree 15 \n");
+  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15 \n");
+  fprintf(stderr,"[5] ./hgm_jack-n --degree 15 >test2.txt\n");
+  fprintf(stderr,"    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
   return(0);
 }
@@ -1489,11 +1491,20 @@ static int setParamDefault() {
 }
 
 static int next(struct SFILE *sfp,char *s,char *msg) {
+  static int check=1;
+  char *ng="%Ng=";
+  int i;
   s[0] = '%';
   while (s[0] == '%') {
     if (!mh_fgets(s,SMAX,sfp)) {
       fprintf(stderr,"Data format error at %s\n",msg);
       mh_exit(-1);
+    }
+    if (check && (strncmp(msg,ng,4)==0)) {
+      if (strncmp(s,ng,4) != 0) {
+        fprintf(stderr,"Warning, there is no %%Ng= at the border of Beta's and Ng, s=%s\n",s);
+      }
+      check=0;
     }
     if (s[0] != '%') return(0);
   }
@@ -1522,20 +1533,25 @@ static int setParam(char *fname) {
   }
 
   Ng = (double *)mymalloc(sizeof(double));
-  next(fp,s,"Ng(freedom parameter n)");
+  next(fp,s,"%Ng= (freedom parameter n)");
   sscanf(s,"%lf",Ng);
   
   next(fp,s,"X0g(initial point)");
   sscanf(s,"%lf",&X0g);
-  
+
   Iv = (double *)mymalloc(sizeof(double)*rank);
   for (i=0; i<rank; i++) {
     next(fp,s,"Iv(initial values)");
+	if (strncmp(s,"*",1)==0) {
+	  for (i=0; i<rank; i++) Iv[i] = 0.0;
+	  break;
+	}
     sscanf(s,"%lg",&(Iv[i]));
   }
 
   next(fp,s,"Ef(exponential factor)");
-  sscanf(s,"%lg",&Ef);
+  if (strncmp(s,"*",1)==0) Ef=0.0;
+  else sscanf(s,"%lg",&Ef);
 
   next(fp,s,"Hg (step size of rk)");
   sscanf(s,"%lf",&Hg);
