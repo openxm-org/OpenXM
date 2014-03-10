@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.13 2013/03/08 07:32:28 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.14 2014/02/25 05:25:39 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -172,7 +172,8 @@ int mh_usage() {
   fprintf(stderr," Xng: terminating value of x.\n");
   fprintf(stderr," --95: output the 95%% point. --verbose: verbose mode.\n");
   fprintf(stderr," The line started with %% is a comment line.\n");
-  fprintf(stderr," An example format of the input_data_file can be obtained by executing w-2 with no option.\n");
+  fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
+  fprintf(stderr,"When --idata option is used, this command is quiet. Use --verbose option if you want to see some messages.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_w-n \n");
   fprintf(stderr,"[2] ./hgm_w-n --xmax 20\n");
