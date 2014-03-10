@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.13 2013/03/07 05:23:31 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.14 2014/02/24 07:58:05 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1256,10 +1256,13 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   extern int P_pmn;
   extern double *M_qk;
   extern double M_rel_error;
+  extern int M_m;
   int Pmn;
   int K;
   int *Kap;
   int size;
+  int i;
+  double partial_sum[M_m_MAX+1];
   F = 0; F2=0;
   M_df=1;
   genJack(M,N);
@@ -1276,6 +1279,24 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
     if (Debug && (ParraySize[K] == size)) printf("M_qk[K]=%lg, aM_jack=%lg\n",M_qk[K],aM_jack(N,0,K));
   }
   M_rel_error = F-F2;
+
+  for (i=0; i<=M_m; i++) {
+    partial_sum[i] = 0.0; partial_sum[i+1] = 0.0;
+    for (K=0; K<=P_pmn; K++) {
+      if (ParraySize[K] == i) partial_sum[i] += M_qk[K]*aM_jack(N,0,K);
+    }
+    if (i>0) partial_sum[i] += partial_sum[i-1];
+  }
+  /*
+  for (K=0; K<=P_pmn; K++) {
+    printf("Kappa="); for (i=0; i<N; i++) printf("%d ",Parray[K][i]); printf("\n"); 
+    printf("ParraySize(%d)=%d (|kappa|),   M_m=%d\n",K,ParraySize[K],M_m);
+  }
+  for (i=0; i<=M_m; i++) {
+    printf("partial_sum[%d]=%lg\n",i,partial_sum[i]);
+  }
+  */
+
   return(F);
 }
 double mh_t2(int J) {
