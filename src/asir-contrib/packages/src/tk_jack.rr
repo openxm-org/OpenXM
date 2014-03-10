@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.1 2012/09/18 11:41:18 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.2 2014/03/10 03:04:06 takayama Exp $
 Koev-Edelman for higher order derivatives.
 Series solution obtained by an interpolation and Koev-Edelman evaluation.
 Previous version: misc-2011/10/wishart/Prog/mh.rr
@@ -821,7 +821,7 @@ def genBeta(Kap) {
   M_beta = newmat(2,P_pmn+1);
   M_beta_pt = 0;
   N = plength(Kap);
-  for (I=0; I<=P_pmn; I++) for (J=0; J<2; J++) M_beta[J][I] = N;
+  for (I=0; I<=P_pmn; I++) for (J=0; J<2; J++) M_beta[J][I] = nan;
   HS_hsExec = hsExec_beta;
   M_beta_kap = Kap;
   pListHS(cons(0,Kap),N);
