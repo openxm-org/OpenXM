@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.7 2013/03/05 05:26:07 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.8 2013/03/08 04:54:01 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -18,6 +18,7 @@ struct MH_RESULT {
   int rank;
   struct SFILE **sfpp;  /* sfpp[0], ..., spff[size-1] */
   int size;
+  char *message;
 };
  
 struct SFILE *mh_fopen(char *name, char *mode, int byFile);

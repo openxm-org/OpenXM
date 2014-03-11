@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.14 2014/02/24 07:58:05 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.15 2014/03/10 06:34:32 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2014.03.11,  
   2012.02.21, porting to OpenXM/src/hgm
   2011.12.22, --table option, which is experimental.
   2011.12.19, bug fix.  jjk() should return double. It can become more than max int.
@@ -93,6 +94,17 @@ static double Xarray[M_nmx][M_m_MAX];
 static double *M_qk=NULL;  /* saves pochhammerb */
 static double M_rel_error=0.0; /* relative errors */
 
+/* For automatic degree and X0g setting. */
+static int M_m_estimated_approx_deg=0;
+static double M_assigned_series_error=0.00001;
+static int M_automatic=0;
+static double M_x0value_min=0.1;
+static double M_estimated_X0g=0.0;
+static int M_mh_t_success=1;
+#define myabs(x) ((x)<0?(-(x)):(x))
+#define mymax(x,y) ((x)>(y)?(x):(y))
+#define mymin(x,y) ((x)<(y)?(x):(y))
+
 /* prototypes */
 static void *mymalloc(int size);
 static int myfree(void *p);
@@ -159,6 +171,7 @@ static double mypower(double a,int n);
 double mh_t(double A[A_LEN],double B[B_LEN],int N,int M);
 double mh_t2(int J);
 struct MH_RESULT *jk_main(int argc,char *argv[]);
+struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int newDegree);
 int jk_freeWorkArea();
 int jk_initializeWorkArea();
 
@@ -1257,12 +1270,16 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   extern double *M_qk;
   extern double M_rel_error;
   extern int M_m;
+  extern int M_m_estimated_approx_deg;
+  extern double M_assigned_series_error;
   int Pmn;
   int K;
   int *Kap;
   int size;
   int i;
   double partial_sum[M_m_MAX+1];
+  double iv;
+  double serror;
   F = 0; F2=0;
   M_df=1;
   genJack(M,N);
@@ -1280,12 +1297,20 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   }
   M_rel_error = F-F2;
 
+  M_m_estimated_approx_deg = -1; serror=1;
   for (i=0; i<=M_m; i++) {
     partial_sum[i] = 0.0; partial_sum[i+1] = 0.0;
     for (K=0; K<=P_pmn; K++) {
       if (ParraySize[K] == i) partial_sum[i] += M_qk[K]*aM_jack(N,0,K);
     }
     if (i>0) partial_sum[i] += partial_sum[i-1];
+    serror = myabs((partial_sum[i]-partial_sum[i-1])/partial_sum[i-1]);
+    if ((i>0)&&(M_m_estimated_approx_deg < 0)&&(serror<M_assigned_series_error)) {
+      M_m_estimated_approx_deg = i; break;
+    }
+  }
+  if (M_m_estimated_approx_deg < 0) {
+    M_m_estimated_approx_deg = M_m+mymin(5,mymax(1,(int)log(serror/M_assigned_series_error))); /* Heuristic */
   }
   /*
   for (K=0; K<=P_pmn; K++) {
@@ -1296,6 +1321,18 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
     printf("partial_sum[%d]=%lg\n",i,partial_sum[i]);
   }
   */
+  M_estimated_X0g = X0g;
+  iv=myabs(F*iv_factor());
+  if (iv < M_x0value_min) M_estimated_X0g = X0g*mymax(2,log(log(1/iv)));   /* This is heuristic */
+  M_mh_t_success = 1;
+  if (M_automatic) {
+    if (M_estimated_X0g != X0g) M_mh_t_success=0;
+    if (M_m_estimated_approx_deg > M_m) M_mh_t_success=0;
+  }
+
+  printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+  printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+
 
   return(F);
 }
@@ -1364,6 +1401,29 @@ main(int argc,char *argv[]) {
 #endif
 
 struct MH_RESULT *jk_main(int argc,char *argv[]) {
+  int i;
+  struct MH_RESULT *ans;
+  extern int M_automatic;
+  extern int M_mh_t_success;
+  extern double M_estimated_X0g;
+  extern int M_m_estimated_approx_deg;
+  for (i=1; i<argc; i++) {
+    if (strcmp(argv[i],"--automatic")==0) {
+      inci(i);
+      sscanf(argv[i],"%d",&M_automatic);
+      break;
+    }
+  }
+  ans=jk_main2(argc,argv,0,0.0,0);
+  if (!M_automatic) return(ans);
+  if (M_mh_t_success) return(ans);
+  while (!M_mh_t_success) {
+    ans=jk_main2(argc,argv,1,M_estimated_X0g,M_m_estimated_approx_deg);
+  }
+  return(ans);
+}
+
+struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int newDegree) {
   double *y0;
   double x0,xn;
   double ef;
@@ -1372,6 +1432,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   extern double M_x[];
   extern double *Beta;
   extern int M_2n;
+  extern int M_mh_t_success;
   char swork[1024];
   struct MH_RESULT *ans=NULL;
   struct SFILE *ofp = NULL;
@@ -1399,18 +1460,33 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
     }else if (strcmp(argv[i],"--bystring")==0) {
       if (idata) {fprintf(stderr,"--bystring must come before --idata option.\n"); mh_exit(-1);}
       JK_byFile = 0;
+    }else if (strcmp(argv[i],"--automatic")==0) {
+      inci(i); /* ignore, in this function */
+    }else if (strcmp(argv[i],"--assigend_series_error")==0) {
+      inci(i);
+      sscanf(argv[i],"%lg",&M_assigned_series_error);
+    }else if (strcmp(argv[i],"--x0value_min")==0) {
+      inci(i);
+      sscanf(argv[i],"%lg",&M_x0value_min);
     }else {
       fprintf(stderr,"Unknown option %s\n",argv[i]);
       usage();
       return(NULL);
     }
   }
-  if (!idata) setParam(NULL);  
+  if (!idata) setParam(NULL);
+  if (automode) {
+    Mapprox = newDegree;
+    X0g = newX0g;
+  }
 
   /* Initialize global variables */
   M_n = Mg;
   HS_n=M_n;
-  if (!JK_byFile) ans = (struct MH_RESULT *)mymalloc(sizeof(struct MH_RESULT));
+  if (!JK_byFile) {
+    ans = (struct MH_RESULT *)mymalloc(sizeof(struct MH_RESULT));
+    ans->message = NULL;
+  }
   else ans = NULL;
   /* Output by a file=stdout */
   ofp = mh_fopen("stdout","w",JK_byFile);
@@ -1428,6 +1504,10 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
   if (Debug) printf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
   mh_t(a,b,M_n,Mapprox);
+  if (!M_mh_t_success) {
+    jk_freeWorkArea();
+    return NULL;
+  }
   if (imypower(2,M_n) != M_2n) {
     sprintf(swork,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
     myerror("2^M_n != M_2n\n"); mh_exit(-1);
@@ -1440,7 +1520,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
   showParam(ofp,0);
 
   /* return the result */
-  if (!JK_byFile) {
+  if (!JK_byFile) { 
     ans->x = X0g;
     ans->rank = imypower(2,Mg);
     ans->y = (double *)mymalloc(sizeof(double)*(ans->rank));
@@ -1458,6 +1538,7 @@ struct MH_RESULT *jk_main(int argc,char *argv[]) {
 static int usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
+  fprintf(stderr,"           [--automatic n --assigend_series_error e --x0value_min e2]\n");
   fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
   fprintf(stderr,"The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
   fprintf(stderr,"The degree of the approximation (Mapprox) is given by the --degree option.\n");
@@ -1474,6 +1555,9 @@ static int usage() {
   fprintf(stderr," The line started with %% is a comment line.\n");
   fprintf(stderr," With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
   fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
+  fprintf(stderr,"By --automatic option, X0g and degree are automatically searched. The current strategy is described in mh_t in jack-n.c\n");
+  fprintf(stderr,"Default values for the papameters of the automatic mode: assigned_series_error=%lg, x0value_min=%lg\n",M_assigned_series_error,M_x0value_min);
+  fprintf(stderr,"Todo: automatic mode throws away all computation of the previous degree and reevaluate them. They should be kept.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_jack-n \n");
   fprintf(stderr,"[2] ./hgm_jack-n --x0 0.1 \n");
@@ -1482,6 +1566,7 @@ static int usage() {
   fprintf(stderr,"[5] ./hgm_jack-n --degree 15 >test2.txt\n");
   fprintf(stderr,"    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
+  fprintf(stderr,"[6] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1\n");
   return(0);
 }
 

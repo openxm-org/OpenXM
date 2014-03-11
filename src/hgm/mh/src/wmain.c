@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.14 2014/02/25 05:25:39 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.15 2014/03/10 04:38:23 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -32,6 +32,7 @@ static double Xng=0.0;   /* the last point */
 int MH_RawName = 0;
 static int Testrank=0;
 extern int MH_Verbose;
+
 
 extern int MH_P95;  /* 95 % points */
 int mh_gopen_file(void);
@@ -150,6 +151,7 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   mh_gopen_file();
   if (MH_Verbose) {for (i=0; i<rank; i++) printf("%lf\n",y0[i]); }
   rp = (struct MH_RESULT*) mh_malloc(sizeof(struct MH_RESULT));
+  rp->message = NULL;
   *rp=mh_rkmain(x0,y0,xn);
   return(rp);
 }
