@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.17 2004/07/10 05:50:57 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.18 2005/07/25 12:23:05 takayama Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -1556,6 +1556,8 @@ def demo() @{
 モジュールは入れ子にはできない.
 モジュールの中だけで使う大域変数は @code{static} で宣言する.
 この変数はモジュールの外からは参照もできないし変更もできない.
+@code{static} 変数はすべての関数定義の前に宣言しないといけない.
+パーサーがワンパスのため, 宣言のない変数は自動的に局所変数とみなされるからである.
 モジュールの外の大域変数は @code{extern} で宣言する.
 \E
 \BEG
@@ -1566,7 +1568,10 @@ and
 A variable of a module is declared with the key word @code{static}.
 The static variables cannot be refered nor changed out of the module,
 but it can be refered and changed in any functions in the module.
-A global variable which can be refered and changed at any place
+The @code{static} variables must be declared before the definitions of functions,
+because the one-path parser of asir automatically assume variables as local variables
+if there is no declaration for them.
+A global variable which can be refered and changed in or out of the module
 is declared with the key word @code{extern}.
 \E
 
