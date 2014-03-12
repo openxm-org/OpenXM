@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.15 2014/03/10 06:34:32 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.16 2014/03/11 05:20:45 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -98,7 +98,7 @@ static double M_rel_error=0.0; /* relative errors */
 static int M_m_estimated_approx_deg=0;
 static double M_assigned_series_error=0.00001;
 static int M_automatic=0;
-static double M_x0value_min=0.1;
+static double M_x0value_min=0.000000001;
 static double M_estimated_X0g=0.0;
 static int M_mh_t_success=1;
 #define myabs(x) ((x)<0?(-(x)):(x))
@@ -1332,6 +1332,8 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
 
   printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
   printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+  fprintf(stderr,"%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+  fprintf(stderr,"%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
 
 
   return(F);
@@ -1397,6 +1399,7 @@ main(int argc,char *argv[]) {
   /*  jk_main(argc,argv);
       printf("second run.\n"); */
   jk_main(argc,argv);
+  return(0);
 }
 #endif
 

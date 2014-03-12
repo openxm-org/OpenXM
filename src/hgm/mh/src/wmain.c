@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.15 2014/03/10 04:38:23 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.16 2014/03/11 05:20:45 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -161,6 +161,8 @@ int mh_usage() {
   fprintf(stderr,"hgm_w-n [--idata input_data_file --gnuplotf gnuplot_file_name\n");
   fprintf(stderr," --dataf output_data_file --raw --xmax xmax --test m --step h]\n");
   fprintf(stderr,"[ --95 --verbose] \n");
+  fprintf(stderr,"[ --strategy s --abserr ae --relerr re] \n");
+  fprintf(stderr,"s:0 rk, s:1 adaptive, s:2 adaptive&multiply, see rk.c for the default value of ae and re.\n");
   fprintf(stderr,"--raw does not add data parameters to the output_data_file.\n");
   fprintf(stderr,"\nThe command hgm_w-n [options] evaluates Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
   fprintf(stderr,"All the eigenvalues of sigma must be simple.\n");
