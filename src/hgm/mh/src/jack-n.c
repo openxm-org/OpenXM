@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.17 2014/03/12 07:50:37 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.18 2014/03/14 02:21:40 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -95,12 +95,60 @@ static double *M_qk=NULL;  /* saves pochhammerb */
 static double M_rel_error=0.0; /* relative errors */
 
 /* For automatic degree and X0g setting. */
-static int M_m_estimated_approx_deg=0;
-static double M_assigned_series_error=0.00001;
+/*
+ If automatic == 1, then the series is reevaluated as long as t_success!=1
+ by increasing X0g (evaluation point) and M_m (approx degree);
+ */
 static int M_automatic=0;
-static double M_x0value_min=0.000000001;
+/* Estimated degree bound for series expansion. See mh_t */
+static int M_m_estimated_approx_deg=0;
+/* Let F(i) be the approximation up to degree i. 
+   The i-th series_error is defined
+   by |(F(i)-F(i-1))/F(i-1)|.
+*/
+static double M_series_error;
+/*
+  M_series_error < M_assigend_series_error (A) is required for the 
+  estimated_approx_deg.
+ */
+static double M_assigned_series_error=0.00001;
+/*
+  Let Ef be the exponential factor ( Ef=(4)/1F1 of [HNTT] )
+  If F(M_m)*Ef < x0value_min (B), the success=0 and X0g is increased. 
+  Note that minimal double is about 2e-308
+ */
+static double M_x0value_min=1e-10;
+/*
+  estimated_X0g is the suggested value of X0g.
+ */
 static double M_estimated_X0g=0.0;
+/*
+ X0g should be less than M_X0g_bound.
+ */
+static double M_X0g_bound = 1e+100;
+/*
+ success is set to 1 when (A) and (B) are satisfied.
+ */
 static int M_mh_t_success=1;
+/*
+  recommended_abserr is the recommended value of the absolute error
+  for the Runge-Kutta method. It is defined as
+  assigend_series_error(standing for significant digits)*Ig[0](initial value)
+ */
+static double M_recommended_abserr;
+/*
+  max of beta(i)*x/2
+ */
+static double M_beta_i_x_o2_max;
+/*
+  minimum of |beta_i-beta_j|
+ */
+static double M_beta_i_beta_j_min;
+/*
+  Value of matrix hg
+*/
+static double M_mh_t_value;
+
 #define myabs(x) ((x)<0?(-(x)):(x))
 #define mymax(x,y) ((x)>(y)?(x):(y))
 #define mymin(x,y) ((x)<(y)?(x):(y))
@@ -1324,18 +1372,20 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   M_estimated_X0g = X0g;
   iv=myabs(F*iv_factor());
   if (iv < M_x0value_min) M_estimated_X0g = X0g*mymax(2,log(log(1/iv)));   /* This is heuristic */
+  M_estimated_X0g = mymin(M_estimated_X0g,M_X0g_bound);
   M_mh_t_success = 1;
-  if (M_automatic) {
-    if (M_estimated_X0g != X0g) M_mh_t_success=0;
-    if (M_m_estimated_approx_deg > M_m) M_mh_t_success=0;
-  }
+  if (M_estimated_X0g != X0g) M_mh_t_success=0;
+  if (M_m_estimated_approx_deg > M_m) M_mh_t_success=0;
 
+  M_series_error = serror;
+  M_recommended_abserr = iv*M_assigned_series_error;
+  
   printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
   printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
   fprintf(stderr,"%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
   fprintf(stderr,"%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
 
-
+  M_mh_t_value=F;
   return(F);
 }
 double mh_t2(int J) {
@@ -1489,6 +1539,9 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   if (!JK_byFile) {
     ans = (struct MH_RESULT *)mymalloc(sizeof(struct MH_RESULT));
     ans->message = NULL;
+    ans->t_success = 0;
+    ans->series_error = 1.0e+10;
+    ans->recommended_abserr = 1.0e-10;
   }
   else ans = NULL;
   /* Output by a file=stdout */
@@ -1503,11 +1556,23 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   for (i=0; i<M_n; i++) {
     M_x[i] = Beta[i]*X0g;
   } 
+
+  M_beta_i_x_o2_max=myabs(M_x[0]/2);
+  if (M_n <= 1) M_beta_i_beta_j_min = myabs(Beta[0]);
+  else M_beta_i_beta_j_min = myabs(Beta[1]-Beta[0]);
+  for (i=0; i<M_n; i++) {
+    if (myabs(M_x[i]/2) > M_beta_i_x_o2_max) M_beta_i_x_o2_max = myabs(M_x[i]/2);
+    for (j=i+1; j<M_n; j++) {
+      if (myabs(Beta[i]-Beta[j]) < M_beta_i_beta_j_min) 
+        M_beta_i_beta_j_min = myabs(Beta[i]-Beta[j]);
+    }
+  }
+
   a[0] = ((double)Mg+1.0)/2.0;
   b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
   if (Debug) printf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
   mh_t(a,b,M_n,Mapprox);
-  if (!M_mh_t_success) {
+  if ((!M_mh_t_success) && M_automatic) {
     jk_freeWorkArea();
     return NULL;
   }
@@ -1531,6 +1596,10 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     ans->size=1;
     ans->sfpp = (struct SFILE **)mymalloc(sizeof(struct SFILE *)*(ans->size));
     (ans->sfpp)[0] = ofp;
+
+    ans->t_success = M_mh_t_success;
+    ans->series_error = M_series_error;
+    ans->recommended_abserr = M_recommended_abserr;
   }
   if (Debug) printf("jk_freeWorkArea() starts\n");
   jk_freeWorkArea();
@@ -1624,6 +1693,7 @@ static int setParam(char *fname) {
   char s[SMAX];
   struct SFILE *fp;
   int i;
+  struct mh_token tk;
   if (fname == NULL) return(setParamDefault());
 
   Sample = 0;
@@ -1670,6 +1740,65 @@ static int setParam(char *fname) {
 
   next(fp,s,"Xng (the last point, cf. --xmax)");
   sscanf(s,"%lf",&Xng);
+
+  /* Reading the optional parameters */
+  while ((tk = mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_EOF) {
+    /* expect ID */
+    if (tk.type != MH_TOKEN_ID) {
+      fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+    }
+    if (strcmp(s,"automatic")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      M_automatic = tk.ival;
+      continue;
+    }
+    if (strcmp(s,"assigned_series_error")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      M_assigned_series_error = tk.dval;
+      continue;
+    }
+    if (strcmp(s,"x0value_min")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      M_x0value_min = tk.dval;
+      continue;
+    }
+    if ((strcmp(s,"Mapprox")==0) || (strcmp(s,"degree")==0)) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      Mapprox = tk.ival;
+      continue;
+    }
+    if (strcmp(s,"X0g_bound")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      M_X0g_bound = tk.dval;
+      continue;
+    }
+    fprintf(stderr,"Unknown ID at %s\n",s); mh_exit(-1);
+  }
   mh_fclose(fp);
   return(0);
 }
@@ -1697,6 +1826,17 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
   sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
   sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
+  
+  sprintf(swork,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
+  sprintf(swork,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
+  sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
+  sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
+  sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
+  sprintf(swork,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  sprintf(swork,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
+  sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
+  sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
+  sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
   return(0);
 }
 

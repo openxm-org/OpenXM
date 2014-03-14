@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.9 2014/03/11 05:20:45 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.10 2014/03/14 02:21:40 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -19,6 +19,9 @@ struct MH_RESULT {
   struct SFILE **sfpp;  /* sfpp[0], ..., spff[size-1] */
   int size;
   char *message;
+  int t_success;
+  double series_error;
+  double recommended_abserr;
 };
 
 struct mh_token {

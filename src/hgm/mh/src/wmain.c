@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.17 2014/03/12 07:50:37 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.18 2014/03/14 02:21:40 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -153,6 +153,10 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   if (MH_Verbose) {for (i=0; i<rank; i++) printf("%lf\n",y0[i]); }
   rp = (struct MH_RESULT*) mh_malloc(sizeof(struct MH_RESULT));
   rp->message = NULL;
+  rp->t_success = 0;
+  rp->series_error = 1.0e+10;
+  rp->recommended_abserr = 1.0e-10;
+
   *rp=mh_rkmain(x0,y0,xn);
   return(rp);
 }

@@ -1,9 +1,10 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.15 2013/03/08 04:54:01 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.16 2014/03/14 02:21:40 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #ifndef STANDALONE
 #include <R.h>
 #include <R_ext/Utils.h>
@@ -11,6 +12,8 @@
 #include "sfile.h"
 #define SSIZE 5
 int MH_DEBUG = 0;
+
+static int isIntString(char s[]);
 
 void mh_check_intr(int interval) {
   static int intr=0;
@@ -184,7 +187,7 @@ struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
         token.type = MH_TOKEN_EOF;
         return token;
       }
-      printf("work=%s\n",work);
+      /* printf("work=%s\n",work); */
       w0 = 0; wn=strlen(work);
     }
     t=w0;
@@ -193,9 +196,12 @@ struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
       w0=wn;
       continue;
     }
+    if (work[t] == ',') {w0=t+1; continue; }
     t2 = t;
-    while((work[t2] > ' ') && (work[t2] != '=')) t2++;
+    while((work[t2] > ' ') && (work[t2] != '=')
+          && (work[t2] != ',')) t2++;
     /* work[t] ... work[t2-1] is a token */
+    /* %abc=123#comment is not allowed. but %abc=123,#  or %abc=123 # is OK. */
     if ((t == t2) && (work[t] == '=')) {
       token.type=MH_TOKEN_EQ;
       w0=t2+1;
@@ -221,12 +227,28 @@ struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
       w0 = t2;
       return token;
     }
+    /* The case of double or int */
     strncpy(s,&(work[t]),t2-t); s[t2-t]=0;
-    token.type=MH_TOKEN_DOUBLE;
-    sscanf(s,"%lg",&(token.dval));
+    if (isIntString(s)) {
+      token.type=MH_TOKEN_INT;
+      sscanf(s,"%d",&(token.ival));
+      sscanf(s,"%lg",&(token.dval));
+    }else{
+      token.type=MH_TOKEN_DOUBLE;
+      sscanf(s,"%lg",&(token.dval));
+    }
     w0 = t2;
     return token;
   }
+}
+
+static int isIntString(char s[]) {
+  int i;
+  for (i=0; i<strlen(s); i++) {
+    if (isdigit(s[i]) || (s[i]=='-')) continue;
+    else return(0);
+  }
+  return(1);
 }
 
 void mh_print_token(struct mh_token tk,char *s) {
@@ -261,7 +283,7 @@ main() {
   char str[TESTSIZE];
   int i;
   struct mh_token tk;
-  sfp = mh_fopen("%%abc\n%abs=1.234\n  %abs = \n 1.235\n%abs=\n1.236\n\n%abs=1.237\n","r",0);
+  sfp = mh_fopen("%%abc\n%abs=1.234\n  %abs = \n 1.235\n%abs=\n1.236\n\n%abs=1.237\n%ival=-234,#comment\n","r",0);
   while ((tk=mh_getoken(str,TESTSIZE,sfp)).type != MH_TOKEN_EOF) {
     mh_print_token(tk,str);
   }
