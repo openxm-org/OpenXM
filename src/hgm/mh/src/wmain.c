@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.16 2014/03/11 05:20:45 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.17 2014/03/12 07:50:37 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -84,6 +84,7 @@ main(int argc,char *argv[]) {
       mh_freeWorkArea(); */
   mh_main(argc,argv);
   /* showParam(); */
+  return(0);
 }
 #endif
 struct MH_RESULT *mh_main(int argc,char *argv[]) {

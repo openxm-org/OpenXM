@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.14 2013/03/07 05:23:31 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.15 2013/03/08 04:54:01 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -168,6 +168,81 @@ void mh_error(char *s,int code) {
   mh_exit(code);
 }
 
+struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
+  static int w0=0;
+  static int wn=0;
+  static char work[MH_SSIZE];
+  char *r;
+  int t,t2;
+  struct mh_token token;
+  token.type = MH_TOKEN_EOF;
+  token.ival=0; token.dval=0.0;
+  while (1) {
+    if (w0 >= wn) {
+      r = mh_fgets(work,MH_SSIZE-1,sfp);
+      if (r == NULL) {
+        token.type = MH_TOKEN_EOF;
+        return token;
+      }
+      printf("work=%s\n",work);
+      w0 = 0; wn=strlen(work);
+    }
+    t=w0;
+    while ((work[t] <= ' ') && (t < wn)) t++;
+    if (t == wn) {
+      w0=wn;
+      continue;
+    }
+    t2 = t;
+    while((work[t2] > ' ') && (work[t2] != '=')) t2++;
+    /* work[t] ... work[t2-1] is a token */
+    if ((t == t2) && (work[t] == '=')) {
+      token.type=MH_TOKEN_EQ;
+      w0=t2+1;
+      return token;
+    }
+    if ((work[t] == '%') && (work[t+1] == '%')) {
+      /* comment */
+      w0 =wn;
+      continue;
+    }
+    if (work[t] == '#') {
+      /* comment */
+      w0=wn;
+      continue;
+    }
+    if (work[t] == '%') {
+      if (t2-t-2 >= smax) {
+        fprintf(stderr,"s is too small in mh_getoken.\n");
+        mh_exit(-1);
+      }
+      strncpy(s,&(work[t+1]),t2-(t+1)); s[t2-(t+1)] = 0;
+      token.type=MH_TOKEN_ID;
+      w0 = t2;
+      return token;
+    }
+    strncpy(s,&(work[t]),t2-t); s[t2-t]=0;
+    token.type=MH_TOKEN_DOUBLE;
+    sscanf(s,"%lg",&(token.dval));
+    w0 = t2;
+    return token;
+  }
+}
+
+void mh_print_token(struct mh_token tk,char *s) {
+  int type;
+  type = tk.type;
+  printf("type=%d\n",type);
+  switch(type) {
+  case MH_TOKEN_ID:
+    printf("ID=%s\n",s); break;
+  case MH_TOKEN_EQ:
+    printf("MH_TOKEN_EQ\n"); break;
+  default:
+    printf("NUM=%s, ival=%d, dval=%lg\n",s,tk.ival,tk.dval); break;
+  }
+}
+
 #ifdef TEST
 /* for debugging */
 dump(struct SFILE *sfp) {
@@ -179,11 +254,18 @@ dump(struct SFILE *sfp) {
   printf("fp=%p\n",sfp->fp);
 }
 
+
 #define TESTSIZE 1024
 main() {
   struct SFILE *sfp;
   char str[TESTSIZE];
   int i;
+  struct mh_token tk;
+  sfp = mh_fopen("%%abc\n%abs=1.234\n  %abs = \n 1.235\n%abs=\n1.236\n\n%abs=1.237\n","r",0);
+  while ((tk=mh_getoken(str,TESTSIZE,sfp)).type != MH_TOKEN_EOF) {
+    mh_print_token(tk,str);
+  }
+  return 0;
   /*
     sfp = mh_fopen("hoge\nafo\nbho\ncat\ndot\ndolphin\n","r",0);
     while (mh_fgets(str,1024,sfp)) {

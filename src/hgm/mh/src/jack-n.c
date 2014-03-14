@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.16 2014/03/11 05:20:45 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.17 2014/03/12 07:50:37 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,7 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
-  2014.03.11,  
+  2014.03.14, --automatic option. Output estimation data.
   2012.02.21, porting to OpenXM/src/hgm
   2011.12.22, --table option, which is experimental.
   2011.12.19, bug fix.  jjk() should return double. It can become more than max int.

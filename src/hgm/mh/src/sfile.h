@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.8 2013/03/08 04:54:01 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.9 2014/03/11 05:20:45 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -20,6 +20,12 @@ struct MH_RESULT {
   int size;
   char *message;
 };
+
+struct mh_token {
+  int type;
+  double dval;
+  int ival;
+};
  
 struct SFILE *mh_fopen(char *name, char *mode, int byFile);
 char *mh_fgets(char *str,int size,struct SFILE *sfp);
@@ -31,6 +37,14 @@ int mh_free(void *p);
 int mh_exit(int n);
 void mh_check_intr(int interval);
 void mh_error(char *s,int code);
+struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp);
+void mh_print_token(struct mh_token tk,char *s);
+#define MH_TOKEN_EOF -1
+#define MH_TOKEN_ID  1
+#define MH_TOKEN_EQ  2
+#define MH_TOKEN_DOUBLE 3
+#define MH_TOKEN_INT 4
+
 
 #define MH_SSIZE 1024
 #define MH_RESET_EXIT 0x7fffffff
