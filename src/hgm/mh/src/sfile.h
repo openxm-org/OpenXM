@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.10 2014/03/14 02:21:40 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.11 2014/03/14 05:58:16 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -51,6 +51,10 @@ void mh_print_token(struct mh_token tk,char *s);
 
 #define MH_SSIZE 1024
 #define MH_RESET_EXIT 0x7fffffff
+
+#define myabs(x) ((x)<0?(-(x)):(x))
+#define mymax(x,y) ((x)>(y)?(x):(y))
+#define mymin(x,y) ((x)<(y)?(x):(y))
 
 /* prototypes in wmain.c */
 struct MH_RESULT *mh_main(int argc,char *argv[]);

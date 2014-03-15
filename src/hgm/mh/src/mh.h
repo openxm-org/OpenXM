@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.6 2013/03/07 05:23:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.7 2013/03/08 04:54:01 takayama Exp $ */
 struct cWishart {
   double x;
   double rank;
@@ -24,4 +24,6 @@ void mh_freeWorkArea(void);
 void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used);
 void mh_set_strategy(int s,double err[2]);
 
-#define STRATEGY_DEFAULT 0
+#define STRATEGY_DEFAULT 1
+/* Five significant digits for checking MH_abserr. cf. M_assigned_series_error */
+#define SIGDIGIT_DEFAULT (1e-4)

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.18 2014/03/14 02:21:40 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.19 2014/03/14 05:58:16 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -117,7 +117,7 @@ static double M_assigned_series_error=0.00001;
   If F(M_m)*Ef < x0value_min (B), the success=0 and X0g is increased. 
   Note that minimal double is about 2e-308
  */
-static double M_x0value_min=1e-10;
+static double M_x0value_min=1e-30;
 /*
   estimated_X0g is the suggested value of X0g.
  */
@@ -149,9 +149,6 @@ static double M_beta_i_beta_j_min;
 */
 static double M_mh_t_value;
 
-#define myabs(x) ((x)<0?(-(x)):(x))
-#define mymax(x,y) ((x)>(y)?(x):(y))
-#define mymin(x,y) ((x)<(y)?(x):(y))
 
 /* prototypes */
 static void *mymalloc(int size);
@@ -1625,11 +1622,13 @@ static int usage() {
   fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified, which is for hgm_w-n.\n");
   fprintf(stderr," Xng: terminating value of x which is for hgm_w-n.\n");
   fprintf(stderr," The line started with %% is a comment line.\n");
+  fprintf(stderr,"Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt\n");
+  fprintf(stderr,"Parameters are redefined when they appear more than once in the idata file and the command line options.\n");
   fprintf(stderr," With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
   fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
   fprintf(stderr,"By --automatic option, X0g and degree are automatically searched. The current strategy is described in mh_t in jack-n.c\n");
   fprintf(stderr,"Default values for the papameters of the automatic mode: assigned_series_error=%lg, x0value_min=%lg\n",M_assigned_series_error,M_x0value_min);
-  fprintf(stderr,"Todo: automatic mode throws away all computation of the previous degree and reevaluate them. They should be kept.\n");
+  fprintf(stderr,"Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_jack-n \n");
   fprintf(stderr,"[2] ./hgm_jack-n --x0 0.1 \n");
