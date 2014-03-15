@@ -4,9 +4,9 @@ usage:
 	@echo "check-hgm, build-hgm"
 	@echo "rsync, copy-web"
 
-check-hgm: rsync-gsl-t-1 rsync-so3
+check-hgm: rsync
 	R CMD check hgm
-build-hgm: rsync-gsl-t-1 rsync-so3
+build-hgm: rsync
 	R CMD build hgm
 
 rsync: rsync-gsl-t-1 rsync-so3 rsync-mh
