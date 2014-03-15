@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.20 2014/03/15 00:43:47 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.21 2014/03/15 00:50:23 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2014.03.15 http://fe.math.kobe-u.ac.jp/Movies/oxvh/2014-03-11-jack-n-c-automatic  see also hgm/doc/ref.html, @s/2014/03/15-my-note-jack-automatic-order-F_A-casta.pdf.
   2014.03.14, --automatic option. Output estimation data.
   2012.02.21, porting to OpenXM/src/hgm
   2011.12.22, --table option, which is experimental.
