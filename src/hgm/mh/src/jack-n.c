@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.21 2014/03/15 00:50:23 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.22 2014/03/15 05:28:42 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1515,7 +1515,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
       JK_byFile = 0;
     }else if (strcmp(argv[i],"--automatic")==0) {
       inci(i); /* ignore, in this function */
-    }else if (strcmp(argv[i],"--assigend_series_error")==0) {
+    }else if (strcmp(argv[i],"--assigned_series_error")==0) {
       inci(i);
       sscanf(argv[i],"%lg",&M_assigned_series_error);
     }else if (strcmp(argv[i],"--x0value_min")==0) {
@@ -1610,7 +1610,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
 static int usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
-  fprintf(stderr,"           [--automatic n --assigend_series_error e --x0value_min e2]\n");
+  fprintf(stderr,"           [--automatic n --assigned_series_error e --x0value_min e2]\n");
   fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
   fprintf(stderr,"The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
   fprintf(stderr,"The degree of the approximation (Mapprox) is given by the --degree option.\n");
