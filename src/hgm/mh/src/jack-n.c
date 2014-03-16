@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.22 2014/03/15 05:28:42 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.23 2014/03/15 11:23:58 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1617,7 +1617,7 @@ static int usage() {
   fprintf(stderr,"Parameters are specified by the input_data_file. Otherwise, default values are used.\n");
   fprintf(stderr,"The format of the input_data_file. The orders of the input numbers must be kept.\n");
   fprintf(stderr," Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
-  fprintf(stderr," (Add a comment line %Ng= before the data Ng to check the number of beta.)\n");
+  fprintf(stderr," (Add a comment line %%Ng= before the data Ng to check the number of beta.)\n");
   fprintf(stderr," X0g: starting value of x(when --x0 option is used, this value is used)\n");
   fprintf(stderr," Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
   fprintf(stderr," Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
