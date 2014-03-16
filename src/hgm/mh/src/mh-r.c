@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.6 2013/03/07 05:23:31 takayama Exp $
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.7 2013/03/08 04:54:01 takayama Exp $
  R interface module
 */
 
@@ -8,13 +8,16 @@
 #define WSIZE 1024
 
 int Rmh_cwishart_gen(int *mp,int *np,double *beta,double *x0p,
-		int *approxDegp,double *hp, int *dpp, double *xp,
-		 int *modep,int *rankp,double *xy) {
+                     int *approxDegp,double *hp, int *dpp, double *xp,
+                     int *modep,int *rankp,
+                     int *automaticp,double *assigned_series_errorp,int *verbosep,
+                     double *xy) {
   struct cWishart *cw;
   int rank;
   int i;
   rank = *rankp;
-  cw = mh_cwishart_gen(*mp,*np,beta,*x0p,*approxDegp,*hp,*dpp,*xp,modep);
+  cw = mh_cwishart_gen(*mp,*np,beta,*x0p,*approxDegp,*hp,*dpp,*xp,modep,
+                       *automaticp,*assigned_series_errorp,*verbosep);
   xy[0] = cw->x;
   for (i=1; i<=rank; i++) xy[i] = (cw->f)[i-1];
 

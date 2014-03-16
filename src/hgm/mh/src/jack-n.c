@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.23 2014/03/15 11:23:58 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.24 2014/03/16 00:00:46 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -149,7 +149,10 @@ static double M_beta_i_beta_j_min;
   Value of matrix hg
 */
 static double M_mh_t_value;
-
+/*
+ Show the process of updating degree.
+ */
+int M_show_autosteps=1;
 
 /* prototypes */
 static void *mymalloc(int size);
@@ -1377,13 +1380,15 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
 
   M_series_error = serror;
   M_recommended_abserr = iv*M_assigned_series_error;
-  
-  printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
-  printf("%%%%x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
-  printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
-  fprintf(stderr,"%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
-  fprintf(stderr,"%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
-  fprintf(stderr,"%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+
+  if (M_show_autosteps) {
+    printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+    printf("%%%%x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
+    printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+    fprintf(stderr,"%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+    fprintf(stderr,"%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
+    fprintf(stderr,"%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+  }
 
   M_mh_t_value=F;
   return(F);
@@ -1797,6 +1802,16 @@ static int setParam(char *fname) {
         fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
       }
       M_X0g_bound = tk.dval;
+      continue;
+    }
+    if (strcmp(s,"show_autosteps")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      }
+      M_show_autosteps = tk.ival;
       continue;
     }
     fprintf(stderr,"Unknown ID at %s\n",s); mh_exit(-1);

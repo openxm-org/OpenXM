@@ -1,7 +1,8 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.4 2013/03/08 07:32:28 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.5 2013/03/26 05:53:57 takayama Exp $
 "hgm.pwishart" <-
 function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
-         mode=c(1,1,0),method="rk4",err=c(-1.0,-1.0)) { 
+         mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
+         automatic=1,assigned_series_error=0.00001,verbose=0) { 
   x<-q; x0<-q0;
   nstrategy<-0;
   mm<-charmatch(method,c("rk4","a-rk4","a-rk4-m"));
@@ -24,5 +25,6 @@ function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
      as.double(h),
      as.integer(dp),as.double(x),
      as.integer(mode),as.integer(rank),
+     as.integer(automatic),as.double(assigned_series_error),as.integer(verbose),
      retv=double(rsize),PACKAGE="hgm")$retv
 }

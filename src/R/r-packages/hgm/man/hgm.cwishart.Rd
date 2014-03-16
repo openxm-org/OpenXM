@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.3 2013/03/08 07:32:28 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.4 2013/03/26 05:53:57 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -44,7 +44,7 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err)
     p-steps of x are also returned.  Sampling interval is controled by dp.
   }
   \item{method}{
-    rk4 is the default value. 
+    a-rk4 is the default value. 
     When method="a-rk4", the adaptive Runge-Kutta method is used.
     Steps are automatically adjusted by err.
   }
@@ -52,6 +52,21 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err)
     When err=c(e1,e2), e1 is the absolute error and e2 is the relative error.
     As long as NaN is not returned, it is recommended to set to
     err=c(0.0, 1e-10), because initial values are usually very small. 
+  }  
+  \item{automatic}{
+    automatic=1 is the default value.
+    If it is 1, the degree of the series approximation will be increased until 
+    |(F(i)-F(i-1))/F(i-1)| < assigned_series_error where
+    F(i) is the degree i approximation of the hypergeometric series
+    with matrix argument.
+  }  
+  \item{assigned_series_error}{
+    assigned_series_error=0.00001 is the default value.
+  }  
+  \item{verbose}{
+    verbose=0 is the default value.
+    If it is 1, then steps of automatic degree updates and several parameters
+    are output to stdout and stderr.
   }  
 }
 \details{

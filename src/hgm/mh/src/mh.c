@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.11 2013/03/07 07:02:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.12 2013/03/08 04:54:01 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
 #define WSIZE 1024
 extern int MH_DEBUG;
+extern int M_show_autosteps;
 static int imypower(int x,int n) {
   int a,i;
   a = 1;
@@ -22,7 +23,10 @@ struct cWishart *new_cWishart(int rank) {
 }
 
 struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
-                              int approxDeg,double h, int dp, double x,int modep[]) {
+				 int approxDeg,double h, int dp, double x,int modep[],
+                               int automatic,double assigned_series_error,
+                               int verbose)
+{
   /*
      modep[0]. Do Koev-Edelman (ignored for now).
      modep[1]. Do the HGM
@@ -31,6 +35,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   struct SFILE *fp;
   char swork[WSIZE];
   char *argv[WSIZE];
+  int argc;
   int i,rank;
   char *comm;
   struct MH_RESULT *rp;
@@ -63,6 +68,10 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   if (x <= x0) {fprintf(stderr,"x <= x0, set to x=x0+10\n"); x=x0+10;}
   mh_fputs("%%Xng=\n",fp);
   sprintf(swork,"%lf\n",x); mh_fputs(swork,fp);
+
+  sprintf(swork,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
+  sprintf(swork,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
+  sprintf(swork,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
 
   comm = (char *)mh_malloc(fp->len +1);
   mh_outstr(comm,fp->len+1,fp);
@@ -99,7 +108,11 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   argv[3] = (char *)cw->aux;
   argv[4] = "--dataf";
   argv[5] = "dummy-dataf";
-  rp = mh_main(6,argv);
+  argc=6;
+  if (verbose) {
+    argv[6] = "--verbose"; ++argc;
+  }
+  rp = mh_main(argc,argv);
   if (rp == NULL) {
     fprintf(stderr,"rp is NULL in the second step.\n"); return(NULL);
   }
@@ -125,18 +138,23 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by Series */
 struct cWishart *mh_cwishart_s(int m,int n,double beta[],double x0,
-                               int approxDeg,double h, int dp, double x) {
+                               int approxDeg,double h, int dp, double x,
+                               int automatic,double assigned_series_error,
+                               int verbose)
+{
   int modep[]={1,0,0};
-  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep,automatic,assigned_series_error,verbose));
 }
 
 /* Cumulative probability distribution function of the first eigenvalue of
    Wishart matrix by HGM */
 struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
-                                 int approxDeg, double h, int dp , double x)
+                                 int approxDeg, double h, int dp , double x,
+                               int automatic,double assigned_series_error,
+                               int verbose)
 {
   int modep[]={1,1,0};
-  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep));
+  return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep,automatic,assigned_series_error,verbose));
 }
 
 #ifdef STANDALONE
@@ -148,8 +166,9 @@ main(int argc,char *argv[]) {
   char str[1024];
   double x;
   int i,show;
-  int strategy=0;
+  int strategy=1;
   double err[2]={-1.0,-1.0};
+  int verbose=0;
   show=1;
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--strategy")==0) {
@@ -160,17 +179,19 @@ main(int argc,char *argv[]) {
 	  i++; sscanf(argv[i],"%lg",&(err[1]));
 	}else if (strcmp(argv[i],"--quiet")==0) {
 	  show=0;
+	}else if (strcmp(argv[i],"--verbose")==0) {
+	  verbose=1;
 	}else{
 	  fprintf(stderr,"Unknown option.\n");
 	}
   }
   mh_set_strategy(strategy,err);
-  cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10);
+  cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10, 1,1e-7,verbose);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     /* printf("%s",(char *)cw->aux); */
   }
-  cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10);
+  cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10, 1,1e-7,verbose);
   if (cw != NULL) {
     printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     s = (char *)cw->aux;
@@ -187,15 +208,16 @@ main(int argc,char *argv[]) {
 main1() {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
-  cw=mh_cwishart_s(3,5,beta,0.3,7,  0,0,0);
+  int verbose=1;
+  cw=mh_cwishart_s(3,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
     printf("%s",(char *)cw->aux);
   }
-  cw=mh_cwishart_s(4,5,beta,0.3,7,  0,0,0);
+  cw=mh_cwishart_s(4,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
     printf("%s",(char *)cw->aux);
   }
-  cw=mh_cwishart_s(5,5,beta,0.3,7,  0,0,0);
+  cw=mh_cwishart_s(5,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
     printf("%s",(char *)cw->aux);
   }
