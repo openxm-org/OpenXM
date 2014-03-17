@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.24 2014/03/16 00:00:46 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.25 2014/03/16 03:11:07 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -100,7 +100,7 @@ static double M_rel_error=0.0; /* relative errors */
  If automatic == 1, then the series is reevaluated as long as t_success!=1
  by increasing X0g (evaluation point) and M_m (approx degree);
  */
-static int M_automatic=0;
+static int M_automatic=1;
 /* Estimated degree bound for series expansion. See mh_t */
 static int M_m_estimated_approx_deg=0;
 /* Let F(i) be the approximation up to degree i. 
@@ -112,13 +112,13 @@ static double M_series_error;
   M_series_error < M_assigend_series_error (A) is required for the 
   estimated_approx_deg.
  */
-static double M_assigned_series_error=0.00001;
+static double M_assigned_series_error=M_ASSIGNED_SERIES_ERROR_DEFAULT;
 /*
   Let Ef be the exponential factor ( Ef=(4)/1F1 of [HNTT] )
   If F(M_m)*Ef < x0value_min (B), the success=0 and X0g is increased. 
   Note that minimal double is about 2e-308
  */
-static double M_x0value_min=1e-30;
+static double M_x0value_min=1e-60;
 /*
   estimated_X0g is the suggested value of X0g.
  */
@@ -1549,6 +1549,10 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     ans->recommended_abserr = 1.0e-10;
   }
   else ans = NULL;
+  if (M_automatic) {
+    /* Differentiation can be M_m in the bit pattern in the M_n variable case.*/
+    if (M_n > Mapprox) Mapprox=M_n;
+  }
   /* Output by a file=stdout */
   ofp = mh_fopen("stdout","w",JK_byFile);
 
@@ -1635,13 +1639,13 @@ static int usage() {
   fprintf(stderr," With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
   fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
   fprintf(stderr,"By --automatic option, X0g and degree are automatically searched. The current strategy is described in mh_t in jack-n.c\n");
-  fprintf(stderr,"Default values for the papameters of the automatic mode: assigned_series_error=%lg, x0value_min=%lg\n",M_assigned_series_error,M_x0value_min);
+  fprintf(stderr,"Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
   fprintf(stderr,"Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_jack-n \n");
   fprintf(stderr,"[2] ./hgm_jack-n --x0 0.1 \n");
-  fprintf(stderr,"[3] ./hgm_jack-n --x0 0.1 --degree 15 \n");
-  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15 \n");
+  fprintf(stderr,"[3] ./hgm_jack-n --x0 0.1 --degree 15\n");
+  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
   fprintf(stderr,"[5] ./hgm_jack-n --degree 15 >test2.txt\n");
   fprintf(stderr,"    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
