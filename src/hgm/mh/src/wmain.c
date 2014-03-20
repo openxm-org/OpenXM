@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.19 2014/03/14 05:58:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.20 2014/03/15 00:43:47 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -198,17 +198,17 @@ int mh_usage() {
   fprintf(stderr," Ef: a scalar factor to the initial value. It may set to 1.\n");
   fprintf(stderr," MH_Hg: h (step size),\n");
   fprintf(stderr," MH_Dp: output data is stored in every MH_Dp steps when output_data_file is specified.\n");
-  fprintf(stderr," Xng: terminating value of x.\n");
-  fprintf(stderr," --95: output the 95%% point. --verbose: verbose mode.\n");
-  fprintf(stderr," The line started with %% is a comment line.\n");
-  fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
+  fprintf(stderr," Xng: terminating value of x.\n\n");
+  fprintf(stderr,"--95: output the 95%% point. --verbose: verbose mode.\n");
+  fprintf(stderr,"The line started with %%%% or # is a comment line.\n");
+  fprintf(stderr,"An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
   fprintf(stderr,"When --idata option is used, this command is quiet. Use --verbose option if you want to see some messages.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_w-n \n");
   fprintf(stderr,"[2] ./hgm_w-n --xmax 20\n");
   fprintf(stderr,"[3] ./hgm_w-n --test 6\n");
   fprintf(stderr,"   A test run in Mg=6.\n");
-  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15 >t.txt\n");
+  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt >t.txt\n");
   fprintf(stderr,"    ./hgm_w-n --idata t.txt --gnuplotf test-g --verbose\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
   fprintf(stderr,"  tmp-idata3.txt is a sample input data distributed with this file.\n");

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.26 2014/03/17 02:49:39 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.27 2014/03/20 09:37:16 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1626,36 +1626,34 @@ static int usage() {
   fprintf(stderr,"Usages:\n");
   fprintf(stderr,"hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
   fprintf(stderr,"           [--automatic n --assigned_series_error e --x0value_min e2]\n");
-  fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrix with n degrees of freedom and the covariantce matrix sigma.\n");
+  fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
   fprintf(stderr,"The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
   fprintf(stderr,"The degree of the approximation (Mapprox) is given by the --degree option.\n");
-  fprintf(stderr,"Parameters are specified by the input_data_file. Otherwise, default values are used.\n");
-  fprintf(stderr,"The format of the input_data_file. The orders of the input numbers must be kept.\n");
+  fprintf(stderr,"Parameters are specified by the input_data_file. Otherwise, default values are used.\n\n");
+  fprintf(stderr,"The format of the input_data_file: (The orders of the input data must be kept.)\n");
   fprintf(stderr," Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
   fprintf(stderr," (Add a comment line %%Ng= before the data Ng to check the number of beta.)\n");
   fprintf(stderr," X0g: starting value of x(when --x0 option is used, this value is used)\n");
   fprintf(stderr," Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
   fprintf(stderr," Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
   fprintf(stderr," Hg: h (step size) which is for hgm_w-n, \n"); 
-  fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified, which is for hgm_w-n.\n");
-  fprintf(stderr," Xng: terminating value of x which is for hgm_w-n.\n");
-  fprintf(stderr," The line started with %% is a comment line.\n");
-  fprintf(stderr,"Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt\n");
-  fprintf(stderr,"Parameters are redefined when they appear more than once in the idata file and the command line options.\n");
-  fprintf(stderr," With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
-  fprintf(stderr," An example format of the input_data_file can be obtained by executing hgm_jack-n with no option.\n");
-  fprintf(stderr,"By --automatic option, X0g and degree are automatically searched. The current strategy is described in mh_t in jack-n.c\n");
+  fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified. This is for hgm_w-n.\n");
+  fprintf(stderr," Xng: terminating value of x. This is for hgm_w-n.\n");
+  fprintf(stderr,"Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt as an example. Optional paramters are given as %%parameter_name=value  Lines starting with %%%% or # are comment lines.\n");
+  fprintf(stderr,"Parameters are redefined when they appear more than once in the idata file and the command line options.\n\n");
+  fprintf(stderr,"With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
+  fprintf(stderr,"An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
+  fprintf(stderr,"By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
   fprintf(stderr,"Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
   fprintf(stderr,"Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
   fprintf(stderr,"\nExamples:\n");
   fprintf(stderr,"[1] ./hgm_jack-n \n");
-  fprintf(stderr,"[2] ./hgm_jack-n --x0 0.1 \n");
-  fprintf(stderr,"[3] ./hgm_jack-n --x0 0.1 --degree 15\n");
-  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
-  fprintf(stderr,"[5] ./hgm_jack-n --degree 15 >test2.txt\n");
+  fprintf(stderr,"[2] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
+  fprintf(stderr,"[3] ./hgm_jack-n --idata Testdata/tmp-idata2.txt --degree 15 >test2.txt\n");
   fprintf(stderr,"    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
   fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
-  fprintf(stderr,"[6] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1\n");
+  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
+  fprintf(stderr,"[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
   return(0);
 }
 
