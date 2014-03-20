@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.10 2013/03/07 11:12:13 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.11 2013/03/08 04:54:01 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@ int MH_P95=0;
 int MH_Verbose=0;
 int MH_strategy=STRATEGY_DEFAULT;  /* 0: rk4, 1:a-rk4 (adaptive) */
 double MH_abserr = 1e-10;
-double MH_relerr = 1e-10;
+double MH_relerr = MH_RELERR_DEFAULT ;
 /* D_i = MH_abserr + MH_relerr*|y_i|
    If observed error E > D*110/100, the stepsize will be decreased.
    cf. GSL, 26.3 Adaptive Step-size control.

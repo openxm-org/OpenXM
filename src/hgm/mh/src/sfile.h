@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.12 2014/03/15 00:43:47 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.13 2014/03/17 02:49:39 takayama Exp $
  */
 struct SFILE {
   int byFile;
@@ -65,3 +65,4 @@ struct MH_RESULT *jk_main(int argc,char *argv[]);
 
 /* Significant digit control used both in wmain.c and jack-n.c */
 #define M_ASSIGNED_SERIES_ERROR_DEFAULT 1e-5
+#define MH_RELERR_DEFAULT (1e-10)

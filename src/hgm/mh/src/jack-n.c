@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.25 2014/03/16 03:11:07 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.26 2014/03/17 02:49:39 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -137,6 +137,11 @@ static int M_mh_t_success=1;
   assigend_series_error(standing for significant digits)*Ig[0](initial value)
  */
 static double M_recommended_abserr;
+/*
+  recommended_relerr is the recommended value of the relative error
+  for the Runge-Kutta method..
+ */
+static double M_recommended_relerr;
 /*
   max of beta(i)*x/2
  */
@@ -1380,6 +1385,7 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
 
   M_series_error = serror;
   M_recommended_abserr = iv*M_assigned_series_error;
+  M_recommended_relerr = M_series_error;
 
   if (M_show_autosteps) {
     printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
@@ -1854,6 +1860,9 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
   sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
   sprintf(swork,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  if (M_recommended_relerr < MH_RELERR_DEFAULT) {
+    sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
+  }
   sprintf(swork,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
   sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
   sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
