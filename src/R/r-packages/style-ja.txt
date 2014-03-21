@@ -1,0 +1,48 @@
+==== hgm パッケージのスタイルガイドライン. ====
+
+= 記号の約束.
+以下 pid_ は作成者の識別子を表す.
+foo は適当な名前を表す.
+例:
+tk_ は 高山, nk_ は中山, ko_ は小山, se_ は清.
+
+= ファイル名
+- R のファイル名は  pid_foo.R とする.
+- C のファイル名は原則自由だが, 実行可能形式プログラムの名前は, hgm_foo または,
+hgm_pid_foo とする.  
+例: hgm_ko_normalizing_constant_of_fisher_bingham
+    hgm_ko_ncfb
+    hgm_ko_orthant
+    hgm_w-n
+    hgm_jack-n
+
+= R の関数名
+- hgm パッケージの関数はすべて hgm で始まりつぎに作成者の識別子がくるものとする.
+つまり hgm.pid.foo とする. foo の部分は R の他の関数名を参考にして妥当な名前にする.
+例: hgm.tk.pwishart
+- なお, google の R style に準拠させるため  
+たとえば, HgmTkPwishart<-hgm.tk.pwishart
+を加えておいてもよい.
+例: hgm.ko.normalizingConstantOfFisherBingham
+    hgm.ko.ncfb
+    hgm.ko.ncorthant
+
+注意: pid を必ず加えること. これは,
+ファイル hgm_names.R において,
+たとえば,
+hgm.pwishart<-hgm.tk.pwishart
+と pid がない名前に関連づける.
+これは同じ機能を別の人が開発している場合の conflict を防ぐためである.
+同一のものがある場合, top level の関数は method 引数でどれかを適宜選んだりする.
+
+例: hgm.nk.hgd,  hgm.se.hgd と hgd を行う二つの実装がある.
+
+= C の関数名.
+外部へ公開する必要のない関数はなるべく static 関数宣言をしておく.
+static 宣言をした関数の名前は自由である.
+ライブラリへリンクしたあとの関数名および大域変数名は, かならず, なんらかの
+識別子を前につけておく.
+例: mh_fput, MH_STRATEGY_DEFAULT
+この場合は mh_ が識別子である.  pid_ を識別子として用いてもよい.
+
+ 
