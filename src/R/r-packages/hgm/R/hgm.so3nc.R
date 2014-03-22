@@ -1,5 +1,5 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.so3nc.R,v 1.3 2013/02/08 01:27:01 takayama Exp $
-"hgm.so3nc" <-
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.so3nc.R,v 1.4 2013/03/08 07:32:28 takayama Exp $
+"hgm.tk.so3nc" <-
 function(a=1,b=2,c=3,t0=0.0,q=1,deg=0) { 
 #  library.dynam("mypkg",package="mypkg",lib.loc="./");
   if (!is.loaded("hgm")) library.dynam("hgm",package="hgm",lib.loc=NULL);

@@ -1,5 +1,5 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.5 2013/03/26 05:53:57 takayama Exp $
-"hgm.pwishart" <-
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.6 2014/03/16 03:11:07 takayama Exp $
+"hgm.tk.pwishart" <-
 function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
          automatic=1,assigned_series_error=0.00001,verbose=0) { 
