@@ -2,7 +2,7 @@ CC = gcc
 OBJ = hgm_ko_orthant.o main.o
 DEBUG = -O0 -g -D_DEBUG
 
-all: hgm_ko_orthant hgm_ko_orthant.so
+all: hgm_ko_orthant 
 
 hgm_ko_orthant: $(OBJ)
 	$(CC) -o $@ $(OBJ) -lm -lblas -llapack
