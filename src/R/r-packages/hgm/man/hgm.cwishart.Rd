@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.4 2013/03/26 05:53:57 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.5 2014/03/16 03:11:07 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -59,6 +59,8 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err)
     |(F(i)-F(i-1))/F(i-1)| < assigned_series_error where
     F(i) is the degree i approximation of the hypergeometric series
     with matrix argument.
+    Step sizes for the Runge-Kutta method are also set automatically from
+    the assigned_series_error if it is 1.
   }  
   \item{assigned_series_error}{
     assigned_series_error=0.00001 is the default value.
@@ -87,8 +89,9 @@ See the reference below.
 }
 \references{
 H.Hashiguchi, Y.Numata, N.Takayama, A.Takemura,
-Holonomic gradient method for the distribution function of the largest root of a Wishart matrix
-\url{http://arxiv.org/abs/1201.0472},
+Holonomic gradient method for the distribution function of the largest root of a Wishart matrix,
+Journal of Multivariate Analysis, 117, (2013) 296-312, 
+\url{http://dx.doi.org/10.1016/j.jmva.2013.03.011},
 }
 \author{
 Nobuki Takayama

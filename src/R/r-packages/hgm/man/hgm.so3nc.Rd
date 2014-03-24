@@ -1,17 +1,17 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.2 2013/02/08 01:27:01 takayama Exp $
-\name{hgm.so3nc}
-\alias{hgm.so3nc}
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.3 2013/03/08 07:32:28 takayama Exp $
+\name{hgm.ncso3}
+\alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-    The function hgm.so3nc evaluates the normalization constant for the Fisher
+    The function hgm.ncso3 evaluates the normalization constant for the Fisher
   distribution on SO(3).
 }
 \description{
-    The function hgm.so3nc evaluates the normalization constant for the Fisher
+    The function hgm.ncso3 evaluates the normalization constant for the Fisher
   distribution on SO(3).
 }
 \usage{
-hgm.so3nc(a,b,c,t0=0.0,q=1,deg=0)
+hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -53,8 +53,8 @@ The output is c(Theta).
 \references{
 Tomonari Sei, Hiroki Shibata, Akimichi Takemura, Katsuyoshi Ohara, Nobuki Takayama,
 Properties and applications of Fisher distribution on the rotation group,
-\url{http://arxiv.org/abs/1110.0721},
-to appear in Journal of Multivariate Analysis.
+Journal of Multivariate Analysis, 116 (2013), 440--455,
+\url{http://dx.doi.org/10.1016/j.jmva.2013.01.010}
 }
 \author{
 Nobuki Takayama
@@ -72,12 +72,12 @@ Nobuki Takayama
 ## =====================================================
 ## Example 1. Computing normalization constant of the Fisher distribution on SO(3)
 ## =====================================================
-hgm.so3nc(1,2,3)
+hgm.ncso3(1,2,3)
 
 ## =====================================================
 ## Example 2. Asteroid data in the paper
 ## =====================================================
-hgm.so3nc(19.6,0.831,-0.671)
+hgm.ncso3(19.6,0.831,-0.671)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

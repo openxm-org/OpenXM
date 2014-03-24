@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.4 2013/03/01 05:27:08 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.5 2013/03/26 05:53:57 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -18,8 +18,6 @@ The holonomic gradient method (HGM, hgm) gives a way to evaluate normalization
 \tabular{ll}{
 Package: \tab hgm\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2013-02-07\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }
@@ -28,11 +26,6 @@ This method based on the fact that a broad class of normalization constants
 of unnormalized probability distributions belongs to the class of
 holonomic functions, which are solutions of holonomic systems of linear
 partial differential equations.
-}
-\author{
-\itemize{
-\item Nobuki Takayama (takayama@math.kobe-u.ac.jp)
-}
 }
 \note{
   This package includes a small subset of the Gnu scientific library codes
@@ -60,12 +53,14 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 \keyword{ HGM }
 \keyword{ HGD }
 \seealso{
-\code{\link{hgm.so3nc}}
+\code{\link{hgm.ncorthant}}
+\code{\link{hgm.ncso3}}
 \code{\link{hgm.pwishart}}
 }
 \examples{
 \dontrun{
-example(hgm.so3nc)
+example(hgm.ncorthant)
+example(hgm.ncso3)
 example(hgm.pwishart)
 }
 }
