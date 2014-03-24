@@ -30,10 +30,15 @@ T.Hibi et al, Groebner Bases : Statistics and Software Systems </a>, Springer, 2
 Introduction to the Holonomic Gradient Method (movie), 2013. 
 <a href="http://www.youtube.com/watch?v=SgyDDLzWTyI"> movie at youtube </a>
 
+
 <li> T.Sei, A.Kume,
-Calculating the normalising constant of the Bingham distribution on the sphere using the holonomic gradient method,
+Calculating the Normalising Constant of the Bingham Distribution on the Sphere using the Holonomic Gradient Method,
 Statistics and Computing, 2013,
 <a href="http://dx.doi.org/10.1007/s11222-013-9434-0">DOI</a>
+
+<li> T.Koyama,
+Calculation of Orthant Probabilities by the Holonomic Gradient Method,
+<a href="http://arxiv.org/abs/1211.6822"> arxiv:1211.6822</a>
 
 <li>T. Koyama, H. Nakayama, K. Nishiyama, N. Takayama,
 Holonomic Rank of the Fisher-Bingham System of Differential Equations,
@@ -73,11 +78,26 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 <a href="http://dx.doi.org/10.1016/j.aam.2011.03.001"> DOI </a>
 </ol>
 
+<h2> Three Steps of HGM </h2>
+<ol>
+<li> Find a holonomic system satisfied by the normalizing constant.
+We may use computational or theoretical methods to find it.
+Groebner basis and related methods are used.
+<li> Find an initial value vector for the holonomic system.
+This is equivalent to evaluating the normalizing constant and its derivatives
+at a point.
+This step is usually performed by a series expansion.
+<li> Solve the holonomic system numerically. We use several methods
+in numerical analysis such as the Runge-Kutta method of solving
+ordinary differential equations and efficient solvers of systems of linear
+equations.
+</ol>
+
 <h2> Software Packages for HGM</h2>
 <ol>
-<li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/hgm/"> hgm package for R </a>
+<li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/hgm/"> hgm package for R </a> for the step 3.
 <li> yang (for Pfaffian systems) , nk_restriction (for D-module integrations), 
-tk_jack  (for Jack polynomials) are in the 
+tk_jack  (for Jack polynomials) are for the steps 1 or 2 and in the 
 <a href="http://www.math.kobe-u.ac.jp/Asir"> asir-contrib </a>
 </ol>
 
@@ -86,6 +106,6 @@ tk_jack  (for Jack polynomials) are in the
 <li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/Fisher-Bingham-2"> d-dimensional Fisher-Bingham System </a>
 </ol>
 
-<pre> $OpenXM$ </pre>
+<pre> $OpenXM: OpenXM/src/hgm/doc/ref-hgm.html,v 1.1 2014/03/24 06:43:55 takayama Exp $ </pre>
 </body>
 </html>
