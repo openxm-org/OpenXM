@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 union cell {
   int ival;
   char *str;
