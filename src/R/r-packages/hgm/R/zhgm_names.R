@@ -4,3 +4,5 @@ hgm.normalizingConstantOfFisherDistributionOnSO3<-hgm.tk.so3nc
 hgm.pwishart<-hgm.tk.pwishart
 hgm.ncorthant<-hgm.ko.ncorthant
 hgm.normalizingConstantOfOrthant<-hgm.ko.ncorthant
+hgm.Rhgm<-hgm.se.hgm
+hgm.Rhgm.demo1<-hgm.se.demo1
