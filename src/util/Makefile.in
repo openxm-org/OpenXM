@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile.in,v 1.9 2009/02/24 10:21:52 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile.in,v 1.10 2013/11/06 00:28:09 takayama Exp $
 #OpenXM_ROOT=../../../OpenXM
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -12,7 +12,7 @@ RANLIB=@RANLIB@
 
 INSTALL = install -c
 
-BIN = oxweave oxreplace oxgentexi oxgreph oxhtmlhelp
+BIN = oxweave oxreplace oxgentexi oxgreph oxhtmlhelp oxlistlocalf
 LIB = libox_pathfinder.a
 
 all : all-bin all-lib
@@ -34,6 +34,9 @@ oxgreph : oxgreph.o
 
 oxhtmlhelp : oxhtmlhelp.o
 	${CC} -o $@ oxhtmlhelp.o
+oxlistlocalf : oxlistlocalf.o
+	${CC} -o $@ oxlistlocalf.o
+oxlistlocalf.o: oxlistlocalf.h
 
 libox_pathfinder.a : ox_pathfinder.o
 	ar ru libox_pathfinder.a ox_pathfinder.o
