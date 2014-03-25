@@ -22,5 +22,5 @@ rsync-orthant:
 	${RSYNC} --exclude main.c ../../hgm/orthant/src/*.c hgm/src/
 
 copy-web: build-hgm
-	scp hgm*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/HOME/${USER}/2012/tmp
+	${RSYNC} hgm*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
 
