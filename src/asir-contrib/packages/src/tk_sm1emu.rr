@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_sm1emu.rr,v 1.1 2014/03/26 06:50:13 takayama Exp $ */
 
 /*
  This module emulates some sm1 functions on asir.
@@ -117,7 +117,7 @@ def emu_gb(L) {
   printf("Warning. Only gr-rev-lex is implemented.\n");
   for (I=0; I<length(VV); I++) WW[I]=1;
   WW=vtol(WW);
-  return [G,map(in_w,G,VV,WW)];
+  return [G,map(nk_toric.in_w,G,VV,WW)];
 }
 endmodule;
 

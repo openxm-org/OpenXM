@@ -1,0 +1,913 @@
+/* $OpenXM$
+  Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
+  Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
+  ot_ = oh_ & tk_
+*/
+
+import("names.rr")$
+import("nk_toric.rr")$
+import("tk_sm1emu.rr")$
+import("tk_cc111.rr")$
+import("oh_base.rr")$
+
+#include <defs.h>
+
+extern Disc_Supp2$
+extern Disc_Toric$
+extern Disc_R$
+extern Disc_R1$
+extern Disc_R2$
+
+
+def cbase(A) {
+  W=[[dx1, 1]]; /* dummy */
+  T0=mytoric(A,W);
+  E=T0[0];
+  T=T0[1];
+  V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
+  Gt=nd_gr(T,Vd,0,1);
+  dp_ord(0); /* rev lex */
+  T2=map(dp_ptod,T,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+
+  Er=base_replace(E,genrule_p(Vb)); /* prob method */
+  Er=E; print(T2);
+  OrdM=poly_r_omatrix(length(V));
+  Vall=append(V,Vd);
+  G=nd_weyl_gr(append(Er,T2),Vall,0,OrdM);
+  G1=G;
+  for (I=0; I<length(V); I++) {
+    G1=map(poly_in_w,G1,Vall,OrdM[I]);
+  }  
+  dp_ord(0);
+  Gin = map(dp_ht,map(dp_ptod,G1,Vd)); Gin_p=map(dp_dtop,Gin,Vd);
+  Std = dp_mbase(Gin); Std=map(dp_dtop,Std,Vd);
+  return Std;
+}
+
+def ctest1() {
+ A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  B=cbase(A);
+  return B;
+}
+
+def genrule_1(V) {
+  R=[];
+  for (I=0; I<length(V); I++) {  
+    R = cons([V[I],1],R);
+  }
+  return reverse(R);
+}
+def genrule_p(V) {
+  R=[]; P1=2;
+  for (I=0; I<length(V); I++) { 
+    P1 = pari(nextprime,P1+1); 
+    P2 = pari(nextprime,P1+1);
+    R = cons([V[I],P1/P2],R);
+    P1 = P2;
+  }
+  return reverse(R);
+}
+/*
+genrule_1([x,y,z]);
+genrule_p([b1,b2,b3]);
+ctest1();
+*/
+
+def ctest2() {
+  A=[[1,1,1,1,1],[0,1,2,3,4]];
+  Std=cbase(A);
+  printf("Std=%a\n",Std);
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1]]; 
+  Mset=append(Std,[dx2]);
+  return get_mat(A,W,Std,Mset);
+}
+/*
+R=ctest2();
+matrix_rank(R);  We get a full rank matrix.
+*/
+
+def ctest3() {
+  A=[[1,1,1,1],[0,1,3,4]];
+  Std=cbase(A);
+  printf("Std=%a\n",Std);
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1]]; 
+  Mset=append(Std,[dx2,dx1,dx1*dx2,dx1*dx3,dx1*dx4,dx2*dx3,dx2*dx4,dx3*dx4,
+                   dx1^2,dx2^2,dx3^2]);  /* 30x23, rank 23 の行列. 解ける. std が dx4^2 まであるので 2 次を全部とってきた. */
+  return get_mat(A,W,Std,Mset);
+}
+
+/* 
+R=ctest3();
+matrix_rank(R);
+*/
+
+def ctest4() {
+  A=[[1,1,1],[0,1,2]];
+  Std=cbase(A);
+  printf("Std=%a\n",Std);
+  W=[[dx1,1,dx2,1,dx3,1]]; 
+  Mset=append(Std,[1,dx1,dx2,dx3]);
+  return get_mat(A,W,Std,Mset);
+}
+
+def ctest5() {
+ A = [[1,0,0,1,1,0,1],
+      [0,1,0,1,0,1,1],
+      [0,0,1,0,1,1,1]];
+ /* confluent type of ctest1() */
+  B=cbase(A);
+  return B;
+}
+
+/*
+  mytoric(A,W)
+  [euler,toric,V,Vb,weight_vec,toric_init_by_weight_vec] 
+*/
+
+def mytoric(A,W) {
+  En=length(A);
+  Gkz=tk_sm1emu.gkz([A,vtol(newvect(En))]);
+  V=Gkz[1];
+  T=Gkz[0];
+  E=[]; Vb=[];
+  for (I=0; I<En; I++) { E=cons(car(T)-util_v(b,[I+1]),E); T=cdr(T); Vb=cons(util_v(b,[I+1]),Vb);}
+  E=reverse(E);  Vb=reverse(Vb);
+  T=tk_sm1emu.gb([T,V,W]);
+  return [E,T[0],V,Vb,W,T[1]];
+  /* [euler,toric,V,Vb,weight_vec,toric_init_by_weight_vec] */
+}
+
+def test1() {
+  A=[[1,1,1,1],[0,1,2,3]];
+  W=[[dx1,1],[dx2,1],[dx3,1],[dx4,1]];
+  /* W=[[dx1,100,dx2,30,dx3,3]]; */
+  F=mytoric(A,W);
+  print(F[1]);
+  print(map(get_support,F[1],[dx1,dx2,dx3,dx4]));
+  return F;
+}
+
+def get_support(F,V) {
+  if (type(F) >= 4) {
+     T=map(get_support,F,V);
+     return merge(T);
+  }
+  if (dn(F) != 1) error("get_support: argument cannot be a rational.");
+  F=dp_ptod(F,V);
+  S=[];
+  while (F != 0) {
+    M=dp_ht(F); F=dp_rest(F);
+    M=dp_dtop(M,V);
+    if (!base_memberq(M,S)) S=cons(M,S);
+  }
+  return(S);
+}
+
+/* coef of M in F */
+def mcoef(F,M,V) {
+  for (I=0; I<length(V); I++) {
+    F=coef(F,deg(M,V[I]),V[I]);
+  }
+  return F;
+}
+
+def test2() {
+  F=(dx1+dx2+dx3+a)^4;
+  V=[dx1,dx2,dx3];
+  print(get_support(F,V));
+  return mcoef(F,dx1*dx2^2,[dx1,dx2]);
+}
+
+def add_d(V) {
+  Dv = newvect(length(V));
+  for (I=0; I<length(V); I++) {
+    Dv[I] = eval_str("d"+rtostr(V[I]));
+  }
+  return vtol(Dv);
+}
+
+def merge(Varray) {
+  A=[];
+  for (I=0; I<length(Varray); I++) {
+    V=Varray[I];
+    for (J=0; J<length(V); J++) {
+      if (!base_memberq(V[J],A)) A=cons(V[J],A);
+    }
+  }
+  return reverse(A);
+}
+
+/*
+ P=get_mat2(A,W,Std,Mset); の時
+ Mat=P[0]; RM=P[1]; Supp2=P[2]; とおくと,
+ Mat*Supp2 = RM*Std
+ が成り立つ.  cf. test3b();
+*/
+def get_mat2(A,W,Std,Mset) {
+  if (Mset == 0) Mset=Std;
+  E=mytoric(A,W);
+  /* [euler,toric,V,Vb,weight_vec,toric_init_by_weight_vec] */
+  Disc_Toric=E;
+  Euler=E[0];
+  Toric=E[1];
+  V=E[2]; Vb=E[3];  Vall=append(V,Vb);
+  Vd = add_d(V);
+  G=[];
+  /* Mset を Euler 作用素に掛けて Toric で reduction する. 行列式の素 */ 
+  for (I=0; I<length(Euler); I++) {
+    for (J=0; J<length(Mset); J++) {
+      F = tk_sm1emu.mul(Mset[J],Euler[I],Vall);
+      Fn= tk_sm1emu.reduction([F,Toric,Vall,W])[0];
+      G = cons(Fn,G);
+    }
+  }
+  G=reverse(G);
+  R = newvect(length(G));
+  for (I=0; I<length(G); I++) R[I]=G[I];
+  /* G から行列を作る. 右辺は R. */
+  Supp = get_support(G,Vd);
+  printf("Support=%a, Std=%a \n",Supp,Std);
+  Supp2 = base_set_minus(Supp,Std);
+  /* Supp2 を 縦の index とする行列を作る */
+  Disc_Supp2=Supp2; 
+  Mat = newmat(length(G),length(Supp2));
+  printf("size=%a\n",size(Mat));
+  for (I=0; I<length(G); I++) {
+    for (J=0; J<length(Supp2); J++) {
+       Mat[I][J] = mcoef(G[I],Supp2[J],Vd);
+       R[I] = R[I] - Mat[I][J]*Supp2[J];
+    }
+  }
+  for (I=0; I<length(G); I++) R[I]=-R[I];
+  /* 右辺を RM*Std なる行列表示にする. 1 の係数も OK. */
+  RM = newmat(length(G),length(Std));
+  for (I=0; I<length(G); I++) {
+    for (J=0; J<length(Std); J++) {
+       RM[I][J] = mcoef(R[I],Std[J],Vd);
+    }
+  }
+  /* Mat*Supp2-RM*Std=G=0? */
+  /* mycheck(Mat,RM,Supp2,Std,G) ;*/
+
+  return [Mat,RM,Supp2];
+}
+
+def get_mat(A,W,Std,Mset) {
+  return get_mat2(A,W,Std,Mset)[0];
+}
+
+def mycheck(Mat,RM,Supp2,Std,G) {
+  B=Mat*newvect(length(Supp2),Supp2)-RM*newvect(length(Std),Std);
+  N=length(B);
+  for (I=0; I<N; I++) {
+    if (B[I]-G[I]!=0) error("mycheck error");
+  }
+}
+
+def test3() {
+  A=[[1,1,1,1],[0,1,2,3]];
+  W=[[dx1,1],[dx2,1],[dx3,1],[dx4,1]];
+  /* return get_mat(A,W,[1,dx3,dx4],0);*/
+  return get_mat(A,W,[1,dx3,dx4],[1,dx2,dx3,dx4]);
+}
+
+def test3b() {
+  A=[[1,1,0,0],
+     [0,0,1,1],
+     [1,0,1,0],
+     [0,1,0,1]];
+  W=[[dx1,1],[dx2,1],[dx3,1],[dx4,1]];
+  return get_mat2(A,W,[1,dx4],[1,dx4,dx3]);
+}
+
+
+def test4() {
+ /* from ud-c11.rr */
+ A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  W=[[dx1,1],[dx2,1],[dx3,1],[dx4,1],[dx5,1],[dx6,1],[dx7,1],[dx8,1]];
+  /* return get_mat(A,W,[1,dx5,dx6,dx7,dx8,dx8^2],0);  orange3m 24x31, rank is 24 */
+  Mset=[1,dx5,dx6,dx7,dx8,dx8^2,dx1,dx2,dx3,dx4];  /* 40x38, but rank is 34 */
+  Mset=[1,dx5,dx6,dx7,dx8,dx8^2];
+  return get_mat(A,W,[1,dx5,dx6,dx7,dx8,dx8^2],Mset);
+}
+
+def test5() {
+  /* This std is buggy. 2013-10-06 */
+ /* from ud-c11.rr */
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; /* use rev lex */
+  /* Mset=[1,dx5,dx6,dx7,dx8,dx6*dx7];   24x32 rank=24 */
+  Mset=[1,dx5,dx6,dx7,dx8,dx6*dx7,dx1,dx2,dx3,dx4];  /* 40x39, rank=34 */
+  return get_mat(A,W,[1,dx5,dx6,dx7,dx8,dx6*dx7],Mset);
+}
+/*
+R=test5();
+matrix_rank(R);
+*/
+
+def test6() {
+ /* from ud-c11.rr */
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; /* use rev lex */
+  Mset=[1,dx5,dx6,dx7,dx8, 
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,dx1*dx8,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,dx2*dx8,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,dx3*dx8,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,dx4*dx8,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,dx5*dx8,
+                                                   dx6*dx6,dx6*dx7,dx6*dx8,
+                                                           dx7*dx7,dx7*dx8];
+           /* 176*93, rank=93  */
+  Disc_R=get_mat(A,W,[1,dx5,dx6,dx7,dx8,dx8^2],Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  V=[x1,x2,x3,x4,x5,x6,x7,x8];
+  Vb=[b_1,b_2,b_3,b_4];
+  /* load cbase.rr */
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return matrix_rank(base_replace(Disc_R,R1));
+}
+def test6c() {  /* confluent test6. cf. Notes/c11.tex */
+ /* from ud-c11.rr */
+  A = [
+     [1,0,0,1,1,0,1],
+     [0,1,0,1,0,1,1],
+     [0,0,1,0,1,1,1]];
+  printf("Std=%a\n",cbase(A));
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+  Mset=[1,dx5,dx6,dx7, 
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,
+                                                   dx6*dx6,dx6*dx7,
+                                                           dx7*dx7];
+  /* 108x58, rank=58 */
+  Disc_R=get_mat(A,W,[1,dx7,dx6,dx5,dx4,dx7^2],Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  V=[x1,x2,x3,x4,x5,x6,x7];
+  Vb=[b_1,b_2,b_3];
+  /* load cbase.rr */
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return matrix_rank(base_replace(Disc_R,R1));
+}
+
+/* 乱数で選んだベクトルで non-sigular submatrix を探す.
+--> これはうまくいかない. やはり一次独立なものを足していくのがいいんだろう. */
+def ns_submat(Mat) {
+  if (type(Mat) == 4) Mat = matrix_list_to_matrix(Mat);
+  M=size(Mat)[0]; N=size(Mat)[1];
+  /* Choose N rows from M rows, N<=M. The result should be non-singular mat. */
+  Idx=newvect(N);
+  while (1) {
+    for (I=0; I<N; I++) Idx[I]=-1;
+    J=0;
+    while (J<N) {
+      R=random() % M;
+      if (!base_memberq(R,Idx)) {Idx[J]=R; J++;}
+    }
+    printf("Idx=%a\n",Idx);
+    Smat = matrix_submatrix(Mat,Idx);
+    if (matrix_rank(Smat) == N) break;
+  }
+  return [Smat,Idx];
+}
+
+def test7() {
+  /* 00,01,10,11,12,21,22 */
+  A=[
+     [1,1,0,0,0,0,0],
+     [0,0,1,1,1,0,0],
+     [0,0,0,0,0,1,1],
+     [1,0,1,0,0,0,0],
+     [0,1,0,1,0,1,0]];
+  Std=cbase(A);
+  printf("Std=%a\n",Std); /* [], 4,7,47 rank=4. */
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+  Mset=[1,dx1,dx2,dx3,dx4,dx5,dx6,dx7];
+  /* Mset=[1,dx4,dx7,dx1];   not good. */
+  Disc_R=get_mat(A,W,[1,dx4,dx7,dx4*dx7],Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  V=[x1,x2,x3,x4,x5,x6,x7];
+  Vb=[b_1,b_2,b_3,b_4,b_5];
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return [matrix_rank(base_replace(Disc_R,R1)),Std];
+}
+
+def test8() {
+  A=[
+     [1,1,0,0],
+     [0,0,1,1],
+     [1,0,1,0]];
+  Std=cbase(A);
+  printf("Std=%a\n",Std); /* [], 4 rank=2. */
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1]]; /* use rev lex */
+  Mset=[1,dx4,dx2];  /* [1,dx4,dx3]; also works */
+  Disc_R=get_mat(A,W,[1,dx4],Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  V=[x1,x2,x3,x4];
+  Vb=[b_1,b_2,b_3];
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return [matrix_rank(base_replace(Disc_R,R1)),Std];
+}
+
+/* 2014-01-30, 18:07, see also photo */
+def test9() {
+  B=[
+     [x10,x11,  0,    0,  0,   0],
+     [    0,x11,x01,  0,  0,   0],
+     [    0,    0,x01,x10,0,   0],
+     [    0,    0,   0,x10,x00,0],
+     [    0,    0,   0,   0,x00,x01],
+     [x10,    0,    0,   0,   0,x00]]; /* by toric reduction, it is not x01 */
+  return det(matrix_list_to_matrix(B));
+}
+
+def test10() {
+  A=[
+     [1,1,1,0,0,0],
+     [0,0,0,1,1,1],
+     [1,0,0,1,0,0],
+     [0,1,0,0,1,0]
+   ];
+  Std=cbase(A);
+  printf("Std=%a\n",Std); /* [], 5,6 rank=3. */
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1]]; /* use rev lex */
+  Mset=[1,dx5,dx6,dx4];
+  Disc_R=get_mat(A,W,Std,Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  V=[x1,x2,x3,x4,x5,x6];
+  Vb=[b_1,b_2,b_3,b_4];
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return [matrix_rank(base_replace(Disc_R,R1)),Std];
+}
+
+
+/*
+MatData = get_mat2(A,W,StdMon,Mset);
+Eqn = get_eqn(MatData);
+*/
+def get_eqn(MatData) {
+    M0=MatData[0];
+    M1=MatData[1];
+    T=base_var_list(tt_,1,size(M0)[1]);
+    S=base_var_list(ss_,1,size(M1)[1]);
+    L = vtol(M0*ltov(T)-M1*ltov(S));
+    return [L,T,S];
+}
+
+def get_eqn2(MatData,Xall,Param) {
+    Eqn_LTS = get_eqn(MatData);
+    L  = Eqn_LTS[0];
+    TT = Eqn_LTS[1];
+    SS = Eqn_LTS[2];
+    L  = base_replace(L,assoc(Xall, Param));
+    if(getopt(solve)==yes) {
+        L = poly_solve_linear(L,TT);
+    }
+    return [L,TT,SS];
+}
+
+
+/* 例: ベクトル値関数 f(t; x1,x2) = (t^2+x1,-x1-t*x2)
+   FuncArgs = [ ltov([t^2+x1, -x1-x2*t]), [ [t], [x1,x2] ] ]
+   Vals = [ [3/2], [-2, 1.5] ]
+*/
+def call_func(FuncArgs,Vals) {
+    F    = FuncArgs[0];
+    Args = FuncArgs[1];
+    N = length(Args); /* == length(Vals) */
+    if(N>length(Vals)) {
+        error("call_func: invalid arguments.\n");
+        return 0;
+    }
+    for(I=0; I<N; I++) {
+        V = isvect(Vals[I])? vtol(Vals[I]): Vals[I];
+        F = base_replace(F,assoc(Args[I],V));
+    }
+    return F;
+}
+
+/* 
+例: ベクトル値関数 f(a; x1,x2) = (a^2+x1+b1,-x1-a*x2+b2)
+   ただし、(b1,b2) は連立方程式 
+   2*x1*b1+t*b2 -1    = 0,  
+   (3*t+1)*b1-x2*b2+3 = 0 
+   の解とする。(t,x1,x2がパラメータ)
+
+   Eqn = [ [2*x1*b1+t*b2-1, (3*t+1)*b1-x2*b2+3], [b1,b2], [t,x1,x2] ]
+   FuncArgs = [ ltov([t^2+x1+b1, -x1-t*x2+b2]), [ [t], [x1,x2] ], Eqn ]
+   Vals = [ [3/2], [-2, 1.5] ]
+*/
+def call_func_eqn(FuncArgs,Vals) {
+    F    = FuncArgs[0];
+    Args = FuncArgs[1];
+    Eqn  = FuncArgs[2];
+    Eq   = Eqn[0]; /* 線形方程式 Eq(S,X) = 0 ここで S はパラメータ */
+    X    = Eqn[1];
+    S    = Eqn[2]; /* 明示的に使わない.  S と同じものが Args に含まれるようにしておく */
+    N    = length(Args); /* == length(Vals) */
+
+    /* パラメータへの値の設定 */
+    if(N>length(Vals)) {
+        error("call_func: invalid arguments.\n");
+        return 0;
+    }
+    for(I=0; I<N; I++) {
+        V   = isvect(Vals[I])? vtol(Vals[I]): Vals[I];
+        Rel = assoc(Args[I],V);
+        F   = base_replace(F, Rel);
+        Eq  = base_replace(Eq,Rel);
+    }
+    /* Eq(X)=0 を X について解く */
+    Sol = poly_solve_linear(Eq,X);
+//  printf("X=%a\nSol=%a\n\n",X,map('car',Sol));
+    F = base_replace(F,Sol);
+    return F;
+}
+
+def float2rat(F,N) {
+    Dn=10^N;
+    Nm=rint(F*Dn);
+    return Nm/Dn;
+}
+
+def factor_prime(F) {
+    if(islist(F)) {
+        F = base_flatten(map(factor_prime, F));
+        return uniq(qsort(F));
+    }
+    return map('car',cdr(fctr(F)));
+}
+
+def factor_mul(F) {
+    if(islist(F)) {
+        G=car(F);
+        for(F=cdr(F); F!=[]; F=cdr(F)) {
+            G=lcm(G,car(F));
+        }
+        F=G;
+    }
+    return cdr(fctr(F));
+}
+
+/* from test6c */
+def test19 () {  /* confluent test6. cf. Notes/c11.tex */
+    /* from ud-c11.rr */
+    A = [
+        [1,0,0,1,1,0,1],
+        [0,1,0,1,0,1,1],
+        [0,0,1,0,1,1,1]];
+//  printf("Std=%a\n",cbase(A));
+    W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+    Mset=[1,dx5,dx6,dx7,
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+          dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+          dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+          dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+          dx5*dx5,dx5*dx6,dx5*dx7,
+          dx6*dx6,dx6*dx7,
+          dx7*dx7];
+    V=[x1,x2,x3,x4,x5,x6,x7];
+    Vb=[b_1,b_2,b_3];
+    Vall = append(V,Vb);
+
+    /* 108x58, rank=58 */
+    StdMon = [1,dx7,dx6,dx5,dx4,dx7^2];
+    DV=[dx1,dx2,dx3,dx4,dx5,dx6,dx7];
+    Disc_R2=get_mat2(A,W,StdMon,Mset);
+    Disc_R=Disc_R2[0];
+    MatData=Disc_R2;
+
+    Vall = append(V,Vb);
+    Dir = [-10/11,-13/10,-8/7,(-41/43)*z,(-10/12)*z,(-25/23)*z,(-37/39)*z];
+    DzDir = map(diff,Dir,z);
+    Bdat = [-15/10, -26/10, -37/10];
+    Pall = append(Dir, Bdat);
+    Sol = get_eqn2(Disc_R2,Vall,Pall | solve=yes);
+    TT = Sol[1];
+    SS = Sol[2];
+
+    Toric=mytoric(A,W)[1];
+    Table = mk_table(DV,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT);
+
+    NV= length(DV);
+    NM = length(StdMon);
+    Pf = newvect(NV);
+    for(I=0; I<NV; I++) {
+        Pf[I] = DV[I]*ltov(StdMon);
+        Pf[I] = mapat(oh_base.assoc_match,1,Table,Pf[I]);
+    }
+
+    Pf=vtol(Pf);
+    P = 0;
+    for(I=0; I<NV; I++) {
+        P += DzDir[I]*Pf[I];
+    }
+    P = base_replace(P,Sol[0]);
+    Func=[P,[[z],SS]];
+
+#if 1
+    /* an initial value at Z=0.001 */
+//  InitValFloat=[ 1.833962, 18.984250, 11.719908, 9.602990, 5.922814, 565.608369];
+    InitValFloat=[ 1.834885668779896312, 
+                   18.96517485446140242, 
+                   11.70294822085786770, 
+                   9.609467131879854119, 
+                   5.920492560166507569, 
+                   564.0635393469870808 ];    /* 同じ場所．漸近展開による. */
+    InitVal=map(float2rat,InitValFloat,6);
+    Z = 1/10^3;
+    H = 1/10^6;
+    Zs = Z;
+	Ze = 1/10;
+#endif
+
+#if 0
+    /* an initial value at Z=0.1 */
+    InitValFloat=[0.457392904554, 1.305954410928, 1.533103031020, 1.067058892481, 0.595251972063, 7.940707579700];
+    InitVal=map(float2rat,InitValFloat,12);
+    Z = 1/10;
+    H = 1/10^4;
+    Zs = Z;
+	Ze = 25/100;
+#endif
+
+    DD = vtol(map(dn,Func[0]));
+    Sing = factor_mul(DD);
+    printf("Sing=%a\n\n",factor_mul(DD));
+    /* 
+       Sing=[
+	   [z,3],
+	   [5863*z-6364,1],
+	   [11375*z-13616,1],
+	   [30750*z-36593,1],
+       [8203069875000*z^3-21363737113875*z^2+16469565786088*z-3170864832832,1]];
+     */
+    for(L=newvect(length(Sing)),I=0; I<length(Sing); I++) {
+        L[I]=pari(roots, Sing[I][0]);
+    }
+    L=base_flatten(L);
+    printf("SingPt=%a\n\n",L);
+    /* 
+       SingPt=[
+       0,
+       1.0854511342316220365000852805730854511,
+       1.1970109890109890109890109890109890109,
+       1.1900162601626016260162601626016260162,
+       0.28859221237897573162896079748555733032,
+       1.1221912832930888237338607023425237366,
+       1.1935752918818449497661958243111942918];
+    */
+
+    InitVal=InitValFloat;
+    Graph = runge_kutta_linear2(Func,Zs,InitVal,Ze,H);
+    return Graph;
+}
+
+/* from test6c */
+def test20 () {  /* confluent test6. cf. Notes/c11.tex */
+    /* from ud-c11.rr */
+    A = [
+        [1,0,0,1,1,0,1],
+        [0,1,0,1,0,1,1],
+        [0,0,1,0,1,1,1]];
+//  printf("Std=%a\n",cbase(A));
+    W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+    Mset=[1,dx5,dx6,dx7,
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+          dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+          dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+          dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+          dx5*dx5,dx5*dx6,dx5*dx7,
+          dx6*dx6,dx6*dx7,
+          dx7*dx7];
+    V=[x1,x2,x3,x4,x5,x6,x7];
+    Vb=[b_1,b_2,b_3];
+    Vall = append(V,Vb);
+
+    /* 108x58, rank=58 */
+    StdMon = [1,dx7,dx6,dx5,dx4,dx7^2];
+    DV=[dx1,dx2,dx3,dx4,dx5,dx6,dx7];
+    Disc_R2=get_mat2(A,W,StdMon,Mset);
+    Disc_R=Disc_R2[0];
+    MatData=Disc_R2;
+
+    Vall = append(V,Vb);
+    Dir = [-10/11,-13/10,-8/7,(-41/43)*z,(-10/12)*z,(-25/23)*z,(-37/39)*z];
+    DzDir = map(diff,Dir,z);
+    Bdat = [-15/10, -26/10, -37/10];
+    Pall = append(Dir, Bdat);
+    Eqn = get_eqn2(Disc_R2,Vall,Pall);
+    TT = Eqn[1];
+    SS = Eqn[2];
+
+    Toric=mytoric(A,W)[1];
+    Table = mk_table(DV,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT);
+
+    NV= length(DV);
+    NM = length(StdMon);
+    Pf = newvect(NV);
+    for(I=0; I<NV; I++) {
+        Pf[I] = DV[I]*ltov(StdMon);
+        Pf[I] = mapat(oh_base.assoc_match,1,Table,Pf[I]);
+    }
+    Pf=vtol(Pf);
+    P = 0;
+    for(I=0; I<NV; I++) {
+        P += DzDir[I]*Pf[I];
+    }
+    Func=[P,[[z],SS],Eqn];
+
+#if 1
+    /* an initial value at Z=0.001 */
+//  InitValFloat=[ 1.833962, 18.984250, 11.719908, 9.602990, 5.922814, 565.608369];
+    InitValFloat=[ 1.834885668779896312, 
+                   18.96517485446140242, 
+                   11.70294822085786770, 
+                   9.609467131879854119, 
+                   5.920492560166507569, 
+                   564.0635393469870808 ];    /* 同じ場所．漸近展開による. */
+    InitVal=map(float2rat,InitValFloat,6);
+    Z = 1/10^3;
+    H = 1/10^6;
+    Zs = Z;
+	Ze = 1/10;
+#endif
+
+#if 0
+    /* an initial value at Z=0.1 */
+    InitValFloat=[0.457392904554, 1.305954410928, 1.533103031020, 1.067058892481, 0.595251972063, 7.940707579700];
+    InitVal=map(float2rat,InitValFloat,12);
+    Z = 1/10;
+    H = 1/10^4;
+    Zs = Z;
+	Ze = 25/100;
+#endif
+
+//  return map(deval,call_func_eqn(Func,[[Z],InitVal]));
+    Graph = runge_kutta_linear2(Func,Zs,InitVal,Ze,H | callf=call_func_eqn );
+    return Graph;
+}
+
+def mk_table(DV,StdMon,MonTT,Toric,Vall,W,SS,TT) {
+    NV=length(DV);
+    NB=length(StdMon);
+    L=[];
+    for(I=0; I<NB; I++) {
+        for (J=0; J<NV; J++) {
+            L=cons(DV[J]*StdMon[I],L);
+        }
+    }
+    L = uniq(qsort(L));
+
+    /* L の各要素を StdMon, MonTT で表わす.
+       そのためにまずは TT, SS で表わす. */
+    if((Pos=base_position(1,StdMon))<0) {
+        printf("invalid argument. (StdMon=%a).\n",StdMon);
+        return []; /* error */
+    }
+    MM = append(MonTT, base_prune(1, StdMon));
+    RR = append(TT, base_prune(SS[Pos], SS));
+
+    L = base_set_minus(L,MM);
+    Lred = ltov(L);
+    for(I=0; I<length(Lred); I++) {
+        Lred[I] = tk_sm1emu.reduction([Lred[I],Toric,Vall,W])[0]; /* */
+    }
+    N = length(Lred);
+    for(I=0; I<N; I++) {
+        C=Lred[I];
+        if((Pos = base_position(C,MM))>=0) {
+            Lred[I] = RR[Pos];
+        }else if ((Pos = base_position(-C,MM))>=0) {
+            Lred[I] = -RR[Pos];
+        }else {
+            printf("invalid data.\n");
+        }
+    }
+    Lred = vtol(Lred);
+
+    MM = append(MM,L);
+    RR = append(RR,Lred);
+    return assoc(MM,RR);
+}
+
+def normalize(F) {
+    return dp_hc(dp_ptod(F,vars(F)))<0? -F: F;
+}
+
+def uniq(L) {
+    N=length(L);
+    if(N>1) {
+        C=L[0];
+        R=[C];
+        for(I=1; I<N; I++) {
+            if(C!=L[I]) {
+                C=L[I];
+                R=cons(C,R);
+            }
+        }
+        L=reverse(R);
+    }
+    return L;
+}
+
+def number_sign(X) {
+    return (X==0)? 0: (X<0)? -1: 1;
+}
+
+#define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
+
+def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
+    if (type(Ys)==type([])) {
+        Ys = ltov(Ys);
+    }
+    CALL = _getopt(callf,call_func);
+    N  = rint(number_abs((Xe-Xs)/H));
+    H  = number_sign(Xe-Xs)*H;
+    H2 = H/2;
+    Ans = [[Xs,Ys]];
+    printf("\n%a %a\n", deval(Xs), map(deval, Ys));
+    for(Y=Ys,X=Xs,I=0; I<N; I++) {
+        Y1 = (*CALL)(FuncArgs, [[X],   Y]); 
+        Y2 = (*CALL)(FuncArgs, [[X+H2],Y+H2*Y1]); 
+        Y3 = (*CALL)(FuncArgs, [[X+H2],Y+H2*Y2]); 
+        Y4 = (*CALL)(FuncArgs, [[X+H], Y+ H*Y3]); 
+/*
+        printf("Y1: %a %a\nY2: %a %a\nY3: %a %a\nY4: %a %a\n", 
+               deval(X),    map(deval, Y1),
+               deval(X+H2), map(deval, Y2),
+               deval(X+H2), map(deval, Y3),
+               deval(X+H),  map(deval, Y4));
+*/
+        Y += (H/6)*(Y1+2*(Y2+Y3)+Y4);
+        X += H; 
+        printf("%a %a\n", deval(X), map(deval, Y));
+        Ans = cons([X,Y],Ans);
+    }
+    printf("\n");
+    return reverse(Ans);
+}
+
+// ctrl("real_digit",16);
+// test19()$
+// test20()$
+
+/* 
+初期値 (Z=0.001)
+InitValFloat=[ 
+1.834885668779896312, 
+18.96517485446140242, 
+11.70294822085786770, 
+9.609467131879854119, 
+5.920492560166507569, 
+564.0635393469870808 ];    // 同じ場所．漸近展開による.
+
+計算結果 (Z=0.00108)
+[
+1.83134313847,
+18.8799005805,
+11.6666045147,
+9.57611084253,
+5.89871455232,
+559.320556772 ]
+
+// from Takayama
+z=0.00108 の時の値は
+1.83134313331868557399
+error bound は0.0000000089279079861514485316
+
+(snip)
+
+漸近級数で計算すると, 最後だけ,
+558.654942661977
+です。２桁は数値積分と一致してますね.
+
+error bound = 8.927907986e-09
+
+A=1.83134313331868557399;
+B=1.83134313847;
+
+dabs(A-B);
+5.151314486e-09
+
+*/
+
+end$
