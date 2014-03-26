@@ -1,0 +1,1915 @@
+/* $OpenXM$ */
+
+import("ko_fb_pfaffian.rr")$
+
+module nk_fb_gen_c;
+
+/* ko_fb_pfaffian.rr のテスト関数 */
+localf pf1_val;
+localf test_pf1_val;
+localf pfi_val;
+localf pf11_val;
+localf test_pf11_val;
+localf pfij_val;
+localf pf11_val2;
+localf test_pf11_val2;
+localf pf11_val2_;
+localf test_pf11_val2_;
+localf pfij_val2_;
+localf test_pfij_val2_;
+
+/* このプログラムのメインの関数 */
+localf gen_c;
+localf gen_func_pf_all;
+localf gen_func_pfi;
+localf gen_func_pfi_no_diag_shift;
+localf gen_func_pfij;
+localf gen_func_move_t;
+localf gen_func_sys_t;
+localf gen_func_init_val;
+localf gen_func_search_min;
+localf gen_func_my_f;
+localf gen_func_my_df;
+localf gen_func_my_fdf;
+localf gen_func_grad;
+localf gen_func_gsl_vector_show;
+localf gen_func_show_v;
+localf mat_mul_gsl;
+localf test_mat_mul_gsl;
+localf alloc_gsl;
+localf mat_to_gsl;
+localf test_mat_to_gsl;
+
+/* 補助関数 */
+localf dp_m_to_str;          
+localf test_dp_m_to_str;
+localf dp_to_str;
+localf test_dp_to_str;
+localf p_to_str;
+
+/* 1 次元 FB 積分の y1 についての Pfaff 系の Point での値 */
+def pf1_val(Point)
+{
+	X11 = Point[0]; X12 = Point[1]; X22 = Point[2]; Y1  = Point[3]; Y2  = Point[4]; R   = Point[5];
+
+	Ls = ko_fb_pfaffian.genVariable(1);
+	Pfy = ko_fb_pfaffian.pfaffian_y(Ls);	
+	Pf1 = map(red, Pfy[0][0]/Pfy[0][1]);
+	return map(subst, Pf1, x11, X11, x12, X12, x22, X22, y1, Y1, y2, Y2, r, R);
+}
+
+def test_pf1_val()
+{
+X11 = -3.0; X12 = 0.5; X22 = 0.15;
+Y1 = 1.0; Y2 = 0.15; R = 1.0;
+	return pf1_val([X11, X12, X22, Y1, Y2, R]);
+}
+
+/* 1 次元 FB 積分の yI についての Pfaff 系の Point での値 */
+def pfi_val(Point, I)
+{
+	X11 = Point[0]; X12 = Point[1]; X22 = Point[2]; Y1  = Point[3]; Y2  = Point[4]; R   = Point[5];
+
+	Ls = ko_fb_pfaffian.genVariable(1);
+	Pfy = ko_fb_pfaffian.pfaffian_y(Ls);	
+	PfI = map(red, Pfy[I-1][0]/Pfy[I-1][1]);
+	return map(subst, PfI, x11, X11, x12, X12, x22, X22, y1, Y1, y2, Y2, r, R);
+}
+
+/* 1 次元 FB 積分の x11 についての Pfaff 系の Point での値 */
+def pf11_val(Point)
+{
+	X11 = Point[0]; X12 = Point[1]; X22 = Point[2]; Y1  = Point[3]; Y2  = Point[4]; R   = Point[5];
+
+	Ls = ko_fb_pfaffian.genVariable(1);
+	Pfy = ko_fb_pfaffian.pfaffian_y(Ls);	
+	Pfx = ko_fb_pfaffian.pfaffian_x(Ls, Pfy);	
+	Pf11 = map(red, Pfx[0][0][0]/Pfx[0][0][1]);
+	return map(subst, Pf11, x11, X11, x12, X12, x22, X22, y1, Y1, y2, Y2, r, R);
+}
+
+def test_pf11_val()
+{
+X11 = -3.0; X12 = 0.5; X22 = 0.15;
+Y1 = 1.0; Y2 = 0.15; R = 1.0;
+	return pf11_val([X11, X12, X22, Y1, Y2, R]);
+}
+
+/* 1 次元 FB 積分の xIJ についての Pfaff 系の Point での値 */
+def pfij_val(Point, I, J)
+{
+	X11 = Point[0]; X12 = Point[1]; X22 = Point[2]; Y1  = Point[3]; Y2  = Point[4]; R   = Point[5];
+
+	Ls = ko_fb_pfaffian.genVariable(1);
+	Pfy = ko_fb_pfaffian.pfaffian_y(Ls);	
+	Pfx = ko_fb_pfaffian.pfaffian_x(Ls, Pfy);	
+	PfIJ = map(red, Pfx[I-1][J-1][0]/Pfx[I-1][J-1][1]);
+	return map(subst, PfIJ, x11, X11, x12, X12, x22, X22, y1, Y1, y2, Y2, r, R);
+}
+
+/* 2 次元 FB 積分の x11 についての Pfaff 系の Point での値 */
+def pf11_val2(Point)
+{
+	Ls = ko_fb_pfaffian.genVariable(2);
+
+	Pfy = ko_fb_pfaffian.pfy(Ls);
+	A1 = Pfy[0][0];
+	B1 = Pfy[0][1];
+	C1 = Pfy[0][2];
+	E1 = Pfy[0][3];
+
+	Lem2 = ko_fb_pfaffian.lem2(Ls);
+	P2 = Lem2[0];
+	Q2 = Lem2[1];
+
+	Lem3 = ko_fb_pfaffian.lem3(Ls);
+	P3 = Lem3[0];
+	Q3 = Lem3[1];
+	R3 = Lem3[2];
+
+	Pfx = ko_fb_pfaffian.pfx(Ls);
+	DB11 = Pfx[0][0][0];
+	DC11 = Pfx[1][0][0];
+	DQ21 = Pfx[2][0];	
+	DQ31 = Pfx[3][0];	
+	DR31 = Pfx[4][0];	
+
+	X11 = Point[0]; X12 = Point[1]; X13 = Point[2]; X22  = Point[3]; X23  = Point[4]; X33   = Point[5];
+	Y1 = Point[6];  Y2 = Point[7];  Y3 = Point[8];  R  = Point[9]; 
+	A1 = map(subst, A1, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	B1 = map(subst, B1, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	C1 = map(subst, C1, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	E1 = map(subst, E1, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	P2 = map(subst, P2, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	Q2 = map(subst, Q2, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	P3 = map(subst, P3, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	Q3 = map(subst, Q3, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	R3 = map(subst, R3, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	DB11 = map(subst, DB11, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	DC11 = map(subst, DC11, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	DQ21 = map(subst, DQ21, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	DQ31 = map(subst, DQ31, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+	DR31 = map(subst, DR31, x11, X11, x12, X12, x13, X13, x22, X22, x23, X23, x33, X33, y1, Y1, y2, Y2, y3, Y3, r, R);	
+
+	InvA1 = invmat(A1);
+	InvA1 = InvA1[0]/InvA1[1];
+	InvP2 = invmat(P2);
+	InvP2 = InvP2[0]/InvP2[1];
+	InvP3 = invmat(P3);
+	InvP3 = InvP3[0]/InvP3[1];
+	
+	Pf1 = InvA1 * (B1 - C1*InvP2*Q2 + E1*InvP3*(Q3*InvP2*Q2 - R3));
+	print("Pf1 no diag shift:");
+	print(Pf1);
+	
+	T1 = InvP2 * Q2;
+	T2 = InvP2 * DQ21;
+	T3 = DQ31 * T1;
+	T4 = Q3 * T2;
+	T3 += T4;
+	T3 -= DR31;
+	T4 = InvP3 * T3;
+	T5 = E1 * T4;
+	T5 += DB11;
+	T6 = DC11 * T1;
+	T5 -= T6;
+	T6 = C1 * T2;
+	T5 -= T6;
+	T6 = InvA1 * T5;
+	T5 = Pf1 * Pf1;
+	T5 += T6;
+	print("Pf11:"); 
+	print(T5);
+}
+
+def test_pf11_val2()
+{
+	return pf11_val2([-0.161000, 0.437700, 1.060400, 0.203800, 0.692400, -0.042800, -0.019000, -0.016200, -0.228600, 1.000000]);
+
+}
+
+/* N 次元 FB 積分の x11 についての Pfaff 系の Point での値 */
+def pf11_val2_(N, Point)
+{
+	Ls = ko_fb_pfaffian.genVariable(N);
+
+	Pfy = ko_fb_pfaffian.pfy(Ls);
+	A1 = Pfy[0][0];
+	B1 = Pfy[0][1];
+	C1 = Pfy[0][2];
+	E1 = Pfy[0][3];
+
+	Lem2 = ko_fb_pfaffian.lem2(Ls);
+	P2 = Lem2[0];
+	Q2 = Lem2[1];
+
+	Lem3 = ko_fb_pfaffian.lem3(Ls);
+	P3 = Lem3[0];
+	Q3 = Lem3[1];
+	R3 = Lem3[2];
+
+	Pfx = ko_fb_pfaffian.pfx(Ls);
+	DB11 = Pfx[0][0][0];
+	DC11 = Pfx[1][0][0];
+	DQ21 = Pfx[2][0];	
+	DQ31 = Pfx[3][0];	
+	DR31 = Pfx[4][0];	
+
+	Rule = [];
+	K = 0;
+	for (I = 1; I <= N + 1; I++) 
+		for (J = I; J <= N + 1; J++) {
+			Var = strtov(sprintf("x%a%a", I, J));	
+			T = [Var, Point[K]];	
+			K++;
+			Rule = cons(T, Rule);
+		}
+	for (I = 1; I <= N + 1; I++) {
+		Var = strtov(sprintf("y%a", I));	
+		T = [Var, Point[K]];
+		K++;
+		Rule = cons(T, Rule);
+	}
+	Rule = cons([r, Point[K]], Rule);
+	Rule = reverse(Rule);
+
+	A1 = base_replace(A1, Rule);
+	B1 = base_replace(B1, Rule);
+	C1 = base_replace(C1, Rule);
+	E1 = base_replace(E1, Rule);
+	P2 = base_replace(P2, Rule);
+	Q2 = base_replace(Q2, Rule);
+	P3 = base_replace(P3, Rule);
+	Q3 = base_replace(Q3, Rule);
+	R3 = base_replace(R3, Rule);
+	DB11 = base_replace(DB11, Rule);
+	DC11 = base_replace(DC11, Rule);
+	DQ21 = base_replace(DQ21, Rule);
+	DQ31 = base_replace(DQ31, Rule);
+	DR31 = base_replace(DR31, Rule);
+
+	InvA1 = invmat(A1);
+	InvA1 = InvA1[0]/InvA1[1];
+	InvP2 = invmat(P2);
+	InvP2 = InvP2[0]/InvP2[1];
+	InvP3 = invmat(P3);
+	InvP3 = InvP3[0]/InvP3[1];
+	
+	Pf1 = InvA1 * (B1 - C1*InvP2*Q2 + E1*InvP3*(Q3*InvP2*Q2 - R3));
+	print("Pf1 no diag shift:");
+	print(Pf1);
+	
+	T1 = InvP2 * Q2;
+	T2 = InvP2 * DQ21;
+	T3 = DQ31 * T1;
+	T4 = Q3 * T2;
+	T3 += T4;
+	T3 -= DR31;
+	T4 = InvP3 * T3;
+	T5 = E1 * T4;
+	T5 += DB11;
+	T6 = DC11 * T1;
+	T5 -= T6;
+	T6 = C1 * T2;
+	T5 -= T6;
+	T6 = InvA1 * T5;
+	T5 = Pf1 * Pf1;
+	T5 += T6;
+	print("Pf11:"); 
+	print(T5);
+}
+
+def test_pf11_val2_()
+{
+	return pf11_val2_(3, [-1.995, -1.722,  1.362,  1.123, 1.999, -1.998,  1.995, -2.033,  1.539, -0.342, 0.972,  -0.12, -1.992,  0.518, 1.000]);
+}
+
+/* N 次元 FB 積分の xIIJJ についての Pfaff 系の Point での値 */
+def pfij_val2_(N, Point, II, JJ)
+{
+	Ls = ko_fb_pfaffian.genVariable(N);
+	I = II - 1;
+	J = JJ - 1;
+
+	Pfy = ko_fb_pfaffian.pfy(Ls);
+	AI = Pfy[I][0];
+	BI = Pfy[I][1];
+	CI = Pfy[I][2];
+	EI = Pfy[I][3];
+	AJ = Pfy[J][0];
+	BJ = Pfy[J][1];
+	CJ = Pfy[J][2];
+	EJ = Pfy[J][3];
+
+	Lem2 = ko_fb_pfaffian.lem2(Ls);
+	P2 = Lem2[0];
+	Q2 = Lem2[1];
+
+	Lem3 = ko_fb_pfaffian.lem3(Ls);
+	P3 = Lem3[0];
+	Q3 = Lem3[1];
+	R3 = Lem3[2];
+
+	Pfx = ko_fb_pfaffian.pfx(Ls);
+	DBIJ = Pfx[0][I][J];
+	DCIJ = Pfx[1][I][J];
+	DQ2J = Pfx[2][J];	
+	DQ3J = Pfx[3][J];	
+	DR3J = Pfx[4][J];	
+
+	Rule = [];
+	K = 0;
+	for (I = 1; I <= N + 1; I++) 
+		for (J = I; J <= N + 1; J++) {
+			Var = strtov(sprintf("x%a%a", I, J));	
+			T = [Var, Point[K]];	
+			K++;
+			Rule = cons(T, Rule);
+		}
+	for (I = 1; I <= N + 1; I++) {
+		Var = strtov(sprintf("y%a", I));	
+		T = [Var, Point[K]];
+		K++;
+		Rule = cons(T, Rule);
+	}
+	Rule = cons([r, Point[K]], Rule);
+	Rule = reverse(Rule);
+
+	AI = base_replace(AI, Rule);
+	BI = base_replace(BI, Rule);
+	CI = base_replace(CI, Rule);
+	EI = base_replace(EI, Rule);
+	AJ = base_replace(AJ, Rule);
+	BJ = base_replace(BJ, Rule);
+	CJ = base_replace(CJ, Rule);
+	EJ = base_replace(EJ, Rule);
+	P2 = base_replace(P2, Rule);
+	Q2 = base_replace(Q2, Rule);
+	P3 = base_replace(P3, Rule);
+	Q3 = base_replace(Q3, Rule);
+	R3 = base_replace(R3, Rule);
+	DBIJ = base_replace(DBIJ, Rule);
+	DCIJ = base_replace(DCIJ, Rule);
+	DQ2J = base_replace(DQ2J, Rule);
+	DQ3J = base_replace(DQ3J, Rule);
+	DR3J = base_replace(DR3J, Rule);
+
+	InvAI = invmat(AI);
+	InvAI = InvAI[0]/InvAI[1];
+	InvAJ = invmat(AJ);
+	InvAJ = InvAJ[0]/InvAJ[1];
+	InvP2 = invmat(P2);
+	InvP2 = InvP2[0]/InvP2[1];
+	InvP3 = invmat(P3);
+	InvP3 = InvP3[0]/InvP3[1];
+	
+	PfI = InvAI * (BI - CI*InvP2*Q2 + EI*InvP3*(Q3*InvP2*Q2 - R3));
+	PfJ = InvAJ * (BJ - CJ*InvP2*Q2 + EJ*InvP3*(Q3*InvP2*Q2 - R3));
+	print(sprintf("Pf%a no diag shift:", II));
+	print(PfI);
+	print(sprintf("Pf%a no diag shift:", JJ));
+	print(PfJ);
+	
+	T1 = InvP2 * Q2;
+	T2 = InvP2 * DQ2J;
+	T3 = DQ3J * T1;
+	T4 = Q3 * T2;
+	T3 += T4;
+	T3 -= DR3J;
+	T4 = InvP3 * T3;
+	T5 = EI * T4;
+	T5 += DBIJ;
+	T6 = DCIJ * T1;
+	T5 -= T6;
+	T6 = CI * T2;
+	T5 -= T6;
+	T6 = InvAI * T5;
+	T5 = PfI * PfJ;
+	T5 += T6;
+	print(sprintf("Pf%a%a no diag shift:", II, JJ)); 
+	print(T5);
+}
+
+def test_pfij_val2_()
+{
+	pfij_val2_(3, [-1.995, -1.722,  1.362,  1.123, 1.999, -1.998,  1.995, -2.033,  1.539, -0.342, 0.972,  -0.12, -1.992,  0.518, 1.000], 1, 2);
+	pfij_val2_(3, [-1.995, -1.722,  1.362,  1.123, 1.999, -1.998,  1.995, -2.033,  1.539, -0.342, 0.972,  -0.12, -1.992,  0.518, 1.000], 2, 3);
+	pfij_val2_(3, [-1.995, -1.722,  1.362,  1.123, 1.999, -1.998,  1.995, -2.033,  1.539, -0.342, 0.972,  -0.12, -1.992,  0.518, 1.000], 4, 4);
+}
+
+/********************************************************************************************************** 
+ * NN 次元 FB 分布の最尤推定を行う C プログラムを生成する関数       
+ * 生成されるファイルは, testNN.c testNN.h である(NN には数字が入る)
+ * 生成されたファイルをコンパイルするには,                          
+ *  1. testNN.c にデータを書き込み.
+ *  2. 次のようにコンパイル. (FB 積分を計算する C プログラム ko-*.c と BLAS, GSL ライブラリが必要) 
+ *     gcc testNN.c ko-initial.c ko-fbd-rk.c ko-fbd-ps.c perturbation.c ko-fbd-io.c ko-time.c -lgsl -lblas 
+ **********************************************************************************************************/
+def gen_c(NN)
+{
+	Ls = ko_fb_pfaffian.genVariable(NN);
+	VL = Ls[7];
+	F = Ls[8];
+	F2 = Ls[9];
+	F3 = Ls[10];
+	N = NN + 1;          
+
+	A = newvect(N);
+	B = newvect(N);
+	C = newvect(N);
+	E = newvect(N);
+	Pfy = ko_fb_pfaffian.pfy(Ls);
+	for (I = 0; I < N; I++) {
+		A[I] = Pfy[I][0];
+		B[I] = Pfy[I][1];
+		C[I] = Pfy[I][2];
+		E[I] = Pfy[I][3];
+	}
+
+	Lem2 = ko_fb_pfaffian.lem2(Ls);
+	P2 = Lem2[0];
+	Q2 = Lem2[1];
+
+	Lem3 = ko_fb_pfaffian.lem3(Ls);
+	P3 = Lem3[0];
+	Q3 = Lem3[1];
+	R3 = Lem3[2];
+
+	DB = newmat(N,N);
+	DC = newmat(N,N);
+	DQ2 = newvect(N);
+	DQ3 = newvect(N);
+	DR3 = newvect(N);
+	Pfx = ko_fb_pfaffian.pfx(Ls);
+	for (I = 0; I < N; I++) {
+		for (J = 0; J < N; J++) {
+			DB[I][J] = Pfx[0][I][J];
+			DC[I][J] = Pfx[1][I][J];
+		}
+		DQ2[I] = Pfx[2][I];
+		DQ3[I] = Pfx[3][I];
+		DR3[I] = Pfx[4][I];
+	}
+
+	/* XVar = "double x11, double x12, ....", XX = "x11, x12, ..." */
+	/* X2Var = "double xx11, double xx12, ....", XX2 = "xx11, xx12, ..." */
+	XVar = "";
+	XX = "";
+	for (I = 1; I <= N; I++)
+		for (J = I; J <= N; J++) {
+			T = sprintf("x%a%a", I, J);
+			if (XVar != "") {
+				XVar += ", ";
+				XX += ", ";
+				X2Var += ", ";
+				XX2 += ", ";
+			}
+			XVar += "double " + T;
+			XX += T;	
+			X2Var += "double x" + T;
+			XX2 += "x" + T;
+		}
+	YVar = "";
+	YY = "";
+	for (I = 1; I <= N; I++) {
+		T = sprintf("y%a", I);
+		if (YVar != "") {
+			YVar += ", ";
+			YY += ", ";
+			Y2Var += ", ";
+			YY2 += ", ";
+		}
+		YVar += "double " + T;
+		YY += T;
+		Y2Var += "double y" + T;
+		YY2 += "y" + T;
+	}
+	Args = "(" + XVar + ", " + YVar + ", double r)";
+	ArgsVal = "(" + XX + ", " + YY + ", r)";
+	Args_move_t = "(" + XVar + ", " + YVar + ", " + X2Var + ", " + Y2Var + 
+	              ", double *val)";
+
+/****************************************************************************
+ *
+ * generate header file
+ *
+ ***************************************************************************/
+HFileName = sprintf("test%a.h", N - 1);
+printf("generate %a\n", HFileName);
+if (access(HFileName));
+	remove_file(HFileName);
+Fp = open_file(HFileName, "w");
+fprintf(Fp, "#include <stdio.h>\n");
+fprintf(Fp, "#include <gsl/gsl_matrix.h>\n");
+fprintf(Fp, "#include <gsl/gsl_linalg.h>\n");
+fprintf(Fp, "#include <gsl/gsl_blas.h>\n");
+fprintf(Fp, "#include <gsl/gsl_errno.h>\n");
+fprintf(Fp, "#include <gsl/gsl_odeiv.h>\n");
+fprintf(Fp, "#include <gsl/gsl_multimin.h>\n");
+fprintf(Fp, "\n");
+
+/* macro */
+fprintf(Fp, "#define N_VALUES %a\n", 2 * N);
+fprintf(Fp, "#define DIM %a\n", (1 + N) * N / 2 + N);
+fprintf(Fp, "#define ODEIV_STEP_TYPE gsl_odeiv_step_rkf45\n");
+fprintf(Fp, "#define MOVE_T_SUCCESS 1\n");  
+fprintf(Fp, "#define MOVE_T_FAIL    0\n");
+fprintf(Fp, "/* #define MULTIMIN_FDFMINIMIZER_TYPE gsl_multimin_fdfminimizer_conjugate_fr */\n");  
+fprintf(Fp, "#define MULTIMIN_FDFMINIMIZER_TYPE gsl_multimin_fdfminimizer_steepest_descent\n");  
+fprintf(Fp, "#define MAXSIZE 10\n");
+fprintf(Fp, "\n");
+
+/* extern variables */
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "gsl_matrix *a%a, *b%a, *c%a, *e%a;\n", I, I, I, I);
+fprintf(Fp, "gsl_matrix *p2, *q2, *p3, *q3, *r3;\n");
+for (I = 1; I <= N; I++)
+	for (J = 1; J <= N; J++) {
+		fprintf(Fp, "gsl_matrix *db%a%a;\n", I, J);
+		fprintf(Fp, "gsl_matrix *dc%a%a;\n", I, J);
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "gsl_matrix *dq2%a;\n", I);
+	fprintf(Fp, "gsl_matrix *dq3%a;\n", I);
+	fprintf(Fp, "gsl_matrix *dr3%a;\n", I);
+}
+for (I = 1; I <= N; I++) 
+	fprintf(Fp, "gsl_matrix *inv_a%a;\n", I);
+fprintf(Fp, "gsl_matrix *inv_p2;\n");
+fprintf(Fp, "gsl_matrix *inv_p3;\n");
+
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "gsl_matrix *pf%a_m;\n", I);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "gsl_matrix *pf%a_nd_m;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "gsl_matrix *pf%a%a_m;\n", I, J);
+fprintf(Fp, "gsl_matrix *pft_m;\n");
+fprintf(Fp, "gsl_vector *grad_v;\n");
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "double g_y%a;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "double g_x%a%a;\n", I, J);
+fprintf(Fp, "double g_r;\n");
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "double g_s%a;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "double g_s%a%a;\n", I, J);
+fprintf(Fp, "double values[N_VALUES];\n");
+fprintf(Fp, "double move_t_points[DIM];\n");
+fprintf(Fp, "\n");
+
+/* functions */
+fprintf(Fp, "void init_mat();\n");
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "void set_abce_%a%a;\n", I, Args);
+fprintf(Fp, "void set_pqr%a;\n", Args);
+fprintf(Fp, "void set_dbcqr%a;\n", Args);
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "void pf%a%a;\n", I, Args);
+	fprintf(Fp, "void pf%a_no_diag_shift%a;\n", I, Args);
+}
+for (I = 1; I <= N; I++)
+	for (J = 1; J <= N; J++)
+		fprintf(Fp, "void pf%a%a%a;\n", I, J, Args);
+fprintf(Fp, "void pf_all%a;\n", Args);
+fprintf(Fp, "void invmat(gsl_matrix *m, gsl_matrix *invm);\n");
+fprintf(Fp, "void gsl_matrix_show(gsl_matrix *mat);\n");
+fprintf(Fp, "int move_t%a;\n", Args_move_t);
+fprintf(Fp, "int sys_t(double t, const double *y, double *val, double *params);\n");
+fprintf(Fp, "double *fbnd(int dim, double x[MAXSIZE][MAXSIZE], double y[], int maxdeg, int weight[]);\n");
+fprintf(Fp, "double my_f(const gsl_vector *v, void *params);\n");
+fprintf(Fp, "void my_df(const gsl_vector *v, void *param, gsl_vector *df);\n");
+fprintf(Fp, "void my_fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);\n");
+fprintf(Fp, "void gsl_vector_show(gsl_vector *mat);\n");
+fprintf(Fp, "void show_v(double *v, int n);\n");
+
+GradArgs = "";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		GradArgs += sprintf("double x%a%a, ", I, J);
+for (I = 1; I <= N; I++) {
+	GradArgs += sprintf("double y%a", I);
+	if (I < N)
+		GradArgs += ", ";
+}
+fprintf(Fp, "void grad(%a, double r, double *val);\n", GradArgs);
+
+InitValArgs = "(int dim, ";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		InitValArgs += sprintf("double x%a%a, ", I, J);
+for (I = 1; I <= N; I++)
+	InitValArgs += sprintf("double y%a, ", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		InitValArgs += sprintf("double s%a%a, ", I, J);
+for (I = 1; I <= N; I++) {
+	InitValArgs += sprintf("double s%a", I);
+	if (I < N)
+		InitValArgs += ", ";
+	else 
+		InitValArgs += ")";
+}
+fprintf(Fp, "double *init_val%a;\n", InitValArgs);
+fprintf(Fp, "void search_min(double *val);\n");
+
+close_file(Fp);
+
+/****************************************************************************
+ *
+ * generate c code 
+ *
+ ***************************************************************************/
+CFileName = sprintf("test%a.c", N - 1);
+printf("generate %a\n", CFileName);
+if (access(CFileName));
+	remove_file(CFileName);
+Fp = open_file(CFileName, "w");
+fprintf(Fp, "#include \"%a\"\n", HFileName);
+fprintf(Fp, "#define SEARCH_MIN_ITER 100\n");
+
+/*****************************************************************************
+ * main function 
+ *****************************************************************************/
+fprintf(Fp, "int main()\n");
+fprintf(Fp, "{\n");
+/*****************************************************************************
+ * extern variables 
+ *****************************************************************************/
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_y%a;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern double g_x%a%a;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_s%a;\n", I);
+fprintf(Fp, "extern double g_r;\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern double g_s%a%a;\n", I, J);
+fprintf(Fp, "extern double values[N_VALUES];\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "\tinit_mat();\n");
+fprintf(Fp, "\tg_r = 1.0;\n");
+
+/* GVars = "g_x11, g_x12, ..., g_y1, g_y2, ..." */
+/* SVars = "g_s11, g_s12, ..., g_s1, g_s2, ..." */
+GVars = "";
+SVars = "";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		GVars += sprintf("g_x%a%a, ", I, J);
+		SVars += sprintf("g_s%a%a, ", I, J);
+	}
+for (I = 1; I <= N; I++) {
+	GVars += sprintf("g_y%a", I);
+	SVars += sprintf("g_s%a", I);
+	if (I < N) {
+		GVars += ", ";
+		SVars += ", ";
+	}
+}
+
+fprintf(Fp, "\t/* Write data here. */\n");
+fprintf(Fp, "\t/* %a */\n", GVars);
+fprintf(Fp, "\t/* %a */\n", SVars);
+fprintf(Fp, "\n");
+
+fprintf(Fp, "\tdouble *val;\n");
+fprintf(Fp, "\tval = init_val(%a, %a, %a);\n", N - 1, GVars, SVars);
+fprintf(Fp, "\tshow_v(val, N_VALUES);\n");
+fprintf(Fp, "\tsearch_min(val);\n");
+fprintf(Fp, "\tprintf(\"search_min :\\n\");\n");
+fprintf(Fp, "\tshow_v(values, N_VALUES);\n");
+fprintf(Fp, "\tval = init_val(%a, %a, %a);\n", N - 1, GVars, SVars);
+fprintf(Fp, "\tprintf(\"init_val :\\n\");\n");
+fprintf(Fp, "\tshow_v(val, N_VALUES);\n");
+fprintf(Fp, "}\n\n");
+
+/*****************************************************************************
+ * initialize function 
+ *****************************************************************************/
+fprintf(Fp, "void init_mat()\n");
+fprintf(Fp, "{\n");
+
+/*****************************************************************************
+ * extern variables 
+ *****************************************************************************/
+for (I = 1; I <= 3; I++)
+	fprintf(Fp, "extern gsl_matrix *a%a, *b%a, *c%a, *e%a;\n", I, I, I, I);
+fprintf(Fp, "extern gsl_matrix *p2, *q2, *p3, *q3, *r3;\n");
+for (I = 1; I <= N; I++)
+	for (J = 1; J <= N; J++) {
+		fprintf(Fp, "extern gsl_matrix *db%a%a;\n", I, J);
+		fprintf(Fp, "extern gsl_matrix *dc%a%a;\n", I, J);
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "extern gsl_matrix *dq2%a;\n", I);
+	fprintf(Fp, "extern gsl_matrix *dq3%a;\n", I);
+	fprintf(Fp, "extern gsl_matrix *dr3%a;\n", I);
+}
+for (I = 1; I <= 3; I++) 
+	fprintf(Fp, "extern gsl_matrix *inv_a%a;\n", I);
+fprintf(Fp, "extern gsl_matrix *inv_p2;\n");
+fprintf(Fp, "extern gsl_matrix *inv_p3;\n");
+
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern gsl_matrix *pf%a_m;\n", I);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern gsl_matrix *pf%a_nd_m;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern gsl_matrix *pf%a%a_m;\n", I, J);
+fprintf(Fp, "extern gsl_matrix *pft_m;\n");
+fprintf(Fp, "extern gsl_vector *grad_v;\n");
+fprintf(Fp, "\n");
+
+for (I = 0; I < N; I++) {
+	alloc_gsl(Fp,A[I], "a" + rtostr(I + 1));
+	alloc_gsl(Fp,B[I], "b" + rtostr(I + 1));
+	alloc_gsl(Fp,C[I], "c" + rtostr(I + 1));
+	alloc_gsl(Fp,E[I], "e" + rtostr(I + 1));
+}
+alloc_gsl(Fp,P2, "p2");
+alloc_gsl(Fp,Q2, "q2");
+alloc_gsl(Fp,P3, "p3");
+alloc_gsl(Fp,Q3, "q3");
+alloc_gsl(Fp,R3, "r3");
+for (I = 0; I < N; I++)
+	for (J = 0; J < N; J++) {
+		alloc_gsl(Fp,DB[I][J], "db" + rtostr(I + 1) + rtostr(J + 1));
+		alloc_gsl(Fp,DC[I][J], "dc" + rtostr(I + 1) + rtostr(J + 1));
+	}
+for (I = 0; I < N; I++) {
+	alloc_gsl(Fp,DQ2[I], "dq2" + rtostr(I + 1));
+	alloc_gsl(Fp,DQ3[I], "dq3" + rtostr(I + 1));
+	alloc_gsl(Fp,DR3[I], "dr3" + rtostr(I + 1));
+}
+for (I = 0; I < N; I++)
+	alloc_gsl(Fp,A[I], "inv_a" + rtostr(I + 1));
+alloc_gsl(Fp,P2, "inv_p2");
+alloc_gsl(Fp,P3, "inv_p3");
+for (I = 0; I < N; I++)
+	alloc_gsl(Fp,A[I], "pf" + rtostr(I + 1) + "_m");
+for (I = 0; I < N; I++)
+	alloc_gsl(Fp,A[I], "pf" + rtostr(I + 1) + "_nd_m");
+for (I = 0; I < N; I++)
+	for (J = I; J < N; J++) 
+		alloc_gsl(Fp,A[J], "pf" + rtostr(I + 1) + rtostr(J + 1) + "_m");
+fprintf(Fp, "pft_m = gsl_matrix_alloc(N_VALUES, N_VALUES);\n"); 
+fprintf(Fp, "grad_v = gsl_vector_alloc(DIM);\n"); 
+fprintf(Fp, "}\n\n");
+
+/*****************************************************************************
+ * 関数 set_abce 
+ *****************************************************************************/
+for (I = 0; I < N; I++) {
+	fprintf(Fp, "void set_abce_%a%a\n", I + 1, Args);
+	fprintf(Fp, "{\n");
+	fprintf(Fp, "extern gsl_matrix *a%a, *b%a, *c%a, *e%a;\n", I + 1, I + 1, I + 1, I + 1);
+		mat_to_gsl(Fp, A[I], "a" + rtostr(I + 1));
+		mat_to_gsl(Fp, B[I], "b" + rtostr(I + 1));
+		mat_to_gsl(Fp, C[I], "c" + rtostr(I + 1));
+		mat_to_gsl(Fp, E[I], "e" + rtostr(I + 1));
+	fprintf(Fp, "}\n\n");
+}
+
+/*****************************************************************************
+ * 関数 set_pqr
+ *****************************************************************************/
+fprintf(Fp, "void set_pqr" + Args + "\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "extern gsl_matrix *p2, *q2, *p3, *q3, *r3;\n");
+	mat_to_gsl(Fp, P2, "p2");
+	mat_to_gsl(Fp, Q2, "q2");
+	mat_to_gsl(Fp, P3, "p3");
+	mat_to_gsl(Fp, Q3, "q3");
+	mat_to_gsl(Fp, R3, "r3");
+fprintf(Fp, "}\n\n");
+
+/*****************************************************************************
+ * 関数 set_dbcqr 
+ *****************************************************************************/
+fprintf(Fp, "void set_dbcqr" + Args + "\n");
+fprintf(Fp, "{\n");
+for (I = 1; I <= N; I++)
+	for (J = 1; J <= N; J++) {
+		fprintf(Fp, "extern gsl_matrix *db%a%a;\n", I, J);
+		fprintf(Fp, "extern gsl_matrix *dc%a%a;\n", I, J);
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "extern gsl_matrix *dq2%a;\n", I);
+	fprintf(Fp, "extern gsl_matrix *dq3%a;\n", I);
+	fprintf(Fp, "extern gsl_matrix *dr3%a;\n", I);
+}
+
+for (I = 0; I < N; I++)
+	for (J = 0; J < N; J++) {
+		mat_to_gsl(Fp, DB[I][J], "db" + rtostr(I + 1) + rtostr(J + 1));
+		mat_to_gsl(Fp, DC[I][J], "dc" + rtostr(I + 1) + rtostr(J + 1));
+	}
+for (I = 0; I < N; I++) {
+	mat_to_gsl(Fp, DQ2[I], "dq2" + rtostr(I + 1));
+	mat_to_gsl(Fp, DQ3[I], "dq3" + rtostr(I + 1));
+	mat_to_gsl(Fp, DR3[I], "dr3" + rtostr(I + 1));
+}
+fprintf(Fp, "}\n\n");
+
+/*****************************************************************************
+ * Pfaff 系を生成する関数 pf
+ ****************************************************************************/
+/*
+for (I = 1; I <= N; I++) {
+	gen_func_pfi(Fp, Args, ArgsVal, I);
+	gen_func_pfi_no_diag_shift(Fp, Args, ArgsVal, I);
+}
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		gen_func_pfij(Fp, Args, ArgsVal, I,J,N);
+*/
+
+gen_func_pf_all(Fp, Args, ArgsVal, N);
+
+
+fprintf(Fp, "void invmat(gsl_matrix *m, gsl_matrix *invm)\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "\tint n = m->size1;\n");
+fprintf(Fp, "\tint s;\n");
+fprintf(Fp, "\tgsl_permutation *p = gsl_permutation_alloc(n);\n");
+fprintf(Fp, "\tgsl_matrix *old_m = gsl_matrix_alloc(m->size1, m->size2);\n");
+fprintf(Fp, "\tgsl_matrix_memcpy(old_m, m);\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "\tgsl_linalg_LU_decomp(m, p, &s);\n");
+fprintf(Fp, "\tgsl_linalg_LU_invert(m, p, invm);\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "\tgsl_permutation_free(p);\n");
+fprintf(Fp, "\tgsl_matrix_memcpy(m, old_m);\n");
+fprintf(Fp, "\tgsl_matrix_free(old_m);\n");
+fprintf(Fp, "}\n\n");
+
+/*****************************************************************************
+ * for Runge-Kutta method (gsl_ode)
+ ****************************************************************************/
+gen_func_move_t(Fp, Args_move_t, N);
+
+gen_func_sys_t(Fp, N);
+
+gen_func_init_val(Fp, N);
+gen_func_search_min(Fp, N);
+gen_func_my_f(Fp, N);
+gen_func_my_df(Fp, N);
+gen_func_my_fdf(Fp, N);
+gen_func_grad(Fp, N);
+
+gen_func_gsl_vector_show(Fp, N);
+gen_func_show_v(Fp, N);
+
+close_file(Fp);
+}
+
+/***************************************************************************** 
+ *****************************************************************************/
+
+def gen_func_pf_all(Fp, Args, ArgsVal, N)
+{
+fprintf(Fp, "void pf_all%a\n", Args);
+fprintf(Fp, "{\n");
+/* extern variables */
+for (I = 1; I <= N; I++) 
+	fprintf(Fp, "extern gsl_matrix *a%a, *inv_a%a, *b%a, *c%a, *e%a;\n", I, I, I, I, I);
+fprintf(Fp, "extern gsl_matrix *p2, *inv_p2, *q2;\n");
+fprintf(Fp, "extern gsl_matrix *p3, *inv_p3, *q3, *r3;\n");
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "extern gsl_matrix *pf%a_m;\n", I);
+	fprintf(Fp, "extern gsl_matrix *pf%a_nd_m;\n", I);
+}
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_s%a;\n", I);
+fprintf(Fp, "\n");
+
+for (K = 1; K <= N; K++)
+	for (L = 1; L <= N; L++) {
+		fprintf(Fp, "extern gsl_matrix *db%a%a;\n", K, L);
+		fprintf(Fp, "extern gsl_matrix *dc%a%a;\n", K, L);
+	}
+for (K = 1; K <= N; K++) {
+	fprintf(Fp, "extern gsl_matrix *dq2%a;\n", K);
+	fprintf(Fp, "extern gsl_matrix *dq3%a;\n", K);
+	fprintf(Fp, "extern gsl_matrix *dr3%a;\n", K);
+}
+fprintf(Fp, "\n");
+
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "extern gsl_matrix *pf%a%a_m;\n", I, J);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "extern double g_s%a%a;\n", I, J);
+
+for (I = 1; I <= 6; I++)
+	fprintf(Fp, "gsl_matrix *t%a;\n", I);
+
+/* 再計算を省略 */
+fprintf(Fp, "\n");
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "static double o_y%a;\n", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "static double o_x%a%a;\n", I, J);
+Cond = "";
+for (I = 1; I <= N; I++) 
+	Cond += sprintf("o_y%a == y%a && ", I, I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		Cond += sprintf("o_x%a%a == x%a%a", I, J, I, J);
+		if (!(I == N && J == N)) 
+			Cond += " &&";
+	}
+fprintf(Fp, "if (%a) \n", Cond);
+fprintf(Fp, "\treturn;\n");
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "o_y%a = y%a;\n", I, I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "o_x%a%a = x%a%a;\n", I, J, I, J);
+fprintf(Fp, "\n");
+
+/* pfI_m, pfI_nd_m */
+fprintf(Fp, "set_pqr%a;\n", ArgsVal);
+fprintf(Fp, "invmat(p2, inv_p2);\n");
+fprintf(Fp, "invmat(p3, inv_p3);\n\n");
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "set_abce_%a%a;\n", I, ArgsVal);
+	fprintf(Fp, "invmat(a" + rtostr(I) + ", inv_a" + rtostr(I) + ");\n");
+
+	fprintf(Fp, "t1 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "q2->size2");
+	mat_mul_gsl(Fp, "inv_p2", "q2", "t1");
+	fprintf(Fp, "t2 = gsl_matrix_alloc(%a, %a);\n", "c" + rtostr(I) + "->size1", "t1->size2");
+	mat_mul_gsl(Fp, "c"+rtostr(I), "t1", "t2");
+	fprintf(Fp, "t3 = gsl_matrix_alloc(%a, %a);\n", "q3->size1", "t1->size2");
+	mat_mul_gsl(Fp, "q3", "t1", "t3");
+	fprintf(Fp, "gsl_matrix_sub(t3, r3);\n");
+	fprintf(Fp, "t4 = gsl_matrix_alloc(%a, %a);\n", "inv_p3->size1", "t3->size2");
+	mat_mul_gsl(Fp, "inv_p3", "t3", "t4");
+	fprintf(Fp, "t5 = gsl_matrix_alloc(%a, %a);\n", "e" + rtostr(I) + "->size1", "t4->size2");
+	mat_mul_gsl(Fp, "e"+rtostr(I), "t4", "t5");
+	fprintf(Fp, "gsl_matrix_add(t5, b" + rtostr(I) + ");\n");
+	fprintf(Fp, "gsl_matrix_sub(t5, t2);\n");
+	mat_mul_gsl(Fp, "inv_a"+rtostr(I), "t5", "t2");
+	fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + "_nd_m, t2);\n");
+	fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + "_m, t2);\n\n");
+
+	/* diag shift part */
+	fprintf(Fp, "gsl_matrix_set_identity(t2);\n");
+	fprintf(Fp, "gsl_matrix_scale(t2, -g_s%a);\n", I);
+	fprintf(Fp, "gsl_matrix_add(pf%a_m, t2);\n\n", I);
+
+	fprintf(Fp, "gsl_matrix_free(t1);\n");
+	fprintf(Fp, "gsl_matrix_free(t2);\n");
+	fprintf(Fp, "gsl_matrix_free(t3);\n");
+	fprintf(Fp, "gsl_matrix_free(t4);\n");
+	fprintf(Fp, "gsl_matrix_free(t5);\n\n");
+}
+
+/* pfIJ_m */
+fprintf(Fp, "set_dbcqr%a;\n", ArgsVal);
+for (I = 1; I <= N; I++) {
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "t1 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "q2->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p2, q2, 0.0, t1);\n");
+		fprintf(Fp, "t2 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "dq2" + rtostr(J) + "->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p2, dq2" + rtostr(J) + ", 0.0, t2);\n");
+		fprintf(Fp, "t3 = gsl_matrix_alloc(%a, %a);\n", "dq3" + rtostr(J) + "->size1", "t1->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, dq3" + rtostr(J) + ", t1, 0.0, t3);\n");
+		fprintf(Fp, "t4 = gsl_matrix_alloc(%a, %a);\n", "q3->size1", "t2->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, q3, t2, 0.0, t4);\n");
+		fprintf(Fp, "gsl_matrix_add(t3, t4);\n");
+		fprintf(Fp, "gsl_matrix_sub(t3, dr3" + rtostr(J) +");\n");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p3, t3, 0.0, t4);\n");
+		fprintf(Fp, "t5 = gsl_matrix_alloc(%a, %a);\n", "e" + rtostr(I) + "->size1", "t4->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, e" + rtostr(I) + ", t4, 0.0, t5);\n");
+		fprintf(Fp, "gsl_matrix_add(t5, db" + rtostr(I) + rtostr(J) +"); \n");
+		fprintf(Fp, "t6 = gsl_matrix_alloc(%a, %a);\n", "dc" + rtostr(I) + rtostr(J) + "->size1", "t1->size2");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, dc" + rtostr(I) + rtostr(J) + ", t1, 0.0, t6);\n");
+		fprintf(Fp, "gsl_matrix_sub(t5, t6); \n");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, c" + rtostr(I) + ", t2, 0.0, t6);\n");
+		fprintf(Fp, "gsl_matrix_sub(t5, t6); \n");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_a" + rtostr(I) + ", t5, 0.0, t6);\n");
+		fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, pf" + rtostr(I) + "_nd_m, pf" + rtostr(J) + "_nd_m, 0.0, t5);\n");
+		fprintf(Fp, "gsl_matrix_add(t5, t6); \n");
+		fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + rtostr(J) + "_m, t5);\n\n");
+	
+		/* diag shift part */
+		fprintf(Fp, "gsl_matrix_set_identity(t5);\n");
+		fprintf(Fp, "gsl_matrix_scale(t5, -g_s%a%a);\n", I, J);
+		fprintf(Fp, "gsl_matrix_add(pf%a%a_m, t5);\n", I, J);
+	
+		fprintf(Fp, "gsl_matrix_free(t1);\n");
+		fprintf(Fp, "gsl_matrix_free(t2);\n");
+		fprintf(Fp, "gsl_matrix_free(t3);\n");
+		fprintf(Fp, "gsl_matrix_free(t4);\n");
+		fprintf(Fp, "gsl_matrix_free(t5);\n");
+		fprintf(Fp, "gsl_matrix_free(t6);\n\n");
+	}
+}
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_pfi(Fp, Args, ArgsVal, I)
+{
+fprintf(Fp, "void pf%a%a\n", I, Args);
+fprintf(Fp, "{\n");
+fprintf(Fp, "extern gsl_matrix *a" + rtostr(I) + ", *inv_a" + rtostr(I) + ", *b" + rtostr(I) + ", *c" + rtostr(I) + ", *e" + rtostr(I) + ";\n");
+fprintf(Fp, "extern gsl_matrix *p2, *inv_p2, *q2;\n");
+fprintf(Fp, "extern gsl_matrix *p3, *inv_p3, *q3, *r3;\n");
+fprintf(Fp, "extern gsl_matrix *pf" + rtostr(I) + "_m;\n");
+fprintf(Fp, "extern double g_s" + rtostr(I) + ";\n\n");
+
+	fprintf(Fp, "set_abce_%a%a;\n", I, ArgsVal);
+	fprintf(Fp, "set_pqr%a;\n", ArgsVal);
+	fprintf(Fp, "invmat(a" + rtostr(I) + ", inv_a" + rtostr(I) + ");\n");
+	fprintf(Fp, "invmat(p2, inv_p2);\n");
+	fprintf(Fp, "invmat(p3, inv_p3);\n\n");
+
+	fprintf(Fp, "gsl_matrix *t1 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "q2->size2");
+	mat_mul_gsl(Fp, "inv_p2", "q2", "t1");
+	fprintf(Fp, "gsl_matrix *t2 = gsl_matrix_alloc(%a, %a);\n", "c" + rtostr(I) + "->size1", "t1->size2");
+	mat_mul_gsl(Fp, "c"+rtostr(I), "t1", "t2");
+	fprintf(Fp, "gsl_matrix *t3 = gsl_matrix_alloc(%a, %a);\n", "q3->size1", "t1->size2");
+	mat_mul_gsl(Fp, "q3", "t1", "t3");
+	fprintf(Fp, "gsl_matrix_sub(t3, r3);\n");
+	fprintf(Fp, "gsl_matrix *t4 = gsl_matrix_alloc(%a, %a);\n", "inv_p3->size1", "t3->size2");
+	mat_mul_gsl(Fp, "inv_p3", "t3", "t4");
+	fprintf(Fp, "gsl_matrix *t5 = gsl_matrix_alloc(%a, %a);\n", "e" + rtostr(I) + "->size1", "t4->size2");
+	mat_mul_gsl(Fp, "e"+rtostr(I), "t4", "t5");
+	fprintf(Fp, "gsl_matrix_add(t5, b" + rtostr(I) + ");\n");
+	fprintf(Fp, "gsl_matrix_sub(t5, t2);\n");
+	mat_mul_gsl(Fp, "inv_a"+rtostr(I), "t5", "t2");
+	fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + "_m, t2);\n\n");
+
+	/* diag shift part */
+	fprintf(Fp, "gsl_matrix_set_identity(t2);\n");
+	fprintf(Fp, "gsl_matrix_scale(t2, -g_s%a);\n", I);
+	fprintf(Fp, "gsl_matrix_add(pf%a_m, t2);\n\n", I);
+
+	fprintf(Fp, "gsl_matrix_free(t1);\n");
+	fprintf(Fp, "gsl_matrix_free(t2);\n");
+	fprintf(Fp, "gsl_matrix_free(t3);\n");
+	fprintf(Fp, "gsl_matrix_free(t4);\n");
+	fprintf(Fp, "gsl_matrix_free(t5);\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_pfi_no_diag_shift(Fp, Args, ArgsVal, I)
+{
+fprintf(Fp, "void pf%a_no_diag_shift%a\n", I, Args);
+fprintf(Fp, "{\n");
+fprintf(Fp, "extern gsl_matrix *a" + rtostr(I) + ", *inv_a" + rtostr(I) + ", *b" + rtostr(I) + ", *c" + rtostr(I) + ", *e" + rtostr(I) + ";\n");
+fprintf(Fp, "extern gsl_matrix *p2, *inv_p2, *q2;\n");
+fprintf(Fp, "extern gsl_matrix *p3, *inv_p3, *q3, *r3;\n");
+fprintf(Fp, "extern gsl_matrix *pf" + rtostr(I) + "_m;\n\n");
+
+	fprintf(Fp, "set_abce_%a%a;\n", I, ArgsVal);
+	fprintf(Fp, "set_pqr%a;\n", ArgsVal);
+	fprintf(Fp, "invmat(a" + rtostr(I) + ", inv_a" + rtostr(I) + ");\n");
+	fprintf(Fp, "invmat(p2, inv_p2);\n");
+	fprintf(Fp, "invmat(p3, inv_p3);\n\n");
+
+	fprintf(Fp, "gsl_matrix *t1 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "q2->size2");
+	mat_mul_gsl(Fp, "inv_p2", "q2", "t1");
+	fprintf(Fp, "gsl_matrix *t2 = gsl_matrix_alloc(%a, %a);\n", "c" + rtostr(I) + "->size1", "t1->size2");
+	mat_mul_gsl(Fp, "c"+rtostr(I), "t1", "t2");
+	fprintf(Fp, "gsl_matrix *t3 = gsl_matrix_alloc(%a, %a);\n", "q3->size1", "t1->size2");
+	mat_mul_gsl(Fp, "q3", "t1", "t3");
+	fprintf(Fp, "gsl_matrix_sub(t3, r3);\n");
+	fprintf(Fp, "gsl_matrix *t4 = gsl_matrix_alloc(%a, %a);\n", "inv_p3->size1", "t3->size2");
+	mat_mul_gsl(Fp, "inv_p3", "t3", "t4");
+	fprintf(Fp, "gsl_matrix *t5 = gsl_matrix_alloc(%a, %a);\n", "e" + rtostr(I) + "->size1", "t4->size2");
+	mat_mul_gsl(Fp, "e"+rtostr(I), "t4", "t5");
+	fprintf(Fp, "gsl_matrix_add(t5, b" + rtostr(I) + ");\n");
+	fprintf(Fp, "gsl_matrix_sub(t5, t2);\n");
+	mat_mul_gsl(Fp, "inv_a"+rtostr(I), "t5", "t2");
+	fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + "_m, t2);\n");
+
+	fprintf(Fp, "gsl_matrix_free(t1);\n");
+	fprintf(Fp, "gsl_matrix_free(t2);\n");
+	fprintf(Fp, "gsl_matrix_free(t3);\n");
+	fprintf(Fp, "gsl_matrix_free(t4);\n");
+	fprintf(Fp, "gsl_matrix_free(t5);\n");
+fprintf(Fp, "}\n\n");
+}
+
+
+def gen_func_pfij(Fp, Args, ArgsVal, I, J, N)
+{
+fprintf(Fp, "void pf%a%a%a\n" , I, J, Args);
+fprintf(Fp, "{\n");
+for (K = 1; K <= N; K++)
+	fprintf(Fp, "extern gsl_matrix *a%a, *inv_a%a, *b%a, *c%a, *e%a;\n", K, K, K, K, K);
+fprintf(Fp, "extern gsl_matrix *p2, *inv_p2, *q2;\n");
+fprintf(Fp, "extern gsl_matrix *p3, *inv_p3, *q3, *r3;\n");
+for (K = 1; K <= N; K++)
+	fprintf(Fp, "extern gsl_matrix *pf%a_m;\n", K);
+fprintf(Fp, "extern gsl_matrix *pf%a%a_m;\n", I, J);
+for (K = 1; K <= N; K++)
+	for (L = 1; L <= N; L++) {
+		fprintf(Fp, "extern gsl_matrix *db%a%a;\n", K, L);
+		fprintf(Fp, "extern gsl_matrix *dc%a%a;\n", K, L);
+	}
+for (K = 1; K <= N; K++) {
+	fprintf(Fp, "extern gsl_matrix *dq2%a;\n", K);
+	fprintf(Fp, "extern gsl_matrix *dq3%a;\n", K);
+	fprintf(Fp, "extern gsl_matrix *dr3%a;\n", K);
+}
+fprintf(Fp, "extern double g_s%a%a;\n", I, J);
+fprintf(Fp, "\n");
+
+	fprintf(Fp, "set_abce_%a%a;\n", I, ArgsVal);
+	fprintf(Fp, "set_pqr%a;\n", ArgsVal);
+	fprintf(Fp, "set_dbcqr%a;\n", ArgsVal);
+	fprintf(Fp, "invmat(a" + rtostr(I) + ", inv_a" + rtostr(I) +");\n");
+	fprintf(Fp, "invmat(p2, inv_p2);\n");
+	fprintf(Fp, "invmat(p3, inv_p3);\n\n");
+	fprintf(Fp, "pf%a_no_diag_shift%a;\n", I, ArgsVal);
+	if (I != J)
+		fprintf(Fp, "pf%a_no_diag_shift%a;\n", J, ArgsVal);
+
+	fprintf(Fp, "gsl_matrix *t1 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "q2->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p2, q2, 0.0, t1);\n");
+	fprintf(Fp, "gsl_matrix *t2 = gsl_matrix_alloc(%a, %a);\n", "inv_p2->size1", "dq2" + rtostr(J) + "->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p2, dq2" + rtostr(J) + ", 0.0, t2);\n");
+	fprintf(Fp, "gsl_matrix *t3 = gsl_matrix_alloc(%a, %a);\n", "dq3" + rtostr(J) + "->size1", "t1->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, dq3" + rtostr(J) + ", t1, 0.0, t3);\n");
+	fprintf(Fp, "gsl_matrix *t4 = gsl_matrix_alloc(%a, %a);\n", "q3->size1", "t2->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, q3, t2, 0.0, t4);\n");
+	fprintf(Fp, "gsl_matrix_add(t3, t4);\n");
+	fprintf(Fp, "gsl_matrix_sub(t3, dr3" + rtostr(J) +");\n");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_p3, t3, 0.0, t4);\n");
+	fprintf(Fp, "gsl_matrix *t5 = gsl_matrix_alloc(%a, %a);\n", "e" + rtostr(I) + "->size1", "t4->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, e" + rtostr(I) + ", t4, 0.0, t5);\n");
+	fprintf(Fp, "gsl_matrix_add(t5, db" + rtostr(I) + rtostr(J) +"); \n");
+	fprintf(Fp, "gsl_matrix *t6 = gsl_matrix_alloc(%a, %a);\n", "dc" + rtostr(I) + rtostr(J) + "->size1", "t1->size2");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, dc" + rtostr(I) + rtostr(J) + ", t1, 0.0, t6);\n");
+	fprintf(Fp, "gsl_matrix_sub(t5, t6); \n");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, c" + rtostr(I) + ", t2, 0.0, t6);\n");
+	fprintf(Fp, "gsl_matrix_sub(t5, t6); \n");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, inv_a" + rtostr(I) + ", t5, 0.0, t6);\n");
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, pf" + rtostr(I) + "_m, pf" + rtostr(J) + "_m, 0.0, t5);\n");
+	fprintf(Fp, "gsl_matrix_add(t5, t6); \n");
+	fprintf(Fp, "gsl_matrix_memcpy(pf" + rtostr(I) + rtostr(J) + "_m, t5);\n\n");
+
+	/* diag shift part */
+	fprintf(Fp, "gsl_matrix_set_identity(t5);\n");
+	fprintf(Fp, "gsl_matrix_scale(t5, -g_s%a%a);\n", I, J);
+	fprintf(Fp, "gsl_matrix_add(pf%a%a_m, t5);\n", I, J);
+
+	fprintf(Fp, "gsl_matrix_free(t1);\n");
+	fprintf(Fp, "gsl_matrix_free(t2);\n");
+	fprintf(Fp, "gsl_matrix_free(t3);\n");
+	fprintf(Fp, "gsl_matrix_free(t4);\n");
+	fprintf(Fp, "gsl_matrix_free(t5);\n");
+	fprintf(Fp, "gsl_matrix_free(t6);\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_move_t(Fp, Args_move_t, N)
+{
+fprintf(Fp, "int move_t%a\n", Args_move_t);
+fprintf(Fp, "{\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern double g_x%a%a;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_y%a;\n", I);
+fprintf(Fp, "extern double move_t_points[DIM];\n\n");
+
+
+	fprintf(Fp, "double params[DIM];\n"); 
+	K = 0;
+	for (I = 1; I <= N; I++)	
+		for (J = I; J <= N; J++) {
+			fprintf(Fp, "params[%a] = xx%a%a - x%a%a;\n", K, I, J, I, J);
+			K++;
+		}
+	for (I = 1; I <= N; I++) {	
+		fprintf(Fp, "params[%a] = yy%a - y%a;\n", K, I, I);
+		K++;
+	}
+	fprintf(Fp, "\n");
+
+        fprintf(Fp, "const gsl_odeiv_step_type *T = ODEIV_STEP_TYPE;\n");
+        fprintf(Fp, "gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, N_VALUES);\n");
+        fprintf(Fp, "gsl_odeiv_control *c = gsl_odeiv_control_y_new(1e-6, 0.0);\n");
+        fprintf(Fp, "gsl_odeiv_evolve *e = gsl_odeiv_evolve_alloc(N_VALUES);\n");
+        fprintf(Fp, "gsl_odeiv_system sys = {sys_t, NULL, N_VALUES, params};\n\n");
+
+	fprintf(Fp, "double t = 0.0;\n");
+	fprintf(Fp, "double h = 1e-6;\n");
+	fprintf(Fp, "double hmin = 1e-6;\n\n");
+
+fprintf(Fp, "#ifdef DEBUG_RK\n");
+	X = "";
+	XX = "";
+	P_Format = "";
+	for (I = 1; I <= N; I++)
+		for (J = I; J <= N; J++) {
+			X += sprintf("x%a%a, ", I, J);
+			XX += sprintf("xx%a%a, ", I, J);
+			P_Format += sprintf("%f,");
+		}
+	for (I = 1; I <= N; I++) {
+		X += sprintf("y%a", I);
+		XX += sprintf("yy%a", I);
+		P_Format += sprintf("%f");
+		if (I != N) {
+			X += ", ";
+			XX += ", ";
+			P_Format += ",";
+		}
+	}
+	fprintf(Fp, "printf(\"Runge-Kutta: [%a] -> [%a]\\n\",%a);\n", P_Format, P_Format,
+		X + ", " + XX);
+fprintf(Fp, "#endif\n");
+
+	fprintf(Fp, "while (t < 1.0) {\n");
+		fprintf(Fp, "\tint status = gsl_odeiv_evolve_apply(e, c, s, &sys, &t, 1.0, &h, val);\n");
+		fprintf(Fp, "\tif (status != GSL_SUCCESS) break;\n");
+		fprintf(Fp, "\tif (h < hmin) {\n");
+			fprintf(Fp, "\t\tprintf(\"move_t : h is too small\\n\");\n");
+			K = 0;
+			for (I = 1; I <= N; I++)	
+				for (J = I; J <= N; J++) {
+					fprintf(Fp, "\t\tmove_t_points[%a] = g_x%a%a + t * params[%a];\n", K, I, J, K);
+					K++;
+				}
+			for (I = 1; I <= N; I++) {	
+				fprintf(Fp, "\t\tmove_t_points[%a] = g_y%a + t * params[%a];\n", K, I, K);
+				K++;
+			}
+		fprintf(Fp, "\t\tgsl_odeiv_evolve_free(e);\n");
+        	fprintf(Fp, "\t\tgsl_odeiv_control_free(c);\n");
+        	fprintf(Fp, "\t\tgsl_odeiv_step_free(s);\n");
+		fprintf(Fp, "\t\treturn MOVE_T_FAIL;\n");
+		fprintf(Fp, "\t}\n");
+
+fprintf(Fp, "#ifdef DEBUG_RK\n");
+		Val = "";
+		Val_Format = "";
+		for (I = 0; I < 2 * N; I++) {
+			Val += "val[" + rtostr(I) + "]";
+			Val_Format += "%f";
+			if (I != 2 * N - 1) {
+				Val += ",";
+				Val_Format += ",";
+			}
+		}
+		Points = "";
+		K = 0;
+		for (I = 1; I <= N; I++)	
+			for (J = I; J <= N; J++) {
+				Points += sprintf("g_x%a%a + t * params[%a], ", I, J, K);
+				K++;
+			}
+		for (I = 1; I <= N; I++) {	
+			Points += sprintf("g_y%a + t * params[%a]", I, K);
+			if (I != N)
+				Points += ", ";
+			K++;
+		}
+
+		fprintf(Fp, "\tprintf(\"t = %f [%a] : \", t, %a);\n", Val_Format, Val);
+		fprintf(Fp, "\tprintf(\"[%a]\\n\", %a);\n", P_Format, Points);
+fprintf(Fp, "#endif\n");
+
+	fprintf(Fp, "}\n");
+	fprintf(Fp, "gsl_odeiv_evolve_free(e);\n");
+        fprintf(Fp, "gsl_odeiv_control_free(c);\n");
+        fprintf(Fp, "gsl_odeiv_step_free(s);\n");
+	fprintf(Fp, "return MOVE_T_SUCCESS;\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_sys_t(Fp, N)
+{
+fprintf(Fp, "int sys_t(double t, const double *y, double *val, double *params)\n");
+fprintf(Fp, "{\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern double g_x%a%a;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_y%a;\n", I);
+fprintf(Fp, "extern double g_r;\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern gsl_matrix *pf%a%a_m;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern gsl_matrix *pf%a_m;\n", I);
+fprintf(Fp, "extern gsl_matrix *pft_m;\n\n");
+
+	fprintf(Fp, "int i, j;\n");
+
+	/* NX = "n_x11, n_x12, ..., " */
+	NX = "";
+	for (I = 1; I <= N; I++)
+		for (J = I; J <= N; J++)
+			NX += sprintf("n_x%a%a, ", I, J);
+	for (I = 1; I <= N; I++)
+		NX += sprintf("n_y%a, ", I);
+	NX += "n_r";	
+	fprintf(Fp, "double %a;\n\n", NX);	
+	fprintf(Fp, "gsl_matrix *t_m = gsl_matrix_alloc(pf11_m->size1, pf11_m->size2);\n\n");
+	K = 0;
+	for (I = 1; I <= N; I++)	
+		for (J = I; J <= N; J++) {
+			fprintf(Fp, "n_x%a%a = g_x%a%a + t * params[%a];\n", I, J, I, J, K);
+			K++;
+		}
+	for (I = 1; I <= N; I++) {	
+		fprintf(Fp, "n_y%a = g_y%a + t * params[%a];\n", I, I, K);
+		K++;
+	}
+	fprintf(Fp, "n_r = g_r;\n");
+
+
+	fprintf(Fp, "gsl_matrix_set_zero(pft_m);\n");
+	fprintf(Fp, "pf_all(%a);\n", NX);
+	K = 0;
+	for (I = 1; I <= N; I++)	
+		for (J = I; J <= N; J++) {
+			fprintf(Fp, "gsl_matrix_memcpy(t_m, pf%a%a_m);\n", I, J);
+			fprintf(Fp, "gsl_matrix_scale(t_m, params[%a]);\n", K);
+			K++;	
+			fprintf(Fp, "gsl_matrix_add(pft_m, t_m);\n");
+		}
+	for (I = 1; I <= N; I++) {
+		fprintf(Fp, "gsl_matrix_memcpy(t_m, pf%a_m);\n", I);
+		fprintf(Fp, "gsl_matrix_scale(t_m, params[%a]);\n", K);
+		K++;	
+		fprintf(Fp, "gsl_matrix_add(pft_m, t_m);\n");
+	}
+
+	fprintf(Fp, "for (i = 0; i < N_VALUES; i++) {\n");
+		fprintf(Fp, "\tval[i] = 0.0;\n");
+		fprintf(Fp, "\tfor (j = 0; j < N_VALUES; j++)\n");
+			fprintf(Fp, "\t\tval[i] += gsl_matrix_get(pft_m, i, j) * y[j];\n");	
+	fprintf(Fp, "}\n");
+	fprintf(Fp, "gsl_matrix_free(t_m);\n");
+	fprintf(Fp, "return GSL_SUCCESS;\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_init_val(Fp, N)
+{
+Args = "(int dim, ";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		Args += sprintf("double x%a%a, ", I, J);
+for (I = 1; I <= N; I++)
+	Args += sprintf("double y%a, ", I);
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		Args += sprintf("double s%a%a, ", I, J);
+for (I = 1; I <= N; I++) {
+	Args += sprintf("double s%a", I);
+	if (I < N)
+		Args += ", ";
+	else 
+		Args += ")";
+}
+
+fprintf(Fp, "double *init_val%a\n", Args);
+fprintf(Fp, "{\n");
+fprintf(Fp, "double xxx[MAXSIZE][MAXSIZE];\n");
+
+for (I = 0; I < N; I++)
+	for (J = 0; J < N; J++) {
+		if (I == J) {
+			fprintf(Fp, "xxx[%a][%a] = x%a%a;\n", I, J, I + 1, J + 1);
+		} else if (I < J) { 	 
+			fprintf(Fp, "xxx[%a][%a] = x%a%a/2;\n", I, J, I + 1, J + 1);
+		} else {
+			fprintf(Fp, "xxx[%a][%a] = x%a%a/2;\n", I, J, J + 1, I + 1);
+		}
+	}
+YV = "";
+for (I = 1; I <= N; I++) {
+	YV += sprintf("y%a", I);
+	if (I < N)
+		YV += ", ";
+}
+fprintf(Fp, "double y[] = {%a};\n", YV);
+
+F = "";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		F += sprintf("s%a%a * x%a%a + ", I, J, I, J);
+	}
+for (I = 1; I <= N; I++) {
+	F += sprintf("s%a * y%a", I, I);
+	if (I < N)
+		F += " + ";
+}
+fprintf(Fp, "double exp_part = exp(-(%a));\n", F);
+
+fprintf(Fp, "int maxdeg = 10;\n");
+W = "";
+for (I = 0; I < 2 * N; I++) {
+	W += "1";
+	if (I < 2 * N - 1) 
+		W += ", ";
+}
+fprintf(Fp, "int weight[] = {%a};\n", W);
+fprintf(Fp, "double *val = fbnd(dim, xxx, y, maxdeg, weight);\n");
+fprintf(Fp, "int i;\n"); 
+fprintf(Fp, "for(i = 0; i < 2*dim+2; i++)\n"); 
+fprintf(Fp, "\tval[i] = exp_part * val[i];\n");
+fprintf(Fp, "return val;\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_search_min(Fp, N)
+{
+fprintf(Fp, "void search_min(double *val)\n");
+fprintf(Fp, "{\n");
+
+/* extern variable */
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "extern double g_x%a%a;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "extern double g_y%a;\n", I);
+fprintf(Fp, "extern double values[N_VALUES];\n");
+fprintf(Fp, "extern gsl_vector *grad_v;\n");
+fprintf(Fp, "\n");
+
+fprintf(Fp, "size_t iter = 0;\n");
+fprintf(Fp, "int status;\n");
+fprintf(Fp, "const gsl_multimin_fdfminimizer_type *T;\n");
+fprintf(Fp, "gsl_multimin_fdfminimizer *s;\n");
+fprintf(Fp, "int move_t_status;\n");
+
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++)
+		fprintf(Fp, "double t_x%a%a;\n", I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "double t_y%a;\n", I);
+fprintf(Fp, "\n");
+
+fprintf(Fp, "int j;\n");
+fprintf(Fp, "for (j = 0; j < N_VALUES; j++)\n");
+fprintf(Fp, "\tvalues[j] = val[j];\n");
+
+DIM = N * (N + 1) / 2 + N;
+fprintf(Fp, "gsl_vector *x;\n");
+fprintf(Fp, "gsl_multimin_function_fdf my_func;\n");
+fprintf(Fp, "my_func.n = %a;\n", DIM);
+fprintf(Fp, "my_func.f = &my_f;\n");
+fprintf(Fp, "my_func.df = &my_df;\n");
+fprintf(Fp, "my_func.fdf = &my_fdf;\n");
+fprintf(Fp, "my_func.params = NULL;\n");
+
+fprintf(Fp, "x = gsl_vector_alloc(%a);\n", DIM);
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "gsl_vector_set(x, %a, g_x%a%a);\n", K, I, J);
+		K++;
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "gsl_vector_set(x, %a, g_y%a);\n", K, I);
+	K++;
+}
+
+fprintf(Fp, "T = MULTIMIN_FDFMINIMIZER_TYPE;\n");
+fprintf(Fp, "s = gsl_multimin_fdfminimizer_alloc(T, DIM);\n");
+fprintf(Fp, "gsl_multimin_fdfminimizer_set(s, &my_func, x, 0.01, 1e-4);\n");
+fprintf(Fp, "do {\n");
+fprintf(Fp, "\titer++;\n");
+fprintf(Fp, "\tstatus = gsl_multimin_fdfminimizer_iterate(s);\n");
+fprintf(Fp, "\tif (status) {\n");
+fprintf(Fp, "\t\tif (status == GSL_ENOPROG)\n");
+fprintf(Fp, "\t\t\tprintf(\"GSL_ENOPROG : gsl_multimin_fdminimizer_iterate\\n\");\n");
+fprintf(Fp, "\t\tbreak;\n");
+fprintf(Fp, "\t}\n");
+fprintf(Fp, "\tstatus = gsl_multimin_test_gradient(s->gradient, 1e-3);\n");
+fprintf(Fp, "\tif (status == GSL_SUCCESS) printf(\"Minimum found\\n\");\n");
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "\tt_x%a%a = gsl_vector_get(s->x, %a);\n", I, J, K);
+		K++;
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "\tt_y%a = gsl_vector_get(s->x, %a);\n", I, K);
+	K++;
+}
+
+XV = "";
+TV = "";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		XV += sprintf("g_x%a%a, ", I, J);
+		TV += sprintf("t_x%a%a, ", I, J);
+	}
+for (I = 1; I <= N; I++) {
+	XV += sprintf("g_y%a", I);
+	TV += sprintf("t_y%a", I);
+	if (I < N) {
+		XV += ", ";
+		TV += ", ";
+	}
+}
+FormatXV = "";
+for (I = 0; I < DIM; I++) {
+	FormatXV += "%g";
+	if (I < DIM - 1)
+		FormatXV += ", ";
+}
+fprintf(Fp, "\tprintf(\"%d, %a, %g\\n\", iter, %a, s->f);\n", FormatXV, TV);
+/* 関数値 values の更新 */
+fprintf(Fp, "\tmove_t_status = move_t(%a, %a, values);\n", XV, TV);
+fprintf(Fp, "\tif (move_t_status == MOVE_T_SUCCESS) {\n");
+/* 基準位置 g_* の更新 */
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "\t\tg_x%a%a = t_x%a%a;\n", I, J, I, J);
+for (I = 1; I <= N; I++) 
+	fprintf(Fp, "\t\tg_y%a = t_y%a;\n", I, I);
+fprintf(Fp, "\t} else {\n");
+fprintf(Fp, "\t\tprintf(\"move_t failed\\n\");\n");
+/* 基準位置 g_* の更新 */
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "\t\tg_x%a%a = move_t_points[%a];\n", I, J, K);
+		K++;
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "\t\tg_y%a = move_t_points[%a];\n", I, K);
+	K++;
+}
+fprintf(Fp, "\t}\n");
+Vals = "";
+for (I = 0; I < 2*(N-1)+2; I++) {
+	Vals += sprintf("values[%a]", I);
+	if (I < 2*(N-1)+1)
+		Vals += ", ";
+}
+FormatVals = "";
+for (I = 0; I < 2*(N-1)+2; I++) {
+	FormatVals += "%g";
+	if (I < 2*(N-1)+1)
+		FormatVals += ", ";
+}
+fprintf(Fp, "\tprintf(\"points = [%a]\\n\", %a);\n", FormatXV, XV);
+fprintf(Fp, "\tprintf(\"values = [%a]\\n\", %a);\n", FormatVals, Vals);
+fprintf(Fp, "\tprintf(\"grad : \"); gsl_vector_show(grad_v);\n");
+fprintf(Fp, "\tprintf(\"norm(grad) : %f\\n\", gsl_blas_dnrm2(grad_v));\n");
+fprintf(Fp, "} while (status == GSL_CONTINUE && iter < SEARCH_MIN_ITER);\n");
+fprintf(Fp, "gsl_multimin_fdfminimizer_free(s);\n");
+fprintf(Fp, "gsl_vector_free(x);\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_my_f(Fp, N)
+{
+fprintf(Fp, "double my_f(const gsl_vector *v, void *params)\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "extern double values[N_VALUES];\n");
+XV = "";
+OV = "";
+NV = "";
+Format = "";
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		XV += sprintf("g_x%a%a, ", I, J);
+		OV += sprintf("o_x%a%a, ", I, J);	
+		NV += sprintf("n_x%a%a, ", I, J);	
+		Format += "%g, ";
+	}
+for (I = 1; I <= N; I++) {
+	XV += sprintf("g_y%a", I);
+	OV += sprintf("o_y%a", I);
+	NV += sprintf("n_y%a", I);
+	Format += "%g";
+	if (I < N) {
+		XV += ", ";
+		OV += ", ";
+		NV += ", ";
+		Format += ", ";
+	}
+}
+fprintf(Fp, "extern double %a;\n", XV);
+
+fprintf(Fp, "double %a;\n", OV);
+fprintf(Fp, "double %a;\n", NV);
+fprintf(Fp, "double val[N_VALUES];\n");
+fprintf(Fp, "int i;\n");
+
+/* move_t で更新されてしまうので、 g_* をコピー  */
+fprintf(Fp, "for (i = 0; i < N_VALUES; i++)\n");
+fprintf(Fp, "\tval[i] = values[i];\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "o_x%a%a = g_x%a%a;\n", I, J, I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "o_y%a = g_y%a;\n", I, I);
+
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "n_x%a%a = gsl_vector_get(v, %a);\n", I, J, K);
+		K++;
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "n_y%a = gsl_vector_get(v, %a);\n", I, K);
+	K++;
+}
+fprintf(Fp, "#ifdef DEBUG_RK\n");
+fprintf(Fp, "printf(\"call my_f([%a])\\n\", %a);\n", Format, NV);
+fprintf(Fp, "#endif\n");
+fprintf(Fp, "move_t(%a, %a, val);\n", XV, NV);
+
+/* g_* を元の値に戻す */
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "g_x%a%a = o_x%a%a;\n", I, J, I, J);
+for (I = 1; I <= N; I++)
+	fprintf(Fp, "g_y%a = o_y%a;\n", I, I);
+fprintf(Fp, "return val[0];\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_my_df(Fp, N)
+{
+fprintf(Fp, "void my_df(const gsl_vector *v, void *param, gsl_vector *df)\n");
+fprintf(Fp, "{\n");
+
+XV = "";
+OV = "";
+VV = "";
+Vects = "";
+Format = "";
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		XV += sprintf("g_x%a%a, ", I, J);
+		OV += sprintf("o_x%a%a, ", I, J);	
+		VV += sprintf("x%a%a, ", I, J);	
+		Vects += sprintf("gsl_vector_get(v, %a), ", K);
+		K++;
+		Format += "%g, ";
+	}
+for (I = 1; I <= N; I++) {
+	XV += sprintf("g_y%a", I);
+	OV += sprintf("o_y%a", I);
+	VV += sprintf("y%a", I);
+	Vects += sprintf("gsl_vector_get(v, %a)", K);
+	K++;
+	Format += "%g";
+	if (I < N) {
+		XV += ", ";
+		OV += ", ";
+		VV += ", ";
+		Vects += ", ";
+		Format += ", ";
+	}
+}
+
+/* extern variables */
+fprintf(Fp, "extern double %a;\n", XV);
+fprintf(Fp, "extern double values[N_VALUES];\n");
+fprintf(Fp, "extern gsl_vector *grad_v;\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "double %a;\n", VV);
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		fprintf(Fp, "x%a%a = gsl_vector_get(v, %a);\n", I, J, K);
+		K++;
+	}
+for (I = 1; I <= N; I++) {
+	fprintf(Fp, "y%a = gsl_vector_get(v, %a);\n", I, K);
+	K++;
+}
+fprintf(Fp, "#ifdef DEBUG_RK\n");
+fprintf(Fp, "printf(\"call my_df([%a])\\n\", %a);\n", Format, VV);
+fprintf(Fp, "#endif\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "/* 点 v での関数値を計算 */\n");
+fprintf(Fp, "double %a;\n", OV);
+fprintf(Fp, "double val[N_VALUES];\n");
+fprintf(Fp, "int i;\n");
+fprintf(Fp, "\n");
+fprintf(Fp, "/* move_all で更新されてしまうので、 g_* をコピー  */\n");
+fprintf(Fp, "for (i = 0; i < N_VALUES; i++)\n");
+fprintf(Fp, "\tval[i] = values[i];\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "o_x%a%a =g_x%a%a;\n", I, J, I, J);
+for (I = 1; I <= N; I++) 
+	fprintf(Fp, "o_y%a = g_y%a;\n", I, I);
+fprintf(Fp, "\n");
+fprintf(Fp, "move_t(%a, %a, val);\n", XV, Vects);
+fprintf(Fp, "/* g_* を元の値に戻す */\n");
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) 
+		fprintf(Fp, "g_x%a%a =o_x%a%a;\n", I, J, I, J);
+for (I = 1; I <= N; I++) 
+	fprintf(Fp, "g_y%a = o_y%a;\n", I, I);
+fprintf(Fp, "grad(%a, 1, val);\n", VV);
+fprintf(Fp, "for (i = 0; i < DIM; i++)\n");
+fprintf(Fp, "\tgsl_vector_set(df, i, gsl_vector_get(grad_v, i));\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_my_fdf(Fp, N)
+{
+fprintf(Fp, "void my_fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df)\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "*f = my_f(x, params);\n");
+fprintf(Fp, "my_df(x, params, df);\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_grad(Fp, N)
+{
+VV = "";
+Args = "";
+PF = ""; 
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) {
+		VV += sprintf("x%a%a, ", I, J);	
+		Args += sprintf("double x%a%a, ", I, J);	
+		PF += sprintf("*pf%a%a_m, ", I, J);	
+	}
+for (I = 1; I <= N; I++) {
+	VV += sprintf("y%a", I);
+	Args += sprintf("double y%a", I);
+	PF += sprintf("*pf%a_m", I);
+	if (I < N) {
+		VV += ", ";
+		Args += ", ";
+		PF += ", ";
+	}
+}
+
+/* pf 再計算なしの grad */
+fprintf(Fp, "void grad(%a, double r, double *val)\n", Args);
+fprintf(Fp, "{\n");
+fprintf(Fp, "extern gsl_vector *grad_v;\n");
+fprintf(Fp, "extern gsl_matrix %a;\n", PF);
+fprintf(Fp, "int i;\n");
+fprintf(Fp, "double t;\n");
+fprintf(Fp, "\n");
+K = 0;
+for (I = 1; I <= N; I++)
+	for (J = I; J <= N; J++) { 
+		fprintf(Fp, "for (i = 0, t = 0; i < N_VALUES; i++)\n");
+		fprintf(Fp, "\tt += gsl_matrix_get(pf%a%a_m, 0, i) * val[i];\n", I, J);
+		fprintf(Fp, "gsl_vector_set(grad_v, %a, t);\n", K);
+		K++;
+		fprintf(Fp, "\n");
+	}
+for (I = 1; I <= N; I++) {
+		fprintf(Fp, "for (i = 0, t = 0; i < N_VALUES; i++)\n");
+		fprintf(Fp, "\tt += gsl_matrix_get(pf%a_m, 0, i) * val[i];\n", I);
+		fprintf(Fp, "gsl_vector_set(grad_v, %a, t);\n", K);
+		K++;
+		fprintf(Fp, "\n");
+	}
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_gsl_vector_show(Fp, N)
+{
+fprintf(Fp, "void gsl_vector_show(gsl_vector *v)\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "int i;\n");
+fprintf(Fp, "for (i = 0; i < v->size; i++)\n");
+fprintf(Fp, "printf(\"%f \", gsl_vector_get(v, i));\n");
+fprintf(Fp, "printf(\"\\n\");\n");
+fprintf(Fp, "}\n\n");
+}
+
+def gen_func_show_v(Fp, N)
+{
+fprintf(Fp, "void show_v(double *v, int n)\n");
+fprintf(Fp, "{\n");
+fprintf(Fp, "int i;\n");
+fprintf(Fp, "printf(\"[\");\n");
+fprintf(Fp, "for (i = 0; i < n; i++) {\n");
+fprintf(Fp, "printf(\"%g\", v[i]);\n");
+fprintf(Fp, "if (i < n - 1)\n");
+fprintf(Fp, "printf(\", \");\n");
+fprintf(Fp, "}\n");
+fprintf(Fp, "printf(\"]\\n\");\n");
+fprintf(Fp, "}\n");
+}
+
+/* M1Name, M2Name : 行列の変数名                       */
+/* ResultName : 代入先行列の変数名                     */
+/* ResultName <- M1Name * M2Name なる GSL コードを生成 */
+def mat_mul_gsl(Fp, M1Name, M2Name, ResultName)
+{
+	fprintf(Fp, "gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, " + M1Name + ", " + M2Name + ", 0.0, " + ResultName + ");\n");	
+}
+
+def test_mat_mul_gsl()
+{
+	mat_mul_gsl("c1", "t1", "t2");
+}
+
+def alloc_gsl(Fp, A, VarName)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+	fprintf(Fp, rtostr(VarName) + " = gsl_matrix_alloc(" + rtostr(M) + ", " + rtostr(N) + ");\n");	
+}
+
+/* generate c code from matrix A */
+def mat_to_gsl(Fp, A, VarName)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+
+	
+	for (I = 0; I < M; I++)
+		for (J = 0; J < N; J++)
+			if (A[I][J] != 0) {
+				fprintf(Fp, "gsl_matrix_set(" + rtostr(VarName) + ", " + rtostr(I) + ", " + rtostr(J) + ", " + p_to_str(A[I][J]) + ");\n");
+			}
+}
+
+def test_mat_to_gsl()
+{
+	A = newmat(3, 3, [[1,0,3],[x, 3*x*y, 0], [2*x^2*y+z+1, 0, x^3+y^3]]);
+	mat_to_gsl(A, "a1");
+}
+
+/* DP = 3 * <<1,2,3>>, VL = [x,y,z] --> 3*x*y*y*z*z*z */
+def dp_m_to_str(DP, VL)
+{
+	if (DP == 0)
+		return "0";
+
+	V = dp_etov(DP);
+	C = dp_hc(DP);
+
+	Str = "";
+	if (C < 0)
+		Str += "(";
+	Str += rtostr(C);
+	if (C < 0)
+		Str += ")";
+
+	for (I = 0; I < length(V); I++)
+		for (J = 0; J < V[I]; J++)
+			Str += "*" + rtostr(VL[I]);
+	return Str;
+}
+
+def test_dp_m_to_str()
+{
+	print(dp_m_to_str(3 * <<1,2,3>>, [x,y,z]));
+	print(dp_m_to_str(2 * <<0,0,2>>, [x,y,z]));
+	print(dp_m_to_str(-1 * <<1,2,3>>, [x,y,z]));
+	print(dp_m_to_str(-1 * <<0,0,0>>, [x,y,z]));
+	print(dp_m_to_str(0 * <<0,0,0>>, [x,y,z]));
+}
+
+def dp_to_str(DP, VL)
+{
+	Str = "";
+	while (DP != 0) {
+		HM = dp_hm(DP);
+		Str += dp_m_to_str(DP, VL);
+		DP = dp_rest(DP);
+		if (DP != 0)
+			Str += " + ";
+	}
+	return Str;
+}
+
+def test_dp_to_str()
+{
+	print(dp_to_str(2 * <<1,2,3>> - 3 * <<1,0,1>>, [x,y,z]));
+	print(dp_to_str(-2 * <<1,2,3>> - 3 * <<0,0,0>>, [x,y,z]));
+	print(dp_to_str(-2 * <<0,0,0>> - 3 * <<1,0,1>>, [x,y,z]));
+}
+
+/* x^2+y*z^2-1 --> x*x+y*z*z-1 */
+def p_to_str(F)
+{
+	VL = vars(F);
+	DP = dp_ptod(F, VL);
+	return dp_to_str(DP, VL);
+}
+
+endmodule;
+
+end$

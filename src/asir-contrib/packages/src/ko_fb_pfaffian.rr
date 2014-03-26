@@ -1,0 +1,1434 @@
+/* $OpenXM$ */
+
+import("noro_matrix.rr")$
+
+/* FB 積分の Pfaff 系を返すプログラム (By Koyama) */;
+
+module ko_fb_pfaffian;
+
+localf mycmp;
+localf delta;
+localf genVariable;
+localf lem2;
+localf lem3;
+localf pfy;
+localf pfy_internal;
+localf pfx;
+localf pf_fbi_exp;
+localf pfaffian_y;
+localf pfaffian_x;
+localf genI;
+localf my_nf;
+localf act_dy;
+localf mycmp;
+localf test1;
+localf test5;
+localf test6;
+localf pfy1;
+localf pfy2;
+localf test7;
+localf test8;
+localf test9;
+localf test10;
+localf test_pfy;
+localf test_pfy_internal;
+localf test11;
+localf test12;
+localf test12_internal;
+localf gendata;
+localf gen_sym_mat;
+localf check_distinct;
+localf mk_pfdata;
+localf mtol;
+
+def mycmp(X,Y){
+	return X == Y;
+}
+
+def delta(I,J){
+	return I==J;
+}
+
+
+/* 
+$BJV$jCM!'(B
+	$BJQ?t$J$I$r3JG<$7$?%j%9%H!"B>$N4X?t$G0z?t$H$7$F;H$&(B
+$B0z?t!'(B
+	$B<+A3?t!J<!85$rI=$9!K(B 
+*/
+def genVariable(N){
+	/* $BJQ?t$rF~$l$k9TNs$H%Y%/%H%k(B */
+    X = newmat(N+1,N+1);
+    Y = newvect(N+1);
+    R = r;
+    DX = newmat(N+1,N+1);
+    DY = newvect(N+1);
+    DR = dr;
+
+    for(I=0; I<N+1; I++){
+  		Ic = rtostr(I+1);
+	   	Y[I] = strtov("y"+Ic);
+		DY[I] = strtov("dy"+Ic);
+	   	for(J=I; J<N+1; J++){
+	    	Jc = rtostr(J+1);
+	     	X[I][J] = X[J][I] =  strtov("x"+Ic+Jc);
+	     	DX[I][J] = DX[J][I] =  strtov("dx"+Ic+Jc);
+	 	}
+ 	}
+
+	/* $BJQ?t$N%j%9%H(B */
+    VL = [];
+    DVL = [];
+    for(I=0; I<N+1; I++){
+		for(J=I; J<N+1; J++){
+	   		VL = cons(X[I][J], VL);
+	     	DVL = cons(DX[I][J], DVL);
+	  	}
+    }
+    for(I=0; I<N+1; I++){
+   		VL = cons(Y[I], VL);
+    	DVL = cons(DY[I], DVL);
+    }
+    VL = cons(R,VL);
+    DVL = cons(DR, DVL);
+    VL = reverse(VL);
+    DVL = reverse(DVL);
+    V = append(VL,DVL);
+
+	/* $B%Y%/%H%k(BF$B!"E:;z9TNs$N@8@.(B */
+    F = newvect(2*(N+1));
+    K = 0;
+    F[K++] = 1;
+    for(I = 0; I < N+1; I++)
+    	F[K++] = DY[I];
+    for(I = 0; I < N; I++)
+   		F[K++] = DY[I]*DY[I];
+
+    F2 = newvect(N*(N+1)/2);
+    Idx2 = newmat(N+1,N+1);
+    Count = 0;
+    for(I = 0; I < N+1; I++){
+   		Idx2[I][I] = -1;
+    	for(J=I+1; J < N+1; J++){
+	  		F2[Count] = DY[I]*DY[J];
+	  	   	Idx2[I][J] = Idx2[J][I] = Count;
+		   	Count++;
+	  	}
+	}
+
+    Idx3 = matrix(N+1,N+1);
+    for(I = 0; I < N+1; I++){
+    	for(J=0; J < N+1; J++){
+	  		Idx3[I][J] = newvect(N+1);
+	  	}
+    }
+    F3 = [];
+    Count = 0;
+    for(I = 0; I < N; I++){
+   		for(J=0; J < N; J++){
+	  		for(K = 0; K < N+1; K++){
+		   		if(I <= J && J<= K && J < N){
+			      	F3 = cons(DY[I]*DY[J]*DY[K],F3);
+			      	Idx3[I][J][K] = Count;
+			      	Idx3[I][K][J] = Count;
+			      	Idx3[J][I][K] = Count;	     
+			      	Idx3[J][K][I] = Count;
+			      	Idx3[K][I][J] = Count;
+			      	Idx3[K][J][I] = Count;
+			      	Count++;	     
+				}
+			}
+	 	}
+  	}
+    F3 =  ltov(reverse(F3));
+
+    return ltov([N,X,Y,R,DX,DY,DR,V,F,F2,F3,Idx2,Idx3]);
+}
+
+ 
+/*
+$BJV$jCM!'(Blemma2$B$KBP1~$9$k9TNs(B 
+$B0z?t!'(BgenVariable$B$G@8@.$7$?%j%9%H(B
+*/
+def lem2(Ls){
+    N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    Idx = Ls[11];
+
+    M = N*(N+1)/2;
+    P2 = newmat(M,M);		/* initialize */
+    Q2 = newmat(M,2*(N+1));	/* initialize */
+
+    for(I=0; I<N+1; I++){
+   		for(J=I+1; J<N+1; J++){
+	     	P2[Idx[I][J]][Idx[I][J]]=2*(X[J][J]-X[I][I]);
+			for(K=0; K<N+1; K++){
+				if(K != I && K!= J){
+					P2[Idx[I][J]][Idx[I][K]]= X[J][K];
+				   	P2[Idx[I][J]][Idx[J][K]]= -X[I][K];
+				}
+			}
+			Q2[Idx[I][J]][I+1] =  Y[J];
+			Q2[Idx[I][J]][J+1] = -Y[I];
+			Q2[Idx[I][J]][I+N+2] = X[I][J];
+			if(J == N){
+				Q2[Idx[I][J]][0]     = -X[I][N]*R*R;
+			   	for(K=0; K<N; K++){
+					Q2[Idx[I][J]][K+N+2] = Q2[Idx[I][J]][K+N+2] + X[I][N];     
+			   	}
+			} else{
+				Q2[Idx[I][J]][J+N+2] = -X[I][J];
+			}
+
+			if(K== 0){
+				Q2[Idx[I][J]][K] = -r^2 * X[I][N];
+		 	}else if(K==I+1){
+				Q2[Idx[I][J]][K] = Y[J];
+			}else if(K == J+1){
+				Q2[Idx[I][J]][K] = -Y[I];
+			}else if(K == I+N+2){
+				Q2[Idx[I][J]][K] = X[I][J]+X[I][N];
+			}else if(K > N+1){
+				Q2[Idx[I][J]][K] = X[I][N];
+			}
+		}
+	}
+    return [P2,Q2];
+}
+
+/* 
+$BJV$jCM!'(Blemma3$B$KBP1~$9$k9TNs(B 
+$B0z?t!'(BgenVariable$B$G@8@.$7$?%j%9%H(B
+*/
+def lem3(Ls){
+    N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    V = Ls[7];
+    F = Ls[8];
+    F2 = Ls[9];
+    F3 = Ls[10];
+    Idx2 = Ls[11];
+    Idx3 = Ls[12];
+
+    M = length(F3);
+    P3 = matrix(M,M);
+    Q3 = matrix(M,length(F2));
+    R3 = matrix(M,length(F));
+
+    for(I = 0; I < N; I++){
+  		for(J = I; J < N; J++){
+	  		for(K = J; K < N+1; K++){
+		   		if(I<=J && J<K && K<=N){
+		      		P3[Idx3[I][J][K]][Idx3[I][J][K]] = 2*(X[K][K]-X[J][J]);
+			     	Q3[Idx3[I][J][K]][Idx2[I][K]] = -Y[J];
+			     	for(L=0; L < N+1; L++){
+			     		if(L != J && L != K){
+							P3[Idx3[I][J][K]][Idx3[I][J][L]] = X[K][L]; 
+		      	     	  	P3[Idx3[I][J][K]][Idx3[I][K][L]] = -X[J][L]; 
+				      	}
+			     	}
+			     	if(K==N){
+						P3[Idx3[I][J][K]][Idx3[I][J][J]] = 2*X[J][K];
+						R3[Idx3[I][J][K]][I+1] = -X[J][K]*R*R;
+			     		for(L=0; L < N+1; L++){
+				      		if(L != J  && L != K){
+		      	     			P3[Idx3[I][J][K]][Idx3[I][L][L]] = X[J][K]; 
+				      		}
+			     		}
+					}else{
+						P3[Idx3[I][J][K]][Idx3[I][J][J]] = X[J][K];
+		      			P3[Idx3[I][J][K]][Idx3[I][K][K]] = -X[J][K];
+					}
+					if(I==J){
+						R3[Idx3[I][J][K]][K+1] = -1;
+						R3[Idx3[I][J][K]][I+N+2] = Y[K];
+					}else{
+			  			Q3[Idx3[I][J][K]][Idx2[I][J]] = Y[K];
+					}
+				}else if(I<J && J==K && K<N){
+			   		P3[Idx3[I][J][K]][Idx3[I][I][J]] = X[I][J]; 
+		      	   	P3[Idx3[I][J][K]][Idx3[I][J][J]] = 2*(X[J][J]-X[I][I]);
+			     	P3[Idx3[I][J][K]][Idx3[J][J][J]] = -X[I][J]; 
+			     	for(L=0; L < N+1; L++){
+				   		if(L != I  && L != J){
+		      	     		P3[Idx3[I][J][K]][Idx3[I][J][L]] = X[J][L]; 
+		      	     		P3[Idx3[I][J][K]][Idx3[J][J][L]] = -X[I][L]; 
+				      	}
+			     	}
+			     	Q3[Idx3[I][J][K]][Idx2[I][J]] = Y[J];
+			     	R3[Idx3[I][J][K]][J+N+2] = -Y[I];
+			     	R3[Idx3[I][J][K]][I+1] = 1;
+		      	}else if(I==J && J==K && K<N){
+			    	R3[Idx3[I][J][K]][0] = -Y[I]*R*R;
+			    	R3[Idx3[I][J][K]][I+1] = 2*(X[N][N]-X[I][I])*R*R+1;
+			    	Q3[Idx3[I][J][K]][Idx2[I][N]] = Y[N];
+			     	for(S=0; S<N; S++){
+			     		R3[Idx3[I][J][K]][S+N+2] = Y[I];
+		      	     	P3[Idx3[I][J][K]][Idx3[I][S][N]] = X[S][N];
+		      	     	P3[Idx3[I][J][K]][Idx3[I][S][S]] = -2*(X[N][N]-X[I][I]);
+				      	for(L=0; L<N+1; L++){
+				      		if(L!=I){
+								P3[Idx3[I][J][K]][Idx3[L][S][S]] = P3[Idx3[I][J][K]][Idx3[L][S][S]]+X[I][L];
+					       	}
+				      	}
+			     	}
+			     	for(L=0; L<N+1; L++){
+			     	 	if(L!=I){
+							R3[Idx3[I][J][K]][L+1] = -X[I][L]*R*R;
+				      	}
+			     	}
+		      	}
+			}
+	  	}
+   	}
+    return [P3,Q3,R3];
+}
+
+/*
+$BJV$jCM(B
+	$B9TNs(B A\partial_{y_i}F = B*F + C*F2 +E*F3 $B$rK~$?$99TNs(BA,B,C,E 
+$B0z?t(B
+	I: \partial_{y_i}$B$NE:;z(B
+	Ls:genVariable$B$G@8@.$7$?%j%9%H(B
+*/
+def pfy(Ls){
+	N = Ls[0];
+	H = newvect(N+1);
+	for(I=0; I<N+1; I++){
+		H[I] = pfy_internal(I, Ls);
+	}
+	return H;
+}
+
+def pfy_internal(I,Ls){
+	N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    F = Ls[8];
+    F2 = Ls[9];
+    F3 = Ls[10];
+    Idx2 = Ls[11];
+    Idx3 = Ls[12];
+
+    A = matrix(length(F),length(F));
+    B = matrix(length(F),length(F));
+    C = matrix(length(F),length(F2));
+    E = matrix(length(F),length(F3));
+
+    /* 1 */
+    A[0][0] = 1;
+    B[0][I+1] = 1;
+
+    /* J+1 (1 \leq J \leq N, I \neq J) */
+    for(J=0; J<N; J++){
+		if(I != J){
+	    	A[J+1][I+1] = X[I][J];
+		  	A[J+1][J+1] = 2*(X[J][J]-X[I][I]);
+		  	B[J+1][J+1] = Y[I];
+	   	  	B[J+1][I+1] = -Y[J];
+	   	  	B[J+1][J+N+2] = X[I][J]; 
+	  		for(K=0; K<N+1; K++){
+	   	  		if(K!=I && K!=J){
+			   		A[J+1][K+1] = X[K][J];
+					C[J+1][Idx2[J][K]] = X[I][K];
+			   	}
+	       	}
+	 	}
+  	}
+
+    /* I+1  */
+	if(I < N){
+		A[I+1][I+1] = 1;
+	 	B[I+1][I+N+2] = 1;
+    }else if( I == N){
+    	A[I+1][N+1] =1;
+	  	B[N+1][0] = R*R;
+	  	for(K=0; K<N; K++){
+			B[N+1][K+N+2] = -1;
+	  	} 
+    }
+
+    /* N+2 */    
+    if(I<N){
+		A[N+1][I+1] = X[I][N];
+		A[N+1][N+1] = 2*(X[N][N]-X[I][I]); 
+		B[N+1][0] = X[I][N]*R*R;
+		B[N+1][N+1] =Y[I];
+		B[N+1][I+1] = -Y[N];
+		for(L=0; L<N; L++){
+			B[N+1][L+N+2] = -X[I][N];
+		}
+		for(K=0; K<N; K++){
+			if(K!=I){
+				A[N+1][K+1] = X[K][N];
+				C[N+1][Idx2[N][K]] = X[I][K];
+			}
+		}
+    }
+
+    /* J+N+2 (1\leq J \leq N, I \neq J) */
+    if(I<N){
+		for(J=0; J<N; J++){
+			if(I!=J){
+				A[J+N+2][J+N+2] = -2*(X[J][J] - X[I][I]);
+				B[J+N+2][I+1] = 1;
+				B[J+N+2][J+N+2] = -Y[I];
+				C[J+N+2][Idx2[I][J]] = Y[J];
+				E[J+N+2][Idx3[I][I][J]] = X[I][J];
+				E[J+N+2][Idx3[J][J][J]] = -X[I][J];
+				for(K=0; K<N+1; K++){
+					if(K!=I && K!= J){
+				 		E[J+N+2][Idx3[I][J][K]] = X[K][J];
+						E[J+N+2][Idx3[J][J][K]] = -X[I][K];
+					}
+				}
+		 	}
+		}
+    }else if(I == N){
+		for(J=0; J<N; J++){
+			A[J+N+2][J+N+2] = -2*(X[J][J] - X[N][N]);
+			B[J+N+2][J+1] = X[I][J]*R*R;
+			B[J+N+2][I+1] = 1;
+			B[J+N+2][J+N+2] = -Y[I];
+			C[J+N+2][Idx2[I][J]] = Y[J];
+			E[J+N+2][Idx3[J][J][J]] = -2*X[I][J];
+			for(K=0; K<N; K++){
+				if(K!= J){
+					E[J+N+2][Idx3[I][J][K]] = X[K][J];
+					E[J+N+2][Idx3[J][J][K]] = -X[I][K];
+					E[J+N+2][Idx3[J][K][K]] = -X[I][J];
+				}
+			}
+		}
+    }
+
+    /* I+N+2  */
+    if(I<N){
+		A[I+N+2][I+N+2] = 1;
+		E[I+N+2][Idx3[I][I][I]] = 1;
+  	}
+
+    return [A,B,C,E];
+}
+
+/*
+$BJV$jCM(B
+	x $B$N(B Pfaffian $B$r7W;;$9$k$?$a$NB?9`<09TNs(B
+$B0z?t(B
+	Ls:genVariable$B$G@8@.$7$?%j%9%H(B
+*/
+def pfx(Ls){
+    N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    F = Ls[8];
+    F2 = Ls[9];
+    F3 = Ls[10];
+    Idx2 = Ls[11];
+    Idx3 = Ls[12];
+
+    P2 = newmat(length(F2),length(F2));
+    Q2 = newmat(length(F2),length(F));
+
+    P3 = matrix(length(F3),length(F3));
+    Q3 = matrix(length(F3),length(F2));
+    R3 = matrix(length(F3),length(F));
+
+	DB = matrix(N+1, N+1)$
+	DC = matrix(N+1, N+1)$
+	DQ2 = newvect(N+1)$
+	DQ3 = newvect(N+1)$
+	DR3 = newvect(N+1)$
+
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+  			B = matrix(length(F),length(F));
+			if(I==J){
+				for(K=0; K<N+1; K++){
+					if(K!= I){
+						B[K+1][K+1] = 1;
+					}
+				}
+			}else{
+				B[J+1][I+1] = -1;
+			}
+			if(I < N){
+				if(I == J){
+					B[N+1][N+1] = 1;
+					for(K=0; K<N;K++){
+						if(K!=I){
+							B[K+N+2][K+N+2] = -1;
+						}
+					}
+				}
+				if(J == N){
+					B[N+1][I+1] = -1;
+				}
+			}else if(J == N){
+				for(K=0; K<N+1; K++){
+					if(K!= I){
+						B[K+N+2][K+N+2] = -1;
+					}
+				}
+			}
+			DB[I][J] = B;
+
+			C = matrix(length(F), length(F2));
+			if(J<N && I!=J){
+				C[J+N+2][Idx2[I][J]]=1;
+			}
+			DC[I][J] = C;
+  		}
+	}
+
+
+	for(L=0; L<N+1; L++){
+		DQ2[L] = matrix(length(F2), length(F));
+		for(I=0; I<L; I++){
+			DQ2[L][Idx2[I][L]][I+1]=1;	
+		}
+		for(J=L+1; J<N+1; J++){
+			DQ2[L][Idx2[L][J]][J+1]=-1;	
+		}
+	}
+
+	for(P = 0; P < N+1; P++){
+		DQ3[P] = matrix(length(F3), length(F2));
+		DR3[P] = matrix(length(F3), length(F));
+	    for(I = 0; I < N; I++){
+			for(J = I; J < N; J++){
+				for(K = J; K < N+1; K++){
+					if(I<=J && J<K && K<=N){
+						for(U=0; U<N+1; U++){
+							for(V=U+1; V<N+1; V++){
+								DQ3[P][Idx3[I][J][K]][Idx2[U][V]] = delta(P,K)*delta(U,I)*delta(V,J)*(1-delta(I,J)) - delta(P,J)*delta(U,I)*delta(V,K);
+							}
+						}
+						for(U=0; U<2*N+2; U++){
+							DR3[P][Idx3[I][J][K]][U] = delta(P,K)*delta(I,J)*delta(U,I+N+2);
+						}										
+					}else if(I<J && J==K && K<N){
+						for(U=0; U<N+1; U++){
+							for(V=U+1; V<N+1; V++){
+								DQ3[P][Idx3[I][J][K]][Idx2[U][V]] = delta(P,J)*delta(U,I)*delta(V,J);
+							}
+						}
+						for(U=0; U<2*N+2; U++){
+							DR3[P][Idx3[I][J][K]][U] = -delta(P,I)*delta(U,J+N+2);
+						}						
+					}else if(I==J && J==K && K<N){
+						for(U=0; U<N+1; U++){
+							for(V=U+1; V<N+1; V++){
+								DQ3[P][Idx3[I][J][K]][Idx2[U][V]] = delta(P,N)*delta(U,I)*delta(V,N);
+							}
+						}
+						for(U=0; U<2*N+2; U++){
+							DR3[P][Idx3[I][J][K]][U] = -delta(P,I)*R*R*delta(U,0);
+							for(V=0; V<N; V++){
+								DR3[P][Idx3[I][J][K]][U] = DR3[P][Idx3[I][J][K]][U] + delta(P,I)*delta(U,V+N+2);
+							}							
+						}
+					}
+				}
+			}
+		}
+	}
+	return [DB, DC,DQ2,DQ3,DR3];
+
+}
+
+
+
+def pf_fbi_exp(X,Y,Sx, Sy,Ls){
+	Ls[1] = X;
+	Ls[2] = Y;
+	Ls[3] = 1;
+
+	N = Ls[0];
+
+	Lm2 = lem2(Ls);
+	Lm3 = lem3(Ls);
+	Pfy = pfy(Ls);
+	Pfx = pfx(Ls);
+
+	P2 = invmat(Lm2[0]);
+	Q2 = Lm2[1];
+
+	P3 = invmat(Lm3[0]);
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+
+	A = newvect(N+1);
+	B = newvect(N+1);
+	C = newvect(N+1);
+	E = newvect(N+1);
+	DB = matrix(N+1, N+1);
+	DC = matrix(N+1, N+1);
+	DQ2 = Pfx[2];
+	DQ3 = Pfx[3];
+	DR3 = Pfx[4];
+
+	for(I=0; I<N+1; I++){
+		A[I] = invmat(Pfy[I][0]);
+		B[I] = Pfy[I][1];	
+		C[I] = Pfy[I][2];
+		E[I] = Pfy[I][3];			
+		for(J=0; J<N+1; J++){
+			DB[I][J] = Pfx[0][I][J];
+			DC[I][J] = Pfx[1][I][J];
+		}
+	}
+
+	HY = newvect(N+1);	
+	for(I=0; I<N+1; I++){
+		HY[I] = [ A[I][0]*(P2[1]*P3[1]*B[I]-P3[1]*C[I]*P2[0]*Q2+E[I]*P3[0]*(Q3*P2[0]*Q2-P2[1]*R3)), A[I][1]*P2[1]*P3[1] ];
+	}
+
+	DHY = matrix(N+1, N+1);	
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S1 = P2[1]*DB[I][J]- DC[I][J]*P2[0]*Q2 - C[I]*P2[0]*DQ2[J];
+			S2 = DQ3[J]*P2[0]*Q2 + Q3*P2[0]*DQ2[J] -P2[1]*DR3[J];
+			DHY[I][J] = [A[I][0]*(P3[1]*S1 + E[I]*P3[0]*S2), P2[1]*P3[1]*A[I][1]];
+		}
+	}
+
+	HX = matrix(N+1, N+1);
+	for(I=0; I<N+1; I++){
+		for(J=I; J<N+1; J++){
+			HX[I][J] =[ HY[I][1]*HY[J][1]*DHY[I][J][0]+DHY[I][J][1]*HY[I][0]*HY[J][0], DHY[I][J][1]*HY[I][1]*HY[J][1]  ]; 
+			HX[J][I] = HX[I][J];
+		}
+	}
+
+	Unit = linalg.unit_mat(2*N+2);
+	for(I=0; I<N+1; I++){
+		HY[I] = [ HY[I][0]+HY[I][1]*Sy[I]*Unit, HY[I][1] ];
+	}
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			HX[I][J] = [ HX[I][J][0]+HX[I][J][1]*Sx[I][J]*Unit, HX[I][J][1] ];
+		}
+	}
+	return [HX, HY, DHY];
+}
+
+/*
+$BJV$jCM(B
+	y $BHyJ,$N(B pfaffian [$BB?9`<09TNs(B, $BJ,Jl(B] $B$,3JG<$5$l$?%j%9%H(B
+$B0z?t(B
+	Ls:genVariable$B$G@8@.$7$?%j%9%H(B
+
+*/
+def pfaffian_y(Ls){
+    N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    V = Ls[7];
+    F = Ls[8];
+    F2 = Ls[9];
+    F3 = Ls[10];
+    Idx2 = Ls[11];
+    Idx3 = Ls[12];
+
+	VL = Ls[7];
+	Y = Ls[2];
+	F = Ls[8];
+	F2 = Ls[9];
+	F3 = Ls[10];
+
+	Lm2 = lem2(Ls);
+	P2 = Lm2[0];
+	Q2 = Lm2[1];
+	P2inv = invmat(P2);
+	H2 = -P2inv[0]*Q2;
+
+	Lm3 = lem3(Ls);
+	P3 = Lm3[0];
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+	P3inv = invmat(P3);
+	H3 = -P3inv[0]*(Q3*H2+P2inv[1]*R3);
+
+	/* pfaffian */
+	H = newvect(N+1);
+	Pfy = pfy(Ls);
+	for(I=0; I<N+1; I++){
+		Lp = Pfy[I];
+		A = Lp[0]; 
+		B = Lp[1];
+		C = Lp[2];
+		E = Lp[3];
+		Ainv = invmat(A);
+		H[I] = [Ainv[0]*(P2inv[1]*P3inv[1]*B + P3inv[1]*C*H2 + E*H3), Ainv[1]*P2inv[1]*P3inv[1]];	 
+	}
+
+	return vtol(H);
+}
+
+
+
+/*
+$BJV$jCM(B
+	\partial_{x_ij}$B$N(BPfaffian
+$B0z?t(B
+	Ls:genVariable$B$G@8@.$7$?%j%9%H(B
+	H: y $B$N(B Pfaffian
+*/
+def pfaffian_x(Ls,HY){
+	N = Ls[0];
+
+	Lm2 = lem2(Ls);
+	Lm3 = lem3(Ls);
+	Pfy = pfy(Ls);
+	Pfx = pfx(Ls);
+
+	P2 = invmat(Lm2[0]);
+	Q2 = Lm2[1];
+
+	P3 = invmat(Lm3[0]);
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+
+	A = newvect(N+1);
+	B = newvect(N+1);
+	C = newvect(N+1);
+	E = newvect(N+1);
+	DB = matrix(N+1, N+1);
+	DC = matrix(N+1, N+1);
+	DQ2 = Pfx[2];
+	DQ3 = Pfx[3];
+	DR3 = Pfx[4];
+
+	for(I=0; I<N+1; I++){
+		A[I] = invmat(Pfy[I][0]);
+		B[I] = Pfy[I][1];	
+		C[I] = Pfy[I][2];
+		E[I] = Pfy[I][3];			
+		for(J=0; J<N+1; J++){
+			DB[I][J] = Pfx[0][I][J];
+			DC[I][J] = Pfx[1][I][J];
+		}
+	}
+
+	HY = newvect(N+1);	
+	for(I=0; I<N+1; I++){
+		HY[I] = [ A[I][0]*(P2[1]*P3[1]*B[I]-P3[1]*C[I]*P2[0]*Q2+E[I]*P3[0]*(Q3*P2[0]*Q2-P2[1]*R3)), A[I][1]*P2[1]*P3[1] ];
+	}
+
+	DHY = matrix(N+1, N+1);	
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S1 = P2[1]*DB[I][J]- DC[I][J]*P2[0]*Q2 - C[I]*P2[0]*DQ2[J];
+			S2 = DQ3[J]*P2[0]*Q2 + Q3*P2[0]*DQ2[J] -P2[1]*DR3[J];
+			DHY[I][J] = [A[I][0]*(P3[1]*S1 + E[I]*P3[0]*S2), P2[1]*P3[1]*A[I][1]];
+		}
+	}
+
+	HX = matrix(N+1, N+1);
+	for(I=0; I<N+1; I++){
+		for(J=I; J<N+1; J++){
+			HX[I][J] = [ HY[I][1]*HY[J][1]*DHY[I][J][0]+DHY[I][J][1]*HY[I][0]*HY[J][0], DHY[I][J][1]*HY[I][1]*HY[J][1] ];
+			HX[J][I] = HX[I][J];
+		}
+	}
+
+	return HX;
+}
+
+
+/*
+$BJV$jCM(B
+	Fisher--Bingham$B@QJ,$NK~$?$9%[%m%N%_!<7O$N@8@.85(B
+$B0z?t(B
+	Ls:genVariable$B$G@8@.$7$?%j%9%H(B
+*/
+def genI(Ls){
+    N = Ls[0];
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    DX = Ls[4];
+    DY = Ls[5];
+    DR = Ls[6];
+
+    Ans =[];
+    for(I=0; I<N+1; I++){
+    	     for(J=I; J<N+1; J++){
+	     	      Ans = cons(DX[I][J]-DY[I]*DY[J] ,Ans);
+	     }
+    }
+
+    S = - R*R;
+    for(I=0; I<N+1; I++){
+    	     S = S + DX[I][I];
+    }
+    Ans = cons(S, Ans);
+
+    for(I=0; I<N+1; I++){
+    	     for(J=I+1; J<N+1; J++){
+	     	 	S = 0;
+		      	S = S + X[I][J]*DX[I][I];
+		      	S = S + 2*(X[J][J]-X[I][I])*DX[I][J];
+		      	S = S - X[I][J]*DX[J][J];
+		      for(K=0; K<N+1; K++){
+		      	if(K != I && K != J){
+		      	       	    S = S + X[J][K]*DX[I][K];
+		      	       	    S = S - X[I][K]*DX[J][K];
+			    }
+		      }
+		      S = S + Y[J]*DY[I];	
+		      S = S - Y[I]*DY[J];
+	     	      Ans = cons(S ,Ans);
+	     }
+    }
+
+    S = R*DR - N;
+    for(I=0; I<N+1; I++){
+    	     for(J=I; J<N+1; J++){
+	     	      S = S - 2*X[I][J]*DX[I][J]; 
+	     }
+    }
+    for(I=0; I<N+1; I++){
+    	     S = S - Y[I]*DY[I];
+    }
+    Ans = cons(S, Ans);
+
+    return Ans;
+}
+
+/*
+pfaffian.rr$B$N%F%9%H$N$?$a$N4X?t$?$A(B
+
+my_nf(P,G)
+act_dy(P,Q)
+mycmp(X,Y)
+test1(); genI$B$N%A%'%C%/(B N=1 $B3d$j;;(B symbolic
+test5(): lem2, lem3$B$N%A%'%C%/(B N=1 $B3d$j;;(B symbolic
+test6(): pfy $B$N%A%'%C%/(B N=1 $B3d$j;;(B symbolic
+pfy1():  N=1 $B$N$H$-$N(By$B$N(BPfaffian$B$N@8@.(B
+pfy2():  N=2 $B$N$H$-$N(By$B$N(BPfaffian$B$N@8@.(B
+test7(): pfaffian_y$B$N%A%'%C%/(B N=1,y $B@QJ,2DG=>r7o(B symbolic
+test8(): pfaffain_x $B@QJ,2DG=>r7o$N%A%'%C%/(B N=1  symbolic $B=E$$(B
+test9(N): pfaffian_y$B$N%A%'%C%/(B ,y $B@QJ,2DG=>r7o(B symbolic  N>=2$B$OL5M}(B
+test10(): pfaffian $B$NHyJ,$NE83+<0$N3N$+$a(B N=1 
+
+test_pfy(Num, Dim, Max): pfy,pfx $B$N%A%'%C%/(B $B2D@QJ,>r7o(B numeric
+test_pfy_internal(Ls) :test_pfy $B$+$i8F$S=P$7(B
+test11();               pf_fbi_exp()$B$N%A%'%C%/(B N=1 symbolic $B=E$$(B
+test12(Num, Dim, Max);  pf_fbi_exp $B$N%A%'%C%/(B numereic
+test12_internal():
+*/
+
+
+def my_nf(P,G){
+    Len = length(G);
+    Idx = newvect(Len);
+    for(J = 0; J < Len; J++){
+    	  Idx[J] = J;
+    }
+    Idx = vtol(Idx);
+    return dp_weyl_nf(Idx,P, G, 1);
+}
+
+def act_dy(P,Q){
+	return dp_weyl_mul(Q,P);
+}
+
+def mycmp(X,Y){
+	return X == Y;
+}
+
+/* genI */
+def test1(){
+	N=1;
+	Ls = genVariable(N);
+	VL = Ls[7];
+	dp_ord(0);
+	I = genI(Ls);
+	/*G = nd_weyl_gr(I,VL,0,0); */
+	G = genI(Ls);
+	I = map(dp_ptod,I, VL);
+	G = map(dp_ptod,ltov(G),VL);
+	J = map(my_nf,I,G);
+	print(J);
+}
+
+
+/* lem2, lem3*/
+def test5(){
+	N=1;
+	dp_ord(0);
+	Ls = genVariable(N);
+	VL = Ls[7];
+	F = map(dp_ptod, Ls[8],VL);
+	F2 = map(dp_ptod, Ls[9],VL);
+	F3 = map(dp_ptod,Ls[10],VL);
+	Lm2 = lem2(Ls);
+	Lm3 = lem3(Ls);
+
+	P2 = map(dp_ptod,Lm2[0],VL);
+	Q2 = map(dp_ptod,Lm2[1],VL);
+	V2 = P2*F2+ Q2*F;
+
+	P3 = map(dp_ptod,Lm3[0],VL);
+	Q3 = map(dp_ptod,Lm3[1],VL);
+	R3 = map(dp_ptod,Lm3[2],VL);
+	V3 = P3*F3 + Q3*F2 + R3*F;
+
+	dp_ord(0);
+	Gb = nd_weyl_gr(genI(Ls),VL,0,0);
+	Gb = map(dp_ptod,ltov(Gb),VL);
+
+	Tmp = map(dp_dtop,map(my_nf,V2, Gb),VL);
+	print(Tmp);
+	Tmp = map(dp_dtop,map(my_nf,V3, Gb),VL);
+	print(Tmp);
+}
+
+/* pfy */
+def test6(){
+	N=1;
+	dp_ord(0);
+	Ls = genVariable(N);
+	N = 1;
+	VL = Ls[7];
+	DY = map(dp_ptod,Ls[5],VL);
+	F = map(dp_ptod, Ls[8],VL);
+	F2 = map(dp_ptod, Ls[9],VL);
+	F3 = map(dp_ptod,Ls[10],VL);
+	Gb = nd_weyl_gr(genI(Ls),VL,0,0);
+	Gb = map(dp_ptod,ltov(Gb),VL);
+
+	Pfy = pfy(Ls);
+	for(I=0; I<N+1; I++){
+		Pf = Pfy[I];
+		A = map(dp_ptod, Pf[0], VL);
+		B = map(dp_ptod, Pf[1], VL);	
+		C = map(dp_ptod, Pf[2], VL);	
+		E = map(dp_ptod, Pf[3], VL);	
+		V = -A*map(act_dy,F,DY[I]) + B*F + C*F2 + E*F3;
+		print(map(dp_dtop,map(my_nf,V, Gb),VL));
+	}
+}
+
+def pfy1(){
+	N = 1;
+	Ls = genVariable(N);
+	H = pfaffian_y(Ls);
+}
+
+def pfy2(){
+	N = 1;
+	Ls = genVariable(N);
+	H = pfaffian_y(Ls);
+}
+
+/* pfaffain_y $B@QJ,2DG=>r7o$N%A%'%C%/(B N=1 */
+def test7(){
+	N = 1;
+	Ls = genVariable(N);
+	Y = Ls[2];
+	H = pfaffian_y(Ls);
+	I = 0;
+	J = 1;
+			S = (1/(H[I][1]*H[J][1])) * (H[I][0]*H[J][0] - H[J][0]*H[I][0]);
+			S = S +  (1 / (H[I][1]^2)) * (H[I][1]*map(diff,H[I][0],Y[J]) - diff(H[I][1],Y[J])*H[I][0]);
+			S = S -  (1 / (H[J][1]^2)) * (H[J][1]*map(diff,H[J][0],Y[I]) - diff(H[J][1],Y[I])*H[J][0]);
+			print(S);
+
+	S1 = [H[I][1]*H[J][1]*map(diff, H[I][0], Y[J]) - diff(H[I][1],Y[J])*H[J][1]*H[I][0] + H[I][1]*H[I][0]*H[J][0], H[I][1]*H[I][1]*H[J][1]];
+	S2 = [H[J][1]*H[I][1]*map(diff, H[J][0], Y[I]) - diff(H[J][1],Y[I])*H[I][1]*H[J][0] + H[J][1]*H[J][0]*H[I][0], H[J][1]*H[J][1]*H[I][1]];
+	T = S1[1]*S2[0] - S2[1]*S1[0];
+	print(T);
+}
+
+/* pfaffain_x $B@QJ,2DG=>r7o$N%A%'%C%/(B N=1 */
+def test8(){
+	N = 1;
+	M = N*(N+1)/2;
+	Ls = genVariable(N);
+	HY = pfaffian_y(Ls);
+	HX = pfaffian_x(Ls,HY);
+
+	M = (N+1)*(N+2)/2;
+	K =0;
+	X = newvect(M);
+	H = newvect(M);
+	for(I=0; I<N+1; I++){
+		for(J=I; J<N+1; J++){
+			X[K] = Ls[1][I][J];
+			H[K] = HX[I][J];
+			K++;
+		}
+	}
+
+	Omat = matrix(2*N+2, 2*N+2);
+	Ans = matrix(M,M);
+	for(I=0; I<M; I++){
+		for(J=I+1; J<M; J++){ 
+			S1 = [H[I][1]*H[J][1]*map(diff, H[I][0], X[J]) - diff(H[I][1],X[J])*H[J][1]*H[I][0] + H[I][1]*H[I][0]*H[J][0], H[I][1]*H[I][1]*H[J][1]];
+			S2 = [H[J][1]*H[I][1]*map(diff, H[J][0], X[I]) - diff(H[J][1],X[I])*H[I][1]*H[J][0] + H[J][1]*H[J][0]*H[I][0], H[J][1]*H[J][1]*H[I][1]];
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			print(S);
+			Ans[I][J] =( S == Omat) ;
+		}
+	}
+	return Ans;
+}
+/*
+$B=E$$$N$G7W;;7k2L$r%a%b$9$k(B
+[8037] test8();
+[ 0 1 1 ]
+[ 0 0 1 ]
+[ 0 0 0 ]
+
+*/
+
+/* pfaffain_y $B@QJ,2DG=>r7o$N%A%'%C%/(B */
+def test9(N){
+	Ls = genVariable(N);
+	Y = Ls[2];
+	H = pfaffian_y(Ls);
+
+	Omat = matrix(2*N+2, 2*N+2);
+	Ans = matrix(N+1,N+1);
+	Ti = 0;
+	print(Ti++);
+	for(I=0; I<N+1; I++){
+		for(J=I+1; J<N+1; J++){
+	print(Ti++);
+			S1 = [H[I][1]*H[J][1]*map(diff, H[I][0], Y[J]) - diff(H[I][1],Y[J])*H[J][1]*H[I][0] + H[I][1]*H[I][0]*H[J][0], H[I][1]*H[I][1]*H[J][1]];
+	print(Ti++);
+			S2 = [H[J][1]*H[I][1]*map(diff, H[J][0], Y[I]) - diff(H[J][1],Y[I])*H[I][1]*H[J][0] + H[J][1]*H[J][0]*H[I][0], H[J][1]*H[J][1]*H[I][1]];
+	print(Ti++);
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			print(S);
+			Ans[I][J] =( S == Omat) ;
+		}
+	}
+	return Ans;
+}
+
+def test10(){
+	N=1;
+	Ls = genVariable(N);
+	Y = Ls[2];
+	VL = Ls[7];
+	F = Ls[8];
+	F2 = Ls[9];
+	F3 = Ls[10];
+	Lm2 = lem2(Ls);
+	Lm3 = lem3(Ls);
+
+	P2 = invmat(Lm2[0]);
+	Q2 = Lm2[1];
+
+	P3 = invmat(Lm3[0]);
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+
+	A = newvect(N+1);
+	C = newvect(N+1);
+	E = newvect(N+1);
+	DB = matrix(N+1, N+1);
+	DC = matrix(N+1, N+1);
+	DQ2 = newvect(N+1);
+	DQ3 = newvect(N+1);
+	DR3 = newvect(N+1);
+
+	Pfy = pfy(Ls);
+	for(I=0; I<N+1; I++){
+		Pf = Pfy[I];
+		A[I] = invmat(Pf[0]);
+		B = Pf[1];	
+		C[I] = Pf[2];
+		E[I] = Pf[3];			
+		for(J=0; J<N+1; J++){
+			DB[I][J] = map(diff,B,Y[J]);
+			DC[I][J] = map(diff,C[I],Y[J]);	
+		}
+	}
+
+
+	for(I=0; I<N+1; I++){
+		DQ2[I] = map(diff,Q2,Y[I]);
+		DQ3[I] = map(diff,Q3,Y[I]);
+		DR3[I] = map(diff,R3,Y[I]);
+	}
+
+	DH = matrix(N+1, N+1);	
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S1 = P2[1]*DB[I][J]- DC[I][J]*P2[0]*Q2 - C[I]*P2[0]*DQ2[J];
+			S2 = DQ3[J]*P2[0]*Q2 + Q3*P2[0]*DQ2[J] -P2[1]*DR3[J];
+			DH[I][J] = [A[I][0]*(P3[1]*S1 + E[I]*P3[0]*S2), P2[1]*P3[1]*A[I][1]];
+		}
+	}
+
+	HY = pfaffian_y(Ls);
+	DHY = matrix(N+1, N+1);
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			DHY[I][J] = [HY[I][1]*map(diff, HY[I][0], Y[J]) - diff(HY[I][1],Y[J])*HY[I][0], HY[I][1]*HY[I][1]];
+		}
+	}
+
+	S = matrix(N+1, N+1);
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S[I][J] = s;
+		}
+	}
+
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S[I][J] = DH[I][J][1]*DHY[I][J][0] - DHY[I][J][1]*DH[I][J][0];
+		}
+	}
+	return S;
+}
+
+
+def test_pfy(Num, Dim, Max){
+	Ln = gendata(Num, Dim, Max);
+	Ls = genVariable(Dim);
+	N = Num;
+	Ls[3] = 1;
+	for(I=0; I<N; I++){
+		Ls[1] = Ln[I][0];
+		Ls[2] = Ln[I][1];
+		A =test_pfy_internal(Ls);
+		if(A != 1){
+			return [A,Ln[I]];
+		}
+	}
+	return 1;
+}
+
+def test_pfy_internal(Ls){
+	N = Ls[0];
+
+	Lm2 = lem2(Ls);
+	Lm3 = lem3(Ls);
+	Pfy = pfy(Ls);
+	Pfx = pfx(Ls);
+
+	P2 = invmat(Lm2[0]);
+	Q2 = Lm2[1];
+
+	P3 = invmat(Lm3[0]);
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+
+	A = newvect(N+1);
+	B = newvect(N+1);
+	C = newvect(N+1);
+	E = newvect(N+1);
+	DB = matrix(N+1, N+1);
+	DC = matrix(N+1, N+1);
+	DQ2 = Pfx[2];
+	DQ3 = Pfx[3];
+	DR3 = Pfx[4];
+
+	for(I=0; I<N+1; I++){
+		A[I] = invmat(Pfy[I][0]);
+		B[I] = Pfy[I][1];	
+		C[I] = Pfy[I][2];
+		E[I] = Pfy[I][3];			
+		for(J=0; J<N+1; J++){
+			DB[I][J] = Pfx[0][I][J];
+			DC[I][J] = Pfx[1][I][J];
+		}
+	}
+
+	HY = newvect(N+1);	
+	for(I=0; I<N+1; I++){
+		HY[I] = [ A[I][0]*(P2[1]*P3[1]*B[I]-P3[1]*C[I]*P2[0]*Q2+E[I]*P3[0]*(Q3*P2[0]*Q2-P2[1]*R3)), A[I][1]*P2[1]*P3[1] ];
+	}
+
+	DHY = matrix(N+1, N+1);	
+	for(I=0; I<N+1; I++){
+		for(J=0; J<N+1; J++){
+			S1 = P2[1]*DB[I][J]- DC[I][J]*P2[0]*Q2 - C[I]*P2[0]*DQ2[J];
+			S2 = DQ3[J]*P2[0]*Q2 + Q3*P2[0]*DQ2[J] -P2[1]*DR3[J];
+			DHY[I][J] = [A[I][0]*(P3[1]*S1 + E[I]*P3[0]*S2), P2[1]*P3[1]*A[I][1]];
+		}
+	}
+
+	Omat = matrix(2*N+2, 2*N+2);
+	for(I=0; I<N+1; I++){
+		for(J=I+1; J<N+1; J++){
+			S1 = [ HY[I][1]*HY[J][1]*DHY[I][J][0]+DHY[I][J][1]*HY[I][0]*HY[J][0], DHY[I][J][1]*HY[I][1]*HY[J][1] ];
+			S2 = [ HY[J][1]*HY[I][1]*DHY[J][I][0]+DHY[J][I][1]*HY[J][0]*HY[I][0], DHY[J][I][1]*HY[J][1]*HY[I][1] ];
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			if(S != Omat){
+				return [I,J,S];				
+			}
+		}
+	}
+
+	return 1;
+}
+
+
+
+def test11(){
+	N = 1;
+	Ls = genVariable(N);
+	X = Ls[1];
+	Y = Ls[2];
+	Sx = matrix(2,2,[[s11,s12],[s21,s22]]);
+	Sy = newvect(2, [s1,s2]);
+
+	Pf = pf_fbi_exp(X,Y,Sx,Sy,Ls);	
+	HX = Pf[0];
+	HY = Pf[1];
+
+	Omat = matrix(2*N+2, 2*N+2);
+	Ans1 = matrix(N+1,N+1);
+	for(I=0; I<N+1; I++){
+		for(J=I+1; J<N+1; J++){
+			S1 = [HY[I][1]*HY[J][1]*map(diff, HY[I][0], Y[J]) - diff(HY[I][1],Y[J])*HY[J][1]*HY[I][0] + HY[I][1]*HY[I][0]*HY[J][0], HY[I][1]*HY[I][1]*HY[J][1]];
+			S2 = [HY[J][1]*HY[I][1]*map(diff, HY[J][0], Y[I]) - diff(HY[J][1],Y[I])*HY[I][1]*HY[J][0] + HY[J][1]*HY[J][0]*HY[I][0], HY[J][1]*HY[J][1]*HY[I][1]];
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			print(S);
+			Ans1[I][J] =( S == Omat) ;
+		}
+	}
+
+
+	M = (N+1)*(N+2)/2;
+	K =0;
+	X = newvect(M);
+	H = newvect(M);
+	for(I=0; I<N+1; I++){
+		for(J=I; J<N+1; J++){
+			X[K] = Ls[1][I][J];
+			H[K] = HX[I][J];
+			K++;
+		}
+	}
+
+	Ans2 = matrix(M,M);
+	for(I=0; I<M; I++){
+		for(J=I+1; J<M; J++){ 
+			S1 = [H[I][1]*H[J][1]*map(diff, H[I][0], X[J]) - diff(H[I][1],X[J])*H[J][1]*H[I][0] + H[I][1]*H[I][0]*H[J][0], H[I][1]*H[I][1]*H[J][1]];
+			S2 = [H[J][1]*H[I][1]*map(diff, H[J][0], X[I]) - diff(H[J][1],X[I])*H[I][1]*H[J][0] + H[J][1]*H[J][0]*H[I][0], H[J][1]*H[J][1]*H[I][1]];
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			print(S);
+			Ans2[I][J] =( S == Omat) ;
+		}
+	}
+	return [Ans1, Ans2];
+/*
+
+[9220] Ans[0];
+[ 0 1 ]
+[ 0 0 ]
+[9221] Ans[1];
+[ 0 1 1 ]
+[ 0 0 1 ]
+[ 0 0 0 ]
+
+*/
+}
+
+
+
+
+def test12(Num, Dim, Max){
+	Ln = gendata(Num, Dim, Max);
+	Ls = genVariable(Dim);
+	N = Num;
+	Ans = newvect(N);
+	Flag = 1;
+	for(I=0; I<N; I++){
+		Ans[I] = test12_internal(Ln[I][0],Ln[I][1],Ln[I][2],Ln[I][3],Ls);
+		if(Ans[I] != 1){
+			return Ans[I];
+		}
+	}
+	return 1;
+}
+
+def test12_internal(X, Y, Sx, Sy, Ls){
+	N = Ls[0];
+	Pf = pf_fbi_exp(X,Y,Sx,Sy,Ls);
+	HX = Pf[0];
+	HY = Pf[1];
+	DHY = Pf[2];
+
+	Omat = matrix(2*N+2, 2*N+2);
+	for(I=0; I<N+1; I++){
+		for(J=I+1; J<N+1; J++){
+			S1 = [ HY[I][1]*HY[J][1]*DHY[I][J][0]+DHY[I][J][1]*HY[I][0]*HY[J][0], DHY[I][J][1]*HY[I][1]*HY[J][1] ];
+			S2 = [ HY[J][1]*HY[I][1]*DHY[J][I][0]+DHY[J][I][1]*HY[J][0]*HY[I][0], DHY[J][I][1]*HY[J][1]*HY[I][1] ];
+			S = S1[1]*S2[0] - S2[1]*S1[0];
+			if(S != Omat){
+				return [I,J, S];
+			}
+		}
+	}
+
+	return 1;
+}
+
+
+/*
+$BBeF~$K$h$k%A%'%C%/$N$?$a$N%G!<%?@8@.(B
+
+gendata(N, Dim, Max):
+genvect(N,Max):
+check_distinct(V):
+*/
+
+def gendata(N, Dim, Max){
+	Ans = newvect(N);
+	for(I=0; I<N; I++){
+		Ans[I] = [gen_sym_mat(Dim+1,Max), linalg.random_vect(Dim+1, Max),linalg.random_mat(Dim+1, Max),linalg.random_vect(Dim+1, Max)];
+	}
+	return Ans;
+}
+
+def gen_sym_mat(N,Max){
+	X = matrix(N,N);
+	Flag = 0;
+	while(Flag == 0){
+		for(I=0; I<N; I++){
+			for(J=I; J<N; J++){
+				X[I][J] = random()% Max;
+				X[J][I] = X[I][J];
+			}
+		}
+		L = linalg.jordan_canonical_form(X)[1];
+		Flag = 1;
+		for(I=0; I<length(L); I++){
+			if(L[I][2] > 1){
+				Flag = 0;
+			}
+		}
+		if(Flag == 0){
+			print("gendata");
+			print(L);
+		}
+	}
+	return X;
+}
+
+
+def check_distinct(V){
+	N = length(V);
+	Flag = 1;
+	for(I=0; I<N; I++){
+		for(J=I+1; J<N; J++){
+			if(V[I]==V[J]){  
+				Flag =0;
+			}
+		}
+	}
+
+	return Flag;
+}
+
+
+
+
+
+/* outputs for maple format */
+
+def mk_pfdata(N){
+    Name = "./Prog/pfdata"+rtostr(N)+".ml";
+
+/*    N = Ls[0];*/
+    Ls = genVariable(N);
+    X = Ls[1];
+    Y = Ls[2];
+    R = Ls[3];
+    V = Ls[7];
+    F = Ls[8];
+    F2 = Ls[9];
+    F3 = Ls[10];
+    Idx2 = Ls[11];
+    Idx3 = Ls[12];
+
+	VL = Ls[7];
+	Y = Ls[2];
+	F = Ls[8];
+	F2 = Ls[9];
+	F3 = Ls[10];
+
+	Lm2 = lem2(Ls);
+	P2 = Lm2[0];
+	Q2 = Lm2[1];
+/*	P2inv = invmat(P2);
+	H2 = -P2inv[0]*Q2;*/
+
+	Lm3 = lem3(Ls);
+	P3 = Lm3[0];
+	Q3 = Lm3[1];
+	R3 = Lm3[2];
+/*	P3inv = invmat(P3);
+	H3 = -P3inv[0]*(Q3*H2+P2inv[1]*R3);*/
+
+        R = [P2,Q2,P3,Q3,R3];
+        RN = ["P2","Q2","P3","Q3","R3"];
+        Fp = open_file(Name,"w");
+        for ( I = 0; I < length(RN); I++ )
+	      	    fprintf(Fp,"%a:=Matrix(%a):\n",RN[I],rtostr(mtol(R[I])));
+
+	/* pfaffian */
+	H = newvect(N+1);
+	Pfy = pfy(Ls);
+	fprintf(Fp,"Lp:=[");
+	for(I=0; I<N+1; I++){
+		Lp = Pfy[I];
+		A = Lp[0]; 
+		B = Lp[1];
+		C = Lp[2];
+		E = Lp[3];
+/*		Ainv = invmat(A);
+		H[I] = [Ainv[0]*(P2inv[1]*P3inv[1]*B + P3inv[1]*C*H2 + E*H3), Ainv[1]*P2inv[1]*P3inv[1]];*/
+		fprintf(Fp,"[");
+		for ( J = 0; J < length(Lp); J++ ) {
+		    fprintf(Fp,"Matrix(%a)",rtostr(mtol(Lp[J])));
+		    if ( J != length(Lp)-1 ) fprintf(Fp,","); else fprintf(Fp,"]");
+		}
+		if ( I != N ) fprintf(Fp,","); else fprintf(Fp,"]:\n");
+	}
+
+	fprintf(Fp,"Ls:=[");
+	UP = 9;
+	for ( I = 0; I < UP; I++ ) {
+	    if ( type(Ls[I]) == 6 )
+	       fprintf(Fp,"Matrix(%a)",rtostr(mtol(Ls[I])));
+	    else if ( type(Ls[I]) == 5 )
+	    	 fprintf(Fp,"Vector(%a)",rtostr(vtol(Ls[I])));
+	    else
+		fprintf(Fp,"%a",rtostr(Ls[I]));
+	    if ( I != UP-1 ) fprintf(Fp,",");
+	}
+	fprintf(Fp,"]:\n");
+        if ( !close_file(Fp) )
+        	error("");
+	return 1;
+}
+
+def mtol(M)
+{
+        R = size(M)[0];
+        for ( L = [], I = R-1; I >= 0; I-- )
+                L = cons(vtol(M[I]),L);
+        return L;
+}
+
+endmodule;
+
+end$
