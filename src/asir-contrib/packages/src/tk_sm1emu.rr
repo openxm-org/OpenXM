@@ -1,0 +1,124 @@
+/* $OpenXM$ */
+
+/*
+ This module emulates some sm1 functions on asir.
+ If sm1emu.control(|use_sm1=1) is executed, sm1 is called instead of emulation functions.
+ Imported from h-mle/A-hg/Prog/toric2.rr, disc5.rr
+ Example:
+  tk_sm1emu.gkz([ [[1,2,3]],[0]]);
+  tk_sm1emu.control( |use_sm1=1);
+  tk_sm1emu.gkz([ [[1,2,3]],[0]]);
+*/
+import("names.rr")$
+import("nk_toric.rr")$
+
+module tk_sm1emu;
+static Global_pqv$
+static Global_L$
+static Use_sm1$
+Use_sm1=0$
+
+/* Exported functions */
+localf control$
+localf gkz$
+localf gb$
+localf reduction$
+localf mul$
+
+/* For internal use */
+localf emu_gkz$
+localf add_d$
+localf emu_mul$
+localf sm1wtow$
+localf emu_reduction$
+localf emu_gb$
+
+def control() {
+  if (type(getopt(use_sm1)) >= 0) {
+     Use_sm1=getopt(use_sm1);
+  }
+  return Use_sm1;
+}
+def gkz(L) { if (!Use_sm1) return emu_gkz(L);
+  else return sm1.gkz(L); }
+def gb(L) { if (!Use_sm1) return emu_gb(L);
+  else return sm1.gb(L); }
+def reduction(L) { if (!Use_sm1) return emu_reduction(L);
+  else return sm1.reduction(L); }
+def mul(P,Q,V) { if (!Use_sm1) return emu_mul(P,Q,V);
+  else return sm1.mul(P,Q,V); }
+
+
+def emu_gkz(L) {  /* Can we use A with negative entries */
+  A=L[0];
+  B=L[1];
+  II=nk_toric.toric_ideal(A);
+  Rule1=[]; V=[];
+  N=length(A[0]);
+  for (I=1; I<=N; I++) {
+    Rule1=cons([eval_str("x"+rtostr(I)),eval_str("dx"+rtostr(I))],Rule1);
+    V=cons(eval_str("x"+rtostr(I)),V);
+  }
+  II=base_replace(II,Rule1);
+  V=reverse(V);
+  E=[];
+  for (I=0; I<length(A); I++) {
+    T=B[I];
+    for (J=0; J<N; J++) {
+      T = T+eval_str("x"+rtostr(J+1))*eval_str("dx"+rtostr(J+1))*A[I][J];
+    }
+    E=cons(T,E);
+  }
+  E=reverse(E);
+  return [append(E,II),V];
+}
+def add_d(V) {
+  Dv = newvect(length(V));
+  for (I=0; I<length(V); I++) {
+    Dv[I] = eval_str("d"+rtostr(V[I]));
+  }
+  return vtol(Dv);
+}
+
+def emu_mul(P,Q,V) {
+  /* print([P,Q,V]); Global_pqv=[P,Q,V]; */
+  Dv=add_d(V);
+  VV=append(V,Dv);
+  Pd = dp_ptod(P,VV);
+  Qd = dp_ptod(Q,VV);
+  Rd=dp_weyl_mul(Pd,Qd);
+  return dp_dtop(Rd,VV);
+}
+def sm1wtow(W,V) {
+  Dv=add_d(V);
+  /* not implemented */
+  return W;
+}
+
+def emu_reduction(L) {
+  Global_L=L;
+  F=L[0]; G=L[1]; V=L[2]; W=L[3];
+  Dv=add_d(V); VV=append(V,Dv);
+  Wa = sm1wtow(W,V);
+  /* Ord = w_drlex_mat(Wa); todo */
+  /* printf("Warning. Only gr-rev-lex is implemented.\n"); */
+  Ord=0; /* grlex only */
+  R=p_true_nf(F,G,VV,Ord);
+  return [R[0]];  /* Todo, only first element is emulated. */
+}
+def emu_gb(L) {
+  T=L[0];
+  V=L[1];
+  W=L[2];
+  Dv=add_d(V);
+  VV=append(V,Dv);
+  G=nd_weyl_gr(T,VV,0,0);
+  WW=newvect(length(VV)); /* todo, only grrevlex */
+  printf("Warning. Only gr-rev-lex is implemented.\n");
+  for (I=0; I<length(VV); I++) WW[I]=1;
+  WW=vtol(WW);
+  return [G,map(in_w,G,VV,WW)];
+}
+endmodule;
+
+end$

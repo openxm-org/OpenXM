@@ -1,0 +1,326 @@
+/* $OpenXM$
+ Original: h-mle/A-hg/Prog/ud-c11d.rr
+ cc111 is the Confluent C_{111}  (Cubes of 1,1,1).
+ This module numerically evaluates cc111 by an asymptotic expansion.
+  Example.
+   tk_cc111.initial_value(4 | z=0.0001);
+   tk_cc111.series(-1.5,-2.6,-3.7,2);
+*/
+import("taka_plot.rr")$
+Glib_math_coordinate=1$
+
+module tk_cc111;
+
+/* ud-c11d.rr 2013.07.30
+   Asymptotic expansion
+%%Ref: A-hg/Notes/c11.tex
+*/
+
+/* Main exported functions */
+localf initial_value$
+localf initial_value2$
+localf series$
+localf set_direction$
+
+/* For internal use */
+localf c1s$
+localf c1z$
+localf test1$
+localf c11s$
+localf c11z$
+localf test11$
+localf cc11base$
+localf test22$
+localf cc11basez$
+localf cc11Init$
+localf foo$
+localf cc11base2$
+localf cc11base2z$
+localf cc11Init2$
+
+
+static DirConst$
+
+DirConst=
+[ 10/11,13/10,8/7,
+  41/43,10/12,25/23,37/39]$   /* mail from ohara, 2013.07.31 */
+/* DirConst の成分を ci とするとき
+   x1 = -c1
+   x2 = -c2
+   x3 = -c3
+   x4 = -c4*z
+   x5 = -c5*z
+   x6 = -c6*z
+   x7 = -c7*z
+*/
+
+/* 2013.07.06
+*/
+def c1s(B1,B2,N) {
+  C1=eval(@pi^2/(sin(@pi*(B1))*sin(@pi*(B2))));
+  Ex=[B1,B2,0];
+  Z=[[y,x3/(x1*x2)]];
+  S=0;
+  for (K=0; K<=N; K++) {   
+     S += y^K/(pari(gamma,K+1)*pari(gamma,1-K+B1)*pari(gamma,1-K+B2));
+  }
+  printf("Note on c1s(): When the output is A, the original series is A[0]*(-x1)^(A[1][0])*(-x2)^(A[1][1])*(x3)^(A[1][2])*base_replace(A[3],A[2])\n");
+  /* A[0]=C1, A[1]=Ex, A[2]=Z, A[3] = S */
+  return [C1,Ex,Z,S];
+}
+/*
+  x1=-1,x2=-1,x3=-z の置き換え.
+  y=-z
+*/
+def c1z(B1,B2,N) {
+  A=c1s(B1,B2,N);
+  F=A[0]*base_replace(A[3],[[y,-z]]);
+  Err=(z^(N+1)/fac(N+1))*eval(pari(gamma,N-B1+1)*pari(gamma,N-B2+1));
+  return [F,Err];
+}
+/*
+ example. test1(10).
+*/
+def test1(N) {
+  Fall=c1z(-2.5,-3.6,N);
+  F=Fall[0];
+  Ans=[];
+  for (Z=0.01; Z<2; Z += 0.1) {
+    Ans=cons([Z,eval(base_replace(F,[[z,Z]]))],Ans);
+  }
+  taka_plot_auto(Ans);
+  printf("Error=%a\n",Fall[1]);
+  return(Ans);
+}
+
+
+def c11s(B1,B2,B3,N) {
+  C1=eval(@pi^3/(sin(@pi*(-B1))*sin(@pi*(-B2))*sin(@pi*(-B3))));
+  Ex=[B1,B2,B3,0,0,0,0];
+  /*
+  Z=[[y1,x4/(x1*x2)],[y2,x5/(x1*x3)],[y3,x6/(x1*x2*x3)],[y4,x7/(x2*x3)]];
+  buggy, fixed 2013.08.01 */
+  Z=[[y1,x4/(x1*x2)],[y2,x5/(x1*x3)],[y3,x6/(x2*x3)],[y4,x7/(x1*x2*x3)]];
+  S=0;
+  for (K1=0; K1<=N; K1++) {   
+  for (K2=0; K2<=N-K1; K2++) {
+  for (K3=0; K3<=N-K1-K2; K3++) {
+  for (K4=0; K4<=N-K1-K2-K3; K4++) {
+     S += (y1^K1)*(y2^K2)*(y3^K3)*(y4^K4)/(fac(K1)*fac(K2)*fac(K3)*fac(K4)*pari(gamma,1+B1-K1-K2-K4)*pari(gamma,1+B2-K1-K3-K4)*pari(gamma,1+B3-K2-K3-K4));
+     /* fixed 2013.08.01 */
+  }}}}
+  printf("Note on c11s(): When the output is A, the original series is A[0]*(-x1)^(A[1][0])*(-x2)^(A[1][1])*(-x3)^(A[1][2])*(x4)^(A[1][3])*(x5)^(A[1][4])*(x6)^(A[1][5])*(x7)^(A[1][6])*base_replace(A[3],A[2])\n");
+  /* A[0]=C1, A[1]=Ex, A[2]=Z, A[3] = S */
+
+  Err=0;
+  for (K1=0; K1<=N+1; K1++) {   
+  for (K2=0; K2<=N+1-K1; K2++) {
+  for (K3=0; K3<=N+1-K1-K2; K3++) {
+     K4=N+1-K1-K2-K3;
+     Err += (x4^K1)*(x5^K2)*(x6^K3)*(x7^K4)/(fac(K1)*fac(K2)*fac(K3)*fac(K4))
+      *(-x1)^(-N+K4+B1-1)*pari(gamma,-(-N+K4+B1-1))
+      *(-x2)^(-N+K2+B2-1)*pari(gamma,-(-N+K2+B2-1))
+      *(-x3)^(-N+K1+B3-1)*pari(gamma,-(-N+K1+B3-1));
+  }}}
+  return [C1,Ex,Z,S,Err];
+}
+
+/*
+  x1=-1,x2=-1,x3=-1
+  x4=-z,x5=-z,x6=-z,x7=-z,
+  y1=-z,y2=-z,y3=z,y4=-z
+  buggy not fixed. 2013.08.01
+*/
+def c11z(B1,B2,B3,N) {
+  A=c11s(B1,B2,B3,N);
+  F=A[0]*base_replace(A[3],[[y1,-z],[y2,-z],[y3,z],[y4,-z]]);
+  Err=A[4];
+  return [F,
+   eval(base_replace(Err,[[x1,-1],[x2,-1],[x3,-1],[x4,-z],[x5,-z],[x6,-z],[x7,-z]]))];
+}
+
+/*
+ example. test11(5).
+  bug: まだ値が でたらめに見える.
+  buggy not fixed. 2013.08.01
+*/
+def test11(N) {
+  Fall=c11z(-1.5,-2.6,-3.7,N);
+  F=Fall[0];
+  printf("Err=%a\n",Fall[1]);
+  Ans=[];
+  for (Z=0.001; Z<2; Z += 0.1) {
+    Ans=cons([Z,eval(base_replace(F,[[z,Z]]))],Ans);
+  }
+  taka_plot_auto(Ans);
+  return(Ans);
+}
+
+/* 2013.07.31 
+  @s/2013/07/29-2013-07-kanazawa/03-2013-08-my-note-kanazawa.pdf
+  下記は合成関数の微分公式から出たもの.
+*/
+def cc11base(B1,B2,B3,N) {
+  A=c11s(B1,B2,B3,N);
+  S=A[3];
+  Alpha = A[1];
+  /* printf("Alpha=%a\n",Alpha); */
+  P=A[0]*(-x1)^(A[1][0])*(-x2)^(A[1][1])*(-x3)^(A[1][2])*(x4)^(A[1][3])*(x5)^(A[1][4])*(x6)^(A[1][5])*(x7)^(A[1][6]);
+  Z=newvect(6);
+  Z[0] = P*S;
+/* bug fixed, 2013.08.01 */
+  Z[1] = P*((Alpha[6]/x7)*S+(1/(x1*x2*x3))*diff(S,y4));
+  Z[2] = P*((Alpha[5]/x6)*S+(1/(x2*x3))*diff(S,y3));
+  Z[3] = P*((Alpha[4]/x5)*S+(1/(x1*x3))*diff(S,y2));
+  Z[4] = P*((Alpha[3]/x4)*S+(1/(x1*x2))*diff(S,y1));
+  Z[5] = P*( (Alpha[6]*(Alpha[6]-1)/x7^2)*S
+            +(2*Alpha[6]/(x1*x2*x3*x7))*diff(S,y4)
+            +(1/(x1*x2*x3)^2)*diff(S,[y4,y4]));
+  return [A,Z];
+}
+def test22(N) {
+  Z=cc11base(-1.5,-2.6,-3.7,N);
+  printf("Z=%a\n",Z);
+  return cc11basez(-1.5,-2.6,-3.7,N);
+}
+
+/*
+  x1=-1,x2=-1,x3=-1
+  x4=-z,x5=-z,x6=-z,x7=-z,
+  DirConst で方向を調整.
+*/
+def cc11basez(B1,B2,B3,N) {
+  C=DirConst;
+  B=cc11base(B1,B2,B3,N);
+  A=B[0]; Z=B[1];
+  /* fixed 2013.08.01 */
+  RS=[[y1,x4/(x1*x2)],[y2,x5/(x1*x3)],[y3,x6/(x2*x3)],[y4,x7/(x1*x2*x3)]];
+  Rule2=[[x1,-C[0]*1],[x2,-C[1]*1],[x3,-C[2]*1],
+         [x4,-C[3]*z],[x5,-C[4]*z],[x6,-C[5]*z],[x7,-C[6]*z]];
+  Rule1=base_replace(RS,Rule2);
+  print(Rule1);
+  F=base_replace(Z,append(Rule1,Rule2));
+  F=map(eval,F);
+  Err=A[4];
+  return [F,
+   eval(base_replace(Err,Rule2))];
+}
+
+/*
+N=3, z=10^(-3);
+ A=test22(3);
+base_replace(A[0],[[z,10^(-3)]]);
+ 初期値.
+ base_replace(A[1],[[z,10^(-3)]]);
+
+N=4, z 同じ
+base_replace(A[1],[[z,10^(-3)]]);
+base_replace(A[0],[[z,10^(-3)]]);
+
+*/
+
+/*
+  初期値の計算方法.
+  1. プログラム冒頭の DirConst を調整.
+  2. cc11Init(N); で Rule での初期値と第一成分のエラーの上限が出力される.
+     N は漸近展開の次数. N は 5 から 10 程度で十分.
+     漸近展開なので, N を大きくしたときどんどん値が正確になるとは限らない.
+     初期値の順番は (1,dx7,dx6,dx5,dx4,dx7^2)
+*/
+def cc11Init(N) {
+  if (type(getopt(z))) Zval=eval_str(rtostr(getopt(z)));
+  else Zval=10^(-3);    /* z の値はここで指定 */
+  Z=cc11base(-1.5,-2.6,-3.7,N);  /* bi の値はこれ */
+  A=cc11basez(-1.5,-2.6,-3.7,N);
+  Rule=[[z,Zval]];           
+  IV=base_replace(A[0],Rule);
+  Err=base_replace(A[1],Rule);
+  printf("Initial value at z=%a : %a\n",base_replace(z,Rule),IV);
+  printf("Error of the first component is bounded by : %a\n",Err);
+  return [IV,Err];
+}
+/* for c-c11.txt, plot "c-c11.txt" using 1:2 w lp 
+   replot
+*/
+def foo() { 
+ Ans=""; 
+ for (Z=0.001; Z<0.01; Z += 0.001) {
+   A=cc11Init(5 | z=Z); S=sprintf("%a %a\n",Z,A[0][0]); Ans=Ans+S;
+ } 
+ return Ans; 
+}
+
+
+/* 2014.02.04 
+  Ref: @s/2013/07/29-2013-07-kanazawa/03-2013-08-my-note-kanazawa.pdf
+  Differences with cc11base: the base is
+   (1, dx7, dx6, dx5, dx4, dx4*dx5) 
+*/
+def cc11base2(B1,B2,B3,N) {
+  A=c11s(B1,B2,B3,N);
+  S=A[3];
+  Alpha = A[1];
+  /* printf("Alpha=%a\n",Alpha); */
+  P=A[0]*(-x1)^(A[1][0])*(-x2)^(A[1][1])*(-x3)^(A[1][2])*(x4)^(A[1][3])*(x5)^(A[1][4])*(x6)^(A[1][5])*(x7)^(A[1][6]);
+  Z=newvect(6);
+  Z[0] = P*S;
+/* bug fixed, 2013.08.01 */
+  /* 1, dx7, dx6, dx5, dx4, dx4*dx5 */
+  Z[1] = P*((Alpha[6]/x7)*S+(1/(x1*x2*x3))*diff(S,y4));
+  Z[2] = P*((Alpha[5]/x6)*S+(1/(x2*x3))*diff(S,y3));
+  Z[3] = P*((Alpha[4]/x5)*S+(1/(x1*x3))*diff(S,y2));
+  Z[4] = P*((Alpha[3]/x4)*S+(1/(x1*x2))*diff(S,y1));
+  Z[5] = P*( (Alpha[4]*(Alpha[5])/(x4*x5))*S
+            + (Alpha[4]/(x1*x3*x4))*diff(S,y2)
+            +(Alpha[5]/(x1*x2*x5))*S
+            +(1/(x1^2*x2*x3))*diff(S,[y1,y2]));
+  return [A,Z];
+}
+def cc11base2z(B1,B2,B3,N) {
+  C=DirConst;
+  B=cc11base2(B1,B2,B3,N);
+  A=B[0]; Z=B[1];
+  /* fixed 2013.08.01 */
+  RS=[[y1,x4/(x1*x2)],[y2,x5/(x1*x3)],[y3,x6/(x2*x3)],[y4,x7/(x1*x2*x3)]];
+  Rule2=[[x1,-C[0]*1],[x2,-C[1]*1],[x3,-C[2]*1],
+         [x4,-C[3]*z],[x5,-C[4]*z],[x6,-C[5]*z],[x7,-C[6]*z]];
+  Rule1=base_replace(RS,Rule2);
+  print(Rule1);
+  F=base_replace(Z,append(Rule1,Rule2));
+  F=map(eval,F);
+  Err=A[4];
+  return [F,
+   eval(base_replace(Err,Rule2))];
+}
+/* Ex.
+cc11Init2(5 | z = 0.001);
+*/
+def cc11Init2(N) {
+  if (type(getopt(z))) Zval=eval_str(rtostr(getopt(z)));
+  else Zval=10^(-3);    /* z の値はここで指定 */
+  Z=cc11base2(-1.5,-2.6,-3.7,N);  /* bi の値はこれ */
+  A=cc11base2z(-1.5,-2.6,-3.7,N);
+  Rule=[[z,Zval]];           
+  IV=base_replace(A[0],Rule);
+  Err=base_replace(A[1],Rule);
+  printf("Initial value at z=%a : %a\n",base_replace(z,Rule),IV);
+  printf("Error of the first component is bounded by : %a\n",Err);
+  return [IV,Err];
+}
+
+def initial_value(N) {
+  return cc11Init(N | option_list=getopt());
+} 
+def initial_value2(N) {
+  return cc11Init2(N | option_list=getopt());
+}
+def series(B1,B2,B3,N) {
+  return c11s(B1,B2,B3,N | option_list=getopt());
+}
+def set_direction(Dir) {
+  if (length(Dir) != 7) debug("Length must be 7.");
+  DirConst = Dir;
+}
+
+endmodule;
+end$
