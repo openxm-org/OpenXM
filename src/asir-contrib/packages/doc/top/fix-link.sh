@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.7 2011/02/21 10:57:20 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.8 2012/02/25 06:07:49 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -92,6 +92,11 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[ns_twistedlog]]"
 NEW1="ns_twistedlog-html/ns_twistedlog-${LLL}.html"
 NEW2="ns_twistedlog (twisted logarithmic cohomology group)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[nk_fb_gen_c]]"
+NEW1="nk_fb_gen_c-html/nk_fb_gen_c-${LLL}.html"
+NEW2="nk_fb_gen_c (Fisher-Bingham MLE)"
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
 
 rm -f cman-*.old

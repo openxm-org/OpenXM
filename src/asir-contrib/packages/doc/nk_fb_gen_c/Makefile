@@ -1,12 +1,14 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/nk_fb_gen_c/Makefile,v 1.1 2014/03/27 05:24:28 takayama Exp $
 
 # Name of this document.
 MYNAME=nk_fb_gen_c
-alltexi: ${MYNAME}-ja.texi  ${MYNAME}-en.texi
+
+#alltexi: ${MYNAME}-ja.texi  ${MYNAME}-en.texi
 
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
 
 include ../M/Makefile
+${MYNAME}.en ${MYNAME}.ja:
 
 clean_private: 
 	${RM} ${MYNAME}-ja.texi ${MYNAME}-en.texi a.out
