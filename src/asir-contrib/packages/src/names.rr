@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.124 2012/03/23 02:18:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.125 2013/09/20 07:47:28 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -55,6 +55,7 @@ import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
+import("tk_asir_contrib_update.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
@@ -1121,6 +1122,16 @@ def a_hypergeometric_bfunction(A,V,S) {
   OX_LOADFILE(Loaded_taka_ahg,"taka_ahg.rr");
   return( taka_ahg.bb(A,V,S) );
 }
+
+/*&usage begin: asir_contrib_update()
+  It updates the asir-contrib library to the HEAD branch.
+  The usage will be shown by asir_contrib_update() without the option update.
+  example: 
+   asir_contrib_update();
+   asir_contrib_update(|update=1);
+end: */
+def asir_contrib_update() { return tk_asir_contrib_update.asir_contrib_update(|option_list=getopt()); }
+
 end$
 
 
