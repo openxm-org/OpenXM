@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.2 2014/03/29 09:29:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.3 2014/03/29 11:16:18 takayama Exp $ */
 /*
   We assume that
   (1) curl is installed in asir/bin
@@ -61,12 +61,19 @@ def asir_contrib_update_win() {
   /* MyCurl = "%ASIR_ROOTDIR%bin\\curl" ; */
   MyTmp = getenv("TEMP");
   InstallDir=getenv("APPDATA")+"\\asir\\";
-  C1=MyCurl+" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"+MyTmp+"\\lib-asir-contrib.zip"+" 2> "+MyTmp+"\\lib-asir-contrib-update-error.txt";
+  C1=MyCurl+" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"+"\""+MyTmp+"\\lib-asir-contrib.zip\""+" 2> "+"\""+MyTmp+"\\lib-asir-contrib-update-error.txt\"";
   /* dir && pause */
-  C2rm1="del /S/Q "+InstallDir+"lib-asir-contrib\\*";
-  C2rm2="rmdir /S/Q "+InstallDir+"lib-asir-contrib";
-  C2mkdir = "mkdir /S/Q "+InstallDir;
-  C2="unzip -o "+MyTmp+"\\lib-asir-contrib.zip -d "+InstallDir;
+  C2rm1="del /S/Q "+"\""+InstallDir+"lib-asir-contrib\\*\"";
+  C2rm2="rmdir /S/Q "+"\""+InstallDir+"lib-asir-contrib\"";
+  C2mkdir = "mkdir /S/Q "+"\""+InstallDir+"\"";
+/*  C2="unzip -o "+"\""+MyTmp+"\\lib-asir-contrib.zip\" -d "+"\""+InstallDir+"\""; 
+   It cause an error like 
+                 unable to process lib-asir-contrib/y_prime/Makefile.
+ checkdir error:  cannot create c:/users/nobuki/appdata/roaming/asir"/lib-asir-co
+ntrib
+                 Invalid argument
+  */ 
+  C2="unzip -o "+"\""+MyTmp+"\\lib-asir-contrib.zip\" -d "+InstallDir;
   if (!Update && !Clean) {
     print(C1);  
     print(C2rm1); print(C2rm2); print(C2mkdir); 
