@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/phc/Makefile,v 1.6 2000/01/31 05:52:06 noro Exp $
+# $OpenXM: OpenXM/src/phc/Makefile,v 1.7 2000/10/31 06:09:19 maekawa Exp $
 
 OPENXM_CONTRIB=../../../OpenXM_contrib
 PROG=phc6
 
 SRCS=phc6.c
 
-CC=gcc
+#CC=gcc
 BINDIR=../../bin
 
 all: $(PROG)
