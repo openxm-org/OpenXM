@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.1 2014/03/28 02:17:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.2 2014/03/29 09:29:24 takayama Exp $ */
 /*
   We assume that
   (1) curl is installed in asir/bin
@@ -57,7 +57,7 @@ def asir_contrib_update_win() {
   }
   if (type(getopt(clean)) <= 0) { } else { Clean=1;}
   if (!Update && !Clean) mymessage("Windows");
-  MyCurl = "\""+getenv("ASIR_ROOTDIR")+"\""+"bin\\curl"; 
+  MyCurl = "\""+getenv("ASIR_ROOTDIR")+"bin\\curl\""; 
   /* MyCurl = "%ASIR_ROOTDIR%bin\\curl" ; */
   MyTmp = getenv("TEMP");
   InstallDir=getenv("APPDATA")+"\\asir\\";
