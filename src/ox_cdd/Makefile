@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.4 2005/05/25 08:39:07 noro Exp $
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.5 2007/03/20 02:12:14 ohara Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -38,13 +38,13 @@ ox_cdd: $(CDDOBJ)
 	$(CC) $(CDDOBJ) $(LIBS) -o $@
 
 ox_cddgmp: $(CDDOBJG)
-	g++ $(CDDOBJG) $(LIBSG) -o $@
+	$(CXX) $(CDDOBJG) $(LIBSG) -o $@
 
 ox_sres: $(SRESOBJ)
-	g++ $(SRESOBJ) $(LIBS) -o $@
+	$(CXX) $(SRESOBJ) $(LIBS) -o $@
 
 ox_sresgmp: $(SRESOBJG)
-	g++ $(SRESOBJG) $(LIBSG) -o $@
+	$(CXX) $(SRESOBJG) $(LIBSG) -o $@
 
 ox_cdd.o : ox_cdd.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
@@ -65,7 +65,7 @@ cddlibgmp.o : cddlib.c
 	$(CC) -o cddlibgmp.o  $(CFLAGS) $(GMPDEF) $(INCLUDES) -c cddlib.c
 
 mvol.o : mvol.cpp
-	g++ $(CFLAGS) -I$(MVOLINCLUDE) -c $<
+	$(CXX) $(CFLAGS) -I$(MVOLINCLUDE) -c $<
 
 libs : ox gc libgmp cdd
 
