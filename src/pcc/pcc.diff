@@ -1,3 +1,51 @@
+diff -ubBr Makefile.in.orig Makefile.in
+--- Makefile.in.orig	2008-07-18 23:00:38.000000000 +0900
++++ Makefile.in	2014-03-30 05:56:20.000000000 +0900
+@@ -12,19 +12,18 @@
+ YACC=@YACC@
+ LEX=@LEX@
+ 
+-SUBDIR=cc
++SUBDIR=cpp
+ 
+ all: ${SUBDIR}
+ 
+ install:
+-	cd cc && ${MAKE} install
++	cd cpp && ${MAKE} install
+ 
+ clean:
+-	cd cc && ${MAKE} clean
++	cd cpp && ${MAKE} clean
+ 
+ distclean:
+-	cd cc && ${MAKE} distclean
+-	cd f77 && ${MAKE} distclean
++	cd cpp && ${MAKE} distclean
+ 	/bin/rm -rf Makefile config.log stamp-h1 config.status \
+ 	configure.lineno config.h autom4te.cache
+ 
+diff -ubBr configure.orig configure
+--- configure.orig	2010-11-01 03:20:51.000000000 +0900
++++ configure	2014-03-30 05:57:22.000000000 +0900
+@@ -5081,7 +5081,7 @@
+ _ACEOF
+ 
+ 
+-ac_config_files="$ac_config_files Makefile cc/Makefile cc/cc/Makefile cc/cpp/Makefile cc/ccom/Makefile f77/Makefile f77/f77/Makefile f77/fcom/Makefile"
++ac_config_files="$ac_config_files Makefile cpp/Makefile"
+ 
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+@@ -5640,7 +5640,7 @@
+     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+     "cc/Makefile") CONFIG_FILES="$CONFIG_FILES cc/Makefile" ;;
+     "cc/cc/Makefile") CONFIG_FILES="$CONFIG_FILES cc/cc/Makefile" ;;
+-    "cc/cpp/Makefile") CONFIG_FILES="$CONFIG_FILES cc/cpp/Makefile" ;;
++    "cpp/Makefile") CONFIG_FILES="$CONFIG_FILES cpp/Makefile" ;;
+     "cc/ccom/Makefile") CONFIG_FILES="$CONFIG_FILES cc/ccom/Makefile" ;;
+     "f77/Makefile") CONFIG_FILES="$CONFIG_FILES f77/Makefile" ;;
+     "f77/f77/Makefile") CONFIG_FILES="$CONFIG_FILES f77/f77/Makefile" ;;
 diff -ubBr cc/cpp/Makefile.in.orig cc/cpp/Makefile.in
 --- cc/cpp/Makefile.in.orig	2010-12-19 00:22:13.000000000 +0900
 +++ cc/cpp/Makefile.in	2011-01-14 22:05:51.000000000 +0900

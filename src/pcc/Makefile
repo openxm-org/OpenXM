@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pcc/Makefile,v 1.1 2011/05/13 07:32:39 ohara Exp $
+# $OpenXM: OpenXM/src/pcc/Makefile,v 1.2 2012/08/27 05:05:57 noro Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -7,9 +7,8 @@ MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=pcc-101228
 DISTFILES=${DISTNAME}.tgz
 WRKSRC=work/${DISTNAME}
-BUILDDIR=${WRKSRC}/cc/cpp
+BUILDDIR=${WRKSRC}/cpp
 PATCHFILES = pcc.diff
-CC=gcc
 
 all : build 
 
@@ -33,19 +32,20 @@ patch: extract
 	            cat $$i | (cd ${WRKSRC}; patch -p0) ; \
             fi ; \
         done ; \
+		(cd work/${DISTNAME}; mv -f cc/cpp cpp; rm -rf cc); \
 	fi
 	@touch work/.patch_done
 
 configure: patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd ${WRKSRC} ; CC=${CC} ./configure --prefix="$$prefix" --libexecdir="$$prefix"/bin ) ; \
+		(cd ${WRKSRC} ; ./configure --prefix="$$prefix" --libexecdir="$$prefix"/bin ) ; \
 	fi
 	@touch work/.configure_done
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
-		(cd ${BUILDDIR} ; ${MAKE} CC=${CC}) ; \
+		(cd ${BUILDDIR} ; ${MAKE}) ; \
 	fi
 	@touch work/.build_done
 
