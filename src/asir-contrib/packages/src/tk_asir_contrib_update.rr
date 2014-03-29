@@ -1,11 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.1 2014/03/28 02:17:35 takayama Exp $ */
 /*
   We assume that
   (1) curl is installed in asir/bin
-  (2) ASIR_ROOTDIR can be writable.
-  If asir is installed under C:Program Files, then reinstall it, e.g. c:\Users\your-login-name\Desktop\asir\.
+  (2) %APPDATA%\asir\lib-asir-contrib is in the top of your search path.
 */
-
 
 module tk_asir_contrib_update;
 localf ostype;
@@ -29,8 +27,7 @@ def mymessage(OS) {
    printf("Note that it might cause troubles because of an incompatibility of the binary asir and the asir-contrib\n");
    printf("If you understand this risk and want to update to the HEAD branch, execute the command above.\n");
    if (OS == "Windows") {
-     printf("If you install your asir in the system folder C:\\Program Files, this command can make nothing.\n");
-     printf("Reinstall asir, e.g., to your desktop or copy new asir contrib by hand by starting cmd in the administrator mode by windows+x\n");
+     printf("It is installed under "+getenv("APPDATA")+"\\asir\\lib-asir-contrib\n");
    }
    printf("The following command will be executed with the option update=1.\n");
    printf("--------------------------------------------------------------\n");
@@ -53,21 +50,34 @@ def mystrtoascii(S) {
 }
 def asir_contrib_update_win() {
   Update = 0;
+  Clean = 0;
   if (type(getopt(update)) <= 0) {
-    mymessage("Windows");
   }else{
     Update=getopt(update);
   }
-  MyCurl = getenv("ASIR_ROOTDIR")+"bin\\curl";
+  if (type(getopt(clean)) <= 0) { } else { Clean=1;}
+  if (!Update && !Clean) mymessage("Windows");
+  MyCurl = "\""+getenv("ASIR_ROOTDIR")+"\""+"bin\\curl"; 
+  /* MyCurl = "%ASIR_ROOTDIR%bin\\curl" ; */
   MyTmp = getenv("TEMP");
-  C1=MyCurl+" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"+MyTmp+"\\lib-asir-contrib.zip";
-  C2="unzip -o "+MyTmp+"\\lib-asir-contrib.zip -d "+getenv("ASIR_ROOTDIR");
-  if (!Update) {print(C1);  print(C2); printf("---------------------------------------------------\n"); }
-  if (base_subsetq(mystrtoascii(getenv("ASIR_ROOTDIR")),strtoascii("Program Files"))) {
-     printf("Warning: your asir seems to be installed in the system folder. Update will not work.\n");
+  InstallDir=getenv("APPDATA")+"\\asir\\";
+  C1=MyCurl+" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"+MyTmp+"\\lib-asir-contrib.zip"+" 2> "+MyTmp+"\\lib-asir-contrib-update-error.txt";
+  /* dir && pause */
+  C2rm1="del /S/Q "+InstallDir+"lib-asir-contrib\\*";
+  C2rm2="rmdir /S/Q "+InstallDir+"lib-asir-contrib";
+  C2mkdir = "mkdir /S/Q "+InstallDir;
+  C2="unzip -o "+MyTmp+"\\lib-asir-contrib.zip -d "+InstallDir;
+  if (!Update && !Clean) {
+    print(C1);  
+    print(C2rm1); print(C2rm2); print(C2mkdir); 
+    print(C2); 
+    printf("---------------------------------------------------\n"); 
+  }
+  if (Clean == 1) {
+    myshell(C2rm1); myshell(C2rm2);
   }
   if (Update == 1) {
-    myshell(C1); myshell(C2);
+    myshell(C1); myshell(C2rm1); myshell(C2rm2); myshell(C2mkdir); myshell(C2);
   }
 }
 endmodule;
