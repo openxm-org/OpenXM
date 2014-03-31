@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.1 2014/03/31 06:20:06 takayama Exp $
 \name{hgm.mleFBByOptim}
 %%Todo, write documents for hgm.mleDemo, hgm.ssFB
 %\alias{hgm.ncso3}
@@ -19,8 +19,8 @@
   \item{ss}{Sufficient statistics}
   \item{data}{
      The argument data is a set of data on the d-dimensional sphere.
-     It's format is an n by (d+1) matrix where n is the number of data.
-     The arguments ss and data are exclusive. When data is given, ss must be NULL
+     Its format is an n by (d+1) matrix where n is the number of data.
+     When data is given, ss must be NULL
     and ss is calculated from data by hgm.ssFB(data).
   }
   \item{start}{
@@ -50,6 +50,9 @@
    is used for the optimization.
    The output is used as a starting point for the holonomic gradient method.
    See nk_fb_gen_c.rr of \url{http://www.math.kobe-u.ac.jp/Asir}. 
+   This function generates temporary work files whose names start with tmp.
+   \code{data <- read.table(fileName,sep=",")} can be used to read CSV data
+   from a file. 
 }
 \value{
 The output format is that of the function optim().
@@ -70,7 +73,7 @@ T.Koyama, H.Nakayama, K.Nishiyama, N.Takayama.
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{optim}},
+\code{\link{optim}}
 }
 \examples{
 ## =====================================================

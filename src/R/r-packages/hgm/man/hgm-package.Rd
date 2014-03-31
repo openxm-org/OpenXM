@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.8 2014/03/31 00:49:51 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.9 2014/03/31 06:20:06 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -8,7 +8,7 @@
 HGM
 }
 \description{
-The holonomic gradient method (HGM, hgm) gives a way to evaluate normalization
+The holonomic gradient method (HGM, hgm) gives a way to evaluate normalizing
   constants of unnormalized probability distributions by utilizing holonomic 
   systems of differential equations. 
   The holonomic gradient descent (HGD, hgd) gives a method
@@ -22,7 +22,7 @@ License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }
 The HGM and HGD are proposed in the paper below.
-This method based on the fact that a broad class of normalization constants
+This method based on the fact that a broad class of normalizing constants
 of unnormalized probability distributions belongs to the class of
 holonomic functions, which are solutions of holonomic systems of linear
 partial differential equations.
@@ -38,8 +38,8 @@ partial differential equations.
 }
 \references{
 \itemize{
-\item  Hiromasa Nakayama, Kenta Nishiyama, Masayuki Noro, Katsuyoshi Ohara,
-[N3OST2]  Tomonari Sei, Nobuki Takayama, Akimichi Takemura,
+\item  [N3OST2]  Hiromasa Nakayama, Kenta Nishiyama, Masayuki Noro, Katsuyoshi Ohara,
+Tomonari Sei, Nobuki Takayama, Akimichi Takemura,
 Holonomic Gradient Descent  and its Application to Fisher-Bingham Integral,
 Advances in Applied Mathematics 47 (2011), 639--658, 
 \url{http://dx.doi.org/10.1016/j.aam.2011.03.001}
@@ -53,11 +53,11 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 \keyword{ HGM }
 \keyword{ HGD }
 \seealso{
-\code{\link{hgm.mleFBByOptim}}
-\code{\link{hgm.ncBingham}}
-\code{\link{hgm.ncorthant}}
-\code{\link{hgm.ncso3}}
-\code{\link{hgm.pwishart}}
+\code{\link{hgm.mleFBByOptim}},
+\code{\link{hgm.ncBingham}},
+\code{\link{hgm.ncorthant}},
+\code{\link{hgm.ncso3}},
+\code{\link{hgm.pwishart}},
 \code{\link{hgm.Rhgm}}
 }
 \examples{
