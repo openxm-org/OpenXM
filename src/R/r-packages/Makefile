@@ -23,4 +23,5 @@ rsync-orthant:
 
 copy-web: build-hgm
 	${RSYNC} hgm*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
+	${RSYNC} hgm.Rcheck/hgm-manual.pdf ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
 
