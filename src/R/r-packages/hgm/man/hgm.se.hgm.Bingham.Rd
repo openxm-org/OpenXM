@@ -1,3 +1,4 @@
+% $OpenXM$
 \name{hgm.ncBingham}
 %\alias{hgm.se.hgm.Bingham}
 %- Also NEED an '\alias' for EACH other topic documented here.
