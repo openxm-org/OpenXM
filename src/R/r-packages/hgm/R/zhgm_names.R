@@ -8,3 +8,4 @@ hgm.Rhgm<-hgm.se.hgm
 hgm.Rhgm.demo1<-hgm.se.demo1
 hgm.ncBingham<-hgm.se.hgm.Bingham
 hgm.normalizingConstantOfBinghamDistribution<-hgm.se.hgm.Bingham
+hgm.ssFB <- hgm.tk.ssFB
