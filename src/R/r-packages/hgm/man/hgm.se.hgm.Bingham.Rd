@@ -1,16 +1,16 @@
-\name{hgm.se.hgm.Bingham}
-\alias{hgm.se.hgm.Bingham}
+\name{hgm.ncBingham}
+%\alias{hgm.se.hgm.Bingham}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-    The function hgm.se.hgm.Bingham performs the holonomic gradient method (HGM)
+    The function hgm.ncBingham performs the holonomic gradient method (HGM)
    for Bingham distributions.
 }
 \description{
-   The function hgm.se.hgm.Bingham performs the holonomic gradient method (HGM)
+   The function hgm.ncBingham performs the holonomic gradient method (HGM)
    for Bingham distributions with the deSolve package in R.
 }
 \usage{
- hgm.se.hgm.Bingham(th, d=rep(1,length(th)+1), logarithm=FALSE, ini.method="power", times=NULL, withvol=FALSE, ...)
+ hgm.ncBingham(th, d=rep(1,length(th)+1), logarithm=FALSE, ini.method="power", times=NULL, withvol=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,7 +38,7 @@
   }
 }
 \details{
-  The function hgm.se.hgm.Bingham computes the normalizing constant
+  The function hgm.ncBingham computes the normalizing constant
   of the Bingham distribution and its derivatives at any specified point.
   The initial value is computed by the power series expansion.
 %  \code{\link[RCurl]{postForm}}.
@@ -67,8 +67,7 @@ Tomonari Sei
 }
 \examples{
 # Example 1.
-library(deSolve)
-hgm.se.hgm.Bingham(c(1,3,5))
+hgm.ncBingham(c(1,3,5))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
