@@ -32,7 +32,6 @@ hgm.ko.ncorthant <- function(x,y,rk_step_size=1e-3){
 	as.integer(dim),
 	as.double(t(x)), 
 	as.double(y),
-	as.double(rk_step_size),
 	result=double(1))$result
 }
 
