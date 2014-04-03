@@ -1,4 +1,4 @@
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/doc/nk_fb_gen_c/nk_fb_gen_c.oxg,v 1.1 2014/03/27 05:24:28 takayama Exp $
 test1.c, test1.h はこのプログラムで生成された例. data, 初期値はすでに設定済.
 /*  まだ書いてない.
 begin: include|
@@ -32,6 +32,8 @@ description:
    またシステムには gsl がインストールされていないといけない.
    @file{OpenXM/src/hgm/fisher-bingham/src/Testdata} にサンプルの
   データ, 最尤推定探索用のパラメータ初期値がある. @*
+  testN.h の @code{#define MULTIMIN_FDFMINIMIZER_TYPE} で gsl のどの最適化関数を呼び出すか変更できる.
+  testN.h の @code{#define ODEIV_STEP_TYPE} で gsl のどの常微分方程式数値解析関数を呼び出すか変更できる. @*
   アルゴリズムの詳細は,
   T. Koyama, H. Nakayama, K. Nishiyama, N. Takayama, Holonomic Gradient Descent for the Fisher-Bingham Distribution on the d-dimensional Sphere, Computational Statistics (2013),
   @url{http://dx.doi.org/10.1007/s00180-013-0456-z} 
@@ -83,6 +85,10 @@ description:
    The GSL (Gnu Scientific Library) should also be installed in the system.
    Sample data and initial points are in @file{OpenXM/src/hgm/fisher-bingham/src/Testdata}. 
    @*
+  The definition @code{#define MULTIMIN_FDFMINIMIZER_TYPE} in testN.h specifies 
+  an optimization problem solver of gsl.
+  The definition @code{#define ODEIV_STEP_TYPE} in testN.h specifies a solver of the ordinary differential
+  equation of gsl. @*
   As to the algorithm, refer to
   T. Koyama, H. Nakayama, K. Nishiyama, N. Takayama, Holonomic Gradient Descent for the Fisher-Bingham Distribution on the d-dimensional Sphere, Computational Statistics (2013),
   @url{http://dx.doi.org/10.1007/s00180-013-0456-z} @*

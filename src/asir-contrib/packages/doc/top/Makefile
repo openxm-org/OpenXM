@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.6 2007/09/29 07:29:31 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.7 2009/02/21 22:09:12 ohara Exp $
 
 # Name of this document.
 MYNAME=cman
@@ -8,13 +8,13 @@ SRC = base.oxw calculus.oxw complex.oxw \
       intro.oxw matrix.oxw misc.oxw names.oxw \
       number.oxw oxrfc100.oxw \
       poly.oxw print.oxw series.oxw \
-      util.oxw windows.oxw oxshell.oxw load.oxw
+      util.oxw windows.oxw oxshell.oxw load.oxw asir.oxw
 
 ENSRCS = ${SRC:.oxw=.en}
 JASRCS = ${SRC:.oxw=.ja}
 ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en \
          poly-auto.en print-auto.en util-auto.en \
-         oxshell-auto.en
+         oxshell-auto.en asir-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 
 include ../M/Makefile
@@ -96,4 +96,14 @@ oxshell-auto.en: ${CONTRIB}/oxshell.rr
 oxshell-auto.ja: ${CONTRIB}/oxshell.rr
 	cat ${CONTRIB}/oxshell.rr | ${OXWEAVE} usage \
 	| ${OXGENTEXI}   --category oxshell  --ja --upnode "Oxshell Functions" ${OPTGENTEXI} > $@
+
+### asir
+
+asir-auto.en: ${CONTRIB}/names.rr
+	cat ${CONTRIB}/names.rr | ${OXWEAVE} usage \
+	| ${OXGENTEXI}  --category asir --en --upnode "Asir System Utility Functions" ${OPTGENTEXI} > $@
+
+asir-auto.ja: ${CONTRIB}/names.rr
+	cat ${CONTRIB}/names.rr | ${OXWEAVE} usage \
+	| ${OXGENTEXI}   --category asir  --ja --upnode "Asir System Utility Functions" ${OPTGENTEXI} > $@
 
