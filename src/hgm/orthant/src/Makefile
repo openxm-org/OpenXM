@@ -1,19 +1,23 @@
-CC = gcc
-OBJ = hgm_ko_orthant.o main.o
-DEBUG = -O0 -g -D_DEBUG
+# This Makefile is based on ~/OpenXM/src/hgm/so3/src/Makefile
+#CC=gcc
+HEADERS=config.h odeiv_util.h t-gsl_errno.h \
+        t-gsl_math.h t-gsl_odeiv.h t-gsl_sys.h \
+        t-gsl_types.h
+hgm_ko_orthant: make-link hgm_ko_orthant.o 
+	${CC} -o hgm_ko_orthant hgm_ko_orthant.o ../../gsl-t-1/src/gsl-t-1.a -lm -lblas -llapack
+hgm_ko_orthant.o : hgm_ko_orthant.c
+	${CC} -c -D_STANDALONE hgm_ko_orthant.c -D_VERBOSE
 
-all: hgm_ko_orthant 
-
-hgm_ko_orthant: $(OBJ)
-	$(CC) -o $@ $(OBJ) -lm -lblas -llapack
-
-hgm_ko_orthant.so: hgm_ko_orthant.o hgm_ko_orthant_R_interface.c
-	R CMD SHLIB -o hgm_ko_orthant.so hgm_ko_orthant.o hgm_ko_orthant_R_interface.c -llapack
-
-.c.o:
-	$(CC) -c -o $@ $< -Wall $(DEBUG)
-
-.PHONY: clean
-
+make-link:
+	-if [ ! -f .link_done ] ; then \
+	for i in ${HEADERS}; do \
+		ln -s ../../gsl-t-1/src/$$i . ; \
+	done ; \
+	touch .link_done ; \
+	fi
 clean:
-	rm -fv hgm_ko_orthant *.so *.o *~ 
+	rm -f *.o *~ hgm_so3_nc  .link_done 
+	for i in ${HEADERS}; do \
+		rm -f $$i ; \
+	done 
+

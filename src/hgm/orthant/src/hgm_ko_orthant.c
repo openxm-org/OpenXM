@@ -1,514 +1,780 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <cblas.h>
+/* for runge kutta */
+#include "t-gsl_errno.h"
+#include "t-gsl_odeiv.h"
 
-#define XY (0)
-#define XYT (dim*(dim+1))
-#define SIGMA_MU (2*dim*(dim+1))
-#define DYGI (3*dim*(dim+1))
-
-double hgm_ko_orthant(int dimension, double *sigma, double *mu, double rk_step_size);
-
-static int dim;
-static int rank;
-
-static void set_xy(double *x, double *y, const double *sigma, const double *mu);
-static void set_initial_g(double *g, const double *x);
-static void update_xy(double t, double *param);
-static void cal_sigmaI_muI(int I, double *param);
-static void cal_dygI(int I, const double *g, double *param);
-static double get_dxgI(const int i, const int j, const int I, const double *g, const double *param);
-static int function(double t, const double g[], double dg[], void *param);
-static void runge_kutta(double *g, const double *x, const double *y, const double rk_step_size);
-static double get_prob(double g, const double *sigma, const double *mu);
-
-#ifdef _DEBUG
-/* for debugs */
-void test_dgetrf_(void);
-void test_dpotri_(void);
-static void test_function(double t, const double g[], double dg[], void *param);
-void test_runge_kutta(void);
-void test_update_xy(void);
-void test_cal_sigmaI_muI(void);
-
-static void subst(double *Pfaff, double t);
-
-void test1(void);
-void test2(void);
-void test3(void);
+#ifndef _STANDALONE
+#include <R_ext/BLAS.h>
+#include <R_ext/Lapack.h>
 #endif
 
-double 
-hgm_ko_orthant(int dimension, double *sigma, double *mu, double rk_step_size)
-{
-  dim = dimension;
-  rank = 1 << dim;
+void hgm_ko_orthant(int *, double *, double *, double *retv);
 
-  double g[rank], x[dim*dim], y[dim];
-  set_xy(x,y,sigma,mu);
-  set_initial_g(g, x);
-  runge_kutta(g, x, y, rk_step_size);
-  return get_prob(g[rank-1], sigma, mu);
+#ifdef _STANDALONE
+//extern double ddot_(int *n, double *x, int *incx, double *y, int *incy);
+extern void dcopy_(int *, double *, int *, double *, int *);
+extern void dscal_(int *, double *, double *, int *);
+//extern void daxpy_(int *, double *, double *, int *, double *, int *);
+extern void dsymv_(char *uplo, int *n, double *alpha, double *a, int *lda, double *x, int *incx, double *beta, double *y, int *incy);
+
+extern void dpotrf_(char *uplo, int *n, double *a, int *lda, int *info);
+extern void dpotri_(char *uplo, int *n, double *a, int *lda, int *info);
+#endif
+
+static int dim, rank, dimdim;
+static double *delVI;
+static double *X, *X0, *X1, *delx, *sigmaI, *muI;
+static double *Y,*Y1, *dY;
+//static double det_sigma;
+
+#ifdef _VERBOSE
+static void print_vector(FILE *, double *, int, char *);
+static void print_matrix2(FILE *fp, int size, double *matrix,const char *str);
+#endif
+static int check_sigma(double *);
+static double norm(double *);
+static void sigma_mu2xy(double *sigma, double *mu, double *x, double *y);
+static void initialization(double *x, double *y, double *f, double *h);
+static void get_prob(double *);
+static void update_XY(const double );
+static void cal_sigmaI_muI(const int );
+static double cal_det_sigmaI(const int, const int);
+static double cal_sub_quad_form(int I);
+static void cal_del_VI_y(const int I, const double *g);
+static double get_delVI(const int, const int, const int,const double *);
+static int function(double t, const double g[],
+			  double dg[], void *params);
+static void move(double *, double);
+
+#ifdef _VERBOSE
+static FILE *verbose_out;
+void set_verbose_out(FILE *);
+#endif
+
+
+/* gsl-util.c */
+//extern gsl_matrix *array2mat(int n, int m, double **X);
+//extern gsl_vector *array2vec(int n, double *Y);
+//extern void inverse_matrix(gsl_matrix *m, gsl_matrix *invm);
+//extern double determinant(gsl_matrix *);
+//extern double sub_determinant(const gsl_matrix *m, int I);
+//extern  void print_vector(FILE *, double *, int, char *);
+//extern void print_matrix(FILE *fp, int size, double **matrix,const char *str);
+//extern void print_matrix2(FILE *fp, int size, double *matrix,const char *str);
+//extern void print_gsl_matrix(FILE *,gsl_matrix *m, char *str);
+//extern void print_gsl_vector(FILE *, gsl_vector *v, char *str);
+
+/*
+  Evaluating orthant probabilities.
+  d: dimension.
+  x: a symmetric positive definite matrix with size d.
+  y: a vector with length d.
+*/
+void 
+hgm_ko_orthant(int *d, double *sigma, double *mu, double *retv)
+{
+  dim = *d;
+  rank = 1 << dim;   /* rank = 2^dim, see theorem 15 */
+  dimdim = dim * dim;
+#ifdef _VERBOSE
+  fprintf(verbose_out, "dim=%d\nrank=%d\n", dim, rank);
+  print_matrix2(verbose_out, dim,sigma, "sigma"); 
+  print_vector(verbose_out, mu, dim, "mu"); 
+#endif 
+  if(check_sigma(sigma)) /* check that sigma is symmetric and positive definite */
+    exit(EXIT_FAILURE);
+
+  double x[dim*dim], y[dim];
+
+  sigma_mu2xy(sigma, mu, x, y);
+  if(norm(y) > 7.0){ /* norm(y) <- sqrt(y_1^2 +...+y_d^2 ) */
+    fprintf(stderr, "The vector y is large. HGM may take long time!\n");
+  }
+#ifdef _VERBOSE
+  print_matrix2(verbose_out, dim,x, "x"); 
+  print_vector(verbose_out, y, dim, "y"); 
+#endif 
+
+  double *f = (double *)malloc(sizeof(double)*rank);
+  double h = 1e-8; /* h controls the accuracy of the Runge-Kutta method */
+  X = (double*) malloc(sizeof(double) * dim * dim);
+  X0 = (double*) malloc(sizeof(double) * dim * dim);
+  X1 = (double*) malloc(sizeof(double) * dim * dim);
+  delx = (double*) malloc(sizeof(double) * dim * dim);
+  sigmaI = (double *) malloc(sizeof(double) * dim * dim);
+  muI = (double *) malloc(sizeof(double) * dim);
+  delVI = (double *) malloc(sizeof(double) * rank * dim);
+  Y = (double *) malloc(sizeof(double) * dim);
+  Y1 = (double *) malloc(sizeof(double) * dim);
+  dY = (double *) malloc(sizeof(double) * dim);
+
+  initialization(x,y,f,&h);
+#ifdef _VERBOSE
+  fprintf(verbose_out, "h=%g\n", h);
+  print_vector(verbose_out, f, rank, "              Initial values:");
+#endif
+
+  move(f, h); /* holonomic gradient method */
+#ifdef _VERBOSE
+  print_vector(verbose_out, f, rank, "Result of Runge-Kutta method:");
+#endif
+
+  get_prob(f);
+#ifdef _VERBOSE
+  print_vector(verbose_out, f, rank, "               Probabilities:");
+#endif
+
+  double result = f[rank-1];
+  free(f);
+  free(X); free(X0); free(X1);
+  free(delx);
+  free(sigmaI); free(muI);
+  free(delVI);
+  free(Y); free(Y1); free(dY);
+  *retv = result;
+  return;
 }
 
-static void 
-set_xy(double *x, double *y, const double *sigma, const double *mu)
-{
-  int info;
+#ifdef _VERBOSE
+void 
+set_verbose_out(FILE *fp){
+  verbose_out = fp;
+}
+#endif
 
+static void 
+sigma_mu2xy(double *sigma, double *mu, double *x, double *y)
+{
   /* x <- -0.5 * (sigma)^(-1)  */
   /* y <- (sigma)^(-1) * mu  */
-  cblas_dcopy(dim*dim, sigma,1, x,1);
+  int info;
+  int one = 1;
+  double alpha = 1.0, beta = 0.0;
+#ifdef _STANDALONE
+  dcopy_(&dimdim, sigma, &one, x, &one);
   dpotrf_("U", &dim, x, &dim, &info);
   dpotri_("U", &dim, x, &dim, &info);
-  cblas_dsymv(CblasColMajor, CblasUpper, dim, 1.0,x,dim, mu,1, 0.0,y,1);
-  cblas_dscal(dim*dim, -0.5, x, 1);
-}
+  dsymv_("U", &dim, &alpha, x, &dim, mu, &one, &beta, y, &one);
+  alpha = -0.5;
+  dscal_(&dimdim, &alpha, x, &one);
+#else
+  F77_CALL(dcopy)(&dimdim, sigma, &one, x, &one);
+  F77_CALL(dpotrf)("U", &dim, x, &dim, &info);
+  F77_CALL(dpotri)("U", &dim, x, &dim, &info);
+  F77_CALL(dsymv)("U", &dim, &alpha, x, &dim, mu, &one, &beta, y, &one);
+  alpha = -0.5;
+  F77_CALL(dscal)(&dimdim, &alpha, x, &one);
+#endif
+  int i,j;
+  for ( i = 0; i < dim; i++)
+    for ( j = i+1; j < dim; j++)
+      x[j+i*dim] = x[i+j*dim];
+  return;
+  /*
+  gsl_matrix *minus_two_sigma=gsl_matrix_alloc(dim,dim);
+  gsl_matrix *x_gsl=gsl_matrix_alloc(dim,dim);
+  //  double y[dim];
+  
+  int i,j;
+  for(i=0; i<dim; i++)
+    for(j=0; j<dim; j++)
+      gsl_matrix_set(minus_two_sigma, i, j, -2*sigma[i][j]);
 
-static void 
-set_initial_g(double *g, const double *x)
-{
-  int i,I;
-  for(I=0; I<rank; I++){
-    g[I] = 1.0;
-    for(i=0; i<dim; i++)
-      if(I&1<<i)
-	g[I] *= M_PI/(-4*x[i+i*dim]);
-    g[I] = sqrt(g[I]);
+  inverse_matrix(minus_two_sigma, x_gsl);
+
+  for(i=0; i<dim; i++){
+    y[i] = 0.0;
+    for(j=0; j<dim; j++)
+      y[i] += gsl_matrix_get(x_gsl, i, j) * mu[j];
+    y[i] *= -2.0;
+  }  
+
+  for(i=0; i<dim; i++){
+    for(j=0; j<dim; j++)
+      x[i+j*dim] = gsl_matrix_get(x_gsl, i, j);
+    //mu[i] = y[i];
   }
+    
+  gsl_matrix_free(minus_two_sigma);
+  gsl_matrix_free(x_gsl);
+  */
 }
 
+#ifdef _VERBOSE
 static void 
-update_xy(double t, double *param)
+print_vector(FILE *fp, double *v, int length, char *str)
 {
-  cblas_dcopy(dim*(dim+1), param+XY,1,  param+XYT,1);
-  cblas_dscal(dim*(dim+1), t, param+XYT, 1);
-  cblas_dcopy(dim, param+XY,dim+1, param+XYT,dim+1);
+  int i;
+  fprintf(fp, "%s\t", str);
+  for(i=0; i<length; i++)
+    fprintf(fp, "%15.10f ", v[i]);
+  fprintf(fp, "\n");
 }
 
 static void 
-cal_sigmaI_muI(int I, double *param)
+print_matrix2(FILE *fp, int size, double *matrix, const char *str)
+{
+  int i, j;
+
+  fprintf(fp,"%s\n", str);
+  for (i=0; i<size; i++){
+    for(j=0; j<size; j++)
+      fprintf(fp,"%15.10lf ",matrix[i+j*size]);
+    fprintf(fp,"\n");
+  }
+}    
+#endif
+
+static int 
+check_sigma(double *sigma)
+{
+  /* check the symmetricity of sigma */
+  int is_symmetric = 1;
+  int i,j;
+  for(i=0; i<dim; i++)
+    for(j=i+1; j<dim; j++)
+      if(sigma[i+j*dim]!=sigma[j+i*dim]){
+	sigma[i+j*dim]=sigma[j+i*dim]=(sigma[i+j*dim]+sigma[j+i*dim]) * 0.5;
+	is_symmetric = 0;
+      }
+  if(!is_symmetric)
+    fprintf(stderr, "Warning:sigma is not symmetric.\n");
+
+  /* check the positive definiteness of sigma */
+  /*
+  int is_positive_definite = 1;
+  gsl_matrix *gsl_sigma = array2mat(dim, dim, sigma);
+  gsl_vector *e_values = gsl_vector_alloc(dim);
+  gsl_matrix *P = gsl_matrix_alloc(dim, dim);
+  gsl_eigen_symmv_workspace *w = gsl_eigen_symmv_alloc(dim);
+
+  gsl_eigen_symmv(gsl_sigma, e_values, P, w);
+
+#ifdef _VERBOSE
+  print_gsl_vector(verbose_out, e_values, "eigen values of sigma:");
+#endif
+
+  double t;
+  det_sigma=1.0;
+  for(i = 0; i<dim; i++){
+    t= gsl_vector_get(e_values, i);
+    det_sigma *= t;
+    if( t < 0.0)
+      is_positive_definite = 0;
+  }
+  gsl_matrix_free(gsl_sigma);
+  gsl_vector_free(e_values);
+  gsl_matrix_free(P);
+  gsl_eigen_symmv_free(w);
+
+  if(!is_positive_definite){
+    fprintf(stderr,"Error: Sigma is not positive definite.\n");
+    return -1;
+  }
+  */
+  return 0;
+}
+
+static double 
+norm(double *y)
+{
+  double sum = 0.0;
+  int i;
+  for(i=0; i<dim; i++)
+    sum += y[i]*y[i];
+  return sqrt(sum);
+}
+
+static void 
+initialization(double *x, double *y, double *f, double *hp)
 {
   int i,j;
-  for (i = 0; i < dim; i++){
-    if (I & (1<<i)){
-      for (j = 0; j < dim; j++){
-	if (I & (1<<j)){
-	  param[SIGMA_MU+j+i*dim] = param[XYT+j+i*dim];
-	} else {
-	  param[SIGMA_MU+j+i*dim] = 0.0;
-	}
-      }
-    } else {
-      cblas_dscal(dim, 0.0, param+SIGMA_MU+i*dim, 1);
-      param[SIGMA_MU+i+i*dim] = 1.0;
-    } 
-  }
-  for (i = 0; i < dim; i++){
-    if (I & (1<<i)){
-      param[SIGMA_MU+dim*dim+i] = param[XYT+dim*dim+i];
-    } else {
-      param[SIGMA_MU+dim*dim+i] = 0.0;
+
+  for(i=0; i<dim; i++)
+    for(j=0; j<dim; j++){
+      X1[j+i*dim] = x[i+j*dim];
+      if(i==j)
+	X0[j+i*dim] = X1[j+i*dim] ;
+      else
+	X0[j+i*dim] = 0.0;
+      delx[j+i*dim] = -X0[j+i*dim] +X1[j+i*dim];
     }
+  for(i=0; i<dim; i++){
+    Y1[i] = y[i];
+    dY[i] = Y1[i];
   }
 
-  int info;
-  double mu[dim];
-  cblas_dscal(dim*dim, -2.0, param+SIGMA_MU, 1);
-  dpotrf_("U", &dim, param+SIGMA_MU, &dim, &info);
-  dpotri_("U", &dim, param+SIGMA_MU, &dim, &info);
-  cblas_dsymv(CblasColMajor, CblasUpper, dim, 1.0,param+SIGMA_MU,dim, param+SIGMA_MU+dim*dim,1, 0.0,mu,1);
-  cblas_dcopy(dim, mu,1, param+SIGMA_MU+dim*dim,1);
+  /* set the initial value */
+  int I;
+  for(I=0; I<rank; I++){
+    f[I] = 1.0;
+    for(i=0; i<dim; i++)
+      if(I&1<<i)
+	f[I] *= M_PI/(-4*X0[i+i*dim]);
+    f[I] = sqrt(f[I]);
+  }
 }
 
 static void 
-cal_dygI(int I, const double *g, double *param)
+get_prob(double *f)
 {
-  double *delVI = param + DYGI;
-  double *sigmaI = param + SIGMA_MU;
-  double *muI = param + SIGMA_MU + dim*dim;
+  int i, I, deg_I;
+  double power_2pi[dim+1];
+
+  power_2pi[0] = 1.0;
+  for(i=0; i<dim; i++)
+    power_2pi[i+1] = power_2pi[i] * 2*M_PI;
+
+  for(I=1; I<rank; I++){
+    deg_I = 0;
+    for(i=0; i<dim; i++)
+      if(I&1<<i) deg_I++;
+    f[I] /= sqrt( power_2pi[deg_I] * cal_det_sigmaI(I, deg_I) );
+    f[I] *= exp(-0.5 * cal_sub_quad_form(I));
+  }
+}
+
+static void
+update_XY(const double t)
+{
+  int i,j;
+  const double s = 1-t;
+  for(i=0; i<dim; i++){
+    for(j=0; j<dim; j++)
+      if(i==j)
+	X[j+i*dim] = X0[j+i*dim]*s + X1[j+i*dim]*t;
+      else
+	X[j+i*dim] = X1[j+i*dim]*t;
+    Y[i] = t*Y1[i];
+  }
+}
+
+
+static void 
+cal_sigmaI_muI(const int I)
+{
+  int i,j, subi, subj;
+  /* deg_I <- |I| */
+  int deg_I = 0;
+  for(i=0; i<dim; i++)
+    if(I&1<<i)
+      deg_I++;
+  /* cal g_sigmaI */
+  //gsl_matrix *g_sigmaI = gsl_matrix_alloc(deg_I,deg_I);
+  double g_sigmaI[deg_I*deg_I];
+  //gsl_matrix *g_submat  = gsl_matrix_alloc(deg_I,deg_I);
+  double g_submat[deg_I*deg_I];
+  subi = 0;
+  for(i=0; i<dim; i++)
+    if(I&1<<i){
+      subj = 0;
+      for(j=0; j<dim; j++)
+	if(I&1<<j){
+	  //gsl_matrix_set(g_submat, subi, subj, -2.0*X[j+i*dim]);
+	  g_submat[subj+subi*deg_I] = -2.0*X[j+i*dim];
+	  subj++;
+	}
+      subi++;
+    }
+  //inverse_matrix(g_submat, g_sigmaI);
+  int info, n, m;
+  n = m = deg_I;
+#ifdef _STANDALONE
+  dpotrf_("U", &n, g_submat, &m, &info);
+#else
+  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
+#endif
+  //fprintf(stderr, "info=%d\n", info);
+  n = m = deg_I;
+#ifdef _STANDALONE
+  dpotri_("U", &n, g_submat, &m, &info);
+#else
+  F77_CALL(dpotri)("U", &n, g_submat, &m, &info);
+#endif
+  //fprintf(stderr, "info=%d\n", info);
+  for ( i = 0; i < deg_I; i++)
+    for ( j = i; j < deg_I; j++)
+      g_sigmaI[j+i*deg_I] = g_sigmaI[i+j*deg_I] = g_submat[i+j*deg_I];
+
+  /* sigmaI <- g_sigmaI */
+  subi = 0;
+  for(i=0; i<dim; i++)
+    if(I&1<<i){
+      subj = 0;
+      for(j=0; j<dim; j++)
+	if(I&1<<j){
+	  //sigmaI[j+i*dim] = gsl_matrix_get(g_sigmaI, subi, subj);
+	  sigmaI[j+i*dim] = g_sigmaI[subj+subi*deg_I];
+	  subj++;
+	}else if(i==j){
+	  sigmaI[i+j*dim] = 1.0;
+	}else{
+	  sigmaI[i+j*dim] = 0.0;
+	}
+      subi++;
+    }else{
+      for(j=0; j<dim; j++)
+	if(i==j)
+	  sigmaI[i+j*dim] = 1.0;
+	else
+	  sigmaI[i+j*dim] = 0.0;
+    }
+  /* muI <- sigmaI * yI */
+  for(i=0; i<dim; i++){
+    muI[i] = 0.0;
+    if(I&1<<i)
+      for(j=0; j<dim; j++)
+	if(I&1<<j)
+	  muI[i] += sigmaI[j+i*dim] * Y[j];
+  }
+  /* free */
+  // gsl_matrix_free(g_sigmaI);
+  //gsl_matrix_free(g_submat);
+}
+
+static double 
+cal_det_sigmaI(const int I, const int deg_I)
+{
+  int i,j, subi, subj;
+  /* cal g_sigmaI */
+  //gsl_matrix *g_submat  = gsl_matrix_alloc(deg_I,deg_I);
+  double g_submat[deg_I*deg_I];
+  subi = 0;
+  for(i=0; i<dim; i++)
+    if(I&1<<i){
+      subj = 0;
+      for(j=0; j<dim; j++)
+	if(I&1<<j){
+	  //gsl_matrix_set(g_submat, subi, subj, -2*X[j+i*dim]);
+	  g_submat[subj+subi*deg_I] = -2*X[j+i*dim];
+	  subj++;
+	}
+      subi++;
+    }
+  double det = 1.0;
+  int info, n, m;
+  n = m = deg_I;
+  //fprintf(stderr, "cal_det_sigmaI: %d %d ", I, deg_I);
+#ifdef _STANDALONE
+  dpotrf_("U", &n, g_submat, &m, &info);
+#else
+  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
+#endif
+  //fprintf(stderr, "info=%d\n", info);
+  for ( i = 0; i < deg_I; i++)
+    det *= g_submat[i+i*deg_I];
+  det *= det;
+
+  double result = 1.0 / det;
+  //gsl_matrix_free(g_submat);
+  return result;
+}
+
+static double 
+cal_sub_quad_form(int I)
+{
+  int i,j;
+  double s=0.0;
+  cal_sigmaI_muI(I);
+  for(i=0; i<dim; i++)
+    if(I&1<<i)
+      for(j=0; j<dim; j++)
+	if(I&1<<j)
+	  s += Y1[i] * sigmaI[i+j*dim] * Y1[j];
+  return s;
+}
+
+
+static void
+cal_del_VI_y(const int I, const double *g)
+{
   int i,j;
   double *p = delVI + I*dim;
   for(i=0; i<dim; i++){
     *p = 0.0;
     if(I&1<<i){
       *p += muI[i] * g[I];
-      for(j=0; j<i; j++)
+      for(j=0; j<dim; j++)
 	if(I&1<<j)
 	  *p += sigmaI[j+i*dim] * g[I&~(1<<j)];
-      for(j=i; j<dim; j++)
-	if(I&1<<j)
-	  *p += sigmaI[i+j*dim] * g[I&~(1<<j)];
     }
     p++;
   }
-  return;
 }
 
-static double 
-get_dxgI(const int p, const int q,const int I, const double *g, const double *param)
+static double
+get_delVI(const int p, const int q,const int I, const double *g)
 {
   double result;
   int i;
-  const double *delVI = param + DYGI;
-  const double *sigmaI = param + SIGMA_MU;
-  const double *muI = param + SIGMA_MU + dim*dim;
 
   result = sigmaI[q+p*dim] * g[I];
   result += muI[p] * delVI[q+I*dim];
-  for(i=0; i<p; i++)
+  for(i=0; i<dim; i++)
     if((I&1<<i) && i!=q)
       result += sigmaI[i+p*dim] * delVI[q+ (I&~(1<<i))*dim];
-  for(i=p; i<dim; i++)
-    if((I&1<<i) && i!=q)
-      result += sigmaI[p+i*dim] * delVI[q+ (I&~(1<<i))*dim];
   if(p!=q)
     result *= 2.0;
   return result;
 }
 
-static int
-function(double t, const double g[], double dg[], void *param)
+static int 
+function(double t, const double g[], double dg[], void *params)
 {
-  update_xy(t, (double *) param);
-  int I, i, j;
-  double *delVI = (double *)param + DYGI;
-  double *x = (double *)param;
-  double *y = (double *)param + dim*dim;
+  update_XY(t);
 
+  int i,j, I;
   dg[0] = 0.0;
-  for (I = 1; I < rank; I++){
+  for(I=1; I<rank; I++){
     dg[I] = 0.0;
-    cal_sigmaI_muI(I, (double *)param);
-    cal_dygI(I, g, (double *)param);
+    cal_sigmaI_muI(I);
+    cal_del_VI_y(I, g);
     for(i=0; i<dim; i++){
       if(I&1<<i){
-	dg[I] += delVI[i+I*dim] * y[i];
-	for(j=0; j<i; j++) /* X0[i][i] == X1[i][i] */
+	dg[I] += delVI[i+I*dim] * dY[i];
+	for(j=i+1; j<dim; j++) /* X0[i][i] == X1[i][i] */
 	  if(I&1<<j)
-	    dg[I] += get_dxgI(i,j,I,g, (double *)param) * x[j+i*dim];
+	    dg[I] += get_delVI(i,j,I,g) * delx[j+i*dim];
       }
     }
   }
-  return 1;
+  return GSL_SUCCESS;
 }
 
 static void 
-runge_kutta(double *g, const double *x, const double *y, const double rk_step_size)
+move(double g[], double h)
 {
-  /* g'(t) = F(t, g(t)) */
-  double dg[rank], k1[rank],k2[rank], k3[rank], k4[rank];
-  double t = 0.0; /* initial point */
-  double h = rk_step_size;
-  double h2 = 0.5*h;
-  double param[3*dim*(dim+1)+rank*dim];
-  cblas_dcopy(dim*dim, x,1, param,1);
-  cblas_dcopy(dim, y,1, param+dim*dim,1);
+  const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
+  gsl_odeiv_step * s  = gsl_odeiv_step_alloc (T, rank);
+  gsl_odeiv_control * c 
+    = gsl_odeiv_control_y_new (h, 0.0);
+  gsl_odeiv_evolve * e  = gsl_odeiv_evolve_alloc (rank);
 
-  while (t < 1.0){
-    /* k1 <- F(t, g) , dg += k1 */
-    function(t, g, k1, param);
-    cblas_dcopy(rank, k1,1, dg,1);
-
-    /* k2 <- F(t+0.5*h,g+0.5*h*k1), dg += 2*k2 */
-    cblas_dscal(rank, h2, k1, 1);
-    cblas_daxpy(rank, 1.0, g,1, k1,1);
-    function(t+h2, k1, k2, param);
-    cblas_daxpy(rank, 2.0, k2,1, dg,1);
-
-    /* k3 <- F(t+0.5*h,g+0.5*h*k2), dg += 2*k3 */
-    cblas_dscal(rank, h2, k2, 1);
-    cblas_daxpy(rank, 1.0, g,1, k2,1);
-    function(t+h2, k2, k3, param);
-    cblas_daxpy(rank, 2.0, k3,1, dg,1);
-
-    /* k4 <- F(t+h, g+h*k3), dg += k4 */
-    cblas_dscal(rank, h, k3, 1);
-    cblas_daxpy(rank, 1.0, g,1, k3,1);
-    function(t+h2, k3, k4, param);
-    cblas_daxpy(rank, 1.0, k4,1, dg,1);
-
-    /* g += h * dg /6 */
-    cblas_daxpy(rank, h/6.0, dg,1, g,1);
-    t += h;
-    //    fprintf(stderr, "%lf %lf %lf %lf\n", g[0], g[1], g[2], g[3]);
-  }
-  return;
-}
-
-static double 
-get_prob(double g, const double *sigma0, const double *mu)
-{
-  double C = 1.0;
-  C *= 1.0 / pow(2.0*M_PI, 0.5*dim);
-
-  double sigma[dim*dim];
-  int info;
-  cblas_dcopy(dim*dim, sigma0,1, sigma,1);
-  dpotrf_("U", &dim, sigma, &dim, &info);
-
-  double det_sigma = 1.0;
-  int i;
-  for (i = 0; i < dim; i++)
-    det_sigma *= sigma[i+i*dim];
-  C *= 1.0 / det_sigma;
-
-  dpotri_("U", &dim, sigma, &dim, &info);
-  double tmp[dim];
-  cblas_dsymv(CblasColMajor, CblasUpper, dim, 1.0,sigma,dim, mu,1, 0.0,tmp,1);
-  double tmp2 = exp(-0.5 * cblas_ddot(dim, mu, 1, tmp, 1));
-  C *= tmp2;
-  return C*g;
-}
-
-#ifdef _DEBUG
-void test_dgetrf_(void)
-{
-  //  double a[4] = { 1.0, 0.5, 1.0, 0.5};
-  double a[4] = { 1.0, 2.0, 3.0, 4.0};
-  int n = 2;
-  int ipiv[n+1];
-  int info;
-
-  dgetrf_(&n, &n, a, &n, ipiv, &info);
-  printf("a=[%lf %lf %lf %lf]\n", a[0], a[1], a[2], a[3]);
-  printf("ipiv=[%d %d %d]\n", ipiv[0], ipiv[1], ipiv[2]);
-  printf("info=%d\n", info);
-}
-
-void test_dpotri_(void)
-{
-  double a[4] = { 1.0, 0.5, 0.5, 1.0};
-  //double a[4] = { 1.0, 0.0, 0.0, 1.0};
-  char s[] = "U"; /* or "L" */
-  int n = 2;
-  int info;
-
-  printf("a=[%lf %lf %lf %lf]\n", a[0], a[1], a[2], a[3]);
-  dpotrf_(s, &n, a, &n, &info);
-  printf("a=[%lf %lf %lf %lf]\n", a[0], a[1], a[2], a[3]);
-  printf("info=%d\n", info);
-  dpotri_(s, &n, a, &n, &info);
-  printf("a=[%lf %lf %lf %lf]\n", a[0], a[1], a[2], a[3]);
-  printf("info=%d\n", info);
-}
-
-static void 
-test_function(double t, const double g[], double dg[], void *param)
-{
-  dg[0] = g[0];
-  dg[1] = -g[1];
-}
-
-void 
-test_runge_kutta(void)
-{
-  /* for g(t) = [exp(t), exp(-t)], t = 0.0 -> 1.0 */
-  /* g'(t) = F(t, g(t)) */
-  double g[2] = {1.0, 1.0}; /* initial value */
-  rank = 2;
-  double dg[rank], k1[rank],k2[rank], k3[rank], k4[rank];
-  double t = 0.0; /* initial point */
-  double h = 0.0001;
-  double h2 = 0.5*h;
-
-  while (t < 1.0){
-    /* k1 <- F(t, g) , dg += k1 */
-    test_function(t, g, k1, NULL);
-    cblas_dcopy(rank, k1,1, dg,1);
-
-    /* k2 <- F(t+0.5*h,g+0.5*h*k1), dg += 2*k2 */
-    cblas_dscal(rank, h2, k1, 1);
-    cblas_daxpy(rank, 1.0, g,1, k1,1);
-    test_function(t+h2, k1, k2, NULL);
-    cblas_daxpy(rank, 2.0, k2,1, dg,1);
-
-    /* k3 <- Pfaff(t+h/2) * (phi + h/2*k2), dphi += 2*k3 */
-    cblas_dscal(rank, h2, k2, 1);
-    cblas_daxpy(rank, 1.0, g,1, k2,1);
-    test_function(t+h2, k2, k3, NULL);
-    cblas_daxpy(rank, 2.0, k3,1, dg,1);
-
-    /* k3 <- Pfaff(t+h) * (phi + h*k3), dphi += k4 */
-    cblas_dscal(rank, h, k3, 1);
-    cblas_daxpy(rank, 1.0, g,1, k3,1);
-    test_function(t+h2, k3, k4, NULL);
-    cblas_daxpy(rank, 1.0, k4,1, dg,1);
-
-    /* phi += h * dphi /6 */
-    cblas_daxpy(rank, h/6.0, dg,1, g,1);
-    t += h;
-  }
-  printf("g(1)=[%lf %lf]\n", g[0], g[1]);
-}
-
-void 
-test_update_xy(void)
-{
-  dim = 2;
-  double params[12] = {1.0,2.0,3.0,4.0, 5.0,6.0, 0,0,0,0, 0,0};
-  update_xy(0.5, params);
-  int i;
-  for ( i = 0; i < 12; i++)
-    printf("%lf ", params[i]);
-  printf("\n");
-}
-
-void 
-test_cal_sigmaI_muI(void)
-{
-  dim = 2;
-  double param[18] = {0,0,0,0,0,0, -0.5,0,0,-0.5,1,0, 0,0,0,0,0,0};
-  //double param[18] = {0,0,0,0,0,0, 2,1,1,5,1,2, 0,0,0,0,0,0};
-  //double param[18] = {0,0,0,0,0,0, 1,0.5,0.5,1,1,2, 0,0,0,0,0,0};
-  cal_sigmaI_muI(3, param);
-  printf("%lf %lf\n%lf %lf\n%lf %lf\n\n", param[12],param[14],param[13],param[15],param[16],param[17]);
-  cal_sigmaI_muI(2, param);
-  printf("%lf %lf\n%lf %lf\n%lf %lf\n\n", param[12],param[14],param[13],param[15],param[16],param[17]);
-  cal_sigmaI_muI(1, param);
-  printf("%lf %lf\n%lf %lf\n%lf %lf\n\n", param[12],param[14],param[13],param[15],param[16],param[17]);
-  return;
-}
-
-void 
-subst(double Pfaff[], double t)
-{
-  Pfaff[24] = -0.5 * t; /* 3 + 3*7 */
-  Pfaff[40] = -t;       /* 5 + 5*7 */
-  Pfaff[48] = -t;       /* 6 + 6*7 */
-}
-
-
-#define TEST1rank 7
-
-
-void test1()
-{
-  double phi[TEST1rank] = {0, 0, 0, 0, 1, 1, 1};
-  double Pfaff[TEST1rank*TEST1rank] = {
-    0, 0, 0, 1, 0,       0,       0,
-    0, 0, 0, 0, 0,       0,       1,
-    0, 0, 0, 0, 0,       1,       0,
-    0, 0, 0, 0, 0, 1.0/2.0, 1.0/2.0,
-    0, 0, 0, 0, 0,       0,       0,
-    0, 0, 0, 0, 0,       0,       0,
-    0, 0, 0, 0, 0,       0,       0
-  };
+  gsl_odeiv_system sys = {function, NULL, rank, NULL};
   double t = 0.0;
-  double h = 0.001;
-  double h2 = 0.5*h;
 
-  double k1[TEST1rank],k2[TEST1rank],k3[TEST1rank],k4[TEST1rank],dphi[TEST1rank];
-
-  int i;
-
-  while (t < 10){
-    /* k1 <- Pfaff(t) * phi , dphi += k1 */
-    subst(Pfaff,t); 
-    cblas_dgemv(CblasRowMajor, CblasNoTrans,TEST1rank,TEST1rank, 1.0,Pfaff,TEST1rank, phi,1, 0.0,k1,1);
-    cblas_dcopy(TEST1rank, k1,1, dphi,1);
-
-    /* k2 <- Pfaff(t+h/2) * (phi + h/2*k1), dphi += 2*k2 */
-    subst(Pfaff,t+h2); 
-    cblas_dscal(TEST1rank, h2, k1, 1);
-    cblas_daxpy(TEST1rank, 1.0, phi,1, k1,1);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans,TEST1rank,TEST1rank, 1.0,Pfaff,TEST1rank, k1,1, 0.0,k2,1);
-    cblas_daxpy(TEST1rank, 2.0, k2,1, dphi,1);
-
-    /* k3 <- Pfaff(t+h/2) * (phi + h/2*k2), dphi += 2*k3 */
-    cblas_dscal(TEST1rank, h2, k2, 1);
-    cblas_daxpy(TEST1rank, 1.0, phi,1, k2,1);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans,TEST1rank,TEST1rank, 1.0,Pfaff,TEST1rank, k2,1, 0.0,k3,1);
-    cblas_daxpy(TEST1rank, 2.0, k3,1, dphi,1);
-
-    /* k3 <- Pfaff(t+h) * (phi + h*k3), dphi += k4 */
-    subst(Pfaff,t+h); 
-    cblas_dscal(TEST1rank, h, k3, 1);
-    cblas_daxpy(TEST1rank, 1.0, phi,1, k3,1);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans,TEST1rank,TEST1rank, 1.0,Pfaff,TEST1rank, k3,1, 0.0,k4,1);    
-    cblas_daxpy(TEST1rank, 1.0, k4,1, dphi,1);
-
-    /* phi += h * dphi /6 */
-    cblas_daxpy(TEST1rank, h/6.0, dphi,1, phi,1);
-    t += h;
+  while (t < 1.0){
+    int status = gsl_odeiv_evolve_apply (e, c, s, &sys,
+					 &t, 1.0, &h, g);
+    if (status != GSL_SUCCESS)
+      break;
+#ifdef _DEBUG
+    fprintf(stderr, "t=%f\n", t);
+    print_vector(stderr, g, rank, "g:");
+#endif
+    
   }
+  /* free */
+  gsl_odeiv_evolve_free (e);
+  gsl_odeiv_control_free (c);
+  gsl_odeiv_step_free (s);
+}
+
+
+#ifdef _STANDALONE
+#include<stdio.h>
+#include<stdlib.h>
+#include<getopt.h> 
+#include<string.h>
+
+static int input_data(FILE *fp, int *dim, double *data);
+static void gen_data_tri_diag(void);
+static void gen_data_same_non_diag(void);
+static void gen_data_random(int dim);
+//extern double orthant(int *dim, double *x, double *y);
+//extern void set_verbose_out(FILE *);
+
+#define frand() ((double) rand()/((double)RAND_MAX+1))
+#define MAX_DIM  32
+#define MAX_DATA 1056 /*  32*32 + 32  */
+
+#define CASE_GEN_DATA_TRI_DIAG 1
+#define CASE_GEN_DATA_SAME_NON_DIAG 2
+#define CASE_GEN_DATA_RANDOM 3
+
+int main(int argc, char *argv[])
+{
+  FILE *ifp = stdin, *ofp=stdout;
+  int dim;
+  char log_file[100] = "log";
+
+  int c;
+  while (1) {
+    int option_index = 0;
+    static struct option long_options[] = {
+      {"file", 1, 0, 'f'},
+      {"gen_data_tri_diag", 0, 0, 0},
+      {"gen_data_same_non_diag", 0, 0, 0},
+      {"gen_data_random", 1, 0, 0},
+      {0,0,0,0}                 
+    };
+
+    c = getopt_long(argc, argv, "f:",
+		    long_options, &option_index);
   
-  phi[0] *= 1.0 / (2*M_PI);
-  phi[1] *= 1.0 / sqrt(2*M_PI);
-  phi[2] *= 1.0 / sqrt(2*M_PI);
-  phi[3] *= 1.0 / sqrt(2*M_PI);
+    if (c == -1)
+      break;
+    
+    switch (c) {
+    case 0: /* long option */
+      switch(option_index){
+      case CASE_GEN_DATA_TRI_DIAG:
+	gen_data_tri_diag();
+	return 0;
+	break;
+      case CASE_GEN_DATA_SAME_NON_DIAG:
+	gen_data_same_non_diag();
+	return 0;
+	break;
+      case CASE_GEN_DATA_RANDOM:
+	sscanf(optarg, "%d", &dim);
+	gen_data_random(dim);
+	return 0;
+	break;
+      default:
+	fprintf(stderr,"Error:unknown option\n");
+	return -1;
+	break;
+      }
+      break;
+    case 'f':
+      ifp = fopen(optarg, "r");
+      if(ifp == NULL){
+	fprintf(stderr, "Error: can not open %s.\n", optarg);
+	exit(EXIT_FAILURE);
+      }
+      sprintf(log_file, "%s.log", optarg);
+      ofp = fopen(log_file, "w");
+      if(ofp == NULL){
+	fprintf(stderr, "Error: can not open %s.\n", log_file);
+	exit(EXIT_FAILURE);
+      }
+      break;
+    default:
+      printf("?? getopt returned character code 0%o ??\n", c);
+    }
+  }
 
-  for (i = 0; i < TEST1rank; i++)
-    printf("%lf ", phi[i]);
+#ifdef _VERBOSE
+  set_verbose_out(ofp);
+#endif
+
+  double data[MAX_DATA];
+  input_data(ifp, &dim, data);
+
+  double *x = data;
+  double *y = data + dim*dim;
+
+  double result;
+  hgm_ko_orthant(&dim, x, y, &result);
+  printf("probability=%10.9f\n", result);
+ 
+  if(ifp!=stdin)
+      fclose(ifp);
+  if(ofp!=stdout)
+      fclose(ofp);
+
+  return 0;
+}
+
+int 
+input_data(FILE *fp, int *dim, double *data)
+{
+  fscanf(fp, "%d", dim);
+  int i;
+  double length = *dim * (*dim+1);
+  double *p = data;
+  for(i=0; i< length; i++)
+    fscanf(fp, "%lf", p++); 
+  return 0;
+}
+
+static void 
+gen_data_tri_diag(void)
+{
+  int dim;
+  double rho;
+  fprintf(stderr, "dim=");
+  scanf("%d", &dim);
+  fprintf(stderr, "rho=");
+  scanf("%lf",&rho);
+
+  int i,j;
+  printf("%d\n\n",dim);
+  for(i=0; i<dim; i++){
+    for(j=0; j<dim; j++)
+      if(i==j)
+	printf("%f ",1.0);
+      else if(i-j==1 || i-j==-1)
+	printf("%f ",rho);
+      else
+	printf("%f ",0.0);
+    printf("\n");
+  }
   printf("\n");
-
-
-  return;
+  for(i=0; i<dim; i++)
+    	printf("%f ",0.0);
+  printf("\n");
 }
 
-void 
-test2(void)
+static void 
+gen_data_same_non_diag(void)
 {
-  /*
-    g:	   1.0000000000    1.2533141373    1.2533141373    1.5707963268 
-    probability=0.250000000
-    double sigma[4] = { 1.0, 0.0, 0.0, 1.0};
-    double mu[2] = {0.0, 0.0};
-    OK!
+  int dim;
+  double rho;
+  fprintf(stderr, "dim=");
+  scanf("%d", &dim);
+  fprintf(stderr, "rho=");
+  scanf("%lf",&rho);
 
-    g:	   1.0000000000    3.4770518132    1.2533141373    4.3578381936 
-    probability=0.420672373
-    double sigma[4] = { 1.0, 0.0, 0.0, 1.0};
-    double mu[2] = {1.0, 0.0};
-    OK!
-
-    result = 0.707860982 
-    g:	   1.0000000000    3.4770518117    3.4770518117   12.0898893056 
-    double sigma[4] = { 1.0, 0.0, 0.0, 1.0};
-    double mu[2] = {1.0, 1.0};
-    OK!
-
-    g:	   1.0000000000    2.5481580894    1.0854018818    5.6544969464 
-    probability=0.630283928
-  */
-  double sigma[4] = { 1.0, 0.5, 0.5, 1.0};
-  double mu[2] = {1.0, 0.5};
-
-  dim = 2;
-  rank = 1 << dim;
-  printf("dim=%d, rank=%d\n", dim, rank);
-
-  double x[dim*dim], y[dim];
-  set_xy(x,y,sigma,mu);
-  printf("x=[%lf %lf]\n", x[0], x[2]);
-  printf("  [%lf %lf]\n",  0.0, x[3]);
-  printf("y=[%lf %lf]\n", y[0], y[1]);
-
-  double g[rank];
-  set_initial_g(g, x);
-  printf("g=[%lf %lf %lf %lf]\n", g[0], g[1], g[2], g[3]);
-
-  runge_kutta(g, x, y, 1e-03);
-  printf("g=[%lf %lf %lf %lf]\n", g[0], g[1], g[2], g[3]);
-
-  double result = get_prob(g[rank-1], sigma, mu);
-  printf("prob=%lf\n", result);
-  return ;
+  int i,j;
+  printf("%d\n\n",dim);
+  for(i=0; i<dim; i++){
+    for(j=0; j<dim; j++)
+      if(i==j)
+	printf("%f ",1.0);
+      else
+	printf("%f ",rho);
+    printf("\n");
+  }
+  printf("\n");
+  for(i=0; i<dim; i++)
+    	printf("%f ",0.0);
+  printf("\n");
 }
 
-void 
-test3(void)
+static void 
+gen_data_random(int dim)
 {
-  /*
-    g:	   1.0000000000    2.5481580894    1.0854018818    5.6544969464 
-    probability=0.630283928
-  */
-  double sigma[4] = { 1.0, 0.5, 0.5, 1.0};
-  double mu[2] = {1.0, 0.5};
+  int i,j,k;
+  double x[dim][dim], sigma[dim][dim],s;
+  for(i=0; i<dim; i++)
+    for(j=0; j<dim; j++)
+      if(i<j)
+	x[i][j] = 0.0;
+      else
+	x[i][j] = frand();
 
-  //set_rk_step_size(1e-6);
-  double prob = hgm_ko_orthant(2, sigma, mu, 1e-3);
-  printf("%lf\n", prob);
+  for(i=0; i<dim; i++)
+    for(j=i; j<dim; j++){
+      s = 0.0;
+      for(k=0; k<dim; k++)
+	s += x[i][k]*x[j][k];
+      sigma[i][j] = sigma[j][i] = s;
+    }
+
+  printf("%d\n\n",dim);
+  for(i=0; i<dim; i++){
+    for(j=0; j<dim; j++)
+	printf("%f ",sigma[i][j]);
+    printf("\n");
+  }
+  printf("\n");
+  for(i=0; i<dim; i++)
+    printf("%f ",frand());
+  printf("\n");
 }
+
 #endif

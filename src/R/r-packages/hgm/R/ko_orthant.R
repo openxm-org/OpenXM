@@ -28,7 +28,7 @@ hgm.ko.ncorthant <- function(x,y,rk_step_size=1e-3){
 	 return(NULL);
       }
 
-      .C("hgm_ko_orthant_R",
+      .C("hgm_ko_orthant",
 	as.integer(dim),
 	as.double(t(x)), 
 	as.double(y),

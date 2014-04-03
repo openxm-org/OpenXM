@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.1 2014/03/24 05:28:17 takayama Exp $
 \name{hgm.ncorthant}
 \alias{hgm.ncorthant}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -61,10 +61,12 @@ Tamio Koyama
 ## =====================================================
 ## Example 1. Computing the orthant probability
 ## =====================================================
-x<-matrix(c(1, 0.5, 0.5, 1),nrow=2)
-y<-c(1.0, 0.5)
+x <- matrix(c(15,26,23,19,
+	      26,47,46,35,
+	      23,46,65,38,
+	      19,35,38,33), nrow =4) 
+y <- c(1,2,3,4)
 hgm.ncorthant(x,y)
-
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
