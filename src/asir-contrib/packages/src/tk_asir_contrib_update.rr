@@ -1,16 +1,17 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.3 2014/03/29 11:16:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.4 2014/03/29 23:05:57 takayama Exp $ */
 /*
   We assume that
   (1) curl is installed in asir/bin
-  (2) %APPDATA%\asir\lib-asir-contrib is in the top of your search path.
+  (2) %APPDATA%\OpenXM\lib\asir-contrib is in the top of your search path.
 */
-
+extern Tk_UpdateCC$
 module tk_asir_contrib_update;
 localf ostype;
 localf mymessage;
 localf asir_contrib_update;
 localf myshell;
 localf mystrtoascii;
+localf contain_space; /* should be moved to tk_util.rr */
 localf asir_contrib_update_win;
 
 def ostype() {
@@ -22,15 +23,18 @@ def ostype() {
   }
   return OS;
 }
+def contain_space(S) {
+  if (base_subsetq(strtoascii(" "),strtoascii(S))) return 1;
+  else return 0;
+}
 def mymessage(OS) {
-   printf("The asir-contrib library will be updated to the HEAD branch with the command asir_contrib_update(|update=1)\n");
-   printf("Note that it might cause troubles because of an incompatibility of the binary asir and the asir-contrib\n");
+   printf("The asir-contrib library and/or other update files provided on our web will be updated to the HEAD branch with the command asir_contrib_update(|update=1)\n");
+   printf("Note that it might cause troubles because of an incompatibility of the binary asir and the asir-contrib.\n");
    printf("If you understand this risk and want to update to the HEAD branch, execute the command above.\n");
    if (OS == "Windows") {
-     printf("It is installed under "+getenv("APPDATA")+"\\asir\\lib-asir-contrib\n");
+     printf("It is installed under "+getenv("APPDATA")+"\\OpenXM\n");
    }
-   printf("The following command will be executed with the option update=1.\n");
-   printf("--------------------------------------------------------------\n");
+   printf("The following command will be executed with the following options.\n");
 }
 def asir_contrib_update() {
   Opt=getopt();
@@ -42,15 +46,20 @@ def asir_contrib_update() {
   }
 }
 def myshell(S) {
-  print(S); shell(S);
+  printf("%a",S); if (shell(S)) printf(" -->failed.\n"); else printf("\n");
 }
 def mystrtoascii(S) {
   if (type(S) != 7) return [];
   else return strtoascii(S);
 }
+/*
+options.
+update, clean, url, zip_files, tmp, install_dir
+*/
 def asir_contrib_update_win() {
   Update = 0;
   Clean = 0;
+  Tk_UpdateCC = [];
   if (type(getopt(update)) <= 0) {
   }else{
     Update=getopt(update);
@@ -58,35 +67,49 @@ def asir_contrib_update_win() {
   if (type(getopt(clean)) <= 0) { } else { Clean=1;}
   if (!Update && !Clean) mymessage("Windows");
   MyCurl = "\""+getenv("ASIR_ROOTDIR")+"bin\\curl\""; 
-  /* MyCurl = "%ASIR_ROOTDIR%bin\\curl" ; */
-  MyTmp = getenv("TEMP");
-  InstallDir=getenv("APPDATA")+"\\asir\\";
-  C1=MyCurl+" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"+"\""+MyTmp+"\\lib-asir-contrib.zip\""+" 2> "+"\""+MyTmp+"\\lib-asir-contrib-update-error.txt\"";
-  /* dir && pause */
-  C2rm1="del /S/Q "+"\""+InstallDir+"lib-asir-contrib\\*\"";
-  C2rm2="rmdir /S/Q "+"\""+InstallDir+"lib-asir-contrib\"";
-  C2mkdir = "mkdir /S/Q "+"\""+InstallDir+"\"";
-/*  C2="unzip -o "+"\""+MyTmp+"\\lib-asir-contrib.zip\" -d "+"\""+InstallDir+"\""; 
-   It cause an error like 
-                 unable to process lib-asir-contrib/y_prime/Makefile.
- checkdir error:  cannot create c:/users/nobuki/appdata/roaming/asir"/lib-asir-co
-ntrib
-                 Invalid argument
-  */ 
-  C2="unzip -o "+"\""+MyTmp+"\\lib-asir-contrib.zip\" -d "+InstallDir;
-  if (!Update && !Clean) {
+  if (type(getopt(tmp))<=0) MyTmp = getenv("TEMP");
+  else MyTmp = getopt(tmp);
+  if (type(getopt(install_dir))<=0) InstallDir0=getenv("APPDATA")+"\\OpenXM";
+  else InstallDir0 = getopt(install_dir);
+  InstallDir=InstallDir0+"\\";
+  UserDesktop=getenv("USERPROFILE")+"\\Desktop";
+  if (contain_space(InstallDir0)) error("Error: install_dir="+InstallDir0+" contains space characters.");
+  if (contain_space(MyTmp)) error("Error: tmp="+MyTmp+" contains space characters");
+  if (type(getopt(url)) <=0) Url = "http://www.math.kobe-u.ac.jp/OpenXM/Current";
+  else Url=getopt(url);
+  if (type(getopt(zip_files))<=0) ZipFiles = ["lib-asir-contrib.zip"];
+  else ZipFiles=getopt(zip_files);
+
+  C2move="move /Y " + "\""+InstallDir0+"\"" + " \""+UserDesktop+"\\asir-lib-trash\"";
+  C2mkdir = "mkdir  "+"\""+InstallDir+"\"";
+  for (I=0; I<length(ZipFiles); I++) {
+   ZipFile=ZipFiles[I];
+   C1=MyCurl+" "+Url+"/"+ZipFile+" >"+MyTmp+"\\"+ZipFile+" 2> "+MyTmp+"\\asir-contrib-update-error.txt";
+   C2="unzip -o "+"\""+MyTmp+"\\"+ZipFile+"\" -d "+InstallDir;
+   if (!Update && !Clean) {
+    print("---- update=1 ------");
     print(C1);  
-    print(C2rm1); print(C2rm2); print(C2mkdir); 
-    print(C2); 
+    print(C2mkdir); 
+    print(C2);
+    print("----- clean=1 ------");
+    print(C2move); 
     printf("---------------------------------------------------\n"); 
-  }
-  if (Clean == 1) {
-    myshell(C2rm1); myshell(C2rm2);
-  }
-  if (Update == 1) {
-    myshell(C1); myshell(C2rm1); myshell(C2rm2); myshell(C2mkdir); myshell(C2);
+   }
+   if (Clean == 1) {
+    myshell(C2move);
+    print("Please clean asir-lib-trash on your desktop by hand.");
+   }
+   Tk_UpdateCC=cons([C1,C2mkdir,C2move,C2],Tk_UpdateCC);
+   if (Update == 1) {
+    myshell(C1); myshell(C2mkdir); myshell(C2);
+   }
   }
 }
 endmodule;
 
 end$
+/* Note on Windows.
+Redirected files must not be enclosed by " for system()
+CC2="dir > \"\\users\\math\\t.txt\""; shell(CC2); will cause an error.
+"C:\Users\math\Desktop\asir\bin\curl" http://www.math.kobe-u.ac.jp/OpenXM/Current/lib-asir-contrib.zip >"C:\Users\math\AppData\Local\Temp\lib-asir-contrib.zip" 2> "C:\Users\math\AppData\Local\Temp\asir-contrib-update-error.txt"
+*/
