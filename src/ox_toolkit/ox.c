@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.35 2013/10/20 14:58:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.36 2013/10/20 15:29:12 iwane Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -393,8 +393,10 @@ static void receive_mpz(OXFILE *oxfp, mpz_ptr mpz)
     int *ptr;
     if (n == 1) {
         resize_mpz(mpz, size);
-    } else {
+    } else if (size >= 0) {
         resize_mpz(mpz, (size+1) / n);
+    } else {
+        resize_mpz(mpz, (size-1) / n);
     }
 
     ptr = (int *)mpz->_mp_d;
@@ -715,7 +717,13 @@ static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
 	int n = sizeof(mpz->_mp_d[0]) / sizeof(int);
     int len = abs(mpz->_mp_size) * n;
 	int *ptr = (int *)mpz->_mp_d;
+    int size;
     send_int32(oxfp, mpz->_mp_size * n);
+    if (len > 0 && ptr[len-1] == 0) {
+        len--;
+    }
+    size = mpz->_mp_size < 0 ? -len : len;
+    send_int32(oxfp, size);
     for(i=0; i<len; i++) {
         send_int32(oxfp, ptr[i]);
     }
