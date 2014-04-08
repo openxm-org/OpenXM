@@ -1,7 +1,10 @@
 #CC=gcc
 AR=ar
 RANLIB=ranlib
-gsl-t-1.a: t-control.o t-cstd.o t-evolve.o t-rkf45.o t-step.o t-coerce.o t-error.o 	
+OBJS=t-control.o t-cstd.o t-evolve.o t-rkf45.o t-step.o t-coerce.o t-error.o 
+.c.o: 
+	${CC} -c -O2 $<
+gsl-t-1.a: ${OBJS}
 	if [ ${AR} = ar ]; then \
 	ar ru gsl-t-1.a *.o ; \
 	else \

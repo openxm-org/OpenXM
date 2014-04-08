@@ -10,3 +10,6 @@
 /* gsl_machine.h */
 #define GSL_DBL_MIN        2.2250738585072014e-308
 #define DBL_MIN  GSL_DBL_MIN   /* OK? cf. ieee-utils/test.c */
+
+#include "t-gsl_sys.h"     /* double gsl_coerce_double(double) is declared here */
+
