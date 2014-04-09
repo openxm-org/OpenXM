@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.15 2003/12/20 13:38:04 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.16 2008/07/17 15:01:10 iwane Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -101,6 +101,11 @@ line of the input file is strongly recommended.
 実際のプログラムの書き方は, @pxref{ユーザ言語 Asir}.
  テキストファイルを読み込む場合, @code{cpp} 
 を通すので, C のプログラム同様 @code{#include}, @code{#define} を使うことができる. 
+unix 版では, システムにインストールされている @code{cpp} を利用している.
+Windows 版では @code{mcpp} @url{http://mcpp.sourceforge.net} を用いている.
+これには行の長さに制限があるので注意.
+unix/OpenXM 版(Mac 用 cfep/asir を含む)では @code{OpenXM/bin/ox_cpp} を用いている.
+これは Portable C compiler @url{http://pcc.ludd.ltu.se} に附属する @code{cpp} である.
 @item
 指定したファイルが存在した時には 1 を返し, 存在しなかった時は 0 を返す. 
 @item
@@ -127,6 +132,12 @@ See @ref{User language Asir} for practical programming.
 Since text files are read through @code{cpp},
 the user can use, as in C programs, @code{#include} and @code{#define}
 in @b{Asir} program source codes.
+The @code{cpp} which is installed to the system with a C compler is used in the unix version.
+The @code{mcpp} @url{http://mcpp.sourceforge.net} is used in the Windows version.
+Note that the length of a line has a limit for an input @code{mcpp}.
+The @code{OpenXM/bin/ox_cpp} is used in the unix/OpenXM version
+(including cfep/asir for MacOS X).
+This is the @code{cpp} distributed with the  Portable C compiler @url{http://pcc.ludd.ltu.se}.
 @item
 It returns 1 if the designated file exists, 0 otherwise.
 @item
