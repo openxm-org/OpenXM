@@ -1,3 +1,4 @@
+# $OpenXM$
 #dyn.load("hgm_ko_orthant.so")
 if (!is.loaded("hgm")) library.dynam("hgm",package="hgm",lib.loc=NULL);
 
