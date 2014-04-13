@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.1 2014/03/26 07:26:29 takayama Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -25,12 +25,13 @@ def cbase(A) {
   E=T0[0];
   T=T0[1];
   V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
-  Gt=nd_gr(T,Vd,0,1);
+  Gt=nd_gr(T,Vd,0,0);
   dp_ord(0); /* rev lex */
-  T2=map(dp_ptod,T,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
 
   Er=base_replace(E,genrule_p(Vb)); /* prob method */
-  Er=E; print(T2);
+  printf("We use a probabilistic algorithm to determine the base."); /*Er=E;*/
+  print(T2);
   OrdM=poly_r_omatrix(length(V));
   Vall=append(V,Vd);
   G=nd_weyl_gr(append(Er,T2),Vall,0,OrdM);
