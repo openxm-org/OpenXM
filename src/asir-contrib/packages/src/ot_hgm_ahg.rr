@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.1 2014/03/26 07:26:29 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.2 2014/04/13 02:14:52 takayama Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -910,5 +910,87 @@ dabs(A-B);
 5.151314486e-09
 
 */
+
+def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
+	if(StdMon != reverse(cbase(A))) {
+		/* error! */
+		return 0;
+	}
+	Row = length(A); Col = length(A[0]);
+	V  = base_var_list(x,1,Col);
+	DV = base_var_list(dx,1,Col);
+	Vb = base_var_list(b_,1,Row);
+    Vall = append(V,Vb);
+
+    Disc_R2=get_mat2(A,W,StdMon,Mset);
+    Disc_R=Disc_R2[0];
+    MatData=Disc_R2;
+
+    Eqn = get_eqn2(Disc_R2,Vall,append(Line, B));
+    TT = Eqn[1];
+    SS = Eqn[2];
+
+    Toric=mytoric(A,W)[1];
+    Table = mk_table(DV,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT);
+
+	Z = base_prune(0,map(var,Line))[0];  
+    for(P=0,I=0; I<Col; I++) {
+		Dir = diff(Line[I],Z);
+		if(Dir!=0) {
+			PfI = mapat(oh_base.assoc_match,1,Table,DV[I]*ltov(StdMon));
+			P += Dir*PfI;
+		}
+    }
+    Func=[P,[[Z],SS],Eqn];
+
+    return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn );
+}
+
+def test100 () {
+    /* from ud-c11.rr */
+    A = [
+        [1,0,0,1,1,0,1],
+        [0,1,0,1,0,1,1],
+        [0,0,1,0,1,1,1]];
+	Row = length(A); Col = length(A[0]);
+    W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+    Mset=[1,dx5,dx6,dx7,
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+          dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+          dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+          dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+          dx5*dx5,dx5*dx6,dx5*dx7,
+          dx6*dx6,dx6*dx7,
+          dx7*dx7];
+
+    StdMon = [1,dx7,dx6,dx5,dx4,dx7^2];
+    Line = [-10/11,-13/10,-8/7,(-41/43)*z,(-10/12)*z,(-25/23)*z,(-37/39)*z];
+    Bdat = [-15/10, -26/10, -37/10];
+
+#if 1
+    /* an initial value at Z=0.001 */
+    InitValFloat=[ 1.834885668779896312, 
+                   18.96517485446140242, 
+                   11.70294822085786770, 
+                   9.609467131879854119, 
+                   5.920492560166507569, 
+                   564.0635393469870808 ];    /* 同じ場所．漸近展開による. */
+    InitVal=map(float2rat,InitValFloat,6);
+    Start = 1/10^3;
+	End = 1/10;
+    H = 1/10^6;
+#endif
+
+#if 0
+    /* an initial value at Z=0.1 */
+    InitValFloat=[0.457392904554, 1.305954410928, 1.533103031020, 1.067058892481, 0.595251972063, 7.940707579700];
+    InitVal=map(float2rat,InitValFloat,12);
+    Start = 1/10;
+	End = 25/100;
+    H = 1/10^4;
+#endif
+	return hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H);
+}
 
 end$
