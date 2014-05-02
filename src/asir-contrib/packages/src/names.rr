@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.126 2014/03/28 02:17:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.127 2014/04/03 07:34:30 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -265,6 +265,7 @@ def base_subsets_of_size(K,S) {
  base_sum returns the sum of Obj where K runs in [B,T].
  Options are qt=1 (keep quote data), step (step size).
  When B is a list, K runs in B and T is ignored.
+ When K is 0, then Obj is assumed to be a list or vector and Obj[B]+...+Obj[T] is returned.
  example: base_sum(k^2,k,1,10);
  example: base_sum(quote(x^2),x,1,10 | qt=1, step=0.5);
  example: base_sum(quote(x^2),x,[a,b,c],0 | qt=1);
@@ -619,6 +620,18 @@ end: */
 def poly_ideal_saturation(I,J,V) { 
   Opt = getopt();
   return noro_pd.ideal_sat(I,J,V | option_list=Opt);
+}
+
+/*&usage begin: poly_coefficient(F,Deg,V)
+ It returns the coefficient of V^Deg in F.
+ F may be rational or list or vector.
+ example:
+  F=[(x+y+z)^10/z^2,(x-y+z)^10/z^3]$
+  poly_coefficient(F,10,x);
+end: */
+def poly_coefficient(F,Deg,V) {
+  Opt = getopt();
+  return taka_poly_coefficient(F,Deg,V | option_list=Opt);
 }
 
 
@@ -1127,6 +1140,10 @@ def a_hypergeometric_bfunction(A,V,S) {
   It updates the asir-contrib library and/or some other files to the HEAD branch.
   The usage will be shown by asir_contrib_update() without the option update.
   Options are update, clean, url, install_dir, zip_files, tmp.
+  Default values update=0, clean=0, url="http://www.math.kobe-u.ac.jp/OpenXM/Current", 
+  install_dir=$USERPROFILE/APPDATA/Roaming/OpenXM (win) or 
+  install_dir=$HOME/.OpenXM/OpenXM (others)
+  zip_files=["lib-asir-contrib.zip"]
   example: 
    asir_contrib_update();
    asir_contrib_update(|update=1);

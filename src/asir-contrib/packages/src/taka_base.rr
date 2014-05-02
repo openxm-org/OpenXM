@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.28 2012/01/28 04:12:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.29 2012/02/27 23:27:32 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -317,6 +317,11 @@ def taka_base_sum(Obj,Ksym,S,T) {
   Step=1;
   if (type(getopt(qt))>=0) KeepQuote=1;
   if (type(getopt(step))>=0) Step=getopt(step);
+  if (Ksym == 0) {
+    L = 0;
+    for (I=S; I<=T; I++) L += Obj[I];
+    return(L);
+  }
   L=0;
   if (type(S) != LIST) {
     for (K=S;K<=T; K += Step) {

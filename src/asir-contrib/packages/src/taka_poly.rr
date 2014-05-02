@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.27 2012/02/28 23:14:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.28 2012/02/28 23:25:24 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -823,6 +823,19 @@ def taka_poly_ord_w(F,V,W) {
   return(G);
 }
 
+def taka_poly_coefficient(F,Deg,V) {
+  if  (type(F) < 2) return 0;
+  if  (type(F) == 2) return coef(F,Deg,V);
+  if  (type(F) == 3) {
+    DD=dn(F); NN=nm(F);
+    if (deg(DD,V) > 0) {
+      printf("Denominator contains the variable %a\n",V);
+      error("The denominator DD contains the specified variable V");
+    }
+    return red(taka_poly_coefficient(NN,Deg,V)/DD);
+  }
+  return map(taka_poly_coefficient,F,Deg,V);
+}
 
 Taka_poly_loaded = 1$
 end$
