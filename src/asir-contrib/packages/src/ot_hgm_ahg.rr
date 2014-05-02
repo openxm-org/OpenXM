@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.3 2014/05/01 07:11:56 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.4 2014/05/01 08:39:21 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -911,15 +911,31 @@ dabs(A-B);
 
 */
 
+def hgm_ahg_test_mset(A,W,Mset) {
+    StdMon=cbase(A);
+    printf("StdMon=%a\n",StdMon);
+
+    Row = length(A); Col = length(A[0]);
+    V  = base_var_list(x,1,Col);
+    DV = base_var_list(dx,1,Col);
+    Vb = base_var_list(b_,1,Row);
+
+    R=get_mat2(A,W,StdMon,Mset)[0];
+    printf("size of R is %a\n",size(R));
+
+    Rule=genrule_p(append(V,Vb));
+    return [matrix_rank(base_replace(R,Rule)),StdMon];
+}
+
 def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
-	if(StdMon != reverse(cbase(A))) {
-		/* error! */
-		return 0;
-	}
-	Row = length(A); Col = length(A[0]);
-	V  = base_var_list(x,1,Col);
-	DV = base_var_list(dx,1,Col);
-	Vb = base_var_list(b_,1,Row);
+    if(StdMon != reverse(cbase(A))) {
+        /* error! */
+        return 0;
+    }
+    Row = length(A); Col = length(A[0]);
+    V  = base_var_list(x,1,Col);
+    DV = base_var_list(dx,1,Col);
+    Vb = base_var_list(b_,1,Row);
     Vall = append(V,Vb);
 
     Disc_R2=get_mat2(A,W,StdMon,Mset);
@@ -933,13 +949,13 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
     Toric=mytoric(A,W)[1];
     Table = mk_table(DV,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT);
 
-	Z = base_prune(0,map(var,Line))[0];  
+    Z = base_prune(0,map(var,Line))[0];  
     for(P=0,I=0; I<Col; I++) {
-		Dir = diff(Line[I],Z);
-		if(Dir!=0) {
-			PfI = mapat(oh_base.assoc_match,1,Table,DV[I]*ltov(StdMon));
-			P += Dir*PfI;
-		}
+        Dir = diff(Line[I],Z);
+        if(Dir!=0) {
+            PfI = mapat(oh_base.assoc_match,1,Table,DV[I]*ltov(StdMon));
+            P += Dir*PfI;
+        }
     }
     Func=[P,[[Z],SS],Eqn];
     return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn );
@@ -947,11 +963,10 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
 
 def test100 () {
     /* from ud-c11.rr */
-    A = [
-        [1,0,0,1,1,0,1],
-        [0,1,0,1,0,1,1],
-        [0,0,1,0,1,1,1]];
-	Row = length(A); Col = length(A[0]);
+    A = [[1,0,0,1,1,0,1],
+         [0,1,0,1,0,1,1],
+         [0,0,1,0,1,1,1]];
+    Row = length(A); Col = length(A[0]);
     W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
     Mset=[1,dx5,dx6,dx7,
           dx1,dx2,dx3,dx4,
@@ -977,7 +992,7 @@ def test100 () {
                    564.0635393469870808 ];    /* 同じ場所．漸近展開による. */
     InitVal=map(float2rat,InitValFloat,6);
     Start = 1/10^3;
-	End = 1/10;
+    End = 1/10;
     H = 1/10^6;
 #endif
 
@@ -986,12 +1001,30 @@ def test100 () {
     InitValFloat=[0.457392904554, 1.305954410928, 1.533103031020, 1.067058892481, 0.595251972063, 7.940707579700];
     InitVal=map(float2rat,InitValFloat,12);
     Start = 1/10;
-	End = 25/100;
+    End = 25/100;
     H = 1/10^4;
 #endif
     G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H);
-	F = reverse(G)[0];
-	return [deval(F[0]),map(deval,F[1])];
+    F = reverse(G)[0];
+    return [deval(F[0]),map(deval,F[1])];
+}
+
+def test6d() {
+  A = [[1,0,0,1,1,0,1],
+       [0,1,0,1,0,1,1],
+       [0,0,1,0,1,1,1]];
+  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+  Mset=[1,dx5,dx6,dx7, 
+          dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,
+                                                   dx6*dx6,dx6*dx7,
+                                                           dx7*dx7];
+  return hgm_ahg_test_mset(A,W,Mset);
 }
 
 end$
+
