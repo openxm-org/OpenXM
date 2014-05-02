@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.4 2014/05/01 08:39:21 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.5 2014/05/02 01:59:42 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -912,13 +912,17 @@ dabs(A-B);
 */
 
 def hgm_ahg_test_mset(A,W,Mset) {
-    StdMon=cbase(A);
+    StdMon=reverse(cbase(A));
     printf("StdMon=%a\n",StdMon);
 
     Row = length(A); Col = length(A[0]);
     V  = base_var_list(x,1,Col);
     DV = base_var_list(dx,1,Col);
     Vb = base_var_list(b_,1,Row);
+
+    if(W==[] || W==0) { /* use rev lex order */
+        W = [base_flatten(assoc(DV,[1]))];
+    }
 
     R=get_mat2(A,W,StdMon,Mset)[0];
     printf("size of R is %a\n",size(R));
@@ -928,8 +932,11 @@ def hgm_ahg_test_mset(A,W,Mset) {
 }
 
 def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
-    if(StdMon != reverse(cbase(A))) {
-        /* error! */
+	Mode=getopt(mode);
+	if(type(Mode)<0) {
+		Mode=0;
+	}
+    if(qsort(StdMon) != qsort(reverse(cbase(A)))) { /* error! */
         return 0;
     }
     Row = length(A); Col = length(A[0]);
@@ -938,11 +945,19 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
     Vb = base_var_list(b_,1,Row);
     Vall = append(V,Vb);
 
+    if(W==[] || W==0) { /* use rev lex order */
+        W = [base_flatten(assoc(DV,[1]))];
+    }
+
     Disc_R2=get_mat2(A,W,StdMon,Mset);
     Disc_R=Disc_R2[0];
     MatData=Disc_R2;
 
-    Eqn = get_eqn2(Disc_R2,Vall,append(Line, B));
+	if(Mode==1) {
+		Eqn = get_eqn2(Disc_R2,Vall,append(Line, B) | solve=yes);
+	}else {
+		Eqn = get_eqn2(Disc_R2,Vall,append(Line, B));
+	}
     TT = Eqn[1];
     SS = Eqn[2];
 
@@ -957,6 +972,11 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
             P += Dir*PfI;
         }
     }
+	if(Mode==1) {
+		P = base_replace(P,Eqn[0]);
+		Func=[P,[[Z],SS]];
+		return runge_kutta_linear2(Func,Start,InitVal,End,H);
+	}
     Func=[P,[[Z],SS],Eqn];
     return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn );
 }
@@ -1010,20 +1030,120 @@ def test100 () {
 }
 
 def test6d() {
-  A = [[1,0,0,1,1,0,1],
-       [0,1,0,1,0,1,1],
-       [0,0,1,0,1,1,1]];
-  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
-  Mset=[1,dx5,dx6,dx7, 
-          dx1,dx2,dx3,dx4,
-          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
-                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
-                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
-                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
-                                           dx5*dx5,dx5*dx6,dx5*dx7,
-                                                   dx6*dx6,dx6*dx7,
-                                                           dx7*dx7];
-  return hgm_ahg_test_mset(A,W,Mset);
+    A = [[1,0,0,1,1,0,1],
+         [0,1,0,1,0,1,1],
+         [0,0,1,0,1,1,1]];
+    W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1]]; /* use rev lex */
+    Mset=[1,dx5,dx6,dx7, 
+            dx1,dx2,dx3,dx4,
+            dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,
+                    dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,
+                             dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,
+                                     dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,
+                                             dx5*dx5,dx5*dx6,dx5*dx7,
+                                                     dx6*dx6,dx6*dx7,
+                                                             dx7*dx7];
+    return hgm_ahg_test_mset(A,W,Mset);
+}
+
+/* F_D from h-mle/FD/Prog/fdpf.rr check(10)  */
+def test110() {
+    A = [[1,1,1,1,0,0,0,0],
+       [1,0,0,0,1,0,0,0],
+       [0,1,0,0,0,1,0,0],
+       [0,0,1,0,0,0,1,0],
+       [0,0,0,1,0,0,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; */
+    W=[];
+    Mset=[1,dx5,dx6,dx7,dx8, 
+            dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,dx1*dx8,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,dx2*dx8,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,dx3*dx8,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,dx4*dx8,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,dx5*dx8,
+                                                   dx6*dx6,dx6*dx7,dx6*dx8,
+                                                           dx7*dx7,dx7*dx8,
+                                                                   dx8*dx8];
+
+    StdMon=[1,dx8,dx7,dx6];
+    Dir = [0,1/2,1/3,1/4,0,0,0,0];
+	Pt0 = [1,1/20,1/10,3/20,1,1,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1/2,-19/14,-1/3,-1/5,-1/11];
+
+    /* an initial value at Z=0 by check7(10) */
+    InitValFloat= [ 1.19505025171429995935011756799039243029388647110495690231,
+					-0.171909712765026133647462174136326715493035759705424405645,
+					-0.325127216579630777012789631518989535279864106544409154292,
+					-0.465226174525471104850159503487993942789075081411665529643];
+    InitVal=map(float2rat,InitValFloat,6);
+    Start = 0;
+    End = 1/10;
+    H = 1/10^3;
+	H = 1/10^5;
+	TargetValFloat = [1.30653474406446941281514923953551188142993976219689097489,
+					  -0.198372479159747173559323964725234816747543096711018280293,
+					  -0.386432833081859751387869841763599069918640617829089346345,
+					  -0.584424284968205792783937496766437194841036114282518073142];
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H);
+    F = reverse(G)[0];
+    Val = [deval(F[0]),map(deval,F[1])];
+	printf("Val=%a\n  atZ=%a\n\n", Val[1],Val[0]);
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+
+def test111() {
+    A = [[1,1,1,1,0,0,0,0],
+       [1,0,0,0,1,0,0,0],
+       [0,1,0,0,0,1,0,0],
+       [0,0,1,0,0,0,1,0],
+       [0,0,0,1,0,0,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; */
+    W=[];
+    Mset=[1,dx5,dx6,dx7,dx8, 
+            dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,dx1*dx8,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,dx2*dx8,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,dx3*dx8,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,dx4*dx8,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,dx5*dx8,
+                                                   dx6*dx6,dx6*dx7,dx6*dx8,
+                                                           dx7*dx7,dx7*dx8,
+                                                                   dx8*dx8];
+
+    StdMon=[1,dx8,dx7,dx6];
+    Dir = [0,1/2,1/3,1/4,0,0,0,0];
+	Pt0 = [1,1/20,1/10,3/20,1,1,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1/2,-19/14,-1/3,-1/5,-1/11];
+
+    /* an initial value at Z=0 by check7(30) */
+    InitValFloat= [ 1.19505025186078973856324535516282809960832446191213484050,
+				   -0.171909714259269817594145743377544836183663976613720245516,
+				   -0.325127216734109713804903925455918486964102689556102294155,
+				   -0.465226174603649105888797335558491584759624199217577452861];
+//  InitVal=map(float2rat,InitValFloat,6);
+    InitVal=InitValFloat;
+    Start = 0;
+    End = 1/10;
+	H = 1/10^6;
+	TargetValFloat = [1.30653474526512361790567548176126429002582614030996144986,
+					  -0.198372489487087915397232216954501730234040987864606539446,
+					  -0.386432835651982983362135481308333777740853851309581833048,
+					  -0.584424286257640845566056905386694872409875592930997773923];
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [deval(F[0]),map(deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+	printf("TargetVal=%a\n", TargetValFloat);
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
 }
 
 end$
