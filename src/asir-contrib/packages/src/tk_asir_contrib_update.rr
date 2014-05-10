@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.4 2014/03/29 23:05:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.5 2014/04/03 05:03:36 takayama Exp $ */
 /*
   We assume that
   (1) curl is installed in asir/bin
@@ -67,6 +67,7 @@ def asir_contrib_update_win() {
   if (type(getopt(clean)) <= 0) { } else { Clean=1;}
   if (!Update && !Clean) mymessage("Windows");
   MyCurl = "\""+getenv("ASIR_ROOTDIR")+"bin\\curl\""; 
+  MyUnzip = "\""+getenv("ASIR_ROOTDIR")+"bin\\unzip\""; 
   if (type(getopt(tmp))<=0) MyTmp = getenv("TEMP");
   else MyTmp = getopt(tmp);
   if (type(getopt(install_dir))<=0) InstallDir0=getenv("APPDATA")+"\\OpenXM";
@@ -85,8 +86,9 @@ def asir_contrib_update_win() {
   for (I=0; I<length(ZipFiles); I++) {
    ZipFile=ZipFiles[I];
    C1=MyCurl+" "+Url+"/"+ZipFile+" >"+MyTmp+"\\"+ZipFile+" 2> "+MyTmp+"\\asir-contrib-update-error.txt";
-   C2="unzip -o "+"\""+MyTmp+"\\"+ZipFile+"\" -d "+InstallDir;
-   if (!Update && !Clean) {
+   /*   C2=MyUnzip+" -o "+"\""+MyTmp+"\\"+ZipFile+"\" -d "+InstallDir; */
+    C2=MyUnzip+" -o "+MyTmp+"\\"+ZipFile+" -d "+InstallDir;    
+    if (!Update && !Clean) {
     print("---- update=1 ------");
     print(C1);  
     print(C2mkdir); 
