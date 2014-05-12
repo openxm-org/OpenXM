@@ -1,9 +1,8 @@
-# $OpenXM: OpenXM/rc/cshrc,v 1.17 2010/11/30 02:58:50 takayama Exp $
+# $OpenXM: OpenXM/rc/cshrc,v 1.18 2014/04/02 10:25:24 takayama Exp $
 setenv OpenXM_HOME $HOME/OpenXM
 set path=($OpenXM_HOME/bin $path)
 rehash
 setenv ASIR_LIBDIR $OpenXM_HOME/lib/asir
-setenv ASIRLOADPATH $OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-contrib/packages/sample:$OpenXM_HOME/lib/asir-contrib:.
 setenv ASIR_CONFIG $OpenXM_HOME/rc/asirrc
 setenv ASIR_RSH 'ssh -f -X -A '
 setenv LOAD_SM1_PATH $OpenXM_HOME/lib/sm1
@@ -16,6 +15,7 @@ else
 endif
 setenv OpenXM_tmp $HOME/.OpenXM_tmp
 mkdir -p $OpenXM_tmp
+setenv ASIRLOADPATH $OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-contrib/packages/sample:$OpenXM_tmp/OpenXM/lib/asir-contrib:$OpenXM_HOME/lib/asir-contrib:.
 # for MacOS
 if ( ${?DYLD_LIBRARY_PATH} ) then
    setenv DYLD_LIBRARY_PATH $OpenXM_HOME/lib:${DYLD_LIBRARY_PATH}
