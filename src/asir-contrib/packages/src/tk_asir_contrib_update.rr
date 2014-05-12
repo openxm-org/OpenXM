@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.6 2014/05/10 08:48:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.7 2014/05/12 10:57:27 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -9,6 +9,8 @@
 */
 extern Tk_UpdateCC$
 module tk_asir_contrib_update;
+static OpenXM_tmp;
+localf set_OpenXM_tmp;
 localf ostype;
 localf mymessage;
 localf asir_contrib_update;
@@ -18,8 +20,12 @@ localf contain_space; /* should be moved to tk_util.rr */
 localf asir_contrib_update_win;
 localf asir_contrib_update_unix;
 
+def set_OpenXM_tmp() { 
+  OpenXM_tmp=getenv("OpenXM_tmp");
+  if (OpenXM_tmp == 0) OpenXM_tmp=getenv("HOME")+"/.OpenXM_tmp";
+}
 def ostype() {
-   OS="unknown";
+  OS="unknown";
   if (getenv("OS") != 0) {
     if (base_subsetq(strtoascii("Windows"),strtoascii(getenv("OS")))) {
        OS="Windows";
@@ -38,7 +44,7 @@ def mymessage(OS) {
    if (OS == "Windows") {
      printf("It is installed under "+getenv("APPDATA")+"\\OpenXM\n");
    }else {
-     printf("It is installed under "+getenv("OpenXM_tmp")+"/OpenXM\n");
+     printf("It is installed under "+OpenXM_tmp+"/OpenXM\n");
    }
    printf("The following command will be executed with the following options.\n");
 }
@@ -125,10 +131,9 @@ def asir_contrib_update_unix() {
   MyCurl = "curl";
   MyUnzip = "unzip";
   if (type(getopt(tmp))<=0) {
-    if (getenv("OpenXM_tmp") == 0) error("OpenXM_tmp is not set.");
-    MyTmp = getenv("OpenXM_tmp");
+    MyTmp = OpenXM_tmp;
   } else MyTmp = getopt(tmp);
-  if (type(getopt(install_dir))<=0) InstallDir0=getenv("OpenXM_tmp")+"/OpenXM";
+  if (type(getopt(install_dir))<=0) InstallDir0=OpenXM_tmp+"/OpenXM";
   else InstallDir0 = getopt(install_dir);
   InstallDir=InstallDir0+"/";
   UserDesktop=getenv("HOME");
@@ -165,6 +170,7 @@ def asir_contrib_update_unix() {
   }
 }
 endmodule;
+tk_asir_contrib_update.set_OpenXM_tmp()$
 
 end$
 /* Note on Windows.
