@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.7 2014/05/12 10:57:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.8 2014/05/12 11:15:55 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -25,13 +25,7 @@ def set_OpenXM_tmp() {
   if (OpenXM_tmp == 0) OpenXM_tmp=getenv("HOME")+"/.OpenXM_tmp";
 }
 def ostype() {
-  OS="unknown";
-  if (getenv("OS") != 0) {
-    if (base_subsetq(strtoascii("Windows"),strtoascii(getenv("OS")))) {
-       OS="Windows";
-    }
-  }
-  return OS;
+  return sysinfo()[0];
 }
 def contain_space(S) {
   if (base_subsetq(strtoascii(" "),strtoascii(S))) return 1;
@@ -50,7 +44,7 @@ def mymessage(OS) {
 }
 def asir_contrib_update() {
   Opt=getopt();
-  if (ostype() == "Windows") {
+  if (ostype() == "windows") {
      return asir_contrib_update_win(|option_list=Opt);
   }else{
      return asir_contrib_update_unix(|option_list=Opt);
