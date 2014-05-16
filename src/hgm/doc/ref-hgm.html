@@ -88,14 +88,14 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 
 <h2> Three Steps of HGM </h2>
 <ol>
-<li> Find a holonomic system satisfied by the normalizing constant.
+<li> Finding a holonomic system satisfied by the normalizing constant.
 We may use computational or theoretical methods to find it.
 Groebner basis and related methods are used.
-<li> Find an initial value vector for the holonomic system.
+<li> Finding an initial value vector for the holonomic system.
 This is equivalent to evaluating the normalizing constant and its derivatives
 at a point.
 This step is usually performed by a series expansion.
-<li> Solve the holonomic system numerically. We use several methods
+<li> Solving the holonomic system numerically. We use several methods
 in numerical analysis such as the Runge-Kutta method of solving
 ordinary differential equations and efficient solvers of systems of linear
 equations.
@@ -109,22 +109,28 @@ of the
 <a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc.html">
 OpenXM documents</a>
 or in <a href="./"> this folder</a>.
-The nightly snapshot of the asir-contrib can be found in the Asir-Contrib page below,
+The nightly snapshot of the asir-contrib can be found in the asir page below,
 or look up our <a href="http://www.math.sci.kobe-u.ac.jp/cgi/cvsweb.cgi/">
 cvsweb page</a>.
 <ol>
 <li> Command line interfaces are in the folder OpenXM/src/hgm
 in the OpenXM source tree. See <a href="http://www.math.kobe-u.ac.jp/OpenXM">
 OpenXM distribution page </a>.
-<li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/hgm/"> hgm package for R </a> for the step 3.
-<li> yang (for Pfaffian systems) , nk_restriction (for D-module integrations), 
-tk_jack  (for Jack polynomials), ko_fb_pfaffian (Pfaffian system for the Fisher-Bingham system) 
-are for the steps 1 or 2 and in the 
-<a href="http://www.math.kobe-u.ac.jp/Asir"> asir-contrib</a>.
-<li> nk_fb_gen_c is a package to generate a C program to perform 
+<li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/hgm/"> hgm package for R </a> (hgm_*tar.gz, hgm-manual.pdf) for the step 3. 
+<li> The following packages are 
+for the computer algebra system 
+<a href="http://www.math.kobe-u.ac.jp/Asir"> Risa/Asir</a>.
+They are in the asir-contrib collection.
+<ul>
+<li> yang.rr (for Pfaffian systems) , 
+nk_restriction.rr (for D-module integrations), 
+tk_jack.rr  (for Jack polynomials), 
+ko_fb_pfaffian.rr (Pfaffian system for the Fisher-Bingham system),
+are for the steps 1 or 2.
+<li> nk_fb_gen_c.rr is a package to generate a C program to perform 
 maximal Likehood estimates for the Fisher-Bingham distribution by HGD (holonomic gradient descent).
-It is in the 
-<a href="http://www.math.kobe-u.ac.jp/Asir"> asir-contrib</a>.
+<li> ot_hgm_ahg.rr (HGM for A-distributions, very experimental).
+</ul>
 </ol>
 
 <h2> Programs to try examples of our papers </h2>
@@ -132,6 +138,6 @@ It is in the
 <li> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Math/Fisher-Bingham-2"> d-dimensional Fisher-Bingham System </a>
 </ol>
 
-<pre> $OpenXM: OpenXM/src/hgm/doc/ref-hgm.html,v 1.8 2014/04/03 07:34:31 takayama Exp $ </pre>
+<pre> $OpenXM: OpenXM/src/hgm/doc/ref-hgm.html,v 1.9 2014/05/15 07:34:05 takayama Exp $ </pre>
 </body>
 </html>
