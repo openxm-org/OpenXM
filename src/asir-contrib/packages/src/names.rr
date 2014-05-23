@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.129 2014/05/12 10:58:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.130 2014/05/23 09:43:25 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -1146,9 +1146,10 @@ def a_hypergeometric_bfunction(A,V,S) {
   zip_files=["lib-asir-contrib.zip"]
   example: 
    asir_contrib_update();
-   asir_contrib_update(|update=1);
+   asir_contrib_update(|update=1);    update the library 
+   asir_contrib_update(|update=3);    update the library and the documents
    asir_contrib_update(|clean=1);
-   asir_contrib_update(|zip_files=["lib-asir-contrib.zip","doc-asir-contrib.zip","doc-other-docs.zip"]);
+   asir_contrib_update(|zip_files=["lib-asir-contrib.zip","doc-asir2000.zip","doc-asir-contrib.zip","doc-other-docs.zip"]);
 end: */
 def asir_contrib_update() { return tk_asir_contrib_update.asir_contrib_update(|option_list=getopt()); }
 
