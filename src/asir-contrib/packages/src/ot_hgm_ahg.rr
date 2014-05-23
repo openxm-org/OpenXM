@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.5 2014/05/02 01:59:42 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.6 2014/05/02 08:18:23 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -836,7 +836,12 @@ def number_sign(X) {
 
 #define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
 
+def deval_pari(X) {
+	return eval(X*exp(0));
+}
+
 def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
+	Deval = _getopt(deval,deval);
     if (type(Ys)==type([])) {
         Ys = ltov(Ys);
     }
@@ -845,7 +850,7 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
     H  = number_sign(Xe-Xs)*H;
     H2 = H/2;
     Ans = [[Xs,Ys]];
-    printf("\n%a %a\n", deval(Xs), map(deval, Ys));
+    printf("\n%a %a\n", (*Deval)(Xs), 'map'(Deval, Ys));
     for(Y=Ys,X=Xs,I=0; I<N; I++) {
         Y1 = (*CALL)(FuncArgs, [[X],   Y]); 
         Y2 = (*CALL)(FuncArgs, [[X+H2],Y+H2*Y1]); 
@@ -859,6 +864,69 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
                deval(X+H),  map(deval, Y4));
 */
         Y += (H/6)*(Y1+2*(Y2+Y3)+Y4);
+        X += H; 
+        printf("%a %a\n", (*Deval)(X), 'map'(Deval, Y));
+        Ans = cons([X,Y],Ans);
+    }
+    printf("\n");
+    return reverse(Ans);
+}
+
+def rk_eval_norm_euclidean(V) {
+	N = length(V);
+	Norm = 0;
+	for(I=0; I<N; I++) {
+		Norm += V[I]*V[I];
+	}
+	Norm = dsqrt(Norm);
+	return Norm;
+}
+
+/* Adaptive Runge-Kutta*/
+/* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
+def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
+	ErrTolDefault = [1/10^9,1/10^9]; /* [absolute error tolerance, relative error tolerance] */
+	ErrTol = _getopt(errortol,ErrTolDefault);
+	NormFunc = rk_eval_norm_euclidean;
+
+	/* Dormand-Prince parameters for embedded Runge-Kutta */
+	C  = [0,0,1/5,3/10,4/5,8/9,1,1];
+	B  = [0, 35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0];
+	Bst= [0, 5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+	A2 = [0,1/5];
+	A3 = [0,3/40,9/40];
+	A4 = [0,44/45,-56/15,32/9];
+	A5 = [0,19372/6561,-25360/2187,64448/6561,-212/729];
+	A6 = [0,9017/3168,-355/33,46732/5247,49/176,-5103/18656];
+	A7 = [0,35/384,0,500/1113,125/192,-2187/6784,11/84];
+
+    if (type(Ys)==type([])) {
+        Ys = ltov(Ys);
+    }
+    CALL = _getopt(callf,call_func);
+    N  = rint(number_abs((Xe-Xs)/H));
+    H  = number_sign(Xe-Xs)*H;
+    Ans = [[Xs,Ys]];
+    printf("\n%a %a\n", deval(Xs), map(deval, Ys));
+    for(Y=Ys,X=Xs,I=0; I<N; I++) {
+		K1 = H*(*CALL)(FuncArgs, [[X],   Y]); 
+		K2 = H*(*CALL)(FuncArgs, [[X+C[2]*H], Y+A2[1]*K1]); 
+		K3 = H*(*CALL)(FuncArgs, [[X+C[3]*H], Y+A3[1]*K1+A3[2]*K2]); 
+		K4 = H*(*CALL)(FuncArgs, [[X+C[4]*H], Y+A4[1]*K1+A4[2]*K2+A4[3]*K3]); 
+		K5 = H*(*CALL)(FuncArgs, [[X+C[5]*H], Y+A5[1]*K1+A5[2]*K2+A5[3]*K3+A5[4]*K4]); 
+		K6 = H*(*CALL)(FuncArgs, [[X+C[6]*H], Y+A6[1]*K1+A6[2]*K2+A6[3]*K3+A6[4]*K4+A6[5]*K5]); 
+		Yst= Y + Bst[1]*K1 + Bst[2]*K2 + Bst[3]*K3 + Bst[4]*K4 + Bst[5]*K5 + Bst[6]*K6; // embedded 4th RK
+		Yn = Y + B[1]*K1 + B[2]*K2 + B[3]*K3 + B[4]*K4 + B[5]*K5 + B[6]*K6;
+
+		NormY  = max2((*NormFunc)(Yn),(*NormFunc)(Yst));
+		Delta  = (*NormFunc)(Yst-Yst);
+/*
+        printf("Y1: %a %a\nY2: %a %a\nY3: %a %a\nY4: %a %a\n", 
+               deval(X),    map(deval, Y1),
+               deval(X+H2), map(deval, Y2),
+               deval(X+H2), map(deval, Y3),
+               deval(X+H),  map(deval, Y4));
+*/
         X += H; 
         printf("%a %a\n", deval(X), map(deval, Y));
         Ans = cons([X,Y],Ans);
@@ -978,7 +1046,7 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
 		return runge_kutta_linear2(Func,Start,InitVal,End,H);
 	}
     Func=[P,[[Z],SS],Eqn];
-    return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn );
+    return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
 }
 
 def test100 () {
@@ -1080,7 +1148,6 @@ def test110() {
     InitVal=map(float2rat,InitValFloat,6);
     Start = 0;
     End = 1/10;
-    H = 1/10^3;
 	H = 1/10^5;
 	TargetValFloat = [1.30653474406446941281514923953551188142993976219689097489,
 					  -0.198372479159747173559323964725234816747543096711018280293,
@@ -1098,6 +1165,7 @@ def test110() {
 
 
 def test111() {
+	Deval=deval_pari;
     A = [[1,1,1,1,0,0,0,0],
        [1,0,0,0,1,0,0,0],
        [0,1,0,0,0,1,0,0],
@@ -1127,18 +1195,24 @@ def test111() {
 				   -0.171909714259269817594145743377544836183663976613720245516,
 				   -0.325127216734109713804903925455918486964102689556102294155,
 				   -0.465226174603649105888797335558491584759624199217577452861];
+	InitValFloat = 'map'(Deval,InitValFloat);
+
 //  InitVal=map(float2rat,InitValFloat,6);
     InitVal=InitValFloat;
     Start = 0;
     End = 1/10;
-	H = 1/10^6;
+	H = 1/10^12;
+//	End = Start+10*H;
+	printf("H=%a\n",H);
 	TargetValFloat = [1.30653474526512361790567548176126429002582614030996144986,
 					  -0.198372489487087915397232216954501730234040987864606539446,
 					  -0.386432835651982983362135481308333777740853851309581833048,
 					  -0.584424286257640845566056905386694872409875592930997773923];
+	TargetValFloat = 'map'(Deval,TargetValFloat);
+
     G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
     F = reverse(G)[0];
-    Val = [deval(F[0]),map(deval,F[1])];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 	printf("TargetVal=%a\n", TargetValFloat);
 	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
@@ -1146,5 +1220,357 @@ def test111() {
 	return Val;
 }
 
-end$
+def test112() {
+	Deval=deval_pari;
+    A = [[1,1,1,1,0,0,0,0],
+       [1,0,0,0,1,0,0,0],
+       [0,1,0,0,0,1,0,0],
+       [0,0,1,0,0,0,1,0],
+       [0,0,0,1,0,0,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; */
+    W=[];
+    Mset=[1,dx5,dx6,dx7,dx8, 
+            dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,dx1*dx8,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,dx2*dx8,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,dx3*dx8,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,dx4*dx8,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,dx5*dx8,
+                                                   dx6*dx6,dx6*dx7,dx6*dx8,
+                                                           dx7*dx7,dx7*dx8,
+                                                                   dx8*dx8];
 
+    StdMon=[1,dx8,dx7,dx6];
+    Dir = [0,1/2,1/3,1/4,0,0,0,0];
+	Pt0 = [1,1/20,1/10,3/20,1,1,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1/2,-19/14,-1/3,-1/5,-1/11];
+
+    /* an initial value at Z=0 */
+	/* see ndata1.txt */
+	InitValFloat= [ 1.1950502518607810772538534319502477092478,
+					-0.171909714259135548490788881793,
+					-0.325127216734103016669951013427,
+					-0.465226174603644620219989884764 ];
+	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+    InitVal=InitValFloat;
+    Start = 0;
+    End = 1/10;
+	H = 1/10^8;
+	End = Start+10*H;
+	printf("H=%a\n",H);
+
+	TargetValFloat = [ 1.1950503579873959974893288926466220932073,
+					   -0.171909739138021515928791442706,
+					   -0.325127273921048994509468169298,
+					   -0.465226283864086289370886598026];
+	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+	printf("TargetVal=%a\n", TargetValFloat);
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+def test113() {
+	Deval=deval_pari;
+    A = [[1,1,1,1,0,0,0,0],
+       [1,0,0,0,1,0,0,0],
+       [0,1,0,0,0,1,0,0],
+       [0,0,1,0,0,0,1,0],
+       [0,0,0,1,0,0,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1,dx5,1,dx6,1,dx7,1,dx8,1]]; */
+    W=[];
+    Mset=[1,dx5,dx6,dx7,dx8, 
+            dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,dx1*dx5,dx1*dx6,dx1*dx7,dx1*dx8,
+                  dx2*dx2, dx2*dx3,dx2*dx4,dx2*dx5,dx2*dx6,dx2*dx7,dx2*dx8,
+                           dx3*dx3,dx3*dx4,dx3*dx5,dx3*dx6,dx3*dx7,dx3*dx8,
+                                   dx4*dx4,dx4*dx5,dx4*dx6,dx4*dx7,dx4*dx8,
+                                           dx5*dx5,dx5*dx6,dx5*dx7,dx5*dx8,
+                                                   dx6*dx6,dx6*dx7,dx6*dx8,
+                                                           dx7*dx7,dx7*dx8,
+                                                                   dx8*dx8];
+
+    StdMon=[1,dx8,dx7,dx6];
+    Dir = [0,1/2,1/3,1/4,0,0,0,0];
+	Pt0 = [1,1/20,1/10,3/20,1,1,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1/2,-19/14,-1/3,-1/5,-1/11];
+
+    /* an initial value at Z=0 */
+	/* see ndata2.txt */
+	InitValFloat= [ 1.19505025186078955712664300572235872118970085222390413439421,
+					-0.1719097142592666327962706769863140069355848346631,
+					-0.3251272167341095821098734547768632291192167493124,
+					-0.4652261746036490124174695015314618553310166347622];
+	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+    InitVal=InitValFloat;
+    Start = 0;
+    End = 1/10;
+	H = 1/10^12;
+	End = Start+10*H;
+	printf("H=%a\n",H);
+
+	TargetValFloat = [ 1.19505025187140221810829638857678563859063685884558977316613,
+					   -0.1719097142617545212428381118370425765918726605528,
+					   -0.3251272167398282763191847367312434734359033864699,
+					   -0.4652261746145750556601430254764766400183269585405 ];
+	// TargetValFloat = [1.30653474526512361790567548176126429002582614030996144986,
+	// 				  -0.198372489487087915397232216954501730234040987864606539446,
+	// 				  -0.386432835651982983362135481308333777740853851309581833048,
+	// 				  -0.584424286257640845566056905386694872409875592930997773923];
+	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+	printf("TargetVal=%a\n", TargetValFloat);
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+// Gauss HGF
+def test200() {
+	Deval=deval_pari;
+    A = [[1,1,0,0],
+       [1,0,1,0],
+		 [0,1,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1]]; */
+    W=[];
+    Mset=[1,dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,
+                  dx2*dx2, dx2*dx3,dx2*dx4,
+                           dx3*dx3,dx3*dx4,
+  		                           dx4*dx4];
+
+    StdMon=[1,dx4];
+    Dir = [0,1/2,0,0];
+	Pt0 = [1,1/20,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1,-1,-1];
+
+    /* an initial value at Z=0 (see ndata3.txt) */
+    InitValFloat= [ 13797052631578947368421/13107200000000000000000, -7261606648199445983379/6553600000000000000000];
+	// [1.05263157894736842105262756347656249999999999999999999999,-1.10803324099722991689743041992187499999999999999999999999];
+
+	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+    InitVal=InitValFloat;
+    Start = 0;
+    End = 1/10;
+	H = 1/10^12;
+	End = 10*H;
+	printf("H=%a\n",H);
+/*
+	Fexact = 1/(x4*x1-x2*x3);
+	Fexact2 = [ Fexact, diff(Fexact,x4) ]; // diff(Fexact,x4) == -x1 * Fexact^2 
+	TargetValFloat = base_replace(Fexact2,assoc([x1,x2,x3,x4],subst(Line,z,End)));
+*/
+	TargetValFloat = [ 1379705263165156343490337664965729145605074732345285572275499892485660074802556007951592383292376799714275667111022503488080118437736000623258800003275800000017080000000085600000000370000000001/1310720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, -726160664827588394809749236270349809456652910757778242833184281533675898114679524301441522168100618712503509959130283259920748021944004264109200024126200000134520000000714400000003230000000009/655360000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000];
+	// [1.05263157895290858725764287183054286621480921352026792318, -1.10803324100889342469749334147697419655861345025295752385]; 
+	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+	printf("TargetVal=%a\n", TargetValFloat);
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+// Gauss HGF
+def test201() {
+	Deval=deval_pari;
+    A = [[1,1,0,0],
+       [1,0,1,0],
+		 [0,1,0,1]];
+/*  W=[[dx1,1,dx2,1,dx3,1,dx4,1]]; */
+    W=[];
+    Mset=[1,dx1,dx2,dx3,dx4,
+          dx1*dx1,dx1*dx2, dx1*dx3,dx1*dx4,
+                  dx2*dx2, dx2*dx3,dx2*dx4,
+                           dx3*dx3,dx3*dx4,
+  		                           dx4*dx4];
+
+    StdMon=[1,dx4];
+    Dir = [0,1/2,0,0];
+	Pt0 = [1,1/20,1,1];
+    Line = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat = [-1,-1,-1];
+
+
+	Fexact = 1/(x4*x1-x2*x3);
+	Fexact2 = [ Fexact, diff(Fexact,x4) ]; // diff(Fexact,x4) == -x1 * Fexact^2 
+	Fexact3 = base_replace(Fexact2,assoc([x1,x2,x3,x4],Line)); // a function of z
+
+    /* an initial value at Z=0 (see ndata3.txt) */
+    InitValFloat= [ 13797052631578947368421/13107200000000000000000, -7261606648199445983379/6553600000000000000000];
+	// [1.05263157894736842105262756347656249999999999999999999999,-1.10803324099722991689743041992187499999999999999999999999];
+
+//	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+    InitVal=InitValFloat;
+    Start = 0;
+    End   = 1/10;
+	H     = 1/10^3;
+	printf("H=%a\n",H);
+	TargetValFloat = base_replace(Fexact3,[[z,End]]);
+
+	// TargetValFloat = [ 1379705263165156343490337664965729145605074732345285572275499892485660074802556007951592383292376799714275667111022503488080118437736000623258800003275800000017080000000085600000000370000000001/1310720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, -726160664827588394809749236270349809456652910757778242833184281533675898114679524301441522168100618712503509959130283259920748021944004264109200024126200000134520000000714400000003230000000009/655360000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000];
+	// [1.05263157895290858725764287183054286621480921352026792318, -1.10803324100889342469749334147697419655861345025295752385]; 
+//	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+//  G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H); // Runge-Kuttta with rational numbers
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+//	printf("TargetVal=%a\n", TargetValFloat);
+	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+// Quadratic Equation
+def test300() {
+	Deval=deval_pari;
+    A = [[1,1,1],
+		 [0,1,2]];
+/*  W=[[dx1,1,dx2,1,dx3,1]]; */
+    W=[];
+    Mset=[1,dx1,dx2,dx3,
+            dx1*dx1,dx1*dx2, dx1*dx3,
+                    dx2*dx2, dx2*dx3,
+                             dx3*dx3];
+
+    StdMon= [1,dx3];
+    Dir   = [1,1,0];
+	Pt0   = [2,-3,1];
+    Line  = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat  = [0,-1];
+
+	Fexact  = (-x2+((-4*x3*x1+x2^2)^(1/2)))/(2*x3);
+	Fexact2 = [ Fexact, diff(Fexact,x3) ]; // diff(Fexact,x4) == -x1 * Fexact^2 
+	Fexact3 = base_replace(Fexact2,assoc([x1,x2,x3],Line)); // a function of z
+
+    /* an initial value at Z=0 (see ndata4.txt) */
+//    InitValFloat= [ 13797052631578947368421/13107200000000000000000, -7261606648199445983379/6553600000000000000000];
+	// [1.05263157894736842105262756347656249999999999999999999999,-1.10803324099722991689743041992187499999999999999999999999];
+
+//	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+//  InitVal=InitValFloat;
+    Start = 0;
+//  End = 1/10;
+	H = 1/10^12;
+//	H = 1/10^4;
+//	H = 1/10^3;
+    End = Start + 10*H;
+	printf("H=%a\n",H);
+	InitVal        = base_replace(Fexact3,[[z,Start]]);
+//	TargetValFloat = base_replace(Fexact3,[[z,End]]);
+
+	// TargetValFloat = [ 1379705263165156343490337664965729145605074732345285572275499892485660074802556007951592383292376799714275667111022503488080118437736000623258800003275800000017080000000085600000000370000000001/1310720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, -726160664827588394809749236270349809456652910757778242833184281533675898114679524301441522168100618712503509959130283259920748021944004264109200024126200000134520000000714400000003230000000009/655360000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000];
+	// [1.05263157895290858725764287183054286621480921352026792318, -1.10803324100889342469749334147697419655861345025295752385]; 
+//	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+	TargetValFloat = [ 1.9999999999699999999993999999999699999998735990802, -4.0000000000800000000073000000006170000004276327526];
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+//	printf("TargetVal=%a\n", TargetValFloat);
+	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
+	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+def my_abs(A) {
+	return (A<0)? -A: A;
+}
+
+def test301() {
+	Deval=deval_pari;
+    A = [[1,1,1],
+		 [0,1,2]];
+/*  W=[[dx1,1,dx2,1,dx3,1]]; */
+    W=[];
+    Mset=[1,dx1,dx2,dx3,
+            dx1*dx1,dx1*dx2, dx1*dx3,
+                    dx2*dx2, dx2*dx3,
+                             dx3*dx3];
+
+    StdMon= [1,dx3];
+    Dir   = [1,1,0];
+	Pt0   = [2,-3,1];
+    Line  = vtol(ltov(Dir)*z + ltov(Pt0));
+    Bdat  = [0,-1];
+
+	Fexact  = (-x2+((-4*x3*x1+x2^2)^(1/2)))/(2*x3);
+	Fexact2 = [ Fexact, diff(Fexact,x3) ]; // diff(Fexact,x4) == -x1 * Fexact^2 
+	Fexact3 = base_replace(Fexact2,assoc([x1,x2,x3],Line)); // a function of z
+
+    /* an initial value at Z=0 (see ndata4.txt) */
+//    InitValFloat= [ 13797052631578947368421/13107200000000000000000, -7261606648199445983379/6553600000000000000000];
+	// [1.05263157894736842105262756347656249999999999999999999999,-1.10803324099722991689743041992187499999999999999999999999];
+
+//	InitValFloat = 'map'(Deval,InitValFloat);
+
+//  InitVal=map(float2rat,InitValFloat,6);
+//  InitVal=InitValFloat;
+    Start = 0;
+    End = 1/10;
+	H = 1/10^4;
+//  End = Start + 10*H;
+	printf("H=%a\n",H);
+	InitVal        = base_replace(Fexact3,[[z,Start]]);
+	InitVal        = 'map'(Deval,InitVal);
+	TargetValFloat = base_replace(Fexact3,[[z,End]]);
+	TargetValFloat = 'map'(Deval,TargetValFloat);
+
+    G = hgm_ahg(A,W,Mset,StdMon,Line,Bdat,InitVal,Start,End,H|mode=1);
+    F = reverse(G)[0];
+    Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
+	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
+//	printf("TargetVal=%a\n", TargetValFloat);
+	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
+	Error = vtol(Val[1]-ltov(TargetValFloat));
+	Error = map(my_abs,Error);
+	printf("Error=%a\n",Error);
+	return Val;
+}
+
+/* How to use test functions.
+
+setprec(30);              // specifying precision for pari's floating point number
+pari(allocatemem,10^7);   // alocating  stack memory for pari
+ctrl("real_digit",16);
+load("ot_hgm_ahg.rr");
+test112();
+test113();
+test200();
+test201();
+test301();
+
+ */
+
+end$
