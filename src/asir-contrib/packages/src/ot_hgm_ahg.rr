@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.6 2014/05/02 08:18:23 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.7 2014/05/23 05:52:21 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -17,7 +17,6 @@ extern Disc_Toric$
 extern Disc_R$
 extern Disc_R1$
 extern Disc_R2$
-
 
 def cbase(A) {
   W=[[dx1, 1]]; /* dummy */
@@ -841,7 +840,7 @@ def deval_pari(X) {
 }
 
 def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
-	Deval = _getopt(deval,deval);
+	Rk_deval = _getopt(deval,deval);
     if (type(Ys)==type([])) {
         Ys = ltov(Ys);
     }
@@ -850,7 +849,7 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
     H  = number_sign(Xe-Xs)*H;
     H2 = H/2;
     Ans = [[Xs,Ys]];
-    printf("\n%a %a\n", (*Deval)(Xs), 'map'(Deval, Ys));
+    printf("\n%a %a\n", (*Rk_deval)(Xs), 'map'(Rk_deval, Ys));
     for(Y=Ys,X=Xs,I=0; I<N; I++) {
         Y1 = (*CALL)(FuncArgs, [[X],   Y]); 
         Y2 = (*CALL)(FuncArgs, [[X+H2],Y+H2*Y1]); 
@@ -858,18 +857,22 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
         Y4 = (*CALL)(FuncArgs, [[X+H], Y+ H*Y3]); 
 /*
         printf("Y1: %a %a\nY2: %a %a\nY3: %a %a\nY4: %a %a\n", 
-               deval(X),    map(deval, Y1),
-               deval(X+H2), map(deval, Y2),
-               deval(X+H2), map(deval, Y3),
-               deval(X+H),  map(deval, Y4));
+               (*Rk_deval)(X),    'map'(Rk_deval, Y1),
+               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y2),
+               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y3),
+               (*Rk_deval)(X+H),  'map'(Rk_deval, Y4));
 */
         Y += (H/6)*(Y1+2*(Y2+Y3)+Y4);
         X += H; 
-        printf("%a %a\n", (*Deval)(X), 'map'(Deval, Y));
+        printf("%a %a\n", (*Rk_deval)(X), 'map'(Rk_deval, Y));
         Ans = cons([X,Y],Ans);
     }
     printf("\n");
     return reverse(Ans);
+}
+
+def rk_max2(X,Y) {
+	return X<Y? Y: X;
 }
 
 def rk_eval_norm_euclidean(V) {
@@ -878,15 +881,29 @@ def rk_eval_norm_euclidean(V) {
 	for(I=0; I<N; I++) {
 		Norm += V[I]*V[I];
 	}
-	Norm = dsqrt(Norm);
+	Norm = deval_pari(Norm^(1/2));
 	return Norm;
+}
+
+// 	ErrTol = [absolute error tolerance, relative error tolerance]
+def rk_error(Y1,Y2,ErrTol) {
+	N = length(Y1);
+	E = 0;
+	for(I=0; I<N; I++) {
+		Scale = ErrTol[0]+ErrTol[1]*rk_max2(number_abs(Y1[I]),number_abs(Y2[I]));
+		Delta = Y1[I]-Y2[I];
+		E += (Delta/Scale)^2;
+	}
+	return (E/N)^(1/2);
 }
 
 /* Adaptive Runge-Kutta*/
 /* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
 def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
+	Rk_deval = _getopt(deval,deval);
+
 	ErrTolDefault = [1/10^9,1/10^9]; /* [absolute error tolerance, relative error tolerance] */
-	ErrTol = _getopt(errortol,ErrTolDefault);
+	ErrTol = _getopt(etol,ErrTolDefault);
 	NormFunc = rk_eval_norm_euclidean;
 
 	/* Dormand-Prince parameters for embedded Runge-Kutta */
@@ -907,7 +924,8 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
     N  = rint(number_abs((Xe-Xs)/H));
     H  = number_sign(Xe-Xs)*H;
     Ans = [[Xs,Ys]];
-    printf("\n%a %a\n", deval(Xs), map(deval, Ys));
+	printf("ErrTol=%a\n",ErrTol);
+    printf("\n%a %a\n", (*Rk_deval)(Xs), 'map'(Rk_deval, Ys));
     for(Y=Ys,X=Xs,I=0; I<N; I++) {
 		K1 = H*(*CALL)(FuncArgs, [[X],   Y]); 
 		K2 = H*(*CALL)(FuncArgs, [[X+C[2]*H], Y+A2[1]*K1]); 
@@ -918,17 +936,17 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
 		Yst= Y + Bst[1]*K1 + Bst[2]*K2 + Bst[3]*K3 + Bst[4]*K4 + Bst[5]*K5 + Bst[6]*K6; // embedded 4th RK
 		Yn = Y + B[1]*K1 + B[2]*K2 + B[3]*K3 + B[4]*K4 + B[5]*K5 + B[6]*K6;
 
-		NormY  = max2((*NormFunc)(Yn),(*NormFunc)(Yst));
-		Delta  = (*NormFunc)(Yst-Yst);
+		Error = (*Rk_deval)(rk_error(Yn,Yst,ErrTol));
 /*
         printf("Y1: %a %a\nY2: %a %a\nY3: %a %a\nY4: %a %a\n", 
-               deval(X),    map(deval, Y1),
-               deval(X+H2), map(deval, Y2),
-               deval(X+H2), map(deval, Y3),
-               deval(X+H),  map(deval, Y4));
+               (*Rk_deval)(X),    'map'(Rk_deval, Y1),
+               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y2),
+               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y3),
+               (*Rk_deval)(X+H),  'map'(Rk_deval, Y4));
 */
         X += H; 
-        printf("%a %a\n", deval(X), map(deval, Y));
+        printf("%a %a\n", (*Rk_deval)(X), 'map'(Rk_deval, Y));
+        printf("error = %a\n", Error);
         Ans = cons([X,Y],Ans);
     }
     printf("\n");
@@ -1043,10 +1061,12 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
 	if(Mode==1) {
 		P = base_replace(P,Eqn[0]);
 		Func=[P,[[Z],SS]];
-		return runge_kutta_linear2(Func,Start,InitVal,End,H);
+//		return runge_kutta_linear2(Func,Start,InitVal,End,H);
+		return runge_kutta_linear3(Func,Start,InitVal,End,H | deval=deval_pari);
 	}
     Func=[P,[[Z],SS],Eqn];
-    return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
+//  return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
+    return runge_kutta_linear3(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
 }
 
 def test100 () {
@@ -1158,11 +1178,10 @@ def test110() {
     F = reverse(G)[0];
     Val = [deval(F[0]),map(deval,F[1])];
 	printf("Val=%a\n  atZ=%a\n\n", Val[1],Val[0]);
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
-
 
 def test111() {
 	Deval=deval_pari;
@@ -1215,7 +1234,7 @@ def test111() {
     Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 	printf("TargetVal=%a\n", TargetValFloat);
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1273,7 +1292,7 @@ def test112() {
     Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 	printf("TargetVal=%a\n", TargetValFloat);
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1335,7 +1354,7 @@ def test113() {
     Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 	printf("TargetVal=%a\n", TargetValFloat);
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1387,7 +1406,7 @@ def test200() {
     Val = [(*Deval)(F[0]),'map'(Deval,F[1])];
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 	printf("TargetVal=%a\n", TargetValFloat);
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1442,7 +1461,7 @@ def test201() {
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 //	printf("TargetVal=%a\n", TargetValFloat);
 	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1499,7 +1518,7 @@ def test300() {
 	printf("Val=%a\n  at Z=%a\n\n", Val[1],Val[0]);
 //	printf("TargetVal=%a\n", TargetValFloat);
 	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
-	Error=map(dabs,vtol(Val[1]-ltov(TargetValFloat)));
+	Error=map(number_abs,vtol(Val[1]-ltov(TargetValFloat)));
 	printf("Error=%a\n",Error);
 	return Val;
 }
@@ -1554,7 +1573,7 @@ def test301() {
 //	printf("TargetVal=%a\n", TargetValFloat);
 	printf("TargetVal=%a\n", 'map'(Deval,TargetValFloat));
 	Error = vtol(Val[1]-ltov(TargetValFloat));
-	Error = map(my_abs,Error);
+	Error = map(number_abs,Error);
 	printf("Error=%a\n",Error);
 	return Val;
 }
