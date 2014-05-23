@@ -1,0 +1,1851 @@
+/* $OpenXM$ */
+#define USE_MODULE 1
+import("names.rr")$
+import("ot_hgm_ahg.rr")$   // for check7
+import("ok_diff.rr")$  // for check7
+import("taka_diffop.rr")$ //  taka_dr1.mult(F,G)  [x,dx]
+/* Ref: @s/2014/05/12-my-note-FD-fdpf-rr.pdf   formulas for umat(), dmat()
+*/
+/* note that M is NOT used. MM! */
+/* index は松本論文と同じにする */
+
+#if  !USE_MODULE
+extern Alpha$
+extern MM$
+extern AA$
+extern BB$
+extern CC$
+extern Alpha_ap$  // a+1
+extern Alpha_am$ // a-1
+extern MyDebug$
+// NN is used as a local variable.
+/* for fvec_poly */
+extern FD_Dmat$
+extern FD_AA$
+extern FD_BB$
+extern FD_CC$
+extern FD_XX$
+#else
+module tk_fd;
+static Alpha$
+static MM$
+static AA$
+static BB$
+static CC$
+static Alpha_ap$  // a+1
+static Alpha_am$ // a-1
+static MyDebug$
+/* for fvec_poly */
+static FD_Dmat$
+static FD_AA$
+static FD_BB$
+static FD_CC$
+static FD_XX$
+
+localf setparam$
+localf setparam_by_number$
+localf setparam_by_int$
+localf setparam_apm$
+localf setparam_abc$
+localf getparam$
+localf mydebug$
+localf intmat$
+localf check1$
+localf ee$
+localf vv$
+localf vv0$
+localf dx$
+localf xij$
+localf psi$
+localf mycoefl$
+localf xx$
+localf yrule$
+localf mydiff$
+localf check2$
+localf mypoch$
+localf tk_number_gamma$
+localf tk_number_invgamma$
+localf fd$
+localf check3$
+localf check4$
+localf fdah$
+localf check5$
+localf check6$
+localf check7$
+localf mytruncate$
+localf check7b$
+localf check8$
+localf taka_base_prod$
+localf tkdiff_dvar$
+localf tkdiff_fac$
+localf tkdiff_deg2$
+localf tkdiff_mul$
+localf check8a$
+localf check8b$
+localf up_a0$
+localf down_a0$
+localf up_a$
+localf down_a$
+localf fdi$
+localf helpc$
+localf tkdiff_act$
+localf check9a$
+localf check9b$
+localf omega0$
+localf const_part$
+localf umat$
+localf umat_abc$
+localf check10$
+localf umat_gen$
+localf check11$
+localf dmat$
+localf check12$
+localf dmat_gen$
+localf dmat_abc$
+localf try13$
+localf check14$
+localf  try15$
+localf fvect$
+localf xvars$
+localf fd15_11$
+localf try16$
+localf yvars$
+localf fdah_poly$
+localf ahvec$
+localf check17$
+localf fvect_poly$
+localf check18$
+localf tk_number_rattofloat$
+localf taka_base_is_zero$
+localf taka_base_equal$
+localf check7c$
+localf check7c_out$
+localf fdah_aeqc$
+localf feval$
+localf check19$
+localf check19_out$
+localf ah_init_value$
+#endif
+/* Matsumoto, page 3 */
+
+def setparam(M) {
+  MM=M;
+ Alpha=newvect(MM+3);
+ AA=a;
+ BB=newvect(MM+1);
+ for (I=1; I<=MM; I++) BB[I] = util_v(b,[I]);
+ CC=c;
+ Alpha[0]=-CC+base_sum(BB,0,1,MM);
+ for (I=1; I<=MM; I++) Alpha[I] = -BB[I];
+ Alpha[MM+1] = CC-AA;
+ Alpha[MM+2] = AA;
+ setparam_apm();
+}
+def setparam_by_number(M,Seed) {
+  MM=M;
+ Alpha=newvect(MM+3);
+ P=pari(nextprime,Seed);
+ AA=1/P;
+ BB=newvect(MM+1);
+ for (I=1; I<=MM; I++) { P = pari(nextprime,P+1); BB[I] = 1/P; }
+ P = pari(nextprime,P+1); CC=1/P;
+ Alpha[0]=-CC+base_sum(BB,0,1,MM);
+ for (I=1; I<=MM; I++) Alpha[I] = -BB[I];
+ Alpha[MM+1] = CC-AA;
+ Alpha[MM+2] = AA;
+ setparam_apm();
+}
+
+def setparam_by_int(M,Seed) {
+  MM=M; 
+ Alpha=newvect(MM+3);
+ P=pari(nextprime,Seed);
+ if  (type(getopt(aa)) > 0) AA=-getopt(aa);
+ else AA=-13;
+ if (AA > 0) AA = -AA;
+ BB=newvect(MM+1);
+ for (I=1; I<=MM; I++) { P = pari(nextprime,P+1); BB[I] = -P; }
+ P = pari(nextprime,P+1); CC = P+20;
+ Alpha[0]=-CC+base_sum(BB,0,1,MM);
+ for (I=1; I<=MM; I++) Alpha[I] = -BB[I];
+ Alpha[MM+1] = CC-AA;
+ Alpha[MM+2] = AA;
+ setparam_apm();
+}
+
+def setparam_apm() {
+  Alpha_ap = matrix_clone(Alpha);
+  Alpha_am = matrix_clone(Alpha);
+  Alpha_ap[MM+1] = CC-(AA+1);
+ Alpha_ap[MM+2] = AA+1;
+ Alpha_am[MM+1] = CC-(AA-1);
+ Alpha_am[MM+2] = AA-1;
+
+}
+
+/*&usage begin:setparam_abc(M,A,B,C)
+Set parameters for F_D(A,B,C;x_1,...,x_M)
+example: tk_fd.setparam_abc(2,a,[-3,-5],7)
+end:
+*/
+def setparam_abc(M,A,B,C) {
+  if (length(B) !=M) error("length(B) != M");
+  MM=M;  
+ Alpha=newvect(MM+3);
+  AA=A;
+ BB=newvect(MM+1);
+ for (I=1; I<=MM; I++) { P = pari(nextprime,P+1); BB[I] = B[I-1]; }
+ P = pari(nextprime,P+1); CC = C;
+ Alpha[0]=-CC+base_sum(BB,0,1,MM);
+ for (I=1; I<=MM; I++) Alpha[I] = -BB[I];
+ Alpha[MM+1] = CC-AA;
+ Alpha[MM+2] = AA;
+ setparam_apm();
+}
+
+/*&usage begin: getparam()
+See setparam_abc()
+end: */
+def getparam() {
+   printf("MM(number of variables of F_D)=%a. ",MM);
+   printf("AA=%a, BB(ignore first element)=%a, CC=%a\n",AA,BB,CC);
+   printf("Alpha(Matsumoto paper)=%a\n",Alpha);
+   printf("Alpha_ap(Alpha(a+1)=%a,Alpha_am(Alpha(a-1))=%a\n",Alpha_ap,Alpha_am);
+   printf("MyDebug=%a\n",MyDebug);
+   return [MM,AA,BB,CC,Alpha,Alpha_ap,Alpha_am,MyDebug];
+}
+def mydebug(F) {
+  MyDebug=F;
+}
+
+/* intersection matrix C in page 17. */
+def intmat() {
+  D = newvect(MM+1);
+  D[0] = 1/AA;
+  for (I=1; I<=MM; I++) D[I] = -1/BB[I];
+  C = matrix_diagonal_matrix(D);
+  for (I=0; I<=MM; I++) {
+    for (J=0; J<=MM; J++) {
+      C[I][J] = C[I][J] + 1/(CC-AA);
+    }
+  }
+  return C;
+}
+
+def check1() {
+  C = intmat();
+  D = red(matrix_det(C));
+  printf("%a / ",fctr(nm(D)));
+  printf("%a\n",fctr(dn(D)));
+}
+
+def ee(I) {
+  E=newmat(1,MM+1);
+  E[0][I] = 1;
+  return E;
+}
+
+def vv(I,J) {
+  if ((I==0) && (J < MM+1)) return vv0(J);
+  else if (J < MM+1) return ee(I)-ee(J);
+  /* J == MM+1 */
+  return  ee(I);
+}
+
+def vv0(J) {
+  V=ee(J)+(Alpha[MM+2]/Alpha[0])*ee(0);
+  for (K=1; K<=MM; K++) {
+    V += ee(K)*(Alpha[K]/Alpha[0]);
+  }
+  return V;
+}
+
+def dx(I) {
+  if (I == 0) return 0;
+  if (I == (MM+1)) return 0;
+  return util_v(dx,[I]);
+}
+
+/* 1/(x_i-x_j) is expressed as y_{ij} */
+def xij(I,J) {
+  if (I == J) error("I == J");
+  return util_v(y,[I,J]);
+}
+
+/*&usage begin:
+psi()
+It returns the Pfaffian system for F_D in the differential form.
+See the paper ... by Matsumoto
+and setparam_abc().
+[d-psi()] F = 0 where F=(F_D, (x_1-1)/alpha_1 dx_1 F_D, ..., (x_M-1)/alpha_M dx_M F_D)
+example: tk_fd.setparam_abc(2,1/2,[1/3,1/5],1/7);
+tk_fd.psi();
+end:  */
+def psi() {
+  Psi = newmat(MM+1,MM+1);
+  C = intmat();
+  for (I=0; I<MM+1; I++) {
+    for (J=I+1; J<= MM+1; J++) {
+      Psi += Alpha[I]*Alpha[J]*C*(matrix_transpose(vv(I,J))*vv(I,J))*xij(I,J)*(dx(I)-dx(J));
+    }
+  }
+  return Psi;
+}
+
+/* coef of linear expression in terms of V
+   --> should be replaced with new poly_coefficient
+ */
+def mycoefl(F,V) {
+  return poly_coefficient(F,1,V);
+}
+
+def xx(I) {
+  if (I == 0) return 0;
+  if (I == MM+1) return 1;
+  return util_v(x,[I]);
+}
+def yrule() {
+  R = [];
+  for (I=0; I<MM+1; I++) {
+    for (J= I+1; J<=MM+1; J++) {
+       R = cons([util_v(y,[I,J]),1/(xx(I)-xx(J))],R);
+    }
+  }
+  return R;
+}
+
+def mydiff(F,V) {
+  if (type(F) <= 3) return diff(F,V);
+  return map(diff,F,V);
+}
+
+def check2(M,Seed) {
+  MM=M;
+  setparam_by_number(M,Seed);
+  P=psi();
+  P1=base_replace(mycoefl(P,dx_1) ,yrule());
+  P2=base_replace(mycoefl(P,dx_2) ,yrule());
+  printf("P1=%a, \nP2=%a\n",P1,P2);
+  R=mydiff(P1,x_2)+P1*P2-(mydiff(P2,x_1)+P2*P1);
+  R=map(red,R);
+  return R;
+}
+
+/* Series evaluation of FD and A-hg FD */
+def mypoch(A,N) {
+  if (N==0) return 1;
+  R=1;
+  for (I=0; I<N; I++) {
+    R = R*(A+I);
+  }
+  return R;
+}
+
+/* Gamma(Z) */
+/*&usage begin:
+tk_number_gamma(Z)
+It returns gamma(Z).
+When Z is not integer, it gives an approximate value.
+  end: */
+def  tk_number_gamma(Z) {
+  if (number_is_integer(Z)) {
+    if (Z <= 0) return(@infty);
+    else return fac(Z-1);
+  }
+  return pari(gamma,Z);
+}
+/*&usage begin:
+tk_number_invgamma(Z)
+It returns 1/gamma(Z).
+When Z is not integer, it gives an approximate value.
+When Z is non-positive integer, it returns 0.
+end: */
+def  tk_number_invgamma(Z) {
+  if (number_is_integer(Z)) {
+    if (Z <= 0) return 0;
+    else return 1/fac(Z-1);
+  }
+  return 1/pari(gamma,Z);
+}
+
+/*&usage begin:
+  fd(A,B,C,X | approx=N, diff=Idx)
+  It returns the series for F_D(a,[b_1,...,b_m],c; x_1,...,x_m)
+  up to the total degree N when A=a,B=[b_1,...,b_m],C=c,
+  X=[x_1,...,x_m].
+  When diff=i, the derivative of F_D with respect to x_i is returned.
+  X may be numbers.
+  example: tk_fd.fd(-3,[1/3,1/5],1/7,[x1,x2] | approx=3);
+  end: */
+/*
+  fd(1/2,[1/3,1/5],1/7,[x1,x2] | approx=3);
+  fd(1/2,[1/3,1/5],1/7,[x1,x2] | approx=3,diff=1);
+  fd(1/2,[1/3,1/5],1/7,[x1,x2] | approx=3,diff=2);
+  fd(1/2,[1/3,1/5],1/7,[1/2,1/3] | approx=3,diff=2);
+ */
+def fd(A,B,C,X) {
+  if (type(getopt(approx)) >=0) Approx=getopt(approx);
+  else Approx=2;
+  if (type(getopt(diff)) >0) Diff=getopt(diff);
+  else Diff=0;
+  Diff=Diff-1;
+  N=length(X);
+  if (N != length(B)) {
+    printf("B=%a\n",B);
+    printf("X=%a\n",X);
+     error("length(B) must be equal to length(X)");
+  }
+  F=dp_vtoe(newvect(N)); 
+  for (I=0; I<N; I++) {
+    M=newvect(N); M[I]=1;
+    F = F+dp_vtoe(M);
+  } 
+  E=dp_vtoe(newvect(N));
+  for (I=0; I<Approx; I++) {
+    E = E*F;
+  }
+  F=0;
+  while (E != 0) {
+     M = dp_etov(dp_hm(E));  E = dp_rest(E);
+     XX=1;  
+     for (I=0; I<N; I++)  {
+       if (I != Diff) XX = XX*(X[I])^M[I];
+       else if (M[I] > 0) XX = XX*M[I]*(X[I])^(M[I]-1);
+       else XX = 0; /* continue */
+     }
+     S = 0; for (I=0; I<N; I++) S = S+M[I];
+     Coef=mypoch(A,S)/mypoch(C,S);   
+     for (I=0; I<N; I++) Coef = Coef*mypoch(B[I],M[I])/fac(M[I]);
+     F = F+Coef*XX;  
+  }
+  return F;
+}
+
+def check3(N) {
+  A=1/2; B=[1/3,1/5,1/11]; C=1/7;
+  F=fd(A,B,C,[x1,x2,x3] | approx=N);
+  G=x1*diff(F,x1)+x2*diff(F,x2)+x3*diff(F,x3);
+  Rule=[[x1,t],[x2,2*t],[x3,3*t]];
+  F1=x1*diff(G+(C-1)*F,x1)-x1*(x1*diff(G+A*F,x1)+B[0]*(G+A*F));
+  F2=x2*diff(G+(C-1)*F,x2)-x2*(x2*diff(G+A*F,x2)+B[1]*(G+A*F));
+  F3=x3*diff(G+(C-1)*F,x3)-x3*(x3*diff(G+A*F,x3)+B[2]*(G+A*F));
+  return base_replace([F1,F2,F3],Rule);
+}
+
+def check4(N) {
+  A=1/2; B=[1/3,1/5,1/11]; C=1/7;
+  F=fd(A,B,C,[x1,x2,x3] | approx=N);
+  F1=diff(F,x1);
+  F2=diff(F,x2);
+  F3=diff(F,x3);
+  Rule=[[x1,t],[x2,2*t],[x3,3*t]];
+  F1=F1-fd(A,B,C,[x1,x2,x3]|approx=N,diff=1);
+  F2=F2-fd(A,B,C,[x1,x2,x3]|approx=N,diff=2);
+  F3=F3-fd(A,B,C,[x1,x2,x3]|approx=N,diff=3);
+  return base_replace([F1,F2,F3],Rule);
+}
+
+/*&usage begin:
+  fdah(A,B,C;X | approx=N, nogamma=ng, fdfunc=function)
+ The return value is [F,Amat,Brule,Gf,Y] where
+ F is the A-hypergeometric series associated to F_D(A,B,C;Y)  (truncated
+at the degree N with respect to Y) or the matrix Amat and the parameter
+vector which is given by Brule.
+X is a 2 by (length(B)+1) matrix or list and
+Y = [(12,21)/(11,22), (13,21)/(11,33), ... ].
+Gf*F is equal to  x^e sum(x^k/gamma(e+k+1), k runs over Ker Amat)
+where
+e = [[-A,          0, ...,           0],
+       [C-1, -B[0], ..., -B[M-1]]].
+The default fdfunc function is fd(A,B,C,Y).
+Gf is an approximate value and A,B,C must be numbers.  
+Ref.  notes at 2014.05.*,  tk_fd.fd(),  try13().
+example: tk_fd.fdah(-3,[-6,-1,-1],11,
+    [[x11,x12,x13,x14],
+     [x21,x22,x23,x24]] | approx=4);
+  end: */
+/*
+  fdah(1/2,[1/3,1/5,1/11],1/7,
+    [[x11,x12,x13,x14],
+     [x21,x22,x23,x24]]);
+ */
+def fdah(A,B,C,Y) {
+  /*
+      -A,      0,      0,      0
+    C-1,-B[0],-B[1],-B[2]
+  */
+  Optlist=getopt();
+  NoGamma = getopt(nogamma);
+  if (type(NoGamma)<0) NoGamma=0;
+  FDfunc = getopt(fdfunc);
+  if (type(FDfunc)<0) FDfunc=0;
+   N=length(B); 
+   X=newvect(N);
+   for (I=0; I<N; I++) {
+     X[I] = Y[0][I+1]*Y[1][0]/(Y[0][0]*Y[1][I+1]);
+   }
+   /* return X; */
+   U = (Y[0][0]^(-A))*(Y[1][0]^(C-1));
+   for (I=0; I<N; I++) {
+     U = U*(Y[1][I+1])^(-B[I]);
+   }
+
+   NN=N+1;
+   Amat=newmat(NN+1,2*NN);
+   for (I=0; I<NN; I++) Amat[0][I] = 1;
+   for (I=0; I<NN; I++) {Amat[I+1][I] = 1; Amat[I+1][NN+I]=1; }
+   Rule=[[b_2,C-A-1],[b_1,-A]];
+   for (I=0; I<N; I++) Rule=cons([util_v(b,[I+3]),-B[I]],Rule);
+   Rule = reverse(Rule);
+
+   /* Gamma factors, todo double check */
+   if (NoGamma) {
+     Gamma = "[1/gamma(e+1)]";
+   }else{
+    Gamma=tk_number_invgamma(-A+1)*tk_number_invgamma(C-1+1);
+    for (I=0; I<N; I++) {
+      Gamma=Gamma*tk_number_invgamma(-B[I]+1);
+    }
+   }
+  
+   if (FDfunc == 0) {
+     Val = red(U*fd(A,B,C,X | option_list=Optlist));
+   }else if (type(FDfunc) == 2) {
+     Val=red(U*(*FDfunc)(A,B,C,X | option_list=Optlist));
+   } else {
+     Val = red(U*FDfunc);
+   }
+   return [Val,matrix_matrix_to_list(Amat),Rule,Gamma,X];
+}
+
+def check5(N) {
+  /*
+      -A,      0,      0,      0
+    C-1,-B[0],-B[1],-B[2]
+  */
+  /*  A=1/2; B=[1/3,1/5,1/11]; C=1/7; */
+  A=-5; B=[-3,-5,-11]; C=7;
+  NN = length(B)+1;
+  Y = newmat(2,NN);
+  for (I=0; I<2; I++) for (J=0; J<NN; J++)  Y[I][J] = util_v(x,[I,J]);
+  Rule = [[Y[0][0],1],[Y[1][0],1]];
+  for (J=1; J<NN; J++) {
+    Rule = cons([Y[0][J],J*t/100],Rule);
+    Rule = cons([Y[1][J],1],Rule);
+  }
+  printf("Rule=%a\n",base_replace(Y,Rule));
+  F = fdah(A,B,C,Y | approx=N)[0];
+  /* print(F); */
+  S=0;
+  for (J=0; J<NN; J++)  S += Y[0][J]*diff(F,Y[0][J]);
+  S = base_replace(S-(-A)*F,Rule);
+  printf("111000: %a\n",eval(S));
+
+  S=0;
+  for (J=0; J<NN; J++)  S += Y[1][J]*diff(F,Y[1][J]);
+  S = base_replace(S-(C-1-B[0]-B[1]-B[2])*F,Rule);
+  printf("000111: %a\n",eval(S));
+
+  for (J=1; J<NN; J++)  {
+    S = diff(diff(F,Y[0][0]),Y[1][J])-diff(diff(F,Y[0][J]),Y[1][0]);
+    S = base_replace(S,Rule);
+    printf("00 1%a - 10 0%a: %a\n",J,J,eval(S));
+  }
+}
+
+def check6(N) {
+  A=1/2; B=[1/3,1/5,1/11]; C=1/7;
+  NN = length(B)+1;
+  Y = newmat(2,NN);
+  for (I=0; I<2; I++) for (J=0; J<NN; J++)  Y[I][J] = util_v(x,[I,J]);
+  Rule = [[Y[0][0],1],[Y[1][0],1]];
+  for (J=1; J<NN; J++) {
+    Rule = cons([Y[0][J],J/20],Rule);
+    Rule = cons([Y[1][J],1],Rule);
+  }
+  printf("Rule=%a\n",base_replace(Y,Rule));
+  FF = fdah(A,B,C,Y | approx=N);
+  BRule=FF[2];
+  F = FF[0];
+
+  S=0;
+  for (J=0; J<NN; J++)  S += Y[0][J]*diff(F,Y[0][J]);
+  S = base_replace(S-b_1*F,append(Rule,BRule));
+  printf("11110000: %a\n",eval(S));
+
+  for (J=0; J<NN; J++) {
+     S=Y[0][J]*diff(F,Y[0][J])+Y[1][J]*diff(F,Y[1][J]);
+     S = base_replace(S-util_v(b,[J+2])*F,append(Rule,BRule));
+     printf("J=%a : %a\n",J,eval(S));
+  }
+  return FF;
+}
+
+/* 
+  import("ot_hgm_ahg.rr"); 
+  import("ok_diff.rr");
+*/
+def check7(N) {
+  if (type(getopt(need_grad)) >0) NeedGrad=getopt(need_grad);
+  else NeedGrad=0;
+  if (type(getopt(check)) >0) Check=getopt(check);
+  else Check=0;
+  A=1/2; B=[1/3,1/5,1/11]; C=1/7;
+  NN = length(B)+1;
+  Y = newmat(2,NN,[[x1,x2,x3,x4],[x5,x6,x7,x8]]);
+  Dir =newmat(2,NN,[[0,1/2,1/3,1/4],[0,0,0,0]]);
+  Eps = 1/10;
+  Rule = [[Y[0][0],1],[Y[1][0],1]];
+  for (J=1; J<NN; J++) {
+    Rule = cons([Y[0][J],J/20],Rule);
+    Rule = cons([Y[1][J],1],Rule);
+  }
+  Point = base_replace(Y,Rule);
+  printf("Point=%a\n",Point);
+  FF = fdah(A,B,C,Y | approx=N);
+  F = FF[0];
+  Amat = FF[1];
+  BRule=FF[2];
+  Bvec=newvect(NN+1);
+  for (I=0; I<NN+1; I++) Bvec[I] = util_v(b,[I+1]);
+  Ahg=tk_sm1emu.gkz([Amat,vtol(newvect(NN+1))]);
+  // print(Ahg[0]);
+  V = Ahg[1];
+  if  (Check) {
+    for (I=0; I<length(Ahg[0]); I++) {
+      if (I<NN+1) Op=base_replace(Ahg[0][I]-Bvec[I],BRule);
+      else Op=base_replace(Ahg[0][I],BRule);
+      RR=eval(base_replace(odiff_act(Op,F,V),Rule));
+      printf("Ahg[0][%a] F = %a\n",I,RR);
+    }
+  }
+  Base=cbase(Amat);
+  printf("Base=%a\n",Base);
+  Iv=map(odiff_act,Base,F,V);
+  Iv=map(eval,base_replace(Iv,Rule));
+
+  Point2 = newmat(2,NN);
+  for (I=0; I<2; I++)  for (J=0; J<NN; J++)  Point2[I][J] = Point[I][J] + Eps*Dir[I][J];
+  Rule2=[];
+  for (I=0; I<2; I++)  for (J=0; J<NN; J++)  Rule2=cons([Y[I][J],Point2[I][J]],Rule2);
+  Iv2=map(odiff_act,Base,F,V);
+  Iv2=map(eval,base_replace(Iv2,Rule2));
+
+  if (NeedGrad) {
+   Grads=[dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8];
+   Grad=map(odiff_act,Grads,F,V);
+   Grad=map(eval,base_replace(Grad,Rule));
+  }
+
+  return [Amat,V,BRule,[base_flatten(Dir),Eps],[base_flatten(Point),Iv],[base_flatten(Point2),Iv2],Grad];
+}
+/*
+  R=check7(N);   N : approximation degree.
+  R[0]   Matrix A
+  R[1]   list of variables
+  R[2]   Values of b_1, b_2, ....   
+  R[3]   [Direction, Epsilon]
+  R[4]   [Initial Point,  values]
+  R[5]   [Termination Point,  values]
+  values are sorted in the order of cbase(R[0]);
+  Termination Point = Initia Point + base_flatten(R[3][0])*R[3][1]
+  R[6]  grad F at the initial point.  (need_grad=1)
+ */
+
+/* Todo, move to number_truncate */
+def  mytruncate(F) {
+  if (number_abs(F) < 10^(-10)) return 0;
+  else return F;
+}
+/*
+import("ot_hgm_ahg.rr");
+ P=get_mat2(A,W,Std,Mset); の時
+ Mat=P[0]; RM=P[1]; Supp2=P[2]; とおくと,
+ Mat*Supp2 = RM*Std
+ が成り立つ.  cf. test3b();
+*/
+def check7b(N) {
+  if (type(getopt(z)) >0) Eps=getopt(z);
+  else Eps=0;
+
+  A=1/2; B=[1/3,1/5,1/11]; C=1/7;
+  NN = length(B)+1;
+  Y = newmat(2,NN,[[x1,x2,x3,x4],[x5,x6,x7,x8]]);
+  Dir =newmat(2,NN,[[0,1/2,1/3,1/4],[0,0,0,0]]);
+  Rule = [[Y[0][0],1],[Y[1][0],1]];
+  for (J=1; J<NN; J++) {
+    Rule = cons([Y[0][J],J/20],Rule);  /* J/6 もやってみた. N must be large N=15 でようやく 0.000xxxx  */
+    Rule = cons([Y[1][J],1],Rule);
+  }
+  Point = base_replace(Y,Rule);
+
+  for (I=0; I<2; I++)  for (J=0; J<NN; J++)  Point[I][J] = Point[I][J] + Eps*Dir[I][J];
+
+  printf("Point=%a\n",Point);
+  FF = fdah(A,B,C,Y | approx=N);
+  F = FF[0];
+  Amat = FF[1];
+  BRule=FF[2];
+  GammaF=FF[3];  printf("Gamma factor is %a\n",GammaF);
+  Bvec=newvect(NN+1);
+  for (I=0; I<NN+1; I++) Bvec[I] = util_v(b,[I+1]);
+  Ahg=tk_sm1emu.gkz([Amat,vtol(newvect(NN+1))]); /* Note: b_i's are 0 */
+  V = Ahg[1];
+  Base=cbase(Amat); Std=Base;
+  printf("Base=%a\n",Base);
+  Mset=[dx1,dx2,dx3,dx4,dx5]; // Mset=0;  We may try other Mset 
+  P=get_mat2(Amat,0,Std,Mset); 
+  Mat=P[0]; RM=P[1]; Supp2=P[2];
+  
+  Supp2v = map(odiff_act,Supp2,F,V);
+  Supp2v = map(eval,base_replace(Supp2v,append(Rule,BRule)));
+  Supp2v = ltov(Supp2v);
+  Stdv = map(odiff_act,Std,F,V);
+  Stdv = map(eval,base_replace(Stdv,append(Rule,BRule)));
+  Stdv = ltov(Stdv);
+  printf("Point=%a\nStd=%a\n",base_flatten(Point),vtol(Stdv));
+  Matv = map(eval,base_replace(Mat,append(Rule,BRule)));
+  RMv = map(eval,base_replace(RM,append(Rule,BRule)));
+  // debug();
+  Ans=  Matv*Supp2v - RMv*Stdv;
+  return map(mytruncate,Ans);
+}
+
+/* 2014.05.05 */
+def check8() {
+  /* formula  1 */
+  F=(x*dx+1-x/(x-1));
+  G=((x-1)/(a*x))*x*dx;
+  Ans=taka_dr1.mult(F,G) - taka_dr1.mult(((x-1)/(a*x))*x*dx,x*dx);
+  printf("fomula1 = %a\n",Ans);
+  /* formula 2 */
+  F=((x-1)/(a*x))*x*dx;
+  Ans=taka_dr1.mult(F,1-x)-((1-x)*((x-1)/(a*x))*x*dx-(x-1)/a);
+  printf("fomula2 = %a\n",Ans);
+  /* formula 1' */
+}
+/* 2014.05.06 */
+/*&usage begin:
+taka_base_prod(E,V,From,To)
+returns  E[From]*E[From+1]*...*E[To].
+The variable V runs over [From,To]
+Ref.  base_sum
+example:  taka_base_prod([1,2,3,4],0,0,3);
+  end: */
+def taka_base_prod(E,V,From,To) {
+  Ans=1;
+  if (type(V) == 0) {
+    for (I=From; I<=To; I++) {
+      Ans = Ans*E[I];
+    }
+  }else{
+    error("not implemented.");
+  }
+  return Ans;
+}
+/*&usage begin:
+tkdiff_dvar(V)
+It returns dV.
+  end: */
+def tkdiff_dvar(V) {
+  if ((type(V) < 4) || (type(V) == 7))  return eval_str("d"+rtostr(V));
+  else map(tkdiff_dvar,V);
+}
+/*&usage begin:
+tkdiff_fac(E)
+It returns E!
+When E is a list, it returns (E[0]!)*(E[1]!)*(E[2]!)*...
+  end: */
+def tkdiff_fac(E) {
+  if (type(E) < 4) return fac(E);
+  E=map(fac,E);
+  return taka_base_prod(E,0,0,length(E)-1);
+}
+def tkdiff_deg2(V,F) { return deg(F,V); }
+/*&usage begin:
+tkdiff_mul(F,G,V)
+It returns F*G in the ring of differential operators with rational function
+coefficients Q(V)[dV].
+example: tkdiff_mul( (1/x)*(x*dx+y*dy+a), (1/(x-y))*dx,[x,y]);
+  end: */
+def tkdiff_mul(F,G,V) {
+  DV=tkdiff_dvar(V);
+  DDV=tkdiff_dvar(DV);
+  F1=nm(F); F2=dn(F);
+  Deg=map(tkdiff_deg2,DV,F2);
+  Deg=base_sum(Deg,0,0,length(Deg)-1);
+  if (Deg > 0) error("Denominator contains differential operator.");  
+  Deg=map(tkdiff_deg2,DV,F1);
+  Deg=base_sum(Deg,0,0,length(Deg)-1);
+  
+  N=length(V);
+  F=dp_vtoe(newvect(N)); 
+  for (I=0; I<N; I++) {
+    M=newvect(N); M[I]=1;
+    F = F+dp_vtoe(M);
+  } 
+  E=dp_vtoe(newvect(N));
+  for (I=0; I<Deg; I++) {
+    E = E*F;
+  }
+  Ans=0;
+  while (E != 0) {
+     Mop = dp_ht(E);  M=dp_etov(Mop); E = dp_rest(E);
+     C = 1/tkdiff_fac(M);
+     P = odiff_act(dp_dtop(Mop,DDV),F1,DV);
+     Q = odiff_act(dp_dtop(Mop,DV),G,V);
+     Ans = Ans+C*P*Q;
+  }
+  return red(Ans/F2);
+}
+/*
+  F=x*y*(dx+dy)^2; G=(x*dx+y*dy+z*dz)^3; 
+  tk_sm1emu.mul(F,G,[x,y,z])-tkdiff_mul(F,G,[x,y,z]);
+ */
+/* note, 05.04 */
+def check8a(II) {
+  N=MM;
+  V=[];
+  for (I=1; I<=N; I++) V=cons(util_v(x,[I]),V);
+  V=reverse(V);
+  F = 0;
+  for (I=1; I<=N; I++) {
+    F += util_v(x,[I])*tkdiff_dvar(util_v(x,[I]));
+  }
+  F=(1/(CC-AA-1))*(F+AA);
+  Xi=util_v(x,[II]); Di=tkdiff_dvar(Xi);
+  Fi=((Xi-1)/(Xi*Alpha[II]))*Xi*Di;
+  F = tkdiff_mul(Fi, F,V);
+
+  G = up_a0(II);
+  return F-tkdiff_mul(G,Fi,V);
+}
+def check8b(II) {
+  N = MM;
+  V=[];
+  for (I=1; I<=N; I++) V=cons(util_v(x,[I]),V);
+  V=reverse(V);
+  F = 0;
+  for (I=1; I<=N; I++) {
+    F += (1-util_v(x,[I]))*util_v(x,[I])*tkdiff_dvar(util_v(x,[I]));
+  }
+  Bop = 0;
+  for (I=1; I<=N; I++) Bop += BB[I]*util_v(x,[I]);
+  Fac=1/(AA-1);
+  F=Fac*(F+CC-AA-Bop);
+  Xi=util_v(x,[II]); Di=tkdiff_dvar(Xi);
+  Fi=((Xi-1)/(Xi*Alpha[II]))*Xi*Di;
+  F = tkdiff_mul(Fi, F,V);
+
+  Gall = down_a0(II);
+  G=Gall[0]; G0=Gall[1];
+
+  /*
+  print(red(tkdiff_mul(Fi,Xi,V)-Xi*Fi));
+  print(red(G0));
+  */
+  return F-(tkdiff_mul(G,Fi,V)+G0);
+}
+/* 2014.05.07 */
+/* 1<= II <= MM */
+def up_a0(II) {
+  N=MM;
+  Xi=util_v(x,[II]); Di=tkdiff_dvar(Xi);
+  G = 0;
+  for (I=1; I<=N; I++) {
+    if (I != II) G += util_v(x,[I])*tkdiff_dvar(util_v(x,[I]));
+  }
+  G = (1/(CC-AA-1))*(G+AA);
+  if (II > 0) G = G+(1/(CC-AA-1))*(Xi*Di+1-Xi/(Xi-1));
+  return G;
+}
+def down_a0(II) {
+  N=MM;
+  Xi=util_v(x,[II]); Di=tkdiff_dvar(Xi);
+  G = 0;
+  for (I=1; I<=N; I++) {
+    if (I != II) G += (1-util_v(x,[I]))*util_v(x,[I])*tkdiff_dvar(util_v(x,[I]));
+  }
+  Bop = 0;
+  Fac=1/(AA-1);
+  for (I=1; I<=N; I++) Bop +=  BB[I]*util_v(x,[I]);
+  G = Fac*(G+(CC-AA)-Bop);
+  G0=0;
+  if (II > 0) {
+    G = G+Fac*((1-Xi)*(Xi*Di+1-Xi/(Xi-1)) - Xi);
+    G0=-Fac*(BB[II]*(util_v(x,[II])-1))/Alpha[II];
+  }
+  return [G,G0];
+  /*  G fi(aa) +G0 f0(aa) = const fi(aa-1)
+   */
+}
+/* 2014.05.08 (Thu) */
+/*
+  f_i (a+1) = up_a(i) f_i
+ */
+def up_a(II) {
+  G = up_a0(II);
+  G = G*(Alpha[II]/Alpha_ap[II]);
+  return G;
+} 
+/*
+  f_i (a-1) = down_a(i)[0] f_i + down_a(i)[1] f_0
+ */
+def down_a(II) { 
+  Gall = down_a0(II);
+  G = Gall[0]; G0 = Gall[1];
+  Fac = (Alpha[II]/Alpha_am[II]);
+  G = G*Fac;
+  G0 = G0*Fac;
+  return [G,G0];
+}
+/*&usage begin:
+fdi(A,B,C,X,II | gamma=gm)
+It returns f_i in the paper of Matsumoto.
+F=[f_0, f_1, ..., f_m] satisfies  dF - psi() F = 0.
+example: Param=tk_fd.setparam_abc(2,-2,[-3,-4],3);
+  F=[tk_fd.fdi(Param[1],Param[2],Param[3],0 | approx=3),
+       tk_fd.fdi(Param[1],Param[2],Param[3],1 | approx=3),
+       tk_fd.fdi(Param[1],Param[2],Param[3],2 | approx=3)];
+  map(red,tkdiff_diff(F,x_1)-omega0(psi(),1)*F);
+  The result should be 0.
+  end: */
+/* Matsumoto f_i ,  i=0,...,m
+     if gamma=1, then gamma factor is multiplied.
+     In default, the gamma factor is not multiplied. Then fdi(A,B,C,0) = F_D.
+ */
+def fdi(A,B,C,X,II) {
+  Approx = getopt(approx);
+  if (type(Approx) < 0) Approx=2;
+  Gamma = getopt(gamma);
+  if (type(Gamma)<0) Gamma=0;
+  if (II==0) Diff=0; else Diff=II;
+  /* set alpha */
+  N = length(B);
+  MyAlpha=newvect(N+3);
+  MyAlpha[0]=-C+base_sum(B,0,0,N-1);
+  for (I=1; I<=N; I++) MyAlpha[I] = -B[I-1];
+  MyAlpha[N+1] = C-A;
+  MyAlpha[N+2] = A;
+  if (Diff > 0) {
+    Xi = X[II-1];
+    F= ((Xi-1)/MyAlpha[II])*fd(A, B, C, X  |  diff=Diff, approx=Approx);
+    if (Gamma == 1) {
+      F=F*tk_number_gamma(A)*tk_number_gamma(C-A)*tk_number_invgamma(C);
+    }
+    return F;
+  } else {
+    F= fd(A, B, C, X  |  approx=Approx);
+    if (Gamma == 1) {
+      F=F*tk_number_gamma(A)*tk_number_gamma(C-A)*tk_number_invgamma(C);
+    }
+    return F;
+  }
+
+}
+/* Todo, move to names.rr */
+def helpc() {
+  C="start "+getenv("APPDATA")+"\\OpenXM\\doc\\asir-contrib\\ja\\cman-html\\cman-ja_toc.html";
+  shell(C);
+}
+/*&usage begin:
+tkdiff_act(L,F,V)
+example: tkdiff_act((1/x)*dx+y*dy+a, 1/(x-y),[x,y]);
+  end: */
+def  tkdiff_act(L,F,V) {
+  G=odiff_act(nm(L),F,V);
+  return red(G/dn(L));
+}
+// MM=1; check9a(0,3); check9a(1,3);
+def check9a(II,Approx) {
+  setparam_by_int(MM,2)$
+  printf("MM=%a; setparam(); is the default.\n",MM)$
+  printf("To change do MM=number and check9 \n")$ 
+    V=[];
+  for (I=1; I<=MM; I++) V=cons(util_v(x,[I]),V);
+  V = reverse(V);
+  G=up_a(II)*(CC-AA-1)/AA;  // no gamma, note 2014.05.08 13:15
+  printf("II=%a\n",II);
+  Fi = fdi(AA,cdr(vtol(BB)),CC,V,II | approx=Approx);
+  printf("G(operator)=%a\n",G);
+  printf("Fi=%a\n",Fi);
+  //  debug();
+  A=tkdiff_act(G,Fi,V)-fdi(AA+1,cdr(vtol(BB)),CC,V,II | approx=Approx);
+  return A;
+}
+/* 2014.05.09 */
+// MM=1; check9b(0,5); check9b(1,5)  Approx must be large.
+// MM=2; check9b(0,8); check9b(1,8); check9b(2,8); 
+def check9b(II,Approx) {
+  setparam_by_int(MM,2)$
+  printf("MM=%a; setparam(); is the default.\n",MM)$
+  printf("To change do MM=number and check9b \n")$ 
+    V=[];
+  for (I=1; I<=MM; I++) V=cons(util_v(x,[I]),V);
+  V = reverse(V);
+  Gall=down_a(II);
+  Fac= (AA-1)/(CC-AA); // no gamma, note 2014.05.08 13:15
+  G=Gall[0]*Fac;
+  G0=Gall[1]*Fac;
+  printf("II=%a\n",II);
+  Fi = fdi(AA,cdr(vtol(BB)),CC,V,II | approx=Approx);
+  F0 = fdi(AA,cdr(vtol(BB)),CC,V,0| approx=Approx);
+  printf("Gall(operator)=%a\n",Gall);
+  printf("Fi=%a\n",Fi);
+  //  debug();
+  A=tkdiff_act(G,Fi,V)+G0*F0-fdi(AA-1,cdr(vtol(BB)),CC,V,II | approx=Approx);
+  return A;
+}
+/* 2014.05.09 9:24 */
+/*&usage begin:
+omega0(P,II) 
+end: */
+/* P=psi();  F=(tild f_0, ..., tild f_m)
+   dx_i F = omega0(P,i)*F
+*/
+def omega0(P,II) {
+  Xrule = getopt(xrule);
+  if (type(Xrule)<0) Xrule=0;
+  Dx_i = util_v(dx,[II]);
+  Yrule=yrule();
+  if (Xrule != 0) Yrule=base_replace(Yrule,Xrule);
+  Om = map(red,base_replace(mycoefl(P,Dx_i),Yrule));
+  return Om;
+}
+def const_part(Op) {
+  N=M=MM;
+  Rule=[];
+  for (I=1; I<=N; I++) {
+    Rule = cons([util_v(dx,[I]),0],Rule);
+  }
+  return red(base_replace(Op,Rule));
+}
+/*&usage begin:
+umat_abc(A,B,C | xrule=Rule)
+ The recurrence relation F(A+1) = umat_abc()*F(A) holds 
+ for 
+ F(A)=[fdi(A,B,C,X,0), fdi(A,B,C,X,1), ..., fdi(A,B,C,X,M)].
+ Ref.  check10(), check11(), fvect().
+ example: 
+ U=tk_fd.umat_abc(a,[-2,-3],5|xrule=[[x_1,1/2],[x_2,1/3]]);
+end: */
+def umat_abc(A,B,C) {
+  Opt =getopt();
+  M=length(B);
+  setparam_abc(M,A,B,C);
+  return umat(|option_list=Opt);
+}
+/*
+   F(AA+1) = umat()*F(A)
+ */
+def umat() {
+  Xrule=getopt(xrule);
+  if (type(Xrule)<0) Xrule=0;
+  N=M=MM;
+  Omat = newvect(N+1); P=psi();
+  if (Xrule != 0) P = map(red,base_replace(P,Xrule));
+  for (I=1; I<=N; I++) Omat[I] = omega0(P,I | option_list=getopt());
+  Umat=newmat(N+1,N+1);
+  for (I=0; I<=N; I++) {
+    TildU = up_a(I)*(CC-AA-1)/AA;  // no gamma, note 2014.05.08 13:15
+    if (Xrule != 0) TildU = map(red,base_replace(TildU,Xrule));
+    ConstPart = const_part(TildU);  
+    F_i = util_v(f,[I]);
+    TildU = (TildU-ConstPart)+ConstPart*F_i;
+    Rule = [];
+    for (J=1; J<=N; J++) {
+      Omj = 0;
+      for (K=0; K<=N; K++) {
+        F_k = util_v(f,[K]);
+        Omj += Omat[J][I][K]*F_k;
+      }
+      Dx_j = util_v(dx,[J]);
+      Rule = cons([Dx_j,Omj],Rule);
+    }
+    T = base_replace(TildU,Rule);
+    for (J=0; J<=N; J++)  {
+      F_j = util_v(f,[J]);
+      Umat[I][J] = red(mycoefl(T,F_j));
+    }
+  }
+  return Umat;
+}
+/*
+ MM=1$ setparam()$  
+   ---> これでは 0 にならないが, 数にすると mod x^(large num) で 0 となるのが見える.
+*/
+def check10(Approx) {
+  N=M=MM;
+  V=[];
+  for (I=1; I<=N; I++) V=cons(util_v(x,[I]),V);
+  V = reverse(V);
+  F=newvect(N+1);
+  for (I=0; I<=N; I++) F[I] = fdi(AA,cdr(vtol(BB)),CC,V,I | approx=Approx);
+  /* check code of diff eq */
+  T=map(diff,F,x_1)-omega0(psi(),1)*F;
+  printf("T(should be 0)=%a\n",map(red,T));
+
+  Fa =  newvect(N+1);
+  for (I=0; I<=N; I++) Fa[I] = fdi(AA+1,cdr(vtol(BB)),CC,V,I | approx=Approx);
+  Umat=umat();
+  A=Fa-Umat*F;
+  return map(red,A);
+}
+def  umat_gen(M) {
+  Opt=getopt();
+  MM=M;
+  setparam(M);
+  return umat(|option_list=Opt);
+}
+def check11() {
+  MM=2;
+  N=M=MM;
+  Umat=umat_gen(MM);
+  setparam_by_int(MM,2); 
+  Approx = -AA+3;
+  Rule=[[x_1,1/3],[x_2,1/2],[b_1,BB[1]],[b_2,BB[2]],[c,CC]];
+  Umat = base_replace(Umat,Rule);
+  F=newvect(N+1);
+  V=[x_1,x_2];
+  for (I=0; I<=N; I++) F[I] = fdi(AA,cdr(vtol(BB)),CC,V,I | approx=Approx);
+  F=base_replace(F,Rule);
+  for (I=0; I<-AA; I++) {
+    RuleA=[[a,AA+I]];
+    Umat = base_replace(Umat,RuleA);
+    printf("I=%a, F=%a\n",I,F);
+    // todo, 値が正しいかの check を加える.
+    F = Umat*F;
+  }
+  return Umat;
+}
+/*  Ref: note 2014.05.09 16:20   Use the result of W.Miller.
+   F(AA-1) = dmat()*F(A)
+ */
+def dmat() {
+  Xrule=getopt(xrule);
+  if (type(Xrule)<0) Xrule=0;
+  N=M=MM;
+  Omat = newvect(N+1); P=psi();
+  if (Xrule != 0) P=map(red,base_replace(P,Xrule));
+  for (I=1; I<=N; I++) Omat[I] = omega0(P,I | option_list=getopt());
+  Umat=newmat(N+1,N+1);
+  for (I=0; I<=N; I++) {
+    Fac= (AA-1)/(CC-AA); // no gamma, note 2014.05.08 13:15
+    Gall = down_a(I);
+    if (Xrule != 0) Gall=map(red,base_replace(Gall,Xrule));
+    TildU = Gall[0]*Fac;
+    ConstPart = const_part(TildU);  
+    F_i = util_v(f,[I]);
+    TildU = (TildU-ConstPart)+ConstPart*F_i;
+    F_0 = util_v(f,[0]); TildU += Gall[1]*Fac*F_0;  // correction for down.
+    Rule = [];
+    for (J=1; J<=N; J++) {
+      Omj = 0;
+      for (K=0; K<=N; K++) {
+        F_k = util_v(f,[K]);
+        Omj += Omat[J][I][K]*F_k;
+      }
+      if (MyDebug) printf("I=%a, J=%a, K=%a, Omj=%a\n",I,J,K,Omj);
+      Dx_j = util_v(dx,[J]);
+      Rule = cons([Dx_j,Omj],Rule);
+    }
+    T = base_replace(TildU,Rule);
+    for (J=0; J<=N; J++)  {
+      F_j = util_v(f,[J]);
+      Umat[I][J] = red(mycoefl(T,F_j));
+    }
+  }
+  return map(red,Umat);
+}
+def check12(Approx) {
+  N=M=MM;
+  V=[];
+  for (I=1; I<=N; I++) V=cons(util_v(x,[I]),V);
+  V = reverse(V);
+  F=newvect(N+1);
+  for (I=0; I<=N; I++) F[I] = fdi(AA,cdr(vtol(BB)),CC,V,I | approx=Approx);
+
+  Fa =  newvect(N+1);
+  for (I=0; I<=N; I++) Fa[I] = fdi(AA-1,cdr(vtol(BB)),CC,V,I | approx=Approx);
+  Dmat=dmat();
+  A=Fa-Dmat*F;
+  return map(red,A);
+}
+def  dmat_gen(M) {
+  Opt=getopt();
+  MM=M;
+  setparam(MM);
+  return dmat(|option_list=Opt);
+}
+/*&usage begin:
+dmat_abc(A,B,C | xrule=Rule)
+ The recurrence relation F(A-1) = dmat_abc()*F(A) holds
+ for  
+ F(A)=[fdi(A,B,C,X,0), fdi(A,B,C,X,1), ..., fdi(A,B,C,X,M)],
+ Ref.  try13().  fvect()
+ example: 
+ U=tk_fd.dmat_abc(a,[-2,-5],11|xrule=[[x_1,1/2],[x_2,1/3]]);
+end: */
+def  dmat_abc(A,B,C) {
+  Opt=getopt();
+  M=length(B);
+  setparam_abc(M,A,B,C);
+  return dmat(|option_list=Opt);
+}
+def try13() {
+  B=[-6,-1,-1];
+  C=11;
+  A=dmat_abc(a,B,C);
+  V=[x_1,x_2,x_3];
+  A=matrix_matrix_to_list(A);
+  F=fd(a,B,C,V | approx=10);
+  if ((F-fd(a,B,C,V | approx=11)) != 0) error("increase approx.");
+  return [A,F];
+}
+/* 
+Performance check when X's are integers.
+M can be 8 or 9.   2014.05.10
+ */
+def check14(M) {
+  MM=N=M;
+  setparam_by_int(M,2);
+  Xrule=[]; 
+  P=2;
+  for (I=1; I<=N; I++) {
+    P = pari(nextprime,P+1);
+     Xrule=cons([util_v(x,[I]),1/P],Xrule);
+  }
+  AA=a;
+  dmat(|xrule=Xrule);
+}
+
+def taka_base_is_zero(Obj) {
+  if (type(Obj) < 4) {
+    if (Obj == 0) return 1;
+    else return 0;
+  }
+  for (I=0; I<length(Obj); I++) {
+    if (!taka_base_is_zero(Obj[I])) return 0;
+  }
+  return 1;
+}
+def taka_base_equal(Obj1,Obj2) {
+  if (type(Obj1) != type(Obj2)) {
+    return 0;
+  }
+  if ((type(Obj1) < 4) || (type(Obj1) == 7)) return( Obj1 == Obj2);
+  if ((type(Obj1) == 4) || (type(Obj1) == 5)) {
+    if (length(Obj1) != length(Obj2)) return 0;
+    for (I=0; I<length(Obj1); I++) {
+      if (!taka_base_equal(Obj1[I],Obj2[I])) return 0;
+    }
+    return 1;
+  }
+  if (type(Obj1) == 6) {
+    if (!taka_base_equal(size(Obj1),size(Obj2))) return 0;
+    S=size(Obj1);
+    for (I=0; I<S[0]; I++) {
+      for (J=0; J<S[1]; J++) {
+        if (!taka_base_equal(Obj1[I][J],Obj2[I][J])) return 0;
+      }
+    }
+    return 1;
+  }  
+  error("Not implemented (taka_base_equal).");  /* todo */
+}
+def try15(M) {
+  A=a;
+  B=newvect(M);
+  for (I=0; I<M; I++) B[I] = -31*(I+1);
+  C=30;
+  Xrule=[];
+  for (I=1; I<=M; I++) Xrule=cons([util_v(x,[I]),1/(I+1)],Xrule);
+  Xrule=reverse(Xrule);
+  setparam_abc(M,A,B,C);
+  getparam();  printf("Xrule=%a\n",Xrule);
+  Dmat=dmat_abc(A,B,C | xrule=Xrule);
+
+  /* check */
+  Aval = -3;
+  Fam = fvect(Aval-1,B,C,base_replace(xvars(M),Xrule) | approx=-Aval+1);
+  Fa = fvect(Aval,B,C,base_replace(xvars(M),Xrule) | approx=-Aval+1);
+  T=Fam - base_replace(Dmat,[[a,Aval]])*Fa;
+  printf("If %a is not zero vector , then there is an error.\n",T);
+  return Dmat;
+}
+
+/*&usage begin:
+xvars(M)
+returns [x_1,...,x_M].
+  end: */
+def xvars(M) {
+  V=[];
+  for (I=1; I<=M; I++) V=cons(util_v(x,[I]),V);
+  return reverse(V);
+}
+/*&usage begin:
+fvect(A,B,C,X | approx=N) 
+returns  the vector
+F=[fdi(A,B,C,X,0), fdi(A,B,C,X,1), ..., fdi(A,B,C,X,M)].
+It satisfies dF - psi() F and recurrences generated by umat_abc() and dmat_abc().
+Ref.  fdi()
+example: tk_fd.fvect(-3,[-2,-5],4, [1/2,1/3] | approx=3);
+  end: */
+def fvect(A,B,C,X) {
+  Opt = getopt();
+  N=length(B);
+  Fa =  newvect(N+1);
+  for (I=0; I<=N; I++) Fa[I] = fdi(A,B,C,X,I | option_list=Opt);
+  return Fa;
+}
+
+/* fd for the parameter try15(11) */
+def fd15_11(A,B,C,X) {
+  /* output of try15(11); */
+  Dmat=
+[[(a-8476789/27720)/(a-30),(31/2)/(a-30),(62/3)/(a-30),(93/4)/(a-30),(124/5)/(a-30),(155/6)/(a-30),(186/7)/(a-30),(217/8)/(a-30),(248/9)/(a-30),(279/10)/(a-30),(310/11)/(a-30),(341/12)/(a-30)],[(-1/2*a+1/2)/(a-30),(1/2*a-1/2)/(a-30),0,0,0,0,0,0,0,0,0,0],[(-2/3*a+2/3)/(a-30),0,(2/3*a-2/3)/(a-30),0,0,0,0,0,0,0,0,0],[(-3/4*a+3/4)/(a-30),0,0,(3/4*a-3/4)/(a-30),0,0,0,0,0,0,0,0],[(-4/5*a+4/5)/(a-30),0,0,0,(4/5*a-4/5)/(a-30),0,0,0,0,0,0,0],[(-5/6*a+5/6)/(a-30),0,0,0,0,(5/6*a-5/6)/(a-30),0,0,0,0,0,0],[(-6/7*a+6/7)/(a-30),0,0,0,0,0,(6/7*a-6/7)/(a-30),0,0,0,0,0],[(-7/8*a+7/8)/(a-30),0,0,0,0,0,0,(7/8*a-7/8)/(a-30),0,0,0,0],[(-8/9*a+8/9)/(a-30),0,0,0,0,0,0,0,(8/9*a-8/9)/(a-30),0,0,0],[(-9/10*a+9/10)/(a-30),0,0,0,0,0,0,0,0,(9/10*a-9/10)/(a-30),0,0],[(-10/11*a+10/11)/(a-30),0,0,0,0,0,0,0,0,0,(10/11*a-10/11)/(a-30),0],[(-11/12*a+11/12)/(a-30),0,0,0,0,0,0,0,0,0,0,(11/12*a-11/12)/(a-30)]];
+  Dmat = matrix_list_to_matrix(Dmat);
+  /* output of getparam(); */
+  Bfix=[-31,-62,-93,-124,-155,-186,-217,-248,-279,-310,-341];
+  Cfix=30;
+  Xrule=[[x_1,1/2],[x_2,1/3],[x_3,1/4],[x_4,1/5],[x_5,1/6],[x_6,1/7],[x_7,1/8],[x_8,1/9],[x_9,1/10],[x_10,1/11],[x_11,1/12]];
+  Xfix=base_replace(xvars(length(Bfix)),Xrule);
+  if (type(getopt(test)) >= 0) {
+    B=Bfix; C=Cfix; X=Xfix;
+  }
+  if (type(X) == 5) X=vtol(X);
+  if (C != Cfix) error("C != Cfix");
+  if (!taka_base_equal(B,Bfix)) error("B != Bfix");
+  if (!taka_base_equal(X,Xfix)) error("X != Xfix");
+  if (!number_is_integer(A)) error("A must be an integer.");
+  if (A < -1) {
+    F=fvect(-1,B,C,X | approx=2);
+    for (I=-1; I>A; I--) {
+      Down = base_replace(Dmat,[[a,I]]);
+      F = Down*F;
+    }
+    return F[0];
+  } else {
+    error("A must be less than -1");
+  }
+}
+def try16(A) {
+  Bfix=[-31,-62,-93,-124,-155,-186,-217,-248,-279,-310,-341];
+  Cfix=30;
+  Xrule=[[x_1,1/2],[x_2,1/3],[x_3,1/4],[x_4,1/5],[x_5,1/6],[x_6,1/7],[x_7,1/8],[x_8,1/9],[x_9,1/10],[x_10,1/11],[x_11,1/12]];
+  Xfix=base_replace(xvars(length(Bfix)),Xrule);
+  Y = newmat(2,12);
+  Y[0][0] = 1;
+  for (J=0; J<12; J++) Y[1][J] = 1;
+  for (J=1; J<12; J++) Y[0][J] = Xfix[J-1];
+  Ans=fdah(A,Bfix,Cfix,Y | fdfunc=fd15_11);
+  return eval(Ans[0]*Ans[3]*exp(0));
+}
+
+/* 2014.05.14 */
+def yvars(M1) {
+  Y=newmat(2,M1);
+  for (I=1; I<=2; I++) {
+    for (J=1; J<= M1; J++) {
+      Y[I-1][J-1] = util_v(y,[I,J]);
+    }
+  }
+  return matrix_matrix_to_list(Y);
+}
+/*&usage begin:
+fdah_poly(A,B,C,Y)
+It returns hypergeometric polynomials for 2 x (M+1) tables
+with border sums
+-A 
+*
+   C-A-1, -B[0], -B[1], ...,-B[M-1]
+example: T=tk_fd.fdah(-2,[-1,-2],1,yvars(3) | approx=3);tk_fd.fdah_poly(-2,[-1,-2],1,yvars(3))-T[0]*T[3];
+end: */
+def fdah_poly(A,B,C,Y) {
+  M=length(B);
+  F=(Y[0][0]*t+Y[1][0])^(C-A-1);
+  for (I=0; I<M; I++) {
+    F = F*((Y[0][I+1]*t+Y[1][I+1])^(-B[I]));
+  }
+  /* H = poly_coefficient(F,-A,t); */
+  H = coef(F,-A,t);
+  /* 2014.05.15 */
+  Fac=tk_number_invgamma(C-A);
+  for (I=0; I<M; I++) Fac=Fac*tk_number_invgamma(1-B[I]);
+  return H*Fac;
+}
+
+/*
+2014.05.15
+ */
+/*&usage begin:
+  ahvec(A,B,C,Y | norecc=y, approx=n)
+  It returns [F,Gamma]. F*Gamma is equal to
+  (dy_21 Z, dy_22 Z, ..., dy_2p Z) at y = Y where p = length(B)+1.
+  y = [[y_11,y_12, ..., y_1p],[y_21,y_22,...,y_2p]].
+  y_2* must not be 0. 
+  example:
+  A=-3;
+  B=[-2,-5];
+  C=2;
+  Yval=[[1,1/2,1/3],[1,1,1]];
+  ahvec(A,B,C,Yval);
+  end: */
+def ahvec(A,B,C,Y) {
+  Opt=getopt();
+  if (type(getopt(norecc)) >0) UseRecc=0; else UseRecc=1;
+  M = length(B);
+  E = newmat(2,M+1);
+  E[0][0] = -A; E[1][0] = C-1;
+  for (J=1; J<=M; J++) E[1][J] = -B[J-1];
+  X=newvect(M);
+  for (I=0; I<M; I++) {
+     X[I] = Y[0][I+1]*Y[1][0]/(Y[0][0]*Y[1][I+1]);
+  }
+  Ye = 1;
+  for (J=0; J<=M; J++) Ye = Ye*(Y[0][J]^E[0][J])*(Y[1][J]^E[1][J]);
+  if (number_is_integer(A) && A < 0 && UseRecc) F=fvect_poly(A,B,C,X);
+  else F=fvect(A,B,C,X | option_list=Opt);
+  Fd=newvect(M+1);
+  Fd[0] = F[0];  /* Fd are Euer derivatives of F_D */
+  for (I=1; I<=M; I++) {
+    Xi = X[I-1]; Bi = B[I-1];
+    Fd[I] = F[I]*(-Bi/(Xi-1))*Xi;
+  }
+  Ahvec = newvect(M+1);
+  E21=E[1][0]; Y21=Y[1][0];
+  Ahvec[0] = (taka_base_sum(Fd,0,1,M)+E21*Fd[0])*Ye/Y21;
+  for (J=1; J<=M; J++) {
+    Y2j1 = Y[1][J]; E2j1 = E[1][J];
+    Ahvec[J] = (-Fd[J]+E2j1*Fd[0])*Ye/Y2j1;
+  }
+
+  NoGamma = getopt(nogamma);
+  if (type(NoGamma)<0) NoGamma=0;
+   /* Gamma factors, todo double check */
+  if (NoGamma) {
+     Gamma = "[1/gamma(e+1)]";
+  }else{
+    Gamma=tk_number_invgamma(-A+1)*tk_number_invgamma(C-1+1);
+    for (I=0; I<M; I++) {
+      Gamma=Gamma*tk_number_invgamma(-B[I]+1);
+    }
+  }
+  return [vtol(Ahvec),Gamma];
+}
+def check17() {
+  A=-3;
+  B=[-2,-5];
+  C=2;
+  Yval=[[1,1/2,1/3],[1,1,1]];
+
+  T=fdah(A,B,C,Yval|approx=-A+1);
+  printf("Should be 0 -->%a\n",T[0]*T[3]-fdah_poly(A,B,C,Yval));
+
+  Y=yvars(3);
+  Yrule = assoc(base_flatten(Y),base_flatten(Yval));
+  print(Yrule);
+  Fa=fdah_poly(A,B,C,Y);
+  Favec=[diff(Fa,y_2_1),diff(Fa,y_2_2),diff(Fa,y_2_3)];
+  Favec=base_replace(Favec,Yrule);
+
+  Favec2=ahvec(A,B,C,Yval | norecc=1, approx=-A+1);
+  Favec3=vtol(newvect(3,Favec2[0])*Favec2[1]);
+  print(Favec);
+  print(Favec3);
+  return taka_base_equal(Favec,Favec3);
+}
+def fvect_poly(A,B,C,X) { 
+  EvalDmat=1;
+  if (taka_base_equal(B,FD_BB) && 
+      taka_base_equal(C,FD_CC) && 
+      taka_base_equal(X,FD_XX) && (FD_Dmat != 0)) EvalDmat=0;
+  M = length(B);
+  if (type(X) == 4) X=newvect(length(X),X);
+  Xrule = assoc(xvars(M),vtol(X));
+  if (EvalDmat) {
+    printf("Computing Dmat for parameters B=%a,C=%a,X=%a\n",B,C,X);
+    setparam_abc(M,a,B,C);
+    getparam(); 
+    FD_Dmat=dmat_abc(a,B,C | xrule=Xrule);
+    FD_BB=B; FD_CC=C; FD_XX=X;
+    printf("\nDone.\n");
+  }
+  Dmat = matrix_list_to_matrix(FD_Dmat);
+  if (type(X) == 5) X=vtol(X);
+  if (!number_is_integer(A)) error("A must be an integer.");
+  if (A <= -1) {
+    F=fvect(-1,B,C,X | approx=2);
+    for (I=-1; I>A; I--) {
+      Down = base_replace(Dmat,[[a,I]]);
+      F = Down*F;
+    }
+    return F;
+  } else {
+    error("A must be less than 0");
+  }
+}
+
+def check18(M) {
+  if (type(getopt(fast))>=1) Fast=getopt(fast); else Fast=0;
+  setparam_by_int(M,2 | aa=Fast);
+  A=AA;
+  B=cdr(vtol(BB));
+  C=CC;
+  Yval=newmat(2,M+1);
+  for (I=0; I<M+1;I++) Yval[0][I]=Yval[1][I]=1;
+  for (I=1; I<M+1;I++) Yval[0][I]=1/(I+1);
+  Yval = matrix_matrix_to_list(Yval);
+
+  if (!Fast) {
+   T=fdah(A,B,C,Yval|approx=-A+1);
+   printf("Should be 0 -->%a\n",T[0]*T[3]-fdah_poly(A,B,C,Yval));
+
+  Y=yvars(M+1);
+  Yrule = assoc(base_flatten(Y),base_flatten(Yval));
+  print(Yrule);
+  Fa=fdah_poly(A,B,C,Y);
+  Favec=newvect(M+1);
+  for (I=1; I<=M+1; I++) Favec[I-1] = diff(Fa,util_v(y,[2,I]));
+  Favec=vtol(Favec);
+  Favec=base_replace(Favec,Yrule);
+  printf("By fdah_poly:%a\n",Favec);
+  }
+ 
+  Favec2=ahvec(A,B,C,Yval | approx=-A+1);
+  Favec3=vtol(newvect(M+1,Favec2[0])*Favec2[1]);
+  printf("By fvect_poly:%a\n",Favec3);
+  printf("In big float:%a\n",tk_number_rattofloat(Favec3));
+  if (Fast) return Favec3; else return taka_base_equal(Favec,Favec3);
+}
+def tk_number_rattofloat(L) {
+  if (type(L) >= 4) return map(tk_number_rattofloat,L);
+  return eval(L*exp(0));
+}
+
+/* 2014.05.22 */
+/* 
+  check7c(10 | a=1,c=1,check=1);
+*/
+def check7c(N) {
+  if (type(getopt(need_grad)) >0) NeedGrad=getopt(need_grad);
+  else NeedGrad=0;
+  if (type(getopt(check)) >0) Check=getopt(check);
+  else Check=0;
+  if (type(getopt(a)) >0) A=getopt(a);
+  else A=1/2;
+  if (type(getopt(c)) >0) C=getopt(c);
+  else C=1/7;
+  if (type(getopt(b)) >0) B=getopt(b);
+  else B=[1/3,1/5,1/11]; 
+  printf("[A,B,C]=%a\n",[A,B,C]);
+  NN = length(B)+1;
+  V1=base_var_list(x,1,NN);
+  V2=base_var_list(x,NN+1,2*NN);
+  Y = newmat(2,NN,[V1,V2]);
+  Dir =newmat(2,NN);
+  for (J=1; J<NN; J++) Dir[0][J]=1/(J+1);
+  // print(Y); print(Dir); return 0;
+  if (type(getopt(eps)) > 0) Eps = getopt(eps);
+  else Eps = 1/10;
+  if (type(getopt(step)) > 0) Step = getopt(step);
+  else Step = Eps/2;
+  Rule = [[Y[0][0],1],[Y[1][0],1]];
+  for (J=1; J<NN; J++) {
+    Rule = cons([Y[0][J],J/20],Rule);
+    Rule = cons([Y[1][J],1],Rule);
+  }
+  Point = base_replace(Y,Rule);
+  printf("Point=%a\n",Point);
+  FF = fdah(A,B,C,Y | approx=N);
+  if (A == C) Fexact=fdah_aeqc(A,B,C,Y); else Fexact=0;
+  F = FF[0];
+  Amat = FF[1];
+  BRule=FF[2];
+  Bvec=newvect(NN+1);
+  for (I=0; I<NN+1; I++) Bvec[I] = util_v(b,[I+1]);
+  Ahg=tk_sm1emu.gkz([Amat,vtol(newvect(NN+1))]);
+  // print(Ahg[0]);
+  V = Ahg[1];
+  if  (Check) {
+    for (I=0; I<length(Ahg[0]); I++) {
+      if (I<NN+1) Op=base_replace(Ahg[0][I]-Bvec[I],BRule);
+      else Op=base_replace(Ahg[0][I],BRule);
+      RR=eval(base_replace(odiff_act(Op,F,V),Rule));
+      printf("Ahg[0][%a] F = %a\n",I,RR);
+    }
+    if (Fexact != 0) {
+      printf("F-Fexact=%a\n",eval(base_replace(F,Rule))-eval(base_replace(Fexact,Rule))); 
+    }
+  }
+  Base=cbase(Amat);
+  printf("Base=%a\n",Base);
+  Iv=map(odiff_act,Base,F,V);
+  Iv=map(eval,base_replace(Iv,Rule));
+
+  Val=[[base_flatten(Point),Iv]];
+
+  for (T=1; T<=Eps/Step; T++) {
+    printf("T=%a <= %a\n",T,Eps/Step);
+    Point2 = newmat(2,NN);
+    for (I=0; I<2; I++)  for (J=0; J<NN; J++)  Point2[I][J] = Point[I][J] + T*Step*Dir[I][J];
+    Rule2=[];
+    for (I=0; I<2; I++)  for (J=0; J<NN; J++)  Rule2=cons([Y[I][J],Point2[I][J]],Rule2);
+    Iv2=map(odiff_act,Base,F,V);
+    Iv2=map(eval,base_replace(Iv2,Rule2));
+    Val=cons([base_flatten(Point2),Iv2],Val);
+  }
+
+  if (NeedGrad) {
+   Grads=base_var_list(dx,1,2*NN);
+   Grad=map(odiff_act,Grads,F,V);
+   Grad=map(eval,base_replace(Grad,Rule));
+  }
+
+  return [Amat,V,BRule,[base_flatten(Dir),Eps],reverse(Val),Grad,Base,Fexact];
+}
+
+/*
+  Exact values.
+  check7c_out(|a=1,c=1,b=[1],approx=15);
+  check7c_out(|a=1,c=1,b=[1,2],approx=15);
+  check7c(15|a=1,c=1,b=[1,2],check=1);
+*/
+def check7c_out() {
+  setprec(30);
+  if (type(getopt(a)) >0) A=getopt(a);
+  else A=1/2;
+  if (type(getopt(c)) >0) C=getopt(c);
+  else C=1/7;
+  if (type(getopt(b)) >0) B=getopt(b);
+  else B=0;
+  if (type(getopt(step))>0) Step=getopt(step);
+  else Step=1/10^12; 
+  if (type(getopt(eps))>0) Eps=getopt(eps);
+  else Eps=Step*10;
+  if (type(getopt(approx))>0) Approx=getopt(approx);
+  else Approx=15;
+  R1=check7c(Approx |step=Step,eps=Eps,a=A,c=C,b=B,check=1);
+  R2=check7c(Approx+2 |step=Step,eps=Eps,a=A,c=C,b=B,check=1);
+  R11=base_flatten(R1[4]);
+  R22=base_flatten(R2[4]);
+  Err=newvect(length(R11),R11)-newvect(length(R22),R22);
+  printf("/* map(mytruncate,Err)=%a */\n",map(mytruncate,Err));
+  printf("Fexact=%a;\n",R2[7]);
+  MyFile="/Users/nobuki/t.txt";
+  printf("Output will in %a\n",MyFile);
+  output(MyFile);
+  if (R2[7] != 0) printf("Fexact=%a;\n",R2[7]);
+  printf("A=%a;B=%a;C=%a;\n",A,B,C);
+  printf("/* map(mytruncate,Err)=%a */\n\n",map(mytruncate,Err));
+  printf("Step=%a; /* log10(step)=%a,approx deg=%a */\n",Step,eval(log(Step)/log(10)),Approx);
+  printf("A=%a;\n",R2[0]);
+  printf("V=%a;\n",R2[1]);
+  printf("Brule=%a;\n",R2[2]);
+  printf("Dir=%a;\n",R2[3][0]);
+  printf("Base=%a;\n\n",R2[6]);
+  R2=R2[4];
+  printf("/* Val=[[point,value],[point,value],....]; */\n");
+  printf("Val=[\n");
+  for (I=0; I<length(R2); I++) {
+    printf("%a",R2[I]);
+    if (I < length(R2)-1) printf(",\n");
+    else printf("\n];\n/**/\n");
+  }
+  output();
+}
+/* 2014.05.23 */ 
+/* Degenerate case A=C */
+def fdah_aeqc(A,B,C,Y) {
+   if  (A!=C)  error("fdah_aeqc: A!=C");
+   N=length(B); 
+   X=newvect(N);
+   for (I=0; I<N; I++) {
+     X[I] = Y[0][I+1]*Y[1][0]/(Y[0][0]*Y[1][I+1]);
+   }
+   U = (Y[0][0]^(-A))*(Y[1][0]^(C-1));
+   for (I=0; I<N; I++) {
+     U = U*(Y[1][I+1])^(-B[I]);
+   }
+
+   FD=1;
+   for (I=0; I<N; I++) {
+      FD=FD*(1-X[I])^(-B[I]);
+   }
+   Val = red(U*FD);
+   return Val;
+}
+def feval(F) { 
+  if (type(F) >= 4) return map(feval,F);
+  return eval(F*exp(0)); 
+}
+/* quadratic eq */
+def check19() {
+  Check=1;
+  if (type(getopt(step))>0) Step=getopt(step);
+  else Step=1/10^12; 
+  if (type(getopt(eps))>0) Eps=getopt(eps);
+  else Eps=Step*10;
+  Bvec = [b_1,b_2];
+  BRule=assoc(Bvec,[0,-1]);
+  Amat=[[1,1,1],[0,1,2]];
+  Ahg=tk_sm1emu.gkz([Amat,vtol(newvect(2))]);
+  V = Ahg[1];
+  Point=newvect(3,[2,-3,1]);  /* Solution is 2,1*/
+  Dir=newvect(3,[1,1,0]);
+  Rule=assoc(V,vtol(Point));  
+  F = (-x2+(x2^2-4*x1*x3)^(1/2))/(2*x3); 
+
+  if  (Check) {
+    for (I=0; I<length(Ahg[0]); I++) {
+      if (I<length(Bvec)) Op=base_replace(Ahg[0][I]-Bvec[I],BRule);
+      else Op=base_replace(Ahg[0][I],BRule);
+      RR=feval(base_replace(odiff_act(Op,F,V),Rule));
+      printf("Ahg[0][%a] F = %a\n",I,RR);
+    }
+  }
+  Base=cbase(Amat);
+  printf("Base=%a\n",Base);
+  Iv=map(odiff_act,Base,F,V);
+  Iv=map(feval,base_replace(Iv,Rule));
+
+  Val=[[feval(base_flatten(Point)),Iv]];
+
+  for (T=1; T<=Eps/Step; T++) {
+    printf("T=%a <= %a\n",T,Eps/Step);
+    Point2 = newvect(3);
+    Point2 = Point+T*Step*Dir;
+    Rule2=assoc(V,vtol(Point2));
+    Iv2=map(odiff_act,Base,F,V);
+    Iv2=map(feval,base_replace(Iv2,Rule2));
+    Val=cons([feval(base_flatten(Point2)),Iv2],Val);
+  }
+  return [Amat,V,BRule,[Dir,Eps],reverse(Val),0,Base,F];
+}
+
+def check19_out() {
+  setprec(30);
+  if (type(getopt(step))>0) Step=getopt(step);
+  else Step=1/10^12; 
+  if (type(getopt(eps))>0) Eps=getopt(eps);
+  else Eps=Step*10;
+  R2=check19(|step=Step,eps=Eps);
+  R22=base_flatten(R2[4]);
+  printf("Fexact=%a;\n",R2[7]);
+  MyFile="/Users/nobuki/t.txt";
+  printf("Output will in %a\n",MyFile);
+  output(MyFile);
+  if (R2[7] != 0) printf("Fexact=%a;\n",R2[7]);
+  printf("Step=%a; /* log10(step)=%a,approx deg=%a */\n",Step,eval(log(Step)/log(10)),Approx);
+  printf("A=%a;\n",R2[0]);
+  printf("V=%a;\n",R2[1]);
+  printf("Brule=%a;\n",R2[2]);
+  printf("Dir=%a;\n",R2[3][0]);
+  printf("Base=%a;\n\n",R2[6]);
+  R2=R2[4];
+  printf("/* Val=[[point,value],[point,value],....]; */\n");
+  printf("Val=[\n");
+  for (I=0; I<length(R2); I++) {
+    printf("%a",R2[I]);
+    if (I < length(R2)-1) printf(",\n");
+    else printf("\n];\n/**/\n");
+  }
+  output();
+}
+/*
+  check7c_out(|a=1,c=1,approx=15);
+  for ndata5.txt
+*/
+
+/*
+  ah_init_value(1,[1],1,[[1,1/3],[1,1]] | approx=25);
+  R1=check7c(20); R2=ah_init_value(1/2,[1/3,1/5,1/11],1/7,[[1,1/20,2/20,3/20],[1,1,1,1]] | approx=20); 
+  Err=matrix_list_to_matrix(base_flatten(R1[4][0]))
+       -matrix_list_to_matrix(base_flatten(R2[4][0]));
+  cf. check7();
+*/
+/*&usage begin:
+  ah_init_value(A,B,C,Y|approx=n)
+  A,B,C are parameters for F_D.
+  Let R be the return value of this function.
+  R[0]  is the matrix A which defines the corresponding A-hypergeometric system associated to F_D.
+  R[1] is the list of  indnependent variables.
+  R[2]  is  the values of b_1, b_2, ....   of A-hypergeometric system.
+  R[3]  is 0 (dummy for the compatibility).
+  R[4] is  [[initial Point Y,  values at Y]].
+  R[5]   is 0 (dummy for the compatibility).
+  R[6]   is a base of the Pfaffian obtained by cbase(). Values at Y (R[4]) are calculated with respect to this base.
+  R[7] is an exact solution if it exists.
+  When the error is more than 10^(-10), it returns 0 with the error message.
+  example:
+    ah_init_value(1,[1],1,[[1,1/3],[1,1]] | approx=25);
+    ah_init_value(1,[1],1,[1,1/3,1,1] | approx=25);
+    ah_init_value(1/2,[1/3,1/5,1/11],1/7,[[1,1/20,2/20,3/20],[1,1,1,1]] | approx=20); 
+*/
+def  ah_init_value(A,B,C,Y)  {
+  if (type(getopt(approx)) >=0) Approx=getopt(approx);
+  else Approx=10;
+  Check=0;
+  N = length(B)+1;
+  if (length(Y) != 2) {
+    Ymat=newmat(2,N);
+    for (I=0; I<N; I++) {Ymat[0][I]=Y[I]; Ymat[1][I]=Y[N+I];}
+    Y=matrix_matrix_to_list(Ymat);
+  }
+  V1=base_var_list(dx,1,N);
+  V2=base_var_list(dx,N+1,2*N);
+  YV=newmat(2,N,[V1,V2]);
+  Point = matrix_list_to_matrix(Y);
+  FF = fdah(A,B,C,Y | approx=Approx);
+  if (A == C) Fexact=fdah_aeqc(A,B,C,Y); else Fexact=0;
+  F = FF[0];
+  Amat = FF[1];
+  BRule=FF[2];
+  Bvec=newvect(N+1);
+  for (I=0; I<N+1; I++) Bvec[I] = util_v(b,[I+1]);
+  Ahg=tk_sm1emu.gkz([Amat,vtol(newvect(N+1))]);
+  // print(Ahg[0]);
+  V = Ahg[1];
+  if (Fexact != 0) {
+      printf("F-Fexact=%a\n",feval(F)-feval(Fexact));
+  }
+  Base=cbase(Amat);
+  printf("Base=%a\n",Base);
+ 
+  Iv0=ahvec(A,B,C,Y|approx=Approx)[0];
+  Iv1=ahvec(A,B,C,Y|approx=Approx+1)[0];
+  Err0=newvect(length(Iv0),feval(Iv0))-newvect(length(Iv1),feval(Iv1));
+  Err=map(mytruncate,Err0);
+  printf("Err0=%a, Err=%a\n",Err0,Err);
+  if (!taka_base_is_zero(Err)) {
+    printf("Err0=%a,Err=%a, Approx=%a\nError: Make approx larger.\n",Err0,Err,Approx);  
+    return 0;
+  }
+  Iv=newvect(length(Base),Base);
+  for (I=0; I<length(Iv); I++) {
+    if (Iv[I] == 1) Iv[I] = F;
+    else {
+      for (J=0; J<length(YV[1]); J++) {
+         if (Iv[I] == YV[1][J]) { Iv[I]=Iv0[J];  break; }
+      }
+      if (J == length(YV[1])) error("failed.");
+   }
+  }
+  Val=[ [feval(base_flatten(Point)),feval(base_flatten(Iv))]];
+  return [Amat,V,BRule,0,Val,0,Base,Fexact];
+}
+
+#if  !USE_MODULE
+setparam(2)$
+// setparam_by_number(2,2)$
+setparam_by_int(2,2)$
+getparam()$
+#else
+endmodule;  // endmodule of tk_fd
+
+tk_fd.setparam_by_int(2,2)$
+tk_fd.getparam()$
+#endif
+
+
+end$
