@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 module oh_number;
 localf rats_prec;
 localf rats;
@@ -15,15 +16,23 @@ def abs(A) {
 }
 
 def deval(A) {
-    return ::deval(eval(A*exp(0)));
+    return eval(A*exp(0));
 }
 
 def rats_prec(X,K) {
-    L = to_continued_fraction(X,K|rev=no);
-    return continued_fraction_to_rat(L|rev=no);
+    O = cons(["rev",no],getopt());
+    L = to_continued_fraction(X,K|option_list=O);
+    return continued_fraction_to_rat(L|option_list=O);
 }
 
 def to_continued_fraction(X,K) {
+    R=getopt(round);
+    Round=0;
+    if (R==floor) { 
+        Round=-1;
+    }else if (R==ceil) {
+        Round=1;
+    }
     Sign = 1;
     if (X==0) {
         return 0;
@@ -34,6 +43,9 @@ def to_continued_fraction(X,K) {
     Flag = 1;
     Bound = 2^62;
     L = [];
+    if (ntype(X)==1) {
+        X = deval(X);
+    }
     for(I=0; I<K; I++,X=1/X) {
         Q = number_floor(X);
         L = cons(Q,L);
@@ -43,9 +55,19 @@ def to_continued_fraction(X,K) {
             break;
         }
     }
-    if (Flag) {
+    Q = 0;
+    if (Round) {
+        Round = (2*irem(I,2)-1)*Sign*Round;
+        if( Round > 0 ) {
+            Q = number_floor(X);
+        }else {
+            Q = number_ceiling(X);
+        }
+    }else if (Flag) {
 /*      Q = number_round(X);  number_round is not implemented. */
         Q = rint(::deval(X));
+    }
+    if (Q!=0 || L==[]) {
         L = cons(Q,L); 
     }
     if(getopt(rev)!=no) {
@@ -72,8 +94,8 @@ def continued_fraction_to_rat(L) {
 
 def rats(X) {
    P=getopt(prec);
-   if (type(P) == 1) return rats_prec(X,P);
-   else rats_prec(X,14);
+   if (type(P) == 1 || P == 0) return rats_prec(X,P|option_list=getopt());
+   else return rats_prec(X,14|option_list=getopt());
 }
 
 endmodule;
