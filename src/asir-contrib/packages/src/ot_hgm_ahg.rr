@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.7 2014/05/23 05:52:21 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.8 2014/05/23 06:49:54 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -9,6 +9,7 @@ import("nk_toric.rr")$
 import("tk_sm1emu.rr")$
 import("tk_cc111.rr")$
 import("oh_base.rr")$
+import("oh_number.rr")$
 
 #include <defs.h>
 
@@ -835,10 +836,6 @@ def number_sign(X) {
 
 #define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
 
-def deval_pari(X) {
-	return eval(X*exp(0));
-}
-
 def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
 	Rk_deval = _getopt(deval,deval);
     if (type(Ys)==type([])) {
@@ -871,84 +868,151 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
     return reverse(Ans);
 }
 
-def rk_max2(X,Y) {
-	return X<Y? Y: X;
-}
-
 def rk_eval_norm_euclidean(V) {
-	N = length(V);
-	Norm = 0;
-	for(I=0; I<N; I++) {
-		Norm += V[I]*V[I];
-	}
-	Norm = deval_pari(Norm^(1/2));
-	return Norm;
+    N = length(V);
+    Norm = 0;
+    for(I=0; I<N; I++) {
+        Norm += V[I]*V[I];
+    }
+    return oh_number.deval(Norm^(1/2));
 }
 
-// 	ErrTol = [absolute error tolerance, relative error tolerance]
-def rk_error(Y1,Y2,ErrTol) {
-	N = length(Y1);
-	E = 0;
-	for(I=0; I<N; I++) {
-		Scale = ErrTol[0]+ErrTol[1]*rk_max2(number_abs(Y1[I]),number_abs(Y2[I]));
-		Delta = Y1[I]-Y2[I];
-		E += (Delta/Scale)^2;
-	}
-	return (E/N)^(1/2);
+def rk_eval_norm_max(V) {
+    return oh_base.max(map(oh_number.abs, V));
 }
 
-/* Adaptive Runge-Kutta*/
+/* W has no zero entry */
+def vector_ratio(V,W) {
+    N = length(V);
+    R = newvect(N);
+    for(I=0; I<N; I++) {
+        R[I] = V[I]/W[I];
+    }
+    return R;
+}
+
+//  ErrTol = [absolute error tolerance, relative error tolerance]
+def rk_error(Y1,Y2,K,Ctrl) {
+//  NormF=rk_eval_norm_max;
+    NormF=rk_eval_norm_euclidean;
+    Y = map(oh_number.abs,Y1-Y2);
+    K = map(oh_number.abs,K);
+    Scale = rk_scale(Y,K,Ctrl);
+    Ratio = vector_ratio(Y,Scale);
+    return (*NormF)(Ratio);
+}
+
+// Y,K are non-negative vectors
+def rk_scale(Y,K,Ctrl) {
+    R = Ctrl[1]*(Ctrl[2]*Y + Ctrl[3]*K);
+    N = length(R);
+    for(I=0; I<N; I++) {
+        R[I] += Ctrl[0];
+    }
+    return R;
+}
+
+/* see GSL 1.15 reference manual, section 26.3 */
+def rk_step_controller(Ctrl) {
+    /* [absolute error tolerance, relative error tolerance, coef. of |y|, coef. of |y'|] */
+    DefaultCtrl = [1/10^9,1/10^9,1,0];  // default
+    if (islist(Ctrl)) {
+        N = length(Ctrl);
+        if(N==4) {
+            return Ctrl;
+        }else if (N==2) {
+            return append(Ctrl,[1,0]);
+        }else if (N==3 || N==1) {
+            return append(Ctrl,vtol(newvect(4-N)));
+        }
+    }
+    return DefaultCtrl;
+}
+
+def rk_step45(Call,FuncArgs,X,Y,H,Ctrl,Eval) {
+    /* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
+    /* Dormand-Prince 4(5) parameters for embedded Runge-Kutta */
+    C  = [0,0,1/5,3/10,4/5,8/9,1,1];
+    B5 = [0, 35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0];
+    B4 = [0, 5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+    A2 = [0,1/5];
+    A3 = [0,3/40,9/40];
+    A4 = [0,44/45,-56/15,32/9];
+    A5 = [0,19372/6561,-25360/2187,64448/6561,-212/729];
+    A6 = [0,9017/3168,-355/33,46732/5247,49/176,-5103/18656];
+//  A7 = B5;
+
+    K1 = H*(*Call)(FuncArgs, [[X],   Y]); 
+    K2 = H*(*Call)(FuncArgs, [[X+C[2]*H], Y+A2[1]*K1]); 
+    K3 = H*(*Call)(FuncArgs, [[X+C[3]*H], Y+A3[1]*K1+A3[2]*K2]); 
+    K4 = H*(*Call)(FuncArgs, [[X+C[4]*H], Y+A4[1]*K1+A4[2]*K2+A4[3]*K3]); 
+    K5 = H*(*Call)(FuncArgs, [[X+C[5]*H], Y+A5[1]*K1+A5[2]*K2+A5[3]*K3+A5[4]*K4]); 
+    K6 = H*(*Call)(FuncArgs, [[X+C[6]*H], Y+A6[1]*K1+A6[2]*K2+A6[3]*K3+A6[4]*K4+A6[5]*K5]); 
+    Y4 = Y + B4[1]*K1 + B4[2]*K2 + B4[3]*K3 + B4[4]*K4 + B4[5]*K5 + B4[6]*K6; // embedded 4th RK
+    Y5 = Y + B5[1]*K1 + B5[2]*K2 + B5[3]*K3 + B5[4]*K4 + B5[5]*K5 + B5[6]*K6;
+
+    Error = (*Eval)(rk_error(Y5,Y4,K1,Ctrl));
+
+    return [Y5,Error];
+}
+
+/* 5th order Runge-Kutta method with adaptive stepsize control */
 /* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
 def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
-	Rk_deval = _getopt(deval,deval);
+    Eval = _getopt(deval,oh_number.deval);
+    Safety = 9/10;
 
-	ErrTolDefault = [1/10^9,1/10^9]; /* [absolute error tolerance, relative error tolerance] */
-	ErrTol = _getopt(etol,ErrTolDefault);
-	NormFunc = rk_eval_norm_euclidean;
-
-	/* Dormand-Prince parameters for embedded Runge-Kutta */
-	C  = [0,0,1/5,3/10,4/5,8/9,1,1];
-	B  = [0, 35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0];
-	Bst= [0, 5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
-	A2 = [0,1/5];
-	A3 = [0,3/40,9/40];
-	A4 = [0,44/45,-56/15,32/9];
-	A5 = [0,19372/6561,-25360/2187,64448/6561,-212/729];
-	A6 = [0,9017/3168,-355/33,46732/5247,49/176,-5103/18656];
-	A7 = [0,35/384,0,500/1113,125/192,-2187/6784,11/84];
+    Ctrl = rk_step_controller(getopt(ctrl));
+    printf("ErrorController=%a\n",Ctrl);
 
     if (type(Ys)==type([])) {
         Ys = ltov(Ys);
     }
-    CALL = _getopt(callf,call_func);
-    N  = rint(number_abs((Xe-Xs)/H));
-    H  = number_sign(Xe-Xs)*H;
-    Ans = [[Xs,Ys]];
-	printf("ErrTol=%a\n",ErrTol);
-    printf("\n%a %a\n", (*Rk_deval)(Xs), 'map'(Rk_deval, Ys));
-    for(Y=Ys,X=Xs,I=0; I<N; I++) {
-		K1 = H*(*CALL)(FuncArgs, [[X],   Y]); 
-		K2 = H*(*CALL)(FuncArgs, [[X+C[2]*H], Y+A2[1]*K1]); 
-		K3 = H*(*CALL)(FuncArgs, [[X+C[3]*H], Y+A3[1]*K1+A3[2]*K2]); 
-		K4 = H*(*CALL)(FuncArgs, [[X+C[4]*H], Y+A4[1]*K1+A4[2]*K2+A4[3]*K3]); 
-		K5 = H*(*CALL)(FuncArgs, [[X+C[5]*H], Y+A5[1]*K1+A5[2]*K2+A5[3]*K3+A5[4]*K4]); 
-		K6 = H*(*CALL)(FuncArgs, [[X+C[6]*H], Y+A6[1]*K1+A6[2]*K2+A6[3]*K3+A6[4]*K4+A6[5]*K5]); 
-		Yst= Y + Bst[1]*K1 + Bst[2]*K2 + Bst[3]*K3 + Bst[4]*K4 + Bst[5]*K5 + Bst[6]*K6; // embedded 4th RK
-		Yn = Y + B[1]*K1 + B[2]*K2 + B[3]*K3 + B[4]*K4 + B[5]*K5 + B[6]*K6;
 
-		Error = (*Rk_deval)(rk_error(Yn,Yst,ErrTol));
-/*
-        printf("Y1: %a %a\nY2: %a %a\nY3: %a %a\nY4: %a %a\n", 
-               (*Rk_deval)(X),    'map'(Rk_deval, Y1),
-               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y2),
-               (*Rk_deval)(X+H2), 'map'(Rk_deval, Y3),
-               (*Rk_deval)(X+H),  'map'(Rk_deval, Y4));
-*/
-        X += H; 
-        printf("%a %a\n", (*Rk_deval)(X), 'map'(Rk_deval, Y));
-        printf("error = %a\n", Error);
+    Sign = number_sign(Xe-Xs);
+    CALL = _getopt(callf,call_func);
+    H  = Sign*number_abs(H);
+
+    X = Xs; Y = Ys;
+    Ans = [[X,Y]];
+    printf("\n%a %a\n", (*Eval)(X), 'map'(Eval, Y));
+    if (X==Xe) {
+        printf("\n");
+        return Ans;
+    }
+
+    while(1) {
+        X1 = X; Y1 = Y;
+        R = rk_step45(CALL,FuncArgs,X,Y,H,Ctrl,Eval);
+        Y5 = R[0]; Error = R[1];
+        printf("Error = %a\n", Error);
+        if (Error>1) { // Retry because the error is too large.
+            E5 = (*Eval)(Error^(-1/5));
+            H2 = H*Safety*E5;
+            printf("(retry) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10));
+            H  = H2;
+            continue;
+        }
+        X += H; Y = Y5;
+        if (Error <= 1/2) { // Enlarging the stepsize because of too small.
+            E5 = (*Eval)(Error^(-1/5));
+            H2 = H*Safety*E5;
+            printf("(next) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10));
+            H  = H2;
+        }
+        if ( Sign*(Xe-X) <= 0 ) {
+            break;
+        }
+        printf("%a %a\n", (*Eval)(X), 'map'(Eval, Y));
         Ans = cons([X,Y],Ans);
     }
+    if ( Xe != X ) { // retry last step
+        H = Xe - X; /* abs(Xe-X1) < abs(LastH) */
+        R = rk_step45(CALL,FuncArgs,X1,Y1,H,Ctrl,Eval);
+        X += H; Y  = R[0];
+    }
+    printf("%a %a\n", (*Eval)(X), 'map'(Eval, Y));
+    Ans = cons([X,Y],Ans);
     printf("\n");
     return reverse(Ans);
 }
@@ -1062,11 +1126,11 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
 		P = base_replace(P,Eqn[0]);
 		Func=[P,[[Z],SS]];
 //		return runge_kutta_linear2(Func,Start,InitVal,End,H);
-		return runge_kutta_linear3(Func,Start,InitVal,End,H | deval=deval_pari);
+		return runge_kutta_linear3(Func,Start,InitVal,End,H | deval=oh_number.deval);
 	}
     Func=[P,[[Z],SS],Eqn];
-//  return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
-    return runge_kutta_linear3(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=deval_pari );
+//  return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=oh_number.deval );
+    return runge_kutta_linear3(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=oh_number.deval );
 }
 
 def test100 () {
@@ -1184,7 +1248,7 @@ def test110() {
 }
 
 def test111() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,1,1,0,0,0,0],
        [1,0,0,0,1,0,0,0],
        [0,1,0,0,0,1,0,0],
@@ -1240,7 +1304,7 @@ def test111() {
 }
 
 def test112() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,1,1,0,0,0,0],
        [1,0,0,0,1,0,0,0],
        [0,1,0,0,0,1,0,0],
@@ -1298,7 +1362,7 @@ def test112() {
 }
 
 def test113() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,1,1,0,0,0,0],
        [1,0,0,0,1,0,0,0],
        [0,1,0,0,0,1,0,0],
@@ -1361,7 +1425,7 @@ def test113() {
 
 // Gauss HGF
 def test200() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,0,0],
        [1,0,1,0],
 		 [0,1,0,1]];
@@ -1413,7 +1477,7 @@ def test200() {
 
 // Gauss HGF
 def test201() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,0,0],
        [1,0,1,0],
 		 [0,1,0,1]];
@@ -1468,7 +1532,7 @@ def test201() {
 
 // Quadratic Equation
 def test300() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,1],
 		 [0,1,2]];
 /*  W=[[dx1,1,dx2,1,dx3,1]]; */
@@ -1528,7 +1592,7 @@ def my_abs(A) {
 }
 
 def test301() {
-	Deval=deval_pari;
+	Deval=oh_number.deval;
     A = [[1,1,1],
 		 [0,1,2]];
 /*  W=[[dx1,1,dx2,1,dx3,1]]; */
