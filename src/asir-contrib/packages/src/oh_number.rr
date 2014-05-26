@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_number.rr,v 1.7 2014/05/24 17:52:35 ohara Exp $ */
 module oh_number;
 localf rats_prec;
 localf rats;
@@ -22,7 +22,7 @@ def deval(A) {
 def rats_prec(X,K) {
     O = cons(["rev",no],getopt());
     L = to_continued_fraction(X,K|option_list=O);
-    return continued_fraction_to_rat(L|option_list=O);
+    return L[2];
 }
 
 def to_continued_fraction(X,K) {
@@ -34,46 +34,44 @@ def to_continued_fraction(X,K) {
         Round=1;
     }
     Sign = 1;
-    if (X==0) {
-        return 0;
-    }else if (X<0) {
+    if (X<0) {
         Sign = -1; X = -X; 
     }
 /* continued fraction (X ~= reverse(L)) */
-    Flag = 1;
     Bound = 2^62;
+    if (X==0 || (ntype(X) && Bound*X < 1)) {
+        return [Sign, [0], 0];
+    }
     L = [];
     if (ntype(X)==1) {
         X = deval(X);
     }
-    for(I=0; I<K; I++,X=1/X) {
+    N1 = 1; N2 = 0;
+    D1 = 0; D2 = 1; 
+    Prec=10^K; // absolute error is less than 1/Prec
+    for(I=0; ;I++,X=1/X) {
         Q = number_floor(X);
         L = cons(Q,L);
         X = X - Q;
-        if (Bound*X < 1) { /* underflow for ieee754 double prec. */
-            Flag = 0;
+        N = Q*N1 + N2; N2=N1; N1=N;
+        D = Q*D1 + D2; D2=D1; D1=D;
+        if ( X==0 || (ntype(X) && Bound*X < 1) || Prec < D1*D2 ) {
             break;
         }
     }
-    Q = 0;
-    if (Round) {
-        Round = (2*irem(I,2)-1)*Sign*Round;
-        if( Round > 0 ) {
-            Q = number_floor(X);
+    R = (2*irem(I,2)-1)*Sign*Round;
+    if (X && (!Round || R < 0) ) {
+        if (length(L)>1) {
+            L = cdr(L); D1=D2; N1=N2;
         }else {
-            Q = number_ceiling(X);
+            N1 = L[0] + Round; D1 = 1;
+            L  = [N1];
         }
-    }else if (Flag) {
-/*      Q = number_round(X);  number_round is not implemented. */
-        Q = rint(::deval(X));
-    }
-    if (Q!=0 || L==[]) {
-        L = cons(Q,L); 
     }
     if(getopt(rev)!=no) {
         L = reverse(L);
     }
-    return [Sign,L];
+    return [Sign,L,Sign*(N1/D1)];
 }
 
 /* continued fraction to rational number */
