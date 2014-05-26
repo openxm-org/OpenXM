@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.14 2006/10/15 02:40:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.15 2007/11/23 05:40:11 ohara Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -194,6 +194,66 @@ def taka_util_timing(Q) {
   R1 = ["cpu",T1[0]-T0[0],"gc",T1[1]-T0[1],"memory",T1[2]-T0[2],
         "real",T1[3]-T0[3]];
   return [R,R1];
+}
+
+def tk_util_file_exists(Fname) {
+  Fd=open_file(Fname,"r");
+  if (Fd>=0) {
+    close_file(Fd); return(1);
+  }else{ return 0; }
+}
+
+def tk_util_docdir() {
+  DocumentTop=0;
+  if (sysinfo()[0] == "windows") {
+    DocumentTop2=getenv("ASIR_ROOTDIR")+"\\doc\\asir-doc-top.html";
+    DocumentTop1=getenv("APPDATA")+"\\OpenXM\\doc\\asir-doc-top.html";
+    DocumentTop2 = DocumentTop2;
+    DocumentTop1 = DocumentTop1;
+  }else{
+    DocumentTop2=getenv("OpenXM_HOME")+"/doc/asir-doc-top.html";
+    OpenXM_tmp=getenv("OpenXM_tmp");
+    if (OpenXM_tmp == 0) OpenXM_tmp=getenv("HOME")+"/.OpenXM_tmp";
+    DocumentTop1=OpenXM_tmp+"/OpenXM/doc/asir-doc-top.html";
+  }
+  if (tk_util_file_exists(DocumentTop1)) {
+    DocumentTop = DocumentTop1;
+  }else if (tk_util_file_exists(DocumentTop2)) {
+    DocumentTop = DocumentTop2;
+  }
+  return DocumentTop;
+}
+
+def tk_util_find_start() {
+  if (type(getopt(find_browser)) > 0) Browser=1;
+  else Browser=0;
+  if (sysinfo()[0] == "windows")  { Start = "start \"asirgui\""; return Start; }
+  if (sysinfo()[0] == "mac")  { Start = "open"; return Start; }
+  Names = ["/usr/local/bin/gnome-open","/usr/bin/gnome-open"];
+  if (Browser) {
+    Names = append(Names,
+		   ["/usr/local/bin/chrome","/usr/bin/chrome",
+		    "/usr/local/bin/firefox","/usr/bin/firefox",
+		    "/usr/local/bin/iceweasel","/usr/bin/iceweasel",
+		    "/usr/local/bin/epiphany","/usr/bin/epiphany"]);
+  }
+  for (I=0; I<length(Names); I++) {
+    if (tk_file_exists(Names[I])) return Names[I];
+  }
+  return 0;
+}
+def  tk_util_helph() {
+  if (type(getopt(browser)) > 0) {
+    Start=getopt(browser);
+  }else{
+    Start = tk_util_find_start();
+  }
+  DocumentTop = tk_util_docdir();
+  if (DocumentTop == 0) { 
+    error("Document directry is not found.");  return(-1);
+  } 
+  Com = Start+"  "+ "\""+DocumentTop+"\"";
+  return shell(Com); 
 }
 
 Loaded_taka_util=1$

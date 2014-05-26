@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.130 2014/05/23 09:43:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.131 2014/05/23 22:32:49 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20120323), Copyright 2000-2012, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20140526), Copyright 2000-2014, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -1152,6 +1152,28 @@ def a_hypergeometric_bfunction(A,V,S) {
    asir_contrib_update(|zip_files=["lib-asir-contrib.zip","doc-asir2000.zip","doc-asir-contrib.zip","doc-other-docs.zip"]);
 end: */
 def asir_contrib_update() { return tk_asir_contrib_update.asir_contrib_update(|option_list=getopt()); }
+
+def util_file_exists(Fname) { return tk_util_file_exists(Fname); }
+/*&usage begin: util_file_exists(Fname)
+It returns 1 when {Fname} exists. It returns 0 when {Fname} does not exist.
+end: */
+def util_docdir() { return tk_util_docdir(); }
+/*&usage util_docdir()
+It returns the document directory for asir-contrib.  When asir_contrib_update() is used, 
+it retuns the directory name where asir_contrib_update() uses.
+end:
+*/
+def util_find_start() { return tk_util_find_start(|option_list=getopt()); }
+/*&usage begin: util_find_start(|browser=name)
+It tries to find the gnome-open command or an installed browser in unix systems.
+It returns "open" on MacOS X and returns "start" on Windows.
+end:
+*/
+/*&usage begin:  helph(|browser=name)
+ It shows the html help by the default browser.
+end:
+*/
+def helph() { return tk_util_helph(|option_list=getopt()); }
 
 end$
 
