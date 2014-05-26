@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.23 2012/02/25 06:07:48 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.24 2014/03/27 07:28:07 takayama Exp $
 RM=rm -f
 
 LANGUAGES = en ja
@@ -6,6 +6,7 @@ LANGUAGES = en ja
 bindir=@prefix@/bin
 LIBDIR=@prefix@/lib/asir
 DOCDIR=@prefix@/doc/asir-contrib
+DOCDIRTOP=@prefix@/doc
 
 SUBDIRS=dsolv gnuplot mathematica ok_diff ok_dmodule om \
    pfpcoh phc plucker sm1 tigers \
@@ -32,6 +33,7 @@ install-help: all
 install-document: all
 	@if [ ! -f ./.install_doc_done ] ; then \
 		for i in ${SUBDIRS}; do (cd $$i && ${MAKE} install-document); done ; \
+		install -m 0644 asir-doc-top.html ${DOCDIRTOP} ; \
 	    touch ./.install_doc_done ; \
 	else \
 	    echo "NOTE: Installation of document is already done. Remove .install_doc_done for a new installation." ; \
