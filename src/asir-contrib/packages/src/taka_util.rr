@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.15 2007/11/23 05:40:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.16 2014/05/26 06:52:43 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -196,12 +196,7 @@ def taka_util_timing(Q) {
   return [R,R1];
 }
 
-def tk_util_file_exists(Fname) {
-  Fd=open_file(Fname,"r");
-  if (Fd>=0) {
-    close_file(Fd); return(1);
-  }else{ return 0; }
-}
+def tk_util_file_exists(Fname) { return access(Fname); }
 
 def tk_util_docdir() {
   DocumentTop=0;
@@ -238,7 +233,7 @@ def tk_util_find_start() {
 		    "/usr/local/bin/epiphany","/usr/bin/epiphany"]);
   }
   for (I=0; I<length(Names); I++) {
-    if (tk_file_exists(Names[I])) return Names[I];
+    if (tk_util_file_exists(Names[I])) return Names[I];
   }
   return 0;
 }
