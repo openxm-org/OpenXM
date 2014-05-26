@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.9 2014/05/14 10:25:49 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.10 2014/05/23 22:32:49 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -113,7 +113,7 @@ def asir_contrib_update_win() {
     print("Please clean asir-lib-trash on your desktop by hand.");
    }
    Tk_UpdateCC=cons([C1,C2mkdir,C2move,C2],Tk_UpdateCC);
-   if (Update == 1) {
+   if (Update) {
     myshell(C1); myshell(C2mkdir); myshell(C2);
    }
   }
@@ -170,7 +170,7 @@ def asir_contrib_update_unix() {
     print("Please clean asir-lib-trash on your HOME by hand.");
    }
    Tk_UpdateCC=cons([C1,C2mkdir,C2move,C2],Tk_UpdateCC);
-   if (Update == 1) {
+   if (Update) {
     myshell(C1); myshell(C2mkdir); myshell(C2);
    }
   }
