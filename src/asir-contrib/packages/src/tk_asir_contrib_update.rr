@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.10 2014/05/23 22:32:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.11 2014/05/26 07:51:56 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -33,6 +33,7 @@ def contain_space(S) {
 }
 def mymessage(OS) {
    printf("The asir-contrib library and/or other update files provided on our web will be updated to the HEAD branch with the command asir_contrib_update(|update=1)\n");
+   printf("If update=2, then documents will be downloaded. If update=3, then both of library files and documents will be downloaded.\n");
    printf("Note that it might cause troubles because of an incompatibility of the binary asir and the asir-contrib.\n");
    printf("If you understand this risk and want to update to the HEAD branch, execute the command above.\n");
    if (OS == "Windows") {
