@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.132 2014/05/26 06:52:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.133 2014/05/26 07:21:31 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20140526), Copyright 2000-2014, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20140528), Copyright 2000-2014, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -1174,6 +1174,17 @@ end:
 end:
 */
 def helph() { return tk_util_helph(|option_list=getopt()); }
+
+/*&usage begin:
+util_damepathq(S)
+When {S} is a string by the ShiftJIS code and {S} contains dame-moji with respect to  \,
+it returns [a non-zero number, the string].
+example:
+  T = [0x5c,0xe4,0x5c,0x41,0x42]$
+  T2=asciitostr(T)$
+  util_damepathq(T2);
+  end: */
+def util_damepathq(S) { return tk_util_damepathq(S); }
 
 end$
 
