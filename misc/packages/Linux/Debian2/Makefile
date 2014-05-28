@@ -95,10 +95,12 @@ make-tar-ball-3:
 	  rm -rf .TeXmacs ;\
 	  mkdir -p .TeXmacs/plugins/ox/progs ;\
 	  mkdir -p .TeXmacs/progs ;\
+	  mkdir -p .emacs.d ;\
 	  cp ${TM_OX} .TeXmacs/plugins/ox/progs/init-ox.scm ;\
 	  touch .TeXmacs/progs/my-init-texmacs.scm ;\
 	  cp work/OpenXM_contrib2/fep/feprc.sample .feprc.sample ;\
-	  tar czvf work/ox-texmacs-${OS}-${VERSION}.tar.gz ./.TeXmacs ./.feprc.sample ;\
+	  cp work/OpenXM_contrib2/windows/post-msg-asirgui/asir-mode.el .emacs.d ;\
+	  tar czvf work/ox-texmacs-${OS}-${VERSION}.tar.gz ./.TeXmacs ./.feprc.sample ./.emacs.d ;\
 	fi
 	touch .make-tar-ball-3_done
  
