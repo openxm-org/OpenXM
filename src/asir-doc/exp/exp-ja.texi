@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.46 2012/09/18 11:41:18 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.47 2013/02/18 07:18:32 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -1951,7 +1951,7 @@ ChangeLog
 @comment ****************************************************************
 
 @itemize @bullet
-@item asirgui (Windows 版) を起動すると asirgui.exe のあるフォルダおよび 環境変数 TEMP が定義されていればこのファイルが作成される.
+@item asirgui (Windows 版) を起動すると 環境変数 TEMP で指定されたフォルダにこのファイルが作成される.
 @item 中身は１０進整数で, asirgui の main window のハンドルである. このハンドルあてに PostMessage をすれば, asuirgui にキーボードから入力したのと同様な効果が得られる.
 @item text editor で作成, 保存したファイルを text editor 側から asirgui に読み込ませたりするために利用可能.
 @item http://www.math.kobe-u.ac.jp/Asir/Add-ons にて winfep.exe を配布している. winfep ではあらかじめファイルに入力スクリプトを書いておいて, asirgui で一行づつ実行させることができる. winfep はプレゼンテーション用のソフトウエアである. これは asirgui.hnd を利用している. 
@@ -2026,8 +2026,6 @@ ChangeLog
 @code{pwd} はカレントディレクトリを文字列で返す.
 @item
 @code{chdir} はカレントディレクトリを @var{directory} に変更する.  成功すれば 0 を失敗すれば -1 を返す.
-@item
-これらの関数は UNIX 版にのみ実装されている.
 @end itemize
 
 @example
@@ -2112,11 +2110,11 @@ ChangeLog
 
 @itemize @bullet
 @item asir のプロセス番号を戻す.
-@item プロセス番号は asir, ox_asir 等で独立したプロセスに対してシステム内で一意出ある.
+@item プロセス番号は asir, ox_asir 等で独立したプロセスに対してシステム内で一意である.
 @end itemize
 
 @example
-[219] getpid()
+[219] getpid();
 3214
 @end example
 
@@ -2130,6 +2128,85 @@ ChangeLog
 src/asir-contrib/packages/src/misc/rr 1.3,
 asir2000/builtin/file.c 1.28, rat.c 1.5,
 asir2000/parse/puref.c 1.9 を参照 (2013/02/15, 18).
+@end itemize
+
+
+@node loadpath,,, システム
+@subsection @code{loadpath}
+@findex loadpath
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item ctrl(``loadpath''[,list])
+@end table
+
+@table @var
+@item list
+文字列(パス)のリスト
+@item return
+文字列(パス)のリスト, または数(listが与えられたとき)
+@end table
+
+@itemize @bullet
+@item asir の組み込み関数 ctrl のスイッチのひとつである.
+@item asir のロードパスの出力または設定を行う.
+@end itemize
+
+@example
+[0] L=ctrl("loadpath");
+[/home/you/OpenXM/lib/asir-contrib,/home/you/OpenXM/lib/asir,.]
+[1] ctrl("loadpath", cons(getenv("HOME")+"/lib",L));
+0
+@end example
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2014-5-12 にコミットされた.
+変更をうけたソースコードは builtin/ctrl.c (1.41) である.
+@end itemize
+
+
+@node sysinfo,,, システム
+@subsection @code{sysinfo}
+@findex sysinfo
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item sysinfo()
+@end table
+
+@table @var
+@item return
+文字列のリスト
+@end table
+
+@itemize @bullet
+@item asir の動作しているオペレーティングシステムの情報を返す.
+@item リストの各成分は, OSタイプ, カーネル名, OS名, CPUタイプ, OSバージョン, 完全な情報, ロケールである.
+@item OSタイプは unix, macosx, windows のいずれかである.
+@item unix および macosx においては, システムコールおよび uname コマンドにより情報を取得している.
+windows では, GetVersionEx() などの Win32 API が用いられている.
+@end itemize
+
+@example
+[0] sysinfo();
+[windows,WindowsNT,Windows7,x86_64,6.1.7601,WindowsNT 6.1.7601 Windows7 Service Pack 1 x86_64,ja]
+@end example
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2014-5-14 にコミットされた.
+変更をうけたソースコードは builtin/ctrl.c (1.42) である.
 @end itemize
 
 
