@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.18 2014/05/27 01:09:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.19 2014/05/27 05:47:56 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -223,7 +223,7 @@ def tk_util_find_start() {
   if (type(getopt(find_browser)) > 0) Browser=1;
   else Browser=0;
   if (sysinfo()[0] == "windows")  { Start = "start \"asirgui\""; return Start; }
-  if (sysinfo()[0] == "mac")  { Start = "open"; return Start; }
+  if (sysinfo()[0] == "macosx")  { Start = "open"; return Start; }
   Names = ["/usr/local/bin/gnome-open","/usr/bin/gnome-open"];
   if (Browser) {
     Names = append(Names,

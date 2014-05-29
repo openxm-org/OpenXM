@@ -221,7 +221,10 @@ def radian(D) {
   return (D/180)*@pi;
 }
 
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.5 2006/11/04 20:35:16 takayama Exp $ */
+/* Add a path for asir_contrib_update library. */
+ctrl("loadpath",cons(getenv("HOME")+"/.OpenXM_tmp/OpenXM/lib/asir-contrib",ctrl("loadpath")))$
+
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.6 2006/11/12 01:08:35 takayama Exp $ */
 
 
 end$
