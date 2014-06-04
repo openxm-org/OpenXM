@@ -1,8 +1,8 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.1 2014/05/23 22:32:49 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
-#define USE_MODULE 1
+#define USE_MODULE 0
 import("names.rr")$
 import("ot_hgm_ahg.rr")$   // for check7
 import("ok_diff.rr")$  // for check7
@@ -1460,11 +1460,11 @@ def check17() {
 }
 def fvect_poly(A,B,C,X) { 
   EvalDmat=1;
+  if (type(X) == 4) X=newvect(length(X),X);
   if (taka_base_equal(B,FD_BB) && 
       taka_base_equal(C,FD_CC) && 
       taka_base_equal(X,FD_XX) && (FD_Dmat != 0)) EvalDmat=0;
   M = length(B);
-  if (type(X) == 4) X=newvect(length(X),X);
   Xrule = assoc(xvars(M),vtol(X));
   if (EvalDmat) {
     printf("Computing Dmat for parameters B=%a,C=%a,X=%a\n",B,C,X);
