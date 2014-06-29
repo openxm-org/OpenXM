@@ -1,8 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.1 2014/05/23 22:32:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.2 2014/06/04 23:44:17 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
-#define USE_MODULE 0
+#define USE_MODULE 1
 import("names.rr")$
 import("ot_hgm_ahg.rr")$   // for check7
 import("ok_diff.rr")$  // for check7
@@ -28,6 +28,11 @@ extern FD_AA$
 extern FD_BB$
 extern FD_CC$
 extern FD_XX$
+extern YgFD_Dmat$
+extern YgFD_AA$
+extern YgFD_BB$
+extern YgFD_CC$
+extern YgFD_XX$
 #else
 module tk_fd;
 static Alpha$
@@ -44,6 +49,11 @@ static FD_AA$
 static FD_BB$
 static FD_CC$
 static FD_XX$
+static YgFD_Dmat$
+static YgFD_AA$
+static YgFD_BB$
+static YgFD_CC$
+static YgFD_XX$
 
 localf setparam$
 localf setparam_by_number$
@@ -57,7 +67,7 @@ localf check1$
 localf ee$
 localf vv$
 localf vv0$
-localf dx$
+localf dxx$
 localf xij$
 localf psi$
 localf mycoefl$
@@ -128,6 +138,13 @@ localf feval$
 localf check19$
 localf check19_out$
 localf ah_init_value$
+localf ygNmat$
+localf ygCmat$
+localf ygRmat$
+localf ygdmat_abc$
+localf ygfvect_poly$
+localf ygahvec$
+localf ygtry15$
 #endif
 /* Matsumoto, page 3 */
 
@@ -263,11 +280,20 @@ def vv0(J) {
   return V;
 }
 
+def dxx(I) {
+  if (I == 0) return 0;
+  if (I == (MM+1)) return 0;
+  return util_v(dx,[I]);
+}
+/* bug: or specification? tk_fd.dx(1) return tk_fd.dx_1
+     bug: error in module in loading by cmdasir causes a hung of asirgui.
+             e.g.  function is not defined.
 def dx(I) {
   if (I == 0) return 0;
   if (I == (MM+1)) return 0;
   return util_v(dx,[I]);
 }
+*/
 
 /* 1/(x_i-x_j) is expressed as y_{ij} */
 def xij(I,J) {
@@ -289,7 +315,7 @@ def psi() {
   C = intmat();
   for (I=0; I<MM+1; I++) {
     for (J=I+1; J<= MM+1; J++) {
-      Psi += Alpha[I]*Alpha[J]*C*(matrix_transpose(vv(I,J))*vv(I,J))*xij(I,J)*(dx(I)-dx(J));
+      Psi += Alpha[I]*Alpha[J]*C*(matrix_transpose(vv(I,J))*vv(I,J))*xij(I,J)*(dxx(I)-dxx(J));
     }
   }
   return Psi;
@@ -1189,7 +1215,7 @@ dmat_abc(A,B,C | xrule=Rule)
  example: 
  U=tk_fd.dmat_abc(a,[-2,-5],11|xrule=[[x_1,1/2],[x_2,1/3]]);
 end: */
-def  dmat_abc(A,B,C) {
+def dmat_abc(A,B,C) {
   Opt=getopt();
   M=length(B);
   setparam_abc(M,A,B,C);
@@ -1836,6 +1862,151 @@ def  ah_init_value(A,B,C,Y)  {
   }
   Val=[ [feval(base_flatten(Point)),feval(base_flatten(Iv))]];
   return [Amat,V,BRule,0,Val,0,Base,Fexact];
+}
+
+/* 2014.06.23.  Ref: @s/2014/06/24-intersection-sabun.pdf by Y.Goto , 25-my-note-fdpf-yg-funcs.pdf */
+def ygNmat() {
+  N=newmat(MM+1,MM+1);
+  for (I=0; I<MM+1; I++) for (J=0; J<MM+1; J++) N[I][J] = 1;
+  return N;
+}
+
+def ygCmat() {
+  L=newvect(MM+1);
+  L[0] = 1/Alpha[MM+2];
+  for (I=1; I<=MM; I++) L[I] = 1/Alpha[I];
+  return (ygNmat()/Alpha[MM+1]) + matrix_diagonal_matrix(L);
+}
+
+def ygRmat(X,K) {
+  X2=newvect(MM+2);
+  X2[0]=0;
+  for (I=1; I<=MM; I++) X2[I] = X[I-1];
+  X2[MM+1]=1;  /* cf. def xx(I) */
+  X=X2;
+
+  Lx = newvect(MM+1);
+  for (I=1; I<=MM; I++) Lx[I] = 1-X[I];
+  Lx = matrix_diagonal_matrix(Lx);
+  L1 = newvect(MM+1); L1[0]=1;
+  L1 = matrix_diagonal_matrix(L1);
+  N = ygNmat(); 
+  R=N*(1-X[K])/Alpha[MM+1] + Lx*N*L1/Alpha[MM+2] - L1*N*Lx/(1-Alpha[MM+2]);
+
+  L = newvect(MM+1);
+  AX=0; for (I=0; I<=MM+1; I++) AX += Alpha[I]*X[I];
+  L[0] = (1-X[K])/Alpha[MM+2] - (1/(1-Alpha[MM+2]))*(AX/Alpha[MM+2] + 1);
+  for (I=1; I<=MM; I++) {
+    L[I] = (X[I]-X[K])/Alpha[I];
+  }
+  return (R + matrix_diagonal_matrix(L));
+}
+
+def ygdmat_abc(A,B,C) {
+  Xrule=getopt(xrule);
+  M=length(B);
+  X = xvars(M);
+  if (type(Xrule)>0)  X=base_replace(X,Xrule);
+  setparam_abc(M,A,B,C);
+  R=ygRmat(X,M+1);
+  R=((A-1)/(C-A))*R*matrix_inverse(ygCmat());
+  return map(red,R);
+}
+
+def ygfvect_poly(A,B,C,X) { 
+  YgEvalDmat=1;
+  if (type(X) == 4) X=newvect(length(X),X);
+  if (taka_base_equal(B,YgFD_BB) && 
+      taka_base_equal(C,YgFD_CC) && 
+      taka_base_equal(X,YgFD_XX) && (YgFD_Dmat != 0)) YgEvalDmat=0;
+  M = length(B);
+  Xrule = assoc(xvars(M),vtol(X));
+  if (YgEvalDmat) {
+    printf("Computing ygDmat for parameters B=%a,C=%a,X=%a\n",B,C,X);
+    setparam_abc(M,a,B,C);
+    getparam(); 
+    YgFD_Dmat=ygdmat_abc(a,B,C | xrule=Xrule);
+    YgFD_BB=B; YgFD_CC=C; YgFD_XX=X;
+    printf("\nDone.\n");
+  }
+  Dmat = matrix_list_to_matrix(YgFD_Dmat);
+  if (type(X) == 5) X=vtol(X);
+  if (!number_is_integer(A)) error("A must be an integer.");
+  if (A <= -1) {
+    F=fvect(-1,B,C,X | approx=2);
+    for (I=-1; I>A; I--) {
+      Down = base_replace(Dmat,[[a,I]]);
+      F = Down*F;
+    }
+    return F;
+  } else {
+    error("A must be less than 0");
+  }
+}
+
+def ygahvec(A,B,C,Y) {
+  Opt=getopt();
+  if (type(getopt(norecc)) >0) UseRecc=0; else UseRecc=1;
+  M = length(B);
+  E = newmat(2,M+1);
+  E[0][0] = -A; E[1][0] = C-1;
+  for (J=1; J<=M; J++) E[1][J] = -B[J-1];
+  X=newvect(M);
+  for (I=0; I<M; I++) {
+     X[I] = Y[0][I+1]*Y[1][0]/(Y[0][0]*Y[1][I+1]);
+  }
+  Ye = 1;
+  for (J=0; J<=M; J++) Ye = Ye*(Y[0][J]^E[0][J])*(Y[1][J]^E[1][J]);
+  if (number_is_integer(A) && A < 0 && UseRecc) F=ygfvect_poly(A,B,C,X);
+  else F=ygfvect(A,B,C,X | option_list=Opt);  /* not implemented.*/
+  Fd=newvect(M+1);
+  Fd[0] = F[0];  /* Fd are Euer derivatives of F_D */
+  for (I=1; I<=M; I++) {
+    Xi = X[I-1]; Bi = B[I-1];
+    Fd[I] = F[I]*(-Bi/(Xi-1))*Xi;
+  }
+  Ahvec = newvect(M+1);
+  E21=E[1][0]; Y21=Y[1][0];
+  Ahvec[0] = (taka_base_sum(Fd,0,1,M)+E21*Fd[0])*Ye/Y21;
+  for (J=1; J<=M; J++) {
+    Y2j1 = Y[1][J]; E2j1 = E[1][J];
+    Ahvec[J] = (-Fd[J]+E2j1*Fd[0])*Ye/Y2j1;
+  }
+
+  NoGamma = getopt(nogamma);
+  if (type(NoGamma)<0) NoGamma=0;
+   /* Gamma factors, todo double check */
+  if (NoGamma) {
+     Gamma = "[1/gamma(e+1)]";
+  }else{
+    Gamma=tk_number_invgamma(-A+1)*tk_number_invgamma(C-1+1);
+    for (I=0; I<M; I++) {
+      Gamma=Gamma*tk_number_invgamma(-B[I]+1);
+    }
+  }
+  return [vtol(Ahvec),Gamma];
+}
+
+
+def ygtry15(M) {
+  A=a;
+  B=newvect(M);
+  for (I=0; I<M; I++) B[I] = -31*(I+1);
+  C=30;
+  Xrule=[];
+  for (I=1; I<=M; I++) Xrule=cons([util_v(x,[I]),1/(I+1)],Xrule);
+  Xrule=reverse(Xrule);
+  setparam_abc(M,A,B,C);
+  getparam();  printf("Xrule=%a\n",Xrule);
+  Dmat=ygdmat_abc(A,B,C | xrule=Xrule);
+
+  /* check */
+  Aval = -3;
+  Fam = fvect(Aval-1,B,C,base_replace(xvars(M),Xrule) | approx=-Aval+1);
+  Fa = fvect(Aval,B,C,base_replace(xvars(M),Xrule) | approx=-Aval+1);
+  T=Fam - base_replace(Dmat,[[a,Aval]])*Fa;
+  printf("If %a is not zero vector , then there is an error.\n",T);
+  return Dmat;
 }
 
 #if  !USE_MODULE
