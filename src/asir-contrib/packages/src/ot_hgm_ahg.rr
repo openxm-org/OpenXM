@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.8 2014/05/23 06:49:54 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.9 2014/05/25 18:47:35 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -253,7 +253,7 @@ def get_mat2(A,W,Std,Mset) {
   /* Mat*Supp2-RM*Std=G=0? */
   /* mycheck(Mat,RM,Supp2,Std,G) ;*/
 
-  return [Mat,RM,Supp2];
+  return [Mat,RM,Supp2,Toric];
 }
 
 def get_mat(A,W,Std,Mset) {
@@ -1098,6 +1098,9 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
     if(W==[] || W==0) { /* use rev lex order */
         W = [base_flatten(assoc(DV,[1]))];
     }
+    if(Mset==[] || Mset==0) {
+        Mset = reverse(p_terms((1+oh_base.sum(DV))^2,DV,0));
+    }
 
     Disc_R2=get_mat2(A,W,StdMon,Mset);
     Disc_R=Disc_R2[0];
@@ -1131,6 +1134,86 @@ def hgm_ahg(A,W,Mset,StdMon,Line,B,InitVal,Start,End,H) {
     Func=[P,[[Z],SS],Eqn];
 //  return runge_kutta_linear2(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=oh_number.deval );
     return runge_kutta_linear3(Func,Start,InitVal,End,H | callf=call_func_eqn, deval=oh_number.deval );
+}
+
+def hgm_ahg_conti(A,W,Mset,StdMon,Line,X0,InitVal,Start,End) {
+	Mode=getopt(mode);
+	if(type(Mode)<0) {
+		Mode=0;
+	}
+#if 0
+    if(qsort(StdMon) != qsort(reverse(cbase(A)))) { /* error! */
+        return 0;
+    }
+#endif
+
+    Row = length(A); Col = length(A[0]);
+    V  = base_var_list(x,1,Col);
+    DV = base_var_list(dx,1,Col);
+    Vb = base_var_list(b_,1,Row);
+    Vall = append(V,Vb);
+
+    if(W==[] || W==0) { /* use rev lex order */
+        W = [base_flatten(assoc(DV,[1]))];
+    }
+    if(Mset==[] || Mset==0) {
+        Mset = reverse(p_terms((1+oh_base.sum(DV))^2,DV,0));
+    }
+
+	// Line == [ContiDir, Beta, Z];  e.g. [0, [1,31,11,6,7], n]
+	ContiDir = Line[0]; Beta = Line[1]; Z = Line[2];
+
+	MatA = matrix_list_to_matrix(A);
+	BetaZ = vtol(ltov(Beta) + mat_col(MatA,ContiDir)*Z);
+//	printf("BetaZ=%a\n",BetaZ);
+
+    Disc_R2=get_mat2(A,W,StdMon,Mset);
+	Disc_R2=base_replace(Disc_R2,append(assoc(V,X0),assoc(Vb,BetaZ)));
+    Disc_R=Disc_R2[0];
+    MatData=Disc_R2;
+//	printf("size([0])=%a\n",size(MatData[0]));
+//	printf("size([1])=%a\n",size(MatData[1]));
+//	printf("length([2])=%a\n",length(MatData[2]));
+    Toric=MatData[3];
+	Eqn = get_eqn(MatData);
+    TT = Eqn[1];
+    SS = Eqn[2];
+
+//	printf("TT=%a\n",TT);
+//	printf("SS=%a\n",SS);
+//	printf("Eqn[0]=%a\n",Eqn[0]);
+
+    Table = mk_table(DV,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT);
+//	printf("Table=%a\n",(Table));
+//	printf("length(Table)=%a\n",length(Table));
+
+	DI = mapat(oh_base.assoc_match,1,Table,DV[ContiDir]*ltov(StdMon));
+//  printf("DI=%a\n",DI);
+	N = length(SS);
+	E = matrix_identity_matrix(N);
+	L = newvect(N);
+	for(I=0; I<N; I++) {
+		RelS = assoc(SS,vtol(E[I]));
+		Eq = base_replace(Eqn[0],RelS);
+		Rel2 = poly_solve_linear(Eq,TT);
+		Rel = append(RelS,Rel2);
+		L[I] = base_replace(DI,Rel);
+	}
+	PfZ = call(matc,vtol(L)); // ContiDir 方向に減少する差分パッフィアン
+//	printf("PfZ=%a\n",PfZ);
+//	printf("det(PfZ)=%a\n",fctr(det(PfZ)));
+
+	R=1;
+	for(I=Start; I<=End; I++) {
+		R = R*base_replace(PfZ, [[Z,I]]);
+	}
+//	printf("R=%a\n",R);
+	Ri = matrix_inverse(R); // ContiDir 方向に Start から End まで増加する
+
+//	printf("Ri=%a\n",Ri);
+	Val = vtol(Ri*ltov(InitVal));
+	printf("\n");
+	return Val;
 }
 
 def test100 () {
@@ -1642,6 +1725,76 @@ def test301() {
 	return Val;
 }
 
+// tk_fd.rr との比較
+def test_fd_conti() {
+    A = [[1,1,1,1,0,0,0,0],
+         [0,0,0,0,1,1,1,1],
+         [1,0,0,0,1,0,0,0],
+         [0,1,0,0,0,1,0,0],
+         [0,0,1,0,0,0,1,0]];
+    W=[]; Mset=[];
+    StdMon=[1,dx6,dx7,dx8];
+	B= [-6, -7, -8];
+	C = 11; 
+	AA = -1;
+	Beta = [ -AA, C-1-B[0]-B[1]-B[2], C-AA-1, -B[0], -B[1]];
+
+	ContiDir = [1,0,0,0,0,0,0,0]; /* 後で仕様変更の予定 */
+	ContiDir = 0; /* A の第 ContiDir 列, ここでは、[1,0,1,0,0] */
+	Z = n;
+	X0 = [1,1/2,1/3,2/3,1,1,1,1];
+
+	F3= 1/530941398220800000;
+	F0=((x1*x5^10*x6^6+6/11*x2*x5^11*x6^5)*x7^7+7/11*x3*x5^11*x6^6*x7^6)*x8^8+8/11*x4*x5^11*x6^6*x7^7*x8^7;
+	FD=F3*F0;
+	// 多項式 FD は tk_fd.rr で 
+	// F=tk_fd.fdah(-1,[-6,-7,-8],11,[[x1,x2,x3,x4],[x5,x6,x7,x8]] | approx=2);
+    // FD=F[0]*F[3];
+    // として得られるもの。
+
+	F = [FD, diff(FD,x6), diff(FD,x7), diff(FD,x8)];
+	X = [x1,x2,x3,x4,x5,x6,x7,x8];
+	InitVal = base_replace(F, assoc(X,X0));
+	printf("InitVal=%a\n",InitVal);
+	TargetVal = 20619719775296069983/1485016175797062568226097734422134899343360000000000;
+    // tk_fd.rr で A==-20 のときに得られる関数値(比較のため)
+
+	Line = [ContiDir, Beta, Z];
+
+	Val = hgm_ahg_conti(A,W,Mset,StdMon,Line,X0,InitVal,1,19);
+	printf("Val = %a\n", Val);
+	printf("Check: %a\n", Val[0]==TargetVal? "true": "false");
+	return Val;
+}
+
+// hgpoly.rr / check21(), check21b() も参照のこと。
+def test_c111c_conti() {
+	At=[[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]];
+	A=matrix_matrix_to_list(matrix_transpose(At));
+	// A = [[1,0,0,1,1,0,1],[0,1,0,1,0,1,1],[0,0,1,0,1,1,1]]
+    W=[]; Mset=[];
+    StdMon=[1,dx4,dx5,dx6,dx7,dx7^2];
+	Beta = [1,1,1];
+	ContiDir = 6; /* A の第 ContiDir 列, ここでは、[1,1,1] */
+	Z = n;
+	X  = [x1,x2,x3,x4,x5,x6,x7];
+	X0 = [1,1/2,1/3,2/3,1,1,1];
+
+	// hgpoly.rr / check21b()[0]
+	F0=(x3*x1+x5)*x2+x6*x1+x4*x3+x7;
+
+	F = [F0, diff(F0,x4), diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x7,x7)];
+	printf("F=%a\n",F);
+	InitVal = base_replace(F, assoc(X,X0));
+	printf("InitVal=%a\n",InitVal);
+
+	Line = [ContiDir, Beta, Z];
+
+	Val = hgm_ahg_conti(A,W,Mset,StdMon,Line,X0,InitVal,1,3);
+	printf("Val = %a\n", Val);
+	return Val;
+}
+
 /* How to use test functions.
 
 setprec(30);              // specifying precision for pari's floating point number
@@ -1654,6 +1807,8 @@ test200();
 test201();
 test301();
 
+test_c111c_conti();
+test_fd_conti();
  */
 
 end$
