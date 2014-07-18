@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.2 2014/06/04 23:44:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.3 2014/06/29 00:53:37 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -1408,21 +1408,27 @@ def fdah_poly(A,B,C,Y) {
 2014.05.15
  */
 /*&usage begin:
-  ahvec(A,B,C,Y | norecc=y, approx=n)
-  It returns [F,Gamma]. F*Gamma is equal to
+  ahvec(A,B,C,Y | norecc=n, approx=n)
+  It returns R=[F,Gamma]. F*Gamma is equal to
   (dy_21 Z, dy_22 Z, ..., dy_2p Z) at y = Y where p = length(B)+1.
   y = [[y_11,y_12, ..., y_1p],[y_21,y_22,...,y_2p]].
   y_2* must not be 0. 
+  When the option all=1,  R[2]*R[1] is Z (normalizing constant or hg polynomial).
   example:
   A=-3;
   B=[-2,-5];
   C=2;
   Yval=[[1,1/2,1/3],[1,1,1]];
   ahvec(A,B,C,Yval);
+  example:
+   F=ahvec(-1,[-2],3,[[x11,x12],[x21,x22]] | all=1);
+   red(F[2]*F[1]);   
+   returns hg polynomial  sum(x^u/u!)  (where Au=Beta).
   end: */
 def ahvec(A,B,C,Y) {
   Opt=getopt();
   if (type(getopt(norecc)) >0) UseRecc=0; else UseRecc=1;
+  if (type(getopt(all)) > 0) All=1; else All=0;
   M = length(B);
   E = newmat(2,M+1);
   E[0][0] = -A; E[1][0] = C-1;
@@ -1448,6 +1454,7 @@ def ahvec(A,B,C,Y) {
     Y2j1 = Y[1][J]; E2j1 = E[1][J];
     Ahvec[J] = (-Fd[J]+E2j1*Fd[0])*Ye/Y2j1;
   }
+  if (All) { Zvalue=Ye*F[0];}
 
   NoGamma = getopt(nogamma);
   if (type(NoGamma)<0) NoGamma=0;
@@ -1460,7 +1467,9 @@ def ahvec(A,B,C,Y) {
       Gamma=Gamma*tk_number_invgamma(-B[I]+1);
     }
   }
-  return [vtol(Ahvec),Gamma];
+  R=[vtol(Ahvec),Gamma];
+  if (All) return append(R,[Zvalue]);
+  else return R;
 }
 def check17() {
   A=-3;
@@ -1864,7 +1873,9 @@ def  ah_init_value(A,B,C,Y)  {
   return [Amat,V,BRule,0,Val,0,Base,Fexact];
 }
 
-/* 2014.06.23.  Ref: @s/2014/06/24-intersection-sabun.pdf by Y.Goto , 25-my-note-fdpf-yg-funcs.pdf */
+/* 2014.06.23.  Ref: @s/2014/06/24-intersection-sabun.pdf by Y.Goto , 25-my-note-fdpf-yg-funcs.pdf 
+   2014/07/14-fdpf-memo-ygfuncs.pdf   mynote in goto's note with yg-function names.
+*/
 def ygNmat() {
   N=newmat(MM+1,MM+1);
   for (I=0; I<MM+1; I++) for (J=0; J<MM+1; J++) N[I][J] = 1;
@@ -2008,6 +2019,8 @@ def ygtry15(M) {
   printf("If %a is not zero vector , then there is an error.\n",T);
   return Dmat;
 }
+
+// check20 in hgpoly.rr
 
 #if  !USE_MODULE
 setparam(2)$
