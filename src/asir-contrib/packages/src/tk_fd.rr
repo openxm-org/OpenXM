@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.3 2014/06/29 00:53:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.4 2014/07/18 23:57:55 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -145,6 +145,8 @@ localf ygdmat_abc$
 localf ygfvect_poly$
 localf ygahvec$
 localf ygtry15$
+localf marginal2abc$
+localf abc2marginal$
 #endif
 /* Matsumoto, page 3 */
 
@@ -1958,6 +1960,7 @@ def ygfvect_poly(A,B,C,X) {
 def ygahvec(A,B,C,Y) {
   Opt=getopt();
   if (type(getopt(norecc)) >0) UseRecc=0; else UseRecc=1;
+  if (type(getopt(all)) > 0) All=1; else All=0;
   M = length(B);
   E = newmat(2,M+1);
   E[0][0] = -A; E[1][0] = C-1;
@@ -1983,6 +1986,7 @@ def ygahvec(A,B,C,Y) {
     Y2j1 = Y[1][J]; E2j1 = E[1][J];
     Ahvec[J] = (-Fd[J]+E2j1*Fd[0])*Ye/Y2j1;
   }
+  if (All) { Zvalue=Ye*F[0];}
 
   NoGamma = getopt(nogamma);
   if (type(NoGamma)<0) NoGamma=0;
@@ -1995,7 +1999,9 @@ def ygahvec(A,B,C,Y) {
       Gamma=Gamma*tk_number_invgamma(-B[I]+1);
     }
   }
-  return [vtol(Ahvec),Gamma];
+  R= [vtol(Ahvec),Gamma];
+  if (All) return append(R,[Zvalue]);
+  else return R;
 }
 
 
@@ -2020,6 +2026,36 @@ def ygtry15(M) {
   return Dmat;
 }
 
+
+/* cf. fdah()  */
+def marginal2abc(RSum,CSum) {
+  if (length(RSum) != 2) error("length of RSum must be 2.");
+  Size = length(CSum);
+  CSum=newvect(Size,CSum);
+  S = RSum[0]+RSum[1];
+  if (S != base_sum(CSum,0,0,Size-1)) {
+    T=S-base_sum(CSum,0,0,Size-2);
+    printf("Warning. RSum != CSum. The last value of CSum is changed from %a to %a.\n",CSum[Size-1],T);
+    CSum[Size-1] = T;
+    if (T < 0) error("Changed value is negative.");
+  }
+  CSum = vtol(CSum);
+  B=vtol(-newvect(Size-1,cdr(CSum)));
+  C=RSum[1] + 1 + base_sum(B,0,0,Size-2);
+  A=-RSum[0];
+  if (C < 0) printf("Warning: C=%a is negative. Exchange columns so that a big value comes to the first and Exchange rows so that a big value come to the second. \n",C);
+  return [A,B,C];
+
+}
+def abc2marginal(A,B,C) {
+  R2=C-1-base_sum(B,0,0,length(B)-1);
+  R1=-A;
+  RSum=[R1,R2];
+  C1=-A+C-1;
+  CSum = -newvect(length(B),B);
+  CSum = cons(-A+C-1,vtol(CSum));
+  return [RSum,CSum];
+}
 // check20 in hgpoly.rr
 
 #if  !USE_MODULE
