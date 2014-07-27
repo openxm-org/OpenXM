@@ -1,0 +1,15 @@
+load("tk_fd.rr")$
+def r_ahvec(A,B,C,Y) { 
+  R=tk_fd.ygahvec(A,B,C,Y|all=1);
+  Gamma=R[1];
+  Der=R[0];
+  Z=R[2]*Gamma;
+  Der2 = newvect(length(Der));
+  for (I=0; I<length(Der); I++) Der2[I] = Der[I]*Gamma;
+  Der2 = vtol(Der2);
+  Ans=cons(Z,Der2);
+  /*  Fans=map(rtostr,map(tk_fd.tk_number_rattofloat,Ans)); */
+  Fans=map(deval,Ans);
+  return Fans;
+}
+end$
