@@ -1,6 +1,9 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir-r-markov.sh,v 1.2 2013/02/18 23:33:13 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir-r-markov.sh,v 1.3 2013/09/26 04:13:40 takayama Exp $
 ## Replace $OpenXM_HOME by an absolute path of your cite.
+export OpenXM_HOME=/private/taka/OpenXM
+export HOME=/tmp
+## Note that OpenXM_tmp is set in the dot.bashrc below as HOME/.OpenXM_tmp
 source $OpenXM_HOME/rc/dot.bashrc
 #source /home/taka/OpenXM/rc/dot.bashrc
 export TMP=/tmp
