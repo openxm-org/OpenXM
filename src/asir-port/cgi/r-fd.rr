@@ -1,4 +1,6 @@
+/* $OpenXM$ */
 load("tk_fd.rr")$
+import("tk_r.rr")$
 def r_ahvec(A,B,C,Y) { 
   R=tk_fd.ygahvec(A,B,C,Y|all=1);
   Gamma=R[1];
@@ -10,6 +12,7 @@ def r_ahvec(A,B,C,Y) {
   Ans=cons(Z,Der2);
   /*  Fans=map(rtostr,map(tk_fd.tk_number_rattofloat,Ans)); */
   Fans=map(deval,Ans);
+  Fans = tk_r.asir2r_c(Fans);
   return Fans;
 }
 end$
