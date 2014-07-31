@@ -1,7 +1,21 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.2 2014/07/31 06:24:11 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
+import("oh_number.rr")$
+
+/* r_d2rat(0.3)  --> precision loss in truncation if not ctrl("bigfloat",1) */
+ctrl("bigfloat",1)$
+def r_d2rat(Y) {
+  if ((type(Y) ==4)||(type(Y)==5)||(type(Y)==6)) return map(r_d2rat,Y);
+  if ((type(Y)  == 1) && (ntype(Y) >= 1)) {
+    S = rtostr(Y);  Y = "eval(("+S+")*exp(0));";
+    /* print(Y); */
+    Y = eval_str(Y);
+    return oh_number.rats(Y);
+  }else return Y;
+}
 def r_ahvec(A,B,C,Y) { 
+  Y = r_d2rat(Y);
   R=tk_fd.ygahvec(A,B,C,Y|all=1);
   Gamma=R[1];
   Der=R[0];
