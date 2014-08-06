@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.2 2014/07/31 06:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.3 2014/07/31 07:00:41 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
@@ -11,7 +11,9 @@ def r_d2rat(Y) {
     S = rtostr(Y);  Y = "eval(("+S+")*exp(0));";
     /* print(Y); */
     Y = eval_str(Y);
-    return oh_number.rats(Y);
+    /* printf("Y=%a\n",Y); */
+    /* return oh_number.rats(Y); */
+    return rats2(Y);  /* temporary  */
   }else return Y;
 }
 def r_ahvec(A,B,C,Y) { 
@@ -28,5 +30,28 @@ def r_ahvec(A,B,C,Y) {
   Fans=map(deval,Ans);
   Fans = tk_r.asir2r_c(Fans);
   return Fans;
+}
+
+/* temporary */
+def rats2(X) {
+  if (X == 0) return 0;
+  Sign=1;
+  if (X <0) {Sign=-1  ; X = -X;}
+  Digit = number_floor(eval(log(X)/log(10)));  
+  Num = number_floor((X/(10^Digit))*10^20);
+  return Sign*(Num/(10^20))*(10^Digit);
+}
+
+def checkrats2() {
+  for (I=0; I<10; I++) {  
+     Sign=(-1)^(random()%2);
+     X = eval(exp(0)*(random()/random())*10^(Sign*(random()%300))); /* 308 */
+     printf("X=%a\n",X); 
+     Y = rats2(X);
+     printf("Y=%a\n",Y);
+     if (number_abs(eval(Y*exp(0))/X-1) > 0.0000001) {
+        printf("error: X = %a, Y=%a\n",X,Y);
+     }
+  }
 }
 end$
