@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.4 2014/07/18 23:57:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.5 2014/07/19 01:49:31 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -147,6 +147,26 @@ localf ygahvec$
 localf ygtry15$
 localf marginal2abc$
 localf abc2marginal$
+localf ygQmat$
+localf fdA$
+localf hgpoly_fd$
+localf hgpoly_fd_beta$
+localf check21$
+localf checkahg$
+localf abc2alpha$
+localf ygNmat2$
+localf ygCmat2$
+localf ygRmat2$
+localf ygQmat2$
+localf beta2marginal$
+localf beta2abc$
+localf atofd$
+localf atofd_beta$
+localf check22$
+localf checkfd$
+localf ygDk$
+localf containNegative$
+localf check23$
 #endif
 /* Matsumoto, page 3 */
 
@@ -2056,7 +2076,311 @@ def abc2marginal(A,B,C) {
   CSum = cons(-A+C-1,vtol(CSum));
   return [RSum,CSum];
 }
-// check20 in hgpoly.rr
+// check20 in A-hg/Prog/hgpoly.rr
+
+def ygQmat(X,K) {
+  return ygRmat(X,K); /* Implement without global variables. */
+}
+
+/* 2014.08.03 from hgpoly.rr, should use hgpoly.rr with deg=... 
+   2 x (M+1)
+*/
+def fdA(M) {
+  A = newmat(M+1+1,2*(M+1));
+  for (I=0; I<M+1;I++) A[0][I] =1;
+  for (I=0; I<M+1; I++) {
+    A[I+1][I] = 1;
+    A[I+1][M+1+I] = 1;
+  }
+  return A;    
+}
+def hgpoly_fd(A,B,C) {
+  Marginal = abc2marginal(A,B,C);
+  for (I=0; I<length(Marginal); I++) {
+    if (Marginal[I] < 0) error("Marginal is negative.");
+  }
+  M = length(B);
+  Beta =cons(Marginal[0][0],Marginal[1]);
+  return hgpoly_fd_beta(M,Beta);
+}
+/*
+  Table. B[0] is the first row sum.
+  B[0] |
+  *    |
+         B[1], B[2], ..., B[M+1]
+ */
+def hgpoly_fd_beta(M,B) {
+  A = fdA(M);
+  Deg  = base_sum(B,0,0,length(B)-1)-B[0];
+  if (type(getopt(deg)) >=0) Deg=eval_str(rtostr(getopt(deg))); 
+  if (type(A) == 4) A=matrix_list_to_matrix(A);
+  D=size(A)[0];
+  N=size(A)[1];
+  Ap = matrix_transpose(A);
+  F=0;
+  Vx=[];
+  for (I=0; I<N; I++) {
+    Mon = 1;
+    for (J=0; J<D; J++) {
+       Mon = Mon*util_v(t,[J+1])^(Ap[I][J]);
+       if (Ap[I][J] < 0) error("A contains negative number.");
+    }
+    /* deg_1(Mon) >=1 */
+    F = F+util_v(x,[I+1])*Mon;
+    Vx = cons(util_v(x,[I+1]),Vx);
+  }
+  Vx=reverse(Vx);
+  /* print(print_input_form(poly_sort(F))); */
+  Fall = 1;
+  for (I=1; I<=Deg; I++) {
+    Fall += F^I;  /* deg_1(each term of F^p) >= p */
+  }
+  // printf("Fall=%a\n",Fall);
+  P = coef(Fall,B[0],util_v(t,[1]));
+  for (I=1; I<length(B); I++) {
+    P = coef(P,B[I],util_v(t,[I+1]));
+  }
+  Pdist=dp_ptod(P,Vx);
+  if ( P ==0 )  return 0;
+  Pnew=0;
+  while (Pdist != 0) {
+    U = dp_ht(Pdist); U=dp_etov(U);
+    Degree=base_sum(U,0,0,length(U)-1);
+    Degree=fac(Degree);
+    Pnew += dp_hm(Pdist)/Degree;
+    Pdist = dp_rest(Pdist);
+  }
+  return [dp_dtop(Pnew,Vx),Pnew,Vx];
+}
+/* from Ogawa data. */
+def check21() {
+  B=[2,1,1,1,1]; print(B);
+  F=hgpoly_fd_beta(3,B); print(F);
+  B=[4,3,1,3,1,1]; print(B);
+  F=hgpoly_fd_beta(4,B);  print(F);
+  B=[5,4,2,3,2,1]; print(B);
+  F=hgpoly_fd_beta(4,B);  print(F);
+  B=[6,5,4,1,1,1]; print(B);
+  F=hgpoly_fd_beta(4,B);  print(F);
+  B=[10,8,6,8]; print(B);  /* hard */
+  F=hgpoly_fd_beta(3,B);  print(F);
+}
+
+/*
+   Beta=[3,6,3,4];
+   F=hgpoly_fd_beta(2,Beta);
+   checkahg(F[0],Beta,F[2]);
+ */
+def checkahg(F,Beta,V) {
+  N=(length(Beta)-1)*2;  M=length(Beta)-2;
+  if (N != length(V)) error("N != length(V)");
+  DV = newvect(N) ;
+  for (I=0; I<N; I++) DV[I] = eval_str("d"+rtostr(V[I]));
+  EV = newvect(N);
+  for (I=0; I<N; I++) EV[I] = V[I]*DV[I];
+  A = fdA(M);
+  E = A*EV;
+  for (I=0; I<length(Beta);I++) {
+    if (red(tkdiff_act(E[I]-Beta[I],F,V)) != 0) {print("No"); return(0); }
+  }
+  for (I=0; I<M+1; I++) {
+    for (J=I+1; J<M+1; J++) {
+      T=DV[I]*DV[M+1+J]-DV[J]*DV[M+1+I];
+      if (red(tkdiff_act(T,F,V)) != 0) {print("No"); return(0); }
+    }
+  }    
+  return(1);
+}
+
+/* B[0] is not a dummy. cf. in the setparam(), B[0] is a dummy. */
+def abc2alpha(A,B,C) {
+  M=length(B);
+  Alph = newvect(M+3);
+  Alph[0]=-C+base_sum(B,0,0,M-1);
+  for (I=1; I<=M; I++) Alph[I] = -B[I-1];
+  Alph[M+1] = C-A;
+  Alph[M+2] = A;
+  return(vtol(Alph)); 
+}
+
+def ygNmat2(M) {
+  N=newmat(M+1,M+1);
+  for (I=0; I<M+1; I++) for (J=0; J<M+1; J++) N[I][J] = 1;
+  return N;
+}
+
+def ygCmat2(A,B,C) {
+  M = length(B);
+  Alp = abc2alpha(A,B,C);
+  L=newvect(M+1);
+  L[0] = 1/Alp[M+2];
+  for (I=1; I<=M; I++) L[I] = 1/Alp[I];
+  return (ygNmat2(M)/Alp[M+1]) + matrix_diagonal_matrix(L);
+}
+
+def ygRmat2(X,K,A,B,C) {
+  M = length(B);
+  Alp = abc2alpha(A,B,C);
+  X2=newvect(M+2);
+  X2[0]=0;
+  for (I=1; I<=M; I++) X2[I] = X[I-1];
+  X2[M+1]=1;  /* cf. def xx(I) */
+  X=X2;
+
+  Lx = newvect(M+1);
+  for (I=1; I<=M; I++) Lx[I] = 1-X[I];
+  Lx = matrix_diagonal_matrix(Lx);
+  L1 = newvect(M+1); L1[0]=1;
+  L1 = matrix_diagonal_matrix(L1);
+  N = ygNmat2(M); 
+  R=N*(1-X[K])/Alp[M+1] + Lx*N*L1/Alp[M+2] - L1*N*Lx/(1-Alp[M+2]);
+
+  L = newvect(M+1);
+  AX=0; for (I=0; I<=M+1; I++) AX += Alp[I]*X[I];
+  L[0] = (1-X[K])/Alp[M+2] - (1/(1-Alp[M+2]))*(AX/Alp[M+2] + 1);
+  for (I=1; I<=M; I++) {
+    L[I] = (X[I]-X[K])/Alp[I];
+  }
+  return (R + matrix_diagonal_matrix(L));
+}
+
+def ygQmat2(X,K,A,B,C) {
+  return ygRmat2(X,K,A,B,C);
+}
+
+def beta2marginal(Beta) {
+  R=cdr(Beta);
+  C=[Beta[0],base_sum(R,0,0,length(R)-1)-Beta[0]];
+  return([C,R]);
+}
+def beta2abc(Beta) {
+  Marginal=beta2marginal(Beta);
+  return(marginal2abc(Marginal[0],Marginal[1]));
+}
+
+/* From A-hg series  to FD. */
+def atofd(F,A,B,C,Z) {
+  M = length(B);
+  E = newmat(2,M+1);
+  Y = newmat(2,M+1);
+  Y[0][0] = util_v(y,[0,0]);
+  for (J=0; J<=M; J++) Y[1][J] = util_v(y,[1,J]);
+  E[0][0] = -A; E[1][0] = C-1;
+  for (J=1; J<=M; J++) E[1][J] = -B[J-1];
+  X=newvect(M);
+  for (I=0; I<M; I++) {
+    X[I] =util_v(x,[I+1]);
+  }
+  for (I=0; I<M; I++) {
+    /*     X[I] = Y[0][I+1]*Y[1][0]/(Y[0][0]*Y[1][I+1]); */
+    Y[0][I+1] = X[I]/(Y[1][0]/(Y[0][0]*Y[1][I+1]));
+  }
+  Y2 = newvect(2*(M+1));
+  for (J=0; J<=M; J++) {Y2[J] = Y[0][J]; Y2[M+1+J]=Y[1][J];}
+  Ye = 1;
+  for (J=0; J<=M; J++) Ye = Ye*(Y[0][J]^E[0][J])*(Y[1][J]^E[1][J]);
+  Rule = assoc(Z,vtol(Y2));
+  printf("F=%a,\nYe=%a,\nRule=%a\n",F,Ye,Rule);
+  Fd = red(base_replace(F/Ye,Rule));
+  return([Fd,vtol(X)]);
+}
+/*
+Beta=[2,1,1,1,1];
+FdA=hgpoly_fd_beta(3,Beta);   
+atofd_beta(FdA[0],Beta,FdA[2]);  
+  Beta is the marginal sum.
+  FdA[0] is the polynomial.
+  FdA[1] is dp_ptod(FdA[0]);
+  FdA[2] is the list of variables.
+*/
+def  atofd_beta(F,Beta,Z) {
+  Marginal = beta2marginal(Beta);
+  CSum=Marginal[1];
+  RSum=Marginal[0];
+  ABC=marginal2abc(RSum,CSum);
+  return(atofd(F,ABC[0],ABC[1],ABC[2],Z));
+}
+/*
+check22(-2,[-1,-2,-1],3);
+ */
+def check22(A,B,C) {
+  M = length(B);
+  Beta=newvect(M+2);
+  Beta[0]=-A; 
+  Beta[1]=C-1-A;
+  for (I=0; I<M; I++) Beta[2+I]=-B[I];
+  /* Beta=[-A,C-1-A,-B[0],-B[1],-B[2]]; */
+  F=hgpoly_fd_beta(M,Beta); print(F);
+  G=atofd(F[0],A,B,C,F[2]);
+  R=checkfd(G[0],A,B,C,G[1]); printf("R=[0,...,0]? ===> R=%a\n",R);
+  return(G);
+}
+
+/* 2014.08.05. Does F satisfy the system of equations for F_D? */
+def checkfd(F,A,B,C,V) {
+  M = length(B);
+  DV = [];
+  for (I=0; I<M; I++) DV=cons(eval_str("d"+rtostr(V[I])),DV);
+  DV = reverse(DV);
+  T=0; for (I=0; I<M; I++) T = T+V[I]*DV[I];
+  Ans=[];
+  for (I=0; I<M; I++) {
+    G=odiff_act(V[I]*DV[I],odiff_act(T+C-1,F,V),V)
+      -V[I]*odiff_act(T+A,odiff_act(V[I]*DV[I]+B[I],F,V),V);
+    Ans = cons(G,Ans);
+  }
+  return(reverse(Ans));
+}
+
+/* F(b-e_k) = Dk F(b) 
+   e_1, e_2, ..., but b_1=B[0]
+ */
+def ygDk(X,K,A,B,C) {
+  Qk = ygQmat2(X,K,A+1,B,C+1); 
+  Q0 = ygQmat2(X,0,A+1,B,C+1);
+  return Qk*matrix_inverse(Q0);
+}
+def containNegative(L) {
+  if (type(L) <= 1)  return(L<0);
+  if (type(L) >=4) {
+    for (I=0; I<length(L); I++) {
+      if (containNegative(L[I])) return(1);
+    }
+    return(0);
+  }
+  error("Not an ordered object.");
+}
+def check23() {
+   A=-2; C=-1; B=[-3,-2,-3];  
+   /* A=-5; C=-6; B=[-1,-2,-3];   negative marginal */
+   /* A=-5; C=-2; B=[-1,-2,-3];   */
+  /* A=-5; C=2; B=[-1,-2,-3];   */
+  /* A=-2; C=2; B=[-4]; */
+   if (containNegative(abc2marginal(A,B,C))) error("Negative marginal");
+  M = length(B);
+  Alp = abc2alpha(A,B,C); 
+  F=hgpoly_fd(A,B,C);  
+  F=atofd(F[0],A,B,C,F[2]);
+  V=F[1]; F=F[0];
+  Fvec=newvect(M+1); 
+  Fvec[0] = F;
+  for (I=1; I<=M; I++)  Fvec[I] =  ((V[I-1]-1)/Alp[I])*diff(F,V[I-1]);
+  B2 = newvect(M,B);
+  B2[0] = B[0]-1; 
+  B2 = vtol(B2);
+  Alp2=abc2alpha(A,B2,C);
+  F2=hgpoly_fd(A,B2,C);
+  F2=atofd(F2[0],A,B2,C,F2[2])[0];
+  printf("V=%a, B=%a, B2=%a\n",V,B,B2);
+  printf("F=%a\n",F); 
+  printf("F2=%a\n",F2);
+  /* Todo, how to modify the constant term? --> (-B[0]) in case of C>0*/
+  Fvec2=newvect(M+1); 
+  Fvec2[0] = F2;
+  for (I=1; I<=M; I++)  Fvec2[I] =  ((V[I-1]-1)/Alp2[I])*diff(F2,V[I-1]);
+  R=map(red,Fvec2-(1/(-B[0]+1))*ygDk(V,1,A,B,C)*Fvec);
+  return R;
+}
 
 #if  !USE_MODULE
 setparam(2)$
