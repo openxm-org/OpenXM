@@ -1,8 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.5 2014/07/19 01:49:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.6 2014/08/09 09:27:48 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
-#define USE_MODULE 1
+#define USE_MODULE 0
 import("names.rr")$
 import("ot_hgm_ahg.rr")$   // for check7
 import("ok_diff.rr")$  // for check7
@@ -151,6 +151,8 @@ localf ygQmat$
 localf fdA$
 localf hgpoly_fd$
 localf hgpoly_fd_beta$
+localf hgpoly_fd0$
+localf hgpoly_fd_beta0$
 localf check21$
 localf checkahg$
 localf abc2alpha$
@@ -165,8 +167,27 @@ localf atofd_beta$
 localf check22$
 localf checkfd$
 localf ygDk$
+localf ygDk2$
 localf containNegative$
 localf check23$
+localf ygDc2$
+localf ygDc$
+localf check24$
+localf ygDa2$
+localf ygDa$
+localf check25$
+localf poly_fd$
+localf poly_fd_beta$
+localf poly_fdvec$
+localf poly_fdvec_beta$
+localf check26$
+localf ygDca2$
+localf hgpoly_fd_beta1$
+localf check27$
+localf hgpoly_fd1$
+localf fvect_poly2$
+localf check28$
+localf check28b$
 #endif
 /* Matsumoto, page 3 */
 
@@ -1483,12 +1504,12 @@ def ahvec(A,B,C,Y) {
    /* Gamma factors, todo double check */
   if (NoGamma) {
      Gamma = "[1/gamma(e+1)]";
-  }else{
+  }else if (C > 0) {
     Gamma=tk_number_invgamma(-A+1)*tk_number_invgamma(C-1+1);
     for (I=0; I<M; I++) {
       Gamma=Gamma*tk_number_invgamma(-B[I]+1);
     }
-  }
+  }else { Gamma=1; } /* because fvect_poly2 is called. */
   R=[vtol(Ahvec),Gamma];
   if (All) return append(R,[Zvalue]);
   else return R;
@@ -1516,6 +1537,7 @@ def check17() {
   return taka_base_equal(Favec,Favec3);
 }
 def fvect_poly(A,B,C,X) { 
+  if (C <= 0) return(fvect_poly2(A,B,C,X));
   EvalDmat=1;
   if (type(X) == 4) X=newvect(length(X),X);
   if (taka_base_equal(B,FD_BB) && 
@@ -2063,7 +2085,7 @@ def marginal2abc(RSum,CSum) {
   B=vtol(-newvect(Size-1,cdr(CSum)));
   C=RSum[1] + 1 + base_sum(B,0,0,Size-2);
   A=-RSum[0];
-  if (C < 0) printf("Warning: C=%a is negative. Exchange columns so that a big value comes to the first and Exchange rows so that a big value come to the second. \n",C);
+  if ((C < 0) && MyDebug) printf("Advise: C=%a is negative. Exchange columns so that a big value comes to the first and Exchange rows so that a big value come to the second. \n",C);
   return [A,B,C];
 
 }
@@ -2096,20 +2118,32 @@ def fdA(M) {
 }
 def hgpoly_fd(A,B,C) {
   Marginal = abc2marginal(A,B,C);
-  for (I=0; I<length(Marginal); I++) {
-    if (Marginal[I] < 0) error("Marginal is negative.");
-  }
+  if (containNegative(Marginal)) error("Negative marginal");
   M = length(B);
   Beta =cons(Marginal[0][0],Marginal[1]);
   return hgpoly_fd_beta(M,Beta);
 }
+def hgpoly_fd0(A,B,C) {
+  Marginal = abc2marginal(A,B,C);
+  if (containNegative(Marginal)) error("Negative marginal");
+  M = length(B);
+  Beta =cons(Marginal[0][0],Marginal[1]);
+  return hgpoly_fd_beta0(M,Beta);
+}
 /*
   Table. B[0] is the first row sum.
   B[0] |
-  *    |
+  CB   |
          B[1], B[2], ..., B[M+1]
  */
 def hgpoly_fd_beta(M,B) {
+  CB = (base_sum(B,0,0,length(B)-1)-B[0])-B[0];
+  if (CB == 1) return hgpoly_fd_beta1(M,B);
+  else return hgpoly_fd_beta0(M,B);
+}
+/* _beta0  is the bruce force method. cf _beta1 */
+def hgpoly_fd_beta0(M,B) {
+  /* printf("hgpoly_fd_beta0(bruce force), M=%a, Beta=%a\n",M,B); */
   A = fdA(M);
   Deg  = base_sum(B,0,0,length(B)-1)-B[0];
   if (type(getopt(deg)) >=0) Deg=eval_str(rtostr(getopt(deg))); 
@@ -2156,14 +2190,14 @@ def hgpoly_fd_beta(M,B) {
 def check21() {
   B=[2,1,1,1,1]; print(B);
   F=hgpoly_fd_beta(3,B); print(F);
+  B=[10,8,6,8]; print(B);  
+  F=hgpoly_fd_beta(2,B);  print(F);
   B=[4,3,1,3,1,1]; print(B);
   F=hgpoly_fd_beta(4,B);  print(F);
   B=[5,4,2,3,2,1]; print(B);
   F=hgpoly_fd_beta(4,B);  print(F);
-  B=[6,5,4,1,1,1]; print(B);
-  F=hgpoly_fd_beta(4,B);  print(F);
-  B=[10,8,6,8]; print(B);  /* hard */
-  F=hgpoly_fd_beta(3,B);  print(F);
+  B=[6,5,4,1,1,1]; print(B);  
+  F=hgpoly_fd_beta(4,B);  print(F); /* takes a few seconds */
 }
 
 /*
@@ -2218,7 +2252,7 @@ def ygCmat2(A,B,C) {
   return (ygNmat2(M)/Alp[M+1]) + matrix_diagonal_matrix(L);
 }
 
-def ygRmat2(X,K,A,B,C) {
+def ygRmat2(A,B,C,X,K) {
   M = length(B);
   Alp = abc2alpha(A,B,C);
   X2=newvect(M+2);
@@ -2244,8 +2278,8 @@ def ygRmat2(X,K,A,B,C) {
   return (R + matrix_diagonal_matrix(L));
 }
 
-def ygQmat2(X,K,A,B,C) {
-  return ygRmat2(X,K,A,B,C);
+def ygQmat2(A,B,C,X,K) {
+  return ygRmat2(A,B,C,X,K);
 }
 
 def beta2marginal(Beta) {
@@ -2280,7 +2314,7 @@ def atofd(F,A,B,C,Z) {
   Ye = 1;
   for (J=0; J<=M; J++) Ye = Ye*(Y[0][J]^E[0][J])*(Y[1][J]^E[1][J]);
   Rule = assoc(Z,vtol(Y2));
-  printf("F=%a,\nYe=%a,\nRule=%a\n",F,Ye,Rule);
+  if (MyDebug) printf("F=%a,\nYe=%a,\nRule=%a\n",F,Ye,Rule);
   Fd = red(base_replace(F/Ye,Rule));
   return([Fd,vtol(X)]);
 }
@@ -2335,11 +2369,15 @@ def checkfd(F,A,B,C,V) {
 /* F(b-e_k) = Dk F(b) 
    e_1, e_2, ..., but b_1=B[0]
  */
-def ygDk(X,K,A,B,C) {
-  Qk = ygQmat2(X,K,A+1,B,C+1); 
-  Q0 = ygQmat2(X,0,A+1,B,C+1);
-  return Qk*matrix_inverse(Q0);
+def ygDk(A,B,C,X,K) {
+  Qk = ygQmat2(A+1,B,C+1,X,K); 
+  Q0 = ygQmat2(A+1,B,C+1,X,0);
+  return map(red,Qk*matrix_inverse(Q0));
 }
+def ygDk2(A,B,C,X,K) {
+  return (1/(-B[K-1]+1))*ygDk(A,B,C,X,K);
+}
+
 def containNegative(L) {
   if (type(L) <= 1)  return(L<0);
   if (type(L) >=4) {
@@ -2350,8 +2388,9 @@ def containNegative(L) {
   }
   error("Not an ordered object.");
 }
-def check23() {
-   A=-2; C=-1; B=[-3,-2,-3];  
+/* 2014.08.09,  K=1,2,... */
+def check23(K) {
+   A=-3; C=-1; B=[-3,-2,-3];  
    /* A=-5; C=-6; B=[-1,-2,-3];   negative marginal */
    /* A=-5; C=-2; B=[-1,-2,-3];   */
   /* A=-5; C=2; B=[-1,-2,-3];   */
@@ -2366,7 +2405,7 @@ def check23() {
   Fvec[0] = F;
   for (I=1; I<=M; I++)  Fvec[I] =  ((V[I-1]-1)/Alp[I])*diff(F,V[I-1]);
   B2 = newvect(M,B);
-  B2[0] = B[0]-1; 
+  B2[K-1] = B[K-1]-1; 
   B2 = vtol(B2);
   Alp2=abc2alpha(A,B2,C);
   F2=hgpoly_fd(A,B2,C);
@@ -2378,8 +2417,243 @@ def check23() {
   Fvec2=newvect(M+1); 
   Fvec2[0] = F2;
   for (I=1; I<=M; I++)  Fvec2[I] =  ((V[I-1]-1)/Alp2[I])*diff(F2,V[I-1]);
-  R=map(red,Fvec2-(1/(-B[0]+1))*ygDk(V,1,A,B,C)*Fvec);
+  /*  R=map(red,Fvec2-(1/(-B[K-1]+1))*ygDk(A,B,C,V,K)*Fvec); */
+  R=map(red,Fvec2-ygDk2(A,B,C,V,K)*Fvec); 
   return R;
+}
+
+/* 2014.08.10 */
+/* F(c-1) = Dc F(c) 
+ */
+def ygDc2(A,B,C,X) {
+  M=length(B);
+  Q0 = ygQmat2(A+1,B,C,X,0);
+  Qm1 = ygQmat2(A+1,B,C,X,M+1); 
+  return map(red,(C-A-1)*Q0*matrix_inverse(Qm1));
+}
+def ygDc(A,B,C,X) {
+  return ((1/(C-1))*ygDc2(A,B,C,X));
+}
+def check24() {
+   A=-3; C=-1; B=[-3,-2,-3];   
+   /* A=-5; C=-6; B=[-1,-2,-3];   negative marginal */
+   /* A=-5; C=-2; B=[-1,-2,-3];  */
+   /* A=-5; C=2; B=[-1,-2,-3];   */
+  /* A=-5; C=2; B=[-4];  */
+   if (containNegative(abc2marginal(A,B,C))) error("Negative marginal");
+  M = length(B);
+  Alp = abc2alpha(A,B,C); 
+  F=hgpoly_fd(A,B,C);  
+  F=atofd(F[0],A,B,C,F[2]);
+  V=F[1]; F=F[0];
+  Fvec=newvect(M+1); 
+  Fvec[0] = F;
+  for (I=1; I<=M; I++)  Fvec[I] =  ((V[I-1]-1)/Alp[I])*diff(F,V[I-1]);
+  C2 = C-1;
+  Alp2=abc2alpha(A,B,C2);
+  F2=hgpoly_fd(A,B,C2);
+  F2=atofd(F2[0],A,B,C2,F2[2])[0];
+  printf("V=%a, C=%a, C2=%a\n",V,C,C2);
+  printf("F=%a\n",F); 
+  printf("F2=%a\n",F2);
+  /* Todo, how to modify the constant term? --> (-B[0]) in case of C>0*/
+  Fvec2=newvect(M+1); 
+  Fvec2[0] = F2;
+  for (I=1; I<=M; I++)  Fvec2[I] =  ((V[I-1]-1)/Alp2[I])*diff(F2,V[I-1]);
+  R=map(red,Fvec2-ygDc2(A,B,C,V)*Fvec);
+  return R;
+}
+
+/* F(a-1) = Da F(a) 
+ */
+def ygDa2(A,B,C,X) {
+  M=length(B);
+  Cmat = ygCmat2(A,B,C);
+  Qm1 = ygQmat2(A,B,C,X,M+1); 
+  return map(red,-(1/(C-A))*Qm1*matrix_inverse(Cmat));
+}
+def ygDa(A,B,C,X) {
+  Factor=-(A-1); /* Todo */
+  return (Factor*ygDa2(A,B,C,X));
+}
+def check25() {
+   A=-3; C=-1; B=[-3,-2,-3];   
+   /* A=-5; C=-6; B=[-1,-2,-3];   negative marginal */
+  /* A=-5; C=-2; B=[-1,-2,-3]; */
+   /* A=-5; C=2; B=[-1,-2,-3]; */
+   /* A=-5; C=2; B=[-4];   */
+   if (containNegative(abc2marginal(A,B,C))) error("Negative marginal");
+  M = length(B);
+  Alp = abc2alpha(A,B,C); 
+  F=hgpoly_fd(A,B,C);  
+  F=atofd(F[0],A,B,C,F[2]);
+  V=F[1]; F=F[0];
+  Fvec=newvect(M+1); 
+  Fvec[0] = F;
+  for (I=1; I<=M; I++)  Fvec[I] =  ((V[I-1]-1)/Alp[I])*diff(F,V[I-1]);
+  A2 = A-1;
+  Alp2=abc2alpha(A2,B,C);
+  F2=hgpoly_fd(A2,B,C);
+  F2=atofd(F2[0],A2,B,C,F2[2])[0];
+  printf("V=%a, A=%a, A2=%a\n",V,A,A2);
+  printf("F=%a\n",F); 
+  printf("F2=%a\n",F2);
+  Fvec2=newvect(M+1); 
+  Fvec2[0] = F2;
+  for (I=1; I<=M; I++)  Fvec2[I] =  ((V[I-1]-1)/Alp2[I])*diff(F2,V[I-1]);
+  R=map(red,Fvec2-ygDa2(A,B,C,V)*Fvec);
+  return R;
+}
+
+/* ygDc(-4,[-1,-1],-2,[1/2,1/3]); --> det(Dm1)=(c-a)/(c-b1-b2)=0 
+    if b=[-2,..] then OK.
+   a,[b1,b2],c1 --fctr--> c-a-1, c-b1-b2-1
+*/ 
+
+/* 2014.08.19 */
+/* Return value: [F_D like poly, V] 
+  Note that the constant term is not 1 */
+def poly_fd(A,B,C) {
+  F=hgpoly_fd(A,B,C);
+  return(atofd(F[0],A,B,C,F[2]));
+}
+def poly_fd_beta(Beta) {
+  F=hgpoly_fd_beta(length(Beta)-2,Beta);
+  return(atofd_beta(F[0],Beta,F[2]));
+}
+
+def poly_fdvec(A,B,C) {
+  M = length(B);
+  Alp = abc2alpha(A,B,C); 
+  F=poly_fd(A,B,C);  
+  V=F[1]; F=F[0];
+  Fvec=newvect(M+1); 
+  Fvec[0] = F;
+  for (I=1; I<=M; I++)  Fvec[I] =  ((V[I-1]-1)/Alp[I])*diff(F,V[I-1]);
+  return [Fvec,V];
+}
+def poly_fdvec_beta(Beta) {
+  Marginal = beta2marginal(Beta);
+  CSum=Marginal[1];
+  RSum=Marginal[0];
+  ABC=marginal2abc(RSum,CSum);
+  return(poly_fdvec(ABC[0],ABC[1],ABC[2]));
+}
+
+def check26() {
+   A=-3; C=-1; B=[-3,-2,-3];   
+   /* A=-5; C=-6; B=[-1,-2,-3];   negative marginal */
+  /* A=-5; C=-2; B=[-1,-2,-3]; */
+   /* A=-5; C=2; B=[-1,-2,-3]; */
+   /* A=-5; C=2; B=[-4];   */
+   if (containNegative(abc2marginal(A,B,C))) error("Negative marginal");
+  Fvec = poly_fdvec(A,B,C);
+  V=Fvec[1]; Fvec=Fvec[0];
+  Fvec2 = poly_fdvec(A-1,B,C)[0];
+  R=map(red,Fvec2-ygDa2(A,B,C,V)*Fvec);
+  return R;
+}
+
+/* Dc2*Da2 c->c-1, a->a-1. 
+  C-A is canceled.  Not yet tested.
+*/
+def ygDca2(A,B,C,X) {
+  Q0 = ygQmat2(A,B,C,X,0);
+  Cmat = ygCmat2(A,B,C);
+  return map(red,-Q0*matrix_inverse(Cmat));
+}
+
+/*
+  Table. B[0] is the first row sum.
+  B[0] |
+  CB   |
+         B[1], B[2], ..., B[M+1]
+  hg poly in the case of CB==1.
+  2014.08.20
+ */
+def hgpoly_fd_beta1(M,B) {
+  CB = (base_sum(B,0,0,length(B)-1)-B[0])-B[0];
+  if (CB != 1) error("The second row sum CB is not equal to 1.");
+  /* Assume that CB == 1 */
+  M = length(B)-2;
+  N = (M+1)*2;
+  Vx=[];
+  for (I=0; I<N; I++) Vx = cons(util_v(x,[I+1]),Vx);
+  Vx=reverse(Vx);
+  F = 0;
+  for (K=0; K<=M; K++) {
+    Mon=1;
+    for (J=0; J<=M; J++) {
+      if (J != K) {
+         Mon = Mon*(Vx[J]^(B[J+1]))/fac(B[J+1]);
+      }
+    }
+    if (B[K+1] == 0) error("B[K+1]-1 is negative.");
+    Mon = Mon*((Vx[K]^(B[K+1]-1))/fac(B[K+1]-1))*Vx[M+1+K];
+    F += Mon;
+  }
+  return [F,dp_ptod(F,Vx),Vx];
+}
+def check27() {
+   Beta = [7,1,5,2];
+   Beta = [6,1,3,2,1]; /* A=-6, B=[-3,-2,-1],C=-4 */
+   Beta = [8,2,3,2,2]; /* abc2marginal(-8,[-3,-2,-2],-5); [[8,1],[2,3,2,2]] */
+
+   F1=hgpoly_fd_beta1(length(Beta)-2,Beta);
+   F2=hgpoly_fd_beta0(length(Beta)-2,Beta);
+   return F1[0]-F2[0];
+}
+def hgpoly_fd1(A,B,C) {
+  Marginal = abc2marginal(A,B,C);
+  if (containNegative(Marginal)) error("Negative marginal");
+  M = length(B);
+  Beta =cons(Marginal[0][0],Marginal[1]);
+  return hgpoly_fd_beta1(M,Beta);
+}
+
+/* fvect_poly for C <= 0 */
+def fvect_poly2(A,B,C,X) {
+  if (C > 0) error("C is postive.");
+  M=length(B);
+  CB = C-base_sum(B,0,0,length(B)-1)-1;
+  if (CB <= 0) error("c-sum(b)-1 is not positive.");
+  Steps = CB-1;
+  if (type(X) == 4) X=newvect(length(X),X);
+  Xrule = assoc(xvars(M),vtol(X));
+  printf("Computing Dmat(ca) for parameters B=%a,X=%a\n",B,X);
+  Dmat = ygDca2(a,B,c,X);
+  Umat = map(red,matrix_inverse(Dmat));
+
+  F = poly_fdvec(A-Steps,B,C-Steps)[0];
+  F = base_replace(F,Xrule);
+  for (I=0; I<Steps; I++) {
+    Up = base_replace(Umat,[[a,A-Steps+1+I],[c,C-Steps+1+I]]);
+    F = Up*F;
+  }
+  return(F);
+}
+def check28() {
+  A=-5; B=[-4,-3];C=-2; X=[1/2,1/3];
+  A=-5; B=[-4,-3,-2];C=-2; X=[1/2,1/3,1/5];
+  printf("marginal=%a\n",abc2marginal(A,B,C));
+  F1=fvect_poly2(A,B,C,X);
+  printf("F1=%a, computing F2 by a bruce force method.\n",F1);
+  F2=base_replace(poly_fdvec(A,B,C)[0],assoc(xvars(length(X)),X));
+  return(F1-F2);
+}
+def check28b(T) {
+  Beta=[6,5,4,1,1,1]; /* ogawa data in check21, it takes a few seconds */
+  X = [1/7,1/3,1/2,1/11];
+  Ma = beta2marginal(Beta);
+  ABC=marginal2abc(Ma[0],Ma[1]);
+  A=ABC[0]; B=ABC[1]; C=ABC[2];
+  printf("marginal=%a\n",abc2marginal(A,B,C));
+  F1=fvect_poly2(A,B,C,X);
+  if (T == 0) return(F1);
+  printf("F1=%a\n",F1);
+  F=poly_fdvec_beta(Beta)[0]$   
+  F2=base_replace(F,assoc(xvars(4),X));
+  return(F1-F2);
 }
 
 #if  !USE_MODULE
