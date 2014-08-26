@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.7 2014/08/20 06:53:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.8 2014/08/20 06:54:36 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -2655,6 +2655,67 @@ def check28b(T) {
   F2=base_replace(F,assoc(xvars(4),X));
   return(F1-F2);
 }
+
+/*
+ works in case of row sum is zero or column sum is 0.
+*/
+def ahvec_beta(Beta,Y) {
+  Opt = getopt();
+  Ma=beta2marginal(Beta);
+  M=length(Beta)-2;
+  RS=newvect(2,Ma[0]);
+  CS=newvect(M+1,Ma[1]);
+  Mnew=M;
+  Fvec=newvect(M+1);
+  for (I=0, J=0; I<=M; I++) {
+    if (CS[I]==0) {
+      Mnew--; Fvec[I] = -1;
+    }else{ Fvec[I] = J; J++; }
+  }
+  if (Mnew < 0) error("zero matrix");
+  Ynew=newmat(2,Mnew+1);    
+  CSnew=newvect(Mnew+1);
+  for (I=0; I<=M; I++) {
+    if (Fvec[I] >= 0) {
+      J = Fvec[I];
+      Ynew[0][J] = Y[0][I];
+      Ynew[1][J] = Y[1][I];
+      CSnew[J] = CS[I];
+    }
+  }
+  if (RS[1] == 0) {
+    T=RS[0]; RS[0] = RS[1]; RS[1] = T;
+    for (J=0; J<=Mnew; J++) {
+      T=Ynew[0][J];
+      Ynew[0][J] = Ynew[1][J];
+      Ynew[1][J] = T;
+    }
+  }
+  ABCnew=marginal2abc(vtol(RS),vtol(CSnew));
+  printf("RS=%a, CSnew=%a, Ynew=%a\n",RS,CSnew,Ynew);
+  Tnew = ahvec(ABCnew[0],ABCnew[1],ABCnew[2],Ynew | option_list=Opt);
+  Fnew =Tnew[0];
+  for (I=0; I<=M; I++) {
+    if (Fvec[I] == -1) Fvec[I] = 0;
+    else {
+      J=Fvec[I];
+      Fvec[I] = Fnew[J];
+    }
+  }
+  return cons(Fvec,cdr(Tnew));
+}
+/*
+ahvec_beta([3,1,2,0,3],[[1,1/2,1/3,1/5],[1,1,1,1]]|all=1);
+
+[2402] abc2marginal(-5,[-4,-3],-2);
+[[5,4],[2,4,3]]
+[2403] marginal2abc([4,5],[2,4,3]);  
+[-4,[-4,-3],-1]   c is again negative.
+
+2014.08.26
+ahvec_beta([10,1,2,3,4],[[3,1,1,1],[1,1/2,1/3,1/5]]|all=1);
+returns "devision by 0".  Reason?
+*/
 
 #if  !USE_MODULE
 setparam(2)$
