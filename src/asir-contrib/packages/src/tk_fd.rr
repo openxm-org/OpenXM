@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.8 2014/08/20 06:54:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.9 2014/08/26 02:36:49 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -188,6 +188,8 @@ localf hgpoly_fd1$
 localf fvect_poly2$
 localf check28$
 localf check28b$
+localf ahvec_beta$
+localf ahvec_abc$
 #endif
 /* Matsumoto, page 3 */
 
@@ -1969,6 +1971,7 @@ def ygdmat_abc(A,B,C) {
 }
 
 def ygfvect_poly(A,B,C,X) { 
+  if (C <=0 ) return(fvect_poly2(A,B,C,X));
   YgEvalDmat=1;
   if (type(X) == 4) X=newvect(length(X),X);
   if (taka_base_equal(B,YgFD_BB) && 
@@ -2035,12 +2038,12 @@ def ygahvec(A,B,C,Y) {
    /* Gamma factors, todo double check */
   if (NoGamma) {
      Gamma = "[1/gamma(e+1)]";
-  }else{
+  }else if (C>0) {
     Gamma=tk_number_invgamma(-A+1)*tk_number_invgamma(C-1+1);
     for (I=0; I<M; I++) {
       Gamma=Gamma*tk_number_invgamma(-B[I]+1);
     }
-  }
+  }else { Gamma=1; } /* ygfvect_poly2 is called. */
   R= [vtol(Ahvec),Gamma];
   if (All) return append(R,[Zvalue]);
   else return R;
@@ -2693,7 +2696,7 @@ def ahvec_beta(Beta,Y) {
   }
   ABCnew=marginal2abc(vtol(RS),vtol(CSnew));
   printf("RS=%a, CSnew=%a, Ynew=%a\n",RS,CSnew,Ynew);
-  Tnew = ahvec(ABCnew[0],ABCnew[1],ABCnew[2],Ynew | option_list=Opt);
+  Tnew = ygahvec(ABCnew[0],ABCnew[1],ABCnew[2],Ynew | option_list=Opt);
   Fnew =Tnew[0];
   for (I=0; I<=M; I++) {
     if (Fvec[I] == -1) Fvec[I] = 0;
@@ -2717,6 +2720,12 @@ ahvec_beta([10,1,2,3,4],[[3,1,1,1],[1,1/2,1/3,1/5]]|all=1);
 returns "devision by 0".  Reason?
 */
 
+def ahvec_abc(A,B,C,X) {
+  Opt=getopt();
+  Ma=abc2marginal(A,B,C);
+  Beta=cons(Ma[0][0],Ma[1]);
+  return ahvec_beta(Beta,X | option_list=Opt);  
+}
 #if  !USE_MODULE
 setparam(2)$
 // setparam_by_number(2,2)$
