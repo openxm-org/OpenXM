@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.3 2014/07/31 07:00:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.4 2014/08/06 07:39:47 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
@@ -18,7 +18,7 @@ def r_d2rat(Y) {
 }
 def r_ahvec(A,B,C,Y) { 
   Y = r_d2rat(Y);
-  R=tk_fd.ygahvec(A,B,C,Y|all=1);
+  R=tk_fd.ahvec_abc(A,B,C,Y|all=1);
   Gamma=R[1];
   Der=R[0];
   Z=R[2]*Gamma;

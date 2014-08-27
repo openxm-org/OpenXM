@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.9 2014/08/26 02:36:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.10 2014/08/26 06:59:56 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -2017,7 +2017,7 @@ def ygahvec(A,B,C,Y) {
   Ye = 1;
   for (J=0; J<=M; J++) Ye = Ye*(Y[0][J]^E[0][J])*(Y[1][J]^E[1][J]);
   if (number_is_integer(A) && A < 0 && UseRecc) F=ygfvect_poly(A,B,C,X);
-  else F=ygfvect(A,B,C,X | option_list=Opt);  /* not implemented.*/
+  else F=fvect(A,B,C,X | option_list=Opt);  
   Fd=newvect(M+1);
   Fd[0] = F[0];  /* Fd are Euer derivatives of F_D */
   for (I=1; I<=M; I++) {
@@ -2618,11 +2618,15 @@ def hgpoly_fd1(A,B,C) {
 def fvect_poly2(A,B,C,X) {
   if (C > 0) error("C is postive.");
   M=length(B);
-  CB = C-base_sum(B,0,0,length(B)-1)-1;
-  if (CB <= 0) error("c-sum(b)-1 is not positive.");
-  Steps = CB-1;
   if (type(X) == 4) X=newvect(length(X),X);
   Xrule = assoc(xvars(M),vtol(X));
+  CB = C-base_sum(B,0,0,length(B)-1)-1;
+  if (CB == 0) {
+    F = poly_fdvec(A,B,C)[0];
+    return(base_replace(F,Xrule));
+  }
+  if (CB < 0) error("c-sum(b)-1 is negative.");
+  Steps = CB-1;
   printf("Computing Dmat(ca) for parameters B=%a,X=%a\n",B,X);
   Dmat = ygDca2(a,B,c,X);
   Umat = map(red,matrix_inverse(Dmat));
@@ -2718,6 +2722,10 @@ ahvec_beta([3,1,2,0,3],[[1,1/2,1/3,1/5],[1,1,1,1]]|all=1);
 2014.08.26
 ahvec_beta([10,1,2,3,4],[[3,1,1,1],[1,1/2,1/3,1/5]]|all=1);
 returns "devision by 0".  Reason?
+
+ahvec_abc(-6,[-2,-3],-4,[[1,1/2,1/3],[1,1,1]] | all=1);  
+ -> 2014.08.27 it works.
+Todo: call ahvec_abc in cgi/r-fd.rr
 */
 
 def ahvec_abc(A,B,C,X) {
