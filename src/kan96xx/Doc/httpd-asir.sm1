@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.29 2009/02/22 17:30:03 ohara Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.30 2010/02/08 01:08:39 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -332,4 +332,27 @@ def
   ] pop
   popVariables
   arg1
+} def
+
+/webasir2 {
+ [/rrr /cmd /mypid /lockname] pushVariables
+ [
+  %% This procedure to generate port number might fail.
+  [(oxGenPass)] extension . (integer) dc  /rrr set
+  rrr << rrr 20000 idiv 20000 mul >> sub /rrr set
+  /httpd.port 1200 rrr add def
+  httpd.port message 
+
+  [(getpid)] extension (dollar) dc /mypid set
+  /httpd.textarea.name  randomName def
+  [(/tmp/webasir-) mypid (.txt)] cat /lockname set
+  [(outputObjectToFile) lockname 
+    [httpd.port nl httpd.textarea.name nl ] cat
+  ] extension 
+  lockname message
+  [(cat ) lockname] cat (system) nl message
+  httpd ;
+  [(rm -f ) lockname] cat system
+ ] pop
+ popVariables
 } def
