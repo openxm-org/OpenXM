@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.30 2010/02/08 01:08:39 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.31 2014/08/28 11:27:34 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -344,7 +344,6 @@ def
   httpd.port message 
 
   [(getpid)] extension (dollar) dc /mypid set
-  /httpd.textarea.name  randomName def
   [(/tmp/webasir-) mypid (.txt)] cat /lockname set
   [(outputObjectToFile) lockname 
     [httpd.port nl httpd.textarea.name nl ] cat
