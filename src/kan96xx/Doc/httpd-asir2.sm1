@@ -1,8 +1,14 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir2.sm1,v 1.1 2014/08/30 11:29:12 takayama Exp $
 %% Asir server to be called from a cgi program.
 
 [(parse) (httpd-asir.sm1) pushfile] extension pop
 
+%% Default value of timer. Todo, not implemented.
+%% /webasir.tlimit (120) def
+
+%% export CGI_ASIR_ALLOW="[(fctr) (quit)]"
+%% export WEBASIR_TYPE="fctr"
+%% Start sm1 and webasir2, connect by asir-port/cgi/webasir2.c
 %% Top level script 
 %% GET /?key=1%2B3%3B  [two nl]
 %% GET /?msg=httpdAsirMeta+quit  HTTP/1.1 [two nl]
@@ -16,9 +22,11 @@
   /httpd.port 1200 rrr add def
   httpd.port message 
 
-  [(getenv) (ASIR_TYPE)] extension isString {
-    /mytype [(getenv) (ASIR_Type)] extension def
-  } { /mytype (all) def } ifelse
+  [(getenv) (CGI_ASIR_ALLOW)] extension tag 0 eq { /mytype (all) def } 
+  {oxasirSetSecureFlagFromEnv} ifelse
+  [(getenv) (WEBASIR_TYPE)] extension isString {
+    /mytype [(getenv) (WEBASIR_Type)] extension def
+  } { /mytype (none) def } ifelse
   [(getpid)] extension (dollar) dc /mypid set
   [(/tmp/webasir-) mytype (-) mypid (.txt)] cat /lockname set
   [(PrintDollar) 0] system_variable
@@ -186,3 +194,36 @@
     httpd-asir2.quit { exit } { } ifelse
   } loop    
 } def
+
+% overrides or new for cgiasir.sm1
+/oxasirSetSecureMode {
+  oxasir.ccc [ ] eq { ox_asirConnectMethod } { } ifelse 
+  oxasir.ccc $ctrl("error_in_timer",1);$ oxsubmit
+  oxasir.ccc $set_secure_mode(1);$ oxsubmit
+} def
+
+/oxasirSetSecureFlag {
+  /arg1 set
+  [/fff ] pushVariables
+  [
+    /fff arg1 def
+    oxasir.ccc [ ] eq { ox_asirConnectMethod } { } ifelse 
+    oxasir.ccc [$set_secure_flag("$ fff toString $",1);$] cat oxsubmit
+    oxasir.ccc oxpopcmo
+  ] pop
+  popVariables
+} def
+
+%%% 
+/oxasirSetSecureFlagFromEnv {
+     [(getenv) (CGI_ASIR_ALLOW)] extension isString {
+        [(getenv) (CGI_ASIR_ALLOW)] extension  /cgiAsirAllow.s set
+        [(parse) cgiAsirAllow.s] extension pop /cgiAsirAllow.p set
+        cgiAsirAllow.p isArray {
+           cgiAsirAllow.p /cgiAsirAllow  set
+        } {  } ifelse
+     } {  } ifelse
+     cgiAsirAllow {oxasirSetSecureFlag} map
+     oxasirSetSecureMode
+} def
+

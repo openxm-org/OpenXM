@@ -1,9 +1,10 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.1 2014/08/30 12:25:56 takayama Exp $
  */
 /*
   (httpd-asir2.sm1) run   webasir2
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -12,6 +13,7 @@
 #include <string.h>
 
 #define SIZE 0x10000
+char *byteArrayToUrlEncoding(char *s,int size);
 
 int Debug=1;
 int main(int argc,char *argv[]) {
@@ -24,10 +26,17 @@ int main(int argc,char *argv[]) {
   int i;
   char key[SIZE];
   char comm[SIZE];
+  char *asircomm;
   int quit;
   quit = 0;
+  asircomm="3-2;";
   for (i=1; i<argc; i++) {
     if (strcmp(argv[i],"--quit")==0) quit=1;
+    else if (strcmp(argv[i],"--asir")==0) {
+      i++;
+      if (i <argc) asircomm = argv[i];
+      else { usage(); return(-1); }
+    }
   }
 
   system("ls /tmp/webasir*.txt >tmp-webasir.txt");
@@ -80,7 +89,7 @@ int main(int argc,char *argv[]) {
     write(dataPort,comm,strlen(comm));
     fflush(NULL);
   }else{
-    sprintf(comm,"GET /?%s=10-21;\n\n",key);
+    sprintf(comm,"GET /?%s=%s;\n\n",key,byteArrayToUrlEncoding(asircomm,strlen(asircomm)));
     write(dataPort,comm,strlen(comm));
     fflush(NULL);
   }
@@ -91,3 +100,46 @@ int main(int argc,char *argv[]) {
   printf("%s\n",comm);
 }
 
+/* from kan96xx/plugin/oxcgi.c */
+/* . - _  A-Z a-z 0-9
+   space --> +
+*/
+static int isUrlEncoding3(char s) {
+  if ((s == '.') || (s == '-') || (s == '_')) return(0);
+  if ((s >= 'A') && (s <= 'Z')) return(0); 
+  if ((s >= 'a') && (s <= 'z')) return(0); 
+  if ((s >= '0') && (s <= '9')) return(0);
+  if (s == ' ') return(0);
+  return(1);
+} 
+
+char *byteArrayToUrlEncoding(char *s,int size) {
+  int n,i,j;
+  char *r;
+  n = 0;
+  /* get Size */
+  for (i=0; i<size; i++) {
+    if (isUrlEncoding3((char)s[i])) n += 3;
+    n++;
+  }
+  r = malloc(n+1);
+  if (r == NULL) {fprintf(stderr,"%s\n","No more memory."); return(NULL); }
+  r[0] = 0; r[n] = 0;
+  i = 0; j = 0;
+  while ((j < n) && (i<size)) {
+    if (isUrlEncoding3((char)s[i])) {
+      sprintf(&(r[j]),"%%%02X",s[i]); j += 3;
+    }else{
+      if ((char)s[i] == ' ') r[j]='+';
+      else r[j] = s[i]; 
+      j++; r[j] = 0;
+    }
+    i++;
+  }
+  return(r);
+}
+
+
+usage() {
+  fprintf(stderr,"webasir2 [--quit] [--asir command_string]\n");
+}
