@@ -1,0 +1,188 @@
+%% $OpenXM$
+%% Asir server to be called from a cgi program.
+
+[(parse) (httpd-asir.sm1) pushfile] extension pop
+
+%% Top level script 
+%% GET /?key=1%2B3%3B  [two nl]
+%% GET /?msg=httpdAsirMeta+quit  HTTP/1.1 [two nl]
+/httpd-asir2.quit 0 def
+/webasir2 {
+ [/rrr /cmd /mypid /lockname /mytype] pushVariables
+ [
+  %% This procedure to generate port number might fail.
+  [(oxGenPass)] extension . (integer) dc  /rrr set
+  rrr << rrr 20000 idiv 20000 mul >> sub /rrr set
+  /httpd.port 1200 rrr add def
+  httpd.port message 
+
+  [(getenv) (ASIR_TYPE)] extension isString {
+    /mytype [(getenv) (ASIR_Type)] extension def
+  } { /mytype (all) def } ifelse
+  [(getpid)] extension (dollar) dc /mypid set
+  [(/tmp/webasir-) mytype (-) mypid (.txt)] cat /lockname set
+  [(PrintDollar) 0] system_variable
+  [(outputObjectToFile) lockname 
+    [httpd.port nl httpd.textarea.name nl ] cat
+  ] extension 
+  lockname message
+  [(cat ) lockname] cat (system) nl message
+  /httpd-asir2.quit 0 def
+  httpd ;
+  [(rm -f ) lockname] cat system
+ ] pop
+ popVariables
+} def
+
+%% override httpd_action in httpd-asir.sm1
+/httpd_action {
+  [/in-httpd /ff /httpd.com /httpd.result /sss
+   /sss.engine /sss.web /err
+   /oxserver.vname
+  ] pushVariables
+  [
+  {
+       [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
+       %%     wait for ever
+        [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
+        ff tag 0 eq {
+           (connection is closed.) message exit
+        }
+        {
+          (------------  start ----------------------) message
+             ff message
+             /httpd.sendFile null def
+          (-----------------------------------------) message
+             ff removeGET webstringToAscii /httpd.com set 
+             [(httpd.com=) httpd.com] cat message
+             (httpd.sendFile=) messagen httpd.sendFile message
+          (------------  end ----------------------) message
+          (   ) message
+          httpd.serial 0 eq {
+            /httpd.com  httpd.initialization def 
+            /httpd.textarea.valid 1 def
+          } { } ifelse
+          httpd.com metaCommand {
+            httpd.textarea.valid {
+              /oxserver.vname 
+                 [Oxserver_history_variable httpd.serial toString] cat
+              def
+              oxasir.ccc 
+              [(if (1) {)  httpd.com  (; };)] cat
+              oxexecutestring ;
+            }{
+              send-page-warning  exit
+            } ifelse
+            [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
+
+            [(oxReq) oxasir.ccc SM_popCMO ] extension pop
+
+            [(oxReq) oxasir.ccc SM_setName oxserver.vname] extension pop
+            oxasir.ccc [oxserver.vname (;)] cat oxexecutestring
+
+            [(oxReq) oxasir.ccc SM_popString ] extension pop
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [oxasir.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) oxasir.ccc] extension  /err          set
+                [(oxGet) oxasir.ccc] extension  /httpd.result set
+                %% oxasir.ccc oxpopstring /httpd.result set
+            } {
+                oxasir.ccc oxreset
+                oxasir.ccc ("computation is interrupted.";) oxexecutestring ;
+                oxasir.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+
+            err message
+            err [ ] eq  { 
+              /httpd.history 
+                httpd.history 
+                [10 (string) dc 
+                 (/**** ) httpd.serial toString ( ****/) 
+                 10 (string) dc
+                  httpd.com 
+                 (;)  %% add extra ;
+                 ] cat
+                append 
+              def
+            } {
+              oxasir.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+
+            httpd.result 
+            sendln  exit  %% exit the loop LOOP-A
+          } { exit } ifelse  %% metaCommand
+        } ifelse
+  } loop  %% LOOP-A
+  ] pop
+  popVariables
+} def
+
+%%overrides metaCommand in httpd-asir.sm1
+/metaCommand {
+  /arg1 set
+  [/in-metaCommand /msg /result /msg2 /nn
+   /err /fn
+  ] pushVariables
+  [
+    /msg arg1 def
+    /result 1 def
+    msg 1 copy toTokensBySpace /msg2 set
+    msg (httpdAsirMeta quit) eq {
+       oxasir.ccc oxshutdown
+       (byebye) sendln
+       /httpd-asir2.quit 1 def
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta save) eq {
+       send-page-save
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta interrupt) eq {
+       oxasir.ccc oxreset
+       (Interrupted! <br>) send-page-3
+       /result 0 def
+    } { } ifelse
+    /arg1 result def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%override httpd in httpd.sm1
+/httpd {
+  /httpd.serial 1 def
+  /httpd.history [ ] def
+  /httpd.result.history [ 0 ] def
+  [(nobody)] extension pop
+  {
+    httpd_startserver ;
+    httpd_action ;
+    httpd_stopserver ;
+    httpd.take.log { (date) system  } { } ifelse
+%    (sleep 2) system 
+    httpd.serial 1 add /httpd.serial set
+    httpd-asir2.quit { exit } { } ifelse
+  } loop    
+} def
