@@ -1,11 +1,14 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.1 2014/08/30 12:25:56 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.2 2014/08/30 22:47:20 takayama Exp $
  */
 /*
   (httpd-asir2.sm1) run   webasir2
+   >log 2>&1
+   Todo, timer(limit, command, message) implement in sm1.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
@@ -16,6 +19,7 @@
 char *byteArrayToUrlEncoding(char *s,int size);
 
 int Debug=1;
+int SetTimer=0;
 int main(int argc,char *argv[]) {
   int dataPort;
   struct hostent *servhost;
@@ -23,11 +27,12 @@ int main(int argc,char *argv[]) {
   FILE *fp;
   char s[1];
   char fname[SIZE];
-  int i;
+  int i,j,c;
   char key[SIZE];
   char comm[SIZE];
   char *asircomm;
   int quit;
+  char workf[SIZE];
   quit = 0;
   asircomm="3-2;";
   for (i=1; i<argc; i++) {
@@ -36,11 +41,32 @@ int main(int argc,char *argv[]) {
       i++;
       if (i <argc) asircomm = argv[i];
       else { usage(); return(-1); }
+    }else if (strcmp(argv[i],"--debug")==0) {
+      i++;
+      if (i <argc) sscanf(argv[i],"%d",&Debug);
+      else { usage(); return(-1); }
+    }else if (strcmp(argv[i],"--settimer")==0) {
+      i++;
+      if (i <argc) sscanf(argv[i],"%d",&SetTimer);
+      else { usage(); return(-1); }
+    } else if (strcmp(argv[i],"--stdin")==0) {
+      asircomm = (char *) malloc(SIZE);
+      asircomm[0] = 0; j=0;
+      while ((c=getchar()) != EOF) {
+	asircomm[j] = c; j++; asircomm[j] = 0;
+	if (j > SIZE-3) {
+	  fprintf(stderr,"error, too big input.\n"); return(-1);
+	}
+      }
+    } else {
+      usage(); return(0);
     }
   }
 
-  system("ls /tmp/webasir*.txt >tmp-webasir.txt");
-  fp = fopen("tmp-webasir.txt","r");
+  sprintf(workf,"/tmp/tmp-webasir-%d.txt",(int) getpid());
+  sprintf(comm,"ls /tmp/webasir*.txt >%s",workf);
+  system(comm);
+  fp = fopen(workf,"r");
   if (fp == NULL) {
     fprintf(stderr,"No webasir2 is running.\n"); return(-1);
   }
@@ -64,6 +90,8 @@ int main(int argc,char *argv[]) {
   }
   if (Debug) printf("key=%s\n",key);
   fclose(fp);
+  sprintf(comm,"rm -f %s",workf);
+  system(comm);
 
   if ((servhost = gethostbyname("localhost")) == NULL) {
     fprintf(stderr,"bad server name.\n"); return(-1);
@@ -81,9 +109,18 @@ int main(int argc,char *argv[]) {
   if (Debug) fprintf(stderr,"Trying to connect port %d  ",ntohs(dServer.sin_port));
   
   if (connect(dataPort,(struct sockaddr *)&dServer,sizeof(dServer)) == -1) {
-    fprintf(stderr,"cannot connect\n");
-  }else{  fprintf(stderr,"Connected\n"); }
+    fprintf(stderr,"error: cannot connect\n");
+  }else{  if (Debug) fprintf(stderr,"Connected\n"); }
 
+  if (SetTimer) {
+    strcpy(comm,asircomm);
+    for (i=strlen(comm)-1; i>=0; i--) {
+      if ((comm[i] == ';') || (comm[i] <= ' ')) comm[i] = 0;
+      else break;
+    }
+    sprintf(asircomm,"timer(%d,%s,\"error(timeout %d sec)\");",
+	    SetTimer,comm,SetTimer);
+  }
   if (quit) {
     sprintf(comm,"GET /?msg=httpdAsirMeta+quit HTTP/1.1\n\n");
     write(dataPort,comm,strlen(comm));
@@ -142,4 +179,7 @@ char *byteArrayToUrlEncoding(char *s,int size) {
 
 usage() {
   fprintf(stderr,"webasir2 [--quit] [--asir command_string]\n");
+  fprintf(stderr,"         [--debug level]\n");
+  fprintf(stderr,"         [--settimer seconds]\n");
+  fprintf(stderr,"webasir2 --stdin  ; command is obtained from the stdin.\n");
 }

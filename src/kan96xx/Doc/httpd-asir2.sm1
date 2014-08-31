@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir2.sm1,v 1.1 2014/08/30 11:29:12 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir2.sm1,v 1.2 2014/08/30 22:47:20 takayama Exp $
 %% Asir server to be called from a cgi program.
 
 [(parse) (httpd-asir.sm1) pushfile] extension pop
@@ -8,13 +8,14 @@
 
 %% export CGI_ASIR_ALLOW="[(fctr) (quit)]"
 %% export WEBASIR_TYPE="fctr"
+%% export OX_ASIR_LOAD_FILE="/private/taka/abc.rr"
 %% Start sm1 and webasir2, connect by asir-port/cgi/webasir2.c
 %% Top level script 
 %% GET /?key=1%2B3%3B  [two nl]
 %% GET /?msg=httpdAsirMeta+quit  HTTP/1.1 [two nl]
 /httpd-asir2.quit 0 def
 /webasir2 {
- [/rrr /cmd /mypid /lockname /mytype] pushVariables
+ [/rrr /cmd /mypid /lockname /mytype /lofile] pushVariables
  [
   %% This procedure to generate port number might fail.
   [(oxGenPass)] extension . (integer) dc  /rrr set
