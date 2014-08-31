@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.2 2014/08/30 22:47:20 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.3 2014/08/31 07:53:57 takayama Exp $
  */
 /*
   (httpd-asir2.sm1) run   webasir2
@@ -16,7 +16,10 @@
 #include <string.h>
 
 #define SIZE 0x10000
+#define MKEY "oxMessageBody="
 char *byteArrayToUrlEncoding(char *s,int size);
+static int cgiHex(int p);
+char *urlEncodedStringToString(char *s);
 
 int Debug=1;
 int SetTimer=0;
@@ -30,16 +33,17 @@ int main(int argc,char *argv[]) {
   int i,j,c;
   char key[SIZE];
   char comm[SIZE];
-  char *asircomm;
+  char asircomm[SIZE];
   int quit;
   char workf[SIZE];
   quit = 0;
-  asircomm="3-2;";
+  strcpy(asircomm,"3-2;");
+  strcpy(asircomm,"oxMessageBody=1%2B3%3B");
   for (i=1; i<argc; i++) {
     if (strcmp(argv[i],"--quit")==0) quit=1;
     else if (strcmp(argv[i],"--asir")==0) {
       i++;
-      if (i <argc) asircomm = argv[i];
+      if (i <argc) strcpy(asircomm,argv[i]);
       else { usage(); return(-1); }
     }else if (strcmp(argv[i],"--debug")==0) {
       i++;
@@ -50,7 +54,6 @@ int main(int argc,char *argv[]) {
       if (i <argc) sscanf(argv[i],"%d",&SetTimer);
       else { usage(); return(-1); }
     } else if (strcmp(argv[i],"--stdin")==0) {
-      asircomm = (char *) malloc(SIZE);
       asircomm[0] = 0; j=0;
       while ((c=getchar()) != EOF) {
 	asircomm[j] = c; j++; asircomm[j] = 0;
@@ -111,6 +114,14 @@ int main(int argc,char *argv[]) {
   if (connect(dataPort,(struct sockaddr *)&dServer,sizeof(dServer)) == -1) {
     fprintf(stderr,"error: cannot connect\n");
   }else{  if (Debug) fprintf(stderr,"Connected\n"); }
+
+  /* If the input is MKEY=..., extract ... */
+  if (strncmp(asircomm,MKEY,strlen(MKEY))==0) {
+    strcpy(comm,&(asircomm[strlen(MKEY)]));
+    strcpy(asircomm,comm);
+    strcpy(asircomm,urlEncodedStringToString(asircomm));
+    if (Debug) fprintf(stderr,"oxMessageBody, asircomm=%s\n",asircomm);
+  }
 
   if (SetTimer) {
     strcpy(comm,asircomm);
@@ -176,6 +187,45 @@ char *byteArrayToUrlEncoding(char *s,int size) {
   return(r);
 }
 
+
+char *urlEncodedStringToString(char *s)
+{
+  char *ts;
+  char *ts2;
+  int i,j;
+  int p;
+  int vstart, vend;
+  if (s == NULL) return(NULL);
+  vstart = 0; vend = strlen(s)-1;
+  ts = (char *) malloc(strlen(s)+2);
+  if (ts == NULL)  ;
+  j = 0; ts[j] = 0;
+  for (i=vstart; i<=vend; i++,j++) {
+    ts[j] = 0;
+    if (s[i] == '+') {
+      ts[j] = ' '; ts[j+1] = 0;
+    }else if (s[i] == '%') {
+      p = cgiHex(s[i+1])*16+cgiHex(s[i+2]);
+      i = i+2;
+      ts[j] = p; ts[j+1] = 0;
+    }else {
+      ts[j] = s[i]; ts[j+1] = 0;
+    }
+  }
+  ts2 = (char *) malloc(j);
+  if (ts2 == NULL) ;
+  for (i=0; i<j; i++) {
+    ts2[i] = ts[i];  ts2[i+1] = 0;
+  }
+  return (ts2);
+}
+
+static int cgiHex(int p) {
+  if (p >= '0' && p <= '9') return (p-'0');
+  if (p >= 'A' && p <= 'F') return (p-'A'+10);
+  if (p >= 'a' && p <= 'f') return (p-'a'+10);
+  if (Debug) fprintf(stderr,"%s\n","Invalid argument to cgiHex.");
+}
 
 usage() {
   fprintf(stderr,"webasir2 [--quit] [--asir command_string]\n");
