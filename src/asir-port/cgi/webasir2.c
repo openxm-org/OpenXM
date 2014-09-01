@@ -1,9 +1,12 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.3 2014/08/31 07:53:57 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-port/cgi/webasir2.c,v 1.4 2014/08/31 10:20:33 takayama Exp $
  */
 /*
-  (httpd-asir2.sm1) run   webasir2
+ -(httpd-asir2.sm1) run   webasir2
    >log 2>&1
-   Todo, timer(limit, command, message) implement in sm1.
+ - Todo, timer(limit, command, message) implement in sm1.
+ - Example.  webasir2 --asir 'oxMessageBody=1%2B3%3B'
+ - Example.  webasir2 --asir '3-2'
+ - Error handling is not completed. Run src/kan96xx/Doc/httpd-asir2-kill.sh by cron.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,8 +40,7 @@ int main(int argc,char *argv[]) {
   int quit;
   char workf[SIZE];
   quit = 0;
-  strcpy(asircomm,"3-2;");
-  strcpy(asircomm,"oxMessageBody=1%2B3%3B");
+  asircomm[0] = 0;
   for (i=1; i<argc; i++) {
     if (strcmp(argv[i],"--quit")==0) quit=1;
     else if (strcmp(argv[i],"--asir")==0) {
@@ -71,7 +73,7 @@ int main(int argc,char *argv[]) {
   system(comm);
   fp = fopen(workf,"r");
   if (fp == NULL) {
-    fprintf(stderr,"No webasir2 is running.\n"); return(-1);
+    fprintf(stderr,"Failed ls\n"); return(-1);
   }
   fgets(fname,SIZE-2,fp);
   for (i=strlen(fname)-1; i>=0; i--) {
@@ -79,12 +81,30 @@ int main(int argc,char *argv[]) {
   }
   fclose(fp);
   if (strlen(fname)==0) {
-    fprintf(stderr,"No webasir2 pid file.\n"); return(-1);
+    if (Debug) fprintf(stderr,"No webasir2 pid file.\n"); 
+    if (Debug) {fprintf(stderr,"No webasir2 is running. Start server.\n");}
+    startServer();
+    sleep(5);
+    system(comm);
+    fp = fopen(workf,"r");
+    if (fp == NULL) {
+      fprintf(stderr,"Failed to start the server.\n"); return(-1);
+    }
+    fgets(fname,SIZE-2,fp);
+    for (i=strlen(fname)-1; i>=0; i--) {
+      if (fname[i] <= ' ') fname[i]=0; else break;
+    }
+    if (strlen(fname) == 0) {
+      fprintf(stderr,"Failed to start the server. No webasir2 pid file.\n"); return(-1);
+    }
+    fclose(fp);
   }
+
   fp = fopen(fname,"r");
   if (fp == NULL) {
     fprintf(stderr,"Open error of %s\n",fname); return(-1);
   }
+  mylock(fname);
   fgets(key,SIZE-2,fp); sscanf(key,"%d",&dataPort);
   if (Debug) printf("dataPort=%d\n",dataPort);
   fgets(key,SIZE-2,fp);
@@ -114,6 +134,8 @@ int main(int argc,char *argv[]) {
   if (connect(dataPort,(struct sockaddr *)&dServer,sizeof(dServer)) == -1) {
     fprintf(stderr,"error: cannot connect\n");
   }else{  if (Debug) fprintf(stderr,"Connected\n"); }
+
+  if ((strlen(asircomm)==0) && (!quit)) {myunlock(fname); outputTop(); return(0); }
 
   /* If the input is MKEY=..., extract ... */
   if (strncmp(asircomm,MKEY,strlen(MKEY))==0) {
@@ -145,7 +167,13 @@ int main(int argc,char *argv[]) {
   /* get result */
   for (i=0; i<SIZE; i++) comm[i]=0;
   read(dataPort,comm,SIZE-2);
-  printf("%s\n",comm);
+  /* remove newline(s) */
+  for (i=strlen(comm)-1; i>0; i--) {
+    if (comm[i] < ' ') comm[i] = 0;
+    else break;
+  }
+  myunlock(fname);
+  outputResult(comm);
 }
 
 /* from kan96xx/plugin/oxcgi.c */
@@ -227,6 +255,39 @@ static int cgiHex(int p) {
   if (Debug) fprintf(stderr,"%s\n","Invalid argument to cgiHex.");
 }
 
+outputTop() {
+  printf("Content-Type: text/html\n\n");
+  printf("<html><body>\nInput <br> asir-command <br> without semicolon. <br><br>\n");
+  printf("<form method=\"POST\"> <input type=submit>\n");
+  printf("<textarea name=\"oxMessageBody\" rows=10 cols=\"80\" wrap=\"soft\">\n");
+  printf("</textarea>\n</form>\n");
+  printf("</body></html>\n");
+}
+outputResult(char *s) {
+  printf("Content-Type: text/plain\n\n");
+  printf("%s\n",s);
+}
+startServer() {
+  char comm[SIZE];
+  char *r;
+  r = getenv("CGI_ASIR_ALLOW");
+  if (r == NULL) {
+    setenv("CGI_ASIR_ALLOW","[(quit) (fctr)]",1);
+  }
+  sprintf(comm,"%s/src/kan96xx/Doc/httpd-asir2.sh >/dev/null 2>&1 &",getenv("OpenXM_HOME"));
+  /* sprintf(comm,"echo $CGI_ASIR_ALLOW\n");  security check. */
+  system(comm);
+}
+mylock(char *fname) {
+  char comm[SIZE];
+  sprintf(comm,"mv %s /tmp/lock-webasir-%d.txt",fname,getpid());
+  system(comm);
+}
+myunlock(char *fname) {
+  char comm[SIZE];
+  sprintf(comm,"mv /tmp/lock-webasir-%d.txt %s",getpid(),fname);
+  system(comm);
+}
 usage() {
   fprintf(stderr,"webasir2 [--quit] [--asir command_string]\n");
   fprintf(stderr,"         [--debug level]\n");
