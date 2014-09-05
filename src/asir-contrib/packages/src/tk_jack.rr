@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.3 2014/03/10 05:30:58 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.4 2014/03/11 01:46:19 takayama Exp $
 Koev-Edelman for higher order derivatives.
 Series solution obtained by an interpolation and Koev-Edelman evaluation.
 Previous version: misc-2011/10/wishart/Prog/mh.rr
@@ -594,7 +594,7 @@ def genDarray(M,N) {
   /*extern Darray;
   extern Parray; */
   L = partition_a(N,M);
-  L = qsort(newvect(length(L),L),plength2);
+  L = qsort(newvect(length(L),L),tk_jack.plength2);
   Pmn = length(L);
   printf("Degree M = %a, N of vars N = %a, Pmn=%a\n",M,N,Pmn);
   printf("L=%a\n",L);

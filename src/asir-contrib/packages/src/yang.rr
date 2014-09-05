@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.32 2011/11/01 07:38:09 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.33 2013/07/30 05:23:08 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -1001,7 +1001,7 @@ def nf(F,Gr) {
 
 def nf_l(L,G) {
     OPTS=getopt();
-    NFS=mapat(nf,0,L,G|option_list=OPTS);
+    NFS=mapat(yang.nf,0,L,G|option_list=OPTS);
     if (isvoid(getopt(syzygy))) {
         return NFS;
     }
@@ -1105,7 +1105,7 @@ def sub_v(V1,V2) {
 
 /* S: scalar, V: vector */
 def multir_sv(S,V) {
-    return mapat(multir_DE,1,S,V);
+    return mapat(yang.multir_DE,1,S,V);
 }
 
 /* V = SL[0]*VL[0] + ... + SL[M-1]*VL[M-1] */
@@ -1250,7 +1250,7 @@ Input: (Groebner basis, Variables)
 Output: reduced Groebner basis
 */
 def gr2rgr(G) {
-    G = qsort(G, dp_revcmp);
+    G = qsort(G, yang.dp_revcmp);
     RedGr = [];
     while(G != []) {
         H = car(G); G = cdr(G);
@@ -1264,7 +1264,7 @@ def gr2rgr(G) {
 }
 
 def gr2rgr_s(G, Syz) {
-    GS = qsort(assoc(G,Syz), dp_revcmp_s);
+    GS = qsort(assoc(G,Syz), yang.dp_revcmp_s);
     G  = map('car', GS);
     Syz= map(list_second, GS);
     Gr = [];
@@ -1282,7 +1282,7 @@ def gr2rgr_s(G, Syz) {
             if (C!=[]) {
                 S = sub_v(S,addmul_sv(C,Syz));
             }
-            S = map(red1,multir_sv([Dn,Nm],S));
+            S = map(red1,yang.multir_sv([Dn,Nm],S));
             Syzygy = cons(S,Syzygy);
         }
     }
@@ -1316,7 +1316,7 @@ def buchberger(G) {
             }
         }
     }
-    Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
+    Pairs = qsort(Pairs, yang.spair_compare); /* sort by sugar */
     while(Pairs != []) {
 /*      message(length(G)); */
         K = car(Pairs);
@@ -1344,7 +1344,7 @@ def buchberger(G) {
                     L = cons([G[I],G[N],spair_sugar(G[I],G[N])],L);
                 }
             }
-            Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
+            Pairs = qsort(append(Pairs, L), yang.spair_compare); /* sort by sugar */
             N++;
         }else {
             message("o");
@@ -1366,7 +1366,7 @@ def buchberger_s(G) {
         }
     }
     Syzygy= matrix_rows(constant(1)*matrix_identity_matrix(N));
-    Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
+    Pairs = qsort(Pairs, yang.spair_compare); /* sort by sugar */
     while(Pairs != []) {
         K = car(Pairs); K0=K[3]; K1=K[4];
         Pairs = cdr(Pairs);
@@ -1394,7 +1394,7 @@ def buchberger_s(G) {
                     L = cons([G[I],G[N],spair_sugar(G[I],G[N]),I,N],L);
                 }
             }
-            Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
+            Pairs = qsort(append(Pairs, L), yang.spair_compare); /* sort by sugar */
             N++;
         }else {
             message("o");
@@ -1508,14 +1508,14 @@ def pf_i(Base,Gr,S) {
     for(J=0; J<N; J++) {
         X  = op_var(J);
         DX = op_op(J);
-        DX_Stdmon = mapat(mul,1,DX,Stdmon);
+        DX_Stdmon = mapat(yang.mul,1,DX,Stdmon);
         A  = nf_l(DX_Stdmon,Gr|syzygy=1);
         B  = A[1];
         A  = ltom(A[0],Stdmon);
 
-        DC = mapat(action,1,op(DX),C);
+        DC = mapat(yang.action,1,op(DX),C);
         A  = base_cancel((1/X)*((DC + C*A)*Ci));
-        B  = matmul((1/X)*(C*B+mapat(mul,1,DX,D))-A*D,S);
+        B  = matmul((1/X)*(C*B+mapat(yang.mul,1,DX,D))-A*D,S);
         B  = base_cancel(B);
         P[J]=[A,B];
         A=0; B=0;
@@ -1541,7 +1541,7 @@ def pfaffian(Base,Gr) {
     L = newvect(M);
     for(J=0; J<M; J++) {
 		OP = [op_i(M,J), (op_type(J)==EULER)? op_var(J): 1]; /* オイラー微分作用素から偏微分作用素に */
-        P = mapat(multir,1,OP,Base); 
+        P = mapat(yang.multir,1,OP,Base); 
         P = map(reduction,P,Gr); /* normal form */
         P = dp_ltom(P,StdMon);   /* 行列表現 */
         L[J] = base_cancel(P*S);
@@ -2113,7 +2113,7 @@ def gamma1(L)
 {
     for(G=1 ; L != []; L=cdr(L)) {
         LL = car(L);
-        G *= (islist(LL))? call(eval_gamma,LL): LL;
+        G *= (islist(LL))? call(yang.eval_gamma,LL): LL;
     }
     return G;
 }
@@ -2182,7 +2182,7 @@ def series_generic(MaxDeg, GKZ, W, AT, Strategy) {
         }
     }
     if (Strategy==1) F = reverse(F);
-    if (Strategy==2) F = qsort(F, compare_algorithm2);
+    if (Strategy==2) F = qsort(F, yang.compare_algorithm2);
     if (Strategy==3) F = qsort(map(head_sum, F));
     return [ltov(AT),map(cddr,F)];
     /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */

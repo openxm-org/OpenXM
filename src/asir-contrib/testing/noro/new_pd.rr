@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.7 2011/08/09 07:49:38 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.8 2011/11/01 00:35:56 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat,SuccSat,RepColon$
@@ -712,7 +712,7 @@ def find_si1(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gen_gb_comp(Int,G,Mod) ) { print([0]); return reverse(S); }
 
-	C = qsort(C,comp_tdeg);
+	C = qsort(C,noro_pd.comp_tdeg);
 
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
 	Int0 = incremental_gb(append(vtol(ltov(G)*Tmp),vtol(ltov(Q)*(1-Tmp))),
@@ -755,7 +755,7 @@ def find_si2(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gen_gb_comp(Int,G,Mod) ) { print([0]); return reverse(S); }
 
-	C = qsort(C,comp_tdeg);
+	C = qsort(C,noro_pd.comp_tdeg);
 
 	Dp = dp_gr_print(); dp_gr_print(0);
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
@@ -775,7 +775,7 @@ def find_si2(C,G,Q,Rad,V,Ord) {
 		print([length(T),I],2);
 		S = cons(Ui,S);
 	}
-	S = qsort(S,comp_tdeg);
+	S = qsort(S,noro_pd.comp_tdeg);
 	print("");
 	End = Len = length(S);
 
@@ -866,7 +866,7 @@ def find_ssi1(C,G,Q,Rad,V,Ord) {
 	if ( gen_gb_comp(Int,G,Mod) ) { print([0]); return reverse(S); }
 
 	dp_ord(Ord); DC = map(dp_ptod,C,V); 
-	DC = qsort(DC,comp_tord); C = map(dp_dtop,DC,V);
+	DC = qsort(DC,noro_pd.comp_tord); C = map(dp_dtop,DC,V);
 	print(length(C),2);
 	if ( Reduce ) {
 		SC = map(sq,C,Mod);
@@ -924,9 +924,9 @@ def find_ssi2(C,G,Q,Rad,V,Ord) {
 
 #if 0
 	dp_ord(Ord); DC = map(dp_ptod,C,V); 
-	DC = qsort(DC,comp_tord); C = map(dp_dtop,DC,V);
+	DC = qsort(DC,noro_pd.comp_tord); C = map(dp_dtop,DC,V);
 #else
-	C = qsort(C,comp_tdeg);
+	C = qsort(C,noro_pd.comp_tdeg);
 #endif
 	if ( Reduce ) {
 		for ( T = C, C1 = [], R1 = Rad; T != []; T = cdr(T) ) {
@@ -944,7 +944,7 @@ def find_ssi2(C,G,Q,Rad,V,Ord) {
 		Ui = U = car(T);
 		S = cons([Ui,U],S);
 	}
-	S = qsort(S,comp_tdeg_first);
+	S = qsort(S,noro_pd.comp_tdeg_first);
 	print("");
 
 	Dp = dp_gr_print(); dp_gr_print(0);
@@ -1043,7 +1043,7 @@ def pseudo_dec(G,L,V,Ord)
 	for ( I = 0; I < N; I++ ) {
 		LI = setminus(L0,[L0[I]]);
 		PI = ideal_list_intersection(LI,V,Ord|mod=Mod);
-		PI = qsort(PI,comp_tdeg);
+		PI = qsort(PI,noro_pd.comp_tdeg);
 		for ( T = PI; T != []; T = cdr(T) )
 			if ( gen_nf(car(T),L0[I],V,Ord,Mod) ) break;
 		if ( T == [] ) error("separator : cannot happen");
@@ -1263,7 +1263,7 @@ def prime_dec_main(B,V)
 T0=time();
 		IntP = ideal_intersection_m(IntP,Int,V,0|mod=Mod);
 		dp_ord(0); DC = map(dp_ptod,IntP,V); 
-		DC = qsort(DC,comp_tord); IntP = map(dp_dtop,DC,V);
+		DC = qsort(DC,noro_pd.comp_tord); IntP = map(dp_dtop,DC,V);
 ACCUM_TIME(Tpint,RTpint)
 #else
 		IntP = ideal_intersection(IntP,Int,V,0|mod=Mod,gbblock=[[0,length(IntP)]]);
@@ -2164,7 +2164,7 @@ def ideal_product(A,B,V)
 	for ( T = PA; T != []; T = cdr(T) )
 		for ( S = PB; S != []; S = cdr(S) )
 			R = cons([car(T)[0]*car(S)[0],car(T)[1]+car(S)[1]],R);
-	T = qsort(R,comp_by_second);
+	T = qsort(R,noro_pd.comp_by_second);
 	T = map(first,T);
 	Len = length(A)>length(B)?length(A):length(B);
 	Len *= 2;
@@ -2306,7 +2306,7 @@ def ideal_colon(G,F,V)
 	G = nd_gr(G,V,Mod,0);
 	C = [1];
 	TV = ttttt;
-	F = qsort(F,comp_tdeg);
+	F = qsort(F,noro_pd.comp_tdeg);
 	for ( T = F; T != []; T = cdr(T) ) {
 		S = colon(G,car(T),V|isgb=1,mod=Mod);
 		if ( type(S[0])!= 1 ) {
@@ -2837,7 +2837,7 @@ def separator(P,V)
 	N = length(P);
 	dp_ord(0);
 	DP = vector(N);
-	for ( I = 0; I < N; I++ ) DP[I] = qsort(ltov(map(dp_ptod,P[I][0],V)),comp_tord);
+	for ( I = 0; I < N; I++ ) DP[I] = qsort(ltov(map(dp_ptod,P[I][0],V)),noro_pd.comp_tord);
 	if ( Mod ) 
 		for ( I = 0; I < N; I++ ) DP[I] = map(dp_mod,DP[I],Mod,[]);
 	Ind = vector(N);
@@ -2953,7 +2953,7 @@ def para_exec(Proc,Task) {
 		Free = append(Free,Finish0);
 	}
 	print("");
-	R = qsort(R,comp_by_second);
+	R = qsort(R,noro_pd.comp_by_second);
 	R = map(first,R);
 	return R;
 }
@@ -2972,7 +2972,7 @@ def redbase(B,V,Mod,Ord)
 		D = Mod?dp_nf_mod(Ind,D,DM,1,Mod):dp_nf(Ind,D,DM,1);
 		if ( D ) R = cons(D,R);
 	}
-	D = qsort(R,comp_tord);
+	D = qsort(R,noro_pd.comp_tord);
 	return map(dp_dtop,D,V);
 }
 

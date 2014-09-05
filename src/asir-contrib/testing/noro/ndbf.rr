@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.18 2011/01/16 08:46:10 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.19 2011/03/30 05:07:01 noro Exp $ */
 /* requires 'primdec' */
 
 #define TMP_H hhhhhhhh
@@ -112,7 +112,7 @@ def in_ww(F)
 		if ( type(Vord) != 4 ) {
 	    	for ( I = 0; I < N; I++ )
 	    		D[I] = [deg(F,V[I]),V[I]];
-	    	qsort(D,compare_first);
+	    	qsort(D,ndbf.compare_first);
 	    	for ( V = [], I = 0; I < N; I++ )
 	    		V = cons(D[I][1],V);
 			V = reverse(V);
@@ -131,7 +131,7 @@ def in_ww(F)
 			}
 	    	for ( I = 0; I < N; I++ )
 	    		D[I] = [deg(F1,V[I]),V[I]];
-	    	qsort(D,compare_first);
+	    	qsort(D,ndbf.compare_first);
 	    	for ( V = [], I = 0; I < N; I++ )
 	    		V = cons(D[I][1],V);
 			V = reverse(V);
@@ -319,7 +319,7 @@ def ann(F)
 		F1 = subst(F1,VI,VI^WI);
 	}
 	for ( I = 0; I < N; I++ ) D[I] = [deg(F1,V[I]),V[I]];
-	qsort(D,compare_first);
+	qsort(D,ndbf.compare_first);
 	for ( V = [], I = 0; I < N; I++ ) V = cons(D[I][1],V);
 	V = reverse(V); 
 	for ( I = 0; I < N; I++ ) {
@@ -388,7 +388,7 @@ def in_gb_oaku(F)
 		F1 = subst(F1,VI,VI^WI);
 	}
 	for ( I = 0; I < N; I++ ) D[I] = [deg(F1,V[I]),V[I]];
-	qsort(D,compare_first);
+	qsort(D,ndbf.compare_first);
 	for ( V = [], I = 0; I < N; I++ ) V = cons(D[I][1],V);
 	V = reverse(V); 
 	for ( I = 0; I < N; I++ ) {
@@ -795,7 +795,7 @@ def bfct(F)
 
 	for ( I = 0; I < N; I++ )
 		D[I] = [deg(F,V[I]),V[I]];
-	qsort(D,compare_first);
+	qsort(D,ndbf.compare_first);
 	for ( V = [], I = 0; I < N; I++ )
 		V = cons(D[I][1],V);
 	for ( I = N-1, DV = []; I >= 0; I-- )
@@ -841,7 +841,7 @@ def bfct_via_gbfct(F)
 
 	for ( I = 0; I < N; I++ )
 		D[I] = [deg(F,V[I]),V[I]];
-	qsort(D,compare_first);
+	qsort(D,ndbf.compare_first);
 	for ( V = [], I = 0; I < N; I++ )
 		V = cons(D[I][1],V);
 	V = reverse(V);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/pd.rr,v 1.10 2010/06/19 08:32:37 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/pd.rr,v 1.11 2010/08/20 04:21:18 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,Procs,SatHomo$
@@ -276,8 +276,8 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gen_gb_comp(Int,G,Mod) ) return reverse(S);
 
-	/* or qsort(C,comp_tdeg) */
-	C = qsort(S,comp_tdeg);
+	/* or qsort(C,noro_pd.comp_tdeg) */
+	C = qsort(S,noro_pd.comp_tdeg);
 
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
 	Int0 = incremental_gb(append(vtol(ltov(G)*Tmp),vtol(ltov(Q)*(1-Tmp))),
@@ -320,8 +320,8 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gen_gb_comp(Int,G,Mod) ) return reverse(S);
 
-	/* or qsort(S,comp_tdeg) */
-	C = qsort(C,comp_tdeg);
+	/* or qsort(S,noro_pd.comp_tdeg) */
+	C = qsort(C,noro_pd.comp_tdeg);
 	Dp = dp_gr_print(); dp_gr_print(0);
 	for ( T = C, S = []; T != []; T = cdr(T) ) {
 		if ( !gen_nf(car(T),Rad,V,Ord,Mod) ) continue;
@@ -338,7 +338,7 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 		S = cons(Ui,S);
 	}
 	print("");
-	S = qsort(S,comp_tdeg);
+	S = qsort(S,noro_pd.comp_tdeg);
 	End = Len = length(S);
 
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
@@ -436,7 +436,7 @@ def pseudo_dec(G,L,V,Ord)
 	for ( I = 0; I < N; I++ ) {
 		LI = setminus(L0,[L0[I]]);
 		PI = ideal_list_intersection(LI,V,Ord|mod=Mod);
-		PI = qsort(PI,comp_tdeg);
+		PI = qsort(PI,noro_pd.comp_tdeg);
 		for ( T = PI; T != []; T = cdr(T) )
 			if ( gen_nf(car(T),L0[I],V,Ord,Mod) ) break;
 		if ( T == [] ) error("separator : cannot happen");
@@ -1217,7 +1217,7 @@ def ideal_product(A,B,V)
 	for ( T = PA; T != []; T = cdr(T) )
 		for ( S = PB; S != []; S = cdr(S) )
 			R = cons([car(T)[0]*car(S)[0],car(T)[1]+car(S)[1]],R);
-	T = qsort(R,comp_by_second);
+	T = qsort(R,noro_pd.comp_by_second);
 	T = map(first_element,T);
 	Len = length(A)>length(B)?length(A):length(B);
 	Len *= 2;

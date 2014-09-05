@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.1 2014/08/16 01:06:59 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8009,7 +8009,11 @@ def getbygrs(M, TT)
 			R = cons(P,R);
 		}
 		R = ltov(R);
+#ifdef USEMODULE 
+		R = qsort(R,os_md.cmpsimple);
+#else
 		R = qsort(R,cmpsimple);
+#endif
 		R = vtol(R);
 		if(TeX >= 0){
 			Out = string_to_tb("");
