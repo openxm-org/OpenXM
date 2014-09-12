@@ -1,10 +1,10 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.4 2014/03/11 01:46:19 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_jack.rr,v 1.5 2014/09/05 11:55:19 ohara Exp $
 Koev-Edelman for higher order derivatives.
 Series solution obtained by an interpolation and Koev-Edelman evaluation.
 Previous version: misc-2011/10/wishart/Prog/mh.rr
 */
-
+#define USE_MODULE 1
 module tk_jack$
 localf permutation;
 localf mysum;
@@ -667,7 +667,11 @@ def pListPartition2(Less,From,To,M) {
 /*
   Implement works for partition here.
 */
+#ifdef USE_MODULE
+M_pExec=tk_jack.pExec_0$
+#else
 M_pExec=pExec_0$
+#endif
 def pExec_0() {
   M_plist = cons(cdr(vtol(M_kap)),M_plist);
   printf("pExec:%a\n", M_kap);
@@ -746,7 +750,11 @@ def genDarray2(M,N) {
   printf("Degree M = %a, N of vars N = %a, Pmn+1=%a\n",M,N,Pmn);
   Darray=newvect(Pmn);
   Parray=newvect(Pmn); DR_parray=0;
+#define USE_MODULE
+  M_pExec = tk_jack.pExec_darray;  
+#else
   M_pExec = pExec_darray;  
+#endif
   pListPartition(M,N);  /* pExec_darray() is executed for all partitions */
   L = Parray;
 
@@ -830,7 +838,11 @@ def genBeta(Kap) {
   M_beta_pt = 0;
   N = plength(Kap);
   for (I=0; I<=P_pmn; I++) for (J=0; J<2; J++) M_beta[J][I] = nan;
+#define USE_MODULE
+  HS_hsExec = tk_jack.hsExec_beta;
+#else
   HS_hsExec = hsExec_beta;
+#endif
   M_beta_kap = Kap;
   pListHS(cons(0,Kap),N);
 }
