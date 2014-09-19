@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.8 2011/11/01 00:35:56 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.9 2014/09/05 11:55:19 ohara Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat,SuccSat,RepColon$
@@ -211,7 +211,7 @@ def extract_qd(QD,V,Ind)
 def syc_dec(B,V)
 {
 	if ( type(SI=getopt(si)) == -1 ) SI = 2;
-	SIFList=[find_ssi0, find_ssi1,find_ssi2];
+	SIFList=[noro_pd.find_ssi0, noro_pd.find_ssi1, noro_pd.find_ssi2];
 	if ( SI<0 || SI>2 ) error("sycb_dec : si should be 0,1,2");
 	SIF = SIFList[SI];
 
@@ -512,7 +512,7 @@ def call_prime_dec(G,V,Indep,Lexdec,Mod)
 
 def extract_qj(Q,V,QL,Rad,Mod,SI,Colon,Level)
 {
-	SIFList=[find_ssi0, find_ssi1,find_ssi2];
+	SIFList=[noro_pd.find_ssi0, noro_pd.find_ssi1, noro_pd.find_ssi2];
 	SIF = SIFList[SI];
 	G = QL[0]; P = QL[1]; PV = QL[2];
 	if ( Q != [1] ) {
@@ -531,7 +531,8 @@ def syca_dec(B,V)
 {
 T00 = time();
 	if ( type(SI=getopt(si)) == -1 ) SI = 2;
-	SIFList=[find_si0, find_si1,find_si2]; SIF = SIFList[SI];
+	SIFList=[noro_pd.find_si0, noro_pd.find_si1, noro_pd.find_si2]; 
+	SIF = SIFList[SI];
 	if ( !SIF ) error("syca_dec : si should be 0,1,2");
 
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
@@ -617,7 +618,8 @@ def syc0_dec(B,V)
 {
 T00 = time();
 	if ( type(SI=getopt(si)) == -1 ) SI = 1;
-	SIFList=[find_si0, find_si1,find_si2,find_ssi0,find_ssi1,find_ssi2]; SIF = SIFList[SI];
+	SIFList=[noro_pd.find_si0, noro_pd.find_si1, noro_pd.find_si2, noro_pd.find_ssi0, noro_pd.find_ssi1, noro_pd.find_ssi2]; 
+	SIF = SIFList[SI];
 	if ( !SIF ) error("syc0_dec : si should be 0,1,2");
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
 	if ( type(Lexdec=getopt(lexdec)) == -1 ) Lexdec = 0;
