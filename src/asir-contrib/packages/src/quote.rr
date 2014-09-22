@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.19 2006/10/05 20:12:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.20 2010/05/23 01:52:51 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -349,6 +349,10 @@ def quote_replace_(F,X,A,NoBracket) {
           return(["u_op","()",A]);
         }
       }
+    }else if (P == "function" && type(Q[0]) == STRING && A[0] == "internal") {
+      if (Q[0] == rtostr(X)) {
+        return cons("function", cons(rtostr(A[1]), quote_replace_(cdr(Q),X,A,NoBracket)));
+      }
     }
   }else if (type(P) == LIST) {
     if (P != []) {
@@ -361,6 +365,18 @@ def quote_replace_(F,X,A,NoBracket) {
     return cons(P,Q);
   }
 }
+
+def quote_replace_by_rule(S,Rule) {
+  if(type(S) != QUOTE || type(Rule) != LIST) return S;
+  N=length(Rule);
+  for(I=0; I<N; I++) {
+    if( type(Rule[I][1]) == QUOTE ) {
+      S=quote_replace(S,Rule[I][0],Rule[I][1]);
+    }
+  }
+  return S;
+}
+
 /* Test data.
  F=quote( (x+1)^3+3*x );
  A=quote(1/y);
