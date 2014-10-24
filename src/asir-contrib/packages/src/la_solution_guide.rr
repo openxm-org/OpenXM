@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.9 2005/04/08 05:29:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.10 2008/08/06 01:21:57 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 
 /* ctrl("show_crossref",1)$ */
@@ -31,7 +31,8 @@ localf dp_to_matrix,
        make_dense, copy_matrix, reduced_form,
        reduced_form_old, build_solution,
        zero_row, kernel, gen_lineq_quiz,
-       test, gen_ans, gen_reduced_matrix;
+       test, gen_ans, gen_reduced_matrix,
+       gen_regmat, print_det_prob;
 
 #define min(a,b) (a>b? b: a)
 #define MaxN 3
@@ -668,6 +669,58 @@ def gen_reduced_matrix(PP) {
      return S;
 }
 
+/*&usage begin: lasg.gen_regmat(M)
+ It returns a M x M regular (non-sigular) matrix
+ description:
+  It returns 
+  {M} X {M} matrix A such that |A| <> 0
+  The option {stop} is used to control the difficulty
+  and the global variable {seed0} is a seed for random numbers.
+ example: lasg.gen_regmat(4);
+ ref: lasg.gen_lineq_quiz.
+end: */
+def gen_regmat(M) {
+  Step0 = getopt(step);
+  if (type(Step0) <= 0) Step0 = 2;
+  SeedMat = getopt(seedmat);
+  if (type(SeedMat)<=0) {
+    Ans = newmat(M,M);
+    for (I=0; I<M; I++) Ans[I][I] = 1+random()%M;
+    Ans[M-1][0] = 1+random()%M;
+    Ans2 = newmat(M,M);
+    for (I=0; I<M; I++) Ans2[I][I] = 1;
+    Ans2[0][M-1] = 1+random()%M;
+    Ans=Ans*Ans2;
+  }else{
+    Ans = matrix_list_to_matrix(SeedMat);    
+  }
+  for (P=0; P<Step0; P++) {
+    A = newmat(M,M);
+    I0 = random()%M;
+    J0 = I0+1; if (J0 >= M) J0=0;
+    for (I=0; I<M; I++) A[I][I] = 1;
+    A[I0][J0] = 1 + random()%M;
+    Ans = Ans*A;
+  }
+  return(Ans);
+}
+
+/*&usage begin: lasg.print_det_prob(M |step=Step0, crypt=C)
+ It returns [Problem in LaTeX format, Answer-string,Matrix]
+ example: lasg.print_det_prob(4 | crypt=3)
+ ***0xyz --> xyz-3 is the answer
+end: */
+def print_det_prob(M) {
+  Step0 = getopt(step);
+  if (type(Step0) <= 0) Step0 = 2;
+  Crypt = getopt(crypt);
+  if (type(Crypt) <= 0) Crypt=1;
+  A=gen_regmat(M | step = Step0);
+  Det = det(A)+Crypt;
+  P=(1+random()%8)*10;
+  Ans=rtostr(P)+rtostr(Det);
+  return([print_tex_form(A),Ans,A]);
+}
 endmodule;
 
 
