@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.10 2008/08/06 01:21:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.11 2014/10/24 05:27:44 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 
 /* ctrl("show_crossref",1)$ */
@@ -13,6 +13,7 @@ extern Loaded_noro_print$
 ox_loadfile(Loaded_noro_print,"noro_print.rr")$ 
 ox_loadfile(Loaded_ok_matrix,"ok_matrix.rr")$ 
 */
+import("names.rr")$
 
 def taka_tex_form_old(Ob)  {
    Tb = string_to_tb("");
@@ -32,7 +33,8 @@ localf dp_to_matrix,
        reduced_form_old, build_solution,
        zero_row, kernel, gen_lineq_quiz,
        test, gen_ans, gen_reduced_matrix,
-       gen_regmat, print_det_prob;
+       gen_regmat, print_det_prob,
+  random_unimod,is_diagonal,eigen_prob,print_eigen_prob;
 
 #define min(a,b) (a>b? b: a)
 #define MaxN 3
@@ -721,6 +723,61 @@ def print_det_prob(M) {
   Ans=rtostr(P)+rtostr(Det);
   return([print_tex_form(A),Ans,A]);
 }
+def random_unimod(N) {
+  if (type(getopt(maxint)) > 0) Maxint = getopt(maxint);
+  else Maxint = 5;
+  if (type(getopt(iteration)) > 0) Iteration = getopt(iteration);
+  else Iteration = 3;
+  A = matrix_identity_matrix(N);
+  for (I=0; I<Iteration; I++) {
+    B = matrix_identity_matrix(N);
+    Idx = random()%N;
+    Idy = random()%N;
+    if (Idx == Idy) Idy = (Idy+1)%N;
+    B[Idx][Idy] = (random()%Maxint)+1;
+    A=A*B;
+  }
+  B = matrix_identity_matrix(N);
+  B[0][0]=B[1][1]=0;
+  B[0][1]=1; B[1][0]=1;
+  A=A*B;
+  return(A);  
+}
+def is_diagonal(B) {
+  N = size(B)[0];
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      if (I != J) {
+        if (B[I][J] != 0) return(0);
+      }
+    }
+  }
+  return(1);
+}
+def eigen_prob(N) {
+  Maxint = 3;
+  A = matrix_identity_matrix(N);
+  for (I=0; I<N; I++) A[I][I] = random()%Maxint;
+  Eigen=newvect(N);
+  for (I=0; I<N; I++) Eigen[I] = A[I][I];
+  P = random_unimod(N);
+  B = P*A*matrix_inverse(P);
+  if (is_diagonal(B)) return(eigen_prob(N));
+  return([B,vtol(Eigen),matrix_matrix_to_list(matrix_transpose(P))]);
+}
+
+def print_eigen_prob(M) {
+  Step0 = getopt(step);
+  if (type(Step0) <= 0) Step0 = 2;
+  Crypt = getopt(crypt);
+  if (type(Crypt) <= 0) Crypt=1;
+  L=eigen_prob(M);
+  A=L[0];
+  E_crypt = newvect(M,L[1]);
+  for (I=0; I<M; I++) E_crypt[I]++;
+  Ans=rtostr(matrix_matrix_to_list(E_crypt));
+  return([print_tex_form(A),Ans,L]);
+}
 endmodule;
 
 
@@ -731,5 +788,6 @@ endmodule;
  example:  lasg.gen_ans([[2,3,8],[1,2,5]]);
  example:  lasg.gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
 */
+
 
 end$
