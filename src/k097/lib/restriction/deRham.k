@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/deRham.k,v 1.1 2006/10/01 05:49:22 takayama Exp $ */
 
 /*
 Require: restriction.k, ox.k
@@ -327,4 +327,54 @@ def Ltest2() {
   f = x^3-y^2;
   I = [f^2*Dx-diff_tmp(f,Dx), f^2*Dy-diff_tmp(f,Dy), Dz];
   return( Localize3WithAsir(I,f) );
+}
+
+/* The polynomial variable name w cannot be used. Why? ww also causes a trouble, because
+   perhaps there is a local variable ww. ww --> www.  2014.11.27 */
+def asir_BfRoots4www(G) {
+   local bb,ans,ss;
+   sm1(" G flatten {dehomogenize} map /G set ");
+   ChangeRing(G);
+   ss = asir_generic_bfct(asssssir,G,[x,y,z,www],[Dx,Dy,Dz,Dwww],[1,1,1,1]);
+   bb = [ss];
+   sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
+   return([ans, bb]);
+}
+def asirAnn0XYZWWW(a,f) {
+  local p,b,b0;
+  RingD("x,y,z,www,s");  /* Fix!! See the definition of myann0www() */
+  p = ToString(f);
+  a.executeString(" def myann0www(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,www,s,hh,ee,dx,dy,dz,dwww,ds,dhh])); }; ");
+  b = a.rpc("myann0www",[p]);
+  Print("Annhilating ideal of f^r is "); Println(b);
+  return(b);
+}
+
+def DeRham4(f) {
+  local s;
+
+  sm1("0 set_timer "); sm1(" oxNoX ");
+  asssssir.OnTimer();
+
+  s = ToString(f);
+  II = asirAnn0XYZWWW(asssssir,f);
+  Print("Step 1: Annhilating ideal (II)"); Println(II);
+  sm1(" II  { [(x) (y) (z) (www) (Dx) (Dy) (Dz) (Dwww)] laplace0 } map /II set ");
+  Sweyl("x,y,z,www",[["x",-1,"y",-1,"z",-1,"www",-1,"Dx",1,"Dy",1,"Dz",1,"Dwww",1]]);
+  pp = Map(II,"Spoly");
+  Res = Sminimal(pp);
+  Res0 = Res[0];
+  Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
+
+  R = asir_BfRoots4www(Res0[0]);
+  Println("Step3: computing the cohomology of the truncated complex.");
+  Print("Roots and b-function are "); Println(R);
+  R0 = R[0];
+  Ans=Srestall(Res0, ["x", "y", "z","www"],  ["x", "y", "z","www"],R0[Length(R0)-1] );
+
+  Println("Timing data: sm1 "); sm1(" 1 set_timer ");
+  Print("     ox_asir [CPU,GC]:  ");Println(asssssir.OffTimer());
+
+  Print("Answer is ");Println(Ans[0]);
+  return(Ans);
 }
