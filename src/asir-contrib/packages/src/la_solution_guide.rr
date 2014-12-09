@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.12 2014/11/21 05:49:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.13 2014/12/09 01:42:27 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 
 /* ctrl("show_crossref",1)$ */
@@ -774,7 +774,9 @@ def print_eigen_prob(M) {
   L=eigen_prob(M);
   A=L[0];
   E_crypt = newvect(M,L[1]);
-  for (I=0; I<M; I++) E_crypt[I]++;
+  if (Crypt) {
+    for (I=0; I<M; I++) E_crypt[I]++;
+  }
   Ans=rtostr(matrix_matrix_to_list(E_crypt));
   return([print_tex_form(A),Ans,L]);
 }
