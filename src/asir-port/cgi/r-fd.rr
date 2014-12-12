@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.4 2014/08/06 07:39:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.5 2014/08/27 02:14:40 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
@@ -54,4 +54,17 @@ def checkrats2() {
      }
   }
 }
+
+def a_expect(A,B,C,Y) {
+  E=tk_fd.expectation_abc(A,B,C,Y);
+  return(E);
+}
+def r_expect(A,B,C,Y) {
+  Y = r_d2rat(Y);
+  E=a_expect(A,B,C,Y);
+  Fans=map(deval,E);
+  Fans = tk_r.asir2r_c(Fans);
+  return Fans;
+}
+
 end$
