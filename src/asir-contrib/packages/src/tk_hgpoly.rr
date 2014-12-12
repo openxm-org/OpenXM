@@ -1,0 +1,274 @@
+/* $OpenXM$ */
+#define USE_MODULE 1
+import("names.rr")$
+import("ot_hgm_ahg.rr")$  
+import("nk_toric.rr")$
+import("ok_diff.rr")$  
+import("taka_diffop.rr")$ 
+
+#if  !USE_MODULE
+extern P_A$
+extern P_B$
+#else
+module tk_hgpoly;
+static P_A$
+static P_B$
+localf hgpoly$
+localf check20$
+localf check21$
+localf check21b$
+localf esum$
+localf contingency3$
+localf cprune$
+localf feasible$
+localf optip$
+localf testip1$
+localf testip2$
+#endif
+
+/* 2014.07.09  sst.ps (sst-ip.ps) 
+   A must not contain negative number.
+  x^u/u! where u runs under the constraint Au=B.
+*/
+def hgpoly(A,B) {
+  Deg  = 1+base_sum(B,0,0,length(B)-1);
+  if (type(getopt(deg)) >=0) Deg=eval_str(rtostr(getopt(deg))); 
+  if (type(A) == 4) A=matrix_list_to_matrix(A);
+  D=size(A)[0];
+  N=size(A)[1];
+  Ap = matrix_transpose(A);
+  F=0;
+  Vx=[];
+  for (I=0; I<N; I++) {
+    Mon = 1;
+    for (J=0; J<D; J++) {
+       Mon = Mon*util_v(t,[J+1])^(Ap[I][J]);
+       if (Ap[I][J] < 0) error("A contains negative number.");
+    }
+    /* deg_1(Mon) >=1 */
+    F = F+util_v(x,[I+1])*Mon;
+    Vx = cons(util_v(x,[I+1]),Vx);
+  }
+  Vx=reverse(Vx);
+  /* print(print_input_form(poly_sort(F))); */
+  Fall = 1;
+  for (I=1; I<=Deg; I++) {
+    Fall += F^I;  /* deg_1(each term of F^p) >= p */
+  }
+  // printf("Fall=%a\n",Fall);
+  P = coef(Fall,B[0],util_v(t,[1]));
+  for (I=1; I<length(B); I++) {
+    P = coef(P,B[I],util_v(t,[I+1]));
+  }
+  Pdist=dp_ptod(P,Vx);
+  if ( P ==0 )  return 0;
+  Pnew=0;
+  while (Pdist != 0) {
+    U = dp_ht(Pdist); U=dp_etov(U);
+    Degree=base_sum(U,0,0,length(U)-1);
+    Degree=fac(Degree);
+    Pnew += dp_hm(Pdist)/Degree;
+    Pdist = dp_rest(Pdist);
+  }
+  return [dp_dtop(Pnew,Vx),Pnew];
+}
+def check20() {
+  A=[[1,1,1,1],[0,1,0,1],[0,0,1,1]];
+  //B=[4,2,2];
+  // B=[6,4,2];
+  B=[10,8,6];
+  print(A);
+  print(B);
+  return hgpoly(A,B);
+}
+
+/* C111,  h-mle/A-hg/pf-hg4.tex */
+def check21() {
+  if (type(getopt(b)) < 0) {
+    // B=[4,4,4];
+    B=[1,1,1];
+  }else{
+    B=getopt(b);
+  }
+  At=[[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]];
+  A=matrix_matrix_to_list(matrix_transpose(matrix_list_to_matrix(At)));
+  P_A=A; P_B=B;
+  print(A);
+  print(B);
+  P2=hgpoly(A,B); P=P2[0];
+  print(P);
+  MyRule=[]; Vx=[];
+  for (I=1; I<=7; I++) {
+    MyRule=cons([util_v(x,[I]),eval_str("x"+rtostr(I))],MyRule);
+    Vx=cons(eval_str("x"+rtostr(I)),Vx);
+  }
+  Vx=reverse(Vx);
+  Brule=[[b_1,B[0]],[b_2,B[1]],[b_3,B[2]]];
+  PP=base_replace(P,MyRule);
+  T=mytoric(A,[[dx1,1]]);
+  printf("Check if it satisfies A-hg system.\n");
+  for (I=0; I<length(T[0]); I++) {
+    printf("%a -> %a\n",I,odiff_act(base_replace(T[0][I],Brule),PP,Vx));
+  }
+  for (I=0; I<length(T[1]); I++) {
+    printf("%a -> %a\n",I,odiff_act(T[1][I],PP,Vx));
+  }
+  return [append(P2,T),A,B];
+}
+
+def check21b() {
+  F111=check21(|b=[1,1,1]);
+  F222=check21(|b=[2,2,2]);
+  F444=check21(|b=[4,4,4]);
+  return [F111[0][0],F222[0][0],F444[0][0]];
+}
+
+/* 2014.07.11 */
+#define IDX(I,J,K)  (I*Q*R+J*R+K)
+def esum(L) {
+  return base_sum(L,0,0,length(L)-1);
+}
+def contingency3(P,Q,R) {
+  A=[];
+  N=P*Q*R;
+  for (I=0; I<P; I++)  for (J=0; J<Q; J++) {
+      L = newvect(N);
+      for (K=0; K<R; K++) L[IDX(I,J,K)] = 1;
+      if (esum(L) > 1) A=cons(vtol(L),A);
+   }
+  for (I=0; I<P; I++)  for (K=0; K<R; K++) {
+      L = newvect(N);
+      for (J=0; J<Q; J++) L[IDX(I,J,K)] = 1;
+      if (esum(L)>1) A=cons(vtol(L),A);
+   }
+  for (K=0; K<R; K++)  for (J=0; J<Q; J++) {
+      L = newvect(N);
+      for (I=0; I<P; I++) L[IDX(I,J,K)] = 1;
+      if (esum(L)>1) A=cons(vtol(L),A);
+   }
+  return reverse(A);
+}
+def cprune(A) {
+  if (type(A) == 4) A=matrix_list_to_matrix(A);
+  Size=size(A);
+  D=Size[0];
+  Rank = matrix_rank(A);
+  printf("Rank=%a\n",Rank);
+  while (Rank < D) {
+    A = reverse(cdr(reverse(matrix_matrix_to_list(A))));
+    D--;
+    A=matrix_list_to_matrix(A);
+  }
+  return(A);
+}
+
+/* Find a feasible point of AU=B 
+    Calls mytoric in ot_hgm_ahg.rr 
+*/
+def feasible(A,B) {
+  /* A copy from nk_toric.rr */
+  if (type(A) == 6) {	
+    M = size(A)[0];
+    N = size(A)[1];
+  } else if (type(A) == 4) {
+    M = length(A);
+    N = length(A[0]);
+  }
+  if (M != length(B)) error("A and B do not match.");
+
+  /* List of variables VT=[t0, ..., tM],VX=[x1, ..., xN] */
+  VT = nk_toric.var_list("t", 0, M);		
+  VX = nk_toric.var_list("x", 1, N);
+  L = [];
+  T = 1;
+  for (I = 0; I < M + 1; I++)
+    T *= VT[I];	
+  T = T - 1;
+  L = cons(T, L);	
+  for (J = 0; J < N; J++) {
+    Plus = 1;
+    Minus = 1;
+    for (I = 0; I < M; I++) 
+      if (A[I][J] > 0)
+	Plus *= VT[I]^A[I][J];
+      else if (A[I][J] < 0)
+	Minus *= VT[I]^(-A[I][J]);
+    L = cons(VX[J]*Minus - Plus, L);
+  }
+  print("ideal : ");
+  print(L);
+  /* Computing GB with the elimination order t0, ..., tM > x1, ..., xM  */
+  Ord = [[0, M + 1], [0, N]];
+  G = nd_gr(L, append(VT, VX), 0, Ord);
+  print("gb : ");
+  print(G);
+
+  /* Find a feasible point  FPv */
+  FF=1;
+  for (I=0; I<M; I++) FF *= VT[I]^B[I];
+  FP = p_true_nf(FF,G,append(VT,VX),Ord)[0];
+  printf("FP=%a\n",FP);
+  for (I=0; I<length(VT); I++) {
+    if (base_memberq(VT[I],vars(FP))) debug("Normal form contains t.");
+  }
+  FPv=dp_ptod(FP,VX);
+  FPv=vtol(dp_etov(FPv)); 
+
+  /* intersection(G,K[VX]) */
+  Id = [];
+  for (I = 0; I < length(G); I++) {
+    Vars = vars(G[I]);
+    for (J = 0; J < length(Vars); J++) {
+      T = rtostr(Vars[J]);
+      if (sub_str(T, 0, 0) == "t")
+	break;
+    }
+    if (J == length(Vars))
+      Id = cons(G[I], Id);
+  }
+  return [FPv,FP,reverse(Id),VX];
+}
+
+/*
+  Find AU=B such that  inner_product(U,W) is minimized. 
+  W must have non-negative entries.
+ */
+def  optip(A,B,W) {
+   F=feasible(A,B);
+   Start = F[1];
+   Id = F[2];
+   V = F[3];
+   Ord = poly_weight_to_omatrix(W,V);
+   G = nd_gr(Id,V,0,Ord);
+   OP = p_true_nf(Start,G,V,Ord)[0];
+   OPv=dp_ptod(OP,V);
+   OPv=vtol(dp_etov(OPv)); 
+   return(OPv);
+}  
+def  testip1() {
+  A = [[1,1,1,1],[0,1,2,3]];
+  B = [20,46];
+  print(feasible(A,B));
+  printf("A=%a\nB=%a\n",A,B);
+  return(optip(A,B,[1,1,0,0]));
+}
+/* 2014.12.12 */
+def  testip2() {
+  A = 
+      [[1,0,0,1,1,0,1],
+       [0,1,0,1,0,1,1],
+       [0,0,1,0,1,1,1]];
+  B = [30,20,22];
+  print(feasible(A,B));
+  printf("A=%a\nB=%a\n",A,B);
+  return(optip(A,B,[1,1,1,1,1,1,1]));
+}
+
+#if  !USE_MODULE
+#else
+endmodule$  // endmodule of tk_hgpoly
+
+#endif
+
+
+end$
