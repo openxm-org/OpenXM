@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.12 2014/07/15 19:10:58 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.13 2014/07/16 08:57:41 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -1214,7 +1214,7 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
     return Val;
 }
 
-def hgm_ahg_excepted_value_contiguity(A,StdMon,Line,X,InitVal,InitPt,TargetPt,Item) {
+def hgm_ahg_expected_value_contiguity(A,StdMon,Line,X,InitVal,InitPt,TargetPt,Item) {
     Opts = cons(["pf",1],getopt());
     R = hgm_ahg_contiguity(A,StdMon,Line,X,InitVal,InitPt,TargetPt | option_list=Opts);
     Val = ltov(R[0]);
@@ -1833,7 +1833,7 @@ def test_c111_ev() {
 //  printf("Line=%a\n",Line);
 
     Item=2;
-    Val = hgm_ahg_excepted_value_contiguity(A,StdMon,Line,X0,InitVal,0,3,Item);
+    Val = hgm_ahg_expected_value_contiguity(A,StdMon,Line,X0,InitVal,0,3,Item);
     printf("EV = %a = %a\n", Val, deval(Val));
     return Val;
 }
