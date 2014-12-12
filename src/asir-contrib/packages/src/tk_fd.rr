@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.10 2014/08/26 06:59:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.11 2014/08/27 02:14:40 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -190,6 +190,7 @@ localf check28$
 localf check28b$
 localf ahvec_beta$
 localf ahvec_abc$
+localf expectation_abc$
 #endif
 /* Matsumoto, page 3 */
 
@@ -2725,7 +2726,7 @@ returns "devision by 0".  Reason?
 
 ahvec_abc(-6,[-2,-3],-4,[[1,1/2,1/3],[1,1,1]] | all=1);  
  -> 2014.08.27 it works.
-Todo: call ahvec_abc in cgi/r-fd.rr
+cgi/r-fd.rr  r_ahvec(-6,[-2,-3],-4,[[1,1/2,1/3],[1,1,1]] | all=1);  
 */
 
 def ahvec_abc(A,B,C,X) {
@@ -2734,6 +2735,23 @@ def ahvec_abc(A,B,C,X) {
   Beta=cons(Ma[0][0],Ma[1]);
   return ahvec_beta(Beta,X | option_list=Opt);  
 }
+/*
+  It returns [E[U_10], E[U_11], ..., E[U_1m]]
+ */
+def expectation_abc(A,B,C,X) {
+  R=ahvec_abc(A,B,C,X|all=1);
+  Gamma=R[1];
+  Der=R[0];
+  /* printf("Der=%a\n",Der);  */
+  Z=R[2]*Gamma;
+  Der2 = newvect(length(Der));
+  for (I=0; I<length(Der); I++) Der2[I] = Der[I]*Gamma;
+  Der2 = vtol(Der2);
+  E=newvect(length(Der));
+  for (I=0; I<length(Der); I++) E[I] = X[1][I]*Der2[I]/Z;
+  return(vtol(E));
+}
+
 #if  !USE_MODULE
 setparam(2)$
 // setparam_by_number(2,2)$
