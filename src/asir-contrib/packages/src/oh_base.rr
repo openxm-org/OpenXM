@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.8 2013/07/29 15:11:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.9 2013/07/31 00:33:09 noro Exp $ */
 
 module oh_base;
 
@@ -138,22 +138,22 @@ Example:
 */
 def max(L) {
     OPTS=getopt();
-    return iterate(max2,L|option_list=OPTS);
+    return iterate(oh_base.max2,L|option_list=OPTS);
 }
 
 def min(L) {
     OPTS=getopt();
-    return iterate(min2,L|option_list=OPTS);
+    return iterate(oh_base.min2,L|option_list=OPTS);
 }
 
 def sum(L) {
     OPTS=getopt();
-    return iterate(sum2,L|option_list=OPTS);
+    return iterate(oh_base.sum2,L|option_list=OPTS);
 }
 
 def mul(L) {
     OPTS=getopt();
-    return iterate(mul2,L|option_list=OPTS);
+    return iterate(oh_base.mul2,L|option_list=OPTS);
 }
 
 /* Example:
