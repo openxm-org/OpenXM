@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.11 2014/08/27 02:14:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.12 2014/12/12 08:12:55 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -2751,6 +2751,28 @@ def expectation_abc(A,B,C,X) {
   for (I=0; I<length(Der); I++) E[I] = X[1][I]*Der2[I]/Z;
   return(vtol(E));
 }
+/* 2014.12.13 */
+def  abc2ahg(A,B,C) {
+  M=length(B);
+  Amat = [];
+  R = newvect(2*(1+M));
+  for (I=1+M; I<2*(1+M); I++) R[I]=1;
+  Amat = cons(vtol(R),Amat);
+  for (I=0; I<1+M; I++) {
+    R = newvect(2*(1+M));
+    R[I] = R[1+M+I] = 1;
+    Amat = cons(vtol(R),Amat);
+  }
+  Amat = reverse(Amat);
+  Bvect = newvect(2+M);
+  Mar = abc2marginal(A,B,C);
+  Bvect[0] = Mar[0][1];
+  for (I=0; I<1+M; I++) {
+    Bvect[1+I] = Mar[1][I];
+  }
+  return([Amat,vtol(Bvect)]);
+}
+
 
 #if  !USE_MODULE
 setparam(2)$
