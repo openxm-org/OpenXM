@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.47 2013/02/18 07:18:32 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.48 2014/05/29 13:18:18 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title $B<B83E*;EMM$N4X?t(B
 @subtitle Risa/Asir $B<B83E*;EMM4X?t@bL@=q(B
 @subtitle 1.0 $BHG(B
-@subtitle 2013 $BG/(B 2 $B7n(B
+@subtitle 2014 $BG/(B 12 $B7n(B
 
 @author  by Risa/Asir committers
 @page
@@ -3679,6 +3679,379 @@ holonomic gradient method $B$G$d$k$?$a$K$=$N=i4|CM$r7W;;$9$k(B C $B$N%W%m%0%i
 $BI,MW$G$"$C$?(B. $B$=$l$r(B debug $B$9$k$?$a$K$H$j$"$($:=q$$$?$b$N(B.
 @item $B:GE,2=$r$^$@$^$@$5$\$C$F$k(B.
 @end itemize
+
+@node ot_hgm_ahg.cbase,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{ot_hgm_ahg.cbase}
+@findex ot_hgm_ahg.cbase
+
+@table @t
+@item cbase(@var{A})
+::  @var{A} $B$GDj5A$5$l$k(B A-$BD64v2?J}Dx<07O$N(B Pfaffian $B$N4pDl$r5a$a$k(B. 
+@end table
+
+@table @var
+@item return
+Pfaffian$B$N4pDl(B($BHyJ,:nMQAG$N%b%N%_%"%k(B)$B$N%j%9%H(B
+@item A
+$B@0?t$r@.J,$H$9$k9TNs(B (maximal rank $B$N$b$N(B)$B$rI=$9%j%9%H(B
+@end table
+
+@itemize @bullet
+@item A-$BD64v2?%$%G%"%k$N(B Q(x)[dx] $B$K$*$1$kI8=`4pDl$O(B Pfaffian $B$N4pDl$H$J$k$,(B, $B5U$O$+$J$i$:$7$b??$G$O$J$$(B.  $B8D?t$O$b$A$m$sF1$8$G$"$k(B. 
+@item
+$B%"%k%4%j%:%`$O(B
+T.Hibi, K.Nishiyama, N.Takayama, Pfaffian Systems of A-Hypergeometric Equations I, Bases of Twisted Cohomology Groups, arxiv:1212.6103 
+$B$K$h$k(B.
+$B$5$i$K%Q%i%a!<%?(B b $B$r?t$KFC<l2=$9$k3NN(;;K!$rMQ$$$F$$$k(B.
+@end itemize
+
+@example
+[2190] import("ot_hgm_ahg.rr");
+1
+[2191] ot_hgm_ahg.cbase([[1,1,1,1],[0,1,2,3]]);
+We use a probabilistic algorithm to determine the base.[dx2^2,dx3*dx2,dx3^2]
+
+[dx3,dx4,1]
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{get_mat2}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B 2012  $B$+$i(B 2014-$B=U5Y$_$K$+$1$F$+$+$l$?(B.
+@item version 1.1 $B0JA0$NHG$O(B h-mle/A-hg/Prog  ($B8&5f%0%k!<%W$N6&M-%U%)%k%@(B) $B$K$"$j(B.
+@end itemize
+
+@node ot_hgm_ahg.get_mat2,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{ot_hgm_ahg.get_mat2}
+@findex ot_hgm_ahg.get_mat2
+@comment get_mat2
+@table @t
+@item get_mat2(@var{A},@var{W},@var{Std},@var{Mset})
+::  @var{A} $B$GDj5A$5$l$k(B A-$BD64v2?J}Dx<07O(B H_A $B$N(B Pfaffian $B$N4pDl$r5a$a$k$?$a$N(B Sylvester $BK!(B $B$rE,MQ$9$k$?$a$N9TNs$r@8@.$9$k(B.
+@end table
+
+@table @var
+@item return
+$B%j%9%H(B
+@item A
+$B@0?t$r@.J,$H$9$k9TNs(B (maximal rank $B$N$b$N(B)$B$rI=$9%j%9%H(B
+@item W
+$B%j%9%H(B. toric ideal $B$N%0%l%V%J!<4pDl$r7W;;$9$k$?$a$N(B weight vector.
+$BB?J,$J$s$G$b$$$$$O$:(B.
+@item Std
+$B%j%9%H(B. Pfaffian $B$N4pDl(B.  cbase(A) $B$N=PNO$rMQ$$$k(B.
+@item Mset
+Sylvester $B7?9TNs$r:n$k$?$a$NHyJ,:nMQAG$N%b%N%_%"%k$N%j%9%H(B.
+@end table
+
+@itemize @bullet
+@item $B=PNO$r(B @var{P} $B$KBeF~$9$k$H(B,
+@var{P}[0]*@var{P}[2] - @var{P}[1]*@var{Std} $B$,(B modulo  H_A $B$G(B 0 $B$H$J$k(B.
+@var{P}[0] $B$H(B @var{P}[2] $B$r7k9g$7$?9TNs$,(B, sylvester $B9TNs(B ($BO@J8$N5-9f$G$N(B F').
+@var{P}[2], @var{Std} $B$,(B index $B%b%N%_%"%k$G$"$k(B. 
+$BO@J8$G$N5-9f$G$O(B @var{P}[2] $B$O(B M_t,  @var{Std} $B$O(B S.
+@item
+$B%"%k%4%j%:%`$O(B
+K.Ohara, N.Takayama, Pfaffian Systems of A-Hypergeometric Equations II, Holonomic Gradient Method
+$B$K$h$k(B.  $BO@J8$N9TNs(B F'.
+@end itemize
+
+@example
+[2190] import("ot_hgm_ahg.rr");
+1
+[2191] A=[[1,1,1,1],[0,1,2,3]]$
+Std=ot_hgm_ahg.cbase(A)$
+W=[[dx1,1,dx2,1,dx3,1,dx4,1]]$
+Mset=[1,dx1,dx2,dx3,dx4]$
+[2192] ot_hgm_ahg.get_mat2(A,W,Std,Mset);
+
+$B>JN,(B
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{cbase}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B 2012  $B$+$i(B 2014-$B=U5Y$_$K$+$1$F$+$+$l$?(B.
+@item version 1.1 $B0JA0$NHG$O(B h-mle/A-hg/Prog  ($B8&5f%0%k!<%W$N6&M-%U%)%k%@(B) $B$K$"$j(B.
+@item
+$B%=!<%9(B ot_hgm_ahg.rr $B$N(B test3(), test3b(), test4(), test5(), test6(), test6c() $BEy$KMxMQNc$,$"$k(B.
+@item
+test3b() $B$G(B @var{Mset} $B$r0l<!<0A4It$K$7$?$b$N$,(B, $BO@J8$NNc(B.
+@end itemize
+
+@comment -------------------
+@comment  hgm_ahg_contiguity
+@comment -------------------
+@node ot_hgm_ahg.hgm_ahg_contiguity,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{ot_hgm_ahg.hgm_ahg_contiguity}
+@findex ot_hgm_ahg.hgm_ahg_contiguity
+
+@table @t
+@item hgm_ahg_contiguity(@var{A},@var{StdMon},@var{Line},@var{X0},@var{InitVal},@var{Start},@var{End})
+::  @var{A} $B$GDj5A$5$l$k(B A-$BD64v2?J}Dx<07O$N(Bcontiguity relation
+$B$r(B Sylvester matrix $B$rMQ$$$F7W;;$7(B, $B$=$l$rMQ$$$FD64v2?4X?t$NCM$r5a$a$k(B.
+@end table
+
+@table @var
+@item return
+$B4pDl$rD64v2?4X?t$K:nMQ$5$;$?%Y%/%H%k$NCM(B F(End;X0) ??
+@item A
+$B@0?t$r@.J,$H$9$k9TNs(B (maximal rank $B$N$b$N(B)$B$rI=$9%j%9%H(B.
+@item StdMon
+$B%j%9%H(B.  Pfaffian $B$N4pDl$rM?$($kHyJ,:nMQAG$N%b%N%_%"%k$N%j%9%H(B.
+@item Line
+$B%j%9%H(B  [ContiDir,Beta,Z].
+@item X0
+$B%j%9%H(B. x $BJQ?t$NCM(B. 
+@item InitVal
+$B%j%9%H(B. $B4pDl$rD64v2?4X?t$K:nMQ$5$;$?%Y%/%H%k$N=i4|CM(B F(Start;X0)
+@item Start
+$B%j%9%H(B.   Z $B%Q%i%a!<%?$N=i4|CM(B??
+@item End
+$B%j%9%H(B.   Z $B%Q%i%a!<%?$N=*C<CM(B??
+@end table
+
+@itemize @bullet
+@item Todo, $B$3$N4X?t$N%$%s%?%U%'!<%9$OJQ99$5$l$kM=Dj(B.
+@item  X0 $B$OM-M}?t$N%j%9%H(B.
+@item ContiDir $B$O(B End-Start $B$HF1$8J}8~(B.
+@item Beta.  A$BD64v2?4X?t$N(B B $B%Q%i%a!<%?$N=i4|CM(B ??
+@item Z.  ContiDir $B$G$N0l<!85(B contiguity $B$rI=8=$9$k$?$a$NITDj85$NL>A0(B.
+@item $B%=!<%9Cf$NMxMQNc(B. test_fd_conti(), test_c111_conti() 
+@item
+$B%"%k%4%j%:%`$*$h$SMxE@$O(B
+K.Ohara, N.Takayama, Pfaffian Systems of A-Hypergeometric Equations II, Holonomic Gradient Method
+$B;2>H(B.
+@end itemize
+
+@example
+[2190] import("ot_hgm_ahg.rr");
+1
+[2191] ot_hgm_ahg.test_fd_conti();
+(Todo, $B0z?t$,$I$&$J$k$+$NNc$r2C$($k(B.)
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{get_mat2}
+@ref{hgm_ahg_expected_value_contiguity}
+@ref{hgm_ahg}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B 2014-07-11 $B$K:G=i$NHG$,(B 1.10$BHG(B ot_hgm_ahg.rr $B$K(B commit $B$5$l$?(B. 
+@item $B%$%s%?%U%'!<%9$,99?7$5$l$?HG$O(B, 1.??$BHG(B.
+@end itemize
+
+@comment -------------------
+@comment  tk_hgpoly.optip
+@comment -------------------
+@node tk_hgpoly.optip,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{tk_hgpoly.optip}
+@findex tk_hgpoly.optip
+
+@table @t
+@item hgpoly.optip(@var{A},@var{B},@var{W})
+::  $B@0?t7W2hLdBj$r%0%l%V%J!<4pDl$rMQ$$$F2r$/(B.
+@end table
+
+@table @var
+@item return
+$B%j%9%H(B.  
+@item A
+$BHsIi@0?t$r@.J,$H$9$k9TNs(B (maximal rank $B$N$b$N(B)$B$rI=$9%j%9%H(B
+@item B
+$BHsIi@0?t$r@.J,$H$9$k%Y%/%H%k$rI=$9%j%9%H(B
+@item W 
+$BHsIi@0?t$r@.J,$H$9$k%Y%/%H%k$rI=$9%j%9%H(B
+@end table
+
+@itemize @bullet
+@item  @var{A} U = @var{B} $B$rK~$?$9HsIi$N@0?t%Y%/%H%k(B U $B$NCf$G(B,
+$BFb@Q(B @var{W} U $B$r:G>.2=$9$k(B U $B$rLa$9(B.
+@end itemize
+
+@example
+[0] import("tk_hgpoly.rr");
+[2191] tk_hgpoly.optip([[1,1,1,1],[0,1,2,3]],[20,40],[1,1,1,0]);
+[6,1,0,13]
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{feasible}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B   2014-12-12 $B$K(B commit $B$5$l$?(B.
+$B85HG$O(B h-mle/A-hg/Prog
+@end itemize
+
+@comment -------------------
+@comment  tk_hgpoly.hgpoly
+@comment -------------------
+@node tk_hgpoly.hgpoly,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{tk_hgpoly.hgpoly}
+@findex tk_hgpoly.hgpoly
+@table @t
+@item hgpoly.hgpoly(@var{A},@var{B})
+::  @var{A}, @var{B} $B$GDj5A$5$l$kD64v2?B?9`<0$r7W;;$9$k(B.
+@end table
+
+@table @var
+@item return
+$B%j%9%H(B.  
+@item A
+$BHsIi@0?t(B(todo, $B:FEY3NG'(B)$B$r@.J,$H$9$k9TNs(B (maximal rank $B$N$b$N(B)$B$rI=$9%j%9%H(B
+@item B
+$BHsIi@0?t$r@.J,$H$9$k%j%9%H(B.
+@end table
+
+@itemize @bullet
+@item  $BLa$jCM$r(B F $B$H$9$k$H$-(B, F[0] $B$,D64v2?B?9`<0(B. $BJQ?t$O(B x_1, x_2, ...
+F[1] $B$O(B F[0] $B$NJ,;6I=8=B?9`<0(B.
+@end itemize
+
+@example
+[0] import("tk_hgpoly.rr");
+[2191] tk_hgpoly.hgpoly([[1,1,1,1],[0,1,2,3]],[2,2]);
+[x_3*x_1+1/2*x_2^2,(1/2)*<<0,2,0,0>>+(1)*<<1,0,1,0>>]
+@end example
+
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B   2014-12-12 $B$K(B commit $B$5$l$?(B.
+@end itemize
+
+@comment -------------------
+@comment  tk_fd.abc2ahg
+@comment -------------------
+@node tk_fd.abc2ahg,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{tk_fd.abc2ahg}
+@findex tk_fd.abc2ahg
+@table @t
+@item tk_fd.abc2ahg(@var{A},@var{B},@var{C})
+::  F_D(@var{A}, @var{B},@var{C}) $B$r2r$K$b$D(B A-$BD64v2?J}Dx<07O$r5a$a$k(B.
+@end table
+
+@table @var
+@item return
+$B%j%9%H(B. 
+@item A
+$B?t(B
+@item B
+$B?t$N%j%9%H(B
+@item C
+$B?t(B
+@end table
+
+@itemize @bullet
+@item $BLa$jCM%j%9%H$NBh#0@.J,$O(B A-$BD64v2?J}Dx<07O$rDj5A$9$k9TNs(B.
+$BBh#1@.J,$O(BA-$BD64v2?J}Dx<07O$N%Q%i%a!<%?&B(B.
+@end itemize
+
+@example
+[2191] tk_fd.abc2ahg(-3,[-4,-5],3);
+
+[[[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],[11,5,4,5]]
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{abc2marginal}
+@ref{marginal2abc}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B   2014-12-13 $B$K(B tk_fd.rr $B$KDI2C$5$l$?(B.
+@end itemize
+
+@comment -------------------
+@comment  tk_fd.ahvec_abc
+@comment -------------------
+@node tk_fd.ahvec_abc,,, $B<B83E*;EMM$N4X?t(B
+@subsection @code{tk_fd.ahvec_abc}
+@findex tk_fd.ahvec_abc
+@table @t
+@item tk_fd.ahvec_abc(@var{A},@var{B},@var{C},@var{Y} | all=1)
+::   abc2marginal(@var{A}, @var{B},@var{C})  $B$r<~JUOB$K$b$D(B (2,m+1) $BJ,3dI=A4BN$K$D$$$F$N@55,2=Dj?t(B Z, $B$*$h$S(B Z $B$NJQ?t(B Y[1][0], ..., Y[1][m]
+(2$BHVL\$N9T(B)$B$K$D$$$F$NJPHyJ,$r7W;;$9$k(B.
+@end table
+
+@table @var
+@item return
+$B%j%9%H(B @var{Ans}
+@item A
+$B?t(B
+@item B
+$B?t$N%j%9%H(B. $BD9$5$O(B m.
+@item C
+$B?t(B
+@item Y
+(2,m+1) $BJQ?tCM$r$"$i$o$9%j%9%H$N%j%9%H(B. 
+@end table
+
+@itemize @bullet
+@item 
+@var{A}, @var{B}, @var{C}, $B$K8=$l$k?t$O@0?t$rM?$($k(B.
+@var{Y} $B$N@.J,$OM-M}?t$rM?$($k(B.
+@item 
+@var{Ans}[2]*@var{Ans}[1] $B$,(B Z.
+@var{Ans}[2]*@var{Ans}[0][I] $B$,(B Z $B$N(B Y[1][I] $B$K$D$$$F$NJPHyJ,(B.
+@item
+$BO@J8(B
+1.Y.Goto, Contiguity relations of Lauricella's F_D revisited,  arxiv:1412.3256
+$B$GF3=P$5$l$F$$$k(B
+contiguity relation $B$rMQ$$$F7W;;$9$k(B.
+@end itemize
+
+@example
+[2449] marginal2abc([3,12],[6,3,3,3]);
+[-3,[-3,-3,-3],4]
+
+[2450] tk_fd.ahvec_abc(-3,[-3,-3,-3],4,[[1,1/2,1/3,1/4],[1,1,1,1]]);
+[[ 24041/1152 143551/11520 16973/1280 78827/5760 ],1/7776]
+
+[2451] expectation_abc(-3,[-3,-3,-3],4,[[1,1/2,1/3,1/4],[1,1,1,1]]);
+[721230/173593,430653/173593,458271/173593,67566/24799]
+@end example
+
+@table @t
+@item $B;2>H(B
+@ref{expectation_abc}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+$B$3$N4X?t$O(B   2014-$B2F$K3+H/$5$l$?(B.
+@end itemize
+
 
 @comment -----------  $B0J2<$O8+K\(B. $B>C$9$J(B.  template
 @comment ****************************************************************
