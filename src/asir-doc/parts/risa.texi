@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.13 2005/03/24 23:40:50 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.14 2005/03/30 10:53:28 takayama Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -423,56 +423,36 @@ GP $B$O%$%s%9%H!<%k$5$l$J$$$,(B, asir2000 $B$N:n@.$KI,MW$J%U%!%$%k$O%$%s%9%H!
 
 @noindent
 \BJP
-$BI,MW$J%U%!%$%k$O(B @samp{asirwin-ja.tgz} $B$G$"$k(B. $BB>$K(B, @samp{gzip.exe},
-@samp{tar.exe} $B$,I,MW$@$,(B, @samp{asirwin-ja.tgz} $B$HF1$8%G%#%l%/%H%j$KMQ0U$7$F(B
-$B$"$k(B. $B$3$l$i(B 3 $B$D$N%U%!%$%k$rF10l%G%#%l%/%H%j$K$*$-(B, $B%3%^%s%I%W%m%s%W%H(B
-(DOS $B%W%m%s%W%H(B)
-$B$+$i(B
+@samp{asirwin32.msi} (32bit $BHG%$%s%9%H!<%i!<(B) $B$^$?$O(B 
+@samp{asirwin64.msi} (64bit $BHG%$%s%9%H!<%i!<(B)$B$rMQ$$$F%$%s%9%H!<%k$9$k(B.  $B$3$N%$%s%9%H!<%i!<$O(B $B4D6-JQ?t(B @samp{ASIR_ROOTDIR} $B$K%$%s%9%H!<%k$7$?%U%)%k%@$r@_Dj$9$k(B. 
+(zip $BHG$O(B @samp{ASIR_ROOTDIR} $B$r<jF0$G@_Dj$9$kI,MW$,$"$j(B, $B$^$?%;%-%e%j%F%#%V%m%C%/$r2r=|$7$F$+$iE83+$7$J$$$H$$$1$J$$(B. zip$BHG$O3+H/<TMQ(B.)
+$B%G%9%/%H%C%W$N(B asirgui $B$r%@%V%k%/%j%C%/$9$l$P(B asir $B$,%9%?!<%H$9$k(B. $B%F%-%9%H%(%G%#%?$H$NO"7H5!G=$r;H$&$K$O(B, 
+@samp{%ASIR_ROOTDIR%\share\editor} $B$N;X<($K=>$$@_Dj$r9T$&(B.
+$B$J$*%$%s%9%H!<%k%U%)%k%@!<L>$d%f!<%6!<$N%[!<%`%U%)%k%@L>$,$$$o$f$k%@%aJ8;z$r4^$`>l9g$O@5>o$KF0:n$7$J$$5!G=$,$"$k(B.
+(|$B%@%aJ8;z(B $B%A%'%C%+!<(B| $B$G8!:w$7$F<+J,$N%f!<%6!<L>$,3:Ev$9$k$+3NG'(B)
 \E
 \BEG
-The necessary file is @samp{asirwin-en.tgz}. To unpack it @samp{gzip.exe}
-and @samp{tar.exe} are necessary. They are in the same
-directory as @samp{asirwin-en.tgz} on the ftp server.
-Putting them in the same directory, execute the following:
+The installers are 
+@samp{asirwin32.msi} (32bit version) and
+@samp{asirwin64.msi} (64bit version).
+These installers set the installed folder to the environmental variable
+@samp{ASIR_ROOTDIR}.
+(If you install Risa/Asir by the zip version,
+you need to set the environmental variable  @samp{ASIR_ROOTDIR} 
+by hand.
+You also need to unlock the security block before unzipping.
+The zip version is for developpers.)
+Double click the ``asirgui'' on the desktop,
+then the asir starts.
+To use a unified environment with text editors, 
+follow the instruction in 
+@samp{%ASIR_ROOTDIR%\share\editor}.
+If the folder name to which you install asir or your home folder name
+contain non-ascii characters,
+some functions of asir may not work properly.
+For example, in the Japense locale, names which may cause troubles
+can be checked by ``damemoji checker''.
 \E
-
-@example
-\JP C:\...> tar xzf asirwin.tgz
-\EG C:\...> tar xzf asirwin.tgz
-@end example
-
-@noindent
-\BJP
-$B$r<B9T$9$l$P(B, @samp{Asir} $B$H$$$&%G%#%l%/%H%j(B (Asir $B%k!<%H%G%#%l%/%H%j(B) 
-$B$,$G$-$k(B. 
-@comment 990831 $BHG$G$O(B, GUI $B$HK\BN$,J,N%$5$l(B, $B$^$?%G%P%C%0%&%#%s%I%&$b(B
-@comment $BJL%W%m%;%9$H$7$F(B GUI $B$,8F$S=P$5$l$k$?$a(B, Asir $B%k!<%H%G%#%l%/%H%j$,@5$7$/(B
-@comment $BEPO?$5$l$F$$$k$3$H$,I,MW$G$"$k(B.  
-Asir $B%k!<%H%G%#%l%/%H%j$N%5%V%G%#%l%/%H(B
-@samp{bin} $B$K(B @samp{asirgui.exe} (GUI), @samp{engine.exe} ($BK\BN(B) $B$,(B
-$BCV$+$l$F$$$k(B. 
-@samp{asirgui.exe} $B$r%@%V%k%/%j%C%/$9$l$P(B Asir $B$,N)$A>e$,$k(B. 
-@comment @samp{asirgui.exe} $B$N=i2s$NN)$A>e$2$O(B, $B%(%/%9%W%m!<%i$+$i9T(B
-@comment $B$&(B. $B$3$l$K$h$j(B
-\E
-
-\BEG
-Then a directory @samp{Asir} (@b{Asir root directory}) is created,
-which has subdirectories named @samp{bin} and @samp{lib}. 
-Asir can be invoked by double-clicking @samp{asirgui.exe}.
-@comment To set up it,
-@comment invoke @samp{bin\asirgui.exe} from Explorer and
-@comment click @code{OK}.  Then the name of @b{Asir root directory} is set to the
-@comment following registries.
-\E
-
-@comment @example
-@comment \JP HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
-@comment \EG HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
-@comment @end example
-
-@comment @noindent
-@comment \JP $B$H$$$&%l%8%9%H%j$K(B Asir $B%k!<%H%G%#%l%/%H%j$,@5$7$/EPO?$5$l$k(B. 
 
 \BJP
 @node $B%3%^%s%I%i%$%s%*%W%7%g%s(B,,, Risa/Asir
@@ -582,61 +562,32 @@ displayed by the command @code{limit} on UNIX.
 
 @noindent
 \BJP
-@b{Asir} $B$N<B9T$K4X$9$k$$$/$D$+$N4D6-JQ?t$,B8:_$9$k(B. UNIX $B>e$G$O4D6-JQ?t(B
-$B$O(B shell $B$N%3%^%s%I%i%$%s$+$iD>@\@_Dj$9$k$+(B, shell $B$N(B rc $B%U%!%$%k$G@_Dj(B
-$B$9$k(B. Windows NT $B$G$O(B, [$B@_Dj(B]->[$B%7%9%F%`(B]->[$B4D6-(B] $B$G@_Dj$9$k(B. Windows 95/98
-$B$G$O(B, @samp{c:\autoexec.bat} $B$K=q$$$F(B reboot $B$9$k(B. 
+@b{Asir} $B$N<B9T$K4X$9$k$$$/$D$+$N4D6-JQ?t$,B8:_$9$k(B. UNIX $B>e$G$O4D6-JQ?t(B $B$O(B shell $B$N%3%^%s%I%i%$%s$+$iD>@\@_Dj$9$k$+(B, shell $B$N(B rc $B%U%!%$%k$G@_Dj(B $B$9$k(B. Windows $B$G$O(B,  [$B4D6-JQ?t$NJT=8(B] $B$G@_Dj$9$k(B. 
 \E
 \BEG
 There exist several environment variables concerning with an execution
 of @b{Asir}. On UNIX, an environment variable is set from shells, or
-in rc files of shells. On Windows NT, it can be set from [Control Panel]
-->[Environment]. On Windows 95/98, it can be set in @samp{c:\autoexec.bat}.
-Note that the setting takes effect after rebooting the machine on Windows
-95/98.
+in rc files of shells. On Windows, it can be set from 
+[Editing environmetal variables].
 \E
 @itemize @bullet
 @item
 @code{ASIR_LIBDIR}
 @*
 \BJP
-@b{Asir} $B$N%i%$%V%i%j%G%#%l%/%H%j(B, $B$9$J$o$A%f!<%68@8l$G=q$+$l$?%U%!%$%k(B
-$B$J$I$,$*$+$l$k%G%#%l%/%H%j(B. $B;XDj$,$J$$>l9g(B UNIX $BHG$G$O(B 
-@samp{/usr/local/lib/asir}, Windows $BHG$G$O(B Asir $B%a%$%s%G%#%l%/%H%j$N2<$N(B 
-@samp{lib} $B%G%#%l%/%H%j$,MQ$$$i$l$k(B. 
-$B$3$N4D6-JQ?t$O(B @code{ASIRLOADPATH} $B$KE}9g$5$lGQ;_$5$l$kM=Dj(B.
+$B$3$N4D6-JQ?t$OGQ;_M=Dj(B.
 \E
 \BEG
-The library directory of @b{Asir}, i.e., the directory where
-, for example, files containing programs written in @b{Asir}.
-If not specified, on UNIX, @samp{/usr/local/lib/asir} is used by default.
-On Windows, @samp{lib} in @b{Asir root directory} is used by default.
-This environment will be useful in a case where @b{Asir} binaries
-are installed on a private directory of the user.
-This environmental variable will become obsolete. 
+This environmental variable is obsolete. 
 \E
 @item
 @code{ASIR_CONTRIB_DIR}
 @*
 \BJP
-@b{Asir} $B$N(B asir-contrib $B%G%#%l%/%H%j(B, $B$9$J$o$A(B OpenXM/asir-contrib 
-$B%W%m%8%'%/%H$G=q$+$l$?%Q%C%1!<%8$d%G!<%?$J$I$,$*$+$l$k%G%#%l%/%H%j(B. 
-$B;XDj$,$J$$>l9g(B UNIX $BHG$G$O(B 
-@samp{/usr/local/lib/asir-contrib}, 
-Windows $BHG$G$O(B Asir $B%a%$%s%G%#%l%/%H%j$N2<$N(B @samp{lib-asir-contrib} 
-$B%G%#%l%/%H%j$,MQ$$$i$l$k(B. 
-$B$3$N4D6-JQ?t$O(B @code{ASIRLOADPATH} $B$KE}9g$5$lGQ;_$5$l$kM=Dj(B.
-This environmental variable will become obsolete. 
+$B$3$N4D6-JQ?t$OGQ;_M=Dj(B.
 \E
 \BEG
-The asir-contrib library directory of @b{Asir}, i.e., the directory where
-packages and data developed by the OpenXM/asir-contrib project files are put.
-If not specified, on UNIX, @samp{/usr/local/lib/asir-contrib} 
-is used by default.
-On Windows, @samp{lib-asir-contrib} in @b{Asir root directory} 
-is used by default.
-This environment will be useful in a case where @b{Asir} binaries
-are installed on a private directory of the user.
+This environmental variable is obsolete. 
 \E
 
 @item
@@ -658,6 +609,55 @@ After searching out all directories in @code{ASIRLOADPATH},
 or in case of no specification at all,
 the library directory will be searched.
 \E
+\BJP
+unix $BHG$N%i%$%V%i%j%G%#%l%/%H%j$O(B
+\E
+\BEG
+The library directories of the unix version are
+\E
+@samp{$OpenXM_HOME/lib/asir-contrib},
+@samp{$OpenXM_HOME/lib/asir},
+/usr/local/lib/asir-contrib,
+/usr/local/lib/asir.
+\BJP
+Windows $BHG$N%i%$%V%i%j%G%#%l%/%H%j$O(B,
+@samp{OpenXM_HOME} $B$,@_Dj$5$l$F$$$J$$$H$-$O(B,
+\E
+\BEG
+When @samp{OpenXM_HOME} is not set, 
+the library directories of the Windows version are
+\E
+%ASIR_ROOTDIR%\lib\asir-contrib,
+%ASIR_ROOTDIR%\lib\asir.
+\BJP
+@samp{OpenXM_HOME} $B@_Dj$5$l$F$$$l$P(B, unix $BHG$HF1MM(B.
+\E
+\BEG
+When @samp{OpenXM_HOME} is set, the library directories are same with
+the unix version.
+\E
+\BJP
+$B$^$?(BWindows $BHG$N>l9g(B, $B8D?MNN0h(B 
+@samp{%APPDATA%\OpenXM\lib\asir-contrib}
+$B$b%i%$%V%i%j%G%#%l%/%H%j$H$J$k(B.  
+$B$J$*(B unix $BHG$G$O>e5-$N$h$&$J8D?MNN0h$rC5:w$9$k;EAH$_$O$J$/(B, 
+OpenXM $BHG$N(B asir $B$G$O(B
+\samp{OpenXM/rc/} $B$K$*$$$F(B @samp{ASIRLOADPATH} $B$G(B 
+@samp{$OpenXM_tmp/OpenXM/lib/asir-contrib} $B$r%5!<%A%Q%9$K2C$($F$$$k(B.  asir_contrib_update $B$r;2>H(B.
+which, ctrl("loadpath"), asir2000/parse/load.c $B$b;2>H(B.
+\E
+\BEG
+In the Windows version, the private folder
+@samp{%APPDATA%\OpenXM\lib\asir-contrib}
+is also set to the library folders.
+In the unix version, there is no default private library folder.
+In the OpenXM/unix version, 
+@samp{$OpenXM_tmp/OpenXM/lib/asir-contrib} is added to the @samp{ASIRLOADPATH}
+by a script in \samp{OpenXM/rc/}.  
+See also asir_contrib_update.
+See which, ctrl("loadpath"), asir2000/parse/load.c.
+\E
+
 @item
 @code{HOME}
 @*
