@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.1 2014/12/12 06:32:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.2 2014/12/13 05:20:02 takayama Exp $ */
 #define USE_MODULE 1
 import("names.rr")$
 import("nk_toric.rr")$
@@ -23,6 +23,8 @@ localf feasible$
 localf optip$
 localf testip1$
 localf testip2$
+localf expectation$
+localf test_exp1$
 #endif
 
 /* 2014.07.09  sst.ps (sst-ip.ps) 
@@ -263,6 +265,49 @@ def  testip2() {
   return(optip(A,B,[1,1,1,1,1,1,1]));
 }
 
+/* 2014.12.20 
+  X=[x_1, x_2, ..., x_n] is used to express hgpoly and random variable.
+  Expectation E[RandomVarible] at  X=Pt for A-HG distribution for (A,B).
+  If fd=1, A is assumed to be FD.
+*/
+def  expectation(A,B,Pt,RandomVariable) {
+  FD = getopt(fd);
+  if (type(FD)<0) FD=0; 
+  N = length(A[0]);
+  V=[]; DV=[];
+  for (I=1; I<=N; I++) {
+     V=cons(util_v(x,[I]),V);  
+     DV=cons(util_v(dx,[I]),DV);
+  }
+  V = reverse(V);  DV = reverse(DV);
+  Rule = assoc(V,Pt);
+  if (!FD)  Z = hgpoly(A,B)[0];
+  else {
+    Mm = idiv(length(V),2);
+    X = newmat(2,Mm);
+    for (I=0; I<Mm; I++) {X[0][I]=V[I]; X[1][I]=V[Mm+I];}
+    R=cdr(B);
+    C=[base_sum(R,0,0,length(R)-1)-B[0],B[0]];
+    ABC = tk_fd.marginal2abc(C,R);
+    if (ABC[2] <= 0) error("C is negative for FD");
+    Z = tk_fd.fdah(ABC[0],ABC[1],ABC[2],X | approx=-ABC[0]+1)[0];
+  }
+  /* print(Z); */
+  if (type(RandomVariable)!=4) RandomVariable=[RandomVariable];
+  L = map(taka_dr1.euler2diff,RandomVariable,V,V,DV);
+  E = map(odiff_act,L,Z,V);
+  E = newvect(length(E),base_replace(E,Rule));
+  return(vtol(E/base_replace(Z,Rule)));
+}
+def test_exp1() {
+  X=[[1,1/2,1/3],[1,1,1]];
+  AB=tk_fd.abc2ahg(-3,[-2,-4],3);
+  E=tk_fd.expectation_abc(-3,[-2,-4],3,X);
+  printf("E by tk_fd.rr = %a\n",E);
+  A=AB[0]; B=AB[1];
+  E10 = expectation(A,B,base_flatten(X),[x_4,x_5,x_6]);
+  printf("E10=%a\n",E10);
+}
 #if  !USE_MODULE
 #else
 endmodule$  // endmodule of tk_hgpoly
