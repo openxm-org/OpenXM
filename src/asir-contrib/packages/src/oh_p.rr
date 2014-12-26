@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.14 2013/07/31 00:33:09 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.15 2013/09/12 01:19:19 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -255,8 +255,8 @@ def foreach(Func,Set,Args) {
     /* オプション処理 */
     Restart  = (getopt(restart)==yes);
     Debug    = (getopt(debug)==yes);
-    Filter   = _getopt(filter, _filter);
-    Iterator = _getopt(iterate,_iterator);
+    Filter   = _getopt(filter, oh_p._filter);
+    Iterator = _getopt(iterate,oh_p._iterator);
 
     Ret = newvect(length(Set));
     NW  = length(Workers);
