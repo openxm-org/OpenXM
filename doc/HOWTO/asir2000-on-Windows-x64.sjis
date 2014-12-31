@@ -1,11 +1,11 @@
-$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.2 2013/11/17 18:59:22 ohara Exp $
+$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.3 2013/12/02 15:39:42 ohara Exp $
 
 Risa/Asir for Windows ‚Ìƒrƒ‹ƒh•û–@ (x64 ‘Î‰)
 
 0. •K—v‚È•¨
 
-EWindows 7 x64 ‚Ü‚½‚Í Windows Vista x64
-EVisual Studio 2010 ‚Ü‚½‚Í Visual Studio 2008
+EWindows 7 x64
+EVisual Studio 2010 ‚Ü‚½‚Í Visual Studio 2013
 ECygwin (bash, gzip, tar, patch, coreutils, perl ‚ª•K—v‚Å‚·B)
   ƒ\[ƒX‚Ì“WŠJ‚¨‚æ‚ÑAtexi2html ‚É—p‚¢‚éB
 
@@ -78,3 +78,21 @@ asir/ ‚¨‚æ‚Ñ asir/bin/ ˆÈ‰º‚Ìƒtƒ@ƒCƒ‹‚Í asir.wxs ‚ÅA‚»‚êˆÈŠO‚ÌƒfƒBƒŒƒNƒgƒŠ‚Ì‰º‚
 ‚±‚Ì GUID ‚ğ•ÏX‚·‚×‚«‚Å‚Í‚È‚¢‚©‚ç‚Å‚ ‚éB(©“®¶¬‚·‚é‚Æ•Ï‚í‚Á‚Ä‚µ‚Ü‚¤)
 Šî–{“I‚ÉŠe Component —v‘f‚ªAˆê‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘Î‰‚µ‚Ä‚¢‚é‚Ì‚ÅAWiXedit ‚È‚Ç‚Å’Ç‰Á‚µ‚Ä
 ‚¢‚¯‚Î‚æ‚¢B
+
+•t˜^ B. Visual Studio 2013 ‘Î‰
+
+Visual Studio 2013 ‚©‚ç‚ÍAŒÃ‚¢‹@”\‚ª‚¢‚­‚Â‚©Šù’è‚Å‚ÍƒTƒ|[ƒg‚³‚ê‚È‚­‚È‚Á‚½BRisa/Asir ‚Ì
+ƒrƒ‹ƒh‚É•K—v‚È‹@”\‚Ì“±“ü•û–@‚ğà–¾‚·‚éB
+
+(1) MBCS—p MFC ‚Ì“±“üB
+    http://go.microsoft.com/?linkid=9832071 ‚©‚ç•K—v‚Èƒ‰ƒCƒuƒ‰ƒŠ‚ğƒ_ƒEƒ“ƒ[ƒh‚·‚é‚±‚ÆB
+    MSDNƒuƒƒO‚ÌQl‹L–
+    http://blogs.msdn.com/b/vcblog/archive/2013/07/08/mfc-support-for-mbcs-deprecated-in-visual-studio-2013.aspx
+@@ª–{“I‚É‚ÍAasirgui ‚ğ Unicode ‘Î‰‚É‰ü‘¢‚·‚é‚©AMFC ‚ğÌ‚Ä‚é‚×‚«‚Å‚ ‚ë‚¤B
+
+(2) ntwin32.mak ‚¨‚æ‚Ñ win32.mak
+    ‚±‚ê‚ç‚Í gc ‚Ìƒrƒ‹ƒh‚É•K—v‚Å‚ ‚é‚ªAVS2013 ‚©‚çƒTƒ|[ƒg‚³‚ê‚È‚­‚È‚Á‚½B
+    http://www.microsoft.com/en-us/download/details.aspx?id=8279 ‚©‚ç
+    Microsoft Windows SDK for Windows 7 and .NET Framework 4 ‚ğƒCƒ“ƒXƒg[ƒ‹‚·‚é‚±‚ÆB
+    C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include
+    ‚ÉƒCƒ“ƒXƒg[ƒ‹‚³‚ê‚é‚±‚Æ‚ğŠú‘Ò‚µ‚Ä‚¢‚éB
