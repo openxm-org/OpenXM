@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.15 2014/12/14 15:27:55 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.16 2014/12/27 07:47:01 ohara Exp $
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
@@ -1325,6 +1325,8 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
     PfZ = Pf[ContiDir]; // ContiDir 方向に減少する差分パッフィアン
 
     R=1;
+    if (End == Start) return(InitVal);
+    else if (End < Start) error("End < Start");
     for(I=Start+1; I<=End; I++) {
         R = R*base_replace(PfZ, [[Z,I]]);
     }
@@ -2113,5 +2115,41 @@ test301();
 test_c111c_conti();
 test_fd_conti();
  */
+
+/* configuration matrix case, 2015.01.16 
+   h-mle/FD/Prog/note-ot.tex, test_c111c_conti-log.txt
+*/
+def test_c111c_conti() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+    StdMon=[1,dx5,dx6,dx7,dx8,dx8^2];
+    Beta = [3,2,1,1];
+    ContiDir = 7; /* A の第 ContiDir 列, ここでは、[1,1,1,1] */
+    Z = n;
+    X  = [x1,x2,x3,x4,x5,x6,x7,x8];
+    X_  = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8];
+    X0 = [1,1/2,1/3,2/3,1,1,1,1];
+
+    F0=base_replace(tk_hgpoly.hgpoly(A,Beta)[0],assoc(X_,X));
+
+    F = [F0, diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x8), diff(F0,x8,x8)];
+    printf("F=%a\n",F);
+    InitVal = base_replace(F, assoc(X,X0));
+    printf("InitVal=%a\n",InitVal);
+
+    Line = [ContiDir, Beta, Z];
+//  printf("Line=%a\n",Line);
+
+    for (I=0; I<100; I += 10) {
+      T0=time();
+      Val = hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,0,I); 
+      printf("Step=%a, Val = %a\n", I,Val);
+      T1=time();
+      printf("CPU=%a, GC=%a, Total=%a\n",T1[0]-T0[0],T1[1]-T0[1],T1[0]-T0[0]+T1[1]-T0[1]);
+    }
+    return Val;
+}
 
 end$
