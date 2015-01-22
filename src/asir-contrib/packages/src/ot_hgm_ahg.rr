@@ -1,8 +1,15 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.16 2014/12/27 07:47:01 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.17 2015/01/16 02:38:26 takayama Exp $
+
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
   ot_ = oh_ & tk_
 */
+extern ForPaper$
+ForPaper=0$  // To prepare data for our paper.
+extern ForPaper_data1$
+extern ForPaper_data2$
+extern Strategy_N$  
+Strategy_N=1$  // Do not compute the matrix product in hgm_ahg_contiguity. More efficient in our benchmark.  See h-mle/A-hg2/Prog/note-ot.tex
 
 import("names.rr")$
 import("nk_toric.rr")$
@@ -1323,18 +1330,32 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
 
     Pf  = hgm_ahg_pfaffian(A,StdMon,X0,BetaZ | option_list=getopt());
     PfZ = Pf[ContiDir]; // ContiDir 方向に減少する差分パッフィアン
-
-    R=1;
-    if (End == Start) return(InitVal);
-    else if (End < Start) error("End < Start");
-    for(I=Start+1; I<=End; I++) {
-        R = R*base_replace(PfZ, [[Z,I]]);
+    if (ForPaper) {
+       printf("PfZ = %a\n in ForPaper_data1\n",PfZ);
+       ForPaper_data1=PfZ;
     }
-    Ri = matrix_inverse(R); // ContiDir 方向に Start から End まで増加する
-    Val = vtol(Ri*ltov(InitVal)); // 正規化定数
-    if (Mode) {
+    R=1;
+    if (End == Start) return(InitVal); // By N.T.
+    /* By N.T.  Strategy_N */
+    if (!Strategy_N) {
+      for(I=Start+1; I<=End; I++) {
+        R = R*base_replace(PfZ, [[Z,I]]);
+      }
+      Ri = matrix_inverse(R); // ContiDir 方向に Start から End まで増加する
+      Val = vtol(Ri*ltov(InitVal)); // 正規化定数
+      if (Mode) {
         Pf = base_replace(Pf, [[Z,End]]); // Z==End における Pfaffian
         return [Val, Pf];
+      }
+    }else{
+      printf("Strategy_N=1\n");
+      Val = matrix_list_to_matrix(InitVal);
+      for(I=Start+1; I<=End; I++) {
+        Val = matrix_inverse(base_replace_n(PfZ, [[Z,I]]))*Val;
+      }
+      if (Mode) {
+        debug("It is not implemented.");
+      }
     }
     return Val;
 }
@@ -2116,9 +2137,10 @@ test_c111c_conti();
 test_fd_conti();
  */
 
-/* configuration matrix case, 2015.01.16 
-   h-mle/FD/Prog/note-ot.tex, test_c111c_conti-log.txt
-*/
+/*-----------------*/
+/* 2015.01.16 N.T. */
+/*-----------------*/
+/* configuration matrix case, 2015.01.16 */
 def test_c111c_conti() {
   A = [[1,1,1,1,1,1,1,1],
      [0,1,0,0,1,1,0,1],
@@ -2148,6 +2170,113 @@ def test_c111c_conti() {
       printf("Step=%a, Val = %a\n", I,Val);
       T1=time();
       printf("CPU=%a, GC=%a, Total=%a\n",T1[0]-T0[0],T1[1]-T0[1],T1[0]-T0[0]+T1[1]-T0[1]);
+    }
+    return Val;
+}
+
+/* 2015.01.17 */
+def test_gauss_conti() {
+  A = [[1,1,1,1],
+       [0,1,0,1],
+       [0,0,1,1]];
+  StdMon=[1,dx4];
+  Beta = [3,2,1];
+    ContiDir = 3; /* A の第 ContiDir 列, ここでは、[1,1,1] */
+    Beta1=[2,1,0];
+    Z = k;
+    X  = [x1,x2,x3,x4];
+    X_  = [x_1,x_2,x_3,x_4];
+    X0 = [1,1,1/2,1];
+
+    Z0=tk_hgpoly.hgpoly(A,Beta)[0];
+    F0=base_replace(Z0,assoc(X_,X));
+    Z1=base_replace(tk_hgpoly.hgpoly(A,Beta1)[0],assoc(X_,X));
+
+    F = [F0, diff(F0,x4)];
+    F1 = [Z1,diff(Z1,x4)];
+    printf("F=%a, F1=%a\n",F,F1);
+    InitVal = base_replace(F, assoc(X,X0));
+    printf("InitVal=%a\n",InitVal);
+
+    Line = [ContiDir, Beta, Z];
+
+    ForPaper=1;
+    Val = hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,0,I); 
+    printf("Step=%a, Val = %a\n", I,Val);
+
+    R=newvect(2,base_replace(F1,assoc(X,X0)))-
+      base_replace(ForPaper_data1,[[k,0]])*newvect(2,InitVal);
+    return R;
+}
+
+/* 2015.01.19 
+  test_c111c_conti2(|check=NN) is OK for NN=1; NN=2.
+  test_c111c_conti2(|check=10,start=10); 
+  test_c111c_conti2(|check=10,start=10,p=[1,1,1,1,1,1,1,100]); -> singular
+  test_c111c_conti2(|check=10,start=10,p=[1,1/2,1/3,2/3,1,1,1,100]); 
+*/
+def test_c111c_conti2() {
+    if (type(getopt(check))>=0) Check=getopt(check);
+    else Check=0;
+    if (type(getopt(start))>=0) Start=getopt(start);
+    else Start=0;
+    if (type(getopt(p))>=0) X0=getopt(p);
+    else X0=[1,1/2,1/3,2/3,1,1,1,1];
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+    StdMon=[1,dx5,dx6,dx7,dx8,dx8^2];
+    Beta = [3,2,1,1];
+    ContiDir = 7; /* A の第 ContiDir 列, ここでは、[1,1,1,1] */
+    Z = n;
+    X  = [x1,x2,x3,x4,x5,x6,x7,x8];
+    X_  = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8];
+   
+    F0=base_replace(tk_hgpoly.hgpoly(A,Beta)[0],assoc(X_,X));
+
+    F = [F0, diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x8), diff(F0,x8,x8)];
+    printf("F=%a\n",F);
+    InitVal = base_replace(F, assoc(X,X0));
+    printf("InitVal=%a\n",InitVal);
+
+    Line = [ContiDir, Beta, Z];
+    if (Check) {
+      Step = 1; NN=Check;
+    }else {
+      Step = 10; NN=100;
+    }
+
+    Zvalues=[]; Data=[];
+    for (I=Start; I<=NN; I += Step) {
+      T0=time();
+      Val = hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,0,I); 
+      printf("Step=%a, Val = %a\n", I,Val);
+      NewBeta = [3+I,2+I,1+I,1+I];
+      Line2 = [0, NewBeta, Z]; /* ContiDir=[1,0,0,0] */ 
+      Val = hgm_ahg_contiguity(A,StdMon,Line2,X0,Val,0,2*I); 
+      /* Value at [3,2,1,1] + [3*I,I,I,I] */
+      T1=time();
+      Ttime = T1[0]-T0[0]+T1[1]-T0[1];
+      printf("I=%a, CPU=%a, GC=%a, Total=%a\n",I,T1[0]-T0[0],T1[1]-T0[1],Ttime);
+      printf("Value=%a\n",Val);
+      Zvalues=cons(Val[0],Zvalues);
+      Data=cons([I,Ttime],Data);
+    }
+    ForPaper_data2=[reverse(Zvalues),reverse(Data)];
+    if (Check) {
+      printf("I=%a, Val=%a\n", I-1,Val);
+      for (J=1; J<5; J++){
+        printf("E_%a=Val[%a]/Val[0]=%a=%a\n",J+4,J,X0[J+3]*Val[J]/Val[0],deval(X0[J+3]*Val[J]/Val[0]));
+      }
+      if (Start > 0) return(Val);
+      Beta = vtol(newvect(4,Beta)+newvect(4,[NN*3,NN,NN,NN]));
+      F0=base_replace(tk_hgpoly.hgpoly(A,Beta)[0],assoc(X_,X));
+      F = [F0, diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x8), diff(F0,x8,x8)];
+      printf("F=%a\n",F);
+      Val2 = base_replace(F, assoc(X,X0));
+      printf("If the return value is zero, the result is OK.\n");
+      return(newvect(6,Val)-newvect(6,Val2));
     }
     return Val;
 }
