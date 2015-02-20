@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.32 2003/12/26 07:27:27 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.33 2010/02/07 05:35:49 takayama Exp $
 
 VERSION=1.3.1
 TAG=HEAD
@@ -11,9 +11,9 @@ WHO=taka@orange
 # It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear-root.
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
-FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
-FTP_AREA_HEAD=/home/ftp/pub/OpenXM/Head
-FTP_AREA_ASIR=/home/ftp/pub/asir
+FTP_AREA=/home/web/pub/OpenXM/${VERSION}
+FTP_AREA_HEAD=/home/web/pub/OpenXM/Head
+FTP_AREA_ASIR=/home/web/pub/asir
 RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 ## TAG for the CVS server.
 
