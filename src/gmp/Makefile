@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.18 2009/12/03 05:45:35 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.19 2012/02/18 05:11:51 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=gmp-5.0.4
 DISTFILES=${DISTNAME}.tar.bz2
 WRKSRC=work/${DISTNAME}

@@ -1,7 +1,7 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.18 2005/01/18 16:31:17 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.19 2005/01/19 16:58:27 ohara Exp $
 
 OpenXM_HOME = ../..
-MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE = http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME    = gnuplot-4.0.0
 DISTFILES   = ${DISTNAME}.tar.gz
 DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist

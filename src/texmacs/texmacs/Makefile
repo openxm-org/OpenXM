@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.3 2004/03/02 14:58:23 ohara Exp $
+# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.4 2004/12/15 11:58:31 ohara Exp $
 OpenXM_HOME=../../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_CITES=ftp.math.kobe-u.ac.jp
+MASTER_CITES=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # MASTER_CITES2 = 
 DISTNAME=TeXmacs-1.0.4.5-src
 DISTFILES=${DISTNAME}.tar.gz
@@ -18,7 +18,7 @@ all: build
 fetch:  check-guile
 	-mkdir work
 	@if [ ! -f work/.fetch_done ]; then \
-		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/${DISTFILES} ${DISTDIR}; \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_CITES}${DISTFILES} ${DISTDIR}; \
 	fi 
 	@touch work/.fetch_done
 

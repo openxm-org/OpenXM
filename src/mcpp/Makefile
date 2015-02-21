@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/mcpp/Makefile,v 1.3 2010/07/31 14:47:19 ohara Exp $
+# $OpenXM: OpenXM/src/mcpp/Makefile,v 1.4 2010/08/03 11:11:57 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=mcpp-2.7.2
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}

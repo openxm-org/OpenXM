@@ -1,9 +1,9 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.1 2008/10/30 07:59:46 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=ftp://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=mpfr-2.3.2
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}

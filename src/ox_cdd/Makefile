@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.5 2007/03/20 02:12:14 ohara Exp $
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.6 2014/03/29 19:46:55 ohara Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -7,7 +7,7 @@ INCLUDES = -I$(OpenXM_HOME)/include
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 MVOL_TB=MixedVol.tar.gz
 CFLAGS = -g -Wall -finline-functions
 MVOLINCLUDE=work/MixedVol/SRC

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/Macaulay2/ports/Debian/Macaulay2/Makefile,v 1.2 2001/05/13 10:36:07 takayama Exp $
+# $OpenXM: OpenXM/src/Macaulay2/ports/Debian/Macaulay2/Makefile,v 1.3 2001/05/14 01:48:48 takayama Exp $
 # Makefile of M2 for Debian/potato.
 #  OpenXM_HOME must be properly set.  If you want to install under /usr/local
 #   type in  make PREFIX=/usr/local DISTDIR=/tmp
@@ -7,8 +7,8 @@
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm -rf
-MASTER_CITES=ftp.math.kobe-u.ac.jp
-# MASTER_CITES2 = www.math.cornell.edu/~htsai/Dmods/Dmods.tar
+MASTER_SITES=http://www.math.kobe-u.ac.jp/pub/misc/
+# MASTER_SITES2 = www.math.cornell.edu/~htsai/Dmods/Dmods.tar
 DISTFILES=Macaulay2-0.8.60-porting-src.tar.gz
 DISTFILES2=Dmods.tar
 
@@ -25,8 +25,8 @@ pre-fetch:
 fetch: pre-fetch
 	@if test ! -f .fetch_done ; \
 	then \
-	  (cd ${DISTDIR}; wget --passive-ftp ftp://$(MASTER_CITES)/pub/misc/$(DISTFILES)) ; \
-	  (cd ${DISTDIR}; wget --passive-ftp ftp://$(MASTER_CITES)/pub/misc/$(DISTFILES2)) ; \
+	  (cd ${DISTDIR}; wget -nd $(MASTER_SITES)/$(DISTFILES)) ; \
+	  (cd ${DISTDIR}; wget -nd $(MASTER_SITES)/$(DISTFILES2)) ; \
 	fi 
 	@touch .fetch_done
 

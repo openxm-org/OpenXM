@@ -1,9 +1,9 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/phcpack/Makefile,v 1.1 2005/08/15 06:17:22 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Release 2.3 of PHCpack. http://www2.math.uic.edu/~jan/download.html
 DISTNAME=PHCv2_3p
 DISTFILES=${DISTNAME}.tar.gz

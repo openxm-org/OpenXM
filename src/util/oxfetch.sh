@@ -1,7 +1,7 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.7 2006/10/13 11:51:25 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.8 2007/12/10 16:02:37 iwane Exp $
 
-MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
+MASTER_SITES="http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
 url=$1
 distdir=${2:-.}

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/tigers/Makefile,v 1.4 2004/12/14 18:31:46 ohara Exp $
+# $OpenXM: OpenXM/src/tigers/Makefile,v 1.5 2005/01/18 16:24:22 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -7,7 +7,7 @@ RANLIB=ranlib
 INSTALL_PROGRAM=install -c -s
 DISTNAME=TiGERS_0.9
 PATCH_FILE=tigers.patch
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DIST_SUFFIX=.taz
 DISTFILES=${DISTNAME}${DIST_SUFFIX}
 

@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.29 2012/05/30 19:24:33 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.30 2012/08/27 05:05:57 noro Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
 #DISTNAME=gc-7.2b
 DISTNAME=gc6.8

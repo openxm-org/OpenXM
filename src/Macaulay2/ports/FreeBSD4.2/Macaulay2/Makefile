@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/Macaulay2/ports/FreeBSD4.2/Macaulay2/Makefile,v 1.1 2001/03/07 03:06:44 takayama Exp $
 
 ## Comment out DISTDIR and PREFIX for FreeBSD ports
 ## /usr/ports/math/Macaulay2
@@ -17,7 +17,7 @@ DISTFILES=Macaulay2-0.8.60-porting-src.tar.gz
 CATEGORIES=math lang
 ## Real MASTER_SITES (uiuc) has not been ready.
 ## MASTER_SITES= ftp://ftp.math.uiuc.edu/Macaulay2/
-MASTER_SITES= ftp://ftp.math.kobe-u.ac.jp/pub/misc/
+MASTER_SITES= http://www.math.kobe-u.ac.jp/pub/misc/
 WRKSRC=work
 USE_GMAKE=yes
 MAINTAINER= takayama@math.kobe-u.ac.jp
