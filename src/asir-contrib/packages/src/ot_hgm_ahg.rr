@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.17 2015/01/16 02:38:26 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.18 2015/01/22 00:46:07 takayama Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -2214,6 +2214,7 @@ def test_gauss_conti() {
   test_c111c_conti2(|check=10,start=10); 
   test_c111c_conti2(|check=10,start=10,p=[1,1,1,1,1,1,1,100]); -> singular
   test_c111c_conti2(|check=10,start=10,p=[1,1/2,1/3,2/3,1,1,1,100]); 
+%%Note: 22-my-note-a-hg2-so-moment.pdf
 */
 def test_c111c_conti2() {
     if (type(getopt(check))>=0) Check=getopt(check);
@@ -2281,4 +2282,417 @@ def test_c111c_conti2() {
     return Val;
 }
 
+/* contingency table 2015.01.23. cf. A-hg/Prog/hgpoly.rr */
+#define OT_IDX(I,J) (R*I+J)
+def ot_esum(L) {
+  return base_sum(L,0,0,length(L)-1);
+}
+def contingency2(Q,R) {
+  A=[];
+  N=Q*R;
+  for (J=0; J<Q; J++) {
+      L = newvect(N);
+      for (K=0; K<R; K++) L[OT_IDX(J,K)] = 1;
+      if (ot_esum(L) > 1) A=cons(vtol(L),A);
+   }
+   for (K=0; K<R; K++) {
+      L = newvect(N);
+      for (J=0; J<Q; J++) L[OT_IDX(J,K)] = 1;
+      if (ot_esum(L)>1) A=cons(vtol(L),A);
+   }
+   return cdr(reverse(A));
+}
+
+def test433() {
+  A = contingency2(3,3);
+  printf("Std=%a\n",Std=cbase(A));
+  V=[x1,x2,x3,x4,x5,x6,x7,x8,x9];
+  DV=[dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9];
+  Vb=[b_1,b_2,b_3,b_4,b_5];
+  One=newvect(9); for (I=0; I<9; I++) One[I]=1; 
+  One=vtol(One);
+  W=[assoc(DV,One)];
+  Mset=append([1],DV);
+  Disc_R=get_mat(A,W,Std,Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return matrix_rank(base_replace(Disc_R,R1));
+}
+def test434() {
+  A = contingency2(3,4);
+  printf("Std=%a\n",Std=cbase(A));
+  V=[x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12];
+  DV=[dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9,dx10,dx11,dx12];
+  Vb=[b_1,b_2,b_3,b_4,b_5,b_6];
+  One=newvect(12); for (I=0; I<12; I++) One[I]=1; 
+  One=vtol(One);
+  W=[assoc(DV,One)];
+  Mset=append([1],DV);
+  Disc_R=get_mat(A,W,Std,Mset);
+  printf("size of R is %a\n",size(Disc_R));
+  R1=genrule_p(append(V,Vb)); Disc_R1=R1;
+  return matrix_rank(base_replace(Disc_R,R1));
+}
+
+def test_33_conti() {
+    if (type(getopt(start))>=0) Start=getopt(start);
+    else Start=0;
+    if (type(getopt(step))>=0) Step=getopt(step);
+    else Step=1;
+    if (type(getopt(nn))>=0) NN=getopt(nn);
+    else NN=1;
+    if (type(getopt(p))>=0) X0=getopt(p);
+    else X0=[1,1/2,1/3,
+             1,2/3,1/5,
+             1,1,1];
+
+    printf("Options: start=%a, nn=%a, step=%a\n",Start,NN,Step); 
+    A=contingency2(3,3);
+    StdMon=reverse(cbase(A));
+    printf("StdMon=%a\n",StdMon);
+    Beta = [3,3,3,2,2];
+    ContiDir = 7; /* A の第 ContiDir 列, ここでは、[0,1,0,1,0] */
+    Z = n;
+    X  = [x1,x2,x3,x4,x5,x6,x7,x8,x9];
+    X_  = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9];
+   
+    // F0=base_replace(tk_hgpoly.hgpoly(A,Beta)[0],assoc(X_,X));
+    // より早い hgpoly を作成すべき. ker の基底を用いる.
+    F0=((1/4*x1*x4^2*x5+1/12*x2*x4^3)*x8+(1/4*x1*x4*x5^2+1/4*x2*x4^2*x5)*x7)*x9^2+((1/4*x1*x4^2*x6+1/12*x3*x4^3)*x8^2+((x1*x4*x5+1/2*x2*x4^2)*x6+1/2*x3*x4^2*x5)*x7*x8+((1/4*x1*x5^2+1/2*x2*x4*x5)*x6+1/4*x3*x4*x5^2)*x7^2)*x9+(1/4*x1*x4*x6^2+1/4*x3*x4^2*x6)*x7*x8^2+((1/4*x1*x5+1/4*x2*x4)*x6^2+1/2*x3*x4*x5*x6)*x7^2*x8+(1/12*x2*x5*x6^2+1/12*x3*x5^2*x6)*x7^3;
+    printf("F0=%a\n",F0);
+
+    // F = [F0, diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x8), diff(F0,x8,x8)];
+    F = map(odiff_act,StdMon,F0,X);
+    printf("F=%a\n",F);
+    InitVal = base_replace(F, assoc(X,X0));
+    printf("InitVal=%a\n",InitVal);
+
+    Line = [ContiDir, Beta, Z];
+
+    Zvalues=[]; Data=[];
+    for (I=Start; I<=NN; I += Step) {
+      T0=time();
+      Val = hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,0,I); 
+      printf("Step=%a, Val = %a\n", I,Val);
+      T1=time();
+      Ttime = T1[0]-T0[0]+T1[1]-T0[1];
+      printf("I=%a, CPU=%a, GC=%a, Total=%a\n",I,T1[0]-T0[0],T1[1]-T0[1],Ttime);
+      printf("Value=%a\n",Val);
+      Zvalues=cons(Val[0],Zvalues);
+      Data=cons([I,Ttime],Data);
+    }
+    ForPaper_data2=[reverse(Zvalues),reverse(Data)];
+    printf("Options: start=%a, nn=%a, step=%a\n",Start,NN,Step); 
+    return Val;
+}
+
+/* 2015.02.02.
+    下記は変. 意外とむつかしい. 直接計算した方が簡単.
+ */
+def test_222_conti() {
+    if (type(getopt(start))>=0) Start=getopt(start);
+    else Start=0;
+    if (type(getopt(step))>=0) Step=getopt(step);
+    else Step=1;
+    if (type(getopt(nn))>=0) NN=getopt(nn);
+    else NN=1;
+    if (type(getopt(p))>=0) X0=getopt(p);
+    else X0=[1,1/2,1/3,
+             1,2/3,1/5,
+             1,1,1];
+
+    printf("Options: start=%a, nn=%a, step=%a\n",Start,NN,Step); 
+    A=tk_hgpoly.contingency3(2,2,2);  // この A は 余分な行あり.
+    // StdMon=reverse(cbase(A));  // 1 を戻す. 余分な行があるため.
+    StdMon=[dx2*dx3*dx5*dx8];  // mytoric(A,0); よりの手動.
+    printf("StdMon=%a\n",StdMon);
+    Data=[19,132,0,9,11,52,6,97];  /* Dinwoodie, Matsusevich, Mosteig, 2004 p.293 Example 3.2 */
+    Beta=matrix_list_to_matrix(A)*newvect(length(Data),Data);
+    Beta = vtol(Beta);
+    return(Beta);
+    ContiDir = 4; 
+   /* A の第 ContiDir 列, ここでは、[0,0,1,0,0,0,1,0,1,0,0,0] 
+        これでいいのか? まだ途中. Todo, 分解が必要だと思う.
+   */
+    Z = n;
+    X  = [x1,x2,x3,x4,x5,x6,x7,x8];
+    X_  = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8];
+   
+    F0=base_replace(tk_hgpoly.hgpoly(A,Beta)[0],assoc(X_,X));
+    printf("F0=%a\n",F0);
+
+    // F = [F0, diff(F0,x5), diff(F0,x6), diff(F0,x7), diff(F0,x8), diff(F0,x8,x8)];
+    F = map(odiff_act,StdMon,F0,X);
+    printf("F=%a\n",F);
+    InitVal = base_replace(F, assoc(X,X0));
+    printf("InitVal=%a\n",InitVal);
+
+    Line = [ContiDir, Beta, Z];
+
+    Zvalues=[]; Data=[];
+    for (I=Start; I<=NN; I += Step) {
+      T0=time();
+      Val = hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,0,I); 
+      printf("Step=%a, Val = %a\n", I,Val);
+      T1=time();
+      Ttime = T1[0]-T0[0]+T1[1]-T0[1];
+      printf("I=%a, CPU=%a, GC=%a, Total=%a\n",I,T1[0]-T0[0],T1[1]-T0[1],Ttime);
+      printf("Value=%a\n",Val);
+      Zvalues=cons(Val[0],Zvalues);
+      Data=cons([I,Ttime],Data);
+    }
+    ForPaper_data2=[reverse(Zvalues),reverse(Data)];
+    printf("Options: start=%a, nn=%a, step=%a\n",Start,NN,Step); 
+    return Val;
+}
+
+/* 2015.02.21 */
+def myAddD(X) {
+  return(eval_str("d"+rtostr(X)));
+}
+/*
+hypergeometric bfunction defined by Mutsumi Saito
+for the direction Idx = 0,1,2, ...
+ */
+def hg_bfct(A,Idx) {
+  D = length(A);
+  N = length(A[0]);
+  Svec = newvect(D);
+  DSvec = newvect(D);
+  for (I=0; I<D; I++) {
+    Svec[I] = util_v(b,[I+1]);
+    DSvec[I] = util_v(db,[I+1]);
+  }
+  MSvec = vtol(-Svec); Svec=vtol(Svec);
+  DSvec = vtol(DSvec);
+  H = tk_sm1emu.gkz([A,MSvec]);
+  V = H[1];
+  DV = map(myAddD,V);
+  VV = append(V,Svec);
+  DVV = append(DV,DSvec);
+  W = newvect(2*(N+D));
+  for (I=0; I<2*(N+D); I++) W[I]=1;
+  for (I=N; I<(N+D); I++) W[I]=0;
+  M = poly_weight_to_omatrix(vtol(W),append(VV,DVV));
+  //  print(M);
+  B = nd_weyl_gr(cons(DV[Idx],H[0]),append(VV,DVV),0,M);
+  //  print(B);
+  Bf = poly_elimination_ideal(B,Svec | grobner_basis=1);
+  return(Bf);
+}
+/*
+G=tk_sm1emu.gkz([ [[1,1,1],[0,1,2]], [-s1,-s2]]);
+M=poly_weight_to_omatrix([1,1,1,0,0,1,1,1,1,1],[x1,x2,x3,s1,s2,dx1,dx2,dx3,ds1,ds2]);
+[ 1 1 1 0 0 1 1 1 1 1 ]
+[ 1 1 1 1 1 1 1 1 1 1 ]
+[ 0 0 0 0 0 0 0 0 0 -1 ]
+[ 0 0 0 0 0 0 0 0 -1 0 ]
+[ 0 0 0 0 0 0 0 -1 0 0 ]
+[ 0 0 0 0 0 0 -1 0 0 0 ]
+[ 0 0 0 0 0 -1 0 0 0 0 ]
+[ 0 0 0 0 -1 0 0 0 0 0 ]
+[ 0 0 0 -1 0 0 0 0 0 0 ]
+[ 0 0 -1 0 0 0 0 0 0 0 ]
+[ 0 -1 0 0 0 0 0 0 0 0 ]
+[ -1 0 0 0 0 0 0 0 0 0 ]
+[2361] B=nd_weyl_gr(cons(dx1,G[0]),[x1,x2,x3,s1,s2,dx1,dx2,dx3,ds1,ds2],0,M);
+[-4*s1^2+(4*s2+2)*s1-s2^2-s2,dx1,2*dx2*s1-dx2*s2-dx2,dx3*x3+s1-s2,dx2^2,dx2*x2-2*s1+s2]
+[2362] B[0];
+-4*s1^2+(4*s2+2)*s1-s2^2-s2
+[2363] fctr(B[0]);
+[[-1,1],[2*s1-s2,1],[2*s1-s2-1,1]]
+ */
+
+def testbfct111() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  Blist=[];
+  for (I=0; I<length(A[0]); I++) {
+    Bf = hg_bfct(A,I);
+    printf("%a : bfct=%a\n",I,Bf);
+    Blist = cons(Bf,Blist);
+  }
+  return(reverse(Blist));
+}
+
+/* construct hg polynomial by a basis of  Ker A */
+def toric_in(A) {
+  W=[[dx1, 1]]; /* dummy */
+  T0=mytoric(A,W);
+  E=T0[0];
+  T=T0[1];
+  V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
+  Gt=nd_gr(T,Vd,0,0);
+  dp_ord(0); /* rev lex */
+  T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  return([T2,E,V,Vb]);
+}
+/*
+   In = toric_in([[1,1,1,1],[0,1,2,3]]);
+*/
+def distraction(F) {
+  if (type(F) > 3) return(map(distraction,F));
+  V = vars(F);
+  for (I=0; I<length(V); I++) F = distraction0(F,V[I]);
+  return(F);
+}
+def lfac(V,I) {
+  if (I == 0) return(1);
+  Ans=1;
+  for (J=0; J<I; J++) {
+    Ans = Ans*(V-J);
+  }
+  return(Ans);
+}
+def distraction0(F,V) {
+  Ans = 0;
+  N = deg(F,V);
+  for (I=0; I<=N; I++) {
+    Ans = coef(F,I,V)*lfac(V,I);
+  }
+}
+
+/*
+   In = toric_in([[1,1,1,1],[0,1,2,3]]);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],[4,7]));
+   L = base_replace(L,assoc(In[2],[1,1,1,1]));
+
+   Tdecomp = primadec(In[0],DV);   
+   D=Tdecomp[0][0];  Base=Tdecomp[0][1];
+   Es = primadec(append(D,L),DV);
+
+   poly_solve_linear(Es[1][1],DV);  --> all cooridnates are in N_0
+   construct series solution.
+*/
+
+def teststartc111() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  In = toric_in(A);
+  One = newvect(length(A[0]));
+  for (I=0; I<length(A[0]); I++) One[I] = 1;
+  One = vtol(One);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],[40,7,10,15]));
+   /* [4,7,10,15] is not feasible. Interesting case. Study later. */ 
+   L = base_replace(L,assoc(In[2],One));
+
+   Tdecomp = primadec(In[0],DV);   
+   printf("Tdecomp=%a\n",Tdecomp);
+   for (I=0; I<length(Tdecomp); I++) {
+     D=Tdecomp[I][0];  Base=Tdecomp[I][1];
+     Es = primadec(append(D,L),DV); 
+     for (J=0; J<length(Es); J++) {
+       E=poly_solve_linear(Es[J][1],DV);
+       printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+     }
+   }
+}
+
+/* 2015.02.22 8:37 */
+def isNonNegativeIntegerVector(E) {
+  // E=[[dx1,25],[dx2,0],[dx3,0],[dx4,5],[dx5,0],[dx6,0],[dx7,3],[dx8,7]]
+  N = length(E);
+  for (I=0; I<N; I++) {
+    if  (type(E[I][1]) >=2) return(0);
+    if  ( !number_is_integer(E[I][1])) return(0);
+    if (E[I][1] < 0) return(0);
+  }
+  return(1);
+}
+def  hgpoly_start(A,B) {
+  In = toric_in(A);
+  One = newvect(length(A[0]));
+  for (I=0; I<length(A[0]); I++) One[I] = 1;
+  One = vtol(One);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],B));
+   L = base_replace(L,assoc(In[2],One));
+
+   Tdecomp = primadec(In[0],DV);   
+   //   printf("Tdecomp=%a\n",Tdecomp);
+   for (I=0; I<length(Tdecomp); I++) {
+     D=Tdecomp[I][0];  Base=Tdecomp[I][1];
+     Es = primadec(append(D,L),DV);
+     for (J=0; J<length(Es); J++) {
+       Found=0;
+       E=poly_solve_linear(Es[J][1],DV);
+       //printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+       if (isNonNegativeIntegerVector(E)) {
+	 Found=1;
+	 break;
+       }
+     }
+     if (Found) break;
+   }
+   if (!Found) {
+     printf("No integral starting point.\n");
+     return(0);
+   }
+   printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+   Bindex=[];
+   for (I=0; I<length(Base); I++) {
+     Pos=base_position(Base[I],DV);
+     if (Pos>=0) Bindex=cons(Pos, Bindex);
+   }
+   Mstart=base_replace(DV,E);
+   Bindex=qsort(Bindex);
+   D = length(A); N = length(A[0]);
+   Amat=newmat(D,N,A);
+   Bmat=matrix_transpose(matrix_submatrix(matrix_transpose(Amat),Bindex));
+   return([Mstart,Amat,Bmat,Bindex,V]);
+}
+
+def teststartc111b() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  B = [40,7,10,15];
+  In = toric_in(A);
+  //  return(hgpoly_start(A,B));
+  return(hgpoly(A,B));
+}
+
+def base_subset_by_index(S,Idx) {
+  A = newvect(length(Idx));
+  for (I=0; I<length(Idx); I++) {
+    A[I] = S[Idx[I]];
+  }
+  return(vtol(A));
+}
+def nextKset(Klen,Kset) {
+  if  (Kset==0 ) {
+    return([vtol(newvect(Klen))]);
+  }
+  K=Kset[0];
+  Deg=base_sum(K,0,0,Klen-1);
+  Next=[];
+  for (I=0; I<length(Kset); I++) {
+     K=newvect(Klen,Kset[I]);
+  }
+}
+def hgpoly(A,B) {
+  S=hgpoly_start(A,B);
+  if (S == 0) {
+    return(0);
+  }
+  Mstart=S[0]; Amat=S[1]; Bmat=S[2]; Idind=S[3];  /* ind = independent */
+  Vorig=S[4];
+  N = length(Vorig);  D=length(B);
+  Idall = newvect(N); V=newvect(N);
+  for (I=0; I<N; I++) {Idall[I]=I; V[I] = util_v(x,[I]);}
+  Idall = vtol(Idall); V=vtol(V);
+  Iddep=base_set_minus(Idall,Idind);  /* dep = dependent */
+  Eq=Amat*newvect(N,V)-newvect(D,B);
+  Eq=vtol(Eq);
+  Vdep=base_subset_by_index(V,Iddep);
+  Vind=base_subset_by_index(V,Idind);
+  Rule = poly_solve_linear(Eq,Vdep);
+}
 end$
