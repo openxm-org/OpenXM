@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.3 2014/12/20 12:16:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.4 2015/02/23 00:24:43 takayama Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -50,10 +50,15 @@ localf base_subset_by_index$
 localf kset$
 localf multifac$
 localf hgpolyk$
+localf hgpolyk_v1$
 localf testpolyc111$
 localf upperBoundOfDegree$
 localf facByTable$
 localf assert_hgpolyk_1$
+localf xpower$
+localf dfac0$
+localf dfac$
+localf assert_hgpolyk_2$
 #endif
 
 /* 2014.07.09  sst.ps (sst-ip.ps) 
@@ -464,7 +469,7 @@ def  hgpoly_start(A,B) {
      if (Found) break;
    }
    if (!Found) {
-     printf("No integral starting point.\n");
+     printf("No integral starting point, but there might exists hg poly (Todo).\n");
      return(0);
    }
    printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
@@ -526,6 +531,17 @@ def multifac(K) {
 
 /* hgpolyk by a basis of Ker A. It returns distributed polynomial. 
     factorials are evaluated from scratch, (then it is less efficient).
+
+   Todo,
+   The case  A=[[1,1,1],[0,1,2]]; B=[3,3,3]; has not been implemented.
+    hgpoly_start(A,B|verbose=1); returns fractional exponents.
+    B=A*[p,0,q] case is fine.
+
+    Example:
+    A=[[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]];
+    tk_hgpoly.hgpolyk(A,[9,3,3,4]|verbose=1);
+
+    tk_hgpoly.hgpolyk(A,[9,3,3,4]|std=[1,dx5,dx6],x=[1,1/2,1/3,1,1,1]);
 */
 def hgpolyk(A,B) {
   Approx=-1;
@@ -538,6 +554,80 @@ def hgpolyk(A,B) {
     printf("Error: the upper bound of the degree cannot be determined automatically. Give it by the approx=m option\n");
     return(0);
   }
+  if (type(getopt(verbose)) >0) Verbose=getopt(verbose); else Verbose=0;
+  if (type(getopt(x)) >0) X=getopt(x);  else X=0;
+  if (type(getopt(std))>0) Std=getopt(std); else Std=[newvect(length(A[0]))];
+
+  S=hgpoly_start(A,B);
+  if (S == 0) {
+    return(0);
+  }
+  Mstart=S[0]; Amat=S[1]; Bmat=S[2]; Idind=S[3];  /* ind = independent */
+  Vorig=S[4];
+
+  Std = matrix_list_to_matrix(Std);
+  Dvars = add_d(Vorig);
+  if (Verbose) printf("Dvars=%a\n",Dvars);
+  for (I=0; I<length(Std); I++) {
+    if (type(Std[I])<4) {
+      Std[I] = dp_etov(dp_ptod(Std[I],Dvars));
+    }
+    Std[I] = matrix_list_to_matrix(Std[I]);
+  }
+  if (Verbose) printf("Std=%a\n",Std);
+
+  N = length(Vorig);  D=length(B);
+  Idall = newvect(N); V=newvect(N);
+  for (I=0; I<N; I++) {Idall[I]=I; V[I] = util_v(x,[I]);}
+  Idall = vtol(Idall); V=vtol(V);
+  Iddep=base_set_minus(Idall,Idind);  /* dep = dependent */
+  Eq=Amat*newvect(N,V)-newvect(D,B);
+  Eq=vtol(Eq);
+  Vdep=base_subset_by_index(V,Iddep);
+  Vind=base_subset_by_index(V,Idind);
+  Rule = poly_solve_linear(Eq,Vdep);
+  Zvalue = newvect(length(Std));
+  for (I=0; I<=Approx; I++) {
+    K = kset(length(Vind),I);
+    while (K != 0) {
+       U0 = vtol(dp_etov(dp_ht(K))); K = dp_rest(K);
+       U = base_replace_n(base_replace(V,Rule),assoc(Vind,U0));
+       if (isNonNegativeIntegerVector0(U)) {
+         if (Verbose) printf("U=%a\n",U);	 
+         U = newvect(N,U);
+         C = multifac(U);
+         for (J=0; J<length(Std); J++) {
+           if (C != 0) {
+             Cj=1/C;
+             Diff = Std[J];
+             Cj = Cj*dfac(U,Diff);
+             if (X != 0) {
+               Zvalue[J] =  Zvalue[J]+Cj*xpower(X,U-Diff);
+             }else {
+               Zvalue[J] =  Zvalue[J]+Cj*dp_vtoe(U-Diff);
+             }
+           }
+         }
+       }
+    }
+  }
+  if  (length(Zvalue)==1) return(Zvalue[0]);
+  else return(vtol(Zvalue));
+}
+
+def hgpolyk_v1(A,B) {
+  Approx=-1;
+  if (type(getopt(approx)) <0) {
+    Approx=upperBoundOfDegree(A,B);
+  }else {
+    Approx=getopt(approx);
+  }
+  if (Approx < 0) {
+    printf("Error: the upper bound of the degree cannot be determined automatically. Give it by the approx=m option\n");
+    return(0);
+  }
+  if (type(getopt(x)) >0) X=getopt(x);  else X=0;
+  if (type(getopt(std))>0) Std=getopt(std); else Std=0;
   S=hgpoly_start(A,B);
   if (S == 0) {
     return(0);
@@ -562,7 +652,11 @@ def hgpolyk(A,B) {
        U = base_replace_n(base_replace(V,Rule),assoc(Vind,U0));
        if (isNonNegativeIntegerVector0(U)) {
          C = multifac(U);
-         if (C != 0) F =  F+(1/C)*dp_vtoe(newvect(N,U));
+         if (X != 0) {
+           if (C != 0) F =  F+(1/C)*xpower(X,U);
+         }else {
+           if (C != 0) F =  F+(1/C)*dp_vtoe(newvect(N,U));
+         }
        }
     }
   }
@@ -638,6 +732,53 @@ def assert_hgpolyk_1() {
 	   [C-1-B[0]-B[1],C-1-A,-B[0],-B[1]]);
   G=dp_dtop(G,[x1,x2,x3,x4,x5,x6]);
   printf("2x3, F-G=%a\n",F-G);
+}
+
+/* 2015.02.23, 15:41 */
+def xpower(X,U) {
+  N = length(X);
+  C=1;
+  for (I=0; I<N; I++) {
+    C = C*X[I]^U[I];
+  }
+  return(C);
+}
+
+def dfac0(U,D) {
+  Dfac=1;
+  for (I=0; I<D; I++) {
+    Dfac = Dfac*(U-I);
+  }
+  return(Dfac);
+}
+def dfac(U,Diff) {
+  Dfac=1;
+  N=length(U);
+  for (I=0; I<N; I++) Dfac=Dfac*dfac0(U[I],Diff[I]);
+  return(Dfac);
+}
+
+def assert_hgpolyk_2() {
+  A=-7; B=[-4,-5]; C=3; 
+  V=[x1,x2,x3,x4,x5,x6];
+  F=tk_fd.fdah(A,B,C,[[x1,x2,x3],[x4,x5,x6]] | approx=7);
+  F=F[0]*F[3];
+  G=hgpolyk([[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+	   [C-1-B[0]-B[1],C-1-A,-B[0],-B[1]]);
+  G=dp_dtop(G,V);
+  printf("2x3, F-G=%a\n",F-G);
+
+  G=hgpolyk([[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+	    [C-1-B[0]-B[1],C-1-A,-B[0],-B[1]] | std=[dx5,dx5^2,dx6], x=V);
+  H=[diff(F,x5)-G[0],diff(diff(F,x5),x5)-G[1],diff(F,x6)-G[2]];
+  printf("differential->%a\n",H);
+
+  Xval=[1,1/2,1/3,1,1,1];
+  G=hgpolyk([[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+	    [C-1-B[0]-B[1],C-1-A,-B[0],-B[1]] | std=[dx5,dx5^2,dx6], x=Xval);
+  H=[diff(F,x5)-G[0],diff(diff(F,x5),x5)-G[1],diff(F,x6)-G[2]];
+  H=base_replace(H,assoc(V,Xval));
+  printf("differential by num->%a\n",H);
 }
 
 #if  !USE_MODULE
