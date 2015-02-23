@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.4 2015/02/23 00:24:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.5 2015/02/23 07:51:02 takayama Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -452,7 +452,7 @@ def  hgpoly_start(A,B) {
    L = base_replace(In[1],assoc(In[3],B));
    L = base_replace(L,assoc(In[2],One));
 
-   Tdecomp = primadec(In[0],DV);   
+   Tdecomp = primadec(distraction(In[0]),DV);   
    if (Verbose)   printf("Tdecomp=%a\n",Tdecomp);
    for (I=0; I<length(Tdecomp); I++) {
      D=Tdecomp[I][0];  Base=Tdecomp[I][1];
@@ -475,7 +475,7 @@ def  hgpoly_start(A,B) {
    printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
    Bindex=[];
    for (I=0; I<length(Base); I++) {
-     Pos=base_position(Base[I],DV);
+     Pos=base_position(vars(Base[I])[0],DV);
      if (Pos>=0) Bindex=cons(Pos, Bindex);
    }
    Mstart=base_replace(DV,E);
@@ -532,8 +532,8 @@ def multifac(K) {
 /* hgpolyk by a basis of Ker A. It returns distributed polynomial. 
     factorials are evaluated from scratch, (then it is less efficient).
 
-   Todo,
-   The case  A=[[1,1,1],[0,1,2]]; B=[3,3,3]; has not been implemented.
+   The case  A=[[1,1,1],[0,1,2]]; B=[3,3]; has not been implemented.
+   --> Fixed. 2015.02.24.
     hgpoly_start(A,B|verbose=1); returns fractional exponents.
     B=A*[p,0,q] case is fine.
 
