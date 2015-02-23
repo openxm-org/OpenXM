@@ -1,17 +1,29 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.2 2014/12/13 05:20:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.3 2014/12/20 12:16:10 takayama Exp $ */
+/* Developed in h-mle/A-hg2/Prog */
+
 #define USE_MODULE 1
 import("names.rr")$
 import("nk_toric.rr")$
 import("ok_diff.rr")$  
 import("taka_diffop.rr")$ 
+/*  import("ot_hgm_ahg.rr"); by hand. mytoric() is called. */
+/*  To debug this file, 
+  import("tk_fd.rr");
+  import("ot_hgm_ahg.rr");
+and load this file.
+*/
 
 #if  !USE_MODULE
 extern P_A$
 extern P_B$
+extern TableOfFac$
+extern TableOfFacSize$
 #else
 module tk_hgpoly;
 static P_A$
 static P_B$
+static TableOfFac$
+static TableOfFacSize$
 localf hgpoly$
 localf check20$
 localf check21$
@@ -25,6 +37,23 @@ localf testip1$
 localf testip2$
 localf expectation$
 localf test_exp1$
+localf toric_in$
+localf lfac$
+localf distraction0$
+localf distraction$
+localf teststartc111$
+localf isNonNegativeIntegerVector$
+localf isNonNegativeIntegerVector0$
+localf hgpoly_start$
+localf teststartc111b$
+localf base_subset_by_index$
+localf kset$
+localf multifac$
+localf hgpolyk$
+localf testpolyc111$
+localf upperBoundOfDegree$
+localf facByTable$
+localf assert_hgpolyk_1$
 #endif
 
 /* 2014.07.09  sst.ps (sst-ip.ps) 
@@ -308,6 +337,309 @@ def test_exp1() {
   E10 = expectation(A,B,base_flatten(X),[x_4,x_5,x_6]);
   printf("E10=%a\n",E10);
 }
+
+/* construct hg polynomial by a basis of  Ker A */
+def toric_in(A) {
+  W=[[dx1, 1]]; /* dummy */
+  T0=mytoric(A,W);
+  E=T0[0];
+  T=T0[1];
+  V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
+  Gt=nd_gr(T,Vd,0,0);
+  dp_ord(0); /* rev lex */
+  T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  return([T2,E,V,Vb]);
+}
+/*
+   In = toric_in([[1,1,1,1],[0,1,2,3]]);
+*/
+def distraction(F) {
+  if (type(F) > 3) return(map(distraction,F));
+  V = vars(F);
+  for (I=0; I<length(V); I++) F = distraction0(F,V[I]);
+  return(F);
+}
+def lfac(V,I) {
+  if (I == 0) return(1);
+  Ans=1;
+  for (J=0; J<I; J++) {
+    Ans = Ans*(V-J);
+  }
+  return(Ans);
+}
+def distraction0(F,V) {
+  Ans = 0;
+  N = deg(F,V);
+  for (I=0; I<=N; I++) {
+    Ans = coef(F,I,V)*lfac(V,I);
+  }
+}
+
+/*
+   In = toric_in([[1,1,1,1],[0,1,2,3]]);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],[4,7]));
+   L = base_replace(L,assoc(In[2],[1,1,1,1]));
+
+   Tdecomp = primadec(In[0],DV);   
+   D=Tdecomp[0][0];  Base=Tdecomp[0][1];
+   Es = primadec(append(D,L),DV);
+
+   poly_solve_linear(Es[1][1],DV);  --> all cooridnates are in N_0
+   construct series solution.
+*/
+
+def teststartc111() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  In = toric_in(A);
+  One = newvect(length(A[0]));
+  for (I=0; I<length(A[0]); I++) One[I] = 1;
+  One = vtol(One);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],[40,7,10,15]));
+   /* [4,7,10,15] is not feasible. Interesting case. Study later. */ 
+   L = base_replace(L,assoc(In[2],One));
+
+   Tdecomp = primadec(In[0],DV);   
+   printf("Tdecomp=%a\n",Tdecomp);
+   for (I=0; I<length(Tdecomp); I++) {
+     D=Tdecomp[I][0];  Base=Tdecomp[I][1];
+     Es = primadec(append(D,L),DV); 
+     for (J=0; J<length(Es); J++) {
+       E=poly_solve_linear(Es[J][1],DV);
+       printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+     }
+   }
+}
+
+/* 2015.02.22 8:37 */
+def isNonNegativeIntegerVector(E) {
+  // E=[[dx1,25],[dx2,0],[dx3,0],[dx4,5],[dx5,0],[dx6,0],[dx7,3],[dx8,7]]
+  N = length(E);
+  for (I=0; I<N; I++) {
+    if  (type(E[I][1]) >=2) return(0);
+    if  ( !number_is_integer(E[I][1])) return(0);
+    if (E[I][1] < 0) return(0);
+  }
+  return(1);
+}
+def isNonNegativeIntegerVector0(E) {
+  N = length(E);
+  for (I=0; I<N; I++) {
+    if  (type(E[I]) >=2) return(0);
+    if  ( !number_is_integer(E[I])) return(0);
+    if (E[I] < 0) return(0);
+  }
+  return(1);
+}
+def  hgpoly_start(A,B) {
+  if (type(getopt(verbose))>=0) Verbose=getopt(verbose);
+  else Verbose=0;
+  In = toric_in(A);
+  if (Verbose) printf("Initial=%a\n",In);
+  One = newvect(length(A[0]));
+  for (I=0; I<length(A[0]); I++) One[I] = 1;
+  One = vtol(One);
+   V = In[2];  DV=tk_sm1emu.add_d(V);
+   L = base_replace(In[1],assoc(In[3],B));
+   L = base_replace(L,assoc(In[2],One));
+
+   Tdecomp = primadec(In[0],DV);   
+   if (Verbose)   printf("Tdecomp=%a\n",Tdecomp);
+   for (I=0; I<length(Tdecomp); I++) {
+     D=Tdecomp[I][0];  Base=Tdecomp[I][1];
+     Es = primadec(append(D,L),DV);
+     for (J=0; J<length(Es); J++) {
+       Found=0;
+       E=poly_solve_linear(Es[J][1],DV);
+       if (Verbose) printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+       if (isNonNegativeIntegerVector(E)) {
+	 Found=1;
+	 break;
+       }
+     }
+     if (Found) break;
+   }
+   if (!Found) {
+     printf("No integral starting point.\n");
+     return(0);
+   }
+   printf("(I,J)=(%a,%a),Base=%a, E=%a\n",I,J,Base,E);
+   Bindex=[];
+   for (I=0; I<length(Base); I++) {
+     Pos=base_position(Base[I],DV);
+     if (Pos>=0) Bindex=cons(Pos, Bindex);
+   }
+   Mstart=base_replace(DV,E);
+   Bindex=qsort(Bindex);
+   D = length(A); N = length(A[0]);
+   Amat=newmat(D,N,A);
+   Bmat=matrix_transpose(matrix_submatrix(matrix_transpose(Amat),Bindex));
+   return([Mstart,Amat,Bmat,Bindex,V]);
+}
+
+def teststartc111b() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  B = [40,7,10,15];
+  In = toric_in(A);
+  //  return(hgpoly_start(A,B));
+  return(hgpolyk(A,B));
+}
+
+def base_subset_by_index(S,Idx) {
+  A = newvect(length(Idx));
+  for (I=0; I<length(Idx); I++) {
+    A[I] = S[Idx[I]];
+  }
+  return(vtol(A));
+}
+
+/*
+   cf. fd in tk_fd.rr 
+ */
+def kset(N,Deg) {
+  for (I=0; I<N; I++) {
+    M=newvect(N); M[I]=1;
+    F = F+dp_vtoe(M);
+  } 
+  E=dp_vtoe(newvect(N));
+  for (I=0; I<Deg; I++) {
+    E = E*F;
+  }
+  return(E);
+}
+/* defined in c111c-ser.rr */
+def multifac(K) {
+  F=1;
+  for (I=0; I<length(K); I++) {
+    F = F*facByTable(K[I]);
+    if (F == 0) return(F);
+  }
+  return(F);
+}
+
+/* hgpolyk by a basis of Ker A. It returns distributed polynomial. 
+    factorials are evaluated from scratch, (then it is less efficient).
+*/
+def hgpolyk(A,B) {
+  Approx=-1;
+  if (type(getopt(approx)) <0) {
+    Approx=upperBoundOfDegree(A,B);
+  }else {
+    Approx=getopt(approx);
+  }
+  if (Approx < 0) {
+    printf("Error: the upper bound of the degree cannot be determined automatically. Give it by the approx=m option\n");
+    return(0);
+  }
+  S=hgpoly_start(A,B);
+  if (S == 0) {
+    return(0);
+  }
+  Mstart=S[0]; Amat=S[1]; Bmat=S[2]; Idind=S[3];  /* ind = independent */
+  Vorig=S[4];
+  N = length(Vorig);  D=length(B);
+  Idall = newvect(N); V=newvect(N);
+  for (I=0; I<N; I++) {Idall[I]=I; V[I] = util_v(x,[I]);}
+  Idall = vtol(Idall); V=vtol(V);
+  Iddep=base_set_minus(Idall,Idind);  /* dep = dependent */
+  Eq=Amat*newvect(N,V)-newvect(D,B);
+  Eq=vtol(Eq);
+  Vdep=base_subset_by_index(V,Iddep);
+  Vind=base_subset_by_index(V,Idind);
+  Rule = poly_solve_linear(Eq,Vdep);
+  F=0;
+  for (I=0; I<=Approx; I++) {
+    K = kset(length(Vind),I);
+    while (K != 0) {
+       U0 = vtol(dp_etov(dp_ht(K))); K = dp_rest(K);
+       U = base_replace_n(base_replace(V,Rule),assoc(Vind,U0));
+       if (isNonNegativeIntegerVector0(U)) {
+         C = multifac(U);
+         if (C != 0) F =  F+(1/C)*dp_vtoe(newvect(N,U));
+       }
+    }
+  }
+  return(F);
+}
+
+def testpolyc111() {
+  A = [[1,1,1,1,1,1,1,1],
+     [0,1,0,0,1,1,0,1],
+     [0,0,1,0,1,0,1,1],
+     [0,0,0,1,0,1,1,1]];
+  //  B = [40,7,10,15];
+  B=[16,8,8,8];
+  return(hgpolyk(A,B));
+}
+
+/* 2015.02.23, 6:15 */
+def upperBoundOfDegree(A,B) {
+  D=length(A); N=length(A[0]);
+  /* Two heuristic upper bound */
+  for (I=0; I<D; I++) {
+    Found=1;
+    for (J=0; J<N; J++) {
+      if (A[I][J] <= 0) { Found=0; break; }
+    }
+    if (Found) return(B[I]);
+  }
+  /*  */  
+  Found = 1;
+  for (J=0; J<N; J++) {
+    S=0;
+    for (I=0; I<D; I++) {
+      S += A[I][J];
+    }
+    if (S<=0) { Found=0; break; }
+  }
+  if (Found) return(base_sum(B,0,0,length(B)-1));
+  return(-1);
+}
+
+def facByTable(N) {
+  if (TableOfFacSize <=0) {
+     TableOfFacSize=50;
+     TableOfFac=newvect(TableOfFacSize);
+  }
+  if (N<0) return(0);
+  if (N >= TableOfFacSize) {
+    T=newvect(N*2);
+    for (I=0; I<TableOfFacSize; I++) {
+      T[I] = TableOfFac[I];
+    }
+    TableOfFac=T; TableOfFacSize=2*N;
+  }
+  if (TableOfFac[N] <= 0) {
+    TableOfFac[N] = fac(N); 
+  }
+  return(TableOfFac[N]);
+}
+
+/* import("tk_fd.rr"); but it might cause an error. */
+def assert_hgpolyk_1() {
+  A=-5; B=[-6]; C=4; 
+  F=tk_fd.fdah(A,B,C,[[x1,x2],[x3,x4]] | approx=6);
+  F=F[0]*F[3];
+  G=hgpolyk([[0,0,1,1],[1,0,1,0],[0,1,0,1]],[C-1-B[0],C-1-A,-B[0]]);
+  G=dp_dtop(G,[x1,x2,x3,x4]);
+  printf("2x2, F-G=%a\n",F-G);
+
+  A=-7; B=[-4,-5]; C=3; 
+  F=tk_fd.fdah(A,B,C,[[x1,x2,x3],[x4,x5,x6]] | approx=7);
+  F=F[0]*F[3];
+  G=hgpolyk([[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+	   [C-1-B[0]-B[1],C-1-A,-B[0],-B[1]]);
+  G=dp_dtop(G,[x1,x2,x3,x4,x5,x6]);
+  printf("2x3, F-G=%a\n",F-G);
+}
+
 #if  !USE_MODULE
 #else
 endmodule$  // endmodule of tk_hgpoly
