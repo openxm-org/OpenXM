@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.19 2015/02/22 08:04:00 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.20 2015/02/23 00:24:43 takayama Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -18,6 +18,7 @@ import("tk_cc111.rr")$
 import("oh_base.rr")$
 import("oh_number.rr")$
 import("tk_hgpoly.rr")$
+import("yang.rr")$
 
 #include <defs.h>
 
@@ -238,7 +239,7 @@ def get_mat2(A,W,Std,Mset) {
   for (I=0; I<length(G); I++) R[I]=G[I];
   /* G から行列を作る. 右辺は R. */
   Supp = get_support(G,Vd);
-  printf("Support=%a, Std=%a \n",Supp,Std);
+//  printf("Support=%a, Std=%a \n",Supp,Std);
   Supp2 = base_set_minus(Supp,Std);
   /* Supp2 を 縦の index とする行列を作る */
   Disc_Supp2=Supp2; 
@@ -1285,6 +1286,77 @@ def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
     return vtol(Pf);
 }
 
+def find_maxstep(F,V,B,AI,Count) {
+    if(Count<=0) return 0;
+    Rel=assoc(V,B);
+    /* 両端だけ確認 */
+    G=map('car',cdr(fctr(F))); /* 一次式に分解 */
+    G0=map(oh_number.sign,base_replace_n(G,Rel));
+    C=vtol(ltov(B)-(Count-1)*AI);
+    Rel2=assoc(V,C);
+    G1=map(oh_number.sign,base_replace_n(G,Rel2));
+    if(G0==G1) { /* F の全ての因子の符号が一定: 0 を通らない。 */
+        return Count;
+    }
+
+    /* 途中で 0 になる可能性がある場合: 本来は２分探索と組合せるべき */
+    for(I=0; I<Count; I++) {
+        F0=base_replace_n(F,Rel);
+        if(F0==0) {
+            return I;
+        }
+        B=vtol(ltov(B)-AI);
+        Rel=assoc(V,B);
+    }
+    return I;
+}
+
+def find_path(A,B) {
+    Col=length(A[0]);
+    Row=length(A);
+    for(W=[],I=0; I<Col; I++) {
+        W=cons(1,W);
+    } /* W=[1,1,...,1] */
+    U = tk_hgpoly.optip(A,B,W); /* 特異点を考えない、原点までの経路を表わす。 */
+    AA=matrix_list_to_matrix(A);
+    AI=mapat(mat_col,1,AA,oh_base.range(0,Col-1)); /* 列ベクトルの集合 */
+    S=base_var_list(b_,1,Row);
+    Blist=[];
+    for (I=0; I<Col; I++) {
+        Bf = hg_bfct(A,I)[0]; /* b-関数 */
+        Blist = cons(Bf,Blist);
+    }
+    Blist=reverse(Blist); /* 全方向に対する b-関数のリスト */
+
+    U=ltov(U);
+    Path=[];
+    while(1) {
+        Pos=-1; Count=0;
+        for(I=0; I<Col; I++) {
+            T = U[I]>0? find_maxstep(Blist[I],S,B,AI[I],U[I]): 0;
+            if(T>Count) {
+                Count=T; Pos=I;
+            }
+        }
+        if(Pos==-1) { /* どの方向にも進めない。U にない方向を探すべき? */
+            break;
+        }
+        Path=cons([Pos,Count],Path);
+        U[Pos]-=Count;
+        B=vtol(ltov(B)-Count*AI[Pos]);
+    }
+    Path=reverse(Path);
+    return [Path,B];
+}
+
+def apply_stdmon_poly(StdMon,F,V,DV) {
+    yang.define_ring(["partial",V]);
+    S=map(dp_ptod,StdMon,DV);
+    DF=map(yang.action,S,F);
+    yang.pop_ring();
+    return DF;
+}
+
 /* B,X: 具体的な値 */
 def hgm_ahg_evaluation_contiguity(A,B,X) {
     Mode=getopt(verbose);
@@ -1293,26 +1365,35 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
     }
     Col = length(A[0]);
     Row = length(A);
-    for(W=[],I=0; I<Col; I++) {
-        W=cons(1,W);
-    } /* W=[1,1,...,1] */
-    U = tk_hgpoly.optip(A,B,W); /* 経路を表わす */
+    Path = find_path(A,B);  /* 経路を表わす */
+	printf("Path for %a: %a\n",B,Path);
+	
     StdMon=reverse(cbase(A));
     V = base_var_list(x,1,Col);
     DV= add_d(V);
-    Beta=vtol(newvect(Row));                      /* パラメータ [0,0,...,0] */
-    InitVal = base_replace(StdMon,assoc(DV,[0])); /* パラメータ [0,0,...,0] における超幾何多項式とその微分 */
-    Val = InitVal;
+	Beta=Path[1];
+	
+	if (Beta==vtol(newvect(Row))) { 
+		InitVal = base_replace(StdMon,assoc(DV,[0])); /* パラメータ [0,0,...,0] における超幾何多項式とその微分 */
+	}else {
+		HG = tk_hgpoly.hgpolyk(A,Beta); /* 超幾何多項式: 分散表現多項式 */
+		HG = dp_dtop(HG,V);
+		InitVal = apply_stdmon_poly(StdMon,HG,V,DV);
+		InitVal = base_replace(InitVal,assoc(V,X));
+	}
+
+	Val = InitVal;
     At = matrix_transpose(A);
     Z = n;
-    for(I=0; I<Col; I++) {
-        if(U[I]>0) {
-            Dir=I; /* A の第 I 列*/
-            Line = [Dir, Beta, Z];
-            Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,U[I]);
-            Beta = vtol(ltov(Beta) + U[I]*At[I]);
-        }
-    }
+
+	for(Path=reverse(Path[0]); Path!=[]; Path=cdr(Path)) {
+		C=car(Path);
+		Dir=C[0]; /* A の第 C[0] 列*/
+		Line = [Dir, Beta, Z];
+		Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,C[1]);
+		Beta = vtol(ltov(Beta) + C[1]*At[C[0]]);
+	}
+	printf("Beta=%a\n",Beta);
     NC = matrix_inner_product(Val,InitVal);
     return Mode? [NC,Val,StdMon]: NC;
 }
