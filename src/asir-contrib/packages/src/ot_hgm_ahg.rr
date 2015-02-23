@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.20 2015/02/23 00:24:43 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.21 2015/02/23 14:53:56 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1390,7 +1390,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
 		C=car(Path);
 		Dir=C[0]; /* A の第 C[0] 列*/
 		Line = [Dir, Beta, Z];
-		Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,C[1]);
+		Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,C[1] | option_list=getopt());
 		Beta = vtol(ltov(Beta) + C[1]*At[C[0]]);
 	}
 	printf("Beta=%a\n",Beta);
@@ -1516,7 +1516,7 @@ def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
     DP = map(poly_to_operator,RandomVars,V);
     Val = ltov(Val);
     Pos = base_replace(StdMon,assoc(DV,[0])); /* StdMon のうち、1 の位置を表わすベクトル */
-    Mats = hgm_ahg_sylvester_generic(A,StdMon,X,B,DP);
+    Mats = hgm_ahg_sylvester_generic(A,StdMon,X,B,DP | option_list=getopt());
     Mats = base_replace(Mats,assoc(V,X));
     N=length(RandomVars);
     EV=newvect(N);
