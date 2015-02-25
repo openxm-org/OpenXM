@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.5 2014/08/27 02:14:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.6 2014/12/12 08:29:53 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
@@ -18,6 +18,14 @@ def r_d2rat(Y) {
 }
 def r_ahvec(A,B,C,Y) { 
   Y = r_d2rat(Y);
+  Ans=a_ahvec(A,B,C,Y);
+  /*  Fans=map(rtostr,map(tk_fd.tk_number_rattofloat,Ans)); */
+  Fans=map(deval,Ans);
+  Fans = tk_r.asir2r_c(Fans);
+  return Fans;
+}
+
+def a_ahvec(A,B,C,Y) { 
   R=tk_fd.ahvec_abc(A,B,C,Y|all=1);
   Gamma=R[1];
   Der=R[0];
@@ -26,10 +34,7 @@ def r_ahvec(A,B,C,Y) {
   for (I=0; I<length(Der); I++) Der2[I] = Der[I]*Gamma;
   Der2 = vtol(Der2);
   Ans=cons(Z,Der2);
-  /*  Fans=map(rtostr,map(tk_fd.tk_number_rattofloat,Ans)); */
-  Fans=map(deval,Ans);
-  Fans = tk_r.asir2r_c(Fans);
-  return Fans;
+  return(Ans);
 }
 
 /* temporary */
