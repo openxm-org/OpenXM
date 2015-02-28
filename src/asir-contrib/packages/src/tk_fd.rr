@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.13 2014/12/13 12:42:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.14 2014/12/17 00:09:53 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -192,6 +192,9 @@ localf ahvec_beta$
 localf ahvec_abc$
 localf expectation_abc$
 localf abc2ahg$
+localf expectation_abc_orig1$
+localf ahmat_abc$
+localf log_ahmat_abc$
 #endif
 /* Matsumoto, page 3 */
 
@@ -2739,7 +2742,7 @@ def ahvec_abc(A,B,C,X) {
 /*
   It returns [E[U_10], E[U_11], ..., E[U_1m]]
  */
-def expectation_abc(A,B,C,X) {
+def expectation_abc_orig1(A,B,C,X) {
   R=ahvec_abc(A,B,C,X|all=1);
   Gamma=R[1];
   Der=R[0];
@@ -2774,6 +2777,51 @@ def  abc2ahg(A,B,C) {
   return([Amat,vtol(Bvect)]);
 }
 
+/* 2014.02.28 */
+/* [Z, [[d_11 Z, d_12 Z, ....],[d_21 Z, d_22 Z, ...]]] */
+def ahmat_abc(A,B,C,Y) {
+  R=ahvec_abc(A,B,C,Y|all=1);
+  Gamma = R[1];
+  Der = R[0];
+  Z = R[2]*Gamma;
+  /* second row */
+  Der2 = newvect(length(Der));
+  for (I=0; I<length(Der); I++) Der2[I] = Der[I]*Gamma;
+  Mrow = abc2marginal(A,B,C)[1]; /* column marginal sums */
+  /* first row */
+  Der1 = newvect(length(Der));
+  for (I=0; I<length(Der1); I++) {
+    Der1[I] = (Mrow[I]*Z-Y[1][I]*Der2[I])/Y[0][I];
+  }
+  return([Z,[vtol(Der1),vtol(Der2)]]);
+}
+
+/*
+  It returns [[E[U_00], E[U_01], ..., E[U_0m]], 
+                  [E[U_10], E[U_11], ..., E[U_1m]]]
+ */
+def expectation_abc(A,B,C,X) {
+  R=ahmat_abc(A,B,C,X);
+  Z=R[0];
+  DerMat=R[1];
+  M=length(DerMat[0]);
+  DerMat=newmat(2,M,DerMat)/Z;
+  for (I=0; I<2;I++) for (J=0; J<M; J++) DerMat[I][J] = X[I][J]*DerMat[I][J];
+  return(matrix_matrix_to_list(DerMat));
+}
+
+def log_ahmat_abc(A,B,C,X) {
+   R=ahmat_abc(A,B,C,X);
+   Z=R[0];
+   DerMat=R[1];
+   M=length(DerMat[0]);
+   DerMat=newmat(2,M,DerMat)/Z;
+   Z=eval(Z*exp(0));
+   LogZ = eval(log(Z));
+   for (I=0; I<2;I++) for (J=0; J<M; J++) DerMat[I][J] = eval(DerMat[I][J]*exp(0));
+   return([LogZ,matrix_matrix_to_list(DerMat)]);
+  
+}
 
 #if  !USE_MODULE
 setparam(2)$
