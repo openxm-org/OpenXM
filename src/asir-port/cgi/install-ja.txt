@@ -1,5 +1,5 @@
 $Id$
-$OpenXM: OpenXM/src/asir-port/cgi/install-ja.txt,v 1.3 2005/02/27 07:08:11 takayama Exp $
+$OpenXM: OpenXM/src/asir-port/cgi/install-ja.txt,v 1.4 2005/02/27 08:22:56 takayama Exp $
 cgi-asir.sh のインストール方法.
 
 0. cgi を実行可能な apache を用意する.
@@ -82,3 +82,16 @@ httpd のリスタートは必要ない.
 
 注意:  cgi-asir.sh の現在の実装では GET method での実行はうけつけない.
        POST のみ.  Todo: GET の実装 or POST を使えとのエラーメッセージ.
+
+-----
+Note for orange3m  2015.03.01
+
+Check out to
+/private/${HOME}/OpenXM, ...
+Make a link from the cgi directory to here.
+Generate a Makefile to copy OpenXM/src/asir-port/cgi/[cgi-script]
+to the cgi directory.
+  (make update ; make done on orange3m)
+Set OpenXM_HOME properly in the cgi-scripts.
+Set /etc/crontab following OpenXM/src/asir-port/cgi/kill-webasir-server.sh
+
