@@ -1,23 +1,25 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.7 2015/02/25 04:47:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.8 2015/02/28 11:39:13 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
 
 /* r_d2rat(0.3)  --> precision loss in truncation if not ctrl("bigfloat",1) */
 ctrl("bigfloat",1)$
-def r_d2rat(Y) {
-  if ((type(Y) ==4)||(type(Y)==5)||(type(Y)==6)) return map(r_d2rat,Y);
+def r_d2rat(Y,Prec) {
+  if ((type(Y) ==4)||(type(Y)==5)||(type(Y)==6)) return map(r_d2rat,Y,Prec);
   if ((type(Y)  == 1) && (ntype(Y) >= 1)) {
     S = rtostr(Y);  Y = "eval(("+S+")*exp(0));";
     /* print(Y); */
     Y = eval_str(Y);
     /* printf("Y=%a\n",Y); */
     /* return oh_number.rats(Y); */
-    return rats2(Y);  /* temporary  */
+    return rats2(Y | prec=Prec);  /* temporary  */
   }else return Y;
 }
 def r_ahvec(A,B,C,Y) { 
-  Y = r_d2rat(Y);
+  if (type(getopt(prec))<0) Prec=20;
+  else Prec=getopt(prec);
+  Y = r_d2rat(Y,Prec);
   Ans=a_ahvec(A,B,C,Y);
   /*  Fans=map(rtostr,map(tk_fd.tk_number_rattofloat,Ans)); */
   Fans=map(deval,Ans);
@@ -39,12 +41,14 @@ def a_ahvec(A,B,C,Y) {
 
 /* temporary */
 def rats2(X) {
+  if (type(getopt(prec))<0) Prec=20;
+  else Prec=getopt(prec);
   if (X == 0) return 0;
   Sign=1;
   if (X <0) {Sign=-1  ; X = -X;}
   Digit = number_floor(eval(log(X)/log(10)));  
-  Num = number_floor((X/(10^Digit))*10^20);
-  return Sign*(Num/(10^20))*(10^Digit);
+  Num = number_floor((X/(10^Digit))*10^Prec);
+  return Sign*(Num/(10^Prec))*(10^Digit);
 }
 
 def checkrats2() {
@@ -65,7 +69,10 @@ def a_expect(A,B,C,Y) {
   return(E);
 }
 def r_expect(A,B,C,Y) {
-  Y = r_d2rat(Y);
+  if (type(getopt(prec))<0) Prec=20;
+  else Prec=getopt(prec);
+
+  Y = r_d2rat(Y,Prec);
   E=a_expect(A,B,C,Y);
   Fans=map_deval(E);
   Fans = tk_r.asir2r_c(Fans);
@@ -73,7 +80,9 @@ def r_expect(A,B,C,Y) {
 }
 
 def r_ahmat(A,B,C,Y) { 
-  Y = r_d2rat(Y);
+  if (type(getopt(prec))<0) Prec=20;
+  else Prec=getopt(prec);
+  Y = r_d2rat(Y,Prec);
   Ans=a_ahmat(A,B,C,Y);
   Fans=map_deval(Ans);
   Fans = tk_r.asir2r_c(Fans);
@@ -85,7 +94,9 @@ def a_ahmat(A,B,C,Y) {
 }
 
 def r_log_ahmat(A,B,C,Y) { 
-  Y = r_d2rat(Y);
+  if (type(getopt(prec))<0) Prec=20;
+  else Prec=getopt(prec);
+  Y = r_d2rat(Y,Prec);
   Ans=a_log_ahmat(A,B,C,Y);
   Fans=map_deval(Ans);
   Fans = tk_r.asir2r_c(Fans);
