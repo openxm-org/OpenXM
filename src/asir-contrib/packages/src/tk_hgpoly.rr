@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.6 2015/02/23 21:44:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.7 2015/03/05 05:57:06 ohara Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -206,6 +206,7 @@ def cprune(A) {
 
 /* Find a feasible point of AU=B 
     Calls mytoric in ot_hgm_ahg.rr 
+    Returns 0 iff (A,B) is not feasible.
 */
 def feasible(A,B) {
   /* A copy from nk_toric.rr */
@@ -216,7 +217,10 @@ def feasible(A,B) {
     M = length(A);
     N = length(A[0]);
   }
-  if (M != length(B)) error("A and B do not match.");
+  if (M != length(B)) {
+	  if (Verbose) print("A and B do not match.");
+	  return 0;
+  }
 
   /* List of variables VT=[t0, ..., tM],VX=[x1, ..., xN] */
   VT = nk_toric.var_list("t", 0, M);		
@@ -249,7 +253,10 @@ def feasible(A,B) {
   FP = p_true_nf(FF,G,append(VT,VX),Ord)[0];
   if(Verbose) printf("FP=%a\n",FP);
   for (I=0; I<length(VT); I++) {
-    if (base_memberq(VT[I],vars(FP))) debug("Normal form contains t.");
+	  if (base_memberq(VT[I],vars(FP))) {
+		  if(Verbose) print("Normal form contains t.");
+		  return 0;
+	  }
   }
   FPv=dp_ptod(FP,VX);
   FPv=vtol(dp_etov(FPv)); 
