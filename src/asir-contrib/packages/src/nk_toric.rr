@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/nk_toric.rr,v 1.2 2014/03/26 05:25:34 takayama Exp $ */
 module nk_toric;
 
 localf toric_ideal$
@@ -17,6 +17,12 @@ localf l_max$
 localf l_to_p$
 localf test_l_to_p$
 localf in_w_ideal$
+localf verbose$
+static Verbose$
+
+def verbose(F) {
+    Verbose = (F!=0)? 1: 0;
+}
 
 /* Groebner 道場より */
 /* 
@@ -55,12 +61,10 @@ def toric_ideal(A)
 				Minus *= VT[I]^(-A[I][J]);
 		L = cons(VX[J]*Minus - Plus, L);
 	}
-	print("ideal : ");
-	print(L);
+	if(Verbose) printf("ideal : \n%a\n",L);
 	/* t0, ..., tM > x1, ..., xM なる消去順序で GB 計算 */
 	G = nd_gr(L, append(VT, VX), 0, [[0, M + 1], [0, N]]);	
-	print("gb : ");
-	print(G);
+	if(Verbose) printf("gb : \n%a\n",G);
 
 	/* G の各元から 変数 t* を含まないものを取り出す */
 	Id = [];

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.5 2015/02/23 07:51:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.6 2015/02/23 21:44:04 takayama Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -18,12 +18,14 @@ extern P_A$
 extern P_B$
 extern TableOfFac$
 extern TableOfFacSize$
+extern Verbose$
 #else
 module tk_hgpoly;
 static P_A$
 static P_B$
 static TableOfFac$
 static TableOfFacSize$
+static Verbose$
 localf hgpoly$
 localf check20$
 localf check21$
@@ -59,7 +61,12 @@ localf xpower$
 localf dfac0$
 localf dfac$
 localf assert_hgpolyk_2$
+localf verbose$
 #endif
+
+def verbose(F) {
+    Verbose = (F!=0)? 1: 0;
+}
 
 /* 2014.07.09  sst.ps (sst-ip.ps) 
    A must not contain negative number.
@@ -188,7 +195,7 @@ def cprune(A) {
   Size=size(A);
   D=Size[0];
   Rank = matrix_rank(A);
-  printf("Rank=%a\n",Rank);
+  if(Verbose) printf("Rank=%a\n",Rank);
   while (Rank < D) {
     A = reverse(cdr(reverse(matrix_matrix_to_list(A))));
     D--;
@@ -230,19 +237,17 @@ def feasible(A,B) {
 	Minus *= VT[I]^(-A[I][J]);
     L = cons(VX[J]*Minus - Plus, L);
   }
-  print("ideal : ");
-  print(L);
+  if(Verbose) printf("ideal : \n%a\n", L);
   /* Computing GB with the elimination order t0, ..., tM > x1, ..., xM  */
   Ord = [[0, M + 1], [0, N]];
   G = nd_gr(L, append(VT, VX), 0, Ord);
-  print("gb : ");
-  print(G);
+  if(Verbose) printf("gb : \n%a\n", G);
 
   /* Find a feasible point  FPv */
   FF=1;
   for (I=0; I<M; I++) FF *= VT[I]^B[I];
   FP = p_true_nf(FF,G,append(VT,VX),Ord)[0];
-  printf("FP=%a\n",FP);
+  if(Verbose) printf("FP=%a\n",FP);
   for (I=0; I<length(VT); I++) {
     if (base_memberq(VT[I],vars(FP))) debug("Normal form contains t.");
   }
