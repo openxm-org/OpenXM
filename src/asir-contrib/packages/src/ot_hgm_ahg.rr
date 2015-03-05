@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.22 2015/02/23 23:22:40 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.23 2015/02/24 02:44:18 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1201,12 +1201,16 @@ def hgm_ahg_sylvester_generic(A,StdMon,X,Beta,DPolyList) {
 
     W=getopt(w);
     Mset=getopt(mset);
+    Msize=getopt(msize);
 
     if(type(W)<0 || W==[] || W==0) { /* use rev lex order */
         W = [base_flatten(assoc(DV,[1]))];
     }
     if(type(Mset)<0 || Mset==[] || Mset==0) {
-        Mset = reverse(p_terms((1+oh_base.sum(DV))^2,DV,0));
+        if(type(Msize)<0 || Msize<2) {
+            Msize=2;
+        }
+        Mset = reverse(p_terms((1+oh_base.sum(DV))^Msize,DV,0));
     }
 
     Disc_R2=get_mat2(A,W,StdMon,Mset);
@@ -1253,12 +1257,16 @@ def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
 
     W=getopt(w);
     Mset=getopt(mset);
+    Msize=getopt(msize);
 
     if(type(W)<0 || W==[] || W==0) { /* use rev lex order */
         W = [base_flatten(assoc(DV,[1]))];
     }
     if(type(Mset)<0 || Mset==[] || Mset==0) {
-        Mset = reverse(p_terms((1+oh_base.sum(DV))^2,DV,0));
+        if(type(Msize)<0 || Msize<2) {
+            Msize=2;
+        }
+        Mset = reverse(p_terms((1+oh_base.sum(DV))^Msize,DV,0));
     }
 
     Disc_R2=get_mat2(A,W,StdMon,Mset);
@@ -1398,7 +1406,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
     return Mode? [NC,Val,StdMon]: NC;
 }
 
-def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
+def hgm_ahg_contiguity0(A,StdMon,Line,X0,InitVal,Start,End) {
     Mode=getopt(pf);
     if(type(Mode)<0) {
         Mode=0;
@@ -1441,6 +1449,32 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
     return Val;
 }
 
+def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
+    MatA = matrix_list_to_matrix(A);
+
+    // Line == [ContiDir, Beta, Z];  e.g. [0, [1,31,11,6,7], n]
+    ContiDir = Line[0]; Beta = Line[1]; Z = Line[2];
+    BetaZ = vtol(ltov(Beta) + mat_col(MatA,ContiDir)*Z);
+
+    Pf  = hgm_ahg_pfaffian(A,StdMon,X0,BetaZ | option_list=getopt());
+    PfZ = Pf[ContiDir]; // ContiDir 方向に減少する差分パッフィアン
+    if (ForPaper) {
+		printf("PfZ = %a\n in ForPaper_data1\n",PfZ);
+		ForPaper_data1=PfZ;
+    }
+    Val = ltov(InitVal);
+    if(End > Start) { // 増加方向
+        for(I=Start+1; I<=End; I++) {
+            Val = matrix_inverse(base_replace_n(PfZ, [[Z,I]]))*Val;
+        }
+    }else if(End < Start) { // 減少方向
+        for(I=Start; I>End; I--) {
+            Val = base_replace_n(PfZ, [[Z,I]])*Val;
+        }
+    }
+    return Val;
+}
+
 def hgm_ahg_expected_value_contiguity0(A,StdMon,Line,X,InitVal,InitPt,TargetPt,Item) {
     Opts = cons(["base",1],getopt());
     R = hgm_ahg_contiguity(A,StdMon,Line,X,InitVal,InitPt,TargetPt | option_list=Opts);
@@ -1479,6 +1513,8 @@ def array_to_poly(Coef,X) {
 /* replace variables by euler operators */
 /* V: variables, DV: partial diff operators */
 def poly_to_operator(P,V) {
+    Order=dp_ord();
+    dp_ord(0);
     N=length(V);
     Deg=oh_base.max(mapat(deg,1,P,V));
     DV=add_d(V);
@@ -1495,6 +1531,8 @@ def poly_to_operator(P,V) {
         }
         R+=C*M;
     }
+    R=dp_ptod(R,DV);
+    dp_ord(Order);
     return R;
 }
 
@@ -1505,24 +1543,63 @@ def test_poly_to_operator() {
     printf("poly_to_operator:\n  %a ->\n  %a\n",P,DP);
 }
 
+def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
+    Val=ltov(Val);
+    Opts = cons(["base",1],getopt());
+    AA=matrix_list_to_matrix(A);
+    Col=length(A[0]);
+    if(ltov(E)==newvect(Col)) {
+        return Val;
+    }
+    U=0;
+    for(J=0; J<Col; J++) {
+        U += E[J]*mat_col(AA,J);
+    }
+    BB = vtol(ltov(B)-U);
+    printf("BB=%a\n",BB);
+    Feasible=tk_hgpoly.feasible(A,BB);
+    if(Feasible==0) {
+        printf("not feasible\n");
+        return 0;
+    }
+    if(getopt(initval)<0) {
+        // do not use initial value
+        NCVal = hgm_ahg_evaluation_contiguity(A,BB,X | option_list=Opts);
+        Val = NCVal[1];
+        return Val;
+    }
+    for(J=0; J<Col; J++) {
+        if(E[J]!=0) {
+            Line=[J,B,n];
+            printf("Line=%a\n",Line);
+            Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,-E[J] | option_list=Opts);
+            B=vtol(ltov(B)-E[J]*mat_col(AA,J));
+        }
+    }
+    return Val;
+}
+
 def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
     Opts = cons(["base",1],getopt());
     NCVal= hgm_ahg_evaluation_contiguity(A,B,X | option_list=Opts);
     NC = NCVal[0]; Val = NCVal[1]; StdMon = NCVal[2];
-    
+    AA=matrix_list_to_matrix(A);
     Col = length(A[0]);
     V  = base_var_list(x,1,Col);
     DV = add_d(V);
-    DP = map(poly_to_operator,RandomVars,V);
-    Val = ltov(Val);
     Pos = base_replace(StdMon,assoc(DV,[0])); /* StdMon のうち、1 の位置を表わすベクトル */
-    Mats = hgm_ahg_sylvester_generic(A,StdMon,X,B,DP | option_list=getopt());
-    Mats = base_replace(Mats,assoc(V,X));
     N=length(RandomVars);
     EV=newvect(N);
+    InitVal=ltov(Val);
     for(I=0; I<N; I++) {
-        Nm = matrix_inner_product(Mats[I]*Val,Pos);
-        EV[I] = Nm/NC;
+        EVal=0;
+        DP = base_replace(poly_to_operator(RandomVars[I],V),assoc(V,X));
+        for( ; DP!=0; DP=dp_rest(DP)) {
+            HC=dp_hc(DP);
+            E=dp_etov(DP);
+            EVal += HC*hgm_ahg_contiguity_down(A,B,X,StdMon,InitVal,E | option_list=Opts);
+        }
+        EV[I] = (EVal==0)? 0: (1/NC)*matrix_inner_product(Val,Pos);
     }
     return vtol(EV);
 }
@@ -2133,6 +2210,12 @@ def test_fd_conti4() {
     TargetVals = [15200/4939,22480/4939];
     printf("TargetVals=%a\n",TargetVals);
 
+
+    /* 
+	   F=tk_fd.fdah(-3,[-2,-4],3,[[x1,x2,x3],[x4,x5,x6]])[0];
+	   F=(x1^3*x4^2*x5^2+2*x1^2*x2*x4^3*x5+1/2*x1*x2^2*x4^4)*x6^4+(4*x1^2*x3*x4^3*x5^2+4*x1*x2*x3*x4^4*x5)*x6^3+3*x1*x3^2*x4^4*x5^2*x6^2;
+    */
+	
 	Val = hgm_ahg_expected_values_contiguity(A,Beta,X0,RandomVars);
 	printf("RandomVars: %a\n", RandomVars);
 	printf("Val = %a\n", Val);
