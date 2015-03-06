@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.23 2015/02/24 02:44:18 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.24 2015/03/05 14:43:31 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1562,12 +1562,14 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
         printf("not feasible\n");
         return 0;
     }
-    if(getopt(initval)<0) {
+    if(type(getopt(initval))<0) {
         // do not use initial value
         NCVal = hgm_ahg_evaluation_contiguity(A,BB,X | option_list=Opts);
         Val = NCVal[1];
-        return Val;
+		if(StdMon!=NCVal[2]) error("invalid stdmon!");
+		return Val;
     }
+
     for(J=0; J<Col; J++) {
         if(E[J]!=0) {
             Line=[J,B,n];
