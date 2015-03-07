@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.3 2013/12/02 15:39:42 ohara Exp $
+$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows-x64.sjis,v 1.4 2014/12/31 19:55:01 ohara Exp $
 
 Risa/Asir for Windows のビルド方法 (x64 対応)
 
@@ -96,3 +96,14 @@ Visual Studio 2013 からは、古い機能がいくつか既定ではサポートされなくなった。Ris
     Microsoft Windows SDK for Windows 7 and .NET Framework 4 をインストールすること。
     C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include
     にインストールされることを期待している。
+
+付録 C. PARI に対する注意
+
+Risa/Asir は、ライセンスの都合上で古いバージョンの PARI をリンクしている。
+古いバージョンの PARI では、Windows のような LLP64 モデルの 64bit システムは
+考慮されていない。具体的には、ポインタ(64bit)と long 型(32bit)の変換が行われ
+ている。最近の Windows には、ASLR(Address Space Layout Randomization)機構が
+導入されており、32bit を超えるアドレス範囲にメモリが確保される可能性がある。
+これを回避するには、VS2013 では、link.exe のオプションに -dynamicbase:no を
+追加してバイナリを作成する必要がある。
+
