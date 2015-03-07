@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.24 2015/03/05 14:43:31 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.25 2015/03/06 05:26:13 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1601,7 +1601,7 @@ def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
             E=dp_etov(DP);
             EVal += HC*hgm_ahg_contiguity_down(A,B,X,StdMon,InitVal,E | option_list=Opts);
         }
-        EV[I] = (EVal==0)? 0: (1/NC)*matrix_inner_product(Val,Pos);
+        EV[I] = (EVal==0)? 0: (1/NC)*matrix_inner_product(EVal,Pos);
     }
     return vtol(EV);
 }
