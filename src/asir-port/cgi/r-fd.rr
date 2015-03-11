@@ -1,7 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.8 2015/02/28 11:39:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.9 2015/03/01 04:23:15 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
+import("test_hook.rr")$  /* To put overriden functions */
 
 /* r_d2rat(0.3)  --> precision loss in truncation if not ctrl("bigfloat",1) */
 ctrl("bigfloat",1)$

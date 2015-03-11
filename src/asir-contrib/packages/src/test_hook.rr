@@ -1,0 +1,16 @@
+/* $OpenXM$ */
+
+/* 
+   Functions defined in tmp_hook.rr are loaded.
+   The top level should be
+   def util_callfn(Fname,Args) {
+     return(0);
+   }
+*/
+if (which("tmp_hook.rr") != 0) {
+  Fname=which("tmp_hook.rr");
+  printf("Importing %a\n",Fname);
+  import(Fname);
+}else {} $
+
+end$
