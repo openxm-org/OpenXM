@@ -358,6 +358,10 @@ def nd_gbcheck(G,V,P,O)
 	if ( type(Proc) == -1 ) Proc = 0;
 	F4 = getopt(f4);
 	if ( type(F4) == -1 ) F4 = 0;
+	Weight = getopt(weight);
+	if ( type(Weight) == -1 ) Weight = 0;
+  OldWeight = dp_set_weight();
+  dp_set_weight(Weight);
 	/* XXX */
 	S = getopt(splist);
 	if ( type(S) == -1 ) {
@@ -366,6 +370,7 @@ def nd_gbcheck(G,V,P,O)
 		else
 			S = nd_gr(G,V,lprime(0),O|splist=1);
 	}
+  dp_set_weight(OldWeight);
 	if ( Proc ) {
 		N = length(Proc);
 		L = vector(N);
@@ -373,7 +378,7 @@ def nd_gbcheck(G,V,P,O)
 		for ( I = 0, T = S; T != []; T = cdr(T), I = (I+1)%N )
 			L[I] = cons(car(T),L[I]);
 		for ( I = 0; I < N; I++ )
-			ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4);
+			ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4,Weight);
 		for ( I = 0; I < N; I++ )
 			if ( !ox_pop_local(Proc[I]) ) return 0;
 		return 1;
@@ -386,14 +391,18 @@ def nd_gbcheck(G,V,P,O)
 	}
 }
 
-def gbcheck_p(G,V,P,O,S,F4)
+def gbcheck_p(G,V,P,O,S,F4,Weight)
 {
 	if ( type(G) == 7 )
 		G = bload(G);
+  OldWeight = dp_set_weight();
+  dp_set_weight(Weight);
 	if ( F4 )
-		return nd_f4(G,V,P,O|check_splist=S);
+		Ret = nd_f4(G,V,P,O|check_splist=S);
 	else
-		return nd_gr(G,V,P,O|check_splist=S);
+		Ret = nd_gr(G,V,P,O|check_splist=S);
+  dp_set_weight(OldWeight);
+  return Ret;
 }
 
 def elimination(L,Elim)
