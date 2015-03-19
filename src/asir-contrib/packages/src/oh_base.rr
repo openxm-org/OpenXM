@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.9 2013/07/31 00:33:09 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.10 2014/12/12 19:33:13 ohara Exp $ */
 
 module oh_base;
 
@@ -7,6 +7,8 @@ localf max2, min2, sum2, mul2;
 localf iterate, max, min, sum, mul;
 localf assoc_index, assoc_index_r, assoc_keyset, assoc_valset, assoc_match;
 localf extern_get,extern_set;
+localf uniq;
+localf callS;
 
 static Extern; /* associated list */
 
@@ -233,6 +235,34 @@ def extern_set(Key,Val) {
     }else {
         Extern=cons([Key,Val],Extern);
     }
+}
+
+The function has similar behaivior to UNIX uniq command
+def uniq(L) {
+    N=length(L);
+    if(N==0) return L;
+    if(type(L)==5) L=vtol(L);
+    Prev=car(L); R=[Prev];
+    for(L=cdr(L); L!=[]; L=cdr(L)) {
+        D=car(L);
+        if(Prev!=D) {
+            R=cons(D,R);
+            Prev=D;
+        }
+    }
+    return reverse(R);
+}
+
+Saving and Restoring the result of the invoked function
+def callS(Func, Args, File) {
+    if (access(File)) {
+        printf("Loading %a\n", File);
+        R=bload(File);
+    }else {
+        R=call(Func,Args);
+        bsave(R, File);
+    }
+    return R;
 }
 
 endmodule;
