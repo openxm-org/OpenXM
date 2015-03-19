@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.10 2014/12/12 19:33:13 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.11 2015/03/19 14:47:19 ohara Exp $ */
 
 module oh_base;
 
@@ -237,7 +237,7 @@ def extern_set(Key,Val) {
     }
 }
 
-The function has similar behaivior to UNIX uniq command
+// The function has similar behaivior to UNIX uniq command
 def uniq(L) {
     N=length(L);
     if(N==0) return L;
@@ -253,7 +253,7 @@ def uniq(L) {
     return reverse(R);
 }
 
-Saving and Restoring the result of the invoked function
+// Saving and Restoring the result of the invoked function
 def callS(Func, Args, File) {
     if (access(File)) {
         printf("Loading %a\n", File);
