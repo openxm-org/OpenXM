@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.25 2015/03/06 05:26:13 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.26 2015/03/07 01:03:36 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -21,6 +21,7 @@ import("tk_hgpoly.rr")$
 import("yang.rr")$
 
 #include <defs.h>
+#define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
 
 extern Disc_Supp2$
 extern Disc_Toric$
@@ -776,15 +777,8 @@ def test20 () {  /* confluent test6. cf. Notes/c11.tex */
     return Graph;
 }
 
-def mk_table(DV,StdMon,MonTT,Toric,Vall,W,SS,TT) {
-    NV=length(DV);
-    NB=length(StdMon);
-    L=[];
-    for(I=0; I<NB; I++) {
-        for (J=0; J<NV; J++) {
-            L=cons(DV[J]*StdMon[I],L);
-        }
-    }
+def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
+    L = base_flatten(matc(Dop)*matr(StdMon));
     L = uniq(qsort(L));
 
     /* L の各要素を StdMon, MonTT で表わす.
@@ -796,14 +790,14 @@ def mk_table(DV,StdMon,MonTT,Toric,Vall,W,SS,TT) {
     MM = append(MonTT, base_prune(1, StdMon));
     RR = append(TT, base_prune(SS[Pos], SS));
 
+    Use_sm1=tk_sm1emu.control();
+    tk_sm1emu.control(|use_sm1=1);
     L = base_set_minus(L,MM);
     Lred = ltov(L);
-    for(I=0; I<length(Lred); I++) {
-        Lred[I] = tk_sm1emu.reduction([Lred[I],Toric,Vall,W])[0]; /* */
-    }
     N = length(Lred);
     for(I=0; I<N; I++) {
-        C=Lred[I];
+        Red = tk_sm1emu.reduction([Lred[I],Toric,Vall,W]);
+        C   = Red[0]*Red[1];
         if((Pos = base_position(C,MM))>=0) {
             Lred[I] = RR[Pos];
         }else if ((Pos = base_position(-C,MM))>=0) {
@@ -812,6 +806,7 @@ def mk_table(DV,StdMon,MonTT,Toric,Vall,W,SS,TT) {
             printf("invalid data.\n");
         }
     }
+    tk_sm1emu.control(|use_sm1=Use_sm1);
     Lred = vtol(Lred);
 
     MM = append(MM,L);
@@ -819,15 +814,8 @@ def mk_table(DV,StdMon,MonTT,Toric,Vall,W,SS,TT) {
     return assoc(MM,RR);
 }
 
-def mk_table2(Dop,StdMon,MonTT,Toric,Vall,Vd,W,SS,TT) {
-    NV=length(Dop);
-    NB=length(StdMon);
-    L=[];
-    for(I=0; I<NB; I++) {
-        for (J=0; J<NV; J++) {
-            L=cons(Dop[J]*StdMon[I],L);
-        }
-    }
+def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
+    L = base_flatten(matc(Dop)*matr(StdMon));
     L = uniq(qsort(L));
 
     /* L の各要素を StdMon, MonTT で表わす.
@@ -839,19 +827,19 @@ def mk_table2(Dop,StdMon,MonTT,Toric,Vall,Vd,W,SS,TT) {
     MM = append(MonTT, base_prune(1, StdMon));
     RR = append(TT, base_prune(SS[Pos], SS));
 
+    Use_sm1=tk_sm1emu.control();
+    tk_sm1emu.control(|use_sm1=1);
     L = base_set_minus(L,MM);
-    printf("L=%a\n",L);
     Lred = ltov(L);
-    for(I=0; I<length(Lred); I++) {
-        Lred[I] = tk_sm1emu.reduction([Lred[I],Toric,Vall,W])[0]; /* */
-    }
     N = length(Lred);
     for(I=0; I<N; I++) {
-        Coef = mapat(mcoef,1,Lred[I],MM,Vd);
-        Lred[I] = Lred[I] + matrix_inner_product(Coef,ltov(RR)-ltov(MM));
+        Red = tk_sm1emu.reduction([Lred[I],Toric,Vall,W]);
+        C   = Red[0]*Red[1];
+        Coef = mapat(mcoef,1,C,MM,DV);
+        Lred[I] = C + matrix_inner_product(Coef,ltov(RR)-ltov(MM));
     }
+    tk_sm1emu.control(|use_sm1=Use_sm1);
     Lred = vtol(Lred);
-    printf("Lred=%a\n",Lred);
 
     MM = append(MM,L);
     RR = append(RR,Lred);
@@ -881,8 +869,6 @@ def uniq(L) {
 def number_sign(X) {
     return (X==0)? 0: (X<0)? -1: 1;
 }
-
-#define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
 
 def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
 	Rk_deval = _getopt(deval,deval);
@@ -1220,7 +1206,7 @@ def hgm_ahg_sylvester_generic(A,StdMon,X,Beta,DPolyList) {
     Eqn = get_eqn2(MatData,Vall,Pall | solve=yes);
     TT = Eqn[1];
     SS = Eqn[2];
-    Table = mk_table2(DPolyList,StdMon,Disc_R2[2],Toric,Vall,DV,W,SS,TT);
+    Table = mk_table2(DPolyList,StdMon,Disc_R2[2],Toric,Vall,W,SS,TT,DV);
     N = length(SS);
     E = matrix_identity_matrix(N);
     RelS = newvect(N);
