@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.9 2014/03/31 06:20:06 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.10 2014/03/31 07:23:09 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -10,7 +10,7 @@ HGM
 \description{
 The holonomic gradient method (HGM, hgm) gives a way to evaluate normalizing
   constants of unnormalized probability distributions by utilizing holonomic 
-  systems of differential equations. 
+  systems of differential or difference equations. 
   The holonomic gradient descent (HGD, hgd) gives a method
   to find maximal likelihood estimates by utilizing the HGM.
 }
@@ -43,7 +43,8 @@ Tomonari Sei, Nobuki Takayama, Akimichi Takemura,
 Holonomic Gradient Descent  and its Application to Fisher-Bingham Integral,
 Advances in Applied Mathematics 47 (2011), 639--658, 
 \url{http://dx.doi.org/10.1016/j.aam.2011.03.001}
-
+\item [dojo] Edited by T.Hibi,  Groebner Bases: Statistics and Software Systems, Springer, 2013,
+\url{http://dx.doi.org/10.1007/978-4-431-54574-3}
 \item  \url{http://www.openxm.org}
 }
 }

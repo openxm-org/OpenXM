@@ -1,14 +1,14 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.5 2014/03/16 03:11:07 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.6 2014/03/24 05:28:17 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
     The function hgm.pwishart evaluates the cumulative distribution function
-  of random wishart matrix.
+  of random wishart matrices.
 }
 \description{
     The function hgm.pwishart evaluates the cumulative distribution function
-  of random wishart matrix of size m times m.
+  of random wishart matrices of size m times m.
 }
 \usage{
 hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err)
@@ -97,7 +97,13 @@ Journal of Multivariate Analysis, 117, (2013) 296-312,
 Nobuki Takayama
 }
 \note{
-%%  ~~further notes~~
+This function does not work well under the following cases:
+1. The beta (the set of eigenvalues)
+is degenerated or is almost degenerated.
+2. The beta is very skew, in other words, there is a big eigenvalue
+and there is also a small eigenvalue.
+The error control is done by a heuristic method. 
+The obtained value is not validated automatically.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
