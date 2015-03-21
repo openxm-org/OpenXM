@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.26 2015/03/07 01:03:36 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.27 2015/03/20 06:32:07 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -231,7 +231,8 @@ def get_mat2(A,W,Std,Mset) {
   for (I=0; I<length(Euler); I++) {
     for (J=0; J<length(Mset); J++) {
       F = tk_sm1emu.mul(Mset[J],Euler[I],Vall);
-      Fn= tk_sm1emu.reduction([F,Toric,Vall,W])[0];
+      Fn= tk_sm1emu.reduction([F,Toric,Vall,W]);
+      Fn= Fn[0]/Fn[1];
       G = cons(Fn,G);
     }
   }
@@ -560,7 +561,7 @@ def float2rat(F,N) {
 def factor_prime(F) {
     if(islist(F)) {
         F = base_flatten(map(factor_prime, F));
-        return uniq(qsort(F));
+        return oh_base.uniq(qsort(F));
     }
     return map('car',cdr(fctr(F)));
 }
@@ -779,7 +780,7 @@ def test20 () {  /* confluent test6. cf. Notes/c11.tex */
 
 def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
     L = base_flatten(matc(Dop)*matr(StdMon));
-    L = uniq(qsort(L));
+    L = oh_base.uniq(qsort(L));
 
     /* L の各要素を StdMon, MonTT で表わす.
        そのためにまずは TT, SS で表わす. */
@@ -790,14 +791,14 @@ def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
     MM = append(MonTT, base_prune(1, StdMon));
     RR = append(TT, base_prune(SS[Pos], SS));
 
-    Use_sm1=tk_sm1emu.control();
-    tk_sm1emu.control(|use_sm1=1);
+//    Use_sm1=tk_sm1emu.control();
+//    tk_sm1emu.control(|use_sm1=1);
     L = base_set_minus(L,MM);
     Lred = ltov(L);
     N = length(Lred);
     for(I=0; I<N; I++) {
         Red = tk_sm1emu.reduction([Lred[I],Toric,Vall,W]);
-        C   = Red[0]*Red[1];
+        C   = Red[0]/Red[1];
         if((Pos = base_position(C,MM))>=0) {
             Lred[I] = RR[Pos];
         }else if ((Pos = base_position(-C,MM))>=0) {
@@ -806,7 +807,7 @@ def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
             printf("invalid data.\n");
         }
     }
-    tk_sm1emu.control(|use_sm1=Use_sm1);
+//    tk_sm1emu.control(|use_sm1=Use_sm1);
     Lred = vtol(Lred);
 
     MM = append(MM,L);
@@ -816,7 +817,7 @@ def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
 
 def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
     L = base_flatten(matc(Dop)*matr(StdMon));
-    L = uniq(qsort(L));
+    L = oh_base.uniq(qsort(L));
 
     /* L の各要素を StdMon, MonTT で表わす.
        そのためにまずは TT, SS で表わす. */
@@ -827,18 +828,18 @@ def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
     MM = append(MonTT, base_prune(1, StdMon));
     RR = append(TT, base_prune(SS[Pos], SS));
 
-    Use_sm1=tk_sm1emu.control();
-    tk_sm1emu.control(|use_sm1=1);
+//    Use_sm1=tk_sm1emu.control();
+//    tk_sm1emu.control(|use_sm1=1);
     L = base_set_minus(L,MM);
     Lred = ltov(L);
     N = length(Lred);
     for(I=0; I<N; I++) {
         Red = tk_sm1emu.reduction([Lred[I],Toric,Vall,W]);
-        C   = Red[0]*Red[1];
+        C   = Red[0]/Red[1];
         Coef = mapat(mcoef,1,C,MM,DV);
         Lred[I] = C + matrix_inner_product(Coef,ltov(RR)-ltov(MM));
     }
-    tk_sm1emu.control(|use_sm1=Use_sm1);
+//    tk_sm1emu.control(|use_sm1=Use_sm1);
     Lred = vtol(Lred);
 
     MM = append(MM,L);
@@ -848,22 +849,6 @@ def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
 
 def normalize(F) {
     return dp_hc(dp_ptod(F,vars(F)))<0? -F: F;
-}
-
-def uniq(L) {
-    N=length(L);
-    if(N>1) {
-        C=L[0];
-        R=[C];
-        for(I=1; I<N; I++) {
-            if(C!=L[I]) {
-                C=L[I];
-                R=cons(C,R);
-            }
-        }
-        L=reverse(R);
-    }
-    return L;
 }
 
 def number_sign(X) {
