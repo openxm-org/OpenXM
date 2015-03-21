@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.10 2014/03/31 07:23:09 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.11 2015/03/21 22:49:34 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -54,12 +54,12 @@ Advances in Applied Mathematics 47 (2011), 639--658,
 \keyword{ HGM }
 \keyword{ HGD }
 \seealso{
-\code{\link{hgm.mleFBByOptim}},
 \code{\link{hgm.ncBingham}},
 \code{\link{hgm.ncorthant}},
 \code{\link{hgm.ncso3}},
 \code{\link{hgm.pwishart}},
 \code{\link{hgm.Rhgm}}
+\code{\link{hgm.z.mleFBByOptim}},
 }
 \examples{
 \dontrun{

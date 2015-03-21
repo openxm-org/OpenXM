@@ -1,11 +1,11 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm_tk_hgd.R,v 1.1 2014/03/31 06:20:06 takayama Exp $
 # This is a wrapper module for the holonomic gradient descent (HGD)
-# hgm.mleFBByOptim, hgm.mleDemo
+# hgm.z.mleFBByOptim, hgm.z.mleDemo
 # hgm_nk_opt_fb.R and hgm_ko_ncfb are required.
 
 # FisherBingham on S^d
 # ss (sufficient statistics) or data on S^d are necessary.
-hgm.mleFBByOptim<-function(d=0,ss=NULL,data=NULL,start=NULL,
+hgm.z.mleFBByOptim<-function(d=0,ss=NULL,data=NULL,start=NULL,
                        lb=NULL,ub=NULL,bigValue=10000) {
   sslen <- (d+2)*(d+1)/2 + (d+1);
   if (!identical(data,NULL)) {
@@ -60,10 +60,10 @@ hgm.tk.test1<-function() {
 	                    0.3276,
             0.0063,0.0054,0.0762);
   start <- c(0.1,0.1,1,1,1,-1,-1,-1,-1);
-  return(hgm.mleFBByOptim(d=d,ss=ss,start=start));
+  return(hgm.z.mleFBByOptim(d=d,ss=ss,start=start));
 }
 
-hgm.mleDemo<-function(name) {
+hgm.z.mleDemo<-function(name) {
   switch(name,
    astro=hgm.nk.optim_astro_f(),
    mag=hgm.nk.optim_mag_f(),
@@ -133,5 +133,5 @@ hgm.tk.test2 <- function(start=NULL) {
   print(a);
   ss <- hgm.tk.ssFB(2,a);
   print("ss="); print(ss);
-  return(hgm.mleFBByOptim(d=2,ss=ss,start=start));
+  return(hgm.z.mleFBByOptim(d=2,ss=ss,start=start));
 }

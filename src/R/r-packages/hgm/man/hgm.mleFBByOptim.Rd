@@ -1,6 +1,6 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.1 2014/03/31 06:20:06 takayama Exp $
-\name{hgm.mleFBByOptim}
-%%Todo, write documents for hgm.mleDemo, hgm.ssFB
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.2 2014/03/31 07:23:09 takayama Exp $
+\name{hgm.z.mleFBByOptim}
+%%Todo, write documents for hgm.z.mleDemo, hgm.ssFB
 %\alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -11,7 +11,7 @@
   distribution on S^d.
 }
 \usage{
- hgm.mleFBByOptim(d=0,ss=NULL,data=NULL,start=NULL,lb=NULL,up=NULL,bigValue=10000)
+ hgm.z.mleFBByOptim(d=0,ss=NULL,data=NULL,start=NULL,lb=NULL,up=NULL,bigValue=10000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -86,7 +86,7 @@ T.Koyama, H.Nakayama, K.Nishiyama, N.Takayama.
 	                    0.3276,
             0.0063,0.0054,0.0762)
   start <- c(0.1,0.1,1,1,1,-1,-1,-1,-1)
-  hgm.mleFBByOptim(d=d,ss=ss,start=start)
+  hgm.z.mleFBByOptim(d=d,ss=ss,start=start)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
