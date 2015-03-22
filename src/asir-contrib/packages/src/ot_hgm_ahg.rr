@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.27 2015/03/20 06:32:07 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.28 2015/03/21 01:24:54 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -804,7 +804,7 @@ def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
         }else if ((Pos = base_position(-C,MM))>=0) {
             Lred[I] = -RR[Pos];
         }else {
-            printf("invalid data.\n");
+            printf("invalid data: try to increase msize.\n");
         }
     }
 //    tk_sm1emu.control(|use_sm1=Use_sm1);
@@ -1533,7 +1533,7 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
         printf("not feasible\n");
         return 0;
     }
-    if(type(getopt(initval))<0) {
+    if(_getopt(no_use_initval,0)) {
         // do not use initial value
         NCVal = hgm_ahg_evaluation_contiguity(A,BB,X | option_list=Opts);
         Val = NCVal[1];
@@ -2652,6 +2652,37 @@ def testbfct111() {
     Blist = cons(Bf,Blist);
   }
   return(reverse(Blist));
+}
+
+def test325() {
+    Digit=ctrl("real_digit");
+    ctrl("real_digit",30);
+
+    A= [[1,1,1,1,1,0,0,0,0,0],
+        [1,0,0,0,0,1,0,0,0,1],
+        [0,1,0,0,0,1,1,0,0,0],
+        [0,0,1,0,0,0,1,1,0,0],
+        [0,0,0,1,0,0,0,1,1,0],
+        [0,0,0,0,1,0,0,0,1,1]];
+    U= [23,21,20,34,30,42,11,10,20,29];
+    B=vtol(matrix_list_to_matrix(A)*ltov(U));
+    SumU = oh_base.sum(U);
+    X = vtol((1/SumU)*ltov(U));
+    R = [x1,x2,x3,x4,x5,x6,x7,x8,x9,x10];
+    printf("A=%a\nU=%a\nB=%a\nX=%a\n",A,U,B,X);
+
+    // Do not omit msize=3
+    EV=hgm_ahg_expected_values_contiguity(A,B,X,R|msize=3);
+    N=length(EV); Err=newvect(N);
+    for(I=0; I<N; I++) {
+        Err[I]=deval(number_abs((U[I]-EV[I])/U[I]));
+    }
+    Err=vtol(Err);
+    printf("Err=%a\n",Err);
+    Err=oh_base.max(Err);
+    printf("MaxErr=%a\n",Err);
+    ctrl("real_digit",Digit);
+    return Err;
 }
 
 end$
