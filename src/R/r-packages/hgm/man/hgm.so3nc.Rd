@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.3 2013/03/08 07:32:28 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.4 2014/03/24 05:28:17 takayama Exp $
 \name{hgm.ncso3}
 \alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -15,8 +15,8 @@ hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{a}{}
-  \item{b}{}
+  \item{a}{See the description of c.}
+  \item{b}{See the description of c.}
   \item{c}{
      This function evaluates the normalization constant for the parameter
      Theta=diag(theta_{ii}) of the Fisher distribution on SO(3).

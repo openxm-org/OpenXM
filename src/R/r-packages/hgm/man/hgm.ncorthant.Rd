@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.1 2014/03/24 05:28:17 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.2 2014/04/03 08:27:50 tkoyama Exp $
 \name{hgm.ncorthant}
 \alias{hgm.ncorthant}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -15,7 +15,7 @@ hgm.ncorthant(x,y,rk_step_size=1e-3)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{}
+  \item{x}{See the description of y.}
   \item{y}{
      This function evaluates the orthant probability for the m dimensional 
      multivariate

@@ -1,5 +1,6 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.2 2014/03/31 07:23:09 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.3 2015/03/21 23:40:34 takayama Exp $
 \name{hgm.z.mleFBByOptim}
+\alias{hgm.z.mleFBByOptim}
 %%Todo, write documents for hgm.z.mleDemo, hgm.ssFB
 %\alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,7 +12,7 @@
   distribution on S^d.
 }
 \usage{
- hgm.z.mleFBByOptim(d=0,ss=NULL,data=NULL,start=NULL,lb=NULL,up=NULL,bigValue=10000)
+ hgm.z.mleFBByOptim(d=0,ss=NULL,data=NULL,start=NULL,lb=NULL,ub=NULL,bigValue=10000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

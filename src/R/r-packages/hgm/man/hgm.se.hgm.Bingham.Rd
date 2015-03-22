@@ -1,5 +1,6 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.se.hgm.Bingham.Rd,v 1.3 2014/03/31 00:50:34 takayama Exp $
 \name{hgm.ncBingham}
+\alias{hgm.ncBingham}
 %\alias{hgm.se.hgm.Bingham}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
