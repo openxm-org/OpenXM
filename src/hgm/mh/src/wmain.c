@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.21 2014/03/20 10:58:37 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.22 2015/03/24 05:59:43 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -213,7 +213,7 @@ int mh_usage() {
   oxprintfe("    gnuplot -persist <test-g-gp.txt\n");
   oxprintfe("  tmp-idata3.txt is a sample input data distributed with this file.\n");
   oxprintfe("  test-g-gp.txt is an input file of the gnuplot\n");
-  oxprintfe("  test-g is the table of x and the values of Pr({y | y<x}).\n");
+  oxprintfe("  test-g is the table of x and the values of Pr({y | y<x}).\n"); return(0);
 }
 
 static int setParamTest() {
@@ -234,7 +234,7 @@ static int setParamTest() {
   MH_X0g = 0.3;
   MH_Hg = 0.001;
   MH_Dp = 1;
-  Xng = 10.0;
+  Xng = 10.0; return(0);
 }
 static int setParamDefault() {
   int rank;
@@ -252,7 +252,7 @@ static int setParamDefault() {
   MH_X0g = 0.3;
   MH_Hg = 0.001;
   MH_Dp = 1;
-  Xng = 10.0;
+  Xng = 10.0; return(0);
 }
 
 static int next(struct SFILE *sfp,char *s,char *msg) {
@@ -263,7 +263,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
       mh_exit(-1);
     }
     if (s[0] != '%') return(0);
-  }
+  } return(0);
 }
 static int setParam(char *fname) {
   int rank;
@@ -359,7 +359,7 @@ static int setParam(char *fname) {
     oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
   }
 
-  mh_fclose(fp);
+  mh_fclose(fp); return(0);
 }
 
 static int showParam() {
@@ -385,7 +385,7 @@ static int showParam() {
   oxprintf("%%abserr=%lg, %%relerr=%lg\n",MH_abserr,MH_relerr);
   oxprintf("#MH_success=%d\n",MH_success);
   oxprintf("#MH_coeff_max=%lg\n",MH_coeff_max);
-  oxprintf("#MH_estimated_start_step=%lg\n",MH_estimated_start_step);
+  oxprintf("#MH_estimated_start_step=%lg\n",MH_estimated_start_step); return(0);
 }
 
 static double estimateHg(int m, double beta[],double x0) {

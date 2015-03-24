@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.11 2015/03/21 22:49:34 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.12 2015/03/21 23:40:34 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -30,8 +30,8 @@ partial differential equations.
 \note{
   This package includes a small subset of the Gnu scientific library codes
   (\url{http://www.gnu.org/software/gsl/}).
-  Then, it might cause a conflict with the package gsl
-  (see \code{\link[gsl]{gsl-package}}).
+  Then, it might cause a conflict with the package gsl.
+%  (see \code{\link[gsl]{gsl-package}}).
 %  When you use the package gsl, it is recommeded to unload the shared libraries
 %  of the package hgm by \code{library.dynam.unload("hgm")}<--error, todo.
 %  (see \code{\link[base]{library.dynam.unload}}).

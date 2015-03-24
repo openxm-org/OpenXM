@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.28 2014/03/20 10:58:37 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.29 2015/03/24 05:59:43 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -592,7 +592,7 @@ static int test_beta() {
   int mu3[M_n0]={2,0,0};
   printp(kappa); oxprintf(","); printp(mu3); oxprintf(": beta = %lf\n",beta(kappa,mu3));
   printp(kappa); oxprintf(","); printp(mu1); oxprintf(": beta = %lf\n",beta(kappa,mu1));
-  printp(kappa); oxprintf(","); printp(mu2); oxprintf(": beta = %lf\n",beta(kappa,mu2));
+  printp(kappa); oxprintf(","); printp(mu2); oxprintf(": beta = %lf\n",beta(kappa,mu2)); return(0);
 }
 
 /* main() { test_beta(); } */
@@ -1061,7 +1061,7 @@ static int genBeta(int Kap[]) {
   N = plength(Kap);
   HS_hsExec = hsExec_beta;
   copyP(M_beta_kap,Kap);
-  pListHS(Kap,N);
+  pListHS(Kap,N); return(0);
 }
 /*
   genDarray2(4,3);
@@ -1251,7 +1251,7 @@ static int genJack(int M,int N) {
         } /* end of J loop */
       }
     }
-  }
+  } return(0);
 }  
 
 
@@ -1428,6 +1428,7 @@ static int mtest1b() {
     F=mh_t2(J);
     oxprintf("J=%d, D^J mh_t=%lf\n",J,F);
   }
+  return(0);
 }
 
 /* main() { mtest1b(); }*/

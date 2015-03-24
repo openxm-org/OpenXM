@@ -7,7 +7,9 @@ usage:
 check-hgm: rsync
 	R CMD check hgm
 build-hgm: rsync
+	rm -f hgm/src/@dont-edit-files
 	R CMD build hgm
+	touch hgm/src/@dont-edit-files
 
 rsync: rsync-gsl-t-1 rsync-so3 rsync-mh rsync-orthant
 rsync-gsl-t-1: 

@@ -38,7 +38,7 @@ gsl_error (const char * reason, const char * file, int line, int gsl_errno)
       return ;
     }
 
-  oxprintfe("ERROR file %s, line %d, code %d", file, (int) line, (int) reason);
+  oxprintfe("ERROR file %s, line %d, code %p", file, (int) line, reason);
 
   oxprintfe("Default GSL error handler invoked.\n");
   oxflush();
