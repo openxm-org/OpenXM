@@ -7,15 +7,20 @@ hgm_so3_nc: make-link so3_nc.o
 so3_nc.o : so3_nc.c
 	${CC} -c -DSTANDALONE so3_nc.c
 
-make-link:
+make-link: make-link-p
 	-if [ ! -f .link_done ] ; then \
 	for i in ${HEADERS}; do \
 		ln -s ../../gsl-t-1/src/$$i . ; \
 	done ; \
 	touch .link_done ; \
 	fi
+make-link-p:
+	-if [ ! -f .link_done_p ] ; then \
+	ln -s ../../oxprint/oxprint.h . ; \
+	touch .link_done_p ; \
+	fi
 clean:
-	rm -f *.o *~ hgm_so3_nc  .link_done 
+	rm -f *.o *~ hgm_so3_nc  .link_done* 
 	for i in ${HEADERS}; do \
 		rm -f $$i ; \
 	done 

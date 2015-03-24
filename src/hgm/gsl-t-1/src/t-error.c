@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "t-gsl_errno.h"
+#include "oxprint.h"
 
 gsl_error_handler_t * gsl_error_handler = NULL;
 
@@ -37,13 +38,12 @@ gsl_error (const char * reason, const char * file, int line, int gsl_errno)
       return ;
     }
 
-  fprintf (stderr,"ERROR file %s, line %d, code %d", file, (int) line, (int) reason);
+  oxprintfe("ERROR file %s, line %d, code %d", file, (int) line, (int) reason);
 
-  fflush (stdout);
-  fprintf (stderr, "Default GSL error handler invoked.\n");
-  fflush (stderr);
+  oxprintfe("Default GSL error handler invoked.\n");
+  oxflush();
 
-  /*  abort (); */
+  oxabort();
 }
 
 gsl_error_handler_t *

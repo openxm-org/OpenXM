@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.5 2013/03/05 05:26:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.6 2013/03/07 05:23:31 takayama Exp $ */
 #include <stdio.h>
 #include <math.h>
 #ifdef USE_GSL_LIB
@@ -8,6 +8,8 @@
 #include "t-gsl_errno.h"
 #include "t-gsl_odeiv.h"
 #endif
+
+#include "oxprint.h"
 
 #ifndef STANDALONE
 void mh_check_intr(int n);
@@ -43,7 +45,7 @@ main(int argc,char *argv[]) {
 	}else if (strcmp(argv[i],"--deg")==0) {
 	  i++; sscanf(argv[i],"%d",&SO3_Deg);
 	  if ((SO3_Deg > MDEG-2) || (SO3_Deg < 0)) {
-	    fprintf(stderr,"Error: deg should be less than %d\n",MDEG-2); return(-1);
+	    oxprintfe("Error: deg should be less than %d\n",MDEG-2); return(-1);
 	  }
     } else if (j<3) sscanf(argv[i],"%lg",&(a[j++]));
   }
@@ -52,8 +54,8 @@ main(int argc,char *argv[]) {
     return(-1);
   }
   so3_nc(a,t0,y);
-// printf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
-  printf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
+// oxprintf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
+  oxprintf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
 }
 #else
 void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *deg,double *out) {
@@ -66,34 +68,34 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
   if (*quiet) SO3_Quiet = 1;
   if (*deg) {
     SO3_Deg = *deg;
-    if (!SO3_Quiet) fprintf(stderr,"deg is set to %d\n",SO3_Deg);
+    if (!SO3_Quiet) oxprintfe("deg is set to %d\n",SO3_Deg);
   }
   t0 = 0.0001;  /* Small enough number seems to be good (Hueristics) */ 
   if (*t0p > 0.0) {
     t0 = *t0p;
-    if (!SO3_Quiet) fprintf(stderr,"t0 is set to %lf\n",t0);
+    if (!SO3_Quiet) oxprintfe("t0 is set to %lf\n",t0);
   }
   j = 0;
   if ((SO3_Deg > MDEG-2) || (SO3_Deg < 0)) {
-    fprintf(stderr,"Error: deg should be less than %d\n",MDEG-2);
+    oxprintfe("Error: deg should be less than %d\n",MDEG-2);
     *out = 0.0; return;
   }
   a[0] = *in1; a[1] = *in2; a[2] = *in3;
-  //  fprintf(stderr,"DEBUG: %lf,%lf,%lf,%lf\n",t0,a[0],a[1],a[2]);
+  //  oxprintfe("DEBUG: %lf,%lf,%lf,%lf\n",t0,a[0],a[1],a[2]);
   so3_nc(a,t0,y);
-// printf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
-  if (!SO3_Quiet) printf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
+// oxprintf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
+  if (!SO3_Quiet) oxprintf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
   *out = y[0];
 }
 #endif
 
 int so3_usage(void) {
-  fprintf(stderr,"Usage: so3_nc a b c returns nc(a,b,c) and its gradients\n");
-  fprintf(stderr,"   where nc is the normalization constant\n" );
-  fprintf(stderr,"   of the Fisher distribution on SO(3) for the diagonal matrix diag(a,b,c).\n");
-  fprintf(stderr,"   See http://arxiv.org/abs/1110.0721\n");
-  fprintf(stderr,"Options:  --quiet  --t0 T0 --deg DEG\n");
-  fprintf(stderr,"   Series is evaluated at T0*(a,b,c) and the value is extended to (a,b,c) by diff. eq.\n");
+  oxprintfe("Usage: so3_nc a b c returns nc(a,b,c) and its gradients\n");
+  oxprintfe("   where nc is the normalization constant\n" );
+  oxprintfe("   of the Fisher distribution on SO(3) for the diagonal matrix diag(a,b,c).\n");
+  oxprintfe("   See http://arxiv.org/abs/1110.0721\n");
+  oxprintfe("Options:  --quiet  --t0 T0 --deg DEG\n");
+  oxprintfe("   Series is evaluated at T0*(a,b,c) and the value is extended to (a,b,c) by diff. eq.\n");
   return(0);
 }
 
@@ -123,7 +125,7 @@ void so3_nc(double a[3],double t0,double y[4]) {
   r = -a[0]+a[1]-a[2]; if (r > SO3_R) SO3_R = r;
   r = -a[0]-a[1]+a[2]; if (r > SO3_R) SO3_R = r;
   r = a[0]+a[1]+a[2]; if (r > SO3_R) SO3_R = r;
-  if (!SO3_Quiet) fprintf(stderr,"SO3_R=%lg, exp(SO3_R t) is the asymptotics of nc.\n",SO3_R);
+  if (!SO3_Quiet) oxprintfe("SO3_R=%lg, exp(SO3_R t) is the asymptotics of nc.\n",SO3_R);
 
   const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
   gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, 4); /* rank4 */
@@ -141,15 +143,15 @@ void so3_nc(double a[3],double t0,double y[4]) {
   double t = t0, t1 = 1.0; 
   double h = 1e-6;
   if (!SO3_Quiet) {
-	fprintf(stderr,"Set initial values at t0*(a,b,c) by evaluating series and find relevant t0.\n");
-	fprintf(stderr,"t0=%lf, a=a[0]=%lf, b=a[1]=%lf, c=a[2]=%lf\n",t0,a[0],a[1],a[2]);
+	oxprintfe("Set initial values at t0*(a,b,c) by evaluating series and find relevant t0.\n");
+	oxprintfe("t0=%lf, a=a[0]=%lf, b=a[1]=%lf, c=a[2]=%lf\n",t0,a[0],a[1],a[2]);
   }
   do {
-    if (!SO3_Quiet) fprintf(stderr,"t0=%lf\n",t0);
+    if (!SO3_Quiet) oxprintfe("t0=%lf\n",t0);
     so3_evalByS(deg,a[0],a[1],a[2], t0, y0);
-    if (!SO3_Quiet) fprintf(stderr,"[%2d]: %lg,%lg,%lg,%lg\n",deg,y0[0],y0[1],y0[2],y0[3]);
+    if (!SO3_Quiet) oxprintfe("[%2d]: %lg,%lg,%lg,%lg\n",deg,y0[0],y0[1],y0[2],y0[3]);
     so3_evalByS(deg+1,a[0],a[1],a[2], t0, y);
-    if (!SO3_Quiet) fprintf(stderr,"[%2d]:  %lg,%lg,%lg,%lg\n",deg+1,y[0],y[1],y[2],y[3]);
+    if (!SO3_Quiet) oxprintfe("[%2d]:  %lg,%lg,%lg,%lg\n",deg+1,y[0],y[1],y[2],y[3]);
     myerr=0.0;
     for (i=0; i<4; i++) {
       myerr2 = (y0[i]-y[i])/y0[i]; if (myerr2 <0) myerr2 = -myerr2;
@@ -160,17 +162,17 @@ void so3_nc(double a[3],double t0,double y[4]) {
   } while (1);
   t=t0;
   for (i=0; i<4; i++) y[i]=y[i]*exp(-SO3_R*t0);
-  if (!SO3_Quiet) fprintf(stderr,"[%2d]*exp(-SO3_R*t0): %lg,%lg,%lg,%lg\n",deg+1,y[0],y[1],y[2],y[3]);
-  if (!SO3_Quiet) fprintf(stderr,"Result by HGM (solving ODE) ------ \n");
+  if (!SO3_Quiet) oxprintfe("[%2d]*exp(-SO3_R*t0): %lg,%lg,%lg,%lg\n",deg+1,y[0],y[1],y[2],y[3]);
+  if (!SO3_Quiet) oxprintfe("Result by HGM (solving ODE) ------ \n");
 
   while (t < t1) {
     int status = gsl_odeiv_evolve_apply(e, c, s, &sys, &t, t1, &h, y);
     if (status != GSL_SUCCESS) break;
   }
-  if (!SO3_Quiet) fprintf(stderr,"t and V   : t=%.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
+  if (!SO3_Quiet) oxprintfe("t and V   : t=%.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
   for (i=0; i<4; i++) y[i]=y[i]*exp(SO3_R*t);
-  if (!SO3_Quiet) fprintf(stderr,"V*exp(SO3_R*1): t= %.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
-  if (!SO3_Quiet) fprintf(stderr,"Returned value is V=[so3_nc(a,b,c),  c_a, c_b, c_c]\n");
+  if (!SO3_Quiet) oxprintfe("V*exp(SO3_R*1): t= %.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
+  if (!SO3_Quiet) oxprintfe("Returned value is V=[so3_nc(a,b,c),  c_a, c_b, c_c]\n");
 
   gsl_odeiv_evolve_free(e);
   gsl_odeiv_control_free(c);
@@ -205,7 +207,7 @@ void so3_evalByS(int deg,double a,double b,double c,double t,double f[4]) {
   double ex[MDEG][MDEG][MDEG];
   int i,j,k;
   if (deg >= MDEG) {
-    fprintf(stderr,"Error: degree is too high\n");
+    oxprintfe("Error: degree is too high\n");
   }
   for (i=0; i<MDEG; i++)for (j=0; j<MDEG; j++)for (k=0; k<MDEG; k++)Tnc[i][j][k]=0.0;
   /* load("sord.rr"); forC(20); */
