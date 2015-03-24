@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.11 2013/03/08 04:54:01 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.12 2014/03/20 09:37:16 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,11 +52,11 @@ int mh_gopen_file() {
   Gf=NULL;
   Df=NULL;
   if (MH_Verbose) {
-    fprintf(stderr,"MH_Gfname=%s\n",MH_Gfname);
-    fprintf(stderr,"MH_Dfname=%s\n",MH_Dfname);
+    oxprintfe("MH_Gfname=%s\n",MH_Gfname);
+    oxprintfe("MH_Dfname=%s\n",MH_Dfname);
   }
   if (MH_RANK != mypower(2,MH_Mg)) {
-    fprintf(stderr,"rk.c MH_RANK=%d is not equal to 2^MH_Mg=%d. input_data_file is broken.\n",MH_RANK,mypower(2,MH_Mg));
+    oxprintfe("rk.c MH_RANK=%d is not equal to 2^MH_Mg=%d. input_data_file is broken.\n",MH_RANK,mypower(2,MH_Mg));
     mh_usage();
     mh_exit(-1);
   }
@@ -70,14 +70,14 @@ int mh_gopen_file() {
     }
     Df = mh_fopen(MH_Dfname,"w",MH_byFile);
     if (Df == NULL) {
-      fprintf(stderr,"Error to open the file %s\n",MH_Dfname);
+      oxprintfe("Error to open the file %s\n",MH_Dfname);
       return(-1);
     }
   }
   if (MH_Gfname != NULL) {
     Gf = mh_fopen(MH_Gfname,"w",MH_byFile);
     if (Gf == NULL) {
-      fprintf(stderr,"Error to open the file %s\n",MH_Gfname);
+      oxprintfe("Error to open the file %s\n",MH_Gfname);
       return(-1);
     }
   }else return(1);
@@ -166,10 +166,10 @@ if (MH_strategy == 0) {
     /* Output 95% point */
     if (MH_P95) {
       if ((MH_P95==1) && (y[0] >= 0.95)) {
-        printf("x=%le, y[0]=%lf\n",x,y[0]);
+        oxprintf("x=%le, y[0]=%lf\n",x,y[0]);
         MH_P95=2;
       }else if ((MH_P95==2) && (y[0] >=0.9500000001)) {
-        printf("x=%le, y[0]=%lf\n",x,y[0]);
+        oxprintf("x=%le, y[0]=%lf\n",x,y[0]);
         MH_P95=0;
       }
     }
@@ -218,8 +218,8 @@ if (MH_strategy == 0) {
     gsl_odeiv_evolve *e = gsl_odeiv_evolve_alloc(MH_RANK);
     gsl_odeiv_system sys = {mh_rf_for_gsl, NULL, 0, NULL};
     sys.dimension = MH_RANK;
-    /* printf("MH_RANK=%d\n",MH_RANK); */
-    if (x0 >= xn) {fprintf(stderr,"Error: x0 < x must hold.\n"); mh_exit(-30);}
+    /* oxprintf("MH_RANK=%d\n",MH_RANK); */
+    if (x0 >= xn) {oxprintfe("Error: x0 < x must hold.\n"); mh_exit(-30);}
     x = x0;
     if (MH_Dp > 0) dh = MH_Dp*h; else dh=xn-x0;
     mh_dp_orig = MH_Dp; MH_Dp=1;
@@ -232,10 +232,10 @@ if (MH_strategy == 0) {
       /* Output 95% point */
       if (MH_P95) {
         if ((MH_P95==1) && (y[0] >= 0.95)) {
-          printf("x=%le, y[0]=%lf\n",x,y[0]);
+          oxprintf("x=%le, y[0]=%lf\n",x,y[0]);
           MH_P95=2;
         }else if ((MH_P95==2) && (y[0] >=0.9500000001)) {
-          printf("x=%le, y[0]=%lf\n",x,y[0]);
+          oxprintf("x=%le, y[0]=%lf\n",x,y[0]);
           MH_P95=0;
         }
       }
@@ -243,7 +243,7 @@ if (MH_strategy == 0) {
       while ((x < x1) && (x < xn)) {
         int status = gsl_odeiv_evolve_apply(e, c, s, &sys, &x, x1, &h, y);
         if (status != GSL_SUCCESS) {
-	  fprintf(stderr,"gsl_odeiv_evolve_apply failed.\n");
+	  oxprintfe("gsl_odeiv_evolve_apply failed.\n");
 	  break;
 	}
       }
@@ -254,7 +254,7 @@ if (MH_strategy == 0) {
     MH_Dp=mh_dp_orig;
   }
 
-  if (MH_Verbose) printf("x=%lf, y[0]=%lg\n",x,y[0]);
+  if (MH_Verbose) oxprintf("x=%lf, y[0]=%lg\n",x,y[0]);
   result.x = x;
   result.rank = MH_RANK;
   result.y = (double *)mh_malloc(sizeof(double)*MH_RANK); /* todo, how to free it */

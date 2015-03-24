@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.6 2013/03/07 03:00:43 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.7 2013/03/07 05:23:31 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -173,40 +173,40 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 }
 
 static void error_code(char *s) {
-  fprintf(stderr,"%s",s);
+  oxprintfe("%s",s);
   mh_exit(10);
 }
 
 /* for debug */
 static void showf(char *s,double *v,int m) {
   int i;
-  printf("%s=\n",s);
+  oxprintf("%s=\n",s);
   for (i=0; i<m; i++) {
-    printf("%e, ",v[i]);
+    oxprintf("%e, ",v[i]);
   }
-  printf("\n");
+  oxprintf("\n");
 }
 
 static void showd(char *s,int *v,int m) {
   int i;
-  printf("%s=\n",s);
+  oxprintf("%s=\n",s);
   for (i=0; i<m; i++) {
-    printf("%5d, ",v[i]);
+    oxprintf("%5d, ",v[i]);
   }
-  printf("\n");
+  oxprintf("\n");
 }
 
 static void showf2(char *s,double *v,int m,int n) {
   int i,j;
-  printf("%s=\n",s);
+  oxprintf("%s=\n",s);
   for (i=0; i<m; i++) {
     for (j=0; j<n; j++) {
-      printf("%e, ",v[i*n+j]);
+      oxprintf("%e, ",v[i*n+j]);
     }
-    printf("\n");
+    oxprintf("\n");
   }
-  printf("\n");
-  printf("member(0,0)=%d, member(0,1)=%d, member(0,2)=%d,member(0,3)=%d\n",
+  oxprintf("\n");
+  oxprintf("member(0,0)=%d, member(0,1)=%d, member(0,2)=%d,member(0,3)=%d\n",
          member(0,0),member(0,1),member(0,2),member(0,3));
 }
 

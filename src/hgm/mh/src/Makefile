@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.12 2013/03/08 04:54:01 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.13 2014/03/14 02:21:40 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -7,7 +7,7 @@ HEADERS=config.h odeiv_util.h t-gsl_errno.h \
         t-gsl_math.h t-gsl_odeiv.h t-gsl_sys.h \
         t-gsl_types.h
 LINKOPT=../../gsl-t-1/src/gsl-t-1.a -lm
-all: hgm_w-n hgm_jack-n mh
+all: make-link hgm_w-n hgm_jack-n mh
 
 hgm_w-n: code-n.o rk.o wmain.c sfile.o sfile.h
 	${CC} -o hgm_w-n ${OPT3} wmain.c rk.o code-n.o sfile.o ${LINKOPT}
@@ -38,15 +38,20 @@ mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o sfile.o
 test3: sfile.c sfile.h
 	${CC} -g -DTEST -DSTANDALONE sfile.c -o test3
 
-make-link:
+make-link: make-link-p
 	-if [ ! -f .link_done ] ; then \
 	for i in ${HEADERS}; do \
 		ln -s ../../gsl-t-1/src/$$i . ; \
 	done ; \
 	touch .link_done ; \
 	fi
+make-link-p:
+	-if [ ! -f .link_done_p ] ; then \
+	ln -s ../../oxprint/oxprint.h . ; \
+	touch .link_done_p ; \
+	fi
 clean:
-	rm -rf *.o *~ hgm_w-n test1 hgm_jack-n .link_done  test2 test3
+	rm -rf *.o *~ hgm_w-n test1 hgm_jack-n .link_done*  test2 test3
 
 test3b:
 	(cd Testdata ; ./test3b.sh )

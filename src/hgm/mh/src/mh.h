@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.9 2014/03/16 03:11:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.10 2014/03/17 02:49:39 takayama Exp $ */
+#include "oxprint.h"
 struct cWishart {
   double x;
   double rank;

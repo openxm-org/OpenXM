@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.12 2013/03/08 04:54:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.13 2014/03/16 03:11:07 takayama Exp $ */
 #include <stdio.h>
 #include "sfile.h"
 #include "mh.h"
@@ -59,13 +59,13 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   mh_fputs("%%Iv\n",fp); /* initial values, dummy */
   for (i=0; i<rank; i++) mh_fputs("0.0\n",fp);
   mh_fputs("%%Ef=\n1.0\n",fp); /* Below are dummy values */
-  if (h <= 0.0) {fprintf(stderr,"h<=0.0, set to 0.1\n"); h=0.1;}
+  if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
   mh_fputs("%%Hg=\n",fp); 
   sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
-  if (dp < 1) {fprintf(stderr,"dp<1, set to 1\n"); dp=1;}
+  if (dp < 1) {oxprintfe("dp<1, set to 1\n"); dp=1;}
   mh_fputs("%%Dp=\n",fp); 
   sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
-  if (x <= x0) {fprintf(stderr,"x <= x0, set to x=x0+10\n"); x=x0+10;}
+  if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}
   mh_fputs("%%Xng=\n",fp);
   sprintf(swork,"%lf\n",x); mh_fputs(swork,fp);
 
@@ -84,13 +84,13 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
 
   rp=jk_main(6,argv); 
   if (rp == NULL) {
-    fprintf(stderr,"rp is NULL.\n"); return(NULL);
+    oxprintfe("rp is NULL.\n"); return(NULL);
   }
   cw = new_cWishart(rank);
   cw->x = rp->x;
   cw->rank = rp->rank;
   if (rank !=  cw->rank) {
-    fprintf(stderr,"Rank error.\n"); return(NULL);
+    oxprintfe("Rank error.\n"); return(NULL);
   }
   for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];  
   sfp = (rp->sfpp)[0]; 
@@ -102,7 +102,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   /* todo, mh_free_??(rp);  free Iv's */
   if (!modep[1]) return(cw);
 
-  if (MH_DEBUG) printf("\n\n%s\n",(char *)cw->aux);
+  if (MH_DEBUG) oxprintf("\n\n%s\n",(char *)cw->aux);
   /* This output is strange. */
   /* Starting HGM */
   argv[3] = (char *)cw->aux;
@@ -114,7 +114,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   }
   rp = mh_main(argc,argv);
   if (rp == NULL) {
-    fprintf(stderr,"rp is NULL in the second step.\n"); return(NULL);
+    oxprintfe("rp is NULL in the second step.\n"); return(NULL);
   }
   cw = new_cWishart(rank);
   cw->x = rp->x;
@@ -182,24 +182,24 @@ main(int argc,char *argv[]) {
 	}else if (strcmp(argv[i],"--verbose")==0) {
 	  verbose=1;
 	}else{
-	  fprintf(stderr,"Unknown option.\n");
+	  oxprintfe("Unknown option.\n");
 	}
   }
   mh_set_strategy(strategy,err);
   cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10, 1,1e-7,verbose);
   if (cw != NULL) {
-    printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
-    /* printf("%s",(char *)cw->aux); */
+    oxprintf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
+    /* oxprintf("%s",(char *)cw->aux); */
   }
   cw=mh_cwishart_hgm(4,5,beta,0.3,7,  0.01,1,10, 1,1e-7,verbose);
   if (cw != NULL) {
-    printf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
+    oxprintf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
     s = (char *)cw->aux;
-    /* printf("%s",(char *)cw->aux); */
+    /* oxprintf("%s",(char *)cw->aux); */
     if (show) {
       sfp = mh_fopen(s,"r",0);
       while (mh_fgets(str,1024,sfp)) {
-        sscanf(str,"%lg",&x); printf("%lg\n",x);
+        sscanf(str,"%lg",&x); oxprintf("%lg\n",x);
       }
       mh_fclose(sfp);
     }
@@ -211,15 +211,15 @@ main1() {
   int verbose=1;
   cw=mh_cwishart_s(3,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
-    printf("%s",(char *)cw->aux);
+    oxprintf("%s",(char *)cw->aux);
   }
   cw=mh_cwishart_s(4,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
-    printf("%s",(char *)cw->aux);
+    oxprintf("%s",(char *)cw->aux);
   }
   cw=mh_cwishart_s(5,5,beta,0.3,7,  0,0,0, 1,1e-7,verbose);
   if (cw != NULL) {
-    printf("%s",(char *)cw->aux);
+    oxprintf("%s",(char *)cw->aux);
   }
 }
 #endif

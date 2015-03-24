@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.16 2014/03/14 02:21:40 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.17 2014/03/14 05:58:16 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,19 +29,19 @@ void *mh_malloc(int s) {
   void *p;
   static int total=0;
   total += s;
-  if (MH_DEBUG) printf("mh_malloc total allocated memory: %f M\n",(float)total/(float)(1024*1024));
+  if (MH_DEBUG) oxprintf("mh_malloc total allocated memory: %f M\n",(float)total/(float)(1024*1024));
 #ifdef STANDALONE
   p = (void*)malloc(s);
 #else
   p = (void *)R_alloc(1,s);
 #endif
   if (p == NULL) {
-    fprintf(stderr,"No memory.\n"); mh_exit(-1);
+    oxprintfe("No memory.\n"); mh_exit(-1);
   }
   return(p);
 }
 int mh_free(void *p) {
-  if (MH_DEBUG) printf("mh_free at %p\n",p);
+  if (MH_DEBUG) oxprintf("mh_free at %p\n",p);
 #ifdef STANDALONE
   free(p); /* free in mh_free */
 #endif
@@ -54,7 +54,7 @@ int mh_exit(int n) {
   if (n == MH_RESET_EXIT) { standalone=1; return(0);}
   if (standalone) exit(n);
   else {
-    fprintf(stderr,"Fatal error mh_exit(%d) in mh-w-n.\n",n);
+    oxprintfe("Fatal error mh_exit(%d) in mh-w-n.\n",n);
     return(n);
   }
 #else
@@ -71,7 +71,7 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
   if (byFile) {
     sfp->byFile = 1;
     if (strcmp(name,"stdout")==0) {
-      sfp->fp = stdout;
+      sfp->fp = oxstdout;
     }else{
       sfp->fp = fopen(name,mode);
     }
@@ -95,7 +95,7 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
     sfp->forRead=0;
     return(sfp);
   }else{
-    fprintf(stderr,"Error: unknown mode %s in the string mode.\n",mode);
+    oxprintfe("Error: unknown mode %s in the string mode.\n",mode);
     return NULL;
   }
 }
@@ -135,7 +135,7 @@ int mh_fputs(char *str,struct SFILE *sfp) {
   }
   strcpy(&(s[len]),str);
   len += inputLen;
-  /* printf("mh_fputs(%d):[%s]\n",len,s); */
+  /* oxprintf("mh_fputs(%d):[%s]\n",len,s); */
   sfp->s=s; sfp->len=len; sfp->limit=limit;
   return(0);
 }
@@ -145,7 +145,7 @@ int mh_fclose(struct SFILE *sfp) {
   if (!sfp) return(-1);
   if (sfp->byFile) return fclose(sfp->fp);
   if (! (sfp->forRead)) {
-    if (!sfp->copied) fprintf(stderr,"Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
+    if (!sfp->copied) oxprintfe("Warning in mh_fclose. sfp->s has not been copied, but deallocated.\n"); 
     if (sfp->s != NULL) { mh_free(sfp->s); sfp->s = NULL; }
   }
   mh_free(sfp);
@@ -155,7 +155,7 @@ int mh_fclose(struct SFILE *sfp) {
 int mh_outstr(char *str,int size,struct SFILE *sfp) {
   int i;
   if (sfp->byFile) {
-    fprintf(stderr,"Error in mh_outstr. mh_outstr is called in the file i/o mode.\n");
+    oxprintfe("Error in mh_outstr. mh_outstr is called in the file i/o mode.\n");
     return 0;
   }
   if (size) str[0] = 0;
@@ -167,7 +167,7 @@ int mh_outstr(char *str,int size,struct SFILE *sfp) {
 }
 
 void mh_error(char *s,int code) {
-  fprintf(stderr,"Error: %s\n",s);
+  oxprintfe("Error: %s\n",s);
   mh_exit(code);
 }
 
@@ -187,7 +187,7 @@ struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
         token.type = MH_TOKEN_EOF;
         return token;
       }
-      /* printf("work=%s\n",work); */
+      /* oxprintf("work=%s\n",work); */
       w0 = 0; wn=strlen(work);
     }
     t=w0;
@@ -219,7 +219,7 @@ struct mh_token mh_getoken(char s[],int smax,struct SFILE *sfp) {
     }
     if (work[t] == '%') {
       if (t2-t-2 >= smax) {
-        fprintf(stderr,"s is too small in mh_getoken.\n");
+        oxprintfe("s is too small in mh_getoken.\n");
         mh_exit(-1);
       }
       strncpy(s,&(work[t+1]),t2-(t+1)); s[t2-(t+1)] = 0;
@@ -254,26 +254,26 @@ static int isIntString(char s[]) {
 void mh_print_token(struct mh_token tk,char *s) {
   int type;
   type = tk.type;
-  printf("type=%d\n",type);
+  oxprintf("type=%d\n",type);
   switch(type) {
   case MH_TOKEN_ID:
-    printf("ID=%s\n",s); break;
+    oxprintf("ID=%s\n",s); break;
   case MH_TOKEN_EQ:
-    printf("MH_TOKEN_EQ\n"); break;
+    oxprintf("MH_TOKEN_EQ\n"); break;
   default:
-    printf("NUM=%s, ival=%d, dval=%lg\n",s,tk.ival,tk.dval); break;
+    oxprintf("NUM=%s, ival=%d, dval=%lg\n",s,tk.ival,tk.dval); break;
   }
 }
 
 #ifdef TEST
 /* for debugging */
 dump(struct SFILE *sfp) {
-  printf("byFile=%d\n",sfp->byFile);
-  if (sfp->s) printf("sfp->s=%s\n",sfp->s);
-  printf("pt=%d\n",sfp->pt);
-  printf("len=%d\n",sfp->len);
-  printf("limit=%d\n",sfp->limit);
-  printf("fp=%p\n",sfp->fp);
+  oxprintf("byFile=%d\n",sfp->byFile);
+  if (sfp->s) oxprintf("sfp->s=%s\n",sfp->s);
+  oxprintf("pt=%d\n",sfp->pt);
+  oxprintf("len=%d\n",sfp->len);
+  oxprintf("limit=%d\n",sfp->limit);
+  oxprintf("fp=%p\n",sfp->fp);
 }
 
 
@@ -291,13 +291,13 @@ main() {
   /*
     sfp = mh_fopen("hoge\nafo\nbho\ncat\ndot\ndolphin\n","r",0);
     while (mh_fgets(str,1024,sfp)) {
-    printf(str);
+    oxprintf(str);
     }
     mh_fclose(sfp);
 
     sfp = mh_fopen("sfile.h","r",1);
     while (mh_fgets(str,1024,sfp)) {
-    printf(str);
+    oxprintf(str);
     }
     mh_fclose(sfp);
   */
@@ -308,7 +308,7 @@ main() {
     dump(sfp);
   }
   mh_fputs("end end\n",sfp);
-  printf("result=%s\n",sfp->s);
+  oxprintf("result=%s\n",sfp->s);
   mh_outstr(str,TESTSIZE,sfp);
   mh_fclose(sfp);
 }

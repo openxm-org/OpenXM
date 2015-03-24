@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.27 2014/03/20 09:37:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.28 2014/03/20 10:58:37 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -242,7 +242,7 @@ int jk_freeWorkArea() {
   if (M_beta_1) {myfree(M_beta_1); M_beta_1=NULL;}
   if (M_jack) {
     for (i=0; M_jack[i] != NULL; i++) {
-      if (Debug) printf("Free M_jack[%d]\n",i);
+      if (Debug) oxprintf("Free M_jack[%d]\n",i);
       myfree(M_jack[i]); M_jack[i] = NULL;
     }
     myfree(M_jack); M_jack=NULL;
@@ -286,19 +286,19 @@ int jk_initializeWorkArea() {
 
 static void *mymalloc(int size) {
   void *p;
-  if (Debug) printf("mymalloc(%d)\n",size);
+  if (Debug) oxprintf("mymalloc(%d)\n",size);
   p = (void *)mh_malloc(size);
   if (p == NULL) {
-    fprintf(stderr,"No more memory.\n");
+    oxprintfe("No more memory.\n");
     mh_exit(-1);
   }
   return(p);
 }
 static int myfree(void *p) {
-  if (Debug) printf("myFree at %p\n",p);
+  if (Debug) oxprintf("myFree at %p\n",p);
   return(mh_free(p));
 }
-static int myerror(char *s) { fprintf(stderr,"%s: type in control-C\n",s); getchar(); getchar(); return(0);}
+static int myerror(char *s) { oxprintfe("%s: type in control-C\n",s); getchar(); getchar(); return(0);}
 
 static double jack1(int K) {
   double F;
@@ -349,7 +349,7 @@ static double xval(int ii,int p) { /* x_i^p */
   if (p > M_m_MAX-2) myerror("xval, p is too large.");
   if (p < 0) {
     myerror("xval, p is negative.");
-    printf("ii=%d, p=%d\n",ii,p);
+    oxprintf("ii=%d, p=%d\n",ii,p);
     mh_exit(-1);
   }
   return(Xarray[ii-1][p]);
@@ -405,7 +405,7 @@ static int test_ptrans() {
   int i;
   M_m = 10;
   ptrans(p,pt);
-  if (Debug) {for (i=0; i<10; i++) printf("%d,",pt[i]);  printf("\n");}
+  if (Debug) {for (i=0; i<10; i++) oxprintf("%d,",pt[i]);  oxprintf("\n");}
   return(0);
 }
 
@@ -419,7 +419,7 @@ static int huk(int K[],int I,int J) {
   int Kp[M_m_MAX];
   int A,H;
   A=Alpha;
-  /*printf("h^k(%a,%a,%a,%a)\n",K,I,J,A);*/
+  /*oxprintf("h^k(%a,%a,%a,%a)\n",K,I,J,A);*/
   ptrans(K,Kp);
   H=Kp[J-1]-I+A*(K[I-1]-J+1);
   return(H);
@@ -434,7 +434,7 @@ static int hdk(int K[],int I,int J) {
   int Kp[M_m_MAX];
   int A,H;
   A = Alpha;
-  /*printf("h_k(%a,%a,%a,%a)\n",K,I,J,A);*/
+  /*oxprintf("h_k(%a,%a,%a,%a)\n",K,I,J,A);*/
   ptrans(K,Kp);
   H=Kp[J-1]-I+1+A*(K[I-1]-J);
   return(H);
@@ -454,7 +454,7 @@ static double jjk(int K[]) {
       V *= huk(K,I+1,J+1)*hdk(K,I+1,J+1);
     }
   }
-  if (Debug) {printp(K); printf("<--K, jjk=%lg\n",V);}
+  if (Debug) {printp(K); oxprintf("<--K, jjk=%lg\n",V);}
   return(V);
 }
 /*
@@ -528,8 +528,8 @@ static int bb(int N[],int K[],int M[],int I,int J) {
   ptrans(M,Mp); 
 
   /*
-    printp(K); printf("K<--, "); printp2(Kp); printf("<--Kp\n");
-    printp(M); printf("M<--, "); printp2(Mp); printf("<--Mp\n");
+    printp(K); oxprintf("K<--, "); printp2(Kp); oxprintf("<--Kp\n");
+    printp(M); oxprintf("M<--, "); printp2(Mp); oxprintf("<--Mp\n");
   */
 
   if ((plength_t(Kp) < J) || (plength_t(Mp) < J)) return(hdk(N,I,J));
@@ -550,7 +550,7 @@ static double beta(int K[],int M[]) {
     for (J=0; J<K[I]; J++) {
       II = I+1; JJ = J+1;
       V *= (double)bb(K,K,M,II,JJ);
-      /* printf("[%d,%d,%lf]\n",I,J,V); */
+      /* oxprintf("[%d,%d,%lf]\n",I,J,V); */
     }
   }
 
@@ -559,7 +559,7 @@ static double beta(int K[],int M[]) {
     for (J=0; J<M[I]; J++) {
       II = I+1; JJ = J+1;
       V /= (double)bb(M,K,M,II,JJ);
-      /* printf("[%d,%d,%lf]\n",I,J,V);*/
+      /* oxprintf("[%d,%d,%lf]\n",I,J,V);*/
     }
   }
 
@@ -567,20 +567,20 @@ static double beta(int K[],int M[]) {
 }
 static int printp(int kappa[]) {
   int i;
-  printf("(");
+  oxprintf("(");
   for (i=0; i<M_n; i++) {
-    if (i <M_n-1) printf("%d,",kappa[i]);
-    else printf("%d)",kappa[i]);
+    if (i <M_n-1) oxprintf("%d,",kappa[i]);
+    else oxprintf("%d)",kappa[i]);
   }
   return(0);
 }
 static int printp2(int kappa[]) {
   int i,ell;
-  printf("(");
+  oxprintf("(");
   ell = plength_t(kappa);
   for (i=0; i<ell+1; i++) {
-    if (i <ell+1-1) printf("%d,",kappa[i]);
-    else printf("%d)",kappa[i]);
+    if (i <ell+1-1) oxprintf("%d,",kappa[i]);
+    else oxprintf("%d)",kappa[i]);
   }
   return(0);
 }
@@ -590,9 +590,9 @@ static int test_beta() {
   int mu1[M_n0]={1,0,0};
   int mu2[M_n0]={1,1,0};
   int mu3[M_n0]={2,0,0};
-  printp(kappa); printf(","); printp(mu3); printf(": beta = %lf\n",beta(kappa,mu3));
-  printp(kappa); printf(","); printp(mu1); printf(": beta = %lf\n",beta(kappa,mu1));
-  printp(kappa); printf(","); printp(mu2); printf(": beta = %lf\n",beta(kappa,mu2));
+  printp(kappa); oxprintf(","); printp(mu3); oxprintf(": beta = %lf\n",beta(kappa,mu3));
+  printp(kappa); oxprintf(","); printp(mu1); oxprintf(": beta = %lf\n",beta(kappa,mu1));
+  printp(kappa); oxprintf(","); printp(mu2); oxprintf(": beta = %lf\n",beta(kappa,mu2));
 }
 
 /* main() { test_beta(); } */
@@ -688,7 +688,7 @@ static void mtest4() {
   double V1,V2;
   V1=q3_5(A,B,K,I);
   V2=qk(K,A,B)/qk(Ki,A,B);
-  printf("%lf== %lf?\n",V1,V2);
+  oxprintf("%lf== %lf?\n",V1,V2);
 }
 static void mtest4b() {
   int K[M_n0]={3,2,0}; 
@@ -698,7 +698,7 @@ static void mtest4b() {
   double V1,V2;
   V1=q3_10(K,M,SK);
   V2=beta(K,N)/beta(K,M);
-  printf("%lf== %lf?\n",V1,V2);
+  oxprintf("%lf== %lf?\n",V1,V2);
 }
 
 /* main() { mtest4(); mtest4b(); } */
@@ -758,7 +758,7 @@ static int pListPartition(int M,int N) {
   int I;
   /* initialize */
   if (M_n != N) {
-    fprintf(stderr,"M_n != N\n"); mh_exit(-1);
+    oxprintfe("M_n != N\n"); mh_exit(-1);
   }
   M_m = M;
   /* M_plist = []; */
@@ -793,9 +793,9 @@ static int pListPartition2(int Less,int From,int To, int M) {
 */
 static void pExec_0() {
   if (Debug) {
-    printf("M_kap=");
+    oxprintf("M_kap=");
     printp(M_kap);
-    printf("\n");
+    oxprintf("\n");
   }
 }
 
@@ -840,7 +840,7 @@ static int pListHS2(int From,int To,int Kap[]) {
 
 static void hsExec_0() {
   int i;
-  if(Debug) {printf("hsExec: "); printp(HS_mu); printf("\n");}
+  if(Debug) {oxprintf("hsExec: "); printp(HS_mu); oxprintf("\n");}
 }
 
 /*
@@ -878,10 +878,10 @@ static int pmn(int M,int N) {
   }
   P_pmn=S;
   if (Debug) {
-    printf("P_pmn=%d\n",P_pmn);
+    oxprintf("P_pmn=%d\n",P_pmn);
     for (i=0; i<=Min_m_n; i++) {
-      for (j=0; j<=M; j++) printf("%d,",aP_pki(i,j));
-      printf("\n");
+      for (j=0; j<=M; j++) oxprintf("%d,",aP_pki(i,j));
+      oxprintf("\n");
     }
   }
   myfree(P_pki); P_pki=NULL;
@@ -889,7 +889,7 @@ static int pmn(int M,int N) {
 }
 
 /*
-  main() {pmn(4,3); printf("P_pmn=%d\n",P_pmn);}
+  main() {pmn(4,3); oxprintf("P_pmn=%d\n",P_pmn);}
 */
 
 static int *cloneP(int a[]) {
@@ -930,7 +930,7 @@ static int genDarray2(int M,int N) {
 
   M_m = M;
   Pmn = pmn(M,N)+1;
-  if (Debug) printf("Degree M = %d, N of vars N = %d, Pmn+1=%d\n",M,N,Pmn);
+  if (Debug) oxprintf("Degree M = %d, N of vars N = %d, Pmn+1=%d\n",M,N,Pmn);
   Darray=(int *) mymalloc(sizeof(int)*Pmn);
   for (i=0; i<Pmn; i++) Darray[i] = 0;
   Parray=(int **) mymalloc(sizeof(int *)*Pmn);
@@ -949,7 +949,7 @@ static int genDarray2(int M,int N) {
     K = L[I]; /* N_K = I; D[N_K] = N_(K,1) */
     Ksize = plength(K);
     if (Ksize >= M_n) {
-      if (Debug) {fprintf(stderr,"Ksize >= M_n\n");}
+      if (Debug) {oxprintfe("Ksize >= M_n\n");}
       continue;
     }
     for (i=0; i<M_n; i++) Kone[i] = 0;
@@ -959,9 +959,9 @@ static int genDarray2(int M,int N) {
     }
   }
   if (Debug) {
-    printf("Darray=\n");
-    for (i=0; i<Pmn; i++) printf("%d\n",Darray[i]);
-    printf("-----------\n");
+    oxprintf("Darray=\n");
+    for (i=0; i<Pmn; i++) oxprintf("%d\n",Darray[i]);
+    oxprintf("-----------\n");
   }
   return(0);
 }
@@ -990,7 +990,7 @@ static void hsExec_beta(void) {
   int Nu[M_nmx];
   int rrMax;
   hsExec_0();
-  /* printf("M_beta_pt=%a\n",M_beta_pt); */
+  /* oxprintf("M_beta_pt=%a\n",M_beta_pt); */
   /* Mu = cdr(vtol(HS_mu)); */
   Mu = HS_mu; /* buggy? need cloneP */
   if (M_beta_pt == 0) {
@@ -1014,22 +1014,22 @@ static void hsExec_beta(void) {
       if (M_beta_1[J] == Nnu) {
         K=I+1;
         if (Debug) {
-          printf("Found at J=%d, K=%d, q3_10(Kap,Nu,K)=%lf,Nu,Mu= \n",
+          oxprintf("Found at J=%d, K=%d, q3_10(Kap,Nu,K)=%lf,Nu,Mu= \n",
                  J,K,q3_10(M_beta_kap,Nu,K));
-          printp(Nu); printf("\n");
-          printp(Mu); printf("\n");
+          printp(Nu); oxprintf("\n");
+          printp(Mu); oxprintf("\n");
         }
         /* Check other conditions. See Numata's mail on Dec 24, 2011. */
         rrMax = Nu[I]-1;                 
         if ((plength_t(Kapt) < rrMax) || (plength_t(Nut) < rrMax)) {
-          if (Debug) printf(" is not taken (length). \n");
+          if (Debug) oxprintf(" is not taken (length). \n");
           break;
         }
         OK=1; 
         for (RR=0; RR<rrMax; RR++) {
           if (Kapt[RR] != Nut[RR]) { OK=0; break;}
         }
-        if (!OK) { if (Debug) printf(" is not taken.\n"); break; }
+        if (!OK) { if (Debug) oxprintf(" is not taken.\n"); break; }
         /* check done. */
         M_beta_0[M_beta_pt]=M_beta_0[J]*q3_10(M_beta_kap,Nu,K);
         Done = 1; break;
@@ -1038,7 +1038,7 @@ static void hsExec_beta(void) {
     if (Done) break; else Nu[I]--;
   }
   if (!Done) {
-    if (Debug) printf("BUG: not found M_beta_pt=%d.\n",M_beta_pt);
+    if (Debug) oxprintf("BUG: not found M_beta_pt=%d.\n",M_beta_pt);
     /* M_beta_0[M_beta_pt] = NAN;  error("Not found."); */
     M_beta_0[M_beta_pt] = beta(M_beta_kap,Mu); 
   }
@@ -1052,7 +1052,7 @@ static int genBeta(int Kap[]) {
   extern int M_beta_kap[];
   extern int P_pmn;
   int I,J,N;
-  if (Debug) {printp(Kap); printf("<-Kappa, P_pmn=%d\n",P_pmn);}
+  if (Debug) {printp(Kap); oxprintf("<-Kappa, P_pmn=%d\n",P_pmn);}
   /* M_beta = newmat(2,P_pmn+1); */
   M_beta_0 = (double *)mymalloc(sizeof(double)*(P_pmn+1));
   M_beta_1 = (int *)mymalloc(sizeof(int)*(P_pmn+1));
@@ -1081,20 +1081,20 @@ static int checkBeta1() {
     Mu = Parray[M_beta_1[I]];
     Beta_km = M_beta_0[I];
     if (Debug) {
-      printp(Kap); printf("<--Kap, ");
-      printp(Mu); printf("<--Mu,");
-      printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap,Mu));
+      printp(Kap); oxprintf("<--Kap, ");
+      printp(Mu); oxprintf("<--Mu,");
+      oxprintf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap,Mu));
     }
   }
-  if (Debug) printf("-------------------------------------\n");
+  if (Debug) oxprintf("-------------------------------------\n");
   genBeta(Kap2);
   for (I=0; I<M_beta_pt; I++) {
     Mu = Parray[M_beta_1[I]];
     Beta_km = M_beta_0[I];
     if (Debug) {
-      printp(Kap2); printf("<--Kap, ");
-      printp(Mu); printf("<--Mu,");
-      printf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap2,Mu));
+      printp(Kap2); oxprintf("<--Kap, ");
+      printp(Mu); oxprintf("<--Mu,");
+      oxprintf("Beta_km(by table)=%lf, beta(Kap,Mu)=%lf\n",Beta_km,beta(Kap2,Mu));
     }
   }
   return(0);
@@ -1104,13 +1104,13 @@ static int checkBeta1() {
   def checkBeta2() {
   genDarray2(3,3);
   Kap = [2,1,0];
-  printf("Kap=%a\n",Kap);
+  oxprintf("Kap=%a\n",Kap);
   genBeta(Kap);
   for (I=0; I<M_beta_pt; I++) {
   Mu = Parray[M_beta[1][I]];
   Beta_km = M_beta[0][I];
-  printf("Mu=%a,",Mu);
-  printf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
+  oxprintf("Mu=%a,",Mu);
+  oxprintf("Beta_km(by table)=%a, beta(Kap,Mu)=%a\n",Beta_km,beta(Kap,Mu));
   }
   }
 */
@@ -1154,7 +1154,7 @@ static int genJack(int M,int N) {
   int *Kap,*Mu;
   double Jack,Beta_km;
   int Nk,JJ;
-  if (Debug) printf("genJack(%d,%d)\n",M,N);
+  if (Debug) oxprintf("genJack(%d,%d)\n",M,N);
   M_jack = (double **) mymalloc(sizeof(double *)*(N+2));
   M_2n = imypower(2,N);
   Pmn = pmn(M,N);  /*P_pmn is initializeded. 
@@ -1199,7 +1199,7 @@ static int genJack(int M,int N) {
         for (J=1; J<M_2n; J++) aM_jack(I,J,K) = 0;
       } 
     }
-    if (Debug) {printf("Kappa="); printp(Kap);}
+    if (Debug) {oxprintf("Kappa="); printp(Kap);}
     /* Enumerate horizontal strip of Kappa */
     genBeta(Kap);  /* M_beta_pt stores the number of hs */
     /* Nv is the number of variables */
@@ -1214,11 +1214,11 @@ static int genJack(int M,int N) {
           Beta_km = beta(Kap,Mu);
           /* do not use the M_beta table. It's buggy. UseTable is experimental.*/
         }
-        if (Debug) {printf("Nv(number of variables)=%d, Beta_km=%lf, Mu=",Nv,Beta_km);
-          printp(Mu); printf("\n");}
+        if (Debug) {oxprintf("Nv(number of variables)=%d, Beta_km=%lf, Mu=",Nv,Beta_km);
+          printp(Mu); oxprintf("\n");}
         P = psublen(Kap,Mu);
         Jack += aM_jack(Nv-1,0,Nk)*Beta_km*xval(Nv,P); /* util_v(x,[Nv])^P;*/
-        if (Debug) printf("xval(%d,%d)=%lf\n",Nv,P,xval(Nv,P));
+        if (Debug) oxprintf("xval(%d,%d)=%lf\n",Nv,P,xval(Nv,P));
       }
       aM_jack(Nv,0,K) = Jack;
       if (M_df) {
@@ -1234,8 +1234,8 @@ static int genJack(int M,int N) {
             }else{
               Beta_km = beta(Kap,Mu); /* do not use the M_beta table. It's buggy. */
             }
-            if (Debug) {printf("M_df: Nv(number of variables)=%d, Beta_km=%lf, Mu= ",Nv,Beta_km);
-              printp(Mu); printf("\n"); }
+            if (Debug) {oxprintf("M_df: Nv(number of variables)=%d, Beta_km=%lf, Mu= ",Nv,Beta_km);
+              printp(Mu); oxprintf("\n"); }
             P = psublen(Kap,Mu);
             if (J & (1 << (Nv-1))) {
               JJ = J & ((1 << (Nv-1)) ^ 0xffff);  /* NOTE!! Up to 16 bits. mh-15 */
@@ -1247,7 +1247,7 @@ static int genJack(int M,int N) {
             }
           }
           aM_jack(Nv,J,K) = Jack;
-          if (Debug) printf("aM_jack(%d,%d,%d) = %lf\n",Nv,J,K,Jack);
+          if (Debug) oxprintf("aM_jack(%d,%d,%d) = %lf\n",Nv,J,K,Jack);
         } /* end of J loop */
       }
     }
@@ -1271,11 +1271,11 @@ static int checkJack1(int M,int N) {
   for (I=1; I<=N; I++) {
     for (K=0; K<=P_pmn; K++) {
       printp(Parray[K]);
-      printf("<--Kap, Nv=%d, TableJack=%lf\n",I,aM_jack(I,0,K));
+      oxprintf("<--Kap, Nv=%d, TableJack=%lf\n",I,aM_jack(I,0,K));
     }
   }
-  for (I=1; I<=N; I++) printf("%lf, ",M_x[I-1]);
-  printf("<--x\n");
+  for (I=1; I<=N; I++) oxprintf("%lf, ",M_x[I-1]);
+  oxprintf("<--x\n");
   return(0);
 }
 /*main() {  checkJack1(3,3);  }*/
@@ -1297,17 +1297,17 @@ static int checkJack2(int M,int N) {
   for (I=1; I<=N; I++) {
     for (K=0; K<=P_pmn; K++) {
       printp(Parray[K]);
-      printf("<--Kap, Nv=%d, TableJack=%lf\n",I,aM_jack(I,0,K));
+      oxprintf("<--Kap, Nv=%d, TableJack=%lf\n",I,aM_jack(I,0,K));
     }
   }
-  for (I=1; I<=N; I++) printf("%lf, ",M_x[I-1]);
-  printf("<--x\n");
+  for (I=1; I<=N; I++) oxprintf("%lf, ",M_x[I-1]);
+  oxprintf("<--x\n");
 
   for (I=1; I<=N; I++) {
     for (K=0; K<=P_pmn; K++) {
       for (J=0; J<M_2n; J++) {
         printp(Parray[K]);
-        printf("<--Kap, Nv=%d,J(diff)=%d, D^J Jack=%lf\n",
+        oxprintf("<--Kap, Nv=%d,J(diff)=%d, D^J Jack=%lf\n",
                I,J,aM_jack(I,J,K));
       }
     }
@@ -1346,8 +1346,8 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
     M_qk[K] = qk(Kap,A,B);
     F += M_qk[K]*aM_jack(N,0,K);
     if (ParraySize[K] < size) F2 += M_qk[K]*aM_jack(N,0,K);
-    if (Debug) printf("ParraySize[K] = %d, size=%d\n",ParraySize[K],size);
-    if (Debug && (ParraySize[K] == size)) printf("M_qk[K]=%lg, aM_jack=%lg\n",M_qk[K],aM_jack(N,0,K));
+    if (Debug) oxprintf("ParraySize[K] = %d, size=%d\n",ParraySize[K],size);
+    if (Debug && (ParraySize[K] == size)) oxprintf("M_qk[K]=%lg, aM_jack=%lg\n",M_qk[K],aM_jack(N,0,K));
   }
   M_rel_error = F-F2;
 
@@ -1368,11 +1368,11 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   }
   /*
   for (K=0; K<=P_pmn; K++) {
-    printf("Kappa="); for (i=0; i<N; i++) printf("%d ",Parray[K][i]); printf("\n"); 
-    printf("ParraySize(%d)=%d (|kappa|),   M_m=%d\n",K,ParraySize[K],M_m);
+    oxprintf("Kappa="); for (i=0; i<N; i++) oxprintf("%d ",Parray[K][i]); oxprintf("\n"); 
+    oxprintf("ParraySize(%d)=%d (|kappa|),   M_m=%d\n",K,ParraySize[K],M_m);
   }
   for (i=0; i<=M_m; i++) {
-    printf("partial_sum[%d]=%lg\n",i,partial_sum[i]);
+    oxprintf("partial_sum[%d]=%lg\n",i,partial_sum[i]);
   }
   */
   M_estimated_X0g = X0g;
@@ -1388,12 +1388,12 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
   M_recommended_relerr = M_series_error;
 
   if (M_show_autosteps) {
-    printf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
-    printf("%%%%x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
-    printf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
-    fprintf(stderr,"%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
-    fprintf(stderr,"%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
-    fprintf(stderr,"%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+    oxprintf("%%%%serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+    oxprintf("%%%%x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
+    oxprintf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+    oxprintfe("%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
+    oxprintfe("%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
+    oxprintfe("%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
   }
 
   M_mh_t_value=F;
@@ -1426,7 +1426,7 @@ static int mtest1b() {
   mh_t(A,B,N,M);
   for (J=0; J<M_2n; J++) {
     F=mh_t2(J);
-    printf("J=%d, D^J mh_t=%lf\n",J,F);
+    oxprintf("J=%d, D^J mh_t=%lf\n",J,F);
   }
 }
 
@@ -1443,7 +1443,7 @@ static int mtest1b() {
 /****** from mh-n.c *****/ 
 
 #define SMAX 4096
-#define inci(i) { i++; if (i >= argc) { fprintf(stderr,"Option argument is not given.\n"); return(NULL); }}
+#define inci(i) { i++; if (i >= argc) { oxprintfe("Option argument is not given.\n"); return(NULL); }}
 
 static int imypower(int x,int n) {
   int i;
@@ -1458,7 +1458,7 @@ static int imypower(int x,int n) {
 main(int argc,char *argv[]) {
   mh_exit(MH_RESET_EXIT);
   /*  jk_main(argc,argv);
-      printf("second run.\n"); */
+      oxprintf("second run.\n"); */
   jk_main(argc,argv);
   return(0);
 }
@@ -1522,7 +1522,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     }else if (strcmp(argv[i],"--help")==0) {
       usage(); return(0);
     }else if (strcmp(argv[i],"--bystring")==0) {
-      if (idata) {fprintf(stderr,"--bystring must come before --idata option.\n"); mh_exit(-1);}
+      if (idata) {oxprintfe("--bystring must come before --idata option.\n"); mh_exit(-1);}
       JK_byFile = 0;
     }else if (strcmp(argv[i],"--automatic")==0) {
       inci(i); /* ignore, in this function */
@@ -1533,7 +1533,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
       inci(i);
       sscanf(argv[i],"%lg",&M_x0value_min);
     }else {
-      fprintf(stderr,"Unknown option %s\n",argv[i]);
+      oxprintfe("Unknown option %s\n",argv[i]);
       usage();
       return(NULL);
     }
@@ -1560,7 +1560,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     if (M_n > Mapprox) Mapprox=M_n;
   }
   /* Output by a file=stdout */
-  ofp = mh_fopen("stdout","w",JK_byFile);
+  ofp = mh_fopen("oxstdout","w",JK_byFile);
 
   sprintf(swork,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
   sprintf(swork,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
@@ -1585,7 +1585,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
 
   a[0] = ((double)Mg+1.0)/2.0;
   b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
-  if (Debug) printf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
+  if (Debug) oxprintf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
   mh_t(a,b,M_n,Mapprox);
   if ((!M_mh_t_success) && M_automatic) {
     jk_freeWorkArea();
@@ -1616,44 +1616,44 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     ans->series_error = M_series_error;
     ans->recommended_abserr = M_recommended_abserr;
   }
-  if (Debug) printf("jk_freeWorkArea() starts\n");
+  if (Debug) oxprintf("jk_freeWorkArea() starts\n");
   jk_freeWorkArea();
-  if (Debug) printf("jk_freeWorkArea() has finished.\n");
+  if (Debug) oxprintf("jk_freeWorkArea() has finished.\n");
   return(ans);
 }
 
 static int usage() {
-  fprintf(stderr,"Usages:\n");
-  fprintf(stderr,"hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
-  fprintf(stderr,"           [--automatic n --assigned_series_error e --x0value_min e2]\n");
-  fprintf(stderr,"\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
-  fprintf(stderr,"The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
-  fprintf(stderr,"The degree of the approximation (Mapprox) is given by the --degree option.\n");
-  fprintf(stderr,"Parameters are specified by the input_data_file. Otherwise, default values are used.\n\n");
-  fprintf(stderr,"The format of the input_data_file: (The orders of the input data must be kept.)\n");
-  fprintf(stderr," Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
-  fprintf(stderr," (Add a comment line %%Ng= before the data Ng to check the number of beta.)\n");
-  fprintf(stderr," X0g: starting value of x(when --x0 option is used, this value is used)\n");
-  fprintf(stderr," Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
-  fprintf(stderr," Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
-  fprintf(stderr," Hg: h (step size) which is for hgm_w-n, \n"); 
-  fprintf(stderr," Dp: output data is stored in every Dp steps when output_data_file is specified. This is for hgm_w-n.\n");
-  fprintf(stderr," Xng: terminating value of x. This is for hgm_w-n.\n");
-  fprintf(stderr,"Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt as an example. Optional paramters are given as %%parameter_name=value  Lines starting with %%%% or # are comment lines.\n");
-  fprintf(stderr,"Parameters are redefined when they appear more than once in the idata file and the command line options.\n\n");
-  fprintf(stderr,"With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
-  fprintf(stderr,"An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
-  fprintf(stderr,"By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
-  fprintf(stderr,"Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
-  fprintf(stderr,"Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
-  fprintf(stderr,"\nExamples:\n");
-  fprintf(stderr,"[1] ./hgm_jack-n \n");
-  fprintf(stderr,"[2] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
-  fprintf(stderr,"[3] ./hgm_jack-n --idata Testdata/tmp-idata2.txt --degree 15 >test2.txt\n");
-  fprintf(stderr,"    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
-  fprintf(stderr,"    gnuplot -persist <test-g-gp.txt\n");
-  fprintf(stderr,"[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
-  fprintf(stderr,"[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
+  oxprintfe("Usages:\n");
+  oxprintfe("hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
+  oxprintfe("           [--automatic n --assigned_series_error e --x0value_min e2]\n");
+  oxprintfe("\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
+  oxprintfe("The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
+  oxprintfe("The degree of the approximation (Mapprox) is given by the --degree option.\n");
+  oxprintfe("Parameters are specified by the input_data_file. Otherwise, default values are used.\n\n");
+  oxprintfe("The format of the input_data_file: (The orders of the input data must be kept.)\n");
+  oxprintfe(" Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
+  oxprintfe(" (Add a comment line %%Ng= before the data Ng to check the number of beta.)\n");
+  oxprintfe(" X0g: starting value of x(when --x0 option is used, this value is used)\n");
+  oxprintfe(" Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
+  oxprintfe(" Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
+  oxprintfe(" Hg: h (step size) which is for hgm_w-n, \n"); 
+  oxprintfe(" Dp: output data is stored in every Dp steps when output_data_file is specified. This is for hgm_w-n.\n");
+  oxprintfe(" Xng: terminating value of x. This is for hgm_w-n.\n");
+  oxprintfe("Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt as an example. Optional paramters are given as %%parameter_name=value  Lines starting with %%%% or # are comment lines.\n");
+  oxprintfe("Parameters are redefined when they appear more than once in the idata file and the command line options.\n\n");
+  oxprintfe("With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
+  oxprintfe("An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
+  oxprintfe("By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
+  oxprintfe("Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
+  oxprintfe("Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
+  oxprintfe("\nExamples:\n");
+  oxprintfe("[1] ./hgm_jack-n \n");
+  oxprintfe("[2] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
+  oxprintfe("[3] ./hgm_jack-n --idata Testdata/tmp-idata2.txt --degree 15 >test2.txt\n");
+  oxprintfe("    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
+  oxprintfe("    gnuplot -persist <test-g-gp.txt\n");
+  oxprintfe("[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
+  oxprintfe("[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
   return(0);
 }
 
@@ -1690,12 +1690,12 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
     if (!mh_fgets(s,SMAX,sfp)) {
-      fprintf(stderr,"Data format error at %s\n",msg);
+      oxprintfe("Data format error at %s\n",msg);
       mh_exit(-1);
     }
     if (check && (strncmp(msg,ng,4)==0)) {
       if (strncmp(s,ng,4) != 0) {
-        fprintf(stderr,"Warning, there is no %%Ng= at the border of Beta's and Ng, s=%s\n",s);
+        oxprintfe("Warning, there is no %%Ng= at the border of Beta's and Ng, s=%s\n",s);
       }
       check=0;
     }
@@ -1713,7 +1713,7 @@ static int setParam(char *fname) {
 
   Sample = 0;
   if ((fp=mh_fopen(fname,"r",JK_byFile)) == NULL) {
-    if (JK_byFile) fprintf(stderr,"File %s is not found.\n",fp->s);
+    if (JK_byFile) oxprintfe("File %s is not found.\n",fp->s);
     mh_exit(-1);
   }
   next(fp,s,"Mg(m)");
@@ -1760,69 +1760,69 @@ static int setParam(char *fname) {
   while ((tk = mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_EOF) {
     /* expect ID */
     if (tk.type != MH_TOKEN_ID) {
-      fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+      oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
     }
     if (strcmp(s,"automatic")==0) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       M_automatic = tk.ival;
       continue;
     }
     if (strcmp(s,"assigned_series_error")==0) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       M_assigned_series_error = tk.dval;
       continue;
     }
     if (strcmp(s,"x0value_min")==0) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       M_x0value_min = tk.dval;
       continue;
     }
     if ((strcmp(s,"Mapprox")==0) || (strcmp(s,"degree")==0)) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       Mapprox = tk.ival;
       continue;
     }
     if (strcmp(s,"X0g_bound")==0) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       M_X0g_bound = tk.dval;
       continue;
     }
     if (strcmp(s,"show_autosteps")==0) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
-        fprintf(stderr,"Syntax error at %s\n",s); mh_exit(-1);
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       M_show_autosteps = tk.ival;
       continue;
     }
-    fprintf(stderr,"Unknown ID at %s\n",s); mh_exit(-1);
+    oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
   }
   mh_fclose(fp);
   return(0);
@@ -1832,7 +1832,7 @@ static int showParam(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
   if (fd) {
-    fp = mh_fopen("stdout","w",1);
+    fp = mh_fopen("oxstdout","w",1);
   }
   rank = imypower(2,Mg);
   sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
@@ -1876,7 +1876,7 @@ static double gammam(double a,int n) {
   for (i=1; i<=n; i++) {
     v2 += lgamma(a-((double)(i-1))/2.0); /* not for big n */
   }
-  if (Debug) printf("gammam(%lg,%d)=%lg\n",a,n,v*exp(v2));
+  if (Debug) oxprintf("gammam(%lg,%d)=%lg\n",a,n,v*exp(v2));
   return(v*exp(v2));
 }
 
