@@ -1,10 +1,11 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/hgm/orthant/src/hgm_ko_orthant.c,v 1.3 2014/04/09 08:31:06 tkoyama Exp $*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 /* for runge kutta */
 #include "t-gsl_errno.h"
 #include "t-gsl_odeiv.h"
+#include "oxprint.h"
 
 #ifndef _STANDALONE
 #include <R_ext/BLAS.h>
@@ -91,7 +92,7 @@ hgm_ko_orthant(int *d, double *sigma, double *mu, double *retv)
 
   sigma_mu2xy(sigma, mu, x, y);
   if(norm(y) > 7.0){ /* norm(y) <- sqrt(y_1^2 +...+y_d^2 ) */
-    fprintf(stderr, "The vector y is large. HGM may take long time!\n");
+    oxprintfe( "The vector y is large. HGM may take long time!\n");
   }
 #ifdef _VERBOSE
   print_matrix2(verbose_out, dim,x, "x"); 
@@ -241,7 +242,7 @@ check_sigma(double *sigma)
 	is_symmetric = 0;
       }
   if(!is_symmetric)
-    fprintf(stderr, "Warning:sigma is not symmetric.\n");
+    oxprintfe( "Warning:sigma is not symmetric.\n");
 
   /* check the positive definiteness of sigma */
   /*
@@ -271,7 +272,7 @@ check_sigma(double *sigma)
   gsl_eigen_symmv_free(w);
 
   if(!is_positive_definite){
-    fprintf(stderr,"Error: Sigma is not positive definite.\n");
+    oxprintfe("Error: Sigma is not positive definite.\n");
     return -1;
   }
   */
@@ -387,14 +388,14 @@ cal_sigmaI_muI(const int I)
 #else
   F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
 #endif
-  //fprintf(stderr, "info=%d\n", info);
+  //oxprintfe( "info=%d\n", info);
   n = m = deg_I;
 #ifdef _STANDALONE
   dpotri_("U", &n, g_submat, &m, &info);
 #else
   F77_CALL(dpotri)("U", &n, g_submat, &m, &info);
 #endif
-  //fprintf(stderr, "info=%d\n", info);
+  //oxprintfe( "info=%d\n", info);
   for ( i = 0; i < deg_I; i++)
     for ( j = i; j < deg_I; j++)
       g_sigmaI[j+i*deg_I] = g_sigmaI[i+j*deg_I] = g_submat[i+j*deg_I];
@@ -457,13 +458,13 @@ cal_det_sigmaI(const int I, const int deg_I)
   double det = 1.0;
   int info, n, m;
   n = m = deg_I;
-  //fprintf(stderr, "cal_det_sigmaI: %d %d ", I, deg_I);
+  //oxprintfe( "cal_det_sigmaI: %d %d ", I, deg_I);
 #ifdef _STANDALONE
   dpotrf_("U", &n, g_submat, &m, &info);
 #else
   F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
 #endif
-  //fprintf(stderr, "info=%d\n", info);
+  //oxprintfe( "info=%d\n", info);
   for ( i = 0; i < deg_I; i++)
     det *= g_submat[i+i*deg_I];
   det *= det;
@@ -562,7 +563,7 @@ move(double g[], double h)
     if (status != GSL_SUCCESS)
       break;
 #ifdef _DEBUG
-    fprintf(stderr, "t=%f\n", t);
+    oxprintfe( "t=%f\n", t);
     print_vector(stderr, g, rank, "g:");
 #endif
     
@@ -635,7 +636,7 @@ int main(int argc, char *argv[])
 	return 0;
 	break;
       default:
-	fprintf(stderr,"Error:unknown option\n");
+	oxprintfe("Error:unknown option\n");
 	return -1;
 	break;
       }
@@ -643,18 +644,18 @@ int main(int argc, char *argv[])
     case 'f':
       ifp = fopen(optarg, "r");
       if(ifp == NULL){
-	fprintf(stderr, "Error: can not open %s.\n", optarg);
+	oxprintfe( "Error: can not open %s.\n", optarg);
 	exit(EXIT_FAILURE);
       }
       sprintf(log_file, "%s.log", optarg);
       ofp = fopen(log_file, "w");
       if(ofp == NULL){
-	fprintf(stderr, "Error: can not open %s.\n", log_file);
+	oxprintfe( "Error: can not open %s.\n", log_file);
 	exit(EXIT_FAILURE);
       }
       break;
     default:
-      printf("?? getopt returned character code 0%o ??\n", c);
+      oxprintf("?? getopt returned character code 0%o ??\n", c);
     }
   }
 
@@ -670,7 +671,7 @@ int main(int argc, char *argv[])
 
   double result;
   hgm_ko_orthant(&dim, x, y, &result);
-  printf("probability=%10.9f\n", result);
+  oxprintf("probability=%10.9f\n", result);
  
   if(ifp!=stdin)
       fclose(ifp);
@@ -697,27 +698,27 @@ gen_data_tri_diag(void)
 {
   int dim;
   double rho;
-  fprintf(stderr, "dim=");
+  oxprintfe( "dim=");
   scanf("%d", &dim);
-  fprintf(stderr, "rho=");
+  oxprintfe( "rho=");
   scanf("%lf",&rho);
 
   int i,j;
-  printf("%d\n\n",dim);
+  oxprintf("%d\n\n",dim);
   for(i=0; i<dim; i++){
     for(j=0; j<dim; j++)
       if(i==j)
-	printf("%f ",1.0);
+	oxprintf("%f ",1.0);
       else if(i-j==1 || i-j==-1)
-	printf("%f ",rho);
+	oxprintf("%f ",rho);
       else
-	printf("%f ",0.0);
-    printf("\n");
+	oxprintf("%f ",0.0);
+    oxprintf("\n");
   }
-  printf("\n");
+  oxprintf("\n");
   for(i=0; i<dim; i++)
-    	printf("%f ",0.0);
-  printf("\n");
+    	oxprintf("%f ",0.0);
+  oxprintf("\n");
 }
 
 static void 
@@ -725,25 +726,25 @@ gen_data_same_non_diag(void)
 {
   int dim;
   double rho;
-  fprintf(stderr, "dim=");
+  oxprintfe( "dim=");
   scanf("%d", &dim);
-  fprintf(stderr, "rho=");
+  oxprintfe( "rho=");
   scanf("%lf",&rho);
 
   int i,j;
-  printf("%d\n\n",dim);
+  oxprintf("%d\n\n",dim);
   for(i=0; i<dim; i++){
     for(j=0; j<dim; j++)
       if(i==j)
-	printf("%f ",1.0);
+	oxprintf("%f ",1.0);
       else
-	printf("%f ",rho);
-    printf("\n");
+	oxprintf("%f ",rho);
+    oxprintf("\n");
   }
-  printf("\n");
+  oxprintf("\n");
   for(i=0; i<dim; i++)
-    	printf("%f ",0.0);
-  printf("\n");
+    	oxprintf("%f ",0.0);
+  oxprintf("\n");
 }
 
 static void 
@@ -766,16 +767,16 @@ gen_data_random(int dim)
       sigma[i][j] = sigma[j][i] = s;
     }
 
-  printf("%d\n\n",dim);
+  oxprintf("%d\n\n",dim);
   for(i=0; i<dim; i++){
     for(j=0; j<dim; j++)
-	printf("%f ",sigma[i][j]);
-    printf("\n");
+	oxprintf("%f ",sigma[i][j]);
+    oxprintf("\n");
   }
-  printf("\n");
+  oxprintf("\n");
   for(i=0; i<dim; i++)
-    printf("%f ",frand());
-  printf("\n");
+    oxprintf("%f ",frand());
+  oxprintf("\n");
 }
 
 #endif

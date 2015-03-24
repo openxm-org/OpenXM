@@ -2,3 +2,4 @@
 #define oxprintfe(...) fprintf(stderr,__VA_ARGS__)
 #define oxflush()  fflush(NULL)
 #define oxabort()  abort()
+#define oxstdout  stdout
