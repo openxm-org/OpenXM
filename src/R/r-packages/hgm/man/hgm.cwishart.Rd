@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.7 2015/03/21 22:49:34 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.8 2015/03/22 00:27:51 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,7 +11,8 @@
   of random wishart matrices of size m times m.
 }
 \usage{
-hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,err,automatic,assigned_series_error,verbose)
+hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
+            err,automatic,assigned_series_error,verbose)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

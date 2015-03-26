@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.se.hgm.Bingham.Rd,v 1.3 2014/03/31 00:50:34 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.se.hgm.Bingham.Rd,v 1.4 2015/03/22 00:27:51 takayama Exp $
 \name{hgm.ncBingham}
 \alias{hgm.ncBingham}
 %\alias{hgm.se.hgm.Bingham}
@@ -12,7 +12,8 @@
    for Bingham distributions with the deSolve package in R.
 }
 \usage{
- hgm.ncBingham(th, d=rep(1,length(th)+1), logarithm=FALSE, ini.method="power", times=NULL, withvol=FALSE, ...)
+ hgm.ncBingham(th, d=rep(1,length(th)+1), logarithm=FALSE,
+               ini.method="power", times=NULL, withvol=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
