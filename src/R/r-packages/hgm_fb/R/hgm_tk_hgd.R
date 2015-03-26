@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm_tk_hgd.R,v 1.1 2014/03/31 06:20:06 takayama Exp $
+# $OpenXM$
 # This is a wrapper module for the holonomic gradient descent (HGD)
 # hgm.z.mleFBByOptim, hgm.z.mleDemo
 # hgm_nk_opt_fb.R and hgm_ko_ncfb are required.

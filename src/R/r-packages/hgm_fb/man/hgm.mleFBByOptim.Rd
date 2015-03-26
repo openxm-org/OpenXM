@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.mleFBByOptim.Rd,v 1.3 2015/03/21 23:40:34 takayama Exp $
+% $OpenXM$
 \name{hgm.z.mleFBByOptim}
 \alias{hgm.z.mleFBByOptim}
 %%Todo, write documents for hgm.z.mleDemo, hgm.ssFB
