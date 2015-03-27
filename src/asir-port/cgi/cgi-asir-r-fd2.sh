@@ -1,5 +1,5 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir-r-fd2.sh,v 1.5 2015/02/28 11:39:13 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir-r-fd2.sh,v 1.6 2015/03/11 07:28:45 takayama Exp $
 ## Replace $OpenXM_HOME by an absolute path of your cite and uncomment
 export OpenXM_HOME=/private/taka/OpenXM
 export HOME=/tmp
@@ -8,7 +8,7 @@ source "$OpenXM_HOME/rc/dot.bashrc"
 #source /home/taka/OpenXM/rc/dot.bashrc
 export TMP=/tmp
 export CGI_ASIR_ALLOW="[(version) (asir_contrib_copyright) (a_ahvec) (r_ahvec) (a_expect) (r_expect) (r_ahmat) (a_ahmat) (r_log_ahmat) (a_log_ahmat) (util_callfn)]"
-export CGI_ASIR_TLIMIT="60"
+export CGI_ASIR_TLIMIT="600"
 export OX_ASIR_LOAD_FILE="$OpenXM_HOME/src/asir-port/cgi/r-fd.rr"
 export CGI_ASIR_MSG="<pre>
  Example. r_ahvec(-1,[-2,-3],10,[[1,1/2,1/3],[1,1,1]])
