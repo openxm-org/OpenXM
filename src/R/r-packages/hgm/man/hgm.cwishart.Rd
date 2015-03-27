@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.8 2015/03/22 00:27:51 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.9 2015/03/26 11:54:13 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -109,9 +109,9 @@ The obtained value is not validated automatically.
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%%\code{\link{oxm.matrix_r2tfb}}
-}
+%\seealso{
+%%%\code{\link{oxm.matrix_r2tfb}}
+%}
 \examples{
 ## =====================================================
 ## Example 1. 

@@ -2,10 +2,13 @@ RSYNC=rsync -Cavz --safe-links
 
 usage:
 	@echo "check-hgm, build-hgm"
-	@echo "rsync, copy-web"
+	@echo "build-hgmFB"
+	@echo "rsync, copy-web, check-hgm-for-cran"
 
 check-hgm: rsync
 	R CMD check hgm
+check-hgm-for-cran: rsync
+	R CMD check --as-cran hgm
 build-hgm: rsync
 	rm -f hgm/src/@dont-edit-files
 	R CMD build hgm
@@ -23,7 +26,16 @@ rsync-mh:
 rsync-orthant:
 	${RSYNC} ../../hgm/orthant/src/hgm_ko_orthant*.c  hgm/src/
 
-copy-web: build-hgm
-	${RSYNC} hgm*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
+check-hgmFB:
+	R CMD check hgm_fb
+build-hgmFB: 
+	R CMD build hgm_fb
+copy-web: copy-web-hgm copy-web-hgmFB
+copy-web-hgm: build-hgm
+	${RSYNC} hgm_*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
 	${RSYNC} hgm.Rcheck/hgm-manual.pdf ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
+
+copy-web-hgmFB: build-hgmFB
+	${RSYNC} hgmFB_*gz ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
+	${RSYNC} hgm_fb.Rcheck/hgmFB-manual.pdf ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
 

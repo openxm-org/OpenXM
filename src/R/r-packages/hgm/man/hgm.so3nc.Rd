@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.4 2014/03/24 05:28:17 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.5 2015/03/22 00:27:51 takayama Exp $
 \name{hgm.ncso3}
 \alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -59,15 +59,15 @@ Journal of Multivariate Analysis, 116 (2013), 440--455,
 \author{
 Nobuki Takayama
 }
-\note{
-%%  ~~further notes~~
-}
+%\note{
+%%%  ~~further notes~~
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%%\code{\link{oxm.matrix_r2tfb}}
-}
+%\seealso{
+%%%\code{\link{oxm.matrix_r2tfb}}
+%}
 \examples{
 ## =====================================================
 ## Example 1. Computing normalization constant of the Fisher distribution on SO(3)

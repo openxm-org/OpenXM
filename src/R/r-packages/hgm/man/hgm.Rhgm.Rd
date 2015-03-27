@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.Rhgm.Rd,v 1.1 2014/03/25 02:25:26 takayama Exp $
 \name{hgm.Rhgm}
 \alias{hgm.Rhgm}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -65,15 +65,15 @@ constant.
 \author{
 Tomonari Sei
 }
-\note{
-%%  ~~further notes~~
-}
+%\note{
+%%%  ~~further notes~~
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%%\code{\link{oxm.matrix_r2tfb}}
-}
+%\seealso{
+%%%\code{\link{oxm.matrix_r2tfb}}
+%}
 \examples{
 # Example 1.
 # A demo program; von Mises--Fisher on S^{3-1}

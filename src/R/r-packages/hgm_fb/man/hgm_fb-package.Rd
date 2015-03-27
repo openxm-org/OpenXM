@@ -1,5 +1,5 @@
-%% $OpenXM$
-\name{hgm_fb-package}
+%% $OpenXM: OpenXM/src/R/r-packages/hgm_fb/man/hgm_fb-package.Rd,v 1.1 2015/03/26 06:45:11 takayama Exp $
+\name{hgmFB-package}
 \alias{hgm_fb-package}
 \alias{HGM_FB}
 \alias{hgm_fb}

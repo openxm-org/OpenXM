@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.3 2015/03/22 00:27:51 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.4 2015/03/24 07:49:06 takayama Exp $
 \name{hgm.ncorthant}
 \alias{hgm.ncorthant}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -48,15 +48,15 @@ by the holonomic gradient method,
 \author{
 Tamio Koyama
 }
-\note{
-%%  ~~further notes~~
-}
+%\note{
+%%%  ~~further notes~~
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%%\code{\link{oxm.matrix_r2tfb}}
-}
+%\seealso{
+%%%\code{\link{oxm.matrix_r2tfb}}
+%}
 \examples{
 ## =====================================================
 ## Example 1. Computing the orthant probability

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.se.hgm.Bingham.Rd,v 1.4 2015/03/22 00:27:51 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.se.hgm.Bingham.Rd,v 1.5 2015/03/26 11:54:13 takayama Exp $
 \name{hgm.ncBingham}
 \alias{hgm.ncBingham}
 %\alias{hgm.se.hgm.Bingham}
@@ -59,15 +59,15 @@ of the normalizing constant with respect to the first
 \author{
 Tomonari Sei
 }
-\note{
-%%  ~~further notes~~
-}
+%\note{
+%%%  ~~further notes~~
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%%\code{\link{oxm.matrix_r2tfb}}
-}
+%\seealso{
+%%%\code{\link{oxm.matrix_r2tfb}}
+%}
 \examples{
 # Example 1.
 hgm.ncBingham(c(1,3,5))
