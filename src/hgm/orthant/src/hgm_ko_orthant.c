@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/hgm/orthant/src/hgm_ko_orthant.c,v 1.3 2014/04/09 08:31:06 tkoyama Exp $*/
+/*$OpenXM: OpenXM/src/hgm/orthant/src/hgm_ko_orthant.c,v 1.4 2015/03/24 06:10:33 takayama Exp $*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -86,7 +86,7 @@ hgm_ko_orthant(int *d, double *sigma, double *mu, double *retv)
   print_vector(verbose_out, mu, dim, "mu"); 
 #endif 
   if(check_sigma(sigma)) /* check that sigma is symmetric and positive definite */
-    exit(EXIT_FAILURE);
+    oxexit0(EXIT_FAILURE);
 
   double x[dim*dim], y[dim];
 
@@ -645,13 +645,13 @@ int main(int argc, char *argv[])
       ifp = fopen(optarg, "r");
       if(ifp == NULL){
 	oxprintfe( "Error: can not open %s.\n", optarg);
-	exit(EXIT_FAILURE);
+	oxexit(EXIT_FAILURE);
       }
       sprintf(log_file, "%s.log", optarg);
       ofp = fopen(log_file, "w");
       if(ofp == NULL){
 	oxprintfe( "Error: can not open %s.\n", log_file);
-	exit(EXIT_FAILURE);
+	oxexit(EXIT_FAILURE);
       }
       break;
     default:

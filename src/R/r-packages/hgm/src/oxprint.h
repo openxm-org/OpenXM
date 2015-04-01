@@ -4,3 +4,5 @@
 #define oxflush()  
 #define oxabort()  REprintf("Fatal error in the shared lib hgm.\n")
 #define oxstdout  NULL
+#define oxexit(a)  {REprintf("Fatal error in the shared lib hgm.\n"); return(0);}
+#define oxexit0(a)  {REprintf("Fatal error in the shared lib hgm.\n"); return;}
