@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.32 2015/04/02 01:11:13 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.33 2015/04/02 05:45:41 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1572,7 +1572,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     if (M_n > Mapprox) Mapprox=M_n;
   }
   /* Output by a file=stdout */
-  ofp = mh_fopen("oxstdout","w",JK_byFile);
+  ofp = mh_fopen("stdout","w",JK_byFile);
 
   sprintf(swork,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
   sprintf(swork,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
@@ -1844,7 +1844,7 @@ static int showParam(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
   if (fd) {
-    fp = mh_fopen("oxstdout","w",1);
+    fp = mh_fopen("stdout","w",1);
   }
   rank = imypower(2,Mg);
   sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
