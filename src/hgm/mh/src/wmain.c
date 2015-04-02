@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.22 2015/03/24 05:59:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.23 2015/03/24 07:49:06 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -85,7 +85,7 @@ static int mypower(int x,int n) {
   return(a);
 }
 #ifdef STANDALONE2
-main(int argc,char *argv[]) {
+int main(int argc,char *argv[]) {
   int strategy=STRATEGY_DEFAULT;
   double err[2]={-1.0,-1.0};
   int i;

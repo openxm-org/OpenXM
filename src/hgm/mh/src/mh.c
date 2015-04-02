@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.13 2014/03/16 03:11:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.14 2015/03/24 05:59:43 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "sfile.h"
 #include "mh.h"
 #define WSIZE 1024
@@ -158,7 +159,7 @@ struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
 }
 
 #ifdef STANDALONE
-main(int argc,char *argv[]) {
+int main(int argc,char *argv[]) {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
   struct SFILE *sfp;
@@ -204,8 +205,9 @@ main(int argc,char *argv[]) {
       mh_fclose(sfp);
     }
   }
+  return(0);
 }
-main1() {
+int main1() {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
   int verbose=1;
@@ -221,5 +223,6 @@ main1() {
   if (cw != NULL) {
     oxprintf("%s",(char *)cw->aux);
   }
+  return(0);
 }
 #endif
