@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.31 2015/04/02 00:11:32 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.32 2015/04/02 01:11:13 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -446,9 +446,9 @@ static int hdk(int K[],int I,int J) {
 */
 static double jjk(int K[]) {
   extern int Alpha;
-  int A,L,I,J;
+  int L,I,J;
   double V;
-  A=Alpha;
+
   V=1;
   L=plength(K);
   for (I=0; I<L; I++) {
@@ -623,12 +623,12 @@ static int test_beta() {
 static double q3_10(int K[],int M[],int SK) {
   extern int Alpha;
   int Mp[M_m_MAX];
-  int ML[M_nmx];
+  //  int ML[M_nmx];
   int N[M_nmx];
   int i,R;
   double T,Q,V,Ur,Vr,Wr;
   ptrans(M,Mp);
-  for (i=0; i<M_n; i++) {ML[i] = M[i]; N[i] = M[i];}
+  for (i=0; i<M_n; i++) {N[i] = M[i];}
   N[SK-1] = N[SK-1]-1; 
 
   T = SK-Alpha*M[SK-1];
@@ -784,20 +784,20 @@ static int pListPartition(int M,int N) {
   Less >= M_kap[From], ..., M_kap[To],  |(M_kap[From],...,M_kap[To])|<=M, 
 */
 static int pListPartition2(int Less,int From,int To, int M) {
-  int I,R;
+  int I;
   mh_check_intr(100);
   if (To < From) {
     (*M_pExec)(); return(0);
   }
   for (I=1; (I<=Less) && (I<=M) ; I++) {
     M_kap[From-1] = I;
-    R = pListPartition2(I,From+1,To,M-I);
+    pListPartition2(I,From+1,To,M-I);
   } 
   return(1);
 }
 
 /*
-  partition に対してやる仕事をこちらへ書く.
+  Commands to do for each partition are given here.
 */
 static void pExec_0() {
   if (Debug) {

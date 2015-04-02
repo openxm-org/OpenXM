@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.6 2013/03/07 05:23:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.7 2015/03/24 04:59:24 takayama Exp $ */
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #ifdef USE_GSL_LIB
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv.h>
@@ -30,7 +31,7 @@ int so3_usage(void);
 int SO3_Quiet = SO3_QUIET_DEFAULT;
 int SO3_Deg = SO3_Deg_DEFAULT;
 #ifdef STANDALONE
-main(int argc,char *argv[]) {
+int main(int argc,char *argv[]) {
   double a[3];
   double y[4];
   double t0;
@@ -62,7 +63,7 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
   double a[3];
   double y[4];
   double t0;
-  int i,j;
+
   SO3_Quiet = SO3_QUIET_DEFAULT;
   SO3_Deg = SO3_Deg_DEFAULT;
   if (*quiet) SO3_Quiet = 1;
@@ -75,7 +76,7 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
     t0 = *t0p;
     if (!SO3_Quiet) oxprintfe("t0 is set to %lf\n",t0);
   }
-  j = 0;
+  //  j = 0;
   if ((SO3_Deg > MDEG-2) || (SO3_Deg < 0)) {
     oxprintfe("Error: deg should be less than %d\n",MDEG-2);
     *out = 0.0; return;
