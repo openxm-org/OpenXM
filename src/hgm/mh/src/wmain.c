@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.23 2015/03/24 07:49:06 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.24 2015/04/02 01:11:13 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -356,7 +356,7 @@ static int setParam(char *fname) {
       MH_strategy = tk.ival;
       continue;
     }
-    oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
+    oxprintfe("Unknown ID for wmain.c (old...) at %s.\n",s);  mh_exit(-1);
   }
 
   mh_fclose(fp); return(0);
