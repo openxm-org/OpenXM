@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "sfile.h"
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/hgm/mh/src/test2.c,v 1.1 2013/02/21 07:30:56 takayama Exp $
   test of the --string mode 
   ./test2 Testdata/tmp-idata3.txt >tt.xt
   diff tt.txt Testdata/tmp-data3-out2.txt
@@ -45,6 +45,7 @@ main(int argc,char *argv[]) {
   struct MH_RESULT *rp;
   struct SFILE *sfp;
   char *argv2[10];
+  // s = (char *) malloc(10); free(s); printf("%x\n",s[0]); // Sample use of Sanitizer.
   mh_exit(MH_RESET_EXIT); /* standalone mode */
   if (argc != 2) { jk_main(argc,argv); return(0);}
   fp = fopen(argv[1],"r");

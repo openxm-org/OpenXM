@@ -1,8 +1,14 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.13 2014/03/14 02:21:40 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.14 2015/03/24 05:59:43 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
-# gdb hgm_w-n with the -g option.
+#
+# For using AddressSanitizer, apt-get lib32asan0-dbg (for amd64). ulimit -v
+#
+#OPT=-g -DSTANDALONE -fsanitize=address -fno-omit-frame-pointer 
+#OPT2=-g -fsanitize=address -fno-omit-frame-pointer 
+#OPT3=-g -DSTANDALONE2 -fsanitize=address -fno-omit-frame-pointer
+# 
 HEADERS=config.h odeiv_util.h t-gsl_errno.h \
         t-gsl_math.h t-gsl_odeiv.h t-gsl_sys.h \
         t-gsl_types.h
