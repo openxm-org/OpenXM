@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.29 2015/03/24 05:59:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.30 2015/03/24 07:49:06 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1358,7 +1358,7 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
       if (ParraySize[K] == i) partial_sum[i] += M_qk[K]*aM_jack(N,0,K);
     }
     if (i>0) partial_sum[i] += partial_sum[i-1];
-    serror = myabs((partial_sum[i]-partial_sum[i-1])/partial_sum[i-1]);
+    if (i>0) serror = myabs((partial_sum[i]-partial_sum[i-1])/partial_sum[i-1]);
     if ((i>0)&&(M_m_estimated_approx_deg < 0)&&(serror<M_assigned_series_error)) {
       M_m_estimated_approx_deg = i; break;
     }
@@ -1686,7 +1686,7 @@ static int setParamDefault() {
 
 static int next(struct SFILE *sfp,char *s,char *msg) {
   static int check=1;
-  char *ng="%Ng=";
+  char *ng="%%Ng=";
   int i;
   s[0] = '%';
   while (s[0] == '%') {
@@ -1695,10 +1695,10 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
       mh_exit(-1);
     }
     if (check && (strncmp(msg,ng,4)==0)) {
-      if (strncmp(s,ng,4) != 0) {
+      if (strncmp(s,ng,5) != 0) {
         oxprintfe("Warning, there is no %%Ng= at the border of Beta's and Ng, s=%s\n",s);
       }
-      check=0;
+      /* check=0; */
     }
     if (s[0] != '%') return(0);
   }

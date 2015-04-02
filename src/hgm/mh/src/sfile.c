@@ -1,14 +1,10 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.17 2014/03/14 05:58:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.18 2015/03/24 05:59:43 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#ifndef STANDALONE
-#include <R.h>
-#include <R_ext/Utils.h>
-#endif
 #include "sfile.h"
 #define SSIZE 5
 int MH_DEBUG = 0;
