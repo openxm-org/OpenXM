@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/dsolv/dsolv.oxw,v 1.1 2005/04/11 11:13:32 takayama Exp $ */
 /* dsolv.oxweave */
 /*&C
 @node DSOLV Functions,,, Top
@@ -135,9 +135,9 @@ Algorithm:
 
 [435] dsolv_dual([y-x^2,y+x^2],[x,y]);
 [x,1]
-[436] dsolv_act(y*dy-sm1_mul(x*dx,x*dx,[x,y]),log(x),[x,y]);
+[436] dsolv_act(y*dy-sm1.mul(x*dx,x*dx,[x,y]),log(x),[x,y]);
 0
-[437] dsolv_act(y*dy+sm1_mul(x*dx,x*dx,[x,y]),log(x),[x,y]);
+[437] dsolv_act(y*dy+sm1.mul(x*dx,x*dx,[x,y]),log(x),[x,y]);
 0
 
 [439] primadec([y^2-x^3,x^2*y^2],[x,y]);
@@ -229,7 +229,7 @@ Differential Equations ([SST]), Chapter 2.
 
 
 @example
-[1076]   F = sm1_gkz( [ [[1,1,1,1,1],[1,1,0,-1,0],[0,1,1,-1,0]], [1,0,0]]);
+[1076]   F = sm1.gkz( [ [[1,1,1,1,1],[1,1,0,-1,0],[0,1,1,-1,0]], [1,0,0]]);
 [[x5*dx5+x4*dx4+x3*dx3+x2*dx2+x1*dx1-1,-x4*dx4+x2*dx2+x1*dx1,
   -x4*dx4+x3*dx3+x2*dx2,
   -dx2*dx5+dx1*dx3,dx5^2-dx2*dx4],[x1,x2,x3,x4,x5]]
