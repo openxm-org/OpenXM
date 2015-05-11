@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.28 2015/03/21 01:24:54 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.29 2015/03/22 00:55:16 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -29,6 +29,22 @@ extern Disc_R$
 extern Disc_R1$
 extern Disc_R2$
 
+extern Verbose$
+
+def verbose(F) {
+    Verbose = (F!=0);
+}
+
+def alert(L) {
+    if (Verbose) {
+        if (isstr(L)) {
+            print(L,2);
+        }else if (islist(L)) {
+            call(printf,L);
+        }
+    }
+}
+    
 def cbase(A) {
   W=[[dx1, 1]]; /* dummy */
   T0=mytoric(A,W);
@@ -1577,6 +1593,103 @@ def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
     return vtol(EV);
 }
 
+def hgm_ahg_expected_values_contiguity_generic(A,B,X,RandomVars) {
+    Opts = getopt();
+    if(a_is_normal(A)) {
+        return hgm_ahg_expected_values_contiguity(A,B,X,RandomVars | option_list=Opts);
+    }
+    ACH=translation_of_a(A);
+    NewA=ACH[0];
+    NewB=translation_of_beta(B,ACH);
+    alert(["NewA=%a\nCH=%a\nNewB=%a\n",NewA,cdr(ACH),NewB]);
+    return hgm_ahg_expected_values_contiguity(NewA,NewB,X,RandomVars | option_list=Opts);
+}
+
+/* 行列 A の成分が非負か */
+def a_is_normal(A) {
+    if(ismat(A)) {
+        S=size(A); Row=S[0]; Col=S[1];
+    }else {
+        Row=length(A); Col=length(A[0]);
+    }
+    for(I=0; I<Row; I++) {
+        for(J=0; J<Col; J++) {
+            if(A[I][J]<0) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+/* 
+A の 任意の列ベクトル a=(a_1,..., a_d) に対して、
+h(a) = h_1a_1 + ... + h_d a_d = 1 となる
+超平面 h を与える (h_1,...,h_d) を返す
+*/
+def find_hyperplane(A) {
+    S=size(A);
+    Row=S[0];
+    Col=S[1];
+    for(C=[],I=Row; I>0; I--) {
+        C=cons(strtov(sprintf("%a%a","x",I)),C);
+    }
+    Col=size(A)[1];
+    T=newvect(Col);
+    for(I=0; I<Col; I++) {
+        T[I]=1;
+    }
+    Sol=poly_solve_linear(vtol(ltov(C)*A-T),C);
+    if(length(Sol)!=length(C)) {
+        return 0; /* 超平面が存在しない */
+    }
+    H=base_replace(C,Sol);
+    return H;
+}
+
+/*
+グレブナー道場1章補題1.5.10 の方法によって、トーリックイデアルを不変とする
+配置行列の変換を与える。
+返り値: [A,C,H]
+A: 新しい配置行列
+C: 各列に加えた非負整数ベクトル
+H: もとの配置行列について、超平面を定めるベクトル
+ */
+def translation_of_a(A) {
+    AM=matrix_list_to_matrix(A);
+    S=size(AM);
+    Row=S[0];
+    Col=S[1];
+    C=newvect(Row);
+    H=find_hyperplane(AM);
+    if(H==0) return 0;
+    for(I=0; I<Row; I++) {
+        C[I]=-oh_base.min(cons(0,A[I]));
+    }
+    if(C!=newvect(Row)) { /* A が負の要素を含む */
+        T=matrix_inner_product(H,C);
+        if(T==-1) {
+            /* H に直交しない単位ベクトルを C に加える */
+            for(I=0; I<Row && H[I]==0; I++) {
+            }
+            C[I]++;
+        }
+        CC=newvect(Col);
+        for(J=0; J<Col; J++) {
+            CC[J] = C;
+        }
+        AM=AM+call(matc,CC);
+        A=matrix_matrix_to_list(AM);
+    }
+    return [A,C,H];
+}
+
+def translation_of_beta(B,ACH) {
+    C=ACH[1];
+    H=ACH[2];
+    return vtol(ltov(B)+matrix_inner_product(H,B)*C);
+}
+
 def test100 () {
     /* from ud-c11.rr */
     A = [[1,0,0,1,1,0,1],
@@ -2673,6 +2786,97 @@ def test325() {
 
     // Do not omit msize=3
     EV=hgm_ahg_expected_values_contiguity(A,B,X,R|msize=3);
+    N=length(EV); Err=newvect(N);
+    for(I=0; I<N; I++) {
+        Err[I]=deval(number_abs((U[I]-EV[I])/U[I]));
+    }
+    Err=vtol(Err);
+    printf("Err=%a\n",Err);
+    Err=oh_base.max(Err);
+    printf("MaxErr=%a\n",Err);
+    ctrl("real_digit",Digit);
+    return Err;
+}
+
+def test_f9() {
+    Digit=ctrl("real_digit");
+    ctrl("real_digit",30);
+    B=[[-1,-1,-1, 1,1,1, 0,0,0],
+       [-1,-1,-1, 0,0,0, 1,1,1]];
+    A=matrix_kernel(B)[1];
+    printf("A=%a\n",A);
+    U=ltov([80,40,25,62,28,109,35,43,34]);
+    Beta=vtol(matrix_list_to_matrix(A)*U);
+    printf("Beta=%a\n",Beta);
+    SumU = oh_base.sum(U);
+    X0 = vtol((1/SumU)*ltov(U)); /* 経験オッズ */
+    R = [x1,x2,x3,x4,x5,x6,x7,x8,x9];
+    printf("at (%a=%a)\n",R,X0);
+
+//  Do not omit msize=4
+    EV=hgm_ahg_expected_values_contiguity_generic(A,Beta,X0,R|msize=4);
+    printf("EV(%a)=%a\n",R,EV);
+    N=length(EV); Err=newvect(N);
+    for(I=0; I<N; I++) {
+        Err[I]=deval(number_abs((U[I]-EV[I])/U[I]));
+    }
+    Err=vtol(Err);
+    printf("Err=%a\n",Err);
+    Err=oh_base.max(Err);
+    printf("MaxErr=%a\n",Err);
+    ctrl("real_digit",Digit);
+    return Err;
+}
+
+def test_fQ3() {
+    Digit=ctrl("real_digit");
+    ctrl("real_digit",30);
+
+    B=[[-1,-1,-1, 1,1,1, 0,0,0, 0,0,0],
+       [-1,-1,-1, 0,0,0, 1,1,1, 0,0,0],
+       [-1,-1,-1, 0,0,0, 0,0,0, 1,1,1]];
+    A=matrix_kernel(B)[1];
+    printf("A=%a\n",A);
+    U=ltov([80,40,25,62,28,109,35,43,34,70,22,41]);
+    Beta=vtol(matrix_list_to_matrix(A)*U);
+    printf("Beta=%a\n",Beta);
+    SumU = oh_base.sum(U);
+    X0 = vtol((1/SumU)*ltov(U)); /* 経験オッズ */
+    R = [x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12];
+    printf("at (%a=%a)\n",R,X0);
+
+//  Do not omit msize=4
+    EV=hgm_ahg_expected_values_contiguity_generic(A,Beta,X0,R|msize=4);
+    printf("EV(%a)=%a\n",R,EV);
+    N=length(EV); Err=newvect(N);
+    for(I=0; I<N; I++) {
+        Err[I]=deval(number_abs((U[I]-EV[I])/U[I]));
+    }
+    Err=vtol(Err);
+    printf("Err=%a\n",Err);
+    Err=oh_base.max(Err);
+    printf("MaxErr=%a\n",Err);
+    ctrl("real_digit",Digit);
+    return Err;
+}
+
+def test_f4() {
+    Digit=ctrl("real_digit");
+    ctrl("real_digit",30);
+    B=[[-1,-1, 1,1, 0,0],
+       [-1,-1, 0,0, 1,1]];
+    A=matrix_kernel(B)[1];
+    printf("A=%a\n",A);
+    U=ltov([80,40,25,62,28,109]);
+    Beta=vtol(matrix_list_to_matrix(A)*U);
+    printf("Beta=%a\n",Beta);
+    SumU = oh_base.sum(U);
+    X0 = vtol((1/SumU)*ltov(U)); /* 経験オッズ */
+    R = [x1,x2,x3,x4,x5,x6];
+    printf("at (%a=%a)\n",R,X0);
+
+    EV=hgm_ahg_expected_values_contiguity_generic(A,Beta,X0,R);
+    printf("EV(%a)=%a\n",R,EV);
     N=length(EV); Err=newvect(N);
     for(I=0; I<N; I++) {
         Err[I]=deval(number_abs((U[I]-EV[I])/U[I]));
