@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.29 2015/03/22 00:55:16 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.30 2015/05/11 17:06:58 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -38,7 +38,7 @@ def verbose(F) {
 def alert(L) {
     if (Verbose) {
         if (isstr(L)) {
-            print(L,2);
+            printf("%a",L);
         }else if (islist(L)) {
             call(printf,L);
         }
@@ -56,8 +56,7 @@ def cbase(A) {
   T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
 
   Er=base_replace(E,genrule_p(Vb)); /* prob method */
-  printf("We use a probabilistic algorithm to determine the base."); /*Er=E;*/
-  print(T2);
+  alert(["We use a probabilistic algorithm to determine the base: %a\n",T2]);  /*Er=E;*/
   OrdM=poly_r_omatrix(length(V));
   Vall=append(V,Vd);
   G=nd_weyl_gr(append(Er,T2),Vall,0,OrdM);
@@ -257,12 +256,12 @@ def get_mat2(A,W,Std,Mset) {
   for (I=0; I<length(G); I++) R[I]=G[I];
   /* G から行列を作る. 右辺は R. */
   Supp = get_support(G,Vd);
-//  printf("Support=%a, Std=%a \n",Supp,Std);
+  alert(["Support=%a, Std=%a \n",Supp,Std]);
   Supp2 = base_set_minus(Supp,Std);
   /* Supp2 を 縦の index とする行列を作る */
   Disc_Supp2=Supp2; 
   Mat = newmat(length(G),length(Supp2));
-  printf("size=%a\n",size(Mat));
+  alert(["size=%a\n",size(Mat)]);
   for (I=0; I<length(G); I++) {
     for (J=0; J<length(Supp2); J++) {
        Mat[I][J] = mcoef(G[I],Supp2[J],Vd);
@@ -563,7 +562,7 @@ def call_func_eqn(FuncArgs,Vals) {
     }
     /* Eq(X)=0 を X について解く */
     Sol = poly_solve_linear(Eq,X);
-//  printf("X=%a\nSol=%a\n\n",X,map('car',Sol));
+    alert(["call_func_eqn: X=%a\nSol=%a\n\n",X,map('car',Sol)]);
     F = base_replace(F,Sol);
     return F;
 }
@@ -881,7 +880,7 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
     H  = number_sign(Xe-Xs)*H;
     H2 = H/2;
     Ans = [[Xs,Ys]];
-    printf("\n%a %a\n", (*Rk_deval)(Xs), 'map'(Rk_deval, Ys));
+    alert(["%a %a\n", (*Rk_deval)(Xs), 'map'(Rk_deval, Ys)]);
     for(Y=Ys,X=Xs,I=0; I<N; I++) {
         Y1 = (*CALL)(FuncArgs, [[X],   Y]); 
         Y2 = (*CALL)(FuncArgs, [[X+H2],Y+H2*Y1]); 
@@ -896,10 +895,10 @@ def runge_kutta_linear2(FuncArgs,Xs,Ys,Xe,H) {
 */
         Y += (H/6)*(Y1+2*(Y2+Y3)+Y4);
         X += H; 
-        printf("%a %a\n", (*Rk_deval)(X), 'map'(Rk_deval, Y));
+        alert(["%a %a\n", (*Rk_deval)(X), 'map'(Rk_deval, Y)]);
         Ans = cons([X,Y],Ans);
     }
-    printf("\n");
+    alert("\n");
     return reverse(Ans);
 }
 
@@ -998,7 +997,7 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
     Safety = 9/10;
 
     Ctrl = rk_step_controller(getopt(ctrl));
-    printf("ErrorController=%a\n",Ctrl);
+    alert(["ErrorController=%a\n",Ctrl]);
 
     if (type(Ys)==type([])) {
         Ys = ltov(Ys);
@@ -1010,9 +1009,9 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
 
     X = Xs; Y = Ys;
     Ans = [[X,Y]];
-    printf("\n%a %a\n", (*Eval)(X), 'map'(Eval, Y));
+    alert(["\n%a %a\n", (*Eval)(X), 'map'(Eval, Y)]);
     if (X==Xe) {
-        printf("\n");
+        alert("\n");
         return Ans;
     }
 
@@ -1020,11 +1019,11 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
         X1 = X; Y1 = Y;
         R = rk_step45(CALL,FuncArgs,X,Y,H,Ctrl,Eval);
         Y5 = R[0]; Error = R[1];
-        printf("Error = %a\n", Error);
+        alert(["Error = %a\n", Error]);
         if (Error>1) { // Retry because the error is too large.
             E5 = (*Eval)(Error^(-1/5));
             H2 = H*Safety*E5;
-            printf("(retry) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10));
+            alert(["(retry) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10)]);
             H  = H2;
             continue;
         }
@@ -1032,13 +1031,13 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
         if (Error <= 1/2) { // Enlarging the stepsize because of too small.
             E5 = (*Eval)(Error^(-1/5));
             H2 = H*Safety*E5;
-            printf("(next) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10));
+            alert(["(next) log10(H): %a => %a\n", dlog(H)/dlog(10), dlog(H2)/dlog(10)]);
             H  = H2;
         }
         if ( Sign*(Xe-X) <= 0 ) {
             break;
         }
-        printf("%a %a\n", (*Eval)(X), 'map'(Eval, Y));
+        alert(["%a %a\n", (*Eval)(X), 'map'(Eval, Y)]);
         Ans = cons([X,Y],Ans);
     }
     if ( Xe != X ) { // retry last step
@@ -1046,9 +1045,8 @@ def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
         R = rk_step45(CALL,FuncArgs,X1,Y1,H,Ctrl,Eval);
         X += H; Y  = R[0];
     }
-    printf("%a %a\n", (*Eval)(X), 'map'(Eval, Y));
+    alert(["%a %a\n\n", (*Eval)(X), 'map'(Eval, Y)]);
     Ans = cons([X,Y],Ans);
-    printf("\n");
     return reverse(Ans);
 }
 
@@ -1361,7 +1359,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
     Col = length(A[0]);
     Row = length(A);
     Path = find_path(A,B);  /* 経路を表わす */
-	printf("Path for %a: %a\n",B,Path);
+	alert(["Path for %a: %a\n",B,Path]);
 	
     StdMon=reverse(cbase(A));
     V = base_var_list(x,1,Col);
@@ -1388,7 +1386,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
 		Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,C[1] | option_list=getopt());
 		Beta = vtol(ltov(Beta) + C[1]*At[C[0]]);
 	}
-	printf("Beta=%a\n",Beta);
+	alert(["Beta=%a\n",Beta]);
     NC = matrix_inner_product(Val,InitVal);
     return Mode? [NC,Val,StdMon]: NC;
 }
@@ -1407,7 +1405,7 @@ def hgm_ahg_contiguity0(A,StdMon,Line,X0,InitVal,Start,End) {
     Pf  = hgm_ahg_pfaffian(A,StdMon,X0,BetaZ | option_list=getopt());
     PfZ = Pf[ContiDir]; // ContiDir 方向に減少する差分パッフィアン
     if (ForPaper) {
-       printf("PfZ = %a\n in ForPaper_data1\n",PfZ);
+       alert(["PfZ = %a\n in ForPaper_data1\n",PfZ]);
        ForPaper_data1=PfZ;
     }
     R=1;
@@ -1424,7 +1422,7 @@ def hgm_ahg_contiguity0(A,StdMon,Line,X0,InitVal,Start,End) {
         return [Val, Pf];
       }
     }else{
-      printf("Strategy_N=1\n");
+      alert("Strategy_N=1\n");
       Val = matrix_list_to_matrix(InitVal);
       for(I=Start+1; I<=End; I++) {
         Val = matrix_inverse(base_replace_n(PfZ, [[Z,I]]))*Val;
@@ -1446,7 +1444,7 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
     Pf  = hgm_ahg_pfaffian(A,StdMon,X0,BetaZ | option_list=getopt());
     PfZ = Pf[ContiDir]; // ContiDir 方向に減少する差分パッフィアン
     if (ForPaper) {
-		printf("PfZ = %a\n in ForPaper_data1\n",PfZ);
+		alert(["PfZ = %a\n in ForPaper_data1\n",PfZ]);
 		ForPaper_data1=PfZ;
     }
     Val = ltov(InitVal);
@@ -1543,10 +1541,10 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
         U += E[J]*mat_col(AA,J);
     }
     BB = vtol(ltov(B)-U);
-    printf("BB=%a\n",BB);
+    alert(["BB=%a\n",BB]);
     Feasible=tk_hgpoly.feasible(A,BB);
     if(Feasible==0) {
-        printf("not feasible\n");
+        alert("not feasible\n");
         return 0;
     }
     if(_getopt(no_use_initval,0)) {
@@ -1560,7 +1558,7 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
     for(J=0; J<Col; J++) {
         if(E[J]!=0) {
             Line=[J,B,n];
-            printf("Line=%a\n",Line);
+            alert(["Line=%a\n",Line]);
             Val = hgm_ahg_contiguity(A,StdMon,Line,X,Val,0,-E[J] | option_list=Opts);
             B=vtol(ltov(B)-E[J]*mat_col(AA,J));
         }
@@ -2724,9 +2722,9 @@ def hg_bfct(A,Idx) {
   for (I=0; I<2*(N+D); I++) W[I]=1;
   for (I=N; I<(N+D); I++) W[I]=0;
   M = poly_weight_to_omatrix(vtol(W),append(VV,DVV));
-  //  print(M);
+  alert(["hg_bfct: M=%a\n",M]);
   B = nd_weyl_gr(cons(DV[Idx],H[0]),append(VV,DVV),0,M);
-  //  print(B);
+  alert(["hg_bfct: B=%a\n",B]);
   Bf = poly_elimination_ideal(B,Svec | grobner_basis=1);
   return(Bf);
 }
@@ -2807,12 +2805,13 @@ def test_f9() {
     printf("A=%a\n",A);
     U=ltov([80,40,25,62,28,109,35,43,34]);
     Beta=vtol(matrix_list_to_matrix(A)*U);
-    printf("Beta=%a\n",Beta);
+    printf("U=%a\nBeta=%a\n",vtol(U),Beta);
     SumU = oh_base.sum(U);
-    X0 = vtol((1/SumU)*ltov(U)); /* 経験オッズ */
+    X0 = vtol((1/SumU)*U); /* 経験オッズ */
     R = [x1,x2,x3,x4,x5,x6,x7,x8,x9];
     printf("at (%a=%a)\n",R,X0);
 
+    R = [x3]; U = [U[2]];
 //  Do not omit msize=4
     EV=hgm_ahg_expected_values_contiguity_generic(A,Beta,X0,R|msize=4);
     printf("EV(%a)=%a\n",R,EV);
