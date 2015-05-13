@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.30 2015/05/11 17:06:58 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.31 2015/05/12 05:34:21 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -30,9 +30,18 @@ extern Disc_R1$
 extern Disc_R2$
 
 extern Verbose$
+extern Counting$
 
 def verbose(F) {
+    T = Verbose;
     Verbose = (F!=0);
+    return T;
+}
+
+def counting(F) {
+    T = Counting;
+    Counting = (F!=0);
+    return T;
 }
 
 def alert(L) {
@@ -44,8 +53,26 @@ def alert(L) {
         }
     }
 }
+
+/* T0 は time() 関数の返り値で計測の開始時点を表す */
+def print_time(Func,T0) {
+    T1=time();
+    S0="%a: time=%a, gc=%a, mem=%a, elapsed=%a\n";
+    S1="%a: opt=%a: time=%a, gc=%a, mem=%a, elapsed=%a\n";
+    if(Counting) {
+        DT=vtol(ltov(T1)-ltov(T0));
+        Opt=getopt(opt);
+        if(type(Opt)<0) {
+            S=cons(S0,cons(Func,DT));
+        }else {
+            S=cons(S1,cons(Func,cons(Opt,DT)));
+        }
+        call(printf,S);
+    }
+}
     
 def cbase(A) {
+  Time0=time();
   W=[[dx1, 1]]; /* dummy */
   T0=mytoric(A,W);
   E=T0[0];
@@ -67,6 +94,7 @@ def cbase(A) {
   dp_ord(0);
   Gin = map(dp_ht,map(dp_ptod,G1,Vd)); Gin_p=map(dp_dtop,Gin,Vd);
   Std = dp_mbase(Gin); Std=map(dp_dtop,Std,Vd);
+  print_time("cbase",Time0);
   return Std;
 }
 
@@ -1305,6 +1333,7 @@ def find_maxstep(F,V,B,AI,Count) {
 }
 
 def find_path(A,B) {
+    T0=time();
     Col=length(A[0]);
     Row=length(A);
     for(W=[],I=0; I<Col; I++) {
@@ -1339,6 +1368,7 @@ def find_path(A,B) {
         B=vtol(ltov(B)-Count*AI[Pos]);
     }
     Path=reverse(Path);
+    print_time("find_path",T0);
     return [Path,B];
 }
 
