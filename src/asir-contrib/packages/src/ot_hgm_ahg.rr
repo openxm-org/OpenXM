@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.31 2015/05/12 05:34:21 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.32 2015/05/13 21:28:01 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -261,6 +261,7 @@ def merge(Varray) {
  が成り立つ.  cf. test3b();
 */
 def get_mat2(A,W,Std,Mset) {
+  T0=time();
   if (Mset == 0) Mset=Std;
   E=mytoric(A,W);
   /* [euler,toric,V,Vb,weight_vec,toric_init_by_weight_vec] */
@@ -306,7 +307,7 @@ def get_mat2(A,W,Std,Mset) {
   }
   /* Mat*Supp2-RM*Std=G=0? */
   /* mycheck(Mat,RM,Supp2,Std,G) ;*/
-
+  print_time("get_mat2",T0);
   return [Mat,RM,Supp2,Toric];
 }
 
@@ -517,15 +518,18 @@ MatData = get_mat2(A,W,StdMon,Mset);
 Eqn = get_eqn(MatData);
 */
 def get_eqn(MatData) {
+    T0=time();
     M0=MatData[0];
     M1=MatData[1];
     T=base_var_list(tt_,1,size(M0)[1]);
     S=base_var_list(ss_,1,size(M1)[1]);
     L = vtol(M0*ltov(T)-M1*ltov(S));
+    print_time("get_eqn",T0);
     return [L,T,S];
 }
 
 def get_eqn2(MatData,Xall,Param) {
+    T0=time();
     Eqn_LTS = get_eqn(MatData);
     L  = Eqn_LTS[0];
     TT = Eqn_LTS[1];
@@ -534,6 +538,7 @@ def get_eqn2(MatData,Xall,Param) {
     if(getopt(solve)==yes) {
         L = poly_solve_linear(L,TT);
     }
+    print_time("get_eqn2",T0);
     return [L,TT,SS];
 }
 
@@ -822,6 +827,7 @@ def test20 () {  /* confluent test6. cf. Notes/c11.tex */
 }
 
 def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
+    T0=time();
     L = base_flatten(matc(Dop)*matr(StdMon));
     L = oh_base.uniq(qsort(L));
 
@@ -855,10 +861,13 @@ def mk_table(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT) {
 
     MM = append(MM,L);
     RR = append(RR,Lred);
-    return assoc(MM,RR);
+    Assoc = assoc(MM,RR);
+    print_time("mk_table",T0);
+    return Assoc;
 }
 
 def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
+    T0=time();
     L = base_flatten(matc(Dop)*matr(StdMon));
     L = oh_base.uniq(qsort(L));
 
@@ -887,7 +896,9 @@ def mk_table2(Dop,StdMon,MonTT,Toric,Vall,W,SS,TT,DV) {
 
     MM = append(MM,L);
     RR = append(RR,Lred);
-    return assoc(MM,RR);
+    Assoc = assoc(MM,RR);
+    print_time("mk_table2",T0);
+    return Assoc;
 }
 
 def normalize(F) {
@@ -1255,6 +1266,7 @@ def hgm_ahg_sylvester_generic(A,StdMon,X,Beta,DPolyList) {
 /* Sylvester like method による A-hg のパッフィアンの導出 */
 //def hgm_ahg_pfaffian(A,W,Mset,StdMon,X,Beta) {
 def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
+    T0=time();
 #if 0
     if(qsort(StdMon) != qsort(reverse(cbase(A)))) { /* error! */
         return 0;
@@ -1304,7 +1316,9 @@ def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
         DK = base_replace(DK,Eqn[0]);
         Pf[K] = call(matc,mapat(base_replace,1,DK,RelS)); // V[K] に関するパッフィアン
     }
-    return vtol(Pf);
+    Pf = vtol(Pf);
+    print_time("hgm_ahg_pfaffian",T0);
+    return Pf;
 }
 
 def find_maxstep(F,V,B,AI,Count) {
@@ -1382,6 +1396,7 @@ def apply_stdmon_poly(StdMon,F,V,DV) {
 
 /* B,X: 具体的な値 */
 def hgm_ahg_evaluation_contiguity(A,B,X) {
+    T0=time();
     Mode=getopt(base);
     if(type(Mode)<0) {
         Mode=0;
@@ -1418,6 +1433,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
 	}
 	alert(["Beta=%a\n",Beta]);
     NC = matrix_inner_product(Val,InitVal);
+    print_time("hgm_ahg_evaluation_contiguity",T0);
     return Mode? [NC,Val,StdMon]: NC;
 }
 
@@ -1465,6 +1481,7 @@ def hgm_ahg_contiguity0(A,StdMon,Line,X0,InitVal,Start,End) {
 }
 
 def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
+    T0=time();
     MatA = matrix_list_to_matrix(A);
 
     // Line == [ContiDir, Beta, Z];  e.g. [0, [1,31,11,6,7], n]
@@ -1487,6 +1504,7 @@ def hgm_ahg_contiguity(A,StdMon,Line,X0,InitVal,Start,End) {
             Val = base_replace_n(PfZ, [[Z,I]])*Val;
         }
     }
+    print_time("hgm_ahg_contiguity",T0);
     return Val;
 }
 
@@ -1559,11 +1577,13 @@ def test_poly_to_operator() {
 }
 
 def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
+    T0=time();
     Val=ltov(Val);
     Opts = cons(["base",1],getopt());
     AA=matrix_list_to_matrix(A);
     Col=length(A[0]);
     if(ltov(E)==newvect(Col)) {
+        print_time("hgm_ahg_contiguity_down",T0);
         return Val;
     }
     U=0;
@@ -1575,6 +1595,7 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
     Feasible=tk_hgpoly.feasible(A,BB);
     if(Feasible==0) {
         alert("not feasible\n");
+        print_time("hgm_ahg_contiguity_down",T0);
         return 0;
     }
     if(_getopt(no_use_initval,0)) {
@@ -1582,6 +1603,7 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
         NCVal = hgm_ahg_evaluation_contiguity(A,BB,X | option_list=Opts);
         Val = NCVal[1];
 		if(StdMon!=NCVal[2]) error("invalid stdmon!");
+        print_time("hgm_ahg_contiguity_down",T0);
 		return Val;
     }
 
@@ -1593,10 +1615,12 @@ def hgm_ahg_contiguity_down(A,B,X,StdMon,Val,E) {
             B=vtol(ltov(B)-E[J]*mat_col(AA,J));
         }
     }
+    print_time("hgm_ahg_contiguity_down",T0);
     return Val;
 }
 
 def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
+    T0=time();
     Opts = cons(["base",1],getopt());
     NCVal= hgm_ahg_evaluation_contiguity(A,B,X | option_list=Opts);
     NC = NCVal[0]; Val = NCVal[1]; StdMon = NCVal[2];
@@ -1618,23 +1642,30 @@ def hgm_ahg_expected_values_contiguity(A,B,X,RandomVars) {
         }
         EV[I] = (EVal==0)? 0: (1/NC)*matrix_inner_product(EVal,Pos);
     }
-    return vtol(EV);
+    EV=vtol(EV);
+    print_time("hgm_ahg_expected_values_contiguity",T0 | opt=B);
+    return EV;
 }
 
 def hgm_ahg_expected_values_contiguity_generic(A,B,X,RandomVars) {
+    T0=time();
     Opts = getopt();
-    if(a_is_normal(A)) {
-        return hgm_ahg_expected_values_contiguity(A,B,X,RandomVars | option_list=Opts);
-    }
+    if(a_is_non_negative(A)) {
+        alert("A is non-negative.\n");
+        EV=hgm_ahg_expected_values_contiguity(A,B,X,RandomVars | option_list=Opts);
+    }else {
     ACH=translation_of_a(A);
     NewA=ACH[0];
     NewB=translation_of_beta(B,ACH);
     alert(["NewA=%a\nCH=%a\nNewB=%a\n",NewA,cdr(ACH),NewB]);
-    return hgm_ahg_expected_values_contiguity(NewA,NewB,X,RandomVars | option_list=Opts);
+        EV=hgm_ahg_expected_values_contiguity(NewA,NewB,X,RandomVars | option_list=Opts);
+    }
+    print_time("hgm_ahg_expected_values_contiguity_generic",T0);
+    return EV;
 }
 
 /* 行列 A の成分が非負か */
-def a_is_normal(A) {
+def a_is_non_negative(A) {
     if(ismat(A)) {
         S=size(A); Row=S[0]; Col=S[1];
     }else {
@@ -2829,6 +2860,7 @@ def test325() {
 def test_f9() {
     Digit=ctrl("real_digit");
     ctrl("real_digit",30);
+    T0=time();
     B=[[-1,-1,-1, 1,1,1, 0,0,0],
        [-1,-1,-1, 0,0,0, 1,1,1]];
     A=matrix_kernel(B)[1];
@@ -2853,6 +2885,7 @@ def test_f9() {
     printf("Err=%a\n",Err);
     Err=oh_base.max(Err);
     printf("MaxErr=%a\n",Err);
+    print_time("test_f9",T0);
     ctrl("real_digit",Digit);
     return Err;
 }
