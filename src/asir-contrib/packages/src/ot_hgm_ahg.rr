@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.35 2015/05/15 08:52:57 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.36 2015/05/15 08:57:45 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -8,8 +8,10 @@ extern ForPaper$
 ForPaper=0$  // To prepare data for our paper.
 extern ForPaper_data1$
 extern ForPaper_data2$
+extern ForPaper_data3$
 extern Strategy_N$  
 Strategy_N=1$  // Do not compute the matrix product in hgm_ahg_contiguity. More efficient in our benchmark.  See h-mle/A-hg2/Prog/note-ot.tex
+extern Start_pm$   // flag if polymake is already running.
 
 import("names.rr")$
 import("nk_toric.rr")$
@@ -19,6 +21,7 @@ import("oh_base.rr")$
 import("oh_number.rr")$
 import("tk_hgpoly.rr")$
 import("yang.rr")$
+import("tk_polymake.rr")$
 
 #include <defs.h>
 #define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
@@ -2764,6 +2767,9 @@ hypergeometric bfunction defined by Mutsumi Saito
 for the direction Idx = 0,1,2, ...
  */
 def hg_bfct(A,Idx) {
+  if (type(getopt(geometric)) > 0) {
+    return( [hg_bfct_geom(A,Idx)] );
+  }
   D = length(A);
   N = length(A[0]);
   Svec = newvect(D);
@@ -2825,6 +2831,64 @@ def testbfct111() {
   }
   return(reverse(Blist));
 }
+
+/* 2015.05.18.  b-function by geometry. */
+def make_primitive(Facet,Ap) {
+  N = length(Ap);
+  Facet = matrix_list_to_matrix(Facet);
+  Dn = 1;
+  for (I=0; I<length(Facet); I++) {
+    Dn = Dn*dn(Facet[I])/gcd(Dn,dn(Facet[I]));
+  }
+  Facet = Dn*Facet;
+  // return(Facet);
+  Sign=0;
+  for (I=0; I<N; I++) {
+    V = matrix_inner_product(Facet,Ap[I]);
+    if (V < 0) Sign=1;
+  }
+  if (Sign) Facet = -Facet;
+  D = 0;
+  for (I=0; I<N; I++) {
+    H = matrix_inner_product(Facet,Ap[I]);
+    D = gcd(H,D); 
+  }
+  return(vtol(Facet/D));
+}
+
+def hg_bfct_geom(A,Idx) {
+  if (!Start_pm) {
+    polymake.start(|oohg_curl=1);
+    Start_pm=1;
+  }
+  Ap = matrix_matrix_to_list(matrix_transpose(A));
+  F = polymake.polymake("FACETS","POINTS",Ap);
+  F = map(make_primitive,F,Ap);
+/* 
+  hg_bfct_geom([[1,1,1,1],[0,1,2,3]],0);
+*/
+  F2=[];  
+  HT=[]; /* Height */
+  for (I=0; I<length(F); I++) {
+    FV = F[I];
+    if ((V=matrix_inner_product(F[I],Ap[Idx])) != 0) {
+      if (V < 0) { FV = newvect(length(FV),FV); FV = -FV; FV = vtol(FV); V=-V;}
+      F2 = cons(FV,F2); 
+      HT = cons(V,HT);
+    }
+  }
+  /* F2 is a factor of hg-b-function */
+  V = newvect(length(F2[0]));
+  for (I=0; I<length(V); I++) V[I] = util_v("b",[I+1]);
+  Bf = 1;
+  for (I=0; I<length(F2); I++) {
+    for (J=0; J<HT[I]; J++) {
+      Bf = Bf*(matrix_inner_product(V,F2[I])-J);
+    }
+  }
+  return(Bf);
+}
+
 
 def test325() {
     Digit=ctrl("real_digit");
@@ -3018,6 +3082,54 @@ def test_fc4() {
     print_time("test_f9",T0);
     ctrl("real_digit",Digit);
     return Err;
+}
+
+def test_f9_hilbert() {
+    B=[[-1,-1,-1, 1,1,1, 0,0,0],
+       [-1,-1,-1, 0,0,0, 1,1,1]];
+    A=matrix_kernel(B)[1];
+    printf("A=%a\n",A);
+    ACH=translation_of_a(A);
+    A=ACH[0];
+    S = newvect(length(A));
+    for (I=0; I<length(A); I++) S[I] = -util_v(b,[I+1]);
+    S = vtol(S);
+    F=tk_sm1emu.gkz([A,S]);
+    L=F[0]; V=F[1];  Dv=tk_sm1emu.add_d(V);
+
+    yang.verbose();
+    yang.define_ring(["partial",V]);
+    L=map(dp_ptod,L,Dv);
+    T0=time();
+    G=yang.buchberger(L | sm1=1, hilbert=9);
+    T1=time();
+    printf("Time for the Hilbert driven Buchberger is %a\n",Btime=T1[0]-T0[0]);
+    M = yang.stdmon(G);
+    printf("Stdmon=%a\n",M);
+    Base = map(dp_ptod,M,Dv);
+    T0=time();
+    Pf = yang.pfaffian(Base,G);
+    ForPaper_data3 = Pf;
+    T1=time();
+    printf("Time to translate to the Pfaffian %a. Pfaffian is saved in ForPaper_data3.\n",Btime=T1[0]-T0[0]);
+}
+
+def test_f9_series() {
+  B=[[-1,-1,-1, 1,1,1, 0,0,0],
+     [-1,-1,-1, 0,0,0, 1,1,1]];
+  A=matrix_kernel(B)[1];
+  U=ltov([80,40,25,62,28,109,35,43,34]);
+  Beta=vtol(matrix_list_to_matrix(A)*U);
+  printf("A=%a\n",A);
+  ACH=translation_of_a(A);
+  A=ACH[0];
+  NewB=translation_of_beta(Beta,ACH);
+  printf("NewB=%a\n",NewB);
+  T0=time();
+  F=tk_hgpoly.hgpolyk(A,NewB);
+  T1=time();
+  printf("Time=%a\n",T1[0]-T0[0]);
+  return(F);
 }
 
 end$
