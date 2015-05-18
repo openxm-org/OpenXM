@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.37 2015/05/18 05:59:37 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.38 2015/05/18 11:01:26 takayama Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1325,6 +1325,7 @@ def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
 }
 
 def find_maxstep(F,V,B,AI,Count) {
+    T0=time();
     if(Count<=0) return 0;
     Rel=assoc(V,B);
     /* 両端だけ確認 */
@@ -1334,6 +1335,7 @@ def find_maxstep(F,V,B,AI,Count) {
     Rel2=assoc(V,C);
     G1=map(oh_number.sign,base_replace_n(G,Rel2));
     if(G0==G1) { /* F の全ての因子の符号が一定: 0 を通らない。 */
+        print_time("find_maxstep",T0 | opt=1);
         return Count;
     }
 
@@ -1341,28 +1343,33 @@ def find_maxstep(F,V,B,AI,Count) {
     for(I=0; I<Count; I++) {
         F0=base_replace_n(F,Rel);
         if(F0==0) {
+            print_time("find_maxstep",T0 | opt=[2,I,Count]);
             return I;
         }
         B=vtol(ltov(B)-AI);
         Rel=assoc(V,B);
     }
+    print_time("find_maxstep",T0 | opt=3);
     return I;
 }
 
 def find_path(A,B) {
+    Geom=(type(getopt(bfct_geometric))>0);
     T0=time();
     Col=length(A[0]);
     Row=length(A);
     for(W=[],I=0; I<Col; I++) {
         W=cons(1,W);
     } /* W=[1,1,...,1] */
+    T1=time();
     U = tk_hgpoly.optip(A,B,W); /* 特異点を考えない、原点までの経路を表わす。 */
+    print_time("find_path: tk_hgpoly.optip",T1);
     AA=matrix_list_to_matrix(A);
     AI=mapat(mat_col,1,AA,oh_base.range(0,Col-1)); /* 列ベクトルの集合 */
     S=base_var_list(b_,1,Row);
     Blist=[];
     for (I=0; I<Col; I++) {
-        Bf = hg_bfct(A,I)[0]; /* b-関数 */
+        Bf = hg_bfct(A,I | geometric=Geom)[0]; /* b-関数 */
         Blist = cons(Bf,Blist);
     }
     Blist=reverse(Blist); /* 全方向に対する b-関数のリスト */
@@ -1406,7 +1413,7 @@ def hgm_ahg_evaluation_contiguity(A,B,X) {
     }
     Col = length(A[0]);
     Row = length(A);
-    Path = find_path(A,B);  /* 経路を表わす */
+    Path = find_path(A,B | option_list=getopt());  /* 経路を表わす */
 	alert(["Path for %a: %a\n",B,Path]);
 	
     StdMon=reverse(cbase(A));
@@ -2767,6 +2774,7 @@ hypergeometric bfunction defined by Mutsumi Saito
 for the direction Idx = 0,1,2, ...
  */
 def hg_bfct(A,Idx) {
+  T0=time();
   if (type(getopt(geometric)) > 0) {
     return( [hg_bfct_geom(A,Idx)] );
   }
@@ -2793,6 +2801,7 @@ def hg_bfct(A,Idx) {
   B = nd_weyl_gr(cons(DV[Idx],H[0]),append(VV,DVV),0,M);
   alert(["hg_bfct: B=%a\n",B]);
   Bf = poly_elimination_ideal(B,Svec | grobner_basis=1);
+  T0=print_time("hg_bfct",T0);
   return(Bf);
 }
 /*
@@ -2857,6 +2866,7 @@ def make_primitive(Facet,Ap) {
 }
 
 def hg_bfct_geom(A,Idx) {
+  T0=time();
   stop_on_windows();
   if (!Start_pm) {
     polymake.start(|oohg_curl=1);
@@ -2887,6 +2897,7 @@ def hg_bfct_geom(A,Idx) {
       Bf = Bf*(matrix_inner_product(V,F2[I])-J);
     }
   }
+  T0=print_time("hg_bfct_geom",T0);
   return(Bf);
 }
 
