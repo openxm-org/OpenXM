@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.38 2015/05/18 11:01:26 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.39 2015/05/18 23:31:49 ohara Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -1324,12 +1324,20 @@ def hgm_ahg_pfaffian(A,StdMon,X,Beta) {
     return Pf;
 }
 
+def remove_const(L) {
+  L2=[];
+  for (I=0; I<length(L); I++) {
+    if (type(L[I]) >= 2) L2=cons(L[I],L2);
+  }
+  return(reverse(L2));
+}
 def find_maxstep(F,V,B,AI,Count) {
     T0=time();
     if(Count<=0) return 0;
     Rel=assoc(V,B);
     /* 両端だけ確認 */
-    G=map('car',cdr(fctr(F))); /* 一次式に分解 */
+    // G=map('car',cdr(fctr(F))); /* 一次式に分解 */
+    G = remove_const(F);
     G0=map(oh_number.sign,base_replace_n(G,Rel));
     C=vtol(ltov(B)-(Count-1)*AI);
     Rel2=assoc(V,C);
@@ -1367,7 +1375,7 @@ def find_path(A,B) {
     AA=matrix_list_to_matrix(A);
     AI=mapat(mat_col,1,AA,oh_base.range(0,Col-1)); /* 列ベクトルの集合 */
     S=base_var_list(b_,1,Row);
-    Blist=[];
+    Blist=[]; 
     for (I=0; I<Col; I++) {
         Bf = hg_bfct(A,I | geometric=Geom)[0]; /* b-関数 */
         Blist = cons(Bf,Blist);
@@ -2776,7 +2784,7 @@ for the direction Idx = 0,1,2, ...
 def hg_bfct(A,Idx) {
   T0=time();
   if (type(getopt(geometric)) > 0) {
-    return( [hg_bfct_geom(A,Idx)] );
+    return( [hg_bfct_geom(A,Idx | option_list=getopt())] );
   }
   D = length(A);
   N = length(A[0]);
@@ -2802,7 +2810,7 @@ def hg_bfct(A,Idx) {
   alert(["hg_bfct: B=%a\n",B]);
   Bf = poly_elimination_ideal(B,Svec | grobner_basis=1);
   T0=print_time("hg_bfct",T0);
-  return(Bf);
+  return(map(fctr_flatly,Bf));
 }
 /*
 G=tk_sm1emu.gkz([ [[1,1,1],[0,1,2]], [-s1,-s2]]);
@@ -2867,6 +2875,7 @@ def make_primitive(Facet,Ap) {
 
 def hg_bfct_geom(A,Idx) {
   T0=time();
+  if (type(getopt(facet_only)) > 0) Facet_only=1; else Facet_only=0;
   stop_on_windows();
   if (!Start_pm) {
     polymake.start(|oohg_curl=1);
@@ -2888,19 +2897,33 @@ def hg_bfct_geom(A,Idx) {
       HT = cons(V,HT);
     }
   }
+  // printf("HT=%a\n",HT);
   /* F2 is a factor of hg-b-function */
   V = newvect(length(F2[0]));
   for (I=0; I<length(V); I++) V[I] = util_v("b",[I+1]);
-  Bf = 1;
+  Bf = [];
   for (I=0; I<length(F2); I++) {
-    for (J=0; J<HT[I]; J++) {
-      Bf = Bf*(matrix_inner_product(V,F2[I])-J);
+    if (Facet_only) Bf = cons(matrix_inner_product(V,F2[I]),Bf);
+    else {
+      for (J=0; J<HT[I]; J++) {
+        Bf = cons(matrix_inner_product(V,F2[I])-J,Bf);
+      }
     }
   }
   T0=print_time("hg_bfct_geom",T0);
   return(Bf);
 }
 
+def fctr_flatly(F) {
+  F = fctr(F);
+  L = [];
+  for (I=0; I<length(F); I++) {
+    for (J=0; J<F[I][1]; J++) {
+      L = cons(F[I][0],L);
+    }
+  }
+  return(reverse(L));
+}
 
 def test325() {
     Digit=ctrl("real_digit");
