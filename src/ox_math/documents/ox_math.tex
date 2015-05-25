@@ -1,9 +1,9 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.8 2005/07/19 15:58:37 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.9 2005/07/20 16:24:56 ohara Exp $
 
 \documentclass{jarticle}
-\title{Mathematica ¤Î Open XM ²½¤Ë¤Ä¤¤¤Æ
-% \\ {\small --- Open Mathematica ¥µ¡¼¥Ð¤ÎÆâÉô¹½À® ---}
+\title{Mathematica $B$N(B Open XM $B2=$K$D$$$F(B
+% \\ {\small --- Open Mathematica $B%5!<%P$NFbIt9=@.(B ---}
 }
 \date{
 %January 19, 1999
@@ -11,93 +11,93 @@
 November 25, 1999
 (Revised July 20, 2005)
 }
-\author{¾®¸¶¸ùÇ¤}
+\author{$B>.868yG$(B}
 
 \def\oxmath{{\tt ox\_math}}
 
 \begin{document}
 \maketitle
 
-\section{²æ¡¹¤¬Äó¶¡¤¹¤ë¤â¤Î}
+\section{$B2f!9$,Ds6!$9$k$b$N(B}
 
-²æ¡¹¤¬Äó¶¡¤¹¤ë¤Î¤ÏÆó¤Ä¤Î¥×¥í¥°¥é¥à¤È¤½¤Î¥½¡¼¥¹¤Ç¤¢¤ë¡£°ì¤ÄÌÜ¤Ï 
-\oxmath ¥×¥í¥°¥é¥à¤Ç¤¢¤ê¡¢¤³¤ì¤Ï OpenXM ¥µ¡¼¥Ð¤Î°ì¼ï¤Ç¤¢¤ë¡£Æó¤ÄÌÜ¤Ï
-{\tt math2ox} ¤Ç¤¢¤ê¡¢OpenXM ¥¯¥é¥¤¥¢¥ó¥È¤Ç¤¢¤ë¡£
+$B2f!9$,Ds6!$9$k$N$OFs$D$N%W%m%0%i%`$H$=$N%=!<%9$G$"$k!#0l$DL\$O(B 
+\oxmath $B%W%m%0%i%`$G$"$j!"$3$l$O(B OpenXM $B%5!<%P$N0l<o$G$"$k!#Fs$DL\$O(B
+{\tt math2ox} $B$G$"$j!"(BOpenXM $B%/%i%$%"%s%H$G$"$k!#(B
 
-Æ°ºî´Ä¶­¤Ï Solaris, Linux ¤ª¤è¤Ó Windows¡¢ÂÐ¾Ý¤È¤·¤Æ¤¤¤ë Mathematica ¤Î
-¥Ð¡¼¥¸¥ç¥ó¤Ï¡¢3.0 ¡Á 4.2 ¤Þ¤Ç¤Ç¤¢¤ë¡£¥Ð¡¼¥¸¥ç¥ó 5.x ¤Ë¤Ä¤¤¤Æ¤Ï¡¢²æ¡¹¤¬½ê
-Í­¤·¤Æ¤¤¤Ê¤¤¤¿¤áÄ´ºº¤·¤Æ¤¤¤Ê¤¤¡£
+$BF0:n4D6-$O(B Solaris, Linux $B$*$h$S(B Windows$B!"BP>]$H$7$F$$$k(B Mathematica $B$N(B
+$B%P!<%8%g%s$O!"(B3.0 $B!A(B 4.2 $B$^$G$G$"$k!#%P!<%8%g%s(B 5.x $B$K$D$$$F$O!"2f!9$,=j(B
+$BM-$7$F$$$J$$$?$aD4::$7$F$$$J$$!#(B
 
-Windows ¾å¤Ç¤Ï \oxmath ¤Ï¡¢cygwin ¤Î¤â¤È¤ÇÆ°ºî¤¹¤ë¡£\oxmath ¤Î Windows 
-ÂÐ±þ¤ÏÆ£ËÜ¤µ¤ó¤Ë¤è¤ë(2002Ç¯4·î)¡£¤¢¤ê¤¬¤È¤¦¡£
+Windows $B>e$G$O(B \oxmath $B$O!"(Bcygwin $B$N$b$H$GF0:n$9$k!#(B\oxmath $B$N(B Windows 
+$BBP1~$OF#K\$5$s$K$h$k(B(2002$BG/(B4$B7n(B)$B!#$"$j$,$H$&!#(B
 
-\section{Open Mathematica ¥µ¡¼¥Ð¤Î¹½À®}
+\section{Open Mathematica $B%5!<%P$N9=@.(B}
 
-Open Mathmatica ¥µ¡¼¥Ð(\oxmath)¤ÏOpen XM ¥¯¥é¥¤¥¢¥ó¥È¤ª¤è¤Ó Mathematica
-Kernel ¤ÈÄÌ¿®¤¹¤ë¡£\oxmath ¤Ïµ¯Æ°Ä¾¸å¤Ë Mathematica Kernel ¤òµ¯Æ°¤·¡¢
-Mathematica Kernel ¤È¶¨Ä´¤·¤ÆÆ°ºî¤¹¤ë¡£Mathematica Kernel ¤È¤Ï MathLink 
-¥é¥¤¥Ö¥é¥ê¤òÍøÍÑ¤·¤ÆÄÌ¿®¤¹¤ë¡£¤Ä¤Þ¤ê \oxmath ¤Ï MathLink
-¤Î¥é¥Ã¥Ñ¤À¤È»×¤Ã¤Æ¤è¤¤¡£Open XM ¥¯¥é¥¤¥¢¥ó¥È¤È¤Î´Ö¤Ï¥½¥±¥Ã¥È¤òÍøÍÑ¤·¤ÆÄÌ
-¿®¤¹¤ë¡£\oxmath ¤Ï¥Õ¥¡¥¤¥ë¥Ç¥£¥¹¥¯¥ê¥×¥¿ 3,4 ¤¬´û¤Ë¥ª¡¼¥×
-¥ó¤µ¤ì¤Æ¤¤¤ë¤È»×¤Ã¤Æ, 3 ¤«¤éÆÉ¤ß¹þ¤ß¡¢4 ¤Ë½ñ¤­½Ð¤¹¡£
+Open Mathmatica $B%5!<%P(B(\oxmath)$B$O(BOpen XM $B%/%i%$%"%s%H$*$h$S(B Mathematica
+Kernel $B$HDL?.$9$k!#(B\oxmath $B$O5/F0D>8e$K(B Mathematica Kernel $B$r5/F0$7!"(B
+Mathematica Kernel $B$H6(D4$7$FF0:n$9$k!#(BMathematica Kernel $B$H$O(B MathLink 
+$B%i%$%V%i%j$rMxMQ$7$FDL?.$9$k!#$D$^$j(B \oxmath $B$O(B MathLink
+$B$N%i%C%Q$@$H;W$C$F$h$$!#(BOpen XM $B%/%i%$%"%s%H$H$N4V$O%=%1%C%H$rMxMQ$7$FDL(B
+$B?.$9$k!#(B\oxmath $B$O%U%!%$%k%G%#%9%/%j%W%?(B 3,4 $B$,4{$K%*!<%W(B
+$B%s$5$l$F$$$k$H;W$C$F(B, 3 $B$+$iFI$_9~$_!"(B4 $B$K=q$-=P$9!#(B
 
-¤µ¤é¤Ë \oxmath ¤Ë¤Ï·×»»ÃæÃÇµ¡Ç½¤¬É¬Í×¤Ç¤¢¤ë¤¬¡¢¤³¤Îµ¡Ç½¤Ï 2003Ç¯¤Î¤Ï¤¸¤á¤Ë¼ÂÁõ¤µ¤ì¤¿¡£
+$B$5$i$K(B \oxmath $B$K$O7W;;CfCG5!G=$,I,MW$G$"$k$,!"$3$N5!G=$O(B 2003$BG/$N$O$8$a$K<BAu$5$l$?!#(B
 
-¼¡¤Ë¡¢Open XM µ¬Ìó¤è¤ê \oxmath ¤Ï¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¤Ç¤Ê¤±¤ì¤Ð¤Ê¤é¤Ê¤¤¡£
-¥¹¥¿¥Ã¥¯¤Î¥ª¥Ö¥¸¥§¥¯¥È¤Ï cmo ·¿¤ÎÊÑ¿ô¡¢¤¢¤ë¤¤¤Ï¤½¤ÎÇÉÀ¸¥¯¥é¥¹¤Ç¤¢¤ë.
-¤Ä¤Þ¤ê¡¢Open XM µ¬Ìó¤ÇÄê¤á¤é¤ì¤¿¥Ç¡¼¥¿·Á¼°¤òÎ®ÍÑ¤·¤Æ¤¤¤ë.
-¤³¤ÎÊýË¡¤ÎÍøÅÀ¤Ï Open XM ¥×¥í¥È¥³¥ë¤òÄÌ¤·¤ÆÄÌ¿®¤¹¤ë¤Ë¤¢¤¿¤Ã¤Æ
-ÆÃ¤Ë¥Ç¡¼¥¿¤ÎÊÑ´¹¤òÉ¬Í×¤È¤·¤Ê¤¤¤³¤È¤Ç¤¢¤ë.  ¤¹¤Ê¤ï¤ÁCMO ¤Î³Æ¥Ç¡¼¥¿¥¿¥¤¥×
-¤Ï \oxmath ¤ÎÆâÉô¤Ç¤â, CMO ¤È¤·¤ÆÊÝ»ý¤¹¤ë
-¤ï¤±¤Ç¤¢¤ë.
+$B<!$K!"(BOpen XM $B5,Ls$h$j(B \oxmath $B$O%9%?%C%/%^%7%s$G$J$1$l$P$J$i$J$$!#(B
+$B%9%?%C%/$N%*%V%8%'%/%H$O(B cmo $B7?$NJQ?t!"$"$k$$$O$=$NGI@8%/%i%9$G$"$k(B.
+$B$D$^$j!"(BOpen XM $B5,Ls$GDj$a$i$l$?%G!<%?7A<0$rN.MQ$7$F$$$k(B.
+$B$3$NJ}K!$NMxE@$O(B Open XM $B%W%m%H%3%k$rDL$7$FDL?.$9$k$K$"$?$C$F(B
+$BFC$K%G!<%?$NJQ49$rI,MW$H$7$J$$$3$H$G$"$k(B.  $B$9$J$o$A(BCMO $B$N3F%G!<%?%?%$%W(B
+$B$O(B \oxmath $B$NFbIt$G$b(B, CMO $B$H$7$FJ];}$9$k(B
+$B$o$1$G$"$k(B.
 
-¥µ¡¼¥Ð¤Î³Æ´Ø¿ô¤Ï cmo* ¤ò¼õ¤±¼è¤ê¡¢¥¿¥°¤ò¤ß¤Æ¼ÂºÝ¤Î¥¯¥é¥¹¤¬²¿¤Ç¤¢¤ë¤«¤ò
-ÃÎ¤ê¡¢Æ°ºî¤ò·èÄê¤¹¤ë.
+$B%5!<%P$N3F4X?t$O(B cmo* $B$r<u$1<h$j!"%?%0$r$_$F<B:]$N%/%i%9$,2?$G$"$k$+$r(B
+$BCN$j!"F0:n$r7hDj$9$k(B.
 
-¸½ºß¡¢¼ÂÁõ¤µ¤ì¤Æ¤¤¤ë¥¹¥¿¥Ã¥¯¥Þ¥·¥óÌ¿Îá¤Ï
+$B8=:_!"<BAu$5$l$F$$$k%9%?%C%/%^%7%sL?Na$O(B
 SM\_popCMO, SM\_popString, SM\_pops, SM\_executeFunction,
-SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(¼õ¤±¼è¤ë¤À¤±
-¤Ç²¿¤â¤·¤Ê¤¤)¤Ç¤¢¤ë¡£
+SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap($B<u$1<h$k$@$1(B
+$B$G2?$b$7$J$$(B)$B$G$"$k!#(B
 
-\section{MathLink ¥×¥í¥°¥é¥ß¥ó¥°¤È \oxmath}
+\section{MathLink $B%W%m%0%i%_%s%0$H(B \oxmath}
 
-ºÇ½é¤Ë¡¢MathLink ¥×¥í¥°¥é¥ß¥ó¥°¤Ë¤Ä¤¤¤Æ¤Î´ðÁÃÅª»ö¹à¤òÀâÌÀ¤·¡¢
-¼¡¤Ë \oxmath ¤Î Mathematica Kernel ¤È¤ÎÄÌ¿®ÉôÊ¬¤Ë¤Ä¤¤¤Æ½Ò¤Ù¤ë¡£
+$B:G=i$K!"(BMathLink $B%W%m%0%i%_%s%0$K$D$$$F$N4pACE*;v9`$r@bL@$7!"(B
+$B<!$K(B \oxmath $B$N(B Mathematica Kernel $B$H$NDL?.ItJ,$K$D$$$F=R$Y$k!#(B
 
-MathLink ¥×¥í¥°¥é¥ß¥ó¥°¤Ë¤Ä¤¤¤Æ¤Ï¡¢³µ¤Í¡¢Mathematica
-Book~\cite{Wolfram-1996} ¤äµÜÃÏ~\cite{miyachi-1998} ¤Ê¤É¤ò»²¾È¤¹¤ì¤Ð¤è¤¤
-¤¬¡¢É¬¤º¤·¤â¤³¤ì¤é¤Î½ñÀÒ¤ËÌÀ³Î¤Ë½ñ¤«¤ì¤Æ¤¤¤ë¤ï¤±¤Ç¤Ï¤Ê¤¤(Ãµ¤»¤Ð¸«¤Ä¤«¤ë
-¤¬)¡£
+MathLink $B%W%m%0%i%_%s%0$K$D$$$F$O!"35$M!"(BMathematica
+Book~\cite{Wolfram-1996} $B$d5\CO(B~\cite{miyachi-1998} $B$J$I$r;2>H$9$l$P$h$$(B
+$B$,!"I,$:$7$b$3$l$i$N=q@R$KL@3N$K=q$+$l$F$$$k$o$1$G$O$J$$(B($BC5$;$P8+$D$+$k(B
+$B$,(B)$B!#(B
 
-¤Þ¤º MathLink ¤È¤Ï¡¢Wolfram ¤¬Äó¶¡¤¹¤ë¥é¥¤¥Ö¥é¥ê¤Ç¤¢¤ê¡¢Mathematica ¤Î¥Í¥Ã
-¥È¥ï¡¼¥¯ÂÐ±þÉôÊ¬¤ËÁêÅö¤¹¤ë¡£Mathematica Kernel ¤ÈÄÌ¿®¤¹¤ë¥×¥í¥°¥é¥à¤ò½ñ
-¤³¤¦¤È¤¹¤ë¤Ê¤é¤Ð¡¢MathLink ¤òÍøÍÑ¤¹¤ëÉ¬Í×¤¬¤¢¤ë¡£MathLink ¤ÎÆâÉô¹½À®¤ÏÌÀ
-¤é¤«¤Ë¤µ¤ì¤Æ¤¤¤Ê¤¤¤¬¡¢{\bf ÂçÉôÊ¬¤Ï¥Í¥Ã¥È¥ï¡¼¥¯Æ©²áÅª}¤Ç¤¢¤ë(Îã³°¤Ï¤¢¤ë)¡£
+$B$^$:(B MathLink $B$H$O!"(BWolfram $B$,Ds6!$9$k%i%$%V%i%j$G$"$j!"(BMathematica $B$N%M%C(B
+$B%H%o!<%/BP1~ItJ,$KAjEv$9$k!#(BMathematica Kernel $B$HDL?.$9$k%W%m%0%i%`$r=q(B
+$B$3$&$H$9$k$J$i$P!"(BMathLink $B$rMxMQ$9$kI,MW$,$"$k!#(BMathLink $B$NFbIt9=@.$OL@(B
+$B$i$+$K$5$l$F$$$J$$$,!"(B{\bf $BBgItJ,$O%M%C%H%o!<%/F)2aE*(B}$B$G$"$k(B($BNc30$O$"$k(B)$B!#(B
 
-¤Þ¤º¡¢MathLink ¤ÎÄÌ¿®Ï©¤Ç¸ò´¹¤µ¤ì¤ë¥Ç¡¼¥¿¤¬²¿¤Ê¤Î¤«¡¢¤È¤¤¤¦¤³¤È¤òÍý²ò¤¹
-¤ëÉ¬Í×¤¬¤¢¤ë¡£Åú¤Ï{\bf Mathematica¤Î¼°}¤Ç¤¢¤ë¡£¤³¤ì¤Ï¼«ÌÀ¤Ç¤Ï¤Ê¤¤¡£
-¼¡¤Î¤è¤¦¤Ê¼°¤¬¤½¤ÎÎã¤Ç¤¢¤ë¡£
+$B$^$:!"(BMathLink $B$NDL?.O)$G8r49$5$l$k%G!<%?$,2?$J$N$+!"$H$$$&$3$H$rM}2r$9(B
+$B$kI,MW$,$"$k!#Ez$O(B{\bf Mathematica$B$N<0(B}$B$G$"$k!#$3$l$O<+L@$G$O$J$$!#(B
+$B<!$N$h$&$J<0$,$=$NNc$G$"$k!#(B
 \begin{verbatim}
     EvaluatePacket[Sin[\$VersionNumber]]
     ReturnPacket[Sin[x]]
     InputNamePacket["In[1]:= "]
     MenuPacket[1,"Interrupt> "]
 \end{verbatim}
-¤³¤Î¤è¤¦¤Ê *Packet[] ¤ò \cite{Wolfram-1996}¤Ç¤Ï¥Ñ¥±¥Ã¥È¤È¸Æ¤ó¤Ç¤¤¤ë.
-MathLink ¤òÍÑ¤¤¤Æ¡¢³Î¼Â¤Ê¥×¥í¥°¥é¥ß¥ó¥°¤ò¤¹¤ë¤¿¤á¤Ë¤Ï¡¢¤³¤ì¤é¤Î¥Ñ¥±¥Ã¥È
-¤òÀµ¤·¤¯°·¤¦É¬Í×¤¬¤¢¤ë¡£
+$B$3$N$h$&$J(B *Packet[] $B$r(B \cite{Wolfram-1996}$B$G$O%Q%1%C%H$H8F$s$G$$$k(B.
+MathLink $B$rMQ$$$F!"3N<B$J%W%m%0%i%_%s%0$r$9$k$?$a$K$O!"$3$l$i$N%Q%1%C%H(B
+$B$r@5$7$/07$&I,MW$,$"$k!#(B
 
-¤µ¤Æ¡¢Mathematica Kernel ¤Îµ¯Æ°¤ª¤è¤ÓÄÌ¿®Ï©¤Î³ÎÎ©¤Ë¤Ä¤¤¤Æ¤Ï¾ÊÎ¬¤¹¤ë¡£
-¤¤¤Ã¤¿¤ó¡¢ÄÌ¿®Ï©¤¬³ÎÎ©¤µ¤ì¤¿¤é¡¢
+$B$5$F!"(BMathematica Kernel $B$N5/F0$*$h$SDL?.O)$N3NN)$K$D$$$F$O>JN,$9$k!#(B
+$B$$$C$?$s!"DL?.O)$,3NN)$5$l$?$i!"(B
 \begin{enumerate}
-\item Mathematica Kernel ¤Ë¼°¤òÁ÷¤ë¡£
-\item Mathematica Kernel ¤«¤é¼°¤ò¼õ¤±¼è¤ë¡£
+\item Mathematica Kernel $B$K<0$rAw$k!#(B
+\item Mathematica Kernel $B$+$i<0$r<u$1<h$k!#(B
 \end{enumerate}
-¤ò·«¤êÊÖ¤¹¤Î¤¬ MathLink ¤Ç¤Î¥×¥í¥°¥é¥ß¥ó¥°¤Ç¤¢¤ë¡£
+$B$r7+$jJV$9$N$,(B MathLink $B$G$N%W%m%0%i%_%s%0$G$"$k!#(B
 
-\oxmath ¤Ï Mathematica ¤È°Ê²¼¤Î¤è¤¦¤Ê°ÕÌ£¤Ç{\bf Ê¸»úÎó¥Ù¡¼¥¹}¤ÇÄÌ¿®¤·¤Æ
-¤¤¤ë¡£¤Þ¤º Mathematica Kernel ¤ËÉ¾²Á¤µ¤»¤¿¤¤¼°¤¬¡¢C ¸À¸ì¤ÎÊ¸»úÎó¤ÇÍ¿¤¨¤é
-¤ì¤Æ¤¤¤ë¤È¤·¤Æ¡¢link ¤Ç»Ø¤·¼¨¤¹Mathematica Kernel ¤Ë
+\oxmath $B$O(B Mathematica $B$H0J2<$N$h$&$J0UL#$G(B{\bf $BJ8;zNs%Y!<%9(B}$B$GDL?.$7$F(B
+$B$$$k!#$^$:(B Mathematica Kernel $B$KI>2A$5$;$?$$<0$,!"(BC $B8@8l$NJ8;zNs$GM?$($i(B
+$B$l$F$$$k$H$7$F!"(Blink $B$G;X$7<($9(BMathematica Kernel $B$K(B
 \begin{verbatim}
 int ml_evaluateStringByLocalParser(char *string)
 {
@@ -107,13 +107,13 @@ int ml_evaluateStringByLocalParser(char *string)
     MLEndPacket(link);
 }
 \end{verbatim}
-¤È¤·¤ÆÁ÷¿®¤¹¤ë¡£¥Ñ¥±¥Ã¥È¤Ï¡¢
-EvaluatePacket[ToExpression[{\it string}]] ¤Ç¤¢¤ë¡£
-¤³¤³¤Ç ToExpression ¤Ï Mathematica ¤ÎÁÈ¤ß¹þ¤ß´Ø¿ô¤Ç¤¢¤ê, 
-Ê¸»úÎó {\it string} ¤ò°ú¿ô¤È¤·¤Æ Mathematica ¤Î¼°¤òÊÖ¤¹.
+$B$H$7$FAw?.$9$k!#%Q%1%C%H$O!"(B
+EvaluatePacket[ToExpression[{\it string}]] $B$G$"$k!#(B
+$B$3$3$G(B ToExpression $B$O(B Mathematica $B$NAH$_9~$_4X?t$G$"$j(B, 
+$BJ8;zNs(B {\it string} $B$r0z?t$H$7$F(B Mathematica $B$N<0$rJV$9(B.
 (\cite[pp.407]{Wolfram-1996})
 
-É¾²Á¤µ¤ì¤¿·ë²Ì¤òÇÛÎó str ¤Ë³ÊÇ¼¤¹¤ë¤Ë¤Ï¡¢Ã±½ã¤Ë¤Ï¼¡¤Î¤è¤¦¤Ë¤Ê¤ë¡£
+$BI>2A$5$l$?7k2L$rG[Ns(B str $B$K3JG<$9$k$K$O!"C1=c$K$O<!$N$h$&$K$J$k!#(B
 \begin{verbatim}
 int receive_sample(char str[])
 {
@@ -129,26 +129,26 @@ int receive_sample(char str[])
     MLNewPacket(link);
 }
 \end{verbatim}
-¤³¤ÎÎã¤Ç¤Ï ReturnPacket[] °Ê³°¤òÌµ»ë¤·¤Æ¤¤¤ë¤¬¡¢¼ÂºÝ¤Ë¤Ï¤³¤ó¤Ê¤ËÃ±½ã¤Ë¤Ï
-½ñ¤±¤Ê¤¤¡£\oxmath ¤Î¼ÂÁõ¤Ç¤Ï¡¢mlo.c ¤Î
+$B$3$NNc$G$O(B ReturnPacket[] $B0J30$rL5;k$7$F$$$k$,!"<B:]$K$O$3$s$J$KC1=c$K$O(B
+$B=q$1$J$$!#(B\oxmath $B$N<BAu$G$O!"(Bmlo.c $B$N(B
 ml\_next\_packet(), ml\_new\_packet(), ml\_read\_packet(), 
 ml\_read\_returnpacket(), ml\_read\_menupacket(), ml\_read\_textpacket()
-¤Ê¤É¤ò¸«¤Æ¤Û¤·¤¤¡£
+$B$J$I$r8+$F$[$7$$!#(B
 
 \bigskip
 
-Ê¸»úÎó¤Ë¤è¤é¤º¡¢CMO ¤òÁ÷¤ë¤³¤È¤â¤Ç¤­¤ë.
+$BJ8;zNs$K$h$i$:!"(BCMO $B$rAw$k$3$H$b$G$-$k(B.
 
-\oxmath ¤Ï, CMO ¤ò¼¡¤Îµ¬Â§¤Ç MathLink ¤Î¥ª¥Ö¥¸¥§¥¯¥È¤ËÊÑ´¹¤¹¤ë.
+\oxmath $B$O(B, CMO $B$r<!$N5,B'$G(B MathLink $B$N%*%V%8%'%/%H$KJQ49$9$k(B.
 \[
 \begin{array}{lcl}
 \mbox {CMO\_INT32} & \to & \mbox{MLTKINT}, \\
 \mbox {CMO\_STRING} & \to & \mbox{MLTKSTR}, \\
 \mbox {CMO\_LIST} & \to & \mbox{MLTKFUNC}, \\
-\mbox {¤½¤ÎÂ¾¤Î CMO} & \to & \mbox{ToExpression[Ê¸»úÎó]}
+\mbox {$B$=$NB>$N(B CMO} & \to & \mbox{ToExpression[$BJ8;zNs(B]}
 \end{array}
 \]
-µÕ¤Ë MathLink ¤Î¥ª¥Ö¥¸¥§¥¯¥È¤Ï¼¡¤Îµ¬Â§¤Ç CMO ¤ËÊÑ´¹¤µ¤ì¤ë.
+$B5U$K(B MathLink $B$N%*%V%8%'%/%H$O<!$N5,B'$G(B CMO $B$KJQ49$5$l$k(B.
 \[
 \begin{array}{lcl}
 \mbox {MLTKERR} & \to & \mbox{CMO\_ERROR2}, \\
@@ -159,16 +159,16 @@ ml\_read\_returnpacket(), ml\_read\_menupacket(), ml\_read\_textpacket()
 \mbox {MLTKFUNC} & \to & \mbox{CMO\_LIST}
 \end{array}
 \]
-¤³¤ÎÊÑ´¹µ¬Â§¤ÏÌÀ¤é¤«¤Ë²ÄµÕ¤Ç¤Ê¤¤¤Î¤ÇÃí°Õ.
+$B$3$NJQ495,B'$OL@$i$+$K2D5U$G$J$$$N$GCm0U(B.
 
 \bigskip
 
-CMO\_ZZ ¤ò¤â¤È¤Ë¼ÂÁõ¤òÀâÌÀ¤·¤è¤¦.
-¤Þ¤º, MLTKINT ¤ÏÂ¿ÇÜÄ¹À°¿ô·¿¤Ç¤¢¤ë¤¬, MathLink ¤ÎÆâÉô¥Ç¡¼¥¿¹½Â¤¤¬
-¸ø³«¤µ¤ì¤Æ¤¤¤Ê¤¤¤¿¤á,
-CMO\_ZZ (¤¢¤ë¤¤¤Ï GNU GMP library ¤ÎÀ°¿ô)¤òÄ¾ÀÜ MLTKINT ¤Ë
-ÊÑ´¹¤¹¤ë¤³¤È¤Ï¤Ç¤­¤Ê¤¤.  ¤Ä¤Þ¤ê CMO\_ZZ ¤¬À°¿ô·¿¤Ç¤¢¤ë¤È MathLink ¤ËÃÎ¤é
-¤»¤ë¤³¤È¤Ï¤Ç¤­¤Ê¤¤.  ¤½¤³¤Ç, ¼¡¤Î¤è¤¦¤ÊÊýË¡¤ò¤È¤ë¤³¤È¤Ë¤Ê¤ë.
+CMO\_ZZ $B$r$b$H$K<BAu$r@bL@$7$h$&(B.
+$B$^$:(B, MLTKINT $B$OB?G\D9@0?t7?$G$"$k$,(B, MathLink $B$NFbIt%G!<%?9=B$$,(B
+$B8x3+$5$l$F$$$J$$$?$a(B,
+CMO\_ZZ ($B$"$k$$$O(B GNU GMP library $B$N@0?t(B)$B$rD>@\(B MLTKINT $B$K(B
+$BJQ49$9$k$3$H$O$G$-$J$$(B.  $B$D$^$j(B CMO\_ZZ $B$,@0?t7?$G$"$k$H(B MathLink $B$KCN$i(B
+$B$;$k$3$H$O$G$-$J$$(B.  $B$=$3$G(B, $B<!$N$h$&$JJ}K!$r$H$k$3$H$K$J$k(B.
 
 \begin{verbatim}
 export MLINK link;
@@ -179,20 +179,20 @@ int ml_send_cmo_zz(cmo *m)
 }
 \end{verbatim}
 
-¤³¤Î¤è¤¦¤Ë¤¹¤ë¤È, Mathematica Â¦¤Ç¤Ï, Îã¤¨¤Ð ToExpression["1234567890"]
-¤ÎÉ¾²Á¤¬¹Ô¤ï¤ì, Ê¸»úÎó¥Ç¡¼¥¿¤«¤éÀ°¿ô 1234567890 ¤¬Éü¸µ¤µ¤ì¤ë.
+$B$3$N$h$&$K$9$k$H(B, Mathematica $BB&$G$O(B, $BNc$($P(B ToExpression["1234567890"]
+$B$NI>2A$,9T$o$l(B, $BJ8;zNs%G!<%?$+$i@0?t(B 1234567890 $B$,I|85$5$l$k(B.
 
-µÕ¤Ë, Mathematica ¤«¤éÁ÷¤é¤ì¤¿Â¿ÇÜÄ¹À°¿ô¤Ï, ¥Þ¥·¥óÀ°¿ô¤ÎÈÏ°ÏÆâ¤Ç¤¢¤ì¤Ð,
-int ¤È¤·¤Æ¼èÆÀ²ÄÇ½(MLGetInteger ¤ò»È¤¦)¤Ç¤¢¤ë¤¬, ¼õ¤±¼è¤ëÁ°¤Ë int ¤Ë¼ý¤Þ
-¤ë¤«ÈÝ¤«¤òÃÎ¤ë¤³¤È¤Ï¤Ç¤­¤Ê¤¤. int ¤Ë¼ý¤Þ¤é¤Ê¤¤¾ì¹ç¡¢¥Ç¡¼¥¿¤¬ÀÚ¤ê¼Î¤Æ¤é¤ì
-¤Æ¤·¤Þ¤¦¤Î¤ÇÃí°Õ¤¬É¬Í×¤Ç¤¢¤ë.  ¤Þ¤¿, Ä¾ÀÜ CMO\_ZZ ¤È¤·¤Æ¼èÆÀ¤¹¤ë¤³¤È¤âÉÔ
-²ÄÇ½¤Ç¤¢¤ë.  (MathLink ¾å¤Ç¤É¤Î¤è¤¦¤Ê·Á¼°¤Ç¥Ç¡¼¥¿¸ò´¹¤µ¤ì¤Æ¤¤¤ë¤Î¤«¤Î¾ð
-Êó¤Ï¼ê¸µ¤Ë¤¢¤ë»ñÎÁ¤«¤é¤ÏÆÀ¤é¤ì¤Ê¤«¤Ã¤¿)
+$B5U$K(B, Mathematica $B$+$iAw$i$l$?B?G\D9@0?t$O(B, $B%^%7%s@0?t$NHO0OFb$G$"$l$P(B,
+int $B$H$7$F<hF@2DG=(B(MLGetInteger $B$r;H$&(B)$B$G$"$k$,(B, $B<u$1<h$kA0$K(B int $B$K<}$^(B
+$B$k$+H]$+$rCN$k$3$H$O$G$-$J$$(B. int $B$K<}$^$i$J$$>l9g!"%G!<%?$,@Z$j<N$F$i$l(B
+$B$F$7$^$&$N$GCm0U$,I,MW$G$"$k(B.  $B$^$?(B, $BD>@\(B CMO\_ZZ $B$H$7$F<hF@$9$k$3$H$bIT(B
+$B2DG=$G$"$k(B.  (MathLink $B>e$G$I$N$h$&$J7A<0$G%G!<%?8r49$5$l$F$$$k$N$+$N>p(B
+$BJs$O<j85$K$"$k;qNA$+$i$OF@$i$l$J$+$C$?(B)
 
-¤·¤«¤·¤Ê¤¬¤é, ¤¿¤È¤¨ Mathematica Â¦¤«¤éÀ°¿ô¥Ç¡¼¥¿¤¬Á÷¤é¤ì¤Æ¤¤¤¿¤È¤·¤Æ¤â,
-¤½¤Î¥Ç¡¼¥¿¤òÊ¸»úÎó¤ËÊÑ´¹¤·¤Æ¼õ¤±¼è¤ë¤³¤È¤Ï MathLink ¤Îµ¡¹½¾å²ÄÇ½¤Ç¤¢¤ë.
+$B$7$+$7$J$,$i(B, $B$?$H$((B Mathematica $BB&$+$i@0?t%G!<%?$,Aw$i$l$F$$$?$H$7$F$b(B,
+$B$=$N%G!<%?$rJ8;zNs$KJQ49$7$F<u$1<h$k$3$H$O(B MathLink $B$N5!9=>e2DG=$G$"$k(B.
 
-¤³¤ì¤òÍøÍÑ¤·¤Æ, ²æ¡¹¤Ï¼¡¤Î¤è¤¦¤Ë¤·¤ÆÀ°¿ô¤ò¼õ¤±¼è¤ë.
+$B$3$l$rMxMQ$7$F(B, $B2f!9$O<!$N$h$&$K$7$F@0?t$r<u$1<h$k(B.
 \begin{verbatim}
 export MLINK link;
 cmo_zz* ml_receive_cmo_zz()
@@ -208,73 +208,73 @@ cmo_zz* ml_receive_cmo_zz()
 }       
 \end{verbatim}
 
-¤Ä¤Þ¤ê¡¢Mathematica ¤«¤éÀ°¿ô¤òÊ¸»úÎó¤È¤·¤Æ¼õ¤±¼è¤ê¡¢¤½¤ÎÊ¸»úÎó¤ò 
-\oxmath ¤¬ CMO\_ZZ ¤ËÄ¾¤·¤Æ¤¤¤ë¡£
+$B$D$^$j!"(BMathematica $B$+$i@0?t$rJ8;zNs$H$7$F<u$1<h$j!"$=$NJ8;zNs$r(B 
+\oxmath $B$,(B CMO\_ZZ $B$KD>$7$F$$$k!#(B
 
-% ¤³¤Î¤è¤¦¤Ë´ðËÜÅª¤Ë MathLink ¤Ç¤ÏÁ´¤Æ¤Î¥Ç¡¼¥¿¤òÊ¸»úÎó¤Ç¼õ¤±¼è¤ë¤·¤«ÊýË¡¤Ï
-% ¤Ê¤¤¡£¤É¤Î¤è¤¦¤Ê¼ïÎà¤Î¥Ç¡¼¥¿¤Ç¤¢¤ë¤«¤Ï¼õ¤±¼è¤ëÁ°¤ËÃÎ¤ë¤³¤È¤Ï¤Ç¤­¤ë¡£¥Ç¡¼
-% ¥¿¤Î·¿¤Ï¡¢MLTKERR(¥¨¥é¡¼), MLTKINT(À°¿ô), MLTKSTR(Ê¸»úÎó), MLTKREAL(¼Â¿ô),
-% MLTKSYM (¥·¥ó¥Ü¥ë), MLTKFUNC(´Ø¿ô) ¤Î¤¤¤º¤ì¤«¤Ç¤¢¤ë¡£¤³¤Î¤è¤¦¤Ê»ö¾ð¤Ç 
-% Mathematica ¤«¤é¼õ¤±¼è¤Ã¤¿¥Ç¡¼¥¿¤Ï´ðËÜÅª¤Ë CMO\_STRING¤È¤·¤Æ¥¹¥¿¥Ã¥¯¤ËÀÑ
-% ¤Þ¤ì¤ë¤Î¤Ç¡¢¥¯¥é¥¤¥¢¥ó¥ÈÂ¦¤Ç¤½¤ÎÊ¸»úÎó¤Î²ò¼á¤ò¤¹¤ëÉ¬Í×¤¬¤Ç¤Æ¤¯¤ë¡£¤·¤«¤·
-% ¤Ê¤¬¤é¡¢Á´¤Æ¤Î MathLink ¥ª¥Ö¥¸¥§¥¯¥È¤¬Ê¸»úÎó¤ËÊÑ´¹¤Ç¤­¤ë¤ï¤±¤Ç¤Ï¤Ê¤¤¤Î¤Ç¡¢
-% ¤½¤Î¼è¤ê°·¤¤¤Ë¤ÏÃí°Õ¤òÍ×¤¹¤ë¡£
+% $B$3$N$h$&$K4pK\E*$K(B MathLink $B$G$OA4$F$N%G!<%?$rJ8;zNs$G<u$1<h$k$7$+J}K!$O(B
+% $B$J$$!#$I$N$h$&$J<oN`$N%G!<%?$G$"$k$+$O<u$1<h$kA0$KCN$k$3$H$O$G$-$k!#%G!<(B
+% $B%?$N7?$O!"(BMLTKERR($B%(%i!<(B), MLTKINT($B@0?t(B), MLTKSTR($BJ8;zNs(B), MLTKREAL($B<B?t(B),
+% MLTKSYM ($B%7%s%\%k(B), MLTKFUNC($B4X?t(B) $B$N$$$:$l$+$G$"$k!#$3$N$h$&$J;v>p$G(B 
+% Mathematica $B$+$i<u$1<h$C$?%G!<%?$O4pK\E*$K(B CMO\_STRING$B$H$7$F%9%?%C%/$K@Q(B
+% $B$^$l$k$N$G!"%/%i%$%"%s%HB&$G$=$NJ8;zNs$N2r<a$r$9$kI,MW$,$G$F$/$k!#$7$+$7(B
+% $B$J$,$i!"A4$F$N(B MathLink $B%*%V%8%'%/%H$,J8;zNs$KJQ49$G$-$k$o$1$G$O$J$$$N$G!"(B
+% $B$=$N<h$j07$$$K$OCm0U$rMW$9$k!#(B
 
-\section{\oxmath ¤Ø¤Î·×»»ÃæÃÇµ¡Ç½¤Î¼ÂÁõ}
+\section{\oxmath $B$X$N7W;;CfCG5!G=$N<BAu(B}
 
 \noindent
-{\bf Ãí°Õ: {\tt ox\_math\_interruption.tex} 
-¤Ë Risa/Asir Conference (2003) ¤Ç¤Î¹Ö±é¸¶¹Æ¤¬¤¢¤ë.}
+{\bf $BCm0U(B: {\tt ox\_math\_interruption.tex} 
+$B$K(B Risa/Asir Conference (2003) $B$G$N9V1i869F$,$"$k(B.}
 
-OpenXM ¥×¥í¥È¥³¥ë¤Ï¡¢¥¨¥ó¥¸¥ó¤ËÂÐ¤·¤Æ¡¢·×»»ÃæÃÇµ¡Ç½¤òÍ×µá¤¹¤ë¡£\oxmath 
-¤Î¤è¤¦¤Ê wrapper ¥×¥í¥°¥é¥à¤Ç¤Ï¡¢¤½¤Î¤è¤¦¤Êµ¡Ç½¤ò¼ÂÁõ¤¹¤ë¤Î¤Ï°ìÈÌ¤Ë¤ÏÆñ
-¤·¤¤¤¬¡¢MathLink ¤Ë¤Ï Mathematica Book~\cite{Wolfram-1996} ¤Ë½ñ¤«¤ì¤Æ¤¤
-¤Ê¤¤µ¡Ç½¤¬¤¢¤ê(\cite{MathSource-Google1}, \cite{MathSource-Google2},
-\cite{Math-Output1})¡¢¤½¤Î¤Ò¤È¤Ä¤òÍÑ¤¤¤Æ¡¢\oxmath ¤Ë·×»»ÃæÃÇµ¡Ç½¤ò¼ÂÁõ¤·
-¤¿¡£¤³¤ÎÀá¤Ç¤Ï¡¢¤½¤Î¼ÂÁõ¤Ë¤Ä¤¤¤ÆÀâÌÀ¤¹¤ë¡£
+OpenXM $B%W%m%H%3%k$O!"%(%s%8%s$KBP$7$F!"7W;;CfCG5!G=$rMW5a$9$k!#(B\oxmath 
+$B$N$h$&$J(B wrapper $B%W%m%0%i%`$G$O!"$=$N$h$&$J5!G=$r<BAu$9$k$N$O0lHL$K$OFq(B
+$B$7$$$,!"(BMathLink $B$K$O(B Mathematica Book~\cite{Wolfram-1996} $B$K=q$+$l$F$$(B
+$B$J$$5!G=$,$"$j(B(\cite{MathSource-Google1}, \cite{MathSource-Google2},
+\cite{Math-Output1})$B!"$=$N$R$H$D$rMQ$$$F!"(B\oxmath $B$K7W;;CfCG5!G=$r<BAu$7(B
+$B$?!#$3$N@a$G$O!"$=$N<BAu$K$D$$$F@bL@$9$k!#(B
 
-Mathematica Kernel ¤ËÂÐ¤¹¤ë³ä¤ê¹þ¤ß¤Ï¡¢
+Mathematica Kernel $B$KBP$9$k3d$j9~$_$O!"(B
 \begin{enumerate}
-\item MLPutMessage ¤Ç Mathematica Kernel ¤Ë MLInterruptMessage ¤òÁ÷¤ë¡£
-\item ÄÌ¿®Ï©¤Î¸å»ÏËö¤ò¹Ô¤¤¡¢ºÇ½ªÅª¤Ë ReturnPacket[\$Aborted] ¤ò¼õ¤±¼è¤ë¡£
+\item MLPutMessage $B$G(B Mathematica Kernel $B$K(B MLInterruptMessage $B$rAw$k!#(B
+\item $BDL?.O)$N8e;OKv$r9T$$!":G=*E*$K(B ReturnPacket[\$Aborted] $B$r<u$1<h$k!#(B
 \end{enumerate}
-¤³¤È¤Ç¤Ê¤µ¤ì¤ë¡£
-MLPutMessage ¤Ï MathLink ¤ÎÈó¸ø³«´Ø¿ô¤Ç¥Í¥Ã¥È¥ï¡¼¥¯Æ©²áÀ­¤Ï¤Ê¤¤¡£
-Unix ¤È Windows ¤Ç¤Ï°Û¤Ê¤ë¤¬¡¢Unix ¤Î¾ì¹ç¡¢MLInterruptMessage ¤Î¼ÂÂÎ¤Ï
-SIGINT ¤Ç¤¢¤ë¡£
-ÄÌ¿®Ï©¤Î¸å»ÏËö¤Ë¤Ï¡¢{\bf Mathematica Kernel ¤Î¥Ð¡¼¥¸¥ç¥ó°ÍÂ¸À­¤¬¤¢¤ë}¤Î¤Ç¡¢
-¤½¤ì¤ò²óÈò¤¹¤ë¤È¡¢·ë¶É¡¢¼¡¤Î¼ê½ç¤Ë¤Ê¤ë¡£
+$B$3$H$G$J$5$l$k!#(B
+MLPutMessage $B$O(B MathLink $B$NHs8x3+4X?t$G%M%C%H%o!<%/F)2a@-$O$J$$!#(B
+Unix $B$H(B Windows $B$G$O0[$J$k$,!"(BUnix $B$N>l9g!"(BMLInterruptMessage $B$N<BBN$O(B
+SIGINT $B$G$"$k!#(B
+$BDL?.O)$N8e;OKv$K$O!"(B{\bf Mathematica Kernel $B$N%P!<%8%g%s0MB8@-$,$"$k(B}$B$N$G!"(B
+$B$=$l$r2sHr$9$k$H!"7k6I!"<!$N<j=g$K$J$k!#(B
 \begin{enumerate}
 \item MLPutMessage(link, MLInterruptMessage) 
-\item MenuPacket[1,"Interrupt> "] ¤ò¼õ¤±¼è¤ì¤Ð·×»»¤¬ÃæÃÇ¤µ¤ì¤Æ¤¤¤ë
+\item MenuPacket[1,"Interrupt> "] $B$r<u$1<h$l$P7W;;$,CfCG$5$l$F$$$k(B
 \item MLPutString(link, "$\backslash$n")
-\item MenuPacket[0,"Interrupt> "] ¤ò¼õ¤±¼è¤ë
+\item MenuPacket[0,"Interrupt> "] $B$r<u$1<h$k(B
 \item MLPutString(link, "a")
-\item TextPacket["..."] ¤ò¼õ¤±¼è¤ë
-\item EvaluatePacket[0] ¤òÁ÷¤Ã¤Æ¡¢ReturnPacket[...] ¤ò¤Õ¤¿¤Ä¼õ¤±¼è¤ë¡£
-ºÇ½é¤Î¤â¤Î¤¬ ReturnPacket[\$Aborted] ¤Ç¤¢¤ë¡£
+\item TextPacket["..."] $B$r<u$1<h$k(B
+\item EvaluatePacket[0] $B$rAw$C$F!"(BReturnPacket[...] $B$r$U$?$D<u$1<h$k!#(B
+$B:G=i$N$b$N$,(B ReturnPacket[\$Aborted] $B$G$"$k!#(B
 \end{enumerate}
 
-ºÇ¸å¤Î¼ê½ç¤òÀâÌÀ¤¹¤ë¡£
-¤³¤³¤Ç¡¢ReturnPacket[\$Aborted] ¤¬ÁÇÄ¾¤ËÊÖ¤Ã¤Æ¤¯¤ì¤Ð¤¤¤¤¤Î¤Ç¤¢¤ë¤¬¡¢
-¥Ð¡¼¥¸¥ç¥ó 3.x ¤Ç¤ÏÊÖ¤Ã¤Æ¤¯¤ë¤Î¤Ë¡¢¥Ð¡¼¥¸¥ç¥ó4.x¤Ç¤Ï¡¢²¿¸Î¤«¡¢
-ÊÖ¤Ã¤Æ¤³¤º¡¢¼¡¤Î·×»»¤ò¹Ô¤¦¤È¤­¡¢¤Õ¤¿¤Ä¤Þ¤È¤á¤ÆÊÖ¤Ã¤Æ¤¯¤ë¡£
-¤è¤Ã¤Æ¡¢¥À¥ß¡¼¤ËEvaluatePacket[0] ¤òÁ÷¤ë¤Î¤Ç¤¢¤ë¡£
+$B:G8e$N<j=g$r@bL@$9$k!#(B
+$B$3$3$G!"(BReturnPacket[\$Aborted] $B$,AGD>$KJV$C$F$/$l$P$$$$$N$G$"$k$,!"(B
+$B%P!<%8%g%s(B 3.x $B$G$OJV$C$F$/$k$N$K!"%P!<%8%g%s(B4.x$B$G$O!"2?8N$+!"(B
+$BJV$C$F$3$:!"<!$N7W;;$r9T$&$H$-!"$U$?$D$^$H$a$FJV$C$F$/$k!#(B
+$B$h$C$F!"%@%_!<$K(BEvaluatePacket[0] $B$rAw$k$N$G$"$k!#(B
 
-\section{Mathematica ¤ò OX ¤Î¥¯¥é¥¤¥¢¥ó¥È¤Ë}
+\section{Mathematica $B$r(B OX $B$N%/%i%$%"%s%H$K(B}
 
-OpenXM ¥¯¥é¥¤¥¢¥ó¥È¤Ï Mathematica ¤Î³°Éô¥×¥í¥°¥é¥à({\tt math2ox}) ¤Î·Á¤Ç
-¼Â¸½¤µ¤ì¤Æ¤¤¤ë¡£¤¹¤Ê¤ï¤Á¡¢Mathematica ¤È math2ox ¤Î´Ö¤Ï MathLink ¥×¥í¥È
-¥³¥ë¤Ç¡¢math2ox ¤È OpenXM ¥µ¡¼¥Ð¤Î´Ö¤Ï OpenXM ¥×¥í¥È¥³¥ë¤ÇÄÌ¿®¤·¡¢
-math2ox ¤¬Å¬ÀÚ¤Ë¾ðÊó¤òÊÑ´¹¤·¤Ê¤¬¤é¤ä¤ê¤È¤ê¤¹¤ë¡£¤½¤Î°ÕÌ£¤Ç wrapper ¤Î°ì
-¼ï¤Ç¤¢¤ë¤È¤â¸À¤¨¤ë¡£
+OpenXM $B%/%i%$%"%s%H$O(B Mathematica $B$N30It%W%m%0%i%`(B({\tt math2ox}) $B$N7A$G(B
+$B<B8=$5$l$F$$$k!#$9$J$o$A!"(BMathematica $B$H(B math2ox $B$N4V$O(B MathLink $B%W%m%H(B
+$B%3%k$G!"(Bmath2ox $B$H(B OpenXM $B%5!<%P$N4V$O(B OpenXM $B%W%m%H%3%k$GDL?.$7!"(B
+math2ox $B$,E,@Z$K>pJs$rJQ49$7$J$,$i$d$j$H$j$9$k!#$=$N0UL#$G(B wrapper $B$N0l(B
+$B<o$G$"$k$H$b8@$($k!#(B
 
-ÍøÍÑ¤¹¤ë¤Ë¤Ï¡¢ºÇ½é¤Ë
+$BMxMQ$9$k$K$O!":G=i$K(B
 \begin{verbatim}
 In[1]:= Install["math2ox"]
 \end{verbatim}
-¤È¤·¤Æ¡¢math2ox ¤ò¥í¡¼¥É¤·¤Ê¤±¤ì¤Ð¤Ê¤é¤Ê¤¤¡£
-Mathematica ¤Ë¿·¤¿¤ËÄêµÁ¤µ¤ì¤ë¥³¥Þ¥ó¥É¤Ï¡¢\\
+$B$H$7$F!"(Bmath2ox $B$r%m!<%I$7$J$1$l$P$J$i$J$$!#(B
+Mathematica $B$K?7$?$KDj5A$5$l$k%3%^%s%I$O!"(B\\
 {\tt OxStart[s\_String], OxStartInsecure[s\_String, p\_Integer, q\_Integer],
 \\
 OxStartRemoteSSH[s\_String, host\_String], 
@@ -291,108 +291,108 @@ OxPopString[id\_Integer],
 OxClose[id\_Integer], 
 OxReset[id\_Integer]}
 \\
-¤Î11¸Ä¤Ç¤¢¤ë¡£
+$B$N(B11$B8D$G$"$k!#(B
 
-math2ox ¤ò¥í¡¼¥É¤·¤¿¤é¡¢
+math2ox $B$r%m!<%I$7$?$i!"(B
 \begin{verbatim}
 In[2] := pid = OxStart["ox_sm1"]
 \end{verbatim}
-¤Ë¤è¤Ã¤Æ OpenXM ¥µ¡¼¥Ð¤ËÀÜÂ³¤¹¤ë¡£¤³¤Î¾ì¹ç¤ÎÀÜÂ³Àè¤Ï ox\_sm1 ¤Ç¤¢¤ë¡£
-ÊÖ¤êÃÍ pid ¤Ï¡¢¥»¥Ã¥·¥ç¥óÈÖ¹æ¤Ç¤¢¤ë¡£
-¤â¤Á¤í¤ó 
+$B$K$h$C$F(B OpenXM $B%5!<%P$K@\B3$9$k!#$3$N>l9g$N@\B3@h$O(B ox\_sm1 $B$G$"$k!#(B
+$BJV$jCM(B pid $B$O!"%;%C%7%g%sHV9f$G$"$k!#(B
+$B$b$A$m$s(B 
 \begin{verbatim}
 In[2] := pid = OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
 \end{verbatim}
-¤Î¤è¤¦¤Ë¤·¤Æ¡¢insecure ¥â¡¼¥É¤ÇÀÜÂ³¤·¤Æ¤â¤è¤¤¡£¤¿¤À¤·¤³¤Î¾ì¹ç¤Ï¡¢
-¤¢¤é¤«¤¸¤á {\tt Run[]} Åù¤Ç¡¢OpenXM ¥µ¡¼¥Ð¤òµ¯Æ°¤·¤Æ¤ª¤«¤Ê¤±¤ì¤Ð¤Ê¤é¤Ê¤¤¡£
+$B$N$h$&$K$7$F!"(Binsecure $B%b!<%I$G@\B3$7$F$b$h$$!#$?$@$7$3$N>l9g$O!"(B
+$B$"$i$+$8$a(B {\tt Run[]} $BEy$G!"(BOpenXM $B%5!<%P$r5/F0$7$F$*$+$J$1$l$P$J$i$J$$!#(B
 
-ÀÜÂ³¤¬À®¸ù¤·¤¿¤é¥Ç¡¼¥¿¤òÁ÷¤Ã¤Æ¤ß¤è¤¦¡£
+$B@\B3$,@.8y$7$?$i%G!<%?$rAw$C$F$_$h$&!#(B
 \begin{verbatim}
 In[3] := OxParse[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
 \end{verbatim}
-¤Î¤è¤¦¤Ë CMO expression ¤ò»ØÄê¤¹¤ë¤³¤È¤Ë¤è¤Ã¤Æ¡¢
-Ç¤°Õ¤Î CMO ¤òÁ÷¿®¤Ç¤­¤ë¡£
-Àµ¤·¤¯¤Ê¤¤ CMO ¤Î¾ì¹ç¤Ë¤Ï¡¢²¿¤âÁ÷¿®¤µ¤ì¤Ê¤¤¡£
-¤Þ¤¿¡¢CMO ¤Ç¤Ï¤Ê¤¯¡¢
+$B$N$h$&$K(B CMO expression $B$r;XDj$9$k$3$H$K$h$C$F!"(B
+$BG$0U$N(B CMO $B$rAw?.$G$-$k!#(B
+$B@5$7$/$J$$(B CMO $B$N>l9g$K$O!"2?$bAw?.$5$l$J$$!#(B
+$B$^$?!"(BCMO $B$G$O$J$/!"(B
 \begin{verbatim}
 In[4] := OxParse[pid, "(OX_COMMAND, (SM_popCMO))"]
 \end{verbatim}
-¤Ê¤É¤È¤·¤Æ¡¢OX ¥á¥Ã¥»¡¼¥¸¤Î·Á¤Çµ­½Ò¤¹¤ë¤³¤È¤â¤Ç¤­¤ë¡£
-Ãí°Õ¤·¤Ê¤±¤ì¤Ð¤Ê¤é¤Ê¤¤¤Î¤Ï¡¢SM ¥³¥Þ¥ó¥É¤Î¾ì¹ç¡¢OX ¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¤«¤é
-OX ¥á¥Ã¥»¡¼¥¸¤¬Á÷¤é¤ì¤Æ¤¯¤ë¾ì¹ç¤¬¤¢¤ë¤¬¡¢OxParse[] ¤òÍÑ¤¤¤¿¾ì¹ç¡¢
-¤³¤Î¥á¥Ã¥»¡¼¥¸¤Ï¼«Æ°Åª¤Ë¤Ï¼õ¿®¤·¤Ê¤¤(¸½ºß¤Î»ÅÍÍ¤Ç¤Ï)¡£¤·¤¿¤¬¤Ã¤ÆÌÀ¼¨Åª¤Ë
-¼õ¿®¤¹¤ëÉ¬Í×¤¬¤¢¤ë¡£¤½¤Î¤¿¤á¤Ë¤Ï
+$B$J$I$H$7$F!"(BOX $B%a%C%;!<%8$N7A$G5-=R$9$k$3$H$b$G$-$k!#(B
+$BCm0U$7$J$1$l$P$J$i$J$$$N$O!"(BSM $B%3%^%s%I$N>l9g!"(BOX $B%9%?%C%/%^%7%s$+$i(B
+OX $B%a%C%;!<%8$,Aw$i$l$F$/$k>l9g$,$"$k$,!"(BOxParse[] $B$rMQ$$$?>l9g!"(B
+$B$3$N%a%C%;!<%8$O<+F0E*$K$O<u?.$7$J$$(B($B8=:_$N;EMM$G$O(B)$B!#$7$?$,$C$FL@<(E*$K(B
+$B<u?.$9$kI,MW$,$"$k!#$=$N$?$a$K$O(B
 \begin{verbatim}
 In[5] := OxGet[pid]
 \end{verbatim}
-¤È¤¹¤ë¤À¤±¤Ç¤è¤¤¡£ÊÖ¤Ã¤Æ¤¯¤ë¥ª¥Ö¥¸¥§¥¯¥È¤Ï CMO ¤ËÂÐ±þ¤¹¤ë¤â¤Î¤Ç¤¢¤ë¡£
+$B$H$9$k$@$1$G$h$$!#JV$C$F$/$k%*%V%8%'%/%H$O(B CMO $B$KBP1~$9$k$b$N$G$"$k!#(B
 \begin{verbatim}
 In[6] := OxPopCMO[pid]
 \end{verbatim}
-¤òÍÑ¤¤¤ë¾ì¹ç¤Ë¤Ï¤â¤Á¤í¤ó {\tt OxGet[pid]} ¤ò¸Æ¤Ó½Ð¤¹É¬Í×¤Ï¤Ê¤¤¡£
+$B$rMQ$$$k>l9g$K$O$b$A$m$s(B {\tt OxGet[pid]} $B$r8F$S=P$9I,MW$O$J$$!#(B
 
-·×»»¤ò¼Â¹Ô¤¹¤ë¤Ë¤Ï {\tt OxExecute[pid, ...]}
-(SM\_executeStringByLocalParser) ¤«¡¢Å¬ÀÚ¤Ê OX ¥á¥Ã¥»¡¼¥¸¤òÁ÷¿®¤¹¤ë¤³¤È¡£
+$B7W;;$r<B9T$9$k$K$O(B {\tt OxExecute[pid, ...]}
+(SM\_executeStringByLocalParser) $B$+!"E,@Z$J(B OX $B%a%C%;!<%8$rAw?.$9$k$3$H!#(B
 
-·×»»¤¬½ª¤ï¤Ã¤¿¤é¡¢
+$B7W;;$,=*$o$C$?$i!"(B
 \begin{verbatim}
 In[7] := OxClose[pid]
 \end{verbatim}
-¤È¤¹¤ë¤È¡¢ÀÜÂ³¤¬½ªÎ»¤¹¤ë¡£
+$B$H$9$k$H!"@\B3$,=*N;$9$k!#(B
 
 \appendix
-\section{ÉÕÏ¿}
+\section{$BIUO?(B}
 
-GMP ¤Ë¤ª¤±¤ë ``À°¿ô·¿'' {\tt mpz\_t} ¤Ï¤Ä¤®¤Î¤è¤¦¤Ê
-ÆâÉôÉ½¸½¤ò»ý¤Ä: \\
-¤Þ¤º  {\tt mpz\_t} ·¿¤Ï
+GMP $B$K$*$1$k(B ``$B@0?t7?(B'' {\tt mpz\_t} $B$O$D$.$N$h$&$J(B
+$BFbItI=8=$r;}$D(B: \\
+$B$^$:(B  {\tt mpz\_t} $B7?$O(B
 \begin{verbatim}
 typedef struct __mpz_struct mpz_t[1];
 \end{verbatim}
-¤È typedef ¤µ¤ì¤Æ¤ª¤ê, 
-{\tt mpz\_t} ·¿¤ÎÊÑ¿ô¤Ï(´Ø¿ô¤Î²¾°ú¿ô¤Ç¤Ê¤¤¸Â¤ê)ÇÛÎó¤Î
-°·¤¤¤Ç¤¢¤ë. ¤Þ¤¿, 
+$B$H(B typedef $B$5$l$F$*$j(B, 
+{\tt mpz\_t} $B7?$NJQ?t$O(B($B4X?t$N2>0z?t$G$J$$8B$j(B)$BG[Ns$N(B
+$B07$$$G$"$k(B. $B$^$?(B, 
 \begin{verbatim}
 typedef unsigned long int mp_limb_t;		
 \end{verbatim}
-¤ÈÀë¸À¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¤Ë¤Ï,
-ÊÑ¿ô {\tt mpz\_t x} ¤Î {\tt x->\_mp\_d} ¤¬ unsigned long int ¤Î
-ÇÛÎó¤Ç¤¢¤ê, ¥Ç¡¼¥¿¤Î¼ÂÂÎ¤Ç¤¢¤ë.
-¤³¤ì¤ÏÀ°¿ô¤ÎºÇ²¼°Ì4¥Ð¥¤¥È¤¬ÇÛÎó¤ÎÀèÆ¬¤Ë¤¯¤ë.
-¤Ä¤Þ¤êÁ´ÂÎ¤È¤·¤Æ¤Ï``¥ê¥È¥ë¥¨¥ó¥Ç¥£¥¢¥ó¤Ã¤Ý¤¤''¤¬, 
-³Æ unsigned long int ¤Ï¥Þ¥·¥ó¤Î¥Í¥¤¥Æ¥£¥Ö¤Ê integer ¤Ç¤¢¤ë.
-¤Ä¤Þ¤ê, GMP ¤ÎÆâÉôÉ½¸½¤Ï¥Þ¥·¥ó°ÍÂ¸¤È¤Ê¤Ã¤Æ¤¤¤ë.
+$B$H@k8@$5$l$F$$$k>l9g$K$O(B,
+$BJQ?t(B {\tt mpz\_t x} $B$N(B {\tt x->\_mp\_d} $B$,(B unsigned long int $B$N(B
+$BG[Ns$G$"$j(B, $B%G!<%?$N<BBN$G$"$k(B.
+$B$3$l$O@0?t$N:G2<0L(B4$B%P%$%H$,G[Ns$N@hF,$K$/$k(B.
+$B$D$^$jA4BN$H$7$F$O(B``$B%j%H%k%(%s%G%#%"%s$C$]$$(B''$B$,(B, 
+$B3F(B unsigned long int $B$O%^%7%s$N%M%$%F%#%V$J(B integer $B$G$"$k(B.
+$B$D$^$j(B, GMP $B$NFbItI=8=$O%^%7%s0MB8$H$J$C$F$$$k(B.
 
 \begin{thebibliography}{99}
 \bibitem{Openxxx-1998}
-ÌîÏ¤Àµ¹Ô, ¹â»³¿®µ£.
-{Open XM ¤ÎÀß·×¤È¼ÂÁõ --- Open message eXchange protocol for Mathematics},
+$BLnO$@59T(B, $B9b;3?.5#(B.
+{Open XM $B$N@_7W$H<BAu(B --- Open message eXchange protocol for Mathematics},
 November 22, 1999, Revised March 4, 2005.
 \bibitem{Ohara-Takayama-Noro-1999}
-¾®¸¶¸ùÇ¤, ¹â»³¿®µ£, ÌîÏ¤Àµ¹Ô.
-{Open asir ÆþÌç}, 1999, ¿ô¼°½èÍý, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG ½ÐÈÇ, Tokyo).
+$B>.868yG$(B, $B9b;3?.5#(B, $BLnO$@59T(B.
+{Open asir $BF~Lg(B}, 1999, $B?t<0=hM}(B, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG $B=PHG(B, Tokyo).
 \bibitem{Wolfram-1992}
-¥¦¥ë¥Õ¥é¥à.
-{Mathematica (ÆüËÜ¸ìÈÇ)},
-¥¢¥¸¥½¥ó¥¦¥¨¥¹¥ì¥¤, 1992.
+$B%&%k%U%i%`(B.
+{Mathematica ($BF|K\8lHG(B)},
+$B%"%8%=%s%&%(%9%l%$(B, 1992.
 \bibitem{Wolfram-1996}
 Stephen Wolfram.
 {The Mathematica Book}, Third edition,
 Wolfram Media/Cambridge University Press, 1996.
 \bibitem{miyachi-1998}
-µÜÃÏÎÏ.
-{Mathematica ¤Ë¤è¤ë¥Í¥Ã¥È¥ï¡¼¥¯¥×¥í¥°¥é¥ß¥ó¥°},
-´äÇÈ¥³¥ó¥Ô¥å¡¼¥¿¥µ¥¤¥¨¥ó¥¹,
-´äÇÈ½ñÅ¹, 1998.
+$B5\CONO(B.
+{Mathematica $B$K$h$k%M%C%H%o!<%/%W%m%0%i%_%s%0(B},
+$B4dGH%3%s%T%e!<%?%5%$%(%s%9(B,
+$B4dGH=qE9(B, 1998.
 \bibitem{MathSource-Google1}
 Todd Gayley.
 [mg17015] in MathArchive,
 1999 April.
 \bibitem{MathSource-Google2}
-ÀÎ¤Î MathLink ¤Ë¤¢¤Ã¤¿ MLSignal ¤Î²òÀâ.
-(°ÊÁ°¡¢Google ¤Î¥­¥ã¥Ã¥·¥å¤Ë¤¢¤Ã¤¿¤¬¡¢¤â¤¦¤Ê¤¤)
+$B@N$N(B MathLink $B$K$"$C$?(B MLSignal $B$N2r@b(B.
+($B0JA0!"(BGoogle $B$N%-%c%C%7%e$K$"$C$?$,!"$b$&$J$$(B)
 \bibitem{Math-Output1}
-mathlink.h, libMLa ¤Î¥·¥ó¥Ü¥ëÉ½, mprep ¤ÎÀ¸À®¤¹¤ë¥½¡¼¥¹.
+mathlink.h, libMLa $B$N%7%s%\%kI=(B, mprep $B$N@8@.$9$k%=!<%9(B.
 \end{thebibliography}
 
 \end{document}
