@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/k097/lib/restriction/Srestall_s.sm1,v 1.1 2000/12/10 10:04:04 takayama Exp $
 %% Srestall_s.sm1,  
 %% Compute the cohomology groups of a free resolution 
 %%   truncated from above by the (-1,1) filtration
@@ -30,6 +30,12 @@
   [
     /syzlist arg1 def  /ttxx arg2 def /bftt arg3 def  
     /k1 arg4 def  
+
+%% BF unknowns should be set properly.  cf. misc-2015/06/lyon/q2.k
+    syzlist 0 get 0 get  isArray { 
+     syzlist 0 get 0 get  length /BFunknowns set
+    } { /BFunknowns 1 def } ifelse
+
     syzlist length /degmax set
     bftt length /d set
     BFparlist /aa set  % parameters are defined in BFvarlist
