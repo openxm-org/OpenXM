@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.33 2010/02/07 05:35:49 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.34 2015/02/20 01:20:45 takayama Exp $
 
 VERSION=1.3.1
 TAG=HEAD
@@ -36,12 +36,12 @@ usage :
 	@echo "3.  build-on-pear-root (do it as a super user)"
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
-	@echo "6.  copy-to-ftp-area "
-	@echo "[[7]].  copy-head-tar-ball-to-ftp-area "
-	@echo "7.b  copy-release-tar-ball-to-ftp-area "
-	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
-	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
-	@echo "10.  copy-asir-misc-tar-ball-to-ftp-area "
+	@echo "6.  copy-to-http-area "
+	@echo "[[7]].  copy-head-tar-ball-to-http-area "
+	@echo "7.b  copy-release-tar-ball-to-http-area "
+	@echo "8.  copy-asir-head-tar-ball-to-http-area "
+	@echo "9.  copy-asir-stable-tar-ball-to-http-area "
+	@echo "10.  copy-asir-misc-tar-ball-to-http-area "
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
@@ -113,7 +113,7 @@ build-on-redhat: prepare-build-rpm clean-Generic-openxm-work
 build-on-unkei: clean-Generic-openxm-work
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} OpenXM_HOME=${OpenXM_HOME} binary-tar-ball)
 
-copy-to-ftp-area:
+copy-to-http-area:
 	-mkdir ${FTP_AREA}
 	-cp ${TAR_WORK}/openxm*rpm ${FTP_AREA}
 	-cp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${FTP_AREA}
@@ -122,7 +122,7 @@ copy-to-ftp-area:
 	-cp ${TAR_WORK}/openxm-port.tar.gz ${FTP_AREA}
 	ls -l ${FTP_AREA}
 
-copy-release-tar-ball-to-ftp-area:
+copy-release-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
@@ -131,7 +131,7 @@ copy-release-tar-ball-to-ftp-area:
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${WHO}:${FTP_AREA}
 
-copy-head-tar-ball-to-ftp-area:
+copy-head-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
@@ -140,7 +140,7 @@ copy-head-tar-ball-to-ftp-area:
 	/bin/rm -rf work
 	cp ${TAR_WORK}/openxm-head.tar.gz ${FTP_AREA_HEAD}
 
-copy-asir-head-tar-ball-to-ftp-area:
+copy-asir-head-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
@@ -151,7 +151,7 @@ copy-asir-head-tar-ball-to-ftp-area:
 	-scp ${TAR_WORK}/pari.tar.gz ${WHO}:${FTP_AREA_ASIR}
 	-scp ${TAR_WORK}/asir-head.tar.gz ${WHO}:${FTP_AREA_ASIR}
 
-copy-asir-stable-tar-ball-to-ftp-area:
+copy-asir-stable-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
@@ -160,7 +160,7 @@ copy-asir-stable-tar-ball-to-ftp-area:
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/asir-stable.tar.gz ${WHO}:${FTP_AREA_ASIR}
 
-copy-asir-misc-tar-ball-to-ftp-area:
+copy-asir-misc-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
