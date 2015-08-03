@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.57 2013/01/31 06:08:06 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.58 2013/09/19 10:15:11 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -54,6 +54,14 @@ ox.version [(Version)] system_variable gt
    /Xm_noX 1 def
 } def
 
+(@@@.monitor) boundp {
+}{ 
+  /@@@.monitor ( ) def
+} ifelse
+
+/oxMonitor {
+  /@@@.monitor ( -monitor ) def
+} def
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%   basic functions for OX-RFC 100
@@ -118,6 +126,8 @@ ox.version [(Version)] system_variable gt
  $        ex 2.  (ox.sm1) run oxNoX (x^2-1). fctr pmat ; $
  $   $
  $cf. extension-oxLog $
+ (oxMonitor : ox_sm1 server outputs packet dumps.)
+ $        ex 1. (ox.sm1) run oxMonitor sm1connectr $
  ]
 ] putUsages
 
@@ -687,7 +697,7 @@ ox.verbose { oxhelp } {  } ifelse
   @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
   Xm_engineLogToStdout { ( -nox -engineLogToStdout ) } { } ifelse %bug.onlyForsm1
-  ( -oxserver bin/ox_sm1 -e ) ( -reverse )
+  ( -oxserver bin/ox_sm1 -e ) ( -reverse ) @@@.monitor
   ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
  [(oxCreateClient2) peer 0 pass 0 get] extension /oxsm1.ccc set
@@ -743,7 +753,7 @@ ox.verbose { oxhelp } {  } ifelse
 [(sm1connectr-ssh)
 [([hostname login-name] sm1connectr-ssh client)
  (Starting oxpath.oxsm1-ssh by the launcher oxpath.ox-ssh on the "hostname".)
- (cf. oxNoX )
+ (cf. oxNoX  ox )
  (Set the following varialbes to appropriate values:)
  (oxpath.oxlog.xterm-ssh  oxpath.oxsm1-ssh  oxpath.ox-ssh myhostname-ssh )
  $Example 1: $
