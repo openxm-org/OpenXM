@@ -1,14 +1,16 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.22 2015/02/21 06:20:36 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.23 2015/08/03 05:42:00 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
-DISTNAME=gc-20150803-git
-DISTFILES=${DISTNAME}.tar.gz
-# WRKSRC=work/${DISTNAME}
-WRKSRC=work/gc-20150803-git/bdwgc
+#DISTNAME=gc-20150803-git
+DISTNAME=gc-7.4.2
+ATOMIC=libatomic_ops-7.4.0
+DISTFILES=${DISTNAME}.tar.gz ${ATOMIC}.tar.gz
+WRKSRC=work/${DISTNAME}
+# WRKSRC=work/gc-20150803-git/bdwgc
 #PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc-7.diff
 PATCHFILES = 
 
@@ -17,15 +19,16 @@ all : build
 fetch:
 	-mkdir work
 	@if [ ! -f work/.fetch_done ]; then \
-		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+		for i in ${DISTFILES}; do ${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}$$i ${DISTDIR}; done ; \
 	fi
 	@touch work/.fetch_done
 
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
-	    cat ${DISTDIR}/${DISTFILES} | (cd work; tar xzvf -) ; \
+		for i in ${DISTFILES}; do cat ${DISTDIR}/$$i | (cd work; tar xzvf -) ; done ; \
 		chmod +x ${WRKSRC}/install-sh ; \
 	fi
+	(cd ${WRKSRC}; ln -sf ../${ATOMIC} libatomic_ops)
 	@touch work/.extract_done
 
 patch: extract
