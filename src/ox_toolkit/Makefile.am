@@ -1,10 +1,10 @@
 # -*- mode: Makefile -*-
-## $OpenXM: OpenXM/src/ox_toolkit/Makefile.am,v 1.3 2004/07/02 08:19:07 noro Exp $
+## $OpenXM: OpenXM/src/ox_toolkit/Makefile.am,v 1.4 2005/03/03 04:40:51 ohara Exp $
 
 AUTOMAKE_OPTIONS = foreign no-dependencies 1.5
 OXWEAVE   = ${prefix}/bin/oxweave
 INCLUDES  = @X_CFLAGS@ -I${prefix}/include
-OXLIBS    = -L${prefix}/lib ./libox.la -lgc -lgmp
+OXLIBS    = -L${prefix}/lib ./libox.la -lgc -lmpfr -lgmp
 XLIBS     = ${X_LIBS} ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS}
 DOCUMENTS = readme-en.txt readme-ja.txt bnf-en.txt bnf-ja.txt
 
