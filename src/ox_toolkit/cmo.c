@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.21 2005/10/12 04:03:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.22 2007/03/14 10:30:54 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <mpfr.h>
 #include "ox_toolkit.h"
 #include "parse.h"
 
@@ -253,6 +254,14 @@ cmo_qq* new_cmo_qq()
     return c;
 }
 
+cmo_bf* new_cmo_bf()
+{
+    cmo_bf* c = MALLOC(sizeof(cmo_bf));
+    c->tag = CMO_BIGFLOAT;
+    mpfr_init(c->mpfr);
+    return c;
+}
+
 cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q)
 {
     cmo_qq* c = new_cmo_qq();
@@ -265,6 +274,14 @@ cmo_qq* new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den)
     cmo_qq* c = new_cmo_qq();
     mpq_set_num(c->mpq, num);
     mpq_set_den(c->mpq, den);
+    return c;
+}
+
+cmo_bf* new_cmo_bf_set_mpfr(mpfr_ptr num)
+{
+    cmo_bf* c = new_cmo_bf();
+    mpfr_init2(c->mpfr,num->_mpfr_prec);
+    mpfr_set(c->mpfr,num,MPFR_RNDN);
     return c;
 }
 

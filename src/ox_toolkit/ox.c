@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.36 2013/10/20 15:29:12 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.37 2014/04/07 04:00:10 iwane Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -15,6 +15,22 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #include <time.h>
+
+#include <mpfr.h>
+/* XXX : defined in mpfr-impl.h */
+#define MPFR_PREC(x)      ((x)->_mpfr_prec)
+#define MPFR_EXP(x)       ((x)->_mpfr_exp)
+#define MPFR_MANT(x)      ((x)->_mpfr_d)
+#define MPFR_LAST_LIMB(x) ((MPFR_PREC (x) - 1) / GMP_NUMB_BITS)
+#define MPFR_LIMB_SIZE(x) (MPFR_LAST_LIMB (x) + 1)
+
+#if SIZEOF_LONG==4
+typedef long long L64;
+typedef unsigned long long UL64;
+#else
+typedef long L64;
+typedef unsigned long UL64;
+#endif
 
 #include "mysocket.h"
 #include "ox_toolkit.h"
@@ -54,6 +70,8 @@ static cmo_zz*      receive_cmo_zz(OXFILE *oxfp);
 static void         receive_mpz(OXFILE *oxfp, mpz_ptr mpz);
 static int          send_cmo_zz(OXFILE *oxfp, cmo_zz* c);
 static int          send_mpz(OXFILE *oxfp, mpz_ptr mpz);
+static void         receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr);
+static int          send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr);
 
 /* hook functions. (yet not implemented) */
 static hook_t hook_before_send_cmo = NULL;
@@ -218,6 +236,14 @@ static cmo_qq* receive_cmo_qq(OXFILE *oxfp)
     return new_cmo_qq_set_mpz(num, den);
 }
 
+static cmo_bf* receive_cmo_bf(OXFILE *oxfp)
+{
+    mpfr_t num;
+    mpfr_init(num);
+    receive_mpfr(oxfp, num);
+    return new_cmo_bf_set_mpfr(num);
+}
+
 static cmo_zero* receive_cmo_zero(OXFILE *oxfp)
 {
     return new_cmo_zero();
@@ -341,6 +367,9 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         break;
     case CMO_QQ:
         m = (cmo *)receive_cmo_qq(oxfp);
+        break;
+    case CMO_BIGFLOAT:
+        m = (cmo *)receive_cmo_bf(oxfp);
         break;
     case CMO_ZERO:
         m = (cmo *)receive_cmo_zero(oxfp);
@@ -621,6 +650,12 @@ static int send_cmo_qq(OXFILE *oxfp, cmo_qq* c)
     return 0;
 }
 
+static int send_cmo_bf(OXFILE *oxfp, cmo_bf* c)
+{
+    send_mpfr(oxfp, c->mpfr);
+    return 0;
+}
+
 static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c)
 {
 	send_cmo(oxfp, (cmo *)c->ringdef);
@@ -687,6 +722,9 @@ void send_cmo(OXFILE *oxfp, cmo* c)
     case CMO_QQ:
         send_cmo_qq(oxfp, (cmo_qq *)c);
         break;
+    case CMO_BIGFLOAT:
+        send_cmo_bf(oxfp, (cmo_bf *)c);
+        break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
         send_cmo_distributed_polynomial(oxfp, (cmo_distributed_polynomial *)c);
         break;
@@ -719,14 +757,80 @@ static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
 	int *ptr = (int *)mpz->_mp_d;
     int size;
     send_int32(oxfp, mpz->_mp_size * n);
+#if 0
     if (len > 0 && ptr[len-1] == 0) {
         len--;
     }
     size = mpz->_mp_size < 0 ? -len : len;
     send_int32(oxfp, size);
+#endif
     for(i=0; i<len; i++) {
         send_int32(oxfp, ptr[i]);
     }
+    return 0;
+}
+
+void send_int64(OXFILE *oxfp,UL64 a)
+{
+  send_int32(oxfp, a>>32);
+  send_int32(oxfp, a&0xffffffff);
+}
+
+UL64 receive_int64(OXFILE *oxfp)
+{
+  UL64 u,l;
+
+  u = receive_int32(oxfp);
+  l = receive_int32(oxfp);
+  return (u<<32)|l;
+}
+
+static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
+{
+  int sgn,prec,len,i;
+  long *ptr;
+  L64 exp;
+
+  sgn  = receive_int32(oxfp);
+  prec  = receive_int32(oxfp);
+  exp  = receive_int64(oxfp);
+  /* len = length as an int array (int = 4bytes) */
+  len  = receive_int32(oxfp);
+
+  mpfr_init2(mpfr,prec);
+  MPFR_SIGN(mpfr) = sgn;
+  ptr = mpfr->_mpfr_d;
+  mpfr->_mpfr_exp = exp;
+#if SIZEOF_LONG==4
+  for ( i = 0; i < len; i++ )
+    ptr[i] = receive_int32(oxfp);     
+#else
+  len >>= 1;
+  for ( i = 0; i < len; i++ )
+    ptr[i] = receive_int64(oxfp);     
+#endif
+}
+
+static int send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
+{
+
+  int i,len;
+  long *ptr;
+
+  send_int32(oxfp, MPFR_SIGN(mpfr));
+  send_int32(oxfp, MPFR_PREC(mpfr));
+  send_int64(oxfp, MPFR_EXP(mpfr));
+  len = MPFR_LIMB_SIZE(mpfr);
+  ptr = MPFR_MANT(mpfr);
+#if SIZEOF_LONG==4
+  send_int32(oxfp, len);
+  for ( i = 0; i < len; i++ )
+    send_int32(oxfp,ptr[i]);     
+#else /* SIZEOF_LONG==8 */
+  send_int32(oxfp, 2*len);
+  for ( i = 0; i < len; i++ )
+    send_int64(oxfp,ptr[i]);     
+#endif
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.34 2007/03/14 10:30:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.35 2008/08/01 08:29:40 iwane Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <gmp.h>
+#include <mpfr.h>
 #include <ox/cmotag.h>
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
@@ -120,6 +121,11 @@ typedef struct {
 
 typedef struct {
     int tag;
+    mpfr_t mpfr;
+} cmo_bf;
+
+typedef struct {
+    int tag;
     double d; /* machine dependent */
 } cmo_double;
 
@@ -192,6 +198,7 @@ cmo_zz*            new_cmo_zz_set_string(char* s);
 cmo_qq*            new_cmo_qq();
 cmo_qq*            new_cmo_qq_set_mpq(mpq_ptr q);
 cmo_qq*            new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den);
+cmo_bf*            new_cmo_bf_set_mpfr(mpfr_ptr q);
 cmo_zero*          new_cmo_zero();
 cmo_double*        new_cmo_double(double d);
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();

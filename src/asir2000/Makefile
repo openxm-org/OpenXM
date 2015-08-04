@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.30 2012/08/27 05:05:57 noro Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.31 2015/02/21 06:20:36 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -39,7 +39,7 @@ fetch:
 configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
-            ./configure --enable-plot --with-pari --prefix="`cd ../../OpenXM; pwd`") \
+            ./configure --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_done
 
