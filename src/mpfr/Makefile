@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.1 2008/10/30 07:59:46 takayama Exp $
+# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.2 2015/02/21 06:20:36 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=mpfr-2.3.2
-DISTFILES=${DISTNAME}.tar.gz
+DISTNAME=mpfr-3.1.3
+DISTFILES=${DISTNAME}.tar.bz2
 WRKSRC=work/${DISTNAME}
 #PATCHFILES = mpfr.diff
 PATCHFILES = 
@@ -21,7 +21,7 @@ fetch:
 
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
-	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xjvf -) ; \
 	fi 
 	@touch work/.extract_done
 
@@ -36,7 +36,7 @@ patch: extract
 configure: patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd ${WRKSRC} ; CC=${CC} ./configure --prefix="$$prefix" --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include") ; \
+		(cd ${WRKSRC} ; CC=${CC} ./configure --prefix="$$prefix" --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe) ; \
 	fi
 	@touch work/.configure_done
 

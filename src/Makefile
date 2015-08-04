@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.162 2013/11/06 00:32:59 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.163 2013/12/20 02:10:25 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -10,7 +10,7 @@ COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
-	all-oxmgraph all-pcc
+	all-oxmgraph all-pcc all-oxpari
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
@@ -90,6 +90,10 @@ all-util-lib: configure-util
 
 all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
+
+all-oxpari: install-oxtoolkit
+	-(cd ox_pari; ${MAKE} all)
+
 all-oxmgraph: configure-oxmgraph
 	-(cd oxmgraph; ${MAKE} all)
 all-pcc: configure-pcc
@@ -201,6 +205,9 @@ install-asir-port:
 
 install-oxcdd: all-oxcdd
 	-(cd ox_cdd; ${MAKE} install)
+
+install-oxpari: all-oxpari
+	-(cd ox_pari; ${MAKE} install)
 
 install-oxmgraph: all-oxmgraph
 	-(cd oxmgraph; ${MAKE} install)
