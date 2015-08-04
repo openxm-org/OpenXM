@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.163 2013/12/20 02:10:25 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.164 2015/08/04 05:52:22 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -8,7 +8,7 @@ DOCDIR=../doc
 RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
-all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-gmp all-mpfr all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
 
@@ -18,13 +18,16 @@ all-gc: install-util
 all-gmp: configure-gmp
 	(cd gmp; ${MAKE} all)
 
-all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-util install-kan96xx
+all-mpfr: configure-mpfr
+	(cd mpfr; ${MAKE} all)
+
+all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-gc install-util install-kan96xx
 	(cd ox_toolkit; ${MAKE} all)
 
 all-oxc: configure-oxc install-oxtoolkit 
 	(cd oxc; ${MAKE} all)
 
-all-asir: configure-asir install-pari install-gmp
+all-asir: configure-asir install-pari install-gmp install-mpfr
 	(cd asir2000; ${MAKE} all)
 
 all-gnuplot: configure-gnuplot
@@ -33,7 +36,7 @@ all-gnuplot: configure-gnuplot
 all-k097: configure-k097 all-kan96xx all-kxx install-oxtags
 	(cd k097; ${MAKE} all)
 
-all-kan96xx: configure-kan96xx install-gc install-gmp install-util install-oxtags
+all-kan96xx: configure-kan96xx install-gc install-gmp install-mpfr install-util install-oxtags
 	(cd kan96xx; ${MAKE} all)
 
 all-kxx: configure-kxx all-kan96xx install-util install-oxtags
@@ -107,7 +110,7 @@ install: install-oxtags install-util install-asir install-gnuplot \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
 	 install-misc install-fep install-phcpack install-oxcdd \
-     install-oxmgraph install-pcc
+     install-oxmgraph install-pcc install-oxpari
 
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
@@ -126,6 +129,9 @@ install-gc: all-gc
 
 install-gmp: all-gmp
 	(cd gmp; ${MAKE} install)
+
+install-mpfr: all-mpfr
+	(cd mpfr; ${MAKE} install)
 
 install-asir: all-asir
 	(cd asir2000; ${MAKE} install)
@@ -244,6 +250,9 @@ configure-util:
 
 configure-gmp: install-util
 	(cd gmp; ${MAKE} configure)
+
+configure-mpfr: install-util
+	(cd mpfr; ${MAKE} configure)
 
 configure-asir: install-util 
 	(cd asir2000; ${MAKE} configure) 
