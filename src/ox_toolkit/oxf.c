@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.19 2005/03/03 04:40:51 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.20 2005/03/03 06:21:22 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -113,7 +113,7 @@ static int send_int64_lbo(OXFILE *oxfp, double int64)
 /* receiving an object of int64 type with Network Byte Order. */
 static double receive_int64_nbo_le(OXFILE *oxfp)
 {
-    int tag;
+    double tag;
     oxf_read(&tag, sizeof(double), 1, oxfp);
     return htonll_le(tag);
 }
@@ -121,7 +121,7 @@ static double receive_int64_nbo_le(OXFILE *oxfp)
 /* receiving an object of int64 type with Local Byte Order. */
 static double receive_int64_lbo(OXFILE *oxfp)
 {
-    int tag;
+    double tag;
     oxf_read(&tag, sizeof(double), 1, oxfp);
     return tag;
 }

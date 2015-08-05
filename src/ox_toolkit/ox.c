@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.39 2015/08/04 07:41:49 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.40 2015/08/04 10:19:31 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -767,21 +767,15 @@ static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
     return 0;
 }
 
-void send_int64(OXFILE *oxfp,UL64 a)
+int send_int64(OXFILE *oxfp,UL64 a)
 {
-  send_int32(oxfp, a>>32);
-  send_int32(oxfp, a&0xffffffff);
+  return oxfp->send_double(oxfp,((double *)&a)[0]);
 }
 
 UL64 receive_int64(OXFILE *oxfp)
 {
-  unsigned int u,l;
-  UL64 r;
-
-  u = receive_int32(oxfp);
-  l = receive_int32(oxfp);
-  r = (((UL64)u)<<32)|((UL64)l);
-  return r;
+	double d = receive_double(oxfp);
+  return ((UL64 *)&d)[0];
 }
 
 static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)

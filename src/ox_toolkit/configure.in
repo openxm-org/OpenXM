@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.11 2005/03/03 04:40:51 ohara Exp $
+dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.12 2007/04/08 18:27:09 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT(mysocket.c)
@@ -29,4 +29,5 @@ AC_CHECK_FUNC(gethostbyname, , [AC_CHECK_LIB(nsl,gethostbyname)])
 dnl for Redhat 8.0
 AC_CHECK_FUNC(dlopen, , [AC_CHECK_LIB(dl,dlopen)])
 
+AC_CHECK_SIZEOF(long)
 AC_OUTPUT(Makefile)

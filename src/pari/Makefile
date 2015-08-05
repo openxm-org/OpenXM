@@ -1,12 +1,13 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.21 2004/12/09 18:54:31 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.22 2008/08/11 15:53:33 ohara Exp $
 
 # Choose one of pari version.
 # Example.
 # $ make install                 ( for PARI/GP 2.0.x)
 # $ make PARI_VER=2.2 install    ( for PARI/GP 2.2.x)
 
-PARI_VER=2.0
+#PARI_VER=2.0
 #PARI_VER=2.2
+PARI_VER=2.3
 
 ## for PARI/GP unstable (2.2)
 PARI_DEVEL_VER=pari-2.2.8.alpha
