@@ -1,0 +1,53 @@
+MinGW+msys環境の構築 (2015/08/05)
+
+1. msys2-64 をインストール
+http://sourceforge.net/projects/msys2/files/Base/
+より、msys2-x86_64-20150512.exe をダウンロードし、c:\msys64にインストール
+
+2. スタートメニューから MSYS2 64bit→MinGW-w64 Win64 shell を起動し、以下を実行。
+pacman -S base-devel
+pacman -S msys2-devel
+pacman -S mingw-w64-i686-toolchain
+pacman -S mingw-w64-x86_64-toolchain
+
+※pacman -Sl で導入済みのパッケージが確認可能。必要なコマンドが不足した場合は以下のように追加。
+pacman -S bison
+pacman -S tar
+pacman -S wget
+pacman -S patch
+pacman -S diffutils
+
+※この環境には、3種類のコンパイラがある
+- msys2-devel でインストールされる gcc は、MSYS2 shell から使用し、これで生成したバイナリは、cygwin みたいに msys-2.0.dll を必要とする。
+- mingw-w64-i686-toolchain の gcc は、MinGW-w64 Win32 shell から使用し、これで生成したバイナリは、Windows native 32bit。
+- mingw-w64-x86_64-toolchain の gcc は、MinGW-w64 Win64 shell から使用し、これで生成したバイナリは、Windows native 64bit。
+
+3. /usr以下に次のディレクトリを作成
+cd /usr
+mkdir local
+mkdir local/bin
+mkdir local/lib
+mkdir local/include
+mkdir local/share
+
+4. gmp-5.1.3のビルドとインストール
+cd gmp-5.1.3
+./configure --prefix=/usr/local
+make
+make install
+
+5. gc-7.4.2
+cd gc-7.4.2
+wget http://www.hboehm.info/gc/gc_source/libatomic_ops-7.4.0.tar.gz
+tar zxvf libatomic_ops-7.4.0.tar.gz
+mv libatomic_ops-7.4.0 libatomic_ops
+wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+./configure --disable-threads
+make
+
+6. asirのビルド (まだビルドできていない)
+./configure
+make
+make install
+make install-lib
