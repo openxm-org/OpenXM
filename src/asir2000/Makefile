@@ -1,13 +1,12 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.31 2015/02/21 06:20:36 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.32 2015/08/04 05:24:44 noro Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-# Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
-#DISTNAME=gc-7.2b
-DISTNAME=gc6.8
-DISTFILES=${DISTNAME}.tar.gz
+# Original. http://www.hboehm.info/gc/gc_source
+DISTNAME=gc-7.4.2
+DISTFILES=${DISTNAME}.tar.gz libatomic_ops-7.4.0.tar.gz
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
@@ -31,7 +30,7 @@ distclean: clean
 fetch:
 	@if [ ! -f .fetch_done ]; then \
 		for i in ${DISTFILES}; do \
-			${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+			${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}$$i ${DISTDIR}; \
 		done \
 	fi
 	@touch .fetch_done
