@@ -4,7 +4,18 @@ MinGW+msys環境の構築 (2015/08/05)
 http://sourceforge.net/projects/msys2/files/Base/
 より、msys2-x86_64-20150512.exe をダウンロードし、c:\msys64にインストール
 
-2. スタートメニューから MSYS2 64bit→MinGW-w64 Win64 shell を起動し、以下を実行。
+2. スタートメニューから MSYS2 64bit→MinGW-w64 Win64 shell を起動する。
+
+まずは、パッケージデータベースを更新する。
+pacman -Sy
+
+次に、初期導入パッケージのアップデート
+pacman -Su
+としてから、MinGW-w64 Win64 shell の再起動、これを数度繰り返す。
+アップデートがなくなったことを確認。
+
+以下を実行。
+
 pacman -S base-devel
 pacman -S msys2-devel
 pacman -S mingw-w64-i686-toolchain
