@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.31 2010/08/30 04:17:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.32 2015/08/03 20:56:50 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -7,7 +7,11 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
+#if  (!defined(__MINGW32__) &&  !defined(__MINGW64__))
 #include <sys/wait.h>
+#else
+#include <_mingw.h>
+#endif
 #include <signal.h>
 #include <ctype.h>
 #include <time.h>
@@ -124,6 +128,7 @@ void *sGC_malloc(int s) { return (void *) malloc(s); }
 #define MYFORKCP_SIZE 100
 static int Myforkchildren[MYFORKCP_SIZE];
 static int Myforkcp=0;
+#if  (!defined(__MINGW32__)  && !defined(__MINGW64__))
 static void myforkwait() {
   int status;
   int pid;
@@ -234,6 +239,21 @@ int oxForkExecBlocked(char **argv) {
     exit(3);
   }
 }
+#else
+static void myforkwait() {
+  fprintf(stderr,"ERROR: myforkwait is not implented in mingw\n");
+  return;
+}
+int oxForkExec(char **argv) {
+  /* cf. Kan/shell.c */
+  fprintf(stderr,"ERROR: oxForkExec is not implented in mingw\n");
+  return(-1);
+}
+int oxForkExecBlocked(char **argv) {
+  fprintf(stderr,"ERROR: oxForkExecBlocked is not implented in mingw\n");
+  return(-1);
+}
+#endif
 
 static int getOStypei() {
   /*
@@ -1139,6 +1159,7 @@ int oxDeleteFile(char *fname) {
 /* This function just kills processes, so if there is a process which
    uses ox protocol, it is not relevant to use this functions.
 */
+#if  (!defined(__MINGW32__) &&  !defined(__MINGW64__))
 int oxKillAll(void) {
   int i;
   int pid;
@@ -1153,7 +1174,12 @@ int oxKillAll(void) {
   Myforkcp = 0;
   return(0);
 }
-
+#else
+int oxKillAll(void) {
+  fprintf(stderr,"ERROR: oxKillAll is not implented in mingw\n");
+  return(-1);
+}
+#endif
 void ox_pathfinder_quiet(void) {
   Verbose_get_home = 0;
   Verbose = 0;
