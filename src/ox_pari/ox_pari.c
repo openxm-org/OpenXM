@@ -1,9 +1,11 @@
-/*	$OpenXM$	*/
+/*	$OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.1 2015/08/04 05:24:44 noro Exp $	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "pari/pari.h"
 #include "gmp.h"
+#include "gmp-impl.h"
 #include "ox_toolkit.h"
 OXFILE *fd_rw;
 
@@ -11,14 +13,21 @@ static int stack_size = 0;
 static int stack_pointer = 0;
 static cmo **stack = NULL;
 extern int debug_print;
+long paristack=10000000;
 
 void init_pari(void);
+cmo *GEN_to_cmo(GEN z);
+cmo_zz *GEN_to_cmo_zz(GEN z);
+cmo_list *GEN_to_cmo_list(GEN z);
+GEN cmo_to_GEN(cmo *c);
+GEN cmo_zz_to_GEN(cmo_zz *c);
 
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
 
 void init_pari()
 {
+  pari_init(paristack,2);
 }
 
 int initialize_stack()
@@ -72,7 +81,7 @@ void pops(int n)
 
 int sm_mathcap()
 {
-	mathcap_init(OX_PARI_VERSION, ID_STRING, "ox_cdd", NULL, NULL);
+	mathcap_init(OX_PARI_VERSION, ID_STRING, "ox_pari", NULL, NULL);
 	push((cmo*)oxf_cmo_mathcap(fd_rw));
 	return 0;
 }
@@ -90,7 +99,7 @@ int sm_popCMO()
 
 cmo_error2 *make_error2(int code)
 {
-	return (cmo_error2 *) new_cmo_int32(-1);
+	return (cmo_error2 *) new_cmo_int32(code);
 }
 
 int get_i()
@@ -128,8 +137,90 @@ int cmo2int(cmo *c)
 	return 0;
 }
 
+GEN cmo_zz_to_GEN(cmo_zz *c)
+{
+  mpz_ptr mpz;
+  GEN z;
+  long *ptr;
+  int j,sgn,len;
+
+  mpz = c->mpz;
+  sgn = mpz_sgn(mpz);
+  len = ABSIZ(mpz);
+  ptr = (long *)PTR(mpz);
+  z = cgeti(len+2);
+  for ( j = 0; j < len; j++ )
+    z[len-j+1] = ptr[j];
+  setsigne(z,sgn);
+  setlgefint(z,lg(z));
+  return z;
+}
+
+cmo_zz *GEN_to_cmo_zz(GEN z)
+{
+  cmo_zz *c;
+
+  c = new_cmo_zz();
+  mpz_import(c->mpz,lgef(z)-2,1,sizeof(long),0,0,&z[2]);
+  if ( signe(z) < 0 )
+    mpz_neg(c->mpz,c->mpz);
+  return c;
+}
+
+cmo_list *GEN_to_cmo_list(GEN z)
+{
+  cmo_list *c;
+  cmo *ob;
+  int i,len;
+
+  c = new_cmo_list();
+  len = lg(z)-1;
+  for ( i = 1; i <= len; i++ ) {
+    ob = GEN_to_cmo((GEN)z[i]);
+    c = list_append(c,ob);
+  }
+  return c;
+}
+
+
+GEN cmo_to_GEN(cmo *c)
+{
+  switch ( c->tag ) {
+  case CMO_ZERO:
+  case CMO_ZZ: /* int */
+    return cmo_zz_to_GEN((cmo_zz *)c);
+  default:
+    return 0;
+  }
+}
+
+cmo *GEN_to_cmo(GEN z)
+{
+  if ( gcmp0(z) )
+    return new_cmo_zero();
+  switch ( typ(z) ) {
+  case 1: /* int */
+    return (cmo *)GEN_to_cmo_zz(z);
+  case 17: case 18: /* vector */
+    return (cmo *)GEN_to_cmo_list(z);
+  case 19: /* matrix */
+    return (cmo *)GEN_to_cmo_list(shallowtrans(z));
+  default:
+    return (cmo *)make_error2(typ(z));
+  }
+}
+
+
+#define PARI_MAX_AC 64
+
 int sm_executeFunction()
 {
+  int ac,i;
+  cmo_int32 *c;
+  cmo *av[PARI_MAX_AC];
+  cmo *ret;
+  GEN z,m;
+
 	cmo_string *func = (cmo_string *)pop();
 	if(func->tag != CMO_STRING) {
 		printf("sm_executeFunction : func->tag is not CMO_STRING");fflush(stdout);
@@ -137,8 +228,35 @@ int sm_executeFunction()
 		return -1;
 	}
 
-    if(strcmp(func->s, "factor" ) == 0) {
-		printf("afo\n");fflush(stdout);
+	c = (cmo_int32 *)pop();
+  ac = c->i;
+  if ( ac > PARI_MAX_AC ) {
+		push((cmo*)make_error2(0));
+		return -1;
+  }
+  for ( i = 0; i < ac; i++ ) {
+    av[i] = (cmo *)pop();
+    fprintf(stderr,"arg%d:",i);
+    print_cmo(av[i]);
+    fprintf(stderr,"\n");
+  }
+  if(strcmp(func->s, "factor") == 0) {
+    z = cmo_to_GEN(av[0]); 
+    m = Z_factor(z);
+    ret = GEN_to_cmo(m);
+    push(ret);
+		return 0;
+  } else if(strcmp(func->s, "nextprime") == 0) {
+    z = cmo_to_GEN(av[0]); 
+    m = nextprime(z);
+    ret = GEN_to_cmo(m);
+    push(ret);
+		return 0;
+  } else if(strcmp(func->s, "det") == 0) {
+    z = cmo_to_GEN(av[0]); 
+    m = det(z);
+    ret = GEN_to_cmo(m);
+    push(ret);
 		return 0;
 	} else if( strcmp( func->s, "exit" ) == 0 ){
 		pop();
@@ -180,11 +298,11 @@ int receive()
 	tag = receive_ox_tag(fd_rw);
 	switch(tag) {
 	case OX_DATA:
-		printf("receive : ox_data\n",tag);fflush(stdout);
+		printf("receive : ox_data %d\n",tag);fflush(stdout);
 		push(receive_cmo(fd_rw));
 		break;
 	case OX_COMMAND:
-		printf("receive : ox_command\n",tag);fflush(stdout);
+		printf("receive : ox_command %d\n",tag);fflush(stdout);
 		receive_and_execute_sm_command();
 		break;
 	default:
