@@ -1,0 +1,298 @@
+/* $OpenXM$ */ 
+/* A-hg2/Prog/bm5.rr --> ot_hessian_ahg.rr, ot2-tmp */
+
+import("names.rr")$
+// test data.
+extern C11_A$ 
+extern C11_Beta$
+// A =C11_A;
+// Running example of htest?()
+A=C11_A=[[0,0,0,1,1,1,1],[1,0,0,1,0,1,0],[0,1,1,0,1,0,1],[1,1,0,1,1,0,0]]$
+// Beta0= C11_Beta;
+Beta0=C11_Beta=[166,36,290,214]$
+
+Pvar=[p0,p1,p2,p3,p4,p5,p6]$
+Eq=matrix_list_to_matrix(A)*newvect(7,Pvar)$
+Eq2=newvect(4,Beta0)$
+Eq=vtol(Eq-Eq2)$ 
+Rule0=poly_solve_linear(Eq,[p0,p1,p2,p3])$
+
+def hess_is_constant(M,ZvecL) {
+  V = vars(M);
+  if (length(V)==0) return(1);
+  L = base_intersection(V,ZvecL);
+  if (length(L)==0) return(1); 
+  else return(0);
+}
+/* Index starts from 0 
+   When Idx=[i,j], it returns the (i,j) element of the Hessian H
+   by a list of [coef,IdxK], whose sum is the H_ij.
+   BaseId is a list of indexes of dx_p which are contained in
+   the base of the Pfaffian.
+   When IdxK = [k0,k1], either k0 or k1 is in the BaseIdx.
+   hessian0 will be called and IdxK is transformed into 
+   an element of the base.
+   Example. H=htest2().
+   Rule=[[z_0,b1-b0+z_4+z_6],[z_1,-b1+b3-z_4+z_5],[z_2,b1+b2-b3-z_5-z_6],[z_3,b0-z_4-z_5-z_6]]
+   Index は 0 がらスタートする.
+   A-hg の Euler  作用素を用いて Pfaffian で求まる以外の
+   Hessian を計算する.
+   rewrite_grad=0 としておくと, gradient で表現できる部分の
+   simplify はしない.
+   例:
+   hessian_simplify([[1,2,3]],[b0],[x0,x1,x2],[1,2],[0,0]|rewrite_grad=0);
+    点 [x0,x1,x2] における Hessian の [0,0] 成分.
+     [1,2] は base に出てる first order の微分作用素の index.
+    出力.
+   [(b0-1)/(x0),[0],[(-3*x2)/(x0),[2,0]],[(-2*x1)/(x0),[1,0]]]
+   普通に書けば
+   H_00 = (b0-1)/x0*Z_0 -(3*x2/x0)*H_20-(2*x1/x0)*H_10
+   ここで H_ij は Hessian の  ij 成分.  Z_0 は Z の x0 についての
+   微分.
+    これは Euler 作用素 t0+2*t1+3*t2-b0  (ti = x_i*dx_i, x_i=xi)
+    を移項して t0 = -2*t1-3*t2+b0 として, dx_0 を作用させて
+    dx_0*dx_0 を表現したものである.
+ */ 
+def  hessian_simplify(A,Beta,X,BaseIdx,Idx) {
+  if (type(getopt(rewrite_grad)) == 0) {
+    RewriteL=0;
+  }else RewriteL=1;
+  N = length(A[0]);
+  Zvec = newvect(N);
+  for (I=0; I<N; I++) Zvec[I] = util_v(z,[I]);
+  ZvecL=vtol(Zvec);
+  BaseZ = newvect(length(BaseIdx));
+  for (I=0; I<length(BaseIdx); I++) BaseZ[I] = util_v(z,[BaseIdx[I]]);
+  BaseZ = vtol(BaseZ);
+  CoBaseZ = base_set_minus(vtol(Zvec),BaseZ);
+  if (base_memberq(Idx[0],BaseIdx) || base_memberq(Idx[1],BaseIdx)) {
+    return([ [1,Idx]  ]);   // call hessian0 by the Pfaffian matrix.
+  }
+  Av=matrix_list_to_matrix(A);
+  Betav = matrix_list_to_matrix(Beta);
+  Eq=Av*Zvec-Betav;
+  //  debug();
+  Rule=poly_solve_linear(vtol(Eq),CoBaseZ);
+  // print(Rule);
+  //  return(Rule);
+  if (length(Rule) < 1) error("Rule is []");
+  RuleV0=newvect(N);
+  for (I=0; I<length(Rule); I++) {
+    K = util_index(Rule[I][0])[1][0];
+    RuleV0[K] = Rule[I][1];
+  }
+  RuleV0=vtol(RuleV0);
+  //return(RuleV0); // RuleV0[k] is a rule to translate z_k
+  Ans = [];
+  II = Idx[0]; JJ = Idx[1];
+  F=RuleV0[II];  // apply z_jj to F.
+  while (F!=0) {
+    M = poly_initial_term(F|v=ZvecL)[0];  // print(M);
+    if (!hess_is_constant(M,ZvecL)) { 
+      KK = util_index(M)[1][0];  // M is cc*z_kk
+      CC = red(M/util_v(z,[KK])); 
+      L = [(CC/X[II])*X[KK],[KK,JJ]];  // z_jj*z_kk/(x_ii*x_jj)
+      Ans = cons(L,Ans);
+    }else{
+      if (II != JJ) {
+        CC=M/X[II];
+        L = [CC,[JJ]];  // linear term
+      }else{
+        CC=(M-1)/X[II];
+        L = [CC,[JJ]];  // linear term. note 2015.08.09
+      }
+      if (RewriteL) {   // rewrite L by RuleV0
+          GradJ = gradient_simplify(A,Beta,X,BaseIdx)[JJ]; 
+          L = [];
+          for (I=0; I<length(GradJ); I++) {
+	    L = cons([CC*GradJ[I][0],GradJ[I][1]],L);
+          }
+      }
+      Ans = append(L,Ans);
+    }
+    F = F-M;
+  }
+  return(Ans);
+}
+
+def  htest1() {
+  extern C11_A;
+  extern C11_Beta;
+  A =C11_A;
+  Beta0= C11_Beta;
+  BaseIdx=[4,5,6];
+  Idx=[0,0];
+  X=[1,2,3,4,5,6,7];
+  return(hessian_simplify(A,Beta0,X,BaseIdx,Idx|rewrite_grad=0));
+}
+// htest1();
+def  htest2() {
+  extern C11_A;
+  extern C11_Beta;
+  Hess=newmat(7,7);
+  A =C11_A;
+  Beta0= [b0,b1,b2,b3];
+  BaseIdx=[4,5,6];
+  X=[x0,x1,x2,x3,x4,x5,x6];
+  for (I=0; I<7; I++) for (J=0; J<7; J++) {
+    Idx = [I,J];
+    H=hessian_simplify(A,Beta0,X,BaseIdx,Idx|rewrite_grad=0);
+    Hess[I][J]=H;
+    printf("[I,J]=%a, Hessian_ij=%a\n",Idx,H);
+  } 
+  return(Hess);
+}
+// Hess=htest2()$
+
+def gradient_simplify(A,Beta,X,BaseIdx) {
+  N = length(A[0]);
+  Zvec = newvect(N);
+  for (I=0; I<N; I++) Zvec[I] = util_v(z,[I]);
+  ZvecL=vtol(Zvec);
+  BaseZ = newvect(length(BaseIdx));
+  for (I=0; I<length(BaseIdx); I++) BaseZ[I] = util_v(z,[BaseIdx[I]]);
+  BaseZ = vtol(BaseZ);
+  CoBaseZ = base_set_minus(vtol(Zvec),BaseZ);
+  Av=matrix_list_to_matrix(A);
+  Betav = matrix_list_to_matrix(Beta);
+  Eq=Av*Zvec-Betav;
+  Rule=poly_solve_linear(vtol(Eq),CoBaseZ);
+  if (length(Rule) < 1) error("Rule is []");
+  RuleV0=newvect(N);
+  for (I=0; I<length(Rule); I++) {
+    K = util_index(Rule[I][0])[1][0];
+    RuleV0[K] = Rule[I][1];
+  }
+  RuleV0=vtol(RuleV0);
+  Grad = newvect(N);
+  for (II=0; II<N; II++) {
+    F=RuleV0[II];
+    if (F == 0) {
+      Grad[II] = [1,[II]]; continue;
+    }
+    Ans=[];
+    while (F!=0) {
+      M = poly_initial_term(F|v=ZvecL)[0];  // print(M);
+      if (!hess_is_constant(M,ZvecL)) { 
+        KK = util_index(M)[1][0];  // M is cc*z_kk
+        CC = red(M/util_v(z,[KK])); 
+        L = [(CC/X[II])*X[KK],[KK]];  // x_kk z_kk/x_ii
+        Ans = cons(L,Ans);
+      }else{
+        CC=M/X[II];
+        L = [CC,[]];  // linear term
+        Ans = cons(L,Ans);
+      }
+      F = F-M;
+    }
+    Grad[II] = Ans;
+  }
+  return(vtol(Grad));
+}
+def  htest3() {
+  extern C11_A;
+  extern C11_Beta;
+  Hess=newmat(7,7);
+  A =C11_A;
+  Beta0= [b0,b1,b2,b3];
+  BaseIdx=[4,5,6];
+  X=[x0,x1,x2,x3,x4,x5,x6];
+  return(gradient_simplify(A,Beta0,X,BaseIdx));
+}
+// Grad=htest3();
+
+def  htest4() {
+  extern C11_A;
+  extern C11_Beta;
+  Hess=newmat(7,7);
+  A =C11_A;
+  Beta0= [b0,b1,b2,b3];
+  BaseIdx=[4,5,6];
+  X=[x0,x1,x2,x3,x4,x5,x6];
+  for (I=0; I<7; I++) for (J=0; J<7; J++) {
+    Idx = [I,J];
+    H=hessian_simplify(A,Beta0,X,BaseIdx,Idx);
+    Hess[I][J]=H;
+    printf("[I,J]=%a, Hessian_ij=%a\n",Idx,H);
+  } 
+  return(Hess);
+}
+// Hess2=htest4()$
+
+/*
+  Partial Hessian obtained by Pfaffian without differentiation.
+  F: sol vector
+  X: point
+  Base: base by a list of indexes.
+  Pf[0], Pf[1], ... Pfaffian matrices.
+  V: variables in Pf.
+ */
+def hessian_by_pf(F,X,Base,Pf,V) {
+  N = length(V);  // N==length(Pf)
+  Rank = length(Base);
+  BaseIdx=[];
+  for (I=0; I<Rank; I++) {
+    B = Base[I];
+    if (length(B) == 1) BaseIdx=cons(B[0],BaseIdx);
+  }
+  BaseIdx=reverse(BaseIdx);
+  HessP=newmat(N,N);
+  GradP=newvect(N);
+  /* clear by er */
+  FP = er;
+  for (I=0; I<N; I++) for (J=0; J<N; J++) HessP[I][J] = er;
+  for (I=0; I<N; I++) GradP[I] = er;
+
+  for (I=0; I<Rank; I++) {
+    B = Base[I];
+    if (length(B) == 0) F0 = F[I];
+    if (length(B) == 1) GradP[B[0]]=F[I]; // get gradient from F
+    if (length(B) == 2) {
+      II=B[0]; JJ=B[1];
+      HessP[II][JJ] = HessP[JJ][II] = F[I];
+    }
+  }
+  Rule = assoc(V,X);
+  Pfval = newvect(N);  Fvec = matrix_list_to_matrix(F);
+  for (I=0; I<N; I++) {
+    Pfval[I] = base_replace(Pf[I],Rule)*Fvec;
+  }
+  /* get Hessian from the Pfaffian */
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      if ((Pos=base_position([I],Base)) > -1) {
+	printf("Pos=%a, [I,J]=%a\n",Pos,[I,J]);
+	if (HessP[I][J] == er) {
+             HessP[I][J] = HessP[J][I] = Pfval[J][Pos];
+	}
+      }
+    }
+  }
+  /* get gradient from the Pfaffian */
+  if ((Pos=base_position([],Base)) > -1) {
+    for (I=0; I<N; I++) {
+       if (GradP[I] ==er) {
+	 GradP[I] = Pfval[I][Pos];
+       }
+     }
+  }
+  return([FP,GradP, HessP]);
+}
+
+def htest5() {
+  N = 3;
+   Pf0 = newmat(N,N);
+   for (I=0; I<N; I++) for (J=0; J<N; J++) Pf0[I][J]=util_v(p0,[I,J]);
+   Pf1 = newmat(N,N); 
+   for (I=0; I<N; I++) for (J=0; J<N; J++) Pf1[I][J]=util_v(p1,[I,J]);
+   Pf = matrix_list_to_matrix([Pf0,Pf1]);
+   F = newvect(N);
+   for (I=0; I<N; I++) F[I] = util_v(f,[I]);
+   Base =[[], [1],[1,1]];
+   V = [x0,x1]; X = [1,2];
+   print([F,X,Base,Pf,V]);
+   H=hessian_by_pf(F,X,Base,Pf,V); 
+   return(H);
+}
+// H5=htest5();
+end$
