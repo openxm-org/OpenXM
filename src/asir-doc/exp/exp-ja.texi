@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.48 2014/05/29 13:18:18 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.49 2014/12/14 01:06:44 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -4053,7 +4053,79 @@ ChangeLog
 @end itemize
 
 
-@comment -----------  以下は見本. 消すな.  template
+@node pari,,, 実験的仕様の関数
+@subsection @code{pari}, @code{setbprec},@code{setround},@code{todouble},@code{mpfr_gamma},@code{mpfr_floor},@code{mpfr_round},
+@findex pari
+@findex setbprec
+@findex setround
+@findex todouble
+@findex mpfr_gamma
+@findex mpfr_floor
+@findex mpfr_round
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item pari(@var{arg1},@var{arg2},...)
+::  MPFR で pari の関数を emulate するか ox_pari サーバーを呼び出す.
+@itemx setbprec(@var{arg1})
+@itemx setround(@var{arg1})
+   丸めの方法の指定. mpfr 準拠.
+@itemx todouble(@var{arg1})
+:: bigfloat 型を double に変換する.
+@itemx mpfr_gamma(@var{arg1})
+:: gamma 関数の計算.
+@itemx mpfr_floor(@var{arg1})
+::  floor の計算.
+@itemx mpfr_round(@var{arg1})
+:: 丸めの計算.
+@end table
+
+@table @var
+@item return
+後述.
+@item arg1, arg2
+後述.
+@end table
+
+@itemize @bullet
+@item 20150807 以降の asir では, bigfloat が pari ではなく mpfr を用いて計算される.
+Todo, pari は ox_pari を呼び出すが, まだ ox_pari に未実装の機能が多くある.
+区間演算への対応は行っていない.
+@item
+pari(floor,@var{arg1}), 
+pari(round,@var{arg1}), 
+pari(gamma,@var{arg1})
+は mpfr で pari を emulate しているので, 動作が異なる.
+特に gamma は複素数の引数を受け取らない.
+pari の floor は桁数が足りなくなるとエラーで終了したが, 
+この floor では setprec で指定した桁数以内なら正しく floor を戻す. 
+Todo, ox_pari  を指定して呼び出す方法.
+@end itemize
+
+@example
+[219] ctrl("bigfloat",1)$
+[220] setprec(100)$
+[221] pari(floor,1111111111111.1+1/10);
+1111111111111
+@end example
+
+@table @t
+@item 参照
+@ref{pari}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item これらの大変更は 2015-08-03 より 08-07 の asir 合宿でおこなわれた.
+まだ作業中.  Todo, asirgui への対応. debug, ...
+@item 変更をうけたソースコードは asir2000/builtin/bfaux.c, 
+asir2000/engine/bf.c, asir2000/builtin/parif.c 等多数.
+@end itemize
+
 @comment ****************************************************************
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
