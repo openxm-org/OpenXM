@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.40 2015/08/04 10:19:31 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.41 2015/08/05 00:59:05 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -781,7 +781,8 @@ UL64 receive_int64(OXFILE *oxfp)
 static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 {
   int sgn,prec,len,i;
-  long *ptr;
+  unsigned int hi,lo;
+  unsigned long *ptr;
   L64 exp;
 
   sgn  = receive_int32(oxfp);
@@ -798,17 +799,26 @@ static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
   for ( i = 0; i < len; i++ )
     ptr[i] = receive_int32(oxfp);     
 #else
-  len >>= 1;
-  for ( i = 0; i < len; i++ )
-    ptr[i] = receive_int64(oxfp);     
+  if ( len%2 ) {
+    hi = receive_int32(oxfp);
+    ptr[0] = (((UL64)hi)<<32);
+	i = 1;
+  } else
+    i = 0;
+  len = (len+1)/2;
+  for ( ; i < len; i ++ ) {
+    lo = (unsigned int)receive_int32(oxfp);
+    hi = (unsigned int)receive_int32(oxfp);
+    ptr[i] = (((UL64)hi)<<32)|((UL64)lo);
+  }
 #endif
 }
 
 static int send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 {
 
-  int i,len;
-  long *ptr;
+  int i,len,t;
+  unsigned long *ptr;
 
   send_int32(oxfp, MPFR_SIGN(mpfr));
   send_int32(oxfp, MPFR_PREC(mpfr));
@@ -820,9 +830,18 @@ static int send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
   for ( i = 0; i < len; i++ )
     send_int32(oxfp,ptr[i]);     
 #else /* SIZEOF_LONG==8 */
-  send_int32(oxfp, 2*len);
-  for ( i = 0; i < len; i++ )
-    send_int64(oxfp,ptr[i]);     
+  t = (MPFR_PREC(mpfr)+31)/32;
+  send_int32(oxfp, t);
+  if ( t%2 ) {
+	send_int32(oxfp,(unsigned int)(ptr[0]>>32));
+    i = 1;
+  } else
+    i = 0;
+  t = (t+1)/2;
+  for ( ; i < len; i++ ) {
+	send_int32(oxfp,(unsigned int)(ptr[i]&0xffffffff));
+	send_int32(oxfp,(unsigned int)(ptr[i]>>32));
+  }
 #endif
     return 0;
 }
