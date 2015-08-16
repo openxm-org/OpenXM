@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.9 2015/03/01 04:23:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-port/cgi/r-fd.rr,v 1.10 2015/03/11 07:28:45 takayama Exp $ */
 load("tk_fd.rr")$
 import("tk_r.rr")$
 import("oh_number.rr")$
@@ -112,5 +112,14 @@ def a_log_ahmat(A,B,C,Y) {
 def map_deval(L) {
   if (type(L) >=4) return(map(map_deval,L));
   return(deval(L));
+}
+
+def fd_hessian2(A,B,C,Xval) {
+  H = tk_fd.fd_hessian2(A,B,C,Xval);
+  return([H[0],matrix_matrix_to_list(H[1]),matrix_matrix_to_list(H[2])]);
+}
+def r_fd_hessian2(A,B,C,Xval) {
+  H = tk_fd.fd_hessian2(A,B,C,Xval);
+  return(tk_r.asir2r_c(H));
 }
 end$
