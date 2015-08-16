@@ -1,5 +1,8 @@
 /* Two modules are defined:  mtg for plot3d and mtp for parametric_plot3d */ 
 import("glib3.rr")$
+if (version() < 20150801) {
+  pari(allocatemem,10^8)$
+}else{}$
 /* pari(allocatemem,10^8)$
  BUG: 2015.08.07 it causes the cash of ox_pari server as a grandchild 
   when it is called in asirrc in ox_asir.
