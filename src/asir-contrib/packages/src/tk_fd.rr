@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.14 2014/12/17 00:09:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_fd.rr,v 1.15 2015/02/28 11:08:11 takayama Exp $ */
 /*
   2015.05.23   h-mle/FD/Prog/fdpf.rr --> tk_fd.rr
  */
@@ -33,6 +33,12 @@ extern YgFD_AA$
 extern YgFD_BB$
 extern YgFD_CC$
 extern YgFD_XX$
+extern Hfd_H$
+extern Hfd_M$
+extern Hfd_psi$
+extern Hfd_F$
+extern Hfd_Hess$
+extern Hfd_debug$
 #else
 module tk_fd;
 static Alpha$
@@ -54,6 +60,12 @@ static YgFD_AA$
 static YgFD_BB$
 static YgFD_CC$
 static YgFD_XX$
+static Hfd_H$
+static Hfd_M$
+static Hfd_psi$
+static Hfd_F$
+static Hfd_Hess$
+static Hfd_debug$
 
 localf setparam$
 localf setparam_by_number$
@@ -195,6 +207,8 @@ localf abc2ahg$
 localf expectation_abc_orig1$
 localf ahmat_abc$
 localf log_ahmat_abc$
+localf fd_hessian2$
+localf hfdtest2$
 #endif
 /* Matsumoto, page 3 */
 
@@ -2822,6 +2836,118 @@ def log_ahmat_abc(A,B,C,X) {
    return([LogZ,matrix_matrix_to_list(DerMat)]);
   
 }
+
+/*
+  It returns
+  [F=F_D,gradient(F),Hessian(F)]
+  2015.08.16  copied from h-mle/A-hg2/Prog/hessian_fd.rr
+ */
+def fd_hessian2(A,B,C,Xval) {
+  M = length(Xval);
+  Hfd_M=M;
+  FF=ygfvect_poly(A,B,C,Xval);  // double check. Same with Matsumoto sol base ?
+  Hfd_F=FF;
+  setparam_abc(M,A,B,C);
+  Hfd_H = P= psi();
+  V = newvect(Hfd_M);
+  DV = newvect(Hfd_M);
+  for (I=0; I<M; I++) {
+    V[I] = util_v(x,[I+1]);
+    DV[I] = util_v(dx,[I+1]);
+  }
+  V = vtol(V);  DV = vtol(DV);
+  Rule = assoc(V,Xval);
+  // [d-psi()] F = 0  
+  P=base_replace(P,yrule());
+  Psi = Hfd_psi= base_replace_n(P, Rule);
+  Pf = newvect(M);
+  for (I=0; I<M; I++) Pf[I] = map(coef,Psi,1,DV[I]);
+  Grad0 = newvect(M);
+  Hess0 = newmat(M,M) ;
+  FF0 = FF[0];
+ // F=(F_D, (x_0-1)/alpha_1 dx_0 F_D, ..., (x_{M-1}-1)/alpha_M dx_{M-1} F_D)
+ // The first component of Pf[i]*F = Pfval[i]  is gradient.
+  Pfval=newvect(M);
+  for (I=0; I<M; I++) Pfval[I] = Pf[I]*FF;
+  for (I=0; I<M; I++)  Grad0[I] = Pfval[I][0];
+  // tk_fd.getparam()   return [MM,AA,BB,CC,Alpha,Alpha_ap,Alpha_am,MyDebug];
+
+  // Set alpha.  copied from tk_fd.rr
+  H_MM=M;
+ H_Alpha=newvect(H_MM+3);
+ H_AA=A;
+ H_BB = newvect(H_MM+1);
+ for (I=1; I<=H_MM; I++) H_BB[I] = B[I-1];
+ H_CC=C;
+ H_Alpha[0]=-H_CC+base_sum(H_BB,0,1,H_MM);
+ for (I=1; I<=H_MM; I++) H_Alpha[I] = -H_BB[I];
+ H_Alpha[H_MM+1] = H_CC-H_AA;
+ H_Alpha[H_MM+2] = H_AA;
+ if (Hfd_debug) printf("M=%a\n",M);
+ if (Hfd_debug) printf("H_Alpha = %a\n",H_Alpha);
+ if (Hfd_debug) printf("Xval = %a\n",Xval);
+
+  for (I=0; I<M; I++) {
+    for (J=0; J<M; J++) {
+      // dx_j*F 's (i +1)-th element.  i<>j.  (x_i-1)/alpha_{i+1} dx_i*dx_j*F_D
+      if (I != J) Hess0[I][J] = Pfval[J][I+1]*H_Alpha[I+1]/(Xval[I]-1);
+      else {
+	Hess0[I][I] = (Pfval[J][I+1]-(1/H_Alpha[I+1])*Grad0[I])*H_Alpha[I+1]/(Xval[I]-1);
+      }
+      /*
+           dx_i*F 's (i+1) the lement.     (x_i-1)/alpha_{i+1} dx_i*dx_i*F_D 
+                                      +1/alpha_{i+1} dx_i*F_D 
+           Since dx_j*F=Pf[j]*F = Pfval[j], we do not need to differentiate  Pf.
+           fd_hessian2() uses this method.
+       */
+    }
+  }
+  return([FF0,Grad0,Hess0]);
+}
+
+def hfdtest2() {
+  printf("Starting hfdtest2().\n");
+  // cf. check28.  
+  A=-5; B=[-4,-3,-2];C=-2; XX=[1/2,1/3,1/5]; V=[x1,x2,x3];
+  // tk_fd.fd does not work. 2015.08.15.  Done on 08.16
+
+  /*
+  A=-3$
+  B=[-3,-2,-5,-4]$
+  C=10$
+  XX=[2,3,4,5]$
+  V=[x1,x2,x3,x4];
+  */
+
+  M=length(B)$
+  Hfd_Hess=HH=fd_hessian2(A,B,C,XX)$
+  Hess=HH[2]$
+  printf("Computing polynomial sol F_D\n");
+  if (C > 0) {
+    F=fd(A,B,C,V | approx=-A+1);
+  }else {
+  // Slow, but works for the case C < 0. 2015.08.16
+     T=hgpoly_fd(A,B,C);
+     T=atofd(T[0],A,B,C,T[2]);
+     F=base_replace(T[0],assoc(T[1],V));
+  }
+
+  printf("F_D=%a\n",F);
+  Rule=assoc(V,XX);
+  T=HH[0]-base_replace(F,Rule);
+  printf("fval check: %a\n",T);
+  for (I=0; I<M; I++) {
+    T = HH[1][I]-base_replace(diff(F,V[I]),Rule);
+    printf("grad check: %a\n",T);
+  }
+  for (I=0; I<M; I++) {
+    for (J=0; J<M; J++) {
+      T = (HH[2])[I][J]-base_replace(diff(diff(F,V[I]),V[J]),Rule);
+      printf("Hessian check: %a\n",T);
+    }
+  }
+}
+
 
 #if  !USE_MODULE
 setparam(2)$
