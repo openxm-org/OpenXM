@@ -1,13 +1,21 @@
-/*	$OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.1 2015/08/04 05:24:44 noro Exp $	*/
+/*	$OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.2 2015/08/06 09:15:32 noro Exp $	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "pari/pari.h"
+#include "pari/paripriv.h"
 #include "gmp.h"
 #include "gmp-impl.h"
+#include "mpfr.h"
 #include "ox_toolkit.h"
 OXFILE *fd_rw;
+
+#define MPFR_PREC(x)      ((x)->_mpfr_prec)
+#define MPFR_EXP(x)       ((x)->_mpfr_exp)
+#define MPFR_MANT(x)      ((x)->_mpfr_d)
+#define MPFR_LAST_LIMB(x) ((MPFR_PREC (x) - 1) / GMP_NUMB_BITS)
+#define MPFR_LIMB_SIZE(x) (MPFR_LAST_LIMB (x) + 1)
 
 static int stack_size = 0;
 static int stack_pointer = 0;
@@ -18,12 +26,30 @@ long paristack=10000000;
 void init_pari(void);
 cmo *GEN_to_cmo(GEN z);
 cmo_zz *GEN_to_cmo_zz(GEN z);
+cmo_bf *GEN_to_cmo_bf(GEN z);
 cmo_list *GEN_to_cmo_list(GEN z);
 GEN cmo_to_GEN(cmo *c);
 GEN cmo_zz_to_GEN(cmo_zz *c);
+GEN cmo_bf_to_GEN(cmo_bf *c);
 
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
+
+void *gc_realloc(void *p,size_t osize,size_t nsize)
+{
+  return (void *)GC_realloc(p,nsize);        
+}
+
+void gc_free(void *p,size_t size)
+{
+  GC_free(p);
+}
+
+void init_gc()
+{
+	GC_INIT();
+  mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
+}
 
 void init_pari()
 {
@@ -156,6 +182,27 @@ GEN cmo_zz_to_GEN(cmo_zz *c)
   return z;
 }
 
+GEN cmo_bf_to_GEN(cmo_bf *c)
+{
+  mpfr_ptr mpfr;
+  GEN z;
+  int sgn,len,j;
+  long exp;
+  long *ptr;
+
+  mpfr = c->mpfr;
+  sgn = MPFR_SIGN(mpfr);
+  exp = MPFR_EXP(mpfr)-1;
+  len = MPFR_LIMB_SIZE(mpfr);
+  ptr = (long *)MPFR_MANT(mpfr);
+  z = cgetr(len+2);
+  for ( j = 0; j < len; j++ )
+    z[len-j+1] = ptr[j];
+  z[1] = evalsigne(sgn)|evalexpo(exp);
+  setsigne(z,sgn);
+  return z;
+}
+
 cmo_zz *GEN_to_cmo_zz(GEN z)
 {
   cmo_zz *c;
@@ -166,6 +213,25 @@ cmo_zz *GEN_to_cmo_zz(GEN z)
     mpz_neg(c->mpz,c->mpz);
   return c;
 }
+
+cmo_bf *GEN_to_cmo_bf(GEN z)
+{
+  cmo_bf *c;
+  int len,prec,j;
+  long *ptr;
+
+  c = new_cmo_bf();
+  len = lg(z)-2;
+  prec = len*sizeof(long)*8;
+  mpfr_init2(c->mpfr,prec);
+  ptr = (long *)MPFR_MANT(c->mpfr);
+  for ( j = 0; j < len; j++ )
+    ptr[j] = z[len-j+1];
+  MPFR_EXP(c->mpfr) = (long long)(expo(z)+1);
+  MPFR_SIGN(c->mpfr) = gsigne(z);
+  return c;
+}
+
 
 cmo_list *GEN_to_cmo_list(GEN z)
 {
@@ -187,8 +253,11 @@ GEN cmo_to_GEN(cmo *c)
 {
   switch ( c->tag ) {
   case CMO_ZERO:
+    return gen_0;
   case CMO_ZZ: /* int */
     return cmo_zz_to_GEN((cmo_zz *)c);
+  case CMO_BIGFLOAT: /* bigfloat */
+    return cmo_bf_to_GEN((cmo_bf *)c);
   default:
     return 0;
   }
@@ -201,6 +270,8 @@ cmo *GEN_to_cmo(GEN z)
   switch ( typ(z) ) {
   case 1: /* int */
     return (cmo *)GEN_to_cmo_zz(z);
+  case 2: /* bigfloat */
+    return (cmo *)GEN_to_cmo_bf(z);
   case 17: case 18: /* vector */
     return (cmo *)GEN_to_cmo_list(z);
   case 19: /* matrix */
@@ -210,17 +281,48 @@ cmo *GEN_to_cmo(GEN z)
   }
 }
 
+struct parif {
+  char *name;
+  int type;
+  GEN (*f)();
+} parif_tab[] = {
+  {"erfc",1,gerfc},
+  {"factor",1,Z_factor},
+  {"isqrt",1,racine},
+  {"nextprime",1,nextprime},
+  {"det",1,det},
+  {"allocatemem",0,(GEN (*)())allocatemoremem},
+};
 
 #define PARI_MAX_AC 64
 
+struct parif *search_parif(char *name)
+{
+  int tablen,i;
+
+  tablen = sizeof(parif_tab)/sizeof(struct parif);
+  for ( i = 0; i < tablen; i++ ) {
+    if ( !strcmp(parif_tab[i].name,name) )
+      return &parif_tab[i];
+  }
+  return 0;
+}
+
 int sm_executeFunction()
 {
+  long ltop,lbot;
   int ac,i;
   cmo_int32 *c;
   cmo *av[PARI_MAX_AC];
   cmo *ret;
   GEN z,m;
+  struct parif *parif;
 
+  if ( setjmp(GP_DATA->env) ) {
+		printf("sm_executeFunction : an error occured.\n");fflush(stdout);
+		push((cmo*)make_error2(0));
+		return -1;
+  }
 	cmo_string *func = (cmo_string *)pop();
 	if(func->tag != CMO_STRING) {
 		printf("sm_executeFunction : func->tag is not CMO_STRING");fflush(stdout);
@@ -240,32 +342,40 @@ int sm_executeFunction()
     print_cmo(av[i]);
     fprintf(stderr,"\n");
   }
-  if(strcmp(func->s, "factor") == 0) {
-    z = cmo_to_GEN(av[0]); 
-    m = Z_factor(z);
-    ret = GEN_to_cmo(m);
-    push(ret);
-		return 0;
-  } else if(strcmp(func->s, "nextprime") == 0) {
-    z = cmo_to_GEN(av[0]); 
-    m = nextprime(z);
-    ret = GEN_to_cmo(m);
-    push(ret);
-		return 0;
-  } else if(strcmp(func->s, "det") == 0) {
-    z = cmo_to_GEN(av[0]); 
-    m = det(z);
-    ret = GEN_to_cmo(m);
-    push(ret);
-		return 0;
-	} else if( strcmp( func->s, "exit" ) == 0 ){
-		pop();
+	if( strcmp( func->s, "exit" ) == 0 )
 		exit(0);
-		return 0;
-	} else {
+
+  parif =search_parif(func->s);
+  if ( !parif ) {
 		push((cmo*)make_error2(0));
 		return -1;
-	}
+ } else if ( parif->type == 0 ) {
+    /* one long int variable */ 
+    int a = cmo_to_int(av[0]);
+    a = (int)(*parif->f)(a);
+    ret = (cmo *)new_cmo_int32(a);
+    push(ret);
+		return 0;
+  } else if ( parif->type == 1 ) {
+    /* one variable possibly with prec */ 
+    unsigned long prec;
+
+    ltop = avma;
+    z = cmo_to_GEN(av[0]); 
+    if ( ac == 2 ) {
+      prec = cmo_to_int(av[1])*3.32193/32+3;
+    } else
+      prec = precreal;
+    m = (*parif->f)(z,prec);
+    lbot = avma;
+    ret = GEN_to_cmo(m);
+   // gerepile(ltop,lbot,0);
+    push(ret);
+		return 0;
+  } else {
+		push((cmo*)make_error2(0));
+		return -1;
+  }
 }
 
 int receive_and_execute_sm_command()
@@ -313,7 +423,7 @@ int receive()
 
 int main()
 {
-	GC_INIT();
+  init_gc();
 	ox_stderr_init(stderr);
 	initialize_stack();
 	init_pari();

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.35 2008/08/01 08:29:40 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.36 2015/08/04 05:24:44 noro Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -198,6 +198,7 @@ cmo_zz*            new_cmo_zz_set_string(char* s);
 cmo_qq*            new_cmo_qq();
 cmo_qq*            new_cmo_qq_set_mpq(mpq_ptr q);
 cmo_qq*            new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den);
+cmo_bf*            new_cmo_bf();
 cmo_bf*            new_cmo_bf_set_mpfr(mpfr_ptr q);
 cmo_zero*          new_cmo_zero();
 cmo_double*        new_cmo_double(double d);
@@ -268,6 +269,8 @@ void               dump_ox_data(ox_data* m);
 
 void               print_cmo(cmo* c);
 void               resize_mpz(mpz_ptr mpz, int size);
+
+int                cmo_to_int(cmo *n);
 
 typedef cmo *(*hook_t)(OXFILE *, cmo *);
 

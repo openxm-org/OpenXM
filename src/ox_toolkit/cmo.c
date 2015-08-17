@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.22 2007/03/14 10:30:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.23 2015/08/04 05:24:44 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -465,4 +465,18 @@ char *new_string_set_cmo(cmo *m)
         /* yet not implemented. */
         return NULL;
     }
+}
+
+int cmo_to_int(cmo *n)
+{
+  switch(n->tag) {
+    case CMO_ZERO:
+      return 0;
+    case CMO_INT32:
+      return ((cmo_int32 *)n)->i;
+    case CMO_ZZ:
+      return mpz_get_si(((cmo_zz *)n)->mpz);
+    default:
+      return 0;
+  }
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.41 2015/08/05 00:59:05 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.42 2015/08/13 00:49:57 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -787,7 +787,7 @@ static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 
   sgn  = receive_int32(oxfp);
   prec  = receive_int32(oxfp);
-  exp  = receive_int64(oxfp);
+  exp = receive_int64(oxfp);
   /* len = length as an int array (int = 4bytes) */
   len  = receive_int32(oxfp);
 
@@ -819,6 +819,7 @@ static int send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 
   int i,len,t;
   unsigned long *ptr;
+  UL64 uexp;
 
   send_int32(oxfp, MPFR_SIGN(mpfr));
   send_int32(oxfp, MPFR_PREC(mpfr));
