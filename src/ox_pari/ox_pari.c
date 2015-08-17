@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.3 2015/08/17 05:18:35 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.4 2015/08/17 06:14:37 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -377,7 +377,7 @@ struct parif *search_parif(char *name)
 
 int sm_executeFunction()
 {
-  long ltop,lbot;
+  pari_sp av0;
   int ac,i;
   cmo_int32 *c;
   cmo *av[PARI_MAX_AC];
@@ -427,16 +427,15 @@ int sm_executeFunction()
     /* one variable possibly with prec */ 
     unsigned long prec;
 
-    ltop = avma;
+    av0 = avma;
     z = cmo_to_GEN(av[0]); 
     if ( ac == 2 ) {
       prec = cmo_to_int(av[1])*3.32193/32+3;
     } else
       prec = precreal;
     m = (*parif->f)(z,prec);
-    lbot = avma;
     ret = GEN_to_cmo(m);
-//    gerepile(ltop,lbot,0);
+    avma = av0;
     push(ret);
     return 0;
   } else {

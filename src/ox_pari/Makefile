@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_pari/Makefile,v 1.1 2015/08/04 05:24:44 noro Exp $
+# $OpenXM: OpenXM/src/ox_pari/Makefile,v 1.2 2015/08/06 09:15:32 noro Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -8,9 +8,10 @@ PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-CFLAGS = -g -Wall -finline-functions
+CFLAGS = -g -Wall -finline-functions -D_POSIX_C_SOURCE
 
 PARI_LIB = -lmpfr -lpari
+
 PARIOBJ = ox_pari.o
 LIBS = $(OpenXM_LIB) $(PARI_LIB) -lm
 
