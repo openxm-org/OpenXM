@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.2 2000/02/02 02:03:41 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.3 2000/09/08 17:14:55 takayama Exp $ */
 /*  cmotag.h */
 /*  This file is the primary database of CMO tags. */
 /* Never Use 0 as a CMO tag. */
@@ -30,6 +30,7 @@
 #define     CMO_DISTRIBUTED_POLYNOMIAL 31
 #define     CMO_POLYNOMIAL_IN_ONE_VARIABLE 33
 #define     CMO_RATIONAL 34
+#define     CMO_COMPLEX 35
 
 #define     CMO_64BIT_MACHINE_DOUBLE   40
 #define     CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41

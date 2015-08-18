@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.23 2015/08/04 05:24:44 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.24 2015/08/17 05:18:35 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -262,6 +262,13 @@ cmo_bf* new_cmo_bf()
     return c;
 }
 
+cmo_complex* new_cmo_complex()
+{
+    cmo_complex* c = MALLOC(sizeof(cmo_complex));
+    c->tag = CMO_COMPLEX;
+    return c;
+}
+
 cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q)
 {
     cmo_qq* c = new_cmo_qq();
@@ -282,6 +289,14 @@ cmo_bf* new_cmo_bf_set_mpfr(mpfr_ptr num)
     cmo_bf* c = new_cmo_bf();
     mpfr_init2(c->mpfr,num->_mpfr_prec);
     mpfr_set(c->mpfr,num,MPFR_RNDN);
+    return c;
+}
+
+cmo_complex* new_cmo_complex_set_re_im(cmo *re,cmo *im)
+{
+    cmo_complex* c = new_cmo_complex();
+    c->re = re;
+    c->im = im;
     return c;
 }
 

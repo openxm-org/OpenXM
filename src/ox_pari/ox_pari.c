@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.4 2015/08/17 06:14:37 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.5 2015/08/17 07:19:16 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,9 +28,16 @@ cmo *GEN_to_cmo(GEN z);
 cmo_zz *GEN_to_cmo_zz(GEN z);
 cmo_bf *GEN_to_cmo_bf(GEN z);
 cmo_list *GEN_to_cmo_list(GEN z);
+cmo_complex *GEN_to_cmo_cmo_complex(GEN z);
 GEN cmo_to_GEN(cmo *c);
+GEN cmo_int32_to_GEN(cmo_int32 *c);
 GEN cmo_zz_to_GEN(cmo_zz *c);
+GEN cmo_qq_to_GEN(cmo_qq *c);
 GEN cmo_bf_to_GEN(cmo_bf *c);
+GEN cmo_list_to_GEN(cmo_list *c);
+GEN cmo_rp_to_GEN(cmo_recursive_polynomial *c);
+GEN cmo_up_to_GEN(cmo_polynomial_in_one_variable *c);
+GEN cmo_complex_to_GEN(cmo_complex *c);
 
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
@@ -163,6 +170,25 @@ int cmo2int(cmo *c)
   return 0;
 }
 
+GEN cmo_int32_to_GEN(cmo_int32 *c)
+{
+  GEN z;
+  int i,sgn;
+
+  i = c->i;
+  if ( !i ) return gen_0;
+  z = cgeti(3);
+  sgn = 1;
+  if ( i < 0 ) {
+    i = -i;
+    sgn = -1;
+  }
+  z[2] = i;
+  setsigne(z,sgn);
+  setlgefint(z,lg(z));
+  return z;
+}
+
 GEN cmo_zz_to_GEN(cmo_zz *c)
 {
   mpz_ptr mpz;
@@ -179,6 +205,18 @@ GEN cmo_zz_to_GEN(cmo_zz *c)
     z[len-j+1] = ptr[j];
   setsigne(z,sgn);
   setlgefint(z,lg(z));
+  return z;
+}
+
+GEN cmo_qq_to_GEN(cmo_qq *c)
+{
+  GEN z,nm,den;
+  
+  z = cgetg(3,4);
+  nm = cmo_zz_to_GEN(new_cmo_zz_set_mpz(mpq_numref(c->mpq)));
+  den = cmo_zz_to_GEN(new_cmo_zz_set_mpz(mpq_denref(c->mpq)));
+  z[1] = (long)nm;
+  z[2] = (long)den;
   return z;
 }
 
@@ -201,6 +239,75 @@ GEN cmo_bf_to_GEN(cmo_bf *c)
   z[1] = evalsigne(sgn)|evalexpo(exp);
   setsigne(z,sgn);
   return z;
+}
+
+/* list->vector */
+
+GEN cmo_list_to_GEN(cmo_list *c)
+{
+  GEN z;
+  cell *cell;
+
+  z = cgetg(c->length+1,17);
+  for ( cell = c->head->next; cell != c->head; cell = cell->next ) {
+    z[cell->exp] = (long)cmo_to_GEN(cell->cmo);
+  }
+  return z;
+}
+
+GEN cmo_complex_to_GEN(cmo_complex *c)
+{
+  GEN z;
+
+  z = cgetg(3,6);
+  z[1] = (long)cmo_to_GEN(c->re);
+  z[2] = (long)cmo_to_GEN(c->im);
+  return z;
+}
+
+GEN cmo_up_to_GEN(cmo_polynomial_in_one_variable *c)
+{
+  GEN z;
+  int d,i;
+  cell *cell;
+
+  d = c->head->next->exp;
+  z = cgetg(d+3,10);
+  setsigne(z,1);
+  setvarn(z,c->var);
+  setlgef(z,d+3);
+  for ( i = 2; i <= d+2; i++ )
+    z[i] = (long)gen_0;
+  for ( cell = c->head->next; cell != c->head; cell = cell->next ) {
+    z[2+cell->exp] = (long)cmo_to_GEN(cell->cmo);
+  }
+  return z;
+}
+
+cmo_list *current_ringdef;
+
+void register_variables(cmo_list *ringdef)
+{
+  current_ringdef = ringdef;
+}
+
+GEN cmo_rp_to_GEN(cmo_recursive_polynomial *c)
+{
+  register_variables(c->ringdef);
+  switch ( c->coef->tag ) {
+  case CMO_ZERO:
+    return gen_0;
+  case CMO_INT32:
+    return cmo_int32_to_GEN((cmo_int32 *)c->coef);
+  case CMO_ZZ:
+    return cmo_zz_to_GEN((cmo_zz *)c->coef);
+  case CMO_QQ:
+    return cmo_qq_to_GEN((cmo_qq *)c->coef);
+  case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+    return cmo_up_to_GEN((cmo_polynomial_in_one_variable *)c->coef);
+  default:
+    return 0;
+  }
 }
 
 cmo_zz *GEN_to_cmo_zz(GEN z)
@@ -248,6 +355,16 @@ cmo_list *GEN_to_cmo_list(GEN z)
   return c;
 }
 
+cmo_complex *GEN_to_cmo_complex(GEN z)
+{
+  cmo_complex *c;
+
+  c = new_cmo_complex();
+  c->re = GEN_to_cmo((GEN)z[1]);
+  c->im = GEN_to_cmo((GEN)z[2]);
+  return c;
+}
+
 
 GEN cmo_to_GEN(cmo *c)
 {
@@ -258,6 +375,12 @@ GEN cmo_to_GEN(cmo *c)
     return cmo_zz_to_GEN((cmo_zz *)c);
   case CMO_BIGFLOAT: /* bigfloat */
     return cmo_bf_to_GEN((cmo_bf *)c);
+  case CMO_LIST:
+    return cmo_list_to_GEN((cmo_list *)c);
+  case CMO_RECURSIVE_POLYNOMIAL:
+    return cmo_rp_to_GEN((cmo_recursive_polynomial *)c);
+  case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+    return cmo_up_to_GEN((cmo_polynomial_in_one_variable *)c);
   default:
     return 0;
   }
@@ -272,6 +395,8 @@ cmo *GEN_to_cmo(GEN z)
     return (cmo *)GEN_to_cmo_zz(z);
   case 2: /* bigfloat */
     return (cmo *)GEN_to_cmo_bf(z);
+  case 6: /* complex */
+    return (cmo *)GEN_to_cmo_complex(z);
   case 17: case 18: /* vector */
     return (cmo *)GEN_to_cmo_list(z);
   case 19: /* matrix */
@@ -433,6 +558,8 @@ int sm_executeFunction()
       prec = cmo_to_int(av[1])*3.32193/32+3;
     } else
       prec = precreal;
+    printf("input : ");
+    output(z);
     m = (*parif->f)(z,prec);
     ret = GEN_to_cmo(m);
     avma = av0;

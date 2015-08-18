@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.42 2015/08/13 00:49:57 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.43 2015/08/17 05:18:35 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -244,6 +244,16 @@ static cmo_bf* receive_cmo_bf(OXFILE *oxfp)
     return new_cmo_bf_set_mpfr(num);
 }
 
+static cmo_complex* receive_cmo_complex(OXFILE *oxfp)
+{
+    cmo *re, *im;
+
+    re = receive_cmo(oxfp);
+    im = receive_cmo(oxfp);
+    return new_cmo_complex_set_re_im(re,im);
+}
+
+
 static cmo_zero* receive_cmo_zero(OXFILE *oxfp)
 {
     return new_cmo_zero();
@@ -370,6 +380,9 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         break;
     case CMO_BIGFLOAT:
         m = (cmo *)receive_cmo_bf(oxfp);
+        break;
+    case CMO_COMPLEX:
+        m = (cmo *)receive_cmo_complex(oxfp);
         break;
     case CMO_ZERO:
         m = (cmo *)receive_cmo_zero(oxfp);
@@ -656,6 +669,13 @@ static int send_cmo_bf(OXFILE *oxfp, cmo_bf* c)
     return 0;
 }
 
+static int send_cmo_complex(OXFILE *oxfp, cmo_complex* c)
+{
+    send_cmo(oxfp, c->re);
+    send_cmo(oxfp, c->im);
+    return 0;
+}
+
 static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c)
 {
 	send_cmo(oxfp, (cmo *)c->ringdef);
@@ -724,6 +744,9 @@ void send_cmo(OXFILE *oxfp, cmo* c)
         break;
     case CMO_BIGFLOAT:
         send_cmo_bf(oxfp, (cmo_bf *)c);
+        break;
+    case CMO_COMPLEX:
+        send_cmo_complex(oxfp, (cmo_complex *)c);
         break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
         send_cmo_distributed_polynomial(oxfp, (cmo_distributed_polynomial *)c);
