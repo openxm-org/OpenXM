@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.5 2015/08/17 07:19:16 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.6 2015/08/18 02:24:04 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +26,7 @@ long paristack=10000000;
 void init_pari(void);
 cmo *GEN_to_cmo(GEN z);
 cmo_zz *GEN_to_cmo_zz(GEN z);
+cmo_qq *GEN_to_cmo_qq(GEN z);
 cmo_bf *GEN_to_cmo_bf(GEN z);
 cmo_list *GEN_to_cmo_list(GEN z);
 cmo_complex *GEN_to_cmo_cmo_complex(GEN z);
@@ -246,11 +247,12 @@ GEN cmo_bf_to_GEN(cmo_bf *c)
 GEN cmo_list_to_GEN(cmo_list *c)
 {
   GEN z;
+  int i;
   cell *cell;
 
   z = cgetg(c->length+1,17);
-  for ( cell = c->head->next; cell != c->head; cell = cell->next ) {
-    z[cell->exp] = (long)cmo_to_GEN(cell->cmo);
+  for ( i = 0, cell = c->head->next; cell != c->head; cell = cell->next, i++ ) {
+    z[i+1] = (long)cmo_to_GEN(cell->cmo);
   }
   return z;
 }
@@ -296,6 +298,7 @@ GEN cmo_rp_to_GEN(cmo_recursive_polynomial *c)
   register_variables(c->ringdef);
   switch ( c->coef->tag ) {
   case CMO_ZERO:
+  case CMO_NULL:
     return gen_0;
   case CMO_INT32:
     return cmo_int32_to_GEN((cmo_int32 *)c->coef);
@@ -320,6 +323,22 @@ cmo_zz *GEN_to_cmo_zz(GEN z)
     mpz_neg(c->mpz,c->mpz);
   return c;
 }
+
+cmo_qq *GEN_to_cmo_qq(GEN z)
+{
+  cmo_qq *c;
+  GEN num,den;
+
+  num = (GEN)z[1];
+  den = (GEN)z[2];
+  c = new_cmo_qq();
+  mpz_import(mpq_numref(c->mpq),lgef(num)-2,1,sizeof(long),0,0,&num[2]);
+  mpz_import(mpq_denref(c->mpq),lgef(num)-2,1,sizeof(long),0,0,&den[2]);
+  if ( signe(num)*signe(den) < 0 )
+    mpz_neg(mpq_numref(c->mpq),mpq_numref(c->mpq));
+  return c;
+}
+
 
 cmo_bf *GEN_to_cmo_bf(GEN z)
 {
@@ -370,6 +389,7 @@ GEN cmo_to_GEN(cmo *c)
 {
   switch ( c->tag ) {
   case CMO_ZERO:
+  case CMO_NULL:
     return gen_0;
   case CMO_ZZ: /* int */
     return cmo_zz_to_GEN((cmo_zz *)c);
@@ -395,6 +415,8 @@ cmo *GEN_to_cmo(GEN z)
     return (cmo *)GEN_to_cmo_zz(z);
   case 2: /* bigfloat */
     return (cmo *)GEN_to_cmo_bf(z);
+  case 4: /* rational number */
+    return (cmo *)GEN_to_cmo_qq(z);
   case 6: /* complex */
     return (cmo *)GEN_to_cmo_complex(z);
   case 17: case 18: /* vector */
@@ -405,6 +427,7 @@ cmo *GEN_to_cmo(GEN z)
     return (cmo *)make_error2(typ(z));
   }
 }
+/* type=1 : num/poly arg, type=2 : matrix arg */
 
 struct parif {
   char *name;
@@ -452,30 +475,6 @@ struct parif {
   {"divisors",divisors,1},
   {"smallfact",smallfact,1},
 
-  /* mat/mat */
-  {"adj",adj,1},
-  {"lll",lll,1},
-  {"lllgen",lllgen,1},
-  {"lllgram",lllgram,1},
-  {"lllgramgen",lllgramgen,1},
-  {"lllgramint",lllgramint,1},
-  {"lllgramkerim",lllgramkerim,1},
-  {"lllgramkerimgen",lllgramkerimgen,1},
-  {"lllint",lllint,1},
-  {"lllkerim",lllkerim,1},
-  {"lllkerimgen",lllkerimgen,1},
-  {"trans",gtrans,1},
-  {"eigen",eigen,1},
-  {"hermite",hnf,1},
-  {"mat",gtomat,1},
-  {"matrixqz2",matrixqz2,1},
-  {"matrixqz3",matrixqz3,1},
-  {"hess",hess,1},
-
-  /* mat/poly */
-  {"det",det,1},
-  {"det2",det2,1},
-
   /* poly/poly */
   {"centerlift",centerlift,1},
   {"content",content,1},
@@ -483,6 +482,34 @@ struct parif {
   /* poly/array */
   {"galois",galois,1},
   {"roots",roots,1},
+
+  /* mat/mat */
+  {"adj",adj,2},
+  {"lll",lll,2},
+  {"lllgen",lllgen,2},
+  {"lllgram",lllgram,2},
+  {"lllgramgen",lllgramgen,2},
+  {"lllgramint",lllgramint,2},
+  {"lllgramkerim",lllgramkerim,2},
+  {"lllgramkerimgen",lllgramkerimgen,2},
+  {"lllint",lllint,2},
+  {"lllkerim",lllkerim,2},
+  {"lllkerimgen",lllkerimgen,2},
+  {"trans",gtrans,2},
+  {"eigen",eigen,2},
+  {"hermite",hnf,2},
+  {"mat",gtomat,2},
+  {"matrixqz2",matrixqz2,2},
+  {"matrixqz3",matrixqz3,2},
+  {"hess",hess,2},
+  {"ker",ker,2},
+  {"keri",keri,2},
+  {"kerint",kerint,2},
+  {"kerintg1",kerint1,2},
+
+  /* mat/poly */
+  {"det",det,2},
+  {"det2",det2,2},
 
 };
 
@@ -509,6 +536,8 @@ int sm_executeFunction()
   cmo *ret;
   GEN z,m;
   struct parif *parif;
+  unsigned long prec;
+
 
   if ( setjmp(GP_DATA->env) ) {
     printf("sm_executeFunction : an error occured.\n");fflush(stdout);
@@ -548,18 +577,26 @@ int sm_executeFunction()
     ret = (cmo *)new_cmo_int32(a);
     push(ret);
     return 0;
-  } else if ( parif->type == 1 ) {
-    /* one variable possibly with prec */ 
-    unsigned long prec;
-
+  } else if ( parif->type == 1 || parif->type == 2 ) {
+    /* one number/poly/matrix argument possibly with prec */ 
     av0 = avma;
     z = cmo_to_GEN(av[0]); 
-    if ( ac == 2 ) {
-      prec = cmo_to_int(av[1])*3.32193/32+3;
-    } else
-      prec = precreal;
-    printf("input : ");
-    output(z);
+    prec = ac==2 ? cmo_to_int(av[1])*3.32193/32+3 : precreal;
+    if ( parif->type == 2 ) {
+      /* matrix argument */
+      int i,len;
+
+      if ( typ(z) != t_VEC ) {
+        push((cmo*)make_error2(0));
+        return -1;
+      }
+      len = lg(z); 
+      for ( i = 1; i < len; i++ )
+        settyp(z[i],t_COL);
+      settyp(z,t_MAT);
+      z = shallowtrans(z);
+    }
+    printf("input : "); output(z);
     m = (*parif->f)(z,prec);
     ret = GEN_to_cmo(m);
     avma = av0;
