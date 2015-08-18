@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.12 2002/01/20 09:26:21 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.13 2005/03/04 03:49:47 takayama Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -14,6 +14,7 @@
 #define     CMO_RING_BY_NAME   26
 #define     CMO_DISTRIBUTED_POLYNOMIAL 31
 #define     CMO_RATIONAL       34
+#define     CMO_COMPLEX       35
 
 
 #define     CMO_INDETERMINATE  60
@@ -72,6 +73,12 @@ ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 & & \mbox{ --- 有理数 $a/b$ を表す. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  $a/b$ を表す. } \\
+\mbox{Bigfloat}         &:& ({\tt CMO\_BIGFLOAT},
+{\sl int32}\, {\rm sign}, {\sl int32}\, {\rm prec}, {\sl int64}\, {\rm exp}, 
+{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[$\lfloor \frac{{\rm prec}+31}{32} \rfloor$]} ) \\
+&:& \mbox{ --- bigfloat をあらわす. a[i] についてはあとで説明}\\
+\mbox{Complex}        &:& ({\tt CMO\_COMPLEX}, {\sl CMObject}\, {\rm re}, {\sl CMObject}\, {\rm im}) \\
+& & \mbox{ ---  $a+b\sqrt{-1}$ を表す. } \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
 & & \mbox{ --- 変数名 $v$ . } \\
 \end{eqnarray*}
@@ -96,6 +103,12 @@ ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 & & \mbox{ --- Rational number $a/b$. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  Rational expression $a/b$. } \\
+\mbox{Bigfloat}         &:& ({\tt CMO\_BIGFLOAT},
+{\sl int32}\, {\rm sign}, {\sl int32}\, {\rm prec}, {\sl int64}\, {\rm exp}, 
+{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[$\lfloor \frac{{\rm prec}+31}{32} \rfloor$]} ) \\
+&:& \mbox{ --- bignfloat. The meaning of a[i] will be explained later.}\\
+\mbox{Complex}        &:& ({\tt CMO\_COMPLEX}, {\sl CMObject}\, {\rm re}, {\sl CMObject}\, {\rm im}) \\
+& & \mbox{ ---  Complex number $a+b\sqrt{-1}$. } \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
 & & \mbox{ --- Variable name $v$ . } \\
 \end{eqnarray*}
