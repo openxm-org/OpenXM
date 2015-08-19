@@ -1,6 +1,7 @@
-ID=" $OpenXM$ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/curl.m2,v 1.1 2015/08/19 02:31:25 takayama Exp $ "
 
 -- curl interface for M2
+-- BSD license without advertisements
 
 curl = method()
 curl(String,String) := (s,url) -> (
@@ -27,6 +28,9 @@ curlPostMessage(String,String) := (data,url) -> (
    curl("--data " | "'" | data | "'", url)
 )
 
+----------------------------------------------
+-- Sample interface for cgi-asir.
+---------------------------------------------
 -- Translate list expressions among asir and M2
 asir2m2 = method()
 asir2m2(String):= (s) -> (
@@ -52,6 +56,29 @@ fdHessian2(ZZ,List,ZZ,List):= (a,b,c,x) -> (
   if (match("error",ans)) then error(ans);
   h=value(asir2m2(ans));
  );
- h
+ {h,ans}
 )
+
+-- s should be in the polynomial ring.
+-- example: QQ[s,x,y,dx,dy,WeylAlgebra=>{x=>dx,y=>dy}]
+--    genericBfct({x*dx+y*dy-3,x*dx-y*dy},{x,y},{dx,dy},{1,1})
+genericBfct = method()
+genericBfct(List,List,List,List):= (ideal,xvar,dvar,w) -> (
+ strategy = "asir2-cgi";
+ url = "http://asir2.math.kobe-u.ac.jp/cgi-bin/cgi-generic_bfct2.sh";
+ if (strategy == "asir2-cgi") then (
+  ss = m22asir(toString(ideal)) | "," | m22asir(toString(xvar)) | "," |
+       m22asir(toString(dvar)) | "," | m22asir(toString(w));
+  ss = "oxMessageBody=generic_bfct(" | ss | ")";
+  ans = curlPostMessage(ss,url);
+  if (match("error",ans)) then error(ans);
+  h=value(asir2m2(ans));
+ );
+ {h,ans}
+)
+
+genericBfct(Ideal,List,List,List):= (ideal,xvar,dvar,w) -> (
+  genericBfct(flatten(entries(gens(ideal))),xvar,dvar,w)
+)
+-- todo. Extract xvar,dvar. vars ring I
 
