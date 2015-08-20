@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.6 2015/08/18 02:24:04 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.7 2015/08/18 05:04:35 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +30,9 @@ cmo_qq *GEN_to_cmo_qq(GEN z);
 cmo_bf *GEN_to_cmo_bf(GEN z);
 cmo_list *GEN_to_cmo_list(GEN z);
 cmo_complex *GEN_to_cmo_cmo_complex(GEN z);
+cmo_polynomial_in_one_variable *GEN_to_cmo_up(GEN z);
+cmo_recursive_polynomial *GEN_to_cmo_rp(GEN z);
+
 GEN cmo_to_GEN(cmo *c);
 GEN cmo_int32_to_GEN(cmo_int32 *c);
 GEN cmo_zz_to_GEN(cmo_zz *c);
@@ -39,6 +42,7 @@ GEN cmo_list_to_GEN(cmo_list *c);
 GEN cmo_rp_to_GEN(cmo_recursive_polynomial *c);
 GEN cmo_up_to_GEN(cmo_polynomial_in_one_variable *c);
 GEN cmo_complex_to_GEN(cmo_complex *c);
+
 
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
@@ -131,9 +135,9 @@ int sm_popCMO()
   return SM_popCMO;
 }
 
-cmo_error2 *make_error2(int code)
+cmo_error2 *make_error2(char *message)
 {
-  return (cmo_error2 *) new_cmo_int32(code);
+  return (cmo_error2 *) new_cmo_string(message);
 }
 
 int get_i()
@@ -144,7 +148,7 @@ int get_i()
   }else if(c->tag == CMO_ZZ) {
     return mpz_get_si(((cmo_zz *)c)->mpz);
   }
-  make_error2(-1);
+  make_error2("get_i : invalid object");
   return 0;
 }
 
@@ -154,21 +158,8 @@ char *get_str()
   if(c->tag == CMO_STRING) {
     return ((cmo_string *)c)->s;
   }
-  make_error2(-1);
+  make_error2("get_str : invalid object");
   return "";
-}
-
-int cmo2int(cmo *c)
-{
-  if(c->tag == CMO_INT32) {
-    return ((cmo_int32 *)c)->i;
-  }else if(c->tag == CMO_ZZ) {
-    return mpz_get_si(((cmo_zz *)c)->mpz);
-  } else if(c->tag == CMO_NULL){
-    return 0;
-  }
-
-  return 0;
 }
 
 GEN cmo_int32_to_GEN(cmo_int32 *c)
@@ -213,7 +204,7 @@ GEN cmo_qq_to_GEN(cmo_qq *c)
 {
   GEN z,nm,den;
   
-  z = cgetg(3,4);
+  z = cgetg(3,t_FRAC);
   nm = cmo_zz_to_GEN(new_cmo_zz_set_mpz(mpq_numref(c->mpq)));
   den = cmo_zz_to_GEN(new_cmo_zz_set_mpz(mpq_denref(c->mpq)));
   z[1] = (long)nm;
@@ -250,7 +241,7 @@ GEN cmo_list_to_GEN(cmo_list *c)
   int i;
   cell *cell;
 
-  z = cgetg(c->length+1,17);
+  z = cgetg(c->length+1,t_VEC);
   for ( i = 0, cell = c->head->next; cell != c->head; cell = cell->next, i++ ) {
     z[i+1] = (long)cmo_to_GEN(cell->cmo);
   }
@@ -261,7 +252,7 @@ GEN cmo_complex_to_GEN(cmo_complex *c)
 {
   GEN z;
 
-  z = cgetg(3,6);
+  z = cgetg(3,t_COMPLEX);
   z[1] = (long)cmo_to_GEN(c->re);
   z[2] = (long)cmo_to_GEN(c->im);
   return z;
@@ -274,7 +265,7 @@ GEN cmo_up_to_GEN(cmo_polynomial_in_one_variable *c)
   cell *cell;
 
   d = c->head->next->exp;
-  z = cgetg(d+3,10);
+  z = cgetg(d+3,t_POL);
   setsigne(z,1);
   setvarn(z,c->var);
   setlgef(z,d+3);
@@ -384,6 +375,29 @@ cmo_complex *GEN_to_cmo_complex(GEN z)
   return c;
 }
 
+cmo_polynomial_in_one_variable *GEN_to_cmo_up(GEN z)
+{
+  cmo_polynomial_in_one_variable *c;
+  int i;
+  cmo *coef;
+
+  c = new_cmo_polynomial_in_one_variable(varn(z));
+  for ( i = lg(z)-1; i >= 2; i-- )
+    if ( (GEN)z[i] != gen_0 ) {
+      coef = GEN_to_cmo((GEN)z[i]);
+      list_append_monomial((cmo_list *)c, coef, i-2);
+    }
+  return c;
+}
+
+cmo_recursive_polynomial *GEN_to_cmo_rp(GEN z)
+{
+  cmo_recursive_polynomial *c;
+
+  if ( !signe(z) ) return (cmo_recursive_polynomial *)new_cmo_zero();
+  c = new_cmo_recursive_polynomial(current_ringdef,(cmo *)GEN_to_cmo_up(z));
+  return c;
+}
 
 GEN cmo_to_GEN(cmo *c)
 {
@@ -393,6 +407,8 @@ GEN cmo_to_GEN(cmo *c)
     return gen_0;
   case CMO_ZZ: /* int */
     return cmo_zz_to_GEN((cmo_zz *)c);
+  case CMO_IEEE_DOUBLE_FLOAT:
+     return dbltor(((cmo_double *)c)->d);
   case CMO_BIGFLOAT: /* bigfloat */
     return cmo_bf_to_GEN((cmo_bf *)c);
   case CMO_LIST:
@@ -408,23 +424,28 @@ GEN cmo_to_GEN(cmo *c)
 
 cmo *GEN_to_cmo(GEN z)
 {
+  char buf[BUFSIZ];
+
   if ( gcmp0(z) )
     return new_cmo_zero();
   switch ( typ(z) ) {
-  case 1: /* int */
+  case t_INT: /* int */
     return (cmo *)GEN_to_cmo_zz(z);
-  case 2: /* bigfloat */
+  case t_REAL: /* bigfloat */
     return (cmo *)GEN_to_cmo_bf(z);
-  case 4: /* rational number */
+  case t_FRAC: /* rational number */
     return (cmo *)GEN_to_cmo_qq(z);
-  case 6: /* complex */
+  case t_COMPLEX: /* complex */
     return (cmo *)GEN_to_cmo_complex(z);
-  case 17: case 18: /* vector */
+  case t_POL:
+    return (cmo *)GEN_to_cmo_rp(z);
+  case t_VEC: case t_COL: /* vector */
     return (cmo *)GEN_to_cmo_list(z);
-  case 19: /* matrix */
+  case t_MAT: /* matrix */
     return (cmo *)GEN_to_cmo_list(shallowtrans(z));
   default:
-    return (cmo *)make_error2(typ(z));
+    sprintf(buf,"GEN_to_cmo : unsupported type=%d",(int)typ(z));
+    return (cmo *)make_error2(buf);
   }
 }
 /* type=1 : num/poly arg, type=2 : matrix arg */
@@ -527,6 +548,18 @@ struct parif *search_parif(char *name)
   return 0;
 }
 
+int ismatrix(GEN z)
+{
+  int len,col,i;
+
+  if ( typ(z) != t_VEC ) return 0;
+  if ( typ((GEN)z[1]) != t_VEC ) return 0;
+  len = lg(z); col = lg((GEN)z[1]);
+  for ( i = 2; i < len; i++ )
+    if ( lg((GEN)z[i]) != col ) return 0;
+  return 1;
+}
+
 int sm_executeFunction()
 {
   pari_sp av0;
@@ -537,38 +570,39 @@ int sm_executeFunction()
   GEN z,m;
   struct parif *parif;
   unsigned long prec;
-
+  char buf[BUFSIZ];
 
   if ( setjmp(GP_DATA->env) ) {
-    printf("sm_executeFunction : an error occured.\n");fflush(stdout);
-    push((cmo*)make_error2(0));
+    sprintf(buf,"sm_executeFunction : an error occured in PARI.");
+    push((cmo*)make_error2(buf));
     return -1;
   }
   cmo_string *func = (cmo_string *)pop();
   if(func->tag != CMO_STRING) {
-    printf("sm_executeFunction : func->tag is not CMO_STRING");fflush(stdout);
-    push((cmo*)make_error2(0));
+    sprintf(buf,"sm_executeFunction : func->tag=%d is not CMO_STRING",func->tag);
+    push((cmo*)make_error2(buf));
     return -1;
   }
 
   c = (cmo_int32 *)pop();
   ac = c->i;
   if ( ac > PARI_MAX_AC ) {
-    push((cmo*)make_error2(0));
+    push((cmo*)make_error2("sm_executeFunction : too many arguments"));
     return -1;
   }
   for ( i = 0; i < ac; i++ ) {
     av[i] = (cmo *)pop();
-    fprintf(stderr,"arg%d:",i);
-    print_cmo(av[i]);
-    fprintf(stderr,"\n");
+//    fprintf(stderr,"arg%d:",i);
+//    print_cmo(av[i]);
+//    fprintf(stderr,"\n");
   }
   if( strcmp( func->s, "exit" ) == 0 )
     exit(0);
 
   parif =search_parif(func->s);
   if ( !parif ) {
-    push((cmo*)make_error2(0));
+    sprintf(buf,"%s : not implemented",func->s);
+    push((cmo*)make_error2(buf));
     return -1;
  } else if ( parif->type == 0 ) {
     /* one long int variable */ 
@@ -582,14 +616,8 @@ int sm_executeFunction()
     av0 = avma;
     z = cmo_to_GEN(av[0]); 
     prec = ac==2 ? cmo_to_int(av[1])*3.32193/32+3 : precreal;
-    if ( parif->type == 2 ) {
-      /* matrix argument */
+    if ( ismatrix(z) ) {
       int i,len;
-
-      if ( typ(z) != t_VEC ) {
-        push((cmo*)make_error2(0));
-        return -1;
-      }
       len = lg(z); 
       for ( i = 1; i < len; i++ )
         settyp(z[i],t_COL);
@@ -603,7 +631,8 @@ int sm_executeFunction()
     push(ret);
     return 0;
   } else {
-    push((cmo*)make_error2(0));
+    sprintf(buf,"%s : not implemented",func->s);
+    push((cmo*)make_error2(buf));
     return -1;
   }
 }
