@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.8 2015/08/20 01:38:34 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.9 2015/08/20 07:45:12 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -407,6 +407,8 @@ GEN cmo_to_GEN(cmo *c)
     return gen_0;
   case CMO_ZZ: /* int */
     return cmo_zz_to_GEN((cmo_zz *)c);
+  case CMO_COMPLEX: /* complex */
+    return cmo_complex_to_GEN((cmo_complex *)c);
   case CMO_IEEE_DOUBLE_FLOAT:
      return dbltor(((cmo_double *)c)->d);
   case CMO_BIGFLOAT: /* bigfloat */
