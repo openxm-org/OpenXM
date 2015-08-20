@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.164 2015/08/04 05:52:22 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.165 2015/08/04 07:09:58 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -8,7 +8,7 @@ DOCDIR=../doc
 RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
-all: all-util all-gc all-gmp all-mpfr all-asir all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-gmp all-mpfr all-mpc all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
 
@@ -21,13 +21,16 @@ all-gmp: configure-gmp
 all-mpfr: configure-mpfr
 	(cd mpfr; ${MAKE} all)
 
-all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-gc install-util install-kan96xx
+all-mpc: configure-mpc
+	(cd mpc; ${MAKE} all)
+
+all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-gc install-util install-kan96xx
 	(cd ox_toolkit; ${MAKE} all)
 
 all-oxc: configure-oxc install-oxtoolkit 
 	(cd oxc; ${MAKE} all)
 
-all-asir: configure-asir install-pari install-gmp install-mpfr
+all-asir: configure-asir install-pari install-gmp install-mpfr install-mpc
 	(cd asir2000; ${MAKE} all)
 
 all-gnuplot: configure-gnuplot
@@ -36,7 +39,7 @@ all-gnuplot: configure-gnuplot
 all-k097: configure-k097 all-kan96xx all-kxx install-oxtags
 	(cd k097; ${MAKE} all)
 
-all-kan96xx: configure-kan96xx install-gc install-gmp install-mpfr install-util install-oxtags
+all-kan96xx: configure-kan96xx install-gc install-gmp install-mpfr install-mpc install-util install-oxtags
 	(cd kan96xx; ${MAKE} all)
 
 all-kxx: configure-kxx all-kan96xx install-util install-oxtags
@@ -132,6 +135,9 @@ install-gmp: all-gmp
 
 install-mpfr: all-mpfr
 	(cd mpfr; ${MAKE} install)
+
+install-mpc: all-mpc
+	(cd mpc; ${MAKE} install)
 
 install-asir: all-asir
 	(cd asir2000; ${MAKE} install)
@@ -253,6 +259,9 @@ configure-gmp: install-util
 
 configure-mpfr: install-util
 	(cd mpfr; ${MAKE} configure)
+
+configure-mpc: install-util
+	(cd mpc; ${MAKE} configure)
 
 configure-asir: install-util 
 	(cd asir2000; ${MAKE} configure) 

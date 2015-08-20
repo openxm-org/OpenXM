@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.7 2015/08/18 05:04:35 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.8 2015/08/20 01:38:34 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -137,7 +137,7 @@ int sm_popCMO()
 
 cmo_error2 *make_error2(char *message)
 {
-  return (cmo_error2 *) new_cmo_string(message);
+  return new_cmo_error2((cmo *)new_cmo_string(message));
 }
 
 int get_i()
