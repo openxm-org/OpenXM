@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.9 2015/08/20 07:45:12 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.10 2015/08/20 08:56:30 noro Exp $  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -654,6 +654,9 @@ int receive_and_execute_sm_command()
     break;
   case SM_setMathCap:
     pop();
+    break;
+  case SM_shutdown:
+    exit(0);
     break;
   default:
     printf("receive_and_execute_sm_command : code=%d\n",code);fflush(stdout);
