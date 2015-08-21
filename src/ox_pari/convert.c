@@ -184,6 +184,7 @@ cmo_bf *GEN_to_cmo_bf(GEN z)
     ptr[j] = z[len-j+1];
   MPFR_EXP(c->mpfr) = (long long)(expo(z)+1);
   MPFR_SIGN(c->mpfr) = gsigne(z);
+  if ( !mpfr_sgn(c->mpfr) ) c = (cmo_bf *)new_cmo_zero();
   return c;
 }
 
@@ -206,11 +207,17 @@ cmo_list *GEN_to_cmo_list(GEN z)
 cmo_complex *GEN_to_cmo_complex(GEN z)
 {
   cmo_complex *c;
+  cmo_bf *re,*im;
 
-  c = new_cmo_complex();
-  c->re = GEN_to_cmo((GEN)z[1]);
-  c->im = GEN_to_cmo((GEN)z[2]);
-  return c;
+  re = (cmo_bf *)GEN_to_cmo((GEN)z[1]);
+  im = (cmo_bf *)GEN_to_cmo((GEN)z[2]);
+  if ( im->tag == CMO_ZERO )
+    return (cmo_complex *)re;
+  else {
+    c = new_cmo_complex();
+    c->re = (cmo *)re; c->im = (cmo *)im;
+    return c;
+  }
 }
 
 cmo_polynomial_in_one_variable *GEN_to_cmo_up(GEN z)
