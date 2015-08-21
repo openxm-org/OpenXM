@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_pari/Makefile,v 1.2 2015/08/06 09:15:32 noro Exp $
+# $OpenXM: OpenXM/src/ox_pari/Makefile,v 1.3 2015/08/17 07:19:16 noro Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -12,7 +12,8 @@ CFLAGS = -g -Wall -finline-functions -D_POSIX_C_SOURCE
 
 PARI_LIB = -lmpfr -lpari
 
-PARIOBJ = ox_pari.o
+PARIOBJ = ox_pari.o convert.o pari_ftab.o
+
 LIBS = $(OpenXM_LIB) $(PARI_LIB) -lm
 
 PROG= ox_pari
@@ -26,6 +27,13 @@ ox_pari: $(PARIOBJ)
 
 ox_pari.o : ox_pari.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
+
+convert.o : convert.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<
+
+pari_ftab.o : pari_ftab.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<
+
 
 libs : ox gc libgmp
 
