@@ -1,0 +1,195 @@
+Windows における GMP/MPFR/MPC のビルド法
+
+Risa/Asir のライセンスの都合上、LGPL のライブラリとは動的結合する必要がある。
+この文書では、Windows において GNU MP (または MPIR), MPFR, MPC の動的ライブラリ
+(*.dll)およびインポートライブラリ(*.lib)を作成する方法を説明する。
+
+第一部: Visual Studio 2013編
+
+1. 準備
+
+MPIR, MPFR, MPC のソースを適当なディレクトリ(例: c:\Users\ohara\OpenXM_dist )
+に用意する。ここでは、以下のバージョンを用いる。
+
+mpir-2.7.0.zip
+mpfr-3.1.3.tar.bz2
+mpc-1.0.3.tar.gz
+
+また、mpfr, mpc については、http://www.gladman.me.uk/ から
+Visual Studio 用のプロジェクトファイルを入手する。あわせて
+vsyasm もインストールしておくこと。
+
+まず、それぞれのソースを展開する。(mingw を使う。適時、読みかえること)
+
+d=/c/Users/ohara/OpenXM_dist
+unzip $d/mpir-2.7.0.zip
+tar jxf $d/mpfr-3.1.3.tar.bz2
+tar zxf $d/mpc-1.0.3.tar.gz
+for i in mpir-2.7.0 mpfr-3.1.3 mpc-1.0.3; do mv $i ${i%-*}; done
+(cd mpfr; unzip $d/mpfr.svn9046.build.vc12.zip;
+ cd src; touch fpif.c  get_float128.c  rndna.c  set_float128.c;
+ cd x86_64; cp -Rp core2 corei5)
+(cd mpfr; unzip $d/mpc.svn1450.build.vc12.zip)
+
+
+2. MPIR のビルド
+
+mpir/build.vc12/mpir.sln を開く。
+
+実行時に msvcr120.dll (Visual C++ 再頒布可能パッケージ) に依存しないよ
+うに、dll を作成するために、リンカの設定を変更する。クラスビューで、
+dll_mpir_gc のプロパティを開き、「構成プロパティ」->「C/C++」->
+「コード生成」->「ランタイムライブラリ」が、Release/Win32 のときに、
+「マルチスレッド(/MT)」であることを確認する。Release/Win32 について、
+dll_mpir_gc をビルドする。
+
+また、クラスビューで、dll_mpir_core2 のプロパティを開き、同じように、
+「ランタイムライブラリ」が、Release/x64 のときに、
+「マルチスレッド(/MT)」であることを確認する。Release/x64 について、
+dll_mpir_core2 をビルドする。
+
+生成物は、mpir/dll/{Win32,x64}/Release/ にある。
+
+
+3. MPFR のビルド
+
+mpir/build.vc12/dll_mpfr.sln を開く。
+
+******** このプロジェクトファイルにはバグがある。 ******** 
+
+クラスビューで、dll_mpfr のプロパティを開き、「構成プロパティ」->
+「C/C++」->「コード生成」->「プリプロセッサ」->「プリプロセッサの定義」
+を確認し、Release/Win32 のときに、「_WIN64」の定義を削除する。
+
+******** これでバグの修正は完了である。 ******** 
+
+次に、「ランタイムライブラリ」が、Release/Win32 および Release/x64 
+のときに、「マルチスレッド(/MT)」であることを確認する。
+
+Release/Win32 および Release/x64 について、dll_mpfr をビルドする。
+
+生成物は、mpfr/dll/{Win32,x64}/Release/ にある。
+
+4. MPC のビルド
+
+mpc/build.vc12/mpc.sln を開く。次にクラスビューで、mpc_dll のプロパティを開き、
+「構成プロパティ」->「C/C++」->「コード生成」->「ランタイムライブラリ」が、
+Release/Win32 および Release/x64 のときに、「マルチスレッド(/MT)」であることを確認する。
+
+Release/Win32 および Release/x64 について、mpc_dll をビルドする。
+
+生成物は、mpc/dll/{Win32,x64}/Release/ にある。
+
+
+5. ビルドの後
+
+{mpir,mpfr,mpc}/dll/{Win32,x64}/Release/ 
+にファイルが生成される。
+
+最終的に必要な物は、
+ヘッダ gmp.h, gmpxx.h, mpfr.h, mpc.h
+動的ライブラリ mpir.dll, mpfr.dll, mpc.dll
+インポートライブラリ mpir.lib, mpfr.lib, mpc.lib
+である。
+
+
+第二部: MinGW 編
+
+mingw/msys2 のインストール方法については、
+how_to_install_MinGW-MSYS2.txt を参照のこと。
+
+1. 概説・方針
+
+静的ライブラリの生成を避けるため、configure のオプションに、
+--enable-shared --disable-static
+を加えることとする。
+
+さらに、非 mingw 環境でも実行可能なライブラリを作成したい。
+
+ここで問題になるのが、mingw における例外処理の方法である。Windows の標
+準(= VisualStudio)では、SEH (構造化例外処理)を使うことになっていて、
+MinGW 64 では、gcc もサポートする。
+
+しかしながら、MinGW 32 の gcc は dwarf-2 例外処理を使用し、SEH はサポー
+トしていない。そのため、これを実現する libgcc_s_dw2-1.dll とリンクしよ
+うとする。静的にリンクするには、gcc にオプション -static-libgcc を与える。
+
+
+2. ビルド
+
+GNU MP, MPFR, MPC のソースを適当なディレクトリ(例: c:\Users\ohara\OpenXM_dist )
+に用意する。ここでは、以下のバージョンを用いる。
+
+gmp-5.1.3.tar.gz
+mpfr-3.1.3.tar.bz2
+mpc-1.0.3.tar.gz
+
+付録1 で与えるシェルスクリプト mk.sh を実行して、ライブラリを作成する。
+生成物は、${LOCAL}/{bin,include,lib} に出力される。
+
+3. Visual Studio 用インポートライブラリ
+
+mingw 付属の gendef の出力する *.def を、MS lib.exe で処理することにより、
+インポートライブラリを作成できる。具体的には、付録2 で与えるバッチファイルを
+*.def の存在するディレクトリ (${LOCAL}/bin) で実行するとよい。
+
+A. 付録1
+
+「mingw-w64 win64 shell」または「mingw-w64 win32 shell」上で実行するシェルスクリプトである。
+
+#!/bin/bash
+
+LOCAL=/usr/local"${MSYSTEM#MINGW}"
+[ -d ${LOCAL} ] || mkdir -p ${LOCAL}
+
+dist=/c/Users/ohara/OpenXM_dist
+gmp=gmp-5.1.3
+mpf=mpfr-3.1.3
+mpc=mpc-1.0.3
+
+for i in ${gmp}.tar.gz ${mpf}.tar.bz2 ${mpc}.tar.gz ; do case "$i" in *.bz2) tar jxf ${dist}/"$i";; *.gz) tar zxf ${dist}/"$i";; esac; done
+
+pushd ${gmp}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --disable-cxx
+make
+if [ "$MSYSTEM" = MINGW32 ]; then
+	gcc -static-libgcc -shared .libs/*.o */.libs/*.o -m32 -Wl,--export-all-symbols -Wl,--output-def -Wl,.libs/libgmp-3.dll.def -o .libs/libgmp-10.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libgmp.dll.
+a
+fi
+make install
+(cd .libs; gendef libgmp-10.dll; cp -p libgmp-10.def ${LOCAL}/bin)
+popd
+
+pushd ${mpf}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --with-gmp=${LOCAL} --disable-thread-safe
+make 
+if [ "$MSYSTEM" = MINGW32 ]; then
+	cd src
+	gcc -static-libgcc -shared .libs/*.o -L${LOCAL}/lib ${LOCAL}/lib/libgmp.dll.a -m32 -Wl,--output-def -Wl,.libs/libmpfr-4.dll.def -o .libs/libmpfr-4.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libmpfr.dll.a
+	cd ..
+fi
+make install
+(cd src/.libs; gendef libmpfr-4.dll; cp -p libmpfr-4.def ${LOCAL}/bin)
+popd
+
+pushd ${mpc}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --with-gmp=${LOCAL} --with-mpfr=${LOCAL}
+make 
+if [ "$MSYSTEM" = MINGW32 ]; then
+	cd src
+    gcc -static-libgcc -shared .libs/*.o -L${LOCAL}/lib ${LOCAL}/lib/libmpfr.dll.a ${LOCAL}/lib/libgmp.dll.a -m32 -o .libs/libmpc-3.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libmpc.dll.a
+	cd ..
+fi
+make install
+(cd src/.libs; gendef libmpc-3.dll; cp -p libmpc-3.def ${LOCAL}/bin)
+popd
+
+B. 付録2
+
+コマンドプロンプト上で実行するバッチファイルである。
+環境により 32bit または 64bit のライブラリが生成されることに注意。
+
+@echo off
+lib /def:libmpc-3.def  /out:libmpc-3.lib
+lib /def:libmpfr-4.def /out:libmpfr-4.lib
+lib /def:libgmp-10.def /out:libgmp-10.lib
