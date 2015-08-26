@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmolen.c,v 1.3 2003/03/30 08:05:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmolen.c,v 1.4 2004/12/01 17:32:26 ohara Exp $ */
 
 /* This module is needed by bconv.c */
 
@@ -10,6 +10,8 @@ cmolen_cmo_XXX() functions return the length of the binary encoded cmo
 except its tag.
 */
 
+#include <stdlib.h>
+#include <string.h>
 #include "ox_toolkit.h"
 
 static int          cmolen_cmo_int32(cmo_int32* c);

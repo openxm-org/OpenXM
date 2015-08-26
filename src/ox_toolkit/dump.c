@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.4 2003/09/15 09:31:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.5 2004/12/01 17:32:26 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/param.h>
 #include "ox_toolkit.h"
 
