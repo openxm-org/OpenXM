@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.37 2015/08/17 05:18:35 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.38 2015/08/18 02:24:04 noro Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -206,7 +206,7 @@ cmo_qq*            new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den);
 cmo_bf*            new_cmo_bf();
 cmo_bf*            new_cmo_bf_set_mpfr(mpfr_ptr q);
 cmo_complex*       new_cmo_complex();
-cmo_complex*       new_cmo_bf_set_re_im(cmo *re,cmo *im);
+cmo_complex*       new_cmo_complex_set_re_im(cmo *re,cmo *im);
 cmo_zero*          new_cmo_zero();
 cmo_double*        new_cmo_double(double d);
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
