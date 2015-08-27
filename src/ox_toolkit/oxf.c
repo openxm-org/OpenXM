@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.21 2015/08/05 00:59:05 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.22 2015/08/21 00:53:53 noro Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -10,10 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/file.h>
-#include <sys/param.h>
 #include <time.h>
 #include <limits.h>
 
@@ -27,6 +24,17 @@
 #include <synch.h>
 #else
 #include <inttypes.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define X_OK 0x01
+#define R_OK 0x04
+#define MAXHOSTNAMELEN 256
+#else
+#include <unistd.h>
+#include <sys/file.h>
+#include <sys/param.h>
 #endif
 
 #include "mysocket.h"

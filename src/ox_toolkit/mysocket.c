@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.7 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.8 2003/01/13 12:03:12 ohara Exp $ */
 /*
 Q: How to get a local port number?
 A: You do setsockopt() to set options and do socket(), bind().
@@ -13,17 +13,21 @@ Reference
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
-#include <netdb.h>
 #include <string.h>
+#include <fcntl.h>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <winsock2.h>
+#else
+#include <unistd.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <fcntl.h>
-
 #if defined(__sun__)
 #include <arpa/inet.h>
+#endif
 #endif
 
 #include "mysocket.h"

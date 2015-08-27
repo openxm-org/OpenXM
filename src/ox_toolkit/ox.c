@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.43 2015/08/17 05:18:35 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.44 2015/08/18 02:24:04 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -11,10 +11,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/file.h>
 #include <time.h>
+#if !defined(_MSC_VER)
+#include <unistd.h>
+#include <sys/file.h>
+#endif
 
 #include <mpfr.h>
 /* XXX : defined in mpfr-impl.h */

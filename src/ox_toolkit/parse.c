@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.15 2004/12/01 17:32:26 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.16 2005/07/20 17:48:03 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -10,9 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/param.h>
 #include <setjmp.h>
 #include <ctype.h>
+#if !defined(_MSC_VER)
+#include <sys/param.h>
+#endif
 
 #include "ox_toolkit.h"
 #include "parse.h"

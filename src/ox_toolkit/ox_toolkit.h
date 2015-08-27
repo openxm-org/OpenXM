@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.38 2015/08/18 02:24:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.39 2015/08/26 20:17:28 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -12,6 +12,10 @@
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
 #include <gc/gc.h>
+
+#if defined(_MSC_VER)
+#include <malloc.h>
+#endif
 
 #define MALLOC(x) GC_MALLOC((x))
 #define MALLOC_ATOMIC(x) GC_MALLOC_ATOMIC((x))

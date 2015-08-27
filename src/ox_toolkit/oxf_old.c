@@ -1,16 +1,22 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.7 2003/09/15 09:31:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.8 2009/03/20 18:41:16 iwane Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <io.h>
+#define MAXHOSTNAMELEN 256
+#else
+#include <unistd.h>
 #include <sys/file.h>
 #include <sys/param.h>
-#include <time.h>
+#endif
 
 #if defined(__sun__)
 #include <netdb.h>

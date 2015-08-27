@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.5 2004/12/01 17:32:26 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.6 2015/08/26 20:19:36 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if !defined(_MSC_VER)
 #include <sys/param.h>
+#endif
 #include "ox_toolkit.h"
 
 static void dump_cmo_int32(cmo_int32* m);
