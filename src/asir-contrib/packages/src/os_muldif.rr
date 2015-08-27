@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.1 2014/08/16 01:06:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.2 2014/09/05 11:55:18 ohara Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Aug. 2014)
+ *          Toshio Oshima (Nov. 2007 - Aug. 2015)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -24,10 +24,21 @@ static TeXLim$
 static DIROUT$
 static DVIOUTL$
 static DVIOUTA$
+static DVIOUTB$
 static DVIOUTH$
+static DVIOUTF$
+static LCOPT$
+static COLOPT$
+static LPOPT$
+static LFOPT$
 static ErMsg$
 static FLIST$
 static IsYes$
+static XYPrec$
+static XYcm$
+static TikZ$
+static XYLim$
+static ID_PLOT$
 localf erno$
 localf chkfun$
 localf makev$
@@ -61,11 +72,15 @@ localf sinv$
 localf slen$
 localf sord$
 localf vprod$
+localf dvangle$
+localf dvprod$
+localf dnorm$
 localf mulseries$
 localf pluspower$
 localf vtozv$
 localf dupmat$
 localf matrtop$
+localf mytrace$
 localf mydet$
 localf mperm$
 localf mtranspose$
@@ -73,6 +88,7 @@ localf mtoupper$
 localf mydet2$
 localf myrank$
 localf meigen$
+localf transm$
 localf vgen$
 localf mmc$
 localf lpgcd$
@@ -84,18 +100,25 @@ localf mykernel$
 localf myimage$
 localf mymod$
 localf mmod$
+localf ladd$
+localf llsize$
 localf llbase$
 localf lsort$
+localf lmax$
+localf lmin$
 localf lsol$
 localf lnsol$
+/* localf psol$ */
 localf m2v$
 localf lv2m$
 localf m2lv$
 localf s2m$
+localf c2m$
 localf m2diag$
 localf myinv$
 localf madjust$
 localf mpower$
+localf mrot$
 localf texlen$
 localf isdif$
 localf fctrtos$
@@ -106,7 +129,41 @@ localf getel$
 localf ptol$
 localf rmul$
 localf mtransbys$
+localf drawopt$
+localf execdraw$
+localf execproc$
 localf mysubst$
+localf evals$
+localf myeval$
+localf mydeval$
+localf myfeval$
+localf myf2eval$
+localf myf3eval$
+localf myfdeval$
+localf myf2deval$
+localf myf3deval$
+localf myexp$
+localf mycos$
+localf mysin$
+localf mytan$
+localf myarg$
+localf myasin$
+localf myacos$
+localf myatan$
+localf mylog$
+localf gamma$
+localf lngamma$
+localf digamma$
+localf dilog$
+localf zeta$
+localf eta$
+localf jell$
+localf erfc$
+localf f2df$
+localf compdf$
+localf fzero$
+localf fmmx$
+localf fcont$
 localf mmulbys$
 localf appldo$
 localf appledo$
@@ -144,9 +201,13 @@ localf sftpow$
 localf sftpowext$
 localf polinsft$
 localf pol2sft$
+localf polroots$
 localf binom$
 localf expower$
 localf seriesHG$
+localf seriesMc$
+localf seriesTaylor$
+localf evalred$
 localf toeul$
 localf fromeul$
 localf sftexp$
@@ -181,12 +242,15 @@ localf fspt$
 localf abs$
 localf calc$
 localf isint$
+localf israt$
 localf isalpha$
 localf isnum$
 localf isalphanum$
 localf isvar$
 localf isyes$
 localf isall$
+localf iscoef$
+localf iscombox$
 localf sproot$
 localf spgen$
 localf chkspt$
@@ -196,30 +260,47 @@ localf polcut$
 localf redgrs$
 localf cutgrs$
 localf mcgrs$
+localf delopt$
 localf str_char$
 localf str_pair$
 localf str_cut$
 localf str_str$
+localf str_subst$
+localf str_times$
+localf str_tb$
+localf i2hex$
+localf sjis2jis$
+localf jis2sjis$
+localf s2os$
+localf l2os$
+localf r2os$
+localf s2euc$
+localf s2sjis$
+localf r2ma$
+localf evalma$
 localf ssubgrs$
 localf verb_tex_form$
 localf my_tex_form$
 localf smallmattex$
-localf str_subst$
 localf dviout0$
 localf myhelp$
 localf isMs$
 localf showbyshell$
+localf readcsv$
+localf tocsv$
 localf getbyshell$
 localf show$
 localf dviout$
 localf rtotex$
 localf mtotex$
 localf ltotex$
-localf str_tb$
+localf texbegin$
+localf texcr$
 localf getbygrs$
 localf shiftop$
 localf conf1sp$
 localf pgen$
+localf diagm$
 localf mgen$
 localf madj$
 localf newbmat$
@@ -241,6 +322,7 @@ localf primroot$
 localf ptype$
 localf average$
 localf sint$
+localf frac2n$
 localf xyproc$
 localf xypos$
 localf xyput$
@@ -249,16 +331,32 @@ localf xyline$
 localf xylines$
 localf xycirc$
 localf xybezier$
+localf lbezier$
+localf draw_bezier$
+localf tobezier$
+localf velbezier$
+localf saveproc$
 localf xygraph$
 localf xy2graph$
 localf xyarrow$
+localf xyang$
+localf xyoval$
+localf ptcommon$
 localf ptcopy$
 localf ptaffine$
 localf ptlattice$
 localf ptpolygon$
 localf ptwindow$
+localf ptbbox$
+localf lninbox$
+localf ptcombezier$
+localf ptcombz$
 localf lchange$
 localf init$
+localf powprimroot$
+localf distpoint$
+localf ntable$
+localf keyin$
 #else
 extern Muldif.rr$
 extern TeXEq$
@@ -266,20 +364,43 @@ extern TeXLim$
 extern DIROUT$
 extern DVIOUTL$
 extern DVIOUTA$
+extern DVIOUTB$
 extern DVIOUTH$
+extern DVIOUTF$
+static LCOPT$
+static COLOPT$
+static LPOPT$
+static LFOPT$
+extern TikZ$
 extern ErMsg$
 extern FLIST$
 extern IsYes$
+extern XYPrec$
+extern XYcm$
+extern TikZ$
+extern XYLim$
+extern ID_PLOT$
 #endif
 extern AMSTeX$
-Muldif.rr="00140813"$
+Muldif.rr="00150825"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
+TikZ=0$
+XYcm=0$
+XYPrec=3$
+XYLim=4$
 DIROUT="%HOME%\\tex"$
 DVIOUTL="%ASIRROOT%\\bin\\risatex0.bat"$
 DVIOUTA="%ASIRROOT%\\bin\\risatex.bat"$
+DVIOUTB="%ASIRROOT%\\bin\\risatex1%TikZ%.bat"$
 DVIOUTH="start dviout -2 -hyper=0x90 \"%ASIRROOT%\\help\\os_muldif.dvi\" #%LABEL%"$
+DVIOUTF=0$
+LCOPT=["red","green","blue","yellow","cyan","magenta","black","white","gray"]$
+COLOPT=[0xff,0xff00,0xff0000,0xffff,0xffff00,0xff00ff,0,0xffffff,0xc0c0c0]$
+LPOPT=["above","below","left","right"]$
+LFOPT=["very thin","thin","dotted","dashed"]$
+
 ErMsg = newvect(3,[
  "irregal argument", /* 0 */
  "too big size",     /* 1 */
@@ -287,6 +408,7 @@ ErMsg = newvect(3,[
 ])$
 FLIST=0$
 IsYes=[]$
+ID_PLOT=-1$
 
 def erno(N)
 {
@@ -358,8 +480,9 @@ def vweyl(L)
 			return L;
 		else
 			return [L[0],makev(["d",L[0]])];
-	}else 
-		return [L,makev(["d", L])];
+	}
+	/* else if(type(L)<2) return L; */
+	return [L,makev(["d", L])];
 }
 
 def mycat(L)
@@ -427,7 +550,11 @@ def mycoef(P,N,X)
 	if(type(P) < 3)
 		return coef(P,N,X);
 	if(type(P) >= 4)
+#ifdef USEMODULE
+		return map(os_md.mycoef,P,N,X);
+#else
 		return map(mycoef,P,N,X);
+#endif
 	if(deg(dn(P), X) > 0){
 		P = red(P);
 		if(deg(dn(P), X) > 0)
@@ -443,7 +570,11 @@ def mydiff(P,X)
 	if(type(P) < 3)
 		return diff(P,X);
 	if(type(P) >= 4)
+#ifdef USEMODULE
+		return map(os_md.mydiff,P,X);
+#else
 		return map(mydiff,P,X);
+#endif
 	if(deg(dn(P),X) == 0) 
 		return red(diff(nm(P),X)/dn(P));
 	return red(diff(P,X));
@@ -456,7 +587,11 @@ def myediff(P,X)
 	if(type(P) < 3)
 		 return ediff(P,X);
 	if(type(P) >= 4)
+#ifdef USEMODULE
+		return map(os_md.myediff,P,X);
+#else
 		return map(myediff,P,X);
+#endif
 	if(deg(dn(P),X) == 0) 
 		return red(ediff(nm(P),X)/dn(P));
 	return red(X*diff(P,X));
@@ -511,7 +646,7 @@ def mymindeg(P,X)
 {
 	if(type(P) < 3)
 		return mindeg(P,X);
-	II = -1;
+	II = -1;T=60;
 	Opt = getopt(opt);
 	if(type(P) >= 4){
 		S=(type(P) == 6)?size(P)[0]:0;
@@ -522,9 +657,12 @@ def mymindeg(P,X)
 			if( (DT = mydeg(car(P),X)) == -2)
 				return -2;
 			if(DT < Deg || Deg == -3){
+				if(DT==0){
+					if(type(car(P))>=T) continue;
+					T=type(car(P));
+				}
 				Deg = DT;
 				II = I;
-				if(Deg==0) break;
 			}
 		}
 		return (Opt==1)?([Deg,(S==0)?II:[idiv(II,S),irem(II,S)]]):Deg;
@@ -600,10 +738,18 @@ def cmpsimple(P,Q)
 def simplify(P,L,T)
 {
 	if(type(P) > 3)
+#ifdef USEMODULE
+		return map(os_md.simplify,P,L,T);
+#else
 		return map(simplify,P,L,T);
+#endif
 	if(type(L[0]) == 4){
 		if(length(L[0]) > 1)
+#if USEMODULE
+			return fmult(os_md.simplify,P,L,[T]);
+#else
 			return fmult(simplify,P,L,[T]);
+#endif
 		L = L[0];
 	}
 	if(type(Var=getopt(var)) == 4 && Var!=[]){
@@ -852,6 +998,53 @@ def vprod(V1,V2)
 	return R;
 }
 
+def dnorm(V)
+{
+	if(type(V)<2) return dabs(V);
+	R=0;
+	if(type(V)!=4)
+		for (I = length(V)-1; I >= 0; I--) R+= V[I]^2;
+	else{
+		if(type(V[0])>3){
+			V=ltov(V[0])-ltov(V[1]);
+			return dnorm(V);
+		}
+		for(;V!=[]; V=cdr(V))	R+=car(V)^2;
+	}
+	return dsqrt(R);
+}
+
+def dvprod(V1,V2)
+{
+	if(type(V1)<2) return V1*V2;
+	R=0;
+	if(type(V1)!=4)
+		for(I = length(V1)-1; I >= 0; I--)
+			R += V1[I]*V2[I];
+	else{
+		for(; V1!=[]; V1=cdr(V1),V2=cdr(V2))
+			R+=car(V1)*car(V2);
+	}
+	return R;
+}
+
+def dvangle(V1,V2)
+{
+	if(V2==0 && type(V1)==4 && length(V1)==3 && 
+	  (type(V1[0])==4 || type(V1[0])==5 || type(V1[1])==4 || type(V1[1])==5 || 
+	   type(V1[2])==4 || type(V1[2])==5) ){
+		if(V1[0]==0 || V1[1]==0 || V1[2]==0) return 1;
+		PV2=V1[1];
+		if(type(PV2)==4){
+			PV2=ltov(PV2);
+			return dvangle(PV2-ltov(V1[0]),ltov(V1[2])-PV2);
+		}else
+			return dvangle(PV2-V1[0],V1[2]-PV2);
+	}
+	if((L1=dnorm(V1))==0 || (L2=dnorm(V2))==0) return 1;
+	return dvprod(V1,V2)/(L1*L2);
+}
+
 def mulseries(V1,V2)
 {
 	L = length(V1);
@@ -932,6 +1125,16 @@ def matrtop(M)
 		Lcm[J] = U[1];
 	}
 	return [MM,Lcm];
+}
+
+def mytrace(M)
+{
+	S=size(M);
+	if(S[0]!=S[1]) return 0;
+	for(I=V=0; I<S[0]; I++){
+		V+=M[I][I];
+	}
+	return V;
 }
 
 def mydet(M)
@@ -1023,14 +1226,18 @@ def mtranspose(M)
 
 def mtoupper(MM, F)
 {
+	TeXs=["\\ -=\\ ","\\ +=\\ "];
+	Lins=[" -= line"," += line"];
+	Assume=["If","Assume"];
+	if(type(St = getopt(step))!=1) St=0;
 	Opt = getopt(opt);
 	if(type(Opt)!=1) Opt=0;
 	TeX=getopt(dviout);
+	if(type(Tab=getopt(tab))!=1 && Tab!=0) Tab=2;
 	Line="\\text{line}";
-	St = getopt(step);
-	if(type(TeX)!=1 || St!=1)	TeX=0;
+	if(type(TeX)!=1 || !St) TeX=0;
 	Size = size(MM);
-	if(F ==-1){
+	if(F==-1){
 		M = newmat(Size[0], Size[1]+1);
 		for(I = 0; I < Size[0]; I++){
 			for(J = 0; J < Size[1]; J++)
@@ -1045,60 +1252,75 @@ def mtoupper(MM, F)
 		Size=[Size[0],F+Size[1]];
 	}else
 		M = dupmat(MM);
-	if(St==1){
+	if(St){
 		if(TeX) Lout=[[dupmat(M)]]; 
 		else mycat0([M,"\n\n"],0);
 	}
 	Top="";
 	if(Opt>3){
 		for(I=Opt; I>4; I--)
-			Top+=(TeX==1)?"\\ ":" ";
+			Top+=(TeX)?"\\ ":" ";
 	}
+	PC=IF=1;
 	for(K = JJ = 0; K < Size[1] - F; K++){
 		for(J = JJ; J < Size[0]; J++){
-			if(M[J][K] != 0){
+			if(M[J][K] != 0){		/* search simpler element */
 				if(Opt>2 && (Mul=M[J][K])!=1){
 					for(FF=0,JT=J; JT<Size[0]; JT++){
-						if((Val=M[JT][K])==1){
-							J=JT; break;
+						if((Val=M[JT][K])==1){	/* 1 */
+							Mul=1;J=JT; break;
 						}
 						if(Val==0 || type(Val)>type(Mul)) continue;
 						if(type(Val)<type(Mul) || (Val==-1 && Mul!=-1)){
-							Mul=Val; J=JT;
+							Mul=Val; J=JT;		/* smaller type */
 						}
-						else if(Opt>3 && isint(Val)==1){
-							for(FF=1,JK=K+1; JK<Size[1]-F; JK++){
-								if(isint(M[JT][JK]/Val)!=1){
-									FF=0;break;
+						else if(Opt>3){
+						 	if(isint(Val)==1){	/* integer elememt */
+								if(isint(Mul)!=1){
+									Mul=Val; J=JT;	/* integer */
 								}
-							}
-							if(FF==1){
-								Mul=Val; J=JT;
+								if(FF<3||(FF==3&&Val>0)){
+									for(JK=K+1;;){
+										if(JK>=Size[1]-F){
+											J=JT;
+											FF=((Mul=Val)>0)?4:3;
+											break;	/* divisible int => 4: pos_int 3: neg_int */
+										}
+										if(isint(M[JT][JK++]/Val)!=1) break;
+									}
+								}
+							}else if(!FF){
+								for(JK=K+1; JK<Size[1]-F; JK++){
+									if(isint(M[JT][JK]/Val)!=1) break;
+									J=JT; FF=1;		/* divisible => 1: non integer */
+								}
 							}
 						}
 					}
-					if(FF==0 && Opt>3 && Mul!=1 && Mul!=-1){
-						for(FF=0,J0=J; J0<Size[0]-1 && FF!=4; J0++){
+					if(FF==0 && Opt>3 && Mul!=1 && Mul!=-1){	/* FF > 0 => divisible */
+						for(FF=0,J0=J; J0<Size[0]-1 && FF!=9; J0++){
 							VV0=M[J0][K];
 							if(VV0==0 || isint(VV0)==0) continue;
-							for(J1=J0+1;J1<Size[0] && FF!=4; J1++){
+							for(J1=J0+1;J1<Size[0] && FF!=9; J1++){
 								VV1=M[J1][K];
 								if(VV1==0 || isint(VV1)==0) continue;
-								for(C=FT=0,V0=VV0,V1=VV1; C<2 && FF!=5; C++,V1=V0,V0=VV1){
+								for(C=FT=0,V0=VV0,V1=VV1; C<2 && FF!=10; C++,V1=V0,V0=VV1){
 									for(CC=0,RC=ceil(V0/V1);CC<2;CC++,RC--){
 										if((CD=V0-RC*V1)==0 && (RC==1 || RC==-1)){
-											FT=1; FF=5;
+											FT=1; FF=10;		/* 10: vanish by +- */
 										}else if(CD==1){
-											if((RC==1 || RC==-1) && FF<4){
-												FT=1; FF=4;
-											}else if(FF<3){
-												FT=1; FF=3;
+											FV=(vars(M[J0])==[]&&vars(M[J1])==[])?1:0;
+											if((RC==1 || RC==-1) && FF<8+FV){
+												FT=1; FF=8+FV;	/* 8/9: 1 by +- */
+											}else if(FF<6+VF){
+												FT=1; FF=6+FV;	/* 6/7: 1 by times */
 											}
 										}else if(CD==-1){
-											if((RC==1 || RC==-1) && FF<2){
-												FT=1; FF=2;
-											}else if(FF<1){
-												FT=1; FF=1;
+											FV=(vars(M[J0])==[]&&vars(M[J1])==[])?1:0;
+											if((RC==1 || RC==-1) && FF<4+FV){
+												FT=1; FF=4+FV;	/* 4/5: 1 by +- */
+											}else if(FF<2+VF){
+												FT=1; FF=2+FV;	/* 2/3: 1 by times */
 											}
 										}
 										if(FT==1){
@@ -1116,55 +1338,98 @@ def mtoupper(MM, F)
 						if(FF>0){
 							for(I=K;I<Size[1];I++)
 								M[KJ0][I]=radd(M[KJ0][I],rmul(M[KJ1][I],-KRC));
-							if(St==1){
+							if(KRS<0){
+								KRS=-KRS;Sgn=1;
+							}else
+								Sgn=0;
+							if(St){
 								if(TeX){
 									if(KRC==1)
-										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,"\\ -=\\ ",
-											Line,KJ1+1,"}",dupmat(M)],Lout);
-									else if(KRC==-1)
-										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,"\\ +=\\ ",
+										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,TeXs[Sgn],
 											Line,KJ1+1,"}",dupmat(M)],Lout);
 									else
-										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,"\\ +=\\ ",
-											Line,KJ1+1,"\\times\\left(",-KRC,"\\right)}",
+										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,TeXs[Sgn],
+											Line,KJ1+1,"\\times\\left(",KRC,"\\right)}",
 											dupmat(M)],Lout);
+
 								}else{
 									if(KRC==1)
-										mycat0([Top+"line",KJ0+1," -= line",KJ1+1,"\n",M,"\n\n"],0);									else if(KRC==-1)
-										mycat0([Top+"line",KJ0+1," += line",KJ1+1,"\n",M,"\n\n"],0);									else
-										mycat0([Top+"line",KJ0+1, " += line",KJ1+1," * (",-KRC,")\n",M,"\n\n"],0);
+										mycat([Top+"line",KJ0+1,Lins[Sgn],KJ1+1,"\n",M,"\n"]);										else
+										mycat([Top+"line",KJ0+1,Lins[Sgn],KJ1+1," * (",KRC,")\n",M,"\n"]);
 								}
 							}
 							Mul=M[KJ0][K]; J=KJ0;
-							if(FF==5){
+							if(FF==10){
 								J--; continue;
 							}
 						}
 					}
-/*
-					if(St==1 && Opt>3 && (type(Mul)==2 || type(Mul)==3)){
-						Nm=nm(red(Mul)); FT=fctr(Nm);
-						for(FF=cdr(FT);FF!=[];FF=cdr(FF)){
-							FT=car(FF);VV=vars(FT);
-							for( ; VV!=[]; VV=cdr(VV)){
-								V=car(VV);
-								if(mydeg(FT,V)==1 && type(mycoef(FT,1,V))==1){
-									CC=mycoef(FT,1,V);	VC=FT/CC-V;
-									if(TeX)
-										Lout=cons([Top+"\\text{If }",V,"=",VC],Lout);
-									else
-										mycat([Top+"If ",V,"=",VC]);
-									mtoupper(mysubst(MM,V,VC),F|dviout=TeX,opt=Opt+1,step=1);
-									break;
+				}
+			/* a parameter Var */
+				Var=0;
+				if(St && Opt>4 && length(Var=vars(nm(M[J][K])))==1){
+					J0=J;Jv=mydeg(nm(M[J0][K]),car(Var));
+					for(I=JJ;I<Size[0]; I++){
+						if((MIK=M[I][K])==0) continue;
+						if((T=vars(MIK=nm(MIK)))==[]){	/* 1/poly */
+							J=I;Var=[]; break;
+						}
+						if(length(T)>1) continue;
+						if(mydeg(MIK,T[0])<Jv){
+							J0=I;Jv=mydeg(MIK);Var=T;	/* search minimal degree */
+						}
+					}
+					if(length(Var)==1){
+						Var=car(Var);
+						Q=nm(M[J0][K]);
+						for(I=JJ; I<Size[0]; I++){
+							if(I==J0 || mydeg(nm(M[I][K]),Var)<0) continue;
+							T=rpdiv(nm(M[I][K]),Q,Var);
+							if(T[0]!=0 && (vars(T)==[] || vars(T)==[Var])) break;	/* dec. deg */
+						}
+					}
+				}
+				if(type(Var)==2){ /* 1 variable */
+					if(I==Size[0]){
+						for(QF=0,Q0=1,QR=getroot(Q,Var|mult=1);QR!=[];QR=cdr(QR)){
+							if(deg(T=QR[0][1],Var)>0){
+								QF=1;Q0*=T; continue;
+							}
+							if(subst(PC,Var,T)==0) continue;
+							Q0*=(Var-(T=QR[0][1]));
+							if(type(T)<2){
+								M0=subst(M,Var,T);
+								if(TeX){
+									Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
+										Var,"=",T,","] ,Lout);
+									Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),Lout);
+								}else{
+									mycat([str_times(" ",St-1)+"If",Var,"=",T,","]);
+									mtoupper(M0,F|step=St+1,opt=Opt);
 								}
 							}
 						}
-						if(length(FT)>1){
-							if(TeX)	Lout=cons([Top+"\\text{If }",V,"\ne",Nm],Lout);
-							else	mycat([Top+"If ",V,"!=",Nm]);
+						if(Q0!=1){
+							if(TeX)
+								Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{"+Assume[QF]+" }",
+									Q0/=fctr(Q0)[0][0],"\\ne0,"],Lout);
+							else
+								mycat([str_times(" ",St-1)+Assume[QF],Q0,"!=0,"]);
+							PC*=Q0;
 						}
+						IF=0;St++;
+					}else{
+						KRC=-red((T[2]*dn(M[J0][K]))/(T[1]*dn(M[I][K])));
+						for(II=K;II<Size[1];II++)
+							M[I][II]=radd(M[I][II],rmul(M[J0][II],KRC));
+						if(TeX)
+							Lout=cons([Top+"\\xrightarrow{", Line,I+1,"\\ +=\\ ",Line,
+								J0+1,"\\times\\left(",KRC,"\\right)}",dupmat(M)],Lout);
+						else
+							mycat([Top+"line",I+1,"+=",Line,J0+1," * (",KRC,")\n",M,"\n"]);
+						J=JJ-1;
+						continue;
 					}
-*/
 				}
 				if(J != JJ){
 					for(I = K; I < Size[1]; I++){
@@ -1172,28 +1437,100 @@ def mtoupper(MM, F)
 						M[JJ][I] = M[J][I];
 						M[J][I] = (Opt>=2)?Temp:-Temp;
 					}
-					if(St==1){
+					if(St){
 						if(TeX)
-							Lout=cons([Top+"\\xrightarrow{",Line,JJ+1,"\\ \\leftrightarrow\\ ",Line,
-								J+1,"}",dupmat(M)],Lout);
+							Lout=cons([Top+"\\xrightarrow{",Line,JJ+1,"\\ \\leftrightarrow\\ ",
+								Line,J+1,"}",dupmat(M)],Lout);
 						else
 							mycat0([Top+"line",JJ+1," <-> line",J+1,"\n",M,"\n\n"],0);
 					}
 				}
+				/* Assume PC != 0 */
 				if(Opt>1){
-					Mul = M[JJ][K]; M[JJ][K]=1;
+					Mul = M[JJ][K];
+					if(Opt > 5 && St && IF && (Var=vars(MIK=nm(Mul)))!=[]){
+						TF=fctr(MIK);
+						for(FF=0,Q0=1,TP=cdr(TF);TP!=[];TP=cdr(TP)){
+							if(type(dn(red(PC/(TP0=car(car(TP))))))<2) continue; /* divisible */
+							Q0*=TP0;
+							for(Var=vars(TP0);Var!=[];Var=cdr(Var)){
+								if(mydeg(TP0,X=car(Var))==1 && type(dn(red(PC/mycoef(TP0,1,X))))<2){
+									/* TP0=A*X+B with non-vanishing A */
+									T=red(-mycoef(TP0,0,X)/mycoef(TP0,1,X));
+									M0=mysubst(M,[X,T]);
+									if(TeX){
+										Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
+											X,"=",T,","] ,Lout);
+										Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),
+											Lout);
+									}else{
+										mycat([str_times(" ",St-1)+"If",X,"=",T,","]);
+										mtoupper(M0,F|step=St+1,opt=Opt);
+									}
+									break;
+								}
+							}
+							if(Var==[] && Opt>6){
+								for(Var=vars(TP0);Var!=[];Var=cdr(Var)){
+									if(mydeg(TP0,X=car(Var))==1){
+										/* TP0=A*X+B, A is a poly of X0 with rational funct */
+										T=nm(mycoef(TP0,1,X));
+										for(Var0=vars(T);Var0!=[]; Var0=cdr(Var0)){
+											X0=car(Var0);
+											if(type(dn(red(PC/type(mycoef(T,mydeg(T,X0),X0)))))>1) continue;
+											TR=getroot(T,X0|mult=1);
+											if(findin(X0,vars(TR))<0) break;
+										}
+										if(Var0==[]) continue;
+										for(;TR!=[0];TR=cdr(TR)){
+											if(TR==[]){
+												TR=[0,0];
+												T0=-mycoef(TP0,0,X)/mycoef(TP0,1,X);
+												X0=X;
+											}else T0=car(TR)[1];
+											M0=mysubst(M,[X0,T0]);
+											if(TeX){
+												Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
+													X0,"=",T0,","] ,Lout);
+												Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),
+													Lout);
+											}else{
+												mycat([str_times(" ",St-1)+"If",X0,"=",T0,","]);
+												mtoupper(M0,F|step=St+1,opt=Opt);
+											}
+										}
+										
+									}
+									break;
+								}
+							}
+							if(Var==[]){
+/*								mycat([PC,TF,TP0,vars(TP0)]); */
+								FF=1;
+							}
+						}
+						if(Q0!=1){
+							if(FF) FF=1;
+							if(TeX)	Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{"+Assume[FF]+" }",Q0/=fctr(Q0)[0][0],"\\ne0,"],
+								Lout);
+							else mycat([str_times(" ",St-1)+Assume[FF],Q0,"!=0,"]);
+							PC*=Q0;St++;
+						}
+					}
+					IF=M[JJ][K]=1;
 					if(Mul!=1){
 						for(L=K+1; L<Size[1]; L++)
 							M[JJ][L]=red(M[JJ][L]/Mul);
-						if(St==1){
+						if(St){
 							if(TeX)
-								Lout=cons([Top+"\\xrightarrow{",Line,JJ+1,"\\ \\times=\\ \\left(",1/Mul,
-									"\\right)}",
+								Lout=cons([Top+"\\xrightarrow{",Line,JJ+1,
+									"\\ \\times=\\ \\left(",red(1/Mul),"\\right)}",
 									dupmat(M)],Lout);
 							else
-								mycat0([Top+"line",JJ+1, " *= (",1/Mul, ")\n",M,"\n\n"],0);
+								mycat0([Top+"line",JJ+1, " *= (",red(1/Mul), ")\n",M,"\n\n"],0);
 						}
 					}
+					
 				}
 				for(J = (Opt>0)?0:(JJ+1); J < Size[0]; J++){
 					if(J == JJ)
@@ -1204,24 +1541,21 @@ def mtoupper(MM, F)
 						for(I = K+1; I < Size[1]; I++)
 							M[J][I] = radd(M[J][I],rmul(M[JJ][I],Mul));
 						M[J][K] = 0;
-						if(St==1){
+						if(St){
+							if(Mul<0){
+								Mul=-Mul;Sgn=0;
+							}else	Sgn=1;
 							if(TeX){
 								if(Mul==1)
-									Lout=cons([Top+"\\xrightarrow{", Line,J+1,"\\ +=\\ ",Line,JJ+1,
+									Lout=cons([Top+"\\xrightarrow{", Line,J+1,TeXs[Sgn],Line,JJ+1,
 										"}",dupmat(M)],Lout);
-								else if(Mul==-1)
-									Lout=cons([Top+"\\xrightarrow{", Line,J+1,"\\ -=\\ ",Line,JJ+1,
-										"}",dupmat(M)],Lout);
-								else
-									Lout=cons([Top+"\\xrightarrow{", Line,J+1,"\\ +=\\ ",Line,JJ+1,
+								else Lout=cons([Top+"\\xrightarrow{", Line,J+1,TeXs[Sgn],Line,JJ+1,
 										"\\times\\left(",Mul,"\\right)}",dupmat(M)],Lout);
 							}else{
 								if(Mul==1)
-									mycat0([Top+"line",J+1, " += line",JJ+1,"\n",M,"\n\n"],0);
-								else if(Mul==-1)
-									mycat0([Top+"line",J+1, " -= line",JJ+1,"\n",M,"\n\n"],0);
+									mycat0([Top+"line",J+1, Lins[Sgn],JJ+1,"\n",M,"\n\n"],0);
 								else
-									mycat0([Top+"line",J+1, " += line",JJ+1," * (",Mul,")\n",M,"\n\n"],0);
+									mycat0([Top+"line",J+1, Lins[Sgn],JJ+1," * (",Mul,")\n",M,"\n\n"],0);
 							}
 						}
 					}
@@ -1231,13 +1565,15 @@ def mtoupper(MM, F)
 		}
 	}
 	if(TeX){
-		Cr=getopt(cr);
+		if(TeX==-2) return Lout;
 		Lout=reverse(Lout);
-		if(type(Cr)==7){
-			Out = ltotex(Lout|opt=["cr","spts0"],str=1,cr=Cr);
-			dviout(Out|eq=5);
-		}
-		else	show(Lout);
+		Br="\\allowdisplaybreaks";
+		Cr="\\\\\n &";
+		if(getopt(pages)==1) Cr=Br+Cr;
+		if(type(S=getopt(cr))==7) Cr=S;
+		Out = ltotex(Lout|opt=["cr","spts0"],str=1,cr=Cr);
+		if(TeX<0) return Out;
+		dviout(Out|eq=(str_str(Cr,Br)>=0)?6:5,keep=(TeX==1)?0:1);
 	}
 	return M;
 }
@@ -1285,6 +1621,115 @@ def meigen(M)
 	S = size(M)[0];
 	P = mydet2(mgen(S,0,[zz],0)-M);
 	return (F==1)?getroot(P,zz|mult=1):getroot(P,zz);
+}
+
+def transm(M)
+{
+	L=[M];TeX="";
+	Line=["\\text{line}","\\text{col}"];
+	if((DVI=getopt(dviout)) !=1) DVI=0;
+	else dviout(M);
+	for(;;){
+		print(L0=dupmat(car(L)));
+		Sz=size(L0);
+		S=keyin("? ");
+		N=0;
+		if(str_len(S)<=1){
+			if(S=="q") return L;
+			if(S=="t"){
+				N=mtranspose(L0);
+				TeX=["\\text{transpose}"];
+			}
+			else if(S=="f"){
+				if(length(L)>1){
+					if(LF!=0) TeX="";
+					L=cdr(L);LF=L0;
+					if(DVI) dviout0(-1);
+					dviout(" ");
+				}
+			}else if(S=="g"){
+				if(LF!=0) N=LF;
+			}else if(S=="0"){
+				N=M;L=[];TeX=[];
+			}else if(S=="a"||S=="A"){
+				if(DVI&&S=="A")	mtoupper(L0,0|step=1,opt=10,dviout=1);
+				else mtoupper(L0,0|step=1,opt=10);
+			}else{
+				mycat0([
+	"2,5    : line2 <-> line5",
+	"2,5,-2 ; line2 += (-2)*line5",
+	"2,2,-2 : line2 *= -2",
+	"2,5,0  : line2 += (?)*line5 for reduction",
+	"r,2,5  : raw2 <-> raw5 (r,2,5,-2  etc.)",
+	"s,x,2	: subst(*,x,2)",
+	"t      : transpose",
+	"0      : first matrix",
+	"f      : previous matrix",
+	"g      : next matrix (only after f)",
+	"A      : auto (a : without TeX)",
+	"q      : quit"
+				],1|delim="\n");
+			}
+		}else{
+			FR=0;
+			S=evals(S|del=",");
+			if(S[0]==r){
+				FR=1; S=cdr(S);
+			}
+			if((LL=length(S))>=2){
+				S0=S[0]-1;S1=S[1]-1;
+				if(S[0]==s){
+					if(length(S)==3) N=subst(L0,S[1],S[2]);
+					if(DVI) TeX=[S[1],"\\mapsto",S[2]];
+				}else if(FR==0 && S0>=0 && S0<=Sz[0] && S1>=0 && S1<=Sz[0]){
+					if(LL==2){
+						N=rowx(L0,S0,S1);
+						if(DVI) TeX=[Line[0],S[0],"\\ \\leftrightarrow\\ ",Line[0],S[1]];
+					}else{
+						S2=S[2];
+						if(S0==S1){
+							N=rowm(L0,S0,S2);
+							if(DVI) TeX=[Line[0],S[0],"\\ \\times=\\ ",S2];
+						}else{
+							if(S2==0){
+								for(J=0;J<Sz[1] && L0[S1][J]==0;J++);
+								if(J<Sz[1]) S2=-L0[S0][J]/L0[S1][J];
+							}
+							if(S2!=0){
+								N=rowa(L0,S0,S1,S2);
+								if(DVI) TeX=[Line[0],S[0],"\\ +=\\ ",Line[0],
+									S[1],"\\ \\times\\ (",S2,")"];
+							}
+						}
+					}
+				}else if(S0>=0 && S0<=Sz[1] && S1>=0 && S1<=Sz[1]){
+					if(LL==2){
+						N=colx(L0,S0,S1);
+						if(DVI) TeX=[Line[1],S[0],"\\ \\leftrightarrow\\ ",Line[1],S[1]];
+					}else{
+						S2=S[2];
+						if(S0==S1){
+							N=colm(L0,S0,S2);
+							if(DVI) TeX=[Line[1],S[0],"\\ \\times=\\ ",S[2]];
+						}else{
+							if(S2!=0){
+								for(J=0; I1<Sz[0] && L0[I1][J]==0; J++);
+								if(J<Sz[0]) S2=-L0[J][S0]/L0[J][S1];
+							}if(S2!=0){
+								N=cola(L0,S0,S1,S2);
+								if(DVI) TeX=[Line[1],S[0],"\\ +=\\ ",Line[1],
+									S[1],"\\ \\times\\ (",S2,")"];
+							}
+						}
+					}
+				}
+			}
+		}
+		if(N!=0){
+			LF=0;L=cons(N,L);
+			if(DVI) dviout("\\xrightarrow{"+ltotex(TeX|opt="spts0",str=1)+"}"+mtotex(N)|eq=8);
+		}
+	}
 }
 
 def vgen(V,W,S)
@@ -1409,15 +1854,197 @@ def lpgcd(L)
 
 def mdivisor(M,X)
 {
-	S=size(M);
-	XX=(type(X)==4)?X:[0,X];
+	S=size(M=dupmat(M));
+	XX=(type(X)==4||X==0)?X:[0,X];
 	S0=S[0]; S1=S[1];
-	if((Tr=getopt(trans))==1){
+	if((Tr=getopt(trans))==1||Tr==2){
+		Tr0=1;
 		GR=mgen(S0,0,1,0); GC=mgen(S1,0,1,0);
-	}else Tr=0;
+	}else Tr=Tr0=0;
+	 /* 0,a,b	: (a,b)->(1,1)
+		1		: (1,1) invertible
+ 		2,i,M	: line 0,i by M
+		3,j,M	: col  0,j by M
+		4,j		: col  1 += col j
+		5,j,T	: line j by T
+		6,j,T	: col  1 += col j by T (non-com)
+		7,j		: line 2<->j  (non-com)
+	 */
+	if(type(V=getopt(dviout))==1){
+		if(type(XX)==4 && type(XX[0])>1) Var=[XX[1],"\\partial"];
+		else	Var=0;
+		Tr=(abs(V)==3)?0:1;
+		MM=dupmat(M);
+		II=((S[0]>S[1])?S[1]:S[0])+1;
+		if(abs(V)>1){
+			Is1=Js1=S[0]+S[1];
+			Is=Js=[0,[Is1]];
+		}else{
+			Is=[0,[Is1=S[0]]];Js=[0,[Js1=S[1]]];
+		}
+		VV=V;
+		V=newvect(II);
+		for(I=0;I<II;I++) V[I]=[];
+		N=newbmat(2,2,[[M,mgen(S[0],0,[1],0)],[mgen(S[1],0,[1],0)]]);
+		mdivisor(M,X|step=1,dviout=V);
+		L=S[0]+S[1];
+		if(Tr){
+			NN=mperm(N,Is1,Js1);
+			for(K=S[0];K<Is1;K++){
+				for(L=S[1];L<Js1;L++)
+					NN[K][L]=" ";
+			}
+			Out=[[mperm(NN,Is,Js)]];
+		}
+		for(I=1;I<II;I++){
+			I0=I-1;
+			if(V[I]==[]) continue;
+			for(T=reverse(V[I]);T!=[];T=cdr(T)){
+				St=[];
+				C=car(R=car(T));
+				if(C==0){
+					N=mperm(N,(R[1]==0)?0:[[R[1]+I0,I0]],(R[2]==0)?0:[[R[2]+I0,I0]]);
+
+					if(Tr){
+						if(R[2]!=0) St=append(["C",I,"\\leftrightarrow C",R[2]+I],St);
+						if(R[1]!=0){
+							if(R[2]!=0) St=cons(",\\ ",St);
+							St=append(["L",I,"\\leftrightarrow L",R[1]+I],St);
+						}
+						Out=cons(St,Out);
+					}
+				}else if(C==1){
+					P=1/N[I0][I0];N[I0][I0]=1;
+					if(P!=1){
+						for(J=I;J<L;J++)
+							N[I0][J]=muldo(P,N[I0][J],XX);
+
+						if(Tr){
+							St=append(["L",I,"\\leftarrow(",P,")","\\times L",I],St);
+							Out=cons(St,Out);
+							NN=mperm(N,Is1,Js1);
+							for(K=S[0];K<Is1;K++){
+								for(L=S[1];L<Js1;L++)
+									NN[K][L]=" ";
+							}
+							Out=cons(["\\to",mperm(NN,Is,Js)],Out);
+						}
+					}
+					for(F=0,J=I;J<S[0];J++){
+						if((P=N[J][I0])==0) continue;
+						F++;
+						N[J][I0]=0;
+						for(K=I;K<L;K++)
+							N[J][K]=red(N[J][K]-muldo(P,N[I0][K],XX));
+
+					}
+					if(F){
+						if(Tr){
+							Out=cons(["Li\\ -\\!=\\ \\circ\\times L",I,"\\quad(i>",I,")"],Out);
+							NN=mperm(N,Is1,Js1);
+							for(K=S[0];K<Is1;K++){
+								for(L=S[1];L<Js1;L++)
+									NN[K][L]=" ";
+							}
+							Out=cons(["\\to",mperm(NN,Is,Js)],Out);
+						}
+					}
+					for(F=0,J=I;J<S[1];J++){
+						if((P=N[I0][J])==0) continue;
+						F++;
+						N[I0][J]=0;
+						for(K=I;K<L;K++)
+							N[K][J]=red(N[K][J]-muldo(N[K][I0],P,XX));
+					}
+					if(F&&Tr) Out=cons(["Cj\\ -\\!=\\ C",I,"\\times\\circ\\quad(j>",I,")"],Out);
+					else continue;
+				}else if(C==2){
+					C=mat(N[I0],N[R[1]+I0]);C=muldo(R[2],C,XX);
+					for(J=0;J<L;J++){
+						N[I0][J]=C[0][J];N[R[1]+I0][J]=C[1][J];
+					}
+					if(Tr) Out=cons([dupmat(R[2]),"\\begin{pmatrix}L",I,"\\\\L",R[1]+I,
+						"\\end{pmatrix}"],Out);
+				}else if(C==3){
+					C=newmat(L,2);
+					for(J=0;J<L;J++){
+						C[J][0]=N[J][I0];C[J][1]=N[J][R[1]+I0];
+					}
+					C=muldo(C,R[2],XX);
+					for(J=0;J<L;J++){
+						N[J][I0]=C[J][0];N[J][R[1]+I0]=C[J][1];
+					}
+					if(Tr) Out=cons(["\\begin{pmatrix}C",I,"&C",R[1]+I,"\\end{pmatrix}",
+						dupmat(R[2])],Out);
+				}else if(C==4){
+					for(J=0;J<L;J++)
+						N[J][I0]=red(N[J][I0]+N[J][R[1]+I0]);
+					if(Tr) Out=cons(["C",I,"\\ +\\!=\\ C",R[1]+I],Out);
+				}else if(C==5){
+					for(J=0;J<L;J++)
+						N[I0+R[1]][J]=red(R[2]*N[I0+R[1]][J]);
+					if(Tr) Out=cons(["L",I+R[1],"\\leftarrow(", R[2],")\\times L",I+R[1]],
+						Out);
+				}else if(C==6){
+					for(J=0;J<L;J++)
+						N[J][I0]=N[J][I0]+muldo(N[J][I0+R[1]],R[2],XX);
+					if(Tr) Out=cons(["C",I,"\\ +\\!=\\ C",I+R[1],"\\times(", R[2],")"],
+						Out);
+				}else if(C==7){
+					mycat(["line",I+1,"\\leftrightarrow",R[1]+I]);
+					for(J=0;J<L;J++){
+						C=N[I][J];N[I][J]=N[R[1]+I0][J];N[R[1]+I0][J]=C;
+					}
+					if(Tr) Out=cons(["L",I+1,"\\leftrightarrow L",R[1]+I],Out);
+				}
+				if(Tr){
+					NN=mperm(N,Is,Js);
+					for(K=S[0];K<Is1;K++){
+						for(L=S[1];L<Js1;L++)
+							NN[K][L]=" ";
+					}
+					Out=cons(["\\to",NN],Out);
+				}
+			}
+		}
+		if(!Tr){
+			NN=mperm(N,Is,Js);
+			Out=[];
+		}
+		if(S[0]+S[1]==Is1){
+			N1=mperm(NN,[0,[S[0]]],[S[1],[S[0]]]);
+			N2=mperm(NN,[S[0],[S[1]]],[0,[S[1]]]);
+			N3=mperm(NN,[0,[S[0]]],[0,[S[1]]]);
+			R1=mdivisor(N1,X|trans=1)[1];
+			R2=mdivisor(N2,X|trans=1)[1];
+			if(Tr){
+				Out=cons(["\\text{As a result,}"],Out);
+				Out=cons([N3,"=",N1,MM,N2],Out);
+				if(S[0]==S[1] && N3==mgen(S[0],0,1,0)){
+					Out=cons(["=",muldo(N2,N1,XX),MM,"."],Out);
+				}else{
+					Out=cons([N1,"^{-1}=",R1,","],Out);
+					Out=cons([N2,"^{-1}=",R2,"."],Out);
+				}
+			}else{
+				Out=cons([N3,"=P",MM,"Q,"],Out);
+				Out=cons(["P=",N1,"=",R1,"^{-1},"],Out);
+				Out=cons(["Q=",N2,"=",R2,"^{-1}."],Out);
+			}
+		}
+		Out = ltotex(reverse(Out)|opt=["cr","spts0"],str=1,cr=15,var=Var);
+		if(S[0]+S[1]==Is1)
+			Out=str_subst(Out,"\\texttt{ }","");
+		if(VV>0){
+			dviout(Out|eq=6);
+			return NN;
+		}
+		return Out; 
+	}else if(type(V)!=5) V=0;
+
 	if(type(St=getopt(step))!=1) St=0;
 	for(FF=": start";;){
-		if(St){
+		if(St && V==0){
 			if(Tr){
 				mycat0([St,FF,"\n"],0);
 				mycat([GR,"\n"]);mycat([M,"\n"]);mycat([GC,"\n"]);
@@ -1425,7 +2052,7 @@ def mdivisor(M,X)
 			else	mycat0([St,FF,"\n",M,"\n"],0);
 		}
 /* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
-		if(X==0){ /* search minimal non-zero element */
+		if(X==0||X==[0,0]){ /* search minimal non-zero element */
 			for(K=F=I=0; I<S0; I++){
 				for(J=0; J<S1; J++){
 					if((P=abs(M[I][J]))!=0 && (K>P || K==0)){
@@ -1437,29 +2064,31 @@ def mdivisor(M,X)
 		}
 		else R=mymindeg(M,XX[1]|opt=1);
 		if(R[0]<0){		/*zero matrix */
-			if(Tr==1) return [[],newmat(S0,S0),newmat(S1,S1)];
+			if(Tr) return [[],mgen(S0,0,1,0),mgen(S1,0,1,0)];
 			return [];
 		}
 		R0=R[1][0];R1=R[1][1];
 		if(R0!=0){
 			M=rowx(M,0,R0);
-			if(Tr==1) GR=rowx(GR,0,R0);
+			if(Tr) GR=rowx(GR,0,R0);
 		}
 		if(R1!=0){
 			M=colx(M,0,R1);
-			if(Tr==1) GC=colx(GC,0,R1);
+			if(Tr) GC=colx(GC,0,R1);
 		}
 		if(St>0 && (R0!=0 || R1!=0))
-			if(Tr==1){
+			if(type(V)==5) V[St]=cons([0,R0,R1],V[St]);
+			else if(Tr){
 				mycat0([St,": (",R0+1,",",R1+1,") -> (1,1)\n"],0);
 				mycat([GR,"\n"]);mycat([M,"\n"]);mycat([GC,"\n"]);
 			}else mycat0([St,": (",R0+1,",",R1+1,") -> (1,1)\n",M,"\n"],0);
 /* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 		if(R[0]==0){		/* (1,1) : invertible */
+			if(type(V)==5) V[St]=cons([1],V[St]);
 			P=M[0][0]; M[0][0]=1;
 			for(J=0;J<S1;J++){	/* (1,1) -> 1 */
 				if(J>0) M[0][J]= red(M[0][J]/P);
-				if(Tr==1) GR[0][J]=red(GR[0][J]/P);
+				if(Tr) GR[0][J]=red(GR[0][J]/P);
 			}
 /* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 			if(S0>1 && S1>1) N=newmat(S0-1,S1-1);
@@ -1468,20 +2097,20 @@ def mdivisor(M,X)
 				P=M[I][0]; M[I][0]=0;
 				for(J=1;J<S1;J++)
 					N[I-1][J-1]=M[I][J]=red(M[I][J] - muldo(P,M[0][J],XX));
-				if(Tr==1){
+				if(Tr){
 					for(J=0;J<S0;J++)
 						GR[I][J] = red(GR[I][J] -muldo(P,GR[0][J],XX));
 				}
 			}
 /* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
-			if(Tr==1){
+			if(Tr){
 				for(J=1;J<S1; J++){
-					for(I=0;I<S1;I++) GC[I][J]=red(GC[I][J]-muldo(M[0][J],GC[I][0],XX));
+					for(I=0;I<S1;I++) GC[I][J]=red(GC[I][J]-muldo(GC[I][0],M[0][J],XX));
 					M[0][J]=0;
 				}
 			}
-			if(St>0){
-				if(Tr==1){
+			if(St>0 && V==0){
+				if(Tr){
 					mycat0([St,": unit\n"],0);
 					mycat([GR,"\n"]);mycat([M,"\n"]);mycat([GC,"\n"]);
 				}
@@ -1489,21 +2118,34 @@ def mdivisor(M,X)
 			}
 /* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 			if(N==0){
-				if(Tr==0) return [1];
+				if(!Tr) return [1];
+				if(Tr==2){
+					GR0=mdivisor(GR,X|trans=1)[1];
+					GC0=mdivisor(GC,X|trans=1)[1];
+					return [[1],GR,GC,GR0,GC0];
+				}
 				return [[1],GR,GC];
 			}
-			R=mdivisor(N,XX|trans=Tr,step=(St>0)?St+1:St);
-			if(Tr==0) return cons(1,R);
+			R=mdivisor(N,XX|dviout=V,trans=Tr0,step=(St>0)?St+1:St);
+			if(!Tr) return cons(1,R);
 /* mycat(["Ret",R]); */
 			GR=muldo(newbmat(2,2,[[1],[0,R[1]]]),GR,XX);
 			GC=muldo(GC,newbmat(2,2,[[1],[0,R[2]]]),XX);
 			if(S0==S1 && countin(1,1,R[0])==S0-1){
-				GR=muldo(GR,GC,XX); GC=mgen(S0,0,1,0);
+/* mycat(GR);mycat(GC); */
+				GR=muldo(GC,GR,XX); GC=mgen(S0,0,1,0);
+/* mycat(GR);mycat("#");*/
+			}
+			if(Tr==2){
+				GR0=mdivisor(GR,X|trans=1)[1];
+				GC0=mdivisor(GC,X|trans=1)[1];
+				return [cons(1,R[0]),GR,GC,GR0,GC0];
 			}
 			return [cons(1,R[0]),GR,GC];
 		}
 		for(I=1;I<S0;I++){
 			if(M[I][0]!=0){
+/* Error! when mygcd(A,B,0) with A<=0 or B<=0 */
 				R=mygcd(M[I][0],M[0][0],XX);	/* R[0]=R[1]*M[I][0]+R[2]*M[0][0] */
 				M[0][0]=R[0]; M[I][0]=0;	/*    0=R[3]*M[I][0]+R[4]*M[0][0] */
 				for(J=1;J<S1;J++){
@@ -1511,18 +2153,19 @@ def mdivisor(M,X)
 					M[I][J]=red(muldo(R[3],M[I][J],XX)+muldo(R[4],M[0][J],XX));
 					M[0][J]=T;
 				}
-				if(Tr==1){
+				if(Tr){
 					for(J=0;J<S0;J++){
 						T=red(muldo(R[1],GR[I][J],XX)+muldo(R[2],GR[0][J],XX));
 						GR[I][J]=red(muldo(R[3],GR[I][J],XX)+muldo(R[4],GR[0][J],XX));
 						GR[0][J]=T;
 					}
 				}
-				if(St){
+				if(St && V==0){
 					mycat([" [",R[2],R[1],"]*"]);
 					mycat([" [",R[4],R[3],"]"]);
 				}
-				FF=": line 1 & "+rtostr(I+1);I=S0;
+				if(type(V)==5) V[St]=cons([2,I,mat([R[2],R[1]],[R[4],R[3]])],V[St]);
+				FF=": line 1 & "+rtostr(I+1); I=S0;
 			}
 		}
 		if(I>S0) continue;
@@ -1535,15 +2178,16 @@ def mdivisor(M,X)
 					M[I][J]=red(muldo(M[I][J],R[3],XX)+muldo(M[I][0],R[4],XX));
 					M[I][0]=T;
 				}
-				if(Tr==1){
+				if(Tr){
 					for(I=0;I<S1;I++){
 						T=red(muldo(GC[I][J],R[1],XX)+muldo(GC[I][0],R[2],XX));
 						GC[I][J]=red(muldo(GC[I][J],R[3],XX)+muldo(GC[I][0],R[4],XX));
 						GC[I][0]=T;
 					}
 				}
+				if(type(V)==5) V[St]=cons([3,J,mat([R[2],R[4]],[R[1],R[3]])],V[St]);
 				FF=": column 1 & "+rtostr(J+1);J=S1;
-				if(St){
+				if(St && V==0){
 					mycat([" *[",R[2],R[4],"]"]);
 					mycat(["  [",R[1],R[3],"]"]);
 				}
@@ -1553,25 +2197,37 @@ def mdivisor(M,X)
 		if(S0==1 || S1==1){
 			P=M[0][0];
 			if(X==0){
-				if(P<0) P=-P;
-				if(Tr==1) for(J=0;J<S0;J++) GR[0][J]=-GR[0][J];
+				if(P<0){
+					P=-P;
+					if(Tr) for(J=0;J<S0;J++) GR[0][J]=-GR[0][J];
+					if(type(V)==5) V[St]=cons([5,0,-1],V[St]);
+				}
 			}else{
 				P=nm(P);
-				P/=(R=fctr(P)[0][0]);
-				if(Tr==1) for(J=0;J<S0;J++) GR[0][J]/=R;
+				if((R=fctr(P)[0][0])!=1){
+					P/=R;
+					if(Tr) for(J=0;J<S0;J++) GR[0][J]/=R;
+					if(type(V)==5) V[St]=cons([5,0,1/R],V[St]);
+				}
 			}
-			if(Tr==0) return [P];
+			if(!Tr) return [P];
+			if(Tr==2){
+				GR0=mdivisor(GR,X|trans=1)[1];
+				GC0=mdivisor(GC,X|trans=1)[1];
+				return [[P],GR,GC,GR0,GC0];
+			}
 			return [[P],GR,GC];
 		}
-		if(XX[0]==0){			/* commutative case */
+		if(XX==0 || (type(XX)==4 && XX[0]==0)){			/* commutative case */
 			P=M[0][0];
 			for(I=1; I<S0; I++){
 				for(J=1; J<S1; J++)
 					if(divdo(M[I][J],P,XX)[1]!=0) break;
 				if(J<S1){
+					if(type(V)==5) V[St]=cons([4,J],V[St]);
 					FF=": column 1 += col"+rtostr(J+1);
 					for(I=1;I<S0;I++) M[I][0]=M[I][J];
-					if(Tr==1) for(I=0;I<S1;I++) GC[I][0]=red(GC[I][0]+GC[I][J]);
+					if(Tr) for(I=0;I<S1;I++) GC[I][0]=red(GC[I][0]+GC[I][J]);
 					break;
 				}
 			}
@@ -1581,23 +2237,28 @@ def mdivisor(M,X)
 				for(J=1;J<S1;J++) N[I-1][J-1]=red(M[I][J]/P);
 			if(X==0){
 				if(P<0) P=-P;
-				if(Tr==1) for(J=0;J<S0;J++) GR[0][J]=-GR[0][J];
+				if(Tr) for(J=0;J<S0;J++) GR[0][J]=-GR[0][J];
 			}else{
 				P=M[0][0];
 				P=nm(P);
 				P/=fctr(P)[0][0];
-				if(Tr==1) for(J=0;J<S0;J++) GR[0][J]/=fctr(P)[0][0];
+				if(Tr) for(J=0;J<S0;J++) GR[0][J]/=fctr(P)[0][0];
 			}
-			R=mdivisor(N,XX|trans=Tr,step=(St>0)?St+1:St);
-			RT=(Tr==1)?R[0]:R;
+			R=mdivisor(N,XX|dviout=V,trans=Tr0,step=(St>0)?St+1:St);
+			RT=(Tr)?R[0]:R;
 			for(RR=[],L=reverse(RT);L!=[];L=cdr(L))
 				RR=cons(red(P*car(L)),RR);
 			RR=cons(P,RR);
-			if(Tr==0) return RR;
+			if(!Tr) return RR;
 			GR=muldo(newbmat(2,2,[[1],[0,R[1]]]),GR,XX);
 			GC=muldo(GC,newbmat(2,2,[[1],[0,R[2]]]),XX);
 			if(S0==S1 && countin(1,1,RR)==S0){
-				GR=muldo(GR,GC,XX); GC=mgen(S0,0,1,0);
+				GR=muldo(GC,GR,XX); GC=mgen(S0,0,1,0);
+			}
+			if(Tr==2){
+				GR0=mdivisor(GR,X|trans=1)[1];
+				GC0=mdivisor(GC,X|trans=1)[1];
+				return [RR,GR,GC,GR0,GC0];
 			}
 			return [RR,GR,GC];
 		}  /* End of commutative case */
@@ -1607,14 +2268,16 @@ def mdivisor(M,X)
 					for(T=1;I<S0;T*=XX[0]){
 						R=divdo(muldo(M[I][J],T,XX),M[0][0],XX);
 						if(R[1]!=0){
+							if(type(V)==5) V[St]=cons([6,J,T],V[St]);
 							FF=": column 1 += col"+rtostr((J+1)*T);
 							if(I>1){
 								M=rowx(M,1,I);
-								if(Tr==1) GR=rowx(GR,1,I);
+								if(Tr) GR=rowx(GR,1,I);
+								if(type(V)==5) V[St]=cons([7,I],V[St]);
 								FF+=", line 2<->"+rtostr(I+1);
 							}
 							for(I=1;I<S0;I++)   M[I][0]=muldo(M[I][J],T,XX);
-							if(Tr==1)
+							if(Tr)
 								for(I=1;I<S1;I++) GC[I][0]=red(GC[I][0]+muldo(GC[I][J],T,XX));
 							I=S0+1; J=S1;
 							break;
@@ -2047,6 +2710,13 @@ def mmod(M,L)
 	return MN;
 }
 
+def llsize(V)
+{
+	for(I=J=0;V!=[];V=cdr(V),I++)
+		if(length(car(V))>J) J=length(car(V));
+	return [I,J];
+}
+
 def llbase(VV,L)
 {
 	S = length(VV);
@@ -2153,6 +2823,30 @@ def lsort(L1,L2,T)
 	return lsort(L1,[],1);
 }
 
+def lmax(L)
+{
+	if(type(L)==4){
+		V=car(L);
+		while((L=cdr(L))!=[])
+			if(V < car(L)) V=car(L);
+		return V;
+	}else if(type(L)==5||type(L)==6)
+		return lmax(m2l(L));
+	return [];
+}
+
+def lmin(L)
+{
+	if(type(L)==4){
+		V=car(L);
+		while((L=cdr(L))!=[])
+			if(V > car(L)) V=car(L);
+		return V;
+	}else if(type(L)==5||type(L)==6)
+		return lmin(m2l(L));
+	return [];
+}
+
 def lchange(L,P,V)
 {
 	if(type(P)==4){
@@ -2197,6 +2891,20 @@ def lnsol(VV,L)
 }
 
 
+def ladd(X,Y)
+{
+	if(type(X)==4) X=ltov(X);
+	if(type(Y)==4) Y=ltov(Y);
+	return vtol(X+Y);
+}
+
+def mrot(X)
+{
+	if(getopt(deg)==1) X=@pi*X/180;
+	X=deval(X);
+	return mat([dcos(X),dsin(X)],[-dsin(X),dcos(X)]);
+}
+
 def m2v(M)
 {
 	S = size(M);
@@ -2214,13 +2922,13 @@ def lv2m(L)
 	if(type(L)==5) L=vtol(L);
 	II=length(L);
 	for(J=1,T=L; T!=[]; T=cdr(T))
-		if(length(car(T))>J) JJ=length(car(T));
+		if(length(car(T))>JJ) JJ=length(car(T));
 	M = newmat(II,JJ);
-	N = getopt(fill);
+	N = getopt(null);
 	if(type(N)<0)	N=0;
 	for(I=0; I<II; I++){
 		V=car(L); L=cdr(L);
-		for(J=length(V);J-->0;)
+		for(J=length(V);--J>=0;)
 			M[I][J] = V[J];
 		if(N!=0){
 			for(J=length(V); J<JJ; J++)
@@ -2268,6 +2976,29 @@ def s2m(S)
 	for(J=1,T=S; T!=[]; T=cdr(T))
 		if(length(car(T))>J) J=length(car(T));
 	return newmat(I,J,S);
+}
+
+def c2m(L,V)
+{
+	if(type(Pow=getopt(pow))!=1){
+		if(isvar(V)==1){
+			for(Pow=0,LT=L;LT!=[];LT=cdr(LT)){
+				if(mydeg(car(LT),V)>JJ) Pow=mydeg(car(LT),V);
+			}
+			JJ=Pow+1;
+		}else{
+			Pow=-1;
+			JJ=length(V);
+		}
+	}else JJ=Pow+1;	
+	M=newmat(length(L),JJ);
+	for(I=0;L!=[];L=cdr(L),I++){
+		for(J=0;J<JJ;J++){
+			LT=car(L);
+			M[I][J]=(Pow>=0)?mycoef(LT,J,V):mycoef(LT,1,V[J]);
+		}
+	}
+	return M;
 }
 
 #if 0
@@ -2429,7 +3160,7 @@ def fctrtos(P)
 		if(Lim!=0 && TeX>1 && (type(Lim)!=1||Lim<30)) Lim=TeXLim;
 		else if(type(Lim)!=1) Lim=0;
 		CR=(TeX==2)?"\\\\\n":"\\\\\n&";
-		if(TeX==1 && Lim==0)	CR="";
+		if(TeX==1 || Lim==0)	CR="";
 		else if((Pages=getopt(pages))==1)	CR="\\allowdisplaybreaks"+CR;
 		if(!chkfun("print_tex_form", "names.rr"))
 			return 0;
@@ -2511,8 +3242,7 @@ def fctrtos(P)
 		TT=terms(P,VV|rev=Rev,dic=Dic);
 		if(TeX==0){
 			Pre="("; Post=")";
-		}
-		else{
+		}else{
 			Pre="{"; Post="}";
 		}
 		Out = string_to_tb("");
@@ -2537,7 +3267,11 @@ def fctrtos(P)
 				if(D>1)	Op+="^"+((D>9)?(Pre+rtostr(D)+Post):rtostr(D));
 				PW=Op+Add+"}{"+PW+"}";
 			}else if(Add!=0) PW=PW+Add;
-			OC = (TeX>=1)?fctrtos(PC|TeX=1,br=1):fctrtos(PC|br=1);
+			if(TeX>=1){
+				if(type(PC)==1 && ntype(PC)==0 && PC<0)
+ 					OC="-"+my_tex_form(-PC);
+				else OC=fctrtos(PC|TeX=1,br=1);
+			}else	OC=fctrtos(PC|br=1);
 			if(PW!=""){
 				if(OC == "1")        OC = "";
 				else if(OC == "-1")  OC = "-";
@@ -2550,10 +3284,8 @@ def fctrtos(P)
 					TOC = 7;
 				}else{
 					if(str_char(OC[0],0,"-")==0){
-						P0=str_char(OC[0],1,"(");P1=str_char(OC[0],1,"+");P2=str_char(OC[0],1,"-");
-						if(P1>=P0 && P2>=P0)		/*  -5(a+b)/(c+d) */
-							OC="-"+"\\frac{"+str_cut(OC[0],1,str_len(OC[0]))+"}{"+OC[1]+"}";
-						else OC="\\frac{"+OC[0]+"}{"+OC[1]+"}";
+						OC = fctrtos(-PC|TeX=1,br=1);
+						OC = "-\\frac{"+OC[0]+"}{"+OC[1]+"}";
 					}
 					else
 						OC = "\\frac{"+OC[0]+"}{"+OC[1]+"}";
@@ -2576,6 +3308,7 @@ def fctrtos(P)
 			}
 		}
 		S=str_tb(0,Out);
+		if(S=="") S="0";
 	}else{		/* Var is not specified */
 		if((TP=type(P)) == 3){	/* rational function */
 			P = red(P); Nm=nm(P); Dn=dn(P); 
@@ -2680,8 +3413,9 @@ def texlim(S,Lim)
 
 def fmult(FN,M,L,N)
 {
+	Opt=getopt();
 	for(I = 0; I < length(M); I++)
-		M = call(FN, cons(M,cons(L[I],N)));
+		M = call(FN, cons(M,cons(L[I],N))|option_list=Opt);
 	return M;
 }
 
@@ -2778,24 +3512,29 @@ def rmul(P,Q)
 		}
 		return P2*Q2/(P1*Q1);
 	}
+#ifdef	USEMODULE
+	return mmulbys(os_md.rmul,P,Q,[]);
+#else
 	return mmulbys(rmul,P,Q,[]);
+#endif
 }
 
 def mtransbys(FN,F,LL)
 {
+	Opt=getopt();
 	if(type(F) == 4){
 		F = ltov(F);
 		S = length(F);
 		R = newvect(S);
 		for(I = 0; I < S; I++)
-			R[I] = mtransbys(FN,F[I],LL);
+			R[I] = mtransbys(FN,F[I],LL|option_list=Opt);
 		return vtol(R);
 	}
 	if(type(F) == 5){
 		S = length(F);
 		R = newvect(S);
 		for(I = 0; I < S; I++)
-			R[I] = mtransbys(FN,F[I],LL);
+			R[I] = mtransbys(FN,F[I],LL|option_list=Opt);
 		return R;
 	}
 	if(type(F) == 6){
@@ -2803,11 +3542,393 @@ def mtransbys(FN,F,LL)
 		R = newmat(S[0],S[1]);
 		for(I = 0; I < S[0]; I++){
 			for(J = 0; J < S[1]; J++)
-			R[I][J] = mtransbys(FN,F[I][J],LL);
+			R[I][J] = mtransbys(FN,F[I][J],LL|option_list=Opt);
 		}
 		return R;
 	}
-	return call(FN, cons(F,LL));
+	return call(FN, cons(F,LL)|option_list=Opt);
+}
+
+def drawopt(S,T)
+{
+	if(type(S)!=7) return -1;
+	if(T==0||T==1){
+		for(I=0,R=LCOPT;I<7;I++,R=cdr(R))
+			if(str_str(S,car(R))>=0) return(T==0)?COLOPT[I]:car(R);
+		return -1;
+	}
+	if(T==2){
+		V0=V1=0;
+		for(I=0,R=LPOPT;R!=[];I++,R=cdr(R)){
+			if(str_str(S,car(R))>=0){
+				if(I==0) V1++;
+				else if(I==1) V1--;
+				else if(I==2) V0--;
+				else V0++;
+			}
+		}
+		if(V0==0&&V1==0) return -1;
+		return [V0,V1];
+	}
+	if(T==3){
+		V=0;
+		for(I=1,R=LFOPT;R!=[];R=cdr(R),I*=2){
+			if(str_str(S,car(R))>=0) V+=I;
+		}
+		return (V==0)?-1:V;
+	}
+	return -1;
+}
+
+def execdraw(L,P)
+{
+	if((Proc=getopt(proc))!=1) Proc=0;
+	if(type(P)<2) P=[P];
+	if(L!=[]&&type(L[0])!=4) L=[L];
+		/* special command */
+	if(P[0]<0){
+		if(length(P)==1&&(P[0]==-1||P[0]==-2||P[0]==-3)){	/* Bounding Box */
+			W=WS=[[0,0],[0,0]];N=0;
+			for(LS=0,LL=L;LL!=[];LL=cdr(LL)){
+				T=car(LL);
+				if(P[0]!=-3 && T[0]==0){
+					if(length(T)>3) S="  by "+rtostr(T[3])+" cm";
+					else S="";
+					if(P[0]==-1){
+						mycat(["Windows : ",T[1][0],"< x <",T[1][1],", ",
+							T[2][0],"< y <",T[2][1],S]);
+						if(length(T)>4 && type(T[4])==4) mycat(["ext :",T[4]]);
+						if(length(T)>5) mycat(["shift :",T[5]]);
+					}
+					return cdr(T);
+				}
+				if(type(T[0])==1){
+					if(T[0]==1){
+						D=cdr(cdr(T));
+						if(type(D[0][0])==4){
+							for(DT=D;DT!=[];DT=cdr(DT)){
+								if(N++==0) ptbbox(car(DT));
+								else W=ptbbox(car(DT)|box=W);
+							}
+						}else{
+							if(N++==0) W==ptbbox(DD);
+							else W=ptbbox(D|box=W);
+						}
+					}else if(T[0]==2){
+						V=T[2];
+						if((Sc=delopt(T[1],"scale"|inv=1))!=[]){
+							Sc=car(Sc)[1];
+							if(type(Sc)==1) V=[Sc*V[0],Sc*V[1]]; 
+							else V=[Sc[0]*V[0],Sc[1]*V[1]];
+						}
+						if(LS==0) WS=ptbbox([V]);
+						else WS=ptbbox([V]|box=WS);
+						if(length(T)>4) S=T[4];
+						else if(type(S=T[3])==4) S=S[1];
+						if(str_len(S)>LS) LS=str_len(S);
+					}else if(T[0]==3||T[0]==4){
+						if(N++==0) W=ptbbox(cdr(cdr(T)));
+						else W=ptbbox(cdr(cdr(T))|box=W);
+					}
+				}
+			}
+			W=ptbbox([W,WS]|box=1);
+			if(LS==0) WS=[];
+			return (P[0]==-3)?[W,LS,WS]:W;
+		}else if(length(P)>1&&P[0]==-1){	/* set Bounding Box */
+			P=cons(0,cdr(P));
+			Ex=Sft=[0,0];
+			if(type(X=getopt(ext))==4) Ex=X;
+			if(type(X=getopt(shift))==4) Sft=X;
+			if(Ex!=Sft||Ex!=[0,0]){
+				if(Sft==[0,0]) Sft=[Ex];
+				else Sft=[Ex,Sft];
+				if(length(P)==3) Sft=cons(1,Sft);
+				if(length(P)==3||length(P)==4) P=append(P,Sft);
+			}
+			return cons(P,delopt(L,0));
+		}
+		if(P[0]==-4){
+			for(N=0,LT=L;LT!=[];LT=cdr(LT)){	/* count coord. */
+				T=car(LT);
+				if(T[0]==1){
+					for(T=cdr(cdr(T));T!=[];T=cdr(T)){
+						if(type((S=car(T))[0][0])==4) N+=length(S);
+						else for(;S!=[];S=cdr(S)) if(type(car(S))==4) N++;
+					}
+				}else if(T[0]==2) N++;
+				else if(T[0]==3||T[0]==4) N+=2;
+			}
+			return N;
+		}
+		if(P[0]==-5){						/* functions */
+			for(N=0,R=[],LT=L;LT!=[];LT=cdr(LT)){
+				T=car(LT);
+				if(T[0]==0) N=ior(N,1);
+				else if(type(T[0])==1){
+					if(T[0]>0) N=ior(N,2^T[0]);
+				}
+				else if(Type(T[0])==2){
+					if(findin(T[0],R)<0) R=cons(T[0],R);
+				}
+			}
+			for(I=5;I>=0;I--) if(iand(N,2^I)) R=cons(I,R);
+			return R;
+		}
+		return 0;
+	}
+
+	if(length(P)>1){
+		if(type(P[1])==6||(type(P[1])<2&&P[1]>0)) M=P[1];
+		else if(type(P[1])==4&&length(P[1])==2) M=diagm(2,P[1]);
+	}
+	if(length(P)>2&&type(P[2])==4){
+		Org=[["shift",P[2]]];
+		if(M==0) M=1;
+	}else Org=[];
+ 	if(P[0]==0||(type(P[0])==4&&P[0][0]==0)){		/* Risa/Asir */
+		PP=car(P);PPP=0;
+		if(type(PP)!=4) PP=[PP];
+		if(length(PP)<3){
+			if(length(PP)==1 || type(PP[1])==4){
+				if(ID_PLOT<0) ID_PLOT=ox_launch_nox(0,"ox_plot");
+				Id=ID_PLOT;
+				if(length(PP)>1){
+					PPP=PP[1][0];
+					PPQ=(length(PP[1])==2)?PP[1][1]:PPP;
+ 					open_canvas(Id,[PPP,PPQ]);
+				}else open_canvas(Id);
+				Ind=ox_pop_cmo(Id);
+			}else Ind=PP[1];
+		}else{
+			Id=PP[1];Ind=PP[2];
+			if(length(PP)>3 && type(PP[3])==1) PPP=PP[3];
+			if(length(PP)>4 && type(PP[4])==1) PPQ=PP[4];
+			if(getopt(cl)==1) clear_canvas(Id,Ind);
+		}
+		if(L==[]) return (PPP>0)? [0,Id,Ind,PPP,PPQ]:[0,Id,Ind];
+		Ex0=Ex0;Sft=[0,0];
+		if(length(P)>1&&P[1]==0&&length(P)<4){
+			R=execdraw(L,-3);
+			Ex0=Ex1=Ex2=10;
+			if((U=R[1])>0){		/* string */
+				if(U>20) U=16;					/* adj 16,8,2,7,15 */
+				if(R[0][0][0]==R[2][0][0]) Ex0+=8*U;
+				else Ex0+=2*U;
+				if(R[0][0][1]==R[2][0][1]) Ex1+=7*U;
+				else Ex1+=2*U;
+				if(R[0][1][1]==R[2][1][1]) Ex2+=15;
+			}
+			R=[R[0][0],R[0][1],0,[Ex0,Ex1],[0,-Ex2]];
+			if(length(P)>2 && P[2]==1)
+				mycat0(["Box:",[R[0],R[1]], ",  ext=",R[3],",  shift=",R[4]],1);
+		}else R=execdraw((length(P)>3)?P[3]:L,-2);	/* Windows */
+		XW=R[0];YW=R[1];
+		if(length(R)>3){
+			if(R[3]!=0 && R[3]!=[0,0]) Ex=R[3];
+			if(length(R)>4)	Sft=R[4];
+		}
+		if(type(X=getopt(ext))==4)
+			Ex=(Ex0)?[X[0]+Ex[0],X[1]+Ex[1]]:X;
+		if(type(M)<2){
+			if(length(P)>1&&type(P[1])==1) M=P[1];
+			else if((length(P)==1||P[1]==0)&& PPP>0) M=PPP;
+			if(M<2) M=300;
+			if(Ex!=0 && type(Ex)==4){
+				M-=Ex[0]+Ex[1];
+			}
+			M=(M/(XW[1]-XW[0]))*diagm(2,[1,-1]);
+		}
+		if(type(X=getopt(shift))==4) Sft=(Ex0)?[Sft[0]+X[0],Sft[1]+X[1]]:X;
+		if(type(Sft)==4) Sft=[Sft[0],-Sft[1]]; 
+		if(Ex!=0) Sft=[Sft[0]+Ex[0],Sft[1]];
+		Org=[["shift",ptaffine(M,[-XW[0],-YW[1]]|shift=Sft)]];
+		for(CT=0;CT<2;CT++){
+		  for(LT=L;LT!=[];LT=cdr(LT)){
+			T=car(LT);
+			if(!CT && T[0]!=2) continue;
+		  	if(CT && T[0]==2) continue;
+			if(T[0]==1){
+				for(TT=cdr(cdr(T));TT!=[];TT=cdr(TT)){
+					D=car(TT);
+					if(type(D[0][0])==4){
+						for(DT=D;DT!=[];DT=cdr(DT)){
+							V=car(DT);
+							if(M) V=ptaffine(M,V|option_list=Org);
+							draw_bezier(Id,Ind,V|option_list=T[1]);
+						}
+					}else{
+						if(M) D=ptaffine(M,D|option_list=Org);
+						draw_bezier(Id,Ind,D|option_list=T[1]);
+					}
+				}
+			}else if(T[0]==2&&length(T)>3){	/* put */
+				F++;V=T[2];
+				MM=M;
+				if((Sc=delopt(T[1],"scale"|inv=1))!=[]){
+					if(!MM) MM=1;
+					Sc=car(Sc)[1];
+					if(type(Sc)==1) MM=MM*Sc;
+					else if(type(Sc)==6) MM=MM*diagm(2,Sc);
+				}
+				if(MM) V=ptaffine(MM,V|option_list=Org);
+				if(type(S=S0=T[3])==4) S=S0[0];
+				if(length(T)>4) S=T[4];						/* subst. string */
+				if(type(S0)==4&&type(S0[0])==4){
+					if((Col=drawopt(S0[0][0],0))<0) Col=0;	/* attrib. */
+					if(type(S)!=7) S=rtostr(S0[1]);
+					if(type(Pos=drawopt(S0[0][0],2))==4)
+						V=[V[0]+4*str_len(S)*Pos[0],V[1]-10*Pos[1]]; /* adjustable */
+				}else S=rtostr(S);
+				S=str_subst(S,[["$\\bullet$","*"],["$\\times$","x"]],0);
+				V=[V[0]-str_len(S)*4,V[1]-8];	/* adjustable */
+				draw_string(Id,Ind,V,S,Col);
+			}else if(T[0]==3){	/* arrow */
+				F++;
+				T1=T[2];T2=T[3];
+				if(M){
+					T1=ptaffine(M,T1|option_list=Org);
+					T2=ptaffine(M,T2|option_list=Org);
+				}
+				draw_bezier(Id,Ind,[T1,T2]|option_list=T[1]);
+			}else if(T[0]==4){	/* line */
+				F++;
+				T1=T[2];T2=T[3];
+				if(M){
+					T1=ptaffine(M,T1|option_list=Org);
+					T2=ptaffine(M,T2|option_list=Org);
+				}
+				V=delopt(T1=T[1],"opt"|inv=1);
+				if(V!=[]&&str_str(V[1],".")>=0)
+					T1=cons(["opt",cons("dotted,",V[1])],delopt(T1,"opt"));
+				draw_bezier(Id,Ind,[T1,T2]|option_list=T1);
+			}else if(T[0]==5){	/* TeX */
+				mycat(rtostr(T[2]));
+/*				if(F){
+					S=str_tb(0,Out);
+					Out=str_tb(0,0);
+					F=0;
+					if(S!=""){
+						if(P[0]==2) dviout(xyproc(S)|keep=1);
+						else LOut=cons(xyproc(S),LOut);
+					}
+					if(P[0]==2)	dviout(T[2]|option_list=T[1]);
+					else{
+						LOut=cons(T[2],Out);
+					}
+				}
+*/
+			}else if(Proc==1&&type(T[0])==2){
+				if(length(T)<3) call(T[0],T[1]);
+				else call(T[0],T[1]|option_list=T[2]);
+			}
+		}
+	  }
+	  S=(PPP>0)? [0,Id,Ind,PPP,PPQ]:[0,Id,Ind];
+	  return (Ex0&&length(P)>2&&P[2]==-1)?
+		[S,0,0,[0,R[0],R[1],0,Ex,[Sft[0]-Ex[0],-Sft[1]]]]:S;
+	}
+	if(P[0]==1||P[0]==2){	/* TeX */
+		Out=str_tb(0,0);LOut=[];F=0;
+		if(getopt(cl)==1) dviout0(0);
+		for(;L!=[];L=cdr(L)){
+			T=car(L);Opt=T[1];
+			if(type(T[0])>=2) continue;
+			if(T[0]==0){
+				XW=T[1];YW=T[2];
+				if(length(P)>1&&type(P[1])==1&&P[1]<0)
+					M=-P[1]/(XW[0]-XW[1]);
+			}else if(T[0]==1){
+				F++;
+				for(TT=cdr(cdr(T));TT!=[];TT=cdr(TT)){
+					D=car(TT);
+					if(type(D[0][0])==4){
+						for(DT=D;DT!=[];DT=cdr(DT)){
+							V=car(DT);
+							if(M) V=ptaffine(M,V|option_list=Org);
+							str_tb(xybezier(V|option_list=Opt),Out);
+						}
+					}else{
+						if(M) D=ptaffine(M,D|option_list=Org);
+						str_tb(xybezier(D|option_list=Opt),Out);
+					}
+				}
+			}else if(T[0]==2){
+				F++;V=T[2];
+				Opt=delopt(Opt,"scale"|inv=1);
+				if(Opt!=[]){
+					Opt=car(Opt)[1];
+					if(type(Opt)==1) Opt=[Opt,Opt];
+					V=[Opt[0]*V[0],Opt[1]*V[1]];
+				}
+				if(M) V=ptaffine(M,V|option_list=Org);
+				if(length(T)>3) V=append(V,T[3]);
+				str_tb(xyput(V),Out);
+			}else if(T[0]==3){
+				F++;
+				T1=T[2];T2=T[3];
+				if(M){
+					T1=ptaffine(M,T1|option_list=Org);
+					T2=ptaffine(M,T2|option_list=Org);
+				}
+				str_tb(xyarrow(T1,T2|optilon_list=Opt),Out);
+			}else if(T[0]==4){
+				F++;
+				T1=T[2];T2=T[3];
+				if(M){
+					T1=ptaffine(M,T1|option_list=Org);
+					T2=ptaffine(M,T2|option_list=Org);
+				}
+				str_tb(xyline(T1,T2|optilon_list=Opt),Out);
+			}else if(T[0]==5){	
+				if(F){
+					S=str_tb(0,Out);
+					Out=str_tb(0,0);
+					F=0;
+					if(S!=""){
+						if(P[0]==2) dviout(xyproc(S)|keep=1);
+						else LOut=cons(xyproc(S),LOut);
+					}
+					if(P[0]==2)	dviout(T[2]|option_list=T[1]);
+					else LOut=cons(T[2],Out);
+				}
+			}else if(T[0]==-2)
+				str_tb(["%",T[1],"\n"],Out);
+			else if(Proc==1&&type(T[0])==2){
+				if(length(T)<3) call(T[0],T[1]);
+				else call(T[0],T[1]|option_list=T[2]);
+			}
+		}
+		S=str_tb(0,Out);
+		if(P[0]==1){
+			if(F) LOut=cons(xyproc(S),LOut);
+			Out=str_tb(0,0);
+			for(L=reverse(LOut);L!=[];L=cdr(L))
+				str_tb(car(L),Out);
+			return str_tb(0,Out);
+		}
+		if(F) dviout(xyproc(S));
+		else dviout(" ");
+	}
+}
+
+def execproc(L)
+{
+	if(type(N=getopt(var))!=1&&N!=0) N=2;
+	for(R=[];L!=[];L=cdr(L)){
+		P=car(L);
+		if(type(P[0])==2&&vtype(P[0])==3){
+			if((VS=vars(cdr(P)))!=[]){
+				for(I=0;I<N;I++){
+					V=makev(["v",I+1]);
+					if(findin(V,VS)>=0) P=subst(P,V,R[I]);
+				}
+			}
+			if(length(P)<3) R=cons(call(P[0],P[1]),R);
+			else R=cons(call(P[0],P[1]|option_list=P[2]),R);
+		}
+	}
+	return (getopt(all)==1)?R:car(R);
 }
 
 def mysubst(P,L)
@@ -2823,7 +3944,11 @@ def mysubst(P,L)
 	if(type(P) > 3){
 		if(type(P)>6)
 			return subst(P,L[0],L[1]);
+#ifdef	USEMODULE
+		return mtransbys(os_md.mysubst,P,[L]);
+#else
 		return mtransbys(mysubst,P,[L]);
+#endif
 	}
 	P = red(P);
 	if(type(P) == 3){
@@ -2847,21 +3972,22 @@ def mysubst(P,L)
 
 def mmulbys(FN,P,F,L)
 {
+	Opt=getopt();
 	if(type(F) <= 3){
 		if(type(P) <= 3)
-			return call(FN, cons(P,cons(F,L)));
+			return call(FN, cons(P,cons(F,L))|option_list=Opt);
 		if(type(P) == 5){
 			S = length(P);
 			R = newvect(S);
 			for(I = 0; I < S; I++)
-				R[I] = call(FN, cons(P[I],cons(F,L)));
+				R[I] = call(FN, cons(P[I],cons(F,L))|option_list=Opt);
 			return R;
 		}else if(type(P) == 6){
 			S = size(P);
 			R = newmat(S[0],S[1]);
 			for(I = 0; I < S[0]; I++){
 				for(J = 0; J < S[1]; J++)
-					R[I][J] = call(FN, cons(P[I][J],cons(F,L)));
+					R[I][J] = call(FN, cons(P[I][J],cons(F,L))|option_list=Opt);
 			}
 			return R;
 		}
@@ -2871,19 +3997,19 @@ def mmulbys(FN,P,F,L)
 		if(type(P) <= 3){
 			R = newvect(S);
 			for(I = 0; I < S; I++)
-				R[I] = call(FN, cons(P,cons(F[I],L)));
+				R[I] = call(FN, cons(P,cons(F[I],L))|option_list=Opt);
 			return R;
 		}
 		if(type(P) == 5){
 			for(J=R=0; J<S; J++)
-				R = radd(R, call(FN, cons(P[J],cons(F[J],L))));
+				R = radd(R, call(FN, cons(P[J],cons(F[J],L)))|option_list=Opt);
 			return R;
 		}
 		T = size(P);
 		R = newvect(T[0]);
 		for(I = 0; I < T[0]; I++){
 			for(J = 0; J < S; J++)
-				R[I] = radd(R[I], call(FN, cons(P[I][J],cons(F[J],L))));
+				R[I] = radd(R[I], call(FN, cons(P[I][J],cons(F[J],L))|option_list=Opt));
 		}
 		return R;
 	}
@@ -2893,7 +4019,7 @@ def mmulbys(FN,P,F,L)
 			R = newmat(S[0],S[1]);
 			for(I = 0; I < S[0]; I++){
 				for(J = 0; J < S[1]; J++)
-					R[I][J] = call(FN, cons(P,cons(F[I][J],L)));
+					R[I][J] = call(FN, cons(P,cons(F[I][J],L))|option_list=Opt);
 			}
 			return R;
 		}
@@ -2901,7 +4027,7 @@ def mmulbys(FN,P,F,L)
 			R = newvect(S[1]);
 			for(J = 0; J < S[1]; J++){
 				for(K = U = 0; K < S[0]; K++)
-					U = radd(U, call(FN, cons(P[K],cons(F[K][J],L))));
+					U = radd(U, call(FN, cons(P[K],cons(F[K][J],L))|option_list=Opt));
 				R[J] = U;
 			}
 			return R;
@@ -2911,7 +4037,7 @@ def mmulbys(FN,P,F,L)
 		for(I = 0; I < T[0]; I++){
 			for(J = 0; J < S[1]; J++){
 				for(K = U = 0; K < S[0]; K++)
-					U = radd(U, call(FN, cons(P[I][K],cons(F[K][J],L))));
+					U = radd(U, call(FN, cons(P[I][K],cons(F[K][J],L)|option_list=Opt)));
 				R[I][J] = U;
 			}
 		}
@@ -2936,7 +4062,11 @@ def appldo(P,F,L)
 		}
 		return R;
 	}
+#ifdef USEMODULE
+	return mmulbys(os_md.appldo,P,F,[L]);
+#else
 	return mmulbys(appldo,P,F,[L]);
+#endif
 }
 
 def appledo(P,F,L)
@@ -2952,7 +4082,11 @@ def appledo(P,F,L)
 		}
 		return R;
 	}
+#ifdef USEMODULE
+	mmulbys(os_md.appledo,P,F,[L]);
+#else
 	mmulbys(appledo,P,F,[L]);
+#endif
 }
 
 def muldo(P,Q,L)
@@ -2982,15 +4116,27 @@ def muldo(P,Q,L)
 		}
 		return R;
 	}
+#ifdef USEMODULE
+	return mmulbys(os_md.muldo,P,Q,[L]);
+#else
 	return mmulbys(muldo,P,Q,[L]);
+#endif
 }
 
 def adj(P,L)
 {
 	if(type(P) == 4)
+#ifdef USEMODULE
+		return map(os_md.adj,mtranspose(P),L);
+#else
 		return map(adj,mtranspose(P),L);
+#endif
 	if(type(L) == 4 && type(L[0]) == 4)
+#ifdef USEMODULE
+		return fmult(os_md.adj,P,L,[]);
+#else
 		return fmult(adj,P,L,[]);
+#endif
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
 	P = R = subst(P, DX, -DX);
@@ -3002,7 +4148,11 @@ def adj(P,L)
 def laplace1(P,L)
 {
 	if(type(L) == 4 && type(L[0]) == 4)
+#ifdef	USEMODULE
+		return fmult(os_md.laplace,P,L,[]);
+#else
 		return fmult(laplace,P,L,[]);
+#endif
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
 	P = adj(P, L);
@@ -3012,7 +4162,11 @@ def laplace1(P,L)
 def laplace(P,L)
 {
 	if(type(L) == 4 && type(L[0]) == 4)
+#ifdef	USEMODULE
+		return fmult(os_md.laplace1,P,L,[]);
+#else
 		return fmult(laplace1,P,L,[]);
+#endif
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
 	P = adj(P, L);
@@ -3114,7 +4268,11 @@ def rcotr(P,L,R)
 def muledo(P,Q,L)
 {
 	if(type(Q)>3)
+#ifdef USEMODULE
+		return mmulbys(os_md.muledo,P,Q,[L]);
+#else
 		return mmulbys(muledo,P,Q,[L]);
+#endif
 	R = P*Q;
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
@@ -3136,7 +4294,11 @@ def muledo(P,Q,L)
 def mulpdo(P,Q,L)
 {
 	if(type(Q)>3)
+#ifdef USEMODULE
+		return mmulbys(os_md.mulpdo,P,Q,[L]);
+#else
 		return mmulbys(mulpdo,P,Q,[L]);
+#endif
 	if(type(Lim=getopt(lim))!=1) Lim=100;
 	M = vweyl(car(L)); X= M[0]; DX = M[1];
 	L = cdr(L);
@@ -3166,7 +4328,11 @@ def mulpdo(P,Q,L)
 def mulpdo(P,Q,L);
 {
 	if(type(Q)>3)
+#ifdef USEMODULE
+		return mmulbys(os_md.mulpdo,P,Q,[L]);
+#else
 		return mmulbys(mulpdo,P,Q,[L]);
+#endif
 	if(type(Lim=getopt(lim))!=1) Lim=100;
 	N  = length(L);
 	VO = newvect(2*N);
@@ -3285,27 +4451,109 @@ def rpdiv(P,Q,X)
 	return [red(P*Lcm/Gcd), red(Lcm/Gcd),red(S*Lcm/Gcd)];
 }
 
+def texbegin(T,S)
+{
+	if(type(Opt=getopt(opt))==7) Opt="["+Opt+"]\n";
+	else Opt="\n";
+	return "\\begin{"+T+"}"+Opt+S+"%\n\\end{"+T+"}\n";
+}
+
 def mygcd(P,Q,L)
 {
-	if(L == 0){
-		if(type(P) > 1 || type(Q) > 1 || P <= 0 || Q <= 0
+	if((Dvi=getopt(dviout))==3 || Dvi==-3){	/* dviout=3 */
+		if((Rev=getopt(rev))!=1) Rev=0;
+		R=mygcd(P,Q,L|rev=Rev);
+		if(type(L)<2) Var=0;
+		else if(type(L)==2){
+			Val=L;L=[0,L];
+		}else if(type(L)==4){
+			L=vweyl(L);
+			Var=[[L[1],"\\partial"]]; 
+		}
+		S=mat([P],[Q]);T=mat([R[0]],[0]);
+		M=mat([R[1],R[2]],[R[3],R[4]]);
+		if(type(Val)==4)
+			N=mdivisor(M,L|trans=1)[1];
+		else N=myinv(M);
+		Tb=str_tb(mtotex(S|var=Var),0);
+		str_tb("&="+mtotex(N|var=Var)+mtotex(T|var=Var)+",\\\\\n",Tb);
+		str_tb(mtotex(T|var=Var),Tb);
+		str_tb("&="+mtotex(M|var=Var)+mtotex(S|var=Var)+".",Tb);
+		Out=str_tb(0,Tb);
+		if(Dvi<0) return Out;
+		dviout(Out|eq="align*");
+		return 1;
+	}
+	if((type(Dvi)==1||Dvi==0) && getopt(rev)!=1)	V=[[P,Q]];
+	else V=0;
+	if(L==0){	/* integer case */
+		if(type(P) > 1 || type(Q) > 1 || Q==0  /* P <= 0 || Q <= 0 */
 			|| dn(P) > 1 || dn(Q) > 1)
 			return 0;
 			CPP = CQQ = 1; CQP = CPQ = 0;
 			P1 = P; Q1 = Q;
 		/* P1 = CPP*P + CPQ*Q
-			 Q1 = CQP*P + CQQ*Q */
-		while(Q1 > 0){
+		   Q1 = CQP*P + CQQ*Q */
+		while(Q1 != 0){
 			Div1 = idiv(P1,Q1); Div2 = irem(P1,Q1);
+			if(type(V)==4) V=cons([Div1,Div2],V);
 			P1 = Q1 ; Q1 = Div2;
 			TP = CQP; TQ = CQQ;
 			CQP = CPP-Div1*CQP;
 			CQQ = CPQ-Div1*CQQ;
 			CPP = TP; CPQ = TQ;
 		}
+		if(V!=0){
+			V=reverse(V);
+			if((DVI=abs(Dvi))==0) return V;
+			PT=P;QT=Q;
+			if(DVI==1 || DVI==2){
+				Tb=str_tb(0,0);
+				for(C=0,V=cdr(V);V!=[];V=cdr(V)){
+					T=car(V);
+					if(C++) str_tb("\\allowdisplaybreaks\\\\\n",Tb);
+					if(DVI==1){
+						Qs=rtostr(QT);
+						if(QT<0) Qs="("+Qs+")";
+						if(T[1]>0) Qs=Qs+"+";
+						if(T[1]!=0) Qs=Qs+rtostr(T[1]);
+ 						str_tb(rtostr(PT)+"&="
+							+rtostr(T[0])+"\\times"+Qs,Tb);
+					}else{
+						N=mat([T[0],1],[1,0]);
+						if(C==1){
+							str_tb(S0=mtotex(mat([PT],[QT])),Tb);
+							M=N;
+						}
+						str_tb("&=",Tb); 
+						if(C>1) str_tb(mtotex(M),Tb);
+						str_tb(mtotex(N),Tb);
+						str_tb(S=mtotex(mat([QT],[T[1]])),Tb);
+						if(C>1){
+							str_tb("=",Tb);
+							str_tb(mtotex(M=M*N),Tb);
+							str_tb(S,Tb);
+						}
+					}
+					PT=QT;QT=T[1];
+				}
+				if(DVI==2){
+					str_tb(",\\allowdisplaybreaks\\\\\n"+S+"&=",Tb);
+					str_tb(mtotex(myinv(M)),Tb);
+					str_tb(S0,Tb);
+				}
+				Out=str_tb(0,Tb);
+				if(Dvi>0){
+					dviout(Out|eq="align*");
+					return 1;
+				}
+				return Out;
+			}
+		}
+		if(P1<0) return [-P1,-CPP,-CPQ,CQP,CQQ];
 		return [P1, CPP, CPQ, CQP, CQQ];
 	}
-	if(type(L) == 2)
+	if(type(L) == 2)	/* polynomical case */
 		L = [0,L];
 	if(getopt(rev)==1 && L[0]!=0){
 		R=mygcd(adj(P,L),adj(Q,L),L);
@@ -3315,23 +4563,107 @@ def mygcd(P,Q,L)
 		P = red(P); 
 	if(type(Q) == 3)
 		Q = red(Q);
-	CP=newvect(2,[dn(P),0]); CQ=newvect(2,[0,dn(Q)]);
-	P = nm(P); Q = nm(Q);
+	CP=newvect(2,[1/dn(P),0]); CQ=newvect(2,[0,1/dn(Q)]);
+	P=PT=nm(P); Q =QT=nm(Q);
 	L = vweyl(L);
 	while(Q != 0){
 		R = divdo(P,Q,L);
+		if(type(V)==4) V=cons(R,V);
+/* R[1] = R[2]*P - R[0]*Q
+		= R[2]*(CP[0]*P0+CP[1]*Q0) - R[0]*(CQ[0]*P0+CQ[1]*Q0) */
+/*
+  P(n)     |0        1 |  P(n-1)
+         = |           |
+  R[1]     |R[2]  -R[0]|  P(n)
+  P(n+1) = R[1], P(n) = P, P(n-1) = Q
+*/
 		P = Q;
 		Q = R[1];
-/* R[1] = R[2]*P - R[0]*Q
-		 = R[2]*(CP[0]*P0+CP[1]*Q0) - R[0]*(CQ[0]*P0+CQ[1]*Q0) */
 		{
 			CT = dupmat(CQ);
 			CQ = [R[2]*CP[0]-muldo(R[0],CQ[0],L),
-						R[2]*CP[1]-muldo(R[0],CQ[1],L)];
+					R[2]*CP[1]-muldo(R[0],CQ[1],L)];
 			CP = CT;
 		}
 	}
-	Q = rede(P,L); 
+	if(V!=0){
+		V=reverse(V);
+		if((DVI=abs(Dvi))==0) return V;
+		if(type(L[0])<1) Var=L[1];
+		else Var=[L[1],"\\partial"];
+		if(DVI==1 || DVI==2){
+			Tb=str_tb(0,0);
+			PT=car(V)[0];QT=car(V)[1];
+			for(C=0,V=cdr(V);V!=[];V=cdr(V)){
+				T=car(V);
+				if(C++) str_tb("\\allowdisplaybreaks\\\\\n",Tb);
+				if(DVI==1){
+					if(T[2]!=1){
+						str_tb(monototex(T[2]),Tb);
+						str_tb("(",Tb);
+						str_tb(fctrtos(PT|var=Var,TeX=2),Tb);
+						str_tb(")&=",Tb);
+					}else{
+						str_tb(fctrtos(PT|var=Var,TeX=2),Tb);
+						str_tb("&=",Tb);
+					}
+					str_tb("(",Tb);
+					str_tb(fctrtos(T[0]|var=Var,TeX=2),Tb);
+					str_tb(")(",Tb);
+					str_tb(fctrtos(QT|var=Var,TeX=2),Tb);
+					if(T[1]!=0){
+						str_tb(")+(",Tb);
+						str_tb(fctrtos(T[1]|var=Var,TeX=2),Tb);
+					}
+					str_tb(")",Tb);
+				}else{
+					N=mat([red(T[0]/T[2]),1],[1,0]);
+					if(C==1){
+						str_tb(S0=mtotex(mat([PT],[QT])|var=Var),Tb);
+						M=N;
+					}
+					str_tb("&=",Tb); 
+					if(C>1) str_tb(mtotex(M),Tb);
+					str_tb(mtotex(N|var=Var),Tb);
+					str_tb(S=mtotex(mat([QT],[T[1]])|var=Var),Tb);
+					if(C>1){
+						str_tb("=",Tb);
+						str_tb(mtotex(M=muldo(M,N,L)|var=Var),Tb);
+						str_tb(S,Tb);
+					}
+				}
+				PT=QT;QT=T[1];
+			}
+			if(DVI==2){
+				FT=fctr(PT);
+				for(R=1;FT!=[];FT=cdr(FT)){
+					if(mydeg(car(FT)[0],L[1])<1)
+						for(J=car(FT)[1];J>0;J--) R*=car(FT)[0];
+				}
+				if(R!=1){
+					str_tb("\\allowdisplaybreaks\\\\\n&=",Tb); 
+					M=muldo(M,mat([R,0],[0,1]),L);
+					str_tb(mtotex(M|var=Var),Tb);
+					str_tb(S=mtotex(mat([PT/R],[QT])|var=Var),Tb);
+				}
+				str_tb(",\\allowdisplaybreaks\\\\\n"+S+"&=",Tb);
+				if(type(Var)==4){
+					N=mdivisor(M,L|trans=1);
+					N=N[1];
+				}else
+					N=myinv(M);
+				str_tb(mtotex(N|var=Var),Tb);
+				str_tb(S0,Tb);
+			}
+			Out=str_tb(0,Tb);
+			if(Dvi>0){
+				dviout(Out|eq="align*");
+				return 1;
+			}
+			return Out;
+		}
+	}
+	Q = rede(P,L);
 	R = red(P/Q);
 	return [Q,red(CP[0]/R),red(CP[1]/R),red(CQ[0]/R),red(CQ[1]/R)];
 }
@@ -3370,7 +4702,11 @@ def sftpexp(P,LL,F,Q)
 def applpdo(P,F,LL)
 {
 	if(type(F)>3)
+#ifdef USEMODULE
+		return mmulbys(os_md.applpdo,P,F,[LL]);
+#else
 		return mmulbys(applpdo,P,F,[LL]);
+#endif
 	L = vweyl(LL[0]);
 	LL = cdr(LL);
 	Deg = deg(P,L[1]);
@@ -3418,29 +4754,37 @@ def tranlpdo(P,L,M)
 
 def divdo(P,Q,L)
 {
-	 L = vweyl(L);
-	 if(getopt(rev)==1){
-			R=divdo(adj(P,L),adj(Q,L),L);
-			return [adj(R[0],L),adj(R[1],L),R[2]];
-	 }
-	 X = L[0]; DX = L[1];
-	 S = 0;
-	 M = 1;
-	 I = mydeg(Q,DX);
-	 CQ = mycoef(Q,I,DX);
-	 while((J=mydeg(P,DX)) >= I){
-		 C = mycoef(P,J,DX); 
-		 SR = red(C/CQ);
+	if(L==0){
+		R=P-(P%Q)*Q;
+		if(R<0){
+			if(Q>0) R+=Q;
+			else R-=Q;
+		}
+		return [(P-R)/Q,R,1];
+	}
+	L = vweyl(L);
+	if(getopt(rev)==1){
+		R=divdo(adj(P,L),adj(Q,L),L);
+		return [adj(R[0],L),adj(R[1],L),R[2]];
+	}
+	X = L[0]; DX = L[1];
+	S = 0;
+	M = 1;
+	I = mydeg(Q,DX);
+	CQ = mycoef(Q,I,DX);
+	while((J=mydeg(P,DX)) >= I){
+	 C = mycoef(P,J,DX); 
+	 SR = red(C/CQ);
 		 if(dn(SR) != 1){
-			 M *= dn(SR);
-			 P *= dn(SR);
-			 S *= dn(SR);
-			 SR = nm(SR);
-		 }
-		 P -= muldo(SR*(DX)^(J-I),Q,L);
-		 S += SR*(DX)^(J-I);
-	 }
-	 return [S,P,M];
+			M *= dn(SR);
+			P *= dn(SR);
+		 	S *= dn(SR);
+			SR = nm(SR);
+		}
+		P -= muldo(SR*(DX)^(J-I),Q,L);
+		S += SR*(DX)^(J-I);
+	}
+	return [S,P,M];
 }
 
 def qdo(P,Q,L)
@@ -3448,10 +4792,10 @@ def qdo(P,Q,L)
 	L = vweyl(L); DX = L[1]; OD = deg(P,DX);
 	V = newvect(OD+1);
 	for(I = 0; I <= OD; I++){
-		 if(I)
-			 Q = muldo(DX,Q,L);
-		 S = divdo(Q,P,L);
-		 V[I] = S[1]*DX-S[2]*zz^I;
+		if(I)
+			Q = muldo(DX,Q,L);
+		S = divdo(Q,P,L);
+		V[I] = S[1]*DX-S[2]*zz^I;
 	}
 	for(K = [], I = OD; I >= 0; I--)
 		K = cons(DX^(I+1), K);
@@ -3625,6 +4969,95 @@ def seriesHG(A,B,X,N)
 		DN=dn(S0);
 		S=red((red(S*DN)+nm(S0))/DN);
 	}
+}
+
+def evalred(F)
+{
+	Opt=getopt(opt);
+	if(type(Opt)!=4){
+		 Opt=[];
+	}else if(length(Opt)==2 && type(Opt[0])!=4)	Opt=[Opt];
+	for(;;){
+		G=subst(F,sin(0),0,tan(0),0,asin(0),0,atan(0),0,sinh(0),0,tanh(0),0,
+			log(1),0,cos(0),1,cosh(0),1,exp(0),1);
+		for(Rep=Opt; Rep!=[]; Rep=cdr(Rep))
+			G=subst(G,car(Rep)[0],car(Rep)[1]);
+		Var=vars(G);
+		for(V=Var; V!=[]; V=cdr(V)){
+			if(functor(car(V))!=pow || (P=args(car(V))[0])!=1) continue;
+			G=subst(G,car(V),1);
+		}
+		if(G==F) return F;
+		F=G;
+	}
+}
+
+def seriesMc(F,N,V)
+{
+	if(type(V)<4) V=[V];
+	V=reverse(V);
+	L=length(V);
+	if(type(Opt=getopt(evalopt))!=4) Opt=[];
+	P=newvect(L);
+	G=newvect(L+1);
+	G[0]=F;
+	for(I=0;I<L;I++)
+		G[I+1]=eval(evalred(subst(G[I],V[I],0)|opt=Opt));
+	R=G[L];
+	for(;;){
+		for(M=0,I=0;I<L;I++){
+			M+=P[I];
+			if(M==N) break;
+		}
+		if(M<N){
+			P[L-1]++;
+			G[L-1]=mydiff(G[L-1],V[L-1]);
+			G[L]=eval(evalred(subst(G[L-1],V[L-1],0)|opt=Opt));
+		}else{
+			if(I--==0) break;
+			P[I]++;
+			G[I]=mydiff(G[I],V[I]);
+			while(I++<L){
+				G[I]=eval(evalred(subst(G[I-1],V[I-1],0)|opt=Opt));
+				if(I<L) P[I]=0;
+			}
+		}
+		K=1;
+		for(I=0;I<L;I++) K*=V[I]^P[I]/fac(P[I]);
+		R+=G[L]*K;
+	}
+	return R;
+}
+
+def seriesTaylor(F,N,V)
+{
+	G=F;
+	if(isvar(V)) V=[V];
+	if(length(V)==2 && type(car(V))!=4 && !isvar(V[1])) V=[V];
+	for(V0=V1=[];V!=[];V=cdr(V)){
+		if(type(T=car(V))!=4) T=[T];
+		V0=cons(X=car(T),V0);
+		if(length(T)==1 || T[1]==0){
+			V1=cons(X,V1);continue;
+		}
+		S=my_tex_form(-T[1]);
+		if(str_char(S,0,"-")!=0) S="+"+S;
+		S="("+my_tex_form(X)+S+")";
+		V1=cons([X,S],V1);
+		F=red(subst(F,T[0],T[0]+T[1]));
+	}
+	V0=reverse(V0);V1=reverse(V1);
+	F=seriesMc(F,N,V0|option_list=getopt());
+	if(getopt(frac)==0) F=frac2n(F);
+	T=getopt(dviout);
+	if(type(T)!=1) T=0;
+	F=fctrtos(F|var=V1,rev=1,TeX=(T==0||T==2)?2:3);
+	if(getopt(small)==1) F=str_subst(F,"\\frac{","\\tfrac{");
+	if(T<0 || T==1) F="\\begin{align}\\begin{split}\n"+
+		my_tex_form(G)+"&="+F+"+\\cdots\n\\end{split}\\end{align}\n";
+	if(T==1) dviout(F);
+	else if(T==1) dviout(F|eq=4);
+	return F;
 }
 
 def toeul(F,L,V)
@@ -4185,137 +5618,18 @@ def sub3e(P0,P1,P2,N0,N1,N)
 
 def fuchs3e(P,Q,R)
 {
-	S = N = N1 = N2 = 0;
-	V = -1;
-#if 0
-	L = newvect(3,[[],[],[]]);
-	N = newvect(3,[0,0,0]);
-	for(I = 2; I >= 0; I--){
-		if(I == 2)
-			U = R;
-		else if(I == 1)
-			U = Q;
-		else
-			U = P;
-		for( ; length(U); U = cdr(U)){
-			T = car(U);
-			if( T == "?"){
-				if(V < 0)
-					V = I;
-				else
-					return 0;
-			}else{
-				if(I == 2)
-					L[I] = cons(-T, L[I]);
-				else
-					L[I] = cons(T, L[I]);
-				S += T;
-			}
-			N[I]++;
-		}
-	}
-	if(N[0]!= N[2] || N[1] != N[2]){
-		print("Number of exponents are wrong",0);
-		return -1;
-	}
-	S -= N[2]*(N[2]-1)/2;
-	if(V < 0){
-		if(S != 0){
-			mycat(["Viorate Fuchs relation ->",S]);
-			return -2;
-		}
-	}else{
-		if(V != 2)
-			S = -S;
-		L[V] = cons(S, L[V]);
-	}
-	for(I = 0; I <= 2; I++)
-		L[I] = polinsft(polbyroot(L[I],x),x);
-	return sub3e(L[0],L[1],L[2],N[0],N[1],N[2]);
-#else
-	L0 = [];
-	L1 = [];
-	L2 = [];
-	while(T = car(R), R = cdr(R), R != []){
-		if( T == "?"){
-			if(V < 0)
-				V = 2;
-			else
-				return 0;
-		}else{
-			L2 = cons(-T, L2);
-			S += T;
-		}
-		N++;
-	}
-	while(T = car(P), P = cdr(P), P != []){
-		if( T == "?"){
-			if(V < 0)
-				V = 0;
-			else
-				return 0;
-		}else{
-			L0 = cons(T, L0);
-			S += T;
-		}
-		N1++;
-	}
-	while(T = car(Q), Q = cdr(Q), Q != []){
-		if( T == "?"){
-			if(V < 0)
-				V = 1;
-			else
-				return 0;
-		}else{
-			L1 = cons(T, L1);
-			S += T;
-		}
-		N2++;
-	}
-	if(N0 != N || N1 != N){
-		print("Number of exponents are wrong!",0);
-		return -1;
-	}
-	S -= N*(N-1)/2;
-	if(V < 0){
-		if(S != 0){
-			mycat(["Viorate Fuchs relation!",S]);
-			return -2;
-	}else if(V == 0)
-		L0 = cons(-S, L0);
-	else if(V == 1)
-		L1 = cons(-S, L1);
-	else
-		L2 = cons(S, L2);
-	P0 = pol2sft(polbyroot(L0,x),x);
-	P1 = pol2sft(polbyroot(L1,x),x);
-	P2 = pol2sft(polbyroot(L2,x),x);
-	R = x^N*(x-1)^N*dx^N;
-	for(V = I = 1, J = 1; I <= N; I++){
-		S = T = mycoef(P0,N0-I,x);
-		R += T*x^(N-I)*(x-1)^N*dx^(N-I);
-		K1 = N-I+1;
-		T = mycoef(P1,N1-I,x);
-		S += T;
-		R += T*x^N*(x-1)^(N-I)*dx^(N-I);
-		K2 = N-1;
-		for(S = 0, K = N-I+1; K < N; K++){
-				if(K == N-1)
-					R += (mycoef(P2,N-I,x)-S)*x^K*(x-1)^(2*N-K-I)*dx^(N-I);
-					continue;
-				}
-				R += strtov("r"+rtostr(V))*x^K*(x-1)^(2*N-K-I)*dx^(N-I);
-				S += strtov("r"+rtostr(V++));
-		}
-	}
-	if(V > 1)
-		mycat([V-1, "accessory parameters: r1,r2,..."]);
-	return R;
-#endif
+	return getbygrs([R,P,Q],3);
 }
 
 def okubo3e(P,Q,R)
 {
+	if(getopt(opt)==1){
+		N=length(R);
+		M1=N-length(P);M2=N-length(Q);
+		V=(M1-1)*(M2-1);
+		if(V>0) mycat([V, "accessory parameters"]);
+		return getbygrs([R,cons([M1,0],P),cons([M2,0],Q)],3);
+	}
 	S = 0;
 	V = -1;
 	L = newvect(3,[[],[],[]]);
@@ -4963,18 +6277,15 @@ def fspt(M,T)
 			if(T==7) return [ALL[0],ALL[length(ALL)-1],RD];
 			return (T==1)?MN:ALL;
 		}
-/* */
 		RD=cons([S,0,0],RD);
 		for(NP=0, M = [], MT = MN; MT != []; NP++, MT = cdr(MT)){
 			MTT = car(MT);
 			I = MTT[0] - S; 
-/* mycat([MNT, " ", MT, " ", I]); */
 			if(I < 0){
 				if(I+OD!=0) return 0;
 				if(T==7) return [ALL[0],ALL[length(ALL)-1],cdr(RD)];
 				return (T==1)?MN:ALL;
 			}
-/*    return cdr(RD);  */
 			MTT = cdr(MTT);
 			NC=1; DO=0; 
 			for(MNT = []; MTT != []; MTT = cdr(MTT)){
@@ -4996,14 +6307,17 @@ def fspt(M,T)
 		}
 		MN = reverse(M);
 		ALL = cons(MN,ALL);
-/* print(MN); */
 		OD -= S;
 	}
 }
 
 def abs(X)
 {
-	if(type(X)==1 && X<0) X=-X;
+	if(type(X)==1){
+		if((T=ntype(X))<2 || T==3){
+			if(X<0) X=-X;
+		}else if(T==4) X=pari(abs,X);
+	}
 	return X;
 }
 
@@ -5044,6 +6358,12 @@ def isint(X)
 	return 0;
 }
 
+def israt(X)
+{
+	if(X==0||(type(X)==1 && ntype(X)==0)) return 1;
+	return 0;
+}
+
 def isalpha(X)
 {
 	return ((X>64&&X<91)||(X>96&&X<123))?1:0;
@@ -5061,7 +6381,7 @@ def isalphanum(X)
 
 def isvar(X)
 {
-	return ([X]==vars(X))?1:0;
+	return ([X]==vars(X)&&vtype(X)<3)?1:0;
 }
 
 def isyes(F)
@@ -5213,7 +6533,11 @@ def sproot(MP,T)
 						 if(S>1) str_tb(")",Out); 
 						 str_tb(" \\oplus ",Out);
 						 if(SS[I]<0){
+#ifdef USEMODULE
+							 str_tb(["-(",s2sp(mtransbys(os_md.abs,car(R)[1],[])),")"],Out);
+#else
 							 str_tb(["-(",s2sp(mtransbys(abs,car(R)[1],[])),")"],Out);
+#endif
 						 }else
 							 str_tb(s2sp(car(R)[1]),Out);
 					 }else
@@ -5614,7 +6938,21 @@ def terms(P,L)
 		R0=cons(cons(S,car(R)),R0);
 	}
 	if(Dic==1) return R0;
+	if(Rev==1){
+		for(R=[];R0!=[];R0=cdr(R0)){
+			T=car(R0);
+			R=cons(cons(-car(T),cdr(T)),R);
+		}
+		R0=R;
+	}
 	R0=qsort(R0);
+	if(Rev==1){
+		for(R=[];R0!=[];R0=cdr(R0)){
+			T=car(R0);
+			R=cons(cons(-car(T),cdr(T)),R);
+		}
+		R0=R;
+	}
 	return (Rev==1)?R0:reverse(R0);
 }
 
@@ -5765,6 +7103,25 @@ def mcgrs(G, R)
 	return G;
 }
 
+def delopt(L,S)
+{
+	if((Inv=getopt(inv))!=1) Inv=0;
+	if(type(S)==4){
+		if(!Inv){
+			for(;S!=[];S=cdr(S)) L=delopt(L,car(S)|option_list=getopt());
+			return L;
+		}
+		for(R=[];S!=[];S=cdr(S))
+			R=cons(delopt(L,car(S)|inv=1),R);
+		return reverse(R);
+	}
+	for(R=[];L!=[];L=cdr(L)){
+		F=(type(car(L))==4 && car(L)[0]==S)?1:0;
+		if(F==Inv) R=cons(car(L),R);
+	}
+	return reverse(R);
+}
+
 def str_char(S,N,L)
 {
 	if(type(S)==7){
@@ -5790,11 +7147,12 @@ def str_pair(S,N,I,J)
 	if(type(I)==7)	I=(II=strtoascii(I))[0];
 	if(type(J)==7)	J=(JJ=strtoascii(J))[0];
 	if(type(S)==7)	S=strtoascii(S);
+	if((SJIS=getopt(sjis))!=1) SJIS=0;
 	if((II!=0&&length(II)>1)||(JJ!=0&&length(JJ)>1)){
 		for(;;){
-			MJ=str_str(S,N|top=JJ);
+			MJ=str_str(S,N|top=JJ,sjis=SJIS);
 			if(MJ>=0){
-				MI=str_str(S,II|top=N);
+				MI=str_str(S,II|top=N,sjis=SJIS);
 				if(MI<0 || MI>MJ){
 					if(C==0) return MJ;
 					C--; N=MJ+length(II);
@@ -5907,6 +7265,33 @@ def str_str(S,T)
 	return -1;
 }
 
+def str_times(S,N)
+{
+	if(!isint(N))	return "";
+	if(type(S)==7){
+		for(Tb=str_tb(0,0);N-->0;)
+			str_tb(S,Tb);
+		return str_tb(0,Tb);
+	}
+	if(type(S)==4){
+		for(LT=[],I=0;I<N;I++){
+			if(type(car(S))==7){
+				LT=cons(car(S),LT);
+				S=cdr(S);
+				if(S==[]) S=[[""]];
+			}else if(type(car(S))==4){
+				ST=car(S);
+				for(J=0;I<N;I++){
+					if(J==length(ST)) J=0;
+					LT=cons(ST[J++],LT);
+				}
+			}
+		}
+		return reverse(LT);
+	}
+	return S;
+}
+
 def ssubgrs(M,L)
 {
 	if(type(L)==7) L=s2sp(L);
@@ -5916,6 +7301,316 @@ def ssubgrs(M,L)
 		 }
 	}
 	return S;
+}
+
+def s2os(S)
+{
+	return str_subst(S,[["\\","\\\\"],["\"","\\\""]],0);
+}
+
+def l2os(S)
+{
+	if(type(S)==6)
+		S=m2ll(S);
+	else if(type(S)==5)
+		S=vtol(S);
+	else if(type(S)==7) return "\""+s2os(S)+"\"";
+	else if(type(S)<4) return rtostr(S);
+	if(type(S)==4){
+		for(F=0,Tb=str_tb("[",0);S!=[];S=cdr(S)){
+			if(F++) str_tb(", ",Tb);
+			str_tb(l2os(car(S)),Tb);
+		}
+		str_tb("]",Tb);
+		return str_tb(0,Tb);
+	}
+	return 0;
+}
+
+def r2os(S)
+{
+	if(type(S)==6){
+		for(T="",S=m2ll(S);S!=[];S=cdr(S)){
+			if(T!="") T=T+","+r2os(car(S));
+			else T=r2os(car(S));
+		}
+		return "mat("+T+")\n";
+	}else if(type(S)==5){
+		for(T="",S=v2l(S);S!=[];S=cdr(S)){
+			if(T!="") T=T+","+r2os(car(S));
+			else T=r2os(car(S));
+		}
+		return "vect("+T+")\n";
+	}else if(type(S)<4) return rtostr(S);
+	else if(type(S)==4){
+		for(T="";S!=[];S=cdr(S)){
+			if(T!="") T=T+","+r2os(car(S));
+			else T=r2os(car(S));
+		}
+		return "["+T+"]";
+	}else if(type(S)==7) return "\""+s2os(S)+"\"";
+	return "";
+}
+
+def s2euc(S)
+{
+	for(R=[],CR=0,L=strtoascii(S);L!=[];L=cdr(L)){
+		if((C=car(L)) == 0x1b && length(L)>1) {
+			if((C=car(L=cdr(L)))==0x24 && length(L)>1){	/* $ */
+				if((C = car(L=cdr(L))) == 0x40 || C == 0x42) {	/* @, B */
+					Mode = 1;
+				} else return 0;
+			}else if(C == 0x28 && length(L)>1) {	/* ( */
+				if((C = car(L=cdr(L)))== 0x42 || C == 0x4a) {  /* B, J */
+					Mode = 0;
+				}else if(C == 0x49) {	/* I */
+					Mode = 2;
+				}else{
+					R=cons(0x1b,R);R=cons(0x28,R);R=cons(C,R);
+				}
+			}else if (C == 0x26 && length(L)>1 && car(cdr(L))==0x1b) { /* & ESC */
+				L=cdr(L);
+			}else{
+				R=cons(0x1b,R);R=cons(C,R);
+			}
+		}else if(C == 0x0e) {
+			Mode = 2;
+        }else if(C == 0x0f) {
+            Mode = 0;
+		}else if(Mode == 1 && C>0x20 && C<0x7f && length(L)>1) {	/* JIS KANJI */
+			D=car(L=cdr(L));
+			if(D>0x20 && D<0x7f) {
+				R=cons(ior(C,0x80),R);R=cons(ior(D,0x80),R);
+			} else return 0;
+		}else if(Mode == 2 && C > 0x1f && C < 0x60) {			/* JIS KANA */
+			R=cons(0x8e,R);  R=cons(ior(C,0x80),R);
+		}else if(((C>0x80 && C<0xa0) || (C>0xdf && C<0xf0)) && length(L)>1) {	/* ShiftJIS */
+			D=car(L=cdr(L));
+			if(D>0x3f && D<0xfd && D!=0x7f) {
+				T=sjis2jis([C,D]);
+				R=cons(ior(T[0],0x80),R); R=cons(ior(T[1],0x80),R);
+			}else return 0;
+		}else if(C>0x9f && C<0xe0) {		/* HanKana */
+			R=cons(0x8e,R);  R=cons(C,R);
+		}else if(C == 0x0a){
+			CR++;
+		}else if(C == 0x0d){
+			R=cons(0x0d,R);
+			CR=0;
+		}else{
+			while(CR-->0) R=cons(0x0d,R);
+			R=cons(C,R);
+		}
+	}
+	while(CR-->0) R=cons(0x0d,R);
+	return asciitostr(reverse(R));
+}
+
+def s2sjis(S)
+{
+	for(R=[],CR=0,L=strtoascii(S);L!=[];L=cdr(L)){
+		if((C=car(L)) == 0x1b && length(L)>1) {
+			if((C=car(L=cdr(L)))==0x24 && length(L)>1){	/* $ */
+				if((C = car(L=cdr(L))) == 0x40 || C == 0x42) {	/* @, B */
+					Mode = 1;
+				} else return 0;
+			}else if(C == 0x28 && length(L)>1) {	/* ( */
+				if((C = car(L=cdr(L)))== 0x42 || C == 0x4a) {  /* B, J */
+					Mode = 0;
+				}else if(C == 0x49) {	/* I */
+					Mode = 2;
+				}else{
+					R=cons(0x1b,R);R=cons(0x28,R);R=cons(C,R);
+				}
+			}else if (C == 0x26 && length(L)>1 && car(cdr(L))==0x1b) { /* & ESC */
+				L=cdr(L);
+			}else{
+				R=cons(0x1b,R);R=cons(C,R);
+			}
+		}else if(C == 0x0e) {
+			Mode = 2;
+        }else if(C == 0x0f) {
+            Mode = 0;
+		}else if(Mode == 1 && C>0x20 && C<0x7f && length(L)>1) {	/* JIS KANJI */
+			D=car(L=cdr(L));
+			if(D>0x20 && D<0x7f) {
+				T=jis2sjis([C,D]);
+				R=cons(T[0],R);R=cons(T[1],R);
+			} else return 0;
+		}else if(Mode == 2 && C > 0x1f && C < 0x60) {			/* JIS KANA */
+			R=cons(ior(C,0x80),R);
+		}else if(C>0xa0 && C<0xff && length(L)>1) {				/* EUC */
+			D=car(L=cdr(L));
+			if(D>0xa0 && D<0xff) {
+				T=jis2sjis([iand(C,0x7f),iand(D,0x7f)]);
+				R=cons(T[0],R);R=cons(T[1],R);
+			}else return 0;
+		}else if(C == 0x0a){
+			CR++;
+		}else if(C == 0x0d){
+			R=cons(0x0a,R);R=cons(0x0d,R);
+			CR=0;
+		}else{
+			while(CR-->0){
+				R=cons(0x0a,R);R=cons(0x0d,R);
+			}
+			R=cons(C,R);
+		}
+	}
+	while(CR-->0){
+		R=cons(0x0a,R);R=cons(0x0d,R);
+	}
+	return asciitostr(reverse(R));
+}
+
+def r2ma(S)
+{
+	return evalma(S|inv=1);
+}
+
+def evalma(S)
+{
+	L0=["\n","\d","{","}","[","]","Log","Exp","Sinh","Cosh","Tanh","Sin","Cos","Tan",
+		"ArcSin","ArcCos","ArcTan"];
+	L1=["",  ""  ,"[","]","(",")","log","exp","sinh","cosh","tanh","sin","cos","tan",
+		"asin",  "acos", "atan"]; 
+	if(getopt(inv)==1){
+		if(type(S)==6) S=m2ll(S);
+		else if(type(S)==5) S=vtol(S);
+		if(type(S)==4){
+			for(L=[];S!=[];S=cdr(S)){
+				if(type(car(S))==6) L=cons(m2ll(car(S)),L);
+				else if(type(car(S))==5) L=cons(vtol(car(S)),L);
+				else L=cons(car(S),L);
+			}
+			S=reverse(L);
+		}else return 0;
+		return str_subst(rtostr(S),cdr(cdr(L1)),cdr(cdr(L0)));
+	}
+	if(S==0){
+		print("Mathematica text (terminated by ;) ?");
+		purge_stdin();
+		Tb=str_tb(0,0);
+		for(;;){
+			S=get_line();
+			str_tb(S,Tb);
+			if(str_char(S,0,";")>=0) break;
+		}
+		S=str_tb(0,Tb);
+	}
+/*
+	while((P=str_chr(S,0,";"))>=0){
+		V0=evalma(str_cut(S,0,P+1));
+		S=str_cut(S,P+1,length(S));
+	}
+	if((P=str_char(S,0,"="))>=0){
+		X=strtoascii(str_cut(S,0,P));
+		L=length(X);
+		for(P0=P1=-1,I=0;I<L;I++){
+			if(L(I)<=32) continue;
+			if(isalphanum(L[I])){
+				if(P0<0){
+					if(isnum(L[I])) break;
+					P0=I;
+				}
+				else if(P1!=I+1) break;
+				P1=I;
+			}
+		}
+		if(I==L && P0>=0){
+			for(I==P0;I-->0;) X=cdr(X);
+			if((X0=car(X))>96) X0-=32;
+			Y=[X0];X=cdr(X);
+			for(I=P1-P0;I-->0;X=cdr(X))
+				Y=cons(car(X),Y);
+			Y=cons(61,Y);
+			Var=asciitostr(reverse(Y));
+			S=str_cut(S,P,length(S));
+		}
+	}
+*/
+	S=eval_str(str_subst(S,L0,L1));
+	if(type(S)==4){
+		for(L=-1,T=S;T!=[];T=cdr(T)){
+			if(type(T0=car(T))>4) break;
+			if(type(T0)<4){
+				if(L>=0) break;
+				L=-2;continue;
+			}
+			if(L<-2) break;
+			if(L==-1) L=length(T0);
+			else if(L!=length(T0)) break;
+		}
+		if(T==[]){
+			if(L>0) S=s2m(S);
+			else S=ltov(S);
+		}
+	}
+/*
+	if(S==0 && V0!=0) return V0;
+	if(type(Var)==7){
+		T=rtostr(S);
+		if(type(S)==7) T="\""+T+"\"";
+		S=eval_str(Var+T);
+		mycat(["Define",Var]);
+	}
+*/
+	return S;
+}
+
+def i2hex(N)
+{
+	Opt=getopt();
+	if(type(N)==4 && isint(car(N))){
+#ifdef USEMODULE
+		L=mtransbys(os_md.i2hex,N,[]|option_list=Opt);
+#else
+		L=mtransbys(i2hex,N,[]|option_list=Opt);
+#endif
+		return rtostr(L);
+	}
+	if(!isint(N) || N<0) return 0;
+	if(!N) L=[];
+	else{
+		Cap=(getopt(cap)==1)?32:0;
+		for(L=[];N!=0;N=ishift(N,4)){
+			J=iand(N,15);
+			L=cons(((J>9)?(87-Cap):48)+J,L);
+		}
+	}
+	if(!isint(Min=getopt(min))) Min=2;
+	for(Min-=length(L);Min-->0;)
+		L=cons(48,L);
+	if(getopt(num)==1){
+		L=cons(120,L);L=cons(48,L);
+	}
+	return asciitostr(L);
+}
+
+def sjis2jis(L)
+{
+	L1=L[1];
+	if((L0=L[0])<=0x9f){
+		if(L1<0x9f) L0=L0*2-0xe1;
+		else L0=(L0*2)-0xe0;
+	}else{
+		if(L1<0x9f) L0=L0*2-0x161;
+		else L0=L0*2-0x160;
+	}
+	if(L1<0x7f) return [L0,L1-0x1f];
+	else if(L1<0x9f) return [L0,L1-0x20];
+	return [L0,L1-0x7e];
+}
+
+def jis2sjis(L)
+{
+	L1=L[1];
+	if(iand(L0=L[0],1)){
+		if(L1<0x60) L=[L1+0x1f];
+		else L=[L1+0x20];
+	}else L=[L1+0x7e];
+	if(L0<0x5f) return cons(ishift(L0+0xe1,1),L);
+	return cons(ishift(L0+0x161,1),L);
 }
 
 def verb_tex_form(P)
@@ -5939,6 +7634,7 @@ def verb_tex_form(P)
 def my_tex_form(S)
 {
 	if(getopt(skip) != 1){
+		if(type(S)==1 && S<0)	return "-"+print_tex_form(-S);
 		S = print_tex_form(S);
 		for(F=Top=0;(L=str_str(S,"\\verb`"|top=Top))>=0;Top=LV+1){
 			F++;
@@ -5949,19 +7645,54 @@ def my_tex_form(S)
 			str_tb([verb_tex_form(sub_str(S,L+6, LV-1)),"}"], Tb);
 			Top=LV+1;
 		}
-		str_tb(my_tex_form(sub_str(S, Top,str_len(S)-1)|skip=1), Tb);
-		if(F>0)	return tb_to_string(Tb);
+		if(F>0){
+			str_tb(my_tex_form(sub_str(S, Top,str_len(S)-1)|skip=1), Tb);
+			return tb_to_string(Tb);
+		}
 	}
 	if(S==0) return "";
 	S = ltov(strtoascii(S));
 	L = length(S)-1;
 	while(L >= 1 && S[L] == 10)
 		L--;
-	for(I = L, T = 0, SS = [S[I]]; --I >= 0; ){
-		if(S[I] == 32){
+	if((Fr=getopt(frac))!=0 && Fr!=1) Fr=2;
+	for(I = L+1, T = K = 0, SS = []; --I >= 0; ){
+		if(S[I] == 32 && I!=L){
+			if(I==L) continue;
 			if(findin(S[I+1], [32,40,41,43,45,123,125]) >= 0  /* " ()+-{}" */
 				|| (S[I+1] >= 49 && S[I+1] <= 57))  /* 1 - 9 */
-				if(I == 0 || S[I-1] >= 32) continue;
+					if(I == 0 || S[I-1] >= 32) continue;
+		}
+		if(Fr && S[I]>=48 && S[I]<=57){	/* 2/3 -> \tfrac{2}{3} */
+			for(K=0,II=I; II>=0; II--){
+				if(S[II]>=48 && S[II]<=57) continue;
+				if(S[II]==47){	/* / */
+					if(K>0) break;
+					K=II;
+				}else break;
+			}
+			if(K>II+1){
+				SS=cons(125,SS);
+				for(J=I; J>K; J--) SS=cons(S[J],SS);
+				if(AMSTeX){
+					SS=cons(123,SS);SS=cons(125,SS);
+				}else{
+					for(J=[114,101,118,111,92];J!=[];J=cdr(J))	/* \over */
+						SS=cons(car(J),SS);
+				}
+				for(J=K-1;J>II;J--) SS=cons(S[J],SS);
+				SS=cons(123,SS);
+				if(AMSTeX){
+					J=(Fr==2)?[99,97,114,102,116,92]:[99,97,114,102,92];
+					for(;J!=[];J=cdr(J))	/* \tfrac */
+						SS=cons(car(J),SS);
+				}
+				I=II+1;
+			}else{
+				for(;I>II;I--) SS = cons(S[I], SS);
+				I++;
+			}
+			continue;
 		}
 		SS = cons(S[I], SS);
 	}
@@ -5979,14 +7710,24 @@ def my_tex_form(S)
 				for(K = J; K < I && S[K] == 123; K++);
 				if(K == I){
 					if(J-- <= 0 || S[J] < 65 || S[J] > 122 || (S[J] > 90 && S[J] < 97)){
-						SS = cons(S[I], SS);
+						SS = cons(S[I],SS);
 						L = J+1;
 						continue;
 					}
 				}
 			}
 		}
-		SS = cons(S[L], SS);
+		SS = cons(S[L],SS);
+	}
+	for(Top=0;;Top++){	/* ((x+1))^{y} */
+		if((P=str_str(SS,"))^"|top=Top))<0 || (Q=str_str(SS,"(("|top=Top,end=P))<0) break; 
+		if(str_pair(SS,Q+1,"(",")")!=P+1) continue;
+		for(I=0,S=[];SS!=[];SS=cdr(SS),I++){
+			if(I==P || I==Q) continue;
+			S=cons(car(SS),S);
+		}
+		SS=reverse(S);
+		Top=P;
 	}
 	return asciitostr(SS);
 }
@@ -6034,6 +7775,9 @@ def str_subst(S, L0, L1)
 			LT = cons(strtoascii(car(L1)), LT);
 		L1 = ltov(LT);
 	}
+	if(getopt(inv)==1){
+		L2=L0;L0=L1;L0=L2;
+	}
 	if((SJIS=getopt(sjis))!=1) SJIS=0;
 	for(J = JJ = 0, ST = []; J < SE; J++){
 		SP = S[J];
@@ -6060,15 +7804,47 @@ def str_subst(S, L0, L1)
 
 def dviout0(L)
 {
+	Cmd=["TikZ","TeXLim","TeXEq","DVIOUT","XYPrec","XYcm","XYLim"];
+	if(type(Opt=getopt(opt))==7){
+		if((F=findin(Opt,Cmd)) < 0) return -1;
+		if(L==-1){
+			if(F<=3){
+				if(F==0) V=TikZ;
+				else if(F==1) V=TeXLim;
+				else if(F==2) V=TeXEq;
+				else V=iand(DVIOUTF,1);
+			}else{
+				if(F==4) V=XYPrec;
+				else if(F==5) V=XYcm;
+				else V=XYLim;
+			}
+			return V;
+		}
+		if(F==0) TikZ=L;
+		else if(F==2) TeXEq=L;
+		else if(F==3){
+			if(iand(DVIOUTF,1)==L)
+				mycat0(["DVIOUTA=\"", DVIOUTA,"\""],1);
+			else dviout0(4);
+			return 1;
+		}else if(L>0){
+			if(F==1) TeXLim=L;
+			else if(F==4) XYPrec=L;
+			else if(F==5) XYcm=L;
+			else if(F==6) XYLim=L;
+		}
+		mycat0([Cmd[F],"=",L],1);
+		return 1;
+	}
 	if(type(L) == 4){
-		for( ; L != []; L = cdr(L))
-			dviout0(car(L));
+		for( ; L != []; L = cdr(L)) dviout0(car(L));
 		return 1;
 	}
 	if(type(L) == 7){
-		if(L == "")
-			L = " ";
-		dviout(L|keep=1,clear=1);
+		if(L=="")  dviout(" \n"|keep=1);
+		else if(L=="cls")  dviout0(0);
+		else if(L=="show") dviout(" ");
+		else dviout("\\"+L+"\n"|keep=1);
 		return 1;
 	}
 	if(L == 0)
@@ -6082,13 +7858,28 @@ def dviout0(L)
 	else if(L < 0)
 		dviout(" "|delete=-L,keep=1);
 	else if(L == 3){
-		mycat(["DIROUT =", DIROUT]);
-		mycat(["DVIOUTH=", DVIOUTH]);
-		mycat(["DVIOUTA=", DVIOUTA]);
-		mycat(["DVIOUTL=", DVIOUTL]);
+		mycat0(["DIROUT =\"", DIROUT,"\""],1);
+		mycat0(["DVIOUTH=\"", DVIOUTH,"\""],1);
+		mycat0(["DVIOUTA=\"", DVIOUTA,"\""],1);
+		mycat0(["DVIOUTB=\"", DVIOUTB,"\""],1);
+		mycat0(["DVIOUTL=\"", DVIOUTL,"\""],1);
 		mycat(["TeXLim =", TeXLim]);
 		mycat(["TeXEq  =", TeXEq]);
 		mycat(["AMSTeX =", AMSTeX]);
+		mycat(["TikZ   =", TikZ]);
+		mycat(["XYPrec =", XYPrec]);
+		mycat(["XYcm   =", XYcm]);
+		mycat(["XYLim  =", XYLim]);
+	}else if(L==4){
+		Tmp=DVIOUTA; DVIOUTA=DVIOUTB; DVIOUTB=Tmp;
+		mycat0(["DVIOUTA=\"", DVIOUTA,"\""],1);
+		DVIOUTF++;
+	}else if(L==5){
+		if(!iand(DVIOUTF,1)) dviout0(4);
+	}else if(L==6){
+		TikZ=1;mycat("TikZ=1");
+	}else if(L==7){
+		TikZ=0;mycat("TikZ=0");
 	}
 	return 1;
 }
@@ -6159,6 +7950,87 @@ def isMs()
 	else return 0;
 }
 
+def tocsv(L)
+{
+	if(type(L)==6) L=m2ll(L);
+	else if(type(L)==5) L=vtol(L);
+	Null=getopt(null);
+	Tb=str_tb(0,0);
+	for(LL=L; LL!=[]; LL=cdr(LL)){
+		LT=car(LL);
+		if(type(LT)==5) LT=vtol(LT);
+		if(type(LT)<4) LT=[LT];
+		for(N=0; LT!=[]; LT=cdr(LT),N++){
+			if(N) str_tb(", ",Tb);
+			if((T=car(LT))==Null) continue;
+			if(type(T)==7){
+				K=str_len(T);
+				T=str_subst(T,["\""],["\"\""]);
+				if(str_len(T)>K||str_char(T,0,",")>=0) T="\""+T+"\"";
+				str_tb(T,Tb);
+			}else str_tb(rtostr(T),Tb);
+		}
+		str_tb("\n",Tb);
+	}
+	return str_tb(0,Tb);
+}
+
+def readcsv(F)
+{
+	if((ID=open_file(F))<0) return -1;
+	SJIS=isMs();
+	L=[];
+	if(type(V=getopt(eval))!=4){
+		if(V=="all") V=1;
+		else if(type(V)==1) V=[V];
+		else V=[];
+	}
+	Sp=getopt(sp);
+	if(type(T=getopt(col))!=1) T=0;
+	Null=getopt(null);
+	while((S=get_line(ID))!=0){
+		S=strtoascii(S);
+		N=length(S);
+		for(I=J=F=0,LL=LT=[];I<N;I++){
+			C=S[I];
+			if(F==0){
+				if(C<=32) continue;
+				if(C==34){F=2;continue;}
+				F=1;
+			}
+			if(F==2 && C==34){
+				if(I<N-1&& S[I+1]==34){
+					LT=cons(34,LT);I++;continue;
+				}
+				F=-2;
+			}
+			if(F==1){
+				if((C==44&&Sp!=1)||(C<=32&&Sp==1)) F=-1;
+				else if(C<32 && C!=9) continue;
+			}
+			if(SJIS && I<N-1 && ((C>128 && C<160)||(C>223 && C<240))){
+				LT=cons(C,LT);LT=cons(S[++I],LT);continue;
+			}
+			if(F>0){
+				LT=cons(C,LT);continue;
+			}
+			LS=asciitostr(reverse(LT));
+			if(V==1||findin(++J,V)>=0) LS=(type(Null)>=0 && LS=="")?Null:eval_str(LS);
+			if(!T || T==J) LL=cons(LS,LL);
+			if(F==-2) while(++I<N && Sp!=1 && S[I]!=44);
+			F=0;LT=[];
+		}
+		if(I<=N && (Sp!=1 || length(LT)>0)){ /* lastline */
+			LS=asciitostr(reverse(LT));
+			if(findin(++J,V)>=0) LS=(type(Null)>=0 && LS=="")?Null:eval_str(LS);
+			if(!T || T==J) LL=cons(LS,LL);
+		}
+		L=cons(reverse(LL),L);
+	}
+	close_file(ID);
+	if(T) L=m2l(L|flat=1);
+	return reverse(L);
+}
 
 def showbyshell(S)
 {
@@ -6167,6 +8039,7 @@ def showbyshell(S)
 	while((S=get_line(Id))!=0) print(S,2);
 	return close_file(Id);
 }
+
 
 def getbyshell(S)
 {
@@ -6194,10 +8067,11 @@ def show(P)
 		dviout("{\\tt"+verb_tex_form(T)+"}\n\n");
 		return;
 	}
+	if(type(Var)<0) Var=getopt(var);
 	if(T==6){
 		if((Sp=getopt(sp))==1 || Sp==2)
 			S=mtotex(P|lim=1,small=2,sp=Sp,null=1,mat="B");
-		else if(type(var)==4 || type(Var)==7)
+		else if(type(Var)==4 || type(Var)==7)
 			S=mtotex(P|lim=1,small=2,var=Var);
 		else
 			S=mtotex(P|lim=1,small=2);
@@ -6205,11 +8079,9 @@ def show(P)
 		Size=(Size[0]>Size[1])?Size[0]:Size[1];
 		if(Size>10)	dviout0(Size);
 	}else if(T<=3){
-		if(type(Var)==7){
-			if(Var=="pfrac")	pfrac(P,var(P)|dviout=1);
-			else fctrtos(P|var=Var,dviout=1);
-		}else if(type(Var)>0) fctrtos(P|dviout=1);
-		else  if(isdif(P)!=0) fctrtos(P|var="dif",dviout=1);
+		if(Var=="pfrac") pfrac(P,var(P)|dviout=1);
+		else if(type(Var)==2||type(Var)==4||type(Var)==7) fctrtos(P|var=Var,dviout=1);
+		else if(isdif(P)!=0) fctrtos(P|var="dif",dviout=1);
 		else fctrtos(P|dviout=1);
 		return;
 	}else if(T==4){
@@ -6282,10 +8154,10 @@ def show(P)
 
 
 /* options : eq = 1 - 8, clear=1, keep=1, delete=1, title=s, 
-						 fctr=1 */
+						 fctr=1, begin=s  */
 def dviout(L)
 {
-	/* extern AMSTeX, TeXEq, DIROUT, DVIOUTA, DVIOUTL;	*/
+	/* extern AMSTeX, TeXEq, DIROUT, DVIOUTA, DVIOUTB, DVIOUTL;	*/
 
 	MyEq = [
 		["\\[\n ","\\]"],
@@ -6309,7 +8181,7 @@ def dviout(L)
 	Viewer="dviout";
 	SV=["c:/w32tex/dviout","c:/dviout"];
 	Risatex=str_subst(AMSTeX?DVIOUTA:DVIOUTL,
-			["%HOME%","%ASIRROOT%"],[Home,get_rootdir()]);
+			["%HOME%","%ASIRROOT%","%TikZ%"],[Home,get_rootdir(),rtostr(TikZ)]);
 	if(isMs() && !access(Risatex)){
 		for(TV=SV; TV!=[]; TV=cdr(TV)){
 			VV=car(TV)+"/dviout.exe";
@@ -6364,7 +8236,7 @@ def dviout(L)
 				if(Key == ""){
 					 if((P0 = str_str(S,"\\begin{")) == 0){
 						 Key = sub_str(S,7,str_str(S,"}")-1);
-						 if(findin(Key,["align", "gather","multline", "equation"]) < 0)
+						 if(findin(Key,["align", "gather","multline", "equation","align*"]) < 0)
 							 Key = "";
 						 else{
 							 Key = "\\end{"+Key+"}";
@@ -6423,18 +8295,20 @@ def dviout(L)
 		}
 	}
 	if(L != " "){
+		Eq=1;
 		Eqo = getopt(eq);
 		Fc = getopt(fctr);
 		if(Fc == 1 && (type(L) == 2 || type(L) == 3)){
 			L = fctrtos(L|TeX=1);
 			if(type(L) == 4)
 				L = "\\fact{"+L[0]+"}{"+L[1]+"}";
-			if(type(Eqo) != 0)
+			if(type(Eqo) != 0 && type(Eqo) !=7){
 				Eqo=0;
+			}
 		}
 		if(type(L) != 4 || getopt(mult) != 1)
 			L = [L];
-		if(Eqo<1 || Eqo>8)
+		if(type(Eqo)!=7 && (Eqo<1 || Eqo>8))
 			Eqo = (AMSTeX==1)?TeXEq:1;
 		Title = getopt(title);
 		if(type(Title) == 7){
@@ -6452,15 +8326,19 @@ def dviout(L)
 			if(type(Sb) == 4)
 				LT = str_subst(LT,Sb[0],Sb[1]);
 			output(Dirout);
-			if(Eq == 1 && Eqo >= 1 && Eqo <= 8){
-				mycat0([MyEq[Eqo-1][0],LT,"%"],1);
-				print(MyEq[Eqo-1][1]);
-			}
-			else print(LT);
+			if(Eq == 1){
+				if(type(Eqo)==7)
+					print(texbegin(Eqo,LT));
+				else if(Eqo >= 1 && Eqo <= 8){
+					mycat0([MyEq[Eqo-1][0],LT,"%"],1);
+					print(MyEq[Eqo-1][1]);
+				}else print(LT);
+			}else print(LT);
 			output();
 		}
 	}
-	if(str_char(Risatex,0," ")>=0 && str_char(DVIOUTA,0," ")<0 && str_char(DVIOUTL,0," ")<0)
+	if(str_char(Risatex,0," ")>=0 && str_char(DVIOUTA,0," ")<0 && str_char(DVIOUTB,0," ")<0
+	 && str_char(DVIOUTL,0," ")<0)
 		Risatex="\""+Risatex+"\"";
 	if(getopt(keep) != 1) shell(Risatex);
 	return 1;
@@ -6510,6 +8388,8 @@ def mtotex(M)
 			if(type(P=M[I][J])<=3){
 				if(P!=0 || Null == 0 || (Null==2 && I==J)){
 					SS[I][J]=(type(Var)>1)?fctrtos(P|TeX=2,lim=0,var=Var):fctrtos(P|TeX=2,lim=0);
+					if(type(P)==1 && str_str(SS[I][J],"\\frac{-")==0)
+						SS[I][J]="-\\frac{"+str_cut(SS[I][J],7,100000);
 				}
 			}else if(type(P)==6){
 				ST= mtotex(P|small=1,len=1);
@@ -6600,19 +8480,105 @@ def mtotex(M)
 
 def sint(N,P)
 {
-	if(type(N)>1)
-		return mtransbys(sint,N,[P]);
-	if(type(N)!=1) return N;
-	X=rint(N*10^P);
-	return ((X+1.0)-1.0)/10^P;
+    if( type(N)==1 ) {
+		NT=ntype(N);
+		if(type(Opt=getopt(str))==1 && Opt>0 && P>=0){
+			if(Opt==2 || Opt==4){
+				if(N==0) return "0";
+				Pw=0;
+				if(NT==4){
+					NN=abs(real(N));N1=abs(imag(N));
+					if(NN<N1) NN=N1;
+				}else NN=abs(N);
+				while(NN<1 && NN>-1){
+					Pw--;
+					N*=10;NN*=10;
+				}
+				while(N>=10 || N<=-10){
+					Pw++;
+					N/=10;NN/=10;
+				}
+				S=(getopt(sqrt)==1)?sint(N,P|str=(Opt==4)?3:1,sqrt=1):sint(N,P|str=(Opt==4)?3:1);
+				if(Pw==0) return S;
+				if(NT==4)
+					S="("+S+")";
+				if(Pw==1){
+					if(Opt==2)
+						return S+"*10";
+					else
+						return S+"\\times10";
+				}
+				if(Opt==2)
+					return S+"*10^("+rtostr(Pw)+")";
+				else
+					return S+"\\times10^{"+rtostr(Pw)+"}";
+			}
+			if(NT==4){
+				NN=real(N);
+				if(NN!=0) S=sint(NN,P|str=1)+"+";
+				else S="";
+				S=S+sint(imag(N),P|str=1)+((Opt==3)?((getopt(sqrt)==1)?"\\sqrt{-1}":"i"):"@i");
+				return S;
+			}
+			if(N<0){
+				N=-N;
+				Neg="-";
+			}else Neg="";
+			NN=floor(N);
+			NS=rtostr(NN);
+			if(P<=0) return Neg+NS;
+			if(NN==0 && getopt(zero)==0) NS="";
+			return Neg+NS+"."+str_cut(rtostr(rint((N-NN+1)*10^P)),1,P);
+		}
+		if(NT==4)
+			return sint(real(N),P)+sint(imag(N),P)*@i;
+        X = rint( N*10^P );
+        return ((X+1.0)-1.0)/10^P;
+	}
+    if( (type(N)==2) || (type(N)==3) ){
+		NN = eval(N);
+		if( type(NN)==1 )
+			return sint(NN,P|option_list=getopt());
+		else return N;
+	}
+    if( type(N)>3 )
+#ifdef	USEMODULE
+        return mtransbys(os_md.sint,N,[P]|option_list=getopt());
+#else
+        return mtransbys(sint,N,[P]|option_list=getopt()));
+#endif
+}
+
+def frac2n(N)
+{
+	if((T=type(N))<0) return N;
+	if(T==1){
+		if(ntype(N)==0) return (0.1+N)-0.1;
+		else if(ntype(N)!=4) return N;
+		else return (1.01*N)/1.01;
+	}
+	if(T==3){
+		N=red(N);
+		return ((nm(N)*1.01)/1.01)/dn(N);
+	}
+	if(T<4) return (1.01*N)/1.01;
+#ifdef	USEMODULE
+        return mtransbys(os_md.frac2n,N,[]);
+#else
+        return mtransbys(frac2n,N,[]);
+#endif
 }
 
 def xyproc(F)
 {
-	if(F==1) return "\\begin{xy}\n";
-	else if(F==0) return "\\end{xy}\n";
+	if(type(Opt=getopt(opt))!=7) Opt="";
+	if(type(Env=getopt(env))!=7)
+		Env=(!TikZ)?"xy":"tikzpicture";
+	if(F==1)
+		return(Opt=="")?"\\begin{"+Env+"}\n":"\\begin{"+Env+"}["+Opt+"]\n";
+	if(F==0) return "\\end{"+Env+"}\n";
 	if(type(F)==7){
-		F=xyproc(1)+F+xyproc(0);
+		F=xyproc(1|opt=Opt,env=Env)+F+xyproc(0|env=Env);
 		if(getopt(dviout)==1) dviout(F);
 		else return F;
 	}
@@ -6620,27 +8586,60 @@ def xyproc(F)
 
 def xypos(P)
 {
-	if(type(P[0])==7)
-		S="\""+P[0]+"\"";
+	if(type(P[0])==7){
+		if(P[0]=="") S="";
+		else S=(!TikZ)?"\""+P[0]+"\"":"("+P[0]+")";
+	}
 	else{
-		X=sint(P[0],4); Y=sint(P[1],4);
+		if(TikZ==0 && XYcm==1){
+			X=sint(P[0]*10,XYPrec); Y=sint(P[1]*10,XYPrec);
+		}else{
+			X=sint(P[0],XYPrec); Y=sint(P[1],XYPrec);
+		}
 		S="("+rtostr(X)+","+rtostr(Y)+")";
 	}
-	if(length(P)>2 && (PP=P[2])!=""){
-		S=S+" *";
-		if(type(PP)==4 && length(PP)==2 && type(PP[0])==7){
-			S=S+PP[0];
-			PP=PP[1];
+	if(!TikZ){
+		if(length(P)>2 && (PP=P[2])!=""){
+			S=S+" *";
+			if(type(PP)==4 && length(PP)==2 && type(PP[0])==7){
+				S=S+PP[0];
+				PP=PP[1];
+			}
+			if(type(PP)==7){
+				L=str_len(PP);
+				if(str_chr(PP,0,"$")==0 && str_chr(PP,L-1,"$")==L-1){
+					PP=str_cut(PP,1,L-2);
+				}else S+="\\txt";
+			}
+			else PP=my_tex_form(PP);
+			S=S+"{"+PP+"}";
 		}
-		if(type(PP)==4 && type(PP[0])==7){
-			S+="\\txt"; PP=PP[0];
+		if(length(P)>3){
+			if(type(P[3])==7 && P[3]!="") S=S+"=\""+P[3]+"\"";
+			if(length(P)>4 && type(P[4])==7) S=S+P[4];
 		}
-		if(type(PP)!=7)	PP=my_tex_form(PP);
-		S=S+"{"+PP+"}";
-	}
-	if(length(P)>3){
-		if(type(P[3])==7) S=S+"=\""+P[3]+"\"";
-		if(length(P)>4 && type(P[4])==7) S=S+P[4];
+	}else{
+		T="";
+		if(length(P)>2 && (PP=P[2])!=""){
+			F=1;
+			if(type(PP)==4){
+				if(length(PP)==2 && type(PP[0])==7){
+					T="["+PP[0]+"]";
+					PP=PP[1];
+				}
+			}
+			if(type(PP)!=7)	PP="$"+my_tex_form(PP)+"$";
+			S=S+"{"+PP+"}";
+		}else F=0;
+		if(length(P)>3){
+			if(type(P[3])==7 && P[3]!="") T=T+"("+P[3]+")";
+			else if(P[3]==1) T=T+"(_)";
+			if(length(P)>4 && type(P[4])==7) S=S+P[4];
+		}
+		if(length(P)>2){
+			if(F) S="node"+T+" at"+S;
+			else  S="coordinate"+T+" at"+S;
+		}
 	}
 	return S;
 }
@@ -6650,25 +8649,50 @@ def xyput(P)
 	if((type(Sc=getopt(scale))==1 && Sc!=1) || type(Sc)==4){
 		if(type(Sc)==1) Sc=[Sc,Sc];
 		Sx=Sc[0];Sy=Sc[1];
-		P1=cons(Sy*P[1],cdr(cdr(P)));
-		P=cons(Sx*P[0],P1);
+		if(length(P)>2)
+			P1=cons(Sy*P[1],cdr(cdr(P)));
+		else P1=[Sy*P[1]];
+		P=cons((type(P[0])==7)?P[0]:(Sx*P[0]),P1);
 	}
-	return "{"+xypos(P)+"};\n";
+	if(!TikZ) return "{"+xypos(P)+"};\n";
+	return "\\"+xypos(P)+";\n";
 }
 
 def xyline(P,Q)
 {
-	return "{"+xypos(P)+" \\ar@{-} "+xypos(Q)+"};\n";
+	if(!TikZ)	return "{"+xypos(P)+" \\ar@{-} "+xypos(Q)+"};\n";
+	if(type(T=getopt(opt))!=7) T="";
+	else T="["+T+"]";
+	if(length(P)<3 && length(Q)<3)
+		return "\\draw"+T+xypos(P)+"--"+xypos(Q)+";\n";
+	if(length(P)==2) P=[P[0],P[1],"","_0"];
+	else if(length(P)==3 || (length(P)==4 && P[3]==""))
+		P=[P[0],P[1],P[2],"_0"];
+	else if(length(P)>4 && P[3]=="")
+		P=[P[0],P[1],P[2],"_0",P[4]];
+	if(length(Q)==2) Q=[Q[0],Q[1],"","_1"];
+	else if(length(Q)==3 || (length(Q)==4 && Q[3]==""))
+		Q=[Q[0],Q[1],Q[2],"_1"];
+	else if(length(Q)>4 && Q[3]=="")
+		Q=[Q[0],Q[1],Q[2],"_1",Q[4]];
+	return "\\draw "+T+xypos(P)+" "+xypos(Q)+"("+P[3]+")--("+Q[3]+");\n";
 }
-
 
 def xylines(P)
 {
+/*	mycat([P,getopt()]);	*/
 	Lf=getopt(curve);
 	if(type(Lf)!=1) Lf=0;
 	SS=getopt(opt);
-	if(type(SS)!=7){
-		if(Lf==0) SS="@{-}";
+	SF=(SS==0)?1:0;
+	if((Proc=getopt(proc))==1||Proc==2||Proc==3){
+		OL=cons(["opt",0],delopt(getopt(),["opt","proc"]));
+		R=xylines(P|option_list=OL);
+		OP=(type(SS)<0)?[]:((type(SS)==4)?[["opt",SS[0]],["cmd",SS[1]]]:[["opt",SS]]);
+		return [1,OP,R];
+	}
+	if(type(SS)!=7 && type(SS)!=4){
+		if(Lf==0 && !TikZ) SS="@{-}";
 		else SS="";
 	}
 	if(type(Sc=getopt(scale))==1 || type(Sc)==4){
@@ -6677,45 +8701,74 @@ def xylines(P)
 		if(Sx!=1 || Sy!=1){
 			for(PP=[], P0=P; P0!=[]; P0=cdr(P0)){
 				PT=car(P0);
-				if(type(PT)!=4 || type(PT[0])!=1) PP=cons(PT,PP);
+				if((type(PT)!=4 && type(PT)!=5) || (type(PT[0])!=1 && PT[0]!=0))
+					PP=cons(PT,PP);
 				else{
-					P1=cons(Sy*PT[1],cdr(cdr(PT)));
+					if(length(PT)>2 && type(PT)==4)
+						P1=cons(Sy*PT[1],cdr(cdr(PT)));
+					else P1=[Sy*PT[1]];
 					PP=cons(cons(Sx*PT[0],P1),PP);
 				}
 			}
 			P=reverse(PP);
 		}
 	}
-	Cl=getopt(close);
-	if((Vb=getopt(verb))!=1) Vb=0;
+	if(type(Cl=CL0=getopt(close))!=1) Cl=0;
+	if((Vb=getopt(verb))!=1&&type(Vb)!=4) Vb=0;
 	if(type(Lf)!=1 || Lf==0){	/* lines */
-		Out = str_tb(0,0);
-		for(PT=P; PT!=[]; ){
-			PS1=car(PT);
-			PT=cdr(PT);
-			if(PT==[]){
-				if(Cl==1)	PS2=car(P);
-				else PS2=0;
-			}else PS2=car(PT);
-			str_tb(xyarrow(PS1,PS2|opt=SS),Out);
+		if(TikZ||SF){
+			for(L=[],F=0,PT=P;PT!=[];PT=cdr(PT)){
+				if(type(car(PT))<4){
+					L=cons(car(PT),L);
+					F=0;
+				}else{
+					if(F++>1) L=cons(1,L);
+					L=cons(car(PT),L);
+				}
+			}
+			if(Cl==1){
+				L=cons(1,L);L=cons(-1,L);
+			}
+			if(L) L=reverse(L);
+			if(SF) return L;
+			if(type(SS)!=4) S=xybezier(L|opt=SS);
+			else S=xybezier(L|opt=SS[0],cmd=SS[1]);
+
+		}else{
+			Out = str_tb(0,0);
+			for(PT=P; PT!=[]; ){
+				PS1=car(PT);
+				PT=cdr(PT);
+				if(PT==[]){
+					if(Cl==1)	PS2=car(P);
+					else PS2=0;
+				}else PS2=car(PT);
+				str_tb(xyarrow(PS1,PS2|opt=SS),Out);
+			}
+			S=str_tb(0,Out);
 		}
 	}else if(Lf==2){	/* B-spline */
-		Out = str_tb("{\\curve{",0);
-		for(PT=P;PT!=[];PT=cdr(PT)){
-			if(car(PT)==0){
-				str_tb("}};\n{\\curve{",Out);
-				continue;
+		if(SF) return P;
+		if(!TikZ){
+			Out = str_tb("{\\curve{",0);
+			for(PT=P;PT!=[];PT=cdr(PT)){
+				if(car(PT)==0){
+					str_tb("}};\n{\\curve{",Out);
+					continue;
+				}
+				if(PT!=P) str_tb("&",Out);
+				str_tb(xypos([car(PT)[0],car(PT)[1]]),Out);
 			}
-			if(PT!=P) str_tb("&",Out);
-			str_tb(xypos([car(PT)[0],car(PT)[1]]),Out);
-		}
-		str_tb("}};\n",Out);
+			str_tb("}};\n",Out);
+			S=str_tb(0,Out);
+		}else Out=str_tb(xybezier(P|opt=SS),0);
 		for(I=0;I<2;I++){
 			Q=car(P);
 			if(length(Q)>2)
 				str_tb(xyput(Q),Out);
 			P=reverse(P);
 		}
+		S=str_tb(0,Out);
 	}else{		/* extended Bezier */
 		RTo=getopt(ratio);
 		if(type(RTo)!=1 || RTo>1.5 || RTo<0.001) RTo=0;
@@ -6726,152 +8779,261 @@ def xylines(P)
 			PR=cons(P[1],PR);
 			P=cons(PT,reverse(PR));
 		}else if(Cl==-1) Cl=1;
-		Out=str_tb(0,0);
-		for(P2=P3=0,PT=P;;){
+		for(L=P2=P3=0,PT=P;;){
 			P1=P2;P2=P3;P3=P4;
 			P4=(PT==[])?0:car(PT);
 			if(PT==[] && (Cl==1 || P3==0)) break;
 			PT=cdr(PT);
 			if(P3==0)	str_tb("%\n", Out);
 			if(P2==0 || P3==0 || (Cl==1 && P1==0)) continue;
-			L=[P3];
-			X=P3[0]-P2[0];Y=P3[1]-P2[1];
-			RT=(RTo==0)? RT=0.39:RTo;
-			DL=DL2=1;
-			if(P4!=0){
-				XD=P4[0]-P2[0];YD=P4[1]-P2[1];
-				if(XD==0 && YD==0) continue;
-				if(RTo==0 && P1!=0 && (P3[0]!=P1[0] || P3[1]!=P1[1])){
-					XD2=P3[0]-P1[0];YD2=P3[1]-P1[1];
-					DL=dsqrt(XD^2+YD^2); DL2=dsqrt(XD2^2+YD2^2);
-					Cos=(XD*XD2+YD*YD2)/(DL*DL2);
-					RT=2/(3*dsqrt((1+Cos)/2)+3);
+			if(L!=0){
+				if(car(L)==P2)
+					L=cons(1,L);
+				else{
+					L=cons(0,L); L=cons(P2,L);
 				}
-				R=dsqrt((X^2+Y^2)/(XD^2+YD^2))*RT*2*DL2/(DL+DL2);
-				L=cons([P3[0]-R*XD,P3[1]-R*YD],L);
+			}else L=[P2];
+			X=P3[0]-P2[0];Y=P3[1]-P2[1];
+			DL1=DL2=0;DL=dsqrt(X^2+Y^2);
+			if(P4!=0){
+				XD1=P4[0]-P2[0];YD1=P4[1]-P2[1];DL1=dsqrt(XD1^2+YD1^2); 
 			}
 			if(P1!=0){
-				XD=P3[0]-P1[0];YD=P3[1]-P1[1];
-				if(XD==0 && YD==0) continue;
-				R=dsqrt((X^2+Y^2)/(XD^2+YD^2))*RT*2*DL/(DL+DL2);
-				L=cons([P2[0]+R*XD,P2[1]+R*YD],L);
+				XD2=P3[0]-P1[0];YD2=P3[1]-P1[1];DL2=dsqrt(XD2^2+YD2^2);
 			}
-			L=cons([P2[0],P2[1]],L);
-			if(Vb==1){
-				if(P4!=0 && PT!=[]) Vbb=2;
-				else Vbb=1;
-			}else Vbb=0;
-			str_tb(xybezier(L|opt=SS,verb=Vbb),Out);
+			if(RTo!=0)
+				R=RTo;
+			else if(DL1>0 && DL2>0){
+				Cos=(XD1*XD2+YD1*YD2)/(DL1*DL2);
+				RT=4/(3*dsqrt((1+Cos)/2)+3);
+				R=DL*RT/(DL1+DL2);
+			}else if(DL1!=0)
+				R=DL/(2*DL1);
+			else if(DL2!=0)
+				R=DL/(2*DL2);
+			if(DL2!=0)	L=cons([P2[0]+R*XD2,P2[1]+R*YD2],L);
+			if(DL1!=0)	L=cons([P3[0]-R*XD1,P3[1]-R*YD1],L);
+			L=cons([P3[0],P3[1]],L);
 		}
+		if(CL0==1) L=cons(-1,cdr(L));
+		if(L!=0) L=reverse(L);
+		if(SF) return L;
+		if(type(SS)==4)
+			S=xybezier(L|opt=SS[0],cmd=SS[1],verb=Vb);
+		else
+			S=xybezier(L|opt=SS,verb=Vb);
 	}
-	S=str_tb(0,Out);
 	if(getopt(dviout)!=1) return S;
 	xyproc(S|dviout=1);
+}
+
+def saveproc(S,Out)
+{
+	if(type(Out)==4){
+		Out=cons(S,Out);
+		return Out;
+	}else{
+		str_tb(S,Out);
+		return Out;
+	}
 }
 
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 {
 	/* (x,y,z) -> ( -x sin A + y cos A, z cos B - x cos A sin B - y sin A sin B) */
+	if((Proc=getopt(proc))==1||Proc==2){
+		OPT0=[["proc",3]];
+	}else{
+		Proc=0;OPT0=[];
+	}
+	if(type(DV=getopt(dviout))==4){
+		S=["ext","shift","cl"];
+		OL=delopt(getopt(),S);
+		OL=cons(["proc",1],OL);
+		R=xygraph(F,N,LT,LX,LY|option_list=OL);
+		OL=delopt(getopt(),S|inv=1);
+		return execdraw(R,DV|optilon_list=OL);
+	}
 	if(N==0 || N>100 || N<-100) N=-16;
 	if(N<0){
 		N=-N;N1=-1;N2=NN+1;
 	}else{
 		N1=0;N2=NN=N;
 	}
-	if(type(Sc=getopt(scale))!=1 && type(Sc)!=4) Sc=1;
+
+	Ratio=Ratio2=1;
+	if(type(Sc=Sc0=getopt(scale))!=1 && type(Sc)!=4) Sc=1;
+	if(type(Sc)==4){
+		Ratio=Sc[1]/Sc[0];
+		if(length(Sc)>2) Ratio2=Sc[2]/Sc[0];
+		Sc=Sc[0];
+	}
 	if(type(Vw=getopt(view))!=1) Vw=0;
 	if(type(Raw=getopt(raw))!=1) Raw=0;
 	if(type(M1=getopt(dev))==1) M2=M1;
 	else if(type(M1)==4){
 		M2=M1[1];M1=M1[0];
 	}else M1=0;
-	if(type(M3=getopt(acc))!=1 ||(M3<0.5 && M3>100)) M3=1;
+	if(type(M3=getopt(acc))!=1 || (M3<0.5 && M3>100)) M3=1;
 	if(M1<=0) M1=16;
 	if(M2<=0) M2=16;
-	OL=[["scale",Sc]];
+	OL=[["para",1],["scale",Sc]];
 	if(Raw==1) OL=cons(["raw",1],OL);
-	Sh=1;F1=F0;
+	if(type(Prec=getopt(prec))>=0) OL=cons(["prec",Prec],OL);
 	L=newvect(4,[[Lx[1],Ly[0]],[Lx[1],Ly[1]],[Lx[0],Ly[1]],[Lx[0],Ly[0]]]);
-	if((A0=A)>180) A-=360;
-	if(A>90){	/* x -> y, y -> -x */
-		Sh=2;A-=90;F1=mulsubst(F0,[[x,y],[y,-x]]);
-		LL=Lx;Lx=[-Ly[1],-Ly[0]];Ly=LL;
-	}else if(A<0){
-		if(A<-90){
-			Sh=3;A+=180; F1=subst(F0,x,-x,y,-y);
-			Lx=[-Lx[1],-Lx[0]];Ly=[-Ly[1],-Ly[0]];
-		}else{
-			Sh=4;A+=90;  F1=mulsubst(F0,[[x,-y],[y,x]]);
-			LL=Ly;Ly=[-Lx[1],-Lx[0]];Ly=LL;
-		}
+	Lx=[deval(Lx[0]),deval(Lx[1])];
+	Ly=[deval(Ly[0]),deval(Ly[1])];
+	Lz=[deval(Lz[0]),deval(Lz[1])];
+	A=(A0=A)%360;
+	F00=F0;
+	if(type(F0)<4){
+		FC=f2df(F0);
+		if(findin(z,Vars=vars(FC))>=0 && findin(x,Vars)<0 && findin(y,Vars)<0)
+			F0=[w,[z,0,x+y*@i],[w,os_md.abs,FC]];
 	}
-	A=deval(@pi*A/180); B=deval(@pi*B/180);
+	if(type(Org=getopt(org))==4){	/* shift origin */
+		Lx=[Lx[0]-Org[0],Lx[1]-Org[0]];
+		Ly=[Ly[0]-Org[1],Ly[1]-Org[1]];
+		Lz=[Lz[0]-Org[2],Lz[1]-Org[2]];
+		F0=subst(F0,x,x+Org[0],y,y+Org[1]);
+		if(type(F0)==4){
+			F0=cons(F0[0]-Org[2],cdr(F0));
+		}
+		else F0-=Org[2];
+	}else Org=[0,0,0];
+	Cpx=getopt(cpx);
+	if(type(Cpx)<0){
+		if(str_str(rtostr(F0),"@i")>=0) Cpx=1;
+		else Cpx=0;
+	}
+	if(A<0) A+=360;
+	if(A<90){
+		Sh=1;F1=F0;Cx=x-Org[0];Cy=y-Org[1];
+	}else if(A<180){	/* x -> y, y -> -x */
+		Sh=2;A-=90; F1=mulsubst(F0,[[x,-y],[y,x]]);
+		LL=Ly;Ly=[-Lx[1],-Lx[0]];Lx=LL;Cx=y-Org[1];Cy=-x+Org[0];
+	}else if(A<270){
+		Sh=3;A-=180; F1=subst(F0,x,-x,y,-y);
+		Lx=[-Lx[1],-Lx[0]];Ly=[-Ly[1],-Ly[0]];Cx=-x+Org[0];Cy=-y+Org[1];
+	}else{
+		Sh=4;A-=270;F1=mulsubst(F0,[[x,y],[y,-x]]);
+		LL=Lx;Lx=[-Ly[1],-Ly[0]];Ly=LL;Cx=-y+Org[1];Cy=x-Org[0];
+	}
+	A=@pi*A/180; B=@pi*B/180;
 	if(A==0) A=@pi/3;
-	if(B==0) B=@pi/6;
-	Dev=N*M1; NN=N*M2;
-
-	Ac=deval(cos(A)); As=deval(sin(A));
+	if(B==0) B=@pi/12;
+	NN=N*M2;
+	Ac=dcos(deval(A)); As=dsin(deval(A));
 	if(Ac<=0.087 || As<=0.087){
 		mycat(["Unsuitable angle",A0,"(6-th argument)!"]);
 		return -1;
 	}
-	Bc=deval(cos(B)); Bs=deval(sin(B)); 
+	Bc=Ratio*dcos(deval(B)); Bs=dsin(deval(B)); 
 	if(Bc<0){
 		mycat("Unsuitable angle (7-th argument)!");
 		return -1;
 	}
-	X0=-As*Lx[1]+Ac*Ly[0];X1=-As*Lx[0]+Ac*Ly[1];XD=(X1-X0)/Dev;
+	/*
+		z = f(x,y)  => X=-As*x+Ac*y, Y= Bc*f(x,y)-Bsc*x-Bss*y
+		Out X-coord is in [X0,X1], dvided by Dev segments
+		J-th segment of Y-coord : ZF[J]==1 =>  [Z0[0],Z1[J]]
+	*/
 	Bsc=Bs*Ac;Bss=Bs*As;
-	F=Bc*F1-Bsc*x-Bss*y;
+	if(Ratio2!=1){
+		if(Sh%2==1){
+			Ac*=Ratio2;Bss*=Ratio2;
+		}else{
+			As*=Ratio2;Bsc*=Ratio2;
+		}
+	}
+	CX=-As*Cx+Ac*Cy;CY=Bc*(z-Org[2])-Bsc*Cx-Bss*Cy;
+	if(type(Dvi=getopt(dviout))!=1 && getopt(trans)==1) return [CX*Sc,CY*Sc];
+	if(type(N1=getopt(inf))==1){
+		if(Proc) Dvi=N1;
+		else if(Dvi<=0) Dvi=-N1;
+	}
+	X0=-As*Lx[1]+Ac*Ly[0];X1=-As*Lx[0]+Ac*Ly[1];
+	F1=subst(F1,@pi,deval(@pi));
+	Tf=type(F1=f2df(F1|opt=0));
+	if(Tf!=4)	F=Bc*F1-Bsc*x-Bss*y;
+	else	F=append([Bc*F1[0]-Bsc*x-Bss*y],cdr(F1));
 	Dx=(Lx[1]-Lx[0])/NN; Dy=(Ly[1]-Ly[0])/NN;
 	if(type(Err=getopt(err))==1)
-		F=subst(F,x,x+Err*Dx/1011.23,y,y+Err*Dx/1101.34);
-	Out=str_tb(0,0);
-	for(KC=0; KC<=1; KC++){
+		F=subst(F,x,x+Err*Dx/1011.23,y,y+Err*Dy/1101.34);
+	Out=(Proc)?[]:str_tb(0,0);
+	Dev=N*M1;
+	XD=(X1-X0)/Dev;
+	OLV=newvect(2,[OL,OL]);
+	if(type(Ura=getopt(opt))==4 || type(Ura)==7){
+		if(type(Ura)==7) Ura=[Ura,Ura];
+		else{
+			OLV[0]=cons(["opt",Ura[0]],OL);
+			OLV[1]=cons(["opt",Ura[1]],OL);
+		}
+	}
+	for(KC=0; KC<=1; KC++){		/* draw curves */
 		Z0=newvect(Dev+1); Z1=newvect(Dev+1); ZF=newvect(Dev+1);
     	for(I=0; I<=NN; I++){
 			FV=I%M2;
 			if(KC==0){
 				X=x; Y=Ly[1]-I*Dy; LX=Lx; DD=Dx; G=subst(F,y,Y);
-				if(!FV) str_tb(["%y=",rtostr(Y),"\n"],Out);
+				if(!FV){
+					if(!Proc) str_tb(["%y=",rtostr(Y),"\n"],Out);
+					else Out=cons([-2,"y="+rtostr(Y)],Out);
+				}
 			}else{
 				X=Lx[1]-I*Dx; Y=x; LX=Ly; DD=Dy; G=subst(F,x,X,y,Y);
-				if(!FV) str_tb(["%x=",rtostr(X),"\n"],Out);
+				if(!FV){
+					if(!Proc) str_tb(["%x=",rtostr(X),"\n"],Out);
+					else Out=cons([-2,"x="+rtostr(X)],Out);
+				}
 			}
 			XX=-As*X+Ac*Y; A1=coef(XX,1,x); A0=coef(XX,0,x); /* XX = A1*x + A0, x = (XX-A0)/A1 */
 			if(!FV && Vw==1){
-				str_tb(xygraph([XX,G],N,LX,[X0,X1],Lz|scale=Sc),Out); 
+				if(Proc) Out=cons(xygraph([XX,G],N,LX,[X0,X1],Lz|scale=Sc,para=1,proc=3),Out);
+				else str_tb(xygraph([XX,G],N,LX,[X0,X1],Lz|scale=Sc,para=1),Out); 
 				continue;
 			}
 			V=VT=LX[1];
 			J0=(subst(XX,x,LX[0])-X0)/XD; J1=(subst(XX,x,LX[1])-X0)/XD;
 			if(J0<J1){
-				J0=ceil(J0); J1=floor(J1); JD=1; /* fixed x:  y: dec => (x,z):(dec,inc) */
+				J0=ceil(J0); J1=floor(J1); JD=1;	/* fixed x:  y: dec => (x,z):(dec,inc) */
 			}else{
-				J0=floor(J0); J1=ceil(J1); JD=-1;  /* fixed y:  x: dec => (x,z):(inc,inc) */
+				J0=floor(J0); J1=ceil(J1); JD=-1;	/* fixed y:  x: dec => (x,z):(inc,inc) */
 			}
 			for(FF=1,J=J1;;J-=JD){
-				V1=VT;
-				VT=(X0+J*XD-A0)/A1;  VV=deval(subst(G,x,VT)); 	/* J -> V */
-				if(ZF[J]==0 || VV<=Z0[J] || VV>=Z1[J]){		 /* visible */
+				V1=VT; 
+				VT=(X0+J*XD-A0)/A1;GG=subst(G,x,VT);
+				if(Cpx>=1) VV=myeval(GG);
+				else VV=(Tf==4)? mydeval(GG):deval(GG); 	/* J -> V */
+				if(ZF[J]==0 || VV<=Z0[J] || VV>=Z1[J]){			 /* visible */
 					if(FF==0){
 						V0=(VT+V1)/2;
-						if(!FV && Vw==-1 && Raw!=1)	/* draw doted line */
-							str_tb(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|opt="~*=<3pt>{.}",scale=Sc),Out);
+						if(!FV && Vw==-1 && Raw!=1){	/* draw doted line */
+							K=ceil(M3*(V-V0)/(M2*DD));
+							if(N1<0) K=-K;
+							OPT=append(OPT0,[["opt",(TikZ)?"dotted":"~*=<3pt>{.}"],["scale",Sc],["para",1]]);
+							Out=saveproc(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|
+								option_list=OPT),Out);
+						}
 						V=V0;
 					}
 					if(ZF[J]==0){
 						ZF[J]=1; Z0[J]=Z1[J]=VV;
 					}else if(VV<=Z0[J]) Z0[J]=VV;
 					else Z1[J]=VV;
-					FF=1;
+					
+					if(VV>=Z1[J]) FF=1;
+					else if(VV<=Z0[J]) FF=-1;
 				}else{
-					if(FF==1){
+					if(FF!=0){
 						V0=(VT+V1)/2;
 						K=ceil(M3*(V-V0)/(M2*DD));
 						if(N1<0) K=-K;
-						if(!FV)
-							str_tb(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|option_list=OL),Out);
+						if(!FV){
+							OPT=append(OPT0,OLV[(1-FF)/2]);
+							Out=saveproc(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|option_list=OPT),Out);
+						}
 						V=V0;
 					}
 					FF=0;
@@ -6879,82 +9041,736 @@ def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 				if(J==J0) break;
 			}
 			if(FV) continue;
-			V0=Lx[0];K=ceil(M3*(V-V0)/(M2*DD));
+			V0=LX[0];K=ceil(M3*(V-V0)/(M2*DD));
 			if(N1<0) K=-K;
-			if(FF==1)
-				if(Raw!=1)	str_tb(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|option_list=OL),Out);
-			else if(Vw==-1 && Raw!=1)
-				str_tb(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|opt="~*=<3pt>{.}",scale=Sc),Out);
+			if(FF!=0){
+				if(Raw!=1){
+					OPT=append(OPT0,OLV[(1-FF)/2]);
+					Out=saveproc(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|option_list=OPT),Out);
+			}else if(Vw==-1 && Raw!=1){
+				OPT=append(OPT0,[["opt",(TikZ)?"dotted":"~*=<3pt>{.}"]]);
+				Out=saveproc(xygraph([XX,G],K,[V0,V],[X0-1,X1+1],Lz|option_list=OPT),Out);
+				}
+			}
 		}
 	}
-	LZ=Lz;
-	if(type(Ax=getopt(ax))==4 || type(Ax)==1){
+	if(type(LZ=getopt(ax))==4){		/* draw box */
 		FC=0;
-		if(type(Ax)==4){
-			LZ=Ax;
-			if(length(Ax)==3) FC=Ax[2];
-		}
-		P0=newvect(2,[-As*Lx[1]+Ac*Ly[1],Bc*LZ[0]-Bsc*Lx[1]-Bss*Ly[1]]);
+		if(length(LZ)==3) FC=LZ[2];
+		P0=newvect(2,[-As*Lx[1]+Ac*Ly[1],Bc*(LZ[0]-Org[0])-Bsc*Lx[1]-Bss*Ly[1]]);
 		Vx=newvect(2,[As*(Lx[1]-Lx[0]),Bsc*(Lx[1]-Lx[0])]);
-		Vy=newvect(2,[Ac*(Lx[0]-Ly[1]),Bss*(Ly[1]-Ly[0])]);
-		Vz=newvect(2,[0,Bc*(LZ[1]-LZ[0])]);
-		str_tb(xylines([vtol(P0),vtol(P0+Vx)]|option_list=OL),Out);
-		str_tb(xylines([vtol(P0+Vz),vtol(P0+Vx+Vz)]|option_list=OL),Out);
+		Vy=newvect(2,[Ac*(Ly[0]-Ly[1]),Bss*(Ly[1]-Ly[0])]);
+		Vz=newvect(2,[0,Bc*(LZ[1]-LZ[0])]); 
+		OL=append(OPT0,OL);
+		Out=saveproc(xylines([P0,P0+Vx]|option_list=OL),Out);
+		Out=saveproc(xylines([P0+Vz,P0+Vx+Vz]|option_list=OL),Out);
 		if(Bs>0){
-			str_tb(xylines([vtol(P0+Vy+Vz),vtol(P0+Vx+Vy+Vz)]|option_list=OL),Out);
-			str_tb(xylines([vtol(P0+Vx+Vz),vtol(P0+Vx+Vy+Vz)]|option_list=OL),Out);
+			Out=saveproc(xylines([P0+Vy+Vz,Pz=P0+Vx+Vy+Vz]|option_list=OL),Out);
+			Out=saveproc(xylines([P0+Vx+Vz,Pz]|option_list=OL),Out);
+			PP=Pz-Vz;
 		}else{
-			str_tb(xylines([vtol(P0+Vy),vtol(P0+Vx+Vy)]|option_list=OL),Out);
-			str_tb(xylines([vtol(P0+Vx),vtol(P0+Vx+Vy)]|option_list=OL),Out);
+			Out=saveproc(xylines([P0+Vy,Pz=P0+Vx+Vy]|option_list=OL),Out);
+			Out=saveproc(xylines([P0+Vx,Pz]|option_list=OL),Out);
+			PP=Pz+Vz;
 		}
-		str_tb(xylines([vtol(P0),vtol(P0+Vy)]|option_list=OL),Out);
-		str_tb(xylines([vtol(P0+Vz),vtol(P0+Vy+Vz)]|option_list=OL),Out);
-		str_tb(xylines([vtol(P0),vtol(P0+Vz)]|option_list=OL),Out);
-		str_tb(xylines([vtol(P0+Vx),vtol(P0+Vx+Vz)]|option_list=OL),Out);
-		str_tb(xylines([vtol(P0+Vy),vtol(P0+Vy+Vz)]|option_list=OL),Out);
-		if(FC>0 && Raw!=1){
-			if(Bs>0){
-				LL=L[Sh%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[1])+","+rtostr(LZ[0])+")";
-				str_tb(xyput([P0[0],P0[1],["+!U",S]]|scale=Sc),Out);
-				LL=L[(Sh+2)%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[1])+","+rtostr(LZ[1])+")";
-				Q=P0+Vx+Vy+Vz;
-				str_tb(xyput([Q[0],Q[1],["+!D",S]]|scale=Sc),Out);
-			}else{
-				LL=L[(Sh+2)%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[0])+","+rtostr(LZ[1])+")";
-				Q=P0+Vx+Vy;
-				str_tb(xyput([Q[0],Q[1],["+!U",S]]|scale=Sc),Out);
-				LL=L[Sh%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[1])+","+rtostr(LZ[1])+")";
-				Q=P0+Vz;
-				str_tb(xyput([Q[0],Q[1],["+!D",S]]|scale=Sc),Out);
+		J=ceil((PP[0]-X0)/XD+0.5);
+		Out=saveproc(xylines([P0,P0+Vy]|option_list=OL),Out);
+		Out=saveproc(xylines([P0+Vz,P0+Vy+Vz]|option_list=OL),Out);
+		Out=saveproc(xylines([P0,P0+Vz]|option_list=OL),Out);
+		Out=saveproc(xylines([P0+Vx,P0+Vx+Vz]|option_list=OL),Out);
+		Out=saveproc(xylines([P0+Vy,P0+Vy+Vz]|option_list=OL),Out);
+		Out=saveproc(xylines([P0+Vy,P0+Vy+Vz]|option_list=OL),Out);
+		if(Dev>4) Dev2=ceil(Dev/2);
+		if(FC<0 && Raw!=1){
+			OL1=cons(["opt",(TikZ)?"dotted":"@{.}"],OL);
+			if(FC==-8) FC=0;
+		}
+		for(I=0;I<3;I++){		/* box with hidden part */
+			if(I==1) Pz=PP-Vx;
+			else if(I==2) Pz=PP-Vy;
+			LP=Pz-PP;
+			for(FV=-1,K=0;K<=Dev2; K++){
+				PPx=PP[0]+(K/Dev2)*LP[0]; PPy=PP[1]+(K/Dev2)*LP[1];
+				J=ceil((PPx-X0)/XD);
+				if(K!=Dev2 && (J<0||J>Dev)) continue;
+				if(K!=Dev2 && (ZF[J]==0 || PPy<Z0[J] || PPy>Z1[J])){	/* visible */
+					if(FV!=1){
+						FV=1;
+						PPP=[PPx,PPy];
+					}
+				}else{
+					if(FV!=0){
+						if(FV==1) Out=saveproc(xylines([PPP,[PPx,PPy]]|option_list=OL1),Out);
+						FV=0;
+					}
+				}
 			}
-			if(FC>1){
-				LL=L[(Sh+1)%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[1])+","+rtostr(LZ[0])+")";
-				Q=P0+Vx;
-				str_tb(xyput([Q[0],Q[1],["+!L",S]]|scale=Sc),Out);
-				LL=L[(Sh+3)%4];
-				S="("+rtostr(LL[0])+","+rtostr(LL[1])+","+rtostr(LZ[0])+")";
-				Q=P0+Vy;
-				str_tb(xyput([Q[0],Q[1],["+!R",S]]|scale=Sc),Out); 
+		}
+		if(FC!=0 && Raw!=1){	/* show coordinate*/
+			if(iand(FC,4)){
+				Sub=1;
+				if(TikZ){
+					 S0="\\scriptsize";S1="";
+				}else{
+					 S0="{}_{"; S1="}";
+				}
+			}else Sub=0;
+			if(iand(FC,2))
+				LLL=[[1,0,P0+Vx,(TikZ)?"right":"+!L"],[3,0,P0+Vy,(TikZ)?"left":"+!R"]];
+			else LL=[];
+			if(Bs>0){
+				LLL=cons([0,0,P0,(TikZ)?"below":"+!U"],LLL);
+				LLL=cons([2,1,P0+Vx+Vy+Vz,(TikZ)?"above":"+!D"],LLL);
+			}else{
+				LLL=cons([2,0,P0+Vx+Vy,(TikZ)?"below":"+!U"],LLL);
+				LLL=cons([0,1,P0+Vz,(TikZ)?"above":"+!D"],LLL);
+			}
+			for(TLL=LLL;TLL!=[];TLL=cdr(TLL)){
+				TL=car(TLL);LL=L[(Sh+TL[0])%4];
+				if(Cpx==0 || Cpx==3)
+					S=ltotex([LL[0],LL[1],LZ[TL[1]]]|opt="coord");
+				else
+					S=ltotex([LL[0]+LL[1]*@i,LZ[TL[1]]]|opt="coord",cpx=Cpx);
+				SS=S;
+				if(TikZ) S="$"+S+"$";
+				if(Sub) S=S0+S+S1;
+				if(!TikZ) S="$"+S+"$";
+				if(Proc) Out=cons([2,[["scale",Sc]],[TL[2][0],TL[2][1]],[[TL[3],S]],
+					str_subst(SS," ","")],Out);
+				else str_tb(xyput([TL[2][0],TL[2][1],[TL[3],S]]|scale=Sc),Out);
 			}
 		}
 	}
-	S=xyproc(str_tb(0,Out));
-	if(type(Dvi=getopt(dviout))!=1) return S;
-	if(Dvi==2){
-		T="("+my_tex_form(L[3][0])+"\\le x\\le "+my_tex_form(L[1][0])+",\\,"+
-			my_tex_form(L[3][1])+"\\le y\\le "+my_tex_form(L[1][1])+")";
-		dviout("z="+my_tex_form(F0)+"\\ \\ "+T|eq=1,keep=1);
-		dviout(S|eq=8);
-	}else dviout(S);
+	if(type(Pt=getopt(pt))==4){		/* option pt=[] */
+		if(type(Pt[0])<4 || (length(Pt[0])==3 && type(Pt[0][0])<2 && type(Pt[0][2])<2))
+			Pt=[Pt];
+		for(PT=Pt;PT!=[];PT=cdr(PT)){
+			PP=car(PT);
+/*			if(type(PP[0])!=4) PP=[PP]; */
+			P=car(PP);
+			if(type(P)==7) Q=[P,0];
+			else if(P==1) Q=["_",0];
+			else Q=subst([CX,CY],x,deval(P[0]),y,deval(P[1]),z,deval(P[2]));
+			if(length(PP)>1 && type(PP[1])==4 && length(PP[1])==3){		/* draw line */
+				PP=cdr(PP);P=car(PP);
+				if(type(P)==7) Q1=P;
+				else if(P==1) Q="_";
+				else Q1=subst([CX,CY],x,deval(P[0]),y,deval(P[1]),z,deval(P[2]));
+				if(length(PP)<2 || PP[1]==0 || iand(PP[1],1)) OL2=="";
+				else OL2=(TikZ)?"dotted":"@{.}";
+				if(length(PP)>2 && type(PP[2])==7){
+					if(OL2=="") OL2=PP[2];
+					else{
+						if(TikZ)  OL2=OL2+",";
+						OL2=OL2+PP[2];
+					}
+				}
+				OL1=OL;
+				if(OL2!="") OL1=cons(["opt",OL2],OL1);
+				if(length(PP)<2 || PP[1]>=0)
+					Out=saveproc(xylines([Q,Q1]|option_list=OL1),Out);
+				else{
+					LP0=Q1[0]-Q[0];LP1=Q1[1]-Q[1];
+					for(FV=-1,K=0;K<=Dev2; K++){
+						PPx=Q[0]+(K/Dev2)*LP0; PPy=Q[1]+(K/Dev2)*LP1;
+						J=ceil((PPx-X0)/XD);
+						if(K!=Dev2 && (J<0 || J>Dev || ZF[J]==0 || PPy<Z0[J] || PPy>Z1[J])){
+							/* visible */
+							if(FV!=1){
+								FV=1;
+								PPP=[PPx,PPy];
+							}
+						}else{
+							if(FV!=0){
+								if(FV==1) Out=saveproc(xylines([PPP,[PPx,PPy]]|option_list=OL1),Out);
+								FV=0;
+							}
+						}
+					}
+				} 
+				continue;
+			}
+			if(length(PP)==1) S="$\\bullet$";
+			else if(type(PP[1])==7) S=PP[1];  
+			else if(type(PP[1])==4){
+				if(length(PP[1])>1 && type(PP[1][1])!=7)
+					 S=cons(car(PP),cons("$\\bullet$",cdr(cdr(PP))));
+				else S=PP[1];
+			}else S="$\\bullet$";
+			if(length(PP)<=2){
+				if(Proc) Out=cons([2,[["scale",Sc]],[Q[0],Q[1]],S],Out);
+				else str_tb(xyput([Q[0],Q[1],S]|scale=Sc),Out);
+			}else if(!TikZ){
+				if(Proc) Out=cons([2,[["scale",Sc]],[Q[0],Q[1]],[S,"",PP[2]]],Out);
+				else str_tb(xyput([Q[0],Q[1],S,"",PP[2]]|scale=Sc),Out);
+			}else{
+				if(Proc) Out=cons([2,[["scale",Sc]],[Q[0],Q[1]],[S,cdr(cdr(PP))]],Out);
+				else str_tb(xyput(append([Q[0],Q[1],S],cdr(cdr(PP)))|scale=Sc),Out);
+			}
+		}
+	}
+	if(Proc){
+		S=reverse(Out);
+		if(Proc==1||Proc==3){
+			for(W=[],I=0;I<2;I++) for(J=0;J<2;J++) for(K=0;K<2;K++)
+				W=cons(subst([CX*Sc,CY*Sc],x,Lx[I],y,Ly[J],z,Lz[K]),W);
+			W=ptbbox(W);
+			S=cons([0,W[0],W[1],(TikZ)?1:1/10],S);
+		}
+	}else S=str_tb(0,Out);
+	if(type(Dvi)!=1||(Proc&&abs(Dvi)<2)) return S;
+	Lout=[];
+	if(abs(Dvi)>=2){
+		/* show title */
+		L0=[];
+		Title=getopt(title);
+		if(type(Title)!=7)
+				 Title=(type(F00)==4)?("\\texttt{"+verb_tex_form(F00)+"}"):my_tex_form(F00);
+		if(type(Title)==7){
+			T=my_tex_form(L[3][0])+"\\le x\\le "+my_tex_form(L[1][0])+",\\,"+
+				my_tex_form(L[3][1])+"\\le y\\le "+my_tex_form(L[1][1])+")";
+			if(Proc){
+				if(Cpx>=1) L0=[[5,[["eq",1]],"|"+Title+"|\\quad(z=x+yi,\\ "+T]];
+				else L0=[[5,[["eq",1]],"z="+Title+"\\ \\ ("+T]];
+			}else{
+				if(Cpx>=1) dviout("|"+Title+"|\\quad(z=x+yi,\\ "+T|eq=1,keep=1);
+				else dviout("z="+Title+"\\ \\ ("+T|eq=1,keep=1);
+			}
+		}
+		A=rint(deval(180*A/@pi))+90*(Sh-1);
+		if(A>=180) A-=180;
+		B=rint(deval(180*B/@pi));
+		if(abs(Dvi)>=3){
+			T="\\text{angle } ("+my_tex_form(A)+"^\\circ,"+my_tex_form(B)+"^\\circ)";
+			if(Ratio!=1 || Ratio2!=1) T=T+"\\quad\\text{ratio }1:"
+				+my_tex_form(sint(Ratio2,2))+":"+my_tex_form(sint(Ratio,2));
+			if(Proc) L0=cons([5,[["eq",1]],T],L0);
+			else  dviout(T|eq=1,keep=1);
+		}
+		SS="% range "+rtostr([L[3][0],L[1][0]])+"x"+rtostr([L[3][1],L[1][1]])+
+			"  angle ("+ rtostr(A) +","+ rtostr(B)+")  dev=";
+		if(M1==M2) SS=SS+rtostr(M1);
+		else SS=SS+rtostr([M1,M2]);
+		if(M3!=1) SS=SS+"  acc="+rtostr(M3);
+		if(type(Sc0)>=0) SS=SS+"  scale="+rtostr(Sc0);
+		if(Proc){
+			S=cons([5,[],SS],S);
+			for(;L0!=[];L0=cdr(L0)) S=cons(car(L0),S);
+			return S;
+		}
+		if(Dvi>0){
+			dviout(SS|keep=1);
+			dviout(xyproc(S)|eq=8);
+		}else Lout=[SS,S];
+	}else{
+		if(Dvi>0) dviout(xyproc(S));
+		else Lout=[S];
+	}
+	if(getopt(trans)==1) return cons([CX*Sc,CY*Sc],Lout);
+	if(Dvi<0) return Lout;
+}
+
+def myexp(Z)
+{
+	if((Im=imag(Z))==0) return dexp(Z);
+	return dexp(real(Z))*(dcos(Im)+@i*dsin(Im));
+}
+
+def mycos(Z)
+{
+	if((Im=imag(Z))==0) return dcos(Z);
+	V=myexp(Z*@i);
+	return (V+1/V)/2;
+}
+
+def mysin(Z)
+{
+	if((Im=imag(Z))==0) return dsin(Z);
+	V=myexp(Z*@i);
+	return (1/V-V)*@i/2;
+}
+
+def mytan(Z)
+{
+	if((Im=imag(Z))==0) return dsin(Z);
+	V=myexp(2*Z*@i);
+	return @i*(1-V)/(1+V);
+}
+
+def mylog(Z)
+{
+	if((Im=imag(Z))==0) return dlog(Z);
+	return dlog(dabs(Z))+@i*myarg(Z);
+}
+
+def myarg(Z)
+{
+	if(type(Z)>3){
+		Re=Z[0];Im=Z[1];
+	}else{
+		Im=imag(Z);Re=real(Z);
+	}
+	if(Re==0) return (Im<0)?-deval(@pi)/2:deval(@pi)/2;
+	V=datan(Im/Re);
+	if(Re>0) return V;
+	return (V>0)?(V-deval(@pi)):(V+deval(@pi));
+}
+
+def myatan(Z)
+{
+	if((Im=imag(Z))==0) return datan(Z);
+	mylog((1-Z*@i)/(1+Z*@i))*@i/2;
+}
+
+def myasin(Z)
+{
+	return deval(@pi/2)-myacos(Z);
+}
+
+def myacos(Z)
+{
+	if(imag(Z)==0 && Z<=1 && Z>=-1) return dacos(Z);
+	return mylog(Z-dsqrt(Z^2-1))*@i;
+}
+
+def gamma(Z)
+{
+	return pari(gamma,Z);
+}
+
+def lngamma(Z)
+{
+	return pari(lngamma,Z);
+}
+
+def digamma(Z)
+{
+	return pari(digamma,Z);
+}
+
+def dilog(Z)
+{
+	return pari(dilog,Z);
+}
+
+def erfc(Z)
+{
+	return pari(erfc,Z);
+}
+
+def zeta(Z)
+{
+	return pari(zeta,Z);
+}
+
+def eta(Z)
+{
+	return pari(eta,Z);
+}
+
+def jell(Z)
+{
+	return jell(jell,Z);
+}
+
+def evals(F)
+{
+	if(type(F)==7){
+		if(type(Del=getopt(del))!= 7) return eval_str(F);
+		S=strtoascii(Del);K=length(S); 
+		if(K==0) return [eval_str(F)];
+		Raw=getopt(raw);
+		F=strtoascii(F);L=[];T1=0;
+		do{
+			T2=str_str(F,S|top=T1);
+			if(T2<0) T2=10000;
+			FT=str_cut(F,T1,T2-1);
+			L=cons((Raw==1)?FT:evals(FT),L);
+			T1=T2+K;
+		}while(T2!=10000);
+		return reverse(L);
+	}
+	if(type(F)==4){
+		if(type(S=car(F))==7){
+			S+="(";
+			for(I=0,FT=cdr(F); FT!=[]; I++,FT=cdr(FT)){
+				if(type(ST=car(FT))!=7)	ST=rtostr(ST);
+				if(I>0) S=S+","+ST;
+				else S=S+ST;
+			}
+			S=S+")";
+			return eval_str(S);
+		}else return call(S,cdr(F));
+	}
+	return F;
+}
+
+def myeval(F)
+{
+	if(type(F)!=4)	V=F;
+	else for(V=car(F),F=cdr(F); F!=[];){
+		FT=car(F);
+		if(type(G=FT[1])==2){
+			if(length(FT)==3) R=(*G)(myeval(FT[2]));
+#ifdef USEMODULE
+			else R=call(G,map(os_md.myeval,cdr(cdr(FT))));
+#else
+			else R=call(G,map(myeval,cdr(cdr(FT))));
+#endif
+		}
+		else if(G==0) R=myeval(FT[2]);
+#ifdef USEMODULE
+			else R=call(G[0],map(os_md.myeval,cdr(cdr(FT)))|option_list=G[1]);
+#else
+			else R=call(G[0],map(myeval,cdr(cdr(FT)))|option_list=G[1]);
+#endif
+		V=subst(V,FT[0],R);
+		F=subst(cdr(F),FT[0],R);
+	}
+	return (type(V)<4)?eval(V):map(eval,V);
+}
+
+def mydeval(F)
+{
+	if(type(F)!=4) V=F;
+	else for(V=car(F),F=cdr(F); F!=[]; ){
+		FT=car(F);
+		if(type(G=FT[1])==2){
+			if(length(FT)==3) R=(*G)(myeval(FT[2]));
+#ifdef USEMODULE
+			else R=call(G,map(os_md.mydeval,cdr(cdr(FT))));
+#else
+			else R=call(G,map(mydeval,cdr(cdr(FT))));
+#endif
+		}
+		else if(G==0) R=mydeval(FT[2]);
+#ifdef USEMODULE
+			else R=call(G[0],map(os_md.mydeval,cdr(cdr(FT)))|option_list=G[1]);
+#else
+			else R=call(G[0],map(mydeval,cdr(cdr(FT)))|option_list=G[1]);
+#endif
+		V=subst(V,FT[0],R);
+		F=subst(cdr(F),FT[0],R);
+	}
+	return (type(V)<4)?deval(V):map(deval,V);
+}
+
+def myfeval(F,X)
+{
+	return myeval(subst(F,x,X));
+}
+
+def myf2eval(F,X,Y)
+{
+	return myeval(subst(F,x,X,y,Y));
+}
+
+def myf3eval(F,X,Y,Z)
+{
+	return myeval(subst(F,x,X,y,Y,z,Z));
+}
+
+def myfdeval(F,X)
+{
+	return mydeval(subst(F,x,X));
+}
+
+def myf2deval(F,X,Y)
+{
+	return mydeval(subst(F,x,X,y,Y));
+}
+
+def myf3deval(F,X,Y,Z)
+{
+	return mydeval(subst(F,x,X,y,Y,z,Z));
+}
+
+def f2df(F)
+{
+	if(type(Opt=getopt(opt))!=1) Opt=0;
+	if(iand(Opt,1)){
+		if(Opt>0) F=map(eval,F);
+		else F=map(deval,F);
+	}
+	Cpx=getopt(cpx);
+	if(type(F)==4 && iand(Opt,2)==0) return F;
+	K=getopt(level);
+	if(type(K)!=1) K=0;
+	AG=[sin,cos,tan,asin,acos,atan,exp,sinh,cosh,tanh,log,pow];
+	AGd=[os_md.mysin,os_md.mycos,os_md.mytan,os_md.asin,os_md.myacos,
+		os_md.myatan,os_md.myexp,os_md.myexp,os_md.myexp,os_md.myexp,
+		os_md.mylog,dsqrt,os_md.myexp];
+	for(R=[],I=0,Arg=vars(F);Arg!=[];Arg=cdr(Arg)){
+		Fn=functor(car(Arg));
+		if(vtype(Fn)!=3) continue;
+		V=args(car(Arg));
+		for(PAG=AG,PAGd=AGd;PAG!=[];PAG=cdr(PAG),PAGd=cdr(PAGd)){
+			if(Fn==car(PAG)){
+				if(K==0) L="z__";
+				else L="z"+rtostr(K)+"__";
+				if(I==0) VC=makev([L]);
+				else VC=makev([L,I]);
+				I++;
+				VC0=VC;
+				if(Fn==sinh || Fn==cosh || Fn==tanh){
+					VC=makev([L,I++]);
+					if(Fn==sinh)
+						R=cons([VC0,0,(VC^2-1)/(2*VC)],R); 
+					else if(Fn==cosh)
+						R=cons([VC0,0,(VC^2+1)/(2*VC)],R);
+					else
+						R=cons([VC0,0,(VC^2-1)/(VC^2+1)],R);
+				}
+				if(Fn==pow && (V[1]!=1/2||Cpx==1)){
+					R0=f2df(V[1]*((type(V[0])==1)?dlog(V[0]):log(V[0]))|level=K+1);
+					PAGd=cdr(PAGd);
+				}else R0=f2df(V[0]|level=K+1);
+				R=cons([VC,car(PAGd),R0],R);
+				F=subst(F,car(Arg),VC0);
+				Arg=cons(0,vars(F));
+				break;
+			}
+		}
+	}
+	if(R==[])	return F;
+	if(Cpx==1){
+		for(PAG=P,PAGd=AGd;PAG!=[];PAG=cdr(PAG),PAGd=cdr(PAGd))
+			R=subst(R,car(PADd),car(PAG));
+	}
+	return cons(F,reverse(R));
+}
+
+def compdf(F,V,G)
+{
+	FL=["abs","floor","rint","zeta","gamma","arg","real","imag","conj"];
+	FS=[os_md.abs,floor,rint,os_md.zeta,os_md.gamma,os_md.myarg,real,imag,conj];
+	if(type(V)==4){
+		for(;V!=[];V=cdr(V),G=cdr(G)) F=compdf(F,car(V),car(G));
+		return F;
+	}
+	if(type(F)==7){
+		if(str_str(F,"|")==0){
+			F="abs("+str_cut(F,1,str_len(F)-2)+")";
+		}else if(str_str(F,"[")==0){
+			F="floor("+str_cut(F,1,str_len(F)-2)+")";
+		}
+		I=str_str(F,"(");
+		Var=x;
+		if(I>0){
+			J=str_pair(F,I+1,"(",")");
+			if(J<0) return 0;
+			Var=eval_str(str_cut(F,I+1,J-1));
+			Var=f2df(Var);
+			F0=str_cut(F,0,I-1);
+		}
+ 		if((I=findin(F0,FL))<0&&(I=findin(F,FL))<0) F=f2df(eval_str(F));
+		else F=[z__,[z__,FS[I],Var]];
+	}
+	if(type(F)!=4) F=f2df(F);
+	if(type(G)!=4) G=f2df(G);
+	VF=vars(F);VG=vars(G);
+	for(E=I=0;I<30;I++){
+		for(J=0;J<30;J++){
+			X=makev(["z__",I,J]);
+			if(findin(X,VF)<0 && findin(X,VG)<0){
+				E=1;break;
+			}
+		}
+		if(E) break;
+	}
+	if(!E) return 0;
+	if(V==G) return F;	/* subst(F(V),V,G) */ 
+	if(type(G)<4) return subst(F,V,G);
+	if(type(F)<4) F=[F]; /* return compdf([X,[X,0,F]],V,G); */
+	F=subst(F,V,X);
+	G=cons([X,0,G],cdr(F));
+	return cons(car(F),G);
+}
+
+def fzero(F,LX)
+{
+	LX1=eval(LX[1]);LX2=eval(LX[2]);
+	if(getopt(zero)==1){
+		if(getopt(cont)==1) CT=1;
+		else CT=0;
+		if(getopt(trans)!=1 && type(F)<4) F=f2df(F);
+		F=subst(F,@pi,deval(@pi),@e,deval(@e));
+		if(type(Dev=getopt(dev))!=1 || Dev<2) Dev=16;
+		V1=myeval(subst(F,LX[0],X1=LX1));
+		V2=myeval(subst(F,LX[0],X2=LX2));
+		if(V1>0){
+			V0=V1;V1=V2;V2=V0;
+			X0=X1;X1=X2;X2=X0;
+		}
+		if(V1<0 && V2>0){
+			D=(V2-V1)*1024;
+			for(I=0; I<Dev; I++){
+/*	mycat([D,X1,V1,X2,V2]) ; */
+				if(iand(I,1)) X0=(X1+X2)/2;
+				else X0=(V2*X1-V1*X2)/(V2-V1);
+				V0=myeval(subst(F,LX[0],X0));
+				if(V0==0||V0==V1||V0==V2) return [X0,V0];
+				if(V0<0){
+					if(!CT && V0+D<0) return [];
+					V1=V0;X1=X0;
+				}else{
+					if(!CT && V0>D) return [];
+					V2=V0;X2=X0;
+				}
+			}
+			X0=(V2*X1-V1*X2)/(V2-V1);
+			return [X0,myeval(subst(F,LX[0],X0))];
+		}
+		if(V0==0) return [X0,V0];
+		if(V1==0) return [X1,V1];
+		return [];
+	}
+	if(type(F)<4) F=f2df(F);
+	F=subst(F,@pi,deval(@pi),@e,deval(@e));
+	L=[];
+	if(type(F)<4){
+		if(type(F)==3) F=nm(red(F));
+		if((Deg=deg(F,LX[0]))<=2){
+			if(Deg==2){
+				D=(C1=coef(F,1,LX[0]))^2-4*(C2=coef(F,2,LX[0]))*coef(F,0,LX[0]);
+				if(D>=0){
+					R=dsqrt(D);
+					if((S=(-C1+D)/(2*C2))>=LX1&&S<=LX2) L=[[S,subst(F,LX[0],S)]];
+					if(D!=0 && (S=(-C1-D)/(2*C2))>=LX1&&S<=LX2) L=cons(S,L);
+				}
+			}else if(Deg==1&&(S=-coef(F,0,LX[0])/coef(F,1,LX[0]))>=LX1&&S<=LX2)
+				L=[[S,subst(F,LX[0],S)]];
+			return L;
+		}
+		S=polroots(F,LX[0]);
+		for(L=[];S!=[];S=cdr(S))
+			if(car(S)>=LX1&&car(S)<=LX2) L=cons([car(S),subst(F,LX[0],car(S))],L);
+		return qsort(L);
+	}
+	if(type(Div=getopt(mesh))!=1 || Div<=0)
+		Div = 2^(10);
+	W=(LX2-LX1)/Div;
+	for(I=V2=0;I<=Div;I++){
+		X1=X2;X2=LX1+I*W;V1=V2;
+		if((V2=myeval(subst(F,LX[0],X2)))==0)
+			L=cons([X2,V2],L);
+		if(V1*V2<0){
+			L0=fzero(F,[LX[0],X1,X2]|zero=1,trans=1);
+			if(L0!=[]) L=cons(L0,L);
+		}
+	}
+	return reverse(L);
+}
+
+def fmmx(F,LX)
+{
+	LX1=eval(LX[1]);LX2=eval(LX[2]);
+	if(getopt(trans)!=1 && type(F)<4) FT=f2df(F);
+	F=subst(FT,@pi,deval(@pi),@e,deval(@e));
+	if(type(G=getopt(dif))>=1){
+		if(G==1) G=os_md.mydiff(F,LX[0]);
+		L=fzero(G,LX|option_list=getopt());
+		R=[[LX1,myeval(subst(FT,LX[0],LX1))]];
+		for(I=0;L!=[];L=cdr(L),I++){
+			X=car(L)[0];
+			if(X==LX1) continue;
+			R=cons([X,myeval(subst(FT,LX[0],X))],R);
+		}
+		if(X!=LX2)	R=cons([LX2,myeval(subst(FT,LX[0],LX2))],R);
+		return reverse(R);
+	}
+	if(type(Div=getopt(mesh))!=1 || Div<=0)
+		Div = 2^(10);
+	if(type(Dev=getopt(dev))!=1 || Dev<2) Dev=16;
+	W=(LX2-LX1)/Div;
+	F=FT;
+	for(I=V2=V3=0;I<=Div;I++){
+		X1=X2;X2=X3;X3=LX1+I*W;V1=V2;V2=V3;
+		V3=myeval(subst(F,LX[0],X3));
+		if(I==0) L=[[X3,V3]];
+		if(I<2) continue;
+/* mycat([X1,X2,X3,V1,V2,V3]); */
+		if((V1-V2)*(V2-V3)<0){
+			X02=X2;V02=V2;X03=X3;V03=V3;
+			for(J=0; J<Dev && X1!=X3; J++){
+/* mycat([J,X1,X2,X3,V1,V2,V3,V1-V2,V2-V3]); */ 
+				X12=(X1+X2)/2;V12=myeval(subst(F,LX[0],X12));
+				if((V1-V12)*(V12-V2)<=0){
+					X3=X2;V3=V2;X2=X12;V2=V12;continue;
+				}
+				X23=(X2+X3)/2;V23=myeval(subst(F,LX[0],X23));
+				if((V12-V2)*(V2-V23)<=0){
+					X1=X12;V1=V12;X3=X23;V3=V23;continue;
+				}
+				if((V2-V23)*(V23-V3)<=0){
+					X1=X2;V1=V2;X2=X23;V2=V23;continue;
+				}
+			}
+			L=cons([X2,V2],L);
+			X2=X02;V2=V02;X3=X03;V3=V03;
+		}
+	}
+	L=cons([LX2,myeval(subst(F,LX[0],LX2))],L);
+	return reverse(L);
+}
+
+def fcont(F,LX)
+{
+	LX1=eval(LX[1]);LX2=eval(LX[2]);
+	if(getopt(trans)!=1 && type(F)<4) FT=f2df(F);
+	if(type(Div=getopt(mesh))!=1 || Div<=0)
+		Div = 2^(10);
+	if(type(Dev=getopt(dev))!=1 || Dev<2) Dev=16;
+	W=(LX2-LX1)/Div;
+	if((Df=getopt(dif))!=1){
+		Df=0;
+	}else{
+		if(Dev==16) Dev=6;
+		WD=W/2^(Dev+1);
+	}
+	F=FT;
+	C=2;
+	for(I=V2=V3=0;I<=Div;I++){
+		X1=X2;X2=X3;X3=LX1+I*W;V1=V2;V2=V3;
+		V3=myeval(subst(F,LX[0],X3));
+		if(Df){
+			if(I==Div) break;
+			V3=(myeval(subst(F,LX[0],X3+WD))-V3)/WD;
+		}
+		if(I==0) L=[[X3,V3]];
+		if(I<2) continue;
+/* mycat([X1,X2,X3,V1,V2,V3]); */
+		if(C*dabs(2*V2-V1-V3) > dabs(V1-V3)){
+			X01=X1;V01=V1;X02=X2;V02=V2;X03=X3;V03=V3;
+			for(J=0; X01!=X03; J++){
+/* mycat([J,X01,X02,X03,V01,V02,V03,V01-V02,V02-V03]); */
+				if(dabs(V01-V02)>dabs(V02-V03)){
+					X03=X02;V03=V02;
+				}else{
+					X01=X02;V01=V02;
+				}
+				if(J==Dev) break;
+				X02=(X01+X02)/2;
+				V02=myeval(subst(F,LX[0],X02));
+				if(Df) V02=(myeval(subst(F,LX[0],WD))-V02)/WD;
+				if(C*dabs(2*V02-V01-V03) < dabs(V01-V03)) break;
+			}
+			if(J==Dev||X01==X03) L=cons([X01,X03,V03-V01],L);
+		}
+	}
+	return reverse(L);
 }
 
 def xygraph(F,N,LT,LX,LY)
 {
+	if((Proc=getopt(proc))!=1&&Proc!=2&&Proc!=3) Proc=0;
+	if(type(DV=getopt(dviout))==4){
+		OL=delopt(getopt(),["dviout","shift","ext","cl"]);
+		OL=cons(["proc",1],OL);
+		R=xygraph(F,N,LT,LX,LY|option_list=OL);
+		OL=delopt(getopt(),["shift","ext","cl"]|inv=1);
+		return execdraw(R,DV|optilon_list=OL);
+	}
 	if(N==0) N=32;
 	if(N<0){
 		N=-N;
@@ -6962,98 +9778,217 @@ def xygraph(F,N,LT,LX,LY)
 	}else{
 		N1=0; N2=N;
 	}
+	LX=[deval(LX[0]),deval(LX[1])];
+	LY=[deval(LY[0]),deval(LY[1])];
 	if(length(LT)==3 && isvar(LT[0])==1){
 		TT=LT[0]; LT=cdr(LT);
-	}else TT=x;
+		F=subst(F,TT,x);
+	}
 	TD=(LT[1]-LT[0])/N;
 	if(type(Mul=getopt(scale))!=1){
 		if(type(Mul)==4){
 			MulX=Mul[0]; MulY=Mul[1];
 		}else MulX=MulY=1;
 	}else MulX=MulY=Mul;
-	if(type(F)!=4){
+	if(type(Org=getopt(org))==4){
+		Orgx=Org[0];Orgy=Org[1];
+	}else Orgx=Orgy=0;
+	if(type(F)!=4 || (getopt(para)!=1 && length(F)>1 && type(F[0])<4 && type(F[1])==4)) {
 		if(getopt(rev)!=1){
-			F1=TT; /* LX[0]+(LX[1]-LX[0])*(TT-LT[0])/(TD*N); */
+			F1=x; /* LX[0]+(LX[1]-LX[0])*(x-LT[0])/(TD*N); */
 			F2=F;
 		}else{
 			F1=F;
-			F2=TT; /* LY[0]+(LY[1]-LY[0])*(TT-LT[0])/(TD*N); */
+			F2=x; /* LY[0]+(LY[1]-LY[0])*(x-LT[0])/(TD*N); */
 		}
 	}else{
 		F1=F[0]; F2=F[1];
 	}
-	Dn=dn(F1)*dn(F2);
-	V=[];
-	if(length(LT)>2){
-		for(PT=LT;PT!=[]; PT=cdr(PT)){
-			T=car(PT);
-			if(deval(subst(Dn,TT,T))==0){
-				V=cons(0,V); continue;
-			}
-			X=deval(subst(F1,TT,T)); Y=deval(subst(F2,TT,T));
-			if(X<LX[0] || X>LX[1] || Y<LY[0] || Y>LY[1]) V=cons(0,V);
-			else cons([MulX*X,MulY*Y],V);
-		}
-		N2=N1-1;
+	if(F1==0 || F2==0) LT=[];
+	if(length(LT)==2){
+		for(LTT=[],I=N2;I>=N1;I--)
+			LTT=cons(deval(LT[0]+I*(LT[1]-LT[0])/N),LTT);
+		LT=LTT;
 	}
-	if(F1==0 && F2==0) N2=N1-1;
-	if(type(Err=getopt(err))==1)
-		Dn=subst(Dn,TT,TT+Err*TD/1001.23);
-	for(I=N1; I<=N2; I++){
-		T=LT[0]+I*TD;
-		if(deval(subst(Dn,TT,T))==0){
+	Cpx=getopt(cpx);
+	if(Cpx!=1 && (str_str(rtostr(F1),"@i")>=0 || str_str(rtostr(F2),"@i")>=0))
+		Cpx=1;
+	if(type(Cpx)<0) Cpx=0;
+	if(type(F1)<4) F1=f2df(F1);
+	if(type(F2)<4) F2=f2df(F2);
+	if(type(Err=getopt(err))==1){
+		F1=subst(F1,x,x+Err*TD/1001.23);
+		F2=subst(F2,x,x+Err*TD/1001.23);
+	}
+	if(type(F1)==4 || type(F2)==4){
+		Dn=1;
+	}else Dn=dn(F1)*dn(F2);
+	for(V=[],PT=LT;PT!=[]; PT=cdr(PT)){
+		T=car(PT);
+		if(myfeval(Dn,T)==0){
 			V=cons(0,V); continue;
 		}
-		X=deval(subst(F1,TT,T)); Y=deval(subst(F2,TT,T));
-		if(X<LX[0] || X>LX[1] || Y<LY[0] || Y>LY[1]){
-/*
-			if(V!=[] && V[0]!=0){
-				VX=V[0][0]/MulX; VY=V[0][1]/MulY;
-				if(X>=LX[0] && X<=LX[1]){
-					if(Y<LY[0]){
-						X=(X*(VY-LY[0])+VX*(LY[0]-Y))/(VY-Y);
-						Y=LY[0];
-					}else{
-						X=(X*(LY[1]-VY)+VX*(Y-LY[1]))/(Y-VY);
-						Y=LY[1];
-					}
-					V=cons([MulX*X,MulY*Y],V);
-				}else if(Y>=LY[0] && Y<=LY[1]){
-					if(X<LX[0]){
-						Y=(Y*(VX-LX[0])+VY*(LX[0]-X))/(VX-X);
-						X=LX[0];
-					}else{
-						Y=(Y*(LX[1]-VX)+VY*(X-LX[1]))/(X-VX);
-						X=LX[1];
-					}
-					V=cons([MulX*X,MulY*Y],V);
-				}
-			}
-*/
-/*
-			for(J=0; J<7; J++){
-				T-=TD/8;
-				if(deval(subst(Dn,TT,T))==0) continue;
-				X=deval(subst(F1,TT,T)); Y=deval(subst(F2,TT,T));
-				if(X>=LX[0] && X<=LX[1] && Y>=LY[0] && Y<=LY[1]){
-					V=cons([MulX*X,MulY*Y],V);
-					break;
-				}
-			}
-*/
-			V=cons(0,V);
+		if(Cpx>0){
+			X=myfeval(F1,T);Y=myfeval(F2,T);
+		}else{
+			X=myfdeval(F1,T);Y=myfdeval(F2,T);
 		}
-		else V=cons([MulX*X,MulY*Y],V);
+		if((N1==0||(PT!=LT&&length(PT)!=1)) && (X<LX[0]||X>LX[1]||Y<LY[0]||Y>LY[1]))
+			V=cons(0,V);
+		else
+			V=cons([MulX*(X-Orgx),MulY*(Y-Orgy)],V);
 	}
 	V=reverse(V);
+	Gap0=Gap=Arg=0;
+	if(type(Prec=getopt(prec))<0)
+		Level=0;
+	else if(Prec==0) Level=4;
+	else if(type(Prec)==1){
+		Level=Prec;
+		if(Level<0){
+			Level=-Level;
+			Gap0=1;
+		}
+	}else if(type(Prec)==4){
+		Level=Prec[0];
+		if(length(Prec)>1) Arg=Prec[1];
+		if(length(Prec)>2) Gap0=Prec[2];
+	}
+	if(Level>0){
+		if(Level>16) Level=16;
+		if(Arg<=0) Arg=30;
+		else if(Arg>120) Arg=120;
+		Arg=deval(@pi*Arg/180);
+		SL=dcos(Arg);
+	}
+	if(Gap0>0){
+		if(Gap0<2) Gap0=16;
+		else if(Gap0>512) Gap0=512;
+		Gap=((MulX*(LX[1]-LX[0]))^2+(MulY*(LY[1]-LY[0]))^2)/(Gap0^2);
+	}
+	for(I=0;I<Level;I++){
+		for(F=K=G=0,NV=NLT=[],PLT=LT,PV=V;PLT!=[];K++,PLT=cdr(PLT),PV=cdr(PV)){
+			TG=0;D0=D1;CLT0=CLT;CV0=CV;CV=car(PV);CLT=car(PLT);
+			if(length(PV)>1){
+				if((CV1=car(cdr(PV)))!=0 && CV!=0)
+					D1=[CV[0]-CV1[0],CV[1]-CV1[1]];
+				else D1=0;
+			}else K=-1; /* ? */
+			if(K>0 &&(((D1==0||D0==0)&&(CV0!=0||CV!=0||CV1!=0)) || dvangle(D0,D1)<SL ||
+			  (Gap>0 && (TG=(D0[0]^2+D0[1]^2-Gap)>0)))){
+				G++;T1=(CLT0+CLT)/2; 
+				if(F==0 && (CV0!=0 || CV!=0)){
+					if(myfdeval(Dn,T1)==0){
+						NV=cons(0,NV); NLT=cons(T1,NLT);
+					}
+					if(Cpx>0){
+						X=myfeval(F1,T1);Y=myfeval(F2,T1);
+					}else{
+						X=myfdeval(F1,T1);Y=myfdeval(F2,T1);
+					}
+					if(K==1 && N1<0){
+						NV=[];NLT=[];
+					}
+					if((K>1||N1==0)&&(X<LX[0]||X>LX[1]||Y<LY[0]||Y>LY[1])){
+						NV=cons(0,NV);NLT=cons(T1,NLT);F=0;
+					}else{
+						NV=cons([MulX*(X-Orgx),MulY*(Y-Orgy)],NV);NLT=cons(T1,NLT);
+					}
+				}
+				NV=cons(CV,NV);NLT=cons(CLT,NLT);
+				if(!TG&&(CV0!=0||CV1!=0)){
+					T2=(car(cdr(PLT))+CLT)/2;
+					if(myfdeval(Dn,T2)==0){
+						NV=cons(0,NV); NLT=cons(CLT,NLT);
+					}
+					if(Cpx>0){
+						X=myfeval(F1,T2);Y=myfeval(F2,T2);
+					}else{
+						X=myfdeval(F1,T2);Y=myfdeval(F2,T2);
+					}
+					if((N1==0||length(PV)!=2)&&(X<LX[0]||X>LX[1]||Y<LY[0]||Y>LY[1])){
+						NV=cons(0,NV);NLT=cons(T1,NLT);
+					}else{
+						NV=cons([MulX*(X-Orgx),MulY*(Y-Orgy)],NV);NLT=cons(T2,NLT);
+					}
+				}
+				if(length(PV)==2 && N1==-1)	break;
+				F=1;
+			}else{
+				F=0;NV=cons(CV,NV);NLT=cons(CLT,NLT);
+			}
+		}
+		V=reverse(NV);LT=reverse(NLT);
+		if(G==0) break;
+	}
+	if(Gap>0){
+		for(NV=[],PV=V;PV!=[];PV=cdr(PV)){
+			NV=cons(P0=car(PV),NV);
+			if(length(PV)>1 && P0!=0 && PV[1]!=0
+			  && (P0[0]-PV[1][0])^2+(P0[1]-PV[1][1])^2>Gap) NV=cons(0,NV);
+		}
+		V=reverse(NV);
+	}
 	if(getopt(raw)==1) return V;
-	if(type(C=getopt(ratio))!=1) C=0;
-	if(type(Opt=getopt(opt))!=7) Opt=0;
-	if(type(Vb=getopt(verb))!=1) Vb=0;
-	if(N1<0) S=xylines(V|curve=1,close=-1,opt=Opt,ratio=C,verb=Vb);
-	else S=xylines(V|curve=1,opt=Opt,ratio=C,verb=Vb);
+	OL=[["curve",1]];OLP=[];
+	if(type(C=getopt(ratio))==1){
+		OL=cons(["ratio",C],OL);OLP=cons(["ratio",C],OLP);
+	}
+	if(N1<0) OL=cons(["close",-1],OL);
+	if(type(Opt=getopt(opt))!=7 && type(Opt)!=4){
+		if(Opt==0) return xylines(V|optilon_list=cons(["opt",0],OL));
+	}
+	OL=cons(["opt",(Proc)?0:Opt],OL);
+	if(type(Opt)>=0) OLP=cons(["opt",Opt],OLP);
+	if(type(Vb=getopt(verb))==1||type(Vb)==4){
+		OL=cons(["verb",Vb],OL);OLP=cons(["verb",Vb],OL);
+	}
+ 	if(Proc){
+		S=(Proc==1)?
+			[[0,[MulX*(LX[0]-Orgx),MulX*(LX[1]-Orgx)],[MulY*(LY[0]-Orgy),MulY*(LY[1]-Orgy)],
+			(TikZ)?1:1/10]]:[]; 
+	 	S=cons([1,OLP,xylines(V|option_list=OL)],S);
+		if(Proc==3) return car(S);
+	}else S=xylines(V|option_list=OL);
+	if(type(Pt=getopt(pt))==4){
+		if(type(Pt[0])!=4) Pt=[Pt];
+		if(length(Pt)>1 && type(Pt[1])!=4) Pt=[Pt];
+		for(PT=Pt;PT!=[];PT=cdr(PT)){
+			PP=car(PT);
+			if(type(PP[0])!=4) PP=[PP];
+			P=car(PP);PP=cdr(PP);
+			Qx=MulX*(P[0]-Orgx);Qy=MulY*(P[1]-Orgy);
+			if(length(PP)>0 && type(PP[0])==4){		/* draw line */
+				P=car(PP);
+				Q1x=MulX*(P[0]-Orgx);Q1y=MulY*(P[1]-Orgy);
+				if(length(PP)<1 || car(PP)==0 || iand(car(PP),1))
+					 OL=["opt",(TikZ)?"-":"@{-}"];
+				else OL=["opt",(TikZ)?".":"@{.}"];
+				if(Proc) S=cons([1,OL,[[Qx,Qy],[Q1x,Q1y]]],S);
+				else S=S+xylines([[Qx,Qy],[Q1x,Q1y]]|optilon_list=OL);
+				continue;
+			}
+			if(length(PP)==0 || type(car(PP))!=7)  SS="$\\bullet$";
+			else SS=car(PP);
+			if(length(PP)<=1){
+				if(Proc) S=cons([2,[],[Qx,Qy],SS],S);
+				else S=S+xyput([Qx,Qy,SS]);
+			}else{
+				if(Proc) S=cons([2,[],[Qx,Qy],[[SS,"",PP[1]]]],S);
+				S=S+xyput([Qx,Qy,SS,"",PP[1]]);
+			}
+		}
+	}
 	if(type(Ax=getopt(ax))==4){  /* draw axis */
-		Adx0=Ady0=0; Adx1=Ady1=1; LOp="@{-}"; LxOp="+!U"; LyOp="+!R"; LxOO="+!UR";
+		Adx0=Ady0=0; Adx1=Ady1=0.1;
+		if(!TikZ){
+			if(!XYcm) Adx1=Ady1=1; 
+			LOp="@{-}"; LxOp="+!U"; LyOp="+!R";
+		}else{
+			LOp="-"; LxOp="below"; LyOp="left";
+		}
+		LOp0=LOp1=LOp;
+		LxOO=(Ax[1]==LY[0])?LxOp:(TikZ)?"below left":"+!UR";
 		if(type(AxOp=getopt(axopt))>0){
 			if(type(AxOp)==1){
 				if(AxOp>0)	Adx1=Ady1=AxOp;
@@ -7061,9 +9996,9 @@ def xygraph(F,N,LT,LX,LY)
 					Adx1=Ady1=0; Adx0=Ady0=AxOp;
 				}
 			}else if(type(AxOp)==4){
-				if(type(T=car(AxOp))==4 && length(AxOp)>2){
+				if(type(T=car(AxOp))==4 && length(AxOp)>1){
 					if(type(T)==7){
-						LxOp=T; LyOp=AxOp[2];
+						LxOp=T; LyOp=AxOp[1];
 					}else if(type(T)==4){
 						Ay0=T[0]; Ay1=T[1]; Ax0=AxOp[1][0]; Ax1=AxOp[1][1];
 						if(length(T)>2) LxOp=T[2];
@@ -7071,90 +10006,764 @@ def xygraph(F,N,LT,LX,LY)
 					}
 				}
 				if(length(AxOp)>2 && type(AxOp[2])==7) LxOO=AxOp[2];
-				if(length(AxOp)>3 && type(AxOp[3])==7) LOp=AxOp[3];
+				if(length(AxOp)>3 && type(AxOp[3])==7) LOp0=AxOp[3];
+				if(length(AxOp)>4 && type(AxOp[4])==7) LOp1=AxOp[4];
 			}
-			if(type(AxOp)==7) LOp=AxOp;
+			if(type(AxOp)==7) LOp0=AxOp;
 		}
-		if(Ax[0]>=LX[0] && Ax[0]<=LX[1]){ /* draw marks on x-axis */
-			S=S+xyarrow([MulX*Ax[0],MulY*LY[0]],[MulX*Ax[0],MulY*LY[1]]|opt=LOp);
+		if(Ax[0]>=LX[0] && Ax[0]<=LX[1]){ 	/* draw marks on x-axis */
+			if(Proc) S=cons([3,(type(LOp0)>=0)?[["opt",LOp0]]:[],
+				[MulX*(Ax[0]-Orgx),MulY*(LY[0]-Orgy)],[MulX*(Ax[0]-Orgx),MulY*(LY[1]-Orgy)]],S);
+			else S=S+xyarrow([MulX*(Ax[0]-Orgx),MulY*(LY[0]-Orgy)],
+				[MulX*(Ax[0]-Orgx),MulY*(LY[1]-Orgy)]|opt=LOp0);
 			if(length(Ax)>2){
 				D=Ax[2];
 				if(type(D)==1 && D>0){
 					I0=ceil((LX[0]-Ax[0])/D); I1=floor((LX[1]-Ax[0])/D);
 					for(DD=[],I=I0; I<=I1; I++){
 						if(length(Ax)<5) DD=cons(I*D,DD);
+						else if(Ax[4]==0) DD=cons([I*D,I*D+Ax[0]],DD);
 						else if(Ax[4]==1) DD=cons([I*D,I*D],DD);
 						else if(Ax[4]==2) DD=cons([I*D,I],DD);
 					}
 					D=DD;
 				}
-				for(;D!=[]; D=cdr(D)){
-					T=car(D);
-					if(type(T)==4) T=car(T);
-					X=MulX*(T+Ax[0]); Y=MulY*Ax[1];
-					if(T!=0) S=S+xyline([X,Y+Ady0],[X,Y+Ady1]);
-					if(type(car(D))==4){
-						if(T!=0) SS=xypos([X,Y+Ady0,[LxOp,D[0][1]]]);
-						else SS=xypos([X,Y+Ady0,[LxOO,D[0][1]]]);
-						S=S+"{"+SS+"};\n";
+				if(type(D)==4){
+					for(;D!=[]; D=cdr(D)){
+						T=car(D);
+						if(type(T)==4) T=car(T);
+						X=MulX*(T+Ax[0]-Orgx); Y=MulY*(Ax[1]-Orgy);
+						if(T!=0){
+							if(Proc) S=cons([3,(type(LOp1)>=0)?[["opt",LOp1]]:[],[X,Y+Ady0],[X,Y+Ady1]],S);
+							else S=S+xyarrow([X,Y+Ady0],[X,Y+Ady1]|opt=LOp1);
+						}
+						if(type(car(D))==4){
+							Arg=[(T==0)?LxOO:LxOp,D[0][1]];
+							if(Proc) S=cons([2,[],[X,Y+Ady0],Arg],S);
+							else S=S+xyput([X,Y+Ady0,Arg]);
+						}
 					}
 				}
 			}
 		}
-		if(Ax[1]>=LY[0] && Ax[1]<=LX[1]){	/* draw marks on y-axis */
-			S=S+xyarrow([MulX*LX[0],MulY*Ax[1]],[MulX*LX[1],MulY*Ax[1]]|opt=LOp);
+		if(Ax[1]>=LY[0] && Ax[1]<=LY[1]){	/* draw marks on y-axis */
+			if(Proc) S=cons([3,[["opt",LOp0]],
+					[MulX*(LX[0]-Orgx),MulY*(Ax[1]-Orgy)],
+					[MulX*(LX[1]-Orgx),MulY*(Ax[1]-Orgy)]],S);
+			else S=S+xyarrow([MulX*(LX[0]-Orgx),MulY*(Ax[1]-Orgy)],
+				[MulX*(LX[1]-Orgx),MulY*(Ax[1]-Orgy)]|opt=LOp0);
 			if(length(Ax)>3){
 				D=Ax[3];
 				if(type(D)==1 && D>0){
 					I0=ceil((LY[0]-Ax[1])/D); I1=floor((LY[1]-Ax[0])/D);
 					for(DD=[],I=I0; I<=I1; I++){
 						if(length(Ax)<5) DD=cons(I*D,DD);
-						else if(I!=0 && Ax[4]==1) DD=cons([I*D,I*D],DD);
-						else if(I!=0 && Ax[4]==2) DD=cons([I*D,I],DD);
+						else if(I!=0){
+							if(Ax[4]==0) DD=cons([I*D,I*D+Ax[1]],DD);
+							if(Ax[4]==1) DD=cons([I*D,I*D],DD);
+							if(Ax[4]==2) DD=cons([I*D,I],DD);
+						}
 					}
 					D=DD;
 				}
-				for(;D!=[]; D=cdr(D)){
-					T=car(D);
-					if(type(T)==4) T=car(T);
-					X=MulX*Ax[0]; Y=MulY*(T+Ax[1]);
-					if(T!=0) S=S+xyline([X+Adx0,Y],[X+Adx1,Y]);
-					if(type(car(D))==4)	S=S+xyput([X,Y+Ady0,[LyOp,D[0][1]]]);
+				if(type(D)==4){
+					for(;type(D)==4&&D!=[]; D=cdr(D)){
+						T=car(D);
+						if(type(T)==4) T=car(T);
+						X=MulX*(Ax[0]-Orgx); Y=MulY*(T+Ax[1]-Orgy);
+						if(T!=0){
+							if(Proc) S=cons([3,(type(LOp0)>=0)?[["opt",LOp1]]:[],
+								[X+Adx0,Y],[X+Adx1,Y]],S);
+							else S=S+xyarrow([X+Adx0,Y],[X+Adx1,Y]|opt=LOp1);
+						}
+						if(type(car(D))==4){
+							if(Proc) S=cons([2,[],[X,Y+Ady0],[[LyOp,D[0][1]]]],S);
+							else S=S+xyput([X,Y+Ady0,[LyOp,D[0][1]]]);
+						}
+					}
 				}
 			}
 		}
 	}
+	if(Proc) return reverse(S);
 	if(getopt(dviout)!=1) return S;
 	xyproc(S|dviout=1);
 }
 
 def xyarrow(P,Q)
 {
-	if(P==0) return "%\n";
-	if(Q==0) return "";
-	S="{"+xypos(P)+" \\ar";
+	Cmd = ["fill","filldaw","shade","shadedraw","clip ","pattern","path ","node","coordinate"];
+	if(type(P)<4) return "%\n";
 	SS=getopt(opt);
-	if(type(SS)==7) S=S+SS;
-	return S+" "+xypos(Q)+"};\n";
+	if(!TikZ){
+		if(type(Q)<4) return "";
+		S="{"+xypos(P)+" \\ar";
+		if(type(SS)==7) S=S+SS;
+		return S+" "+xypos(Q)+"};\n";
+	}
+	if(type(SS)==4 && length(SS)>1){
+		if(length(SS)>2) SU=SS[2];
+		ST=SS[1];
+		SS=SS[0];
+	}
+	if(type(SS)!=7) SS="->";
+	if(type(ST)!=7) ST=" -- ";
+	if(type(SU)!=7) SU="";
+	if(type(S=getopt(cmd))==7) S="\\"+S;
+	else S="\\draw";
+	if(type(Q)!=4){
+		if(Q>0 && Q<=length(Cmd)) S="\\"+Cmd[Q-1]+"";
+		if(SS!="-") S=S+"["+SS+"]";
+		if(SU!="") SU="["+SU+"]";
+		return S+xypos(P)+ST+SU+";\n";
+	}
+	if(SS!="-") S=S+"["+SS+"]";
+	if(length(P)<3 && length(Q)<3)
+		return S+xypos(P)+ST+xypos(Q)+SU+";\n";
+	if(length(P)==2) P=[P[0],P[1],"","_0"];
+	else if(length(P)==3 || (length(P)==4 && P[3]==""))
+		P=[P[0],P[1],P[2],"_0"];
+	else if(P[3]=="")
+		P=[P[0],P[1],P[2],"_0",P[4]];
+	if(length(Q)==2) Q=[Q[0],Q[1],"","_1"];
+	else if(length(Q)==3 || (length(Q)==4 && Q[3]==""))
+		Q=[Q[0],Q[1],Q[2],"_1"];
+	else if(Q[3]=="")
+		Q=[Q[0],Q[1],Q[2],"_1",Q[4]];
+	return S+xypos(P)+" "+xypos(Q)+"("+P[3]+")"+ST+"("+Q[3]+")"+SU+";\n"; 
 }
+
+def polroots(L,V)
+{
+	INIT=1;
+	if(type(CF=getopt(comp))!=1) CF=0;
+	OL=getopt();
+	if(CF>32){
+		CF-=64;
+		INIT=0;
+	}else OL=cons(["comp",CF+64],delopt(OL,"comp"));
+	if(type(V)==4&&length(V)==1){
+		L=L[0];V=V[0];
+	}
+	Lim=Lim2=[];
+	if(type(L)<4){
+		if(type(Lim=getopt(lim))==4){
+			if(type(Lim[0])!=4) Lim=[Lim];
+			Lim=delopt(Lim,V|inv=1);
+			if(Lim!=[]){
+				Lim=Lim[0];
+				if(length(Lim)==3) Lim2=Lim[2];
+				Lim=Lim[1];
+			}
+		}else{
+			Lim=Lim2=[];
+		}
+/* mycat([V,Lim,Lim2]); */
+		if((CF==-1||CF==2)&&iscoef(L,os_md.israt)){	/* Rat+Comp or Rat */
+			S=getroot(L,V);
+			for(RR=[],F=x;S!=[];S=cdr(S)){
+				if(findin(V,vars(C=car(S)))<0){		/* Rational solution */
+					if(type(C)<2){
+						if(Lim!=[]&&(real(C)<Lim[0]||real(C)>Lim[1])) continue;
+						if(Lim2!=[]&&(imag(C)<Lim2[0]||imag(C)>Lim2[1])) continue;
+					}
+					if(F!=C) RR=cons(F=C,RR);
+				}else if(CF<0){						/* Irrational solution */
+					if((R=pari(roots,subst(C,V,x)))!=0){
+						for(R=vtol(R);R!=[];R=cdr(R))
+							if((C=car(R))!=F && ntype(car(R))<4){
+								if(Lim!=[]&&(real(C)<Lim[0]||real(C)>Lim[1])) continue;
+								if(Lim2!=[]&&(imag(C)<Lim2[0]||imag(C)>Lim2[1])) continue;
+								RR=cons(F=C,RR);
+							}
+					}
+				}
+			}
+			return qsort(RR);
+		}
+		R=pari(roots,subst(L,V,x));
+		if(R==0) return [];
+		if(CF==1){		/* Complex */
+			if(Lim==[]&&Lim2==[]) return vtol(R);
+			for(L=[],I=length(R)-1;I>=0;I--){
+				C=R[I];
+				if(Lim!=[]&&(real(C)<Lim[0]||real(C)>Lim[1])) continue;
+				if(Lim2!=[]&&(imag(C)<Lim2[0]||imag(C)>Lim2[1])) continue;
+				L=cons(C,L);
+			}
+			return L;
+		}
+		for(L=[],F=x,I=length(R)-1;I>=0;I--){	/* Real */
+			if(ntype(R[I])<4 && F!=R[I]){
+				if(Lim!=[] && (R[I]<Lim[0]||R[I]>Lim[1])) continue;
+				L=cons(F=R[I],L);
+			}
+		}
+		return qsort(L);
+	}
+	if(SS==0&&INIT==1){
+		SS=polroots(L,V|option_list=OL);
+		if(SS!=0) return SS;
+		for(C=0;SS==0&&C<4;C++){
+			I=(C==0)?1:(iand(random(),0xff)-0x80);
+			for(LL=[],K=length(L)-1;K>=0;K--){
+				for(Q=0,J=length(L)-1;J>=0;J--)
+					Q+=L[J]*(I+K)^J;
+				LL=cons(Q,LL);
+			}
+			SS=polroots(LL,V|option_list=OL);
+			if(SS!=0) return SS;
+		}
+		return SS;
+	}
+	C=2^(-32);
+	if(type(getopt(err))==1) C=err;
+	if((N=length(V))!=length(L)) return [];
+	if(N==1) return polroots(L[0],V[0]|option_list=OL);
+	for(L1=[],I=1;I<N;I++){
+		Res=res(V[0],L[I-1],L[I]);
+		if(type(Res)<2) return Res;
+		L1=cons(res(V[0],L[I-1],L[I]),L1);
+	}
+	R=polroots(L1,V1=cdr(V)|option_list=OL);
+	if(type(R)<2) return R;
+	for(SS=[];R!=[];R=cdr(R)){
+		RS=(N==2)?[car(R)]:car(R);
+		for(I=0,L0=L[0];I<N-1;I++) L0=subst(L0,V1[I],RS[I]);
+		S0=polroots(L0,V[0]|option_list=OL);
+		if(type(S0)<2) return S0;
+		for(S=S0;S!=[];S=cdr(S)){
+			S0=cons(car(S),RS);
+			for(LT=cdr(L);LT!=[];LT=cdr(LT)){
+				for(I=0,TV=car(LT);I<N;I++) TV=subst(TV,V[I],S0[I]);
+				if(abs(TV)>C) break;
+			}
+			if(LT==[]) SS=cons(S0,SS);
+		}
+	}
+	return reverse(SS);
+}
+
+def ptcommon(X,Y)
+{
+	if(length(X)!=2 || length(Y)!=2) return 0;
+	if(type(X[1])==4){ /* X is a line */
+		if((In=getopt(in))==-1||In==-2||In==-3){
+			X0=(X[0][0]+X[1][0])/2;X1=(X[0][1]+X[1][1])/2;
+			X=[[X0,X1],[X0+X[1][1]-X[0][1],X1-X[1][0]+X[0][0]]];
+			if(In==-1&&type(Y[1])==4) return ptcommon(Y,X|in=-2);
+			/* for the second line */
+			if(In==-3) In=1;
+			else In=0;
+		}else if(In==2||In==3){
+			X=(X[1][0]-X[0][0])+(X[1][1]-X[0][1])*@i;
+			if(X==0) return 0;
+			Y=(Y[1][0]-Y[0][0])+(Y[1][1]-Y[0][1])*@i;
+			X=myarg(Y/X);
+			return (In==2)?X:(X*180/deval(@pi));
+		}else if(In!=1) In=0;
+		if(type(Y[0])<=1){
+			if(In==1){
+				return [(Y[1]*X[0][0]+Y[0]*X[1][0])/(Y[0]+Y[1]),
+				(Y[1]*X[0][1]+Y[0]*X[1][1])/(Y[0]+Y[1])];
+			}
+			XX=X[1][0]-X[0][0];YY=X[1][1]-X[0][1];
+			Arg=(length(Y)<2)?0:Y[1];
+			Arg=deval(Arg);
+			if(Arg!=0){
+				S=dcos(Arg)*XX-dsin(Arg)*YY;
+				YY=dsin(Arg)*XX+dcos(Arg)*YY;
+				XX=S;
+			}
+			S=dnorm([XX,YY]);
+			if(S!=0){
+				XX*=Y[0]/S;YY*=Y[0]/S;
+			}
+			return [X[1][0]+XX,X[1][1]+YY];
+		}
+		S=[X[0][0]+(X[1][0]-X[0][0])*x_,X[0][1]+(X[1][1]-X[0][1])*x_];
+		if(type(Y[1])==4){ /* Y is a line */
+			T=[Y[0][0]+(Y[1][0]-Y[0][0])*y_-S[0],
+				Y[0][1]+(Y[1][1]-Y[0][1])*y_-S[1]];
+			R=lsol(T,[x_,y_]);
+			if(type(R[0])==4&&type(R[1])==4&&R[0][0]==x_&&R[1][0]==y_){
+				if(!In || (R[0][1]>=0&&R[0][1]<=1&&R[1][1]>=0&&R[1][1]<=1) )
+					return subst(S,x_,R[0][1],y_,R[1][1]);
+			}
+			if((type(R[0])>0&&type(R[0])<4)||(type(R[1])>0&&type(R[1])<4)) return 0;
+			if(!In) return 1;
+			I=(X[0][0]==X[1][0]&&Y[0][0]==Y[1][0]&&X[0][0]==Y[0][0])?1:0;
+			if(X[0][I]<=X[1][I]){
+				X0=X[0][I];X1=X[1][I];
+			}else{
+				X1=X[0][I];X0=X[1][I];
+			}
+			return ((Y[0][I]<X0 && Y[1][I]<X0)||(Y[0][I]>X1&&Y[1][I]>X1))?0:1;
+		}else if(Y[1]==0){ /* orth */
+			T=[Y[0][0]+(X[1][1]-X[0][1])*y_-S[0],
+				Y[0][1]-(X[1][0]-X[0][0])*y_-S[1]];
+			R=lsol(T,[x_,y_]);
+			if(type(R[0])==4&&type(R[1])==4&&R[0][0]==x_&&R[1][0]==y_){
+				if(!In||(R[0][1]>=0&&R[0][1]<=1))
+					return subst(S,x_,R[0][1],y_,R[1][1]);
+			}
+			return (X[0]==X[1])?0:1;
+		}else if(type(Y[1])==1 && Y[1]>0){ /* circle */ 
+			T=(S[0]-Y[0][0])^2+(S[1]-Y[0][1])^2-Y[1]^2;
+			D=mycoef(T,1,x_)^2-4*mycoef(T,0,x_)*mycoef(T,2,x_);
+			if(D==0){
+				V=mycoef(T,1,x_)/(2*mycoef(T,2,x_));
+				if(!in||(V>=0&&V<=1)) return [subst(S,x_,V)];
+			}
+			else if((type(D)==1&&D>0)){
+				D=dsqrt(D);
+				V=-(mycoef(T,1,x_)+D)/(2*mycoef(T,2,x_));
+				if(!In||(V>=0&&V<=1)) L=[subst(S,x_,V)];
+				else L=[];
+				V=(D-mycoef(T,1,x_))/(2*mycoef(T,2,x_));
+				if(!In||(V>=0&&V<=1)) L=cons(subst(S,x_,V),L);
+				if(length(L)>0) return L;
+			}
+		}
+		return 0;
+	}
+	if(type(Y[1])==4 || X[1]==0) return ptcommon(Y,X);
+	/* X is a circle */
+	if(Y[1]==0){	/* tangent line */
+		if(Y[0][0]==X[0][0]+X[1] || Y[0][0]==X[0][0]-X[1]) L=[[Y[0][0],X[0][1]]];
+		else L=[];
+		P=(Y[0][0]+x_-X[0][0])^2+(Y[0][1]+x_*y_-X[0][1])^2-X[1]^2;
+		Q=mycoef(P,1,x_)^2-4*mycoef(P,2,x_)*mycoef(P,0,x_);
+		for(R=polroots(Q,y_);R!=[];R=cdr(R)){
+			X0=-subst(mycoef(P,1,x_)/(2*mycoef(P,2,x_)),y_,car(R));
+			L=cons([Y[0][0]+X0,Y[0][1]+car(R)*X0],L);
+		}
+	}else{ /* Y is a circle */
+		P=(x_-X[0][0])^2+(y_-X[0][1])^2-X[1]^2;
+		Q=(x_-Y[0][0])^2+(y_-Y[0][1])^2-Y[1]^2;
+		V=(X[0][0]!=Y[0][0])?[x_,y_]:[y_,x_];
+		R=subst(P,V[0],T=lsol(P-Q,V[0]));
+		if(type(T[0])<4) return (T[0]==0)?1:0;
+		S=polroots(R,V[1]);
+		for(L=[];S!=[];S=cdr(S)){
+			R=subst(T,V[1],car(S));
+			if(V[0]==x_) L=cons([R,car(S)],L);
+			else L=cons([S,R],L);
+		}
+	}
+	if(length(L)!=0) return L;
+	return 0;
+}
+
+def tobezier(L)
+{
+	if((Div=getopt(div))==1||Div==2){
+		if(length(L)!=4) return [tobezier(L|inv=[0,1/2]),tobezier(L|inv=[1/2,1])];
+		if(type(L)==4) L=ltov(L);
+		if(type(L[0])==4)
+			L=[ltov(L[0]),ltov(L[1]),ltov(L[2]),ltov(L[3])];
+		S=[(L[0]+3*L[1]+3*L[2]+L[3])/8];
+		T=[L[3]];
+		S=cons((L[0]+2*L[1]+L[2])/4,S);
+		T=cons((L[2]+L[3])/2,T);
+		S=cons((L[0]+L[1])/2,S);
+		T=cons((L[1]+2*L[2]+L[3])/4,T);
+		S=cons(L[0],S);
+		T=cons((L[0]+3*L[1]+3*L[2]+L[3])/8,T);
+		return [S,T];
+	}
+	if(Div>2&&Div<257){
+		L=tobezier(L);
+		for(R=[],I=Div-1;I>=0;I--)
+			R=cons(tobezier(L|inv=[I/Div,(I+1)/Div]),R);
+		return R;
+	}
+	if((V=getopt(inv))==1 || type(V)>3){
+		if(type(L[0])>3 && type(V)>3) L=tobezier(L);
+		if(type(V)>3 && length(V)>2) V2=V[2];
+		if(type(V2)!=2) V2=t;
+		if(type(V)>3) L=subst(L,V2,(V[1]-V[0])*V2+V[0]);
+		N=mydeg(L,V2);
+		for(R=[],I=0;I<=N;I++){
+			RT=mycoef(L,I,V2);
+			R=cons(RT/binom(N,I),R);
+			L-=RT*V2^I*(1-V2)^(N-I);
+		}
+		return reverse(R);
+	};
+	N=length(L)-1;
+	V=newvect(2);
+	for(I=0;I<=N;I++,L=cdr(L)){
+		if(type(X=car(L))==4) X=ltov(X);
+		V+=X*binom(N,I)*t^I*(1-t)^(N-I);
+	}
+	return V;
+}
+
+def velbezier(V,L)
+{
+	if(L==0) L=[t,0,1];
+	else L=[(length(L)==3)?L[2]:t,L[0],L[1]];
+	for(R=[],II=length(V)-1;II>=0;II--){
+		S=fmmx(diff(V[II],L[0]|dif=1),L|dif=1);
+		for(U=0;S!=[];S=cdr(S)) if((T=abs(car(S)[1]))>U) U=T;
+		R=cons(U,R);
+	}
+	return R;
+}
+
+def ptcombezier(P,Q,T)
+{
+	if(type(T)<2){
+		if(T<2) T=20;		/*  default */
+		return ptcombezier(P,Q,[0,0,1,T]);
+	}
+	V=T[2]/2;;
+/* mycat(["IN",P,Q,T]); */
+	PB=tobezier(P|div=1);
+	PP=[ptbbox(PB[0]),ptbbox(PB[1])];
+	QB=tobezier(Q|div=1);
+	QQ=[ptbbox(QB[0]),ptbbox(QB[1])];
+	for(L=[],I=0;I<2;I++){
+		for(J=0;J<2;J++){
+/* mycat([I,J,PP[I],QQ[J]]); */
+			if(!iscombox(PP[I],QQ[J])) continue;
+			if(T[3]<=1) return 
+				[[T[0]+(I+0.5)*V,T[1]+(J+0.5)*V,
+					[(PP[I][0][0]+PP[I][0][1])/2,(PP[I][1][0]+PP[I][1][1])/2]]];
+			else{
+#if 0
+				U=PB[I][0];V=PB[I][length(PB[I])-1];
+				if(abs(A=(U[0]-V[0]))>abs(B=(U[1]-V[I])))
+					M=mat([1,0],[-B/A,1]);
+				else if(U!=V)
+					M=mat([1,-A/B],[0,1]);
+				else continue;
+				if(!iscombox(ptbox(ptaffine(M,PB[I])),ptbox(ptaffine(M,QB[J])))) continue;
+#endif
+
+				LN=ptcombezier(PB[I],QB[J],[T[0]+I*V,T[1]+J*V,V,T[3]-1]);
+#if 0
+				L=append(LN,L);
+#else
+				if(LN!=[]){
+					if(L==[]) L=LN;
+					else for(VV=3*V/2^T[3];LN!=[];LN=cdr(LN)){
+						for(LT=L;LT!=[];LT=cdr(LT)){
+							if(abs(car(LN)[0]-car(LT)[0])<VV&&abs(car(LN)[1]-car(LT)[1])<VV) break;
+						}
+					}
+				}
+				if(length(L)>32){		/* Too many points */
+					I=J=2;
+				}
+#endif
+			}
+		}
+	}
+	return L;
+}
+
+
+def ptcombz(P,Q,T)
+{
+	if(P==Q) Q=0;
+	if(type(P[0][0])!=4) P=P0=lbezier(P);
+	if(Q==0){
+		Q=P;F=1;
+	}
+	else if(type(Q[0][0])!=4) Q=lbezier(Q);
+	for(R=[],I=0,Q0=Q;P!=[];P=cdr(P),I++){
+		for(J=0,Q=Q0;Q!=[];Q=cdr(Q),J++){
+			if(F==1&&I<J+2) break;
+			if((RT=ptcombezier(car(P),car(Q),T))!=[]){
+				RT=cons([I,J],RT);
+				R=cons(RT,R);
+			}
+		}
+	}
+	if((Red=getopt(red))==1||Red==2){
+		if(type(M=getopt(prec))!=1) M=12;
+		for(F=0,T=P0;T!=[];T=cdr(T)){
+			for(S=car(T);S!=[];S=cdr(S)){
+				if(type(ST=car(S))==4 && type(ST[0])<2){
+					if(F++==0){
+						X0=X1=ST[0];Y0=Y1=ST[1];
+					}else{
+						if(ST[0]<X0) X0=ST[0];
+						if(ST[0]>X1) X1=ST[0];
+						if(ST[1]<Y0) Y0=ST[1];
+						if(ST[1]>Y1) Y1=ST[1];
+					}
+				}
+			}
+		}
+		V0=(X1-X0)/2^M;V1=(Y1-Y2)/2^M;
+		for(RR=[],RT=R;RT!=[];RT=cdr(RT))
+			for(S=cdr(car(RT));S!=[];S=cdr(S)) RR=cons(car(S)[2],RR);
+		RR=ltov(RR);L=length(RR);
+		for(I=0;I<L;I++)
+			for(K=1,J=I+1;K!=0&&J<L;J++)
+				if(abs(RR[I][0]-RR[J][0])<V0 && abs(RR[I][1]-RR[J][1])<V1) RR[I]=K=0;
+		R0=[];
+		I=L-1;
+		if(Red==2){
+			for(;I>=0;I--) if(RR[I]!=0) R0=cons(RR[I],R0);
+		}else{
+			for(RT=R;RT!=[];RT=cdr(RT)){
+				R00=[car(RT)[0]];
+				for(S=cdr(car(RT));S!=[];S=cdr(S),I--)
+					if(RR[L-I-1]!=0) R00=cons(car(S),R00);
+				if(length(R00)>1) R0=cons(reverse(R00),R0);
+			}
+		}
+		return R0;
+	}
+	return reverse(R);
+}
+
+def draw_bezier(ID,IDX,B)
+{
+	static FDot;
+
+	if(getopt(init)==1){
+		FDot=0;
+		return;
+	}
+	if(type(Col=getopt(col))!=1&&Col!=0) Col=0;
+	Dot=0;
+	if(type(Opt=getopt(opt))==7){
+		if(!Col){
+			Col=drawopt(Opt,0);
+			if(Col==-1) Col=0;
+		}
+		T=drawopt(Opt,3);
+		if(iand(T,2)){
+			M=iand(T,1)?1/8:1/4;
+			for(C=Col,Col=I=0;I<20;I+=8)
+				Col+=ishift(0xff-(floor((0xff-iand(0xff,ishift(C,I)))*M)),-I);
+		}
+		if(iand(T,4)) Dot=2;		/* 2 or 3 or 4 or 6 */
+		else if(iand(T,8)) Dot=4;
+	}
+	if(type(B)==4 && type(B[0])==4 && type(B[0][0])<2) B=lbezier(B);
+	else if(type(B)==5) B=[B];
+	for(;B!=[];B=cdr(B)){
+		if(vars(F=car(B))==[]){
+			if(length(F)<3&&!Dot){		/* line or point */
+				if(length(F)>0){
+					G=[rint(F[0][0]),rint(F[0][1])];
+					if(length(F)==1) draw_obj(ID,IDX,G,Col); 
+					else{
+						G=[G[0],G[1],rint(F[1][0]),rint(F[1][1])];
+						draw_obj(ID,IDX,G,Col);
+					}
+				}
+				continue;
+			}
+			F=tobezier(F);
+		}
+		N=velbezier(F,0);
+		N=(N[0]>N[1])?N[0]:N[1];
+		for(I=0,F=vtol(F);I<=N;I++,FDot++){
+			if(Dot!=iand(FDot,Dot)) continue;
+			G=subst(F,t,I/N);
+			G=[rint(G[0]),rint(G[1])];
+			if(G!=G0){
+				draw_obj(ID,IDX,G,Col);
+				G0=G;
+			}
+		}
+	}
+	if(FDot-->=2^32) FDot=0;
+	return 0;
+}
+
+def lbezier(L)
+{
+	if((In=getopt(inv))==1||In==2||In==3){
+		for(F=0,R=[];L!=[];L=cdr(L)){
+			LT=car(L);
+			if(F==car(LT)) R=cons(1,R);
+			else{
+				if(R!=[]&&F!=0) R=cons(0,R);
+				R=cons(G=car(LT),R);
+				if(In==3) In==2;
+			}
+			for(LT=cdr(LT);LT!=[];LT=cdr(LT))
+				R=cons(car(LT),R);
+			if((F=car(R))==G&&In==1){
+				R=cons(-1,cdr(R));
+				F=0;
+			}
+		}
+		if(In==3 && car(R)==G) R=cons(-1,cdr(R));
+		return reverse(R);
+	}
+	for(F=0,RT=R=[];L!=[];L=cdr(L)){
+		if(type(T=car(L))==4){
+			if(F==0){
+				FT=T;F=1;
+			}
+			RT=cons(T,RT);
+		}else if(T==0){
+			if(RT==[]) R=cons(reverse(RT),R);
+			RT=[];F=0;
+		}else if(T==1){
+			if(RT!=[]){
+				R=cons(reverse(RT),R);
+				RT=[car(RT)];
+			}else{
+				RT=[];F=0;
+			}
+		}else if(T==-1){
+			RT=cons(FT,RT);
+			R=cons(reverse(RT),R);
+			RT=[];F=0;
+		}
+	}
+	if(RT!=[]) R=cons(reverse(RT),R);
+	return reverse(R);
+}
+
 
 def xybezier(L)
 {
-	LS=length(L);
-	if(LS==0) return "";
-	S="{"+xypos(L[0])+";"+xypos(L[LS-1])+"\n";
-	S = S+"**\\crv{";
-	if(type(Opt=getopt(opt))==7) S=S+Opt;
-	for(I=1; I<LS-1;I++){
-		if(I>1) S=S+"&";
-		S=S+xypos([L[I][0],L[I][1]]);
+	if(L==0 || (LS=length(L))==0) return "";
+	Out=str_tb(0,0);
+	if(type(VF=getopt(verb))==4){
+		if(type(car(VF))>3){
+			VFS=VF;VF=1;
+		}else{
+			VFS=cdr(VF);VF=car(VF);
+		}
+	}else VFS=["$\\bullet$","$\\times$"];
+	if(VF!=1 && VF!=2) VF=0;
+	if(!TikZ){
+		if(VF) Ob=str_tb(0,0);
+		T="\n**\\crv{";
+		if(type(Opt=getopt(opt))==7 && Opt!="") T=T+Opt;
+		L00=Q=L[I0=0];S=S1="";
+		for(F=0,I=1;I<=LS;I++){
+			P=Q;Q=(I==LS)?0:L[I];
+			if(type(Q)==4){
+				if(F==0){
+					S1="";L0=P;F=1;
+					continue;
+				}else if(F==1)
+					F=2;
+				else if(F==2){
+					S1=S1+"&";
+				}
+				S1=S1+xypos(P);
+				if(VF&&length(VFS)>1) str_tb(xyput([P[0],P[1],VFS[1]]),Ob);
+			}else{
+				if(Q==0){
+					if(F>0){
+						str_tb("{"+xypos(L0)+";"+xypos(P)+T+S1+"}};\n",Out);
+						if(VF){
+							str_tb(xyput([L[0][0],L[0][1],VFS[0]]),Ob);
+							if(VF==1) str_tb(xyput([P[0],P[1],VFS[0]]),Ob);
+						}
+						F=0;
+					}
+				}else if(Q==1){
+					str_tb("{"+xypos(L0)+";"+xypos(P)+T+S1+"}};\n",Out);
+					if(VF){
+						str_tb(xyput([L[0][0],L[0][1],VFS[0]]),Ob);
+						if(VF==1) str_tb(xyput([P[0],P[1],VFS[0]]),Ob);
+					}
+					F=1;
+				}else if(Q==-1){
+					if(F==2)
+						S1=S1+"&";
+					str_tb("{"+xypos(L0)+";"+xypos(L00)+T+S1+xypos(P)+"}};\n",Out);
+					if(VF)	str_tb(xyput([L[0][0],L[0][1],VFS[0]]),Ob);
+					F=0;
+				}
+				if(F==1){
+					if(I<LS-1 && type(L[I+1])<2){
+						if(L[I+1]==-1){
+							str_tb("{"+xypos(P)+";"+xypos(L00)+T+"}};\n",Out);
+						}
+						if(VF)	str_tb(xyput([P[0][0],P[0][1],VFS[0]]),Ob);
+						F=0;
+					}
+				}
+				while(++I<LS && type(L[I])<2);
+				if(I>=LS) break;
+				if(F==1){
+					Q=P;I--;F=0;
+				}else L00=Q=L[I];
+			}
+		}
+	}else{
+		if(type(T=getopt(cmd))==7){
+			if(T!="") T="\\"+T;
+		}else T="\\draw";
+		if((Rel=getopt(relative))==1)	VF=0;
+		if(VF) Ob=str_tb(0,0);
+		if(type(Opt=getopt(opt))==7 && Opt!="") T=T+"["+Opt+"]";
+		Out=str_tb(T,0);
+		Q=L[0];
+		for(F=M=0,I=1;I<=LS;I++){
+			P=Q; Q=(I==LS)?0:L[I];
+			if(++M>XYLim){
+				str_tb("\n",Out);M=1;
+			}
+			if(type(Q)==4 || type(Q)==5 || type(Q)==7){
+				if(F==0){
+					str_tb(" ",Out);
+					F=1;
+				}else if(F==1){
+					str_tb(" .. controls ",Out);
+					F=2;
+				}else if(F==2){
+					str_tb(" and ",Out);
+					F=2;
+				}
+				PP=xypos(P);
+				if(Rel==1 && F==2) PP="+"+PP; 
+				str_tb(PP,Out);
+				if(VF&&((F<2)||length(VFS)>1))
+					str_tb(xyput([P[0],P[1],(F<2)?VFS[0]:VFS[1]]),Ob);
+			}else{
+/*				if(I<LS-1) VF=0; */
+				if(Q==0||Q==1){
+					PP=xypos(P);
+					if(Rel==1) PP="+"+PP;
+					str_tb(((F==0)?" ":((F==1)?" -- ":" .. "))+PP,Out);
+					if(VF) str_tb(xyput([P[0],P[1],VFS[0]]),Ob);
+					F=Q;
+				}else if(Q==-1){
+					PP=xypos(P);
+					if(Rel==1) PP="+"+PP;
+					if(F==1)
+						str_tb("..controls "+PP+" .. cycle",Out);
+					else if(F==2)
+						str_tb(" and "+PP+" .. cycle",Out);
+					if(VF&&length(VFS)>1) str_tb(xyput([P[0],P[1],VFS[1]]),Ob);
+					F=0;
+				}
+				if(F==1){
+					if(I<LS-1){
+						if(L[I+1]==-1){
+							str_tb(" -- cycle",Out);
+							I=I+1;
+							F=0;
+						}
+						else if(type(L[I+1])<2) F=0;
+					}
+				}
+				while(++I<LS && type(L[I])<2);
+				if(I>=LS) break;
+				Q=L[I];
+			}
+		}
+		str_tb(";\n",Out);
 	}
-	S=S+"}};\n";
-	if((Vb=getopt(verb))==1 || Vb==2){
-		for(I=0; I<=LS-Vb; I++)
-			S=S+xyput([L[I][0],L[I][1],(I==0||I==LS-1)?"\\bullet":"\\times"]);
-	}
-	return S;
+	if(VF)	str_tb(str_tb(0,Ob),Out);
+	return str_tb(0,Out);
 }
 
 def xybox(L)
@@ -7168,22 +10777,118 @@ def xybox(L)
 		LL=[ P, R, Q, [P[0]+Q[0]-R[0],P[1]+Q[1]-R[1]] ];
 	}
 	SS=getopt(opt);
-	if(type(SS)!=7) SS="@{-}";
+	if(type(SS)!=7) SS=(TikZ)?"":"@{-}";
 	return xylines(LL|opt=SS,close=1);
+}
+
+def xyang(S,P,Q,R)
+{
+	Opt=getopt();
+	if(type(Prec=getopt(prec))!=1) Prec=0;
+	if(type(Q)>2){
+		if(R==1||R==-1){				/* 直角 */
+			P1=ptcommon([Q,P],[-S,0]);
+			S*=R;
+			P2=ptcommon([P,P1],[S,@pi/2]);
+			P3=ptcommon([P1,P2],[S,@pi/2]);
+			return xylines([P1,P2,P3]|option_list=Opt);
+		}else if((AR=abs(R))==0||AR==2||AR==3||AR==4){	/* 矢印 */
+			Ang=myarg([Q[0]-P[0],Q[1]-P[1]]);
+			if(R<0) Ang+=3.14159;
+			ANG=[0.7854,0.5236,1.0472];
+			X=(AR==0)?1.5708:ANG[AR-2];
+			U=[P[0]+S*dcos(Ang+X),P[1]+S*dsin(Ang+X)];
+			V=[P[0]+S*dcos(Ang-X),P[1]+S*dsin(Ang-X)];	/* 矢先 */
+			V=(X==0)?[U,V]:[U,P,V];
+			if(getopt(ar)==1) V=append([Q,P,0],V);		/* 心棒 */
+			return xylines(V|option_list=Opt);
+		}
+	}
+	if(type(Q)<3){
+		X=deval(Q); Y=deval(R);
+	}else{
+		X=myarg([Q[0]-P[0],Q[1]-P[1]]);
+		Y=myarg([R[0]-P[0],R[1]-P[1]]);
+	}
+	if(Prec>2) N=8;
+	else if(Prec==2) N=6;
+	else if(Prec==1) N=4;
+	else N=3;
+	U=deval(@pi)*2/N;
+	if(X==Y||Y-X>6.28318){
+		for(L=[],I=N-1;I>=0;I--) L=cons([P[0]+S*dcos(I*U),P[1]+S*dsin(I*U)],L);
+		return xylines(L|option_list=append([["curve",1],["close",1]],Opt));
+	}
+	for(M=1;(Y-X)/M>U;M++);
+	for(L=[],I=M+1;I>-2;I--){
+		Ang=X+(Y-X)*I/M;
+		L=cons([P[0]+S*dcos(Ang),P[1]+S*dsin(Ang)],L);
+	}
+	if(getopt(ar)!=1) return xylines(L|option_list=append([["curve",1],["close",-1]],Opt));
+	OL=delopt(Opt,["dviout","opt","proc"]);
+	S=xylines(L|option_list=append([["curve",1],["close",-1],["opt",0]],OL));
+	T=xylines([P,L[1]]|option_list=cons(["opt",0],OL));
+	S=ptaffine("close",[S,T]);			/* connect curves */
+	if(getopt(opt)==0) return S;
+	OL=(type(SS=getopt(opt))>1)?[["opt",SS]]:[];
+	if(type(T=getopt(proc))==1 && T>=1 && T<=3) return [1,OL,S];
+	if(OL==[]) S=xybezier(S);
+	else S=(type(SS)==7)? xybezier(S|opt=SS):xybezier(S|opt=SS[0],cmd=SS[1]);
+	if(getopt(dviout)==1) return xyproc(S|dviout=1);
+	return S;
+}
+
+def xyoval(P,L,R)
+{
+	if(type(Arg=getopt(arg))!=4 && type(Arg=getopt(deg))==4){
+		if(length(Arg)>2)
+			Arg=[@pi*Arg[0]/180,@pi*Arg[1]/180,@pi*Arg[2]/180];
+		else
+			Arg=[@pi*Arg[0]/180,@pi*Arg[1]/180];
+	}
+	if(type(Arg)==4){
+		Arg0=deval(Arg[0]); Arg1=deval(Arg[1]);
+		if(length(Arg)>2) Arg2=deval(Arg[2]); 
+		if(Arg1<Arg0 || Arg0<-7) return 0;
+	}
+	if(type(Prec=getopt(prec))!=0) Prec=0;
+	if((Ar=getopt(ar))!=1) Ar=0;
+	L=xyang(L,[0,0],Arg0,Arg1|prec=Prec,opt=0,ar=Ar);
+	Sc=getopt(scale);
+	if(type(Sc=getopt(scale))<1) Sc=[1,1];
+	else if(type(Sc)==1) Sc=[Sc,Sc];
+	M=mat([1,0],[0,R]);
+	L=ptaffine(M,L|shift=P);
+	M=mat([Sc[0],0],[0,Sc[1]]);
+	L=ptaffine(M,L|arg=Arg2);
+	if((Opt=getopt(opt))==0) return L;
+	Opt=(type(Opt)>1)? [["opt2,Opt]]:[];
+	if(getopt(proc)==1) return [1,Opt,L];
+	S=xybezier(L|option_list=getopt());
+	if(getopt(dviout)==1){
+		xyproc(S|dviout=1);
+		return 1;
+	}
+	return S;
 }
 
 def xycirc(P,R)
 {
 	ST=getopt(opt);
+	if(type(ST)<0) ST="";
 	if(type(Arg=getopt(arg))!=4 && type(Arg=getopt(deg))==4){
 		Arg=[@pi*Arg[0]/180,@pi*Arg[1]/180];
 	}
-	if(type(Arg)!=4) Arg=0;
-	else{
+/*								Is it OK?
+	if(TikZ==0 && XYcm==1){
+		R*=10; P=[P[0]*10,P[1]*10];
+	}
+*/
+	if(type(Arg)==4){
 		Arg0=deval(Arg[0]); Arg1=deval(Arg[1]);
 		if(Arg1<=Arg0 || Arg0<-7 || Arg1-Arg0>7) return 0;
 		if(type(ST)==7)
-			S= xygraph([R*cos(x)+P[0],R*sin(x)+P[1]],-4,[Arg0,Arg1],[P[0]-R-1,P[0]+R+1],
+			S=xygraph([R*cos(x)+P[0],R*sin(x)+P[1]],-4,[Arg0,Arg1],[P[0]-R-1,P[0]+R+1],
         [P[1]-R-1,P[1]+R+1]|opt=ST);
 		else
 			S=xygraph([R*cos(x)+P[0],R*sin(x)+P[1]],-4,[Arg0,Arg1],[P[0]-R-1,P[0]+R+1],
@@ -7196,6 +10901,20 @@ def xycirc(P,R)
 		}
 		return S;
 	}
+	if(TikZ){
+		SP="";
+		if(length(P)>2) SP=P[2];
+		if(type(SP)!=7) SP="$"+my_tex_form(SP)+"$";
+		if(R==0){
+			if(ST!="") ST=ST+",";
+			return "\\node ["+ST+"circle,draw]"+xypos([P[0],P[1]])+ "{"+SP+"};\n";
+		}
+		if(type(R)!=7) R=rtostr((R+0.1)-0.1);
+		if(ST!="") ST="["+ST+"]";
+		S="\\draw "+ST+xypos([P[0],P[1]])+" circle [radius="+R+"]";
+		if(SP!="") S=S+" node at"+xypos([P[0],P[1]])+" {"+SP+"}";
+		return S+";\n";
+	}
 	S="{"+xypos([P[0],P[1]]);
 	if(length(P)>2){
 		SP=P[2];
@@ -7205,7 +10924,7 @@ def xycirc(P,R)
 	S =S+" *\\cir";
 	if(R!=0){
 		R=(R+0.1)-0.1;
-		S=S+"<"+rtostr(R)+"mm>";
+		S=S+"<"+rtostr(R)+((XYcm)?"cm>":"mm>");
 	}
 	S = S+"{";
 	if(type(ST)==7)	S=S+ST;
@@ -7214,6 +10933,66 @@ def xycirc(P,R)
 
 def ptaffine(M,L)
 {
+	if(type(L)!=4){
+		erno(0);return L;
+	}
+	if(type(M)==7){
+ 		if(M=="reverse"){
+			for(LO=LR=[],F=0,LT=L; LT!=[]; LT=cdr(LT)){
+				if(type(P=car(LT))==4 || type(P)==7){
+					LR=cons(P,LR);
+					continue;
+				}else{ 
+					if(P==-1){
+						LL=reverse(LR);
+						LO=append(reverse(cons(-1,cdr(LL))),LO);
+						LO=cons(car(LL),LO);
+						LR=[];
+					}else if(P==1){
+						LR=cons(car(LR),cons(1,cdr(LR)));
+					}else if(P==0 || length(LT)==1){
+							if(LO!=[] && car(LO)!=0 && (type(car(LO))==4 || car(LO)==1))
+								LO=cons(0,LO);
+							LO=append(LR,LO);
+							if(length(LT)>1&&length(LO)>0&&car(LO)!=0) LO=cons(0,LO);
+							LR=[];
+					}
+				}
+			}
+			return append(LR,LO);
+		}
+		if(type(L[0][0])!=4) L=[L];
+		LO=[];
+		if(M=="connect" || M=="close" || M=="loop"){
+			Top=car(car(L));
+			for(K=1,LL=L; LL!=[]; LL=cdr(LL)){
+				for(F=0,LT=car(LL); LT!=[]; LT=cdr(LT),F++){
+					if((LTT=car(LT))==0) LTT=1;
+					if(F==0 && LO!=[]){
+						LO0=car(LO);
+						if(car(LO)!=1&&length(LO)>1) LO=cons(1,LO);
+						if(LTT==LO0) continue;
+						else LO=cons(1,cons(LTT, LO));
+					}else LO=cons(LTT, LO);
+				}
+			}
+			if(M!="connect"){
+				if(Top==car(LO) || car(LO)==1 || M=="loop")
+					LO=cons(-1,cdr(LO));
+				else
+					LO=cons(-1,cons(1,LO));
+			}
+			return reverse(LO);
+		}
+		if(M=="union"){
+			for(LL=reverse(L); LL!=[]; LL=cdr(LL)){
+				if(LO!=[]) LO=cons(0,LO);
+				LO=append(car(LL),LO);
+			}
+			L=LO;
+		}
+		return L;
+	}
 	if(type(Arg=getopt(deg))==1)
 		Arg=@pi*Arg/180;
 	else Arg=getopt(arg);
@@ -7223,9 +11002,42 @@ def ptaffine(M,L)
 	if(type(Sft=getopt(org))==4){
 		Sft=ltov(Sft);
 		Sft-=M*Sft;
-	}else Sft=0;
+	}else Sft=ltov([0,0]);
 	if(type(V=getopt(shift))==4)
 		Sft+=ltov(V);
+	if(getopt(proc)==1){
+		if(Sft!=0&&ltov(Sft)!=[0,0]) Sft=[["shift",vtol(Sft)]];
+		else Sft=[];
+		for(LO=[],LT=L;LT!=[];LT=cdr(LT)){
+			if(type(car(T=car(LT)))<2){
+				if((P=car(T))==0){
+					V=[[T[1][0],T[2][0]],[T[1][0],T[2][1]],[T[1][1],T[2][0]],[T[1][1],T[2][1]]];
+					V=ptbbox(ptaffine(M,V|option_list=Sft));
+					L1=cdr(cdr(cdr(T)));
+					LO=cons(append([0,V[0],V[1]],L1),LO);
+					continue;
+				}else if(P==1){
+					L1=[];
+					for(TT=cdr(cdr(T));TT!=[];TT=cdr(TT)){
+						D=car(TT);
+						if(type(D[0][0])==4){
+							for(L2=[],DT=D;DT!=[];DT=cdr(DT))
+								L2=cons(ptaffine(M,car(DT)|option_list=Sft),L2);
+							L1=cons(reverse(L2),L1);
+						}else L1=cons(ptaffine(M,D|option_list=Sft),L1);
+					}
+					LO=cons(append([1,T[1]],reverse(L1)),LO);
+					continue;
+				}else if(P>=2 && P<=5){
+					L1=ptaffine(M,cdr(cdr(T))|optilon_list=Sft);
+					LO=cons(append([P,T[1]],L1),LO);
+					continue;
+				}
+			}
+			LO=cons(T,LO);
+		}
+		return reverse(LO);
+	}
 	for(F=0,LT=L; LT!=[]; LT=cdr(LT)){
 		if(type(car(LT))==4){
 			F=1; break;
@@ -7233,10 +11045,13 @@ def ptaffine(M,L)
 	}
 	if(F==0) return (Sft==0)?ptaffine(M,[L])[0]:ptaffine(M,[L]|shift=vtol(Sft))[0];
 	for(LO=[],LT=L; LT!=[]; LT=cdr(LT)){
-		if((P=car(LT))==0) LO=cons(0,LO);
-		else{V=M*ltov(P);
+		if(((T=type(P=car(LT)))!=4 && T!=5)||type(P[0])>3) LO=cons(P,LO);
+		else{
+			if(T==4) P=ltov(P);
+			V=M*P;
 			if(Sft!=0) V+=Sft;
-			LO=cons(vtol(V),LO);
+			if(T==4) V=vtol(V);
+			LO=cons(V,LO);
 		}
 	}
 	return reverse(LO);
@@ -7301,8 +11116,9 @@ def ptpolygon(N,R)
 {
 	if(type(S=getopt(scale))!=1) S=1;
 	if(type(Org=getopt(org))!=4) Org=[0,0];
+	Pi=deval(@pi);
 	if(type(Arg=getopt(deg))==1)
-		Arg=(Pi=deval(@pi))*Arg/180;
+		Arg=Pi*Arg/180;
 	else Arg=getopt(arg);
 	if(type(Arg)==2) Arg=deval(Arg);
 	if(type(Arg)!=1) Arg=0;
@@ -7327,6 +11143,65 @@ def ptwindow(L,X,Y)
 	return reverse(R);
 }
 
+def lninbox(L,W)
+{
+	if(L[0]==L[1]) return 0;
+	R=newvect(2);C=newvect(2);
+	for(J=0;J<2;J++){
+		C[J]=L[1][J]-L[0][J];
+		if(C[J]!=0){
+			R[J]=[(W[J][0]-L[0][J])/C[J],(W[J][1]-L[0][J])/C[J]];
+			if(R[J][0]>R[J][1]) R[J]=[R[J][1],R[J][0]];
+		}
+	}
+	if(R[0]==0) R[0]=R[1];
+	if(R[1]==0) R[1]=R[0];
+	S0=(R[0][0]<R[1][0])?R[1][0]:R[0][0];
+	S1=(R[0][1]<R[1][1])?R[0][1]:R[1][1];
+	if(getopt(in)==1){
+		if(S0<0) S0=0;
+		if(S1>1) S1=1;
+	}
+	if(S0>S1) return 0;
+	return [[L[0][0]+C[0]*S0,L[0][1]+C[1]*S0],[L[0][0]+C[0]*S1,L[0][1]+C[1]*S1]];
+}
+
+def ptbbox(L)
+{
+	J=length(L[0]);
+	if((Box=getopt(box))==1){
+		for(R=[],I=0;I<J;I++){
+			P=car(LT=L)[I][0];Q=car(LT)[I][1];
+			for(;LT!=[];LT=cdr(LT)){
+				if(type(T=car(LT))==4 && length(T)==J){
+					if(T[I][0]<P) P=T[I][0];
+					if(T[I][1]>Q) Q=T[I][1];
+				}
+			}
+			R=cons([P,Q],R);
+		}
+	}else if(type(Box)==4) return ptbbox([ptbbox(L),Box]|box=1);
+	else{
+ 		for(R=[],I=0;I<J;I++){
+			P=Q=car(LT=L)[I];LT=cdr(LT);
+			for(;LT!=[];LT=cdr(LT)){
+				if(type(T=car(LT))==4 && type(T[0])<2 && length(T)==J){
+					if((V=T[I])<P) P=V;
+					else if(V>Q) Q=V;
+				}
+			}
+			R=cons([P,Q],R);
+		}
+	}
+	return reverse(R);
+}
+
+def iscombox(S,T)
+{
+	for(;S!=[];S=cdr(S),T=cdr(T))
+		if(car(S)[0]>car(T)[1] || car(S)[1]<car(T)[0]) return 0;
+	return 1;
+}
 
 def ptcopy(L,V)
 {
@@ -7395,6 +11270,18 @@ def madjust(M,W)
 	return N;
 }
 
+def texcr(N)
+{
+	if(!isint(N) || N<0 || N>31) return N;
+	S=(iand(N,8))? "\\allowdisplaybreaks":"";
+	if(iand(N,2))  S=S+"\\\\";
+	if(iand(N,16)) S=S+"\\pause";
+	if(iand(N,1))  S=S+"\n";
+	if(iand(N,4))  S=S+"& ";
+	else if(!iand(N,1)) S=S+" ";
+	return S;
+}
+
 def ltotex(L)
 {
 	/* extern TeXLim;	*/
@@ -7405,14 +11292,19 @@ def ltotex(L)
 		return my_tex_form(L);
 	Opt=getopt(opt);
 	Pre=getopt(pre);
-    Cr=getopt(cr);
-	if(type(Cr)!=7)	Cr="\\\\\n & ";
-	if(type(Opt)==7) Opt= [Opt];
+	if(type(Var=getopt(var))<1) Var=0;
+    Cr2="\n";
+	if(type(Cr=getopt(cr))==4){
+		Cr2=Cr[1];Cr=Cr[0];
+	}
+	if(isint(Cr)) Cr=texcr(Cr);
+	if(type(Cr)!=7) Cr="\\\\\n & ";	/* Cr=7 */
+	if(type(Opt)==7) Opt=[Opt];
 	if(type(Opt)!=4)
 		Op = -1;
 	else{
 		Op=findin(Opt[0],["spt","GRS","Pfaff","Fuchs","vect","cr","text","spts","spts0",
-			"dform","tab", "graph"]);
+			"dform","tab", "graph","coord"]);
 		Opt=cdr(Opt);
 	}
 	if(Op==0){	/* spt */
@@ -7472,7 +11364,7 @@ def ltotex(L)
 		}
 		str_tb(["\\Biggr)",V,"\n"],Out);
 	}else if(Op==4){	/* vect */
-		Out=str_tb(mtotex(matc(L)|lim=0),0);
+		Out=str_tb(mtotex(matc(L)|lim=0,var=Var),0);
 	}else if(Op==5 || Op==6){	/* cr or text */
 		Out = str_tb(0,0);
 		Str=getopt(str);
@@ -7482,7 +11374,7 @@ def ltotex(L)
 			if(I>0)	str_tb((Op==5)?Cr:"\n",Out);
 			LT=car(L);
 			if(Op==6){
-				if(Str==1 && type(LT)==7){
+				if(type(LT)==7){
 					str_tb([LT," "],Out);
 					I=-1;
 					continue;
@@ -7490,9 +11382,12 @@ def ltotex(L)
 				str_tb("$",Out);
 			}
 			if(Str>0 && type(LT)==4)
-				str_tb(ltotex(LT|opt=car(Opt),lim=0,str=Str),Out);
-			else
-				str_tb(my_tex_form(LT),Out);
+				str_tb(ltotex(LT|opt=car(Opt),lim=0,str=Str,cr=Cr2,var=Var),Out);
+			else if(type(LT)==6)
+				str_tb(mtotex(LT|var=Var,lim=0),Out);
+			else if(type(LT)==3 || type(LT)==2)
+				str_tb(fctrtos(LT|TeX=2,lim=0,var=Var),Out);
+			else str_tb(my_tex_form(LT),Out);
 			if(Op==6)	str_tb("$",Out);
 		}
 	}else if(Op==7||Op==8){	/* spts, spts0 */
@@ -7502,7 +11397,13 @@ def ltotex(L)
 		Out = str_tb(0,0);
 		for(K=0; L!=[]; L=cdr(L)){
 			LT=car(L);
-			S=(type(LT)==7 && Str==1)?LT:my_tex_form(LT);
+			if(type(LT)==7 && Str==1) S=LT;
+			else if(type(LT)==3 || type(LT)==2)
+				S=fctrtos(LT|TeX=2,lim=0,var=Var);
+			else if(type(LT)==6)
+				S=mtotex(LT|var=Var,lim=0);
+			else
+				S=my_tex_form(LT);
 			if(Lim !=0){
 				KK=texlen(S);
 				if(K>0 && K+KK>Lim){
@@ -7511,7 +11412,7 @@ def ltotex(L)
 				}
 			}
 			if(K>0){
-				str_tb((OP==7)?"\\ ":" ",Out);
+				str_tb((Op==7)?"\\ ":" ",Out);
 				if(type(LT)>3 && type(LT)<7)	str_tb("%\n",Out);
 			}
 			str_tb(S,Out);
@@ -7543,27 +11444,32 @@ def ltotex(L)
 				else str_tb(["(",V,")"],Out);
 			}
 		}
-	}
-	else if(Op==10 && type(L)==4 && type(car(L))==4){	/* tab */
+	}else if(Op==10 && type(L)==4 && type(car(L))==4){	/* tab */
 		if(type(Null=getopt(null))<0) Null="";
 		if(getopt(vert)==1){
-			M=lv2m(L|fill=Null);
+			M=lv2m(L|null=Null);
 			L=m2ll(mtranspose(M));
 		}
-		if(type(getopt(width))==1)
-			L=madjust(L|fill=NULL);
+		if(type(W=getopt(width))==1)
+			L=madjust(L,W|null=Null);
 		LV=ltov(L);
 		S=length(LV);
 		for(I=CS=0; I<S; I++)
 			if(length(LV[I])>CS) CS=length(LV[I]);
 		if(type(Title=getopt(title))!=7) Title="";
 		if(type(Vline=getopt(vline))!=4) Vline=[0,CS];
-		else Vline=qsort(Vline);
+		else Vline=subst(Vline,z,CS);
+		for(VV=[],VT=Vline;VT!=[];VT=cdr(VT)){
+			if(type(T=car(VT))==4 && T[1]>0){
+				for(I=T[0];I<=CS;I+=T[1]) VV=cons(I,VV);
+			}else VV=cons(T,VV);
+		}
+		Vline=qsort(VV);
 		Out=str_tb("\\begin{tabular}{",0);
-		if(type(Al=getopt(align))==7 && length(Al)>1){
+		if(type(Al=getopt(align))==7 && str_len(Al)>1){
 			str_tb(Al,Out);
 		}else{
-			if(type(Al)!=7 || length(Al)<1) Al="r";
+			if(type(Al)!=7 || str_len(Al)<1) Al="r";
 			for(I=0;I<=CS;I++){
 				if(I!=0) str_tb(Al,Out);
 				while(Vline!=[] && car(Vline)==I){
@@ -7576,10 +11482,42 @@ def ltotex(L)
 		if(Title!="")
 			str_tb("\n\\multicolumn{"+rtostr(CS)+"}{c}{"+Title+"}\\\\",Out);
 		if(type(Hline=getopt(hline))!=4) Hline=[0,S];
-		else Hline=qsort(Hline);
+		else Hline=subst(Hline,z,S);
+		for(VV=[],VT=Hline;VT!=[];VT=cdr(VT)){
+			if(type(T=car(VT))==4 && T[1]>0){
+				for(I=T[0];I<=CS;I+=T[1]) VV=cons(I,VV);
+			}else VV=cons(T,VV);
+		}
+		Hline=qsort(VV);
 		while(Hline!=[] && car(Hline)==0){
 			str_tb(" \\hline\n",Out);
 			Hline=cdr(Hline);
+		}
+		if(type(getopt(left))==4) CS++;
+		if(type(getopt(right))==4) CS++;
+		if(type(T=getopt(top))==4){
+			LV=cons(str_times(T,CS),vtol(LV));
+			S++;
+		}
+		if(type(T=getopt(last))==4){
+			LV=append(vtol(LV),[str_times(T,CS)]);
+			S++;
+		}
+		if(type(T=getopt(left))==4){
+			T=str_times(T,S);
+			for(L=[],I=0;I<S;I++){
+				L=cons(cons(car(T),LV[I]),L);
+				T=cdr(T);
+			}
+			LV=reverse(L);
+		}
+		if(type(T=getopt(right))==4){
+			T=str_times(T,S);
+			for(L=[],I=0;I<S;I++){
+				L=cons(append(LV[I],[car(T)]),L);
+				T=cdr(T);
+			}
+			LV=reverse(L);
 		}
 		for(I=0; I<S; I++){
 			for(C=0,LT=LV[I];C<CS; C++){
@@ -7600,7 +11538,10 @@ def ltotex(L)
 		}
 		str_tb("\\end{tabular}\n",Out);
 	}else if(Op==11){	/* graph */
-		Width=80; Hight=30; WRet=1/2; HMerg=2;
+		Width=8; Hight=3; WRet=1/2; HMerg=0.2;
+		if(!TikZ){
+			Width*=10; Height*=10; HMerg*=10;
+		}
 		if(type(V=getopt(size))==4){
 			Width=V[0];Hight=V[1];
 			if(length(V)>2) WRet=V[2];
@@ -7634,7 +11575,6 @@ def ltotex(L)
 				T=S+RT[0]/2;
 				S+=RT[0];
 				if(LT!=[]){
-					if(type(SS=LT[0])==7) SS=[SS];
 					str_tb(xyput([Opt0*dsin(T*6.2832),Opt0*dcos(T*6.2832),SS]),Out);
 					LT=cdr(LT);
 				}
@@ -7663,7 +11603,7 @@ def ltotex(L)
 				if(Val!=0)
 					str_tb(xyput([XPM,YP+HMerg,car(LT)]),Out);
 				if(Line==2)
-					str_tb(xyput([XPM,YP,"\\bullet"]),Out);
+					str_tb(xyput([XPM,YP,"$\\bullet$"]),Out);
 				YPP=YP;
 			}else if(YP!=0 || Val==1){
 				str_tb(xybox([[XP,0],[XP+WWStep,YP]]),Out);
@@ -7671,12 +11611,31 @@ def ltotex(L)
 					 str_tb(xyput([XPM,(YP<0)?(YP-HMerg):(YP+HMerg),car(LT)]),Out);
 				}
 			}
-			if(LL!=[]){
-				if(type(LP=LL[I])==7) LP=[LP];	/* string */
-				str_tb(xyput([XPM,-HMerg,LP]),Out);
-			}
+			if(LL!=[]) str_tb(xyput([XPM,-HMerg,LL[I]]),Out);
 		}
 		str_tb(xyproc(0),Out);
+	}else if(Op==12){	/* coord */
+		Out=str_tb("(",0);
+		for(LT=L;;){
+			X=car(LT);
+			if(type(X)>3 || imag(X)==0)	str_tb(my_tex_form(X),Out);
+			else{
+				XR=real(X);XI=imag(X);
+				S=monototex(imag(X));
+				if(S=="1") S="";
+				else if(S=="- 1") S="-";
+				if(getopt(cpx)==2) S=S+"\\sqrt{-1}";
+				else S=S+"i";
+				if(XR!=0){
+					if(str_char(S,0,"-")==0) S=monototex(XR)+S;
+					else S=monototex(XR)+"+"+S;
+				}
+			 	str_tb(S,Out);
+			}
+			if((LT=cdr(LT))==[]) break;
+			else str_tb(",",Out);
+		}
+		str_tb(")",Out);
 	}
 	else	return my_tex_form(L);
 	S = str_tb(0,Out);
@@ -7775,7 +11734,7 @@ def getbygrs(M, TT)
 	Sft    =findin("sft",T1);
 	Title = getopt(title);
 	Mat   = getopt(mat);
-	if(Mat!=1 || T<0 ||(T!=0&&T!=1&&T!=5&&T!=6&&T!=8&&T!=10)) Mat = 0;
+	if(Mat!=1 || T<0 ||(T!=0&&T!=1&&T!=5&&T!=6&&T!=8&&T!=10&&T!=9)) Mat = 0;
 	if(findin("keep",T1) >= 0)
 		Keep = Dviout = 1;
 	else Keep = 0;
@@ -7809,7 +11768,23 @@ def getbygrs(M, TT)
 			Sft=-Sft-1;
 		M = sp2grs(M,R,Sft|mat=Mat);
 	}
-	M = fspt(M,5);
+	for(M0=[],MM=M;MM!=[];MM=cdr(MM)){	/* change "?" -> z_z */
+		for(M1=[],Mm=car(MM);Mm!=[];Mm=cdr(Mm)){
+			Mt=car(Mm);
+			if(type(Mt)==4 && Mt[1]=="?"){
+				M1=cons([Mt[0],z_z],M1);
+				continue;
+			}else if(type(Mt)==7 && Mt=="?"){
+				M1=cons(z_z,M1);
+				continue;
+			}
+			M1=cons(Mt,M1);
+		}
+		M0=cons(reverse(M1),M0);
+	}
+	M = fspt(reverse(M0),5);  /* short -> long */
+	if(findin(z_z,vars(M))>=0)
+		M=subst(M,z_z,lsol(chkspt(M|mat=Mat)[3],z_z));	/* Fuchs relation */
 	NP = length(M);
 	Perm = getopt(perm);
 	if(type(Perm) == 4)
@@ -8009,10 +11984,10 @@ def getbygrs(M, TT)
 			R = cons(P,R);
 		}
 		R = ltov(R);
-#ifdef USEMODULE 
+#ifdef	USEMODULE
 		R = qsort(R,os_md.cmpsimple);
 #else
-		R = qsort(R,cmpsimple);
+		R = qsort(R,ocmpsimple);
 #endif
 		R = vtol(R);
 		if(TeX >= 0){
@@ -8858,6 +12833,11 @@ def pgen(L,VV)
 	}
 }
 
+def diagm(M,A)
+{
+	return mgen(M,0,A,0);
+}
+
 def mgen(M,N,A,S)
 {
 	if(M==0 && N==0){
@@ -8954,6 +12934,11 @@ def newbmat(M,N,R)
 		L += T[J];
 	}
 	M = newmat(K,L);
+	if(type(Null=getopt(null))>0){
+		for(I=0;I<K;I++){
+			for(J=0;J<L;J++) M[I][J]=Null;
+		}
+	}
 	for(I0 = II = 0; II < IM; I0 += S[II++]){
 		RI = R[II];
 		JM = length(RI);
@@ -9411,6 +13396,24 @@ def issquaremodp(X,P)
 	return (nthmodp(X,M,P)==1)?1:-1;
 }
 
+def iscoef(P,F)
+{
+	if(P==0) return 1;
+	if(type(P)==1) return F(P);
+	if(type(P)==2) {
+		X=var(P);
+		for(I=deg(P,X); I>=0; I--){
+			if(!iscoef(mycoef(P,I,X),F)) return 0;
+		}
+	}else if(type(P)==3){
+		if(!iscoef(nm(P),F)||!iscoef(dn(P),F)) return 0;
+	}else if(type(P)==4){
+		for(;P!=[];P=cdr(P)) if(!iscoef(P,F)) return 0;
+	}else if(type(P)>4 && type(P)<7) return iscoef(m2l(PP),F);
+	else return 0;
+	return 1;
+}
+
 def rootmodp(X,P)
 {
 	X%=P;
@@ -9499,31 +13502,198 @@ def rabin(P,X)
 	return (M<N&&(M==0||Z==1))?0:1;
 }
 
+def powprimroot(P,N){
+	if(P<3) P=3;
+	FE=getopt(exp);
+	if(FE!=1) FE=0;
+	if((Log=getopt(log))==1||Log==2) FE=-1;
+	else if(Log==3){
+		FE=-2;
+		for(PP=1, L0=["$r$","$p/a$"];;){
+			PP=pari(nextprime,PP+1);
+			if(PP>=P) break;
+			L0=cons(PP, L0);
+		}
+		L0=reverse(L0);
+	}
+	if(FE==0) All=getopt(all);
+	for(I=0, PP=P, LL=[]; I<N; I++,PP++){
+		PP=pari(nextprime,PP);
+		if(All==1){
+			PR=primroot(PP|all=1);
+			LL=cons(cons(PP,PR),LL);
+			continue;
+		}
+		PR=primroot(PP);
+		if(FE==-2){					/* log=3 */
+			LT=cdr(L0);LT=cdr(L0);
+			for(L=[PP];LT!=[];LT=cdr(LT))
+				L=cons(primroot(PP|ind=car(LT)),L);
+			LL=cons(reverse(L),LL);
+			if(I<N-1) L0=append(L0,[PP]);
+		}else if(FE){
+			for(J=1, L=[PP], K=1; J<PP; J++){
+				if(FE==-1){			/* log=1,2 */
+					K=primroot(PP|ind=J);
+					if(K==0 && Log==2) K=PP-1;
+				}
+				else K=(K*PR)%PP;	/* exp=1 */
+				L=cons(K,L);
+			}
+			LL=cons(reverse(L),LL);
+		}else
+			LL=cons([PP,PR],LL);	/* default */
+	}
+	LL=reverse(LL);
+	if(!FE)	return LL;
+	PP--;
+	if(FE==-2)	return append(LL,[L0]);
+	for(I=1,L=["$p$"];I<PP; I++)	L=cons(I,L);
+	return cons(reverse(L),LL);
+}
+
+def ntable(F,II,D)
+{
+	F=f2df(F|opt=-1);
+	Df=getopt(dif);
+	if(Df!=1) Df=0;
+	Str=getopt(str);
+	L=[];T=II[1]-II[0];
+	for(L=[],I=0;I<=D;I++){
+		X=II[0]+I*T/D;
+		L=cons([X,myfdeval(F,X)],L);
+	}
+	if(Df==1){
+		for(LD=[],LL=L;LL!=[];LL=cdr(LL)){
+			if(LD==[]) LD=cons([car(LL)[0],car(LL)[1],0],LD);
+			else LD=cons([car(LL)[0],car(LL)[1],abs(car(LL)[1]-car(LD)[1])],LD);
+		}
+		L=reverse(LD);
+	}
+	if(type(Str=getopt(str))==4){
+		if(length(Str)==1) Str=[Str[0],Str[0]];
+		if(Df==1 && length(Str)==2) Str=[Str[0],Str[1],Str[2]];
+		for(S=Str,Str=[];S!=[];S=cdr(S)){
+			if(type(car(S))!=4) Str=cons([car(S),3],Str);
+			else Str=cons(car(S),Str);
+		}
+		Str=reverse(Str);
+		for(LD=[],LL=L;LL!=[];LL=cdr(LL)){
+			for(K=[],J=length(Str); --J>=0; )
+				K=cons(sint(car(LL)[J],Str[J][0]|str=Str[J][1]),K);
+			LD=cons(K,LD);
+		}
+		L=LD;
+	}else
+		L=reverse(L);
+	if(type(M=getopt(mult))==1){
+		Opt=[["opt","tab"],["vline",[[0,2+Df]]],["width",-M]];
+		if(type(T=getopt(title))==7)
+			Opt=cons(["title",T],Opt);
+		if(type(Tp=getopt(top))==4)
+			Opt=cons(["top",Tp],Opt);
+		L=ltotex(L|option_list=Opt);
+	}
+	return L;
+}
+
+def distpoint(L)
+{
+	L=m2l(L|flat=1);
+	if(getopt(div)==5) Div=5;
+	else Div=10;
+	V=newvect(100/Div);
+    for(LT=L,LL=[],N=0; LT!=[]; LT=cdr(LT)){
+		if(type(K=car(LT))>1||K<0){
+			N++; continue;
+		}
+		LL=cons(K,LL);
+		T=idiv(K,Div);
+		if(Div==10 && T>=9) T=9;
+		else if(Div==5 && T>=19) T=19;
+		V[T]++;
+	}
+	V=vtol(V);
+	if((Opt=getopt(opt))=="data") return V;
+	Title=getopt(title);
+	OpList=[["opt","tab"]];
+	if(type(Title=getopt(title)) == 7)
+			OpList=cons(["title",Title],OpList);
+	if(Opt=="average"){
+		T=isMs()?["平均点","標準偏差","最低点","最高点","受験人数"]:
+		["average","deviation","min","max","examinees"];
+		L=average(LL);
+		L=[sint(L[0],1),sint(L[1],1),L[3],L[4],L[2]];
+		if(N>0){
+			T=append(T,[isMs()?"欠席者":"absentees"]);L=append(L,[N]);
+		}
+		OpList=cons(["align","c"],OpList);
+		return ltotex([T,L]|option_list=OpList);
+	}
+
+	if(getopt(opt)=="graph"){
+		Mul=getopt(size);
+		if(Div==5){
+			V0=["00","05","10","15","20","25","30","35","40","45","50","55",
+			"60","65","70","75","80","85","90","95"];
+			if(type(Mul)!=4){
+				Size = (TikZ)?[12,3,1/2,0.2]:[120,30,1/2,2];
+			}
+		}else{
+			V0=["00","10-","20-","30-","40-","50-","60-","70-","80-","90-"];
+			if(type(Mul)!=4){
+				Size = (TikZ)?[8,3,1/2,0.2]:[80,30,1/2,2];
+			}
+		}
+		return ltotex([V,V0]|opt="graph",size=Size);
+	}
+	if(Div==5)
+		V0=["00--04","05--09","10--14","15--19", "20--24", "25--29", "30--34", "35-39",
+		"40--44", "45--49","50--54", "55--59","60--64", "65--69",
+		"70--74", "75--79","80--84", "85--89","90--94", "95--100"];
+	else
+		V0=["00--09","10--19","20--29","30--39","40--49","50--59","60--69",
+		"70--79","80--89","90--100"];
+	Title=getopt(title);
+	return ltotex([V0,V]|option_list=OpList);
+}
+
+def keyin(S)
+{
+	print(S,2);
+	purge_stdin();
+	S=get_line();
+	L=length(S=strtoascii(S));
+	if(L==0) return "";
+	return str_cut(S,0,L-2);
+}
+
 def init() {
+	LS=["DIROUT","DVIOUTA","DVIOUTB","DVIOUTH","DVIOUTL","TeXLim","TeXEq","TikZ","XYPrec","XYcm"];
 	if(!access(get_rootdir()+"/help/os_muldif.dvi")||!access(get_rootdir()+"/help/os_muldif.pdf"))
 		mycat(["Put os_muldif.dvi and os_muldif.pdf in", get_rootdir()+(isMs()?"\\help.":"/help.")]);
 	if(!isMs()){
-		DIROUT="%HOME%/Asir/tex";
-		DVIOUTA=str_subst(DVIOUTA,"\\","/");
-		DVIOUTL=str_subst(DVIOUTL,"\\","/");
-		DVIOUTH="";
+		DIROUT="%HOME%/asir/tex";
+		DVIOUTA=str_subst(DVIOUTA,[["\\","/"],[".bat",".sh"]],0);
+		DVIOUTB=str_subst(DVIOUTB,[["\\","/"],[".bat",".sh"]],0);
+		DVIOUTL=str_subst(DVIOUTL,[["\\","/"],[".bat",".sh"]],0);
+		DVIOUTH="%ASIRROOT%/help/os_muldif.pdf";
 	}
 	Home=getenv("HOME");
-	if(type(Home)==7)	Home="";
-	for(Id=-6, F=Home; Id<-1;){
+	if(type(Home)!=7)	Home="";
+	for(Id=-7, F=Home; Id<-1;){
 		G = F+"/.muldif";
 		if(access(G)) Id = open_file(G);
 		else Id++;
-		if(Id==-6)		F+="asir";
+		if(Id==-6)		F+="/asir";
 		else if(Id==-5)	F=get_rootdir();
 		else if(Id==-4)	F+="/bin";
 		else if(Id==-3)	F=get_rootdir()+"/lib-asir-contrib";
 	}
 	if(Id>=0){
 		while((S=get_line(Id))!=0){
-			P=str_str(S,["DIROUT","DVIOUTA","DVIOUTH","DVIOUTL","TeXLim","TeXEq"]);
-			if(type(P)==4 && (P0=str_char(S,P[1]+5,"="))>0){
-				if(P[0]<4){
+			if(type(P=str_str(S,LS))==4 && (P0=str_char(S,P[1]+5,"="))>0){
+				if(P[0]<5){
 					P0=str_chr(S,P0+1,"\"");
 					if(P0>0){
 						for(P1=P0;(P2=str_char(S,P1+1,"\""))>0; P1=P2);
@@ -9532,14 +13702,20 @@ def init() {
 							SS=str_subst(SS,["\\\\","\\\""],["\\","\""]);
 							if(P[0]==0)			DIROUT=SS;
 							else if(P[0]==1)	DVIOUTA=SS;
-							else if(P[0]==2)	DVIOUTH=SS;
-							else if(P[0]==3)	DVIOUTL=SS;
+							else if(P[0]==2)	DVIOUTB=SS;
+							else if(P[0]==3)	DVIOUTH=SS;
+							else if(P[0]==4)	DVIOUTL=SS;
 						}
 					}
+					if(P0<0 || P1<P0+2) mycat(["Error!  Definiton of", LS[P[0]], 
+						"in .muldif"]);
 				}else{
 					SV=eval_str(str_cut(S,P0+1,str_len(S)-1));
-					if(P[0]==4)			TeXLim=SV;
-					else if(P[0]==5)	TeXEq=SV;
+					if(P[0]==5)			TeXLim=SV;
+					else if(P[0]==6)	TeXEq=SV;
+					else if(P[0]==7)	TikZ=SV;
+					else if(P[0]==8)	XYPrec=SV;
+					else if(P[0]==9)	XYcm=SV;
 				}
 			}
 		}
@@ -9547,6 +13723,7 @@ def init() {
 	}
 	chkfun(1,0);
 }
+
 #ifdef USEMODULE
 endmodule;
 os_md.init()$
