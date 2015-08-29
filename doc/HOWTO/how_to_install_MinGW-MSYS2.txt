@@ -4,14 +4,14 @@ MinGW+msys 環境の構築
 http://sourceforge.net/projects/msys2/files/Base/
 より、msys2-x86_64-20150512.exe をダウンロードし、c:\msys64にインストール
 
-2. スタートメニューから MSYS2 64bit→MinGW-w64 Win64 shell を起動する。
+2. スタートメニューから MSYS2 64bit→MinGW-w64 Win64 Shell を起動する。
 
 まずは、パッケージデータベースを更新する。
 pacman -Sy
 
 次に、初期導入パッケージのアップデート
 pacman -Su
-としてから、MinGW-w64 Win64 shell の再起動、これを数度繰り返す。
+としてから、MinGW-w64 Win64 Shell の再起動、これを数度繰り返す。
 アップデートがなくなったことを確認。
 
 以下を実行。
@@ -30,9 +30,9 @@ pacman -S patch
 pacman -S diffutils
 
 ※この環境には、3種類のコンパイラがある
-- msys2-devel でインストールされる gcc は、MSYS2 shell から使用し、これで生成したバイナリは、cygwin みたいに msys-2.0.dll を必要とする。
-- mingw-w64-i686-toolchain の gcc は、MinGW-w64 Win32 shell から使用し、これで生成したバイナリは、Windows native 32bit。
-- mingw-w64-x86_64-toolchain の gcc は、MinGW-w64 Win64 shell から使用し、これで生成したバイナリは、Windows native 64bit。
+- msys2-devel でインストールされる gcc は、MSYS2 Shell から使用し、これで生成したバイナリは、cygwin みたいに msys-2.0.dll を必要とする。
+- mingw-w64-i686-toolchain の gcc は、MinGW-w64 Win32 Shell から使用し、これで生成したバイナリは、Windows native 32bit。
+- mingw-w64-x86_64-toolchain の gcc は、MinGW-w64 Win64 Shell から使用し、これで生成したバイナリは、Windows native 64bit。
 
 3. /usr以下に次のディレクトリを作成
 cd /usr
@@ -42,24 +42,51 @@ mkdir local/lib
 mkdir local/include
 mkdir local/share
 
-4. gmp-5.1.3のビルドとインストール
-cd gmp-5.1.3
-./configure --prefix=/usr/local
+4. gmp-5.0.4 のビルドとインストール
+cd gmp-5.0.4
+wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+./configure --disable-static --enable-shared
+※MinGW-w64 Win32 Shell (64bit Windowsでの32bit環境)において、mingw32 版のバイナリをビルドしたい時は、
+  ./configure ABI=32 --build=x86_64-w64-mingw32 --host=i686-w64-mingw32 --disable-static --enable-shared
 make
 make install
 
-5. gc-7.4.2
-cd gc-7.4.2
-wget http://www.hboehm.info/gc/gc_source/libatomic_ops-7.4.0.tar.gz
-tar zxvf libatomic_ops-7.4.0.tar.gz
-mv libatomic_ops-7.4.0 libatomic_ops
+5. mpfr-3.1.3 のビルドとインストール
+cd mpfr-3.1.3
 wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
 wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
-./configure --disable-threads
+./configure --disable-static --enable-shared --with-gmp=/usr/local
+※MinGW-w64 Win32 Shell (64bit Windowsでの32bit環境)において、mingw32 版のバイナリをビルドしたい時は、
+  ./configure ABI=32 --disable-static --enable-shared --with-gmp=/usr/local
+make
+make install
+
+6. mpc-1.0.3 のビルドとインストール
+cd mpc-1.0.3
+wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+./configure --disable-static --enable-shared --with-gmp=/usr/local --with-mpfr=/usr/local
+※MinGW-w64 Win32 Shell (64bit Windowsでの32bit環境)において、mingw32 版のバイナリをビルドしたい時は、
+  ./configure ABI=32 --disable-static --enable-shared --with-gmp=/usr/local --with-mpfr=/usr/local
+make
+make install
+
+7. gc-7.4.2 のビルド
+cd gc-7.4.2
+wget http://www.hboehm.info/gc/gc_source/libatomic_ops-7.4.0.tar.gz
+tar zxf libatomic_ops-7.4.0.tar.gz
+mv libatomic_ops-7.4.0 libatomic_ops
+./configure
 make
 
-6. asirのビルド (まだビルドできていない)
+8. asir のビルドとインストール
+cd asir2000
 ./configure
 make
 make install
 make install-lib
+
+TODO:
+- ctrl+c での中断
+- ox_launch_nox による ox サーバの起動と通信
