@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.8 2003/09/02 03:24:50 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.9 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +17,11 @@
 
 #include "file2.h"
 #include "cmo.h"
+
+/* for gmp6.0.0 */
+#ifndef BYTES_PER_MP_LIMB
+#define BYTES_PER_MP_LIMB SIZEOF_MP_LIMB_T
+#endif
 
 extern int OxVersion;
 size_t cmoOutGMPCoeff_old(mpz_srcptr x);
