@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.165 2015/08/04 07:09:58 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.166 2015/08/20 07:45:12 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -260,7 +260,7 @@ configure-gmp: install-util
 configure-mpfr: install-util
 	(cd mpfr; ${MAKE} configure)
 
-configure-mpc: install-util
+configure-mpc: install-util install-gmp install-mpfr
 	(cd mpc; ${MAKE} configure)
 
 configure-asir: install-util 
