@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.166 2015/08/20 07:45:12 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.167 2015/09/14 07:32:18 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -39,7 +39,7 @@ all-gnuplot: configure-gnuplot
 all-k097: configure-k097 all-kan96xx all-kxx install-oxtags
 	(cd k097; ${MAKE} all)
 
-all-kan96xx: configure-kan96xx install-gc install-gmp install-mpfr install-mpc install-util install-oxtags
+all-kan96xx: configure-kan96xx install-gc install-gmp install-util install-oxtags
 	(cd kan96xx; ${MAKE} all)
 
 all-kxx: configure-kxx all-kan96xx install-util install-oxtags
@@ -257,7 +257,7 @@ configure-util:
 configure-gmp: install-util
 	(cd gmp; ${MAKE} configure)
 
-configure-mpfr: install-util
+configure-mpfr: install-util install-gmp
 	(cd mpfr; ${MAKE} configure)
 
 configure-mpc: install-util install-gmp install-mpfr
