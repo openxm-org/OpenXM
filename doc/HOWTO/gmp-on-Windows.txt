@@ -112,7 +112,9 @@ MinGW 64 では、gcc もサポートする。
 
 しかしながら、MinGW 32 の gcc は dwarf-2 例外処理を使用し、SEH はサポー
 トしていない。そのため、これを実現する libgcc_s_dw2-1.dll とリンクしよ
-うとする。静的にリンクするには、gcc にオプション -static-libgcc を与える。
+うとする。これを避けるには、gcc にオプション -static-libgcc を与えるか、
+win32threads な gcc を使用する。後者については、how_to_install_MinGW-MSYS2.txt
+の 3 節を参照のこと。
 
 
 2. ビルド
@@ -124,13 +126,14 @@ gmp-5.1.3.tar.gz
 mpfr-3.1.3.tar.bz2
 mpc-1.0.3.tar.gz
 
-付録1 で与えるシェルスクリプト mk.sh を実行して、ライブラリを作成する。
+付録1 または付録2 で与えるシェルスクリプト mk.sh を実行して、ライブラリを作成する。
 生成物は、${LOCAL}/{bin,include,lib} に出力される。
+
 
 3. Visual Studio 用インポートライブラリ
 
 mingw 付属の gendef の出力する *.def を、MS lib.exe で処理することにより、
-インポートライブラリを作成できる。具体的には、付録2 で与えるバッチファイルを
+インポートライブラリを作成できる。具体的には、付録3 で与えるバッチファイルを
 *.def の存在するディレクトリ (${LOCAL}/bin) で実行するとよい。
 
 A. 付録1
@@ -184,7 +187,59 @@ make install
 (cd src/.libs; gendef libmpc-3.dll; cp -p libmpc-3.def ${LOCAL}/bin)
 popd
 
+
 B. 付録2
+
+「MinGW-w64 Win64 Shell w32threads」または「MinGW-w64 Win32 Shell w32threads」上で実行するシェルスクリプトである。
+
+#!/bin/bash
+
+LOCAL=/usr/local"${MSYSTEM#MINGW}"
+[ -d ${LOCAL} ] || mkdir -p ${LOCAL}
+
+dist=/c/Users/ohara/OpenXM_dist
+gmp=gmp-5.1.3
+mpf=mpfr-3.1.3
+mpc=mpc-1.0.3
+
+for i in ${gmp}.tar.gz ${mpf}.tar.bz2 ${mpc}.tar.gz ; do case "$i" in *.bz2) tar jxf ${dist}/"$i";; *.gz) tar zxf ${dist}/"$i";; esac; done
+
+pushd ${gmp}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --disable-cxx
+make
+if [ "$MSYSTEM" = MINGW32 ]; then
+	gcc -shared .libs/*.o */.libs/*.o -m32 -Wl,--export-all-symbols -Wl,--output-def -Wl,.libs/libgmp-3.dll.def -o .libs/libgmp-10.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libgmp.dll.
+a
+fi
+make install
+(cd .libs; gendef libgmp-10.dll; cp -p libgmp-10.def ${LOCAL}/bin)
+popd
+
+pushd ${mpf}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --with-gmp=${LOCAL} --disable-thread-safe
+make 
+if [ "$MSYSTEM" = MINGW32 ]; then
+	cd src
+	gcc -shared .libs/*.o -L${LOCAL}/lib ${LOCAL}/lib/libgmp.dll.a -m32 -Wl,--output-def -Wl,.libs/libmpfr-4.dll.def -o .libs/libmpfr-4.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libmpfr.dll.a
+	cd ..
+fi
+make install
+(cd src/.libs; gendef libmpfr-4.dll; cp -p libmpfr-4.def ${LOCAL}/bin)
+popd
+
+pushd ${mpc}
+./configure --prefix=${LOCAL} --enable-shared --disable-static --with-gmp=${LOCAL} --with-mpfr=${LOCAL}
+make 
+if [ "$MSYSTEM" = MINGW32 ]; then
+	cd src
+    gcc -shared .libs/*.o -L${LOCAL}/lib ${LOCAL}/lib/libmpfr.dll.a ${LOCAL}/lib/libgmp.dll.a -m32 -o .libs/libmpc-3.dll -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libmpc.dll.a
+	cd ..
+fi
+make install
+(cd src/.libs; gendef libmpc-3.dll; cp -p libmpc-3.def ${LOCAL}/bin)
+popd
+
+C. 付録3
 
 コマンドプロンプト上で実行するバッチファイルである。
 環境により 32bit または 64bit のライブラリが生成されることに注意。

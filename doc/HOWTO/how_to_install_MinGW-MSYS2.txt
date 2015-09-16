@@ -1,4 +1,4 @@
-MinGW+msys 環境の構築
+MinGW+MSYS2 環境の構築
 
 1. msys2-64 をインストール
 http://sourceforge.net/projects/msys2/files/Base/
@@ -34,7 +34,72 @@ pacman -S diffutils
 - mingw-w64-i686-toolchain の gcc は、MinGW-w64 Win32 Shell から使用し、これで生成したバイナリは、Windows native 32bit。
 - mingw-w64-x86_64-toolchain の gcc は、MinGW-w64 Win64 Shell から使用し、これで生成したバイナリは、Windows native 64bit。
 
-3. /usr以下に次のディレクトリを作成
+3. win32threads な gcc のインストール方法(オプション)
+前節の pacman を用いてインストールした msys-2.0.dll に依存しない gcc は、
+32bit版: スレッド形式が posix, 例外処理形式が DWARF-2
+64bit版: スレッド形式が posix, 例外処理形式が seh
+に設定されてビルドされている。
+
+スレッド形式が posix だと、この gcc で作成する DLL は libgcc_s_*.dll を動的リンクする場合がある。
+これを避けるには、使用する gcc を
+32bit版: スレッド形式が win32threads, 例外処理形式が DWARF-2
+64bit版: スレッド形式が win32threads, 例外処理形式が seh
+にする必要がある。gcc をビルドし直すのは大変なので、mingw-w64 project で配布されているものを利用する。
+
+http://sourceforge.net/projects/mingw-w64/
+の [Files] から以下をダウンロードする。
+32bit:
+Toolchains targeting Win32 -> PersonalBuilds -> mingw-builds -> 5.2.0 -> threads-win32 -> dwarf -> i686-5.2.0-release-win32-dwarf-rt_v4-rev0.7z
+64bit:
+Toolchains targeting Win64 -> PersonalBuilds -> mingw-builds -> 5.2.0 -> threads-win32 -> seh -> x86_64-5.2.0-release-win32-seh-rt_v4-rev0.7z
+
+これを解凍し、c:\msys64 以下にそれぞれ
+c:\msys64\mingw32_w32threads
+c:\msys64\mingw64_w32threads
+として
+c:\msys64\mingw32_w32threads\bin, c:\msys64\mingw32_w32threads\lib などとなるようにコピーする。
+
+c:\msys64 にある
+mingw32_shell.bat (64bit版は mingw64_shell.bat) を
+mingw32_w32threads_shell.bat (64bit版は mingw64_w32threads_shell.bat) という名前でコピーし、
+その25行目を以下に変更
+set MSYSTEM=MINGW32_W32 (64bit版は set MSYSTEM=MINGW64_W32)
+
+c:\msys64\etc\profile の45行目に以下を追加
+    MINGW32_W32)
+      MINGW_MOUNT_POINT=/mingw32_w32threads
+      PATH="${MINGW_MOUNT_POINT}/bin:${MSYS2_PATH}:${PATH}"
+      PKG_CONFIG_PATH="${MINGW_MOUNT_POINT}/lib/pkgconfig:${MINGW_MOUNT_POINT}/share/pkgconfig"
+      ACLOCAL_PATH="${MINGW_MOUNT_POINT}/share/aclocal:/usr/share/aclocal"
+      MANPATH="${MINGW_MOUNT_POINT}/share/man:${MANPATH}"
+    ;;
+    MINGW64_W32)
+      MINGW_MOUNT_POINT=/mingw64_w32threads
+      PATH="${MINGW_MOUNT_POINT}/bin:${MSYS2_PATH}:${PATH}"
+      PKG_CONFIG_PATH="${MINGW_MOUNT_POINT}/lib/pkgconfig:${MINGW_MOUNT_POINT}/share/pkgconfig"
+      ACLOCAL_PATH="${MINGW_MOUNT_POINT}/share/aclocal:/usr/share/aclocal"
+      MANPATH="${MINGW_MOUNT_POINT}/share/man:${MANPATH}"
+    ;;
+
+最後に、Windowsのスタートメニューの[MSYS2 64bit]を右クリック→開く(Open)で
+ファイルエクスプローラを起動し、ショートカットの
+MinGW-w64 Win32 Shell (64bit版は MinGW-w64 Win64 Shell) を
+MinGW-w64 Win32 Shell w32threads (64bit版は MinGW-w64 Win64 Shell w32threads)
+という名前でコピーし、右クリック→プロパティから[ターゲット]を以下に変更
+C:\Windows\System32\cmd.exe /A /Q /K C:\msys64\mingw32_w32threads_shell.bat
+(64bit版は
+C:\Windows\System32\cmd.exe /A /Q /K C:\msys64\mingw64_w32threads_shell.bat)
+
+
+以上の作業により、このショートカットから起動したターミナル内で win32threads 形式の gcc
+が使用できるようになる。
+つまり、MinGW-w64 Win32 Shell w32threads から起動したターミナルで使用する gcc は
+32bit版: スレッド形式が win32threads, 例外処理形式が DWARF-2
+であり、MinGW-w64 Win64 Shell w32threads から起動したターミナルで使用する gcc は
+64bit版: スレッド形式が win32threads, 例外処理形式が seh
+となる。
+
+4. /usr以下に次のディレクトリを作成
 cd /usr
 mkdir local
 mkdir local/bin
@@ -42,8 +107,8 @@ mkdir local/lib
 mkdir local/include
 mkdir local/share
 
-4. gmp-5.0.4 のビルドとインストール
-cd gmp-5.0.4
+5. gmp-5.1.3 のビルドとインストール
+cd gmp-5.1.3
 wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
 wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
 ./configure --disable-static --enable-shared
@@ -52,17 +117,17 @@ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plai
 make
 make install
 
-5. mpfr-3.1.3 のビルドとインストール
+6. mpfr-3.1.3 のビルドとインストール
 cd mpfr-3.1.3
 wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
 wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
-./configure --disable-static --enable-shared --with-gmp=/usr/local
+./configure --disable-static --enable-shared --with-gmp=/usr/local --disable-thread-safe
 ※MinGW-w64 Win32 Shell (64bit Windowsでの32bit環境)において、mingw32 版のバイナリをビルドしたい時は、
-  ./configure ABI=32 --disable-static --enable-shared --with-gmp=/usr/local
+  ./configure ABI=32 --disable-static --enable-shared --with-gmp=/usr/local --disable-thread-safe
 make
 make install
 
-6. mpc-1.0.3 のビルドとインストール
+7. mpc-1.0.3 のビルドとインストール
 cd mpc-1.0.3
 wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
 wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
@@ -72,7 +137,7 @@ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plai
 make
 make install
 
-7. gc-7.4.2 のビルド
+8. gc-7.4.2 のビルド
 cd gc-7.4.2
 wget http://www.hboehm.info/gc/gc_source/libatomic_ops-7.4.0.tar.gz
 tar zxf libatomic_ops-7.4.0.tar.gz
@@ -80,7 +145,7 @@ mv libatomic_ops-7.4.0 libatomic_ops
 ./configure
 make
 
-8. asir のビルドとインストール
+9. asir のビルドとインストール
 cd asir2000
 ./configure
 make
