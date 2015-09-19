@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.26 2005/06/15 02:22:51 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.27 2005/07/03 11:08:54 ohara Exp $ */
 #define DATE "2005/06/15"
 #define RELEASE "3.050615"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -29,13 +29,14 @@ extern int StartAString;
 extern char *StartString;
 extern int Quiet;
 extern char *VersionString;
-extern unsigned int GC_version;
+//extern unsigned int GC_version;
 
 main(argc,argv) 
      int argc;
      char *argv[];
 {
   int i;
+  int gc_version;
   StandardMacros = 1;
   VersionString = RELEASE;
   if (argc > 1) {
@@ -74,7 +75,7 @@ main(argc,argv)
     }
   }
 
-
+  gc_version = GC_get_version();
   stackmachine_init();
   if (!Quiet) {
     fprintf(Fstack,"\n");
@@ -82,7 +83,7 @@ main(argc,argv)
     fprintf(Fstack,"                         1991 April --- 2004.\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
             RELEASE);
-    fprintf(Fstack,"gc %d.%d-%d (C) Boehm, Demers, Xerox, SGI, HP,\nGNU MP 4.1 (C) Free Software Foundation,\n",GC_version >>16, (GC_version >> 8)&0xff,GC_version & 0xff);
+    fprintf(Fstack,"gc %d.%d-%d (C) Boehm, Demers, Xerox, SGI, HP,\nGNU MP 4.1 (C) Free Software Foundation,\n",gc_version >>16, (gc_version >> 8)&0xff,gc_version & 0xff);
     fprintf(Fstack,"OpenXM RFC100, 101, 103 (C) OpenXM developing team. \n");
     fprintf(Fstack,"This software may be freely distributed  ");
     fprintf(Fstack,"with no warranty expressed. \nSee OpenXM/Copyright/Copyright.generic\n");
