@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.39 2015/05/18 23:31:49 ohara Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ot_hgm_ahg.rr,v 1.40 2015/05/19 01:00:26 takayama Exp $
 
   Applying the HGM for A-hypergeometric system by a sylvester matrix like method.
   Imported from h-mle/A-hg/Prog/disc5.rr, cbase.rr
@@ -12,6 +12,7 @@ extern ForPaper_data3$
 extern Strategy_N$  
 Strategy_N=1$  // Do not compute the matrix product in hgm_ahg_contiguity. More efficient in our benchmark.  See h-mle/A-hg2/Prog/note-ot.tex
 extern Start_pm$   // flag if polymake is already running.
+extern Sing_poly_pf$
 
 import("names.rr")$
 import("nk_toric.rr")$
@@ -1376,6 +1377,7 @@ def find_path(A,B) {
     AI=mapat(mat_col,1,AA,oh_base.range(0,Col-1)); /* 列ベクトルの集合 */
     S=base_var_list(b_,1,Row);
     Blist=[]; 
+    Geom=1;
     for (I=0; I<Col; I++) {
         Bf = hg_bfct(A,I | geometric=Geom)[0]; /* b-関数 */
         Blist = cons(Bf,Blist);
@@ -3175,5 +3177,232 @@ def test_f9_series() {
   printf("Time=%a\n",T1[0]-T0[0]);
   return(F);
 }
+
+/* No answer in 3 days. */
+def test_fc4_series() {
+    B=[[-1,-1, 1,1, 0,0, 0,0, 0,0],
+       [-1,-1, 0,0, 1,1, 0,0, 0,0],
+       [-1,-1, 0,0, 0,0, 1,1, 0,0],
+       [-1,-1, 0,0, 0,0, 0,0, 1,1]];
+  A=matrix_kernel(B)[1];
+  U=ltov([80,40,25,62,28,51,17,30,60,29]);
+  Beta=vtol(matrix_list_to_matrix(A)*U);
+  printf("A=%a\n",A);
+  ACH=translation_of_a(A);
+  A=ACH[0];
+  NewB=translation_of_beta(Beta,ACH);
+  printf("NewB=%a\n",NewB);
+  T0=time();
+  F=tk_hgpoly.hgpolyk(A,NewB);
+  T1=time();
+  printf("Time=%a\n",T1[0]-T0[0]);
+  bsave(F,"tmp-test_fc4_series.ab");
+  return(0);
+}
+
+def test_fc4_series2() {
+    B=[[-1,-1, 1,1, 0,0, 0,0, 0,0],
+       [-1,-1, 0,0, 1,1, 0,0, 0,0],
+       [-1,-1, 0,0, 0,0, 1,1, 0,0],
+       [-1,-1, 0,0, 0,0, 0,0, 1,1]];
+  A=matrix_kernel(B)[1];
+  U=ltov([80,40,25,62,28,51,17,30,60,29]);
+  Beta=vtol(matrix_list_to_matrix(A)*U);
+  printf("A=%a, U=%a, Beta=%a\n",A,U,Beta);
+  ACH=translation_of_a(A);
+  A=ACH[0];
+  NewB=translation_of_beta(Beta,ACH);
+  printf("NewB=%a\n",NewB);
+  SumU = oh_base.sum(U);
+  X0 = vtol((1/SumU)*ltov(U)); 
+  printf("X0=%a\n",X0);
+  T0=time();
+  F=tk_hgpoly.hgpolyk(A,NewB | x=X0);  //  deg option should also be given.
+  T1=time();
+  printf("Time=%a\n",T1[0]-T0[0]);
+  bsave(F,"tmp-test_fc4_series2.ab");
+  return(0);
+}
+
+/*
+  2015.06.04
+  tt.rr  import("ot-tmp.rr"); test_fc4_pf(); end$
+  tt.sh   nohup asir <tt.rr >log-test_fc4_pf.txt &
+  sh ./tt.sh 
+*/
+def test_fc4_pf() {
+    B=[[-1,-1, 1,1, 0,0, 0,0, 0,0],
+       [-1,-1, 0,0, 1,1, 0,0, 0,0],
+       [-1,-1, 0,0, 0,0, 1,1, 0,0],
+       [-1,-1, 0,0, 0,0, 0,0, 1,1]];
+  A=matrix_kernel(B)[1];
+  M=length(A);
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = util_v(s,[I]);
+  Beta = vtol(Beta);
+  F=tk_sm1emu.gkz([A,Beta]);
+
+//  F=tk_sm1emu.gkz([[[0,0,1,1],[1,0,1,0],[0,1,0,1]],[s_0,s_1,s_2]]); 
+
+  L=F[0];
+  V=F[1]; 
+  DV=tk_sm1emu.add_d(V);
+  dp_gr_flags(["Print",1]);
+  W0 = newvect(2*length(V));
+  for (I=length(V); I<2*length(V); I++) W0[I] = 1;
+  W0 = vtol(W0);
+  W = poly_weight_to_omatrix(W0,append(V,DV));
+  T0=time();
+  Gb = nd_weyl_gr(L,append(V,DV),0,W);
+  T1=time();
+  printf("Time=%a\n",T1[0]-T0[0]);
+  bsave(Gb,"tmp-test_fc4_pf.ab");
+  return(0);
+}
+
+/* 2015.06.11  */
+def test_fc4_pf2() {
+  G = bload("fc4_pf.ab");  // tmp-test-fc4_pf.ab is renamed to fc4_pf.ab
+//    G = [dx10^5,dx4*dx10^3,dx6*dx10^3,dx8*dx10^3,dx4*dx8*dx10,dx6*dx8*dx10,dx4^2,dx4*dx6,dx6^2,dx8^2,dx1,dx2,dx3,dx5,dx7-2,dx9-1];  // test input.
+    B=[[-1,-1, 1,1, 0,0, 0,0, 0,0],
+       [-1,-1, 0,0, 1,1, 0,0, 0,0],
+       [-1,-1, 0,0, 0,0, 1,1, 0,0],
+       [-1,-1, 0,0, 0,0, 0,0, 1,1]];
+  A=matrix_kernel(B)[1];
+  M=length(A);
+  print(A);
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = util_v(s,[I]);
+  Beta = vtol(Beta);
+  F=tk_sm1emu.gkz([A,Beta]);
+//  F=tk_sm1emu.gkz([[[0,0,1,1],[1,0,1,0],[0,1,0,1]],[s_0,s_1,s_2]]); 
+  V=F[1]; 
+  DV=tk_sm1emu.add_d(V);
+
+  W0 = newvect(2*length(V));
+  for (I=length(V); I<2*length(V); I++) W0[I] = 1;
+  W0 = vtol(W0);
+  W = poly_weight_to_omatrix(W0,append(V,DV));
+  dp_ord(W);
+  G2 = map(dp_ptod,G,append(V,DV));
+  In = map(dp_ht,G2);
+  In = map(dp_dtop,In,append(V,DV));
+  One = newvect(length(V)); for (I=0; I<length(V); I++) One[I]=1;  One=vtol(One);
+  InD = base_replace(In,assoc(V,One));
+  InD = nd_gr(InD,DV,0,0);
+
+  InD = map(dp_ptod,InD,DV);
+  Std=dp_mbase(InD);
+
+  yang.verbose();
+  yang.define_ring(["partial",V]);
+  Gy = map(dp_ptod,G,DV);
+  T0=time();
+  Pf=yang.pfaffian(Std,Gy);
+  T1=time();
+  printf("Time for the yang.pfaffian is %a\n",T1[0]-T0[0]);
+  bsave(Pf,"tmp-test_fc4_pf2.ab");
+  return(0);
+}
+
+
+def test_fc4b(N) {
+    T0=time();
+    B=[[-1,-1, 1,1, 0,0, 0,0, 0,0],
+       [-1,-1, 0,0, 1,1, 0,0, 0,0],
+       [-1,-1, 0,0, 0,0, 1,1, 0,0],
+       [-1,-1, 0,0, 0,0, 0,0, 1,1]];
+    A=matrix_kernel(B)[1];
+    printf("A=%a\n",A);
+    Col=length(A[0]);
+    U=ltov([80+N,40+N,25,62,28,51,17,30,60,29]);
+    Beta=vtol(matrix_list_to_matrix(A)*U);
+    printf("Beta=%a\n",Beta);
+    SumU = oh_base.sum(U);
+    X0 = vtol((1/SumU)*ltov(U)); /* 経験オッズ */
+    R  = base_var_list(x,1,Col);
+    printf("at (%a=%a)\n",R,X0);
+
+    R = [x3]; U = [U[2]];
+    TT0=time();
+    EV=hgm_ahg_expected_values_contiguity_generic(A,Beta,X0,R|msize=4);
+    printf("EV(%a)=%a\n",R,EV);
+    print_time("test_f9",T0);
+    TT1=time();printf("Time=%a\n",TT1[0]-TT0[0]);
+    return(0);
+}
+def try2c() {  
+  for (N=200; N<=1000; N += 100) { printf("N=%a\n",N); test_fc4b(N); }
+}
+def try2d() {  
+  for (N=100; N<=1000; N += 100) { printf("N=%a\n",N); test_fc4b(N); }
+}
+
+/* 2015.09.24 */
+def sing_poly(A) {
+  if (type(getopt(rank))>0) {
+   Rank = getopt(rank);
+  }else Rank=0;
+  T = mytoric(A,0);
+  Ee = T[0]; Et=T[1];
+  Vx = T[2]; Vs=T[3];
+  L = append(Ee,Et);
+  Dv=tk_sm1emu.add_d(Vx);
+  yang.verbose();
+  yang.define_ring(["partial",Vx]);
+  L=map(dp_ptod,L,Dv);
+  T0=time();
+  if (Rank > 0) {
+    stop_on_windows();
+    G=yang.buchberger(L | sm1=1, hilbert=Rank);
+    T1=time();
+    printf("Time for the Hilbert driven Buchberger is %a\n",Btime=T1[0]-T0[0]);
+  }else{ 
+    G=yang.buchberger(L);
+    T1=time();
+    printf("Time for the Buchberger is %a\n",Btime=T1[0]-T0[0]);
+  }
+  M = yang.stdmon(G);
+  printf("Stdmon=%a\n",M);
+  Base = map(dp_ptod,M,Dv);
+  T0=time();
+  Pf = yang.pfaffian(Base,G);
+  Sing_poly_pf = Pf;
+  T1=time();
+  printf("Time to translate to the Pfaffian %a. Pf is in Sing_poly_pf\n",Btime=T1[0]-T0[0]);
+  return(fctr(pf2sing_poly(Pf)));
+}
+/* 2015.09.25 */
+def mylcm(F,G) {
+  GCD = gcd(F,G);
+  return(red(F/GCD)*G);
+}
+def pf2sing_poly(Pf) {
+  N = length(Pf);
+  R =size(Pf[0])[0];
+  F = 1;
+  for (I=0; I<N; I++) {
+   P = Pf[I];
+   for (J=0; J<R; J++) for (K=0; K<R; K++) {
+     if (P[J][K] != 0) {
+       G = dn(P[J][K]);
+       F = mylcm(F,G);
+     }
+   }
+  }
+  return(F);
+}
+/*
+ b_i's are not in
+ sing_poly([[1,1,1,1],[0,1,2,3]]);
+ sing_poly([[1,1,1,1],[0,1,0,1],[0,0,1,1]]);
+ sing_poly([[0,0,1,1],[1,0,1,0],[0,1,0,1]]);
+    The inverse matrix contains b_i's in the denominators.  cf. kyoto*/2x2.rr
+    But, dn(Pf) does not contain them.
+ sing_poly([[1,1,1,1,1,1],[1,0,0,-1,0,0,0],[0,1,0,0,-1,0],[0,0,1,0,0,-1]]);
+
+ b_i's are in 
+ sing_poly([[1,1,1,1],[0,1,3,4]]);
+*/
 
 end$
