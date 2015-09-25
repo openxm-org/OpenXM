@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.32 2015/08/03 20:56:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.33 2015/08/06 22:33:21 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -594,7 +594,7 @@ char *cygwinPathToWinPath(char *s) {
   }
 
   if (ans[0] == '/') {
-#if defined(__CYGWIN64__)
+#if defined(__CYGWIN64__) || (defined(__CYGWIN__) && defined(__x86_64__))
     strcpy(ans,"C:\\cygwin64");
 #else
     strcpy(ans,"C:\\cygwin");
