@@ -1,0 +1,43 @@
+% $OpenXM$
+[(parse) (ox.sm1) pushfile] extension
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%   Starting ox_pari.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/pariconnectr {
+ [/in-pariconnectr /pass /peer /data /control ] pushVariables
+ [
+   [(getServerEnv) (bin/ox_pari)] extension tag 0 eq {
+     (Server bin/ox_pari is not found.) error
+   }{ } ifelse
+ /pass ox_encrypt_104_genPass def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message-quiet
+ [
+  oxstart100
+  @@@.quiet { ( -quiet ) } {  } ifelse
+  Xm_noX { ( -nox ) } {  } ifelse
+  Xm_engineLogToStdout { ( -nox -engineLogToStdout ) } { } ifelse %bug.onlyForpari
+  ( -oxserver bin/ox_pari -e ) ( -reverse ) @@@.monitor
+  ( -data ) data ( -control ) control   pass [1 2] get  
+  ( )] cat execve
+ [(oxCreateClient2) peer 0 pass 0 get] extension /oxpari.ccc set
+                     %% 0 means connect from only localhost. 
+ (The server is binded to the variable oxpari.ccc) message-quiet
+  /ox.ccc oxpari.ccc def
+  oxpari.ccc.init 
+  oxpari.ccc
+ ] pop
+ popVariables
+} def
+
+/oxpari.ccc.init { 
+%   oxpari.ccc (  ) oxsubmit
+ (Setting mathcap) message
+ oxpari.ccc oxmathcap
+ oxpari.ccc oxsetmathcap
+  (Done) message
+} def
+
