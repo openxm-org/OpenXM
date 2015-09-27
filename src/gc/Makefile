@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.23 2015/08/03 05:42:00 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.24 2015/08/04 05:33:11 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -28,7 +28,7 @@ extract: fetch
 		for i in ${DISTFILES}; do cat ${DISTDIR}/$$i | (cd work; tar xzvf -) ; done ; \
 		chmod +x ${WRKSRC}/install-sh ; \
 	fi
-	(cd ${WRKSRC}; ln -sf ../${ATOMIC} libatomic_ops)
+	-(cd ${WRKSRC}; ln -sf ../${ATOMIC} libatomic_ops)
 	@touch work/.extract_done
 
 patch: extract
@@ -42,9 +42,25 @@ patch: extract
 configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd ${WRKSRC}; ./configure --disable-threads --prefix="$$prefix" ) ; \
+		if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+		  make configure-sygwin ; \
+		elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
+		  make configure-msys ; \
+		else \
+		  make configure-others ; \
+		fi ; \
 	fi
 	@touch work/.configure_done
+
+configure-cygwin:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix --enable-static --disable-shared )
+configure-msys:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix --build=x86_64-w32-mingw32  )
+configure-others:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix )
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
