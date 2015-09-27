@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.26 2006/05/06 10:53:36 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.27 2013/11/06 06:23:24 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -23,6 +23,11 @@ FILE *MyErrorOut = NULL;
 #include "../Kan/extern.h"
 
 #include "ox_kan.h"
+
+#if defined(__MSYS__)
+#define setjmp(e) _setjmp(e)
+#define sigsetjmp(e,n) _setjmp(e)
+#endif
 
 #define READBUFSIZE 5000
 

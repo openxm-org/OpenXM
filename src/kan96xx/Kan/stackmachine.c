@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.35 2006/02/02 04:16:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.36 2006/02/02 05:55:33 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -12,6 +12,18 @@
 #include <signal.h>
 #include <sys/types.h>
 
+/* The msys2 seems to make a buffer overflow of  EnvOfStackmachine[].
+The code
+[(x) ring_of_differential_operators 11] define_ring
+( Dx*(x+Dx) ) /ff set
+causes the segfault because Mp_zero is borken. Is it a bug of msys2?
+Anyway, the following definition seems to be a workaround. 2015.09
+Singnals do not work properly on msys2. (gcc -dM -E ... to see macros defs)
+*/
+#if defined(__MSYS__)
+#define setjmp(e) _setjmp(e)
+#define sigsetjmp(e,n) _setjmp(e)
+#endif
 
 /* #define OPERAND_STACK_SIZE  2000 */
 #define OPERAND_STACK_SIZE 30000 

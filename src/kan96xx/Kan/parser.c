@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.8 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.9 2005/07/03 11:08:54 ohara Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -10,6 +10,11 @@
 #include "stackm.h"
 #include "extern.h"
 #include "extern2.h"
+
+#if defined(__MSYS__)
+#define setjmp(e) _setjmp(e)
+#define sigsetjmp(e,n) _setjmp(e)
+#endif
 
 #define NUM  1       /* NUM means struct Bignum */
 #define POL  0
