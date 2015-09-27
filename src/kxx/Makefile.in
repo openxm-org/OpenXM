@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.40 2008/01/12 11:26:16 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.41 2010/08/18 07:23:32 ohara Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -147,6 +147,8 @@ install-exec: copy-kan-lib install_lib_bin
 	install ox ox_sm1 oxlog ox100start ox_texmacs ${OpenXM_bin}
 install_lib_bin:
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+	  make install_lib_bin_windows ; \
+	elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
 	  make install_lib_bin_windows ; \
 	else \
 	  make install_lib_bin_unix ; \
