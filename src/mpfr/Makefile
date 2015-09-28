@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.3 2015/08/04 05:52:22 noro Exp $
+# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.4 2015/09/28 05:52:13 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -51,7 +51,7 @@ configure-cygwin:
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe --enable-static --disable-shared)
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe --build=x86_64-w64-mingw32  )
+	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe --build=x86_64-w64-mingw32 --disable-thread-safe --enable-static --disable-shared )
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe)

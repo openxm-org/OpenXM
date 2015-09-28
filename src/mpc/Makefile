@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/mpc/Makefile,v 1.1 2015/08/20 07:45:12 noro Exp $
+# $OpenXM: OpenXM/src/mpc/Makefile,v 1.2 2015/09/28 05:52:13 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -50,7 +50,7 @@ configure-cygwin:
 	(cd ${WRKSRC}; CC=${CC} ./configure  --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include"  --enable-static --disable-shared)
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include"  --build=x86_64-w64-mingw32  )
+	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include"  --build=x86_64-w64-mingw32    --enable-static --disable-shared )
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" )
