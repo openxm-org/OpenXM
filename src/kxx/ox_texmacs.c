@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.34 2006/03/22 00:52:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.35 2009/02/22 16:40:05 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +9,7 @@
 #include "serversm.h"
 #include "ox_pathfinder.h"
 
+void *sGC_malloc(size_t size);
 #if defined(__CYGWIN__)
 #define JMP_BUF sigjmp_buf
 #define SETJMP(env)  sigsetjmp(env,1)
@@ -143,6 +144,9 @@ main(int argc,char *argv[]) {
   Dfp = fopen("/tmp/debug-texmacs.txt","w");
 #endif
   
+  /* Initialize kanlib (gc is also initialized) */
+  KSstart();
+
   /* Set consts */
   Quiet = 1;
   for (i=1; i<argc; i++) {
@@ -194,8 +198,6 @@ main(int argc,char *argv[]) {
     exit(10);
   }
 
-  /* Initialize kanlib (gc is also initialized) */
-  KSstart();
 
   /* Main loop */
   printf("%s",Data_begin_v[View]);
@@ -612,7 +614,7 @@ static int startEngine(int type,char *msg) {
     /* Initialize the setting of asir. */
     if (AsirInitFile) {  /* cf. asir-contrib/packages/src/cfep-init.rr */
 	  unsigned char *ss;
-	  ss = (unsigned char *)GC_malloc(strlen(AsirInitFile)+256);
+	  ss = (unsigned char *)sGC_malloc(strlen(AsirInitFile)+256);
 	  sprintf((char *)ss," oxasir.ccc (load(\"%s\");) oxsubmit oxasir.ccc oxgeterrors length 0 gt { (Error in loading asirInitFile) message} { } ifelse ",AsirInitFile);
 	  /* printf("Loading --asirInitFile %s\n",AsirInitFile); */
 	  KSexecuteString(ss);
