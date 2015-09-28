@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.24 2015/08/04 05:33:11 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.25 2015/09/27 10:50:23 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -12,7 +12,7 @@ DISTFILES=${DISTNAME}.tar.gz ${ATOMIC}.tar.gz
 WRKSRC=work/${DISTNAME}
 # WRKSRC=work/gc-20150803-git/bdwgc
 #PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc-7.diff
-PATCHFILES = 
+PATCHFILES = gc-cygwin64.diff
 
 all : build
 
@@ -34,7 +34,7 @@ extract: fetch
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
         for i in ${PATCHFILES} ; do \
-	        cat $$i | (cd ${WRKSRC}; patch -p1) ; \
+	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
         done ; \
 	fi
 	@touch work/.patch_done
@@ -43,7 +43,7 @@ configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
 		if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-		  make configure-sygwin ; \
+		  make configure-cygwin ; \
 		elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
 		  make configure-msys ; \
 		else \
@@ -54,10 +54,10 @@ configure : patch
 
 configure-cygwin:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix --enable-static --disable-shared )
+	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix )
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix --build=x86_64-w32-mingw32  )
+	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix --build=x86_64-w64-mingw32  )
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix )

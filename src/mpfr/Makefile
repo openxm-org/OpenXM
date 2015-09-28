@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.2 2015/02/21 06:20:36 ohara Exp $
+# $OpenXM: OpenXM/src/mpfr/Makefile,v 1.3 2015/08/04 05:52:22 noro Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -33,12 +33,28 @@ patch: extract
 	fi
 	@touch work/.patch_done
 
-configure: patch
+configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd ${WRKSRC} ; CC=${CC} ./configure --prefix="$$prefix" --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe) ; \
+		if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+		  make configure-cygwin ; \
+		elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
+		  make configure-msys ; \
+		else \
+		  make configure-others ; \
+		fi ; \
 	fi
 	@touch work/.configure_done
+
+configure-cygwin:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe --enable-static --disable-shared)
+configure-msys:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe --build=x86_64-w64-mingw32  )
+configure-others:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --with-gmp-lib="$$prefix/lib" --with-gmp-include="$$prefix/include" --disable-thread-safe)
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
