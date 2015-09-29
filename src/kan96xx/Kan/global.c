@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.35 2006/12/21 05:29:49 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.36 2011/10/05 05:46:14 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -161,7 +161,8 @@ FILE *Fk = NULL;  /* Initialized to stdout in stackmachine_init() */
 stackmachine_init() {
   int i,j;
   extern FILE *BaseFp;
-  GC_init();
+  /* GC_init(); */
+  GC_INIT();
   OxSystemVersion = VersionString;
   Fstack = stdout;  /* initialize output stream */
   Fk = stdout;

@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.27 2005/07/03 11:08:54 ohara Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.28 2015/09/19 09:56:06 takayama Exp $ */
 #define DATE "2005/06/15"
 #define RELEASE "3.050615"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -75,8 +75,8 @@ main(argc,argv)
     }
   }
 
+  stackmachine_init(); /* GC is also initialized here */
   gc_version = GC_get_version();
-  stackmachine_init();
   if (!Quiet) {
     fprintf(Fstack,"\n");
     fprintf(Fstack,"Kan/StackMachine1");

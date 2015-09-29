@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/k2.c,v 1.3 2001/01/08 05:26:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/k2.c,v 1.4 2001/01/28 02:40:04 takayama Exp $ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
@@ -51,7 +51,7 @@ main(int argc,char *argv[]) {
     }
   }
 #ifdef CALLASIR
-  GC_init();
+  GC_INIT(); /* GC_init(); */
   KasirKanAsirInit();
 #endif
   KSstart();   /********  initialize ***********/

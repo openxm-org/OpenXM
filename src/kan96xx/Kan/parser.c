@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.9 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.10 2015/09/27 08:12:42 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -11,7 +11,7 @@
 #include "extern.h"
 #include "extern2.h"
 
-#if defined(__MSYS__)
+#if defined(__MSYS__) || defined(__CYGWIN__)
 #define setjmp(e) _setjmp(e)
 #define sigsetjmp(e,n) _setjmp(e)
 #endif

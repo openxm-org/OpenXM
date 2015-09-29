@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.36 2006/02/02 05:55:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.37 2015/09/27 08:12:42 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -20,7 +20,7 @@ causes the segfault because Mp_zero is borken. Is it a bug of msys2?
 Anyway, the following definition seems to be a workaround. 2015.09
 Singnals do not work properly on msys2. (gcc -dM -E ... to see macros defs)
 */
-#if defined(__MSYS__)
+#if defined(__MSYS__) || defined(__CYGWIN__)
 #define setjmp(e) _setjmp(e)
 #define sigsetjmp(e,n) _setjmp(e)
 #endif

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.5 2004/06/24 11:59:22 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.6 2013/11/06 06:23:23 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -123,10 +123,21 @@ install-exec: all clean-for-install install-lib
 	install -c -s d0  ${OpenXM_HOME}/bin
 	install -c -s ox_k0 ${OpenXM_HOME}/bin
 	rm -f ${OpenXM_HOME}/lib/sm1/bin/ox_k0
+	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+	  make install-gen-link-windows ; \
+	elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
+	  make install-gen-link-windows ; \
+	else \
+	  make install-gen-link ; \
+	fi
+
+install-gen-link: 
 	( cd ${OpenXM_HOME}/lib/sm1/bin ; ln -s ../../../../bin/ox_k0 ox_k0)
- 
+install-gen-link-windows: 
+	( cp ox_k0 ${OpenXM_HOME}/lib/sm1/bin )
 
 install-for-debug: clean-for-install all install-lib-for-debug
+
 	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/k0 k0)
 	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/d0 d0)
 	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/ox_k0 ox_k0)
