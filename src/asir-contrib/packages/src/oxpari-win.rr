@@ -1,0 +1,51 @@
+/* $OpenXM$ */
+module oxpari;
+localf start_win$
+static OpenXM_HOME_WIN$
+
+def start_win() {
+  /*  if (sysinfo()[0] != "windows") error("This is not Windows"); */
+  if (type(getopt(openxm_home_win)) > 0) {
+    OpenXM_HOME_WIN=rtostr(getopt(openxm_home_win));
+  }else{
+    OpenXM_HOME_WIN=getenv("APPDATA")+"/OpenXM/OpenXM-win"; 
+    /* NOTE!!  No space or damemoji are allowed in the user name. */
+  }
+  printf("OpenXM_HOME_WIN=%a\n",OpenXM_HOME_WIN);
+  printf(" NOTE!!  No space or damemoji are allowed in the OpenXM_HOME_WIN\n");
+  printf("To set manually call pari.start_win(|openxm_home_win=\"...\");\n");
+  CPort = generate_port();
+  SPort = generate_port();
+
+  Ox_sm1_forAsir = OpenXM_HOME_WIN+"/bin/ox_pari" ;
+  OpenXM_START_EXE="start  ";
+  Xm_use_timer_to_start_server=1;
+    Com = OpenXM_HOME_WIN+"/bin/ox -ox " + 
+          Ox_sm1_forAsir + " " +
+          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
+    Com = OpenXM_START_EXE+" /MIN "+Com ;
+
+
+  print(Com +"\n"); 
+  shell(Com);
+  if (Xm_use_timer_to_start_server) {
+    print("Waiting for 3 seconds."); sleep(3000); 
+  }else{
+    purge_stdin(); print("Type in Return to connect to the server.");
+    get_line();
+  }
+  print("Trying to connect to the server...",0)$
+  CSocket = try_connect("localhost",CPort);
+  SSocket = try_connect("localhost",SPort);
+  P = register_server(CSocket,CPort,SSocket,SPort);
+  print(" Done.");
+
+ return(P);
+}
+
+endmodule;
+
+TT="c:/cygwin64/home/nobuki/OX4/OpenXM/misc/packages/Windows/OpenXM-win";
+printf("oxpari.start_win(|openxm_home_win=TT is for debug\n")$
+end$
+

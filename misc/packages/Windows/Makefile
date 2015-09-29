@@ -1,15 +1,25 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.41 2005/07/19 10:27:11 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.42 2005/10/15 06:25:30 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
 VERSION=1.2.3
-WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
-WGET_PHC=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
-WGET_HEAD=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
+WGET_ARG=http://www.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
+WGET_PHC=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
+WGET_HEAD=http://www.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
 
 WINASIR=c:/home/asir
 
+#obtained by chgcheck command
+DLLS_ox_asir=/bin/cygX11*dll /bin/cygxcb*.dll /bin/cygXau*.dll \
+     /bin/cygXdmcp*.dll /bin/cygWaw*dll \
+     /bin/cygXext*.dll /bin/cygXmu*.dll /bin/cygXt*.dll \
+     /bin/cygIcE*.dll /bin/cygSM*.dll \
+    /bin/cygICE*.dll /bin/cygSM*.dll /bin/cyg/bin/cyguuid*.dll \
+    /bin/cygintl*.dll /bin/cygiconv*.dll \
+    /bin/cyggcc_s-seh*.dll /bin/cygXpm*.dll
+
 usage:
+	@echo "make clean ; make oxpari-gen-zipls"
 	@echo "Targets: all build-tgz clean clean-work link-for-debug copy-to-ftp-area"
 	@echo "         remove-experimental gen-cd"
 	@echo "  The target all, gen-cd builds the directory OpenXM-win" 
@@ -30,13 +40,41 @@ all: copy-binary-phc copy-binary copy-binary-asir win-correction win-correction-
 build-binary-openxm-cygwin:
 	if [ ! -f .build-binary-openxm-cygwin-done ] ; then \
 		(cd ${OpenXM_TOP}/src ; make install-asir-contrib ) ; \
+		(cd ${OpenXM_TOP}/src ; make install-oxpari ) ; \
 		touch .build-binary-openxm-cygwin-done ; \
 	fi
 
+oxpari-copy-binary-cygwin: build-binary-openxm-cygwin
+	-mkdir OpenXM-win
+	-mkdir -p OpenXM-win/bin
+	if [ ! -f .oxpari-copy-binary-done ] ; then \
+	  (cd OpenXM-win ; \
+	   cp  ../${OpenXM_TOP}/bin/ox_pari bin ; \
+	   cp  ../${OpenXM_TOP}/bin/ox bin ; \
+	   cp  ../${OpenXM_TOP}/bin/cyggc*.dll bin ; \
+	   cp  ../${OpenXM_TOP}/bin/sm1 bin ; \
+	   cp  ../${OpenXM_TOP}/bin/ox_sm1 bin ; \
+	  ) ; \
+	   touch .oxpari-copy-binary-oxpari-done ; \
+	fi 
+oxpari-copy-cygwin-dlls:
+	if [ ! -f .oxpari-copy-cygwin-dlls-done ] ; then \
+	 cp /bin/cygwin1.dll OpenXM-win/bin ; \
+	 touch .oxpari-copy-cygwin-dlls-done ; \
+	fi
+
+oxpari-gen-zip: oxpari-copy-binary-cygwin oxpari-copy-cygwin-dlls 
+	-mkdir -p OpenXM-win/lib/
+	cp ${OpenXM_TOP}/src/asir-contrib/packages/src/oxpari-win.rr OpenXM-win/lib
+	zip -r openxm-win-oxpari.zip OpenXM-win
+	@echo "Copy openxm-win-oxpari.zip by hand to OpenXM/Current"
+
 copy-binary: copy-binary-openxm-cygwin
+
 copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	-mkdir OpenXM-win
-	-mkdir OpenXM-win/src
+	-mkdir -p OpenXM-win/src
+	-mkdir -p OpenXM-win/bin-windows
 	if [ ! -f .copy-binary-done ] ; then \
 	  (cd OpenXM-win ; \
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/bin . ; \
@@ -44,7 +82,6 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/rc . ; \
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/man . ; \
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/src/asir-contrib src ; \
-           rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/libexec . ; \
 	   find . -name 'CVS' -print | xargs rm -rf ; \
 	   find . -name 'DO_NOT_EDIT*' -print | xargs rm -rf ; \
 	  ) ; \
@@ -54,6 +91,9 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	fi 
 
 copy-binary-asir:
+	@echo "Do nothing for copy-binary-asir in the new version."
+
+copy-binary-asir-orig:
 	if [ ! -f .copy-binary-asir-done ] ; then \
 		make copy-binary-asir-from-internet ; \
 	fi
@@ -78,6 +118,9 @@ copy-binary-asir-from-local-disk:
 	fi
 
 copy-binary-phc:
+	@echo "Do nothing for copy-binary-phc in the new version."
+
+copy-binary-phc-orig:
 	-if [ ! -f .copy-binary-phc-done ] ; then \
 		make copy-binary-phc-from-internet ; \
 	fi
@@ -93,10 +136,15 @@ copy-cygwin-dlls:
 	 cp /bin/cygwin1.dll OpenXM-win/bin-windows ; \
 	 cp /bin/cygwin1.dll OpenXM-win/bin ; \
 	 cp /bin/cygwin1.dll OpenXM-win/lib/sm1/bin ; \
-	 cp /usr/X11R6/bin/*.dll OpenXM-win/asir/bin ; \
-	 cp /usr/X11R6/bin/*.dll OpenXM-win/bin ; \
 	 touch .copy-cygwin-dlls-done ; \
 	fi
+
+#It has not been used.
+copy-cygwin-dlls-for-ox_asir :
+	for i in ${DLLS_ox_asir} ; do \
+	 cp $$i OpenXM-win/asir/bin ; \
+	 cp $$i OpenXM-win/bin ; \
+        done ; \
 
 win-correction: copy-binary oxasir-win.rr
 	make win-correction2 
@@ -119,12 +167,6 @@ win-correction2_old:
 	cp oxasir-win.rr OpenXM-win/lib/asir
 	cp oxasir-win.rr OpenXM-win/lib/sm1
 
-## it is for an obsolete asirwin-*.tgz
-win-correction3: debug-tools/crlf
-	cp ${OpenXM_TOP}/../OpenXM_contrib2/asir2000/lib/xm OpenXM-win/asir/lib
-	cp ${OpenXM_TOP}/../OpenXM_contrib2/asir2000/lib/glib OpenXM-win/asir/lib
-	./debug-tools/crlf OpenXM-win/asir/lib/xm
-	./debug-tools/crlf OpenXM-win/asir/lib/glib
 
 win-correction-clean:
 	-find OpenXM-win -name '*~' -print | xargs rm -f
@@ -138,7 +180,7 @@ copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
 copy-to-ftp-area: build-tgz
 	if [ ! -f .OpenXM-win.tgz.copy.done ]; then \
-	  scp OpenXM-win.tgz taka@orange2:/home/ftp/pub/OpenXM/Head/OpenXM-win-${ASIR_LANG}.tgz ; \
+	  scp OpenXM-win.tgz taka@orange2:/home/www/pub/OpenXM/Head/OpenXM-win-${ASIR_LANG}.tgz ; \
 	fi
 	touch .OpenXM-win.tgz.copy.done
 copy-to-ftp-area-stable: build-tgz
@@ -164,7 +206,10 @@ debug-tools/debug-sed : debug-tools/debug-sed.c
 debug-tools/gcwd : debug-tools/gcwd.c
 	(cd debug-tools; gcc -o gcwd gcwd.c)
 build-bat: debug-tools/crlf debug-tools/debug-sed debug-tools/gcwd
-	-mkdir OpenXM-win/bin-windows
+	-mkdir -p OpenXM-win/bin-windows
+	-mkdir -p OpenXM-win/asir
+	-mkdir -p OpenXM-win/asir/bin
+	-mkdir -p OpenXM-win/asir/lib
 	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirgui-cd.bat ; ./crlf ../OpenXM-win/bin-windows/asirgui-cd.bat)
 	(cd debug-tools; sed -f dist.sed <sm1-cd.bat >../OpenXM-win/bin-windows/sm1-cd.bat ; ./crlf ../OpenXM-win/bin-windows/sm1-cd.bat)
 	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat ; ./crlf ../OpenXM-win/bin-windows/webasir.bat)
