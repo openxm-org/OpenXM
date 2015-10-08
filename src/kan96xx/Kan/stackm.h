@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.12 2005/07/18 10:55:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.13 2015/10/08 08:14:25 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -11,9 +11,13 @@
 #if defined(__CYGWIN__) || defined(__MSYS__)
 #define MYSETJMP(e) _setjmp(e)
 #define MYSIGSETJMP(e,f) _setjmp(e)
+#define MYLONGJMP(e,f) _longjmp(e,f)
+#define MYSIGLONGJMP(e,f) _longjmp(e,f)
 #else
 #define MYSETJMP(e)  setjmp(e)
 #define MYSIGSETJMP(e,f) sigsetjmp(e,f)
+#define MYLONGJMP(e,f) longjmp(e,f)
+#define MYSIGLONGJMP(e,f) siglongjmp(e,f)
 #endif
  
 /**** data types (class identifiers) ************/

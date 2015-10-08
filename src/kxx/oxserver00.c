@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.17 2013/11/06 06:23:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.18 2015/10/08 08:14:25 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -383,10 +383,10 @@ void controlResetHandler(sig)
     return;
   }else{
     (void) traceShowStack(); traceClearStack();
-#if defined(__CYGWIN__)
-    siglongjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
+#if defined(__CYGWIN__) || defined(__MSYS__)
+    MYSIGLONGJMP(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #else
-    longjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
+    LONGJMP(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #endif
   }
 }

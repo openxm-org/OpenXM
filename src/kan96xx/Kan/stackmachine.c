@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.37 2015/09/27 08:12:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.38 2015/09/29 01:52:14 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -19,11 +19,8 @@ The code
 causes the segfault because Mp_zero is borken. Is it a bug of msys2?
 Anyway, the following definition seems to be a workaround. 2015.09
 Singnals do not work properly on msys2. (gcc -dM -E ... to see macros defs)
+See stackm.h
 */
-#if defined(__MSYS__) || defined(__CYGWIN__)
-#define setjmp(e) _setjmp(e)
-#define sigsetjmp(e,n) _setjmp(e)
-#endif
 
 /* #define OPERAND_STACK_SIZE  2000 */
 #define OPERAND_STACK_SIZE 30000 
@@ -804,9 +801,9 @@ void scanner() {
   initSystemDictionary();
 
 #if defined(__CYGWIN__)
-  if (sigsetjmp(EnvOfStackMachine,1)) {
+  if (MYSIGSETJMP(EnvOfStackMachine,1)) {
 #else
-  if (setjmp(EnvOfStackMachine)) {
+  if (MYSETJMP(EnvOfStackMachine)) {
 #endif
     /* do nothing in the case of error */
     fprintf(stderr,"An error or interrupt in reading macros, files and command strings.\n");
@@ -868,9 +865,9 @@ void scanner() {
   
   for (;;) {
 #if defined(__CYGWIN__)
-    if (jval=sigsetjmp(EnvOfStackMachine,1)) {
+    if (jval=MYSIGSETJMP(EnvOfStackMachine,1)) {
 #else
-    if (jval=setjmp(EnvOfStackMachine)) {
+    if (jval=MYSETJMP(EnvOfStackMachine)) {
 #endif
       /* ***  The following does not work properly.  ****
          if (jval == 2) {
@@ -966,9 +963,9 @@ void ctrlC(sig)
   getokenSM(INIT); /* It might fix the bug above. 1992/11/14 */
   signal(SIGINT,ctrlC);
 #if defined(__CYGWIN__)
-  siglongjmp(EnvOfStackMachine,2);
+  MYSIGLONGJMP(EnvOfStackMachine,2);
 #else
-  longjmp(EnvOfStackMachine,2); /* returns 2 for ctrl-C */
+  MYLONGJMP(EnvOfStackMachine,2); /* returns 2 for ctrl-C */
 #endif
 }
 
@@ -1177,7 +1174,7 @@ errorStackmachine(str)
   stdOperandStack(); contextControl(CCRESTORE);
   getokenSM(INIT); /* It might fix the bug. 1996/3/10 */
   /* fprintf(stderr,"Now, Long jump!\n"); */
-  longjmp(EnvOfStackMachine,1);
+  MYLONGJMP(EnvOfStackMachine,1);
 }
 
 warningStackmachine(str)
@@ -1229,9 +1226,9 @@ KSexecuteString(s)
   if (KSPushEnvMode) {
     *saved_EnvOfStackMachine = *EnvOfStackMachine;
 #if defined(__CYGWIN__)
-    if (jval = sigsetjmp(EnvOfStackMachine,1)) {
+    if (jval = MYSIGSETJMP(EnvOfStackMachine,1)) {
 #else
-    if (jval = setjmp(EnvOfStackMachine)) {
+    if (jval = MYSETJMP(EnvOfStackMachine)) {
 #endif
       *EnvOfStackMachine = *saved_EnvOfStackMachine;
       if (jval == 2) {
@@ -1253,9 +1250,9 @@ KSexecuteString(s)
   }else{
     if (recursive == 0) {
 #if defined(__CYGWIN__)
-      if (jval=sigsetjmp(EnvOfStackMachine,1)) { 
+      if (jval=MYSIGSETJMP(EnvOfStackMachine,1)) { 
 #else
-      if (jval=setjmp(EnvOfStackMachine)) { 
+      if (jval=MYSETJMP(EnvOfStackMachine)) { 
 #endif
         if (jval == 2) {
           if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
@@ -1327,7 +1324,7 @@ void KSstart() {
   /* The following line may cause a core dump, if you do not setjmp properly
      after calling KSstart().*/
   /*
-    if (setjmp(EnvOfStackMachine)) {
+    if (MYSETJMP(EnvOfStackMachine)) {
     fprintf(stderr,"KSstart(): An error or interrupt in reading macros, files and command strings.\n");
     exit(10);
     } else {  }  */

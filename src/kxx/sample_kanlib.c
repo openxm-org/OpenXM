@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.2 2004/09/05 00:51:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.3 2004/09/17 02:42:58 takayama Exp $ */
 /*
 This is a sample program to use kanlib.a
 gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/Kan/kanlib.a -L../../lib -lgmp -lgc
@@ -8,10 +8,11 @@ gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/
 #include <setjmp.h>
 #include <signal.h>
 
-#if defined(__CYGWIN__)
+// serversm.h is not included.
+#if defined(__CYGWIN__) || defined(__MSYS__)
 #define JMP_BUF sigjmp_buf
-#define SETJMP(env)  sigsetjmp(env,1)
-#define LONGJMP(env,p)  siglongjmp(env,p)
+#define SETJMP(env)  _setjmp(env)
+#define LONGJMP(env,p)  _longjmp(env,p)
 #else
 #define JMP_BUF jmp_buf
 #define SETJMP(env)  setjmp(env)

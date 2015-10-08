@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.10 2015/09/27 08:12:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.11 2015/09/29 01:52:14 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -11,10 +11,6 @@
 #include "extern.h"
 #include "extern2.h"
 
-#if defined(__MSYS__) || defined(__CYGWIN__)
-#define setjmp(e) _setjmp(e)
-#define sigsetjmp(e,n) _setjmp(e)
-#endif
 
 #define NUM  1       /* NUM means struct Bignum */
 #define POL  0
@@ -129,9 +125,9 @@ POLY stringToPOLY(s,ringp)
   Ring0.p = 0;
   Ring0.next = (struct ring *)NULL; 
 #if defined(__CYGWIN__)
-  if (sigsetjmp(EnvOfParser,1)) {
+  if (MYSIGSETJMP(EnvOfParser,1)) {
 #else  
-  if (setjmp(EnvOfParser)) {
+  if (MYSETJMP(EnvOfParser)) {
 #endif
     fprintf(stderr,"\nERROR: You have syntax errors in the expression: %s\n",s);
     errorKan1("%s\n"," parser.c : Syntax error in the input polynomial.");
@@ -606,9 +602,9 @@ static void errorParser(s) char s[]; {
     GotoP = 0;
   }
 #if defined(__CYGWIN__)
-  siglongjmp(EnvOfParser,1);
+  MYSIGLONGJMP(EnvOfParser,1);
 #else
-  longjmp(EnvOfParser,1);
+  MYLONGJMP(EnvOfParser,1);
 #endif
 }
 

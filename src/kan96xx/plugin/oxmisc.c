@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.27 2013/11/06 06:23:24 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.28 2015/09/27 08:12:42 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -24,10 +24,6 @@ FILE *MyErrorOut = NULL;
 
 #include "ox_kan.h"
 
-#if defined(__MSYS__)
-#define setjmp(e) _setjmp(e)
-#define sigsetjmp(e,n) _setjmp(e)
-#endif
 
 #define READBUFSIZE 5000
 
@@ -929,9 +925,9 @@ static void cancelConnection() {
   signal(SIGALRM,SIG_IGN);
   fprintf(stderr,"Time out in TCP/IP connection.\n");
 #if defined(__CYGWIN__)
-  siglongjmp(MyEnv_oxmisc,1);
+  MYSIGLONGJMP(MyEnv_oxmisc,1);
 #else
-  longjmp(MyEnv_oxmisc,1);
+  MYLONGJMP(MyEnv_oxmisc,1);
 #endif
 }
 
@@ -955,9 +951,9 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
 
   v = !Quiet;
 #if defined(__CYGWIN__)
-  if (sigsetjmp(MyEnv_oxmisc,1)) {
+  if (MYSIGSETJMP(MyEnv_oxmisc,1)) {
 #else
-  if (setjmp(MyEnv_oxmisc)) {
+  if (MYSETJMP(MyEnv_oxmisc)) {
 #endif
     return(NULL);
   }else{

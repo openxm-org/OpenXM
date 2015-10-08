@@ -19,10 +19,14 @@ void Sm1_pushCMOtag(int serial);
 
 #if defined(__CYGWIN__) || defined(__MSYS__)
 #define MYSETJMP(e) _setjmp(e)
-#define MYSIGSETJMP(e,f) setjmp(e)
+#define MYSIGSETJMP(e,f) _setjmp(e)
+#define MYLONGJMP(e,f) _longjmp(e,f)
+#define MYSIGLONGJMP(e,f) _longjmp(e,f)
 #else
 #define MYSETJMP(e)  setjmp(e)
 #define MYSIGSETJMP(e,f) sigsetjmp(e,f)
+#define MYLONGJMP(e,f) longjmp(e,f)
+#define MYSIGLONGJMP(e,f) siglongjmp(e,f)
 #endif
 
 /********************  Object from Kan/stackm.h *************************/
