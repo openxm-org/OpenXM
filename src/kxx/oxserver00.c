@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.16 2004/09/17 02:42:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.17 2013/11/06 06:23:24 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -23,7 +23,7 @@ extern int OXprintMessage; /* print oxmessages? */
 extern int Calling_ctrlC_hook;
 extern int RestrictedMode, RestrictedMode_saved;
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) || defined(__MSYS__)
 sigjmp_buf EnvOfChildServer;
 #else
 jmp_buf EnvOfChildServer;
@@ -99,7 +99,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
   ox_stream ostreamOut;
   char sreason[1024];
   extern void controlResetHandler();
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) || defined(__MSYS__)
   extern sigjmp_buf EnvOfStackMachine;
 #else
   extern jmp_buf EnvOfStackMachine;
@@ -131,11 +131,14 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     if (PacketMonitor) fp2watch(ostreamOut,stdout);
   }
 
+  fprintf(stderr,"Hello world.\n"); OXprintMessage = 1;
+  JmpMessage = 1;
+
   aaa : ;
 #if defined(__CYGWIN__)
-  if (sigsetjmp(EnvOfChildServer,1)) {
+  if (MYSIGSETJMP(EnvOfChildServer,1)) {
 #else
-  if (setjmp(EnvOfChildServer)) {
+  if (MYSETJMP(EnvOfChildServer)) {
 #endif
     fprintf(stderr,"childServerMain: jump here.\n");
     if (OxInterruptFlag == 0) {
@@ -154,9 +157,9 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     signal(SIGUSR1,controlResetHandler);
   }
 #if defined(__CYGWIN__)
-  if (sigsetjmp(EnvOfStackMachine,1)) {
+  if (MYSIGSETJMP(EnvOfStackMachine,1)) {
 #else  
-  if (setjmp(EnvOfStackMachine)) {
+  if (MYSETJMP(EnvOfStackMachine)) {
 #endif
     fprintf(stderr,"childServerMain: jump here by EnvOfStackMachine or timeout.\n");
     if (OxInterruptFlag == 0) {

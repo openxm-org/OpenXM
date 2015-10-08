@@ -15,6 +15,15 @@ void Sm1_getsp(void);
 void Sm1_dupErrors(void);
 void Sm1_pushCMOtag(int serial);
 
+#include <setjmp.h>
+
+#if defined(__CYGWIN__) || defined(__MSYS__)
+#define MYSETJMP(e) _setjmp(e)
+#define MYSIGSETJMP(e,f) setjmp(e)
+#else
+#define MYSETJMP(e)  setjmp(e)
+#define MYSIGSETJMP(e,f) sigsetjmp(e,f)
+#endif
 
 /********************  Object from Kan/stackm.h *************************/
 #define Snull             0

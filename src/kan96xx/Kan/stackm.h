@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.11 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.12 2005/07/18 10:55:16 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -8,8 +8,14 @@
 /******************* stackm.h ******************************/
 #include <setjmp.h>
 
-
-
+#if defined(__CYGWIN__) || defined(__MSYS__)
+#define MYSETJMP(e) _setjmp(e)
+#define MYSIGSETJMP(e,f) _setjmp(e)
+#else
+#define MYSETJMP(e)  setjmp(e)
+#define MYSIGSETJMP(e,f) sigsetjmp(e,f)
+#endif
+ 
 /**** data types (class identifiers) ************/
 /* Never change the following orders.  
    If you add a new class, add that class at the bottom and give the
