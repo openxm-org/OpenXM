@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.19 2015/10/08 11:49:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.20 2015/10/09 05:03:37 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -131,8 +131,8 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     if (PacketMonitor) fp2watch(ostreamOut,stdout);
   }
 
-  fprintf(stderr,"Hello world.\n"); OXprintMessage = 1;
-  JmpMessage = 1;
+  /* fprintf(stderr,"Hello world.\n"); OXprintMessage = 1;
+     JmpMessage = 1; */
 
   aaa : ;
 #if defined(__CYGWIN__)
