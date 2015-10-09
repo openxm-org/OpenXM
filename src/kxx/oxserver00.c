@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.18 2015/10/08 08:14:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.19 2015/10/08 11:49:38 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -386,7 +386,7 @@ void controlResetHandler(sig)
 #if defined(__CYGWIN__) || defined(__MSYS__)
     MYSIGLONGJMP(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #else
-    LONGJMP(EnvOfChildServer,2); /* returns 2 for ctrl-C */
+    MYLONGJMP(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #endif
   }
 }
