@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <setjmp.h>
+#include <stdlib.h>
 #include "ox_kan.h"
 #include "serversm.h"
 extern int OXprintMessage;

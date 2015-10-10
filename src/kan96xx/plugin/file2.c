@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.13 2005/07/03 11:08:54 ohara Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.14 2005/10/31 07:50:20 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <stdlib.h>
 #include "file2.h"
 
 /* If you use file2 standalone to output string,  

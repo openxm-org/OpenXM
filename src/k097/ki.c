@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.7 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.8 2013/11/06 06:23:23 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -11,6 +11,8 @@
 #include "gradedset.h"
 #include <setjmp.h>
 #include <signal.h>
+#include <string.h>
+#include <stdlib.h>
 
 char *getLOAD_K_PATH();  /* from d.h */
 

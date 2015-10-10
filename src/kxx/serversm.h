@@ -1,6 +1,7 @@
 /* server stack machine, serversm.h  */
 /* miss of these declarations caused segfault of ox_sm1 2015.10.09 */
 #include <string.h>
+#include <gc.h>
 void *sGC_malloc(int n);
 
 void *Sm1_mathcap(void);

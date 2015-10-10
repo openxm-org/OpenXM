@@ -1,6 +1,8 @@
-/* $OpenXM: OpenXM/src/k097/d.h,v 1.5 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.6 2013/11/07 07:29:47 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
+#include <string.h>
+#include <stdlib.h>
 
 /**** data types (class identifiers) ************/
 #define Snull             0

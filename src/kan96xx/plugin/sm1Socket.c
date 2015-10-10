@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.19 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.20 2005/07/03 11:08:54 ohara Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <string.h>
@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <errno.h>
-
+#include <stdlib.h>
 
 #include "datatype.h"
 #include "stackm.h"

@@ -1,8 +1,10 @@
-/* $OpenXM: OpenXM/src/k097/k2.c,v 1.4 2001/01/28 02:40:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/k2.c,v 1.5 2015/09/29 01:52:14 takayama Exp $ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

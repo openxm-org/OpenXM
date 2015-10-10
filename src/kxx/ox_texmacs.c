@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.36 2015/09/28 07:01:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.37 2015/10/08 11:49:38 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,6 @@
 #include "serversm.h"
 #include "ox_pathfinder.h"
 
-void *sGC_malloc(size_t size);
 #if defined(__CYGWIN__) || defined(__MSYS__)
 #define JMP_BUF sigjmp_buf
 #define SETJMP(env)  MYSIGSETJMP(env,1)
