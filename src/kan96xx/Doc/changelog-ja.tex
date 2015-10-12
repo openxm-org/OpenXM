@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.33 2013/09/25 07:30:52 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.34 2013/09/26 05:33:06 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -751,5 +751,159 @@ asir では {\tt polymake.log()} に格納.
 
 screenflow による覚え書きは,
 fe の {\tt /Movies/oxvh/2013-09-25-polymake}.
+
+\section{2015-10-10, cygwin64, msys64}
+
+cygwin64, msys64 対応.
+\begin{enumerate}
+\item gc には patch. cygwin64 の gc.h はすでに patch が当たってる.
+  よって gc が更新されたら patch は多分不要.
+\item sigsetjmp を {\tt \_setjmp} にしないとたとえば
+微分作用素環の掛け算で segfault.  原因はよくわからず.
+\item string.h, stdlib.h 等の prototype 宣言をしておかないと {\tt ox\_sm1} が segfault.
+\item msys では cmd.exe が新しい window を開かないので(謎), mintty を使う.
+\end{enumerate}
+fe の {\tt /Movies/archive} の bandicam にも記録.
+
+Todo, ctrl-C が一度しか有効でない. sigaction を利用するべき?
+
+{\tt ox\_sm1} の segfault の debug
+{\tiny
+\begin{verbatim}
+  misc-2015/10/cygwin-for-sm1 に
+  oxserver00-d.c Makefile-for-ox_sm1d tmp-o.txt あり.
+  tmp-o.txt は ( (1).. (0).. div ) oxsubmit で エラーを起こす命令を,
+  stream dump したもの.  cf. (ox.sm1) run (extension-oxLog) usage
+  oxpipe.c を oxserver00.c へ組み込んだもの. gdb 用.  ox_sm1d
+  523  rm ox_sm1d
+  525  make -f Makefile-for-ox_sm1d  ox_sm1d
+  526  ./ox_sm1d <tmp-o.txt
+
+cygwin, msys の gdb は run <file が出来ないことに注意.
+$ gdb ./ox_sm1d
+GNU gdb (GDB) 7.9
+Copyright (C) 2015 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-pc-msys".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./ox_sm1d...done.
+(gdb) break main
+Breakpoint 1 at 0x10049b7b8: file oxserver00-d.c, line 37.
+(gdb) run
+Starting program: /home/Nobuki/OX4/OpenXM/src/kxx/ox_sm1d
+[New Thread 11260.0x17c8]
+[New Thread 11260.0x2e50]
+[New Thread 11260.0x8ac]
+[New Thread 11260.0x29d0]
+[New Thread 11260.0x27b8]
+
+Breakpoint 1, main (argc=1, argv=0x24cb10) at oxserver00-d.c:37
+37      main(int argc, char *argv[]) {
+(gdb) call dup2(open("tmp-o.txt",0),0)
+// run <file する代わり. cf. stackoverflow  [cygwin gdb pipe]
+$1 = 0
+(gdb) break Sm1_popErrorMessage
+Breakpoint 2 at 0x100402720: file sm1stackmachine.c, line 205.
+(gdb) continue
+Continuing.
+[New Thread 11260.0x2f84]
+oxserver00-d.c for debug.
+[New Thread 11260.0x2a28]
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 09/22, 2013.
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+sm1 version : 3.050615
+sm1 url : http://www.math.kobe-u.ac.jp/KAN
+name = ox_sm1
+sm1>---------------------------------------------------
+engineByteOrder=0
+Hello world.
+Set EnvOfChildServer.
+Set EnvOfStackMachine.
+
+mtag is 514 (serial=11) :  OX_DATA
+(CMO_STRING[4],[size=17],$ (1).. (0).. div $),
+mtag is 513 (serial=12) :  OX_COMMAND
+
+function_id is 268; SM_executeStringByLocalParser
+KSexecuteString( (1).. (0).. div )
+
+ERROR(kanExport[0|1].c): KisInvalidRational(): zero division. You have f/0.
+Trace: div<-;
+
+Breakpoint 2, Sm1_popErrorMessage (s=0x10049d084 "executeString: ")
+    at sm1stackmachine.c:205
+205     char *Sm1_popErrorMessage(char *s) {
+(gdb) print s
+$2 = 0x10049d084 "executeString: "
+(gdb) print ErrorMessageMode
+$3 = 2
+(gdb) break popErrorStackByString
+Breakpoint 3 at 0x1004033f0: file stackmachine.c, line 1445.
+(gdb) continue
+Continuing.
+
+Breakpoint 3, popErrorStackByString () at stackmachine.c:1445
+1445    char *popErrorStackByString(void) {
+(gdb) list
+1440      }else{
+1441        return( (ErrorStack.ostack)[--(ErrorStack.sp)]);
+1442      }
+1443    }
+1444
+1445    char *popErrorStackByString(void) {
+1446      struct object obj = OINIT;
+1447      struct object eobj = OINIT;
+1448      eobj = popErrorStack();
+1449      if (ectag(eobj) != CLASSNAME_ERROR_PACKET) {
+(gdb) break sGC_malloc
+Breakpoint 4 at 0x1004035a0: file stackmachine.c, line 1510.
+(gdb) continue
+Continuing.
+
+Breakpoint 4, sGC_malloc (n=93) at stackmachine.c:1510
+1510    void *sGC_malloc(size_t n) { /* synchronized function */
+(gdb) up
+#1  0x000000010040276b in Sm1_popErrorMessage (s=0x10049d084 "executeString: ")
+    at sm1stackmachine.c:221
+221         a = (char *) sGC_malloc(sizeof(char)*(strlen(s)+strlen(e)+2));
+(gdb) print s
+$4 = 0x10049d084 "executeString: "
+(gdb) print e
+$5 = 0x6008d4d70 "\nERROR(kanExport[0|1].c): KisInvalidRational(): zero division. You have f/0."
+//  正常
+(gdb) continue
+Continuing.
+     14 [main] ox_sm1d 11260 cygwin_exception::open_stackdumpfile: Dumping stack trace to ox_sm1d.exe.stackdump
+[Thread 11260.0x2e50 exited with code 35584]
+[Thread 11260.0x8ac exited with code 35584]
+[Thread 11260.0x29d0 exited with code 35584]
+[Thread 11260.0x2f84 exited with code 35584]
+[Thread 11260.0x2a28 exited with code 35584]
+[Inferior 1 (process 11260) exited with code 0105400]
+(gdb) quit
+
+GC_malloc や strcpy 等が怪しいとにらむ.
+  
+
+  char * 系 void * 系の宣言なしが segfault の原因?
+  strcpy が変.
+  
+  kxx/serversm.h に
+#include <string.h>
+void *sGC_malloc(int n);
+を加える.
+  ./ox_sm1d <tmp-o.txt  が正常終了.
+\end{verbatim}
+} %% end tiny
+
 \end{document}
 
