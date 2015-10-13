@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.5 2002/10/02 00:55:21 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.6 2005/10/15 06:25:30 takayama Exp $
 
 
 THIS IS A NOTE FOR DEVELOPPERS.
@@ -45,3 +45,15 @@ export JAVA_HOME='c:\j2sdk1.4.2_08'
   make all
   make copy-asir-book-to-ftp-area
 
+
+2015.10.13
+  To generate ox_pari for asirgui, run
+  make clean ; make oxpari-gen-zip
+  cd OpenXM-win\bin
+  Set OpenXM_HOME.
+    Example: set OpenXM_HOME=c:\cygwin64\home\nobuki\OX4\OpenXM
+  Test:
+  sm1
+  (ox.sm1) run ; sm1connectr
+  sm1
+  (oxpari.sm1) run ;  pariconnectr

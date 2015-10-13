@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.42 2005/10/15 06:25:30 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.43 2015/09/29 06:23:17 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -19,7 +19,7 @@ DLLS_ox_asir=/bin/cygX11*dll /bin/cygxcb*.dll /bin/cygXau*.dll \
     /bin/cyggcc_s-seh*.dll /bin/cygXpm*.dll
 
 usage:
-	@echo "make clean ; make oxpari-gen-zipls"
+	@echo "make clean ; make oxpari-gen-zip"
 	@echo "Targets: all build-tgz clean clean-work link-for-debug copy-to-ftp-area"
 	@echo "         remove-experimental gen-cd"
 	@echo "  The target all, gen-cd builds the directory OpenXM-win" 
@@ -28,12 +28,12 @@ usage:
 
 clean: clean-OpenXM-win clean-asir-book
 clean-OpenXM-win:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc .OpenXM-win.tgz.copy.done
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc .OpenXM-win.tgz.copy.done .oxpari-copy-cygwin-dlls-done
 
 clean-work:
 	-rm -rf work
 clean0:
-	-rm -rf .copy-binary-done oxasir-win.rr .copy-cygwin-dlls-done
+	-rm -rf .copy-binary-done oxasir-win.rr .copy-cygwin-dlls-done .oxpari-copy-cygwin-dlls-done
 
 all: copy-binary-phc copy-binary copy-binary-asir win-correction win-correction-clean
 
