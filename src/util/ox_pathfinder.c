@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.34 2015/09/25 01:47:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.35 2015/09/26 12:40:51 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -38,7 +38,7 @@ static char *get_oxlog_path();
 static int getFileSize(char *fn);
 static void errorPathFinder(char *s);
 static void msgPathFinder(char *s);
-
+static char *cygname(char *s);
 
 static int Verbose_get_home = 0;
 static int Verbose = 1;
@@ -49,6 +49,16 @@ static int EngineLogToStdout = 0;
 #define nomemory(a) {fprintf(stderr,"(%p) no more memory.\n",(void *)a);exit(10);}
 #define mymalloc(a)  sGC_malloc(a)
 
+static char *cygname(char *s) {
+  char *name;
+#if defined(__MSYS__)  
+  return(s);
+#else
+  name = mymalloc(strlen(s)+16);
+  strcpy(name,"/cygdrive");
+  return(strcat(name,s));
+#endif
+}
 void pathFinderErrorVerbose(int k) {
   static int prev;
   if (k >= 0) {
@@ -261,16 +271,26 @@ static int getOStypei() {
      1  windows-cygwin
      2  windows-cygwin-on-X
      3  windows-native
+     4  windows-msys
+     5  windows-msys-on-x
   */
   int ostype;
   char *s,*s2,*s3;
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) || defined(__MSYS__)
   ostype = 1;
 #else
   ostype = 0;
 #endif
   if (ostype == 0) return ostype;
   /* Heuristic method */
+  s = getenv("MSYSTEM");
+  if (s != NULL) {
+    if (strcmp(s,"MSYS")==0) return(4);
+    s = (char *)getenv("WINDOWID");
+    if (s != NULL) {
+      return 5;  // not tested.
+    }
+  }
   s = (char *)getenv("WINDOWID");
   if (s != NULL) {
     return 2;
@@ -294,6 +314,10 @@ char *getOStypes() {
     return("Windows-cygwin-on-X");
   }else if (ostype == 3) {
     return("Windows-native");
+  }else if (ostype == 4) {
+    return("Windows-msys");
+  }else if (ostype == 5) {
+    return("Windows-msys-on-X");
   }else{
     return("unix");
   }
@@ -397,25 +421,25 @@ char *getOpenXM_HOME() {
   if (getOStypei() != 3) {
     p = "/usr/local/OpenXM";
   }else{
-    p = "/cygdrive/c/usr/local/OpenXM";
+    p = cygname("/c/usr/local/OpenXM");
   }
   if (getFileSize(p) != -1) return addSlash(p);
   msg_get_home(1,"OpenXM is not found under /usr/local");
 
   if (getOStypei() != 0) {
-    p = "/cygdrive/c/OpenXM";
+    p = cygname("/c/OpenXM");
     if (getFileSize(p) != -1) return addSlash(p);
     msg_get_home(1,"OpenXM is not found under c:\\");
 
-    p = "/cygdrive/c/OpenXM-win";
+    p = cygname("/c/OpenXM-win");
     if (getFileSize(p) != -1) return addSlash(p);
     msg_get_home(1,"OpenXM-win is not found under c:\\");
 
-    p = "/cygdrive/c/Program Files/OpenXM";
+    p = cygname("/c/Program Files/OpenXM");
     if (getFileSize(p) != -1) return addSlash(p);
     msg_get_home(1,"OpenXM is not found under c:\\Program Files");
 
-    p = "/cygdrive/c/Program Files/OpenXM-win";
+    p = cygname("/c/Program Files/OpenXM-win");
     if (getFileSize(p) != -1) return addSlash(p);
     msg_get_home(1,"OpenXM-win is not found under c:\\Program Files");
 
@@ -592,6 +616,15 @@ char *cygwinPathToWinPath(char *s) {
   }else{
     strcpy(ans,s);
   }
+#if defined(__MSYS__)
+  pos = (char *)strstr(s,"/c/");
+  if (pos == s) {
+    strcpy(ans,&(s[1]));
+    ans[0] = s[1]; ans[1] = ':'; ans[2] = '\\';
+  }else{
+    strcpy(ans,s);
+  }
+#endif
 
   if (ans[0] == '/') {
 #if defined(__MSYS__) && defined(__x86_64__)
@@ -694,7 +727,7 @@ char **getServerEnv(char *oxServer) {
     argv[i] = get_ox_path(); i++; argv[i] = NULL;
     argv[i] = "-ox"; i++; argv[i] = NULL;
     argv[i] = oxServer; i++; argv[i] = NULL;
-  }else{
+  }else if ((ostype == 1) || (ostype == 3)) {  // cygwin or windows-native
     if (!NoX) {
       if (getFileSize("/cygdrive/c/winnt/system32/cmd.exe") >= 0) {
         oxterm = "/cygdrive/c/winnt/system32/cmd.exe /c start /min ";
@@ -707,6 +740,7 @@ char **getServerEnv(char *oxServer) {
         NoX = 1;
       }
     }
+    printf("oxterm=%s\n",oxterm); fflush(NULL);
     oxlog = " ";
     if (!NoX) {
       argv[i] = "/c"; i++; argv[i] = NULL;
@@ -716,7 +750,20 @@ char **getServerEnv(char *oxServer) {
     argv[i] = cygwinPathToWinPath(get_ox_path()); i++; argv[i] = NULL;
     argv[i] = "-ox"; i++; argv[i] = NULL;
     argv[i] = oxServer; i++; argv[i] = NULL;
+  }else {
+    /* msys with mintty*/
+    if (!NoX) {
+      oxterm = "/usr/bin/mintty";
+    }
+    if (!NoX) {
+      argv[i] = oxterm ; i++; argv[i] = NULL;
+      argv[i] = "--exec"; i++; argv[i] = NULL;
+    }
+    argv[i] = get_ox_path(); i++; argv[i] = NULL;
+    argv[i] = "-ox"; i++; argv[i] = NULL;
+    argv[i] = oxServer; i++; argv[i] = NULL;
   }
+
 
   aaa = (char **) mymalloc(sizeof(char*)*(i+1));
   if (aaa == NULL) nomemory(0);

@@ -1,12 +1,36 @@
-/* $OpenXM: OpenXM/src/util/test.c,v 1.6 2004/03/02 06:23:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/test.c,v 1.7 2004/08/12 12:11:41 takayama Exp $ */
 #include <stdio.h>
 #include "ox_pathfinder.h"
 
 sGC_malloc(int a) {
-  return GC_malloc(a);
+  //  return GC_malloc(a);
+  return malloc(a);
 }
 
 main() {
+  main_3();
+}
+// getFieSize is for main_3
+#include <sys/stat.h>
+static int getFileSize(char *s) { 
+   struct stat buf;
+   int m;
+   if (s == NULL) return -1;
+   m = stat(s,&buf);
+   if (m == -1) {
+     return -1;
+      /* fail */
+   }else{
+      /* success */
+     return (int) buf.st_size;
+   }
+}
+main_3() {
+  int m;
+  m=getFileSize("/cygdrive/c/windows/system32/cmd.exe");
+  printf("m=%d\n",m);
+}
+main_2() {
   int n;
   /*
   n = oxpSendStringAsFile((char *)getenv("USER"),
