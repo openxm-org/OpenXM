@@ -1,9 +1,10 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/util/oxlistlocalf.c,v 1.1 2014/03/25 07:08:25 takayama Exp $ */
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 #include "oxlistlocalf.h"
 
 objectp KClval;
