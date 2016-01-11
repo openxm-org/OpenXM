@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.33 2015/04/02 05:45:41 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.34 2015/04/02 10:34:09 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1504,7 +1504,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   // double ef;
 
   int i,j; // int i,j,rank;
-  double a[1]; double b[1];
+  double a[A_LEN]; double b[B_LEN];
   extern double M_x[];
   extern double *Beta;
   extern int M_2n;
