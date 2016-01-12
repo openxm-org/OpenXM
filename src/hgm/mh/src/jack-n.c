@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.34 2015/04/02 10:34:09 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.35 2016/01/11 10:55:20 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2016.01.12 2F1
   2014.03.15 http://fe.math.kobe-u.ac.jp/Movies/oxvh/2014-03-11-jack-n-c-automatic  see also hgm/doc/ref.html, @s/2014/03/15-my-note-jack-automatic-order-F_A-casta.pdf.
   2014.03.14, --automatic option. Output estimation data.
   2012.02.21, porting to OpenXM/src/hgm
@@ -57,6 +58,11 @@ static double Ef2;
 #define M_nmx  M_m_MAX  /* maximal of M_n */
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
+static int P_pFq=1;
+static int Q_pFq=1;
+static double A_pFq[A_LEN];
+static double B_pFq[B_LEN];
+static int Orig_1F1=1;
 static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
@@ -1595,9 +1601,19 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     }
   }
 
-  a[0] = ((double)Mg+1.0)/2.0;
-  b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
-  if (Debug) oxprintf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
+  if ((P_pFq != A_LEN) || (Q_pFq != B_LEN)) {
+    oxprintfe("It must be P_pFq == A_LEN and Q_pFq == B_LEN in this version. %s\n","");
+    mh_exit(-1);
+  }
+  oxprintfe("%%%%(stderr) Orig_1F1=%d\n",Orig_1F1);
+  if ((P_pFq == 1) && (Q_pFq == 1) && (Orig_1F1)) {
+    A_pFq[0] = a[0] = ((double)Mg+1.0)/2.0;
+    B_pFq[0] = b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
+    if (Debug) oxprintf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
+  }else{
+    for (i=0; i<P_pFq; i++) a[i] = A_pFq[i];
+    for (i=0; i<Q_pFq; i++) b[i] = B_pFq[i];
+  }
   mh_t(a,b,M_n,Mapprox);
   if ((!M_mh_t_success) && M_automatic) {
     jk_freeWorkArea();
@@ -1834,6 +1850,46 @@ static int setParam(char *fname) {
       M_show_autosteps = tk.ival;
       continue;
     }
+    // Format: #p_pFq=2  1.5  3.2
+    if (strcmp(s,"p_pFq")==0) {
+      Orig_1F1=0; 
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      P_pFq = tk.ival;
+      for (i=0; i<P_pFq; i++) { 
+	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	  A_pFq[i] = tk.dval;
+	}else if (tk.type == MH_TOKEN_INT) {
+	  A_pFq[i] = tk.ival;
+	}else{
+	  oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	}
+      }
+      continue;
+    }
+    if (strcmp(s,"q_pFq")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      Q_pFq = tk.ival;
+      for (i=0; i<Q_pFq; i++) { 
+	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	  B_pFq[i] = tk.dval;
+	}else if (tk.type == MH_TOKEN_INT) {
+	  B_pFq[i] = tk.ival;
+	}else{
+	  oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	}
+      }
+      continue;
+    }
     oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
   }
   mh_fclose(fp);
@@ -1869,7 +1925,7 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
   sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
   sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
-  sprintf(swork,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  sprintf(swork,"#abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
   if (M_recommended_relerr < MH_RELERR_DEFAULT) {
     sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
   }
@@ -1877,6 +1933,19 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
   sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
   sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
+  sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
+  sprintf(swork,"#p_pFq=%d, ",P_pFq); mh_fputs(swork,fp);
+  for (i=0; i<P_pFq; i++) {
+    if (i != P_pFq-1) sprintf(swork," %lg,",A_pFq[i]); 
+    else sprintf(swork," %lg\n",A_pFq[i]); 
+    mh_fputs(swork,fp);
+  }
+  sprintf(swork,"#q_pFq=%d, ",Q_pFq); mh_fputs(swork,fp);
+  for (i=0; i<Q_pFq; i++) {
+    if (i != Q_pFq-1) sprintf(swork," %lg,",B_pFq[i]); 
+    else sprintf(swork," %lg\n",B_pFq[i]); 
+    mh_fputs(swork,fp);
+  }
   return(0);
 }
 
