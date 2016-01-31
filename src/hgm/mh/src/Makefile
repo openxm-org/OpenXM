@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.15 2015/04/02 23:03:33 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.16 2016/01/31 02:06:16 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -22,8 +22,6 @@ rk.o: rk.c mh.h ${HEADERS}
 	${CC} -c ${OPT} rk.c
 code-n.o: code-n.c mh.h
 	${CC} -c ${OPT} code-n.c
-code-n-2f1.o: code-n-2f1.c mh.h
-	${CC} -c ${OPT} code-n-2f1.c
 sfile.o: sfile.c sfile.h
 	${CC} -c ${OPT} sfile.c
 
@@ -45,6 +43,13 @@ mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o sfile.o
 
 test3: sfile.c sfile.h
 	${CC} -g -DTEST -DSTANDALONE sfile.c -o test3
+
+hgm_jack-n-2f1: jack-n.c sfile.o sfile.h
+	${CC} ${OPT3} -DC_2F1 -o hgm_jack-n-2f1 jack-n.c sfile.o -lm
+code-n-2f1.o: code-n-2f1.c mh.h
+	${CC} -c ${OPT} code-n-2f1.c
+hgm_w-n-2f1: code-n-2f1.o rk.o wmain.c sfile.o sfile.h
+	${CC} -o hgm_w-n-2f1 ${OPT3} wmain.c rk.o code-n.o sfile.o ${LINKOPT}
 
 make-link: make-link-p
 	-if [ ! -f .link_done ] ; then \

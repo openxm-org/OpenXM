@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.35 2016/01/11 10:55:20 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.36 2016/01/12 12:01:47 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -56,10 +56,17 @@ static double Ef2;
 #define M_n0 3 /* used for tests. Must be equal to M_n */
 #define M_m_MAX 200
 #define M_nmx  M_m_MAX  /* maximal of M_n */
+#ifdef C_2F1
+#define A_LEN  2 /* (a_1) , (a_1, ..., a_p)*/
+#define B_LEN  1 /* (b_1) */
+static int P_pFq=2;
+static int Q_pFq=1;
+#else
 #define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
 #define B_LEN  1 /* (b_1) */
 static int P_pFq=1;
 static int Q_pFq=1;
+#endif
 static double A_pFq[A_LEN];
 static double B_pFq[B_LEN];
 static int Orig_1F1=1;
@@ -1652,7 +1659,12 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
 
 static int usage() {
   oxprintfe("Usages:\n");
-  oxprintfe("hgm_jack-n [--idata input_data_file --x0 x0 --degree approxm]\n");
+#ifdef C_2F1
+  oxprintfe("hgm_jack-n-2f1");
+#else
+  oxprintfe("hgm_jack-n    ");
+#endif
+  oxprintfe(" [--idata input_data_file --x0 x0 --degree approxm]\n");
   oxprintfe("           [--automatic n --assigned_series_error e --x0value_min e2]\n");
   oxprintfe("\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
   oxprintfe("The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
@@ -1673,6 +1685,9 @@ static int usage() {
   oxprintfe("An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
   oxprintfe("By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
   oxprintfe("Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
+#ifdef C_2F1
+  oxprintfe("The parameters a,b,c of 2F1 are given by %%p_pFq=2, a,b  and  %%q_pFq=1, c\nNg is ignored.\n");
+#endif
   oxprintfe("Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
   oxprintfe("\nExamples:\n");
   oxprintfe("[1] ./hgm_jack-n \n");
@@ -1682,6 +1697,9 @@ static int usage() {
   oxprintfe("    gnuplot -persist <test-g-gp.txt\n");
   oxprintfe("[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
   oxprintfe("[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
+#ifdef C_2F1
+  oxprintfe("Todo for 2F1: example for hgm_jack-n-2f1 has not been written.\niv_factor? Ef?");
+#endif
   return(0);
 }
 
