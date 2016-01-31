@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.14 2015/03/24 05:59:43 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.15 2015/04/02 23:03:33 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -22,6 +22,8 @@ rk.o: rk.c mh.h ${HEADERS}
 	${CC} -c ${OPT} rk.c
 code-n.o: code-n.c mh.h
 	${CC} -c ${OPT} code-n.c
+code-n-2f1.o: code-n-2f1.c mh.h
+	${CC} -c ${OPT} code-n-2f1.c
 sfile.o: sfile.c sfile.h
 	${CC} -c ${OPT} sfile.c
 
