@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.24 2015/04/02 01:11:13 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.25 2015/04/02 01:31:18 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -14,6 +14,7 @@ int MH_deallocate=0;
 
 /*
   changelog
+  2016.02.01  C_2F1
   2014.03.15  --strategy 1 is default. A new parser in setParam()
  */
 extern char *MH_Gfname;
@@ -48,6 +49,18 @@ double MH_coeff_max;
   Estimation of h by MH_coeff_max;
  */
 double MH_estimated_start_step;
+
+#ifdef C_2F1
+int MH_P_pFq=2;
+int MH_Q_pFq=1;
+double MH_A_pFq[2];
+double MH_B_pFq[1];
+#else
+int MH_P_pFq=1;
+int MH_Q_pFq=1;
+double MH_A_pFq[1];
+double MH_B_pFq[1];
+#endif
 extern int MH_Verbose;
 extern int MH_strategy;
 extern double MH_abserr;
@@ -62,6 +75,9 @@ static int showParam(void);
 static int next(struct SFILE *fp,char *s, char *msg);
 static double estimateHg(int m, double beta[],double x0);
 
+#ifdef C_2F1
+void mh_setabc(double a,double b,double c);
+#endif
 /* #define DEBUG */
 #ifdef DEBUG
 char *MH_Dfname; char *MH_Gfname; double MH_Hg;
@@ -175,13 +191,21 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   if (MH_Verbose) showParam();
   if (MH_Verbose) {for (i=0; i<rank; i++) oxprintf("%lf\n",y0[i]); }
 
+#ifdef C_2F1
+  mh_setabc(MH_A_pFq[0],MH_A_pFq[1],MH_B_pFq[0]);
+#endif
   *rp=mh_rkmain(x0,y0,xn);
   return(rp);
 }
 
 int mh_usage() {
   oxprintfe("Usages:\n");
-  oxprintfe("hgm_w-n [--idata input_data_file --gnuplotf gnuplot_file_name\n");
+#ifdef C_2F1
+  oxprintfe("hgm_w-n-2f1 ");
+#else
+  oxprintfe("hgm_w-n ");
+#endif
+  oxprintfe("   [--idata input_data_file --gnuplotf gnuplot_file_name\n");
   oxprintfe(" --dataf output_data_file --raw --xmax xmax --test m --step h]\n");
   oxprintfe("[ --95 --verbose] \n");
   oxprintfe("[ --strategy s --abserr ae --relerr re] \n");
@@ -356,6 +380,45 @@ static int setParam(char *fname) {
       MH_strategy = tk.ival;
       continue;
     }
+    // Format: #p_pFq=2  1.5  3.2
+    if (strcmp(s,"p_pFq")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      MH_P_pFq = tk.ival;
+      for (i=0; i<MH_P_pFq; i++) { 
+	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	  MH_A_pFq[i] = tk.dval;
+	}else if (tk.type == MH_TOKEN_INT) {
+	  MH_A_pFq[i] = tk.ival;
+	}else{
+	  oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	}
+      }
+      continue;
+    }
+    if (strcmp(s,"q_pFq")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      MH_Q_pFq = tk.ival;
+      for (i=0; i<MH_Q_pFq; i++) { 
+	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	  MH_B_pFq[i] = tk.dval;
+	}else if (tk.type == MH_TOKEN_INT) {
+	  MH_B_pFq[i] = tk.ival;
+	}else{
+	  oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	}
+      }
+      continue;
+    }
     oxprintfe("Unknown ID for wmain.c (old...) at %s.\n",s);  mh_exit(-1);
   }
 
@@ -385,7 +448,20 @@ static int showParam() {
   oxprintf("%%abserr=%lg, %%relerr=%lg\n",MH_abserr,MH_relerr);
   oxprintf("#MH_success=%d\n",MH_success);
   oxprintf("#MH_coeff_max=%lg\n",MH_coeff_max);
-  oxprintf("#MH_estimated_start_step=%lg\n",MH_estimated_start_step); return(0);
+  oxprintf("#MH_estimated_start_step=%lg\n",MH_estimated_start_step); 
+#ifdef C_2F1
+  oxprintf("%%q_pFq=%d, ",MH_P_pFq);
+  for (i=0; i<MH_P_pFq; i++) {
+    if (i != MH_P_pFq-1) oxprintf(" %lg,",MH_A_pFq[i]); 
+    else oxprintf(" %lg\n",MH_A_pFq[i]); 
+  }
+  oxprintf("%%q_pFq=%d, ",MH_Q_pFq); 
+  for (i=0; i<MH_Q_pFq; i++) {
+    if (i != MH_Q_pFq-1) oxprintf(" %lg,",MH_B_pFq[i]); 
+    else oxprintf(" %lg\n",MH_B_pFq[i]); 
+  }
+#endif
+  return(0);
 }
 
 static double estimateHg(int m, double beta[],double x0) {
