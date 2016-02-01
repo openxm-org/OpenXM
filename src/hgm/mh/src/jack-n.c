@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.36 2016/01/12 12:01:47 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.37 2016/01/31 10:43:16 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2016.02.01 ifdef C_2F1 ...
   2016.01.12 2F1
   2014.03.15 http://fe.math.kobe-u.ac.jp/Movies/oxvh/2014-03-11-jack-n-c-automatic  see also hgm/doc/ref.html, @s/2014/03/15-my-note-jack-automatic-order-F_A-casta.pdf.
   2014.03.14, --automatic option. Output estimation data.
@@ -69,7 +70,11 @@ static int Q_pFq=1;
 #endif
 static double A_pFq[A_LEN];
 static double B_pFq[B_LEN];
+#ifndef C_2F1
 static int Orig_1F1=1;
+#else
+static int Orig_1F1=0;
+#endif
 static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
@@ -525,11 +530,21 @@ static double qk(int K[],double A[A_LEN],double B[B_LEN]) {
   /* to reduce numerical errors, temporary. */
   if (P == Q) {
     for (I=0; I<P; I++) V = V*ppoch2(A[I],B[I],K);
+	return(V);
   }
-  return(V);
 
-  for (I=0; I<P; I++) V = V*ppoch(A[I],K);
-  for (I=0; I<Q; I++) V = V/ppoch(B[I],K);
+  if (P > Q) {
+	for (I=0; I<Q; I++) V = V*ppoch2(A[I],B[I],K);
+	for (I=Q; I<P; I++) V = V*ppoch(A[I],K);
+  }else {
+	for (I=0; I<P; I++) V = V*ppoch2(A[I],B[I],K);
+	for (I=P; I<Q; I++) V = V/ppoch(B[I],K);
+  }    
+  /* for debug
+  printf("K="); 
+  for (I=0; I<3; I++) printf("%d, ",K[I]);
+  printf("qk=%lg\n",V); 
+  */
   return(V);
 }
 
@@ -1725,7 +1740,13 @@ static int setParamDefault() {
   X0g = (Beta[0]/Beta[Mg-1])*0.5;
   Hg = 0.001;
   Dp = 1;
-  Xng = 10.0;
+  if ((P_pFq == 1) && (Q_pFq == 1)) {
+    Xng = 10.0;
+  }else {
+	Xng=0.25;
+	for (i=0; i<A_LEN; i++) A_pFq[i] = (i+1)/5.0;
+	for (i=0; i<B_LEN; i++) B_pFq[i] = (A_LEN+i+1)/7.0;
+  }
   return(0);
 }
 
@@ -1986,6 +2007,7 @@ static double iv_factor(void) {
   double detSigma;
   double c;
   int i,n;
+  if ((P_pFq != 1) || (Q_pFq != 1)) return(1.0);
   n = (int) (*Ng);
   v1= mypower(sqrt(X0g),n*M_n);
   t = 0.0;
