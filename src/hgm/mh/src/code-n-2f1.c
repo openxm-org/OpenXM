@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.1 2016/01/31 02:06:16 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.2 2016/02/02 03:00:08 takayama Exp $
 License: LGPL
 Ref: code-n.c, 2016.01.30, 31.
  */
@@ -142,10 +142,10 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   for (i=0; i<MH_M; i++) for (j=0; j<MH_RANK; j++) f2[idxRank(i,j)] = NaN;
   /* The case J = jj = \emptyset */  
   for (i=0; i<MH_M; i++) {
-    f2[idxRank(i,0)] = -pp[i]*f[join(i,0)]-qq2[idxM(i,k)]*f[join(i,0)]+rr[i]*f[0];
+    f2[idxRank(i,0)] = -pp[i]*f[join(i,0)]+rr[i]*f[0];
     for (k=0; k<MH_M; k++) {
       if (i!=k) {
-        f2[idxRank(i,0)] -= -qq[idxM(i,k)]*f[join(k,0)];
+        f2[idxRank(i,0)] -= qq2[idxM(i,k)]*f[join(i,0)]-qq[idxM(i,k)]*f[join(k,0)];
       }
     }
   }
