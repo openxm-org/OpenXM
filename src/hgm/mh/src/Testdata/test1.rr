@@ -1,0 +1,99 @@
+import("tk_jack.rr")$
+import("ok_diff.rr")$
+
+def test1() {
+M=3;
+Approx=9;
+AA=[1/5,2/5]; BB=[3/7];
+
+Z1=tk_jack.zonal([1],3);
+printf("Approx=1: %a\n",F1=tk_jack.mh_t(AA,BB,M,1));
+Z2=tk_jack.zonal([2],3);
+Z11=tk_jack.zonal([1,1],3);
+printf("Approx=2: %a\n",F2=tk_jack.mh_t(AA,BB,M,2));
+F=tk_jack.mh_t([1/5,2/5],[3/7],M,Approx);
+
+QK=[tk_jack.qk([1],AA,BB),tk_jack.qk([2],AA,BB),tk_jack.qk([1,1],AA,BB)];
+
+X0g=0.166667;
+Beta=[1,2,3];
+Rule=[];
+for (I=0; I<M; I++) {
+  Rule=cons([util_v(x,[I+1]),Beta[I]*X0g],Rule);
+}
+Rule=reverse(Rule);
+Ans0=base_replace(F,Rule);
+
+X0g=0.250360;
+Beta=[1,2,3];
+Rule=[];
+for (I=0; I<M; I++) {
+  Rule=cons([util_v(x,[I+1]),Beta[I]*X0g],Rule);
+}
+Rule=reverse(Rule);
+Ans1=base_replace(F,Rule);
+}
+
+// Equations for 2F1.  cf. dlmf.nist.gov
+def pp(Param,X,I) {
+  M=length(X);
+  A=Param[0]; B=Param[1]; C=Param[2];
+  Val=(C-(M-1)/2-(A+B+1-(M-1)/2)*X[I])/(X[I]*(1-X[I]));
+  return(Val);
+}
+def qq2(X,I,J) {
+  Val=(1/2)/(X[I]-X[J]);
+  return(Val);
+}
+def qq(X,I,J) {
+  Val=(1/2)*X[J]*(1-X[J]);
+  Val /= X[I]*(1-X[I])*(X[I]-X[J]);
+  return(Val);
+}
+def rr(Param,X,I) {
+  A=Param[0]; B=Param[1];
+  return(A*B/(X[I]*(1-X[I])));
+}
+
+def eq2f1_i(Param,X,I) {
+  M = length(X);
+  Dx = newvect(M);
+  for (J=0; J<M; J++) Dx[J] = util_v(dx,[J+1]);
+  Dx = vtol(Dx);
+  L = Dx[I]^2 + pp(Param,X,I)*Dx[I];
+  for (J=0; J<M; J++) {
+    if (J != I) {
+      L += qq2(X,I,J)*Dx[I];
+    }
+  }
+  for (J=0; J<M; J++) {
+    if (J != I) {
+      L += -qq(X,I,J)*Dx[J];
+    }
+  }
+  L += -rr(Param,X,I);
+  return(L);
+}
+
+def test2() {
+  if (type(getopt(approx))>0) {
+    Approx=getopt(approx);
+  }else Approx=4;
+  M=3;
+  X = newvect(M);
+  for (I=0; I<M; I++) X[I] = util_v(x,[I+1]);
+  X = vtol(X);
+  AA=[1/5,2/5]; BB=[3/7];  Param=append(AA,BB);
+  F=tk_jack.mh_t(AA,BB,M,Approx);
+  
+  Rule=assoc(X,[t,2*t,3*t]);
+  R=newvect(M);
+  for (I=0; I<M; I++) {
+    R[I]=odiff_act(nm(eq2f1_i(Param,X,I)),F,X);  
+    R[I]=red(base_replace(R[I],Rule));
+  }
+  printf("Approx=%a\n",Approx);
+  return(vtol(R));
+}
+
+end$

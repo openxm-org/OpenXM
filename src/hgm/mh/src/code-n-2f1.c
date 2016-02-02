@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.1 2016/01/31 02:06:16 takayama Exp $
 License: LGPL
 Ref: code-n.c, 2016.01.30, 31.
  */
@@ -127,11 +127,11 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     rr[i] = aaa*bbb/(y[i]*(1-y[i]));
     for (k=0; k<MH_M; k++) {
       if (i != k) {
-        qq[idxM(i,k)] = 1.0/(2.0*(y[i]-y[k]));
-        qq2[idxM(i,k)] = y[k]*(1-y[k])/(2.0*y[i]*(1-y[i])*(y[i]-y[k]));
-        qq_pd[idxM(i,k)] = 1.0/(2.0*(y[i]-y[k])*(y[i]-y[k]));
-        qq2_pd[idxM(i,k)] = 1/(2.0*y[i]*(1-y[i]));
-        qq2_pd[idxM(i,k)] *= ((1-2*y[k])*(y[i]-y[k])+y[k]*(1-y[k]))/((y[i]-y[k])*(y[i]-y[k]));
+        qq2[idxM(i,k)] = 1.0/(2.0*(y[i]-y[k]));
+        qq[idxM(i,k)] = y[k]*(1-y[k])/(2.0*y[i]*(1-y[i])*(y[i]-y[k]));
+        qq2_pd[idxM(i,k)] = 1.0/(2.0*(y[i]-y[k])*(y[i]-y[k]));
+        qq_pd[idxM(i,k)] = 1/(2.0*y[i]*(1-y[i]));
+        qq_pd[idxM(i,k)] *= ((1-2*y[k])*(y[i]-y[k])+y[k]*(1-y[k]))/((y[i]-y[k])*(y[i]-y[k]));
       }
     }
   }
@@ -142,11 +142,10 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   for (i=0; i<MH_M; i++) for (j=0; j<MH_RANK; j++) f2[idxRank(i,j)] = NaN;
   /* The case J = jj = \emptyset */  
   for (i=0; i<MH_M; i++) {
-    f2[idxRank(i,0)] = -pp[i]*f[0]+rr[i]*f[0];
+    f2[idxRank(i,0)] = -pp[i]*f[join(i,0)]-qq2[idxM(i,k)]*f[join(i,0)]+rr[i]*f[0];
     for (k=0; k<MH_M; k++) {
       if (i!=k) {
-        f2[idxRank(i,0)] -= qq2[idxM(i,k)]*f[join(i,0)]
-	  -qq[idxM(i,k)]*f[join(k,0)];
+        f2[idxRank(i,0)] -= -qq[idxM(i,k)]*f[join(k,0)];
       }
     }
   }
@@ -160,7 +159,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 	if (k==i) continue;
         rijj -= qq2[idxM(i,k)]*f[ii];
         if (member(k,jj)) {
-          rijj -= -qq2_pd[idxM(i,k)]*f[delete(k,ii)]
+          rijj -= qq2_pd[idxM(i,k)]*f[delete(k,ii)]
 	    -qq_pd[idxM(i,k)]*f[jj];
         }else{
 	  rijj -= -qq[idxM(i,k)]*f[join(k,jj)];
@@ -170,7 +169,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
       for (k = 0; k<MH_M; k++) {
 	if (k == i) continue;
         if (member(k,jj)) {
-	  rijj -= qq[idxM(i,k)]*f2[idxRank(k,delete(k,jj))];
+	  rijj -= -qq[idxM(i,k)]*f2[idxRank(k,delete(k,jj))];
         }
       }
       f2[idxRank(i,jj)] = rijj;
@@ -202,6 +201,7 @@ void mh_setabc(double a,double b, double c) {
   MH_aaa = a;
   MH_bbb = b;
   MH_ccc = c;
+  return;
 }
 
 #ifdef STANDALONE

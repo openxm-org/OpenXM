@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.12 2014/03/20 09:37:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.13 2015/03/24 05:59:43 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,6 +131,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     double ty[MH_RANK];
   */
   static double *y,*k1,*k2,*k3,*k4,*temp,*ty;
+
   if (MH_deallocate && initialized) {
     if (y) mh_free(y);
     if (k1) mh_free(k1);
