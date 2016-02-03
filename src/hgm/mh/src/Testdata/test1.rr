@@ -96,4 +96,70 @@ def test2() {
   return(vtol(R));
 }
 
+// 2016.02.02
+def gen3() {
+  Lam = [1,2,4,6,8,10];
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = X/(Lam[I]+X);
+  N1 = 5;
+  N2 = 10;
+  A=N1/2;
+  B=-N2/2+(M+1)/2;
+  C=(N1+M+1)/2;
+  X0=Beta[0]/10;
+  X1=1;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("%a\n",Param);
+  gen_input(Param);
+}
+
+// same parameter with Hashiguchi note.
+def gen3b() {
+  Lam = [1,2,4];
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = X/(Lam[I]+X);
+  N1 = 5;
+  N2 = 10;
+  A=N1/2;
+  B=-N2/2+(M+1)/2;
+  C=(N1+M+1)/2;
+  X0=Beta[0]/10;
+  X1=1;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  gen_input(Param);
+}
+
+def gen_input(Param) {
+  if (type(getopt(fname)) > 0) {
+    Fname=rtostr(getopt(fname));
+  }else Fname="tmp-2f1-in.txt";
+  Beta=Param[0]; 
+  M = length(Beta);
+  A=Param[1][0];
+  B=Param[1][1];
+  C=Param[1][2];
+  X0=Param[2];
+  X1=Param[3];
+  Fp = open_file(Fname,"w");
+  fprintf(Fp,"%Mg=\n%a\n",M);
+  for (I=0; I<M; I++) {
+    fprintf(Fp,"%Beta[%a]=\n%a\n",I,deval(Beta[I]));
+  }
+  fprintf(Fp,"%Ng=\n1.0\n");
+  fprintf(Fp,"%X0g=\n%a\n",deval(X0));
+  fprintf(Fp,"%Iv's=\n*\n");
+  fprintf(Fp,"%Ef=\n*\n");
+  fprintf(Fp,"%Hg=\n0.001\n");
+  fprintf(Fp,"%Dp=\n1\n");
+  fprintf(Fp,"%Xng=\n%a\n",deval(X1));
+  fprintf(Fp,"%p_pFq=2, %a, %a\n",deval(A),deval(B));
+  fprintf(Fp,"%q_pFq=1, %a\n",deval(C));
+  close_file(Fp);
+  return(Fname);
+}
 end$
