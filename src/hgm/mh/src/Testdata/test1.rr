@@ -1,3 +1,5 @@
+/* $OpenXM$ 
+*/
 import("tk_jack.rr")$
 import("ok_diff.rr")$
 
@@ -167,6 +169,7 @@ def gen_input(Param) {
 //  It seems to be more stable to use this formula.
 //  By Hashiguchi formula (positive beta), degree seems to be 11
 //  By takemura formula (negative beta), degree must be 18
+// gen3c and before are for old hgm_jack-n-2f1
 def gen3c() {
   Lam = [1,2,4];
   M = length(Lam);
@@ -186,6 +189,51 @@ def gen3c() {
   printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
   printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-3c.txt\n");
   printf("../hgm_w-n-2f1 --idata tt-2016-02-04-3c.txt --verbose\n");
+  gen_input(Param);
+}
+
+
+// For new hgm_jack-n-2f1
+def gen4() {
+  Lam = [1,2,4];
+  N1 = 5;
+  N2 = 10;
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X0=Beta[0]/10;
+  X1=20;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-4.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-4.txt --verbose\n");
+  gen_input(Param);
+}
+
+def gen5() {
+  Lam = [1,2,3,4,5,6,7,8];
+  N1 = 10;
+  N2 = 15;
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X0=1/3;
+  X1=80;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-5.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-5.txt [--gnuplotf test-g] --verbose\n");
+  printf("Change the plot range by hand in test-g-gp.txt\n");
   gen_input(Param);
 }
 

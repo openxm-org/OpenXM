@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.25 2015/04/02 01:31:18 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.26 2016/02/01 11:37:14 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -14,6 +14,7 @@ int MH_deallocate=0;
 
 /*
   changelog
+  2016.02.04  MH_Ef_type  exponential or scalar factor
   2016.02.01  C_2F1
   2014.03.15  --strategy 1 is default. A new parser in setParam()
  */
@@ -55,11 +56,13 @@ int MH_P_pFq=2;
 int MH_Q_pFq=1;
 double MH_A_pFq[2];
 double MH_B_pFq[1];
+int MH_Ef_type=2;
 #else
 int MH_P_pFq=1;
 int MH_Q_pFq=1;
 double MH_A_pFq[1];
 double MH_B_pFq[1];
+int MH_Ef_type=1;
 #endif
 extern int MH_Verbose;
 extern int MH_strategy;
@@ -419,6 +422,16 @@ static int setParam(char *fname) {
       }
       continue;
     }
+    if (strcmp(s,"ef_type")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      MH_Ef_type = tk.ival;
+      continue;
+    }
     oxprintfe("Unknown ID for wmain.c (old...) at %s.\n",s);  mh_exit(-1);
   }
 
@@ -449,6 +462,7 @@ static int showParam() {
   oxprintf("#MH_success=%d\n",MH_success);
   oxprintf("#MH_coeff_max=%lg\n",MH_coeff_max);
   oxprintf("#MH_estimated_start_step=%lg\n",MH_estimated_start_step); 
+  oxprintf("%%ef_type=%d\n",MH_Ef_type);
 #ifdef C_2F1
   oxprintf("%%q_pFq=%d, ",MH_P_pFq);
   for (i=0; i<MH_P_pFq; i++) {

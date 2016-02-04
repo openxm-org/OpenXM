@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.38 2016/02/01 07:05:25 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.39 2016/02/04 02:52:19 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +15,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2016.02.04 Ef_type (exponential or scalar factor type)
   2016.02.01 ifdef C_2F1 ...
   2016.01.12 2F1
   2014.03.15 http://fe.math.kobe-u.ac.jp/Movies/oxvh/2014-03-11-jack-n-c-automatic  see also hgm/doc/ref.html, @s/2014/03/15-my-note-jack-automatic-order-F_A-casta.pdf.
@@ -72,8 +73,10 @@ static double A_pFq[A_LEN];
 static double B_pFq[B_LEN];
 #ifndef C_2F1
 static int Orig_1F1=1;
+static int Ef_type=1;  /* 1F1 for Wishart */
 #else
 static int Orig_1F1=0;
+static int Ef_type=2;  /* 2F1, Hashiguchi note (1) */
 #endif
 static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
@@ -227,6 +230,12 @@ static int showParam(struct SFILE *fp,int fd);
 static double iv_factor(void);
 static double gammam(double a,int n);
 static double mypower(double a,int n);
+
+static double iv_factor_ef_type1(void);
+static double iv_factor_ef_type2(void);
+static void setM_x(void);
+static void setM_x_ef_type1(void);
+static void setM_x_ef_type2(void);
 
 #ifdef STANDALONE
 static int test_ptrans();
@@ -1430,7 +1439,7 @@ double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
     oxprintf("%%%%F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
     oxprintfe("%%%%(stderr) serror=%lg, M_assigned_series_error=%lg, M_m_estimated_approx_deg=%d,M_m=%d\n",serror,M_assigned_series_error,M_m_estimated_approx_deg,M_m);
     oxprintfe("%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
-    oxprintfe("%%%%(stderr) F=%lg,Ef=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),M_estimated_X0g,X0g);
+    oxprintfe("%%%%(stderr) F=%lg,Ef=%lg,iv=|F*Ef|=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),iv,M_estimated_X0g,X0g);
   }
 
   M_mh_t_value=F;
@@ -1608,9 +1617,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     myerror("Mg must be equal to M_n\n"); mh_exit(-1);
   }
   if (Debug) showParam(NULL,1);
-  for (i=0; i<M_n; i++) {
-    M_x[i] = Beta[i]*X0g;
-  } 
+  setM_x();
 
   M_beta_i_x_o2_max=myabs(M_x[0]/2);
   if (M_n <= 1) M_beta_i_beta_j_min = myabs(Beta[0]);
@@ -1929,6 +1936,16 @@ static int setParam(char *fname) {
       }
       continue;
     }
+    if (strcmp(s,"ef_type")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      Ef_type = tk.ival;
+      continue;
+    }
     oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
   }
   mh_fclose(fp);
@@ -1985,6 +2002,7 @@ static int showParam(struct SFILE *fp,int fd) {
     else sprintf(swork," %lg\n",B_pFq[i]); 
     mh_fputs(swork,fp);
   }
+  sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
   return(0);
 }
 
@@ -2001,13 +2019,19 @@ static double gammam(double a,int n) {
 }
 
 static double iv_factor(void) {
+  if (Ef_type < 1) return(1.0);
+  if (Ef_type == 1) return(iv_factor_ef_type1());
+  else if (Ef_type==2) return(iv_factor_ef_type2());
+  return(1.0);
+}
+
+static double iv_factor_ef_type1(void) {
   double v1;
   double t;
   double b;
   double detSigma;
   double c;
   int i,n;
-  if ((P_pFq != 1) || (Q_pFq != 1)) return(1.0);
   n = (int) (*Ng);
   v1= mypower(sqrt(X0g),n*M_n);
   t = 0.0;
@@ -2022,5 +2046,49 @@ static double iv_factor(void) {
   return( c*v1);
 }
 
+static double iv_factor_ef_type2(void) {
+  double ef;
+  int i,m;
+  double a,b,c;
+  double t;
+  a = A_pFq[0]; b = A_pFq[1]; c= B_pFq[0];
+  m = M_n;
+  ef = 1.0;
+
+  /*fprintf(stderr,"iv_factor_ef_type2: a=%lf, b=%lf, c=%lf, m=%d\n",a,b,c,m);*/
+  /* Ref: note 2016.02.04 */
+  if (X0g<0){ myerror("Negative X0g\n"); mh_exit(-1);}
+  t = 0;
+  for (i=0; i<m; i++) if (Beta[i]<0){ myerror("Negative beta\n"); mh_exit(-1);}
+  for (i=0; i<m; i++) t += log(Beta[i]);
+  ef *= exp((a+b-c)*t);
+
+  t = 0;
+  for (i=0; i<m; i++) t += log(Beta[i]+X0g);
+  ef *= exp(-b*t);
+
+  ef *= exp((c-a)*(2*a-1)*log(X0g));
+
+  ef *= gammam(b,m)/gammam(a+b-c,m);
+  ef *= gammam(a,m)/gammam(c,m);
+  return(ef);  
+}
+static void setM_x(void) {
+  if (Ef_type <= 1)    return(setM_x_ef_type1());
+  else if (Ef_type==2) return(setM_x_ef_type2());
+  setM_x_ef_type1();
+}
+static void setM_x_ef_type1(void) {
+  int i;
+  for (i=0; i<M_n; i++) {
+	M_x[i] = Beta[i]*X0g;
+  }
+}
+static void setM_x_ef_type2(void) {
+  int i;
+  for (i=0; i<M_n; i++) {
+	M_x[i] = X0g/(Beta[i]+X0g);
+  }
+}
 
 

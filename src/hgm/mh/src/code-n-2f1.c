@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.2 2016/02/02 03:00:08 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.3 2016/02/02 10:58:23 takayama Exp $
 License: LGPL
 Ref: code-n.c, 2016.01.30, 31.
  */
@@ -20,6 +20,7 @@ static void showf2(char *s,double *v,int m,int n);
 
 extern int MH_M;
 extern int MH_RANK;
+extern int MH_Ef_type;
 
 static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
 #define join(k,jj) ( (1 << k) | jj)
@@ -52,6 +53,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   int i,j,k,p;
   int ii,jj; /* stands for I and J */
   double rijj;
+  double dd;
 
   static double *pp=NULL;  /* p(x_i) */
   static double *qq=NULL;  /* q(x_i,x_k) */
@@ -64,6 +66,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   static double *y=NULL;
   static double aaa=NaN;
   static double bbb,ccc;
+  static double *b2=NULL;  /* b_i/(x+b_i)^2 */
 
   mh_check_intr(100);
   if (MH_deallocate && initialized) {
@@ -77,6 +80,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
         if (rr) mh_free(rr);
         if (qq_pd) mh_free(qq_pd);
         if (qq2_pd) mh_free(qq2_pd);
+		if (b2) mh_free(b2);
 	if (y) mh_free(y);
     b = f2 =  y = NULL;
     pp = qq = qq2 = rr = qq_pd = qq2_pd = NULL;
@@ -97,7 +101,7 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     rr   = (double *)mh_malloc(sizeof(double)*MH_M);
     qq_pd = (double *)mh_malloc(sizeof(double)*MH_M*MH_M);
     qq2_pd = (double *)mh_malloc(sizeof(double)*MH_M*MH_M);
-
+    b2 = (double *)mh_malloc(sizeof(double)*MH_M);
 
     m = MH_Mg;
     if (m != MH_M) error_code("MH_M != m. MH_M is given by -DMH_M...");
@@ -119,8 +123,14 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     }
     initialized = 1;
   }
-  for (i=0; i<MH_M; i++) {
-    y[i] = b[i]*x;    
+  if (MH_Ef_type == 2) {
+    for (i=0; i<MH_M; i++) {
+      y[i] = x/(b[i]+x);    
+    }
+  }else{
+    for (i=0; i<MH_M; i++) {
+      y[i] = b[i]*x;    
+    }
   }
   for (i=0; i<MH_M; i++) {
     pp[i] = (ccc-(m-1.0)/2.0-(aaa+bbb+1-(m-1.0)/2.0)*y[i])/(y[i]*(1-y[i]));
@@ -177,19 +187,35 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
   }
   /** showf2("f2",f2,MH_M,MH_RANK); exit(0);  */
 
-  /* sum_j b_j dx_j Base */ 
+  /* sum_j b_j dx_j Base */
+  if (MH_Ef_type==2) {
+	for (i=0; i<MH_M; i++) {
+	  b2[i] = b[i]/((b[i]+x)*(b[i]+x));
+	}
+  }else{
+	b2[i] = b[i];
+  }
   for (jj=0; jj<MH_RANK; jj++) {
     val[jj] = 0;
     for (i=0; i<MH_M; i++) {
       if (member(i,jj)) {
-        val[jj] += b[i]*f2[idxRank(i,delete(i,jj))];
+        val[jj] += b2[i]*f2[idxRank(i,delete(i,jj))];
       }else{
-        val[jj] += b[i]*f[join(i,jj)];
+        val[jj] += b2[i]*f[join(i,jj)];
       }
     }
   }
 
-   /*   If there is a diagonal shift, add a code .*/
+  /*   If there is a diagonal shift, add a code .*/
+  if (MH_Ef_type==2) {
+	dd = (ccc-aaa)*(2*aaa-1)/x;
+    for (i=0; i<MH_M; i++) {
+      dd += -bbb/(b[i]+x);
+	}
+	for (jj=0; jj<MH_RANK; jj++) {
+	  val[jj] += dd*f[jj];
+	}
+  }
 }
 
 static void error_code(char *s) {
