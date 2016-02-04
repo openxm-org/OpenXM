@@ -96,7 +96,7 @@ def test2() {
   return(vtol(R));
 }
 
-// 2016.02.02
+// 2016.02.03
 def gen3() {
   Lam = [1,2,4,6,8,10];
   M = length(Lam);
@@ -162,4 +162,31 @@ def gen_input(Param) {
   close_file(Fp);
   return(Fname);
 }
+
+// 2016.02.04.  We do not use the Kummer relation cf. gen3b()
+//  It seems to be more stable to use this formula.
+//  By Hashiguchi formula (positive beta), degree seems to be 11
+//  By takemura formula (negative beta), degree must be 18
+def gen3c() {
+  Lam = [1,2,4];
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+//  for (I=0; I<M; I++) Beta[I] = X/(Lam[I]+X);
+  for (I=0; I<M; I++) Beta[I] = -Lam[I];
+  N1 = 5;
+  N2 = 10;
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+//  X0=Beta[0]/10;
+  X0=1/15;
+  X1=1;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-3c.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-3c.txt --verbose\n");
+  gen_input(Param);
+}
+
 end$

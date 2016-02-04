@@ -5,7 +5,7 @@
 #include <string.h>
 #include "sfile.h"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.37 2016/01/31 10:43:16 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.38 2016/02/01 07:05:25 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1973,13 +1973,13 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
   sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
   sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
-  sprintf(swork,"#p_pFq=%d, ",P_pFq); mh_fputs(swork,fp);
+  sprintf(swork,"%%p_pFq=%d, ",P_pFq); mh_fputs(swork,fp);
   for (i=0; i<P_pFq; i++) {
     if (i != P_pFq-1) sprintf(swork," %lg,",A_pFq[i]); 
     else sprintf(swork," %lg\n",A_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"#q_pFq=%d, ",Q_pFq); mh_fputs(swork,fp);
+  sprintf(swork,"%%q_pFq=%d, ",Q_pFq); mh_fputs(swork,fp);
   for (i=0; i<Q_pFq; i++) {
     if (i != Q_pFq-1) sprintf(swork," %lg,",B_pFq[i]); 
     else sprintf(swork," %lg\n",B_pFq[i]); 
@@ -1991,7 +1991,7 @@ static int showParam(struct SFILE *fp,int fd) {
 static double gammam(double a,int n) {
   double v,v2;
   int i;
-  v=mypower(sqrt(M_PI),(n*(n-1))/2);
+  v=mypower(sqrt(M_PI),(n*(n-1))/2); /* pi^(n*(n-1)/2) */
   v2=0;
   for (i=1; i<=n; i++) {
     v2 += lgamma(a-((double)(i-1))/2.0); /* not for big n */
