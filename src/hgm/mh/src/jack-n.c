@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.40 2016/02/04 06:56:05 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.41 2016/02/09 05:00:31 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1701,42 +1701,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
 
 static int usage() {
   oxprintfe("Usages:\n");
-  oxprintfe("hgm_jack-n    ");
-  oxprintfe(" [--idata input_data_file --x0 x0 --degree approxm]\n");
-  oxprintfe("           [--automatic n --assigned_series_error e --x0value_min e2]\n");
-  oxprintfe("\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
-  oxprintfe("The hgm_jack-n uses the Koev-Edelman algorithm to evalute the matrix hypergeometric function.\n");
-  oxprintfe("The degree of the approximation (Mapprox) is given by the --degree option.\n");
-  oxprintfe("Parameters are specified by the input_data_file. Otherwise, default values are used.\n\n");
-  oxprintfe("The format of the input_data_file: (The orders of the input data must be kept.)\n");
-  oxprintfe(" Mg: m(the number of variables), Beta: beta=sigma^(-1)/2 (diagonized), Ng: n,\n");
-  oxprintfe(" (Add a comment line %%Ng= before the data Ng to check the number of beta.)\n");
-  oxprintfe(" X0g: starting value of x(when --x0 option is used, this value is used)\n");
-  oxprintfe(" Iv: initial values at X0g*Beta (see our paper how to order them), are evaluated in this program. Give zeros or the symbol * to skip rank many inputs.\n");
-  oxprintfe(" Ef: a scalar factor to the initial value. It is calculated by this program. Give the zero.\n");
-  oxprintfe(" Hg: h (step size) which is for hgm_w-n, \n"); 
-  oxprintfe(" Dp: output data is stored in every Dp steps when output_data_file is specified. This is for hgm_w-n.\n");
-  oxprintfe(" Xng: terminating value of x. This is for hgm_w-n.\n");
-  oxprintfe("Optional parameters automatic, ... are interpreted by a parser. See setParam() in jack-n.c and Testdata/tmp-idata2.txt as an example. Optional paramters are given as %%parameter_name=value  Lines starting with %%%% or # are comment lines.\n");
-  oxprintfe("Parameters are redefined when they appear more than once in the idata file and the command line options.\n\n");
-  oxprintfe("With the --notable option, it does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).\n");
-  oxprintfe("An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
-  oxprintfe("By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
-  oxprintfe("Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
-  oxprintfe("The parameters a,b,c of 2F1 are given by %%p_pFq=2, a,b  and  %%q_pFq=1, c\nNg is ignored.\n");
-
-  oxprintfe("Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
-  oxprintfe("\nExamples:\n");
-  oxprintfe("[1] ./hgm_jack-n \n");
-  oxprintfe("[2] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0\n");
-  oxprintfe("[3] ./hgm_jack-n --idata Testdata/tmp-idata2.txt --degree 15 >test2.txt\n");
-  oxprintfe("    ./hgm_w-n --idata test2.txt --gnuplotf test-g\n");
-  oxprintfe("    gnuplot -persist <test-g-gp.txt\n");
-  oxprintfe("[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
-  oxprintfe("[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
-
-  oxprintfe("Todo for 2F1: example for hgm_jack-n-2f1 has not been written.\niv_factor? Ef?");
-
+#include "usage-jack-n.h"
   return(0);
 }
 
@@ -1804,7 +1769,7 @@ static int setParam(char *fname) {
 
   Sample = 0;
   if ((fp=mh_fopen(fname,"r",JK_byFile)) == NULL) {
-    if (JK_byFile) oxprintfe("File %s is not found.\n",fp->s);
+    if (JK_byFile) oxprintfe("File %s is not found.\n",fname);
     mh_exit(-1);
   }
   /* set default initial values */

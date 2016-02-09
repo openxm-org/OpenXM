@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.17 2016/01/31 10:43:16 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.18 2016/02/01 11:37:14 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -28,7 +28,7 @@ sfile.o: sfile.c sfile.h
 test1: test1.c wmain.c sfile.h code-n.o rk.o sfile.o
 	${CC} ${OPT2} -o test1 test1.c wmain.c rk.o code-n.o sfile.o
 
-hgm_jack-n: jack-n.c sfile.o sfile.h
+hgm_jack-n: jack-n.c sfile.o sfile.h usage-jack-n.h
 	${CC} ${OPT3} -o hgm_jack-n jack-n.c sfile.o -lm
 
 test2: test2.c jack-n.c sfile.h sfile.o
@@ -44,8 +44,11 @@ mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o sfile.o
 test3: sfile.c sfile.h
 	${CC} -g -DTEST -DSTANDALONE sfile.c -o test3
 
-hgm_jack-n-2f1: jack-n.c sfile.o sfile.h
-	${CC} ${OPT3} -DC_2F1 -o hgm_jack-n-2f1 jack-n.c sfile.o -lm
+genusage: genusage.c
+	${CC} -o genusage genusage.c
+usage-jack-n.h: usage-jack-n.txt genusage
+	./genusage <usage-jack-n.txt >usage-jack-n.h
+
 code-n-2f1.o: code-n-2f1.c mh.h
 	${CC} -c ${OPT} code-n-2f1.c
 hgm_w-n-2f1: code-n-2f1.o rk.o wmain.c sfile.o sfile.h

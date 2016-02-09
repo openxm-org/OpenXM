@@ -1,0 +1,59 @@
+$OpenXM$
+
+hgm_jack-n
+ [--idata input_data_file] [--x0 x0] [--degree approxm] [--help]
+ [--automatic n] [--assigned_series_error e] [--x0value_min e2]
+
+The command hgm_jack-n [options] evaluates the matrix hypergeometric function pFq by 
+the Koev-Edelman algorithm and generates an input for hgm_w-n.
+
+Parameters are specified by the input_data_file. Otherwise, default values are used.
+By executing ./hgm_jack-n without argument, a sample input file is output.
+The format of the input_data_file specified by --idata: 
+# or %% are used for a comment line.
+The value of a parameter xyz is specified by %xyz=value
+!oxprintfe("Input data file should start with the line for the latest input data format: %s\n");
+
+  p_pFq : p of pFq, a_1, ..., a_p
+  q_pFq : q of pFq, b_1, ..., b_q
+  Mg: m (the number of variables).
+  Beta: vector of length m. Evaluation is done on the line Beta*x
+  X0g:  evaluation point of x (when --x0 option is used after --idata, this value is used).
+  ef_type: exponential or scalar factor type.
+    case 0: rare pFq  (Todo, not tested)
+    case 1: It is for the case of evaluating 
+        Pr({y | y<xmax}), which is the cumulative distribution function of the largest root 
+        of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix 
+        sigma where 
+        Beta=sigma^(-1)/2 (diagonized) and  n must be given by Ng.
+        p_pFq, q_pFq are automatically set for 1F1.
+    case 2: 
+        Pr({y | y<xmax}), which is the cumulative distribution function of the largest root
+        of P Q^(-1) where P and Q are Wishart matrices. It uses 2F1 and Beta, p_pFq, q_pFq
+        should be properly given.
+
+The following parameters may be given in the input data file to pass to hgm_w-n.
+  Hg: h (step size) for hgm_w-n.
+  Dp: output data is stored in every Dp steps when output_data_file is specified. 
+  Xng: terminating value of x for hgm_w-n.
+
+The output data contains the following parameters.
+  Iv: initial values at X0g*Beta evaluated by this program.
+  Ef: a scalar factor to the initial value evaluated by this program.
+
+--notable : It does not use the Lemma 3.2 of Koev-Edelman (there is a typo: kappa'_r = mu'_r for 1<=r<=mu_k).
+When there is no --idata file, all options are ignored.
+--automatic : X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c.
+!  oxprintfe("Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
+The degree of the approximation (Mapprox) is given by the --degree option.
+
+Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.
+Examples:
+  [1] ./hgm_jack-n 
+  [2] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --degree 15  --automatic 0
+  [3] ./hgm_jack-n --idata Testdata/tmp-idata2.txt --degree 15 >test2.txt
+      ./hgm_w-n --idata test2.txt --gnuplotf test-g
+      gnuplot -persist <test-g-gp.txt
+  [4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12
+  [5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt
+  [6] ./hgm_jack-n --idata Testdata/new-2016-02-04-4-in.txt
