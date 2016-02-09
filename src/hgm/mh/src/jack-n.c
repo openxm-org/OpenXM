@@ -4,8 +4,10 @@
 #include <math.h>
 #include <string.h>
 #include "sfile.h"
+
+#define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.39 2016/02/04 02:52:19 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.40 2016/02/04 06:56:05 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -15,6 +17,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2016.02.09 unify 2F1 and 1F1. Parser.
   2016.02.04 Ef_type (exponential or scalar factor type)
   2016.02.01 ifdef C_2F1 ...
   2016.01.12 2F1
@@ -58,26 +61,14 @@ static double Ef2;
 #define M_n0 3 /* used for tests. Must be equal to M_n */
 #define M_m_MAX 200
 #define M_nmx  M_m_MAX  /* maximal of M_n */
-#ifdef C_2F1
-#define A_LEN  2 /* (a_1) , (a_1, ..., a_p)*/
-#define B_LEN  1 /* (b_1) */
-static int P_pFq=2;
-static int Q_pFq=1;
-#else
-#define A_LEN  1 /* (a_1) , (a_1, ..., a_p)*/
-#define B_LEN  1 /* (b_1) */
-static int P_pFq=1;
-static int Q_pFq=1;
-#endif
-static double A_pFq[A_LEN];
-static double B_pFq[B_LEN];
-#ifndef C_2F1
-static int Orig_1F1=1;
+
+static int A_LEN=-1;  /* (a_1, ..., a_p), A_LEN=p */
+static int B_LEN=-1;  /* (b_1,..., b_q),  B_LEN=q */
+static double *A_pFq=NULL;
+static double *B_pFq=NULL;
 static int Ef_type=1;  /* 1F1 for Wishart */
-#else
-static int Orig_1F1=0;
-static int Ef_type=2;  /* 2F1, Hashiguchi note (1) */
-#endif
+/* Ef_type=2;   2F1, Hashiguchi note (1) */
+
 static int Debug = 0;
 static int Alpha = 2;  /* 2 implies the zonal polynomial */
 static int *Darray = NULL;
@@ -197,7 +188,7 @@ static double jjk(int K[]);
 static double ppoch(double A,int K[]);
 static double ppoch2(double A,double B,int K[]);
 static double mypower(double x,int n);
-static double qk(int K[],double A[A_LEN],double B[B_LEN]);
+static double qk(int K[],double A[],double B[]);
 static int bb(int N[],int K[],int M[],int I,int J);
 static double beta(int K[],int M[]);
 static int printp(int kappa[]);
@@ -251,12 +242,53 @@ static int mtest1b();
 static double q3_5(double A[],double B[],int K[],int I);
 #endif
 
-double mh_t(double A[A_LEN],double B[B_LEN],int N,int M);
+double mh_t(double A[],double B[],int N,int M);
 double mh_t2(int J);
 struct MH_RESULT *jk_main(int argc,char *argv[]);
 struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int newDegree);
 int jk_freeWorkArea();
 int jk_initializeWorkArea();
+static void setA(double a[],int alen);  /* set A_LEN and A_pFq */
+static void setB(double b[],int blen);
+
+static void setA(double a[],int alen) {
+  int i;
+  if (alen < 0) {
+	if (A_pFq != NULL) myfree(A_pFq);
+	A_pFq=NULL; A_LEN=-1;
+	return;
+  }
+  if (alen == 0) {
+	A_LEN=0; return;
+  }
+  A_LEN=alen;
+  A_pFq = (double *)mymalloc(A_LEN*sizeof(double));
+  if (a != NULL) {
+	for (i=0; i<alen; i++) A_pFq[i] = a[i];
+  }else{
+	for (i=0; i<alen; i++) A_pFq[i] = 0.0;
+  }
+  return;
+}
+static void setB(double b[],int blen) {
+  int i;
+  if (blen < 0) {
+	if (B_pFq != NULL) myfree(B_pFq);
+	B_pFq=NULL; B_LEN=-1;
+	return;
+  }
+  if (blen == 0) {
+	B_LEN=0; return;
+  }
+  B_LEN=blen;
+  B_pFq = (double *)mymalloc(B_LEN*sizeof(double));
+  if (b != NULL) {
+	for (i=0; i<blen; i++) B_pFq[i] = b[i];
+  }else{
+	for (i=0; i<blen; i++) B_pFq[i] = 0.0;
+  }
+  return;
+}
 
 int jk_freeWorkArea() {
   /* bug, p in the cloneP will not be deallocated.
@@ -278,6 +310,7 @@ int jk_freeWorkArea() {
   }
   if (M_qk) {myfree(M_qk); M_qk=NULL;}
   if (P_pki) {myfree(P_pki); P_pki=NULL;}
+  setA(NULL,-1); setB(NULL,-1);
   JK_deallocate=0;
   return(0);
 }
@@ -529,7 +562,7 @@ static double mypower(double x,int n) {
 }
 /* Q_kappa
  */
-static double qk(int K[],double A[A_LEN],double B[B_LEN]) {
+static double qk(int K[],double A[],double B[]) {
   extern int Alpha;
   int P,Q,I;
   double V;
@@ -722,12 +755,13 @@ static double q3_5(double A[],double B[],int K[],int I) {
 #endif
 #ifdef STANDALONE
 static void mtest4() {
-  double A[A_LEN] = {1.5};
-  double B[B_LEN]={6.5};
+  double A[1] = {1.5};
+  double B[1]={6.5};
   int K[M_n0] = {3,2,0};
   int I=2; 
   int Ki[M_n0]={3,1,0};
   double V1,V2;
+  setA(A,1); setB(B,1);
   V1=q3_5(A,B,K,I);
   V2=qk(K,A,B)/qk(Ki,A,B);
   oxprintf("%lf== %lf?\n",V1,V2);
@@ -1363,7 +1397,7 @@ static int checkJack2(int M,int N) {
 /* main() { checkJack2(3,3); } */
 #endif
 
-double mh_t(double A[A_LEN],double B[B_LEN],int N,int M) {
+double mh_t(double A[],double B[],int N,int M) {
   double F,F2;
   extern int M_df;
   extern int P_pmn;
@@ -1541,7 +1575,6 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   // double ef;
 
   int i,j; // int i,j,rank;
-  double a[A_LEN]; double b[B_LEN];
   extern double M_x[];
   extern double *Beta;
   extern int M_2n;
@@ -1630,20 +1663,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     }
   }
 
-  if ((P_pFq != A_LEN) || (Q_pFq != B_LEN)) {
-    oxprintfe("It must be P_pFq == A_LEN and Q_pFq == B_LEN in this version. %s\n","");
-    mh_exit(-1);
-  }
-  oxprintfe("%%%%(stderr) Orig_1F1=%d\n",Orig_1F1);
-  if ((P_pFq == 1) && (Q_pFq == 1) && (Orig_1F1)) {
-    A_pFq[0] = a[0] = ((double)Mg+1.0)/2.0;
-    B_pFq[0] = b[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
-    if (Debug) oxprintf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",a[0],b[0],M_n,Mapprox);
-  }else{
-    for (i=0; i<P_pFq; i++) a[i] = A_pFq[i];
-    for (i=0; i<Q_pFq; i++) b[i] = B_pFq[i];
-  }
-  mh_t(a,b,M_n,Mapprox);
+  mh_t(A_pFq,B_pFq,M_n,Mapprox);
   if ((!M_mh_t_success) && M_automatic) {
     jk_freeWorkArea();
     return NULL;
@@ -1681,11 +1701,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
 
 static int usage() {
   oxprintfe("Usages:\n");
-#ifdef C_2F1
-  oxprintfe("hgm_jack-n-2f1");
-#else
   oxprintfe("hgm_jack-n    ");
-#endif
   oxprintfe(" [--idata input_data_file --x0 x0 --degree approxm]\n");
   oxprintfe("           [--automatic n --assigned_series_error e --x0value_min e2]\n");
   oxprintfe("\nThe command hgm_jack-n [options] generates an input for hgm_w-n, Pr({y | y<xmax}), which is the cumulative distribution function of the largest root of the m by m Wishart matrices with n degrees of freedom and the covariantce matrix sigma.\n");
@@ -1707,9 +1723,8 @@ static int usage() {
   oxprintfe("An example format of the input_data_file can be obtained by executing hgm_jack-n with no option. When there is no --idata file, all options are ignored.\n");
   oxprintfe("By --automatic option, X0g and degree are automatically determined from assigend_series_error. The current strategy is described in mh_t in jack-n.c\n");
   oxprintfe("Default values for the papameters of the automatic mode: automatic=%d, assigned_series_error=%lg, x0value_min=%lg\n",M_automatic,M_assigned_series_error,M_x0value_min);
-#ifdef C_2F1
   oxprintfe("The parameters a,b,c of 2F1 are given by %%p_pFq=2, a,b  and  %%q_pFq=1, c\nNg is ignored.\n");
-#endif
+
   oxprintfe("Todo: automatic mode throws away the table of Jack polynomials of the previous degrees and reevaluate them. They should be kept.\n");
   oxprintfe("\nExamples:\n");
   oxprintfe("[1] ./hgm_jack-n \n");
@@ -1719,9 +1734,9 @@ static int usage() {
   oxprintfe("    gnuplot -persist <test-g-gp.txt\n");
   oxprintfe("[4] ./hgm_jack-n --idata Testdata/tmp-idata3.txt --automatic 1 --assigned_series_error=1e-12\n");
   oxprintfe("[5] ./hgm_jack-n --idata Testdata/tmp-idata4.txt\n");
-#ifdef C_2F1
+
   oxprintfe("Todo for 2F1: example for hgm_jack-n-2f1 has not been written.\niv_factor? Ef?");
-#endif
+
   return(0);
 }
 
@@ -1747,13 +1762,10 @@ static int setParamDefault() {
   X0g = (Beta[0]/Beta[Mg-1])*0.5;
   Hg = 0.001;
   Dp = 1;
-  if ((P_pFq == 1) && (Q_pFq == 1)) {
-    Xng = 10.0;
-  }else {
-	Xng=0.25;
-	for (i=0; i<A_LEN; i++) A_pFq[i] = (i+1)/5.0;
-	for (i=0; i<B_LEN; i++) B_pFq[i] = (A_LEN+i+1)/7.0;
-  }
+  Xng = 10.0;
+  setA(NULL,1); setB(NULL,1);
+  A_pFq[0] = ((double)Mg+1.0)/2.0;
+  B_pFq[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; 
   return(0);
 }
 
@@ -1765,8 +1777,12 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
   while (s[0] == '%') {
     if (!mh_fgets(s,SMAX,sfp)) {
       oxprintfe("Data format error at %s\n",msg);
+      oxprintfe("Is it version 2.0 format? If so, add\n%s\nat the top.\n",VSTRING);
       mh_exit(-1);
     }
+    if (strncmp(s,VSTRING,strlen(VSTRING)) == 0) {
+	  return(2);
+	}
     if (check && (strncmp(msg,ng,4)==0)) {
       if (strncmp(s,ng,5) != 0) {
         oxprintfe("Warning, there is no %%Ng= at the border of Beta's and Ng, s=%s\n",s);
@@ -1783,6 +1799,7 @@ static int setParam(char *fname) {
   struct SFILE *fp;
   int i;
   struct mh_token tk;
+  int version;
   if (fname == NULL) return(setParamDefault());
 
   Sample = 0;
@@ -1790,7 +1807,19 @@ static int setParam(char *fname) {
     if (JK_byFile) oxprintfe("File %s is not found.\n",fp->s);
     mh_exit(-1);
   }
-  next(fp,s,"Mg(m)");
+  /* set default initial values */
+  Mg=-1;  /* number of variables */
+  Ng=(double *) mymalloc(sizeof(double)); *Ng=-1; /* *Ng is the degree of freedom 1F1 */
+  X0g=0.1;   /* evaluation point */
+  Ef=1.0;    /* exponential factor */
+  Ef_type=1;
+  Hg=0.01;   /* step size for RK */
+  Dp = 1;   /* sampling rate */
+  Xng = 10.0; /* terminal point for RK */
+
+  /* Parser for the old style (version <2.0) input */
+  version=next(fp,s,"Mg(m)");
+  if (version == 2) goto myparse;
   sscanf(s,"%d",&Mg);
   rank = imypower(2,Mg);
 
@@ -1800,7 +1829,6 @@ static int setParam(char *fname) {
     sscanf(s,"%lf",&(Beta[i]));
   }
 
-  Ng = (double *)mymalloc(sizeof(double));
   next(fp,s,"%Ng= (freedom parameter n)");
   sscanf(s,"%lf",Ng);
   
@@ -1831,6 +1859,7 @@ static int setParam(char *fname) {
   sscanf(s,"%lf",&Xng);
 
   /* Reading the optional parameters */
+ myparse: 
   while ((tk = mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_EOF) {
     /* expect ID */
     if (tk.type != MH_TOKEN_ID) {
@@ -1898,15 +1927,14 @@ static int setParam(char *fname) {
     }
     // Format: #p_pFq=2  1.5  3.2
     if (strcmp(s,"p_pFq")==0) {
-      Orig_1F1=0; 
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      P_pFq = tk.ival;
-      for (i=0; i<P_pFq; i++) { 
+      setA(NULL,tk.ival);
+      for (i=0; i<A_LEN; i++) { 
 	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	  A_pFq[i] = tk.dval;
 	}else if (tk.type == MH_TOKEN_INT) {
@@ -1924,8 +1952,8 @@ static int setParam(char *fname) {
       if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      Q_pFq = tk.ival;
-      for (i=0; i<Q_pFq; i++) { 
+      setB(NULL,tk.ival);
+      for (i=0; i<B_LEN; i++) { 
 	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	  B_pFq[i] = tk.dval;
 	}else if (tk.type == MH_TOKEN_INT) {
@@ -1946,7 +1974,140 @@ static int setParam(char *fname) {
       Ef_type = tk.ival;
       continue;
     }
+
+    if (strcmp(s,"Mg")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      Mg = tk.ival;
+      rank = imypower(2,Mg);
+      continue;
+    }
+    if (strcmp(s,"Beta")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+	  if (Mg <= 0) {
+        oxprintfe("Mg should be set before reading Beta.\n",s); mh_exit(-1);
+      }
+      Beta = (double *)mymalloc(sizeof(double)*Mg);
+	  for (i=0; i<Mg; i++) {
+        if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+           Beta[i] = tk.dval;
+        }else if (tk.type == MH_TOKEN_INT) {
+           Beta[i] = tk.ival;
+        }else {
+          oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+        }
+      }
+      Iv = (double *)mymalloc(sizeof(double)*rank);
+	  for (i=0; i<rank; i++) {
+		Iv[i] = 0.0;
+	  }
+      continue;
+    }
+    if (strcmp(s,"Ng")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type== MH_TOKEN_DOUBLE) {
+		*Ng = tk.dval;
+      }else if (tk.type == MH_TOKEN_INT) {
+        *Ng = tk.ival;
+      }else{
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      continue;
+    }
+    if (strcmp(s,"X0g")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+		X0g = tk.dval;
+	  }else if (tk.type == MH_TOKEN_INT) {
+		X0g = tk.ival;
+      }else{
+		oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	  }			
+      continue;
+    }
+	if (strcmp(s,"Iv")==0) {
+	  for (i=0; i<rank; i++) {
+        if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+		  Iv[i] = tk.dval;
+		}else if (tk.type == MH_TOKEN_INT) {
+		  Iv[i] = tk.ival;
+        }else{
+          oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+		}
+      }
+      continue;
+    }
+    if (strcmp(s,"Ef")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+		Ef = tk.dval;
+	  }else if (tk.type == MH_TOKEN_INT) {
+		Ef = tk.ival;
+      }else{
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	  }
+      continue;
+    }
+    if (strcmp(s,"Hg")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+		Hg = tk.dval;
+	  }else if (tk.type == MH_TOKEN_INT) {
+		Hg = tk.ival;
+      }else{
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      continue;
+    }
+    if (strcmp(s,"Dp")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      Dp = tk.dval;
+      continue;
+    }
+    if (strcmp(s,"Xng")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+		Xng = tk.dval;
+	  }else if (tk.type == MH_TOKEN_INT) {
+		Xng = tk.ival;
+      }else{
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+	  }
+      continue;
+    }
+
     oxprintfe("Unknown ID at %s\n",s); mh_exit(-1);
+  }
+  
+  /* 1F1, original wishart case. */  
+  if ((A_LEN <= 1) && (B_LEN <= 1) && (Ef_type==1) && (*Ng >= 0)) {
+    if (A_LEN <1) setA(NULL,1);
+	if (B_LEN <1) setB(NULL,1);
+    A_pFq[0] = ((double)Mg+1.0)/2.0;
+    B_pFq[0] = ((double)Mg+1.0)/2.0 + ((double) (*Ng))/2.0; /* bug, double check */
+    if (Debug) oxprintf("Calling mh_t with ([%lf],[%lf],%d,%d)\n",A_pFq[0],B_pFq[0],M_n,Mapprox);
   }
   mh_fclose(fp);
   return(0);
@@ -1963,7 +2124,9 @@ static int showParam(struct SFILE *fp,int fd) {
   for (i=0; i<Mg; i++) {
     sprintf(swork,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+  if (*Ng >= 0) {
+    sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+  }
   sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
   for (i=0; i<rank; i++) {
     sprintf(swork,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
@@ -1990,15 +2153,15 @@ static int showParam(struct SFILE *fp,int fd) {
   sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
   sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
   sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
-  sprintf(swork,"%%p_pFq=%d, ",P_pFq); mh_fputs(swork,fp);
-  for (i=0; i<P_pFq; i++) {
-    if (i != P_pFq-1) sprintf(swork," %lg,",A_pFq[i]); 
+  sprintf(swork,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
+  for (i=0; i<A_LEN; i++) {
+    if (i != A_LEN-1) sprintf(swork," %lg,",A_pFq[i]); 
     else sprintf(swork," %lg\n",A_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%q_pFq=%d, ",Q_pFq); mh_fputs(swork,fp);
-  for (i=0; i<Q_pFq; i++) {
-    if (i != Q_pFq-1) sprintf(swork," %lg,",B_pFq[i]); 
+  sprintf(swork,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
+  for (i=0; i<B_LEN; i++) {
+    if (i != B_LEN-1) sprintf(swork," %lg,",B_pFq[i]); 
     else sprintf(swork," %lg\n",B_pFq[i]); 
     mh_fputs(swork,fp);
   }
