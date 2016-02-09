@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.42 2016/02/09 05:56:38 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.43 2016/02/09 06:38:01 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1959,7 +1959,7 @@ static int setParam(char *fname) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
 	  if (Mg <= 0) {
-        oxprintfe("Mg should be set before reading Beta.\n",s); mh_exit(-1);
+        oxprintfe("Mg should be set before reading Beta.\n"); mh_exit(-1);
       }
       Beta = (double *)mymalloc(sizeof(double)*Mg);
 	  for (i=0; i<Mg; i++) {

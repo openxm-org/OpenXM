@@ -1,5 +1,5 @@
 /* This is automatically generated. Do not edit it.*/
-oxprintfe("$OpenXM$\n");
+oxprintfe("$OpenXM: OpenXM/src/hgm/mh/src/usage-jack-n.txt,v 1.1 2016/02/09 05:56:38 takayama Exp $\n");
 oxprintfe("\n");
 oxprintfe("hgm_jack-n\n");
 oxprintfe(" [--idata input_data_file] [--x0 x0] [--degree approxm] [--help]\n");
@@ -13,7 +13,7 @@ oxprintfe("By executing ./hgm_jack-n without argument, a sample input file is ou
 oxprintfe("The format of the input_data_file specified by --idata: \n");
 oxprintfe("# or %%%% are used for a comment line.\n");
 oxprintfe("The value of a parameter xyz is specified by %%xyz=value\n");
-oxprintfe("Input data file should start with the line for the latest input data format: %s\n");
+oxprintfe("Input data file should start with the line for the latest input data format: %s\n",VSTRING);
 oxprintfe("\n");
 oxprintfe("  p_pFq : p of pFq, a_1, ..., a_p\n");
 oxprintfe("  q_pFq : q of pFq, b_1, ..., b_q\n");
