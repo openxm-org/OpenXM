@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.41 2016/02/09 05:00:31 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.42 2016/02/09 05:56:38 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -218,6 +218,7 @@ static int setParamDefault();
 static int next(struct SFILE *fp,char *s,char *msg);
 static int setParam(char *fname);
 static int showParam(struct SFILE *fp,int fd);
+static int showParam_v1(struct SFILE *fp,int fd);
 static double iv_factor(void);
 static double gammam(double a,int n);
 static double mypower(double a,int n);
@@ -1739,12 +1740,14 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
   char *ng="%%Ng=";
   // int i;
   s[0] = '%';
-  while (s[0] == '%') {
+  while ((s[0] == '%') || (s[0] == '#')) {
     if (!mh_fgets(s,SMAX,sfp)) {
       oxprintfe("Data format error at %s\n",msg);
       oxprintfe("Is it version 2.0 format? If so, add\n%s\nat the top.\n",VSTRING);
       mh_exit(-1);
     }
+	if ((s[0] == '%') && (s[1] == '%')) continue;
+    if (s[0] == '#') continue;
     if (strncmp(s,VSTRING,strlen(VSTRING)) == 0) {
 	  return(2);
 	}
@@ -2002,6 +2005,9 @@ static int setParam(char *fname) {
       continue;
     }
 	if (strcmp(s,"Iv")==0) {
+      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+        oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
+      }
 	  for (i=0; i<rank; i++) {
         if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		  Iv[i] = tk.dval;
@@ -2078,7 +2084,7 @@ static int setParam(char *fname) {
   return(0);
 }
 
-static int showParam(struct SFILE *fp,int fd) {
+static int showParam_v1(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
   if (fd) {
@@ -2131,6 +2137,66 @@ static int showParam(struct SFILE *fp,int fd) {
     mh_fputs(swork,fp);
   }
   sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
+  return(0);
+}
+
+/* version2.0 format */
+static int showParam(struct SFILE *fp,int fd) {
+  int rank,i;
+  char swork[1024];
+  if (fd) {
+    fp = mh_fopen("stdout","w",1);
+  }
+  rank = imypower(2,Mg);
+  sprintf(swork,"%s\n",VSTRING); mh_fputs(swork,fp);
+  sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
+  sprintf(swork,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
+  for (i=0; i<A_LEN; i++) {
+    if (i != A_LEN-1) sprintf(swork," %lg,",A_pFq[i]); 
+    else sprintf(swork," %lg\n",A_pFq[i]); 
+    mh_fputs(swork,fp);
+  }
+  sprintf(swork,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
+  for (i=0; i<B_LEN; i++) {
+    if (i != B_LEN-1) sprintf(swork," %lg,",B_pFq[i]); 
+    else sprintf(swork," %lg\n",B_pFq[i]); 
+    mh_fputs(swork,fp);
+  }
+  sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
+  sprintf(swork,"%%Beta=\n"); mh_fputs(swork,fp);
+  for (i=0; i<Mg; i++) {
+    sprintf(swork,"#Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
+  }
+  if (*Ng >= 0) {
+    sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+  }
+  sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
+  sprintf(swork,"%%Iv=\n"); mh_fputs(swork,fp);
+  for (i=0; i<rank; i++) {
+    sprintf(swork,"#Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
+    if (Sample && (M_n == 2) && (X0g == 0.3)) {
+      sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
+    }
+  }
+  sprintf(swork,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
+  sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
+  sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
+  sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
+  
+  sprintf(swork,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
+  sprintf(swork,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
+  sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
+  sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
+  sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
+  sprintf(swork,"#abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  if (M_recommended_relerr < MH_RELERR_DEFAULT) {
+    sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
+  }
+  sprintf(swork,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
+  sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
+  sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
+  sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
+  sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
   return(0);
 }
 
