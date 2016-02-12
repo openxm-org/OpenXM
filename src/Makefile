@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.168 2015/09/15 11:28:16 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.169 2015/09/27 00:12:31 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -6,6 +6,7 @@ LIBDIR=../lib
 BINDIR=../bin
 DOCDIR=../doc
 RCDIR=../rc
+SHAREDIR=../share
 COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-gmp all-mpfr all-mpc all-asir all-gnuplot all-k097 all-kan96xx \
@@ -113,7 +114,8 @@ install: install-oxtags install-util install-asir install-gnuplot \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
 	 install-misc install-fep install-phcpack install-oxcdd \
-     install-oxmgraph install-pcc install-oxpari
+     install-oxmgraph install-pcc install-oxpari \
+	install-asir-mode
 
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
@@ -226,6 +228,9 @@ install-oxmgraph: all-oxmgraph
 
 install-pcc: all-pcc
 	-(cd pcc; ${MAKE} install)
+
+install-asir-mode:
+	-(cd asir-mode; ${MAKE} install)
 
 clean:
 	-rm ./.configure-links-done
