@@ -4,14 +4,15 @@ Todo: Makefile-fix,  cf. misc-2005/A2/knoppix-2006/Makefile-asir,  .TeXmacs $B4
      (bin/oxfetch.sh $B0J30(B)  cf. /var/lib/dpkg/info/openxm.*
  
 Q. $B%Q%C%1!<%8$r?7$7$/$7$?$$(B.
-A.  orange (32bit, etch),  orange3c (64bit, lenny) $B$G:n6H(B.
+A.  orange (32bit, etch),  orange3m (64bit) $B$G:n6H(B. (orange3c $B$G$O(B asir $B$N(B shared library $B$^$o$j$GJQ$K$J$k(B. ldd $B$NCM$,JQ(B. 2016.02.12)
     $B8E$$(B version $B$G:n@.$7$?J}$,$h$j$*$*$$%^%7%s$G;H$($k(B.
-   0.  [knoppix/math $B$G$O(B apt-get install sun-java5-jdk (unstable) $B$r$7$F$*$/(B
-        dpkg-dev, debhelper, fakeroot, texi2html $B$bI,MW(B. 
-        dpkg  --list | grep sun-java $BEy$GD4$Y$k(B.
+   0.  [MathLibre $B$G$O(B java-package java-common, openjdk-7-jdk 2016.02.12
+        (apt-get install sun-java5-jdk (unstable) $B$r$7$F$*$/(B --> jessie $B$K$O$J$$(B. )
+        dpkg-dev, debhelper, fakeroot, texi2html, freeglut3-dev $B$bI,MW(B. 
+        dpkg  --list | grep freeglut3 $BEy$GD4$Y$k(B.
         nkf, texinfo $BEy$O(B knoppix/math $B$J$i(BOK $B$@$,G0$N$?$a3NG'(B.
                dpkg --list | grep texinfo
-        dvipdfmx $B$,$&$^$/$&$4$/$3$H(B. xpdf-japanese (xpdf-reader)
+        dvipdfmx $B$,$&$^$/$&$4$/$3$H(B. xpdf-japanese (xpdf-reader) --> evince $B$X(B.
        ]
        [OpenXM/rc/webasir $B$r;H$&$J$i(B pstoimg $B$,I,MW(B. 
         apt-get install latex2html (non-free). latex2html $B$,2u$l$F$$$?$i(B, $BL>A0$rJQ$($F$7$^$&(B. jarticle-->article $B$GF0$/$O$:(B ]
@@ -26,6 +27,8 @@ A.  orange (32bit, etch),  orange3c (64bit, lenny) $B$G:n6H(B.
    1. $B$9$Y$F$N:n6H$O(B 
        source ./dot.bashrc      (./$B$rIU$1$k$N$r$o$9$l$J$$$3$H(B)
       $B$r$7$F$+$i(B. ($B0lIt9b;3MQ(B)
+      [ 2016.02.12  /usr/lib $B$b(B LD_LIBRARY_PATH $B$X2C$($F$*$+$J$$$H$&$^$/9T$+$J$$(B.
+         ldd asir ($BM}M3$OITL@(B). dot.bashrc $BJQ99:Q(B. ]
       export GNUPGHOME=/private/taka/.gnupg $BEy$bK:$l$:$K(B.
       cvs-passwd/gpg-debian.txt.asc
 
@@ -34,6 +37,7 @@ A.  orange (32bit, etch),  orange3c (64bit, lenny) $B$G:n6H(B.
           $B=pL>$9$k$K$O(B, mail address $B$r(B gnupg $B$N$b$N$HF10l$K(B.  cvs-passwd/gpg-debian.txt.asc )
    3. Makefile $B$N(B VERSION $B$rJQ99(B. $B%3%a%s%H$K$"$kB>$N%U%!%$%k$N(B VERSION $B$bJQ99(B.
          make update-version $B$r;H$&$H$$$$$+$b(B.
+      major version up $B$G$O(B debian/control $B$b(B.
    4. make clean
    5. make
      [knoppix/math:  make USER=taka ]
@@ -47,6 +51,10 @@ A.  orange (32bit, etch),  orange3c (64bit, lenny) $B$G:n6H(B.
    )
 R. make $B$N:G8e$G(B,  Debian2 $B$,JQ99$5$l$?$H$+$$$C$F%(%i!<$,$G$?$i(B, $B$b$&0lEY(B
    make $B$9$l$PNI$$(B.
+   (or  ./deb package  ../deb package $B$r(B rm $B$7$F:FEY(B make.)
+
+   FTBFS package $B$K$J$k$h(B. $B$O$H$j$"$($:L5;k(B. 2016.02.12
+   (Fails to Build From Source)
 
 Q. $B3F%9%F%C%W$G$O2?$r$d$C$F$$$^$9$+(B? $BCm0U;v9`$O(B?
 A. 
@@ -236,7 +244,7 @@ A. rm /var/cache/apt/archives/xxx.deb
    apt-cache showpg openxm
    $B$J$I(B.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.27 2011/02/21 05:15:43 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.28 2011/03/01 07:50:27 takayama Exp $
 
 
    
