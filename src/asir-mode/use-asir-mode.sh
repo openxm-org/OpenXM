@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-mode/use-asir-mode.sh,v 1.1 2016/02/12 02:39:26 takayama Exp $
 
 _ok_local() {
 	echo "------------------------------------------------------------------"
@@ -28,12 +28,16 @@ _install() {
 
 if [ $# = 0 ]; then
 	echo "Usage: use-asir-mode.sh --local" ; \
+	echo "       use-asir-mode.sh --local-yes" ; \
 	echo "       --use-site-lisp has not been implemented." ; \
 fi
 
 if [ $# = 1 ]; then
 if [ $1 = "--local" ]; then
  _ok_local ; \
+ _install_local ; \
+fi
+if [ $1 = "--local-yes" ]; then
  _install_local ; \
 fi
 fi
