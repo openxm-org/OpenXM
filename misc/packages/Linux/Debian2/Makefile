@@ -12,7 +12,7 @@ OS=`dpkg --print-architecture`
 RSYNC=rsync -avz -e ssh
 #FTP_DIR=/home/web/pub/OpenXM/head/knoppix
 FTP_DIR=/home/web/pub/OpenXM/head/knoppix
-APT_DIR=/usr/local/www/data/KnoppixMath-`dpkg --print-architecture`
+APT_DIR=/usr/local/www/data/MathLibre-`dpkg --print-architecture`
 TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
