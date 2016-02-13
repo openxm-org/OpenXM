@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.3 2016/02/02 10:58:23 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n-2f1.c,v 1.4 2016/02/04 06:56:04 takayama Exp $
 License: LGPL
 Ref: code-n.c, 2016.01.30, 31.
  */
@@ -8,8 +8,6 @@ Ref: code-n.c, 2016.01.30, 31.
 #include <math.h>
 #include "sfile.h"
 #include "mh.h"
-
-void mh_setabc(double a,double b, double c);
 
 static void error_code(char *s);
 #ifdef STANDALONE
@@ -21,6 +19,8 @@ static void showf2(char *s,double *v,int m,int n);
 extern int MH_M;
 extern int MH_RANK;
 extern int MH_Ef_type;
+extern double *MH_A_pFq;
+extern double *MH_B_pFq;
 
 static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
 #define join(k,jj) ( (1 << k) | jj)
@@ -31,10 +31,8 @@ static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c)
 #define idxM(i,j) ((i)*MH_M+j)
 #define idxRank(i,j) ((i)*MH_RANK+j)
 
-static double MH_aaa=NaN;
-static double MH_bbb, MH_ccc;
 
-void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
+void mh_rf_ef_type_2(double x, double *f, int rank_not_used, double *val, int n_not_used)
 { extern double *MH_Beta; /* beta = (1/2)*\simga^(-1) */
   extern double *MH_Ng;   /* freedom */
   extern int MH_Mg;       /* number of variables, MH_Mg=MH_M */
@@ -86,7 +84,6 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
     pp = qq = qq2 = rr = qq_pd = qq2_pd = NULL;
     bitSize = invbitSize = NULL;
         initialized = 0; return;
-	MH_aaa = NaN;
   }
   if (!initialized) {
     b = (double *)mh_malloc(sizeof(double)*MH_M);
@@ -105,10 +102,9 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 
     m = MH_Mg;
     if (m != MH_M) error_code("MH_M != m. MH_M is given by -DMH_M...");
-    if (MH_aaa == NaN) error_code("aaa, bbb, ccc are not initialized.");
-    aaa = MH_aaa;
-    bbb = MH_bbb;
-    ccc = MH_ccc;
+    aaa = MH_A_pFq[0];
+    bbb = MH_A_pFq[1];
+    ccc = MH_B_pFq[0];
 
     if(MH_Beta != NULL) for (i=0;i<MH_M;i++) b[i]=MH_Beta[i];
     else error_code("MH_Beta is null.");
@@ -223,12 +219,6 @@ static void error_code(char *s) {
   mh_exit(10);
 }
 
-void mh_setabc(double a,double b, double c) {
-  MH_aaa = a;
-  MH_bbb = b;
-  MH_ccc = c;
-  return;
-}
 
 #ifdef STANDALONE
 /* for debug */

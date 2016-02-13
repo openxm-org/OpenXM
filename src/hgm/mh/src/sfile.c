@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.19 2015/04/02 00:11:32 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/sfile.c,v 1.20 2015/04/02 05:45:41 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +68,8 @@ struct SFILE *mh_fopen(char *name,char *mode,int byFile) {
     sfp->byFile = 1;
     if (strcmp(name,"stdout")==0) {
       sfp->fp = oxstdout;
+	}else if (strcmp(name,"stdin")==0) {
+	  sfp->fp = oxstdin;
     }else{
       sfp->fp = fopen(name,mode);
     }

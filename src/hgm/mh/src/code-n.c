@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.8 2015/03/24 05:59:43 takayama Exp $
+$OpenXM: OpenXM/src/hgm/mh/src/code-n.c,v 1.9 2015/04/02 01:11:13 takayama Exp $
 License: LGPL
 Ref: Copied from this11/misc-2011/A1/wishart/Prog
 cf. @s/2011/12/01-my-note-code-n.pdf
@@ -19,6 +19,8 @@ static void showf2(char *s,double *v,int m,int n);
 
 extern int MH_M;
 extern int MH_RANK;
+extern double *MH_A_pFq;
+extern double *MH_B_pFq;
 
 static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c);}
 #define join(k,jj) ( (1 << k) | jj)
@@ -33,7 +35,7 @@ static int bitcount(int n) {int c; c=0; while (n) { ++c; n &= (n-1); } return(c)
   p(x) = exp(-bsum*x)*x^(MH_M*(c-a))
   f is p(x)*pd{J}F
  */
-void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
+void mh_rf_ef_type_1(double x, double *f, int rank_not_used, double *val, int n_not_used)
 { extern double *MH_Beta; /* beta = (1/2)*\simga^(-1) */
   extern double *MH_Ng;   /* freedom */
   extern int MH_Mg;       /* number of variables, MH_Mg=MH_M */
@@ -90,12 +92,14 @@ void mh_rf(double x, double *f, int rank_not_used, double *val, int n_not_used)
 
     m = MH_Mg;
     if (m != MH_M) error_code("MH_M != m. MH_M is given by -DMH_M...");
-    a = ((double)m+1.0)/2.0;
+    /* a = ((double)m+1.0)/2.0; */
+	a = MH_A_pFq[0];
 
     if(MH_Beta != NULL) for (i=0;i<MH_M;i++) b[i]=MH_Beta[i];
     else error_code("MH_Beta is null.");
-    if (MH_Ng != NULL) c=a+*(MH_Ng)/2;  /* set c, a+n/2, n is given by the option n */
-    else error_code("MH_Ng is null.");
+    /* if (MH_Ng != NULL) c=a+*(MH_Ng)/2; 
+	   else error_code("MH_Ng is null."); */
+	c = MH_B_pFq[0];
 
     bsum = 0; for (i=0; i<m; i++) bsum += b[i];
 

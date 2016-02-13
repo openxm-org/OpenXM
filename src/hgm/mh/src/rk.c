@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.13 2015/03/24 05:59:43 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.14 2016/02/02 03:00:08 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +14,7 @@
 #include "t-gsl_odeiv.h"
 extern int MH_RANK;
 extern int MH_M;
+extern MH_RF mh_rf;
 
 char *MH_Gfname;
 char *MH_Dfname;
@@ -34,7 +35,7 @@ double MH_relerr = MH_RELERR_DEFAULT ;
 */
 
 int mh_rf_for_gsl(double t,const double y[],double f[],void *params) {
-  mh_rf(t,(double *)y,MH_RANK,f,MH_RANK);
+  (*mh_rf)(t,(double *)y,MH_RANK,f,MH_RANK);
   return(GSL_SUCCESS);
 }
 
@@ -174,25 +175,25 @@ if (MH_strategy == 0) {
         MH_P95=0;
       }
     }
-    mh_rf(x, y, MH_RANK, temp, MH_RANK);
+    (*mh_rf)(x, y, MH_RANK, temp, MH_RANK);
     for (i = 0; i < MH_RANK; i++)
       k1[i] = h * temp[i];
 
     for (i = 0; i < MH_RANK; i++)
       ty[i] = y[i] + 0.5 * k1[i];
-    mh_rf(x + 0.5 * h, ty, MH_RANK, temp, MH_RANK);
+    (*mh_rf)(x + 0.5 * h, ty, MH_RANK, temp, MH_RANK);
     for (i = 0; i < MH_RANK; i++)
       k2[i] = h * temp[i];
 
     for (i = 0; i < MH_RANK; i++)
       ty[i] = y[i] + 0.5 * k2[i];
-    mh_rf(x + 0.5 * h, ty, MH_RANK, temp, MH_RANK);
+    (*mh_rf)(x + 0.5 * h, ty, MH_RANK, temp, MH_RANK);
     for (i = 0; i < MH_RANK; i++)
       k3[i] = h * temp[i];
 
     for (i = 0; i < MH_RANK; i++)
       ty[i] = y[i] + k3[i];
-    mh_rf(x + h, ty, MH_RANK, temp, MH_RANK);
+    (*mh_rf)(x + h, ty, MH_RANK, temp, MH_RANK);
     for (i = 0; i < MH_RANK; i++)
       k4[i] = h * temp[i];
                 

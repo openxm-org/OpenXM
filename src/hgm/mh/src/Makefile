@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.18 2016/02/01 11:37:14 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.19 2016/02/09 05:56:38 takayama Exp $
 OPT=-g -DSTANDALONE
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -15,8 +15,8 @@ HEADERS=config.h odeiv_util.h t-gsl_errno.h \
 LINKOPT=../../gsl-t-1/src/gsl-t-1.a -lm
 all: make-link hgm_w-n hgm_jack-n mh
 
-hgm_w-n: code-n.o rk.o wmain.c sfile.o sfile.h
-	${CC} -o hgm_w-n ${OPT3} wmain.c rk.o code-n.o sfile.o ${LINKOPT}
+hgm_w-n: code-n.o code-n-2f1.o rk.o wmain.c usage-w-n.h sfile.o sfile.h
+	${CC} -o hgm_w-n ${OPT3} wmain.c rk.o code-n.o code-n-2f1.o sfile.o ${LINKOPT}
 
 rk.o: rk.c mh.h ${HEADERS}
 	${CC} -c ${OPT} rk.c
@@ -38,8 +38,8 @@ wmain.o : wmain.c sfile.h mh.h
 	${CC} ${OPT} -c wmain.c
 jack-n.o : jack-n.c  sfile.h
 	${CC} ${OPT} -c jack-n.c
-mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o sfile.o
-	${CC} ${OPT} -o mh mh.c jack-n.o wmain.o rk.o code-n.o sfile.o ${LINKOPT}
+mh: mh.c mh.h sfile.h jack-n.o wmain.o rk.o code-n.o code-n-2f1.o sfile.o
+	${CC} ${OPT} -o mh mh.c jack-n.o wmain.o rk.o code-n.o code-n-2f1.o sfile.o ${LINKOPT}
 
 test3: sfile.c sfile.h
 	${CC} -g -DTEST -DSTANDALONE sfile.c -o test3
@@ -48,11 +48,11 @@ genusage: genusage.c
 	${CC} -o genusage genusage.c
 usage-jack-n.h: usage-jack-n.txt genusage
 	./genusage <usage-jack-n.txt >usage-jack-n.h
+usage-w-n.h: usage-w-n.txt genusage
+	./genusage <usage-w-n.txt >usage-w-n.h
 
 code-n-2f1.o: code-n-2f1.c mh.h
 	${CC} -c ${OPT} code-n-2f1.c
-hgm_w-n-2f1: code-n-2f1.o rk.o wmain.c sfile.o sfile.h
-	${CC} -o hgm_w-n-2f1 ${OPT3} -DC_2F1 wmain.c rk.o code-n-2f1.o sfile.o ${LINKOPT}
 
 make-link: make-link-p
 	-if [ ! -f .link_done ] ; then \
