@@ -3,5 +3,6 @@
 #define oxflush()  fflush(NULL)
 #define oxabort()  abort()
 #define oxstdout  stdout
+#define oxstdin   stdin
 #define oxexit(a) exit(a)
 #define oxexit0(a) exit(a)
