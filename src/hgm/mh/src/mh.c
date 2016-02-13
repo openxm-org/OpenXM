@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.14 2015/03/24 05:59:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.15 2015/04/02 01:11:13 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "sfile.h"
 #include "mh.h"
 #define WSIZE 1024
+int MH_DEBUG2=0;
 extern int MH_DEBUG;
 extern int M_show_autosteps;
 static int imypower(int x,int n) {
@@ -158,6 +159,136 @@ struct cWishart *mh_cwishart_hgm(int m,int n,double beta[],double x0,
   return(mh_cwishart_gen(m,n,beta,x0,approxDeg,h,dp,x,modep,automatic,assigned_series_error,verbose));
 }
 
+struct cWishart *mh_pFq_gen(int m,
+                            int p, double a[],
+                            int q, double b[],
+                            int ef_type,
+                            double beta[],double x0,
+                            int approxDeg,double h, int dp, double x,int modep[],
+                               int automatic,double assigned_series_error,
+                            int verbose) {
+  /*
+     modep[0]. Do Koev-Edelman (ignored for now).
+     modep[1]. Do the HGM
+     modep[2]. Return modep[2] intermediate data.
+   */
+  struct SFILE *fp;
+  char swork[WSIZE];
+  char *argv[WSIZE];
+  int argc;
+  int i,rank;
+  char *comm;
+  struct MH_RESULT *rp;
+  struct SFILE *sfp;
+  struct cWishart *cw;
+  argv[0]="dummy";
+  argv[1] = "--bystring";
+  argv[2] = "--idata";
+  fp = mh_fopen("","w",0);
+  mh_fputs("%!version2.0\n",fp);
+  mh_fputs("%Mg=\n",fp);
+  sprintf(swork,"%d\n",m); mh_fputs(swork,fp);
+  rank = imypower(q+1,m);
+
+  sprintf(swork,"%%p_pFq=%d ",p); mh_fputs(swork,fp);
+  for (i=0; i<p; i++) {
+    sprintf(swork,"%lg ",a[i]); mh_fputs(swork,fp);
+  }
+  mh_fputs("\n",fp);
+
+  sprintf(swork,"%%q_pFq=%d ",q); mh_fputs(swork,fp);
+  for (i=0; i<q; i++) {
+    sprintf(swork,"%lg ",b[i]); mh_fputs(swork,fp);
+  }
+  mh_fputs("\n",fp);
+
+  sprintf(swork,"%%ef_type=%d\n",ef_type); mh_fputs(swork,fp);
+
+  mh_fputs("%Beta=\n",fp);
+  for (i=0; i<m; i++) {
+    sprintf(swork,"%lf\n",beta[i]); mh_fputs(swork,fp);
+  }
+  mh_fputs("%X0g=\n",fp); /* initial point */
+  sprintf(swork,"%lf\n",x0); mh_fputs(swork,fp);
+  if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
+  mh_fputs("%Hg=\n",fp); 
+  sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
+  if (dp < 1) {oxprintfe("dp<1, set to 1\n"); dp=1;}
+  mh_fputs("%Dp=\n",fp); 
+  sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
+  if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}
+  mh_fputs("%Xng=\n",fp);
+  sprintf(swork,"%lf\n",x); mh_fputs(swork,fp);
+
+  sprintf(swork,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
+  sprintf(swork,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
+  sprintf(swork,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
+
+  comm = (char *)mh_malloc(fp->len +1);
+  mh_outstr(comm,fp->len+1,fp);
+  mh_fclose(fp);
+  argv[3] = comm;
+  if (MH_DEBUG2) printf("comm=\n%s",comm); 
+
+  argv[4] = "--degree";
+  argv[5] = (char *)mh_malloc(128);
+  sprintf(argv[5],"%d",approxDeg);
+
+  rp=jk_main(6,argv); 
+  if (rp == NULL) {
+    oxprintfe("rp is NULL.\n"); return(NULL);
+  }
+  cw = new_cWishart(rank);
+  cw->x = rp->x;
+  cw->rank = rp->rank;
+  if (rank !=  cw->rank) {
+    oxprintfe("Rank error.\n"); return(NULL);
+  }
+  for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];  
+  sfp = (rp->sfpp)[0]; 
+  cw->aux = (char *) mh_malloc((sfp->len)+1); 
+  mh_outstr((char *)(cw->aux),(sfp->len)+1,sfp);
+  /* todo, the following line seems to cause seg fault. */
+  /* deallocate the memory */
+  for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
+  /* todo, mh_free_??(rp);  free Iv's */
+  if (!modep[1]) return(cw);
+
+  if (MH_DEBUG2) oxprintf("\n\n%s\n",(char *)cw->aux);
+  /* This output is strange. */
+  /* Starting HGM */
+  argv[3] = (char *)cw->aux;
+  argv[4] = "--dataf";
+  argv[5] = "dummy-dataf";
+  argc=6;
+  if (verbose) {
+    argv[6] = "--verbose"; ++argc;
+  }
+  rp = mh_main(argc,argv);
+  if (rp == NULL) {
+    oxprintfe("rp is NULL in the second step.\n"); return(NULL);
+  }
+  cw = new_cWishart(rank);
+  cw->x = rp->x;
+  cw->rank = rp->rank;
+  for (i=0; i<cw->rank; i++) (cw->f)[i] = (rp->y)[i];
+  sfp = (rp->sfpp)[0];
+  if (sfp) {
+    cw->aux = (char *) mh_malloc(sfp->len+1);
+    mh_outstr((char *)cw->aux,sfp->len+1,sfp);
+  }
+  sfp = (rp->sfpp)[1];
+  if (sfp) {
+    cw->aux2 = (char *) mh_malloc(sfp->len+1);
+    mh_outstr((char *)cw->aux2,sfp->len+1,sfp);
+  }
+  /* deallocate the memory */
+  for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
+  mh_freeWorkArea();
+  return(cw);
+}
+
+
 #ifdef STANDALONE
 int main(int argc,char *argv[]) {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
@@ -170,6 +301,7 @@ int main(int argc,char *argv[]) {
   int strategy=1;
   double err[2]={-1.0,-1.0};
   int verbose=0;
+  int testnew=0;
   show=1;
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--strategy")==0) {
@@ -182,9 +314,31 @@ int main(int argc,char *argv[]) {
 	  show=0;
 	}else if (strcmp(argv[i],"--verbose")==0) {
 	  verbose=1;
+	}else if (strcmp(argv[i],"--testnew")==0) {
+	  testnew=1;
 	}else{
-	  oxprintfe("Unknown option.\n");
+	  oxprintfe("Unknown option.\n"); return(-1);
 	}
+  }
+  if (testnew) {
+    int tmodep[] = {1,1,0};
+    double a[] = {2.0,7.5};
+    double b[] = {4.5};
+    double beta[] = {1,2,4};
+    mh_set_strategy(strategy,err);
+    /* Testdata/new-2016-02-04-4-in.txt, Hashiguchi note 2016.02.03 */
+    cw=mh_pFq_gen(3, /* m */
+                  2,a,
+                  1,b,
+                  2, /* ef_type */
+                  beta,0.1,
+                  8,0.001,1, 4,tmodep,
+                  1,1e-20,verbose);
+    if (cw != NULL) {
+      oxprintf("x=%lf, y=%lf\n",cw->x,(cw->f)[0]);
+      /* oxprintf("%s",(char *)cw->aux); */
+    }
+    return(0);
   }
   mh_set_strategy(strategy,err);
   cw=mh_cwishart_hgm(3,5,beta,0.3,7,  0.01,1,10, 1,1e-7,verbose);
@@ -226,3 +380,4 @@ int main1() {
   return(0);
 }
 #endif
+

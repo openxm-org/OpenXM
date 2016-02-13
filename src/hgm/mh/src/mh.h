@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.11 2015/03/24 05:59:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.h,v 1.12 2016/02/13 02:18:59 takayama Exp $ */
 #include "oxprint.h"
 struct cWishart {
   double x;
@@ -25,6 +25,14 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
                                int automatic,double assigned_series_error,
                                int verbose);
 struct cWishart *new_cWishart(int rank);
+struct cWishart *mh_pFq_gen(int m,
+			    int p, double a[],
+			    int q, double b[],
+			    int ef_type,
+			    double beta[],double x0,
+                            int approxDeg,double h, int dp, double x,int modep[],
+                               int automatic,double assigned_series_error,
+                               int verbose);
 
 int mh_usage(void);
 void mh_freeWorkArea(void);

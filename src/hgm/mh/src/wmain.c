@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.28 2016/02/13 02:19:00 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.29 2016/02/13 02:34:20 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -371,20 +371,26 @@ static int setParam(char *fname) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	MH_abserr = tk.dval;
+      }else if (tk.type == MH_TOKEN_INT) {
+	MH_abserr = tk.ival;
+      }else{
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      MH_abserr = tk.dval;
       continue;
     }
     if ((strcmp(s,"relerr")==0) || (strcmp(s,"relerror")==0)) {
       if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	MH_relerr = tk.dval;
+      }else if (tk.type == MH_TOKEN_INT) {
+	MH_relerr = tk.dval;
+      }else{
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      MH_relerr = tk.dval;
       continue;
     }
     if (strcmp(s,"strategy")==0) {
