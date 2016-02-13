@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.27 2016/02/04 06:56:05 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.28 2016/02/13 02:19:00 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -198,6 +198,7 @@ int mh_usage() {
 
 #include "usage-w-n.h"
 
+  return(0);
 }
 
 static int setParamTest() {

@@ -10,6 +10,11 @@ main() {
 	  printf("%s",&(s[1]));
 	  continue;
 	}
+	if (s[0] == '$') {
+	  if (strncmp(&(s[1]),"Open",4)==0) {
+	    continue;
+	  }
+	}
 	printf("oxprintfe(\"");
 	for (i=0; i<strlen(s); i++) {
 	  if (s[i] == '\\') printf("\\\\");

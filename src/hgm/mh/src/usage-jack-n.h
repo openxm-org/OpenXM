@@ -1,5 +1,4 @@
 /* This is automatically generated. Do not edit it.*/
-oxprintfe("$OpenXM: OpenXM/src/hgm/mh/src/usage-jack-n.txt,v 1.1 2016/02/09 05:56:38 takayama Exp $\n");
 oxprintfe("\n");
 oxprintfe("hgm_jack-n\n");
 oxprintfe(" [--idata input_data_file] [--x0 x0] [--degree approxm] [--help]\n");
