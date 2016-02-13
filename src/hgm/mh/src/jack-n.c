@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.43 2016/02/09 06:38:01 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.44 2016/02/09 10:30:18 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -218,7 +218,9 @@ static int setParamDefault();
 static int next(struct SFILE *fp,char *s,char *msg);
 static int setParam(char *fname);
 static int showParam(struct SFILE *fp,int fd);
+#ifdef STANDALONE
 static int showParam_v1(struct SFILE *fp,int fd);
+#endif
 static double iv_factor(void);
 static double gammam(double a,int n);
 static double mypower(double a,int n);
@@ -2083,7 +2085,8 @@ static int setParam(char *fname) {
   mh_fclose(fp);
   return(0);
 }
-
+#ifdef STANDALONE
+/* may remove */
 static int showParam_v1(struct SFILE *fp,int fd) {
   int rank,i;
   char swork[1024];
@@ -2139,7 +2142,7 @@ static int showParam_v1(struct SFILE *fp,int fd) {
   sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
   return(0);
 }
-
+#endif
 /* version2.0 format */
 static int showParam(struct SFILE *fp,int fd) {
   int rank,i;

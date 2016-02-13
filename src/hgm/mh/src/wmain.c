@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.29 2016/02/13 02:34:20 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.30 2016/02/13 05:55:09 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -179,7 +179,7 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   if (MH_strategy) {
     if (MH_abserr > SIGDIGIT_DEFAULT*myabs(y0[0])) {
       MH_success = 0;
-      oxprintfe("%%%%Warning, abserr seems not to be small enough, abserr=%lg, y[0]=%lg\n",MH_abserr,y0[0]);
+      oxprintfe("%%%%Warning, abserr seems not to be small enough, abserr=%lg, y[0]=%lg. Increasing the starting point (q0 or X0g(standalone case)) may help.\n",MH_abserr,y0[0]);
     }else{
       MH_success = 1;
     }
@@ -245,7 +245,8 @@ static int setParamDefault() {
   MH_Dp = 1;
   Xng = 10.0; return(0);
 }
-
+#ifdef STANDALONE
+/* may remove */
 static int next_old1(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
@@ -256,6 +257,7 @@ static int next_old1(struct SFILE *sfp,char *s,char *msg) {
     if (s[0] != '%') return(0);
   } return(0);
 }
+#endif
 static int next(struct SFILE *sfp,char *s,char *msg) {
   static int check=1;
   char *ng="%%Ng=";

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.1 2016/02/13 06:47:50 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.2 2016/02/13 07:12:52 takayama Exp $
 "hgm.tk.p2wishart" <-
 function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=20,q=4,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
@@ -19,7 +19,8 @@ function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=20,q=4,
   rank <- 2^m;
   rsize <- rank+1;
   if (autoplot==1) {
-     mode=c(1,1,(rank+1)*floor(q/(h*dp)));
+     dp<-floor(q/(h*100));
+     mode<-c(1,1,(rank+1)*floor(q/(h*dp)+1));
   }
   if (mode[3] > 0) rsize <- rsize+mode[3]; 
   if (approxdeg < 0) approxdeg <- 6;

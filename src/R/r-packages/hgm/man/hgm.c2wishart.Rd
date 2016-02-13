@@ -1,10 +1,10 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.1 2016/02/13 06:47:50 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.2 2016/02/13 07:12:52 takayama Exp $
 \name{hgm.p2wishart}
 \alias{hgm.p2wishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
     The function hgm.p2wishart evaluates the cumulative distribution function
-  of the largest eigenvalues of inverse(S2)*S1.
+  of the largest eigenvalues of W1*inverse(W2).
 }
 \description{
     The function hgm.p2wishart evaluates the cumulative distribution function
@@ -34,6 +34,7 @@ hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
   }
   \item{dp}{
     Sampling interval of solutions by the Runge-Kutta method.
+    When autoplot=1, dp is automatically set.
   }
   \item{q}{
     The second value y[0] of this function is the Prob(L1 < q)
@@ -41,9 +42,10 @@ hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
   }
   \item{mode}{
     When mode=c(1,0,0), it returns the evaluation 
-    of the matrix hypergeometric series and its derivatives at x0.
+    of the matrix hypergeometric series and its derivatives at q0.
     When mode=c(1,1,(m^2+1)*p), intermediate values of P(L1 < x) with respect to
     p-steps of x are also returned.  Sampling interval is controled by dp.
+    When autoplot=1, mode is automatically set.
   }
   \item{method}{
     a-rk4 is the default value. 
@@ -81,9 +83,9 @@ hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
   It is evaluated by the Koev-Edelman algorithm when x is near the origin and
   by the HGM when x is far from the origin.
   We can obtain more accurate result when the variables h is smaller,
-  x0 is relevant value (not very big, not very small),
+  q0 is relevant value (not very big, not very small),
   and the approxdeg is more larger.
-  A heuristic method to set parameters x0, h, approxdeg properly
+  A heuristic method to set parameters q0, h, approxdeg properly
   is to make x larger and to check if the y[0] approaches to 1.
 %  \code{\link[RCurl]{postForm}}.
 }
