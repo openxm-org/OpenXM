@@ -21,7 +21,7 @@ rsync-gsl-t-1:
 rsync-so3:
 	${RSYNC} ../../hgm/so3/src/*.c hgm/src/
 rsync-mh:
-	${RSYNC} --exclude test1.c --exclude test2.c ../../hgm/mh/src/*.c hgm/src/
+	${RSYNC} --exclude test1.c --exclude test2.c --exclude genusage.c ../../hgm/mh/src/*.c hgm/src/
 	${RSYNC} ../../hgm/mh/src/*.h hgm/src/
 rsync-orthant:
 	${RSYNC} ../../hgm/orthant/src/hgm_ko_orthant*.c  hgm/src/

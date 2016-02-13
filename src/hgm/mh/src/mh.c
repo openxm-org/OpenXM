@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.15 2015/04/02 01:11:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.16 2016/02/13 05:55:09 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "sfile.h"
@@ -228,7 +228,7 @@ struct cWishart *mh_pFq_gen(int m,
   mh_outstr(comm,fp->len+1,fp);
   mh_fclose(fp);
   argv[3] = comm;
-  if (MH_DEBUG2) printf("comm=\n%s",comm); 
+  if (MH_DEBUG2) oxprintf("comm=\n%s",comm); 
 
   argv[4] = "--degree";
   argv[5] = (char *)mh_malloc(128);

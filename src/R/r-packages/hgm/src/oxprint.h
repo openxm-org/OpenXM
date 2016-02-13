@@ -6,5 +6,6 @@
 #define oxflush()  
 #define oxabort()  error("Fatal error in the shared lib hgm.\n")
 #define oxstdout  NULL
+#define oxstdin  NULL
 #define oxexit(a)  error("Fatal error in the shared lib hgm.\n");
 #define oxexit0(a)  error("Fatal error in the shared lib hgm.\n");
