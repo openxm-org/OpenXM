@@ -1,8 +1,8 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.1 2016/02/13 06:47:50 takayama Exp $
 "hgm.tk.p2wishart" <-
-function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.1,approxdeg=-1,h=0.001,dp=20,q=4,
+function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=20,q=4,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
-         automatic=1,assigned_series_error=0.00001,verbose=0) { 
+         automatic=1,assigned_series_error=0.00001,verbose=0,autoplot=0) { 
   x<-q; x0<-q0;
   nstrategy<-0;
   mm<-charmatch(method,c("rk4","a-rk4","a-rk4-m"));
@@ -18,6 +18,9 @@ function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.1,approxdeg=-1,h=0.001,dp=20,q=4,
   if (m<1) m=1;
   rank <- 2^m;
   rsize <- rank+1;
+  if (autoplot==1) {
+     mode=c(1,1,(rank+1)*floor(q/(h*dp)));
+  }
   if (mode[3] > 0) rsize <- rsize+mode[3]; 
   if (approxdeg < 0) approxdeg <- 6;
 ##argchecks
@@ -43,6 +46,7 @@ function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.1,approxdeg=-1,h=0.001,dp=20,q=4,
   b<-c((n1+m+1)/2);
   ef_type<-2;
 
+  ans <-
   .C("Rmh_pFq_gen",as.integer(m),
      as.integer(pp), as.double(a),
      as.integer(qq), as.double(b),
@@ -53,5 +57,10 @@ function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.1,approxdeg=-1,h=0.001,dp=20,q=4,
      as.integer(dp),as.double(x),
      as.integer(mode),as.integer(rank),
      as.integer(automatic),as.double(assigned_series_error),as.integer(verbose),
-     retv=double(rsize),PACKAGE="hgm")$retv
+     retv=double(rsize),PACKAGE="hgm")$retv ;
+  if (autoplot == 0) {
+    return(ans);
+  }else {
+    return(matrix(ans,ncol=rank+1,byrow=1));
+  }
 }

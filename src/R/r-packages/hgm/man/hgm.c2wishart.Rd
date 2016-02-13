@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.1 2016/02/13 06:47:50 takayama Exp $
 \name{hgm.p2wishart}
 \alias{hgm.p2wishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -13,7 +13,7 @@
 }
 \usage{
 hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
-            err,automatic,assigned_series_error,verbose)
+            err,automatic,assigned_series_error,verbose,autoplot)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -72,6 +72,10 @@ hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
     If it is 1, then steps of automatic degree updates and several parameters
     are output to stdout and stderr.
   }  
+  \item{autoplot}{
+    autoplot=0 is the default value.
+    If it is 1, then it outputs an input for plot.
+  }  
 }
 \details{
   It is evaluated by the Koev-Edelman algorithm when x is near the origin and
@@ -119,8 +123,13 @@ hgm.p2wishart(m=3,n1=5,n2=10,beta=c(1,2,4),q=4)
 ## =====================================================
 ## Example 2. 
 ## =====================================================
-b<-hgm.p2wishart(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.1,q=20,approxdeg=20,mode=c(1,1,(8+1)*100));
-c<-matrix(b,ncol=16+1,byrow=1);
+b<-hgm.p2wishart(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,q=20,approxdeg=20,mode=c(1,1,(8+1)*1000));
+c<-matrix(b,ncol=8+1,byrow=1);
+#plot(c)
+## =====================================================
+## Example 3. 
+## =====================================================
+c<-hgm.p2wishart(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,q=20,approxdeg=20,autoplot=1);
 #plot(c)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
