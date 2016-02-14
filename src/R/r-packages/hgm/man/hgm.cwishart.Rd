@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.10 2015/03/27 02:36:30 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.11 2016/02/13 22:56:50 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -12,7 +12,7 @@
 }
 \usage{
 hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
-            err,automatic,assigned_series_error,verbose)
+            err,automatic,assigned_series_error,verbose,autoplot)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,6 +33,7 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
   }
   \item{dp}{
     Sampling interval of solutions by the Runge-Kutta method.
+    When autoplot=1, it is automatically set.
   }
   \item{q}{
     The second value y[0] of this function is the Prob(L1 < q)
@@ -43,6 +44,7 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
     of the matrix hypergeometric series and its derivatives at q0.
     When mode=c(1,1,(m^2+1)*p), intermediate values of P(L1 < x) with respect to
     p-steps of x are also returned.  Sampling interval is controled by dp.
+    When autoplot=1, it is automatically set.
   }
   \item{method}{
     a-rk4 is the default value. 
@@ -70,6 +72,11 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
     verbose=0 is the default value.
     If it is 1, then steps of automatic degree updates and several parameters
     are output to stdout and stderr.
+  }  
+  \item{autoplot}{
+    autoplot=0 is the default value.
+    If it is 1, then it outputs an input for plot.
+    When ans is the output, ans[1,] is c(q,prob at q,...), ans[2,] is c(q0,prob at q0,...), and ans[3,] is c(q0+q/100,prob at q/100,...), ...
   }  
 }
 \details{
@@ -122,6 +129,11 @@ hgm.pwishart(m=3,n=5,beta=c(1,2,3),q=10)
 ## =====================================================
 b<-hgm.pwishart(m=4,n=10,beta=c(1,2,3,4),q0=1,q=10,approxdeg=20,mode=c(1,1,(16+1)*100));
 c<-matrix(b,ncol=16+1,byrow=1);
+#plot(c)
+## =====================================================
+## Example 3. 
+## =====================================================
+c<-hgm.pwishart(m=4,n=10,beta=c(1,2,3,4),q0=1,q=10,approxdeg=20,autoplot=1);
 #plot(c)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

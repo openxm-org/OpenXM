@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.2 2016/02/13 07:12:52 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.3 2016/02/13 22:56:50 takayama Exp $
 \name{hgm.p2wishart}
 \alias{hgm.p2wishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -77,6 +77,7 @@ hgm.p2wishart(m,n1,n2,beta,q0,approxdeg,h,dp,q,mode,method,
   \item{autoplot}{
     autoplot=0 is the default value.
     If it is 1, then it outputs an input for plot.
+    When ans is the output, ans[1,] is c(q,prob at q,...), ans[2,] is c(q0,prob at q0,...), and ans[3,] is c(q0+q/100,prob at q/100,...), ...
   }  
 }
 \details{

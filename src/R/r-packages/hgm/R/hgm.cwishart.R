@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.7 2014/03/22 00:15:40 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.8 2014/04/18 05:04:40 takayama Exp $
 "hgm.tk.pwishart" <-
 function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
-         automatic=1,assigned_series_error=0.00001,verbose=0) { 
+         automatic=1,assigned_series_error=0.00001,verbose=0,autoplot=0) { 
   x<-q; x0<-q0;
   nstrategy<-0;
   mm<-charmatch(method,c("rk4","a-rk4","a-rk4-m"));
@@ -18,6 +18,10 @@ function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
   if (m<1) m=1;
   rank <- 2^m;
   rsize <- rank+1;
+  if (autoplot==1) {
+     dp<-floor(q/(h*100));
+     mode<-c(1,1,(rank+1)*floor(q/(h*dp)+1));
+  }
   if (mode[3] > 0) rsize <- rsize+mode[3]; 
   if (approxdeg < 0) approxdeg <- 6;
 ##argchecks
@@ -36,12 +40,17 @@ function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=20,q=10,
   if (class(mode) != "numeric") stop("mode must be a vector of length 3.");
   if (length(mode) != 3) stop("mode must be a vector of length 3.");
 ##end of argchecks
-
+  ans<-
   .C("Rmh_cwishart_gen",as.integer(m),as.integer(n),as.double(beta),as.double(x0),
      as.integer(approxdeg),
      as.double(h),
      as.integer(dp),as.double(x),
      as.integer(mode),as.integer(rank),
      as.integer(automatic),as.double(assigned_series_error),as.integer(verbose),
-     retv=double(rsize),PACKAGE="hgm")$retv
+     retv=double(rsize),PACKAGE="hgm")$retv;
+  if (autoplot == 0) {
+    return(ans);
+  }else {
+    return(matrix(ans,ncol=rank+1,byrow=1));
+  }
 }
