@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.44 2016/02/09 10:30:18 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.45 2016/02/13 22:56:50 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -17,6 +17,7 @@
   2. Use the recurrence to obtain beta().
   3. Easier input data file format for mh-n.c
   Changelog:
+  2016.02.15 log of Ef
   2016.02.09 unify 2F1 and 1F1. Parser.
   2016.02.04 Ef_type (exponential or scalar factor type)
   2016.02.01 ifdef C_2F1 ...
@@ -227,6 +228,10 @@ static double mypower(double a,int n);
 
 static double iv_factor_ef_type1(void);
 static double iv_factor_ef_type2(void);
+static double lgammam(double a,int n);
+static double liv_factor_ef_type1(void);
+static double liv_factor_ef_type2(void);
+
 static void setM_x(void);
 static void setM_x_ef_type1(void);
 static void setM_x_ef_type2(void);
@@ -2216,10 +2221,33 @@ static double gammam(double a,int n) {
 }
 
 static double iv_factor(void) {
+  double ef;
+  double lef;
+  double r;
+  ef=1; lef=0;
   if (Ef_type < 1) return(1.0);
-  if (Ef_type == 1) return(iv_factor_ef_type1());
-  else if (Ef_type==2) return(iv_factor_ef_type2());
-  return(1.0);
+  if (Ef_type == 1) {
+	ef=iv_factor_ef_type1();
+	lef=liv_factor_ef_type1();
+  }else if (Ef_type==2) {
+	ef = iv_factor_ef_type2();
+	lef = liv_factor_ef_type2();
+  }else{
+	return(1.0);
+  }
+  if (isnan(ef) || isinf(ef)) {
+	if (Debug) oxprintfe("Exponential factor (Ef) seems to be large or ill-conditioned.\n");
+	return(exp(lef));
+  }else {
+	r = ef/exp(lef);
+	if ((0.9 < r) && (r < 1.1)) return(ef);
+	else {
+	  oxprintfe("Warning: There seems to be a numerical error to get Ef. We use a log value of Ef");
+      oxprintfe(" Ef=%lg, exp(lef)=%lg\n",ef,exp(lef));
+	  return(exp(lef));
+	}
+  }
+  return(exp(lef));
 }
 
 static double iv_factor_ef_type1(void) {
@@ -2288,4 +2316,63 @@ static void setM_x_ef_type2(void) {
   }
 }
 
+/* log of gammam */
+static double lgammam(double a,int n) {
+  double v,v2;
+  int i;
+  v=log(M_PI)*n*(n-1)/2.0; /* log pi^(n*(n-1)/2) */
+  v2=0;
+  for (i=1; i<=n; i++) {
+    v2 += lgamma(a-((double)(i-1))/2.0); /* not for big n */
+  }
+  return(v+v2);
+}
 
+/* log of iv_factor_ef_type1() */
+static double liv_factor_ef_type1(void) {
+  double v1;
+  double t;
+  double b;
+  double detSigma;
+  double c;
+  int i,n;
+  if (X0g<0){ myerror("Negative X0g\n"); mh_exit(-1);}
+  n = (int) (*Ng);
+  v1= log(X0g)*n*M_n/2.0;
+  t = 0.0;
+  for (i=0; i<M_n; i++)  t += -X0g*Beta[i];
+  v1 += t;
+
+  b = 1; for (i=0; i<M_n; i++) b *= Beta[i];
+  detSigma = -log(b)-M_n*log(2);
+
+  c = lgammam(((double)(M_n+1))/2.0, M_n)-log(2)*M_n*n/2.0
+	-detSigma*n/2.0-lgammam(((double)(M_n+n+1))/2.0,M_n);
+  return(c+v1);
+}
+
+static double liv_factor_ef_type2(void) {
+  double ef;
+  int i,m;
+  double a,b,c;
+  double t;
+  a = A_pFq[0]; b = A_pFq[1]; c= B_pFq[0];
+  m = M_n;
+  ef = 0.0;
+
+  if (X0g<0){ myerror("Negative X0g\n"); mh_exit(-1);}
+  t = 0;
+  for (i=0; i<m; i++) if (Beta[i]<0){ myerror("Negative beta\n"); mh_exit(-1);}
+  for (i=0; i<m; i++) t += log(Beta[i]);
+  ef += (a+b-c)*t;
+
+  t = 0;
+  for (i=0; i<m; i++) t += log(Beta[i]+X0g);
+  ef += -b*t;
+
+  ef += (c-a)*(2*a-1)*log(X0g);
+
+  ef += lgammam(b,m)-lgammam(a+b-c,m);
+  ef += lgammam(a,m)-lgammam(c,m);
+  return(ef);  
+}
