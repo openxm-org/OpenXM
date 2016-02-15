@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.11 2016/02/13 22:56:50 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.12 2016/02/14 00:21:50 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -42,7 +42,7 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
   \item{mode}{
     When mode=c(1,0,0), it returns the evaluation 
     of the matrix hypergeometric series and its derivatives at q0.
-    When mode=c(1,1,(m^2+1)*p), intermediate values of P(L1 < x) with respect to
+    When mode=c(1,1,(2^m+1)*p), intermediate values of P(L1 < x) with respect to
     p-steps of x are also returned.  Sampling interval is controled by dp.
     When autoplot=1, it is automatically set.
   }
@@ -53,8 +53,9 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
   }
   \item{err}{
     When err=c(e1,e2), e1 is the absolute error and e2 is the relative error.
-    As long as NaN is not returned, it is recommended to set to
-    err=c(0.0, 1e-10), because initial values are usually very small. 
+    This parameter controls the adative Runge-Kutta method.
+    If the output is absurd, you may get a correct answer by setting,  e.g.,
+    err=c(1e-(xy+5), 1e-10) when initial value at q0 is very small as 1e-xy. 
   }  
   \item{automatic}{
     automatic=1 is the default value.

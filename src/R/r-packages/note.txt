@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.4 2015/04/02 00:11:32 takayama Exp $
+$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.5 2015/04/05 23:47:46 takayama Exp $
 
 See also OpenXM/src/hgm/note.txt
 
@@ -79,4 +79,13 @@ As to details, search "valgrind" in R-exts.pdf
 * R CMD check hgm --use-gct
 
 * Note on building R package: @s/2015/04/05-hgm-r-package-memo.txt
+
+;;
+2016.02.15  testdata.
+c<-hgm.p2wishart(m=4,n1=50,n2=100,beta=c(1,2,4,8),q0=0.5,q=30,autoplot=1);
+  output is wrong.
+c<-hgm.p2wishart(m=4,n1=50,n2=100,beta=c(1,2,4,8),q0=0.5,q=30,err=c(1e-30,1e-10),mode=c(1,1,0))
+  output is correct.
+c<-hgm.p2wishart(m=4,n1=50,n2=100,beta=c(1,2,4,8),q0=0.5,q=30,err=c(1e-30,1e-10),autoplot=1)
+  crashed, but by commented out todo in mh.c, it works. See @s/2016/02
 

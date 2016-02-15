@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.16 2016/02/13 05:55:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.17 2016/02/13 06:47:50 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "sfile.h"
@@ -100,7 +100,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   mh_outstr((char *)(cw->aux),(sfp->len)+1,sfp);
   /* todo, the following line seems to cause seg fault. */
   /* deallocate the memory */
-  for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
+  //for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
   /* todo, mh_free_??(rp);  free Iv's */
   if (!modep[1]) return(cw);
 
@@ -250,7 +250,7 @@ struct cWishart *mh_pFq_gen(int m,
   mh_outstr((char *)(cw->aux),(sfp->len)+1,sfp);
   /* todo, the following line seems to cause seg fault. */
   /* deallocate the memory */
-  for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
+  //for (i=0; i<rp->size; i++) mh_fclose((rp->sfpp)[i]);
   /* todo, mh_free_??(rp);  free Iv's */
   if (!modep[1]) return(cw);
 
