@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.12 2016/02/14 00:21:50 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.13 2016/02/15 07:42:07 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -55,7 +55,7 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
     When err=c(e1,e2), e1 is the absolute error and e2 is the relative error.
     This parameter controls the adative Runge-Kutta method.
     If the output is absurd, you may get a correct answer by setting,  e.g.,
-    err=c(1e-(xy+5), 1e-10) when initial value at q0 is very small as 1e-xy. 
+    err=c(1e-(xy+5), 1e-10) or by increasing q0 when initial value at q0 is very small as 1e-xy. 
   }  
   \item{automatic}{
     automatic=1 is the default value.
@@ -76,8 +76,15 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
   }  
   \item{autoplot}{
     autoplot=0 is the default value.
-    If it is 1, then it outputs an input for plot.
+    If it is 1, then this function outputs an input for plot
+    (which is equivalent to setting the 3rd argument of the mode parameter properly).
     When ans is the output, ans[1,] is c(q,prob at q,...), ans[2,] is c(q0,prob at q0,...), and ans[3,] is c(q0+q/100,prob at q/100,...), ...
+    When the adaptive Runge-Kutta method is used, the step size h may change
+    automatically,
+    which  makes the sampling period change, in other words, the sampling points 
+   q0+q/100, q0+2*q/100, q0+3*q/100, ... may  change. 
+   In this case, the output matrix may contain zero rows in the tail or overfull. 
+   In case of the overful, use the mode option to get the all result.
   }  
 }
 \details{

@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.30 2016/02/13 05:55:09 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.31 2016/02/13 22:56:50 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -179,7 +179,7 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
   if (MH_strategy) {
     if (MH_abserr > SIGDIGIT_DEFAULT*myabs(y0[0])) {
       MH_success = 0;
-      oxprintfe("%%%%Warning, abserr seems not to be small enough, abserr=%lg, y[0]=%lg. Increasing the starting point (q0 or X0g(standalone case)) may help.\n",MH_abserr,y0[0]);
+      oxprintfe("%%%%Warning, abserr seems not to be small enough, abserr=%lg, y[0]=%lg. Increasing the starting point (q0 or X0g(standalone case)) may or making abserr (err[1] or abserror(standalone case))  smaller will help.\n",MH_abserr,y0[0]);
     }else{
       MH_success = 1;
     }
