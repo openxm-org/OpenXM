@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.13 2016/02/15 07:42:07 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.14 2016/02/16 02:17:00 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -33,7 +33,8 @@ hgm.pwishart(m,n,beta,q0,approxdeg,h,dp,q,mode,method,
   }
   \item{dp}{
     Sampling interval of solutions by the Runge-Kutta method.
-    When autoplot=1, it is automatically set.
+    When autoplot=1 or dp is negative, it is automatically set.
+    if it is 0, no sample is stored.
   }
   \item{q}{
     The second value y[0] of this function is the Prob(L1 < q)

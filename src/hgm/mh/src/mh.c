@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.17 2016/02/13 06:47:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh.c,v 1.18 2016/02/15 07:42:07 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include "sfile.h"
@@ -64,7 +64,6 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
   mh_fputs("%%Hg=\n",fp); 
   sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
-  if (dp < 1) {oxprintfe("dp<1, set to 1\n"); dp=1;}
   mh_fputs("%%Dp=\n",fp); 
   sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
   if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}
@@ -213,7 +212,6 @@ struct cWishart *mh_pFq_gen(int m,
   if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
   mh_fputs("%Hg=\n",fp); 
   sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
-  if (dp < 1) {oxprintfe("dp<1, set to 1\n"); dp=1;}
   mh_fputs("%Dp=\n",fp); 
   sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
   if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}

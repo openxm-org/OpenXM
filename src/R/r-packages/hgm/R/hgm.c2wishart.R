@@ -1,6 +1,6 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.2 2016/02/13 07:12:52 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.3 2016/02/13 22:56:50 takayama Exp $
 "hgm.tk.p2wishart" <-
-function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=20,q=4,
+function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=-1,q=4,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
          automatic=1,assigned_series_error=0.00001,verbose=0,autoplot=0) { 
   x<-q; x0<-q0;
