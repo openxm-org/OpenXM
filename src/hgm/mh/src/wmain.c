@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.31 2016/02/13 22:56:50 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.32 2016/02/16 02:17:00 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -242,7 +242,7 @@ static int setParamDefault() {
   Ef = 0.01034957388338225707;
   MH_X0g = 0.3;
   MH_Hg = 0.001;
-  MH_Dp = 1;
+  MH_Dp = 1000;
   Xng = 10.0; return(0);
 }
 #ifdef STANDALONE
@@ -316,7 +316,7 @@ static int setParam(char *fname) {
   Ef=1.0;    /* exponential factor */
   MH_Ef_type=1;
   MH_Hg=0.01;   /* step size for RK */
-  MH_Dp = 1;   /* sampling rate */
+  MH_Dp = -1;   /* sampling rate */
   Xng = 10.0; /* terminal point for RK */
 
   /* Parser for the old style (version <2.0) input */
@@ -595,6 +595,7 @@ static int setParam(char *fname) {
   if ((MH_M < 0) || (MH_A_pFq==NULL)) {
 	oxprintfe("MH_M and p_pFq, q_pFq are compulsory parameters.\n"); mh_exit(-1);
   }
+  if (MH_Dp < 0) MH_Dp = (int) floor(1/MH_Hg);
 
   mh_fclose(fp); return(0);
 }

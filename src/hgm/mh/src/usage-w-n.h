@@ -43,6 +43,7 @@ oxprintfe("        Ef must be set properly.\n");
 oxprintfe("\n");
 oxprintfe("  Hg: h (step size) for hgm_w-n.\n");
 oxprintfe("  Dp: output data is stored in every Dp steps when output_data_file is specified. \n");
+oxprintfe("      If it is 0, output data is not stored. If it is negative, Dp is automatically set to floor(1/Hg). Note that small Dp value makes the program slow. \n");
 oxprintfe("  Xng: terminating value of x for hgm_w-n.\n");
 oxprintfe("\n");
 oxprintfe("\"--95: output the 95%%%% point. --verbose: verbose mode.\n");

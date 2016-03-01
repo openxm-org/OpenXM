@@ -1,4 +1,4 @@
-$OpenXM$
+$OpenXM: OpenXM/src/hgm/mh/src/usage-w-n.txt,v 1.1 2016/02/13 02:19:00 takayama Exp $
 
 hgm_w-n
      [--idata input_data_file] [--gnuplotf gnuplot_file_name]
@@ -43,6 +43,7 @@ The value of a parameter xyz is specified by %xyz=value
 
   Hg: h (step size) for hgm_w-n.
   Dp: output data is stored in every Dp steps when output_data_file is specified. 
+      If it is 0, output data is not stored. If it is negative, Dp is automatically set to floor(1/Hg). Note that small Dp value makes the program slow. 
   Xng: terminating value of x for hgm_w-n.
 
 "--95: output the 95%% point. --verbose: verbose mode.

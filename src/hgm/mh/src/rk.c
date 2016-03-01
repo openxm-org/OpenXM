@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.14 2016/02/02 03:00:08 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.15 2016/02/13 02:18:59 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,6 +111,7 @@ static void show_v(double x,double *v, int n)
   extern int MH_Dp;
   char swork[MH_SSIZE];
 
+  if (MH_Dp <= 0) return;
   if ((counter % MH_Dp) != 0) { counter++; return;} else counter=1;
   sprintf(swork,"%lf\n",x); mh_fputs(swork,Df);
   for (i = 0; i < n; i++) {sprintf(swork," %le\n", v[i]); mh_fputs(swork,Df);}
