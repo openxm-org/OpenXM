@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.32 2016/02/16 02:17:00 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.33 2016/03/01 07:13:30 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -596,6 +596,9 @@ static int setParam(char *fname) {
 	oxprintfe("MH_M and p_pFq, q_pFq are compulsory parameters.\n"); mh_exit(-1);
   }
   if (MH_Dp < 0) MH_Dp = (int) floor(1/MH_Hg);
+  if (MH_P95 && (MH_Dp*MH_Hg < 2.0)) {
+	oxprintfe("%%%%Warning, the resolution to find 95 percent point is less than 2.0. Decrease Dp\n");
+  }
 
   mh_fclose(fp); return(0);
 }

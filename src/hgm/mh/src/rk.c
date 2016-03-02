@@ -1,7 +1,7 @@
 /*
   License: LGPL
   Ref: Copied from this11/misc-2011/A1/wishart/Prog
-  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.15 2016/02/13 02:18:59 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/rk.c,v 1.16 2016/03/01 07:13:30 takayama Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -205,7 +205,7 @@ if (MH_strategy == 0) {
   {
     extern int MH_Dp;
     double dh;
-    double mh_dp_orig;
+    /* double mh_dp_orig; */
     double x1;
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rkf45;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, MH_RANK); 
@@ -225,7 +225,7 @@ if (MH_strategy == 0) {
     if (x0 >= xn) {oxprintfe("Error: x0 < x must hold.\n"); mh_exit(-30);}
     x = x0;
     if (MH_Dp > 0) dh = MH_Dp*h; else dh=xn-x0;
-    mh_dp_orig = MH_Dp; MH_Dp=1;
+    /* mh_dp_orig = MH_Dp; MH_Dp=1; */
     while (x < xn)  {
       if (Df) show_v(x,y, MH_RANK);
       if (Gf) {
@@ -254,7 +254,7 @@ if (MH_strategy == 0) {
     gsl_odeiv_evolve_free(e);
     gsl_odeiv_control_free(c);
     gsl_odeiv_step_free(s);
-    MH_Dp=mh_dp_orig;
+    /* MH_Dp=mh_dp_orig; */
   }
 
   if (MH_Verbose) oxprintf("x=%lf, y[0]=%lg\n",x,y[0]);
