@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.45 2016/02/13 22:56:50 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.46 2016/02/15 06:02:39 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -2123,7 +2123,7 @@ static int showParam_v1(struct SFILE *fp,int fd) {
   sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
   sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
   sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
-  sprintf(swork,"#abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  sprintf(swork,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
   if (M_recommended_relerr < MH_RELERR_DEFAULT) {
     sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
   }
