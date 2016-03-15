@@ -1,0 +1,74 @@
+/* $OpenXM$ */
+def euclid(X,Y){
+    A = 0;
+    B = 1;
+    OA = 1;
+    OB = 0;
+
+    while(Y!=0){
+	Q = idiv(X,Y);
+	T = X;
+	X = Y;
+	Y = T % Y;
+	T = OA;
+	OA = A;
+	A = T - A*Q;
+	T = OB;
+	OB = B;
+	B = T - B*Q;
+    }
+    return(OA);
+}
+
+def chinese(Data1,Data2){
+    N = euclid(Data1[1],Data2[1]);
+    Vect = Data1[0] + N*(Data2[0] - Data1[0])*Data1[1];
+    M = Data1[1]*Data2[1];
+    for(I=0;I<length(Vect);I++)  Vect[I] %= M;
+    return([Vect,M]);
+}
+
+def g_mat_fac_modp_itor(F,DF,Mat,DNMat,E,P){
+    L = length(F);
+    NewF = F;
+    NewDF = DF;
+
+    for(I=0;I<=E;I++){
+	NewDF = NewDF * subst(DNMat,a,I) % P;
+	NewF = subst(Mat,a,I)*NewF;
+	for(J=0;J<L;J++)  NewF[J] %= P;
+    }
+    Inv = inv(NewDF,P);
+    NewF = NewF*Inv;
+    for(J=0;J<L;J++){
+	NewF[J] %= P;
+	if(NewF[J] == 0)  return(0);
+    }
+    return([NewF,P]);
+}
+
+def itor(Y,Q,Q2,C){
+    Y = Y%Q;
+    if(Y < Q2)  return([Y,C]);
+
+    R1 = Q;
+    R2 = Y;
+    X1 = 0;
+    X2 = 1;
+    while(1){
+	if(R1 < Q2){
+	      if(X1 < Q2){
+	      	    return([R1/X1,C]);
+	      }else{
+	            return(["failure",C]);
+	      }
+	}
+	T = idiv(R1,R2);
+	R3 = R1 - T*R2;
+	X3 = X1 - T*X2;
+	R1 = R2;
+	R2 = R3;
+	X1 = X2;
+	X2 = X3;
+    }
+}

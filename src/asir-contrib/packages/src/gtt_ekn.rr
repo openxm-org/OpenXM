@@ -1,0 +1,166 @@
+/* $OpenXM$ */
+import("names.rr")$
+#define USE_MODULE
+//#define FOR_DEVELOPE
+load("gtt_ekn/g_mat_fac.rr")$
+load("gtt_ekn/ekn_eval.rr")$
+
+#ifdef USE_MODULE
+module gtt_ekn$
+localf get_svalue$
+localf gmvector$
+localf nc$
+localf lognc$
+localf expectation$
+localf setup$
+localf report$
+#else
+extern Ekn_plist$
+extern Ekn_IDL$
+#endif
+
+def get_svalue() {  // get values of static or extern variables.
+  return([Ekn_plist,Ekn_IDL,Ekn_debug,Ekn_mesg,XRule,ARule,Verbose,Ekn_Rq]);
+}
+
+// Gauss Manin vector
+def gmvector(Beta,Prob) {
+  return(ekn_cBasis_2(Beta,Prob));
+}
+
+// Normalizing constant and its derivatives
+def nc(Beta,Prob) {
+  R1=length(Beta[0]); 
+  R2=length(Beta[1]);
+  GM=gmvector(Beta,Prob);
+  NC=ltopoly(GM[0][0],Beta,Prob);
+  Fdiff=base_replace(basistoFdiff(GM,R1-1,R2-1|xrule=xRule_num(Prob,R1-1,R2-1)),marginaltoAlpha(Beta));
+  NCdiff=newmat(R1,R2);
+  for (I=0; I<R1; I++){
+    for (J=0; J<R2; J++){
+      NCdiff[I][J]=red(eulerZ([I,J],Beta,Prob,GM[0][0],Fdiff))/Prob[I][J];
+    }
+  }  
+  return([NC,NCdiff]);
+}
+
+// log of normalizing constant and its derivatives
+def lognc(Beta,Prob) {
+  R1=length(Beta[0]); 
+  R2=length(Beta[1]);
+  GM=gmvector(Beta,Prob);
+  NC=ltopoly(GM[0][0],Beta,Prob);
+  Fdiff=base_replace(basistoFdiff(GM,R1-1,R2-1|xrule=xRule_num(Prob,R1-1,R2-1)),marginaltoAlpha(Beta));
+  LNCdiff=newmat(R1,R2);
+  for (I=0; I<R1; I++){
+    for (J=0; J<R2; J++){
+      LNCdiff[I][J]=red(eulerZ([I,J],Beta,Prob,GM[0][0],Fdiff))/(Prob[I][J]*NC);
+    }
+  }  
+  return([eval(log(NC)),LNCdiff]);
+}
+
+// Expectation for the index 
+// expectation(Beta,Prob | index=[[0,0],[1,0]])
+def expectation(Beta,Prob) {
+  R1 = length(Beta[0]);
+  R2 = length(Beta[1]);
+  GM=gmvector(Beta,Prob);
+  Expect=cBasistoE(GM,Beta,Prob);
+  if (type(getopt(index)) >= 0) {
+    IndexList = getopt(index);
+    Ex=newmat(R1,R2);
+    for (I=0; I<R1; I++){
+      for (J=0; J<R2; J++){
+	if (IndexList[I][J]==0){Ex[I][J]='*';}
+	else{Ex[I][J]=Expect[I][J];}
+      }
+    }  
+  }else{
+    // Default IndexList
+    IndexList=newmat(R1,R2);
+    for (I=0; I<R1; I++) {
+      for (J=0; J<R2; J++) {
+	// IndexList[I*R2+J] = [I,J]; // ???
+	IndexList[I][J] = 1;
+      }
+    }
+    IndexList=matrix_matrix_to_list(IndexList);
+    Ex=Expect;
+  }
+  return(Ex);
+}
+
+// setup for a distributed computation
+def setup() {
+#ifdef USE_MODULE
+#else
+    extern Ekn_plist;
+    extern Ekn_IDL;
+#endif
+
+    if(getopt(report) != 1){
+        if(type(getopt(nps)) >= 0){
+    	    NPS = getopt(nps);
+    	}else if(type(getopt(number_of_processes)) >= 0){
+            NPS = getopt(number_of_processes);
+        }else NPS = 1; //default
+
+    	if(type(getopt(nprm)) >= 0){
+            NPRM = getopt(nprm);
+        }else if(type(getopt(number_of_primes)) >= 0){
+            NPRM = getopt(number_of_primes);
+        }else  NPRM = 10;  //default
+
+    	if(type(getopt(fgp)) >= 0){
+            FGP = getopt(fgp);
+    	}else if(type(getopt(file_of_generated_primes)) >= 0){
+            FGP = getopt(file_of_generated_primes);
+    	}else  FGP = 0;//default
+
+    	if(type(NPS) > 0){
+            if(type(NPS) == 1){
+	        if(type(Ekn_IDL) == 4)  shutdown(Ekn_IDL);
+	    	Ekn_IDL = process(NPS);
+	    }else  printf("Option nps is bad.\n");
+    	}
+
+    	if(type(NPRM) > 0){
+            if(type(NPRM) == 7){
+	        Ekn_plist = load_prime(NPRM);
+	    }else if(type(NPRM) == 1){
+	        if(type(getopt(minp)) == 1){
+	            Ekn_plist = generate_p_set(getopt(minp),NPRM);
+		    if(type(FGP)==7){
+		        save_prime(Ekn_plist,FGP);
+		        printf("File name %a is written.\n",FGP);
+		    }
+ 		    Ekn_plist = reverse(Ekn_plist);
+	        }else    printf("Option minp is bad.\n");
+	    }else{
+	        printf("Option nprm is bad.\n");
+	    }
+        }
+    }
+
+    if(type(Ekn_IDL)==4)    printf("Number of process = %a.\n",length(Ekn_IDL));
+    else    printf("List of child process is empty.\n");
+    
+    if(type(Ekn_plist)==4){
+        printf("Number of prime = %a.\n",length(Ekn_plist));
+	printf("Min of plist = %a.\n",Ekn_plist[0]);
+    }else    printf("List of prime is empty\n");
+    return;
+}
+
+def report(){
+    setup(|report=1);
+}
+
+#ifdef USE_MODULE
+endmodule$
+#else
+#endif
+
+
+end$

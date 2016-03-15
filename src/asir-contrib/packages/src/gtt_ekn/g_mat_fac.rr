@@ -1,0 +1,311 @@
+/* $OpenXM$ */
+#define USEMODULE
+#ifdef USEMODULE
+module gtt_ekn$
+localf process$
+localf setup_x$
+localf shutdown$
+localf generate_p_set$
+localf generate_p_set_$
+localf save_prime$
+localf load_prime$
+localf preparation_F$
+localf mlcm$
+localf dnlcm$
+localf preparation_Mat$
+localf preparation$
+localf nextP_itor$
+localf rm_list$
+localf nextData_itor$
+localf chinese_itor$
+localf modp_itor$
+localf do_itor$
+localf g_mat_fac_itor$
+localf g_mat_fac_int$
+#endif
+
+def process(N){
+    Ret = newvect(N);
+    for(I=0;I<N;I++){
+       Ret[I] = ox_launch_nox();
+       ox_rpc(Ret[I],"load","gtt_ekn/childprocess.rr");
+    }
+    Ret = vtol(Ret);
+    return(Ret);
+}
+
+/*for debug*/
+def setup_x(N){
+    Ret = newvect(N);
+    for(I=0;I<N;I++){
+       Ret[I] = ox_launch();
+       ox_rpc(Ret[I],"load","gtt_ekn/childprocess.rr");
+    }
+    Ret = vtol(Ret);
+    return(Ret);
+}
+
+def shutdown(List){
+    L = length(List);
+    for(I=0;I<L;I++)  ox_shutdown(List[I]);
+}
+
+def generate_p_set(MIN,N){
+	Ret = [];
+	P = MIN;
+	for(I=0;I<N;I++){
+	    P = pari(nextprime,P+1);
+	    Ret = cons(P,Ret);
+	}
+	return(Ret);
+}
+
+def generate_p_set_(MIN,MAX){
+	Ret = [];
+	P = MIN;
+	for(I=0;P<MAX;I++){
+	    P = pari(nextprime,P+1);
+	    Ret = cons(P,Ret);
+	}
+	print("generate "+rtostr(I)+" primes.");
+	return(Ret);
+}
+
+def save_prime(P,FileName){
+	output(FileName);
+	L = length(P);
+	for(I=0;I<L;I++)  print(P[I]);
+	output();
+}
+
+def load_prime(FileName){
+	F = access(FileName);
+	if(F == 1){
+	    F = open_file(FileName);
+	    Ret = [];
+	    while((T = get_line(F)) != 0){
+	        T = eval_str(T);
+	        Ret = cons(T,Ret);
+	    }
+	    close_file(F);
+	    return(Ret);
+	}else{
+	    print(FileName + " is not exist.");
+	    return(-1);
+	}
+}
+
+def preparation_F(F){
+    L = length(F);
+    DF = dn(F[0]);
+
+    for(I=1;I<L;I++)  DF = ilcm(DF,dn(F[I]));
+
+    NF = F*DF;
+    return([NF,DF]);
+}
+
+def mlcm(F,G){
+    GCD = gcd(F,G);
+    return(red(F*G/GCD));
+}
+
+def dnlcm(F){
+    Ret = 1;
+    Deg = deg(F,a);
+    for(I=Deg;I>=0;I--){
+	C = coef(F,I,a);
+	if(C != 0)  Ret = ilcm(Ret,dn(C));
+    }
+    return(Ret);
+}
+
+def preparation_Mat(Mat){
+    Size = size(Mat);
+    Row = Size[1];
+    Col = Size[0];
+    DMat = 1;
+
+    for(I=0;I<Col;I++){
+	for(J=0;J<Row;J++)   DMat = mlcm(DMat,dn(Mat[I][J]));
+    }
+    NMat = Mat*DMat;
+    for(I=0;I<Col;I++){
+	for(J=0;J<Row;J++)   NMat[I][J] = red(NMat[I][J]);
+    }
+
+    D2 = 1;
+    for(I=0;I<Col;I++){
+	for(J=0;J<Row;J++)  D2 = ilcm(D2,dnlcm(NMat[I][J]));
+    }
+    D2 *= dnlcm(DMat);
+    NMat *= D2;
+    DMat *= D2;
+
+    return([NMat,DMat]);
+}
+
+def preparation(F,Mat,S,E,Inc,Var){
+    NewMat = subst(Mat,Var,S+Inc*a);
+    NewF = preparation_F(F);
+    NewMat = preparation_Mat(NewMat);
+    E = (E-S)/Inc;
+    return([NewF[0],NewF[1],NewMat[0],NewMat[1],E]);
+}
+
+def nextP_itor(ID,F,DF,Mat,DNMat,P,E){
+    ox_rpc(ID,"g_mat_fac_modp_itor",F,DF,Mat,DNMat,E,car(P));
+    ox_push_cmd(ID,258);
+    return(cdr(P));
+}
+
+def rm_list(List,N){
+    Ret = [];
+    while(List != []){
+    	 T = car(List);
+	 if(T != N)  Ret = cons(T,Ret);
+	 List = cdr(List);
+    }
+    return(Ret);
+}
+
+def nextData_itor(Data,ID){
+    ox_rpc(ID,"chinese",Data[0],Data[1]);
+    ox_push_cmd(ID,258);
+    return(cdr(cdr(Data)));
+}
+
+def chinese_itor(Data,IDList){
+    List = [];
+    Ret =[];
+    L = length(IDList);
+
+    if(length(Data) == 1) return(Data[0]);
+    for(I=0;I<L&&length(Data)>1;I++){
+	Data = nextData_itor(Data,IDList[I]);
+	List = cons(IDList[I],List);
+    }
+
+    LD = length(Data);
+    LR = 0;
+    while(List != []){
+    	E = ox_select(List);
+	while(E != []){
+	    Ret = cons(ox_get(car(E)),Ret);
+	    LR++;
+	    if(LD+LR > 1){
+	        if(LD <= 1){
+		    if(LD == 1)  Ret = cons(car(Data),Ret);
+		    Data = Ret;
+		    Ret = [];
+		    LD = length(Data);
+		    LR = 0;
+		}
+	        Data = nextData_itor(Data,car(E));
+		LD -= 2;
+	    }else{
+	        List = rm_list(List,car(E));
+	    }
+	    E = cdr(E);
+	}
+    }
+    return(Ret[0]);
+}
+
+
+def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
+    List = [];
+    Data = [];
+    for(I=0;I<length(IDList) && P!=[];I++){
+	P = nextP_itor(IDList[I],F,DF,Mat,DNMat,P,E);
+	List = cons(IDList[I],List);
+    }
+
+    while(List != []){
+    	 EList = ox_select(List);
+	 while(EList != []){
+	      ID = car(EList);
+	      T = ox_get(ID);
+	      if(T != 0)  Data = cons(T,Data);
+	      if(P != []){
+	          P = nextP_itor(ID,F,DF,Mat,DNMat,P,E);
+	      }else{
+	          List = rm_list(List,ID);
+	      }
+	      EList = cdr(EList);
+	 }
+    }
+    return(Data);
+}
+
+def do_itor(Data,L,IDList){
+    Ret = newvect(L);
+    Q = Data[1];
+    Q2 = eval((Q/2)^(1/2));
+    Ys = Data[0];
+    List = [];
+
+    for(C=0,I=0;C<L && I<length(IDList);C++,I++){
+    	ox_rpc(IDList[I],"itor",Ys[C],Q,Q2,C);
+	ox_push_cmd(IDList[I],258);
+	List = cons(IDList[I],List);
+    }
+
+    while(List != []){
+    	E = ox_select(List);
+	while(E != []){
+	    T = ox_get(car(E));
+	    Ret[T[1]] = T[0];
+	    if(C < L){
+	        ox_rpc(car(E),"itor",Ys[C],Q,Q2,C);
+		C++;
+		ox_push_cmd(car(E),258);
+	    }else{
+	        List = rm_list(List,car(E));
+	    }
+	    E = cdr(E);
+	}
+    }
+    return(Ret);
+}
+
+def g_mat_fac_itor(F,Mat,S,E,Inc,Var,P,IDList){
+    TMP = preparation(F,Mat,S,E,Inc,Var);
+    E = TMP[4];
+    DNMat = TMP[3];
+    NMMat = TMP[2];
+    DNF = TMP[1];
+    NMF = TMP[0];
+
+    Data = modp_itor(NMF,DNF,NMMat,DNMat,E,P,IDList);
+    Data = chinese_itor(Data,IDList);
+
+    L = length(F);
+    Ret = do_itor(Data,L,IDList);
+    for(I=0;I<L;I++){
+        if(F[I] == "failure")  printf("Use bigger number of primes or bigger prime\n");
+    }
+
+    return(Ret);
+}
+
+def g_mat_fac_int(F,Mat,S,E,Inc,Var){
+    TMP = preparation(F,Mat,S,E,Inc,Var);
+    DNMat = TMP[3];
+    NMMat = TMP[2];
+    DNF = TMP[1];
+    NMF = TMP[0];
+    E = TMP[4];
+
+    for(I=0;I<=E;I++){
+        NMF = subst(NMMat,a,I)*NMF;
+        DNF *= subst(DNMat,a,I);
+    }
+    return(NMF/DNF); 
+}
+
+#ifdef USEMODULE
+endmodule$
+#endif
+
+end$

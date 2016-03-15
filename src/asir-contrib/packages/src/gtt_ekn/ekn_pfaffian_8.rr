@@ -1,0 +1,2090 @@
+/* $OpenXM$ */
+/* memo
+load("ekn_pfaffian_8.rr");
+ */
+import("names.rr")$
+#define USE_MODULE
+
+#ifdef USE_MODULE
+module gtt_ekn;
+static XRule$
+XRule = 0$
+static ARule$
+ARule = 0$
+static Verbose$
+Verbose=1$
+static Ekn_Rq$
+#else
+/* ************************************************* */
+/* global variables */
+extern XRule;
+XRule = 0$
+extern ARule;
+ARule = 0$
+/*
+To substitute numbers for alpha's and x's, 
+Rule = [[xij(1,1),],[xij(1,2),],...,[xij(K,N),] ]$
+ */
+/* ************************************************  */
+/*  by Takayama  */
+extern Verbose$
+Verbose=1$
+extern Ekn_Rq$
+#endif
+
+#ifdef USE_MODULE
+localf xij$
+localf xmat$
+localf txmat$
+localf tt$
+localf tvec$
+localf lvec$
+localf calJ$
+localf xJ$
+localf isConst$
+localf calJ0_slow$
+localf calJ0$
+localf ell$
+localf ellAll$
+localf jj$
+localf ti$
+localf ellRule$
+localf phiJ$
+localf alpha$
+localf alphaRule$
+localf nablaij$
+localf ijphiJ$
+localf calJqp$
+localf mat_red$
+localf xij_rule$
+localf xJ_rule$
+localf sortSgn$
+localf pm$
+localf cInts$
+localf cInt$
+localf mBasis$
+localf mBasisList$
+localf intMatrixH$
+localf mBasis_replace$
+localf intMatrix$
+localf alphaProd$
+localf hpq$
+localf append_comp_v$
+localf antiDiag$
+localf invintMatrix_n$
+localf invintMatrix_k$
+localf phitov$
+localf pfaffianMJ$
+localf dxij$
+localf dlogxJ$
+localf pfaffianPsi$
+localf pfaffianPsi_time$
+localf pfaffianPsi_time2$
+localf pfaffianPsi_2$
+localf coefPsi$
+localf pfaffianCoef$
+localf repMatrix$
+localf invrepMatrix$
+localf coef_upAlpha$
+localf upAlpha$
+localf downAlpha$
+localf pfaffian_basis$
+localf contiguity_mat_list_1$
+localf contiguity_mat_list_2$
+localf basistoFdiff$
+localf basistoS1$
+localf marginaltoAlpha$
+localf marginaltoAlpha_list$
+localf alphaRule_num$
+localf xRule_num$
+localf initialAlpha$
+localf initialBeta$
+localf initialAlpha_1$
+localf initialBeta_1$
+localf moveAlpha$
+localf moveAlpha_n$
+localf ltop$
+localf ltopoly$
+localf max$
+localf factorial$
+localf factorial_prod$
+localf pochhammer$
+localf shift$
+localf shift_m$
+localf initialPoly_table$
+localf initialPoly$
+localf basistoHessian$
+localf basistodS$
+localf eulerxij$
+localf prime_XRule$
+localf prime_prob$
+localf s36$
+localf m_alpha$
+localf check_relation$
+#endif
+/*
+(K,N) --> E(K+1, K+N+2)
+example: (1,2) --> E(2,5) = F_1,   (2,2) --> E(3,6)
+*/
+
+
+def xij(I,J) { return(util_v(x,[I,J])); }
+  
+def xmat(K,N) {
+  X = newmat(K,N);
+  for (I=0; I<K; I++) {
+    for (J=0; J<N; J++) {
+      X[I][J] = xij(I+1,J+1);
+    }
+  }
+  return(X);
+}
+/* tilde x */
+def txmat(K,N) {
+  X = newmat(K+1,K+N+2);
+  for (I=0; I<=K; I++) X[I][I] = 1;
+  for (J=K+1;  J<K+N+2; J++) X[0][J] = 1;
+  for (I=0; I<=K; I++) X[I][K+N+1] = 1;
+  for (I=1; I<=K; I++) {
+    for (J=1; J<=N; J++) {
+      X[I][K+J] = xij(I,J);
+    }
+  }
+  return(X);
+}
+def tt(I) { return(util_v(t,[I]));}
+def tvec(K) {
+  T = newvect(K+1);
+  for (I=0; I<=K; I++) T[I] =tt(I);
+  return(T);
+}
+
+/* 2015.02.03 20:30 */
+def lvec(K,N) {
+  return(vtol(tvec(K)*txmat(K,N)));
+}
+
+def calJ(K,N) {
+  All = newvect(K+N+2);
+  for (I=0; I<K+N+2; I++) All[I] = I;
+  All = vtol(All);
+  return(base_subsets_of_size(K+1,All));
+}
+
+def xJ(JJ,N) {
+  K=length(JJ)-1;
+  Xmat = txmat(K,N);
+  XJ = newmat(K+1,K+1);
+  for (I=0; I<=K; I++) {
+    for (J=0; J<=K; J++) {
+      XJ[I][J] = Xmat[I][JJ[J]];
+    }
+  }
+  return(XJ);
+}
+
+/* 2015.02.06 14:14 */
+def isConst(F,V) {
+  for (I=0; I<length(V); I++) {
+    if (diff(F,V[I]) !=0) return(0);
+  }
+  return(1);
+}
+def calJ0_slow(K,N) {
+  J0 = [];
+  CalJ = calJ(K,N);
+  X = base_flatten(xmat(K,N));
+  for (I=0; I<length(CalJ); I++) {
+    if (isConst(matrix_det(xJ(CalJ[I],N)),X)) {
+    }else J0=cons(CalJ[I],J0);
+  }
+  return(J0);
+}
+def calJ0(K,N) { return(calJ0_slow(K,N)); }
+
+/* L_i */
+def ell(I) {  return(util_v(ell,[I])); }
+def ellAll(K,N) {
+  L=newvect(K+N+2);
+  for (I=0; I<K+N+2; I++) L[I] = ell(I);
+  return(vtol(L));
+}
+
+def jj(Exclude,JJ,Include) {
+  JJ = matrix_list_to_matrix(JJ);
+  JJ[Exclude] = Include;
+  return(vtol(JJ));
+}
+/*
+  ti(3,[0,2],2);
+  t_i by lemma 2.2
+ */
+def ti(II,JJ,N) {
+  KK = length(JJ)-1;
+  R0=0;  /* L_i is not written in terms of t and x */
+  for (P=0; P<=KK; P++) {
+    R0 += matrix_det(xJ(jj(P,JJ,II),N))*ell(JJ[P]);
+  }  
+  return([R0, matrix_det(xJ(JJ,N))]);
+}
+
+
+/*
+  phiJ([2,4],2);
+  phiJ([2,3],2);
+  Rule=assoc(ellAll(1,2),lvec(1,2)); or ellRule(1,2);   1,2 --> F_1, 2,2->E(3,6)
+ */
+def ellRule(K,N) { return(assoc(ellAll(K,N),lvec(K,N))); }
+def phiJ(JJ,N) {
+  K=length(JJ)-1;
+  L=1;
+  for (P=0; P<=K; P++) L *= ell(JJ[P]);
+  return(matrix_det(xJ(JJ,N))/L);
+}
+
+def alpha(I) { return(util_v(a,[I])); }
+
+def alphaRule(K,N) {
+  A = 0;
+  for (I=0; I<K+N+1; I++) { A += alpha(I); }
+  Rule=[[alpha(K+N+1),-A]];
+  return(Rule);
+}
+
+/*
+  F=phiJ([0,1],2);
+  nablaij(i,j,F,1);  i=1,j=1,2  cf.  xmat(1,2);
+ */
+def nablaij(II,JJ,F,KK) {
+  R = diff(F,xij(II,JJ))+alpha(KK+JJ )*tt(II)*F/ell(JJ+KK);
+  return(red(R));
+}
+/*
+  E(3,6)
+  F=base_replace(phiJ([0,1,2],2),ellRule(2,2));
+  F=base_replace(F,[[tt(0),1]]);
+  nablaij(1,1,F,2);
+  nablaij(1,2,F,2);
+  nablaij(2,1,F,2);
+  nablaij(2,2,F,2);
+ */
+
+/* 2015.02.07 */
+def ijphiJ(I,J,JJ,K,N) {
+  R = 0; Rq=0;
+  if (length(JJ) != K+1) {
+      printf("Warning: t_0 = ell_0 seems to be assumed. Adding 0 to JJ automatically.\n");
+      JJ = cons(0,JJ);
+      if (length(JJ) != K+1) {
+	debug("size of JJ is wrong.");
+      }
+  }
+  if ((I < 1) || (I >K))  error("I is out of the assumption.");
+  if ((J < 0) || (J >N)) error("J is out of the assumption.");
+  if (base_memberq(J+K,JJ)) error("J+K is in JJ.");
+  for (P=0; P<=K; P++) {
+    Jn = newvect(K+1); Jd=newvect(K+1);
+    for (S=0; S<=K; S++) {
+      Jn[S] = JJ[S]; Jd[S] = JJ[S];
+      if (S==P)  {
+	Jn[S] = I;  Jd[S] = K+J;
+      }
+    }
+    Jn = vtol(Jn); Jd = vtol(Jd);
+    Sm=red((matrix_det(xJ(Jn,N))/matrix_det(xJ(Jd,N))) * phiJ(Jd,N));
+    R += Sm;
+    Rq = Rq + eval_str("quote("+rtostr(Sm)+")");
+  }
+  Ekn_Rq=Rq;
+  return( red(alpha(K+J)*R) );
+}
+
+/* 2015.02.08 */
+/* q J p,  q \not\in J,  p \in J */
+def calJqp(Q,P,K,N) {
+  Jold = calJ(K,N);
+  Jnew=[];
+  for (I=0; I<length(Jold); I++) {
+    if ((base_memberq(P,Jold[I])) && (!base_memberq(Q,Jold[I]))) {
+      Jnew = cons(Jold[I],Jnew);
+    } 
+  }
+  return(reverse(Jnew));
+}
+
+
+
+/* ************************************************  */
+/* by Goto */
+
+/*
+reduce the all entry of a  given matrix
+*/
+def mat_red(A){
+  Size=size(A);
+  for (I=0; I<Size[0]; I++){
+    for(J=0; J<Size[1]; J++)
+      A[I][J]=red(A[I][J]);
+  }
+}
+
+/*  
+    new version of xij
+    for base_replace(*,XRule)
+ */
+def xij_rule(I,J) { 
+  XIJ=util_v(x,[I,J]); 
+  if(XRule != 0){ XIJ=base_replace(XIJ,XRule); }
+  return(XIJ);
+}
+/* test
+   XRule=0$ xij_rule(2,2);
+   XRule=[[x_2_2,5]]$ xij_rule(2,2);
+ */
+
+/*  
+    new version of xJ
+    for base_replace(*,XRule)
+ */
+def xJ_rule(JJ,N){
+  XJ = xJ(JJ,N);
+  if(XRule != 0){ XJ=base_replace(XJ,XRule); }
+  return(XJ);
+}
+
+
+
+/*
+As=[vect[sign, checker], [j0, j1, ..., jk]]
+checker = 1 => [j0, ... jk] has been sorted 
+*/
+def sortSgn(As){
+  if (As[0][1] == 0){
+    Size = size(As[1])[0];
+    for (J=Size-1; J>0; J--){
+      for (I=0; I<J; I++){
+	if (As[1][I] == As[1][I+1]){
+	  As[0][0] = 0;
+	  break;
+	}else{
+	  if (As[1][I] > As[1][I+1]){
+	    Tmp = As[1][I+1];
+	    As[1][I+1] = As[1][I];
+	    As[1][I]=Tmp;
+	    As[0][0] *= -1;
+	  }
+	}
+      }
+      if (As[0][0] == 0) break; 
+    }
+    As[0][1] = 1;
+  }
+}
+/* test
+A=newvect(3,[0,1,4]);
+As=newvect(2,[newvect(2,[1,0]),A]);
+sortSgn(As);
+print(As);
+B=newvect(3,[1,3,4]);
+Bs=newvect(2,[newvect(2,[1,0]),B]);
+sortSgn(Bs);
+print(Bs);
+*/
+
+
+/*
+As=[[sign, checker],A]
+#A != #B => error
+#A = #B =N
+A =B (as sets) => return [2,A(sorted)]
+#(A cap B)=N-1 => return [1 or -1, A cap B]
+#(A cap B)<N-1 => return [0, empty]
+return = [number , C] : C is a list. 
+*/
+def pm(As,Bs){
+  N=length(As[1]);
+  C=[];
+  if (N == length(Bs[1])){
+    sortSgn(As);
+    sortSgn(Bs);
+    for (I = N-1; I >= 0; I--){
+      J=N-1;
+      while ( (J>=0) && (As[1][I] <= Bs[1][J]) ){
+	if (As[1][I] == Bs[1][J]) {C = cons(As[1][I], C); }
+	J--; 
+      }
+    }
+    if (length(C)==N-1){ 
+      S=As[0][0]*Bs[0][0];
+      for (I=0; I<N-1; I++){
+	if (As[1][I] != C[I]) break; 
+	S*= -1;
+      }
+      for (I=0; I<N-1; I++){
+	if (Bs[1][I] != C[I]) break; 
+	S*= -1;
+      }
+    }else {
+      if (length(C)==N){ S=2; }
+      else{ S=0; } 
+    }
+  }else{
+    error("The sizes of vectors are different.");
+  }
+  return([S,C]);
+}
+/* test
+A=ltov([0,1,5,3]);
+As=ltov([ltov([1,0]),A]);
+B=ltov([1,4,0,3]);
+Bs=ltov([ltov([1,0]),B]);
+pm(As,Bs);
+*/
+
+
+/*
+intersection numbers for type [[sign, checker],A]
+*/
+def cInts(As,Bs){
+  Cs=pm(As,Bs);
+  if (Cs[0]==0){return(0); } 
+  else if (Cs[0]==2){
+    In=0; Id=1;
+    N=length(Cs[1]);
+    for (J=0; J<N; J++){
+      In+=alpha(Cs[1][J]);
+      Id*=alpha(Cs[1][J]);
+    }
+    return(As[0][0]*Bs[0][0]*In/Id);
+  }else{
+    Id=1;
+    N=length(Cs[1]);
+    for (J=0; J<N; J++){
+      Id*=alpha(Cs[1][J]);
+    }
+    return(Cs[0]/Id);
+  }
+}
+/* test
+A=ltov([0,1,5]);
+As=ltov([ltov([1,0]),A]);
+B=ltov([0,3,1]);
+Bs=ltov([ltov([1,0]),B]);
+cInts(As,Bs);
+*/
+
+
+/*
+intersection numbers for type [j0, ..., jk] <-- list 
+*/
+def cInt(A,B){
+  As=ltov([ltov([1,0]), ltov(A)]);
+  Bs=ltov([ltov([1,0]), ltov(B)]);
+  return(cInts(As,Bs));
+}
+/* test 
+A=[0,1,2,3,4];
+B=[0,2,3,4,5];
+cInt(A,B);
+*/
+
+/*
+generate the Matsumoto basis for E(k,n)=E(K+1,K+N+1)
+Out put is given as a vector 
+whose entries are vectors
+*/
+def mBasis(K,N){
+  B=[];
+  if (K == 1){
+    for (I=K+N; I>0; I--){
+      B=cons(ltov([0,I]), B);
+    }
+  }else{
+    for (I=1; I < N+2; I++){
+      B1=mBasis(K-1,N-I+1);
+      B2=vtol(B1);
+      for ( C = B2; C != []; C=cdr(C) ){
+	T1=car(C);
+	for (J=0; J<K; J++){ T1[J]+=I; }
+	T2=vtol(T1);
+	T2=cons(0,T2);
+	B=cons(ltov(T2),B);
+      }
+    }
+    B=reverse(B);
+  }
+  return(ltov(B));
+}
+/* test  E(12,24)...interrupted
+E(2,5)
+mBasis(1,2);  
+E(3,6)
+mBasis(2,2);  
+E(4,8)
+mBasis(3,3);  
+E(12,24)
+mBasis(11,11);  
+*/
+
+/*
+generate the Matsumoto basis for E(k,n)=E(K+1,K+N+1)
+Out put is given as a list 
+whose entries are lists
+*/
+def mBasisList(K,N){
+  B=[];
+  if (K == 1){
+    for (I=K+N; I>0; I--){
+      B=cons([0,I], B);
+    }
+  }else{
+    for (I=1; I < N+2; I++){
+      B1=mBasisList(K-1,N-I+1);
+      for ( C = B1; C != []; C=cdr(C) ){
+	T1=ltov(car(C));
+	for (J=0; J<K; J++){ T1[J]+=I; }
+	T2=vtol(T1);
+	T2=cons(0,T2);
+	B=cons(T2,B);
+      }
+    }
+    B=reverse(B);
+  }
+  return(B);
+}
+/* test */
+// E(2,5)
+// mBasisList(1,2);  
+// E(3,6)
+// mBasisList(2,2);  
+// E(4,8)
+// mBasisList(3,3);  
+// E(3,8)
+// mBasisList(2,4);  
+
+
+/*
+intersection matrix H
+*/
+def intMatrixH(K,N){
+  Basis = mBasis(K,N);
+  Rank=length(Basis);
+  H =matrix(Rank,Rank);
+  Phi =newvect(Rank);
+  for (I=0; I<Rank; I++){
+    Phi[I]=ltov([ ltov([1,1]), Basis[I] ]);
+  }
+  for (I=0; I<Rank; I++){
+    for(J=0; J<Rank; J++){
+      H[I][J]=cInts(Phi[I],Phi[J]);
+    }
+  }
+  return(H);
+}
+/* test
+E(2,5)
+intMatrixH(1,2);  
+E(3,6)
+intMatrixH(2,2);  
+E(4,8)
+intMatrixH(3,3);  
+E(3,8)
+intMatrixH(2,4);  
+*/
+
+/**************************/
+/*
+intersecton matrices for 
+any [q1 J p1] and [q2 J p2]
+and their iverse matrices
+*/
+
+/* replace
+   0 <-> p,  k+n+1 <-> q
+   The return is a list of lists. 
+ */
+def mBasis_replace(P,Q,K,N){
+  Basis=mBasisList(K,N);
+  if ((P==0) && (Q==K+N+1)){ return(Basis); }
+  RB=[];
+  if (P==K+N+1){
+    if(Q == 0){
+      for (B=Basis; B != []; B=cdr(B)){
+	J=car(B);
+	RB=cons(jj(0, J, K+N+1),RB);
+      }
+      return(reverse(RB));
+    }
+    else{
+      for (B=Basis; B != []; B=cdr(B)){
+	J=car(B);
+	J1=jj(0, J, K+N+1); 
+	if ( base_memberq(Q,J1) ){
+	  RB=cons(jj(base_position(Q,J1), J1, 0),RB);
+	}else{
+	  RB=cons(J1, RB);
+	}
+      }
+      return(reverse(RB));      
+    }
+  }
+  else{
+    if(Q == 0){
+      for (B=Basis; B != []; B=cdr(B)){
+	J=car(B);
+	if ( base_memberq(P,J) ){
+	  J1=jj(base_position(P,J), J, K+N+1);
+	}else{
+	  J1=J;
+	}
+	RB=cons(jj(0, J1, P),RB);
+      }
+      return(reverse(RB));      
+    }
+    else if (Q == K+N+1){
+      for (B=Basis; B != []; B=cdr(B)){
+	J=car(B);
+	if ( base_memberq(P,J) ){
+	  J1=jj(base_position(P,J), J, 0);
+	}else{
+	  J1=J;
+	}
+	RB=cons(jj(0, J1, P),RB);
+      }
+      return(reverse(RB));      
+    }
+    else{
+      for (B=Basis; B != []; B=cdr(B)){
+	J=car(B);
+	if ( base_memberq(Q,J) ){
+	  J1=jj(base_position(Q,J), J, K+N+1);
+	}else{
+	  J1=J;
+	}
+	if ( base_memberq(P,J1) ){
+	  J2=jj(base_position(P,J1), J1, 0);
+	}else{
+	  J2=J1;
+	}
+	RB=cons(jj(0, J2, P),RB);
+      }
+      return(reverse(RB));      
+    }
+  }
+}
+
+/* base change of qJp 
+PQ1=[P1,Q1]:row
+PQ2=[P2,Q2]:column
+*/
+/* memo 
+intMatrixH <=> PQ1=PQ2=[0,K+N+1]
+*/
+def intMatrix(PQ1,PQ2,K,N){
+  RBR=mBasis_replace(PQ1[0],PQ1[1],K,N);
+  RBC=mBasis_replace(PQ2[0],PQ2[1],K,N);
+  Rank=length(RBR);
+  M=matrix(Rank,Rank);
+  PhiR =newvect(Rank);
+  PhiC =newvect(Rank);
+  for (I=0; I<Rank; I++){
+    PhiR[I]=ltov([ ltov([1,0]), ltov(RBR[I]) ]);
+    PhiC[I]=ltov([ ltov([1,0]), ltov(RBC[I]) ]);
+  }
+  for (I=0; I<Rank; I++){
+    for (J=0; J<Rank; J++){
+      M[I][J]=cInts(PhiR[I],PhiC[J]);
+    }
+  }
+  return(M); 
+}
+
+/* its inverse (by n-forms)*/
+
+/* the product of all alpha_i's */
+def alphaProd(K,N){
+  C=1;
+  for (I=0; I<K+N+2; I++){
+    C*=alpha(I);
+  }
+  return(C);
+}
+
+/* coef. of v_{pq} */
+def hpq(P,Q,K,N){
+  if (P == Q){ error("1st argument = 2nd argument !"); }
+  if (P == 0){
+    if (Q == K+N+1){ return(1); }
+    else{ return(-alpha(Q)/alpha(K+N+1)); }
+  }
+  else if (P == K+N+1){
+    if (Q == 0){ return(-alpha(0)/alpha(K+N+1)); }
+    else { return(alpha(0)/alpha(K+N+1)); }
+  }
+  else{
+    if(Q == K+N+1){ return(-1); }
+    else{ return(alpha(Q)/alpha(K+N+1)); }
+  }
+}
+/* mistake */
+// def hpq(P,Q,K,N){
+//   if (P == Q){ error("1st argument = 2nd argument !"); }
+//   if (P == 0){
+//     if (Q == K+N+1){ return(1); }
+//     else{ return(-alpha(Q)/alpha(K+N+1)); }
+//   }
+//   else{
+//     if(Q == K+N+1){ return(-1); }
+//     else{ return(alpha(Q)/alpha(K+N+1)); }
+//   }
+// }
+
+/* vector to vector
+[i_1,i_2,...,i_r]->[i_1,i_2,...,i_k,i_{k+1},...,i_{k+n}]
+*/
+def append_comp_v(V,K,N){
+  V1=vtol(V);
+  C=[];
+  for (I=K+N+1; I>-1; I--){
+    if (base_memberq(I,V1)==0){ C=cons(I,C); }
+  }
+  return(ltov(append(V1,C)));
+}
+
+/* anti-diag matrix P */
+def antiDiag(K,N){
+  B=mBasis(K,N);
+  Rank = length(B);
+  P = matrix(Rank,Rank);
+  for (I=0; I<Rank; I++){
+    S=ltov([ ltov([1,0]), append_comp_v(B[I],K,N) ]);
+    sortSgn(S); 
+    P[I][Rank-1-I]=S[0][0];
+  }
+  return(P);
+}
+
+/* inverse (by n-forms) */
+def invintMatrix_n(PQ1,PQ2,K,N){
+  Hinv=intMatrix(PQ2,PQ1,N,K); 
+  Pk=antiDiag(K,N);
+  Coef=alphaProd(K,N)/(alpha(K+N+1)^2 *hpq(PQ1[0],PQ1[1],K,N)*hpq(PQ2[0],PQ2[1],K,N));
+  return(-Coef*Pk*Hinv*matrix_transpose(Pk));
+}
+/* test 
+PQ1=[0,4]; PQ2=[0,7]; KN=[3,3];
+E=invintMatrix_n(PQ1,PQ2,KN[0],KN[1])*intMatrix(PQ1,PQ2,KN[0],KN[1])$
+E=base_replace(E,alphaRule(KN[0],KN[1]))$
+mat_red(E)$
+E;
+*/
+
+/* its inverse (by k-forms)*/
+def invintMatrix_k(PQ1,PQ2,K,N){
+  RBR=mBasis_replace(PQ1[0],PQ1[1],K,N);
+  RBC=mBasis_replace(PQ2[0],PQ2[1],K,N);
+  Rank=length(RBR);
+  D1inv=matrix(Rank,Rank);
+  D2inv=matrix(Rank,Rank);
+  for (I=0; I<Rank ;I++){
+    D1inv[I][I]=1;
+    D2inv[I][I]=1;
+    for (J=1; J<K+1; J++){
+      D1inv[I][I]*=alpha(RBR[I][J]);
+      D2inv[I][I]*=alpha(RBC[I][J]);
+    }
+  }
+  
+  PhiR=newvect(Rank);
+  PhiC=newvect(Rank);
+  II=0;
+  for (B=RBR; B != []; B=cdr(B)){
+    J=car(B);
+    if ( base_memberq(PQ1[0],J) ){
+      JJ=jj(base_position(PQ1[0],J), J, PQ1[1]);
+    }else{
+      JJ=J;
+    }
+    PhiR[II]=ltov([ ltov([1,0]), ltov(JJ) ]);
+    II++;
+  }
+  II=0;
+  for (B=RBC; B != []; B=cdr(B)){
+    J=car(B);
+    if ( base_memberq(PQ2[0],J) ){
+      JJ=jj(base_position(PQ2[0],J), J, PQ2[1]);
+    }else{
+      JJ=J;
+    }
+    PhiC[II]=ltov([ ltov([1,0]), ltov(JJ) ]);
+    II++;
+  }
+
+  M=matrix(Rank,Rank);
+  for (I=0; I<Rank; I++){
+    for(J=0; J<Rank; J++){
+      M[I][J]=cInts(PhiC[I],PhiR[J]);
+    }
+  }
+  
+  return(D2inv*M*D1inv);
+}
+/* test 
+PQ1=[2,4]; PQ2=[3,1]; KN=[3,3];
+E=invintMatrix_k(PQ1,PQ2,KN[0],KN[1])*intMatrix(PQ1,PQ2,KN[0],KN[1])$
+E=base_replace(E,alphaRule(KN[0],KN[1]))$
+mat_red(E)$
+E;
+*/
+
+/**************************/
+
+
+
+/*
+phi<J>  <-->  v_J
+*/
+def phitov(JJ,K,N){
+  Basis = mBasis(K,N);
+  Rank=length(Basis);
+  V=matrix(1,Rank);
+  PhiJ=ltov([ltov([1,0]), ltov(JJ)]);
+  for(J=0; J<Rank; J++){
+    V[0][J]=cInts(PhiJ,ltov([ ltov([1,1]), Basis[J] ])); 
+  }
+  V=V*invintMatrix_n([0,K+N+1],[0,K+N+1],K,N);
+  for(J=0; J<Rank; J++){
+    V[0][J]=red(V[0][J]); 
+  }	
+  return(V);
+}
+/* test */
+// E(2,5)
+// phitov([1,4],1,2);
+// E(3,6)
+// phitov([0,2,5],2,2);
+
+
+/*
+Pfaffian matrix M_J
+*/
+def pfaffianMJ(JJ,K,N){
+  if(base_memberq(JJ,calJ0(K,N))){
+    VJ=phitov(JJ,K,N);
+    Prod=1;
+    for ( P = 0; P < length(JJ); P++ ){ Prod*=alpha(JJ[P]); }
+    MJ=base_replace(Prod*intMatrixH(K,N)*matrix_transpose(VJ)*VJ,alphaRule(K,N));
+    if(ARule != 0){ return(base_replace(MJ,ARule)); }
+    else{ return(MJ); }
+  }else{
+    return(0);
+  }
+}
+/* test */
+// E(2,5)
+// pfaffianMJ([2,3],1,2);
+// ----produce the all matrices--------
+// CalJ=calJ(1,2);
+// for (I=0; I<length(CalJ); I++){
+// 	MJ=pfaffianMJ(CalJ[I],1,2);
+// 	if(MJ != 0){ print([CalJ[I],base_replace(MJ,alphaRule(1,2))]); }
+// }
+// ------------------------------------------
+// E(3,6)
+// M234=pfaffianMJ([2,3,4],2,2);
+// M345=pfaffianMJ([3,4,5],2,2);
+
+
+/*
+differential form dx_{ij} (as a variable)
+*/
+def dxij(I,J) { return(util_v(dx,[I,J])); }
+
+/*
+dlog|x<J>|
+*/
+def dlogxJ(JJ,K,N){
+  if(base_memberq(JJ,calJ0(K,N))){
+    Dlog=0;
+    F=matrix_det(xJ_rule(JJ,N));
+    for (P=0; P<length(JJ); P++){
+      if ( (JJ[P]<K+1) || (JJ[P]==K+N+1) ){
+      }else{
+	for (I=1; I<K+1; I++){
+	  Dlog+=matrix_det(xJ_rule(jj(P,JJ,I),N))*dxij(I,JJ[P]-K);
+	}
+      }
+    }
+    return(red(Dlog/F));
+  }else{
+    return(0);
+  }
+}
+/* test 
+// E(2,5)
+   dlogxJ([2,3],1,2);
+// E(3,6)
+   dlogxJ([3,4,5],2,2);
+*/
+
+/*  
+Psi = Sum MJ*dlog|x<J>|
+*/
+def pfaffianPsi(K,N){
+  Psi=0;
+  CalJ=calJ0(K,N);
+  for (I=0; I<length(CalJ); I++){
+    Psi+=pfaffianMJ(CalJ[I],K,N)*dlogxJ(CalJ[I],K,N);
+  }
+  return(Psi);
+}
+/* test 
+// E(2,5)
+   pfaffianPsi(1,2);  
+// E(3,6)
+   pfaffianPsi(2,2);  
+*/
+def pfaffianPsi_time(K,N){
+  Psi=0;
+  CalJ=calJ0(K,N);
+  T0=time();
+  for (I=0; I<length(CalJ); I++){
+    MJ=pfaffianMJ(CalJ[I],K,N);
+    T1=time();
+    Dlog=dlogxJ(CalJ[I],K,N);
+    T2=time();
+    Psi+=MJ*Dlog;
+    T3=time();
+    printf("%a %a %a %a\n",CalJ[I],T1[0]+T1[1]-T0[0]-T0[1],T2[0]+T2[1]-T0[0]-T0[1],T3[0]+T3[1]-T0[0]-T0[1]);
+  }
+  return(Psi);
+}
+/* test E(6,12)
+   ARule=alphaRule_num(initialAlpha(5,5),5,5)$
+   XRule=prime_XRule(5,5)$
+   Psi=pfaffianPsi_time(5,5)$
+*/
+def pfaffianPsi_time2(K,N){
+  CalJ=calJ0(K,N);
+  Basis = mBasis(K,N);
+  Rank=length(Basis);
+  VJ=matrix(1,Rank);
+  H=intMatrixH(K,N);
+  Hinv=invintMatrix_n([0,K+N+1],[0,K+N+1],K,N);
+  if(ARule != 0){ 
+    H=base_replace(H,ARule);     
+    Hinv=base_replace(Hinv,ARule); 
+  }else{}
+  Psi=0;
+  T0=time();
+  for (C=CalJ; C != []; C=cdr(C)){
+    JJ=car(C);
+    PhiJ=ltov([ltov([1,0]), ltov(JJ)]);
+    for(J=0; J<Rank; J++){
+      VJ[0][J]=cInts(PhiJ,ltov([ ltov([1,1]), Basis[J] ])); 
+      if(ARule != 0){ VJ=base_replace(VJ,ARule);}else{}
+    }
+    VJ=VJ*Hinv;
+    T1=time();
+    Prod=1;
+    for ( P = 0; P < length(JJ); P++ ){ Prod*=alpha(JJ[P]); }
+    if(ARule != 0){ Prod=base_replace(Prod,ARule);}else{}
+    if(ARule != 0){ 
+      MJ=Prod*H*matrix_transpose(VJ)*VJ;
+    }else{
+      MJ=base_replace(Prod*H*matrix_transpose(VJ)*VJ,alphaRule(K,N));
+    }
+    T2=time();
+    Dlog=dlogxJ(JJ,K,N);
+    T3=time();
+    Psi+=MJ*Dlog;
+    T4=time();
+    printf("%a %a %a %a %a\n",JJ,T1[0]+T1[1]-T0[0]-T0[1],T2[0]+T2[1]-T0[0]-T0[1],
+	   T3[0]+T3[1]-T0[0]-T0[1],T4[0]+T4[1]-T0[0]-T0[1]);
+  }
+  return(Psi);
+}
+/* test E(5,10)
+   ARule=alphaRule_num(initialAlpha(4,4),4,4)$
+   XRule=prime_XRule(4,4)$
+   Psi=pfaffianPsi_time2(4,4)$
+   poly_coefficient(Psi,1,dxij(1,1));
+*/
+/* test E(6,12)
+   ARule=alphaRule_num(initialAlpha(5,5),5,5)$
+   XRule=prime_XRule(5,5)$
+   Psi=pfaffianPsi_time2(5,5)$
+   poly_coefficient(Psi,1,dxij(1,1));
+*/
+def pfaffianPsi_2(K,N){
+  CalJ=calJ0(K,N);
+  Basis = mBasis(K,N);
+  Rank=length(Basis);
+  VJ=matrix(1,Rank);
+  H=intMatrixH(K,N);
+  Hinv=invintMatrix_n([0,K+N+1],[0,K+N+1],K,N);
+  if(ARule != 0){ 
+    H=base_replace(H,ARule);     
+    Hinv=base_replace(Hinv,ARule); 
+  }else{}
+  Psi=0;
+  for (C=CalJ; C != []; C=cdr(C)){
+    JJ=car(C);
+    PhiJ=ltov([ltov([1,0]), ltov(JJ)]);
+    for(J=0; J<Rank; J++){
+      VJ[0][J]=cInts(PhiJ,ltov([ ltov([1,1]), Basis[J] ])); 
+      if(ARule != 0){ VJ=base_replace(VJ,ARule);}else{}
+    }
+    VJ=VJ*Hinv;
+    Prod=1;
+    for ( P = 0; P < length(JJ); P++ ){ Prod*=alpha(JJ[P]); }
+    if(ARule != 0){ Prod=base_replace(Prod,ARule);}else{}
+    if(ARule != 0){ 
+      MJ=Prod*H*matrix_transpose(VJ)*VJ;
+    }else{
+      MJ=base_replace(Prod*H*matrix_transpose(VJ)*VJ,alphaRule(K,N));
+    }
+    Dlog=dlogxJ(JJ,K,N);
+    Psi+=MJ*Dlog;
+  }
+  return(Psi);
+}
+/* test E(5,10)
+   ARule=alphaRule_num(initialAlpha(4,4),4,4)$
+   XRule=prime_XRule(4,4)$
+   Psi=pfaffianPsi_2(4,4)$
+   poly_coefficient(Psi,1,dxij(1,1));
+*/
+
+/*
+coefficient of dx_{ij}
+*/
+def coefPsi(II,JJ,K,N){
+  Psi=pfaffianPsi(K,N);
+  MIJ=poly_coefficient(Psi,1,dxij(II,JJ));
+  Rank=length(matrix_matrix_to_list(MIJ));
+  for (I=0; I<Rank; I++){
+    for (J=0; J<Rank; J++){
+      MIJ[I][J]=red(MIJ[I][J]);
+    }
+  }
+  return(MIJ);
+}
+/* test */
+// E(2,5)
+// coefPsi(1,1,1,2);  
+// coefPsi(1,2,1,2);  
+// E(3,6)
+// coefPsi(1,1,2,2); 
+// --time------
+// T0=time();
+// coefPsi(1,1,2,2); 
+// T1=time();
+// T1[0]-T0[0];
+// --------
+
+/*
+coefficient of dx_{ij}
+-- ver 2 --
+*/
+def pfaffianCoef(II,JJ,K,N){
+  CalJ0=calJ0(K,N);
+  Rank=length(mBasis(K,N));
+  MIJ=matrix(Rank,Rank);
+  for (C=CalJ0; C != []; C=cdr(C)){
+    T=car(C); 
+    if(base_memberq(JJ+K,T) ){
+      MIJ+=poly_coefficient(dlogxJ(T,K,N),1,dxij(II,JJ))*pfaffianMJ(T,K,N);
+    }
+  }
+  return(MIJ);
+}
+/* test */
+// E(2,5)
+// pfaffianCoef(1,1,1,2);  
+// pfaffianCoef(1,2,1,2);  
+// E(3,6)
+// pfaffianCoef(1,1,2,2); 
+// --time------
+// T0=time();
+// pfaffianCoef(1,1,2,2); 
+// T1=time();
+// T1[0]-T0[0];
+// --------
+// E(4,8)
+// pfaffianCoef(1,1,3,3); 
+
+
+
+
+
+
+
+/* ---------
+contiguity 
+----------- */
+
+/*
+representation matrix
+alpha_i --> alpha_i +1
+*/
+def repMatrix(II,K,N){
+  Ji0=mBasis_replace(0,II,K,N);
+  J0i=mBasis_replace(II,0,K,N);
+  Rank=length(Ji0);
+  Rep = matrix(Rank,Rank);
+  for (P=0; P<Rank; P++){
+    Rep[P][P]=matrix_det(xJ_rule(J0i[P],N))/matrix_det(xJ_rule(Ji0[P],N));
+  }
+  return(Rep);
+}
+/* test */
+// E(2,5)
+// repMatrix(2,1,2);  
+// E(3,6)
+// repMatrix(2,2,2);  
+// E(4,8)
+// repMatrix(2,3,3);  
+
+/* its inverse */
+def invrepMatrix(II,K,N){
+  Ji0=mBasis_replace(0,II,K,N);
+  J0i=mBasis_replace(II,0,K,N);
+  Rank=length(Ji0);
+  Rep = matrix(Rank,Rank);
+  for (P=0; P<Rank; P++){
+    Rep[P][P]=matrix_det(xJ_rule(Ji0[P],N))/matrix_det(xJ_rule(J0i[P],N));
+  }
+  return(Rep);
+}
+
+
+/*
+contiguity : alpha_i --> alpha_i +1
+*/
+def coef_upAlpha(II,K,N){
+  if (II > K) return(1/(1+alpha(II)));
+  else return(1);
+}
+
+def upAlpha(II,K,N){
+  Rep=repMatrix(II,K,N);
+  Pinv=base_replace(intMatrix([0,K+N+1],[0,K+N+1],K,N)*invintMatrix_n([II,0],[0,K+N+1],K,N), 
+		 [[alpha(0),alpha(0)-1],[alpha(II),alpha(II)+1]]);
+  Q=intMatrix([0,II],[0,K+N+1],K,N)*invintMatrix_n([0,K+N+1],[0,K+N+1],K,N); 
+  return(coef_upAlpha(II,K,N)*Pinv*Rep*Q);
+}
+/* test */
+// E(2,5)
+// red(upAlpha(2,1,2)[0][0]);  
+// E(3,6)
+// red(upAlpha(2,2,2)[0][0]);  
+// E(4,8)
+// upAlpha(2,3,3);  
+
+def downAlpha(II,K,N){
+  Rep=invrepMatrix(II,K,N);
+  Qinv=base_replace(intMatrix([0,K+N+1],[0,K+N+1],K,N)*invintMatrix_n([0,II],[0,K+N+1],K,N), 
+		 [[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+  P=intMatrix([II,0],[0,K+N+1],K,N)*invintMatrix_n([0,K+N+1],[0,K+N+1],K,N); 
+  Coef=base_replace(coef_upAlpha(II,K,N),[[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+  return((1/Coef)*Qinv*Rep*P);
+}
+// I=1$ C1=upAlpha(I,2,2)$ C2=base_replace(downAlpha(I,2,2),[[alpha(0),alpha(0)-1],[alpha(I),alpha(I)+1]])$ C3=C2*C1$ mat_red(C3)$ base_replace(C3,alphaRule(2,2));
+
+/*
+  function F
+  -> vector [F, diff(F,x_11), ...] <- column vector
+*/
+def pfaffian_basis(F,K,N){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  SS=matrix(Rank,1);
+  SS[0][0]=F;
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    for (J=K+1; J<K+N+1; J++){
+      if (base_memberq(J,B[I])){C2=cons(J,C2);}
+    } 
+    SS[I][0]=SS[0][0];
+    for (J=0; J<length(C1); J++){
+      SS[I][0]=diff(SS[I][0],xij(C1[J],C2[J]-K))/alpha(C2[J]);
+    }
+    SS[I][0]=SS[I][0]*matrix_det(xJ(B[I],N));
+  }
+  return(SS);
+}
+
+/*
+  It makes the contiguity matrices for a given problem.
+ */
+def contiguity_mat_list_1(A,K,N){
+  if (XRule != 0){ XR=XRule; }
+  else{ XR=[]; }
+  Al=initialAlpha_1(K,N);
+  Alv=ltov(Al);
+  Av=ltov(A);
+  Step=Av-Alv;
+
+  CList=[];
+  // printf("%a\n",Alv);
+  /* J=K+1,...,K+N */
+  for (J=K+1; J<K+N+1; J++){
+    if (Step[J]>0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(upAlpha(J,K,N),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+    // printf("%a\n",Alv);
+  }
+  /* J=K+N+1 */
+  if (Step[K+N+1]>0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=base_replace(upAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }else{}
+  // printf("%a\n",Alv);
+  /* J=1,...,K */
+  for (J=1; J<K+1; J++){
+    if (Step[J]<0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(downAlpha(J,K,N),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+    // printf("%a\n",Alv);
+  }
+  return(cons(t,reverse(CList)));
+}
+/* test 
+   K=2$ N=2$
+   Beta = [[400,410,1011],[910,411,500]];
+   X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]];
+   A=marginaltoAlpha_list(Beta);
+   XRule=xRule_num(X,2,2)$
+   CL=contiguity_mat_list_1(A,2,2)$
+   S1=matrix(length(mBasisList(K,N)),1)$
+   S1[0][0]=1$
+   for (B=cdr(CL); B!=[]; B=cdr(B)){
+     C=car(B)[0];
+     E=car(B)[1];
+     if (E>0){
+       for (I=0;I<E;I++){
+         S1=base_replace(C,[[t,I]])*S1; 
+       }
+     }else{
+       for (I=0;I>E;I--){
+         S1=base_replace(C,[[t,I]])*S1; 
+       }       
+     }
+   }
+   load("check_10.rr");
+*/
+
+def contiguity_mat_list_2(A,K,N){
+  if (XRule != 0){ XR=XRule; }
+  else{ XR=[]; }
+  Al=initialAlpha(K,N);
+  Alv=ltov(Al);
+  Av=ltov(A);
+  Step=Av-Alv;
+
+  CList=[];
+  // printf("%a\n",Alv);
+  /* J=K+1,...,K+N */
+  for (J=K+1; J<K+N+1; J++){
+    if (Step[J]>0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(upAlpha(J,K,N),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+    // printf("%a\n",Alv);
+  }
+  /* J=K+N+1 */
+  if (Step[K+N+1]>0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=base_replace(upAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }
+  else if (Step[K+N+1]<0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=base_replace(downAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }else{}
+  // printf("%a\n",Alv);
+  /* J=1,...,K */
+  for (J=1; J<K+1; J++){
+    if (Step[J]<0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(downAlpha(J,K,N),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+    // printf("%a\n",Alv);
+  }
+  return(cons(t,reverse(CList)));
+}
+/* test 
+   K=2$ N=2$
+   Beta = [[400,410,1011],[910,411,500]];
+   X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]];
+   A=marginaltoAlpha_list(Beta);
+   XRule=xRule_num(X,2,2)$
+   CL=contiguity_mat_list_2(A,2,2)$
+   S2=base_replace(pfaffian_basis(Start,K,N),append(AR,XRule))$
+   for (B=cdr(CL); B!=[]; B=cdr(B)){
+     C=car(B)[0];
+     E=car(B)[1];
+     if (E>0){
+       for (I=0;I<E;I++){
+         S2=base_replace(C,[[t,I]])*S2; 
+       }
+     }else{
+       for (I=0;I>E;I--){
+         S2=base_replace(C,[[t,I]])*S2; 
+       }
+     }
+   }
+   S1-S2;
+*/
+
+
+/* 
+   from the above vector S=[[F],[diff(F,x11)],,,,], 
+   give a matrix [[diff(F,x11),diff(F,x12),...],[diff(F,x21),diff(F,x22),...],...]
+*/
+def basistoFdiff(S,K,N){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+  if (type(getopt(xrule)) >= 0){
+  XRuleTmep=XRule;
+  XRule=getopt(xrule);
+}else{}
+  B=mBasisList(K,N);
+  Rank=length(B);
+  Fdiff=matrix(K,N);
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    if (length(C1) == 1){
+      for (J=K+1; J<K+N+1; J++){
+	if (base_memberq(J,B[I])){C2=cons(J,C2);}
+      }
+      Fdiff[C1[0]-1][C2[0]-K-1]=S[I][0]*alpha(C2[0])/matrix_det(xJ_rule(B[I],N));
+    }else{}
+  }
+  if (type(getopt(xrule))>=0){
+  XRule=XRuleTemp;
+}else{}
+  return(Fdiff);  
+}
+/* test 
+F=b11*xij(1,1)+b12*xij(1,2)+b13*xij(1,3)+b14*xij(1,4)
+  +b21*xij(2,1)+b22*xij(2,2)+b23*xij(2,3)+b24*xij(2,4)
+  +b31*xij(3,1)+b32*xij(3,2)+b33*xij(3,3)+b34*xij(3,4)+b*xij(1,1)*xij(2,2)*xij(3,3);
+S=pfaffian_basis(F,3,4);
+Fdiff=basistoFdiff(S,3,4)$ mat_red(Fdiff)$ 
+Fdiff; 
+*/
+def basistoS1(S,K,N){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  Fdiff=matrix(K,N);
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    if (length(C1) == 1){
+      for (J=K+1; J<K+N+1; J++){
+	if (base_memberq(J,B[I])){C2=cons(J,C2);}
+      }
+      Fdiff[C1[0]-1][C2[0]-K-1]=S[I][0]*xij_rule(C1[0],C2[0]-K)/matrix_det(xJ_rule(B[I],N));
+    }else{}
+  }
+  return(Fdiff);  
+}
+/* test 
+XRule=0$
+F=b11*xij(1,1)+b12*xij(1,2)+b13*xij(1,3)+b14*xij(1,4)
+  +b21*xij(2,1)+b22*xij(2,2)+b23*xij(2,3)+b24*xij(2,4)
+  +b31*xij(3,1)+b32*xij(3,2)+b33*xij(3,3)+b34*xij(3,4)+b*xij(1,1)*xij(2,2)*xij(3,3)$
+S=pfaffian_basis(F,3,4)$
+Fdiff=basistoFdiff(S,3,4)$ mat_red(Fdiff)$ 
+S1=basistoS1(S,3,4)$ mat_red(S1)$ 
+for (I=0; I<3; I++){
+for (J=0; J<4; J++){
+  print(red(Fdiff[I][J]/S1[I][J]));
+}} 
+*/
+
+
+/*
+  marginal sums [[row sums...],[column sums...]]
+  -> parameters [alpha_0 ,...]
+ */
+def marginaltoAlpha(Beta){
+  K=length(Beta[0])-1;
+  N=length(Beta[1])-1;
+  NewRule=[[alpha(K+N+1),Beta[1][0]]];
+  for (I=N; I>0; I--){
+    NewRule = cons([alpha(K+I),Beta[1][I]],NewRule);
+  }
+  for (I=K; I>0; I--){
+    NewRule = cons([alpha(I),-Beta[0][I-1]],NewRule);
+  }
+  NewRule=cons([alpha(0),-Beta[0][K]],NewRule);
+  return(NewRule);
+}
+/* test 
+   marginaltoAlpha([[1,3,5,7,4],[2,4,6,8]]);
+   marginaltoAlpha(initialBeta(3,3));
+*/
+
+def marginaltoAlpha_list(Beta){
+  K=length(Beta[0])-1;
+  N=length(Beta[1])-1;
+  NewRule=[Beta[1][0]];
+  for (I=N; I>0; I--){
+    NewRule = cons(Beta[1][I],NewRule);
+  }
+  for (I=K; I>0; I--){
+    NewRule = cons(-Beta[0][I-1],NewRule);
+  }
+  NewRule=cons(-Beta[0][K],NewRule);
+  return(NewRule);
+}
+/* test 
+   marginaltoAlpha_list([[1,3,5,7,4],[2,4,6,8]]);
+   marginaltoAlpha_list(initialBeta(3,3));
+*/
+
+/* alpha's <- numbers */
+def alphaRule_num(A,K,N){
+  AlphaRule_num = [];
+  for (I=0; I<K+N+2 ;I++){
+    AlphaRule_num = cons([alpha(I),A[I]],AlphaRule_num);
+  }
+  return(AlphaRule_num);
+}
+
+/* x_ij <- numbers ... ratio of entries  */
+def xRule_num(X,K,N){
+  XRule_num = [];
+  for (I=0; I<K ;I++){
+    for (J=0; J<N ;J++){
+      XRule_num = cons([xij(I+1,J+1),X[I][J+1]*X[K][0]/(X[I][0]*X[K][J+1])],XRule_num);
+    }
+  }
+  return(XRule_num);
+}
+/* test */
+// X=[[x1,x2,x3],[x4,x5,x6],[x7,x8,x9]]$
+// xRule_num(X,2,2);
+
+/* initial of alpha=[a_0,a_1,...] */
+def initialAlpha(K,N){
+  IA=[K];
+  for (J=0; J<N; J++){
+    IA=cons(1,IA);
+  }
+  for (J=0; J<K; J++){
+    IA=cons(-1,IA);
+  }
+  IA=cons(-N,IA);
+  return(IA);
+}
+/* test */
+// initialAlpha(3,5);
+
+/* initial of beta=[[1,1,...,Q-1],[P-1,1,...,1]] */
+def initialBeta(P,Q){
+  Brow=[Q-1];
+  Bcolumn=[];
+  for (J=1; J<P; J++){
+    Brow=cons(1,Brow);
+  }
+  for (J=1; J<Q; J++){
+    Bcolumn=cons(1,Bcolumn);
+  }
+  Bcolumn=cons(P-1,Bcolumn);
+  return([Brow,Bcolumn]);
+}
+/* test */
+// initialBeta(3,3);
+
+/* Strategy 1 version */
+def initialAlpha_1(K,N){
+  IA=[1];
+  for (J=0; J<N; J++){
+    IA=cons(1,IA);
+  }
+  for (J=0; J<K; J++){
+    IA=cons(0,IA);
+  }
+  IA=cons(-N-1,IA);
+return(IA);
+}
+/* test 
+   initialAlpha_1(3,5);
+*/
+def initialBeta_1(P,Q){
+  Brow=[Q];
+  Bcolumn=[1];
+  for (J=1; J<P; J++){
+    Brow=cons(0,Brow);
+  }
+  for (J=1; J<Q; J++){
+    Bcolumn=cons(1,Bcolumn);
+  }
+  return([Brow,Bcolumn]);
+}
+/* test 
+   initialBeta_1(3,5);
+*/
+
+/* [a_0 -t, a_1 ,...,a_i +t ,... ] */
+def moveAlpha(I,A,K,N){
+  Amove=[];
+  for (J=K+N+1; J>0; J--){
+    if (J==I){ Amove=cons(A[J]+t,Amove); }
+    else{ Amove=cons(A[J],Amove);}
+  }
+  Amove=cons(A[0]-t,Amove);
+  return(Amove);
+}
+/* test */
+// moveAlpha(4,[a0,a1,a2,a3,a4,a5],2,2);
+
+/* [[[a_0, A[0]-t],[a_I, A[I]+t]],[[a_1,A[1]],[a_2,A[2]],...]] */
+def moveAlpha_n(I,A,K,N){
+  Amove1=[];
+  Amove2=[];
+  for (J=K+N+1; J>0; J--){
+    if (J==I){ Amove1=cons([alpha(J),A[J]+t],Amove1); }
+    else{ Amove2=cons([alpha(J),A[J]],Amove2);}
+  }
+  Amove1=cons([alpha(0),A[0]-t],Amove1);
+  return([Amove1,Amove2]);
+}
+/* test
+   moveAlpha_n(3,[a0,a1,a2,a3,a4,a5],2,2);
+ */
+
+
+/* Laurent -> poly */
+def ltop(F,Beta,X,K,N){
+  P=1;
+  for (J=0; J<K; J++){
+    P*=X[J][0]^Beta[0][J];
+  }
+  for (J=0; J<N; J++){
+    P*=X[K][J+1]^Beta[1][J+1];
+  }
+  Sa=Beta[1][0];
+  for (J=0; J<K; J++){
+    Sa-=Beta[0][J];
+  }
+  P*=X[K][0]^Sa;
+  return(F*P);
+}
+/* test */
+// Beta=[[5,3,3],[5,3,3]]$
+// X=[[x1,x2,x3],[x4,x5,x6],[x7,x8,x9]]$
+// ltop(f,Beta,X,2,2);
+def ltopoly(F,Beta,X){
+  P=1;
+  K=length(Beta[0])-1;
+  N=length(Beta[1])-1;
+  for (J=0; J<K; J++){
+    P*=X[J][0]^Beta[0][J];
+  }
+  for (J=0; J<N; J++){
+    P*=X[K][J+1]^Beta[1][J+1];
+  }
+  Sa=Beta[1][0];
+  for (J=0; J<K; J++){
+    Sa-=Beta[0][J];
+  }
+  P*=X[K][0]^Sa;
+  return(F*P);
+}
+/* test 
+   Beta=[[5,3,3],[5,3,3]]$
+   X=[[x1,x2,x3],[x4,x5,x6],[x7,x8,x9]]$
+   ltop(f,Beta,X,2,2);
+   ltopoly(f,Beta,X);
+*/
+
+/* max of a list */
+def max(A){
+  N=length(A);
+  Max=A[0];
+  for (K=1; K<N; K++) {
+    if (Max < A[K]) {
+      Max = A[K];
+    }
+  }
+  return(Max);
+}
+
+/* factorial */
+def factorial(N) {
+  if (N < 0) error("factorial: argument must be 0 or natural numbers.");
+  if (N == 0) return(1);
+  else {
+    return(N*factorial(N-1));
+  }
+}
+
+def factorial_prod(B){
+  N=1;
+  for (C=B; C!=[]; C=cdr(C)){
+    N*=factorial(C[0]);
+  }
+  return(N);
+}
+/* test 
+   factorial_prod([3,4]); 6*24;
+   factorial_prod([2,5,4]); 2*120*24;
+ */
+
+/* Pochhammer Symbol */
+def pochhammer(A,N){
+  P=1;
+  for (I=0; I<N; I++){
+    P*=A+I;
+  }
+  return(P);
+}
+
+
+def shift(I,A){
+  J=1;
+  B=[A[0]-1];
+  for (C=cdr(A); C != []; C=cdr(C)){
+    if (J==I) {B=cons(car(C)+1,B);}
+    else {B=cons(car(C),B);}
+    J++;
+  }
+  return(reverse(B));
+}
+
+def shift_m(I,A){
+  J=1;
+  B=[A[0]+1];
+  for (C=cdr(A); C != []; C=cdr(C)){
+    if (J==I) {B=cons(car(C)-1,B);}
+    else {B=cons(car(C),B);}
+    J++;
+  }
+  return(reverse(B));
+}
+
+
+/*
+  initial polynomial (for safety)
+ */
+def initialPoly_table(K,N){
+  if (N < K) error("Please swap the first and second inputs.");
+  C=[];
+  if (K == 1){
+    C=cons([[],[]],C);
+    for (I=1; I<N; I++){
+      C=cons([[[1,I]],[I]],C);
+    }
+  }else{
+    C1=initialPoly_table(K-1,N);
+    for (B=C1; B != []; B=cdr(B)){
+      B0=B[0];
+      C=cons(B0,C);
+      for (I=1; I<N; I++){
+	if(!base_memberq(I,B0[1])){
+	  C=cons([ cons([K,I],B0[0]),cons(I,B0[1]) ],C);
+	}else{}
+      }
+    }
+  }
+  return(C);
+}
+/* test
+   initialPoly_table(1,4);
+   initialPoly_table(2,3);
+   initialPoly_table(3,3);
+   initialPoly_table(3,1);   
+ */
+
+def initialPoly(K,N){
+  S=0;
+  if (N < K){
+    C=initialPoly_table(N-1,K);
+    for (B=C; B != []; B=cdr(B)){
+      B0=car(B);
+      T=1/(factorial(length(B0[1])));
+      for (A=B0[0]; A != []; A=cdr(A)){
+	A0=car(A);
+	T*=xij(A0[1],A0[0]);
+      }
+      S+=T;
+    }
+  }else{
+    C=initialPoly_table(K-1,N);
+    for (B=C; B != []; B=cdr(B)){
+      B0=car(B);
+      T=1/(factorial(length(B0[1])));
+      for (A=B0[0]; A != []; A=cdr(A)){
+	A0=car(A);
+	T*=xij(A0[0],A0[1]);
+      }
+      S+=T;
+    }
+  }
+  return(S);
+}
+/* test 
+   initialPoly(2,4);
+   initialPoly(3,3);
+   initialPoly(4,2);
+   initialPoly(4,3);
+   initialPoly(6,6);
+ */
+
+
+
+
+/*
+  Hessian
+ */
+def basistoHessian(S,K,N){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  DS=pfaffianPsi(K,N)*S;
+  M=matrix(K,N);
+  Hessian=matrix(K,N);
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    if (length(C1) == 1){
+      for (J=K+1; J<K+N+1; J++){
+	if (base_memberq(J,B[I])){C2=cons(J,C2);}
+      }
+      if(ARule != 0){
+	M[C1[0]-1][C2[0]-K-1]=base_replace(DS[I][0]*alpha(C2[0])/matrix_det(xJ_rule(B[I],N)),ARule); 
+      }
+      else{ 
+	M[C1[0]-1][C2[0]-K-1]=DS[I][0]*alpha(C2[0])/matrix_det(xJ_rule(B[I],N)); 
+      }
+    }else{}
+  }     
+  Fdiff=basistoFdiff(S,K,N);
+  if(ARule != 0){
+   Fdiff=base_replace(Fdiff,ARule); 
+  }else{}
+  for (II=0; II<K; II++){
+    for (JJ=0; JJ<N; JJ++){
+      S0=matrix(K,N);
+      S0[II][JJ]=Fdiff[II][JJ]/xij(II+1,JJ+1);
+      Hessian[II][JJ]=poly_coefficient(M,1,dxij(II+1,JJ+1))-S0;
+    }
+  }
+  if(XRule != 0){ return(base_replace(Hessian,XRule)); }
+  else{ return(Hessian); }
+}
+/* test 1
+   ARule=[[a_0,-2],[a_1,-1],[a_2,-1],[a_3,1],[a_4,1],[a_5,2]]$
+   XRule=0$
+   Sp=initialPoly(3,3)$
+   S=pfaffian_basis(Sp,2,2)$
+   H=basistoHessian(S,2,2)$ 
+   HS=matrix(2,2)$
+   for(I1=0; I1<2; I1++){
+     for (J1=0; J1<2; J1++){
+       mat_red(H[I1][J1])$
+       print(H[I1][J1]);
+       for(I2=0; I2<2; I2++){
+	 for (J2=0; J2<2; J2++){
+	   HS[I2][J2]=diff(diff(Sp,xij(I2+1,J2+1)),xij(I1+1,J1+1));
+	 }
+       }
+       print("--------");
+       print(H[I1][J1]-HS);
+       print("----------------");
+     }
+   }
+*/
+/* test 2
+   ARule=[[a_0,-2],[a_1,-2],[a_2,-2],[a_3,3],[a_4,1],[a_5,2]]$
+   XRule=0$
+   H3=upAlpha(3,2,2)$
+   B2=downAlpha(2,2,2)$
+   B1=downAlpha(1,2,2)$
+   Sp=initialPoly(3,3)$
+   S=pfaffian_basis(Sp,2,2)$
+   S=base_replace(S,[[a_0,-2],[a_1,-1],[a_2,-1],[a_3,1],[a_4,1],[a_5,2]])$
+   S=base_replace(H3,[[a_0,-2],[a_1,-1],[a_2,-1],[a_3,1],[a_4,1],[a_5,2]])*S$
+   S=base_replace(H3,[[a_0,-3],[a_1,-1],[a_2,-1],[a_3,2],[a_4,1],[a_5,2]])*S$
+   S=base_replace(B2,[[a_0,-4],[a_1,-1],[a_2,-1],[a_3,3],[a_4,1],[a_5,2]])*S$
+   S=base_replace(B1,[[a_0,-3],[a_1,-1],[a_2,-2],[a_3,3],[a_4,1],[a_5,2]])*S$
+   S0=S[0][0]$
+   XRule=[[x_1_1,1/2],[x_1_2,1/3],[x_2_1,1/7],[x_2_2,1/11]]$
+   S=base_replace(S,XRule)$
+   H=basistoHessian(S,2,2)$ 
+   HS=matrix(2,2)$
+   for(I1=0; I1<2; I1++){
+     for (J1=0; J1<2; J1++){
+       mat_red(H[I1][J1])$
+       print(H[I1][J1]);
+       for(I2=0; I2<2; I2++){
+	 for (J2=0; J2<2; J2++){
+	   HS[I2][J2]=diff(diff(S0,xij(I2+1,J2+1)),xij(I1+1,J1+1));
+	   HS[I2][J2]=base_replace(HS[I2][J2],XRule);
+	 }
+       }
+       print("--------");
+       print(H[I1][J1]-HS);
+       print("----------------");
+     }
+   }
+*/
+/* test 3
+   ARule=[[a_0,-3],[a_1,-1],[a_2,-1],[a_3,-1],[a_4,1],[a_5,1],[a_6,1],[a_7,3]]$
+   XRule=prime_XRule(3,3)$
+   Sp=initialPoly(4,4)$
+   S=pfaffian_basis(Sp,3,3)$
+   S=base_replace(S,XRule)$
+   H=basistoHessian(S,3,3)$ 
+   HS=matrix(3,3)$
+   for(I1=0; I1<3; I1++){
+     for (J1=0; J1<3; J1++){
+       mat_red(H[I1][J1])$
+       print(H[I1][J1]);
+       for(I2=0; I2<3; I2++){
+	 for (J2=0; J2<3; J2++){
+	   HS[I2][J2]=diff(diff(Sp,xij(I2+1,J2+1)),xij(I1+1,J1+1));
+	   HS[I2][J2]=base_replace(HS[I2][J2],XRule);
+	 }
+       }
+       print("--------");
+       print(H[I1][J1]-HS);
+       print("----------------");
+     }
+   }
+*/
+
+def basistodS(S,K,N){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  DS=pfaffianPsi_2(K,N)*S;
+  M=matrix(K,N);
+  Hessian=matrix(K,N);
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    if (length(C1) == 1){
+      for (J=K+1; J<K+N+1; J++){
+	if (base_memberq(J,B[I])){C2=cons(J,C2);}
+      }
+      if(ARule != 0){
+	M[C1[0]-1][C2[0]-K-1]=base_replace(DS[I][0],ARule); 
+      }
+      else{ 
+	M[C1[0]-1][C2[0]-K-1]=DS[I][0]; 
+      }
+    }else{}
+  }
+  for (II=0; II<K; II++){
+    for (JJ=0; JJ<N; JJ++){
+      Hessian[II][JJ]=poly_coefficient(M,1,dxij(II+1,JJ+1));
+    }
+  }
+  if(XRule != 0){ return(base_replace(Hessian,XRule)); }
+  else{ return(Hessian); }
+}
+/* test [012][013]x21[014]x22[023]x11[024]x12[034]x11x22
+   ARule=[[a_0,-2],[a_1,-1],[a_2,-1],[a_3,1],[a_4,1],[a_5,2]]$
+   XRule=0$
+   Sp=initialPoly(3,3)$
+   S=pfaffian_basis(Sp,2,2)$
+   H=basistodS(S,2,2)$ 
+   HS=matrix(2,2)$
+   for(I1=0; I1<2; I1++){
+     for (J1=0; J1<2; J1++){
+       print(H[I1][J1]);
+       HS[0][0]=diff(S[3][0],xij(I1+1,J1+1));
+       HS[0][1]=diff(S[4][0],xij(I1+1,J1+1));
+       HS[1][0]=diff(S[1][0],xij(I1+1,J1+1));
+       HS[1][1]=diff(S[2][0],xij(I1+1,J1+1));
+       SA=H[I1][J1]-base_replace(HS,ARule)$
+       mat_red(SA)$
+       print("--------");
+       print(SA);
+       print("----------------");
+     }
+   }
+*/
+
+def eulerxij(I,A,P){
+  if ((I[0]==A[0]) && (I[1]==A[1]+1)){return(1);}
+  else if ((I[0]==P) && (I[1]==1)){return(1);}
+  else if ((I[0]==A[0]) && (I[1]==1)){return(-1);}
+  else if ((I[0]==P) && (I[1]==A[1]+1)){return(-1);}
+  else {return(0);}
+}
+/* test
+   P=3$ Q=4$ A=[2,2]$
+   E=matrix(P,Q)$
+   for (I=0; I<P; I++){
+     for (J=0;J<Q; J++){
+       E[I][J]=eulerxij([I+1,J+1],A,P);
+     }
+   }
+   E;
+ */
+
+
+/*
+  XRule = ... (for test)
+ */
+def prime_XRule(K,N){
+  Rule=[];
+  P=1;
+  for (I=1; I<K+1; I++){
+    for (J=1; J<N+1; J++){
+      P=pari(nextprime,P+1);
+      Rule=cons([xij(I,J),1/P],Rule);
+    }
+  }
+  return(Rule);
+}
+/* test
+   prime_XRule(2,2);
+   prime_XRule(4,3);
+ */
+def prime_prob(P,Q){
+  Rule=[];
+  Prime=1;
+  Rc=[];
+  for (J=0; J<Q; J++){Rc=cons(1,Rc);}
+  Rule=cons(Rc,Rule);
+  for (I=0; I<P-1; I++){
+    Rc=[];
+    for (J=0; J<Q-1; J++){
+      Prime=pari(nextprime,Prime+1);
+      Rc=cons(1/Prime,Rc);
+    }
+    Rc=cons(1,Rc);
+    Rule=cons(Rc,Rule);
+  }
+  return(Rule);
+}
+/* test
+   prime_prob(2,2);
+   prime_prob(4,3);
+ */
+
+
+/* (3,6)-series */
+/*
+  A=[a0,a1,a2,a3,a4,a5], X=[[x11,x12],[x21,x22]]
+  (We do not use a0.)
+*/
+def s36(A,X){ 
+  M=max([-A[1],-A[2],A[3],A[4]])+2;
+  S=0;
+  for (N11=0; N11<M; N11++){
+  for (N12=0; N12<M; N12++){
+  for (N21=0; N21<M; N21++){
+  for (N22=0; N22<M; N22++){
+    if (-A[1]-N11-N12+1 > 0){
+    if (-A[2]-N21-N22+1 > 0){
+    if (A[1]+A[2]+A[5]+N11+N12+N21+N22+1 > 0){
+    if (A[3]-N11-N21+1>0){
+    if (A[4]-N12-N22+1>0){
+      S+=X[0][0]^N11 *X[0][1]^N12 *X[1][0]^N21 *X[1][1]^N22 /
+	(factorial(-A[1]-N11-N12)*factorial(-A[2]-N21-N22)
+	 *factorial(A[1]+A[2]+A[5]+N11+N12+N21+N22)
+	 *factorial(A[3]-N11-N21)*factorial(A[4]-N12-N22)
+	 *factorial(N11)*factorial(N12)*factorial(N21)*factorial(N22));
+    }}}}}
+  }}}}
+  return(S);
+}
+/* test
+   A=[-10,-4,-4,4,4,10];
+   X=[[1/7,1/5],[1/2,1/3]];
+   S=s36(A,X)$
+ */
+
+/*
+  relation between intersection matrices and contiguity ones
+ */
+def m_alpha(K,N){
+  M=[];
+  for (I=0; I<K+N+2; I++){
+    M=cons([alpha(I),-alpha(I)],M);
+  }
+  return(M);
+}
+/* test
+   m_alpha(2,2);
+   m_alpha(2,3);
+ */
+
+def check_relation(I,K,N){
+  C=intMatrixH(K,N);
+  H=(1/coef_upAlpha(I,K,N))*upAlpha(I,K,N);
+  Cc=base_replace(C,[[alpha(0),alpha(0)-1],[alpha(I),alpha(I)+1]]);
+  Hc=base_replace(base_replace(H,m_alpha(K,N)), [[alpha(0),alpha(0)-1],[alpha(I),alpha(I)+1]]);
+  LHS=Cc*matrix_transpose(Hc);
+  mat_red(LHS);
+  RHS=H*C;
+  mat_red(RHS);
+  Sa=LHS-RHS;
+  mat_red(Sa);
+  if (Sa[0][0] == 0){return(Sa);}
+  else{
+    Sa=base_replace(Sa,alphaRule(K,N));
+    mat_red(Sa);
+    return(Sa);
+  }
+  
+}
+/* test
+   check_relation(2,2,2);
+   check_relation(3,2,2);
+   check_relation(5,2,2);
+   check_relation(1,1,4);
+   check_relation(4,1,4);
+   check_relation(6,3,2);
+ */
+
+#ifdef USE_MODULE
+endmodule;
+#endif
+
+
+end$
+
