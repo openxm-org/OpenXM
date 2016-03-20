@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
 import("names.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
@@ -25,6 +25,10 @@ def get_svalue() {  // get values of static or extern variables.
 
 // Gauss Manin vector
 def gmvector(Beta,Prob) {
+  if ((base_memberq(0,Beta[0])) || (base_memberq(0,Beta[1]))){
+    error("gmvector: Marginal sums must be positive integers.");}
+  if (base_sum(Beta[0],0,0,length(Beta[0])-1) != base_sum(Beta[1],0,0,length(Beta[1])-1)){
+    error("gmvector: The sums of Beta[0] and Beta[1] must be equal.");}
   return(ekn_cBasis_2(Beta,Prob));
 }
 
