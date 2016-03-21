@@ -1,0 +1,892 @@
+%% $OpenXM$
+%% ptex gtt_ekn.texi   (.texi までつける. platex でなく ptex) 
+%% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename xyzman
+
+@comment --- タイトル ---
+@settitle 2元分割表HGM
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title 2元分割表HGM関数
+@subtitle Risa/Asir 2元分割表HGM関数説明書
+@subtitle 1.0 版
+@subtitle 2016 年 3 月 21 日
+
+@author  by Y.Goto, Y.Tachibana, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2010. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する関数がある.
+@menu
+* 2元分割表HGMの関数説明書について::
+* 2元分割表HGMの関数::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node 2元分割表HGMの関数説明書について,,, Top
+@chapter 2元分割表HGMの関数説明書について
+
+この説明書では
+HGM(holonomic gradient method) を用いた2元分割表の関数について説明する.
+ChangeLog の項目は www.openxm.org の cvsweb で
+ソースコードを読む時の助けになる情報が書かれている.
+
+本文中で引用している文献を列挙する.
+@itemize @bullet
+@item [GM2016] 
+Y.Goto, K.Matsumoto, Pfaffian equations and contiguity relations of the hypergeometric function of type (k+1,k+n+2) and their applications, arxiv:1602.01637 (version 1)
+@item [T2016] 
+Y.Tachibana, 差分ホロノミック勾配法のモジュラーメソッドによる計算の高速化,
+2016, 神戸大学修士論文.
+@item [GTT2016]
+Y.Goto, Y.Tachibana, N.Takayama, 2元分割表に対する差分ホロノミック勾配法の実装,
+数理研講究録(掲載予定).
+@item [TKT2015]
+N.Takayama, S.Kuriki, A.Takemura, 
+         $A$-hypergeometric distributions and Newton polytopes.
+         arxiv:1510.02269
+@end itemize
+
+このマニュアルで説明する関数を用いたプログラム例は
+gtt_ekn/test-t1.rr 
+など.
+
+@node 2元分割表HGMの関数,,, Top
+@chapter 2元分割表HGMの関数
+
+@comment --- section ``実験的関数'' の subsection xyz_abc
+@comment --- subsection xyz_pqr xyz_stu がある.
+@menu
+* gtt_ekn.gmvector::
+* gtt_ekn.nc::
+* gtt_ekn.lognc::
+* gtt_ekn.expectation::
+* gtt_ekn.setup::
+* gtt_ekn.upAlpha::
+@end menu
+
+@node 超幾何関数E(k,n),,, 2元分割表HGMの関数
+@section 超幾何関数E(k,n)
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn.gmvector,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.gmvector}
+@comment --- 索引用キーワード
+@findex gtt_ekn.gmvector
+
+@table @t
+@item gtt_ekn.gmvector(@var{beta},@var{p})
+:: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表に付随する超幾何関数
+E(k,n) の値およびその微分の値を戻す.
+@item gtt_ekn.ekn_cBasis_2(@var{beta},@var{p}) 
+の別名である.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+ベクトル, 超幾何関数の値とその微分. 詳しくは下記.
+@item beta
+行和, 列和のリスト. 成分はすべて正であること. 
+@item p
+二元分割表のセルの確率のリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+gmvector は Gauss-Manin vector の略である [GM2016].
+@item 
+gmvector の戻り値は [GM2016] の４章で定義されているベクトル F である.
+ただし第一成分が [GM2016] の６章で定義されている級数 S の値と等しく
+なるようにスカラー倍されている.
+@item 
+ r1 x r2 分割表を考える.
+ m+1=r1, n+1=r2 とおく. 
+ 正規化定数 Z は分割表 u を (m+1) × (n+1) 行列とするとき p^u/u! の和である.
+ ここで和は行和列和が @var{beta} であるような u 全体でとる
+ [TKT2015], [GM2016].
+ S はこの級数の p を
+@verbatim
+  [[1,y11,...,y1n],
+   [1,y21,...,y2n],...,
+   [1,ym1, ...,ymn],
+   [1,1, ..., 1]]
+@end verbatim
+　(1 が L 字型に並ぶ),
+と正規化した級数である.
+@item
+2x(n+1)分割表で, gmvector の戻り値を Lauricella  F_D で書くことが
+以下のようにできる
+(b[2][1]-b[1][1] >= 0 の場合). 
+ここで b[1][1], b[1][2] は, それぞれ 1 行目の行和, 2 行目の行和,
+b[2][i] は i 列目の列和である.
+@comment ekn/Talks/2015-12-3-goto.tex
+@verbatim
+S=F_D(-b[1,1], [-b[2,2],...,-b[2,n+1]], b[2,1]-b[1,1]+1 ; y)/C,
+@end verbatim
+C=b[1,1]! b[2,2]! ... b[2][n+1]! (b[2,1]-b[1,1])!
+とおく. 
+1/C は L 字型の分割表 
+@verbatim
+[[b[1,1],       0,      ..., 0       ],
+ [b[2,1]-b[1,1],b[2,2], ..., b[2,n+1]]]
+@end verbatim
+に対応.
+gmvector は
+@verbatim
+[S,(y11/a2) d_11 S,(y12/a3) d_12 S, ..., (y1n/a_(n+1)) d_1n S]
+@end verbatim
+である.
+ここで d_ij は yij についての微分,
+@verbatim
+  [a0,     a1, ...                      ,a_(n+2)] 
+= [-b[1,2],-b[1,1],b[2,2], ..., b[2,n+1],b[2,1]]
+@end verbatim
+である.
+@item 
+周辺和 @var{beta}の時の正規化定数のセル確率 @var{p} に対する値は 多項式に退化した E(k,n) の値で表現できる. 文献 [TKT2015], [GM2016] 参照.
+@item 
+option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう
+[T2016]. 
+分散計算用の各種パラメータの設定は
+gtt_ekn.setup で行なう.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 次は2 x 2 分割表で行和が [5,1],  列和が [3,3], 各セルの確率が
+[[1/2,1/3],[1/7,1/5]] の場合の gmvector の値である.  
+@example
+[3000] load("gtt_ekn.rr");
+[3001] ekn_gtt.gmvector([[5,1],[3,3]],[[1/2,1/3],[1/7,1/5]])
+[775/27783]
+[200/9261]
+@end example
+
+参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
+計算ができる.
+守備範囲の異なるプログラム同士の比較, debug 用参考.
+@example
+[3080] import("tk_fd.rr");
+[3081] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]  // 2変数 FD のパラメータ. a,[b1,b2],c
+[3082] tk_fd.fd_hessian2(A[0],A[1],A[2],[1/2,1/3]);
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[4483/124416,[ 1961/15552 185/1728 ],
+ [ 79/288 259/864 ]
+ [ 259/864 47/288 ]]
+// 戻値は [F=F_D, gradient(F), Hessian(F)]
+
+// ekn_gt での例と同じパラメータ.
+[3543] A=tk_fd.marginal2abc([5,1],[3,3]);
+[-5,[-3],-1]
+[3544] tk_fd.fd_hessian2(A[0],A[1],A[2],[(1/3)*(1/7)/((1/2)*(1/5))]);
+Computing Dmat(ca) for parameters B=[-3],X=[ 10/21 ]
+[775/27783,[ 20/147 ],[ 17/42 ]]
+@end example
+
+参考: 一般の A 分布の正規化定数についての Hessian の計算は実験的 package ot_hessian_ahg.rr
+で実装のテストがされている. (これはまだ未完成のテスト版なので出力形式等も将来的には変更される.)
+@example
+import("ot_hgm_ahg.rr");
+import("ot_hessian_ahg.rr");
+def  htest4() @{
+  extern C11_A;
+  extern C11_Beta;
+  Hess=newmat(7,7);
+  A =C11_A;
+  Beta0= [b0,b1,b2,b3];
+  BaseIdx=[4,5,6];
+  X=[x0,x1,x2,x3,x4,x5,x6];
+  for (I=0; I<7; I++) for (J=0; J<7; J++) @{
+    Idx = [I,J];
+    H=hessian_simplify(A,Beta0,X,BaseIdx,Idx);
+    Hess[I][J]=H;
+    printf("[I,J]=%a, Hessian_ij=%a\n",Idx,H);
+  @} 
+  return(Hess);
+@}
+[2917] C11_A;
+[[0,0,0,1,1,1,1],[1,0,0,1,0,1,0],[0,1,1,0,1,0,1],[1,1,0,1,1,0,0]]
+[2918] C11_Beta;
+[166,36,290,214]
+[2919] Ans=htest4$
+[2920] Ans[0][0];
+[[((b1-b0-1)*x4)/(x0^2),[4]],[((b1-b0-1)*x6)/(x0^2),[6]],
+ [(b1^2+(-2*b0-1)*b1+b0^2+b0)/(x0^2),[]],[(x6)/(x0),[6,0]],[(x4)/(x0),[4,0]]]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.setup}
+@ref{gtt_ekn.pfaffian_basis}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ この関数は 
+[GM2016] のアルゴリズムおよび 
+[T2016] による modular method を用いた高速化を実装したものである.  
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1, gtt_ekn/ekn_pfaffian_8.rr
+@end itemize
+
+
+@comment **********************************************************
+@node gtt_ekn.nc,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.nc}
+@comment --- 索引用キーワード
+@findex gtt_ekn.nc
+
+@table @t
+@item gtt_ekn.nc(@var{beta},@var{p})
+:: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の条件付き確率の正規化定数 Z
+およびその微分の値を戻す.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+ベクトル [Z,[[d_11 Z, d_12 Z, ...], ..., [d_m1 Z, d_m2 Z, ...., d_mn Z]]]
+@item beta
+行和, 列和のリスト. 成分はすべて正であること. 
+@item p
+二元分割表のセルの確率のリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+ r1 x r2 分割表を考える.
+ m=r1, n=r2 とおく. 
+ 正規化定数 Z は分割表 u を m × n 行列とするとき p^u/u! の和である.
+ ここで和は行和列和が @var{beta} であるような u 全体でとる
+ [TKT2015], [GM2016].
+ p^u は p_ij^u_ij の積, u! は u_ij! の積である.
+ d_ij Z で Z の変数 p_ij についての偏微分を表す.
+@item
+nc は gmvector の値を元に, [GM2016] の Prop
+ 7.1 に基づいて Z の値を計算する.
+@item 
+option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
+分散計算用の各種パラメータの設定は
+gtt_ekn.setup で行なう.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 2x3 分割表での Z とその微分の計算.
+@example
+[2237] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[4483/124416,[ 353/7776 1961/15552 185/1728 ]
+[ 553/20736 1261/15552 1001/13824 ]]
+@end example
+
+参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
+計算ができる.
+@example
+[3076] import("tk_fd.rr");
+[3077] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]
+[3078] tk_fd.ahmat_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[4483/124416,[[353/7776,1961/15552,185/1728],
+              [553/20736,1261/15552,1001/13824]]]
+// 戻値は [Z, [[d_11 Z, d_12 Z, d_13 Z],
+//             [d_21 Z, d_22 Z, d_23 Z]]] の値. 
+//           ここで d_ij は i,j 成分についての微分を表す.
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.setup}
+@ref{gtt_ekn.lognc}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1, gtt_ekn/ekn_eval.rr
+@end itemize
+
+
+@comment **********************************************************
+@node gtt_ekn.lognc,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.lognc}
+@comment --- 索引用キーワード
+@findex gtt_ekn.lognc
+
+@table @t
+@item gtt_ekn.lognc(@var{beta},@var{p})
+:: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の条件付き確率の正規化定数 Z
+の log の近似値およびその微分の近似値を戻す.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+ベクトル [log(Z), [[d_11 log(Z), d_12 log(Z), ...], [d_21 log(Z),...], ... ]
+@item beta
+行和, 列和のリスト. 成分はすべて正であること.  
+@item p
+二元分割表のセルの確率のリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+条件付き最尤推定に利用する [TKT2015].
+@item option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
+分散計算用の各種パラメータの設定は
+gtt_ekn.setup で行なう.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 2 × 3 分割表での例. 第一成分のみ近似値.
+@example
+[2238] gtt_ekn.lognc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[-3.32333832422461674630,[ 5648/4483 15688/4483 13320/4483 ]
+[ 3318/4483 10088/4483 9009/4483 ]]
+@end example
+
+参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
+計算ができる.
+@example
+[3076] import("tk_fd.rr");
+[3077] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]
+[3078] tk_fd.log_ahmat_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[-3.32333832422461674639485797719209322217260539267246045320,
+ [[1.2598706, 3.499442, 2.971224],
+  [0.7401293, 2.250278, 2.009591]]]
+// 戻値は [log(Z), 
+//          [[d_11 log(Z), d_12 log(Z), d_13 log(Z)],
+//           [d_21 log(Z), d_22 log(Z), d_23 log(Z)]]] 
+// の近似値.
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.setup}
+@ref{gtt_ekn.nc}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1.
+@end itemize
+
+@comment **********************************************************
+@node gtt_ekn.expectation,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.expectation}
+@comment --- 索引用キーワード
+@findex gtt_ekn.expectation
+
+@table @t
+@item gtt_ekn.expectation(@var{beta},@var{p})
+:: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の期待値を計算する.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+二元分割表の各セルの期待値のリスト.
+@item beta
+行和, 列和のリスト. 成分はすべて正であること.  
+@item p
+二元分割表のセルの確率のリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+[GM2016] の Algorithm 7.8 の実装.
+@item option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
+分散計算用の各種パラメータの設定は
+gtt_ekn.setup で行なう.
+@item option index を与えると, 指定された成分の期待値のみ計算する.
+たとえば 2 x 2 分割表で index=[[0,0],[1,1]] と指定すると, 1 のある成分の期待値のみ計算する.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+
+2×2, 3×3 の分割表の期待値計算例. 
+@example
+[2235] gtt_ekn.expectation([[1,4],[2,3]],[[1,1/3],[1,1]]);
+[ 2/3 1/3 ]
+[ 4/3 8/3 ]
+[2236] gtt_ekn.expectation([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[ 5648/4483 7844/4483 4440/4483 ]
+[ 3318/4483 10088/4483 9009/4483 ]
+
+[2442] gtt_ekn.expectation([[4,14,9],[11,6,10]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+[ 207017568232262040/147000422096729819 163140751505489940/147000422096729819 
+                                        217843368649167296/147000422096729819 ]
+[ 1185482401011137878/147000422096729819 358095302885438604/147000422096729819 
+                                         514428205457640984/147000422096729819 ]
+[ 224504673820628091/147000422096729819 360766478189450370/147000422096729819 
+                                        737732646860489910/147000422096729819 ]
+@end example
+
+参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
+計算ができる.
+@example
+[3076] import("tk_fd.rr");
+[3077] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]
+[3078] tk_fd.expectation_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[[5648/4483,7844/4483,4440/4483],
+ [3318/4483,10088/4483,9009/4483]]
+// 各セルの期待値.
+@end example
+
+参考: 一般の A 分布の計算は ot_hgm_ahg.rr. まだ実験的なため, module 化されていない.
+ot_hgm_ahg.rr についての参考文献:
+K.Ohara, N.Takayama, Pfaffian Systems of A-Hypergeometric Systems II --- Holonomic Gradient Method, arxiv:1505.02947
+@example
+[3237] import("ot_hgm_ahg.rr");
+// 2 x 2 分割表.
+[3238] hgm_ahg_expected_values_contiguity([[0,0,1,1],[1,0,1,0],[0,1,0,1]],
+        [9,6,8],[1/2,1/3,1/5,1/7],[x1,x2,x3,x4]|geometric=1);
+oohg_native=0, oohg_curl=1
+[1376777025/625400597,1750225960/625400597,
+ 2375626557/625400597,3252978816/625400597]
+// 2 x 2 分割表の期待値.
+
+// 2 x 3 分割表.
+[3238] hgm_ahg_expected_values_contiguity(
+ [[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+ [5,2,4,3],[1,1/2,1/3,1,1,1],[x1,x2,x3,x4,x5,x6]|geometric=1);
+[5648/4483,7844/4483,4440/4483,3318/4483,10088/4483,9009/4483]
+// 2 x 3 分割表の期待値. 上と同じ問題.
+@end example
+
+3 x 3 分割表. 構造的0が一つ.
+@example
+/*
+  dojo, p.221 のデータ.  成績3以下の生徒は集めてひとつに.
+  2 1 1
+  8 3 3
+  0 2 6
+
+  row sum: 4,14,8
+  column sum: 10,6,10
+  0 を一つ含むので, (3,6) 型の A から 7 列目を抜く.
+*/
+
+A=[[0,0,0,1,1,1, 0,0],
+   [0,0,0,0,0,0, 1,1],
+   [1,0,0,1,0,0, 0,0],
+   [0,1,0,0,1,0, 1,0],
+   [0,0,1,0,0,1, 0,1]];
+B=[14,8,10,6,10];
+hgm_ahg_expected_values_contiguity(A,B,[1,1/2,1/3,1,1/5,1/7,1,1],
+　　　　　　　　　　　　　　　　[x1,x2,x3,x4,x5,x6,x7,x8]|geometric=1);
+
+// 答.
+[14449864949304/9556267369631,
+ 10262588586540/9556267369631, 13512615942680/9556267369631,
+ 81112808747006/9556267369631,
+ 21816297744346/9556267369631, 30858636683482/9556267369631,
+                              
+ 25258717886900/9556267369631,51191421070148/9556267369631]
+@end example
+
+3 x 3 分割表.
+@example
+/*
+ 上のデータで 0 を 1 に変更.
+  2 1 1
+  8 3 3
+  1 2 6
+
+  row sum: 4,14,9
+  column sum: 11,6,10
+*/
+A=[[0,0,0,1,1,1,0,0,0],
+   [0,0,0,0,0,0,1,1,1],
+   [1,0,0,1,0,0,1,0,0],
+   [0,1,0,0,1,0,0,1,0],
+   [0,0,1,0,0,1,0,0,1]];
+B=[14,9,11,6,10];
+hgm_ahg_expected_values_contiguity(A,B,[1,1/2,1/3,1,1/5,1/7,1,1,1],
+                              [x1,x2,x3,x4,x5,x6,x7,x8]|geometric=1);
+
+// 期待値, 答.   x9 を指定していないので, 9番目の期待値は出力してない.
+[207017568232262040/147000422096729819,
+ 163140751505489940/147000422096729819,217843368649167296/147000422096729819,
+ 1185482401011137878/147000422096729819,
+ 358095302885438604/147000422096729819,514428205457640984/147000422096729819,
+ 224504673820628091/147000422096729819,360766478189450370/147000422096729819]
+
+// Z やその微分の計算は hgm_ahg_contiguity 関数がおこなうが, これの簡易インターフェースは
+// まだ書いてない.
+@end example
+
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.setup}
+@ref{gtt_ekn.nc}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1.
+@end itemize
+
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn.setup,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.setup}
+@comment --- 索引用キーワード
+@findex gtt_ekn.setup
+
+@table @t
+@item gtt_ekn.setup()
+:: 分散計算用の環境設定をおこなう. 現在の環境を報告する.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 使用するプロセスと素数の個数, 最小の素数を表示する. 準備されていない場合はその旨を表示.
+@item option nid (nid = Number of process ID)を与えると指定した数だけプロセスを用意する.
+@item option npl (npl = Prime List or Number of Prime List)を与えるとnplが文字列の場合指定された素数リストのファイルを読み込む. nplが自然数の場合さらにoption minp (minp =MINimum Prime)を与えるとminpより大きな素数をnpl個生成する. その際option fname (fname = File NAME)を与えると生成した素数リストをfnameとして保存する.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 素数のリストを生成してファイル p.txt へ書き出す.
+@example
+gtt_ekn.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.nc}
+@ref{gtt_ekn.gmvector}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1,
+ gtt_ekn/g_mat_fac.rr
+
+@end itemize
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn.upAlpha,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.upAlpha}
+@comment --- 索引用キーワード
+@findex gtt_ekn.upAlpha
+
+@table @t
+@item gtt_ekn.upAlpha(@var{i},@var{k},@var{n})
+:: 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item i  a_i を a_i+1 と変化させる contiguity relation.
+@item k  E(k+1,n+k+2)型の超幾何関数の k. 分割表では (k+1)×(n+1). 
+@item n  E(k+1,n+k+2)型の超幾何関数の n. 分割表では (k+1)×(n+1). 
+@item return  contiguity relation の pfaffian_basis についての行列表現を戻す. [GM2016] の Cor 6.3.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+ upAlpha は　[GM2016] の Cor 6.3 の行列 U_i を戻す.
+@item 関連する各関数の簡潔な説明と例も加える.
+@item a_i を a_i-1 と変化させたい場合は関数 downAlpha を用いる.
+@item a_i と分割表の周辺和を見るには, 関数 marginaltoAlpha([行和,列和]) を用いる.
+@item
+   pfaffian_basis は [GM2016] の４章のベクトル F に対応する偏微分を戻す.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 以下の例は 2×2分割表(E(2,4)), 2×3分割表(E(2,5))の場合である.
+[2225] までは出力を略している.
+@example
+[2221] gtt_ekn.marginaltoAlpha([[1,4],[2,3]]);
+[[a_0,-4],[a_1,-1],[a_2,3],[a_3,2]]
+[2222] gtt_ekn.upAlpha(1,1,1);  // E(2,4) の a_1 方向の 
+                                //     contiguity を表現する行列
+[2223] gtt_ekn.upAlpha(2,1,1);  // E(2,4) の a_2 方向
+[2224] gtt_ekn.upAlpha(3,1,1);  // E(2,4) の a_3 方向
+[2225] function f(x_1_1);
+[2232] gtt_ekn.pfaffian_basis(f(x_1_1),1,1);
+[ f(x_1_1) ]
+[ (f{1}(x_1_1)*x_1_1)/(a_2) ]
+[2233] function f(x_1_1,x_1_2);
+f() redefined.
+[2234] gtt_ekn.pfaffian_basis(f(x_1_1,x_1_2),1,2); // E(2,5), 2*3 分割表
+[ f(x_1_1,x_1_2) ]
+[ (f{1,0}(x_1_1,x_1_2)*x_1_1)/(a_2) ]
+[ (f{0,1}(x_1_1,x_1_2)*x_1_2)/(a_3) ]
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.nc}
+@ref{gtt_ekn.gmvector}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ この関数は [GM2016]
+で与えられたアルゴリズムに従い contiguity relation を導出する.
+@item
+ 変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_pfaffian_8.rr 1.1.
+@end itemize
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+
+// 2 x m 分割表において似た機能を有する関数の利用例を参考までに記載する;
+// 正規化定数とその微分関連.
+// その1.
+[3077] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]
+[3078] tk_fd.ahmat_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[4483/124416,[[353/7776,1961/15552,185/1728],[553/20736,1261/15552,1001/13824]]]
+// 戻値は [Z, [[d_11 Z, d_12 Z, d_13 Z],[d_21 Z, d_22 Z, d_23 Z]]] の値.
+
+// その2.
+[3079] tk_fd.log_ahmat_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[-3.32333832422461674639485797719209322217260539267246045320,
+ [[1.25987062235110417131385233102832924380994869507026544724,3.49944233772027660049074280615659156814633058219942003122,2.97122462636627258532232879768012491635065804149007361142],
+  [0.740129377648895828686147668971670756190051304929734552754,2.25027883113986169975462859692170421592683470890028998438,2.00959179121124247155922373410662502788311398616997546285]]]
+// 戻値は [log(Z), 
+//          [[d_11 log(Z), d_12 log(Z), d_13 log(Z)],
+//           [d_21 log(Z), d_22 log(Z), d_23 log(Z)]]] 
+// の近似値.
+
+// その3.
+[3082] fd_hessian2(A[0],A[1],A[2],[1/2,1/3]);
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[4483/124416,[ 1961/15552 185/1728 ],
+ [ 79/288 259/864 ]
+ [ 259/864 47/288 ]]
+// 戻値は [F=F_D, gradient(F), Hessian(F)]
+
+// 参考.
+// ygahvec で巾関数分の調整. 独立した関数はないようだ.
+
+//-----------------------------------------------------------------------
+// 2 x m 分割表において似た機能を有する関数の利用例を参考までに記載する;
+// 期待値関連.
+[3079] A=tk_fd.marginal2abc([4,5],[2,4,3]);
+[-4,[-4,-3],-1]
+[3080] tk_fd.expectation_abc(A[0],A[1],A[2],[[1,1/2,1/3],[1,1,1]]);
+RS=[ 4 5 ], CSnew=[ 2 4 3 ], Ynew=[ 1 1/2 1/3 ]
+[ 1 1 1 ]
+Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
+[[5648/4483,7844/4483,4440/4483],
+ [3318/4483,10088/4483,9009/4483]]
+// 各セルの期待値.
+
+//-----------------------------------------------------------------------
+// ot_hgm_ahg.rr の例.  実験的なため module 化されていない.
+[3237] import("ot_hgm_ahg.rr");
+// 2 x 2 分割表.
+[3238] hgm_ahg_expected_values_contiguity([[0,0,1,1],[1,0,1,0],[0,1,0,1]],
+        [9,6,8],[1/2,1/3,1/5,1/7],[x1,x2,x3,x4]|geometric=1);
+oohg_native=0, oohg_curl=1
+[1376777025/625400597,1750225960/625400597,2375626557/625400597,3252978816/625400597]
+// 2 x 2 分割表の期待値.
+
+// 2 x 3 分割表.
+[3238] hgm_ahg_expected_values_contiguity(
+ [[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0],[0,0,1,0,0,1]],
+ [5,2,4,3],[1,1/2,1/3,1,1,1],[x1,x2,x3,x4,x5,x6]|geometric=1);
+[5648/4483,7844/4483,4440/4483,3318/4483,10088/4483,9009/4483]
+// 2 x 3 分割表の期待値. 上と同じ問題.
+
+/*
+  dojo, p.221.  成績3以下の生徒は集めてひとつに.
+  2 1 1
+  8 3 3
+  0 2 6
+
+  row sum: 4,14,8
+  column sum: 10,6,10
+  0 を一つ含むので, (3,6) 型の A から 7 列目を抜く.
+*/
+// 3 x 3 分割表. 構造的0が一つ.
+
+A=[[0,0,0,1,1,1, 0,0],
+   [0,0,0,0,0,0, 1,1],
+   [1,0,0,1,0,0, 0,0],
+   [0,1,0,0,1,0, 1,0],
+   [0,0,1,0,0,1, 0,1]];
+B=[14,8,10,6,10];
+hgm_ahg_expected_values_contiguity(A,B,[1,1/2,1/3,1,1/5,1/7,1,1],[x1,x2,x3,x4,x5,x6,x7,x8]|geometric=1);
+
+// 答.
+[14449864949304/9556267369631,10262588586540/9556267369631,13512615942680/9556267369631,
+ 81112808747006/9556267369631,21816297744346/9556267369631,30858636683482/9556267369631,
+                              25258717886900/9556267369631,51191421070148/9556267369631]
+
+
+/*
+ 上のデータで 0 を 1 に変更.
+  2 1 1
+  8 3 3
+  1 2 6
+
+  row sum: 4,14,9
+  column sum: 11,6,10
+*/
+// 3 x 3 分割表.
+A=[[0,0,0,1,1,1,0,0,0],
+   [0,0,0,0,0,0,1,1,1],
+   [1,0,0,1,0,0,1,0,0],
+   [0,1,0,0,1,0,0,1,0],
+   [0,0,1,0,0,1,0,0,1]];
+B=[14,9,11,6,10];
+hgm_ahg_expected_values_contiguity(A,B,[1,1/2,1/3,1,1/5,1/7,1,1,1],[x1,x2,x3,x4,x5,x6,x7,x8]|geometric=1);
+
+// 期待値, 答.
+[207017568232262040/147000422096729819,163140751505489940/147000422096729819,217843368649167296/147000422096729819,
+ 1185482401011137878/147000422096729819,358095302885438604/147000422096729819,514428205457640984/147000422096729819,
+ 224504673820628091/147000422096729819,360766478189450370/147000422096729819]
+
+// Z やその微分の計算は hgm_ahg_contiguity 関数がおこなうが, これの簡易インターフェースは
+// まだ書いてない.
+
+
+4. x_ij は [GM2016] の１章で,
+ たとえば 3x3 の時 [[1,1,1],[x_11,x_12,1],[x_21,x_22,1]]
+となっているが, [GM2016] の Prop 7.1 の対応では,
+   p = [[1,x_11,x_12],[1,x_21,x_22],[1,1,1]] となっているので注意.
