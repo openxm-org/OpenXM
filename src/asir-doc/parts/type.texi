@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.12 2003/04/20 08:01:27 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.13 2007/02/15 02:41:38 noro Exp $
 \BJP
 @node 型,,, Top
 @chapter 型
@@ -451,49 +451,51 @@ result shall be computed as a double float number.
 @b{bigfloat}
 @*
 \BJP
-@b{bigfloat} は, @b{Asir} では @b{PARI} ライブラリにより
-実現されている. @b{PARI} においては, @b{bigfloat} は, 仮数部
-のみ任意多倍長で, 指数部は 1 ワード以内の整数に限られている. 
+@b{bigfloat} は, @b{Asir} では @b{MPFR} ライブラリにより
+実現されている. @b{MPFR} においては, @b{bigfloat} は, 仮数部
+のみ任意多倍長で, 指数部は 64bit 整数である.
 @code{ctrl()} で @b{bigfloat} を選択することにより, 以後の浮動小数
 の入力は @b{bigfloat} として扱われる. 精度はデフォルトでは
-10 進 9 桁程度であるが, @code{setprec()} により指定可能である. 
+10 進 9 桁程度であるが, @code{setprec()}, @code{setbprec()} により指定可能である. 
 \E
 \BEG
-The @b{bigfloat} numbers of @b{Asir} is realized by @b{PARI} library.
-A @b{bigfloat} number of @b{PARI} has an arbitrary precision mantissa
-part.  However, its exponent part admits only an integer with a single
-word precision.
+The @b{bigfloat} numbers of @b{Asir} is realized by @b{MPFR} library.
+A @b{bigfloat} number of @b{MPFR} has an arbitrary precision mantissa
+part.  However, its exponent part admits only a 64bit integer.
 Floating point operations will be performed all in @b{bigfloat} after
 activating the @b{bigfloat} switch by @code{ctrl()} command.
-The default precision is about 9 digits, which can be specified by
-@code{setprec()} command.
+The default precision is 53 bits (about 15 digits), which can be specified by
+@code{setbprec()} and @code{setprec()} command.
 \E
 
 @example
 [0] ctrl("bigfloat",1);
 1
 [1] eval(2^(1/2));
-1.414213562373095048763788073031
+1.4142135623731
 [2] setprec(100);      
-9
+15
 [3] eval(2^(1/2));
-1.41421356237309504880168872420969807856967187537694807317...
+1.41421356237309504880168872420969807856967187537694...764157
+[4] setbprec(100);
+332
+[5] 1.41421356237309504880168872421
 @end example
 
 \BJP
 @code{eval()} は, 引数に含まれる函数値を可能な限り数値化する函数である. 
-@code{setprec()} で指定された桁数は, 結果の精度を保証するものではなく, 
-@b{PARI} 内部で用いられる表現のサイズを示すことに注意すべきである. 
+@code{setbprec()} で指定された2 進桁数は, 丸めモードに応じた結果の精度を保証する. @code{setprec()} で指定される10進桁数は 2 進桁数に変換されて設定される.
+
 \E
 \BEG
 Function @code{eval()} evaluates numerically its argument as far as
 possible.
-Notice that the integer given for the argument of @code{setprec()} does
-not guarantee the accuracy of the result,
-but it indicates the representation size of numbers with which internal
-operations of @b{PARI} are performed.
+Notice that the integer given for the argument of @code{setbprec()}
+guarantees the accuracy of the result according to the current rounding mode.
+The argument of @code{setbprec()} is converted to the corresonding bit length
+and set.
 \E
-(@xref{eval deval}, @ref{pari}.)
+(@xref{eval deval}.)
 
 @item 4
 \JP @b{複素数}

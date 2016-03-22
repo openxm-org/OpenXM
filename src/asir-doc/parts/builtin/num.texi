@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.9 2003/12/18 10:26:20 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.10 2003/12/20 20:02:28 ohara Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -748,7 +748,7 @@ These functions works also for polynomials with complex coefficients.
 @code{deval} は倍精度浮動小数を結果として 
 @code{eval} の場合, 有理数はそのまま残る. 
 @item
-@code{eval} においては, 計算は @b{PARI} (@ref{pari}) が行う. 
+@code{eval} においては, 計算は @b{MPFR} ライブラリが行う. 
 @code{deval} においては, 計算は C 数学ライブラリの関数を用いて行う. 
 @item
 @code{deval} は複素数は扱えない. 
@@ -756,7 +756,7 @@ These functions works also for polynomials with complex coefficients.
 @code{eval} においては, 
 @var{prec} を指定した場合, 計算は, 10 進 @var{prec} 桁程度で行われる. 
 @var{prec} の指定がない場合, 現在設定されている精度で行われる. 
-(@xref{setprec}.)
+(@xref{setprec}, @xref{setbprec}.)
 @item
 @table @t
 @item 扱える函数は, 次の通り. 
@@ -791,7 +791,7 @@ possible.
 double float. Rational numbers remain unchanged in results from @code{eval}.
 @item
 In @code{eval} the computation is done 
-by @b{PARI}. (@xref{pari}.) In @code{deval} the computation is
+by @b{MPFR} library. In @code{deval} the computation is
 done by the C math library.
 @item
 @code{deval} cannot handle complex numbers.
@@ -802,7 +802,6 @@ If @var{prec} is not specified, computation is performed with the
 precision set currently. (@xref{setprec}.)
 @item
 Currently available numerical functions are listed below.
-Note they are only a small part of whole @b{PARI} functions.
 
 @table @t
 @code{sin}, @code{cos}, @code{tan},
@@ -847,7 +846,7 @@ Napier's number (@t{exp}(1))
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{ctrl}, @fref{setprec}, @fref{pari}.
+@fref{ctrl}, @fref{setprec}, @fref{setbprec}.
 @end table
 
 \JP @node pari,,, 数の演算
@@ -890,9 +889,7 @@ Napier's number (@t{exp}(1))
 函数値の評価を高速に行うことができる. @b{PARI} は他のプログラムから
 サブルーチンライブラリとして用いることができ, また, @samp{gp} という 
 @b{PARI}ライブラリのインタフェースにより UNIX のアプリケーションとして
-利用することもできる. 現在のバージョンは @b{2.0.17beta} でいくつかの ftp
-site (たとえば @code{ftp://megrez.ceremab.u-bordeaux.fr/pub/pari})
-から anonymous ftp できる. 
+利用することもできる. 
 @item
 最後の引数 @var{prec} で計算精度を指定できる.
 @var{prec} を省略した場合 @code{setprec()} で指定した精度となる. 
@@ -914,8 +911,6 @@ function evaluations as well as arithmetic operations at a remarkable
 speed.  It can also be used from other external programs as a library.
 It provides a language interface named @samp{gp} to its library, which
 enables a user to use @b{PARI} as a calculator which runs on UNIX.
-The current version is @b{2.0.17beta}.  It can be obtained by several ftp
-sites. (For example, @code{ftp://megrez.ceremab.u-bordeaux.fr/pub/pari}.)
 @item
 The last argument (optional) @var{int} specifies the precision in digits
 for bigfloat operation.
@@ -1062,14 +1057,11 @@ For details of individual functions, refer to the @b{PARI} manual.
 
 \BJP
 @item
-@b{Asir} で用いているのは @b{PARI} のほんの一部の機能であるが, 今後
-より多くの機能が利用できるよう改良する予定である. 
+@b{Asir} で用いているのは @b{PARI} のほんの一部の機能である.
 \E
 \BEG
 @item
 @b{Asir} currently uses only a very small subset of @b{PARI}.
-We will improve @b{Asir} so that it can provide more functions of
-@b{PARI}.
 \E
 @end itemize
 
@@ -1091,16 +1083,17 @@ We will improve @b{Asir} so that it can provide more functions of
 @fref{setprec}.
 @end table
 
-\JP @node setprec,,, 数の演算
-\EG @node setprec,,, Numbers
-@subsection @code{setprec}
+\JP @node setbprec setprec,,, 数の演算
+\EG @node setbprec setprec,,, Numbers
+@subsection @code{setbprec}, @code{setprec} 
+@findex setbprec
 @findex setprec
-@cindex PARI
 
 @table @t
-@item setprec([@var{n}])
-\JP :: @b{bigfloat} の桁数を @var{n} 桁に設定する. 
-\EG :: Sets the precision for @b{bigfloat} operations to @var{n} digits.
+@item setbprec([@var{n}])
+@itemx setprec([@var{n}])
+\JP :: @b{setbprec}, @b{setprec} は @b{bigfloat} の精度をそれぞれ 2 進, 10進 @var{n} 桁に設定する.
+\EG :: @b{setbprec}, @b{setprec} set the precision for @b{bigfloat} operations to @var{n} bits, @var{n} digits respectively.
 @end table
 
 @table @var
@@ -1118,7 +1111,7 @@ We will improve @b{Asir} so that it can provide more functions of
 引数がある場合, @b{bigfloat} の桁数を @var{n} 桁に設定する. 
 引数のあるなしにかかわらず, 以前に設定されていた値を返す. 
 @item
-@b{bigfloat} の計算は @b{PARI} (@ref{pari}) によって行われる. 
+@b{bigfloat} の計算は @b{MPFR} ライブラリによって行われる. 
 @item
 @b{bigfloat} での計算に対し有効である. 
 @b{bigfloat} の flag を on にする方法は, @code{ctrl} を参照. 
@@ -1128,13 +1121,13 @@ We will improve @b{Asir} so that it can provide more functions of
 \E
 \BEG
 @item
-When an argument is given, it
-sets the precision for @b{bigfloat} operations to @var{n} digits.
-The return value is always the previous precision in digits regardless of
+When an argument @var{n} is given, these functions 
+set the precision for @b{bigfloat} operations to @var{n} bits or @var{n} digits.
+The return value is always the previous precision regardless of
 the existence of an argument.
 
 @item
-@b{Bigfloat} operations are done by @b{PARI}. (@xref{pari}.)
+@b{Bigfloat} operations are done by @b{MPFR} library.
 @item
 This is effective for computations in @b{bigfloat}.
 Refer to @code{ctrl()} for turning on the `@b{bigfloat} flag.'
@@ -1147,17 +1140,100 @@ Therefore, it is safe to specify a larger value.
 
 @example
 [1] setprec();
-9
+15
 [2] setprec(100);
-9
+15
 [3] setprec(100);
-96
+99
+[4] setbprec();
+332
 @end example
 
 @table @t
 \JP @item 参照
-@fref{ctrl}, @fref{eval deval}, @fref{pari}.
+@fref{ctrl}, @fref{eval deval}.
 @end table
+
+\JP @node setround,,, 数の演算
+\EG @node setround,,, Numbers
+@subsection @code{setround}
+@findex setround
+
+@table @t
+@item setround([@var{mode}])
+\JP :: @b{bigfloat} の丸めモードを @var{mode} に設定する.
+\EG :: Sets the rounding mode @var{mode}.
+@end table
+
+@table @var
+@item return
+\JP 整数
+\EG integer
+@item mode
+\JP 整数
+\EG integer
+@end table
+
+@itemize @bullet
+\BJP
+@item
+引数がある場合, @b{bigfloat} の丸めモードを @var{mode} に設定する. 
+引数のあるなしにかかわらず, 以前に設定されていた値を返す. 
+丸めモードの意味は次のとおり.
+@table @code
+@item 0
+Round to nearest
+@item 1
+Round toward 0
+@item 2
+Round toward +infinity
+@item 3
+Round toward -infinity
+@end table
+@item
+@b{bigfloat} での計算に対し有効である. 
+@b{bigfloat} の flag を on にする方法は, @code{ctrl} を参照. 
+\E
+\BEG
+@item
+When an argument @var{mode} is given, these functions 
+set the rounding mode for @b{bigfloat} operations to @var{mode}.
+The return value is always the previous rounding mode regardless of
+the existence of an argument.
+The meanings of rounding modes are as follows
+@table @code
+@item 0
+Round to nearest
+@item 1
+Round toward 0
+@item 2
+Round toward +infinity
+@item 3
+Round toward -infinity
+@end table
+
+@item
+This is effective for computations in @b{bigfloat}.
+Refer to @code{ctrl()} for turning on the `@b{bigfloat} flag.'
+\E
+@end itemize
+
+@example
+[1] setprec();
+15
+[2] setprec(100);
+15
+[3] setprec(100);
+99
+[4] setbprec();
+332
+@end example
+
+@table @t
+\JP @item 参照
+@fref{ctrl}, @fref{eval deval}.
+@end table
+
 
 \JP @node setmod,,, 数の演算
 \EG @node setmod,,, Numbers
