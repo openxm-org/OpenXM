@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -145,7 +145,7 @@ def ekn_cBasis_2(Beta, X){
 #else
   extern XRule;
 #endif
-
+  Ekn_mesg=1;
   P=length(Beta[0]); 
   Q=length(Beta[1]);
   K=P-1;
@@ -168,8 +168,8 @@ def ekn_cBasis_2(Beta, X){
     B=car(C);
     Mat=B[0]; 
     Step=B[1];
-    if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var); }
-    else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var); }
+    if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var|option_list=getopt()); }
+    else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|option_list=getopt()); }
     // printf("%a %a %a\n",Step, Mat[0],S[0][0]);
   }
   XRule=XRuleTemp;
@@ -274,8 +274,9 @@ def cBasistoEdiff(S,Beta,X){
 
 
 def g_mat_fac_test(F,M,S,E,Inc,Var) {
-  if ((Ekn_plist == 0) || (Ekn_IDL == 0)) {
-    if (Ekn_mesg == 1) {printf("Note: we do not use g_mat_fac_itor\n"); Ekn_mesg=0; }
+  if (type(getopt(crt)) > 0) CRT=1; else CRT=0;
+  if ((Ekn_plist == 0) || (Ekn_IDL == 0) || (CRT==0)) {
+    if (Ekn_mesg == 1) {printf("Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.\n"); Ekn_mesg=0; }
     return g_mat_fac_test_plain(F,M,S,E,Inc,Var);
   }
   F0 = F;

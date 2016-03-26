@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.1 2016/03/21 00:16:10 takayama Exp $
 %% ptex gtt_ekn.texi   (.texi までつける. platex でなく ptex) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo
@@ -40,7 +40,7 @@
 @title 2元分割表HGM関数
 @subtitle Risa/Asir 2元分割表HGM関数説明書
 @subtitle 1.0 版
-@subtitle 2016 年 3 月 21 日
+@subtitle 2016 年 3 月 22 日
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
@@ -148,16 +148,20 @@ E(k,n) の値およびその微分の値を戻す.
 @item 
 gmvector は Gauss-Manin vector の略である [GM2016].
 @item 
-gmvector の戻り値は [GM2016] の４章で定義されているベクトル F である.
-ただし第一成分が [GM2016] の６章で定義されている級数 S の値と等しく
-なるようにスカラー倍されている.
+gmvector の戻り値は 
+[GM2016] の 6章 p.23 のベクトル Sである.
+これは
+[GM2016] の４章で定義されているベクトル F の定数倍であり,
+その定数は
+第一成分が [GM2016] の６章で定義されている級数 S の値と等しく
+なるように決められている.
 @item 
  r1 x r2 分割表を考える.
  m+1=r1, n+1=r2 とおく. 
  正規化定数 Z は分割表 u を (m+1) × (n+1) 行列とするとき p^u/u! の和である.
  ここで和は行和列和が @var{beta} であるような u 全体でとる
  [TKT2015], [GM2016].
- S はこの級数の p を
+ S はこの多項式 Z の p を
 @verbatim
   [[1,y11,...,y1n],
    [1,y21,...,y2n],...,
@@ -645,8 +649,11 @@ ChangeLog
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item 使用するプロセスと素数の個数, 最小の素数を表示する. 準備されていない場合はその旨を表示.
-@item option nid (nid = Number of process ID)を与えると指定した数だけプロセスを用意する.
-@item option npl (npl = Prime List or Number of Prime List)を与えるとnplが文字列の場合指定された素数リストのファイルを読み込む. nplが自然数の場合さらにoption minp (minp =MINimum Prime)を与えるとminpより大きな素数をnpl個生成する. その際option fname (fname = File NAME)を与えると生成した素数リストをfnameとして保存する.
+@item このパッケージでの分散計算は複数のcpuを搭載した計算機で実行されることを想定している.
+@item option nps (または number_of_processes)を与えると指定した数だけプロセスを用意する.
+@item option nprm (または number_of_primes)を与えるとnprmが文字列の場合指定された素数リストのファイルを読み込む. nprmが自然数の場合さらにoption minp (minp =MINimum Prime)を与えるとminpより大きな素数をnprm個生成する. その際option fgp (または file_of_generated_primes)を与えると生成した素数リストをファイル名をfgpとして保存する.
+@item 上記のoption を指定しなかった場合次のデフォルト値が用いられる. nps=1. nprm=10. fgp=0.
+@item option report=1を与えると現在の環境の報告のみを行う. setup(|report=1)の別名としてreport関数を使用することもできる.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---

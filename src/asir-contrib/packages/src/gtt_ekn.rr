@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.2 2016/03/20 21:41:55 takayama Exp $ */
 import("names.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
@@ -29,14 +29,14 @@ def gmvector(Beta,Prob) {
     error("gmvector: Marginal sums must be positive integers.");}
   if (base_sum(Beta[0],0,0,length(Beta[0])-1) != base_sum(Beta[1],0,0,length(Beta[1])-1)){
     error("gmvector: The sums of Beta[0] and Beta[1] must be equal.");}
-  return(ekn_cBasis_2(Beta,Prob));
+  return(ekn_cBasis_2(Beta,Prob|option_list=getopt()));
 }
 
 // Normalizing constant and its derivatives
 def nc(Beta,Prob) {
   R1=length(Beta[0]); 
   R2=length(Beta[1]);
-  GM=gmvector(Beta,Prob);
+  GM=gmvector(Beta,Prob|option_list=getopt());
   NC=ltopoly(GM[0][0],Beta,Prob);
   Fdiff=base_replace(basistoFdiff(GM,R1-1,R2-1|xrule=xRule_num(Prob,R1-1,R2-1)),marginaltoAlpha(Beta));
   NCdiff=newmat(R1,R2);
@@ -52,7 +52,7 @@ def nc(Beta,Prob) {
 def lognc(Beta,Prob) {
   R1=length(Beta[0]); 
   R2=length(Beta[1]);
-  GM=gmvector(Beta,Prob);
+  GM=gmvector(Beta,Prob | option_list=getopt());
   NC=ltopoly(GM[0][0],Beta,Prob);
   Fdiff=base_replace(basistoFdiff(GM,R1-1,R2-1|xrule=xRule_num(Prob,R1-1,R2-1)),marginaltoAlpha(Beta));
   LNCdiff=newmat(R1,R2);
@@ -69,7 +69,7 @@ def lognc(Beta,Prob) {
 def expectation(Beta,Prob) {
   R1 = length(Beta[0]);
   R2 = length(Beta[1]);
-  GM=gmvector(Beta,Prob);
+  GM=gmvector(Beta,Prob | option_list=getopt());
   Expect=cBasistoE(GM,Beta,Prob);
   if (type(getopt(index)) >= 0) {
     IndexList = getopt(index);
@@ -122,6 +122,10 @@ def setup() {
             FGP = getopt(file_of_generated_primes);
     	}else  FGP = 0;//default
 
+	if(type(getopt(minp)) >= 0){
+	    MINP = getopt(minp);
+	}else  MINP = 10^10;  //default
+
     	if(type(NPS) > 0){
             if(type(NPS) == 1){
 	        if(type(Ekn_IDL) == 4)  shutdown(Ekn_IDL);
@@ -133,8 +137,8 @@ def setup() {
             if(type(NPRM) == 7){
 	        Ekn_plist = load_prime(NPRM);
 	    }else if(type(NPRM) == 1){
-	        if(type(getopt(minp)) == 1){
-	            Ekn_plist = generate_p_set(getopt(minp),NPRM);
+	        if(type(MINP) == 1){
+	            Ekn_plist = generate_p_set(MINP,NPRM);
 		    if(type(FGP)==7){
 		        save_prime(Ekn_plist,FGP);
 		        printf("File name %a is written.\n",FGP);
@@ -147,13 +151,13 @@ def setup() {
         }
     }
 
-    if(type(Ekn_IDL)==4)    printf("Number of process = %a.\n",length(Ekn_IDL));
-    else    printf("List of child process is empty.\n");
+    if(type(Ekn_IDL)==4)    printf("Number of processes = %a.\n",length(Ekn_IDL));
+    else    printf("List of child processes is empty.\n");
     
     if(type(Ekn_plist)==4){
-        printf("Number of prime = %a.\n",length(Ekn_plist));
+        printf("Number of primes = %a.\n",length(Ekn_plist));
 	printf("Min of plist = %a.\n",Ekn_plist[0]);
-    }else    printf("List of prime is empty\n");
+    }else    printf("List of primes is empty\n");
     return;
 }
 
