@@ -1,0 +1,96 @@
+\input texinfo
+@def@colon{:}
+
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@setfilename asir-contrib-gtt_ekn
+@settitle gtt_ekn Manual
+@titlepage
+@title gtt_ekn Manual
+@subtitle Edition : 2016.03.28
+@author Y.Goto, Y.Tachibana, N.Takayama
+@end titlepage
+
+@synindex vr fn
+@node Top,, (dir), (dir)
+
+@menu
+* Function Manual::
+* Index::
+@end menu
+
+@node Function Manual,,, Top
+@chapter Function Manual
+
+@menu
+* Outline::
+* Notation::
+* Functions::
+@end menu
+
+@node Outline,,, Function Manual
+@section Outline
+
+
+
+@node Notation,,,Function Manual
+@section Notation
+
+@node Functions,,, Function Manual
+@section Functions
+
+@menu
+* gtt_ekn.nc::
+@end menu
+
+@node intersect,,, Functions
+
+@node gtt_ekn.nc,,, Functions
+@subsection @code{gtt_ekn.nc}
+@findex gtt_ekn.nc
+
+@table @t
+@item gtt_ekn.nc(@var{beta},@var{p})
+:: It returns the value of the normalizing contant and its derivatives
+of the conditional hypergeometric distribution of two way contingecy tables
+with fixed marginals
+@end table
+
+@table @var
+@item return
+[Z,[[d_11 Z, d_12 Z, ...], ..., [d_m1 Z, d_m2 Z, ...., d_mn Z]]]
+@item @var{beta}
+List of row sums and column sums. All entries must be positive integer.
+@item @var{p}
+The probabilities of the cells of the table.
+@end table
+
+@itemize @bullet
+@item  Details have not been written. See Japanse documents.
+@end itemize
+
+2x3 contingency table with the row sum [4,5] and the column sum [2,4,3].
+@example
+[2237] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[4483/124416,[ 353/7776 1961/15552 185/1728 ]
+[ 553/20736 1261/15552 1001/13824 ]]
+@end example
+
+English translation for other functions has not yet been written.
+
+
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+
+@bye
