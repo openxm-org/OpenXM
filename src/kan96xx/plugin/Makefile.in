@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/kan96xx/plugin/Makefile.in,v 1.6 2006/10/05 20:44:58 takayama Exp $
+#$OpenXM: OpenXM/src/kan96xx/plugin/Makefile.in,v 1.7 2010/08/18 07:23:32 ohara Exp $
 #
 #  depends on install-gmp  
 #  The source directory of gmp must exist.
@@ -55,7 +55,7 @@ file2.a: file2.o
 
 file2.o: file2.h file2.c
 
-ox.a: mytcpio.o oxmisc.o oxmisc2.o
+ox.a: mytcpio.o oxmisc.o oxmisc2.o mysig.o
 	${AR} ru $@ $?
 	${RANLIB} $@
 
@@ -81,6 +81,7 @@ ox_kan.h: cmotag.h file2.h mathcap.h oxFunctionId.h oxMessageTag.h oxKan0.h
 mytcpio.o: ox.h ox.hh ox_kan.h mytcpio.c
 oxmisc.o: ox.h ox.hh ox_kan.h oxmisc.c
 oxmisc2.o: cmo.h mathcap.h ox.h ox.hh ox_kan.h oxmisc2.c
+mysig.o: mysig.h mysig.c
 
 sample.a: sample.o
 	${AR} ru $@ $?
