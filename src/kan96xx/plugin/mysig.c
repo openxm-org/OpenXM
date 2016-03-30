@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/mysig.c,v 1.1 2016/03/30 08:25:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/mysig.c,v 1.2 2016/03/30 09:20:40 takayama Exp $ */
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
@@ -39,6 +39,9 @@ int set_signal(int sig,void (*handler)(int m)) {
   act.sa_flags |= SA_RESTART;
   sigemptyset(&act.sa_mask);
   return(sigaction(sig,&act,&oldact));
+}
+int mysignal(int sig,void (*handler)(int m)) {
+  return(set_signal(sig,handler));
 }
 
   
