@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.24 2006/06/05 00:25:50 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.25 2006/06/05 04:40:15 takayama Exp $  */
 /*  Note on IntelMac. [2006.06.05]
     SIGINT does not seem to be blocked on the rosetta emulator of ppc
     on the IntelMac's. "ox" should be universal binary.
@@ -47,7 +47,7 @@ static void errorToStartEngine(void);
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
 /*  gcc -v -c hoge.c */
-static void mywait();
+static void mywait(int m);
 
 void *sGC_malloc(int n) {
   return (void *)malloc(n);
@@ -75,7 +75,8 @@ main(int argc, char *argv[]) {
   char *stmp;
   extern int OxTerminateMode;
 
-  signal(SIGHUP,SIG_IGN);  /* ignore x of xterm */
+  int sighup[]={SIGHUP,-1};
+  block_signal(sighup);  /* ignore x of xterm */
   strcpy(sname,"localhost");
   strcpy(ServerName,SERVERNAME);
   i = 1;
@@ -367,9 +368,10 @@ parentServerMain(int fdControl, int fdStream) {
   int message = 1;
   int controlByteOrder;
   extern OxTerminateMode;
-  extern void myServerExit();
+  extern void myServerExit(int m);
 
-  signal(SIGCHLD,mywait);
+  int sigchld[]={SIGCHLD,-1};
+  unblock_signal(sigchld);
   if (OxTerminateMode) {
 	/*
 	  OxTerminateMode cannot be used if you run ox by xterm -exec ox ...
@@ -385,8 +387,9 @@ parentServerMain(int fdControl, int fdStream) {
   /* Set the network byte order. */
   fprintf(stderr,"controlByteOrder=%x\n",controlByteOrder);
 
-
-  signal(SIGINT,myServerExit);
+  int sigint[]={SIGINT,-1};
+  set_signal(sigint,myServerExit);
+  unblock_signal(sigint);
   while(1) {
     mtag = oxfdGetOXheader(fdControl,&SerialCurrentControl);
     /* get the message_tag */
@@ -398,7 +401,7 @@ parentServerMain(int fdControl, int fdStream) {
       if (message) printf("[control] control_kill\n");
       oxSendResultOfControl(fdControl);
       sleep(2);
-      myServerExit();
+      myServerExit(0);
       break;
     case SM_control_reset_connection:
       if (message) printf("[control] control_reset_connection.\n");
@@ -411,13 +414,13 @@ parentServerMain(int fdControl, int fdStream) {
     default:
       fprintf(stderr,"[control] Unknown control message.\n");
       fprintf(stderr,"Shutdown the server.");
-      myServerExit();
+      myServerExit(0);
       break;
     }
   }
 }
 
-void myServerExit() {
+void myServerExit(int m) {
   printf("Sending the kill signal to the child.\n");
   kill(MyServerPid,SIGKILL);
   exit(0);
@@ -472,7 +475,8 @@ childServerMain(int fdControl, int fdStream) {
 	setrlimit(RLIMIT_STACK,&res);
   }
 
-  if (IgnoreSIGINT) { signal(SIGINT, SIG_IGN); fprintf(stderr,"SIGING\n");}
+  int sigint[]={SIGINT,-1};
+  if (IgnoreSIGINT) { block_signal(sigint); fprintf(stderr,"SIGING\n");}
 
   if (PacketMonitor) {
     if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
@@ -535,7 +539,7 @@ static void couldNotFind(char *s) {
 }
 
 
-static void mywait() {
+static void mywait(int m) {
   int status;
   int pid;
   int i,j;
