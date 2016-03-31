@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.38 2015/09/29 01:52:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.39 2015/10/08 11:49:37 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -11,6 +11,7 @@
 #include "kclass.h"
 #include <signal.h>
 #include <sys/types.h>
+#include "../plugin/mysig.h"
 
 /* The msys2 seems to make a buffer overflow of  EnvOfStackmachine[].
 The code
@@ -809,8 +810,8 @@ void scanner() {
     fprintf(stderr,"An error or interrupt in reading macros, files and command strings.\n");
     exit(10);
   } else {  }
-  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-    signal(SIGINT,ctrlC);
+  if (mysignal(SIGINT,SIG_IGN) != SIG_IGN) {
+    mysignal(SIGINT,ctrlC);
   }
   
   /* setup quiet mode or not */
@@ -915,7 +916,7 @@ void ctrlC(sig)
   extern int OXlock;
   extern int RestrictedMode, RestrictedMode_saved;
 
-  signal(sig,SIG_IGN);
+  mysignal(sig,SIG_IGN);
   /* see 133p */
   RestrictedMode = RestrictedMode_saved;
   cancelAlarm();
@@ -926,7 +927,7 @@ void ctrlC(sig)
   if (SGClock) {
     UserCtrlC = 1;
     fprintf(stderr,"ctrl-c is locked because of gc.\n");
-    signal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
+    mysignal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
     return;
   }
   if (OXlock) {
@@ -935,11 +936,11 @@ void ctrlC(sig)
     if (UserCtrlC > 3) {
       fprintf(stderr,"OK. You are eager to cancel the computation.\n");
       fprintf(stderr,"You should close the ox communication cannel.\n");
-      signal(SIGINT,ctrlC);
+      mysignal(SIGINT,ctrlC);
       unlockCtrlCForOx();
     }
     fprintf(stderr,"ctrl-c is locked because of ox lock %d.\n",UserCtrlC);
-    signal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
+    mysignal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
     return;
   }
   if (ErrorMessageMode != 1) {
@@ -961,7 +962,7 @@ void ctrlC(sig)
     It SOMETIMES makes core dump.
   */
   getokenSM(INIT); /* It might fix the bug above. 1992/11/14 */
-  signal(SIGINT,ctrlC);
+  mysignal(SIGINT,ctrlC);
 #if defined(__CYGWIN__)
   MYSIGLONGJMP(EnvOfStackMachine,2);
 #else
@@ -1219,8 +1220,8 @@ KSexecuteString(s)
      we crash. So, we use localCatchCtrlC. */
 
   if (localCatchCtrlC) {
-    sigfunc = signal(SIGINT,SIG_IGN);
-    signal(SIGINT,ctrlC);
+    sigfunc = mysignal(SIGINT,SIG_IGN);
+    mysignal(SIGINT,ctrlC);
   }
 
   if (KSPushEnvMode) {
@@ -1237,7 +1238,7 @@ KSexecuteString(s)
         }
       }
       recursive--;
-      if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
+      if (localCatchCtrlC) { mysignal(SIGINT, sigfunc); }
       if (!Calling_ctrlC_hook) {
         Calling_ctrlC_hook = 1; RestrictedMode = 0;
         KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
@@ -1260,7 +1261,7 @@ KSexecuteString(s)
           }
         }
         recursive = 0;
-        if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
+        if (localCatchCtrlC) { mysignal(SIGINT, sigfunc); }
         if (!Calling_ctrlC_hook) {
           Calling_ctrlC_hook = 1; RestrictedMode = 0;
           KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
@@ -1287,7 +1288,7 @@ KSexecuteString(s)
   executePrimitive(ob);
   recursive--;
   if (KSPushEnvMode) *EnvOfStackMachine = *saved_EnvOfStackMachine;
-  if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
+  if (localCatchCtrlC) { mysignal(SIGINT, sigfunc); }
   return(0);
 }
 
@@ -1622,7 +1623,7 @@ struct object KSdupErrors() {
 
 void cancelAlarm() {
   alarm((unsigned int) 0);
-  signal(SIGALRM,SIG_DFL);
+  mysignal(SIGALRM,SIG_DFL);
 }
 
 /* back-trace */

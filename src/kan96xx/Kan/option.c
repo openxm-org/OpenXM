@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.17 2006/12/21 05:29:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.18 2011/10/05 05:46:14 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -7,6 +7,7 @@
 #include "kclass.h"
 #include "lookup.h"
 #include <signal.h>
+#include "../plugin/mysig.h"
 
 extern void ctrlC();
 
@@ -283,8 +284,8 @@ struct object KsystemVariable(ob)
         rob = KpoInteger(Strict2);
       }else if (strcmp(ob1.lc.str,"SigIgn") == 0) {
         SigIgn = ob2.lc.ival;
-        if (SigIgn) signal(SIGINT,SIG_IGN);
-        else signal(SIGINT,ctrlC);
+        if (SigIgn) mysignal(SIGINT,SIG_IGN);
+        else mysignal(SIGINT,ctrlC);
         rob = KpoInteger(SigIgn);
       }else if (strcmp(ob1.lc.str,"KSPushEnvMode") == 0) {
         KSPushEnvMode = ob2.lc.ival;

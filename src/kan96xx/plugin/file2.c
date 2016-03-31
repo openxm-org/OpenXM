@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.14 2005/10/31 07:50:20 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.15 2015/10/10 11:29:46 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "file2.h"
+#include "mysig.h"
 
 /* If you use file2 standalone to output string,  
     make the following dummy definition;
@@ -101,9 +102,9 @@ int fp2fflush(FILE2 *fp2) {
   if (checkfp2(fp2,"fp2fflush ") == -1) return(-1);
   if (fp2->fd == -1) return(0);
   if (fp2->writepos > 0) {
-	signal(SIGPIPE,SIG_IGN);
+	mysignal(SIGPIPE,SIG_IGN);
     r = write(fp2->fd,fp2->writeBuf,fp2->writepos);
-	signal(SIGPIPE,SIG_DFL);
+	mysignal(SIGPIPE,SIG_DFL);
     fp2->writepos = 0;
     if (r <= 0) {
       fprintf(stderr,"fp2fflush(): write failed on %d.\n",fp2->fd);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.45 2013/09/22 01:32:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.46 2013/09/25 00:05:55 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <regex.h>
 #include "ox_pathfinder.h"
+#include "../plugin/mysig.h"
 
 extern int Quiet;
 extern char **environ;
@@ -33,7 +34,7 @@ static void mywait() {
   int status;
   int pid;
   int i,j;
-  /* signal(SIGCHLD,SIG_IGN); */
+  /* mysignal(SIGCHLD,SIG_IGN); */
   pid = wait(&status);
   if ((!Quiet) && (Verbose_mywait)) fprintf(stderr,"Child process %d is exiting.\n",pid);
   for (i=0; i<Mycp; i++) {
@@ -44,7 +45,7 @@ static void mywait() {
       if (Mycp > 0) Mycp--;
     }
   }
-  signal(SIGCHLD,mywait);
+  mysignal(SIGCHLD,mywait);
 }
 
 #define SIZE_OF_ENVSTACK 5
@@ -143,10 +144,10 @@ struct object Kextension(struct object obj)
     pushEnv(EnvOfStackMachine);
     m = KSexecuteString(obj1.lc.str);
     /* This is critical area. If you catch ctrl-c here, program crashes. */
-    oldsig = signal(SIGINT,SIG_IGN);
+    oldsig = mysignal(SIGINT,SIG_IGN);
     popEnv(EnvOfStackMachine);
     /* OK! We passed the critical area. */
-    signal(SIGINT,oldsig);
+    mysignal(SIGINT,oldsig);
     rob = KpoInteger(m);
   }else if (strcmp(key,"getpid") == 0) {
     rob = KpoInteger( (int) getpid() );
@@ -255,7 +256,7 @@ struct object Kextension(struct object obj)
       if (m&2) {
          /* Do not call singal to turn around a trouble on cygwin. BUG. */
       }else{
-         signal(SIGCHLD,mywait); /* to kill Zombie */
+         mysignal(SIGCHLD,mywait); /* to kill Zombie */
       }
       Mychildren[Mycp++] = pid;
       if (Mycp >= MYCP_SIZE-1) {

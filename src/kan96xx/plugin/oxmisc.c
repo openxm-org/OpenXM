@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.28 2015/09/27 08:12:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.29 2015/10/08 11:49:37 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -23,6 +23,7 @@ FILE *MyErrorOut = NULL;
 #include "../Kan/extern.h"
 
 #include "ox_kan.h"
+#include "mysig.h"
 
 
 #define READBUFSIZE 5000
@@ -922,7 +923,7 @@ static void cancelConnection() {
 #else
   extern jmp_buf MyEnv_oxmisc;
 #endif
-  signal(SIGALRM,SIG_IGN);
+  mysignal(SIGALRM,SIG_IGN);
   fprintf(stderr,"Time out in TCP/IP connection.\n");
 #if defined(__CYGWIN__)
   MYSIGLONGJMP(MyEnv_oxmisc,1);
@@ -959,7 +960,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   }else{
   }
   alarm((unsigned int) 20);  /* setup timeout. */
-  signal(SIGALRM,cancelConnection);
+  mysignal(SIGALRM,cancelConnection);
   
   switch(ipmask) {
   case 0:/* only local */
@@ -1001,7 +1002,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
       return(NULL);
     }
   }
-  signal(SIGALRM,SIG_IGN);
+  mysignal(SIGALRM,SIG_IGN);
 
   controlByteOrder = oxSetByteOrder(fdControl);
   if (v) fprintf(stderr,"Byte order for control process is %s.\n",

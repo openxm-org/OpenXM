@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.21 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.22 2013/11/06 06:44:48 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -14,6 +14,7 @@
 #include "kclass.h"
 #include <sys/types.h>
 #include <sys/times.h>
+#include "../plugin/mysig.h"
 
 int PrintDollar = 1;         /* flag for printObject() */
 int PrintComma  = 1;         /* flag for printObject() */
@@ -1746,7 +1747,7 @@ int executePrimitive(ob)
     }
 	n = ob2.lc.ival;
 	if (n > 0) {
-	  signal(SIGALRM,ctrlC); alarm((unsigned int) n);
+	  mysignal(SIGALRM,ctrlC); alarm((unsigned int) n);
       status = executeExecutableArray(ob1,(char *)NULL,0);
 	  cancelAlarm();
 	}else{
