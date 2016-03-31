@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.40 2016/03/31 03:22:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.41 2016/03/31 05:27:34 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1246,6 +1246,7 @@ KSexecuteString(s)
       }
       Calling_ctrlC_hook = 0;
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook?*/
+      /* fprintf(stderr,"result code=-1 for %s\n",s); */
       return(-1);
     }else{ }
   }else{
@@ -1270,6 +1271,7 @@ KSexecuteString(s)
         Calling_ctrlC_hook = 0;
         Calling_ctrlC_hook = 0;
 		KSexecuteString(" (Computation is interrupted.) ");
+		/* fprintf(stderr,"result code=-1 for %s\n",s);*/
         return(-1);
       }else { }
     }

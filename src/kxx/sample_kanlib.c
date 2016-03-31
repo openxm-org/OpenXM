@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.4 2015/10/08 11:49:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.5 2016/03/31 05:27:34 takayama Exp $ */
 /*
 This is a sample program to use kanlib.a
 gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/Kan/kanlib.a -L../../lib -lgmp -lgc
@@ -30,6 +30,7 @@ void ctrlC();
 
 main() {
   char s[1024];
+  int r;
   Quiet = 0;
   KSstart();  
 
@@ -47,6 +48,7 @@ main() {
       KSexecuteString(" (Computation is interrupted.) ");
 	  continue;
 	} else {  }
-	KSexecuteString(s);
+	r=KSexecuteString(s);
+	fprintf(stderr,"result code=%d\n",r);
   }
 }

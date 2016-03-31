@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.9 2015/10/10 11:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.10 2016/03/31 05:27:34 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -48,6 +48,7 @@ sendKan(int p) {
   struct object obj = OINIT;
   int result;
   extern int InSendmsg2;
+  result=0;
   mysignal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */
   if (p == 10) {printf("In(%d)= ",n++); return 0;}
   if (p == 0 && DebugCompiler) printf("sendKan[%s]\n",Kbuff); 
