@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.22 2013/11/06 06:44:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.23 2016/03/31 03:22:54 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -14,7 +14,7 @@
 #include "kclass.h"
 #include <sys/types.h>
 #include <sys/times.h>
-#include "../plugin/mysig.h"
+#include "mysig.h"
 
 int PrintDollar = 1;         /* flag for printObject() */
 int PrintComma  = 1;         /* flag for printObject() */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.18 2011/10/05 05:46:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.19 2016/03/31 03:22:54 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -7,7 +7,7 @@
 #include "kclass.h"
 #include "lookup.h"
 #include <signal.h>
-#include "../plugin/mysig.h"
+#include "mysig.h"
 
 extern void ctrlC();
 

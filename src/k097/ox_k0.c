@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.9 2013/11/07 07:29:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.10 2015/10/10 11:29:46 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -130,10 +130,10 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     Calling_ctrlC_hook = 0;
 	KSexecuteString(" (Computation is interrupted.) ");
 	InSendmsg2 = 0;
-    signal(SIGUSR1,controlResetHandler); goto aaa;
+    mysignal(SIGUSR1,controlResetHandler); goto aaa;
   } else {  
     if (JmpMessage) fprintf(stderr,"Set EnvOfChildServer.\n");
-    signal(SIGUSR1,controlResetHandler);
+    mysignal(SIGUSR1,controlResetHandler);
   }
 #if defined(__CYGWIN__)
   if (sigsetjmp(EnvOfStackMachine,1)) {
@@ -168,11 +168,11 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     }
     Calling_ctrlC_hook = 0;
     InSendmsg2=0;
-    signal(SIGUSR1,controlResetHandler); goto aaa ;
+    mysignal(SIGUSR1,controlResetHandler); goto aaa ;
   } else {
     if (JmpMessage) fprintf(stderr,"Set EnvOfStackMachine.\n"); 
-    if (signal(SIGUSR1,SIG_IGN) != SIG_IGN) {
-      signal(SIGUSR1,controlResetHandler);
+    if (mysignal(SIGUSR1,SIG_IGN) != SIG_IGN) {
+      mysignal(SIGUSR1,controlResetHandler);
     }
   }
   
@@ -292,7 +292,7 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     if (message) fprintf(stderr," executeStringByLocalParser\n");
     OxCritical = 0;
     iresult = K0_executeStringByLocalParser();
-    OxCritical = 1; signal(SIGUSR1,controlResetHandler);
+    OxCritical = 1; mysignal(SIGUSR1,controlResetHandler);
     if (iresult < 0) {
       emsg = Sm1_popErrorMessage("executeString: ");
       Sm1_pushError2(SerialCurrent,-1,emsg);
@@ -303,7 +303,7 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     if (message) fprintf(stderr," executeFunction\n");
     OxCritical = 0;
     iresult = K0_executeStringByLocalParser();
-    OxCritical = 1; signal(SIGUSR1,controlResetHandler);
+    OxCritical = 1; mysignal(SIGUSR1,controlResetHandler);
     if (iresult < 0) {
       emsg = Sm1_popErrorMessage("executeFunction: ");
       Sm1_pushError2(SerialCurrent,-1,emsg);
@@ -352,7 +352,7 @@ nullserver_simplest(int fd) {
 void controlResetHandler(sig)
      int sig;
 {
-  signal(sig,SIG_IGN);
+  mysignal(sig,SIG_IGN);
   cancelAlarm();
   fprintf(stderr,"From controlResetHandler. OxCritical = %d\n",OxCritical);
   OxInterruptFlag = 1;

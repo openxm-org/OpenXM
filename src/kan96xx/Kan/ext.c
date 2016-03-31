@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.46 2013/09/25 00:05:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.47 2016/03/31 03:22:54 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <regex.h>
 #include "ox_pathfinder.h"
-#include "../plugin/mysig.h"
+#include "mysig.h"
 
 extern int Quiet;
 extern char **environ;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.3 2004/09/17 02:42:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.4 2015/10/08 11:49:38 takayama Exp $ */
 /*
 This is a sample program to use kanlib.a
 gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/Kan/kanlib.a -L../../lib -lgmp -lgc
@@ -7,6 +7,7 @@ gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/
 #include <stdio.h>
 #include <setjmp.h>
 #include <signal.h>
+#include "mysig.h"
 
 // serversm.h is not included.
 #if defined(__CYGWIN__) || defined(__MSYS__)
@@ -32,8 +33,8 @@ main() {
   Quiet = 0;
   KSstart();  
 
-  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-	signal(SIGINT,ctrlC);
+  if (mysignal(SIGINT,SIG_IGN) != SIG_IGN) {
+	mysignal(SIGINT,ctrlC);
   }
   while( fgets(s,1023,stdin) != NULL) {
 	if (SETJMP(EnvOfStackMachine)) {

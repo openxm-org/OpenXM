@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.39 2015/10/08 11:49:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.40 2016/03/31 03:22:54 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include "kclass.h"
 #include <signal.h>
 #include <sys/types.h>
-#include "../plugin/mysig.h"
+#include "mysig.h"
 
 /* The msys2 seems to make a buffer overflow of  EnvOfStackmachine[].
 The code

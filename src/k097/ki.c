@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.8 2013/11/06 06:23:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.9 2015/10/10 11:29:46 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
+#include "mysig.h"
 
 char *getLOAD_K_PATH();  /* from d.h */
 
@@ -47,28 +48,28 @@ sendKan(int p) {
   struct object obj = OINIT;
   int result;
   extern int InSendmsg2;
-  signal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */
+  mysignal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */
   if (p == 10) {printf("In(%d)= ",n++); return 0;}
   if (p == 0 && DebugCompiler) printf("sendKan[%s]\n",Kbuff); 
   /* printf("sendKan[%s]\n",Kbuff);   */
   if (strlen(Kbuff) != 0) {
-    signal(SIGINT,SIG_DFL);
+    mysignal(SIGINT,SIG_DFL);
     result = KSexecuteString(Kbuff);
     /* fprintf(stderr,"r=%d ",result);  */
-    signal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
+    mysignal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
   }
   /* fprintf(stderr,"r=%d ",result); */
   if (result == -1) {
     K00recoverFromError();  InSendmsg2 = 0;
     fprintf(stderr,"--- Engine error or interrupt : ");
     if (DebugMode) {
-      signal(SIGINT,SIG_DFL);
+      mysignal(SIGINT,SIG_DFL);
       KSexecuteString("db.DebugStack setstack ");
-      signal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
+      mysignal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
       obj = KSpop();
-      signal(SIGINT,SIG_DFL);
+      mysignal(SIGINT,SIG_DFL);
       KSexecuteString("stdstack ");
-      signal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
+      mysignal(SIGINT,SIG_IGN); /* Reset SIGINT. Don't jump to ctrlC(). */
       if (obj.tag == Sdollar) {
 	fprintf(stderr,"%s\n",obj.lc.str);
 	fprintf(stderr,"\n");

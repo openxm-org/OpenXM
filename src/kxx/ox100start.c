@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.6 2004/02/28 12:27:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.7 2006/01/26 08:36:50 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include "ox_pathfinder.h"
+#include "mysig.h"
 
 static void usage(void);
 static int forkExec(char **argv);
@@ -82,7 +83,7 @@ static void myforkwait() {
   int status;
   int pid;
   int i,j;
-  signal(SIGCHLD,SIG_IGN);
+  mysignal(SIGCHLD,SIG_IGN);
   pid = wait(&status);
   fprintf(stderr,"Child process %d is exiting.\n",pid);
   for (i=0; i<Myforkcp; i++) {
@@ -93,7 +94,7 @@ static void myforkwait() {
       if (Myforkcp > 0) Myforkcp--;
     }
   }
-  signal(SIGCHLD,myforkwait);
+  mysignal(SIGCHLD,myforkwait);
 }
 
 static void usage() {
@@ -116,7 +117,7 @@ static int forkExec(char **argv) {
     if (m&2) {
 	  /* Do not call singal to turn around a trouble on cygwin. BUG. */
 	}else{
-	  signal(SIGCHLD,myforkwait); /* to kill Zombie */
+	  mysignal(SIGCHLD,myforkwait); /* to kill Zombie */
 	}
 	Myforkchildren[Myforkcp++] = pid;
 	if (Myforkcp >= MYFORKCP_SIZE-1) {

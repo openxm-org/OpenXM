@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.37 2015/10/08 11:49:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.38 2015/10/10 11:29:46 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -216,8 +216,8 @@ main(int argc,char *argv[]) {
   if (LanguageResource != NULL) KSexecuteString(LanguageResource);
   startEngine(TM_Engine," ");
 
-  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-    signal(SIGINT,ctrlC);
+  if (mysignal(SIGINT,SIG_IGN) != SIG_IGN) {
+    mysignal(SIGINT,ctrlC);
   }
 
   irt = 0;
@@ -230,8 +230,8 @@ main(int argc,char *argv[]) {
         RestrictedMode = RestrictedMode_saved;
       }
       Calling_ctrlC_hook = 0; 
-      if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-        signal(SIGINT,ctrlC);
+      if (mysignal(SIGINT,SIG_IGN) != SIG_IGN) {
+        mysignal(SIGINT,ctrlC);
       }
       irt = 1;
       continue;

@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.7 2004/02/25 23:14:36 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.8 2004/09/17 03:28:21 takayama Exp $
 */
 
 #include <stdio.h>
@@ -137,7 +137,7 @@ childServerMain(int fd) {
   int st;
 
   /* Starting oxd session */
-  signal(SIGALRM,exitServer);
+  mysignal(SIGALRM,exitServer);
   alarm(60);
   fp = fdopen(fd,"w+");
   if (fp == NULL) oxdError("failed fdopen\n");

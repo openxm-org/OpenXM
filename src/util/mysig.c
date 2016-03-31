@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/mysig.c,v 1.3 2016/03/30 21:34:03 takayama Exp $ */
+/* $OpenXM$
+ */
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
