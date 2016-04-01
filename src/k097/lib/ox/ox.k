@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.12 2002/11/08 02:54:12 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.13 2008/01/28 00:13:45 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -262,8 +262,7 @@ class Asir extends OX {
   def OffTimer() {
     local a;
     a = this;
-    a.executeString("map(rtostr,[time()[0]-K0_timer_CPU,
-                                 time()[1]-K0_timer_GC]);");
+    a.executeString("map(rtostr,[time()[0]-K0_timer_CPU,time()[1]-K0_timer_GC]);");
     return(a.popCMO());
   }
 }
