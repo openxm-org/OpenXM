@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/util/mysig.c,v 1.1 2016/03/31 05:27:33 takayama Exp $
  */
 #include <stdio.h>
 #include <signal.h>
@@ -33,6 +33,10 @@ int block_signal(int sigset[]) {
   return(0);
 }
 
+#if !defined(SA_RESTART) && defined(__FreeBSD__) 
+#define SA_RESTART  0x0002
+#endif
+
 int set_signal(int sig,void (*handler)(int m)) {
   struct sigaction act;
   struct sigaction oldact;
@@ -64,7 +68,4 @@ void *mysignal(int sig,void (*handler)(int m)) {
   sigset[0] = sig; sigset[1]=0; unblock_signal(sigset);
   return((void *)Old_handler);
 }
-
-  
-  
 
