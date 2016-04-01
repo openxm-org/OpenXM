@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.6 2014/03/29 19:46:55 ohara Exp $
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.7 2015/02/21 06:20:36 ohara Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
-OpenXM_LIB = -L$(OpenXM_LIBDIR) -lox -lgc -lgmp
+OpenXM_LIB = -L$(OpenXM_LIBDIR) -lox -lgc -lgmp -lmpfr
 INCLUDES = -I$(OpenXM_HOME)/include
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
