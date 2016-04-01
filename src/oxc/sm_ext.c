@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.9 2000/12/14 01:35:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.10 2003/05/07 04:00:30 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,9 +11,9 @@
 #include "sm.h"
 
 static int  sm_control_spawn();
-static void sm_control_terminate();
-static void sm_control_kill();
-static void sm_control_reset_pid();
+static int  sm_control_terminate();
+static int  sm_control_kill();
+static int  sm_control_reset_pid();
 
 static void pid_extend();
 static int  pid_lookup(pid_t pid);
@@ -41,7 +41,7 @@ static struct { int (*func_ptr)(); int key; } tbl_smcmd[] = {
     {sm_pops,            SM_pops},
     {sm_control_reset_pid, SM_control_reset_connection_server},
     {sm_control_kill, SM_control_kill},
-    {NULL, NULL}
+    {NULL, 0}
 };
 
 extern OXFILE *stack_oxfp;
@@ -49,7 +49,7 @@ extern OXFILE *stack_oxfp;
 int (*sm_search_f(int code))()
 {
     int i;
-    for (i=0; tbl_smcmd[i].key != NULL; i++) {
+    for (i=0; tbl_smcmd[i].key != 0; i++) {
         if (code == tbl_smcmd[i].key) {
             return tbl_smcmd[i].func_ptr;
         }
@@ -73,7 +73,7 @@ Normally local functions push a return value to the stack.
 but, if error occurs, then these return non-positive numbers and
 the sm_executeFunction push an error object.
 */
-void sm_executeFunction()
+int sm_executeFunction()
 {
     int (*func)();
     int retcode = 0;
@@ -82,11 +82,12 @@ void sm_executeFunction()
         func = lookup_localfunction(((cmo_string *)ob)->s);
         if (func != NULL) {
             if ((retcode = func()) > 0) {
-                return;
+                return 0;
             }
         }
     }
     push_error(retcode, ob);
+    return 0;
 }
 
 /* getargs() set number of popped objects to argc. */
@@ -198,11 +199,11 @@ cmo_error2 *type_checker(cmo *ob, int type)
 
 int lf_oxc_open()
 {
-    cmo_int32 *argc = pop();
+    cmo_int32 *argc = (cmo_int32 *)pop();
 	if (argc->tag == CMO_INT32 && argc->i == 1) {
 		return sm_control_spawn();
 	}
-	push_error(-1, argc);
+	push_error(-1, (cmo *)argc);
 	return -1;
 }
 
@@ -222,63 +223,68 @@ int sm_control_spawn_typecheck(cmo_list *args, cmo_list *ports, cmo_int32 *port,
 
 static int sm_control_spawn()
 {
-	cmo_list *args    = pop();
-	cmo_list *ports   = list_first_cmo(args);
-	cmo_int32 *port   = list_first_cmo(ports);
-	cmo_string *sname = list_nth(args, 1);
+	cmo_list *args    = (cmo_list *)pop();
+	cmo_list *ports   = (cmo_list *)list_first_cmo(args);
+	cmo_int32 *port   = (cmo_int32 *)list_first_cmo(ports);
+	cmo_string *sname = (cmo_string *)list_nth(args, 1);
 	pid_t pid;
 
 	if (sm_control_spawn_typecheck(args, ports, port, sname)) {
-		pid = lf_oxc_open_main(sname->s, port->i);
+		pid = lf_oxc_open_main(sname->s, (short)port->i);
 		if (pid > 0) {
-			push(new_cmo_int32(pid));
+			push((cmo *)new_cmo_int32(pid));
 			pid_regist(pid);
 			ox_printf("oxc: spawns %s\n", sname->s);
 			return pid;
 		}
 	}
-	push_error(-1, args);
+	push_error(-1, (cmo *)args);
 	return 0;
 
 }
 
-void sm_mathcap()
+int sm_mathcap()
 {
     push((cmo *)oxf_cmo_mathcap(stack_oxfp));
+    return 0;
 }
 
-void sm_set_mathcap()
+int sm_set_mathcap()
 {
     cmo_mathcap *m = (cmo_mathcap *)pop();
     if (m->tag == CMO_MATHCAP) {
         oxf_mathcap_update(stack_oxfp, m);
     }else {
-        push_error(-1, m);
+        push_error(-1, (cmo *)m);
         /* an error object must be pushed */
     }
+    return 0;
 }
 
-static void sm_control_kill()
+static int sm_control_kill()
 {
     pid_kill_all();
+    return 0;
 }
 
-static void sm_control_terminate()
+static int sm_control_terminate()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
     if (m->tag != CMO_INT32 || !pid_kill(pid)) {
-        push_error(-1, m);
+        push_error(-1, (cmo *)m);
     }
+    return 0;
 }
 
-static void sm_control_reset_pid()
+static int sm_control_reset_pid()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
     if (m->tag != CMO_INT32 || !pid_reset(pid)) {
-        push_error(-1, m);
-        return;
+        push_error(-1, (cmo *)m);
+        return 0;
     }
     /* ... */
+    return 0;
 }

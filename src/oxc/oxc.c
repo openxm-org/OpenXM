@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.14 2005/07/28 07:22:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.15 2005/10/12 10:37:24 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -193,7 +193,9 @@ int main(int argc, char *argv[])
 	}
 
     if (strlen(remote_host) == 0) {
-        pipe_read_info(&remote_host, &port, &password);
+        int porti;
+        pipe_read_info(&remote_host, &porti, &password);
+        port = (short)porti;
         port_s = malloc(32);
         sprintf(port_s, "%d", port);
     }

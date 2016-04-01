@@ -1,8 +1,9 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.5 2000/12/03 14:32:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.6 2003/05/07 04:00:30 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -17,6 +18,7 @@ static cmo **stack = NULL;
 static int stack_ptr = 0;
 static int stack_size = 0;
 OXFILE *stack_oxfp = NULL;
+int oxf_error(OXFILE *oxfp);
 
 #define DIFFERENCE_OF_STACK  1024
 
@@ -66,13 +68,14 @@ void push_error(int errcode, cmo* pushback)
 If error occurs, then 
 an sm_* function, called by sm_run, pushes an error obect.
 */
-void sm_popCMO()
+int sm_popCMO()
 {
     cmo* m = pop();
     send_ox_cmo(stack_oxfp, m);
+    return 0;
 }
 
-void sm_pops()
+int sm_pops()
 {
     cmo* m = pop();
     if (m->tag == CMO_INT32) {
@@ -80,6 +83,7 @@ void sm_pops()
     }else {
         push_error(-1, m); /* m is invalid. */
     }
+    return 0;
 }
 
 void sm_run(int code)
@@ -134,4 +138,5 @@ int sm(OXFILE *oxfp)
     while (sm_receive_ox()) {
     }
     ox_printf("oxc: socket(%d) is closed.\n", stack_oxfp->fd);
+    return 0;
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.39 2015/08/26 20:17:28 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.40 2015/08/27 03:03:33 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -271,6 +271,7 @@ cmo_list*          list_append_monomial(cmo_list* , cmo* coef, int exp);
 cmo_list*          list_appendl(cmo_list*, ...);
 int                list_length(cmo_list* );
 cmo*               list_nth(cmo_list* , int n);
+cmo*               list_first_cmo(cmo_list *);
 
 int                cmolen_cmo(cmo* m);
 void               dump_buffer_init(char *s);
