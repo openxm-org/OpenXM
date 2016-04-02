@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.17 2006/05/06 09:40:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.18 2013/11/06 06:23:23 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1089,7 +1089,7 @@ void loadFileWithCpp(objectp op)
   }
   /* printf("%s\n",outfile); */
   if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
-#if defined(__APPLE_CC__)
+#if defined(__clang__)
     sprintf(tmpName,"cpp -E -P %s | sed -e 's/^#.*//g' >%s",sfile,outfile);
 #else
 	argv[0] = cpp;
@@ -1106,7 +1106,7 @@ void loadFileWithCpp(objectp op)
 	argv[3] = cygwinPathToWinPath(outfile);
 	argv[4] = NULL;
   }
-#if defined(__APPLE_CC__)
+#if defined(__clang__)
   system(tmpName);
 #else
   n=oxForkExecBlocked(argv);
