@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.10 2003/05/07 04:00:30 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.11 2016/04/01 18:12:39 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,12 +17,17 @@ static int  sm_control_reset_pid();
 
 static void pid_extend();
 static int  pid_lookup(pid_t pid);
-static int  pid_registed(pid_t pid);
-static void pid_regist(pid_t pid);
+static int  pid_registered(pid_t pid);
+static void pid_register(pid_t pid);
 static void pid_delete(pid_t pid);
 static int  pid_reset(pid_t pid);
 static int  pid_kill(pid_t pid);
 static void pid_kill_all();
+
+#define IS_CMO_INT32(c)       ((c) && ((c)->tag == CMO_INT32))
+#define IS_CMO_STRING(c)      ((c) && ((c)->tag == CMO_STRING))
+#define IS_CMO_LIST(c)        ((c) && ((c)->tag == CMO_LIST))
+#define IS_CMO_LIST_LEN(c,n)  (IS_CMO_LIST(c) && (list_length((c)) >= (n)))
 
 /* ultra loose data base. */
 static struct { int (*func_ptr)(); char *key; } tbl_lfunc[] = {
@@ -140,12 +145,12 @@ static int pid_lookup(pid_t pid)
     return -1;
 }
 
-static int pid_registed(pid_t pid)
+static int pid_registered(pid_t pid)
 {
     return pid_lookup(pid)+1;
 }
 
-static void pid_regist(pid_t pid)
+static void pid_register(pid_t pid)
 {
     if (pid_ptr >= pid_size) {
         pids_extend();
@@ -163,7 +168,7 @@ static void pid_delete(pid_t pid)
 
 static int pid_reset(pid_t pid)
 {
-    if (pid_registed(pid)) {
+    if (pid_registered(pid)) {
         kill(pid, SIGUSR1);
         return 1;
     }
@@ -172,7 +177,7 @@ static int pid_reset(pid_t pid)
 
 static int pid_kill(pid_t pid)
 {
-    if (pid_registed(pid)) {
+    if (pid_registered(pid)) {
         kill(pid, SIGKILL);
         pid_delete(pid);
         return 1;
@@ -207,40 +212,44 @@ int lf_oxc_open()
 	return -1;
 }
 
-int sm_control_spawn_typecheck(cmo_list *args, cmo_list *ports, cmo_int32 *port, cmo_string *sname)
+int sm_control_spawn_typecheck(cmo_list *args, int *portp, char **s)
 {
-	char *cmd = sname->s;
+    cmo_int32 *port;
+    cmo_string *name;
 
-	return args->tag == CMO_LIST 
-		&& list_length(args) > 1
-		&& ports->tag == CMO_LIST
-		&& list_length(ports) > 0
-		&& port->tag == CMO_INT32
-		&& sname->tag == CMO_STRING
-		&& cmd != NULL 
-		&& which(cmd, getenv("PATH")) != NULL;
+    if( IS_CMO_LIST_LEN(args,2) ) {
+        name = (cmo_string *)list_nth(args, 1);
+        args = (cmo_list *)list_first_cmo(args);
+        if( IS_CMO_STRING(name) && IS_CMO_LIST_LEN(args,1) ) {
+            port   = (cmo_int32 *)list_first_cmo(args);
+            if( IS_CMO_INT32(port) && name->s && which(name->s, getenv("PATH")) != NULL) {
+                *portp = port->i;
+                *s     = name->s;
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 static int sm_control_spawn()
 {
-	cmo_list *args    = (cmo_list *)pop();
-	cmo_list *ports   = (cmo_list *)list_first_cmo(args);
-	cmo_int32 *port   = (cmo_int32 *)list_first_cmo(ports);
-	cmo_string *sname = (cmo_string *)list_nth(args, 1);
-	pid_t pid;
+    int port;
+    char *s;
+    pid_t pid;
+    cmo *args = pop();
 
-	if (sm_control_spawn_typecheck(args, ports, port, sname)) {
-		pid = lf_oxc_open_main(sname->s, (short)port->i);
-		if (pid > 0) {
-			push((cmo *)new_cmo_int32(pid));
-			pid_regist(pid);
-			ox_printf("oxc: spawns %s\n", sname->s);
-			return pid;
-		}
-	}
-	push_error(-1, (cmo *)args);
-	return 0;
-
+    if (sm_control_spawn_typecheck((cmo_list *)args, &port, &s)) {
+        pid = lf_oxc_open_main(s, (short)port);
+        if (pid > 0) {
+            push((cmo *)new_cmo_int32(pid));
+            pid_register(pid);
+            ox_printf("oxc: spawns %s\n", s);
+            return pid;
+        }
+    }
+    push_error(-1, (cmo *)args);
+    return 0;
 }
 
 int sm_mathcap()
