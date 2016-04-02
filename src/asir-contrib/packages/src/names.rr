@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.133 2014/05/26 07:21:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.134 2014/05/28 09:57:14 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -56,6 +56,11 @@ import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
 import("tk_asir_contrib_update.rr")$
+
+if ((version() >=20160401) && (sysinfo()[0] == "windows")) {
+  import("oxpari-win.rr")$
+  ctrl("oxpari_start",oxpari.start_win)$
+}else{;}
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
