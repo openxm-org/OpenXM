@@ -1,6 +1,6 @@
 /* $OpenXM$ */
 /* A package for computing PDEs satisfied by a matrix 1F1 on diagonal regions */
-if (version()<20151202) {error("The version of Risa/Asir must be after 20151202 to run this package.");} else{}
+if (version()<20160401) {error("The version of Risa/Asir must be after 20160401 to run this package.");} else{}
 module n_wishartd$
 localf compf1$
 localf my_comp_f$
@@ -9,7 +9,7 @@ localf lcmf, mulf, divf, mulc, mulcpf, diffc, muldpf, normalizef1, normalizec1, 
 localf wsetup, mtot, wishartpf, degf, removef, subst_f, lopitalpf, simpop, simppf$
 localf eliminatetop, diagpf, diag0pf, adjop1, adjop, reducepf, reduceotherspf$
 localf print_f, printc, printt, printpf, ftop, ctord, comppfrd, multpf, spolypf, nfpf$
-localf nfpf0$
+localf nfpf0,nfpf1,nfpf_zero$
 localf substc$
 localf dpf,dpf2,dpf3,abs$
 localf pftord$
@@ -36,6 +36,10 @@ localf diagcheck,eliminatecheck$
 localf getchi$
 localf message$
 localf pfaffian2, eval_pfaffian2$
+localf mapleout$
+localf gbcheck$
+localf partition,all_partition,partition_to_pattern$
+localf degpf,pftodpf,all_diag,y1y2$
 
 /* 
  * pfpoly = [[C,<<...>>],...]
@@ -860,7 +864,6 @@ T1 = time(); Tred += T1[0]-T0[0];
 }
 
 def diagpf(N,Blocks)
-"usage : n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]),\n where M is the number of variables and [Si,Ei] is a diagonal block and S(i+1)=Ei + 1.  For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of PDEs satisfied by 1F1(y1,...,y1,y10)."
 {
   Tlopital = Tred = Tlineq = 0;
   wsetup(N);
@@ -960,7 +963,7 @@ T1 = time(); Tred += T1[0]-T0[0];
   for ( I = 0; I < Len; I++ ) {
     for ( G = [], J = 0; J < Len; J++ )
       if ( J != I ) G = cons(Done[J],G);
-    Done[I] = nfpf(Done[I],G);
+    Done[I] = nfpf1(Done[I],G);
   }
   return vtol(Done);
 }
@@ -1214,16 +1217,19 @@ def pftop(F)
 def ctord(C)
 {
   N = 0; D = [];
-  for ( T = reverse(C); T != []; T = cdr(T) ) {
+  Len = length(C);
+  for ( I = 0, T = reverse(C); T != []; T = cdr(T),I++ ) {
+//    print([Len-I],2);
     T0 = car(T); N0 = T0[0]; D0 = T0[1]; 
     L = lcmf(D,D0); 
     /* N/D+N0/D0 = (N*(L/D)+N0*(L/D0))/L */
     N = N*ftop(divf(L,D))+N0*ftop(divf(L,D0));
     D = L;
   }
+
   R = [];
-  for ( T = D; T != []; T = cdr(T) ) {
-    T0 = car(T); F = T0[0]; M = T0[1];
+  for ( S = D; S != []; S = cdr(S) ) {
+    T0 = car(S); F = T0[0]; M = T0[1];
     while ( M > 0 && (Q = tdiv(N,F)) ) {
       N = Q;
       M--; 
@@ -1331,6 +1337,61 @@ def nfpf0(F,G)
   return S;
 }
 
+def nfpf1(F,G)
+{
+  Z = F;
+  R = [];
+  while ( Z != [] ) {
+    Z0 = car(Z); C = Z0[0]; D = Z0[1];
+    for ( T = G; T != []; T = cdr(T) ) {
+      T0 = car(T); 
+      if ( dp_redble(D,T0[0][1]) ) break;
+    }
+    if ( T != [] ) {
+      CG = ctorat(T0[0][0]);
+      C = mulc(C,[[-1/CG,[]]]);
+      S = multpf([C,dp_subd(D,T0[0][1])],T0);
+      Z = addpf(Z,S);
+    } else {
+      R = cons(Z0,R);
+      Z = cdr(Z);
+    }
+  }
+  return reverse(R);
+}
+
+def nfpf_zero(F,G)
+{
+  Z = F;
+  R = [];
+  while ( Z != [] ) {
+    Z0 = car(Z); C = Z0[0]; D = Z0[1];
+    U = ctord(C);
+    if ( !U[0] ) { Z = cdr(Z); continue;}
+    for ( T = G; T != []; T = cdr(T) ) {
+      T0 = car(T); 
+      if ( dp_redble(D,T0[0][1]) ) break;
+    }
+    if ( T != [] ) {
+      CG = ctorat(T0[0][0]);
+      C = mulc(C,[[-1/CG,[]]]);
+      S = multpf([C,dp_subd(D,T0[0][1])],T0);
+      Z = addpf(Z,S);
+    } else {
+      R = cons(Z0,R);
+      Z = cdr(Z);
+    }
+  }
+  S = [];
+  for ( T = R; T != []; T = cdr(T) ) {
+    U = ctord(T[0][0]);
+    if ( U[0] )
+      S = cons(T[0],S);
+  }
+  print("");
+  return S;
+}
+
 def pftoeuler(F)
 {
   VDV = [y1,dy1];
@@ -1368,7 +1429,7 @@ def gammam(M,A)
   return R;
 }
 
-def genprc(M,N,PL,SL,X)
+def genprc(M,N,PL,SL)
 {
   A = (M+1)/2; C = (N+M+1)/2;
   DetS = 1;
@@ -1387,7 +1448,6 @@ def genprc(M,N,PL,SL,X)
  */
 
 def prob_by_hgm(M,N,PL,SL,X)
-"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options) where M is the number of variables, N is the degrees of freedom, Pi is the size of i-th block and Si is the value of i-th (repeated) eigenvalue of Sigma.  options : rk5=1 => use 5-th order Runge-Kutta method (default : rk4) double=1 => use machine double float (default : MPFR) step=k => set the number of steps=k (default : 10^4) init=x => set the maximal coordinate of the initial point=x (default : 1).  For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk5=1,double=1) computes Pr[l1<10|diag(1/10,1/10,1)] by RK5 and machine double float."
 {
   A = (M+1)/2; C = (N+M+1)/2;
 
@@ -1413,14 +1473,19 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   if ( type(Step=getopt(step)) == -1 )
     Step = 10000;
 
-  if ( type(Double=getopt(double)) == -1 )
-    Double = 0;
-
   Z = subst(Z,a,A,c,C);
-  Init=getopt(init);
-  Rk5 = getopt(rk5);
-  if ( type(Rk5) == -1 ) Rk5 = 0;
-  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk5,Step|double=Double,init=Init);
+  if ( type(X0=getopt(x0)) == -1 ) {
+    if ( type(Init=getopt(init)) == -1 ) Init = 1;
+    X0 = 0;
+    Len = length(Beta);
+    for ( I = 0; I < Len; I++ )
+      if ( Beta[I] > X0 ) X0 = Beta[I];
+    X0 = Init/X0;
+  }
+  if ( type(Rk=getopt(rk)) == -1 ) Rk = 5;
+  if ( type(Eps=getopt(eps)) == -1 ) Eps = 10^(-4);
+  if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
+  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk,Step,X0,Eps|mapleout=MapleOut);
   if ( Print ) print(["diag",Tdiag,"pfaffian",Tp,"ps",Tps,"rk",Trk]);
   return F;
 }
@@ -1448,7 +1513,7 @@ def prob_by_ps(M,N,PL,SL,X)
 
   Z = subst(Z,a,A,c,C);
   GM = gammam(M,(M+1)/2)/gammam(M,(N+M+1)/2);
-  C = GM*genprc(M,N,PL,SL,X);
+  C = GM*genprc(M,N,PL,SL);
 
   Beta = ltov(Beta)*eval(exp(0));
   X *= eval(exp(0));
@@ -1568,6 +1633,7 @@ T1=time(); Tact += T1[0]-T0[0];
 T0=time();
     Sol = solve_leq(Eq,CV);
     L = p_true_nf(FI,Sol,CV,0);
+    delete_uc();
     Den1 = ilcm(Den,L[1]); MI = Den1/L[1];
     FI = L[0]*(Den1/L[1]);
 T1=time(); Tgr += T1[0]-T0[0];
@@ -1581,7 +1647,6 @@ T1=time(); Tgr += T1[0]-T0[0];
     Val1 = Val+F0;
     if ( Val1 == Val ) {
      if ( Print ) print(["I=",I,"act",Tact,"actmul",Tactmul,"gr",Tgr]);
-     delete_uc();
      return [R/Den,Val1,F,Den];
     } else {
       if ( Print ) print([F0],2);
@@ -1736,7 +1801,7 @@ def pfaffian(Z)
   return [Mat,B];
 }
 
-def pfaffian2(Z,V,Beta,XV)
+def pfaffian2(Z,V,Beta,SBeta,MN2,XV)
 {
   N = length(Z);
   D = vector(N);
@@ -1772,9 +1837,9 @@ def pfaffian2(Z,V,Beta,XV)
         for ( L = 0; L < N; L++ )
           if ( Q == DV[L] ) break;
         Red1 = muldpf(V[L],car(T)[1]);
-        Red = nfpf0(Red1,Z);
+        Red = nfpf1(Red1,Z);
       } else
-        Red = nfpf0([mtot(Mon,1)],Z);
+        Red = nfpf1([mtot(Mon,1)],Z);
       Hist = cons([Mon,Red],Hist);
       for ( T = Red; T != []; T = cdr(T) ) {
         T0 = car(T); C = T0[0]; Op = dp_dtop(T0[1],PF_DV);
@@ -1786,7 +1851,8 @@ def pfaffian2(Z,V,Beta,XV)
           A[J][K] = C;
       }
     }
-    if ( Print ) print("");
+    for ( K = 0; K < N; K++ )
+      A = subst(A,V[K],Beta[K]*XV);
     A = map(ctord,A);
     Lcm = [];
     for ( K = 0; K < Dim; K++ )
@@ -1799,10 +1865,6 @@ def pfaffian2(Z,V,Beta,XV)
       }
     Lcm = ftorat(Lcm);
     if ( !Lcm ) Lcm = 1;
-    for ( K = 0; K < N; K++ ) {
-      A = subst(A,V[K],Beta[K]*XV);
-      Lcm = subst(Lcm,V[K],Beta[K]*XV);
-    }
     A = map(red,A/Lcm);
     Lcm = 1;
     for ( K = 0; K < Dim; K++ )
@@ -1813,15 +1875,19 @@ def pfaffian2(Z,V,Beta,XV)
         A[K][L] = nm(A[K][L])*sdiv(Lcm,dn(A[K][L]));
     Mat[I] = [A,Lcm];
   }
-  Lcm = 1;
+  Lcm = XV;
   for ( I = 0; I < N; I++ )
     Lcm = lcm(Mat[I][1],Lcm);
+  /* R = (MN2/XV-SBeta)*Id = (MN2-SBeta*XV)*(Lcm/XV)/Lcm*Id */
   R = matrix(Dim,Dim);
+  D = (MN2-SBeta*XV)*sdiv(Lcm,XV);
+  for ( I = 0; I < Dim; I++ ) R[I][I] = D;
   for ( I = 0; I < N; I++ ) {
     A = Mat[I][0];
     for ( K = 0; K < Dim; K++ )
-      for ( L = 0; L < Dim; L++ )
-        R[K][L] += Beta[I]*nm(A[K][L])*sdiv(Lcm,Mat[I][1]);
+      for ( L = 0; L < Dim; L++ ) {
+        R[K][L] += Beta[I]*(A[K][L])*sdiv(Lcm,Mat[I][1]);
+      }
   }
   Deg = 0;
   for ( K = 0; K < Dim; K++ )
@@ -1867,147 +1933,104 @@ def eval_pfaffian(Mat,Beta,SBeta,MN2,V,XI,F)
   return R;
 }
 
-def eval_pfaffian2(Mat,Beta,SBeta,MN2,V,T,XI,F)
+def eval_pfaffian2(Mat,XI,F)
 {
-  N = length(V);
-  MA = Mat[0]; Den = subst(Mat[1],T,XI);
+  MA = Mat[0]; 
+  Den = Mat[1];
+  if ( T = var(Den) ) Den = subst(Den,T,XI);
   Len = length(MA);
   Dim = size(MA[0])[0];
   R = vector(Dim);
-  XII = 1;
-  for ( I = 0; I < Len; I++ ) {
-    R += MA[I]*(XII*F);
-    XII *= XI;
+  for ( I = Len-1; I >= 0; I-- ) {
+    R = XI*R+MA[I]*F;
   }
-  R = R/Den - (SBeta-MN2/XI)*F;
+  R = R/Den;
   return R;
 }
 
-
-def genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,RK5,Step)
+def genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,RK,Step,X0,Eps)
 {
-  if ( type(Double=getopt(double)) == -1 ) {
-    ctrl("bigfloat",1);
-    Double = 0;
-  } else
-    ctrl("bigfloat",0);
-  if ( type(Init=getopt(init)) == -1 )
-    Init = 1;
+  if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
+  ctrl("bigfloat",1);
+  O = eval(exp(0));
   Len = length(V);
   DV = vector(Len);
   for ( I = 0; I < Len; I++ )
     DV[I] = strtov("d"+rtostr(V[I]));
   DV = vtol(DV);
-  A = (1+M)/2; C = (1+M+N)/2;
+  A = (1+M)/2; C = (1+M+N)/2; MN2 = M*N/2;
   Z0 = subst(Z,a,A,c,C);
 T0 = time();
-  Q = pfaffian2(Z0,V,Beta,t); Mat = Q[0]; Base = Q[1];
+  Q = pfaffian2(Z0,V,Beta,SBeta,MN2,t); Mat = Q[0]; Base = Q[1];
   MatLen = length(Q[0][0]);
   for ( I = 0; I < MatLen; I++ )
-    Mat[0][I] *= eval(exp(0));
+    Mat[0][I] *= O;
 T1 = time(); Tp = (T1[0]-T0[0])+(T1[1]-T0[1]);
 T0 = time();
-  Beta = ltov(Beta)*eval(exp(0));
-  X *= eval(exp(0));
-  X1 = Beta*X;
-  X0 = 0;
-  for ( I = 0; I < Len; I++ )
-    if ( Beta[I] > X0 ) X0 = Beta[I];
-  X0 /= Init;
-  /* Max Beta[I] is set to Init */
-  Beta0 = Beta/X0;
-  X0 = 1/X0;
-  /* now Beta0 = X0*Beta */
-#if 0
-  Prec = setbprec();
-  setbprec(2*Prec);
-#endif
+  Beta = ltov(Beta)*O;
+  X *= O;
+  Beta0 = Beta*X0;
   L = psvalue(Z0,V,Beta0); PS = L[0];
+  if ( Print ) print(["x0=",X0]);
 T1 = time(); Tps = (T1[0]-T0[0])+(T1[1]-T0[1]);
 T0 = time();
-#if 0
-  setbprec(Prec);
-#endif
   Dim = length(Base);
-  MN2 = M*N/2;
   ExpF = eval(X0^(MN2)*exp(-SBeta*X0));
-  F = vector(Dim);
+  GM = gammam(M,(M+1)/2)/gammam(M,(N+M+1)/2)*genprc(M,N,PL,SL);
+  ExpF *= GM;
+  F0 = vector(Dim);
   for ( I = 0; I < Dim; I++ ) {
     DPS = act_op(dp_ptod(Base[I],DV),V,PS);
     for ( J = 0; J < Len; J++ )
       DPS = subst(DPS,V[J],Beta0[J]);
-    F[I] = DPS*ExpF;
+    F0[I] = DPS*ExpF;
   }
-  F0 = F*1;
-  while ( 1 ) {
+  First = 1;
+  Val = [];
+  LVal = [];
+  DVal = [];
+  RDVal = [];
+  if ( MapleOut ) {
+    mapleout(Mat[0],Mat[1],X0,F0,X,MapleOut);
+    return;
+  }
+  for ( I = 0; ; Step *= 2, I++ ) {
+    if ( Print ) print("Step=",0); if ( Print ) print(Step);
     F = F0*1;
-    H = eval((X-X0)/Step);
-    if ( Double ) {
-        ctrl("bigfloat",0);
-        X0 = todouble(X0);
-        H = todouble(H);
-        Beta = map(todouble,Beta);
-        SBeta = todouble(SBeta);
-        F = map(todouble,F);
+    T = F[0]; F /= T;
+    R = [[X0,T]];
+    R1 = rk_ratmat(RK,Mat[0],Mat[1],X0,X,Step,F);
+    R = append(R1,R);
+
+    setround(1);
+    Adj = eval(exp(0));
+    for ( T = R; T != []; T = cdr(T) )
+      Adj *= car(T)[1];
+    LVal = cons(Adj,LVal);
+    setround(2);
+    Adj = eval(exp(0));
+    for ( T = R; T != []; T = cdr(T) )
+      Adj *= car(T)[1];
+    Val = cons(Adj,Val);
+    setround(0);
+
+    if ( Print ) { print(""); print([LVal[0],Val[0]]); }
+    if ( I >= 1 ) DVal = cons(Val[0]-Val[1],DVal);
+    if ( I >= 2 ) {
+      RDVal = cons(DVal[1]/DVal[0],RDVal);
+      print(["log ratio=",eval(log(RDVal[0])/log(2))]);
     }
-    R = [];
-    GM = gammam(M,(M+1)/2)/gammam(M,(N+M+1)/2);
-    O = eval(exp(0));
-    if ( RK5 ) {
-      A2 = 1/5*O; B21 = 1/5*O;
-      A3 = 3/10*O;B31 = 3/40*O; B32 = 9/40*O;
-      A4 = 3/5*O; B41 = 3/10*O; B42 = -9/10*O; B43 = 6/5*O;
-      A5 = 1*O;   B51 = -11/54*O; B52 = 5/2*O; B53 = -70/27*O; B54 = 35/27*O;
-      A6 = 7/8*O; B61 = 1631/55296*O; B62 = 175/512*O; B63 = 575/13824*O; B64 = 44275/110592*O; B65 = 253/4096*O;
-      C1 = 37/378*O; C2 = 0*O; C3 = 250/621*O; C4 = 125/594*O; C5 = 0*O; C6 = 512/1771*O;
-      D1 = 2825/27648*O; D2 = 0*O; D3 = 18575/48384*O; D4 = 13525/55296*O; D5 = 277/14336*O; D6 = 1/4*O;
-      for ( I = 0; I < Step; I++ ) {
-        if ( Print ) {
-          if ( !(I%1000) ) print([I],2);
-          if ( !(I%10000) ) print("");
-        }
-        XI = X0+I*H;
-        K1 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI,F);
-        K2 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+A2*H,F+B21*K1);
-        K3 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+A3*H,F+B31*K1+B32*K2);
-        K4 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+A4*H,F+B41*K1+B42*K2+B43*K3);
-        K5 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+A5*H,F+B51*K1+B52*K2+B53*K3+B54*K4);
-        K6 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+A6*H,F+B61*K1+B62*K2+B63*K3+B64*K4+B65*K5);
-        F += C1*K1+C2*K2+C3*K3+C4*K4+C5*K5+C6*K6;
-        T = GM*F[0]*genprc(M,N,PL,SL,XI+H);
-        if ( T < 0 || T > 1 ) break;
-        R = cons([XI+H,T],R);
-      }
-    } else {
-      for ( I = 0; I < Step; I++ ) {
-        if ( Print ) {
-          if ( !(I%1000) ) print([I],2);
-          if ( !(I%10000) ) print("");
-        }
-        XI = X0+I*H;
-        K1 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI,F);
-        K2 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+H/2,F+1/2*K1);
-        K3 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+H/2,F+1/2*K2);
-        K4 = H*eval_pfaffian2(Mat,Beta,SBeta,MN2,V,t,XI+H,F+K3);
-        F += 1/6*K1+1/3*K2+1/3*K3+1/6*K4;
-        T = GM*F[0]*genprc(M,N,PL,SL,XI+H);
-        if ( T < 0 || T > 1 ) break;
-        R = cons([XI+H,T],R);
-      }
+    if ( I >= 1 && abs(1-Val[0]/Val[1])<Eps ) {
+      T1 = time(); Trk = (T1[0]-T0[0])+(T1[1]-T0[1]);
+      return Val[0];
     }
     if ( Print ) print("");
-    if ( I == Step ) {
-        T1 = time(); Trk = (T1[0]-T0[0])+(T1[1]-T0[1]);
-        return reverse(R);
-    } else {
-      Step *= 2;
-      if ( Print ) print("Step=",0); if ( Print ) print(Step);
-    }
   }
 }
 
 def solve_leq(L,V)
 {
+#if 0
   N = length(V);
   B = [];
   for ( I = 0; I < N; I++, L = cdr(L) ) B = cons(car(L),B);
@@ -2019,6 +2042,10 @@ def solve_leq(L,V)
       return Sol;
     }
   }
+#else
+  Sol = nd_f4_trace(L,V,0,-1,0);
+  return Sol;
+#endif
 }
 
 
@@ -2297,5 +2324,235 @@ def message(S) {
   dp_gr_print(S);
   Print = S;
 }
+
+def mapleout(Nm,Dn,X0,F0,X,OutF)
+{
+  N = length(F0);
+  V = vector(N);
+  VT = vector(N);
+  M = length(Nm);
+  R = matrix(N,N);
+  for ( I = 0; I < M; I++ )
+    R += Nm[I]*t^I;
+  for ( I = 0; I < N; I++ ) {
+    V[I] = strtov("x"+rtostr(I));
+    VT[I] = strtov(rtostr(V[I])+"(t)");
+  }
+  R *= VT;
+  output(OutF);
+  print("dsys:={");
+  for ( I = 0; I < N; I++ ) {
+    print("diff("+rtostr(V[I])+"(t),t)=("+rtostr(R[I])+")/("+rtostr(Dn)+"),");
+  }
+  for ( I = 0; I < N; I++ ) {
+    print(rtostr(V[I])+"("+rtostr(X0)+")="+rtostr(F0[I]),0);
+    if ( I < N-1 ) print(",");
+  }
+  print("};");
+  print("dsol:=dsolve(dsys,numeric,output=Array(["+rtostr(X)+"]));");
+  output();
+}
+
+def gbcheck(Z)
+{
+  N = length(Z);
+  for ( I = 0; I < N; I++ )
+    for ( J = I+1; J < N; J++ ) {
+      S = spolypf(Z[I],Z[J]);
+      R = nfpf_zero(S,Z);
+      if ( R != [] ) return 0;
+      else print([I,J],2);
+    }
+  print("");
+  return 1;
+}
+
+def all_partition(N,K)
+{
+  R = [];
+  for ( I = 1; I <= K; I++ )
+    R = append(partition(N,I),R);
+  return map(reverse,R);
+}
+
+def partition(N,K)
+{
+  if ( N < K ) return [];
+  else if ( N == K ) {
+    S = [];
+    for ( I = 0; I < K; I++ )
+      S = cons(1,S);
+    return [S];
+  } else if ( K == 0 )
+    return [];
+  else {
+    R = [];
+    L = partition(N-K,K);
+    for ( T = L; T != []; T = cdr(T) ) {
+      S = [];
+      for ( U = car(T); U != []; U = cdr(U) )
+        S = cons(car(U)+1,S);
+      R = cons(reverse(S),R);
+    } 
+    L = partition(N-1,K-1);
+    for ( T = L; T != []; T = cdr(T) )
+      R = cons(cons(1,car(T)),R);
+    return R;
+  }
+}
+
+def partition_to_pattern(L)
+{
+  Cur = 1;
+  R = [];
+  for ( T = L; T != []; T = cdr(T) ) {
+    R = cons([Cur,Cur+car(T)-1],R);
+    Cur += car(T);
+  }
+  return reverse(R);
+}
+
+localf ctond$
+
+def ctond(C)
+{
+  D = [];
+  for ( T = C; T != []; T = cdr(T) )
+    D = lcmf(D,car(T)[1]); 
+  N = [];
+  for ( T = C; T != []; T = cdr(T) ) {
+    D0 = divf(D,car(T)[1]);
+    N = cons([car(T)[0],D0],N);
+  }
+  return [reverse(N),D];
+}
+
+localf tdegf$
+
+def tdegf(F)
+{
+  D = 0;
+  for ( L = F[1]; L != []; L = cdr(L) )
+    D += car(L)[1];
+  return D;
+}
+
+localf ntop$
+
+def ntop(N)
+{
+  R = 0;
+  for ( ; N != []; N = cdr(N) )
+    R += car(N)[0]*ftop(car(N)[1]);
+  return R;
+}
+
+#if 0
+def pwrtab(D)
+{
+  Len = length(D);
+  F = vector(Len);
+  M = vector(Len);
+  for ( I = 0; I < Len; I++ ) {
+    F[I] = D[I][0]; M[I] = D[I][1];
+  }
+  P = vector(Len);
+  for ( I = 0; I < Len; I++ ) {
+    MI = M[I]; FI = F[I];
+    PI = P[I] = vector(MI+1);
+    for ( PI[0] = 1, J = 1; J <= MI; J++ ) PI[J] = PI[J-1]*FI;
+  }
+}
+
+def ctord2(C)
+{
+  D = [];
+  for ( T = C; T != []; T = cdr(T) )
+    D = lcmf(D,car(T)[1]);
+  H = pwrtab(D);
+  N = 0;
+  for ( I = 0, T = reverse(C); T != []; T = cdr(T),I++ ) {
+    print([Len-I],2);
+    T0 = car(T); N0 = T0[0]; D0 = T0[1]; 
+    L = lcmf(D,D0); 
+    /* N/D+N0/D0 = (N*(L/D)+N0*(L/D0))/L */
+    N = N*getpwr(divf(L,D))+N0*getpwr(divf(L,D0));
+    D = L;
+  }
+  R = [];
+  for ( T = D; T != []; T = cdr(T) ) {
+    T0 = car(T); F = T0[0]; M = T0[1];
+    while ( M > 0 && (Q = tdiv(N,F)) ) {
+      N = Q;
+      M--; 
+    }
+    if ( M ) R = cons([F,M],R);
+  }
+  D = reverse(R);
+  return [N,D];
+}
+#endif
+
+def degpf(P)
+{
+  R = [];
+  for ( T = P; T != []; T = cdr(T) ) {
+    Term = car(T);
+    C = Term[0]; D = Term[1];
+    C0 = C[0];
+    CN = C0[0]; CD = C0[1];
+    R = cons([CD!=[]?CD[0][1]:0,D],R);
+  }
+  return reverse(R);
+}
+
+def pftodpf(F)
+{
+  D0 = car(F)[1];
+  N = length(dp_etov(D0));
+  DY = [];
+  for ( I = 0; I < N; I++ )
+    DY = cons(strtov("dy"+rtostr(I)),DY);
+  DY = reverse(DY);
+  R = [];
+  for ( T = mulcpf([[-1,[]]],F); T != []; T = cdr(T) ) {
+    C = car(T)[0]; D = dp_dtop(car(T)[1],DY);
+    R = cons([C,D],R);
+  }
+  return reverse(R);
+}
+
+def all_diag(N,Dir)
+{
+  P = all_partition(N,N);
+  U = map(partition_to_pattern,P);
+  Len = length(P);
+  for ( I = 0; I < Len; I++ ) {
+    Z = map(pftodpf,diagpf(N,U[I]));
+    for ( Name = rtostr(N)+"-", T = P[I]; T != []; T = cdr(T) ) {
+      Name += rtostr(car(T));
+      if ( length(T) > 1 ) Name += "_";
+    }
+    bsave(Z,Dir+"/"+Name);
+  }
+}
+
+def y1y2(M)
+{
+  wsetup(M);
+  U = [[2*c-M,[[y1,1]]],[-2,[]]];
+  for ( J = 3; J <= M; J++ )
+    U = addc(U,[[1,[[PF_V[1]-PF_V[J],1]]]]);
+  P = [];
+  for ( J = 3; J <= M; J++ ) {
+    C = addc([[1,[[PF_V[1]-PF_V[J],1]]]],[[-1,[[PF_V[1],1]]]]);
+    P = addpf(P,[[C,dp_ptod(PF_DV[J],PF_DV)]]);
+  }
+}
+
 endmodule$
 end$
+
+"usage : n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]),\n where M is the number of variables and [Si,Ei] is a diagonal block and S(i+1)=Ei + 1.  For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of PDEs satisfied by 1F1(y1,...,y1,y10)."
+
+"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options) where M is the number of variables, N is the degrees of freedom, Pi is the size of i-th block and Si is the value of i-th (repeated) eigenvalue of Sigma.  options : rk=4|5 => use 4|5-th order Runge-Kutta method (default : rk=5) step=k => set the number of steps=k (default : 10^4) init=x => set the maximal coordinate of the initial point=x (default : 1), eps=e => set the approximate relative error bound=e (default : 10^(-4)).  For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk=5) computes Pr[l1<10|diag(1/10,1/10,1)] by RK5."
