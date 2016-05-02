@@ -1,0 +1,866 @@
+/* 
+$OpenXM$
+ */
+/* This is a package for the paper 
+  H.Nakayama and N.Takayama, An Introduction to Algorithms for D-modules
+    with Quiver D-modules.
+  - Module is not defined, because this package is for the paper above.
+  - Comments are in UTF-8.
+*/
+
+// 2016.05.02  a copy from misc-2016/04/lyon/Prog/edge2.rr
+// cvs-misc diff -r1.28 -r1.29 edge2.rr   nd_gr の括弧の多い bug. 2016.02.24
+// 2016.01.04
+// Generate edge framing for 2-dim case.
+// Generate associated D-modules.
+//Note: 2016/01/04-my-note-tmp-edge-framing.pdf
+//Ref:  @s/2016/01/12-my-note-from-oct-to-jan.pdf
+import("names.rr")$
+extern Edge_x$
+extern Edge_dx$
+extern Edge_n$
+extern Edge_frame$
+extern Edge_fvector$
+extern Edge_quiver$
+extern Edge_rank$
+extern Edge_rank2$
+extern Edge_module_basis$
+extern Edge_module_vars$
+extern MyDebug$
+MyDebug=0$
+Edge_x=[x,y]$
+Edge_dx=[dx,dy]$
+Edge_n=length(Edge_x)$
+// Edge_frame=0$
+// Edge_rank=1$
+
+/* omega_alpha for dim(X_alpha)=1 and Closure(V(F)) = X_alpha 
+ */
+def omega1(F) {
+  /* F=ax+by-c ==> omega=(a dy - b dx)/(a^2+b^2)
+     dF * omega = dx*dy 
+   */
+  A = coef(F,1,Edge_x[0]);
+  B = coef(F,1,Edge_x[1]);
+  Omega = (A*Edge_dx[1]-B*Edge_dx[0])/(A^2+B^2);
+  return(Omega);
+}
+
+/*
+  f_{beta,alpha} where alpha > beta
+  Closure(X_alpha) = V(F)
+  Closure(X_{alpha,beta}) = V(F,G)
+  df = omega1(F) and f(V(F,G))=0
+ */
+def fba(F,G) {
+  /* Return f such that Vanish on V(F,G) and df = omega_alpha. */
+  Omega = omega1(F);
+  N = Edge_n;
+  P=newvect(N);
+  Ans=0;
+  for (I=0; I<N; I++) {
+    P[I] = coef(Omega,1,Edge_dx[I]);
+    Ans += P[I]*Edge_x[I];
+  }
+  Rule=poly_solve_linear([F,G],Edge_x);
+  Val = base_replace(Ans,Rule);
+  Ans = Ans-Val;
+  return(Ans);
+}
+
+def test1() {
+  printf("f_{14,4}=%a\n",fba(2*x+y-2,x));
+  printf("f_{14,1}=%a\n",fba(x,2*x+y-2));
+}
+// 2016.01.07
+// p.10  xi1 is basis of T_F/T_point \ni xi_F_point
+def xi1(F) {
+  N = Edge_n;
+  P=newvect(N);
+  Ans=0;
+  for (I=0; I<N; I++) {
+    P[I] = coef(F,1,Edge_x[I]);
+  }
+  X=-P[1]*Edge_dx[0]+P[0]*Edge_dx[1];
+  return(X);
+}
+// basis of T_empty/T_F
+def xi2(F) {
+  N = Edge_n;
+  P=newvect(N);
+  Ans=0;
+  for (I=0; I<N; I++) {
+    P[I] = coef(F,1,Edge_x[I]);
+  }
+  X=(P[0]*Edge_dx[0]+P[1]*Edge_dx[1])/(P[0]^2+P[1]^2);
+  return(X);
+}
+//  Eval of i_xi Omega
+def ixi(Xi,Omega) {
+  DV = Edge_dx; V=Edge_x; N=Edge_n;
+  // Todo
+}
+def test2() {
+  L=[x,y,x+y-1,2*x+y-2];
+  edge_frame2(L);
+}
+def test2b() {
+  L=[x,y];
+  edge_frame2(L);
+}
+def edge_frame2(L) {
+  // L is a list of polynomials.
+  V=Edge_x; DV=Edge_dx; N=Edge_n;
+  M=length(L);
+  Face0=[];  // 0-face
+  for (I=0; I<M; I++) {
+    for (J=0; J<M; J++) {
+      Rule=poly_solve_linear([L[I],L[J]],V);
+      if (length(Rule) == 2) {
+	Point = base_replace(V,Rule);
+	if (!base_memberq(Point,Face0)) Face0=cons(Point,Face0);
+      }
+    }
+  }
+  Face0=reverse(Face0); // Face0 is the set of 0-face.
+  // Face0to1[I] is a list of one-faces which pass through the I-th 0-face Face0[I]
+  Face0to1=newvect(length(Face0));
+  for (I=0; I<length(Face0to1); I++) {
+    Point=Face0[I]; Face1=[];
+    for (J=0; J<M; J++) {
+      if (base_replace(L[J],assoc(V,Point)) == 0) Face1=cons(J,Face1);
+    }
+    Face0to1[I] = reverse(Face1);
+  }
+  Face0to1 = vtol(Face0to1);
+  // return [Face0,Face0to1];
+  Omega1=newvect(M);
+  for (I=0; I<M; I++) Omega1[I] = omega1(L[I]);
+  Omega1 = vtol(Omega1);
+  // return [Face0,Face0to1,Omega1];
+  // f_ba given by face0*face1
+  Fba0to1=newmat(length(Face0),M);
+  for (I=0; I<length(Face0); I++) {
+    Point=Face0[I];
+    Upface=Face0to1[I];
+    for (K=0; K<length(Upface); K++) {
+      J = Upface[K];
+      if (K==0) JJ=Upface[1]; else JJ=Upface[0];
+      Fba0to1[I][J] = fba(L[J],L[JJ]);
+    }
+  }
+  Face1=L; Face2=[0];
+  Omega2=[DV[0]*DV[1]];
+  Omega0=newvect(length(Face0));
+  for (I=0; I<length(Face0); I++) Omega0[I]=1;
+  Omega0=vtol(Omega0);
+  Fba1to2=matrix_transpose(newmat(1,length(L),[L]));
+  // We need basis of T_alpha and F_alpha (p.10)
+  //  T_alpha = xi s.t.   xi f = 0 for all f in F_alpha
+  Talpha0=vtol(newvect(length(Face0)));
+  Talpha1=newvect(M);
+  for (I=0; I<M; I++) Talpha1[I]=xi1(L[I]);
+  Talpha1=vtol(Talpha1);
+  Talpha2=DV;
+  // We need a list of xi_ba
+  // b>a, i_xi_ba(omega_b) = omega_a,  xi_ba \in T_b/T_a   note: 2016/01/04, 01/08
+  // Xib is the set of xi_ba
+  Xi0=0;
+  Xi1=newvect(length(Face1));
+  for (I=0; I<length(Face1); I++) Xi1[I]=xi1(Face1[I]);
+  Xi1=vtol(Xi1);
+  Xi2=newvect(length(Face1));
+  for (I=0; I<length(Face1); I++) Xi2[I]=xi2(Face1[I]);
+  Xi2=vtol(Xi2);
+
+  Ans=   [[Face0,Face1,Face2,Face0to1],
+	  [Omega0,Omega1,Omega2],
+	  [Fba0to1,Fba1to2],
+	  [Talpha0,Talpha1,Talpha2],
+	  [Xi0,Xi1,Xi2]
+	  ];
+  Edge_frame=Ans;
+  Edge_fvector=reverse(cdr(reverse(map(length,Ans[0]))));
+  return(Ans);
+}
+// p.30  differential eq.
+def usage() {
+ printf("Usage: edge_frame2(list of poly in x,y);\n")$
+   printf(" [[face0,face1,[0],face0_by_face1], [0]\n  [omega0,omega1,omega2], [1]\n  [f_ba(0-face * 1-face),f_ba(1-face to 2 face)], [2]\n")$
+   printf("  [T_0,T_1,T_2], [3] tangent space on X_a\n");
+   printf("  [[0],  Xi10=T_i/T_point,  Xi21=T_empty/T_i]] [4] representative of xi_ba, T_i stands for the i-th 1-face.\n")$
+     printf("This function sets the global variables Edge_frame, ...\n")$
+     printf("Example: test2();\n")$
+       printf("genQuiver(1); map(ptomb,base_flatten(qd2()));\n")$
+}
+usage()$
+//test2();
+
+// 2016.01.09
+//  It is assumed that Edge_frame is set. It returns index of the 0-face or expression of 0-face by 1-faces.
+def idx0(F) {
+  Face0_by_face1=Edge_frame[0][3];
+  if (type(F) <= 1) {
+    return(Face0_by_face1[F]);
+  }
+  F=qsort(F);
+  return(base_position(F,Face0_by_face1));
+}
+
+// 2016.01.08 --> redo 2016.01.09
+
+// Quiver representation.
+def usage_q() {
+  printf("Quiver representation:\n")$
+  printf(" f is the f-vector.\n")$
+  printf(" [[f0-vector of basis, f1-vector of basis, f2-vector of basis],\n")$
+  printf("  [f_0*f_1 matrix m01,f_1*f_2 matrix m12],\n")$
+  printf("  [f_2*f_1 matrix m21,f_1*f_0 matrix m10]]\n")$
+    printf(" The (p,q) entry of mij is the linear map from p-th i-face to q-th j-face.\n");
+    printf(" If it is 0, there is no edge standing for the entry.\n")$
+      printf(" Global variables: Edge_quiver\n")$
+}
+
+def genmat(Sym,Idx,R) {
+  M = newmat(R,R);
+  for (I=0; I<R; I++) {
+    for (J=0; J<R; J++) {
+      M[I][J] = util_v(Sym,append(Idx,[I,J]));
+    }
+  }
+  return(M);
+}
+// 2016.04.18
+def genmat2(Sym,Idx,R1,R2) {
+  M = newmat(R2,R1);
+  for (I=0; I<R2; I++) {
+    for (J=0; J<R1; J++) {
+      M[I][J] = util_v(Sym,append(Idx,[I,J]));
+    }
+  }
+  return(M);
+}
+
+def isConnected(Face0Idx,Face1Idx) {
+  Incidence = Edge_frame[0];
+  if ((Face0Idx < 0) || (Face1Idx < 0)) debug("error: isConnected.");
+  if (Face0Idx > Edge_fvector[0]) debug("error: isConnected.");
+  if (Face1Idx > Edge_fvector[1]) debug("error: isConnected.");
+  In=idx0(Face0Idx);
+  if (base_memberq(Face1Idx,In)) return(1);
+  else return(0);
+}
+
+def genQuiver(Rank) {
+  if (type(Rank)<4) {
+    Edge_rank2=[Rank,Rank,Rank]; 
+    Edge_rank=Rank;
+  } else {Edge_rank2 = Rank; Edge_rank=-1;}
+  Fvector=Edge_fvector;
+  Basis0 = newvect(Fvector[0]);
+  for (I=0; I<Fvector[0]; I++) Basis0[I]=genvect(v_0,I,Edge_rank2[0]);
+  Basis0=vtol(Basis0);
+
+  Basis1 = newvect(Fvector[1]);
+  for (I=0; I<Fvector[1]; I++) Basis1[I]=genvect(v_1,I,Edge_rank2[1]);
+  Basis1=vtol(Basis1);
+
+  Basis2 = newvect(Fvector[2]);
+  for (I=0; I<Fvector[2]; I++) Basis2[I]=genvect(v_2,I,Edge_rank2[2]);
+  Basis2=vtol(Basis2);
+
+  M01=newmat(Fvector[0],Fvector[1]);
+  for (I=0; I<Fvector[0]; I++) for (J=0; J<Fvector[1]; J++) {
+      if (!isConnected(I,J)) M01[I][J]=0;
+      else M01[I][J] = genmat2(m01,[I,J],Edge_rank2[0],Edge_rank2[1]);
+  }
+  M12=newmat(Fvector[1],Fvector[2]);
+  for (I=0; I<Fvector[1]; I++) for (J=0; J<Fvector[2]; J++) {
+      M12[I][J] = genmat2(m12,[I,J],Edge_rank2[1],Edge_rank2[2]);
+  }
+
+  M21=newmat(Fvector[2],Fvector[1]);
+  for (I=0; I<Fvector[2]; I++) for (J=0; J<Fvector[1]; J++) {
+      M21[I][J] = genmat2(m21,[I,J],Edge_rank2[2],Edge_rank2[1]);
+  }
+
+  M10=newmat(Fvector[1],Fvector[0]);
+  for (I=0; I<Fvector[1]; I++) for (J=0; J<Fvector[0]; J++) {
+      if (!isConnected(J,I)) M10[I][J]=0;
+      else M10[I][J] = genmat2(m10,[I,J],Edge_rank2[1],Edge_rank2[0]);
+  }
+
+  Edge_quiver=[[Basis0,Basis1,Basis2],[M01,M12],[M21,M10]];
+  module_basis();
+  return(Edge_quiver);
+}
+// 2016.01.09  changelog by bandicam  fe:/Movies/archive/bandicam
+
+// 2016.01.10 
+def genvect(Symb,Idx,Rank) {
+  V=newvect(Rank);
+  for (I=0; I<Rank; I++) V[I] = util_v(Symb,[Idx,I]);
+  return(V);
+}
+//test: test2(); Ans=genQuiver(2); eq_type1_2();
+
+  /* xi \in T_a, X_a > X_b    dim X_a >= 1
+     xi*omega_a*v_a-sum <xi,f_ab>*omega_b*A_ba(v_a)
+  Ans[1]=Omega: [[1],[dy,-dx],[dy*dx]]
+  Ans[2]=Fba: [[ y -x ],[x,y]]
+  eq_type1
+  */
+def eq_type1_2() { // p.30 (4.25), the case of dim X_a = 2, diff op.
+  // Edge_frame, Edge_quiver, Edge_rank are used.
+  Eframe=Edge_frame;
+  Omega=Eframe[1];
+  Fba=Eframe[2];  // Fba[1][I][0] : f_empty_I 
+  Dx=Edge_dx[0]; Dy=Edge_dx[1]; // basis of xi
+  X=Edge_x[0]; Y=Edge_x[1];
+  Two2One=Edge_quiver[2][0];  // 1*f_1 matrix.
+  Vbase1=Edge_quiver[0][1];    // length is f_1
+  Vbase2=Edge_quiver[0][2];   // length is f_2=1. Element is a basis. 
+  Ans=[];
+  for (K=0; K<Edge_rank2[2]; K++) {
+    Eqx=Dx*util_v(om,[2,0])*Vbase2[0][K];
+    for (I=0; I<length(Omega[1]); I++) {
+      if (MyDebug) printf("Vbase1[I]=%a, Two2One[0][I]=%a\n",Vbase1[I],Two2One[0][I]);
+      if (MyDebug) printf("size(Vbase1[I])=%a, size(Two2One[0][I])=%a\n",size(Vbase1[I]),size(Two2One[0][I]));
+      Image=(Vbase1[I]*Two2One[0][I]);
+%%Note:  Vbase1[q]*Two2One[0][q]  2-face から 1-face への写像. 
+%%       これの K 番目を取出すと 2-face の K-番目の基底\in V の像 \in V_{q番目の 1-faceに対応する vector space}
+      if (MyDebug) printf("Image=%a\n",Image);
+      //     if (Image != 0) Image=Image[K];
+      if (Two2One[0][I] != 0) Image=Image[K]; else Image=0;
+      Eqx -= diff(Fba[1][I][0],X)*util_v(om,[1,I])*Image;
+      // f_ab of 2-face and I-th 1-face.
+    }
+    Ans=cons(Eqx,Ans);
+    Eqy=Dy*util_v(om,[2,0])*Vbase2[0][K];
+    for (I=0; I<length(Omega[1]); I++) {
+      Image=(Vbase1[I]*Two2One[0][I]);
+      //      if (Image != 0) Image=Image[K];
+      if (Two2One[0][I] != 0) Image=Image[K]; else Image=0;
+      Eqy -= diff(Fba[1][I][0],Y)*util_v(om,[1,I])*Image;
+    }
+    Ans=cons(Eqy,Ans);
+  }
+  return(reverse(Ans));
+}
+def test_e1() {
+  E=edge_frame2([x,y]);
+  genQuiver(1);  // rank 1
+  eq_type1_2();
+}
+
+  /* xi \in T_a, X_a > X_b    dim X_a >= 1
+     xi*omega_a*v_a-sum <xi,f_ab>*omega_b*A_ba(v_a)
+  Ans[1]=Omega: [[1],[dy,-dx],[dy*dx]]
+  Ans[2]=Fba: [[ y -x ],[x,y]]
+  eq_type1
+  */
+def eq_type1_1() { // the case of dim X_a = 1, diff op.  p.30
+  // Edge_frame, Edge_quiver, Edge_rank are used.
+  Eframe=Edge_frame;
+  Fvector=Edge_fvector;
+  Omega=Eframe[1];
+  Fba=Eframe[2];  // Fba[0][I][J] : I-th 0 face <--> J-th 1-face.
+  Dx=Edge_frame[3][1]; // Dx[J] basis of T_a, for J-th X_a, dim X_a = 1;
+  X=Edge_x[0]; Y=Edge_x[1];
+  One2Zero=Edge_quiver[2][1];  // f_1*f_0 matrix.
+  Vbase0=Edge_quiver[0][0];   // length is f_0. Element is a basis. 
+  Vbase1=Edge_quiver[0][1];    // length is f_1
+  Ans=[];
+  if (MyDebug) printf("size(One2Zero)=%a,size(Vbase0)=%a,size(Vbase1)=%a\n",
+		      size(One2Zero),length(Vbase0),length(Vbase1));
+  // 
+  for (K=0; K<Edge_rank2[1]; K++) for (J=0; J<Fvector[1]; J++) {
+    Op = Dx[J];
+    Eqx=Op*util_v(om,[1,J])*Vbase1[J][K];
+    for (I=0; I<Fvector[0]; I++) {
+      //if ((K==1)&&(I==2)) debug();
+      Image=(Vbase0[I]*One2Zero[J][I]);
+
+      if (MyDebug) printf("Vbase1[I]=%a, Two2One[0][I]=%a\n",Vbase0[I],One2Zero[J][I]);
+      if (MyDebug) printf("size(Vbase0[I])=%a, size(One2Zero[J][I])=%a\n",size(Vbase0[I]),size(One2Zero[J][I]));
+      if (MyDebug) printf("Image=%a,[I,J,K]=%a\n",Image,[I,J,K]);
+
+      //      if (Image != 0) Image=Image[K];
+      if (One2Zero[J][I] != 0) Image=Image[K]; else Image=0;
+      Eqx -= act_d(Op,Fba[0][I][J])*util_v(om,[0,I])*Image;
+      // f_ab of I-th 0-face and J-th 1-face.
+    }
+    Ans=cons(Eqx,Ans);
+  }
+  return(reverse(Ans));
+}
+
+def act_d(Op,F) {
+  // print([Op,F]);
+  A=coef(Op,1,Edge_dx[0]);
+  B=coef(Op,1,Edge_dx[1]);
+  return(A*diff(F,Edge_x[0])+B*diff(F,Edge_x[1])+base_replace(Op,assoc(Edge_dx,[0,0]))*F);
+}
+  /* p.30
+     f \in F_a, X_a < X_b     dim X_a <= 1
+     f*omega_a*v_a - sum <xi_ab,f>*omega_b*A_ba(v_a)
+  */
+def eq_type2_1() { //  f*one_face - sum of two face.  p.30 of [KV]
+  // Edge_frame, Edge_quiver, Edge_rank are used.
+  Eframe=Edge_frame;
+  Fvector=Edge_fvector;
+  Omega=Eframe[1];
+  Xiba=Eframe[4];  // Xiba[2][I] : I-th 1 face <--> the 2-face.
+  X=Edge_x[0]; Y=Edge_x[1];
+  F=Edge_frame[0][1];
+  One2Two=Edge_quiver[1][1];  // f_1*f_2 matrix.
+  Vbase1=Edge_quiver[0][1];    // length is f_1
+  Vbase2=Edge_quiver[0][2];    // length is f_2
+  Ans=[];
+  for (K=0; K<Edge_rank2[1]; K++) for (J=0; J<Fvector[1]; J++) {
+    Eqx=F[J]*util_v(om,[1,J])*Vbase1[J][K];
+    Image=(Vbase2[0]*One2Two[J][0]);
+    //    if (Image != 0) Image=Image[K];
+    if (One2Two[J][0] == 0) Image=0; else Image=Image[K];
+    Eqx -= act_d(Xiba[2][J],F[J])*util_v(om,[2,0])*Image;
+    // xi_ba of 0-th 2-face and J-th 1-face.
+    Ans=cons(Eqx,Ans);
+  }
+  return(reverse(Ans));
+}
+
+def eq_type2_0() { //  f*zero_face - sum of one face.  p.30 of [KV]
+  // Edge_frame, Edge_quiver, Edge_rank are used.
+  Eframe=Edge_frame;
+  Fvector=Edge_fvector;
+  Xiba=Eframe[4];  // Xiba[1][I] : I-th 1 face <--> 0-face.
+  X=Edge_x[0]; Y=Edge_x[1];
+  F=Edge_frame[0][1];
+  Zero2One=Edge_quiver[1][0];  // f_0*f_1 matrix.
+  Vbase0=Edge_quiver[0][0];    // length is f_2
+  Vbase1=Edge_quiver[0][1];    // length is f_1
+  Ans=[];
+  for (K=0; K<Edge_rank2[0]; K++) for (J=0; J<Fvector[0]; J++) {
+    ZeroFace=idx0(J);
+    for (JJ=0; JJ<length(ZeroFace); JJ++) {
+      Eqx=F[ZeroFace[JJ]]*util_v(om,[0,J])*Vbase0[J][K];
+      for (I=0; I<Fvector[1]; I++) {
+        Image=(Vbase1[I]*Zero2One[J][I]); 
+	if (Zero2One[J][I] == 0) Image=0; else Image=Image[K];
+        // if (Image != 0) Image=Image[K];
+        Eqx -= act_d(Xiba[1][I],F[ZeroFace[JJ]])*util_v(om,[1,I])*Image;
+        // xi_ba of I-th 1-face and 0-face.
+      }
+      Ans=cons(Eqx,Ans);
+    }
+  }
+  return(reverse(Ans));
+}
+// 2016.01.10  bandicam.
+
+def qd2() {
+  E=[eq_type1_2(),eq_type1_1(),eq_type2_1(),eq_type2_0()];
+  return(E);
+}
+
+def test3() {
+  L=[x,y,x+y-1,2*x+y-2];
+  edge_frame2(L); genQuiver(1);
+  qd2();
+}
+
+// 2016.01.11  free module form. relations of coef's.
+def module_basis() {
+  Basis=[];
+  Fvector=Edge_fvector;
+  Vbase2=Edge_quiver[0][2];
+  Vbase1=Edge_quiver[0][1];
+  Vbase0=Edge_quiver[0][0];
+  for (K=0; K<Edge_rank2[2];K++) Basis=cons(util_v(om,[2,0])*Vbase2[0][K],Basis);
+  for (I=0; I<Fvector[1];I++) for (K=0; K<Edge_rank2[1]; K++) 
+				Basis = cons(util_v(om,[1,I])*Vbase1[I][K],Basis);
+  for (I=0; I<Fvector[0];I++) for (K=0; K<Edge_rank2[0]; K++) 
+				Basis = cons(util_v(om,[0,I])*Vbase0[I][K],Basis);
+  Basis = reverse(Basis);
+  Edge_module_basis = Basis;
+
+  V=[]; 
+  for (KK=0; KK<=2; KK++) {
+    for (I=0; I<Fvector[KK]; I++) {
+      V = cons(util_v(om,[KK,I]),V);
+    }
+  }
+  for (KK=0; KK<=2; KK++) {
+    for (I=0; I<Fvector[KK]; I++) {
+      for (K=0; K<Edge_rank2[KK]; K++) {
+         V = cons(Edge_quiver[0][KK][I][K],V);
+      }
+    }
+  }
+  V = reverse(V);
+  Edge_module_vars=V;
+
+  return(Basis);
+}
+
+// translate output of qd2() to the free module expression.
+// map(ptomb,base_flatten(qd2()));
+def ptomb(Op) {
+  V = Edge_module_vars;
+  MB = map(dp_etov,map(dp_ptod,Edge_module_basis,V));
+  Ans = newvect(length(Edge_module_basis));
+  Op_d = dp_ptod(Op,V);
+  while (Op_d != 0) {
+    E = dp_etov(dp_ht(Op_d));
+    Pos = base_position(E,MB);
+    if (Pos < 0) debug();
+    Ans[Pos] = dp_hc(Op_d);
+    Op_d = dp_rest(Op_d);
+  }
+  return(vtol(Ans));
+}
+
+// type 1 condition for the quiver representation.
+// a -- b --- c   and  b runs over the one face.
+def qrep_cond1() {
+  Fvector=Edge_fvector;
+  Ans=[];
+  for (Gamma = 0 ; Gamma < Fvector[0]; Gamma++) {
+    Faces1 = idx0(Gamma);
+    Cond = 0;
+    for (I=0; I<length(Faces1); I++) {
+      Beta = Faces1[I];
+      // a <--(A1)--b<--(A2)--c
+      A1 = Edge_quiver[1][1][Beta][0]; // f1*f2 matrix
+      A2 = Edge_quiver[1][0][Gamma][Beta]; // f0*f1 matrix
+      Cond += A1*A2; 
+    }
+    Ans=cons(base_flatten(Cond),Ans);
+  }
+
+  // opposite direction.
+  for (Gamma = 0 ; Gamma < Fvector[0]; Gamma++) {
+    Faces1 = idx0(Gamma);
+    Cond = 0;
+    for (I=0; I<length(Faces1); I++) {
+      Beta = Faces1[I];
+      // a --(A1)-->b--(A2)-->c
+      A1 = Edge_quiver[2][0][0][Beta]; // f2*f1 matrix, usage_q();
+      A2 = Edge_quiver[2][1][Beta][Gamma]; // f1*f0 matrix
+      Cond += A2*A1; 
+    }
+    Ans=cons(base_flatten(Cond),Ans);
+  }
+  Ans = reverse(Ans);
+  return(Ans);
+} 
+// type 2 condition for the quiver representation.
+/* 
+   b-->  a
+     <-- c    b is the two face.
+  or     a <-- b
+         c --->     b is the zero face
+ */
+def qrep_cond2() {
+  Fvector=Edge_fvector;
+  Ans=[];
+  for (I=0; I<Fvector[1]; I++){
+    for (J=0; J<Fvector[1]; J++) {
+      Alpha=I; Gamma=J;
+      if (Alpha == Gamma) continue;
+      Cond=0;
+      // the case b is the two face.
+      A2 = Edge_quiver[1][1][Gamma][0]; // f1*f2 matrix
+      A1 = Edge_quiver[2][0][0][Alpha]; // f2*f1 matrix
+      Cond += A1*A2;
+      // the case b is the zero face.
+      ThereIsB=0;
+      for (B=0; B<Fvector[0]; B++) {
+        Beta=idx0(B);
+        if (base_memberq(Gamma,Beta) && base_memberq(Alpha,Beta)) {
+          ThereIsB=1;  // condition there exists b s.t. a >b, c>b, p.15 3.Quivers
+	  A1=Edge_quiver[1][0][B][Alpha];
+          A2=Edge_quiver[2][1][Gamma][B];
+          Cond += A1*A2;
+        }
+      }
+      if (ThereIsB) Ans=cons(base_flatten(Cond),Ans);
+    }
+  }
+  Ans=reverse(Ans);
+  return(Ans);
+}
+// Ans=base_flatten([qrep_cond1(),qrep_cond2()]);
+// V = base_prune(0,base_flatten([Edge_quiver[1],Edge_quiver[2]]));
+// nd_gr(Ans,V,0,2);
+test3()$
+// 2016.01.12
+
+def getMonomials(L,V) {
+  Ans=[];
+  for (I=0; I<length(L); I++) {
+    if (dp_rest(dp_ptod(L[I],V)) == 0) Ans=cons(L[I],Ans);
+  }
+  return(reverse(Ans));
+}
+def test_xy() {
+  F=[x,y];
+  edge_frame2(F);
+  genQuiver(1);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+  Ans=base_flatten([qrep_cond1(),qrep_cond2()]);
+  V = base_prune(0,base_flatten([Edge_quiver[1],Edge_quiver[2]]));
+  printf("V=%a\n",V);
+  printf("Monomial eq=%a\n",getMonomials(Ans,V));
+  // nd_gr(Ans,V,0,2); 
+  // V=[m01_0_0_0_0,m01_0_1_0_0,m12_0_0_0_0,m12_1_0_0_0,m21_0_0_0_0,m21_0_1_0_0,m10_0_0_0_0,m10_1_0_0_0];
+  V1=[m01_0_0_0_0,m01_0_1_0_0,m12_0_0_0_0,m12_1_0_0_0];
+  V2=[m21_0_0_0_0,m21_0_1_0_0,m10_0_0_0_0,m10_1_0_0_0];
+  //Rule=assoc(V2,[0,0,0,0]);
+  Rule=assoc(cdr(V),[1/2,1/3,1/5,0,0,0,0]);
+  //nd_gr(base_replace(Ans,Rule),V1,0,2); 
+  G=nd_gr(base_replace(Ans,Rule),[car(V)],0,2); 
+  printf("G=%a\n",G);
+  Rule2=[[m01_0_0_0_0,-3/10]];
+  RuleAll=append(Rule,Rule2);
+  printf("For M2. load \"Dmodules.m2\";\n");
+  printf("R=QQ[x,y,dx,dy,WeylAlgebra=>{x=>dx,y=>dy}]\n");
+  printf("I = matrix(Eq2) ; replace [ ] by { }\n");
+  printf("II = transpose(I); M = coker II; Ddim(M); charIdeal(M)\n"); 
+  return(base_replace(Eq2,RuleAll));
+}
+// test_xy();
+def test_q5() {
+  F=[x,y,x+y-1];
+  edge_frame2(F);
+  genQuiver(1);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+  Ans=base_flatten([qrep_cond1(),qrep_cond2()]);
+  V = base_prune(0,base_flatten([Edge_quiver[1],Edge_quiver[2]]));
+  printf("V=%a\n",V);
+  printf("Monomial eq=%a\n",getMonomials(Ans,V));
+  // page 41 of 2015/10/02-my-notes-june-july-lyon-*.pdf. set m12 and m01 to 0.
+  V1=[m01_0_0_0_0,m01_0_1_0_0,m01_1_0_0_0,m01_1_2_0_0, m01_2_1_0_0,m01_2_2_0_0,
+     m12_0_0_0_0,m12_1_0_0_0,m12_2_0_0_0];
+  V2=[m21_0_0_0_0,m21_0_1_0_0,m21_0_2_0_0];
+  V3=[m10_0_0_0_0,m10_0_1_0_0,m10_1_0_0_0,m10_1_2_0_0,m10_2_1_0_0,m10_2_2_0_0] ;
+  Rule1 = assoc(V1,vtol(newvect(length(V2))));
+  Rule2 = assoc(V2,[1,2,3]); // page 40 of the note note.
+  Rule3 = assoc(V3,[-2,-3,1,-3,1,2]);
+  // Rule = append(Rule1,Rule2);
+  Rule = append(append(Rule1,Rule2),Rule3);
+  printf("Reduced Cond=%a == [ ] ? \n",base_prune(0,base_replace(Ans,Rule)));
+  // nd_gr(base_replace(Ans,Rule),V3,0,2); 
+  return(base_replace(Eq2,Rule));  // diff eq  for q5.m2
+}
+test_q5();
+
+// 2016.02.11
+// x, y, x+y-1, 2x+y-1
+def test_e4() {
+  F=[x,y,x+y-1,2*x+y-1];
+  edge_frame2(F);
+  genQuiver(1);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+  Ans=base_flatten([qrep_cond1(),qrep_cond2()]);
+  V0=[m01_0_0_0_0,m01_0_1_0_0,m01_1_0_0_0,m01_1_2_0_0,m01_1_3_0_0,m01_2_1_0_0,
+      m01_2_2_0_0,m01_3_1_0_0,m01_3_3_0_0,
+      m12_0_0_0_0,m12_1_0_0_0,m12_2_0_0_0,m12_3_0_0_0];
+  Rule0=assoc(V0,vtol(newvect(length(V0))));
+  Ans = base_prune(0,base_replace(Ans,Rule0)); // 上向はすべて 0 に.
+  V2= [m21_0_0_0_0,m21_0_1_0_0,m21_0_2_0_0,m21_0_3_0_0];
+  V1= [m10_0_0_0_0,m10_0_1_0_0,m10_1_0_0_0,m10_1_2_0_0,m10_1_3_0_0,
+       m10_2_1_0_0,m10_2_2_0_0,m10_3_1_0_0,m10_3_3_0_0];
+
+  /* 見やすい変数を使う */
+  V2a = [a1,a2,a3,a4];
+  V1b = [b1,b2,c1,c3,c4,e2,e3,f2,f4];
+  RuleV2=assoc(V2,V2a);
+  RuleV1=assoc(V1,V1b);
+  G=base_prune(0,base_replace(Ans,append(RuleV1,RuleV2)));
+  G0=map(dp_ptod,G,[a1,a2,a3,a4]);
+  printf("Relations (before GB) is \n"); map(print,G0);
+  G=nd_gr(G,append(V2a,V1b),0,0);
+  //  G=nd_gr(G,append(V2a,V1b),0,0));  // これでもエラーでない. なぜ? 答えも違う.  2016.02.24
+  // edge.tex 修正. --> edge.tex は修正不要. 2016.02.29
+  G2=map(dp_ptod,G,[a1,a2,a3,a4]);
+  printf("Relations (dist poly w.r.t. a1,a2,a3,a4)= %a\n",G2);
+  map(print,G2);
+  
+  RuleN1 = assoc(cdr(V1b),[1,1,1,1,1,1,1,1]); // ここの数字を変更すればよい.
+  RuleN1 = cons([b1,base_replace(-b2*c1*e3*f4/(c3*e2*f4+c4*e3*f2),RuleN1)],RuleN1); 
+    // cf. det(test_e4b()); 
+  printf("RuleN1 = %a\n",RuleN1);
+  // print(det(base_replace(test_e4b(),RuleN1)));
+  G2=nd_gr(base_replace(G,RuleN1),V2a,0,0);
+  RuleL=poly_solve_linear(G2,V2a);
+  printf("RuleL=%a\n",RuleL);
+  Rule=append(RuleL,RuleN1);  // この変数は quiver 表現を与える. a1 とかが残れば任意定数
+  printf("Result Rule=%a\n",Rule);
+  L = base_replace(qd2(),append(append(RuleV1,RuleV2),Rule0));
+  L = base_replace(L,Rule);
+  Eq=map(ptomb,base_flatten(L)); // 方程式系
+  return(Eq);
+}
+test_e4();
+def test_e4b() {
+  M=newmat(4,4,
+   [[b1,c1,0,0],
+    [b2,0,e2,f2],
+    [0,c3,e3,0],
+    [0,c4,0,f4]]);
+}
+
+// 2016.03.17 tsukuba  数を適当に入れた具体的な方程式.
+def test_e4c() {
+  MM=test_e4b();
+  M=det(MM);
+  /* ここの数を適当に設定 */
+  Rule=[[b1,1],[b2,2],[c1,3],[c3,4],[c4,5],[e2,6],[e3,7],[f2,8]];
+  M=base_replace(M,Rule);
+  Rule2=poly_solve_linear([M],[f4]);
+  Rule=append(Rule,Rule2);
+
+  F=[x,y,x+y-1,2*x+y-1];
+  edge_frame2(F);
+  genQuiver(1);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+
+  V0=[m01_0_0_0_0,m01_0_1_0_0,m01_1_0_0_0,m01_1_2_0_0,m01_1_3_0_0,m01_2_1_0_0,
+      m01_2_2_0_0,m01_3_1_0_0,m01_3_3_0_0,
+      m12_0_0_0_0,m12_1_0_0_0,m12_2_0_0_0,m12_3_0_0_0];
+  Rule0=assoc(V0,vtol(newvect(length(V0)))); /* 上向きはすべて 0*/
+  V2= [m21_0_0_0_0,m21_0_1_0_0,m21_0_2_0_0,m21_0_3_0_0];
+  V1= [m10_0_0_0_0,m10_0_1_0_0,m10_1_0_0_0,m10_1_2_0_0,m10_1_3_0_0,
+       m10_2_1_0_0,m10_2_2_0_0,m10_3_1_0_0,m10_3_3_0_0];
+
+  /* 見やすい変数を使う */
+  V2a = [a1,a2,a3,a4];
+  V1b = [b1,b2,c1,c3,c4,e2,e3,f2,f4];
+  RuleV2=assoc(V2,V2a);
+  RuleV1=assoc(V1,V1b);
+  Eq3=base_replace(Eq2,append(Rule0,append(RuleV1,RuleV2)));
+
+  L=base_replace(MM,Rule)*newvect(4,[a1,a2,a3,a4]);
+  RuleA=poly_solve_linear(L,[a1,a2,a3,a4]);
+  RuleAB=append(RuleA,Rule);
+  return base_replace(Eq3,RuleAB);
+}
+test_e4c();
+
+// 2016.04.20
+def test_direct1() {
+  F=[x,y,x-y];
+  edge_frame2(F);
+  genQuiver([2,1,1]);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+
+  M01=[];
+  for (I=0; I<=2; I++) {
+    for (J=0; J<=1; J++) {
+      M01 = cons(util_v(m01,[0,I,0,J]),M01);
+    }
+  }
+  M01=reverse(M01);
+  Rule01=assoc(M01,[1,0, -1,1, 0,-1]);
+  printf("m01=%a\n",M01);
+  M10=[];
+  for (I=0; I<=2; I++) {
+    for (J=0; J<=1; J++) {
+      M10 = cons(util_v(m10,[I,0,J,0]),M10);
+    }
+  }
+  M10=reverse(M10);
+  Rule10=assoc(M10,[mu2,mu3, -mu1,mu3, -mu1,-mu1+mu2]);
+  printf("m10=%a\n",M10);
+  printf("Rule01,Rule10=%a\n",[Rule01,Rule10]);
+
+  Rule12=[]; for (I=0; I<=2; I++) Rule12=cons(util_v(m12,[I,0,0,0]),Rule12);
+  Rule12=reverse(Rule12);
+  Rule12=assoc(Rule12,[1,1,1]);
+
+  Rule21=[]; for (I=0; I<=2; I++) Rule21=cons(util_v(m21,[0,I,0,0]),Rule21);
+  Rule21=reverse(Rule21);
+  Rule21=assoc(Rule21,[mu1,mu2,mu3]);
+
+  Rule=append(Rule01,Rule10);
+  Rule=append(Rule,Rule21);
+  Rule=append(Rule,Rule12);
+
+  Eq2=base_replace(Eq2,Rule);
+  return(Eq2);
+}
+Eq=test_direct1();
+MyMu=1/7;
+//MyMu=1;
+Eq2=base_replace(Eq,[[mu1,MyMu],[mu2,MyMu],[mu3,MyMu]]);
+// module_integration(Eq2,[x,y],[dx,dy],[1,1]);  [1,1] does not work
+// II1= module_integration(Eq2,[x,y],[dx,dy],[1,0]);  [1,1] does not work
+// II2= module_integration(II1,[y],[dy],[1]);  [1,1] does not work
+
+// 2016.04.24
+def test_direct2() {
+  F=[x,y,x+y-1];
+  edge_frame2(F);
+  genQuiver([1,1,1]);
+  Eq=qd2();  printf("Eq=%a\n",Eq);
+  Eq2=map(ptomb,base_flatten(Eq)); printf("Eq2=%a\n",Eq2);
+
+  M01=[];
+  for (I=0; I<=2; I++) {
+    for (J=0; J<=2; J++) {
+      M01 = cons(util_v(m01,[J,I,0,0]),M01);
+    }
+  }
+  M01=reverse(M01);
+  // from 0-face to 1-face, index is I is 1-face
+  Rule01=assoc(M01,[1,1,0,  -1,0,1,  0,-1,-1]);
+  printf("m01=%a\n",M01);
+
+  M10=[];
+  for (I=0; I<=2; I++) {
+    for (J=0; J<=2; J++) {
+      M10 = cons(util_v(m10,[I,J,0,0]),M10);
+    }
+  }
+  M10=reverse(M10);
+  // from 1-face to 0-face.  note 2016.04.24 9:01
+  Rule10=assoc(M10,[mu2,mu3,0, -mu1,0,mu3, 0,-mu1,-mu2]);
+
+  printf("m10=%a\n",M10);
+  printf("Rule01,Rule10=%a\n",[Rule01,Rule10]);
+
+  Rule12=[]; 
+  for (I=0; I<=2; I++) for (J=0; J<=2; J++) 
+    Rule12=cons(util_v(m12,[I,0,0,0]),Rule12);
+  Rule12=reverse(Rule12);
+  // from 1-face to the unique 2-face
+  Rule12=assoc(Rule12,[1,1,1]);
+
+  Rule21=[]; for (I=0; I<=2; I++) Rule21=cons(util_v(m21,[0,I,0,0]),Rule21);
+  Rule21=reverse(Rule21);
+  // from the 2-face to 1-face
+  Rule21=assoc(Rule21,[mu1,mu2,mu3]);
+
+  Rule=append(Rule01,Rule10);
+  Rule=append(Rule,Rule21);
+  Rule=append(Rule,Rule12);
+
+  Eq2=base_replace(Eq2,Rule);
+  return(Eq2);
+}
+Eq=test_direct2();
+MyMu=1/7;
+//MyMu=1;
+Eq2=base_replace(Eq,[[mu1,MyMu],[mu2,MyMu],[mu3,MyMu]]);
+// load("module_gr2.rr");
+// II1=module_integration(Eq2,[x,y],[dx,dy],[1,0]);
+// II2=module_integration(II1,[y],[dy],[1]);
+// matrix_rank(II2);
+
+end$
