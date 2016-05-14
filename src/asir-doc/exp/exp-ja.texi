@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.49 2014/12/14 01:06:44 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.50 2015/08/08 06:28:38 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -2777,6 +2777,13 @@ B_@{S0@} length : 2
 -- fctr(BF) + base :0.000999sec(0.0005109sec)
 [[y*dy-1,(y*dy-1)*dx,-1],[[1],[0]]]
 @end example
+返り値の第 1 番目の要素 @code{[[1],[0]]]} は, 
+制限加群の基底 
+@tex $\partial_x^1, \partial_x^0$ @end tex 
+を意味し, 
+返り値の第 0 番目の要素から, 制限加群は 
+@tex $(y \partial_y - 1, 0), (0, y\partial_y-1), (-1,0)$ @end tex 
+で生成されることがわかる. 
 
 
 @node nk_restriction.restriction_ideal,,, D 加群の制限に関する関数
@@ -2886,7 +2893,7 @@ $t$
 @ifinfo
 I = D . @{2 t dx + dt, t dt + 2 x dx + 2 @} の t
 @end ifinfo
-についての積分イデアルを計算した例である。([SST, Ex5.5.2, Ex5.5.6])
+についての積分加群を計算した例である。([SST, Ex5.5.2, Ex5.5.6])
 @example
 [1351] nk_restriction.integration([2*t*dx+dt,2*x*dx+t*dt+2],[t,x],
 [dt,dx],[1,0]);
@@ -2897,6 +2904,14 @@ B_@{S0@} length : 2
 -- fctr(BF) + base :0.001sec(0.0006731sec)
 [[4*x*dx^2+6*dx,-4*t*x*dx^2-6*t*dx,2*x*dx+1,-2*t*x*dx,2*t*dx],[[1],[0]]]
 @end example
+返り値の第 1 番目の要素 @code{[[1],[0]]]} は, 
+積分加群の基底 
+@tex $t^1, t^0$ @end tex 
+を意味し, 
+返り値の第 0 番目の要素から, 積分加群は 
+@tex $(4 x \partial_x^2 + 6 \partial_x, 0), (0, -4 x \partial_x^2 - 6 \partial_x), 
+(0, -2 x \partial_x), (0, 2 \partial_x)$ @end tex 
+で生成されることがわかる. 
 
 @node nk_restriction.integration_ideal,,, D 加群の制限に関する関数
 @subsection @code{nk_restriction.integration_ideal}
@@ -3317,6 +3332,135 @@ B_{S0} length : 1
 [[(en-2)*n+en-2],[[[[ek-1,[(-en+1)*n-en+1,1]]],1]]]
 @end example
 
+@subsection @code{nk_restriction.module_restriction}
+@comment --- 索引用キーワード
+@findex nk_restriction.module_restriction
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.module_restriction(@var{M}, @var{VL}, @var{DVL}, @var{W})
+:: D 加群 @var{M} の重みベクトル @var{W} についての制限加群を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+D 加群の生成元のリスト 
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で, 0 番目の要素から連続して正の整数が入らなければならない.
+@comment{(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)}
+現在のところ, 1 変数についてだけ制限をとるようにしか実装していないため, 
+@var{W} は 0 番目の要素だけ正の整数が入る. 
+@item
+正の重みを持つ変数についての制限を行う. 
+例えば, @var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,0,0]} であれば
+x について制限を行う. 
+@end itemize
+
+以下は, D 加群 
+@iftex
+@tex 
+$M = D \cdot \{(\partial_x, \partial_y), (\partial_y, \partial_x), (x,y) \}$ 
+@end tex
+の
+@tex
+$x$
+@end tex
+@ifinfo
+I = D . @{ (dx, dy), (dy, dx), (x, y) @} の x
+@end ifinfo
+についての制限加群を計算した例である。
+@example
+[2691] nk_restriction.module_restriction([[dx,dy],[dy,dx],[x,y]], [x,y], [dx,dy], [1,0]);
+....
+bfunction : 
+s
+[[1,1],[s,1]]
+integer roots :
+[0,0]
+Generators: 
+[e1,e2]
+Relations: 
+[-8*e2*dy,4*e2*dy^2,-4*e2*dy^3,4*e1*y*dy-4*e1,-4*e1*dy^2,-4*e2,-e2*y*dy^2+2*e2*dy,-e1*y*dy+e1,e1*y*dy-e1]
+[[0,-1],[-dy^2,0],[y*dy-1,0]]
+@end example
+制限加群は 
+@tex $(0, -1), (-\partial_y^2, 0), (y \partial_y -1 , 0)$ @end tex 
+で生成されることがわかる. 
+
+@subsection @code{nk_restriction.module_integration}
+@comment --- 索引用キーワード
+@findex nk_restriction.module_integration
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.module_integration(@var{M}, @var{VL}, @var{DVL}, @var{W})
+:: D 加群 @var{M} の重みベクトル @var{W} についての積分加群を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+D 加群の生成元のリスト 
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で, 0 番目の要素から連続して正の整数が入らなければならない.
+@comment{(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)}
+現在のところ, 1 変数についてだけ積分をとるようにしか実装していないため, 
+@var{W} は 0 番目の要素だけ正の整数が入る. 
+@item
+正の重みを持つ変数についての積分を行う. 
+例えば, @var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,0,0]} であれば
+x について積分を行う. 
+@end itemize
+
+以下は, D 加群 
+@iftex
+@tex 
+$M = D \cdot \{(x, y), (y, x), (\partial_x, \partial_y) \}$ 
+@end tex
+の
+@tex
+$x$
+@end tex
+@ifinfo
+I = D . @{ (x, y), (y, x), (dx, dy) @} の x
+@end ifinfo
+についての積分加群を計算した例である。
+@example
+[2702] nk_restriction.module_integration([[x,y],[y,x],[dx,dy]], [x,y], [dx,dy], [1,0]);
+...
+bfunction : 
+s
+[[1,1],[s,1]]
+integer roots :
+[0,0]
+Generators: 
+[e1,e2]
+Relations: 
+[-8*e2*y,-4*e2*y^2,-4*e2*y^3,-4*e1*y*dy-8*e1,-4*e1*y^2,-4*e2,-e2*y^2*dy-4*e2*y,e1*y*dy+2*e1,e1*y*dy+2*e1]
+[[0,-1],[y*dy+2,0],[-y^2,0]]
+@end example
+積分加群は 
+@tex $(0, -1), (y \partial_y + 2, 0), (-y^2, 0)$ @end tex 
+で生成されることがわかる. 
 
 @noindent
 ChangeLog
@@ -3326,6 +3470,7 @@ ChangeLog
 @item 2010-05 から 2010-07 にかけて 2 つの option (@code{ht}, @code{ord}) と
 新たな関数 trans_inhomo() が追加された. 1.10--1.13 を見よ.
 @item 2011-08 に ost_sum() が追加された. 1.20 を見よ.
+@item 2016-05 に module_integration(), module_restriction() が追加された. 
 @end itemize
 
 @node その他(未分類),,, 実験的仕様の関数
