@@ -1,0 +1,1925 @@
+/* This file is imported by nk_restriction.rr */
+
+import("noro_pd.rr")$        /* use ideal_list_intersection, ideal_sat */
+
+#if 0
+import("nk_restriction.rr")$ /* use generic_bfct_and_gr */
+#endif
+
+#define USE_HT_ELIM 1
+
+module nk_restriction;
+
+localf gen_v;
+localf test_gen_v;
+localf v_to_p;
+localf test_v_to_p;
+localf p_to_v;
+localf test_p_to_v;
+localf module_nf;
+localf test_module_nf;
+localf seq;
+localf test_seq;
+localf module_sp;
+localf test_module_sp;
+localf test_module_sp2;
+localf seq;
+localf stdbase_index;
+localf ht;
+localf mono_redble;
+localf module_gr;
+localf test_module_gr;
+localf test_module_gr2;
+localf ht_elim;
+localf my_syz;
+localf test_my_syz;
+localf test_my_syz2;
+localf test_my_syz3;
+localf pot_glex;
+localf pot_glex_weyl;
+localf test_pot_glex_weyl;
+localf sublist;
+localf weyl_mul;
+localf weyl_mul_v;
+localf test_weyl_mul_v;
+localf w_order;
+localf test_char_id;
+localf test_char_id2;
+localf char_id;
+localf test_char_id3;
+localf test_char_id4;
+localf rightmost;
+localf test_rightmost;
+localf ord_01;
+localf test_ord_01;
+localf tdeg;
+localf test_tdeg;
+localf ord_01_vec;
+localf test_ord_01_vec;
+localf elem;
+localf ord_w_;
+localf test_ord_w_;
+localf test_ord_w2_;
+localf inner_prod;
+localf ord_w_vec;
+localf test_ord_w_vec;
+localf test_ord_w_vec2;
+localf is_zerovec;
+localf w_homogenize;
+localf test_w_homogenize;
+localf test_w_homogenize2;
+localf w_homogenize_vec;
+localf test_w_homogenize_vec;
+localf l_min;
+localf l_max;
+localf module_sing_locus;
+localf test_module_sing_locus;
+localf module_gr_f;
+localf test_module_gr_f;
+localf module_generic_b;
+localf test_module_generic_b;
+localf test_module_generic_b2;
+localf test_module_generic_b3;
+localf h_order;
+localf test_h_order;
+localf syz_1_schreyer;
+localf division;
+localf find_reducer;
+localf test_division;
+localf test_division2;
+localf sp_vect;
+localf test_sp_vect;
+localf test_sp_vect2;
+localf test_sp_vect3;
+localf test_sp_vect4;
+localf module_restriction;
+localf test_module_restriction;
+localf test_module_restriction2;
+localf test_module_restriction3;
+localf test_module_restriction4;
+localf min_max_int_root;
+localf test_min_max_int_root;
+localf module_integration;
+localf test_module_integration;
+localf test_module_integration2;
+localf test_module_integration3;
+localf test_module_integration4;
+localf test_module_integration5;
+localf test_module_integration5_;
+localf test_module_integration6;
+localf test_module_integration6_;
+localf fourier_trans_v;
+localf test_fourier_trans_v;
+localf inv_fourier_trans_v;
+localf test_inv_fourier_trans_v;
+localf id_to_mod;
+localf hm;
+localf ht;
+localf rest;
+localf pick_term;
+localf p_to_v_;
+localf test_p_to_v_;
+localf test_p_to_v_2;
+
+def gen_v(Name, Start, End)
+{
+	L = [];
+	for (I = Start; I <= End; I++) {
+		Var = strtov(Name + rtostr(I));
+		L = cons(Var, L);
+	}
+	return reverse(L);
+}
+
+def test_gen_v()
+{
+	return gen_v("e", 1, 10);
+}
+
+/* [x+y^2, x*y, 3*y+4*x^2] --> (x+y^2)*e1 + x*y*e2 + (3*y+4*x^2)*e3 */
+def v_to_p(V)
+{
+	if (V == 0)
+		return 0;
+	N = length(V);
+	E = gen_v("e", 1, N);
+	P = 0;
+	for (I = 0; I < N; I++) 
+		P += V[I] * E[I];
+	return P;
+}
+
+def test_v_to_p()
+{
+	V = [x+y^2, x*y, 3*y+4*x^2];
+	return v_to_p(V);
+}
+
+/* (x+y)*e1 + x*y*e2 + (x^2+y^2)*e3 --> [x+y, x*y, x^2+y^2] */
+/* B = [e1, e2, e3] */
+def p_to_v(P, B)
+{
+	N = length(B);
+	V = newvect(N);
+	for (I = 0; I < N; I++) 
+		V[I] = coef(P, 1, B[I]); 
+	return V;
+}
+
+def test_p_to_v()
+{
+	P = (x+y)*e1 + x*y*e2 + (x^2+y^2)*e3;
+	return p_to_v(P, [e1, e2, e3]);
+}
+
+/* P : poly, L : poly list */
+def module_nf(P, L, VL, Ord)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	OrigOrd = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	DL = map(dp_ptod, L, VL);
+	Index = seq(0, length(L) - 1);
+	if (Weyl) 
+		DNF = dp_weyl_nf(Index, DP, newvect(length(DL), DL), 1);
+	else 
+		DNF = dp_nf(Index, DP, newvect(length(DL), DL), 1);
+	NF = dp_dtop(DNF, VL);
+	dp_ord(OrigOrd);
+	return NF;
+}
+
+/* [CLO] p.213 Ex3 */
+def test_module_nf()
+{
+	P = v_to_p([5*x*y^2-y^10+3, 4*x^3+2*y, 16*x]);
+	L = map(v_to_p, [[x*y+4*x, 0, y^2], [0,y-1,x-2]]);	
+	VL = [x,y,e1,e2,e3];
+	POT = newmat(5,5,[[0,0,1,0,0],[0,0,0,1,0],[0,0,0,0,1],[1,0,0,0,0],[0,1,0,0,0]]);	
+	return module_nf(P, L, VL, POT);
+}
+
+def seq(Start, End)
+{
+	L = [];
+	for (I = Start; I <= End; I++)
+		L = cons(I, L);
+	return reverse(L);
+}
+
+def test_seq()
+{
+	return seq(1, 10);
+}
+
+def module_sp(F, G, VL, Ord, B)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	OrigOrd = dp_ord();
+	dp_ord(Ord);
+	HF = ht(F, VL, Ord);
+	HG = ht(G, VL, Ord);
+	FIndex = stdbase_index(HF, VL, B);
+	GIndex = stdbase_index(HG, VL, B);
+	if (FIndex == GIndex) {
+		DF = dp_ptod(F, VL);
+		DG = dp_ptod(G, VL);
+		if (Weyl)
+			DSP = dp_weyl_sp(DF, DG);
+		else 
+			DSP = dp_sp(DF, DG);
+		SP = dp_dtop(DSP, VL);
+	} else {
+		SP = 0;
+	}
+	dp_ord(OrigOrd);
+	return SP;
+}
+
+def test_module_sp()
+{
+	P = v_to_p([5*x*y^2-y^10+3, 4*x^3+2*y, 16*x]);
+	L = map(v_to_p, [[x*y+4*x, 0, y^2], [0,y-1,x-2]]);	
+	VL = [x,y,e1,e2,e3];
+	POT = newmat(5,5,[[0,0,1,0,0],[0,0,0,1,0],[0,0,0,0,1],[1,0,0,0,0],[0,1,0,0,0]]);	
+	B = [e1,e2,e3];
+	SP1 = module_sp(P, L[0], VL, POT, B);
+	SP2 = module_sp(P, L[1], VL, POT, B);
+	print(SP1);
+	print(SP2);
+}
+
+def test_module_sp2()
+{
+	M = [[x+y,dy], [dx, x+y]];
+	VL = [x,y,e1,e2,dx,dy,de1,de2];
+	POT = newmat(8,8,
+		[
+		[0,0,1,0,0,0,0,0],
+		[0,0,0,1,0,0,0,0],
+		[1,1,0,0,1,1,0,0],
+		[1,0,0,0,0,0,0,0],
+		[0,1,0,0,0,0,0,0],
+		[0,0,0,0,1,0,0,0],
+		[0,0,0,0,0,1,0,0],
+		[0,0,0,0,0,0,1,0] 
+		]);
+	B = [e1,e2];
+	L = map(v_to_p, M);	
+	SP = module_sp(L[0], L[1], VL, POT, B|weyl=1);
+	print(p_to_v(SP, B));
+}
+
+def seq(Start, End)
+{
+	L = [];
+	for (I = Start; I <= End; I++)
+		L = cons(I, L);
+	return reverse(L);
+}
+
+/* Mono = x^\alpha e_I  ---> I */
+def stdbase_index(Mono, VL, B)
+{
+	for (I = 0; I < length(B); I++) 
+		if (deg(Mono, B[I]) > 0) 
+			return I;
+}
+
+def ht(F, VL, Ord)
+{
+	OrigOrd = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(F, VL);
+	HT = dp_ht(DP);	
+	dp_ord(OrigOrd);
+	return dp_dtop(HT, VL);
+}
+
+def mono_redble(M1, M2, VL)
+{
+	DM1 = dp_ptod(M1, VL);
+	DM2 = dp_ptod(M2, VL);
+	return dp_redble(DM1, DM2);	
+}
+
+def module_gr(L, VL, Ord, B)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	L = map(v_to_p, L);
+	N = length(L);
+	Jlist = [];
+	for (I = 0; I < N; I++)
+		for (J = I + 1; J < N; J++)
+			Jlist = append(Jlist, [[I, J]]);
+	while (Jlist != []) {
+		Index = car(Jlist);
+		Jlist = cdr(Jlist);
+		if (Weyl) {
+			SP = module_sp(L[Index[0]], L[Index[1]], VL, Ord, B|weyl=1);
+		} else {
+			SP = module_sp(L[Index[0]], L[Index[1]], VL, Ord, B);
+		}
+		if (SP == 0)  continue;
+		if (Weyl) {
+			R = module_nf(SP, L, VL, Ord|weyl=1);
+		} else {
+			R = module_nf(SP, L, VL, Ord);
+		}
+		if (R != 0) {
+#ifdef DEBUG_BUCHBERGER
+			print("Index :", 0); print(Index);
+			print(dp_dtop(L[Index[0]], VL));
+			print(dp_dtop(L[Index[1]], VL));
+			print("SP: ", 0); print(SP);
+			print("R :", 0); print(R);
+#endif
+			L = append(L, [R]);
+			N = length(L);
+			for (I = 0; I < N - 1; I++)
+				Jlist = append(Jlist, [[I, N - 1]]);
+		}
+	}
+#ifdef USE_HT_ELIM
+	LL = ht_elim(L, VL, Ord, B);
+	return map(p_to_v, LL[0], B);
+#endif
+	return map(p_to_v, L, B);
+}
+
+/* [CLO] p.216 */
+def test_module_gr()
+{
+	M = [[a^2+b^2, c^2-d^2],[a^3-2*b*c*d,b^3+a*c*d],[a-b,c+d]];
+	VL = [a,b,c,d,e1,e2];
+	TOP = newmat(6,6,
+		[
+		[1,1,1,1,0,0],
+ 		[0,0,0,-1,0,0],
+ 		[0,0,-1,0,0,0],
+ 		[0,-1,0,0,0,0],
+ 		[-1,0,0,0,0,0],
+ 		[0,0,0,0,1,0]
+		]); /* grelex TOP */
+	B = [e1, e2];
+	G = module_gr(M, VL, TOP, B);
+	return G;
+}
+
+def test_module_gr2()
+{
+	M = [[x+y,dy], [dx, x+y]];
+	VL = [x,y,e1,e2,dx,dy,de1,de2];
+	POT = newmat(8,8,
+		[
+		[0,0,1,0,0,0,0,0],
+		[0,0,0,1,0,0,0,0],
+		[1,1,0,0,1,1,0,0],
+		[1,0,0,0,0,0,0,0],
+		[0,1,0,0,0,0,0,0],
+		[0,0,0,0,1,0,0,0],
+		[0,0,0,0,0,1,0,0],
+		[0,0,0,0,0,0,1,0] 
+		]);
+	B = [e1,e2];
+	G = module_gr(M, VL, POT, B|weyl=1);
+	print(G);
+	GG = nd_weyl_gr(M, [x,y,dx,dy], 0, [1, 1]);
+	print(GG);
+}
+
+def ht_elim(L, VL, Ord, B)
+{
+	N = length(L);
+	V = newvect(N, L);
+	for (I = 0; I < N; I++) {
+		if (V[I] == 0)
+			continue; 
+		for (J = 0; J < N; J++)  {
+			if (I == J || V[J] == 0) 
+				continue;
+			HGI = ht(V[I], VL, Ord);
+			HGJ = ht(V[J], VL, Ord);
+			HGIIndex = stdbase_index(HGI, VL, B);
+			HGJIndex = stdbase_index(HGJ, VL, B);
+			if (HGIIndex == HGJIndex && mono_redble(HGI, HGJ, VL)) {
+				V[I] = 0;
+				break;
+			}
+		}
+	}
+	LL = [];
+	Conv = newvect(N);
+	for (I = 0; I < N; I++)
+		Conv[I] = -1;
+	II = 0;
+	for (I = 0; I < N; I++) 
+		if (V[I] != 0) {
+			LL = append(LL, [V[I]]);
+			Conv[I] = II;
+			II++;
+		}
+	return [LL, vtol(Conv)];
+}
+
+/* computing syzygy by using module_gr */
+def my_syz(M, VL)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	NN = length(M[0]);
+	N = length(M);
+	V = newvect(N);
+	for (I = 0; I < N; I++) {
+		T = M[I];
+		EI = newvect(N);
+		EI[I] = 1;
+		T = append(T, vtol(EI));
+		V[I] = T;
+	}
+	V = vtol(V);
+
+	if (Weyl) {
+		B = gen_v("e", 1, N + NN);
+		DB = gen_v("de", 1, N + NN); /* dummy */
+		Ord = pot_glex_weyl(length(VL)/2, N + NN);
+		Vars = sublist(VL, 0, length(VL)/2 - 1);
+		DVars = sublist(VL, length(VL)/2, length(VL)-1);
+		VLL = append(Vars, B);
+		VLL = append(VLL, DVars);
+		VLL = append(VLL, DB); 
+		print(V);
+		print(B);
+		print(Ord);
+		print(VLL);
+		G = module_gr(V, VLL, Ord, B|weyl=1);
+	} else {
+		B = gen_v("e", 1, N + NN);
+		Ord = pot_glex(length(VL), N + NN);
+		VLL = append(VL, B);
+		print(V);
+		print(B);
+		print(Ord);
+		print(VLL);
+		G = module_gr(V, VLL, Ord, B);
+	}
+
+	Syz = [];
+	for (I = 0; I < length(G); I++) {
+		for (J = 0; J < NN; J++) {
+			if (G[I][J] != 0)
+				break;
+		}
+		if (J == NN) {
+			T = sublist(G[I], NN, N + NN - 1);
+			Syz = cons(T, Syz);
+		}
+	}	
+	return Syz;
+}
+
+def test_my_syz()
+{
+	M = [[a^2+b^2, c^2-d^2],[a^3-2*b*c*d,b^3+a*c*d],[a-b,c+d]];
+	VL = [a,b,c,d];
+	S = my_syz(M, VL);	
+	print(S);
+	print("syz check :");
+	for (J = 0; J < length(S); J++) {
+		T = 0;
+		for (I = 0; I < length(M); I++) {
+			V = newvect(length(M[I]), M[I]);
+			T += S[J][I] * V;
+		}
+		print(rtostr(J) + " th : " + rtostr(T));
+	}
+}
+
+def test_my_syz2()
+{
+	/* syz(x, y, z) */
+	L = [[x],[y],[z]];
+	VL = [x,y,z];
+	return my_syz(L, VL);
+}
+
+def test_my_syz3()
+{
+	M = [[x+dy], [y+dx]];
+	VL = [x,y,z,dx,dy,dz];
+	S = my_syz(M, VL|weyl=1);
+	print(S);
+	print("syz check :");
+	for (J = 0; J < length(S); J++) {
+		T = 0;
+		for (I = 0; I < length(M); I++) {
+			V = newvect(length(M[I]), M[I]);
+			T += weyl_mul_v(S[J][I], V, VL);
+		}
+		print(rtostr(J) + " th : " + rtostr(T));
+	}
+}
+
+/* VL = [x1, ... ,xN, e1, ..., eM] */
+def pot_glex(N, M)
+{
+	A = newmat(N + M, N + M);
+	for (I = 0; I < M; I++) 
+		A[I][N + I] = 1;
+	for (J = 0; J < N; J++)
+		A[M][J] = 1;
+	for (I = 1; I < N; I++)
+		A[M + I][I - 1] = 1;
+	return A;
+}
+
+/* VL = [x1, ..., xN, e1, ..., eM, dx1, ..., dxN, de1, ..., deM] */
+def pot_glex_weyl(N, M)
+{
+	/* reverse option */
+	Rev = type(getopt(rev)) == 1 ? 1 : 0;
+
+	A = newmat(2*(N + M), 2*(N + M));
+
+	if (!Rev) {
+		for (I = 0; I < M; I++)      /* position */
+			A[I][N + I] = 1;
+	} else {
+		for (I = 0; I < M; I++)      /* position(reverse) */
+			A[I][N + M - 1 - I] = 1;
+	}
+
+	for (J = 0; J < N; J++)      /* graded */
+		A[M][J] = 1;
+	for (J = 0; J < N; J++)
+		A[M][N + M + J] = 1;
+	for (I = 0; I < N; I++)               /* lex w.r.t. dx */
+		A[M + 1 + I][N + M + I] = 1;
+	for (I = 0; I < N; I++)               /* lex w.r.t. x */
+		A[M + N + 1 + I][I] = 1;      
+	for (I = 0; I < M - 1; I++)           /* lex w.r.t. de (dummy) */
+		A[M + 2 * N + 1 + I][N + M + N + I] = 1;
+	return A;
+}
+
+def test_pot_glex_weyl()
+{
+	return pot_glex_weyl(3,2);
+}
+
+def sublist(L, Start, End)
+{
+	SL = [];
+	for (I = Start; I <= End; I++)
+		SL = cons(L[I], SL);
+	return reverse(SL);
+}
+
+def weyl_mul(P, Q, VL)
+{
+OldOrd = dp_ord();
+dp_ord(0); /* VL の数にあった matrix order が入ってないと dp_ptod の変換がおかしくなるので */
+        P_NM = nm(P);
+        P_DN = dn(P);
+        Q_NM = nm(Q);
+        Q_DN = dn(Q);
+        DP = dp_ptod(P_NM, VL);
+        DQ = dp_ptod(Q_NM, VL);
+        DR = dp_weyl_mul(DP, DQ);
+        R = dp_dtop(DR, VL);
+dp_ord(OldOrd);
+        return red(R / (P_DN * Q_DN));
+}
+
+
+/* weyl_mul_v(dx, [x,x^2], [x,dx]) --> [x*dx+1, x^2*dx+2*x] */
+def weyl_mul_v(P, V, VL)
+{
+	DP = dp_ptod(P, VL);
+	DV = map(dp_ptod, V, VL);
+	if (type(DV) == 4)
+		DV = newvect(length(DV), DV);
+	for (I = 0; I < length(V); I++) 
+		DV[I] = dp_weyl_mul(DP, DV[I]);
+	return map(dp_dtop, DV, VL);
+}
+
+def test_weyl_mul_v()
+{
+	return weyl_mul_v(dx, [x,x^2], [x,dx]);
+}
+
+/* VL = [x1, ..., xN, e1, ..., eM, dx1, ..., dxN, de1, ..., deM] */
+def w_order(N, M)
+{
+	A = newmat(2*(N + M), 2*(N + M));
+	for (J = N + M; J < N + M + N; J++)    
+		A[0][J] = 1;
+	for (I = 0; I < M; I++)      /* position */
+		A[1 + I][N + M - 1 - I] = 1;
+	for (J = N + M; J < N + M + N; J++)    
+		A[M + 1][J] = 1;
+	for (I = 0; I < N; I++)               /* lex w.r.t. dx */
+		A[M + 2 + I][N + M + I] = 1;
+	for (I = 0; I < N; I++)               /* lex w.r.t. x */
+		A[M + N + 2 + I][I] = 1;      
+	for (I = 0; I < M - 2; I++)           /* lex w.r.t. de (dummy) */
+		A[M + 2 * N + 2 + I][N + M + N + I] = 1;
+	return A;	
+}
+
+def test_char_id()
+{
+	/* From Oaku's text p.107 Maxwell eq. */
+P1 = [dx,dy,dz,0,0,0];
+P2 = [0,0,0,dx,dy,dz];
+P3 = [0,-dx,dy,m*dt,0,0];
+P4 = [dz,0,-dx,0,m*dt,0];
+P5 = [-dy,dx,0,0,0,m*dt];
+P6 = [-e*dt,0,0,0,-dz,dy];
+P7 = [0,-e*dt,0,dz,0,-dx];
+P8 = [0,0,-e*dt,-dy,dx,0];
+M = [P1,P2,P3,P4,P5,P6,P7,P8];
+	VL = [t,x,y,z,e1,e2,e3,e4,e5,e6,dt,dx,dy,dz,de1,de2,de3,de4,de5,de6];
+	WOrd = w_order(4,6);
+	B = [e1,e2,e3,e4,e5,e6];
+	G = module_gr(M, VL, WOrd, B|weyl=1);
+	L = map(ord_01_vec, G, [t,x,y,z,dt,dx,dy,dz]);
+	In = map(elem, L, 1);
+	GM = map(rightmost, In);
+	Char = [];
+	for (I = 0; I < 6; I++) {
+		EQ = [];
+		for (J = 0; J < length(GM); J++) {
+			if (GM[J][1] == I) 
+				EQ = cons(GM[J][0], EQ);
+		}
+		EQ = reverse(EQ);
+		Char = cons(EQ, Char);
+	}	
+	Char = reverse(Char);
+	return [G, Char];
+}
+
+def test_char_id2()
+{
+/* from quiver D-module */
+M = 
+[
+    [    x , -1 , 0 , -3 , 0 , 0 , 0 ], 
+    [    y , 0 , -2 , -3 , 0 , 0 , 0 ], 
+    [    0 , y , 0 , 0 , 2 , 3 , 0 ], 
+    [    0 , -dx , 0 , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , x , 0 , -1 , 0 , 3 ], 
+    [    0 , 0 , -dy , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , x-y , 0 , -1 , 2 ], 
+    [    0 , 0 , 0 , -dx+dy , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dx , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dy , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dx , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dy , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dx ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dy ]
+];
+	VL = [x,y,e1,e2,e3,e4,e5,e6,e7,dx,dy,de1,de2,de3,de4,de5,de6,de7];
+	WOrd = w_order(2, 7);
+	B = [e1,e2,e3,e4,e5,e6,e7];
+	G = module_gr(M, VL, WOrd, B|weyl=1);
+	L = map(ord_01_vec, G, [x,y,dx,dy]);
+	In = map(elem, L, 1);	
+	GM = map(rightmost, In);
+	Char = [];
+	for (I = 0; I < 7; I++) {
+		EQ = [];
+		for (J = 0; J < length(GM); J++) {
+			if (GM[J][1] == I) 
+				EQ = cons(GM[J][0], EQ);
+		}
+		EQ = reverse(EQ);
+		Char = cons(EQ, Char);
+	}	
+	Char = reverse(Char);
+	return [G, Char];
+}
+
+def char_id(Module, VL)
+{
+	P = Module[0];
+	N = length(VL);
+	M = length(P);
+	E = gen_v("e", 1, M);	
+	DE = gen_v("de", 1, M);
+	XL = sublist(VL, 0, N/2 - 1);
+	DXL = sublist(VL, N/2, N - 1);
+	VLL = append(XL, E);
+	DVLL = append(DXL, DE);
+	VarList = append(VLL, DVLL);
+	Base = E;
+	WOrd = w_order(N/2, M);
+	G = module_gr(Module, VarList, WOrd, Base|weyl=1);
+	L = map(ord_01_vec, G, VL);
+	In = map(elem, L, 1);	
+	GM = map(rightmost, In);
+	Char = [];
+	for (I = 0; I < M; I++) {
+		EQ = [];
+		for (J = 0; J < length(GM); J++) {
+			if (GM[J][1] == I) 
+				EQ = cons(GM[J][0], EQ);
+		}
+		EQ = reverse(EQ);
+		Char = cons(EQ, Char);
+	}	
+	Char = reverse(Char);
+
+/*
+	if (Char == []) 
+		return [G, Char, []];
+	Id = Char[0];
+	Len = length(Char);
+	for (I = 1; I < Len; I++) 
+		Id = ideal_intersection(Id, Char[I]);
+*/
+	Id = noro_pd.ideal_list_intersection(Char, VL, 0);	
+	return [G, Char, Id];
+}
+
+
+def test_char_id3()
+{
+M = 
+[
+    [    x , -1 , 0 , -3 , 0 , 0 , 0 ], 
+    [    y , 0 , -2 , -3 , 0 , 0 , 0 ], 
+    [    0 , y , 0 , 0 , 2 , 3 , 0 ], 
+    [    0 , -dx , 0 , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , x , 0 , -1 , 0 , 3 ], 
+    [    0 , 0 , -dy , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , x-y , 0 , -1 , 2 ], 
+    [    0 , 0 , 0 , -dx+dy , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dx , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dy , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dx , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dy , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dx ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dy ]
+];
+	VL = [x,y,dx,dy];
+	return char_id(M, VL);
+}
+
+def test_char_id4()
+{
+/* From Oaku's text p.109 */
+M = [
+[r*dt^2-(l+2*m)*dx^2-m*dy^2-m*dz^2, -(l+m)*dx*dy, -(l+m)*dx*dz],
+[-(l+m)*dx*dy, r*dt^2-(l+2*m)*dy^2-m*dx^2-m*dz^2, -(l+m)*dy*dz],
+[-(l+m)*dx*dz, -(l+m)*dy*dz, r*dt^2-(l+2*m)*dz^2-m*dx^2-m*dy^2]
+];
+	VL = [t,x,y,z,dt,dx,dy,dz];
+	return char_id(M, VL);
+}
+
+def rightmost(L)
+{
+	N = length(L);
+	for (I = N - 1; I >= 0; I--) {
+		if (L[I] != 0) 
+			break;
+	}
+	if (I == -1) 
+		return [];
+	return [L[I], I];
+}
+
+def test_rightmost()
+{
+	L = [a,b,c,d,0,0,0];
+	print(rightmost(L));
+	LL = [0,0,0,0,0];
+	print(rightmost(LL));
+	LLL = [a,b,c,d,e];
+	print(rightmost(LLL));
+}
+
+/* (0,1)-order of diff. op. P */
+def ord_01(P, VL)
+{
+	Old = dp_ord();
+	dp_ord(0);
+	N = length(VL);
+	DVL = sublist(VL, N / 2, N - 1);
+	DP = dp_ptod(P, DVL);
+	Order = 0;
+	In = 0;
+	while (DP != 0) {
+		HM = dp_hm(DP);
+		T = tdeg(HM);
+		if (T > Order) {
+			Order = T;
+			In = HM;
+		} else if (T == Order) {
+			In += HM;
+		} 
+		DP = dp_rest(DP);
+	}
+	In = dp_dtop(In, DVL);
+	dp_ord(Old);
+	return [Order, In];
+}
+
+def test_ord_01()
+{
+	P = x*y*dx*dy+2*dx^2+3*dy^2+x*y*dx+dx+dy+1;
+	return ord_01(P, [x,y,dx,dy]);
+}
+
+def tdeg(DP)
+{
+	E = dp_etov(DP);
+	Deg = 0;
+	for (I = 0; I < length(E); I++) 
+		Deg += E[I];
+	return Deg;
+}
+
+def test_tdeg()
+{
+	DP = 3*<<1,1,1>>+2*<<0,1,1>>+<<1,1,0>>+<<0,0,1>>+<<0,0,0>>;	
+	return tdeg(DP);
+}
+
+/* (0,1)-order of vector P */
+def ord_01_vec(P, VL)
+{
+	N = length(P);
+	L = map(ord_01, P, VL);
+	Order = L[0][0];	
+	In = newvect(N);
+	for (I = 1; I < N; I++) 
+		if (Order < L[I][0]) 
+			Order = L[I][0];
+	for (I = 0; I < N; I++) 
+		if (Order == L[I][0]) 
+			In[I] = L[I][1];
+	return [Order, In];
+}
+
+def test_ord_01_vec()
+{
+	P = [3*dx^3+dx^2+dy^2+x*y^4, dx+dy+1+x+y, 2*dx*dy^2+dx^2+dy^2];
+	VL = [x,y,dx,dy];
+	return ord_01_vec(P, VL); 
+}
+
+/* for map function */
+def elem(L, I)
+{
+	return L[I];
+}
+
+/* w-order of diff. op. P */
+def ord_w_(P, VL, W)
+{
+	N = length(VL);
+	DP = dp_ptod(P, VL);
+	Order = -1000000; /* dummy */
+	In = 0;
+	while (DP != 0) {
+		HM = dp_hm(DP);
+		HE = dp_etov(DP);
+		T = inner_prod(HE, W);
+		if (T > Order) {
+			Order = T;
+			In = HM;
+		} else if (T == Order) {
+			In += HM;
+		} 
+		DP = dp_rest(DP);
+	}
+	In = dp_dtop(In, VL);
+	return [Order, In];
+}
+
+def test_ord_w_()
+{
+	P = t*x*dt*dx+dx*x+x+t+1;
+	VL = [t,x,dt,dx];
+	W = [-1,0,1,0];
+	return ord_w_(P, VL, W);
+}
+
+def test_ord_w2()
+{
+	P = 2*x*dt^2*dx+3*dt*dx+4*x+5*t^2*dt^2+6*t*x*dt*dx;
+	VL = [t,x,dt,dx];
+	W = [-1,-1,1,1];
+	return ord_w_(P, VL, W);
+}
+
+def inner_prod(V, W)
+{
+	N = length(V);
+	S = 0;
+	for (I = 0; I < N; I++) 
+		S += V[I] * W[I];
+	return S;
+}
+
+/* w-order of vector P */
+def ord_w_vec(P, VL, W)
+{
+	N = length(P);
+	L = map(ord_w_, P, VL, W);
+	Order = L[0][0];	
+	In = newvect(N);
+	for (I = 1; I < N; I++) 
+		if (Order < L[I][0]) 
+			Order = L[I][0];
+	for (I = 0; I < N; I++) 
+		if (Order == L[I][0]) 
+			In[I] = L[I][1];
+	return [Order, In];
+}
+
+def test_ord_w_vec()
+{
+	P = [dt+x+t*dt+t, x^2+dx+t, 2*t*dt^2+t^2*x];
+	VL = [t,x,dt,dx];
+	W = [-1,0,1,0];
+	return ord_w_vec(P, VL, W);
+}
+
+def test_ord_w_vec2()
+{
+	P = newvect(3, [dt+x+t*dt+t, x^2+dx+t, 2*t*dt^2+t^2*x]);
+	VL = [t,x,dt,dx];
+	W = [-1,0,1,0];
+	while (!is_zerovec(P)) {
+		print(P);
+		L = ord_w_vec(P, VL, W);
+		print(L);
+		P = P - L[1];
+	}
+}
+
+def is_zerovec(V)
+{
+	N = length(V);
+	for (I = 0; I < N; I++) {
+		if (V[I] != 0) 
+			return 0;
+	}
+	return 1;
+}
+
+/* option : param */
+def w_homogenize(P, VL, W)
+{
+	Ord = dp_ord();
+	dp_ord(0);
+
+	T = getopt(param);
+	if (type(T) != -1) {
+		Param = T;
+	} else {
+		Param = t0;   /* default parameter */
+	}
+
+	N  = length(W);
+	DP = dp_ptod(P, VL);
+	
+	WL = [];
+	ML = [];
+	while (DP != 0) {
+		V = dp_etov(DP);
+		Weight = inner_prod(V, W);
+		WL = append(WL, [Weight]);
+		ML = append(ML, [dp_hm(DP)]);
+		DP = dp_rest(DP);
+	}
+	Min = l_min(WL);
+	Len = length(WL);
+	Sum = 0;
+	for (I = 0; I < Len; I++) {
+		T = dp_dtop(ML[I], VL);
+		T = T * Param^(WL[I] - Min); 
+		Sum += T;
+	}
+
+	dp_ord(Ord);
+	return Sum;
+}
+
+def test_w_homogenize()
+{
+	P = t^2*x*dx + 2*x*dt + 3*x*dx^2;
+	VL = [t,x,dt,dx];
+	W = [-1,0,1,0];
+	return w_homogenize(P, VL, W);
+}
+
+def test_w_homogenize2()
+{
+	P = t^2*x*dx + 2*x*dt + 3*x*dx^2;
+	VL = [t,x,dt,dx];
+	W = [-1,0,1,0];
+	return w_homogenize(P, VL, W|param=x0);
+}
+
+/* V : vector */
+def w_homogenize_vec(V, VL, B, W)
+{
+	P = v_to_p(V);
+	VLL = append(VL, B);
+	WW = append(W, vtol(newvect(length(B))));	
+	HP = w_homogenize(P, VLL, WW); 
+	return p_to_v(HP, B);
+}
+
+def test_w_homogenize_vec()
+{
+	V = [t^2*dt+x+1, 2*t+dx+2, x*dt+1];
+	VL = [t,x,dt,dx];
+	B = [e1,e2,e3];
+	W = [-1,0,1,0];
+	return w_homogenize_vec(V, VL, B, W);	
+}
+
+def l_min(L)
+{
+	Len = length(L);
+	if (Len == 0) {
+		return 0;
+	} 
+	Min = L[0];
+
+	for (I = 1; I < Len; I++) 
+		if (Min > L[I]) 
+			Min = L[I];
+	return Min;
+}
+
+def l_max(L)
+{
+	Len = length(L);
+	if (Len == 0) {
+		return 0;
+	} 
+	Max = L[0];
+
+	for (I = 1; I < Len; I++) 
+		if (Max < L[I]) 
+			Max = L[I];
+	return Max;
+}
+
+def module_sing_locus(Module, VL)
+{
+	L = char_id(Module, VL);	
+	CharId = L[2];
+	print("CharId:"); print(CharId);
+
+	/* VL の微分作用素部分だけ取り出して DVL とおく */
+        N = length(VL);
+        XVL = newvect(N/2);
+        DVL = newvect(N/2);
+        for (I = 0 ; I < N/2; I++)  {
+                XVL[I] = VL[I];
+                DVL[I] = VL[N/2 + I];
+        }
+        /* noro_pd に与える変数リストはリストに変換しておく必要あり */
+        XVL = vtol(XVL);
+        DVL = vtol(DVL);
+
+        /* saturation In : DVL^\infty  の計算 */
+        Sat = noro_pd.ideal_sat(CharId, DVL, VL);
+        print("Sat:"); print(Sat);
+        /* Sat \cap K[XVL] の計算 */
+        G = nd_gr(Sat, append(DVL, XVL), 0, [[0, N/2], [0, N/2]]);      
+        G = noro_pd.elimination(G, XVL);
+        return G;
+}
+
+def test_module_sing_locus()
+{
+M = 
+[
+    [    x , -1 , 0 , -3 , 0 , 0 , 0 ], 
+    [    y , 0 , -2 , -3 , 0 , 0 , 0 ], 
+    [    0 , y , 0 , 0 , 2 , 3 , 0 ], 
+    [    0 , -dx , 0 , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , x , 0 , -1 , 0 , 3 ], 
+    [    0 , 0 , -dy , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , x-y , 0 , -1 , 2 ], 
+    [    0 , 0 , 0 , -dx+dy , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dx , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dy , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dx , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dy , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dx ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dy ]
+];
+	VL = [x,y,dx,dy];
+	return module_sing_locus(M, VL);
+}
+
+/* GB w.r.t. F-order <_F ([OT2001] p.273) */ 
+def module_gr_f(L, VL, Ord, B, W)
+{
+	/* homogenize */
+	N = length(VL);
+	VLL = sublist(VL, 0, N/2 - 1);
+	DVL = sublist(VL, N/2, N - 1);	
+	HVL = append([t0], VLL);
+	HVL = append(HVL, [dt0]);
+	HVL = append(HVL, DVL);
+	HL = map(w_homogenize_vec, L, VL, B, W); 
+/*
+	print("HL:");
+	print(HL);
+*/
+
+	/* GB w.r.t. H-order <_H  */
+	HOrd = h_order(Ord);
+	HG = module_gr(HL, HVL, HOrd, B|weyl=1);
+/*
+	print("HG:");
+	print(HG);
+*/
+
+	/* dehomogenize */
+	G = [];
+	for (I = 0; I < length(HG); I++) {
+		T = map(subst, HG[I], t0, 1);
+		G = cons(T, G);
+	}
+	G = reverse(G);
+/*
+	print("G:");
+	print(G);
+*/
+
+	return G;
+}
+
+def test_module_gr_f()
+{
+/* from quiver D-module */
+M = 
+[
+    [    x , -1 , 0 , -3 , 0 , 0 , 0 ], 
+    [    y , 0 , -2 , -3 , 0 , 0 , 0 ], 
+    [    0 , y , 0 , 0 , 2 , 3 , 0 ], 
+    [    0 , -dx , 0 , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , x , 0 , -1 , 0 , 3 ], 
+    [    0 , 0 , -dy , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , x-y , 0 , -1 , 2 ], 
+    [    0 , 0 , 0 , -dx+dy , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dx , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dy , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dx , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dy , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dx ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dy ]
+];
+	VL = [x,y,e1,e2,e3,e4,e5,e6,e7,dx,dy,de1,de2,de3,de4,de5,de6,de7];
+	Ord = pot_glex_weyl(2, 7|rev=1);
+	B = [e1,e2,e3,e4,e5,e6,e7];
+	W = [-1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0];
+	G = module_gr_f(M, VL, Ord, B, W);
+
+	/* generic b-function for M */
+	/* make G_i */
+	In = map(ord_w_vec, G, [x,y,dx,dy], [-1,0,1,0]);
+	In = map(elem, In, 1);
+	GI = newvect(length(B));
+	for (I = 0; I < length(B); I++)
+		GI[I] = [];
+	for (I = 0; I < length(In); I++) {
+		for (J = length(B) - 1; J >= 0; J--) {
+			if (In[I][J] != 0) {
+				GI[J] = cons(In[I], GI[J]);
+				break;
+			}
+		}
+	}
+	print(GI);
+
+	V = newvect(length(B));
+	for (I = 0; I < length(V); I++) 
+		V[I] = [];
+	for (I = 0; I < length(GI); I++) {
+		for (J = 0; J < length(GI[I]); J++) {
+			V[I] = cons(GI[I][J][I], V[I]);
+		}
+		V[I] = reverse(V[I]);
+	}
+	print(V);
+
+	VLL = [x,y];
+	DVL = [dx,dy];
+	WW = [1,0];
+	BF = map(nk_restriction.generic_bfct_and_gr, V, VLL, DVL, WW); 
+	return BF;
+}
+
+def module_generic_b(M, VL, DVL, W)
+{
+	P = M[0];
+	N = length(P);
+	B = gen_v("e", 1, N);
+	DB = gen_v("de", 1, N); /* dummy */
+	VLL = append(VL, B);
+	VLL = append(VLL, DVL);
+	VLL = append(VLL, DB);
+	Ord = pot_glex_weyl(length(VL), N|rev=1);
+	Len = length(VLL);
+	WW = newvect(Len);
+	for (K = 0; K < length(W) && W[K] > 0; K++)
+		;
+	for (I = 0; I < K; I++)
+		WW[I] = -1;	
+	for (I = 0; I < K; I++)
+		WW[Len/2 + I] = 1;	
+	WW = vtol(WW);
+	G = module_gr_f(M, VLL, Ord, B, WW);
+
+	/* generic b-function for M */
+	/* make G_i */
+	In = map(ord_w_vec, G, VLL, WW);
+	In = map(elem, In, 1);
+	GI = newvect(length(B));
+	for (I = 0; I < length(B); I++)
+		GI[I] = [];
+	for (I = 0; I < length(In); I++) {
+		for (J = length(B) - 1; J >= 0; J--) {
+			if (In[I][J] != 0) {
+				GI[J] = cons(In[I], GI[J]);
+				break;
+			}
+		}
+	}
+/*
+	print(GI);
+*/
+
+	V = newvect(length(B));
+	for (I = 0; I < length(V); I++) 
+		V[I] = [];
+	for (I = 0; I < length(GI); I++) {
+		for (J = 0; J < length(GI[I]); J++) {
+			V[I] = cons(GI[I][J][I], V[I]);
+		}
+		V[I] = reverse(V[I]);
+	}
+/*
+	print(V);
+*/
+
+	BF = map(nk_restriction.generic_bfct_and_gr, V, VL, DVL, W); 
+	return BF;
+}
+
+def test_module_generic_b()
+{
+/* from quiver D-module */
+M = 
+[
+    [    x , -1 , 0 , -3 , 0 , 0 , 0 ], 
+    [    y , 0 , -2 , -3 , 0 , 0 , 0 ], 
+    [    0 , y , 0 , 0 , 2 , 3 , 0 ], 
+    [    0 , -dx , 0 , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , x , 0 , -1 , 0 , 3 ], 
+    [    0 , 0 , -dy , 0 , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , x-y , 0 , -1 , 2 ], 
+    [    0 , 0 , 0 , -dx+dy , 0 , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dx , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , -dy , 0 , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dx , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , -dy , 0 ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dx ], 
+    [    0 , 0 , 0 , 0 , 0 , 0 , -dy ]
+];
+	return module_generic_b(M, [x,y], [dx,dy], [1,0]);
+}
+
+def test_module_generic_b2()
+{
+	/* from the manual of D-modules.m2 */
+	NN = [[x^2,0,0],[0,dx^3,0],[0,0,x^3]];
+	return module_generic_b(NN, [x], [dx], [1]);
+}
+
+def test_module_generic_b3()
+{
+/* [SST, Ex.5.5.6] */
+Id = [-2*dt*dx+t, -t*dt+2*x*dx+1, 4*x*dx^2+6*dx-t^2];
+NN = [[Id[0]], [Id[1]], [Id[2]]];
+	return module_generic_b(NN, [t,x], [dt,dx], [1,0]);
+}
+
+def h_order(Ord)
+{
+	M = size(Ord)[0];
+	N = size(Ord)[1];
+	A = newmat(M + 2, N + 2);
+	A[0][0] = 1; 
+	for (I = 1; I < M + 1; I++) {
+		for (J = 1; J < 1 + N/2; J++) {
+			A[I][J] = Ord[I - 1][J - 1];
+		}
+		A[I][1 + N/2] = 0; /* dummy */
+		for (J = 2 + N/2; J < N + 2; J++) {
+			A[I][J] = Ord[I - 1][J - 2];
+		}
+	}
+	A[M + 1][1 + N/2] = 1; /* dummy */
+	return A;
+}
+
+def test_h_order()
+{
+	Ord = pot_glex_weyl(2,2|rev=1);
+	HOrd = h_order(Ord);
+	print(Ord);
+	print(HOrd);
+}
+
+/* M : ideal */
+def syz_1_schreyer(M, VL, Ord)
+{
+}
+
+def division(P, L, VL, Ord)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	Old = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	DL = map(dp_ptod, L, VL);
+	N = length(L);
+	DQ = newvect(N);
+	DR = 0;
+	while (DP != 0) {
+		T = dp_hm(DP);
+		TT = find_reducer(DP, DL);
+		Index = TT[0];	
+		if (Index == -1) {
+			DR += dp_hm(DP);
+			DP = dp_rest(DP);
+			continue;
+		}	
+		QUO = TT[1];
+		DQ[Index] += QUO;
+		if (Weyl) {
+			DP -= dp_weyl_mul(QUO, DL[Index]);
+		} else {
+			DP -= QUO * DL[Index];
+		}
+	}
+	Q = map(dp_dtop, DQ, VL);
+	R = dp_dtop(DR, VL);
+	dp_ord(Old);
+	return [R, Q];
+}
+
+def find_reducer(DP, DL)
+{
+	N = length(DL);
+	for (I = 0; I < N; I++) {
+		if (dp_redble(DP, DL[I])) {
+			DQ = dp_hc(DP)/dp_hc(DL[I])*dp_subd(DP, DL[I]);
+			return [I, DQ];
+		}
+	}
+	return [-1];
+}
+
+def test_division()
+{
+	P = x^3+y^3;
+	L = [x-1, y-1];
+	return division(P, L, [x,y], 2);
+}
+
+def test_division2()
+{
+	P = x*dx+x^2;
+	L = [x-1, dx-1];
+	return division(P, L, [x,dx], 2);
+}
+
+/* G : GB w.r.t. Ord */
+def sp_vect(G, VL, Ord)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	Old = dp_ord();
+	dp_ord(Ord);
+	N = length(G);
+	A = newmat(N, N); 
+	DG = map(dp_ptod, G, VL);
+	for (I = 0; I < N; I++) {
+		for (J = I + 1; J < N; J++) {
+			LCM = dp_lcm(DG[I], DG[J]);
+			MI = dp_subd(LCM, dp_ht(DG[I])) / dp_hc(DG[I]);
+			MJ = dp_subd(LCM, dp_ht(DG[J])) / dp_hc(DG[J]);
+			if (Weyl) {
+				DSP = dp_weyl_mul(MI, DG[I]) - dp_weyl_mul(MJ, DG[J]);
+				SP = dp_dtop(DSP, VL);
+				L = division(SP, G, VL, Ord|weyl=1);
+				Q = L[1];	
+				Q[I] -= dp_dtop(MI, VL);
+				Q[J] += dp_dtop(MJ, VL);
+				A[I][J] = Q;
+			} else {
+				DSP = MI * DG[I] - MJ * DG[J];
+				SP = dp_dtop(DSP, VL);
+				L = division(SP, G, VL, Ord);
+				Q = L[1];	
+				Q[I] -= dp_dtop(MI, VL);
+				Q[J] += dp_dtop(MJ, VL);
+				A[I][J] = Q;
+			}
+		}
+	}
+	dp_ord(Old);
+	return A;
+}
+
+def test_sp_vect()
+{
+	G = [x,y,z];
+	VL = [x,y,z];
+	Ord = 2;
+	return sp_vect(G, VL, Ord);
+}
+
+def test_sp_vect2()
+{
+	/* [CLO] Chap6, section2, Ex2  */
+	G = [x*z-y^2, w*x-y*z, y*w-z^2];
+	VL = [x,y,z,w];
+	Ord = 0;
+	return sp_vect(G, VL, Ord);
+}
+
+def test_sp_vect3()
+{
+/* Lauricella F_B(2) */
+FB2 = 
+[x1*x2*dx1*dx2+(-x1^3+x1^2)*dx1^2+((-b1-a1-1)*x1^2+c*x1)*dx1-a1*b1*x1,(-x2^3+x2^2)*dx2^2+(x1*x2*dx1+(-b2-a2-1)*x2^2+c*x2)*dx2-a2*b2*x2];
+VL = [x1,x2,dx1,dx2];
+Param = [a1,a2,b1,b2,c];
+Ord = newmat(5,4,[[0,0,1,1],[1,1,0,0],[0,1,0,0],[0,1,0,0],[0,0,1,0]]);
+	return sp_vect(FB2, VL, Ord|weyl=1);
+}
+
+def test_sp_vect4()
+{
+FB3 = [x1*x3*dx1*dx3+x1*x2*dx1*dx2+(-x1^3+x1^2)*dx1^2+((-b1-a1-1)*x1^2+c*x1)*dx1-a1*b1*x1,x2*x3*dx2*dx3+(-x2^3+x2^2)*dx2^2+(x1*x2*dx1+(-b2-a2-1)*x2^2+c*x2)*dx2-a2*b2*x2,(-x3^3+x3^2)*dx3^2+(x2*x3*dx2+x1*x3*dx1+(-b3-a3-1)*x3^2+c*x3)*dx3-a3*b3*x3];
+VL = [x1,x2,x3,dx1,dx2,dx3];
+Param = [a1,a2,a3,b1,b2,b3,c];
+Ord = newmat(7, 6, [[0,0,0,1,1,1],[1,1,1,0,0,0],[1,0,0,0,0,0],[0,1,0,0,0,0],[0,0,1,0,0,0],[0,0,0,1,0,0],[0,0,0,0,1,0]]);
+	return sp_vect(FB3, VL, Ord|weyl=1);
+}
+
+/* implement the case of W=[1,0,0,..,0] */
+def module_restriction(M, VL, DVL, W)
+{
+	/* option gelrel=1 --> outputs generators and the relations */
+	GenRel = type(getopt(genrel)) != -1 ? 1 : 0;
+	if (type(M) != 4 && type(M) != 5) {
+		print("invalid argument");
+		return [];
+	}
+	if (type(M[0]) != 4 && type(M[0]) != 5) {
+		M = id_to_mod(M);
+	}
+
+	P = M[0];
+	N = length(P);
+	B = gen_v("e", 1, N);
+	DB = gen_v("de", 1, N); /* dummy */
+	VLL = append(VL, B);
+	VLL = append(VLL, DVL);
+	VLL = append(VLL, DB);
+	Ord = pot_glex_weyl(length(VL), N|rev=1);
+	Len = length(VLL);
+	WW = newvect(Len);
+	for (K = 0; K < length(W) && W[K] > 0; K++)
+		;
+	for (I = 0; I < K; I++)
+		WW[I] = -1;	
+	for (I = 0; I < K; I++)
+		WW[Len/2 + I] = 1;	
+	WW = vtol(WW);
+	G = module_gr_f(M, VLL, Ord, B, WW);
+
+	/* generic b-function for M */
+	/* make G_i */
+	In = map(ord_w_vec, G, VLL, WW);
+	In = map(elem, In, 1);
+	GI = newvect(length(B));
+	for (I = 0; I < length(B); I++)
+		GI[I] = [];
+	for (I = 0; I < length(In); I++) {
+		for (J = length(B) - 1; J >= 0; J--) {
+			if (In[I][J] != 0) {
+				GI[J] = cons(In[I], GI[J]);
+				break;
+			}
+		}
+	}
+/*
+	print(GI);
+*/
+
+	V = newvect(length(B));
+	for (I = 0; I < length(V); I++) 
+		V[I] = [];
+	for (I = 0; I < length(GI); I++) {
+		for (J = 0; J < length(GI[I]); J++) {
+			V[I] = cons(GI[I][J][I], V[I]);
+		}
+		V[I] = reverse(V[I]);
+	}
+/*
+	print(V);
+*/
+
+	L = map(nk_restriction.generic_bfct_and_gr, V, VL, DVL, W); 
+/*
+	print(L);
+*/
+	BF = 1;
+	for (I = 0; I < length(L); I++)
+		BF = lcm(BF, L[I][0]);
+	print("bfunction : "); print(BF);
+	print(fctr(BF));
+
+	/* Integer roots of BF */	
+	Roots = min_max_int_root(BF);	
+	print("integer roots :");
+	print(Roots);
+	if (Roots == []) 
+		return 0;
+	
+	K0 = Roots[0];
+	K1 = Roots[1];	
+	if (K1 < 0)
+		return 0;
+	if (K0 < 0) 
+		K0 = 0;
+
+	Gen = [];
+	for (K = K0; K <= K1; K++) {
+		for (I = 1; I <= N; I++) {
+			EI = strtov("e" + rtostr(I));
+			T = DVL[0]^K * EI;
+			Gen = cons(T, Gen);
+		}
+	}
+	Gen = reverse(Gen);
+	print("Generators: "); print(Gen);
+
+	print("Relations: ");
+	Rel = [];
+	for (I = 0; I < length(G); I++) {
+		P = G[I];
+		Weight = append(vtol(-ltov(W)), W);
+		Ord = ord_w_vec(P, append(VL, DVL), Weight)[0];
+		if (K0 - Ord > 0) 
+			J = K0 - Ord;
+		else 
+			J = 0;
+		for (; J <= K1 - Ord; J++) {
+			PP = weyl_mul_v(DVL[0]^J, P, append(VL, DVL));
+/*
+			print(J);
+			print(PP);
+*/
+			PP0 = map(subst, PP, VL[0], 0);	
+/*
+			print(PP0);
+*/
+			/* take terms s.t. DVL[0]^k (k >= K0) */ 
+			T = 0;
+			L = ord_w_vec(PP0, append(VL, DVL), Weight);	
+			K = L[0];
+			In = L[1];
+			while (K >= K0) {
+				T += In;
+				PP0 = PP0 - In;
+				L = ord_w_vec(PP0, append(VL, DVL), Weight);	
+				K = L[0];
+				In = L[1];
+			}
+/*
+			print(T);
+*/
+			if (T != 0) 
+				Rel = cons(v_to_p(T), Rel);
+		}
+	}	
+	print(Rel);
+
+	if (GenRel)
+		return [Gen, Rel];
+
+	Mod = map(p_to_v_, Rel, Gen);
+	Mod = map(vtol, Mod);
+	ModVL = append(cdr(VL), cdr(DVL));
+	if (ModVL == []) {
+		ModVL = [x,dx]; /* dummy */
+	}
+	Mod = nd_weyl_gr(Mod, ModVL, 0, [0,0]);
+	return Mod;
+}
+
+def test_module_restriction()
+{
+	NN=[[dx,0,0,0],[dy,0,0,0],[0,dy,0,0],[0,0,-dx,0],[0,x,0,0],[0,0,y,0],[0,0,0,x],[0,0,0,y]];
+	return module_restriction(NN, [x,y],[dx,dy],[1,0]);	
+}
+
+def test_module_restriction2()
+{
+	NN = [[x^2, 0, 0], [0, dx^3, 0], [0, 0, x^3]];
+	return module_restriction(NN, [x],[dx],[1]);	
+}
+
+def test_module_restriction3()
+{
+	/* nk_restriction.test_restriction() */
+	return module_restriction([[x*dx-1],[y*dy-1]], [x,y],[dx,dy],[1,0]);	
+}
+
+def test_module_restriction4()
+{
+	/* nk_restriction.test_restriction2() */
+	return module_restriction([[dx^2],[dy^2]], [x,y],[dx,dy],[1,0]);	
+}
+
+/* F : polynomial in Q[s] */
+def min_max_int_root(F)
+{
+	L = fctr(F);
+	/* L の最初の要素は係数なので捨てる */
+	L = cdr(L);
+	N = length(L);
+	S0 = [];
+	for (I = 0; I < N; I++) {
+		T = L[I][0];
+		Root = -coef(T, 0, s) / coef(T, 1, s);
+		if (dn(Root) == 1) 
+			S0 = cons(Root, S0);
+	}
+	S0 = qsort(S0);	
+	if (S0 == []) 
+		return [];
+	return [S0[0], S0[length(S0)-1]];
+}
+
+def test_min_max_int_root()
+{
+	print(min_max_int_root(3*(s+3)^2*(s+1)^3));
+	print(min_max_int_root((s+1/2)*(s+1/3)*(s+3)^2*(s+1)^3));
+	print(min_max_int_root((s+1/2)*(s+1/3)*(s+3)^2));
+	print(min_max_int_root((s+1/2)*(s+1/3)*(s+1/5)^2*(s+1/10)^3));
+}
+
+
+/* implement only the case of W=[1,0,0,..,0] */
+def module_integration(M, VL, DVL, W)
+{
+	GenRel = type(getopt(genrel)) != -1 ? 1 : 0;
+	if (type(M) != 4 && type(M) != 5) {
+		print("invalid argument");
+		return [];
+	}
+	if (type(M[0]) != 4 && type(M[0]) != 5) {
+		M = id_to_mod(M);
+	}
+	
+	VLM = [VL[0]];
+	DVLM = [DVL[0]];
+        FM = map(fourier_trans_v, M, VLM, DVLM);
+	if (GenRel) {	
+        	R = module_restriction(FM, VL, DVL, W|genrel=1);
+		if (R == 0) 
+			return 0;
+		Gen = map(inv_fourier_trans_v, R[0], VLM, DVLM);
+        	Rel = map(inv_fourier_trans_v, R[1], VLM, DVLM);
+        	return [Gen, Rel];
+	} else {
+        	R = module_restriction(FM, VL, DVL, W);
+		R = map(inv_fourier_trans_v, R, VLM, DVLM);
+		return R;
+	}	
+}
+
+def test_module_integration()
+{
+	NN=[[dx,0,0,0],[dy,0,0,0],[0,dy,0,0],[0,0,-dx,0],[0,x,0,0],[0,0,y,0],[0,0,0,x],[0,0,0,y]];
+	return module_integration(NN, [x,y],[dx,dy],[1,0]);	
+}
+
+def test_module_integration2()
+{
+	NN = [[x^2, 0, 0], [0, dx^3, 0], [0, 0, x^3]];
+	return module_integration(NN, [x],[dx],[1]);	
+}
+
+def test_module_integration3()
+{
+	/* nk_restriction.test_integration() */
+	NN = [[2*t*dx+dt], [t*dt+2*x*dx+2]];
+	return module_integration(NN, [t,x], [dt,dx], [1,0]);
+}
+
+def test_module_integration4()
+{
+/* [SST, Ex.5.5.6] */
+Id = [-2*dt*dx+t, -t*dt+2*x*dx+1, 4*x*dx^2+6*dx-t^2];
+Id = fourier_trans_v(Id, [t], [dt]);
+NN = [[Id[0]], [Id[1]], [Id[2]]];
+	return module_integration(NN, [t,x], [dt,dx], [1,0]);
+}
+
+def test_module_integration5()
+{
+	Id = ann(x*y*(x-1)*(y-2)*(x-y));
+	print("Ann:"); print(Id);
+	Id = base_replace(Id, [[s,1/7]]);
+	print("Ann0:"); print(Id);
+	M = id_to_mod(Id);
+	M1 = module_integration(M, [x,y],[dx,dy],[1,0]|genrel=1);
+	print("M1:");
+	print(M1);
+	M1 = map(p_to_v_, M1[1], M1[0]);
+	M2 = module_integration(M1, [y],[dy],[1]|genrel=1);
+	return M2;
+}
+
+def test_module_integration5_()
+{
+	Id = ann(x*y*(x-1)*(y-2)*(x-y));
+	print("Ann:"); print(Id);
+	Id = base_replace(Id, [[s,1/7]]);
+	print("Ann0:"); print(Id);
+	return nk_restriction.integration(Id, [x,y],[dx,dy],[1,0]);
+}
+
+def test_module_integration6()
+{
+	Id = ann(x*y*(x-1)*(y-2)*(x-y));
+	print("Ann:"); print(Id);
+	Id = base_replace(Id, [[s,-1]]);
+	print("Ann0:"); print(Id);
+	M = id_to_mod(Id);
+	M1 = module_integration(M, [x,y],[dx,dy],[1,0]|genrel=1);
+	print("M1:");
+	print(M1);
+	M1 = map(p_to_v_, M1[1], M1[0]);
+	print(M1);
+	M2 = module_integration(M1, [y],[dy],[1]|genrel=1);
+	return M2;
+}
+
+def test_module_integration6_()
+{
+	Id = ann(x*y*(x-1)*(y-2)*(x-y));
+	print("Ann:"); print(Id);
+	Id = base_replace(Id, [[s,-1]]);
+	print("Ann0:"); print(Id);
+	return nk_restriction.integration(Id, [x,y],[dx,dy],[1,1]);
+}
+
+def fourier_trans_v(V, VL, DVL)
+{
+	return map(nk_restriction.fourier_trans, V, VL, DVL);
+}
+
+def test_fourier_trans_v()
+{
+	return fourier_trans_v([x+y+dy,dx+2*y+1,1+x+dx+x*y*dy], [x], [dx]);
+}
+
+def inv_fourier_trans_v(V, VL, DVL)
+{
+	return map(nk_restriction.inv_fourier_trans, V, VL, DVL);
+}
+
+def test_inv_fourier_trans_v()
+{
+	FV = fourier_trans_v([x+y+dy,dx+2*y+1,1+x+dx+x*y*dy], [x], [dx]);
+	return inv_fourier_trans_v(FV, [x], [dx]);
+}
+
+/* [1,2,3] --> [[1],[2],[3]] */
+def id_to_mod(Id)
+{
+	Mod = [];
+	for (I = 0; I < length(Id); I++)
+		Mod = cons([Id[I]], Mod);
+	return reverse(Mod);
+}
+
+def hm(F, VL, Ord)
+{
+	if (F == 0) 
+		return 0;
+
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	NM = nm(F);
+	DN = dn(F);
+	DF = dp_ptod(NM, VL);
+	Head = dp_hm(DF);
+	dp_ord(Tmp);	
+	return red(dp_dtop(Head, VL) / DN);
+}
+
+def ht(F, VL, Ord)
+{
+	if (F == 0) 
+		return 0;
+	
+	if (type(F) == 1) {
+		return 1;
+	}	
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	NM = nm(F);
+	DN = dn(F);
+	DF = dp_ptod(NM, VL);
+	Head = dp_ht(DF);
+	dp_ord(Tmp);	
+	return red(dp_dtop(Head, VL) / DN);
+}
+
+def rest(F, VL, Ord)
+{
+	if (F == 0)
+		return 0;
+
+	return red(F - hm(F, VL, Ord));
+}
+
+def pick_term(P, L, VL, Ord)
+{
+	Sum = 0;
+	N = length(L);
+	H = hm(P, VL, Ord);	
+	R = rest(P, VL, Ord);
+	while (H != 0) {
+		for (I = 0; I < N; I++) {
+			T = ht(H, VL, Ord);
+			TT = ht(L[I], VL, Ord); 
+			if (T == TT) {
+				Sum += H;
+				break;
+			}
+		}
+		H = hm(R, VL, Ord);	
+		R = rest(R, VL, Ord);
+	}
+	return Sum;
+}
+
+def p_to_v_(P, B)
+{
+	VL = vars(B);
+	V = newvect(length(B));
+
+	/* for replacing B[I] to 1 */
+	OneV = newvect(length(B));
+	for (I = 0; I < length(B); I++)
+		OneV[I] = 1;
+	Rule = assoc(B, vtol(OneV));
+
+	for (I = 0; I < length(B); I++) {
+		T = pick_term(P, [B[I]], VL, 0);
+		T = base_replace(T, Rule);
+		V[I] = T;	
+	}
+	return V;
+}
+
+def test_p_to_v_()
+{
+	P = -4*e1*t*x*dx^2-6*e1*dx;
+	B = [e1,-e1*t];
+	return p_to_v_(P, B);
+}
+
+def test_p_to_v_2()
+{
+	L = test_module_integration4();
+	print(L);
+	return map(p_to_v_, L[1], L[0]);
+}
+
+endmodule$
+end$
