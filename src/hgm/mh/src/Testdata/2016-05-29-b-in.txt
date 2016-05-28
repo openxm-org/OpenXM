@@ -1,0 +1,35 @@
+%!version2.0
+%Mg=
+1
+%Beta=
+0.03
+%X0g=
+0.3105682
+%Hg=
+0.001
+%Dp=
+1
+%Xng=
+200.0
+## (m+1)/2=1.0, (n1+n2)/2=(5+10)/2=7.5
+## (n1+m+1)/2=(5+1+1)/2=3.5
+%p_pFq=2, 1.0, 7.5
+%q_pFq=1, 3.5
+%ef_type=2
+
+## a<-hgm.p2wishart(m=1,beta=c(0.03),q=0.3,q0=0.1,err=c(1e-15,1e-10))
+## [1]  0.3105682  0.9997290 54.0082200
+## 
+##
+##  Output of this input: Iv[0] = 9293.58
+##  Ef=9.88128e-5 ,  Iv[0]*Ef = 0.9183247  with approxdeg=86
+## Error rate:  only one digit is valid.
+## > 9293.58*9.88128e-5
+## [1] 0.9183247
+## > 9293.58*9.88128e-5/a[2]
+## [1] 0.9185736
+##  ## Iv[0] herpaps should be 10117.4
+##
+## Possible reason. x/(0.03+x) is close to 1 when x is large relative to 0.03.
+
+
