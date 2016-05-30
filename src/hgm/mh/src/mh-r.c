@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.8 2014/03/16 03:11:07 takayama Exp $
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.9 2016/02/13 05:55:09 takayama Exp $
  R interface module
 */
 
@@ -15,6 +15,7 @@ int Rmh_cwishart_gen(int *mp,int *np,double *beta,double *x0p,
   struct cWishart *cw;
   int rank;
   int i;
+  reset_SAR_warning(1);
   rank = *rankp;
   cw = mh_cwishart_gen(*mp,*np,beta,*x0p,*approxDegp,*hp,*dpp,*xp,modep,
                        *automaticp,*assigned_series_errorp,*verbosep);
@@ -56,6 +57,7 @@ int Rmh_pFq_gen(int *mp,
   struct cWishart *cw;
   int rank;
   int i;
+  reset_SAR_warning(1);
   rank = *rankp;
   cw = mh_pFq_gen(*mp,
                   *pp,a,

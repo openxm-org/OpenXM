@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.46 2016/02/15 06:02:39 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.47 2016/03/06 23:51:36 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -52,6 +52,8 @@ static int Sample = Sample_default;
 /* for sample inputs */
 static double *Iv2; 
 static double Ef2; 
+
+static int SAR_warning = 1;
 
 #ifdef NAN
 #else
@@ -2307,15 +2309,26 @@ static void setM_x_ef_type1(void) {
   int i;
   for (i=0; i<M_n; i++) {
 	M_x[i] = Beta[i]*X0g;
+	if (myabs(M_x[i]) > SERIES_ADMISSIBLE_RADIUS_TYPE1) {
+	  if (SAR_warning) oxprintfe("Warning: evaluation point %lf for %d-th variable of the series 1F1 might be far from 0. Decrease q0 (or X0g for the standalone) if necessary.\n",M_x[i],i);
+	  SAR_warning=0;
+	}
   }
 }
 static void setM_x_ef_type2(void) {
   int i;
   for (i=0; i<M_n; i++) {
 	M_x[i] = X0g/(Beta[i]+X0g);
+	if (myabs(M_x[i]) > SERIES_ADMISSIBLE_RADIUS_TYPE2) {
+	  if (SAR_warning) oxprintfe("Warning: evaluation point %lf for %d-th point of the series 2F1 is near 1. Decrease q0 (or X0g for the standalone).\n",M_x[i],i);
+	  SAR_warning=0;
+	}
   }
 }
-
+int reset_SAR_warning(int n) {
+  SAR_warning = n;
+  return(n);
+}
 /* log of gammam */
 static double lgammam(double a,int n) {
   double v,v2;
