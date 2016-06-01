@@ -1,5 +1,5 @@
 /*
-   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.15 2015/03/24 05:59:43 takayama Exp $
+   $OpenXM: OpenXM/src/hgm/mh/src/sfile.h,v 1.16 2016/05/30 00:38:18 takayama Exp $
  */
 #include "oxprint.h"
 struct SFILE {
@@ -68,7 +68,8 @@ struct MH_RESULT *jk_main(int argc,char *argv[]);
 #define M_ASSIGNED_SERIES_ERROR_DEFAULT 1e-5
 #define MH_RELERR_DEFAULT (1e-10)
 
+/* The next value is heuristic */
+#define SERIES_ADMISSIBLE_RADIUS_TYPE1 50.0
 /* SERIES RADIUS close to 1 is not good. */
-#define SERIES_ADMISSIBLE_RADIUS_TYPE2 100.0
-#define SERIES_ADMISSIBLE_RADIUS_TYPE1 0.77
+#define SERIES_ADMISSIBLE_RADIUS_TYPE2 0.77
 int reset_SAR_warning(int n);
