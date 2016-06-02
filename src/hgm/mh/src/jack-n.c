@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.47 2016/03/06 23:51:36 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.48 2016/05/30 00:38:18 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -370,8 +370,14 @@ static int myfree(void *p) {
   if (Debug) oxprintf("myFree at %p\n",p);
   return(mh_free(p));
 }
+#ifdef STANDALONE2
 static int myerror(char *s) { oxprintfe("%s: type in control-C\n",s); getchar(); getchar(); return(0);}
-
+#else
+static int myerror(char *s) {
+  oxprintfe("%s: myerror is called.\n",s);
+  mh_exit(-1);
+}
+#endif
 static double jack1(int K) {
   double F;
   extern int Alpha;
