@@ -1,5 +1,5 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.17 2010/07/19 09:41:53 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.18 2013/02/15 05:06:21 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems
 # under $HOME/.asir-tmp and installs asir to $OpenXM_HOME/bin
 #
@@ -103,7 +103,7 @@ if [ ! -f $HOME/.asir-tmp/$otname ]; then
 	if [ -f $HOME/.TeXmacs/progs/my-init-texmacs.scm ]; then \
 		echo "Warning .TeXmacs/progs/my-init-texmacs.scm exists"; \
 		echo "Copy .TeXmacs and .feprc from ~/.asir-tmp/$otname by hand."; \
-    else (cd $HOME ; tar xzf $HOME/.asir-tmp/$otname ; cp -i .feprc.sample .feprc) ; \
+    else (cd $HOME ; tar xzf $HOME/.asir-tmp/$otname ; /bin/cp -n .feprc.sample .feprc) ; \
     fi
 fi
 

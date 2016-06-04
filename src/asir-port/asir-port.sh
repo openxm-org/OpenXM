@@ -1,5 +1,5 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.20 2013/02/15 05:06:21 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.21 2014/07/27 02:33:19 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -99,7 +99,7 @@ if [ ! -f $HOME/.asir-tmp/$otname ]; then
     if [ -f $HOME/.feprc ]; then \
          echo "Warning .feprc exists"; \
          echo "Copy .feprc from ~/.asir-tmp/$otname by hand."; \
-    else (cd $HOME ; touch .feprc.sample ; cp .feprc.sample .feprc) ; \
+    else (cd $HOME ; touch .feprc.sample ; /bin/cp -n .feprc.sample .feprc) ; \
     fi
 fi
 
