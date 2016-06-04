@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.49 2016/06/02 11:00:44 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.50 2016/06/04 07:52:13 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1492,7 +1492,7 @@ double mh_t(double A[],double B[],int N,int M) {
     oxprintfe("%%%%(stderr) x0value_min=%lg, x0g_bound=%lg\n",M_x0value_min, M_X0g_bound);
     oxprintfe("%%%%(stderr) F=%lg,Ef=%lg,iv=|F*Ef|=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),iv,M_estimated_X0g,X0g);
   }
-  if (isnan(F)) myerror("F is nan. Make q0 smaller (or X0g smaller on the standalone system.\n");
+  if (isnan(F)) myerror("F is nan. Make q0 smaller (or X0g smaller on the standalone system).\n");
 
   M_mh_t_value=F;
   return(F);
