@@ -1,8 +1,9 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.8 2007/12/10 16:02:37 iwane Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.9 2015/02/21 06:20:36 ohara Exp $
 
 MASTER_SITES="http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
+curl="curl --remote-name --remote-time"
 url=$1
 distdir=${2:-.}
 distinfo=${3:-./distinfo}
@@ -20,6 +21,7 @@ _mkdir () {
 }
 
 _fetch () {
+    if ! which wget > /dev/null 2>&1; then fetch="${curl}"; fi
     if [ "$distfile" != "" -a ! -f "$distdir/$distfile" ]; then
         (cd $distdir; $fetch $url)
     fi
