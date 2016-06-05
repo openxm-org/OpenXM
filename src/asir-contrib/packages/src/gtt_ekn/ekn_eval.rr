@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.2 2016/03/26 05:25:35 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -252,7 +252,7 @@ def cBasistoEdiff(S,Beta,X){
       for (A=0; A<P-1; A++){
       for (B=0; B<Q-1; B++){
 	Ediff[I][J][II][JJ]+=eulerxij([I+1,J+1],[A+1,B+1],P)*Alpha[P+B]*
-	  (S[0][0]*S2[II][JJ][A][B]-(Alpha[P+JJ]/xij_rule(II+1,JJ+1))*S1[A][B]*S1[II][JJ]);
+	  ((-1)^(P-A)*S[0][0]*S2[II][JJ][A][B]-(Alpha[P+JJ]/xij_rule(II+1,JJ+1))*S1[A][B]*S1[II][JJ]);
       }
       }
     }
