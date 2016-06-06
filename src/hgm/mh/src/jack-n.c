@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.50 2016/06/04 07:52:13 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.51 2016/06/04 07:53:08 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -374,7 +374,7 @@ static int myfree(void *p) {
 static int myerror(char *s) { oxprintfe("%s: type in control-C\n",s); getchar(); getchar(); return(0);}
 #else
 static int myerror(char *s) {
-  oxprintfe("%s: myerror is called.\n",s);
+  oxprintfe("Error in jack-n.c: %s\n",s);
   mh_exit(-1);
   return(0);
 }
@@ -1493,6 +1493,7 @@ double mh_t(double A[],double B[],int N,int M) {
     oxprintfe("%%%%(stderr) F=%lg,Ef=%lg,iv=|F*Ef|=%lg,M_estimated_X0g=%lg, X0g=%lg\n",F,iv_factor(),iv,M_estimated_X0g,X0g);
   }
   if (isnan(F)) myerror("F is nan. Make q0 smaller (or X0g smaller on the standalone system).\n");
+  if (!isnormal(iv)) myerror("F*Ef (initial value) is zero. Make q0 larger (or X0g larger on the standalone system).\n");
 
   M_mh_t_value=F;
   return(F);
