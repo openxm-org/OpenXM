@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.170 2016/02/12 02:39:26 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.171 2016/06/08 02:35:49 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -29,7 +29,7 @@ all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-
 	(cd ox_toolkit; ${MAKE} all)
 
 all-oxc: configure-oxc install-oxtoolkit 
-	(cd oxc; ${MAKE} all)
+	-(cd oxc; ${MAKE} all)
 
 all-asir: configure-asir install-pari install-gmp install-mpfr install-mpc
 	(cd asir2000; ${MAKE} all)
@@ -142,7 +142,7 @@ install-mpc: all-mpc
 	(cd mpc; ${MAKE} install)
 
 install-asir: all-asir
-	(cd asir2000; ${MAKE} install)
+	-(cd asir2000; ${MAKE} install)
 
 install-gnuplot: all-gnuplot
 	-(cd gnuplot; ${MAKE} install)
@@ -168,7 +168,7 @@ install-oxtoolkit: all-oxtoolkit
 	(cd ox_toolkit; ${MAKE} install)
 
 install-oxc: all-oxc
-	(cd oxc; ${MAKE} install)
+	-(cd oxc; ${MAKE} install)
 
 install-oxmath: all-oxmath 
 	-@if test -d /usr/local/mathematica; then \
