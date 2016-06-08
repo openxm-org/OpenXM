@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.3 2015/08/27 11:02:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.4 2016/06/07 01:49:51 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -435,7 +435,7 @@ extern Rand$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot;
 extern AMSTeX$
-Muldif.rr="00160601"$
+Muldif.rr="00160604"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2171,7 +2171,6 @@ def mdivisor(M,X)
 			}
 			else	mycat0([St,FF,"\n",M,"\n"],0);
 		}
-/* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 		if(X==0||X==[0,0]){ /* search minimal non-zero element */
 			for(K=F=I=0; I<S0; I++){
 				for(J=0; J<S1; J++){
@@ -2202,7 +2201,6 @@ def mdivisor(M,X)
 				mycat0([St,": (",R0+1,",",R1+1,") -> (1,1)\n"],0);
 				mycat([GR,"\n"]);mycat([M,"\n"]);mycat([GC,"\n"]);
 			}else mycat0([St,": (",R0+1,",",R1+1,") -> (1,1)\n",M,"\n"],0);
-/* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 		if(R[0]==0){		/* (1,1) : invertible */
 			if(type(V)==5) V[St]=cons([1],V[St]);
 			P=M[0][0]; M[0][0]=1;
@@ -2210,7 +2208,6 @@ def mdivisor(M,X)
 				if(J>0) M[0][J]= red(M[0][J]/P);
 				if(Tr) GR[0][J]=red(GR[0][J]/P);
 			}
-/* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 			if(S0>1 && S1>1) N=newmat(S0-1,S1-1);
 			else N=0;
 			for(I=1;I<S0;I++){
@@ -2222,7 +2219,6 @@ def mdivisor(M,X)
 						GR[I][J] = red(GR[I][J] -muldo(P,GR[0][J],XX));
 				}
 			}
-/* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 			if(Tr){
 				for(J=1;J<S1; J++){
 					for(I=0;I<S1;I++) GC[I][J]=red(GC[I][J]-muldo(GC[I][0],M[0][J],XX));
@@ -2236,7 +2232,6 @@ def mdivisor(M,X)
 				}
 				else mycat0([St,": unit\n",M,"\n"],0);
 			}
-/* if(Tr==1){ mycat(GR); mycat([GC,"\n\n"]);} */
 			if(N==0){
 				if(!Tr) return [1];
 				if(Tr==2){
@@ -2248,13 +2243,10 @@ def mdivisor(M,X)
 			}
 			R=mdivisor(N,XX|dviout=V,trans=Tr0,step=(St>0)?St+1:St);
 			if(!Tr) return cons(1,R);
-/* mycat(["Ret",R]); */
 			GR=muldo(newbmat(2,2,[[1],[0,R[1]]]),GR,XX);
 			GC=muldo(GC,newbmat(2,2,[[1],[0,R[2]]]),XX);
 			if(S0==S1 && countin(1,1,R[0])==S0-1){
-/* mycat(GR);mycat(GC); */
 				GR=muldo(GC,GR,XX); GC=mgen(S0,0,1,0);
-/* mycat(GR);mycat("#");*/
 			}
 			if(Tr==2){
 				GR0=mdivisor(GR,X|trans=1)[1];
@@ -4980,7 +4972,7 @@ def tranlpdo(P,L,M)
 def divdo(P,Q,L)
 {
 	if(L==0){
-		R=P-(P%Q)*Q;
+		R=P-idiv(P,Q)*Q;
 		if(R<0){
 			if(Q>0) R+=Q;
 			else R-=Q;
@@ -15537,27 +15529,34 @@ def integrate(P,X)
 		if(getopt(log)!=1){
 			for(V=[];VV!=[];VV=cdr(VV))
 				V=cons(strtoascii(my_tex_form(car(VV))),V);
-			S0=strtoascii(S);	/* log(x)  ->  log|x| */
-			L=length(S0);
 			S1=strtoascii("\\log");
-			S2=str_tb(0,0);
-			for(I=0;;){
-				if(I>=L||(J=str_str(S0,S1|top=I))<0
-			  	||(K=str_str(S0,40|top=J+4))<0
-			  	||(K!=J+4&&K!=J+9)||(N=str_pair(S0,K+1,40,41))<0){
-					S=str_tb(0,S2)+str_cut(S0,I,100000);
-					break;
-				}
-				if(str_str(S0,V|top=K+1,end=N-1)[0]<0) S2=str_tb(str_cut(S0,I,N),S2); 
-					/* log(a) -> log(a) */
-				else{
-					if(N<L-1&&S0[N+1]==94){		/* log(x)^2 -> (log|x|)^2 */
-						S2=str_tb([str_cut(S0,I,J-1),"\\left(",str_cut(S0,J,K-1),
-						"|",str_cut(S0,K+1,N-1),"|\\right)"],S2);
+			for(F=1;F;){	/* log(log(x)) */
+				F=FT=0;
+				S0=strtoascii(S);	/* log(x)  ->  log|x| */
+				L=length(S0);
+				S2=str_tb(0,0);
+				for(I=0;;){
+					if(I>=L||(J=str_str(S0,S1|top=I+FT))<0){
+						S=str_tb(0,S2)+str_cut(S0,I,100000);
+						break;
 					}
-					else S2=str_tb([str_cut(S0,I,K-1),"|",str_cut(S0,K+1,N-1),"|"],S2);
+			  		if((K=str_str(S0,40|top=J+4))<0
+			  			||(K!=J+4&&K!=J+9)||(N=str_pair(S0,K+1,40,41))<0){
+						FT=J-I+4;continue;
+					}
+					FT=0;
+					if(str_str(S0,V|top=K+1,end=N-1)[0]<0) S2=str_tb(str_cut(S0,I,N),S2);
+					else{
+					/* log(a) -> log(a) */
+						F=1;
+						if(N<L-1&&S0[N+1]==94){		/* log(x)^2 -> (log|x|)^2 */
+							S2=str_tb([str_cut(S0,I,J-1),"\\left(",str_cut(S0,J,K-1),
+							"|",str_cut(S0,K+1,N-1),"|\\right)"],S2);
+						}
+						else S2=str_tb([str_cut(S0,I,K-1),"|",str_cut(S0,K+1,N-1),"|"],S2);
+					}
+					I=N+1;
 				}
-				I=N+1;
 			}
 		}
 		if(Dvi>0){
@@ -15565,7 +15564,7 @@ def integrate(P,X)
 			return 1;
 		}
 		return S;
-	}	/* endof dviout */
+	}	/* end of dviout */
 	SM=["Cannot integrate",P,"at present"];
 	P=sqrt2rat(P|mult=1);
 	Dumb2=1;Dumb3=0;W=newvect(1);W[0]=[];
@@ -15689,7 +15688,7 @@ def integrate(P,X)
 			if(!iand(ptype(car(Df)[0],X),64)) continue;
 			Q=car(Df)[0]^(car(Df)[1]);QQ=red(dn(P0)/Q);
 			DQ=red(diff(Q,X)*QQ);
-			if(C!=0&&type(C=DQ/nm(P0))<2){
+			if(type(C=DQ/nm(P0))<2&&C!=0){
 				PP=0;DN=[1];
 			}else for(DN=cdr(fctr(DQ));DN!=[];DN=cdr(DN)){
 				Y=car(DN)[0];
