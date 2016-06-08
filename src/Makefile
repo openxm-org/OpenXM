@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.169 2015/09/27 00:12:31 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.170 2016/02/12 02:39:26 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -236,7 +236,7 @@ clean:
 	-rm ./.configure-links-done
 	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
-               oxmgraph pcc \
+               oxmgraph pcc mpfr \
 	           util ${OpenXM_contrib2}/fep ; do \
 		(cd $$i; ${MAKE} clean); \
 	done
