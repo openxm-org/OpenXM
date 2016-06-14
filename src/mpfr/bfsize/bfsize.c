@@ -1,8 +1,15 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/mpfr/bfsize/bfsize.c,v 1.2 2016/06/14 06:59:50 takayama Exp $ */
 #include <stdio.h>
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "mpfr.h"
+
+/* from mpfr-impl.h */
+#define MPFR_PREC(x)      ((x)->_mpfr_prec)
+#define MPFR_EXP(x)       ((x)->_mpfr_exp)
+#define MPFR_MANT(x)      ((x)->_mpfr_d)
+#define MPFR_LAST_LIMB(x) ((MPFR_PREC (x) - 1) / GMP_NUMB_BITS)
+#define MPFR_LIMB_SIZE(x) (MPFR_LAST_LIMB (x) + 1)
 
 int main(void) {
   mpfr_t x;
@@ -25,5 +32,13 @@ int main(void) {
   printf("sizeof(unsigned long)=%d\n",(int) (sizeof(unsigned long)));
 
   printf("GMP_NUMB_BITS=%d\n",GMP_NUMB_BITS);
+
+  printf("MPFR_PREC(x)=%lx, ",MPFR_PREC(x));
+  printf("MPFR_EXP(x)=%lx, ",MPFR_EXP(x));
+  printf("MPFR_MANT(x)=%p, ",MPFR_MANT(x));
+
+
   return(0);
 }
+
+
