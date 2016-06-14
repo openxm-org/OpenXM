@@ -11,3 +11,6 @@ bfsize : bfsize.c
 	$(CC) $(CFLAGS) $(INCLUDES) $(OpenXM_LIBDIR) $< $(LIBS) -o bfsize
 clean:
 	rm -f bfsize.exe bfsize *~ a.out a.exe
+
+# $OpenXM$
+
