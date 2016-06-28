@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.44 2015/08/18 02:24:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.45 2015/08/27 03:03:33 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -13,6 +13,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
+#include <limits.h>
 #if !defined(_MSC_VER)
 #include <unistd.h>
 #include <sys/file.h>
@@ -23,8 +24,9 @@
 #define MPFR_PREC(x)      ((x)->_mpfr_prec)
 #define MPFR_EXP(x)       ((x)->_mpfr_exp)
 #define MPFR_MANT(x)      ((x)->_mpfr_d)
-#define MPFR_LAST_LIMB(x) ((MPFR_PREC (x) - 1) / GMP_NUMB_BITS)
-#define MPFR_LIMB_SIZE(x) (MPFR_LAST_LIMB (x) + 1)
+#define RAT_CEIL(nm,dn) (((nm)+(dn)-1)/((dn)))
+#define MPFR_LIMB_SIZE_REAL(x) (RAT_CEIL(MPFR_PREC((x)),sizeof(mp_limb_t)*CHAR_BIT) * (sizeof(mp_limb_t)/sizeof(int)) )
+#define MPFR_LIMB_SIZE_BODY(x) (RAT_CEIL(MPFR_PREC((x)),sizeof(unsigned int)*CHAR_BIT))
 
 #if SIZEOF_LONG==4
 typedef long long L64;
@@ -72,7 +74,9 @@ static cmo_zz*      receive_cmo_zz(OXFILE *oxfp);
 static void         receive_mpz(OXFILE *oxfp, mpz_ptr mpz);
 static int          send_cmo_zz(OXFILE *oxfp, cmo_zz* c);
 static int          send_mpz(OXFILE *oxfp, mpz_ptr mpz);
+static cmo_bf*      receive_cmo_bf(OXFILE *oxfp);
 static void         receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr);
+static int          send_cmo_bf(OXFILE *oxfp, cmo_bf* c);
 static int          send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr);
 
 /* hook functions. (yet not implemented) */
@@ -800,75 +804,44 @@ int send_int64(OXFILE *oxfp,UL64 a)
 UL64 receive_int64(OXFILE *oxfp)
 {
 	double d = receive_double(oxfp);
-  return ((UL64 *)&d)[0];
+    return ((UL64 *)&d)[0];
 }
 
 static void receive_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 {
-  int sgn,prec,len,i;
-  unsigned int hi,lo;
-  unsigned long *ptr;
-  L64 exp;
+    int sgn,prec,exp,len_r,len,i;
+    unsigned int *ptr;
 
-  sgn  = receive_int32(oxfp);
-  prec  = receive_int32(oxfp);
-  exp = receive_int64(oxfp);
-  /* len = length as an int array (int = 4bytes) */
-  len  = receive_int32(oxfp);
-
-  mpfr_init2(mpfr,prec);
-  MPFR_SIGN(mpfr) = sgn;
-  ptr = mpfr->_mpfr_d;
-  mpfr->_mpfr_exp = exp;
-#if SIZEOF_LONG==4
-  for ( i = 0; i < len; i++ )
-    ptr[i] = receive_int32(oxfp);     
-#else
-  if ( len%2 ) {
-    hi = receive_int32(oxfp);
-    ptr[0] = (((UL64)hi)<<32);
-	i = 1;
-  } else
-    i = 0;
-  len = (len+1)/2;
-  for ( ; i < len; i ++ ) {
-    lo = (unsigned int)receive_int32(oxfp);
-    hi = (unsigned int)receive_int32(oxfp);
-    ptr[i] = (((UL64)hi)<<32)|((UL64)lo);
-  }
-#endif
+    prec = receive_int32(oxfp);
+    sgn  = receive_int32(oxfp);
+    exp  = receive_int32(oxfp);
+    len  = receive_int32(oxfp);
+    mpfr_init2(mpfr,prec); /* initialized by NaN */
+    MPFR_SIGN(mpfr) = sgn;
+    MPFR_EXP(mpfr)  = exp;
+    *(MPFR_MANT(mpfr))=0; /* initialized by 0 */
+    ptr   = (unsigned int *)MPFR_MANT(mpfr);
+    len_r = MPFR_LIMB_SIZE_REAL(mpfr);
+    for(i=(len_r-len); i<len_r; i++) {
+        ptr[i] = receive_int32(oxfp);
+    }
 }
 
 static int send_mpfr(OXFILE *oxfp, mpfr_ptr mpfr)
 {
+    int i,len_r,len;
+    unsigned int *ptr;
 
-  int i,len,t;
-  unsigned long *ptr;
-  UL64 uexp;
-
-  send_int32(oxfp, MPFR_SIGN(mpfr));
-  send_int32(oxfp, MPFR_PREC(mpfr));
-  send_int64(oxfp, MPFR_EXP(mpfr));
-  len = MPFR_LIMB_SIZE(mpfr);
-  ptr = MPFR_MANT(mpfr);
-#if SIZEOF_LONG==4
-  send_int32(oxfp, len);
-  for ( i = 0; i < len; i++ )
-    send_int32(oxfp,ptr[i]);     
-#else /* SIZEOF_LONG==8 */
-  t = (MPFR_PREC(mpfr)+31)/32;
-  send_int32(oxfp, t);
-  if ( t%2 ) {
-	send_int32(oxfp,(unsigned int)(ptr[0]>>32));
-    i = 1;
-  } else
-    i = 0;
-  t = (t+1)/2;
-  for ( ; i < len; i++ ) {
-	send_int32(oxfp,(unsigned int)(ptr[i]&0xffffffff));
-	send_int32(oxfp,(unsigned int)(ptr[i]>>32));
-  }
-#endif
+    send_int32(oxfp, MPFR_PREC(mpfr));
+    send_int32(oxfp, MPFR_SIGN(mpfr));
+    send_int32(oxfp, MPFR_EXP(mpfr));
+    len_r = MPFR_LIMB_SIZE_REAL(mpfr);
+    len   = MPFR_LIMB_SIZE_BODY(mpfr);
+    ptr   = (unsigned int *)MPFR_MANT(mpfr);
+    send_int32(oxfp, len);
+    for(i=(len_r-len); i<len_r; i++) {
+        send_int32(oxfp, ptr[i]);
+    }
     return 0;
 }
 
