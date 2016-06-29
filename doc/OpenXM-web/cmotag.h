@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.3 2000/09/08 17:14:55 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.4 2015/08/18 02:24:04 noro Exp $ */
 /*  cmotag.h */
 /*  This file is the primary database of CMO tags. */
 /* Never Use 0 as a CMO tag. */
@@ -39,6 +39,7 @@
 
 #define     CMO_BIGFLOAT    50
 #define     CMO_IEEE_DOUBLE_FLOAT 51
+#define     CMO_BIGFLOAT32  52
 
 #define     CMO_INDETERMINATE  60
 #define     CMO_TREE           61

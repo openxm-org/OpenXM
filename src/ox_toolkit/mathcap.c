@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.14 2015/08/04 05:24:44 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.15 2015/08/18 02:24:04 noro Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -40,7 +40,7 @@ static int cmotbl_a[] = {
     CMO_MONOMIAL32,
     CMO_ZZ,
     CMO_QQ,
-    CMO_BIGFLOAT,
+    CMO_BIGFLOAT32,
     CMO_COMPLEX,
     CMO_IEEE_DOUBLE_FLOAT,
     CMO_ZERO,

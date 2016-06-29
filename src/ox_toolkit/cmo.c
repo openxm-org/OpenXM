@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.24 2015/08/17 05:18:35 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.25 2015/08/18 02:24:04 noro Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -257,7 +257,7 @@ cmo_qq* new_cmo_qq()
 cmo_bf* new_cmo_bf()
 {
     cmo_bf* c = MALLOC(sizeof(cmo_bf));
-    c->tag = CMO_BIGFLOAT;
+    c->tag = CMO_BIGFLOAT32;
     mpfr_init(c->mpfr);
     return c;
 }

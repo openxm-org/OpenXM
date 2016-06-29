@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.45 2015/08/27 03:03:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.46 2016/06/28 11:59:15 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -384,7 +384,7 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
     case CMO_QQ:
         m = (cmo *)receive_cmo_qq(oxfp);
         break;
-    case CMO_BIGFLOAT:
+    case CMO_BIGFLOAT32:
         m = (cmo *)receive_cmo_bf(oxfp);
         break;
     case CMO_COMPLEX:
@@ -748,7 +748,7 @@ void send_cmo(OXFILE *oxfp, cmo* c)
     case CMO_QQ:
         send_cmo_qq(oxfp, (cmo_qq *)c);
         break;
-    case CMO_BIGFLOAT:
+    case CMO_BIGFLOAT32:
         send_cmo_bf(oxfp, (cmo_bf *)c);
         break;
     case CMO_COMPLEX:
