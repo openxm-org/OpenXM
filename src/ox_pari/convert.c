@@ -258,7 +258,7 @@ GEN cmo_to_GEN(cmo *c)
     return cmo_complex_to_GEN((cmo_complex *)c);
   case CMO_IEEE_DOUBLE_FLOAT:
      return dbltor(((cmo_double *)c)->d);
-  case CMO_BIGFLOAT: /* bigfloat */
+  case CMO_BIGFLOAT32: /* bigfloat */
     return cmo_bf_to_GEN((cmo_bf *)c);
   case CMO_LIST:
     return cmo_list_to_GEN((cmo_list *)c);
