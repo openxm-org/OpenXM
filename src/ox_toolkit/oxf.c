@@ -1,11 +1,13 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.22 2015/08/21 00:53:53 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.23 2015/08/27 03:03:33 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
-   Some commnets are written in Japanese by the EUC-JP coded
-   character set.
 */
+
+#if defined(_MSC_VER)
+#define _CRT_RAND_S
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,9 +30,17 @@
 
 #if defined(_MSC_VER)
 #include <io.h>
+#include <winsock2.h>
 #define X_OK 0x01
 #define R_OK 0x04
 #define MAXHOSTNAMELEN 256
+#define srandom(s)  (srand((s)))
+static int random()
+{
+    int r;
+    rand_s(&r);
+    return r;
+}
 #else
 #include <unistd.h>
 #include <sys/file.h>
@@ -365,6 +375,7 @@ char *which(char *exe, const char *env)
     return NULL;
 }
 
+#if !defined(_MSC_VER)
 /* Remarks: ssh determines remote host by his name, i.e. by arg[0]. */
 int oxc_start(char *remote_host, int port, char *passwd)
 {
@@ -408,6 +419,7 @@ int oxc_start_with_pipe(char *remote_host, int port, char *passwd)
     }
     return pid;
 }
+#endif
 
 static void pipe_send_string(int fd, char *s)
 {

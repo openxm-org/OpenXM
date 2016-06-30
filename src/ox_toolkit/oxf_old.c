@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.8 2009/03/20 18:41:16 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.9 2015/08/27 03:03:34 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -112,6 +112,7 @@ void set_OpenXM_HOME()
     }
 }
 
+#if !defined(_MSC_VER)
 void ox_exec_local(char* ctl_prog, char* dat_prog, int portControl, int portStream, char *passwd)
 {
     char  ctl[128], dat[128];
@@ -218,3 +219,4 @@ OXFILE *ox_start_remote_with_ssh(char *dat_prog, char* remote_host)
     ssh_ox_server(remote_host, "ox", dat_prog, 1200, 1300);
     return ox_start_insecure(remote_host, 1200, 1300);
 }
+#endif

@@ -1,10 +1,8 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.25 2015/08/18 02:24:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.26 2016/06/29 05:07:23 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
-   Some commnets is written in Japanese by the EUC-JP coded 
-   character set.
 */
 
 #include <stdio.h>
