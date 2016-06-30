@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.6 2005/10/15 06:25:30 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.7 2015/10/13 06:59:34 takayama Exp $
 
 
 THIS IS A NOTE FOR DEVELOPPERS.
@@ -13,6 +13,9 @@ export PATH=/cygdrive/c/j2sdk1.4.2_08/bin:$PATH
 export CLASSPATH='.;c:\j2sdk1.4.2_08\lib\tools.jar'
 export JAVA_HOME='c:\j2sdk1.4.2_08'
    
+<0> Build under OpenXM/src.
+   make configure ; make all ; make install ;
+   Some builds will fail, but do not care.
 
 <1> Type in 
       make clean
@@ -49,11 +52,18 @@ export JAVA_HOME='c:\j2sdk1.4.2_08'
 2015.10.13
   To generate ox_pari for asirgui, run
   make clean ; make oxpari-gen-zip
+
+  Test 1:
   cd OpenXM-win\bin
   Set OpenXM_HOME.
     Example: set OpenXM_HOME=c:\cygwin64\home\nobuki\OX4\OpenXM
-  Test:
   sm1
   (ox.sm1) run ; sm1connectr
   sm1
   (oxpari.sm1) run ;  pariconnectr
+  Test 2:
+  copy OpenXM-win/ox_pari.exe to /cygdrive/c/Users/xxxyyy/AppData/OpenXM-win/bin
+  and other files if necessary.
+  Start asir and try
+  pari(roots,x^2-eval(2*exp(0)));
+
