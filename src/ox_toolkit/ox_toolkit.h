@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.40 2015/08/27 03:03:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.41 2016/04/01 18:12:39 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -15,6 +15,8 @@
 
 #if defined(_MSC_VER)
 #include <malloc.h>
+#else
+#include <sys/select.h>
 #endif
 
 #define MALLOC(x) GC_MALLOC((x))
@@ -58,6 +60,18 @@ typedef struct OXFILE{
     int (*send_double)(struct OXFILE *oxfp, double int64);
     double (*receive_double)(struct OXFILE *oxfp);
 } OXFILE;
+
+#if 0
+#define OX_FD_SETSIZE   FD_SETSIZE
+#else
+#define OX_FD_SETSIZE   32
+#endif
+
+typedef struct {
+    int count;
+    fd_set fdset;
+    OXFILE *p[OX_FD_SETSIZE];
+} OXFILE_set;
 
 typedef struct cmo {
     int tag;

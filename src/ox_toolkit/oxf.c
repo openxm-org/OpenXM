@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.23 2015/08/27 03:03:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.24 2016/06/30 01:14:00 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -16,10 +16,12 @@
 #include <time.h>
 #include <limits.h>
 
-#if defined(__sun__)
+#if defined(__sun__) || defined(__FreeBSD__)
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#elif defined(__linux__)
+#include <arpa/inet.h>
 #endif
 
 #if defined(__sun__)
@@ -41,10 +43,14 @@ static int random()
     rand_s(&r);
     return r;
 }
+#define READ(fd,buf,n)   (recv((fd),(buf),(n),0))
+#define WRITE(fd,buf,n)  (send((fd),(buf),(n),0))
 #else
 #include <unistd.h>
 #include <sys/file.h>
 #include <sys/param.h>
+#define READ(fd,buf,n)   (read((fd),(buf),(n)))
+#define WRITE(fd,buf,n)  (write((fd),(buf),(n)))
 #endif
 
 #include "mysocket.h"
@@ -91,9 +97,48 @@ int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
     return 0;
 }
 
+void OX_FD_ZERO(OXFILE_set *s)
+{
+    memset(s,0,sizeof(OXFILE_set));
+}
+
+void OX_FD_SET(OXFILE *oxfp,OXFILE_set *s)
+{
+    if (oxfp != NULL && oxfp->fd >=0 && oxfp->fd < OX_FD_SETSIZE && !FD_ISSET(oxfp->fd,&(s->fdset))) {
+        FD_SET(oxfp->fd,&(s->fdset));
+        s->p[oxfp->fd] = oxfp;
+        s->count++; 
+    }
+}
+
+void OX_FD_CLR(OXFILE *oxfp,OXFILE_set *s)
+{
+    if (oxfp != NULL && oxfp->fd >=0 && oxfp->fd < OX_FD_SETSIZE && FD_ISSET(oxfp->fd,&(s->fdset))) {
+        FD_CLR(oxfp->fd,&(s->fdset));
+        s->p[oxfp->fd] = NULL;
+        s->count--; 
+    }
+}
+
+int OX_FD_ISSET(OXFILE *oxfp,OXFILE_set *s)
+{
+    if (oxfp != NULL && oxfp->fd >=0 && oxfp->fd < OX_FD_SETSIZE) {
+        return FD_ISSET(oxfp->fd,&(s->fdset));
+    }
+    return 0;
+}
+
+/* The argument `s' is a set of file descripters for reading */
+OXFILE *oxf_select(OXFILE_set *s, struct timeval *tv)
+{
+    int r;
+    r = select(OX_FD_SETSIZE,&(s->fdset),NULL,NULL,tv);
+    return (r<0)? NULL: s->p[r];
+}
+
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
-    int n = read(oxfp->fd, buffer, size*num);
+    int n = READ(oxfp->fd, buffer, size*num);
     if (n <= 0) {
 #if 0
         oxfp->error = 1;
@@ -108,11 +153,11 @@ int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
     size_t sz = size*num;
     if (oxfp->wbuf == NULL) { /* no buffering */
-        return write(oxfp->fd, buffer, sz);
+        return WRITE(oxfp->fd, buffer, sz);
     }
     if ((oxfp->wbuf_count + sz) >= oxfp->wbuf_size) {
         oxf_flush(oxfp);
-        return write(oxfp->fd, buffer, sz);
+        return WRITE(oxfp->fd, buffer, sz);
     }
     memcpy(oxfp->wbuf + oxfp->wbuf_count, buffer, sz);
     oxfp->wbuf_count += sz;
@@ -250,7 +295,7 @@ void oxf_determine_byteorder_server(OXFILE *oxfp)
 void oxf_flush(OXFILE *oxfp)
 {
     if (oxfp->wbuf != NULL) {
-        write(oxfp->fd, oxfp->wbuf, oxfp->wbuf_count);
+        WRITE(oxfp->fd, oxfp->wbuf, oxfp->wbuf_count);
         oxfp->wbuf_count = 0;
     }
 }
