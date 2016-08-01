@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/wishartd.rr,v 1.3 2016/04/26 00:55:02 noro Exp $ */
 /* A package for computing PDEs satisfied by a matrix 1F1 on diagonal regions */
 if (version()<20160401) {error("The version of Risa/Asir must be after 20160401 to run this package.");} else{}
 module n_wishartd$
@@ -40,6 +40,7 @@ localf mapleout$
 localf gbcheck$
 localf partition,all_partition,partition_to_pattern$
 localf degpf,pftodpf,all_diag,y1y2$
+localf help$
 
 /* 
  * pfpoly = [[C,<<...>>],...]
@@ -2550,9 +2551,23 @@ def y1y2(M)
   }
 }
 
+def help()
+{
+  print("n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]) : computation of a system of PDEs satisfied by a diagonalized 1F1");
+  print(" Arguments : M is the number of variables, [Si,Ei]'s are diagonal blocks s.t. S(i+1)=Ei+1.");
+  print(" An example : n_wishartd.diagpf(10,[[1,9],[10,10]]) returns a system of PDEs satisfied by 1F1(y1,...,y1,y10).");
+  print("");
+  print("n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...],T|options) : computation of the probability Pr[l1<T|Sigma].");
+  print(" Arguments : M is the number of variables, N is the degrees of freedom,");
+  print("   Pi is the size of i-th block and Si is the value of i-th (repeated) eigenvalue of Sigma.");
+  print(" Options : step=k => set the number of initial steps=k (default : 10^4)");
+  print("   t0=val => start HGM from t=val (default : max(t0/(2Si),i=1,...)=1)");
+  print("   eps=e => set the relative error bound=e (default : 10^(-4))");
+  print("");
+  print("n_wishartd.message(onoff) : if onoff=1 then various diagnostic messages are shown.");
+}
+print("n_wishartd.rr : a package for diagonalization of the matrix 1F1.")$
+print("n_wishartd.help() shows brief description of some important functions.")$
 endmodule$
 end$
 
-"usage : n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]),\n where M is the number of variables and [Si,Ei] is a diagonal block and S(i+1)=Ei + 1.  For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of PDEs satisfied by 1F1(y1,...,y1,y10)."
-
-"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options) where M is the number of variables, N is the degrees of freedom, Pi is the size of i-th block and Si is the value of i-th (repeated) eigenvalue of Sigma.  options : rk=4|5 => use 4|5-th order Runge-Kutta method (default : rk=5) step=k => set the number of steps=k (default : 10^4) init=x => set the maximal coordinate of the initial point=x (default : 1), eps=e => set the approximate relative error bound=e (default : 10^(-4)).  For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk=5) computes Pr[l1<10|diag(1/10,1/10,1)] by RK5."

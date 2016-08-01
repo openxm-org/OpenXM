@@ -1,6 +1,7 @@
 #include "ox_pari.h"
 
 /* type=1 : one num/poly/mat arg */
+/* type=2 : 1starg=num/poly/mat arg, 2ndarg=0(flag) */
 
 struct parif parif_tab[] = {
 /* (ulong)allocatemoremem(ulong) */
@@ -17,7 +18,7 @@ struct parif parif_tab[] = {
   {"imag",gimag,1},
   {"conj",gconj,1},
   {"ceil",gceil,1},
-  {"isprime",gisprime,1},
+  {"isprime",gisprime,2},
   {"bigomega",gbigomega,1},
   {"denom",denom,1},
   {"numer",numer,1},
@@ -38,7 +39,7 @@ struct parif parif_tab[] = {
 
   /* num/array */
   {"binary",binaire,1},
-  {"factorint",factorint,1},
+  {"factorint",factorint,2},
   {"factor",Z_factor,1},
   {"cf",gcf,1},
   {"divisors",divisors,1},

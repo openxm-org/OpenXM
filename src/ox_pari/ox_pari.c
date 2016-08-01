@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.11 2015/08/21 00:53:53 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.12 2015/08/21 01:20:30 noro Exp $  */
 
 #include "ox_pari.h"
 
@@ -206,6 +206,24 @@ int sm_executeFunction()
     }
     printf("input : "); output(z);
     m = (*parif->f)(z,prec);
+    ret = GEN_to_cmo(m);
+    avma = av0;
+    push(ret);
+    return 0;
+  } else if ( parif->type == 2 ) {
+    /* one number/poly/matrix argument with flag=0 */ 
+    av0 = avma;
+    z = cmo_to_GEN(av[0]); 
+    if ( ismatrix(z) ) {
+      int i,len;
+      len = lg(z); 
+      for ( i = 1; i < len; i++ )
+        settyp(z[i],t_COL);
+      settyp(z,t_MAT);
+      z = shallowtrans(z);
+    }
+    printf("input : "); output(z);
+    m = (*parif->f)(z,0);
     ret = GEN_to_cmo(m);
     avma = av0;
     push(ret);
