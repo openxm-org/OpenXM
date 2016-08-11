@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.135 2016/04/02 12:29:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.136 2016/04/03 07:37:45 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -838,6 +838,15 @@ end: */
 def matrix_rank(M) { 
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_rank(M);
+}
+
+/*&usage begin: matrix_gauge_transformation(M,T,V)
+ It returns T^(-1) M T - T^(-1) dT/dV
+ example: matrix_gauge_transformation([[0,x],[1,x]],[[x,0],[0,1]],x);
+end: */
+def matrix_gauge_transformation(M,T,V) { 
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return omatrix_gauge_transformation(M,T,V);
 }
 
 

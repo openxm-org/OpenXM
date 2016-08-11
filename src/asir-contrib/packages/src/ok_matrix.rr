@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.1 2005/04/08 05:29:37 takayama Exp $ */
 /* Old: Matrix */
 
 /*-------------------------------*/
@@ -645,6 +645,15 @@ def omatrix_image(A) {
     Sol[I] = T;
   }
   return omatrix_mtol(map(omatrix_mtol,Sol));
+}
+
+def omatrix_gauge_transformation(M,T,V) {
+  M=matrix_list_to_matrix(M);
+  T=matrix_list_to_matrix(T);
+  IT = omatrix_inverse(T);
+  Ans=IT*M*T-IT*map(diff,T,V);
+  return(map(red,Ans));
+  
 }
 
 Loaded_ok_matrix = 1 $
