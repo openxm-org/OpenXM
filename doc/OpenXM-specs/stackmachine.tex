@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.11 2003/08/23 08:42:35 takayama Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.12 2004/03/08 03:08:12 takayama Exp $
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
@@ -494,7 +494,7 @@ Class.mathcap
 \end{verbatim}
 
 /*&jp
-mathcap は 3つの要素をもつリストである.  まづ, 最初の要素(これもリスト)を見よう.
+mathcap は 3つ以上の要素をもつリストである.  まづ, 最初の要素(これもリスト)を見よう.
 リストの先頭の数字は OpenXM プロトコルのバージョンである.
 Ox\_system は openXM システム名である.  読み込むライブラリがちがって
 いて, 関数名(または シンボル)の意味がちがうときはこの名前もかえる. た
@@ -505,9 +505,13 @@ Ox\_system は openXM システム名である.  読み込むライブラリがちがって
 は, 処理可能な数学データの形式, およびCMOの場合なら処理可能なCMOのタグ
 のリストが続く.  上の例では, 514 は {\tt OX\_DATA} をあらわし, 数学デー
 タのフォマットは(サイズ情報なしの) CMO であることを示す.
+四番目のリストは optinal で, CMO string のリストである.
+文字列は option名, または option名=値, なる形式で与える.
+option 名は英数字およびアンダーバーで記述. = 以下は utf-8 文字コードを利用してよい.
 */
 /*&eg
-A mathcap has three components. The first one, which is also a list,
+A mathcap has three or more than three components. 
+The first one, which is also a list,
 contains informations
 to identify the version number of the OpenXM protocol,
 the system and hosts on which the application runs.
@@ -521,6 +525,11 @@ Again in the above example, 514 is the value of {\tt OX\_DATA}
 and it indicates that the server accepts CMO (without size information)
 as mathematical data messages. In this case the subsequent
 list represents available CMO tags.
+The fourth list is optinal.  
+This is a list of cmo strings.
+Each string has the formats ``an option name'' or ``an optionname=value''.
+The option name must consists only of alphabets, numbers, and under bars. 
+The symbol = may be followed by a string in the utf-8 character codes.
 */
 
 /*&C
@@ -559,6 +568,53 @@ OpenXM/XML expression of the example above:
           </cmo_list>
 
        </cmo_list>
+     </cmo_list>
+  </cmo_mathcap>
+\end{verbatim}
+*/
+
+/*&C
+\noindent
+Example of the use of the fourth argument (optional parameter).
+\begin{verbatim}
+  <cmo_mathcap>
+     <cmo_list for="mathcap">
+
+       <cmo_list>
+          <int32 for="length"> 4 </int32>
+          <cmo_int32 for="Protocol version">  001001003 </cmo_int32>
+          <cmo_string for="system name"> Ox_system=ox_sm1.plain  </cmo_string>
+          <cmo_string for="system version"> Version=2.990911  </cmo_string>
+          <cmo_string for="hosttype"> HOSTTYPE=i386  </cmo_string>
+       </cmo_list>
+
+       <cmo_list for="Available SM tags">
+          <int32 for="length"> 11 </int32>
+          <cmo_int32> 262 </cmo_int32> 
+          <cmo_int32> 263 </cmo_int32> 
+           ...
+       </cmo_list>
+
+       <cmo_list for="Available OX_DATA tags">
+          <int32 for="length"> 2 </int32>
+          <cmo_list for="OX_DATA tag">
+             <int32 for="length"> 1 </int32>
+             <cmo_int32 comment="OX_DATA">  514 </cmo_int32>
+          </cmo_list>
+          <cmo_list for="Available CMO tags">
+             <int32 for="length"> 21 </int32>
+             <cmo_int32 comment="CMO_ERROR2">  2130706434 </cmo_int32>
+             <cmo_int32 comment="CMO_NULL"> 1 </cmo_int32>
+              ....
+          </cmo_list>
+       </cmo_list>
+
+       <cmo_list for="optional info">
+          <int32 for="length"> 2 </int32>
+          <cmo_string> no_ox_reset </cmo_string>
+          <cmo_string> opt_sample=Hello world. </cmo_string>
+       </cmo_list>
+
      </cmo_list>
   </cmo_mathcap>
 \end{verbatim}
