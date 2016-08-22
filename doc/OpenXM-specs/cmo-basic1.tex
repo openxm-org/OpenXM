@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.13 2005/03/04 03:49:47 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.14 2015/08/18 02:54:05 noro Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -16,6 +16,7 @@
 #define     CMO_RATIONAL       34
 #define     CMO_COMPLEX       35
 
+#define     CMO_BIGFLOAT32    52
 
 #define     CMO_INDETERMINATE  60
 #define     CMO_TREE           61
@@ -73,10 +74,10 @@ ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 & & \mbox{ --- 有理数 $a/b$ を表す. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  $a/b$ を表す. } \\
-\mbox{Bigfloat}         &:& ({\tt CMO\_BIGFLOAT},
-{\sl int32}\, {\rm sign}, {\sl int32}\, {\rm prec}, {\sl int64}\, {\rm exp}, 
-{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[$\lfloor \frac{{\rm prec}+31}{32} \rfloor$]} ) \\
-&:& \mbox{ --- bigfloat をあらわす. a[i] についてはあとで説明}\\
+\mbox{Bigfloat32}         &:& ({\tt CMO\_BIGFLOAT32},
+{\sl int32}\, {\rm prec}, {\sl int32}\, {\rm sign}, {\sl int32}\, {\rm exp}, 
+{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[k]} ) \\
+&:& \mbox{ --- bigfloat をあらわす. a[i], k についてはあとで説明}\\
 \mbox{Complex}        &:& ({\tt CMO\_COMPLEX}, {\sl CMObject}\, {\rm re}, {\sl CMObject}\, {\rm im}) \\
 & & \mbox{ ---  $a+b\sqrt{-1}$ を表す. } \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
@@ -103,10 +104,10 @@ ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 & & \mbox{ --- Rational number $a/b$. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  Rational expression $a/b$. } \\
-\mbox{Bigfloat}         &:& ({\tt CMO\_BIGFLOAT},
-{\sl int32}\, {\rm sign}, {\sl int32}\, {\rm prec}, {\sl int64}\, {\rm exp}, 
-{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[$\lfloor \frac{{\rm prec}+31}{32} \rfloor$]} ) \\
-&:& \mbox{ --- bignfloat. The meaning of a[i] will be explained later.}\\
+\mbox{Bigfloat32}         &:& ({\tt CMO\_BIGFLOAT32},
+{\sl int32}\, {\rm prec}, {\sl int32}\, {\rm sign}, {\sl int32}\, {\rm exp}, 
+{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[k]} ) \\
+&:& \mbox{ --- bigfloat. The meaning of a[i], k will be explained later.}\\
 \mbox{Complex}        &:& ({\tt CMO\_COMPLEX}, {\sl CMObject}\, {\rm re}, {\sl CMObject}\, {\rm im}) \\
 & & \mbox{ ---  Complex number $a+b\sqrt{-1}$. } \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
@@ -747,7 +748,6 @@ $\in$ CMObject/MachineDouble \\
 \bigbreak
 
 \begin{verbatim}
-#define CMO_BIGFLOAT   50
 #define CMO_IEEE_DOUBLE_FLOAT 51
 \end{verbatim}
 
@@ -779,14 +779,48 @@ when the engine starts.
 
 */
 
-\noindent
-Group CMObject/Bigfloat requires CMObject/Primitive, CMObject/Basic.\\
-Bigfloat
-$\in$ CMObject/Bigfloat \\
+\subsection{Bigfloat32}
+/*&jp
+int32 を基本とした bigfloat の表現方法について述べる.
+この形式は mpfr を 32bit CPU で使用した時の内部表現と共通である.
+*/
+/*&eg
+This subsection describes our format for bigfloat in terms of the int32.
+This format is identical to the internal format of mpfr on 32 bit CPU's.
+*/
+Ref: {\tt OpenXM/src/mpfr/bfsize/bfsize.c}
 
-\begin{eqnarray*}
-\mbox{Bigfloat} &:& 
-\mbox{({\tt CMO\_BIGFLOAT}, } \\
-& & \quad \mbox{ {\sl ZZ} a , {\sl ZZ} e})\\
-& & \mbox{ --- $a \times 2^e$. } \\
-\end{eqnarray*}
+\begin{verbatim}
+#define     CMO_BIGFLOAT32          52 
+\end{verbatim}
+
+
+/*&jp
+Bigfloat32 は次の形式の int32 の配列である.
+*/
+/*&eg
+The bigfloat32 is an array of int32 numbers of the following format.
+*/
+
+\begin{center}
+{\sl int32}\, {\rm prec}, {\sl int32}\, {\rm sign}, {\sl int32}\, {\rm exp}, 
+{\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[k]}  
+\end{center}
+
+/*&jp
+p=prec は精度, s=sign は符号(1 が正の数,  -1 (2の補数表現)が負の数) ,
+E=exp は指数部で, 上のデータは数
+$$ s (a[k]/B + a[k-1]/B^2 + ... + a[1]/B^k) 2^E  $$
+を表す.
+ここで $B=2^{32}$,
+$k = \lceil p/32 \rceil$
+である.
+*/
+/*&eg
+p=prec is the precision, s=sign is the sign(1 means positive,  -1 (expressed by two's complement) is nevative),
+E=exp is the exponent, and the data above expresses the number
+$$ s (a[k]/B + a[k-1]/B^2 + ... + a[1]/B^k) 2^E.  $$
+Here, $B=2^{32}$,
+$k = \lceil p/32 \rceil$.
+*/
+
