@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.19 2004/06/21 01:06:37 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.20 2004/09/19 12:17:40 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -27,6 +27,7 @@ doc: OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi
 OpenXM-en.dvi: $(OXWEAVE) $(SRC)
 	-rm -rf tmpEN
 	-mkdir tmpEN
+	-cp html.sty tmpEN
 	-for i in $(SRC); do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmpEN/$$i; done
 	(cd tmpEN; ln -s ../reset.eps .; latex OpenXM; latex OpenXM)
 	-mv tmpEN/OpenXM.dvi OpenXM-en.dvi
@@ -35,6 +36,7 @@ OpenXM-en.dvi: $(OXWEAVE) $(SRC)
 OpenXM-ja.dvi: $(OXWEAVE) $(SRC)
 	-rm -rf tmpJA
 	-mkdir tmpJA
+	-cp html.sty tmpJA
 	-for i in $(SRC); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i | ${NKF} >tmpJA/$$i; done
 	-(cd tmpJA; ln -s ../reset.eps .; platex OpenXM; platex OpenXM)
 	-mv tmpJA/OpenXM.dvi OpenXM-ja.dvi
@@ -43,6 +45,7 @@ OpenXM-ja.dvi: $(OXWEAVE) $(SRC)
 OX-RFC-101-en.dvi: $(OXWEAVE) $(SRC101)
 	-rm -rf tmp101EN
 	-mkdir tmp101EN
+	-cp html.sty tmp101EN
 	-for i in $(SRC101); do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmp101EN/$$i; done
 	(cd tmp101EN; latex OX-RFC-101; latex OX-RFC-101)
 	-mv tmp101EN/OX-RFC-101.dvi OX-RFC-101-en.dvi
@@ -51,6 +54,7 @@ OX-RFC-101-en.dvi: $(OXWEAVE) $(SRC101)
 OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 	-rm -rf tmp101JA
 	-mkdir tmp101JA
+	-cp html.sty tmp101JA
 	-for i in $(SRC101); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i | ${NKF} >tmp101JA/$$i; done
 	-(cd tmp101JA;  platex OX-RFC-101; platex OX-RFC-101)
 	-mv tmp101JA/OX-RFC-101.dvi OX-RFC-101-ja.dvi
@@ -59,12 +63,14 @@ OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 OX-RFC-103-en.txt: $(OXWEAVE) $(SRC103)
 	-rm -rf tmp103EN
 	-mkdir tmp103EN
+	-cp html.sty tmp103EN
 	-for i in $(SRC103); do $(OXWEAVE) $(OXWEAVEFLAG) C en < $$i | ${NKF} >tmp103EN/$$i; done
 	-(cd tmp103EN; mv OX-RFC-103.oxw OX-RFC-103.txt)
 	-mv tmp103JA/OX-RFC-103.txt OX-RFC-103-en.txt
 OX-RFC-103-ja.txt: $(OXWEAVE) $(SRC103)
 	-rm -rf tmp103JA
 	-mkdir tmp103JA
+	-cp html.sty tmp103JA
 	-for i in $(SRC103); do $(OXWEAVE) $(OXWEAVEFLAG) C ja < $$i | ${NKF} >tmp103JA/$$i; done
 	-(cd tmp103JA; mv OX-RFC-103.oxw OX-RFC-103.txt)
 	-mv tmp103JA/OX-RFC-103.txt OX-RFC-103-ja.txt
