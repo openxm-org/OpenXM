@@ -1,8 +1,11 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.15 2005/07/26 12:52:05 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.16 2005/10/12 04:03:37 takayama Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
-
+/* Sample input
+  (OX_DATA, (CMO_STRING,"printf(\"%a\");"))
+  (OX_COMMAND,(SM_executeStringByLocalParser))
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -94,7 +97,7 @@ int main(int argc, char* argv[])
     ox* m = NULL;
     cmo* c = NULL;
     int code;
-    char *server = "ox_sm1";
+    char *server = "ox_asir";
 
     ox_stderr_init(stderr);
 
@@ -102,7 +105,7 @@ int main(int argc, char* argv[])
         server = argv[1];
     }
     ox_printf("testclient:: I use %s as an OX server.\n", server);
-/*    sv = ox_start("localhost", "ox", server);  */
+    sv = ox_start("localhost", "ox", server);  
     if (sv == NULL) {
         ox_printf("testclient:: I cannot connect to servers.\n");
         exit(1);
