@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.12 2015/08/21 01:20:30 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.13 2016/08/01 01:35:01 noro Exp $  */
 
 #include "ox_pari.h"
 
@@ -85,7 +85,8 @@ void pops(int n)
 
 int sm_mathcap()
 {
-  mathcap_init(OX_PARI_VERSION, ID_STRING, "ox_pari", NULL, NULL);
+  char *opts[] = {"no_ox_reset", NULL};
+  mathcap_init2(OX_PARI_VERSION, ID_STRING, "ox_pari", NULL, NULL, opts);
   push((cmo*)oxf_cmo_mathcap(fd_rw));
   return 0;
 }
