@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.16 2016/06/29 05:07:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.17 2016/08/23 02:24:19 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -268,7 +268,7 @@ static char **clone_str_list(char **src)
 {
     int i,len;
     char **new = NULL;
-    if(!src) {
+    if(src) {
         for(len=0; src[len]!=NULL; len++) {
         }
         new = (char **)MALLOC(sizeof(char *)*(len+1));
