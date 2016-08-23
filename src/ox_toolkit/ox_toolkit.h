@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.41 2016/04/01 18:12:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.42 2016/07/14 08:16:19 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -42,6 +42,7 @@ typedef struct {
 typedef struct mathcap {
     table *cmotbl;
     table *smtbl;
+    char  **opts;
 } mathcap;
 
 /* OpenXM File Descripter */
@@ -318,6 +319,7 @@ char*    get_symbol_by_tag(int tag);
 /* for mathcap database */
 mathcap *new_mathcap();
 void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[]);
+void mathcap_init2(int ver, char *vstr, char *sysname, int cmos[], int sms[], char *options[]);
 cmo_mathcap* mathcap_get(mathcap *);
 mathcap *mathcap_update(mathcap *, cmo_mathcap *mc);
 int mathcap_allowQ_cmo(mathcap *, cmo *ob);

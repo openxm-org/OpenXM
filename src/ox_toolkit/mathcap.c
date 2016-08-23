@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.15 2015/08/18 02:24:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.16 2016/06/29 05:07:23 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -77,7 +77,8 @@ static struct {
     char *hosttype;
     int  *cmo_tags;
     int  *sm_cmds;
-} sysinfo = {0, "NO VERSION", "NONAME", "UNKNOWN", cmotbl_a, smtbl_a};
+	char **opts;
+} sysinfo = {0, "NO VERSION", "NONAME", "UNKNOWN", cmotbl_a, smtbl_a, NULL};
 
 __inline__
 static void table_init(table *m, int key)
@@ -259,6 +260,30 @@ static int *new_int_array(int *array)
 
 void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
 {
+    mathcap_init2(ver, vstr, sysname, cmos, sms, NULL);
+}
+
+/* src must be terminated by NULL */
+static char **clone_str_list(char **src)
+{
+    int i,len;
+    char **new = NULL;
+    if(!src) {
+        for(len=0; src[len]!=NULL; len++) {
+        }
+        new = (char **)MALLOC(sizeof(char *)*(len+1));
+        new[len] = NULL;
+        for(i=0; i<len; i++) {
+            new[i] = (char *)MALLOC(strlen(src[i])+1);
+            strcpy(new[i], src[i]);
+        }
+    }
+    return new;
+}
+
+/* options must be terminated by NULL */
+void mathcap_init2(int ver, char *vstr, char *sysname, int cmos[], int sms[], char *options[])
+{
     char *host = getenv("HOSTTYPE");
     sysinfo.hosttype = (host != NULL)? new_string(host): "UNKNOWN";
     sysinfo.sysname  = new_string(sysname);
@@ -270,6 +295,7 @@ void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
     if (sms != NULL) {
         sysinfo.sm_cmds = new_int_array(sms);
     }
+    sysinfo.opts = clone_str_list(options);
 }
 
 mathcap *new_mathcap()
@@ -277,6 +303,7 @@ mathcap *new_mathcap()
     mathcap *new = MALLOC(sizeof(mathcap));
     new->cmotbl = new_table(sysinfo.cmo_tags);
     new->smtbl  = new_table(sysinfo.sm_cmds);
+    new->opts   = clone_str_list(sysinfo.opts);
     return new;
 }
 
@@ -285,11 +312,23 @@ cmo_mathcap* mathcap_get(mathcap *this)
 {
     cmo_list *mc = new_cmo_list();
     cmo_list *l3 = new_cmo_list();
+    cmo_list *si = sysinfo_get();
+    cmo_list *sm=  table_get_all(this->smtbl);
+    cmo_list *opts;
+    int i;
+
     list_append(l3, (cmo *)list_appendl(new_cmo_list(),
                                  new_cmo_int32(OX_DATA),
                                  table_get_all(this->cmotbl), NULL));
-    list_appendl(mc, (cmo *)sysinfo_get(),
-                 (cmo *)table_get_all(this->smtbl), (cmo *)l3, NULL);
+    if(this->opts) {
+        opts = new_cmo_list();
+        for(i=0; this->opts[i]!=NULL; i++) {
+            list_append(opts, (cmo *)new_cmo_string(this->opts[i]));
+        }
+        list_appendl(mc, (cmo *)si, (cmo *)sm, (cmo *)l3, (cmo *)opts, NULL);
+    }else {
+        list_appendl(mc, (cmo *)si, (cmo *)sm, (cmo *)l3, NULL);
+    }
     return new_cmo_mathcap((cmo *)mc);
 }
 
