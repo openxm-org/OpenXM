@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.38 2015/10/10 11:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.39 2016/03/31 05:27:34 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,32 +28,38 @@
 #define  GENERIC      0   /* DEBUG, xml */
 #define  V_TEXMACS    1
 #define  V_CFEP       2
+#define  V_QFEP       3
 int View       = V_TEXMACS ;
 
 char *Data_begin_v[] = {
   "<S type=verbatim>",
   "\002verbatim:",
   "\002",
+  ""
 };
 char *Data_begin_l[] = {
   "<S type=latex>",
   "\002latex:",
-  "\002latex:"
+  "\002latex:",
+  ""
 };
 char *Data_begin_p[] = {
   "<S type=prompt>",
   "\002prompt:",
-  "\002prompt:"
+  "\002prompt:",
+  ""
 };
 char *Data_begin_ps[] = {
   "<S type=postscript>",
   "\002ps:",
-  "\002ps:"
+  "\002ps:",
+  ""
 };
 char *Data_end[] = {
   "</S>",
   "\005",
-  "\n\005"    /* \n is not a part of the protocol. */
+  "\n\005",    /* \n is not a part of the protocol. */
+  ""
 };
 
 /* todo:  start_of_input */
@@ -61,7 +67,8 @@ char *Data_end[] = {
 char End_of_input[] = {
   0x5,              /* Use ^E and Return to end the input. */
   '\n',  /* TEXMACS_END_OF_INPUT. 0xd should be used for multiple lines. */
-  0x5    /* CFEP_END_OF_INPUT    */
+  0x5,    /* CFEP_END_OF_INPUT    */
+  0x5
 };
 
 /* Table for the engine type. */
@@ -155,6 +162,8 @@ main(int argc,char *argv[]) {
         View = V_TEXMACS;
       }else if (strcmp(argv[i],"cfep")==0) {
         View = V_CFEP; setDefaultParameterForCfep();
+      }else if (strcmp(argv[i],"qfep")==0) {
+	View = V_QFEP; setDefaultParameterForCfep();
       }else{
         View = GENERIC;
         /* printv("Unknown view type.\n"); */
