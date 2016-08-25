@@ -1,4 +1,4 @@
-%comment $OpenXM$
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/n_wishartd/n_wishartd-ja.texi,v 1.1 2016/08/24 07:39:41 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -190,7 +190,7 @@ matrix 1F1 が対角領域上で満たす微分方程式系を計算するパッケージ
 @findex n_wishartd.prob_by_hgm
 
 @table @t
-@item n_wishartd.prrob_by_hgm(@var{m},@var{n},@var{[p1,p2,...]},@var{[s1,s2,...]},@var{t}[|@var{options}])
+@item n_wishartd.prob_by_hgm(@var{m},@var{n},@var{[p1,p2,...]},@var{[s1,s2,...]},@var{t}[|@var{options}])
 HGM により重複固有値を持つ共分散行列に対する Wishart 行列の最大固有値の
 分布関数の値を計算する.
 @end table
@@ -257,7 +257,7 @@ Step=2560000
 
 @table @t
 @item n_wishartd.prrob_by_ps(@var{m},@var{n},@var{[p1,p2,...]},@var{[s1,s2,...]},@var{t}[|@var{options}])
-べき級数に重複固有値を持つ共分散行列に対する Wishart 行列の最大固有値の
+べき級数により重複固有値を持つ共分散行列に対する Wishart 行列の最大固有値の
 分布関数の値を計算する.
 @end table
 
@@ -545,13 +545,13 @@ Runge-Kutta 法で解く.
 @item
 @var{f0} がサイズ@var{n} のとき, @var{num} の各成分は @var{n} 次正方行列である.
 @item
-結果は, 長さ @var{s} の実数リスト @var{[rs,...,r1]} で, @var{ri} は @var{i} ステップ目に計算された
+結果は, 長さ @var{s} の実数リスト @var{[r1,...,rs]} で, @var{ri} は @var{i} ステップ目に計算された
 解ベクトルの第0成分である. 次のステップに進む前に解ベクトルを @var{ri} で割るので, 最終的に
 解 @var{F(x1)} の第 0 成分が @var{rs*r(s-1)*...*r1} となる.
 @item 方程式が線形なので, Runge-Kutta の各ステップも線形となることを利用し,
 第0成分を1に正規化することで, 途中の解の成分が倍精度浮動小数の
 範囲に収まることを期待している. 初期ベクトル @var{f0} の成分が倍精度浮動小数に収まらない場合
-は, @var{f0} を正規化してから @code{rk_ratmat} を実行し, 前項の結果に @code{f0} の第 0 成分をかければ
+は, @var{f0} を正規化してから @code{rk_ratmat} を実行し, 前項の結果に @var{f0} の第 0 成分をかければ
 よい.
 @end itemize
 
