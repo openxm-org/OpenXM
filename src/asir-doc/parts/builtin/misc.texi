@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.18 2003/12/21 17:36:29 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.19 2009/02/22 16:40:05 ohara Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -117,6 +117,16 @@ C スタイルのフォマット文字列をもちいるとユーザ定義のプロンプト.
 1 のとき, OX server との接続開始時に, 自動的に mathcap の交換を行う. 
 (デフォルト値は 1.)
 @xref{分散計算}.
+@item debug_window
+1 の時 debug_window がポップアップして開く.
+(デフォルト値は 0.)
+@item fake_ox_reset
+1 のとき, ox_reset を実装してないサーバーには代わりに ox_shutdown を送信する.
+ox_reset の実装の有無は mathcap の optional argument (第四引数)
+に文字列 no_ox_reset が設定されているかどうかで判断する.
+ox_pari を利用するときはこのフラグを1にしておくことが望ましい.
+(デフォルト値は 0.)
+@xref{分散計算}.
 @end table
 \E
 \BEG
@@ -197,6 +207,18 @@ The default value is 'on'.
 @item ox_exchange_mathcap
 If 'on' Asir forces the exchange of mathcaps at the communication startup.
 The default value is 'on'.
+@xref{Distributed computation}.
+@item debug_window
+When 1, a debug window pops up.
+(The default value is 0.)
+@item fake_ox_reset
+When 1, the function ox_reset sends ox_shutdown insread of ox_reset
+to servers which do not implement ox_reset protocol.
+It is checked by the optional argument (the fourth argument)
+containing the string "no_ox_reset"
+of mathcap if ox_reset is implemented or not.
+When you use ox_pari, it is recommended to set this flag 1.
+(The default value is 0.)
 @xref{Distributed computation}.
 @end table
 \E
