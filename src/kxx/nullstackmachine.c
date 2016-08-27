@@ -3,19 +3,20 @@
 #include "serversm.h"
 #include <setjmp.h>
 #include <errno.h>
+#include <malloc.h>
 jmp_buf EnvOfStackMachine;  /* dummy data. */
 
 int SerialCurrent = -1;
 int Quiet = 0;
 
-void *GC_malloc(n) {
+void *sGC_malloc(int n) {
   return((void *)malloc(n));
 }
 
 /* internal use. */
 int Sm1_popInt();
 
-Sm1_start() {
+Sm1_start(int argc,char *fnames[],char *myname) {
   fprintf(stderr,"nullstackmachine: sleep, pstack\n");
 }
 
@@ -96,9 +97,10 @@ void printCMO_object(FILE *fp,CMO_Object *op)
 void *Sm1_mathcap(void) {
   int n,i;
   struct mathCap *mathcap;
+  static char *infoStr;
+  infoStr = "nullserver00 Version=0.1; 199901160;";
   mathcap = (struct mathCap *) malloc(sizeof(struct mathCap));
-  strcpy(mathcap->name,"nullserver00 Version=0.1");
-  mathcap->version = 199901160;
+  mathcap->infop = infoStr;  /* string is OK? 2016.08.27 */
   mathcap->cmo[0] = CMO_ERROR2;
   mathcap->cmo[1] = CMO_NULL;
   mathcap->cmo[2] = CMO_INT32;
