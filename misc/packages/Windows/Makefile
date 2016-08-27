@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.43 2015/09/29 06:23:17 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.44 2015/10/13 06:59:34 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -54,6 +54,7 @@ oxpari-copy-binary-cygwin: build-binary-openxm-cygwin
 	   cp  ../${OpenXM_TOP}/bin/cyggc*.dll bin ; \
 	   cp  ../${OpenXM_TOP}/bin/sm1 bin ; \
 	   cp  ../${OpenXM_TOP}/bin/ox_sm1 bin ; \
+	   cp  ../${OpenXM_TOP}/bin/ox_sm1 bin/ox_sm1_forAsir ; \
 	  ) ; \
 	   touch .oxpari-copy-binary-oxpari-done ; \
 	fi 
