@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.26 2016/03/30 09:20:40 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.27 2016/03/30 21:34:03 takayama Exp $  */
 /*  Note on IntelMac. [2006.06.05]
     SIGINT does not seem to be blocked on the rosetta emulator of ppc
     on the IntelMac's. "ox" should be universal binary.
@@ -43,6 +43,7 @@ int LocalMode = 1;
 int NotifyPortnumber = 0;
 int Do_not_use_control_stream_to_tell_no_server = 1;
 int IgnoreSIGINT = 1;
+int Ox_protocol_1999 = 0;
 static void errorToStartEngine(void);
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
@@ -146,6 +147,8 @@ main(int argc, char *argv[]) {
       if (i<argc) {
         sscanf(argv[i],"%d",&IgnoreSIGINT);
       }
+    }else if (strcmp(argv[i],"-protocol_1999") == 0) {
+      Ox_protocol_1999=1;
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
       oxmainUsage(); exit(10);
@@ -399,7 +402,7 @@ parentServerMain(int fdControl, int fdStream) {
     switch( id ) {
     case SM_control_kill:
       if (message) printf("[control] control_kill\n");
-      oxSendResultOfControl(fdControl);
+      /* oxSendResultOfControl(fdControl); */
       sleep(2);
       myServerExit(0);
       break;
@@ -408,6 +411,10 @@ parentServerMain(int fdControl, int fdStream) {
       if (message) printf("Sending the SIGUSR1 signal to %d:  ",MyServerPid);
       r=kill(MyServerPid,SIGUSR1);
       if (message) printf("Result = %d\n",r);
+      if (Ox_protocol_1999) {
+	if (message) printf("[obsolete protocol of ox-rfc-100 in 1999] Sending the result packet to the control channel.\n",r);
+        oxSendResultOfControlInt32(fdControl,0); 
+      }
       fflush(NULL);
       /*      oxSendResultOfControlInt32(fdControl,0); */
       break;
