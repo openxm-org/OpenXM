@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.9 2004/03/08 03:08:12 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.10 2004/03/08 03:14:23 takayama Exp $ */
 /* smCommand.h */
 
 #define SM_popSerializedLocalObject 258
@@ -23,6 +23,7 @@
 #define SM_executeFunctionAndPopSerializedLocalObject 279
 #define SM_executeFunctionWithOptionalArgument 282
 
+#define SM_nop  300
 
 #define SM_control_kill 1024
 #define SM_control_to_debug_mode 1025

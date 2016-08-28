@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.22 2015/10/10 11:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.23 2016/03/31 05:27:34 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -354,6 +354,8 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   case SM_endBlock:
     fprintf(stderr,"This command has not yet been implemented.\n");
     return(-1);
+    break;
+  case SM_nop:
     break;
   default:
     fprintf(stderr,"Fatal error. Unknown function_id %d\n",id);

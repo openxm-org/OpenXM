@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.8 2013/01/22 01:11:28 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.9 2013/01/22 02:34:35 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -196,43 +196,50 @@ def start_unix() {
 }
 
 def start_windows(U) {
-  extern Sm1_lib;
-  extern Xm_noX;
-  /*! extern Sm1_proc; */
-  extern Xm_use_timer_to_start_server;
-
+  if (U) error("start_windows is called.");
+  Monitor = " " ; 
+  // Monitor = " -monitor ";
+  /*  if (sysinfo()[0] != "windows") error("This is not Windows"); */
+  if (type(getopt(openxm_home_win)) > 0) {
+    OpenXM_HOME_WIN=rtostr(getopt(openxm_home_win));
+  }else{
+    OpenXM_HOME_WIN=getenv("APPDATA")+"/OpenXM/OpenXM-win"; 
+    /* NOTE!!  No space or damemoji are allowed in the user name. */
+  }
+  printf("OpenXM_HOME_WIN=%a\n",OpenXM_HOME_WIN);
+  printf(" NOTE!!  No space or damemoji are allowed in the OpenXM_HOME_WIN\n");
+  printf("To set manually call pari.start_win(|openxm_home_win=\"...\");\n");
   CPort = generate_port();
   SPort = generate_port();
- 
-  if (U) {  /* Test on unix. */
-    Com = "ox -ox " + Sm1_lib+"/bin/ox_sm1_forAsir " +
-          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
-    Com = "oxlog xterm -iconic -T ox_sm1 -n ox_sm1 -e "+ Com + "& ";
-  }else{
-    /* OpenXM_HOME_WIN="c:\\cygwin\\home\\nobuki\\OpenXM";
-       OpenXM_HOME_WIN2="/home/nobuki/OpenXM";
-       OpenXM_START_EXE = "c:/windows/command/start";
-    */
-    OpenXM_HOME_WIN = ox_getenv("OpenXM_HOME_WIN");
-    OpenXM_START_EXE = ox_getenv("OpenXM_START_EXE");
-    /* Sm1_lib = OpenXM_HOME_WIN2+"/lib/sm1"; */
-    Sm1_lib = OpenXM_HOME_WIN+"/lib/sm1"; 
-    Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\lib\\sm1\\bin\\ox_sm1_forAsir.exe"; 
-    /* Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\bin\\ox_sm1.exe";  for debug */
-    F = open_file(Ox_sm1_forAsir);
-    if (F < 0) {
-      error("sm1. ox_sm1_forAsir.exe is not existing.  Check your installation.");
-      return(-1);
-    }
-    close_file(F);
-    Com = OpenXM_HOME_WIN+"\\bin\\ox -ox " + 
-          Ox_sm1_forAsir + " " +
-          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
-    Com = OpenXM_START_EXE+" /MIN "+Com ;
-  }
 
-  print(Com +"\n");
-  shell(Com);
+  //  Ox_sm1_forAsir = OpenXM_HOME_WIN+"/bin/ox_sm1" ;
+  Ox_sm1_forAsir = OpenXM_HOME_WIN+"/bin/ox_sm1_forAsir" ;
+  OpenXM_START_EXE="start  ";
+  Xm_use_timer_to_start_server=1;
+  if (version() > 20160828) {
+    Com = OpenXM_HOME_WIN+"/bin/ox -ox ";
+  }else{
+    Com = OpenXM_HOME_WIN+"/bin/ox -protocol_1999 -ox ";
+  }
+  Com +=  Ox_sm1_forAsir + " " + Monitor +
+          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
+  Com = OpenXM_START_EXE+" /MIN "+Com ;
+
+  print(Com +"\n"); 
+  
+  // 2016.08.26  generate start-up batch file.
+  BCom = "set OpenXM_HOME="+OpenXM_HOME_WIN+"\n";
+  BCom += "echo %OpenXM_HOME%\n";
+  BCom += Com;
+  BCom += "\nexit\n";
+  BatchFile=OpenXM_HOME_WIN+"/bin/tmp-oxe";
+  Fp = open_file(BatchFile+".bat","w");
+  fprintf(Fp,BCom);
+  close_file(Fp);
+  shell("start /MIN "+BatchFile); 
+  // Todo, remove the batch file.
+  
+  //shell(Com);
   if (Xm_use_timer_to_start_server) {
     print("Waiting for 3 seconds."); sleep(3000); 
   }else{
@@ -245,19 +252,13 @@ def start_windows(U) {
   P = register_server(CSocket,CPort,SSocket,SPort);
   print(" Done.");
 
- /* 
- if (Xm_noX) {
-   P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_forAsir");
- }else{
-   P = ox_launch(0,Sm1_lib+"/bin/ox_sm1_forAsir");
- }
- */
  if (Xm_noX) {
    sm1(P," oxNoX ");
  }
  ox_check_errors(P);
  Sm1_proc = P;
  return(P);
+
 }
 
 /*   ox_sm1  */
