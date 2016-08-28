@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.14 2009/02/22 16:40:05 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.15 2014/05/26 06:52:43 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -202,8 +202,12 @@ def ox_grep(A) {
 }
 
 
-/* Function to check OSTYPE (temporary) */
 def ox_ostype() {
+  if (version() > 20140513) return(sysinfo()); /* builtin/ctrl.c */
+  else return(ox_ostype_v1());
+}
+/* Function to check OSTYPE (temporary) */
+def ox_ostype_v1() {
   if (ox_getenv("OPENXMHOMEWIN") != 0) {
     return(["windows"]);
   }else{
