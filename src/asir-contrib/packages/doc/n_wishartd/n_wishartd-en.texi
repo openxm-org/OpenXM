@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/n_wishartd/n_wishartd-en.texi,v 1.1 2016/08/24 08:10:37 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/n_wishartd/n_wishartd-en.texi,v 1.2 2016/08/25 03:13:54 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -556,7 +556,8 @@ component of each intermediate solution vector is set to 1.  By
 applying this normalization we expect that all the components of
 intermediate solution vectors can be represented by the format of
 double precision floating point number. 
-If there exist some components in the initial vector @var{f0}, we apply this normalization
+If there exist some components which cannot be represented by the format
+of double precision floating point number in the initial vector @var{f0}, we apply this normalization
 to @var{f0}. After applying @code{rk_ratmat} we multiply the result for the normalized @var{f0} and the 0-th component
 of the original @var{f0} to get the desired result.
 @end itemize
