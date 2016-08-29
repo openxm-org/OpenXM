@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.17 2006/09/06 23:53:31 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.18 2016/03/24 20:58:50 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -201,16 +201,16 @@ In an @b{Asir} session, it is displayed in the form like
 \EG and also can be input in such a form.
 
 \BJP
-@itemx 頭単項式 (head monomial)
 @item 頭項 (head term)
+@itemx 頭単項式 (head monomial)
 @itemx 頭係数 (head coefficient)
 分散表現多項式における各単項式は, 項順序により整列される. この時順
 序最大の単項式を頭単項式, それに現れる項, 係数をそれぞれ頭項, 頭係数
 と呼ぶ. 
 \E
 \BEG
-@itemx head monomial
 @item head term
+@itemx head monomial
 @itemx head coefficient
       
 Monomials in a distributed polynomial is sorted by a total order.
@@ -2320,7 +2320,7 @@ except for lack of the argument for controlling homogenization.
 @itemx nd_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
 @itemx nd_f4(@var{plist},@var{vlist},@var{modular},@var{order})
 @itemx nd_f4_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
-@item nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order})
+@itemx nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order})
 @itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
 \JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
@@ -2973,7 +2973,7 @@ These are used internally in @code{hgr()} etc.
 into an integral distributed polynomial such that GCD of all its coefficients
 is 1.
 \E
-@itemx dp_prim(@var{dpoly})
+@item dp_prim(@var{dpoly})
 \JP :: 有理式倍して係数を整数係数多項式係数かつ係数の多項式 GCD を 1 にする. 
 \BEG
 :: Converts a distributed polynomial @var{poly} with rational function
@@ -3900,7 +3900,7 @@ refer to @code{dp_true_nf()} and @code{dp_true_nf_mod()}.
 @fref{dp_ptod},
 @fref{dp_dtop},
 @fref{dp_ord},
-@fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod}.
+@fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod}.
 @end table
 
 \JP @node p_terms,,, グレブナ基底に関する函数

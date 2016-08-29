@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.5 2009/02/22 17:59:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.6 2009/02/22 20:27:25 ohara Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -126,10 +126,12 @@ char **name;
 	}
 	i = 0;
 	while ( 1 ) {
-		/* search a back quote */
+    /* makeinfo v5 outputs 'fname', while makeinfo v4 output `fname' */
+		/* search a (back) quote */
 		bquote = strchr(buf,'`' );
 		if ( !bquote )
-			return 0;
+      bquote = strchr(buf,'\'');
+      if ( !bquote ) return 0;
 		buf = bquote+1;
 
 		/* buf points to a function; search a quote */

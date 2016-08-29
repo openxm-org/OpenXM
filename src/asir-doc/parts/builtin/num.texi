@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.10 2003/12/20 20:02:28 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.11 2016/03/22 07:25:14 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -22,10 +22,11 @@
 * conj real imag::
 * eval deval::
 * pari::
-* setprec::
+* setbprec setprec::
 * setmod::
 * lrandom::
 * ntoint32 int32ton::
+* setround::
 @end menu
 
 \JP @node idiv irem,,, 数の演算
@@ -756,7 +757,7 @@ These functions works also for polynomials with complex coefficients.
 @code{eval} においては, 
 @var{prec} を指定した場合, 計算は, 10 進 @var{prec} 桁程度で行われる. 
 @var{prec} の指定がない場合, 現在設定されている精度で行われる. 
-(@xref{setprec}, @xref{setbprec}.)
+(@xref{setbprec setprec}.)
 @item
 @table @t
 @item 扱える函数は, 次の通り. 
@@ -799,7 +800,7 @@ done by the C math library.
 When @var{prec} is specified, computation will be performed with a
 precision of about @var{prec}-digits.
 If @var{prec} is not specified, computation is performed with the
-precision set currently. (@xref{setprec}.)
+precision set currently. (@xref{setbprec setprec}.)
 @item
 Currently available numerical functions are listed below.
 
@@ -846,7 +847,7 @@ Napier's number (@t{exp}(1))
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{ctrl}, @fref{setprec}, @fref{setbprec}.
+@fref{ctrl}, @fref{setbprec setprec}.
 @end table
 
 \JP @node pari,,, 数の演算
@@ -1080,7 +1081,7 @@ For details of individual functions, refer to the @b{PARI} manual.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{setprec}.
+@fref{setbprec setprec}.
 @end table
 
 \JP @node setbprec setprec,,, 数の演算

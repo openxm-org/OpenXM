@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.14 2003/04/20 08:01:26 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.15 2003/05/16 08:12:58 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -944,16 +944,16 @@ the client executes @code{connect}.
 @item generate_port([@var{use_unix}])
 \JP :: port の生成
 \EG :: Generates a port number.
-@itemx try_bind_listen(@var{port})
+@item try_bind_listen(@var{port})
 \JP :: port に対して bind, listen
 \EG :: Binds and listens on a port.
-@itemx try_connect(@var{host},@var{port})
+@item try_connect(@var{host},@var{port})
 \JP :: port に対して connect
 \EG :: Connects to a port.
-@itemx try_accept(@var{socket},@var{port})
+@item try_accept(@var{socket},@var{port})
 \JP :: connect 要求を accept
 \EG :: Accepts a connection request.
-@itemx register_server(@var{control_socket},@var{control_port},@var{server_socket},@var{server_port})
+@item register_server(@var{control_socket},@var{control_port},@var{server_socket},@var{server_port})
 \JP :: connection の成立した control socket, server socket の登録
 \EG :: Registers the sockets for which connections are established.
 @end table
