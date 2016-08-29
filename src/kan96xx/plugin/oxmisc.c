@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.29 2015/10/08 11:49:37 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.30 2016/03/31 03:22:55 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -177,8 +177,26 @@ int oxWaitSyncBall(ox_stream ostream)
 {
   int sss;
   int mtag;
+  int com;
   while ((mtag = oxGetOXheader(ostream,&sss)) != OX_SYNC_BALL) {
-    fprintf(stderr,"Looking for the next message tag. mtag=%d\n",mtag);
+    switch (mtag) {
+    case OX_COMMAND:
+      fprintf(stderr,"Waiting for command body: "); fflush(NULL);
+      com=oxGetInt32(ostream);
+      fprintf(stderr,"%d. Done\n",com); 
+      break;
+    default:  /* Todo, need support OX_DATA */
+      fprintf(stderr,"Looking for the next message tag. Current unknown or unimplented mtag=%d\n",mtag);
+      if (UseOXPacketSerial) fprintf(stderr,"Note that we expect the OX message tag with a serial number.\n");
+      if (UseOXPacketSerial && (sss == OX_SYNC_BALL)) {
+        /* dirty trick, it might cause a trouble. */
+	fprintf(stderr,"We assume that the serial number is OX_SYNC_BALL\n");
+	oxGetInt32(ostream); // discard the serial of OX_SYNC_BALL
+        goto aaa ;
+      }
+      break;
+    }
+  aaa:
     /* or stdout */
     fflush(NULL);
 	if (mtag == -1) {
