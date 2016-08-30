@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxpari-win.rr,v 1.1 2015/09/29 06:23:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxpari-win.rr,v 1.2 2015/09/29 10:53:20 takayama Exp $ */
 module oxpari;
 localf start_win$
 static OpenXM_HOME_WIN$
 
 def start_win() {
+  if (version() >= 20160826) ctrl("fake_ox_reset",1);
   /*  if (sysinfo()[0] != "windows") error("This is not Windows"); */
   if (type(getopt(openxm_home_win)) > 0) {
     OpenXM_HOME_WIN=rtostr(getopt(openxm_home_win));
