@@ -1,4 +1,4 @@
-%comment $OpenXM$
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_module_syz/noro_module_syz-ja.texi,v 1.1 2016/08/30 22:44:30 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -104,12 +104,12 @@ Copyright @copyright{} Masayuki Noro
 
 @table @t
 @item newsyz.module_syz(@var{f},@var{v},@var{h},@var{O}[|@var{weyl=1}])
-
+syzygy の生成系 (グレブナー基底) を計算する.
 @end table
 
 @table @var
 @item return
-syzygy の生成系 (グレブナー基底) を計算する.
+または多項式リストのリスト
 
 @item f
 多項式リスト, または多項式リストのリスト
@@ -134,7 +134,7 @@ syzygy の生成系 (グレブナー基底) を計算する.
 @item @var{h} が 0 のとき有理数体上で trace アルゴリズムにより計算する.
 @var{h} が 1 のとき有理数体上で斉次化 trace アルゴリズムにより計算する.
 @var{h} が 2 以上の素数のとき有限体上で計算する.
-オプション @var{weyl} が 1 のとき Weyl 代数上で計算する.
+オプション @var{weyl} が 1 のとき Weyl 代数上で, 左イデアル (左加群) として計算する.
 @end itemize
 
 @example
@@ -154,388 +154,43 @@ afo
 
 @table @t
 @item newsyz.module_syz(@var{f},@var{v},@var{h},@var{O}[|@var{weyl=1}])
-加群の
-HGM により重複固有値を持つ共分散行列に対する Wishart 行列の最大固有値の
-分布関数の値を計算する.
+加群の自由分解を計算する.
 @end table
 
 @table @var
 @item return
-@item m
-変数の個数
-@item n
-自由度
-@item [p1,p2,...]
-重複固有値の個数のリスト
-@item [s1,s2,...]
-各重複固有値
-@end table
+多項式リストのリストのリスト
 
-@itemize @bullet
-@item 
-固有値 @var{si} を @var{pi} 個もつ対角行列を共分散行列とする Wishart 行
-列の最大固有値 @var{l1}の分布関数の値 @var{Pr[l1<t]} を計算する.
-
-@item ステップ数を指定したルンゲ=クッタ法を, ステップ数を 2 倍しながら
-一つ前の計算結果との相対誤差が @var{eps} (デフォルトで @var{10^(-4)})
-になるまで繰り返す.
-@item
-@var{eq} オプション指定がない場合, @var{[p1,p2,...]} で指定される対角領
-域に制限した微分方程式系を計算する. 指定がある場合, オプションとして指
-定されたリストをチェックなしに制限した方程式と見なして計算する.
-@item @var{eps}オプションが指定された場合, 指定された値を @var{eps} として計算する.
-@item @var{td} オプションが指定された場合, 初期ベクトル計算のためのべき級数を @var{td} で
-指定された全次数まで計算する (デフォルトは100).
-@item @var{rk} オプションが指定された場合, 指定された次数のルンゲ=クッタ法を用いる.
-許される値は 4 または 5, でデフォルトは 5である.
-@item べき級数解の計算の困難さ, およびパフィアン行列の計算の困難さから, ブロック数が 2 以下の場合にのみ
-実用性がある.
-@end itemize
-
-@example
-[...] noro_module_syz.message(1)$
-[...] P=noro_module_syz.prob_by_hgm(10,100,[9,1],[1/100,1],100|eps=10^(-6));
-...
-[x0=,8/25]
-Step=10000
-[0]
-[8.23700622458446e-17,8.23700622459772e-17]
-...
-Step=1280000
-[0][100000][200000][300000]...[900000][1000000][1100000][1200000]
-[0.516246820120598,0.516246820227214]
-[log ratio=,4.84611265040128]
-
-Step=2560000
-[0][100000][200000][300000]...[2200000][2300000][2400000][2500000]
-[0.516246912003845,0.516246912217004]
-[log ratio=,4.93705929488356]
-[diag,18.6292,pfaffian,1.09207,ps,41.0026,rk,213.929]
-0.516246912217004
-266.4sec + gc : 8.277sec(276.8sec)
-@end example
-
-@node noro_module_syz.prob_by_ps,,, 制限した関数の計算
-@subsection @code{noro_module_syz.prob_by_ps}
-@findex noro_module_syz.prob_by_ps
-
-@table @t
-@item noro_module_syz.prrob_by_ps(@var{m},@var{n},@var{[p1,p2,...]},@var{[s1,s2,...]},@var{t}[|@var{options}])
-べき級数により重複固有値を持つ共分散行列に対する Wishart 行列の最大固有値の
-分布関数の値を計算する.
-@end table
-
-@table @var
-@item m
-変数の個数
-@item n
-自由度
-@item [p1,p2,...]
-重複固有値の個数のリスト
-@item [s1,s2,...]
-各重複固有値
-@end table
-
-@itemize @bullet
-@item 
-直前の値との相対誤差が @var{eps} (デフォルト値は @var{10^(-4)}) 以下に
-なるまで, べき級数を全次数ごとに計算する. その値から分布関数の値を計算
-して返す.
-@item @var{eps}オプションが指定された場合, 指定された値を @var{eps} として計算する.
-@var{eq} オプション指定がない場合, @var{[p1,p2,...]} で指定される対角領
-域に制限した微分方程式系を計算する. 指定がある場合, オプションとして指
-定されたリストをチェックなしに制限した方程式と見なして計算する.
-@item @var{t} の値が小さい場合にのみ実用的に用いることができる.
-@end itemize
-
-@example
-[...] Q=noro_module_syz.prob_by_ps(10,100,[9,1],[1/100,1],1/2);
-...
-[I=,109,act,24.9016,actmul,0,gr,19.7852]
-2.69026137621748e-165
-61.69sec + gc : 2.06sec(64.23sec)
-[...] R=noro_module_syz.prob_by_hgm(10,100,[9,1],[1/100,1],1/2|td=50);
-[diag,15.957,pfaffian,1.00006,ps,5.92437,rk,1.29208]
-2.69026135182769e-165
-23.07sec + gc : 1.136sec(24.25sec)
-@end example
-
-@node noro_module_syz.ps,,, 制限した関数の計算
-@subsection @code{noro_module_syz.ps}
-@findex noro_module_syz.ps
-
-@table @t
-@item noro_module_syz.ps(@var{z},@var{v},@var{td})
-微分方程式系のべき級数解を指定された全次数まで計算する.
-@end table
-
-@table @var
-@item return
-多項式リスト
-
-@item z
-部分分数係数の微分作用素のリスト
+@item f
+多項式リスト, または多項式リストのリスト
 @item v
 変数リスト
+@item h
+非負整数
+@item O
+項順序
 @end table
 
+
 @itemize @bullet
-@item 
-結果は @var{[p,pd]} なるリストで, @var{p} は @var{td} 次まで求めたべき級数解, @var{pd} は
-@var{p} の @var{td} 次部分である.
-@item @var{z} は, @var{v} に指定される変数以外のパラメタを含んではいけない.
+@item @var{R} を多項式環とする. @var{f=[f1,...,fm]} は @var{R} のイデアルまたは @var{R^k} の部分加群 (いずれも @var{M}と
+する) の生成系とする.
+この関数は, @var{M} の自由分解, すなわち完全列 @var{0->F(l)->F(l-1)->...->F(0)->M->0} を計算する.
+@var{F(i)=R^(ni)} とする.
+@item 結果は @var{[fl,...,f0]} なるリストで, @var{fi} は @var{F(i)->F(i-1)}
+(ただし @var{F(-1)=M}) なる写像を表すベクトル列である.
+@var{fi=[g(1),...,g(n(i))]} のとき, 各 @var{gj} はサイズ @var{n(i-1)} のリストで, @var{F(i)} の @var{j} 番目の
+標準基底ベクトルの像を表す.
+@item @code{newsyz.module_syz} を実行し, 得られた syzygy の生成系のうち, 定数を成分に持つものがある限り簡約を行う,
+という操作を単に繰り返すアルゴリズムを実装している.
+@item 前項により, @var{f} が斉次の場合, 極小自由分解を得る. @var{f} が斉次でない場合, 前項の簡約は単に @var{F(i)} の
+ランクを小さくする簡単化となる.
+@item @var{h}, @var{O}, オプション @var{weyl} については @code{newsyz.module_syz} と同様である.
 @end itemize
 
 @example
-[...] Z=noro_module_syz.diagpf(10,[[1,5],[6,10]])$
-[...] Z0=subst(Z,a,(10+1)/2,c,(10+100+1)/2)$
-[...] PS=noro_module_syz.ps(Z0,[y1,y6],10)$
-[...] PS[0];
-197230789502743383953639/230438384724900975787223158176000*y1^10+
-...
-+(6738842542131976871672233/1011953706634779427957034268904320*y6^9
-...+3932525/62890602*y6^2+1025/4181*y6+55/111)*y1
-+197230789502743383953639/230438384724900975787223158176000*y6^10
-+...+1395815/62890602*y6^3+3175/25086*y6^2+55/111*y6+1
+afo
 @end example
-
-@node 部分分数係数の微分作用素,,, noro_module_syz.rr
-@section 部分分数係数の微分作用素
-
-@menu
-* 部分分数の表現::
-* 部分分数係数の微分作用素の表現::
-* 部分分数係数の微分作用素の演算::
-@end menu
-
-@node 部分分数の表現,,, 部分分数係数の微分作用素
-@subsection 部分分数の表現
-
-matrix 1F1 が満たす微分方程式の係数は @var{1/yi}, @var{1/(yi-yj)} の定
-数倍の和として書かれている. さらに, ロピタル則を用いた対角領域への制限
-アルゴリズムの結果も同様に部分分数の和として書ける.
-
-@itemize @bullet
-@item 
-分母に現れる @var{yi0^n0(yi1-yj1)^n1(yi2-yj2)^n2...(yik-yjk)^nk} は
-@var{[[yi0,n0],[yi1-yj1,n1],...,[yik-yjk,nk]]} なる形のリストとして表現
-される. ここで, 各因子 @var{yi-yj} は @var{i>j} を満たし, さらに因子は
-ある一定の順序で整列される.
-@item 
-@var{f} を上のようなべき積とし, @var{c} を定数とするとき, 単項式にあた
-る @var{c/f} は @var{[c,f]} で表現される.  @var{f=[]} の場合, 分母が 1
-であることを意味する.
-@item 
-最後に, @var{c1/f1+...+ck/fk} は @var{[[c1,f1],...,[ck,fk]]} と表現され
-る. ここでも, 各項はある一定の順序で整列される.
-@item
-部分分数を通分して簡約した結果, 0 になることもあることに注意する.
-@end itemize
-
-@node 部分分数係数の微分作用素の表現,,, 部分分数係数の微分作用素
-@subsection 部分分数係数の微分作用素の表現
-
-前節の部分分数を用いて, それらを係数とする微分作用素が表現できる.
-@var{f1,...,fk} を部分分数の表現, @var{d1,...,dk} を分散表現単項式 (現
-在設定されている項順序で @var{d1>...>dk}) とするとき, 微分作用素
-@var{f1*d1+...+fk*dk} が@var{[f1,d1],...[fk,dk]]}で表現される.
-
-@node 部分分数係数の微分作用素の演算,,, 部分分数係数の微分作用素
-@subsection 部分分数係数の微分作用素の演算
-
-@menu
-* noro_module_syz.wsetup::
-* noro_module_syz.addpf::
-* noro_module_syz.mulcpf::
-* noro_module_syz.mulpf::
-* noro_module_syz.muldpf::
-@end menu
-
-@node noro_module_syz.wsetup,,, 部分分数係数の微分作用素の演算
-@subsubsection @code{noro_module_syz.wsetup}
-@findex noro_module_syz.wsetup
-
-@table @t
-@item noro_module_syz.wsetup(@var{m})
-@end table
-
-@table @var
-@item m
-自然数
-@end table
-
-@itemize @bullet
-@item @var{m} 変数の計算環境をセットする. 変数は @var{y0,y1,...,ym}, @var{dy0,...,dym}
-で @var{y0, dy0} は中間結果の計算のためのダミー変数である.
-@end itemize
-
-@node noro_module_syz.addpf,,, 部分分数係数の微分作用素の演算
-@subsubsection @code{noro_module_syz.addpf}
-@findex noro_module_syz.addpf
-@table @t
-@item noro_module_syz.addpf(@var{p1},@var{p2})
-@end table
-
-@table @var
-@item return
-部分分数係数の微分作用素
-@item p1, p2
-部分分数係数の微分作用素
-@end table
-
-@itemize @bullet
-@item 微分作用素 @var{p1}, @var{p2} の和を求める.
-@end itemize
-
-@node noro_module_syz.mulcpf,,, 部分分数係数の微分作用素の演算
-@subsubsection @code{noro_module_syz.mulcpf}
-@findex noro_module_syz.mulcpf
-@table @t
-@item noro_module_syz.mulcpf(@var{c},@var{p})
-@end table
-
-@table @var
-@item return
-部分分数係数の微分作用素
-@item c
-部分分数
-@item p
-部分分数係数の微分作用素
-@end table
-
-@itemize @bullet
-@item 部分分数 @var{c} と微分作用素 @var{p} の積を計算する.
-@end itemize
-
-@node noro_module_syz.mulpf,,, 部分分数係数の微分作用素の演算
-@subsubsection @code{noro_module_syz.mulpf}
-@findex noro_module_syz.mulpf
-@table @t
-@item noro_module_syz.mulpf(@var{p1},@var{p2})
-@end table
-
-@table @var
-@item return
-部分分数係数の微分作用素
-@item p1, p2
-部分分数係数の微分作用素
-@end table
-
-@itemize @bullet
-@item 微分作用素 @var{p1}, @var{p2} の積を計算する.
-@end itemize
-
-@node noro_module_syz.muldpf,,, 部分分数係数の微分作用素の演算
-@subsubsection @code{noro_module_syz.muldpf}
-@findex noro_module_syz.muldpf
-@table @t
-@item noro_module_syz.muldpf(@var{y},@var{p})
-@end table
-
-@table @var
-@item return
-部分分数係数の微分作用素
-@item y
-変数
-@item p
-部分分数係数の微分作用素
-@end table
-
-@itemize @bullet
-@item 変数 @var{y} に対し, 微分作用素 @var{dy} と @var{p} の微分作用素としての
-積を計算する.
-@end itemize
-
-@example
-[...] noro_module_syz.wsetup(4)$
-[...] P=noro_module_syz.wishartpf(4,1);
-[[[[1,[]]],(1)*<<0,2,0,0,0>>],[[[1/2,[[y1-y2,1]]],[1/2,[[y1-y3,1]]],
-...,[[[-a,[[y1,1]]]],(1)*<<0,0,0,0,0>>]]
-[...] Q=noro_module_syz.muldpf(y1,P);
-[[[[1,[]]],(1)*<<0,3,0,0,0>>],[[[1/2,[[y1-y2,1]]],[1/2,[[y1-y3,1]]],
-...,[[[a,[[y1,2]]]],(1)*<<0,0,0,0,0>>]]
-@end example
-
-@node Runge-Kutta 法の試験的実装,,, noro_module_syz.rr
-@section Runge-Kutta 法の試験的実装
-
-@menu
-* rk_ratmat::
-@end menu
-
-@node rk_ratmat,,, Runge-Kutta 法の試験的実装
-
-@code{noro_module_syz.ps_by_hgm} では, パフィアン行列を計算したあと, 与えられたステップ数で
-Runge-Kutta 法を実行して近似解の値を計算する組み込み関数 @code{rk_ratmat} を実行している.
-この関数を, 値が与えられた精度で安定するまでステップ数を2倍しながら繰り返して実行する.
-@code{rk_ratmat} 自体, ある程度汎用性があるので, ここでその使用法を解説する.
-
-@subsection @code{rk_ratmat}
-@findex rk_ratmat
-
-@table @t
-@item rk_ratmat(@var{rk45},@var{num},@var{den},@var{x0},@var{x1},@var{s},@var{f0})
-有理関数係数のベクトル値一階線形常微分方程式系を Runge-Kutta 法で解く
-@end table
-
-@table @var
-@item return
-実数のリスト
-
-@item rk45
-4 または 5
-@item num
-定数行列の配列
-@item den
-多項式
-@item x0, x1
-実数
-@item s
-自然数
-@item f0
-実ベクトル
-@end table
-
-@itemize @bullet
-@item 
-配列 @var{num} のサイズを @var{k} とするとき,
-@var{P(x)=1/den(num[0]+num[1]x+...+num[k-1]x^(k-1))} に対し @var{dF/dx = P(x)F}, @var{F(x0)=f0} を
-Runge-Kutta 法で解く.
-@item
-@var{rk45} が 4 のとき 4 次 Runge-Kutta, 5 のとき 5 次 Runge-Kutta アルゴリズムを実行する.
-実験的実装のため, adaptive アルゴリズムは実装されていない.
-@item
-@var{s} はステップ数で, 刻み幅は@var{(x1-x0)/s} である.
-@item
-@var{f0} がサイズ@var{n} のとき, @var{num} の各成分は @var{n} 次正方行列である.
-@item
-結果は, 長さ @var{s} の実数リスト @var{[r1,...,rs]} で, @var{ri} は @var{i} ステップ目に計算された
-解ベクトルの第0成分である. 次のステップに進む前に解ベクトルを @var{ri} で割るので, 最終的に
-解 @var{F(x1)} の第 0 成分が @var{rs*r(s-1)*...*r1} となる.
-@item 方程式が線形なので, Runge-Kutta の各ステップも線形となることを利用し,
-第0成分を1に正規化することで, 途中の解の成分が倍精度浮動小数の
-範囲に収まることを期待している. 初期ベクトル @var{f0} の成分が倍精度浮動小数に収まらない場合
-は, @var{f0} を正規化してから @code{rk_ratmat} を実行し, 前項の結果に @var{f0} の第 0 成分をかければ
-よい.
-@end itemize
-
-@example
-[...] F=ltov([sin(1/x),cos(1/x),sin(1/x^2),cos(1/x^2)]);
-[ sin((1)/(x)) cos((1)/(x)) sin((1)/(x^2)) cos((1)/(x^2)) ]
-[...] F0=map(eval,map(subst,F,x,1/10));
-[ -0.54402111088937 -0.839071529076452 -0.506365641109759 0.862318872287684 ]
-[...] N0=matrix(4,4,[[0,0,0,0],[0,0,0,0],[0,0,0,-2],[0,0,2,0]])$
-[...] N1=matrix(4,4,[[0,-1,0,0],[1,0,0,0],[0,0,0,0],[0,0,0,0]])$
-[...] N=ltov([N0,N1])$
-[...] D=x^3$
-[...] R=rk_ratmat(5,N,D,1/10,10,10^4,F0)$
-[...] for(T=R,A=1;T!=[];T=cdr(T))A *=car(T)[1];
-[...] A;
-0.0998334
-[...] F1=map(eval,map(subst,F,x,10));
-[ 0.0998334166468282 0.995004165278026 0.00999983333416666 0.999950000416665 ]
-@end example
-
 
 @comment --- おまじない ---
 @node Index,,, Top
