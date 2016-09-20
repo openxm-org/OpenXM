@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.22 2007/02/19 06:57:14 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.23 2016/09/19 07:50:02 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -19,7 +19,7 @@ CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
 LIBS2_SHARED = -L${OpenXM_lib} -lgmp -lgc -lox_pathfinder
-LIBS2_STATIC = -L${OpenXM_lib} ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a -lox_pathfinder
+LIBS2_STATIC = -L${OpenXM_lib} ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a -lox_pathfinder -Wl,-no_pie
 LIBS2 = @LIBS2@
 #GC = nogc.c
 #STATIC_LINK_FLAG = -static

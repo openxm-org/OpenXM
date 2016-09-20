@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.45 2016/03/31 06:34:29 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.46 2016/09/19 07:50:02 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -23,7 +23,7 @@ OpenXM_lib=${OpenXM_HOME}/lib
 OpenXM_include=${OpenXM_HOME}/include
 OXWEAVE=${OpenXM_bin}/oxweave
 KANLIB_SHARED = ${Kan96xx}/Kan/kanlib.a -L${OpenXM_lib} -lgmp -lgc
-KANLIB_STATIC = ${Kan96xx}/Kan/kanlib.a -L${OpenXM_lib} ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a
+KANLIB_STATIC = ${Kan96xx}/Kan/kanlib.a -L${OpenXM_lib} ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a -Wl,-no_pie
 KANLIB=@KANLIB@
 #
 OpenXM_HOME_for_debug=../..
