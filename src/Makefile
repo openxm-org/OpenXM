@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.171 2016/06/08 02:35:49 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.172 2016/06/08 02:49:16 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -98,7 +98,7 @@ all-util-lib: configure-util
 all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
 
-all-oxpari: install-oxtoolkit install-pari
+all-oxpari: configure-oxpari
 	-(cd ox_pari; ${MAKE} all)
 
 all-oxmgraph: configure-oxmgraph
@@ -291,6 +291,9 @@ configure-kxx:
 
 configure-oxtoolkit:
 	(cd ox_toolkit; ./make-configure)
+
+configure-oxpari: install-oxtoolkit install-pari
+	(cd ox_pari; ./make-configure)
 
 configure-oxc: 
 	(cd oxc; ./make-configure)
