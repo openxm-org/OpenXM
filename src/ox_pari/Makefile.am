@@ -1,8 +1,8 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_pari/Makefile.am,v 1.1 2016/09/22 10:20:30 ohara Exp $
 
 AUTOMAKE_OPTIONS = foreign no-dependencies 1.5
 DISTCLEANFILES     = .configure_done
-LIBS = -L${libdir} @LIBS@ -lm
+LIBS = @LIBS@ -L${libdir} @OXLIBS@ -lm
 DEFS = @DEFS@
 AM_CPPFLAGS = -g -Wall -finline-functions -I${prefix}/include
 
