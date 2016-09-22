@@ -1,0 +1,26 @@
+#!/bin/sh
+# $OpenXM$
+
+prefix=`cd ../..; pwd`
+cache_file=`pwd`/config.cache
+case "$1" in
+"-f"|"--force")
+    automake
+    autoconf
+    touch ${cache_file}
+    ./configure --prefix=${prefix} --cache-file=${cache_file}
+    ;;
+*)
+if [ ! -f ./.configure_done ]; then 
+    if [ ! -f ./Makefile.in ]; then 
+		automake 
+  	fi
+    if [ ! -x ./configure ]; then 
+		autoconf 
+  	fi
+    touch ${cache_file}
+    ./configure --prefix=${prefix} --cache-file=${cache_file}
+fi
+    ;;
+esac
+touch .configure_done 
