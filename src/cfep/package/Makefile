@@ -71,6 +71,7 @@ dist-cfep: gentar install
 	(cp ${OpenXM_HOME}/bin/sm1 work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox_k0 work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox_cpp work/OpenXM/bin)
+	(cp ${OpenXM_HOME}/bin/ox_pari work/OpenXM/bin)
 	(mkdir -p work/OpenXM/lib/sm1 ; cp -r ${OpenXM_HOME}/lib/sm1/*.sm1 work/OpenXM/lib/sm1)
 	(cp ${OpenXM_HOME}/lib/sm1/*.asir work/OpenXM/lib/sm1)
 	(cp -r ${OpenXM_HOME}/lib/sm1/Resource work/OpenXM/lib/sm1)

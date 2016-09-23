@@ -12,6 +12,8 @@ ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dm
 配布版作成手順.
 (参考, Xcode の利用法, video の記録. 2006年2月頃)
 
+   0. OpenXM/src で make configure-static  
+      (static が必要. cf. otool  2016.09.23)
    1. OpenXM/src で make install (debug install でも OK).
    2. make -f Makefile-doc  usage に従い, tex 環境等を設定.
        (/usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dmg でOK)
