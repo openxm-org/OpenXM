@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.172 2016/06/08 02:49:16 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.173 2016/09/22 10:26:30 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -255,6 +255,9 @@ configure: configure-util configure-asir \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp configure-asir-doc configure-asir-contrib \
        configure-oxmgraph configure-pcc
+configure-static: configure
+	make configure-asir-static
+	make configure-oxpari-static
 
 configure-util:
 	(cd util; ./make-configure)
@@ -270,6 +273,8 @@ configure-mpc: install-util install-gmp install-mpfr
 
 configure-asir: install-util 
 	(cd asir2000; ${MAKE} configure) 
+configure-asir-static: install-util 
+	(cd asir2000; rm -f .configure_done; ${MAKE} configure-static) 
 
 configure-asir-contrib: 
 	-(cd asir-contrib; ./make-configure) 
@@ -294,6 +299,8 @@ configure-oxtoolkit:
 
 configure-oxpari: install-oxtoolkit install-pari
 	(cd ox_pari; ./make-configure)
+configure-oxpari-static: install-oxtoolkit install-pari
+	(cd ox_pari; rm -f .configure_done ; ./make-configure --disable-shared)
 
 configure-oxc: 
 	(cd oxc; ./make-configure)
