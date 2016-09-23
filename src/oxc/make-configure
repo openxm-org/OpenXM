@@ -1,10 +1,26 @@
 #!/bin/sh
-# $OpenXM$
+# $OpenXM: OpenXM/src/oxc/make-configure,v 1.1 2000/10/13 06:05:11 ohara Exp $
 
+case "$1" in
+"-d"|"--disable-shared")
+if [ ! -f ./.configure_done ]; then 
+    if [ ! -f ./Makefile.in ]; then 
+		automake 
+  	fi
+    if [ ! -x ./configure ]; then 
+		autoconf 
+  	fi
+    touch ${cache_file}
+    ./configure --enable-shared=no
+fi
+;;
+*)
 if [ ! -f ./.configure_done ]; then 
     if [ ! -x ./configure ]; then 
 		autoconf 
   	fi
     ./configure 
 fi
+;;
+esac
 touch .configure_done 

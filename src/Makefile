@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.173 2016/09/22 10:26:30 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.174 2016/09/23 03:04:22 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -258,6 +258,7 @@ configure: configure-util configure-asir \
 configure-static: configure
 	make configure-asir-static
 	make configure-oxpari-static
+	make configure-oxc-static
 
 configure-util:
 	(cd util; ./make-configure)
@@ -304,6 +305,8 @@ configure-oxpari-static: install-oxtoolkit install-pari
 
 configure-oxc: 
 	(cd oxc; ./make-configure)
+configure-oxc-static: 
+	(cd oxc; rm -f .configure_done ; ./make-configure --disable-shared)
 
 configure-oxmath:
 	-@if test -d /usr/local/mathematica; then \
