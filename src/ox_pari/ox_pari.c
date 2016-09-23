@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.13 2016/08/01 01:35:01 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.14 2016/08/23 03:03:26 ohara Exp $  */
 
 #include "ox_pari.h"
 
@@ -152,9 +152,18 @@ int sm_executeFunction()
   struct parif *parif;
   unsigned long prec;
   char buf[BUFSIZ];
+  int status;
+  char *err;
 
-  if ( setjmp(GP_DATA->env) ) {
-    sprintf(buf,"sm_executeFunction : an error occured in PARI.");
+  if ( (status = setjmp(GP_DATA->env)) != 0 ) {
+    err = errmessage[status];
+    if ( status == errpile ) {
+      sprintf(buf,"%s\nIncrease PARI stack by pari(allocatemem,size).",err);
+      init_pari();
+    } else if ( strlen(err) != 0 )
+      sprintf(buf,"An error occured in PARI :%s",err);
+    else
+      sprintf(buf,"An error occured in PARI.");
     push((cmo*)make_error2(buf));
     return -1;
   }
