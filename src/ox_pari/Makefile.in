@@ -739,7 +739,9 @@ uninstall-am: uninstall-ox_pariPROGRAMS
 
 
 install-exec-hook: 
-	(cd ${libdir} && ${LN_S} -f ${bindir}/ox_pari${EXEEXT} ox_pari${EXEEXT} )
+	-@${MKDIR_P} ${libdir}/asir
+	-@rm -f ${libdir}/asir/ox_pari
+	(cd ${libdir}/asir && ${LN_S} ${bindir}/ox_pari${EXEEXT} ox_pari${EXEEXT} )
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
