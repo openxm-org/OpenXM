@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/mysig.c,v 1.1 2016/03/31 05:27:33 takayama Exp $
+/* $OpenXM: OpenXM/src/util/mysig.c,v 1.2 2016/04/01 18:54:21 ohara Exp $
  */
 #include <stdio.h>
 #include <signal.h>
@@ -64,7 +64,7 @@ void *mysignal(int sig,void (*handler)(int m)) {
   }
   /* on unix system, you may simply call signal(3) here.  */
   set_signal(sig,handler);
-  /* unblock is necessary on cygwin, ... */
+  /* unblock is necessary on cygwin, ..., cf. misc-2015/12/misc */
   sigset[0] = sig; sigset[1]=0; unblock_signal(sigset);
   return((void *)Old_handler);
 }

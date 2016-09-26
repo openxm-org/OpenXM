@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.27 2016/03/30 21:34:03 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.28 2016/08/27 00:11:27 takayama Exp $  */
 /*  Note on IntelMac. [2006.06.05]
     SIGINT does not seem to be blocked on the rosetta emulator of ppc
     on the IntelMac's. "ox" should be universal binary.
@@ -390,9 +390,11 @@ parentServerMain(int fdControl, int fdStream) {
   /* Set the network byte order. */
   fprintf(stderr,"controlByteOrder=%x\n",controlByteOrder);
 
-  int sigint[]={SIGINT,-1};
+  /*  int sigint[]={SIGINT,-1};
   set_signal(sigint[0],myServerExit);
   unblock_signal(sigint);
+  */
+  mysignal(SIGINT,SIG_IGN);
   while(1) {
     mtag = oxfdGetOXheader(fdControl,&SerialCurrentControl);
     /* get the message_tag */
@@ -482,8 +484,9 @@ childServerMain(int fdControl, int fdStream) {
 	setrlimit(RLIMIT_STACK,&res);
   }
 
-  int sigint[]={SIGINT,-1};
-  if (IgnoreSIGINT) { block_signal(sigint); fprintf(stderr,"SIGING\n");}
+  //  int sigint[]={SIGINT,-1};
+  //  if (IgnoreSIGINT) { block_signal(sigint); fprintf(stderr,"SIGING\n");}
+  if (IgnoreSIGINT) { mysignal(SIGINT,SIG_IGN); fprintf(stderr,"SIG_ING\n");}
 
   if (PacketMonitor) {
     if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
