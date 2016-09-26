@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.174 2016/09/23 03:04:22 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.175 2016/09/23 05:37:43 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -348,6 +348,7 @@ install-for-debug:
 	(cd kxx; ${MAKE} install-for-debug)
 	(cd k097; ${MAKE} install-for-debug)
 	(cd ${BINDIR}; rm -f asir; ln -s ../../OpenXM_contrib2/asir2000/asir .)
+	(cd ${BINDIR}; rm -f ox_pari; ln -s ../../OpenXM/src/ox_pari/ox_pari .)
 
 fetch:
 	-@for i in gc gmp gnuplot pari tigers; do \
