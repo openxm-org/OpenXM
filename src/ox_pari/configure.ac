@@ -1,4 +1,4 @@
-dnl $OpenXM: OpenXM/src/ox_pari/configure.ac,v 1.1 2016/09/22 10:20:30 ohara Exp $
+dnl $OpenXM: OpenXM/src/ox_pari/configure.ac,v 1.2 2016/09/22 17:12:51 ohara Exp $
 
 AC_INIT(ox_pari,1.15)
 AC_CONFIG_SRCDIR([ox_pari.c])
@@ -9,6 +9,7 @@ AM_MAINTAINER_MODE
 
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_LN_S
 
 AC_ARG_ENABLE([shared],
 [  --enable-shared         enable linking with shared libraries.  [[yes]]],
