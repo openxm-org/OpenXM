@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.6 2013/11/06 06:23:23 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.7 2015/09/29 01:52:14 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -29,10 +29,12 @@ YACCPREFIX = -p KC
 RM=rm
 Kan96xx_Kan=${Kan96xx}/Kan
 PATHFINDER=-lox_pathfinder
-LIBGMP=-lgmp 
-GC = -lgc 
 CC=@CC@
 LIBS=@LIBS@ -L${OpenXM_lib}
+# new
+KANLIB_SHARED = ${Kan96xx}/Kan/kanlib.a -L${OpenXM_lib_debug} -lgmp -lgc
+KANLIB_STATIC = ${Kan96xx}/Kan/kanlib.a -L${OpenXM_lib_debug} ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a -Wl,-no_pie
+KANLIB=@KANLIB@
 
 all : configure d0 k0 ox_k0
 configure: Makefile
@@ -86,7 +88,7 @@ slib.sm1: slib.k
 KXX = simple.tab.o d.o ki.o dic.o
 
 k0:  k0.o $(KXX) ${Kan96xx_Kan}/kanlib.a ${Kan96xx_Kan}/lookup.h
-	${CC} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o k0 k0.o $(KXX)  ${Kan96xx_Kan}/kanlib.a ${LIBS} $(LIBGMP) $(GC)
+	${CC} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o k0 k0.o $(KXX)  ${KANLIB}
 
 k0.o: k2.c
 	${CC} -c ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o k0.o k2.c
@@ -105,13 +107,13 @@ ${Kan96xx_Kan}/lookup.h :
 
 
 ox_k0: ox_k0.o k0 sm1sm.o
-	${CC} ${STATIC_LINK_FLAG} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o ox_k0 ox_k0.c sm1sm.c $(KXX)  ${Kan96xx_Kan}/kanlib.a ${LIBS} ${LIBGMP} ${GC}
+	${CC} ${STATIC_LINK_FLAG} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o ox_k0 ox_k0.c sm1sm.c $(KXX)  ${KANLIB}
 ox_k0.o: ox_k0.c
 sm1sm.o: sm1sm.c
 ##########  
 ## A sample to compilation:  source is test0.c, output is test0
 test0:  test0.c  $(KXX) ${Kan96xx_Kan}/kanlib.a ${Kan96xx_Kan}/lookup.h
-	${CC} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o test0 test0.c $(KXX) ${Kan96xx_Kan}/kanlib.a ${LIBS} ${LIBGMP} ${GC}
+	${CC} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o test0 test0.c $(KXX) ${KANLIB}
 
 clean-for-install:
 	${RM} -f ${OpenXM_HOME}/bin/k0 ${OpenXM_HOME}/bin/k0.exe ${OpenXM_HOME}/bin/d0 ${OpenXM_HOME}/bin/d0.exe ${OpenXM_HOME}/bin/ox_k0 ${OpenXM_HOME}/bin/ox_k0.exe ${OpenXM_HOME}/lib/sm1/bin/ox_k0 ${OpenXM_HOME}/lib/sm1/bin/ox_k0.exe

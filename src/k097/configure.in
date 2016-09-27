@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/k097/configure.in,v 1.1 2003/09/02 03:24:52 takayama Exp $
+dnl  $OpenXM: OpenXM/src/k097/configure.in,v 1.2 2003/11/11 04:20:33 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
@@ -18,6 +18,15 @@ AC_CHECK_FUNC(dlopen)
 if test "$ac_cv_func_dlopen" = no ; then
   AC_CHECK_LIB(dl,dlopen)
 fi
+
+dnl check if it is MacOS X by heuristic. If so, use static link.
+AC_PATH_PROG(MDUTIL,mdutil,none)
+if test x"$MDUTIL" = x"none"; then
+KANLIB='${KANLIB_SHARED}'
+else
+KANLIB='${KANLIB_STATIC}'
+fi
+AC_SUBST(KANLIB,[$KANLIB])
 
 
 AC_OUTPUT(Makefile)
