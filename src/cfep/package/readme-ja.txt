@@ -32,6 +32,6 @@ ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dm
    4. make install
       ( cfep 用ツールを OpenXM 以下 へインストール.)
    5. xcode で target を release にして build.
-      (プロジェクト -> アクティブなビルド構成を設定 -> release)
+      (Product->Scheme->Edit scheme,  release)
    6. make dist-cfep
       (work の下に 配布版 cfep.app を作る)

@@ -170,6 +170,9 @@
   [super dealloc];
 }
 +(int) checkX {
+    return 1;
+    // I need a sample code for runningApplications. 2016.09.30
+    /*
   NSEnumerator *apps = [[[NSWorkspace sharedWorkspace] launchedApplications] objectEnumerator ];
   NSDictionary *dicApp;
   while (dicApp = [apps nextObject]) {
@@ -180,6 +183,7 @@
   }	
   NSLog(@"X11 is NOT running.\n");
   return 0;  
+     */
 }
 -(void) showForDebug {
   NSLog(@"OpenXM_HOME=%@\n",OpenXM_HOME);
