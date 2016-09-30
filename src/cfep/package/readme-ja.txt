@@ -6,6 +6,10 @@ ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dm
    1. OpenXM/src で make install (debug install でも OK).
    2. make setup-cfep
      ( OpenXM home が build/debug 等の下へ link されるように)
+   2'. 10.9 では ~/Library の下の深いところに build/debug ができるようなので,
+     ox_textmacs  が無いとエラーが出たら, 
+     make link-for-debug
+     で, link を作成 or Makefile をみて手動.  2016.09.30
    3. make install
       ( cfep 用ツールを OpenXM 以下 へインストール.)
 

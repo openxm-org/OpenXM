@@ -74,6 +74,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
     [self addMenuExec]; // adding the execution menu. 
     [textViewIn setAllowsUndo:YES];
 	if ([textViewIn isContinuousSpellCheckingEnabled]) [textViewIn toggleContinuousSpellChecking: self]; // Turn off the spell checking.
+    if ([textViewIn isAutomaticQuoteSubstitutionEnabled]) [textViewIn toggleAutomaticQuoteSubstitution: self]; // Turn off the smart quote.
     if ([MyEnvironment isX11Installed] != 1) 
 	  [self messageDialog: NSLocalizedString(@"X11 is not installed. To install it, insert MacOS DVD1 and open Optional install->Applications->X11",nil) with: 0];
 //	if ([MyEnvironment isGccInstalled] != 1)
@@ -156,7 +157,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 	[self openMyModel: myEnvironment ];
 	[MyOpenGLController initMyOpenGLController]; // For the second execution, it will do nothing.
 }
--(int) getMyDocumentKey { return myDocumentKey; }
+-(NSString *) getMyDocumentKey { return myDocumentKey; }
 
 -(id) openMyModel: (MyEnvironment *) myEnvironment {
     [myEnvironment showForDebug]; // for debug.
@@ -171,7 +172,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 	[peerEndEvaluteMark retain];
  
 	[self stopIndicator];
-    if (NoEngine && (!restartMode)) { task = nil; return; }
+    if (NoEngine && (!restartMode)) { task = nil; return self; }
 
 	// Initialization to call /bin/bash
     outboundPipe = [NSPipe pipe];  // since autorelease is called in pipe.
@@ -1050,7 +1051,7 @@ int debugInbound = 0;
 	return -1;
   }
   gid = [[a objectAtIndex: 0] intValue];
-  if ([[a objectAtIndex: 1] hasPrefix: @"meta"]) {[self openGLMeta: [a objectAtIndex: 1] to: gid]; return; }
+  if ([[a objectAtIndex: 1] hasPrefix: @"meta"]) {[self openGLMeta: [a objectAtIndex: 1] to: gid]; return 0; }
   [MyOpenGLController addOglComm: [a objectAtIndex: 1] to: gid from: self];
   return 0;
 }

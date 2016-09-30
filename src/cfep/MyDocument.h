@@ -134,6 +134,8 @@
 -(void) readInboundData: (NSNotification *) sender;
 -(void) readErrData: (NSNotification *) sender;
 
+-(NSData *) getPeerEndEvaluateMark;
+
 -(int) selectIllegalCharacter ;
 -(NSRange) selectBlockForwardFrom: (int) offset with: (int) first and: (int) last ;
 -(NSRange) selectBlockForward ;

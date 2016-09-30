@@ -39,7 +39,7 @@ enum peer_type {
 -(void) showForDebug;
 -(NSMutableDictionary *) getMyUnixEnvironment;
 -(enum peer_type) getPeer;
--(NSData *)getPeerEnfEvaluateMark;
+-(NSData *)getPeerEndEvaluateMark;
 -(NSString *) getOpenXM_HOME;
 -(NSString *)getPeerStartupString;
 -(NSString *)getPeerInitializationString;

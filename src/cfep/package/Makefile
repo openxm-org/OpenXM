@@ -26,6 +26,10 @@ setup-cfep:
 setup-cfep-fix:
 	(rm -f ~/OX4/OpenXM/lib/asir/cfep-init.rr ; cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
 
+link-for-debug:
+	echo $(HOME)/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products/Debug/cfep.app 
+	(cd $(HOME)/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products/Debug/cfep.app ; ln -s ~/OX4/OpenXM .)
+
 install:  cfep-grep
 	mkdir -p ${OpenXM_HOME}/doc/cfep
 	mkdir -p ${OpenXM_HOME}/lib/cfep
