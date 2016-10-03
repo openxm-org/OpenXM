@@ -135,7 +135,7 @@
     if ([s compare: @"PATH"] == NSOrderedSame) { 
       char *path;
 	  NSString *defaultPath;
-	  defaultPath=@"/usr/bin:/bin:/usr/sbin:/sbin:/usr/X11R6/bin:/sw/bin:/sw/sbin:/usr/local/bin";
+	  defaultPath=@"/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/sw/bin:/sw/sbin:/usr/local/bin";
 	  path = getenv("PATH");
 	  if (!path) {
 	    s = [NSString stringWithCString: path length: strlen(path)];
@@ -221,7 +221,7 @@
 }
 +(int) isX11Installed {
   NSFileManager *manager = [NSFileManager defaultManager];
-  if ([manager fileExistsAtPath: @"/usr/X11R6/bin/X"]) return 1;
+  if ([manager fileExistsAtPath: @"/opt/X11/bin/X"]) return 1;
   else return 0;
 }
 +(int) isGccInstalled {

@@ -76,7 +76,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 	if ([textViewIn isContinuousSpellCheckingEnabled]) [textViewIn toggleContinuousSpellChecking: self]; // Turn off the spell checking.
     if ([textViewIn isAutomaticQuoteSubstitutionEnabled]) [textViewIn toggleAutomaticQuoteSubstitution: self]; // Turn off the smart quote.
     if ([MyEnvironment isX11Installed] != 1) 
-	  [self messageDialog: NSLocalizedString(@"X11 is not installed. To install it, insert MacOS DVD1 and open Optional install->Applications->X11",nil) with: 0];
+	  [self messageDialog: NSLocalizedString(@"XQuartz(X11) is not installed. To install it, visit http://www.xquartz.org.",nil) with: 0];
 //	if ([MyEnvironment isGccInstalled] != 1)
 //	  [self messageDialog: NSLocalizedString(@"gcc is not installed. To install it, insert MacOS DVD1 and open Xcode Tools->XcodeTools.mpkg",nil) with: 0];
 	[self sayTheMessageAboutX];
