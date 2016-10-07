@@ -34,4 +34,5 @@ ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dm
    5. xcode で target を release にして build.
       (Product->Scheme->Edit scheme,  release)
    6. make dist-cfep
-      (work の下に 配布版 cfep.app を作る)
+      (work の下に 配布版 cfep.app を作る)   
+    Todo. まだ変. 10.9 対応でない. ~/Library/Developer の下の cfep を tar していない.
