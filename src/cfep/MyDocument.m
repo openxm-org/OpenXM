@@ -255,14 +255,20 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 	  //    NSLocalizedString(@"A few commands (plot, ...) cannot be used, because X11 is not running.",nil) with: 0];
 	  [self changeOutputCounterFieldWithString:
 	    [NSLocalizedString(@"Output mini-view: ",nil) stringByAppendingString:  
-		 NSLocalizedString(@"Starting XQuartz(X11)",nil)]];
+		 NSLocalizedString(@"Starting XQuartz(X11). Please wait.",nil)]];
           if ([[NSWorkspace sharedWorkspace] launchApplication: @"XQuartz"]) {
-              NSLog(@"Started XQuartz.\n");
+              NSLog(@"Starting XQuartz.\n");
           }else{
               NSLog(@"Starting XQuartz failed.\n");
               [self messageDialog:
                   NSLocalizedString(@"Starting XQuartz(X11) failed. A few commands (plot, ...) cannot be used, because X11 is not running.",nil) with: 0];
           }
+          while ([MyEnvironment checkX]!=1) {
+              sleep(1);
+          }
+          [self changeOutputCounterFieldWithString:
+           [NSLocalizedString(@"Output mini-view: ",nil) stringByAppendingString:
+            NSLocalizedString(@"Started XQuartz(X11)",nil)]];
       }
 	myDocumentSaidTheMessageAboutX = 1;
   }
