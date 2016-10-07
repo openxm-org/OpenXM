@@ -170,20 +170,17 @@
   [super dealloc];
 }
 +(int) checkX {
-    return 1;
-    // I need a sample code for runningApplications. 2016.09.30
-    /*
+    /* still use an deprecated functions */
   NSEnumerator *apps = [[[NSWorkspace sharedWorkspace] launchedApplications] objectEnumerator ];
   NSDictionary *dicApp;
   while (dicApp = [apps nextObject]) {
-    if ([@"X11" compare: [dicApp objectForKey: @"NSApplicationName"]] == NSOrderedSame) {
+    if ([@"XQuartz" compare: [dicApp objectForKey: @"NSApplicationName"]] == NSOrderedSame) {
 	  NSLog(@"X11 is running.\n");
 	  return 1;
 	}  
   }	
   NSLog(@"X11 is NOT running.\n");
-  return 0;  
-     */
+  return 0;
 }
 -(void) showForDebug {
   NSLog(@"OpenXM_HOME=%@\n",OpenXM_HOME);
