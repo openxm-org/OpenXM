@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.10 2010/02/13 04:38:36 takayama Exp $
+%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.11 2011/02/22 01:25:28 takayama Exp $
 
 cd OpenXM/src/util; make install
 cd OpenXM/src/asir-doc; make install
@@ -68,12 +68,13 @@ cd asir-contrib
 rm .*done
 ./make-configure
 cd packages/doc
+rm .ins*.done ; ./make-configure  (if necessary)
 make clean
 make install
-make install-html-doc
-make fix-links
+# make install-html-doc
+# make fix-links
 cd ${OpenXM_HOME}/doc/asir-contrib/ja
-and open cman-html/cman-ja/cman-ja.html
+and open cman-html/cman-ja_toc.html
 
 The -split mode of texinfo makes different behavior between version.
 Asir contrib no longer uses the split mode.  2009.02.15

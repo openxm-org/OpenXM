@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.9 2014/03/27 07:28:07 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.10 2016/03/28 12:10:24 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -102,6 +102,16 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[gtt_ekn]]"
 NEW1="gtt_ekn-html/gtt_ekn-${LLL}.html"
 NEW2="gtt_ekn (Two way contingency tables by HGM)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[noro_module_syz]]"
+NEW1="noro_module_syz-html/noro_module_syz-${LLL}.html"
+NEW2="noro_module_syz (syzygies for modules)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[n_wishartd]]"
+NEW1="n_wishartd-html/n_wishartd-${LLL}.html"
+NEW2="n_wishartd "
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
 
 rm -f cman-*.old
