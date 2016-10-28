@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.6 2016/02/16 02:17:00 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.c2wishart.Rd,v 1.7 2016/03/01 07:29:18 takayama Exp $
 \name{hgm.p2wishart}
 \alias{hgm.p2wishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -107,7 +107,7 @@ See the reference below.
 }
 \references{
 H.Hashiguchi, N.Takayama, A.Takemura,
-in preparation.
+Distribution of ratio of two Wishart matrices and evaluation of cumulative probability by holonomic gradient method.
 }
 \author{
 Nobuki Takayama
