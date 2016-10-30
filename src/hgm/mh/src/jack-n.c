@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.51 2016/06/04 07:53:08 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.52 2016/06/06 04:39:30 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -2310,8 +2310,8 @@ static double iv_factor_ef_type2(void) {
   return(ef);  
 }
 static void setM_x(void) {
-  if (Ef_type <= 1)    return(setM_x_ef_type1());
-  else if (Ef_type==2) return(setM_x_ef_type2());
+  if (Ef_type <= 1)    {setM_x_ef_type1(); return;}
+  else if (Ef_type==2) {setM_x_ef_type2(); return;}
   setM_x_ef_type1();
 }
 static void setM_x_ef_type1(void) {

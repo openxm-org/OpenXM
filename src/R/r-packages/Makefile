@@ -40,4 +40,4 @@ copy-web-hgmFB: build-hgmFB
 	${RSYNC} hgm_fb.Rcheck/hgmFB-manual.pdf ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Math/hgm
 
 clean:
-	rm -f hgm/src/*.o
+	rm -f hgm/src/*.o hgm/src/*.so

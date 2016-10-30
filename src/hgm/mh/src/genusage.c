@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #define SIZE 4098
-main() {
+int main() {
   char s[SIZE];
   int i;
   printf("/* This is automatically generated. Do not edit it.*/\n");
@@ -25,4 +25,5 @@ main() {
 	}
 	printf("\");\n");
   }
+  return(0);
 }
