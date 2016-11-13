@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.9 2014/09/05 11:55:19 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.10 2014/09/19 00:48:50 ohara Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat,SuccSat,RepColon$
@@ -40,7 +40,7 @@ localf rsgn, find_npos, gen_minipoly, indepset$
 localf maxindep, maxindep2, contraction, contraction_m, ideal_list_intersection, ideal_intersection$
 localf radical_membership, modular_radical_membership$
 localf radical_membership_rep, ideal_product, saturation$
-localf sat, satind, sat_ind, colon, isat$
+localf sat, satind, sat_ind, sat_ind_var, colon, isat$
 localf ideal_colon, ideal_sat, ideal_inclusion, qd_simp_comp, qd_remove_redundant_comp$
 localf pd_simp_comp, remove_identical_comp$
 localf pd_remove_redundant_comp, ppart, sq, gen_fctr, gen_nf, gen_gb_comp$
@@ -1049,7 +1049,7 @@ def pseudo_dec(G,L,V,Ord)
 		for ( T = PI; T != []; T = cdr(T) )
 			if ( gen_nf(car(T),L0[I],V,Ord,Mod) ) break;
 		if ( T == [] ) error("separator : cannot happen");
-		SI = satind(G,car(T),V|mod=Mod);	
+		SI = sat_ind(G,car(T),V|mod=Mod);	
 		QI = SI[0];
 		S[I] = car(T)^SI[1];
 		PV = L[I][1];
@@ -1063,7 +1063,7 @@ def pseudo_dec(G,L,V,Ord)
 #endif
 		LCFI = lcfactor(GI,V0,Ord,Mod);
 		for ( F = 1, T = LCFI, Gt = QI; T != []; T = cdr(T) ) {
-			St = satind(Gt,T[0],V|mod=Mod);
+			St = sat_ind(Gt,T[0],V|mod=Mod);
 			Gt = St[0]; F *= T[0]^St[1];
 		}
 		Q[I] = [Gt,L0[I]];
@@ -1156,7 +1156,7 @@ def prima_dec(B,V)
 		L = zprimacomp(G,V0|mod=Mod);
 		F = 1;
 		for ( T = LCF, G2 = G; T != []; T = cdr(T) ) {
-			S = satind(G2,T[0],V1|mod=Mod);
+			S = sat_ind(G2,T[0],V1|mod=Mod);
 			G2 = S[0]; F *= T[0]^S[1];
 		}
 		for ( T = L, QL = []; T != []; T = cdr(T) )
@@ -2234,6 +2234,7 @@ def isat(B,S,V)
 	return R;
 }
 
+/* buggy; do not use */
 def satind(G,F,V)
 {
 	if ( type(Block=getopt(gbblock)) == -1 ) Block = 0;
@@ -2271,10 +2272,30 @@ def satind(G,F,V)
 	return [reverse(R),D1];
 }
 
+def sat_ind_var(G,F,V)
+{
+	if ( type(Ord=getopt(ord)) == -1 ) Ord = 0;
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+  V0 = append(setminus(V,[F]),[F]);
+  G0 = nd_gr(G,V0,Mod,0);
+  M = 0;
+  for ( G1 = [], T = G0; T != []; T = cdr(T) ) {
+    S = car(T);
+    M1 = mindeg(S,F);
+    S = sdiv(S,F^M1);
+    G1 = cons(S,G1);
+    if ( M1 > M ) M = M1;
+  }
+  G1 = nd_gr(G1,V,Mod,Ord);
+  return [G1,M];
+}
+
 def sat_ind(G,F,V)
 {
 	if ( type(Ord=getopt(ord)) == -1 ) Ord = 0;
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+  if ( F == var(F) )
+    return sat_ind_var(G,F,V|ord=Ord,mod=Mod);
 	NV = ttttt;
 	F = gen_nf(F,G,V,Ord,Mod);
 	for ( I = 0, GI = G; ; I++ ) {
