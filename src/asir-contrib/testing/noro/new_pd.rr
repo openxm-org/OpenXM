@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.10 2014/09/19 00:48:50 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.11 2016/11/13 02:09:36 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat,SuccSat,RepColon$
@@ -2272,6 +2272,8 @@ def satind(G,F,V)
 	return [reverse(R),D1];
 }
 
+/* homogeneous case only */
+
 def sat_ind_var(G,F,V)
 {
 	if ( type(Ord=getopt(ord)) == -1 ) Ord = 0;
@@ -2294,8 +2296,6 @@ def sat_ind(G,F,V)
 {
 	if ( type(Ord=getopt(ord)) == -1 ) Ord = 0;
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
-  if ( F == var(F) )
-    return sat_ind_var(G,F,V|ord=Ord,mod=Mod);
 	NV = ttttt;
 	F = gen_nf(F,G,V,Ord,Mod);
 	for ( I = 0, GI = G; ; I++ ) {
