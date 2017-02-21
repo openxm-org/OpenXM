@@ -5,7 +5,7 @@ localf compf1$
 localf my_comp_f$
 localf compc1, compc, compd, compt, addpf, subpf, addc, ftorat, ctorat, mulf$
 localf lcmf, mulf, divf, mulc, mulcpf, diffc, muldpf, normalizef1, normalizec1, normalizepf$
-localf wsetup, mtot, wishartpf, degf, removef, subst_f, lopitalpf, simpop, simppf$
+localf wsetup, mtot, wishart1F1pf, wishart2F1pf,degf, removef, subst_f, lopitalpf, simpop, simppf$
 localf eliminatetop, diagpf, diag0pf, adjop1, adjop, reducepf, reduceotherspf$
 localf print_f, printc, printt, printpf, ftop, ctord, comppfrd, multpf, spolypf, nfpf$
 localf nfpf0,nfpf1$
@@ -350,6 +350,7 @@ def diffc(X,C)
   for ( T = C; T != []; T = cdr(T) ) {
     T0 = car(T);
     N = T0[0];
+    DN = diff(N,X);
     S = [];
     for ( L = T0[1]; L != []; S = cons(car(L),S), L = cdr(L) ) {
       L0 = car(L);
@@ -361,6 +362,8 @@ def diffc(X,C)
         R = addc([[-M*N*DF,V]],R);
       }
     }
+    if ( DN )
+      R = addc([[DN,T0[1]]],R);
   }
   return R;
 }
@@ -473,7 +476,7 @@ def mtot(M,Dn)
   return [[[dp_hc(D)/C,Dn]],dp_ht(D)];
 }
 
-def wishartpf(N,I)
+def wishart1F1pf(N,I)
 {
   YI = PF_V[I]; DYI = PF_DV[I];
   R = [mtot(DYI^2,1)];
@@ -490,6 +493,28 @@ def wishartpf(N,I)
   R = addpf([mtot(-a,YI)],R);
   return R;
 }
+
+def wishart2F1pf(N,I)
+{
+  YI = PF_V[I]; DYI = PF_DV[I];
+  R = [mtot(DYI^2,1)];
+  R = addpf([mtot(c*DYI,YI)],R);
+  R = addpf([mtot((a+b+1-c)*DYI,YI-1)],R);
+  for ( J = 1; J <= N; J++ ) {
+    if ( J == I ) continue;
+    YJ = PF_V[J]; DYJ = PF_DV[J];
+    R = addpf([mtot(1/2*DYI,YI-YJ)],R);
+    R = addpf([mtot(-1/2*DYJ,YI-YJ)],R);
+    R = addpf([mtot(-1/2*DYI,YI)],R);
+    R = addpf([mtot(1/2*DYJ,YI)],R);
+    R = addpf([mtot(-YJ/2*DYJ,YI)],R);
+    R = addpf([mtot(YJ/2*DYJ,YI-1)],R);
+  }
+  R = addpf([mtot(-a*b,YI)],R);
+  R = addpf([mtot(a*b,YI-1)],R);
+  return R;
+}
+
 
 def degf(F,D)
 {
@@ -555,6 +580,7 @@ def lopitalpf(P,Y1,Y2)
       Nm = U0[0]; Dn = U0[1];
       K = degf(Dn,D);
       if ( !K ) {
+        Nm = subst(Nm,Y2,Y1);
         Z = subst_f(Dn,Y2,Y1);
         Sgn1 = Z[0]; Dn1 = Z[1];
         R = addpf([[[[Sgn1*Nm,Dn1]],Op]],R);
@@ -783,7 +809,7 @@ def diag0pf(N,Blocks)
   Tlopital = Tred = Tlineq = 0;
   wsetup(N);
   P = vector(N+1);
-  for ( J = 1; J <= N; J++ ) P[J] = wishartpf(N,J);
+  for ( J = 1; J <= N; J++ ) P[J] = wishart1F1pf(N,J);
   Simp = [];
   Done = [];
   Len = length(Blocks);
@@ -864,10 +890,15 @@ T1 = time(); Tred += T1[0]-T0[0];
 
 def diagpf(N,Blocks)
 {
+  W2F1 = getopt(w2f1);
+  if ( type(W2F1) == -1 ) W2F1 = 0;
   Tlopital = Tred = Tlineq = 0;
   wsetup(N);
   P = vector(N+1);
-  for ( J = 1; J <= N; J++ ) P[J] = wishartpf(N,J);
+  if ( W2F1 )
+    for ( J = 1; J <= N; J++ ) P[J] = wishart2F1pf(N,J);
+  else
+    for ( J = 1; J <= N; J++ ) P[J] = wishart1F1pf(N,J);
   Simp = [];
   Done = [];
   Len = length(Blocks);
@@ -973,7 +1004,7 @@ def diagcheck(N)
   MHist = [];
   wsetup(N);
   P = vector(N+1);
-  for ( J = 1; J <= N; J++ ) P[J] = wishartpf(N,J);
+  for ( J = 1; J <= N; J++ ) P[J] = wishart1F1pf(N,J);
   Simp = [];
   Done = [];
     B = [1,N];
@@ -2048,7 +2079,10 @@ def solve_leq(L,V)
     }
   }
 #else
-  Sol = nd_f4_trace(L,V,0,-1,0);
+  Eq = triangleq(L);
+  Sol = nd_gr_postproc(Eq,V,0,0,0);
+  if ( length(Sol) != length(V) )
+    Sol = nd_f4_trace(L,V,0,-1,0);
   return Sol;
 #endif
 }
