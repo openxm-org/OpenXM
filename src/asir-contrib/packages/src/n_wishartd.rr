@@ -50,6 +50,9 @@ static Print$
 static PF_N,PF_V,PF_DV$
 static Tlopital,Tred,Tlineq,Tactmul$
 static Tp,Tps,Trk$
+static Version$
+
+Version=version()$
 
 /* XXX execute ord([y1,y2,...,dy1,dy2,...]) */
 
@@ -2079,10 +2082,14 @@ def solve_leq(L,V)
     }
   }
 #else
-  Eq = triangleq(L);
-  Sol = nd_gr_postproc(Eq,V,0,0,0);
-  if ( length(Sol) != length(V) )
+  if ( Version >= 20170218 ) {
+    Eq = triangleq(L);
+    Sol = nd_gr_postproc(Eq,V,0,0,0);
+    if ( length(Sol) != length(V) )
+      Sol = nd_f4_trace(L,V,0,-1,0);
+  } else {
     Sol = nd_f4_trace(L,V,0,-1,0);
+  }
   return Sol;
 #endif
 }
