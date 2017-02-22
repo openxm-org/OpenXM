@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_pd/noro_pd-ja.texi,v 1.1 2011/02/21 09:27:07 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_pd/noro_pd-ja.texi,v 1.2 2011/02/21 09:40:11 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -113,7 +113,7 @@ Copyright @copyright{} Masayuki Noro
 @table @var
 @item return
 @var{[QL(1),QL(2),...]} なるリスト, 各 @var{QL(i)} は
-@var{[[Q(i1),P(i1)],[Q(i2),P(i2)],...]} なるリスト.
+@var{[[Q(i1),P(i1)],[(i2),P(i2)],...]} なるリスト.
 
 @item I
 多項式リスト
@@ -140,8 +140,10 @@ Copyright @copyright{} Masayuki Noro
 に属する付属素イデアルおよび対応する準素成分はレベル @var{i} であるという.
 
 出力において, @var{Q(ij)} は @var{I} の @var{Pij}-準素成分であり, @var{Q(ij)} 全体が
-@var{I} の最短準素分解を与える. 各 @var{QL(i)} はレベル @var{i} の成分全体
+@var{I} の最短準素分解を与える. 
+各 @var{QL(i)} はレベル @var{i} の成分全体
 を与える. 特に @var{QL(1)} は孤立成分および極小付属素イデアル全体を与える.
+@var{QL(1)} の各成分のみ, 3つ目の要素として極大独立集合を持つ.
 @item
 オプション @var{ass=1} が指定された場合, @var{QL(1)} に現われる成分 @var{Q(1j)} のみ準素成分
 (孤立準素成分)となるが, @var{QL(2)} 以降に現われる @var{Q(ij)} は @var{I} のある中間
@@ -159,6 +161,17 @@ Copyright @copyright{} Masayuki Noro
 @item
 オプション @var{para=proclist} を指定すると, 部分的な分散計算を行う.
 @var{proclist}は @code{noro_pd.init_pprocs} により生成されたプロセスのリストである.
+@item
+オプション @var{f4=1} が指定された場合, 可能な限り F4 アルゴリズムを用いる.
+デフォルトでは Buchberger アルゴリズムを用いる.
+@item
+オプション @var{trace=1} が指定された場合, 可能な限り trace アルゴリズムを用いる.
+デフォルトでは trace なしの Buchberger または F4 アルゴリズムを用いる.
+@item
+オプション @var{intgb=1} が指定された場合, 複数のイデアルの共通部分を, 2 つずつの
+イデアルの共通部分計算の繰り返しとして計算する際に, 毎回その共通部分のグレブナー基底を
+計算する. デフォルトではグレブナー基底を計算せずに繰り返す.
+
 @end itemize
 
 @example
