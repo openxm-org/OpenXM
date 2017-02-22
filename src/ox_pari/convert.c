@@ -162,7 +162,7 @@ cmo_qq *GEN_to_cmo_qq(GEN z)
   den = (GEN)z[2];
   c = new_cmo_qq();
   mpz_import(mpq_numref(c->mpq),lgef(num)-2,1,sizeof(long),0,0,&num[2]);
-  mpz_import(mpq_denref(c->mpq),lgef(num)-2,1,sizeof(long),0,0,&den[2]);
+  mpz_import(mpq_denref(c->mpq),lgef(den)-2,1,sizeof(long),0,0,&den[2]);
   if ( signe(num)*signe(den) < 0 )
     mpz_neg(mpq_numref(c->mpq),mpq_numref(c->mpq));
   return c;
