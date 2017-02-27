@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.137 2016/08/11 10:48:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.138 2017/02/10 00:22:41 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -295,7 +295,12 @@ def base_var_list(Name,B,T) {
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 /*&usage begin: number_abs(X) example: number_abs(-3); end: */
-def number_abs(X)  { return(pari(abs,X)); }
+def number_abs(X)  { 
+  if (version() < 20150000) return(pari(abs,X)); 
+  else {
+    if (X<0) return(-X); else return(X);
+  }
+}
 def number_base_form(X,B) { NOT_YET; }
 def number_binomial(P,Q) { NOT_YET; }
 /*&usage begin: number_ceiling(X) example: number_abs(1.5); end: */
