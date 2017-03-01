@@ -1,4 +1,4 @@
-VERSION=1.3.2-2
+VERSION=1.3.2-3
 OS=`dpkg --print-architecture`
 OpenXMBinaryTGZ=openxm-binary-${OS}-${VERSION}.tar.gz
 AsirBinaryTGZ=asir-binary-${OS}-${VERSION}.tar.gz
