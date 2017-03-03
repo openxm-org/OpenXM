@@ -1,0 +1,273 @@
+/* $OpenXM$ */
+// 2017.02.19 from tatibana version.
+import("tk_approx-r.rr")$
+module gtt_ekn$
+localf mle_init$
+localf myabs$
+localf move$
+localf dataset$
+localf ux$
+localf jinv$
+localf jinv_v2$
+localf jinv_orig$
+localf oddsvect$
+localf next$
+localf go_next$
+localf abs_max$
+localf cmle$
+localf cmle_test1$
+localf cmle_test2$
+localf cmle_test3$
+
+static CMLE_debug$
+static CMLE_err$
+static CMLE_relerr$
+static CMLE_eVect$
+static CMLE_Ediff$
+
+def mle_init() {
+  CMLE_debug=1$
+  CMLE_err=10^(-10)$
+  CMLE_relerr=10^(-10)$
+  CMLE_eVect=0$
+}
+
+def myabs(N){
+        if(N < 0)  return(-N);
+        return(N);
+}
+
+def move(M,Ep,Digit){
+        S = size(M);
+        R1 = S[0];
+        R2 = S[1];
+        Ret = newmat(R1,R2);
+        D = 10^Digit;
+        for(I=0;I<R1-1;I++){
+            for(J=1;J<R2;J++){
+                        NM = nm(M[I][J]);
+                        DN = dn(M[I][J]);
+                        Ret[I][J] = Ep*idiv((D*NM),DN)/D;
+                }
+        }
+        return(Ret);
+}
+
+def dataset(U){
+        R1 = length(U);
+        R2 = length(U[0]);
+
+        P = newmat(R1,R2);
+        N = R1 - 1;
+
+        for(I=0;I<R1;I++){
+                for(J=0;J<R2;J++)  P[I][J] = U[N][0]*U[I][J]/(U[N][J]*U[I][0]);
+        }
+        
+        B1 = newvect(R1);
+        B2 = newvect(R2);
+
+        for(I=0;I<R1;I++){
+            for(J=0;J<R2;J++){
+                B1[I] += U[I][J];
+                        B2[J] += U[I][J];
+            }
+        }
+        B = [vtol(B1),vtol(B2)];
+        return([newmat(R1,R2,U),B,P]);
+}
+
+def ux(U,P){
+        S = size(P);
+        Ret = newmat(S[0],S[1]);
+        for(I=1;I<S[0];I++){
+                for(J=1;J<S[1];J++){Ret[I][J] = U[I][J]*P[0][0]*P[I][J]/(P[0][J]*P[I][0]);}
+        }
+        return(Ret);
+}
+
+def jinv(Ediff){
+  S = size(Ediff);
+  DD = S[0]; D1=DD-1;
+  NN = S[1]; N1=NN-1;
+  R=(DD-1)*(NN-1);
+  Jac = newmat(R,R);
+  for (I=0; I<R; I++) {
+    for (J=0; J<R; J++) {
+      II=idiv(I,N1); JJ=I%N1+1;
+      KK=idiv(J,N1); LL=J%N1+1;
+      Jac[I][J] = Ediff[II][JJ][KK][LL-1];  
+    }
+  }
+  matrix_inverse(Jac);
+}
+
+def jinv_v2(Ediff){
+  S = size(Ediff);
+  DD = S[0]; D1=DD-1;
+  NN = S[1]; N1=NN-1;
+  R=(DD-1)*(NN-1);
+  Jac = newmat(R,R);
+  for (I=0; I<R; I++) {
+    for (J=0; J<R; J++) {
+      II=idiv(I,N1); JJ=I%N1+1;
+      KK=idiv(J,N1); LL=J%N1+1;
+      Jac[I][J] = Ediff[II][JJ][LL][KK];  // not [KK][LL]
+    }
+  }
+  matrix_inverse(Jac);
+}
+
+def jinv_orig(M){
+        S = size(M);
+        R1 = S[0] - 1;
+        R2 = S[1] - 1;
+        R = R1*R2;
+        Jac = newmat(R,R);
+        Tmp = newvect(R);
+
+        Fn = 0;
+        for(I=0;I<R1;I++){
+                for(J=1;J<S[1];J++){Tmp[Fn++] = M[I][J];}
+        }
+
+        for(I=0;I<R;I++){
+                J2 = 0;
+                for(J=0;J<R1;J++){//R1
+                        for(K=0;K<R2;K++){Jac[I][J2++] = Tmp[I][J][K];}
+                }
+        }
+
+        return(matrix_inverse(Jac));
+}
+
+def oddsvect(E){
+        S = size(E);
+        R1 = S[0] - 1;
+        R2 = S[1] - 1;
+        R = R1*R2;
+        Ret = newvect(R);
+
+        I2 = 0;
+        for(I=0;I<R1;I++){
+                for(J=1;J<S[1];J++){Ret[I2++] = E[I][J];}
+        }
+
+        return(Ret);
+}
+
+def next(E,N){
+        S = size(E);
+        Ret = newmat(S[0],S[1]);
+
+        T1 = jinv(N);
+        T2 = oddsvect(E);
+        Oddsvect = T1*T2;
+        I2 = 0;
+        for(I=0;I<S[0]-1;I++){
+                for(J=1;J<S[1];J++)  Ret[I][J] = Oddsvect[I2++];
+        }
+
+        return(Ret);
+}
+
+
+def go_next(UsubE,R1,R2,Prec){
+    for(I=0;I<R1;I++){
+        for(J=0;J<R2;J++){
+            if(myabs(UsubE[I][J]) > Prec)  return(1);
+        }
+    }
+    return(0);
+}
+
+def abs_max(Step) {
+  if (type(Step) != 6) error("abs_max: not implemented.");
+  Size=size(Step);
+  Max=0;
+  for (I=0; I<Size[0]; I++) {
+    for (J=0; J<Size[0]; J++) {
+      //      V=number_abs(Step[I][J]);  // number_abs seems to be buggy. Try cmle_test2() with this line.  See mydebug.rr
+      if (Step[I][J] < 0) V=-Step[I][J]; else V=Step[I][J];
+      if (V > Max) Max=V;
+      if (Max > 10) debug(); 
+    }
+  }
+  return(Max);
+}
+
+def cmle(U){
+  Prec_step = 1/10^2;
+  if (type(getopt(eps)) < 0) Eps=Prec_step;
+  else { Eps = getopt(eps); Prec_step=Eps; }
+    Data = dataset(U);
+    UM = Data[0];
+    Beta = Data[1];
+    P = Data[2];
+
+    Prec = 1/10^5;
+    //    Count = 10;
+    Count = 50;
+    CMLE_eVect=newvect(Count);
+    Digit = 10;
+    StepSize = 1;
+
+    S = size(UM);
+    R1 = S[0];
+    R2 = S[1];
+
+    for(I=0;I<Count;I++){
+        if (CMLE_debug) printf("gtt_ekn.gmvector(Beta=%a,P=%a);\n",Beta,P);
+        GM = gtt_ekn.gmvector(Beta,P);
+        if (CMLE_debug) printf("gtt_ekn.cBasistoE(GM=...,Beta,P);\n");
+        UsubE = UM - gtt_ekn.cBasistoE(GM,Beta,P);
+        if (CMLE_debug) {
+          printf("UsubE=%a, max(UsubE)=%a\n",number_eval(UsubE),Amax=number_eval(abs_max(UsubE))); 
+          CMLE_eVect[I]=Amax;
+        }
+        if(go_next(UsubE,R1,R2,Prec) == 0)  return([UM,Beta,P]);
+        if (CMLE_debug) printf("gtt_ekn.cBasistoEdiff(GM,Beta,P);\n",GM);
+        Ediff = gtt_ekn.cBasistoEdiff(GM,Beta,P);
+        CMLE_Ediff=Ediff;  // for debug
+        Step = move(next(UsubE,Ediff),StepSize,Digit);
+        if (Amax=abs_max(Step) > Prec_step*2) Step=(Step/Amax)*Prec_step;
+        if (CMLE_err || CMLE_relerr) {
+          P = map(tk_approx_r.cont_frac,P + Step,CMLE_err,CMLE_relerr); 
+          if (CMLE_debug) printf("P(truncated)=%a\n",P);
+        }
+    }
+    printf("P might not be correct.\n");
+    return([UM,Beta,P]);
+}
+
+def cmle_test1() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  U=[[1,6,123],[3,22,145],[86,91,176]];
+  CMLE_debug=1;
+  return(cmle(U));
+}
+
+def cmle_test2() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  /*
+   0 2 5
+   3 1 4
+   1 3 3
+  */
+  U=[[1,2,5],[3,1,4],[1,3,3]];
+  CMLE_debug=1;
+  return(cmle(U));
+}
+
+def cmle_test3() {
+  // cf. tk_fd.rr  hfdtest2();
+  //  U=[[1,1,2,1],[1,3,1,1]];
+  // tk_fd.fdah_poly(-7,[-4,-3,-4],-4,tk_fd.yvars(4) | approx=10);
+  U=[[1,1,2,3],[1,3,1,1]];
+  CMLE_debug=1;
+  return(cmle(U));
+}
+endmodule$
+gtt_ekn.mle_init()$
+
+end$

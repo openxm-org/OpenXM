@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.2 2016/03/20 21:41:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.3 2016/03/26 05:25:35 takayama Exp $ */
 import("names.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
 load("gtt_ekn/g_mat_fac.rr")$
 load("gtt_ekn/ekn_eval.rr")$
+load("gtt_ekn/mle.rr")$
 
 #ifdef USE_MODULE
 module gtt_ekn$
@@ -14,6 +15,7 @@ localf lognc$
 localf expectation$
 localf setup$
 localf report$
+localf cmle$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
@@ -163,6 +165,10 @@ def setup() {
 
 def report(){
     setup(|report=1);
+}
+
+def cmle(U){
+    return(cmle_2(U|option_list=getopt()));
 }
 
 #ifdef USE_MODULE

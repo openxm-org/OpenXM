@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.2 2016/03/26 05:25:35 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.3 2016/03/28 23:14:54 takayama Exp $
 %% ptex -kanji euc gtt_ekn.texi   (.texi までつける. platex でなく ptex) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo
@@ -39,8 +39,8 @@
 @comment --- タイトル, バージョン, 著者名, 著作権表示 ---
 @title 2元分割表HGM関数
 @subtitle Risa/Asir 2元分割表HGM関数説明書
-@subtitle 1.0 版
-@subtitle 2016 年 3 月 22 日
+@subtitle 1.1 版
+@subtitle 2017 年 3 月 3 日
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
@@ -64,6 +64,7 @@ Copyright @copyright{} Risa/Asir committers
 @menu
 * 2元分割表HGMの関数説明書について::
 * 2元分割表HGMの関数::
+* modular計算
 * Index::
 @end menu
 
@@ -96,6 +97,7 @@ N.Takayama, S.Kuriki, A.Takemura,
 このマニュアルで説明する関数を用いたプログラム例は
 gtt_ekn/test-t1.rr 
 など.
+
 
 @node 2元分割表HGMの関数,,, Top
 @chapter 2元分割表HGMの関数
@@ -654,6 +656,7 @@ ChangeLog
 @item option nprm (または number_of_primes)を与えるとnprmが文字列の場合指定された素数リストのファイルを読み込む. nprmが自然数の場合さらにoption minp (minp =MINimum Prime)を与えるとminpより大きな素数をnprm個生成する. その際option fgp (または file_of_generated_primes)を与えると生成した素数リストをファイル名をfgpとして保存する.
 @item 上記のoption を指定しなかった場合次のデフォルト値が用いられる. nps=1. nprm=10. fgp=0.
 @item option report=1を与えると現在の環境の報告のみを行う. setup(|report=1)の別名としてreport関数を使用することもできる.
+@item option subprogs=[file1,file2,...] により分散計算の子供プロセスにロードすべきファイル file1, file2, ... を指定する. default は subprogs=["gtt_ekn/childprocess.rr"] である.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -756,6 +759,114 @@ ChangeLog
 @item
  変更を受けたファイルは 
  OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_pfaffian_8.rr 1.1.
+@end itemize
+
+
+@node modular計算,,, 2元分割表HGMの関数
+@chapter modular計算
+
+@menu
+* gtt_ekn.chinese_itor::
+@end menu
+
+@node 中国剰余定理とitor,,, modular計算
+@section 中国剰余定理とitor
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn.chinese_itor,,, 
+@subsection @code{gtt_ekn.chinese_itor}
+@comment --- 索引用キーワード
+@findex gtt_ekn.chinese_itor 中国剰余定理とitor
+
+@table @t
+@item gtt_ekn.chinese_itor(@var{data},@var{idlist})
+:: mod p で計算した結果(ベクトル)から chinese remainder theorem, itor(integer to rational) で有理数ベクトルを得る.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return  [val, n]  ここで val は答え. また, n = n1*n2*...
+@item data   [[val1,n1],[val2,n2], ...], ここで val mod n1 = val1, val mod n2 = val2,...
+@item idlist  chinese, itor を実行するサーバIDのリスト. 
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 中国剰余定理を用いて val0 mod n1 = val1, val0 mod n2 = val2, ... となる val0 を求める. val に algorithm itor を適用する.
+@item sqrt(n) より val0 が大きい時は itor が適用されて val0 が有理数 val=a/b に変換される. つまり b*x =1 mod n となる逆数 x を考えて, x*a % n = val0 となる数 val を戻す. 見つからないときは failure を戻す.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: [3!, 5^3*3!]=[6,750] が戻り値.
+6 mod 109 =6, 750 mod 109=96 が最初の引数の [[6,96],109]. 以下同様.
+@example
+gtt_ekn.setup(|nps=2,nprm=3,minp=101,fgp="p_small.txt");
+SS=gtt_ekn.get_svalue();
+SS[0];
+  [103,107,109]   // list of primes
+SS[1];
+  [0,2]           // list of server ID's
+gtt_ekn.chinese_itor([[[ 6,96 ],109],[[ 6,29 ],103],[[ 6,1 ],107]],SS[1]);
+  [[ 6 750 ],1201289]
+
+// 引数はスカラーでもよい.
+gtt_ekn.chinese_itor([[96,109],[29,103]],SS[1]);
+  [[ 750 ],11227]
+@end example
+
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: gtt_ekn/childprocess.rr (server で実行される) の関数 chinese (chinese remainder theorem) と euclid.
+@example
+load("gtt_ekn/childprocess.rr");
+chinese([newvect(2,[6,29]),103],[newvect(2,[6,750]),107*109]);
+  // mod 103 で [6,29], mod (107*109) で [6,750] となる数を mod 103*(107*109)
+  // で求めると,
+  [[ 6 750 ],1201289]
+euclid(3,103);  // mod 103 での 3 の逆数. つまり 1/3
+  -34
+3*(-34) % 103; // 確かに逆数.
+   1
+@end example
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: gtt_ekn/childprocess.rr (server で実行される) の関数 itor (integer to rational) の例.
+itor(Y,Q,Q2,Idx) では Y < Q2 なら Y がそのまま戻る.  Idx は 内部用の index で好きな数でよい. 戻り値の第２成分となる.
+@example
+load("gtt_ekn/childprocess.rr");
+for (I=1;I<11; I++) print([I,itor(I,11,3,0)]);
+[1,[1,0]]
+[2,[2,0]]
+[3,[-2/3,0]] //euclid(3,11); ->4,  4*(-2)%11 -> 3 なので確かに -2/3 は元の数の候補
+[4,[failure,0]]
+[5,[-1/2,0]]
+[6,[1/2,0]]
+[7,[-1/3,0]]
+[8,[failure,0]]
+[9,[-2,0]]
+[10,[-1,0]]
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.setup}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 関連ファイルは 
+ gtt_ekn/g_mat_fac.rr
+ gtt_ekn/childprocess.rr
 @end itemize
 
 

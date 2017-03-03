@@ -1,0 +1,67 @@
+/* $OpenXM$ */
+/* Maintained in ekn/Prog */
+// approximate ratinoal.  
+// 2017.02.19, Imported from rk-k/Prog/rk-mfac.rr
+
+module tk_approx_r;
+localf number_eval$
+localf frac2rat$
+localf cont_frac0$
+localf cont_frac$
+
+def number_eval(F) {
+  if (type(F)==0) return(F);
+  if (type(F)<=3) return(eval(exp(0)*F));
+  if ((type(F)>=4) && (type(F)<=6)) return(map(number_eval,F));
+}
+
+def frac2rat(Fraction) {
+  F=Fraction;
+  C=0;
+  while (F != []) {
+    C = 1/(C + car(F)); F=cdr(F);
+  }
+  return(C);
+}
+// A >= B > 0
+// fraction of B/A
+// Example: cont_frac0(12345+2^15,123456+2^32+1,1/10^10,1/10^10);
+def cont_frac0(B,A,Err,Rel_err) {
+  if (A < B) error("argument should satisfy first <= second.");
+  Fraction=[];
+  Rval=B/A;
+  Q = idiv(A,B); R=A%B; Cval=1/Q; 
+  D=number_abs(Rval-Cval); Drel=number_abs(Rval/Cval-1);
+  A=B; B=R;  Fraction=cons(Q,Fraction);
+  if (Ott_debug) printf("abs error=%a, rel error=%a\n",eval(D*exp(0)),eval(Drel*exp(0)));
+  if (R == 0) return(Cval);
+  while ((D > Err) || (Drel > Rel_err)) {
+    Q = idiv(A,B); R=A%B;
+    Fraction=cons(Q,Fraction);
+    Cval=frac2rat(Fraction);
+    if (R == 0) {
+       if (Ott_debug) printf("R is 0.\n");
+       return(Cval);
+    }
+    A=B; B=R;
+    D=number_abs(Rval-Cval); Drel=number_abs(Rval/Cval-1);
+    if (Ott_debug) printf("abs error=%a, rel error=%a\n",eval(D*exp(0)),eval(Drel*exp(0)));
+    if (Ott_debug) printf("(D,Drel,Err,Rel_err)=(%a,%a,%a)\n",D,Drel,Err,Rel_err);
+  }
+  return(Cval);  // Fraction should be returned if it is needed.
+}
+def cont_frac(R,Err,Rel_err) 
+"cont_frac(R,Err,Rel_err);\
+ Truncate the rational number R to R2 with |R-R2|<Err and |(R-R2)/R2|<Rel_err."
+{
+  if (R < 0) {Sign=-1; R=-R;} else Sign=1;
+  if (R==0) return(0);
+  Num=nm(R); Den=dn(R);
+  if (Num > Den) {
+    Int_part=idiv(Num,Den); Num=Num-Int_part*Den;
+  }else Int_part=0;
+  Ans=Int_part+cont_frac0(Num,Den,Err,Rel_err);
+  return(Ans*Sign);
+}
+endmodule$
+end$
