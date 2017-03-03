@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.1 2017/03/03 09:00:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.2 2017/03/03 10:36:01 takayama Exp $ */
 // 2017.02.19 from tatibana version.
 import("tk_approx-r.rr")$
 module gtt_ekn$
@@ -19,9 +19,12 @@ localf cmle_test1$
 localf cmle_test2$
 localf cmle_test3$
 
+/* imported from ekn/Prog/cmle.rr 
+localf next_2$
 localf cmle_options$
 localf cmle_1$
 localf cmle_2$
+*/
 
 static CMLE_debug$
 static CMLE_err$
@@ -244,6 +247,21 @@ def cmle_3(U){
     return([UM,Beta,P]);
 }
 
+/*
+def next_2(E,N,OptJac,Digit){
+	S = size(E);
+	Ret = newmat(S[0],S[1]);
+
+	T1 = jinv(N,OptJac);
+	T2 = dhgfvect(E);
+	Stepvect = T1*T2;
+	I2 = 0;
+	for(I=0;I<S[0]-1;I++){
+		for(J=1;J<S[1];J++)  Ret[I][J] = Stepvect[I2++];
+	}
+	if(OptJac != "rational")  Ret = map(rats2,Ret,Digit);
+	return(Ret);
+}
 def cmle_options(){
     if(type(getopt(prec)) >= 0){
     	Prec = getopt(prec);
@@ -291,7 +309,7 @@ def cmle_1(U){
 	UsubE = UM - gtt_ekn.cBasistoE(GM,Beta,P);
 	if(go_next(UsubE,R1,R2,Prec) == 0)  return([UM,Beta,P]);
 	Ediff = gtt_ekn.cBasistoEdiff(GM,Beta,P);
-	Step = next(UsubE,Ediff,OptJac,Digit);
+	Step = next_2(UsubE,Ediff,OptJac,Digit);
 	Step = move(Step,StepSize,Digit);
 	P = P + Step; 
     }
@@ -322,6 +340,7 @@ def cmle_2(U){
     }
     return([CT,D[1],Ret,P]);
 }
+*/
 
 def cmle_test1() {
   printf("make_2wayTable(  ,[0,1],[6,7])\n");

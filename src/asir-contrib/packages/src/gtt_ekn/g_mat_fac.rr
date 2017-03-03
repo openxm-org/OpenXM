@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/g_mat_fac.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/g_mat_fac.rr,v 1.2 2017/03/03 09:00:26 takayama Exp $ */
 #define USEMODULE
 #ifdef USEMODULE
 module gtt_ekn$
@@ -26,10 +26,17 @@ localf to_vect$
 #endif
 
 def process(N){
+  if (type(getopt(sub_progs))>0) {
+    Sub_progs=getopt(sub_progs);
+  }else Sub_progs=["gtt_ekn/childprocess.rr"];
+
     Ret = newvect(N);
     for(I=0;I<N;I++){
-       Ret[I] = ox_launch_nox();
-       ox_rpc(Ret[I],"load","gtt_ekn/childprocess.rr");
+       if (Ekn_debug) Ret[I] = ox_launch();
+       else Ret[I] = ox_launch_nox();
+       for (J=0; J<length(Sub_progs); J++) {
+         ox_rpc(Ret[I],"load",Sub_progs[J]);
+       }
     }
     Ret = vtol(Ret);
     return(Ret);
@@ -37,10 +44,15 @@ def process(N){
 
 /*for debug*/
 def setup_x(N){
+  if (type(getopt(sub_progs))>0) {
+    Sub_progs=getopt(sub_progs);
+  }else Sub_progs=["gtt_ekn/childprocess.rr"];
     Ret = newvect(N);
     for(I=0;I<N;I++){
        Ret[I] = ox_launch();
-       ox_rpc(Ret[I],"load","gtt_ekn/childprocess.rr");
+       for (J=0; J<length(Sub_progs); J++) {
+         ox_rpc(Ret[I],"load",Sub_progs[J]);
+       }
     }
     Ret = vtol(Ret);
     return(Ret);

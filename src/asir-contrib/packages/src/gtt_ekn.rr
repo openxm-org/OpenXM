@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.4 2017/03/03 09:00:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.5 2017/03/03 10:36:01 takayama Exp $ */
 import("names.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
@@ -16,6 +16,7 @@ localf expectation$
 localf setup$
 localf report$
 localf cmle$
+localf set_debug_level$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
@@ -131,7 +132,7 @@ def setup() {
     	if(type(NPS) > 0){
             if(type(NPS) == 1){
 	        if(type(Ekn_IDL) == 4)  shutdown(Ekn_IDL);
-	    	Ekn_IDL = process(NPS);
+	    	Ekn_IDL = process(NPS|option_list=getopt());
 	    }else  printf("Option nps is bad.\n");
     	}
 
@@ -168,8 +169,12 @@ def report(){
 }
 
 def cmle(U){
-    return(cmle_2(U|option_list=getopt()));
-/* or return(cmle_3(U|option_list=getopt())); */
+//    return(cmle_2(U|option_list=getopt()));
+   return(cmle_3(U|option_list=getopt()));
+}
+
+def set_debug_level(Mode) {
+  Ekn_debug=Mode;
 }
 
 #ifdef USE_MODULE
