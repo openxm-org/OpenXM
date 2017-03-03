@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.1 2017/03/03 09:00:26 takayama Exp $ */
 // 2017.02.19 from tatibana version.
 import("tk_approx-r.rr")$
 module gtt_ekn$
@@ -14,10 +14,14 @@ localf oddsvect$
 localf next$
 localf go_next$
 localf abs_max$
-localf cmle$
+localf cmle_3$
 localf cmle_test1$
 localf cmle_test2$
 localf cmle_test3$
+
+localf cmle_options$
+localf cmle_1$
+localf cmle_2$
 
 static CMLE_debug$
 static CMLE_err$
@@ -196,7 +200,7 @@ def abs_max(Step) {
   return(Max);
 }
 
-def cmle(U){
+def cmle_3(U){
   Prec_step = 1/10^2;
   if (type(getopt(eps)) < 0) Eps=Prec_step;
   else { Eps = getopt(eps); Prec_step=Eps; }
@@ -222,7 +226,7 @@ def cmle(U){
         if (CMLE_debug) printf("gtt_ekn.cBasistoE(GM=...,Beta,P);\n");
         UsubE = UM - gtt_ekn.cBasistoE(GM,Beta,P);
         if (CMLE_debug) {
-          printf("UsubE=%a, max(UsubE)=%a\n",number_eval(UsubE),Amax=number_eval(abs_max(UsubE))); 
+          printf("UsubE=%a, max(UsubE)=%a\n",tk_approx_r.number_eval(UsubE),Amax=tk_approx_r.number_eval(abs_max(UsubE))); 
           CMLE_eVect[I]=Amax;
         }
         if(go_next(UsubE,R1,R2,Prec) == 0)  return([UM,Beta,P]);
@@ -240,11 +244,90 @@ def cmle(U){
     return([UM,Beta,P]);
 }
 
+def cmle_options(){
+    if(type(getopt(prec)) >= 0){
+    	Prec = getopt(prec);
+    }else Prec = 1/10^5;
+    if(type(getopt(count)) >= 0){
+        Count = getopt(count);
+    }else Count = 10;
+    if(type(getopt(digit)) >= 0){
+    	Digit = getopt(digit);
+    }else Digit = 10;
+    if(type(getopt(stepsize)) >= 0){
+        StepSize = getopt(stepsize);
+    }else StepSize = 1;
+    if(type(getopt(crt)) >= 0){
+        CRT = getopt(crt);
+    }else CRT = 0;
+    if(type(getopt(optjac)) >= 0){
+        OptJac = getopt(optjac);
+    }else OptJac = "double";
+    return([Prec,Count,Digit,StepSize,CRT,OptJac]);
+}
+
+def cmle_1(U){
+    Data = dataset(U);
+    if(Data == 0)  return(0);
+    UM = Data[0];
+    Beta = Data[1];
+    P = Data[2];
+
+    OPT = cmle_options(|option_list=getopt());
+    Prec = OPT[0];
+    Count = OPT[1];
+    Digit = OPT[2];
+    StepSize = OPT[3];
+    CRT = OPT[4];
+    OptJac = OPT[5];
+
+    S = size(UM);
+    R1 = S[0];
+    R2 = S[1];
+
+    print(P);
+    for(I=0;I<Count;I++){
+	GM = gtt_ekn.gmvector(Beta,P|crt=CRT);
+	UsubE = UM - gtt_ekn.cBasistoE(GM,Beta,P);
+	if(go_next(UsubE,R1,R2,Prec) == 0)  return([UM,Beta,P]);
+	Ediff = gtt_ekn.cBasistoEdiff(GM,Beta,P);
+	Step = next(UsubE,Ediff,OptJac,Digit);
+	Step = move(Step,StepSize,Digit);
+	P = P + Step; 
+    }
+    printf("P might not have expected\n");
+    return([UM,Beta,P]);
+}
+
+def cmle_2(U){
+    D = cmle_1(U|option_list=getopt());
+    if(D == 0)  return(0);
+    CT = D[0];
+    P = D[2];
+
+    S = size(P);
+    Ret = newmat(S[0],S[1]);
+    N = 0;
+    for(I=0;I<S[0];I++){
+        for(J=0;J<S[1];J++){
+	    N += CT[I][J];
+	    Ret[I][J] = CT[I][J];
+	}
+    }
+    Ret /= N;
+    K = S[0]-1;
+    L = S[1];
+    for(I=0;I<K;I++){
+        for(J=1;J<S[1];J++)  Ret[I][J] = P[I][J]*Ret[I][0]*Ret[K][J]/Ret[K][0];
+    }
+    return([CT,D[1],Ret,P]);
+}
+
 def cmle_test1() {
   printf("make_2wayTable(  ,[0,1],[6,7])\n");
   U=[[1,6,123],[3,22,145],[86,91,176]];
   CMLE_debug=1;
-  return(cmle(U));
+  return(cmle_3(U));
 }
 
 def cmle_test2() {
@@ -256,7 +339,7 @@ def cmle_test2() {
   */
   U=[[1,2,5],[3,1,4],[1,3,3]];
   CMLE_debug=1;
-  return(cmle(U));
+  return(cmle_3(U));
 }
 
 def cmle_test3() {
@@ -265,7 +348,7 @@ def cmle_test3() {
   // tk_fd.fdah_poly(-7,[-4,-3,-4],-4,tk_fd.yvars(4) | approx=10);
   U=[[1,1,2,3],[1,3,1,1]];
   CMLE_debug=1;
-  return(cmle(U));
+  return(cmle_3(U));
 }
 endmodule$
 gtt_ekn.mle_init()$
