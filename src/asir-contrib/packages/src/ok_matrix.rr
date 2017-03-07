@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.1 2005/04/08 05:29:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.2 2016/08/11 10:48:55 takayama Exp $ */
 /* Old: Matrix */
 
 /*-------------------------------*/
@@ -58,6 +58,29 @@ def omatrix_mtol(M) {
     L = append(L, [Row]);
   }
   return L;
+}
+
+def omatrix_matrix_to_list(Y) {
+  if (type(Y) < 4) return(Y);
+  if (type(Y) == 4) return(map(omatrix_matrix_to_list,Y));
+  if (type(Y) == 5) {
+    Ans = newvect(length(Y));
+    for (I=0; I<length(Y); I++) Ans[I]=omatrix_matrix_to_list(Y[I]);
+    return(vtol(Ans));
+  }
+  if (type(Y) == 6) {
+    V = newvect(size(Y)[1]);
+    Ans=[];
+    for (I=0; I<size(Y)[0]; I++) {
+      for (J=0; J<size(Y)[1]; J++) {
+        V[J] = omatrix_matrix_to_list(Y[I][J]);
+      }
+      V2 = vtol(V);
+      Ans=cons(V2,Ans);
+    }
+    return(reverse(Ans));
+  }
+  error("Unknown type for omatrix_matrix_to_list");
 }
 
 def omatrix_ltov(L) {

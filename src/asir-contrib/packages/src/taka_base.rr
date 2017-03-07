@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.29 2012/02/27 23:27:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.30 2014/05/02 07:08:35 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -394,6 +394,20 @@ def taka_base_rebuild_opt(Opt) {
     A=Opt;
   }  
   return(A);
+}
+
+def taka_base_number_abs(X) {
+  if (type(X)<=0) return(X);
+  if (type(X) == 1) {
+    if (ntype(X)<=1) return((X>0?X:-X));
+    if (ntype(X)==3) return((X>0?X:-X));
+    if (ntype(X)==4) {
+      Val=real(X)^2+imag(X)^2;
+      return Val^(1/2);
+    }
+  }
+  printf("taka_base_number_abs(%a) is not implemented.\n",X);
+  error("taka_base_number_abs2);
 }
 
 Taka_base_loaded = 1$
