@@ -22,19 +22,19 @@ localf pftoeuler$
 localf gammam,prc,prc2$
 localf ps,psvalue,act_op,decomp_op,create_homo,bpsvalue$
 localf pfaffian,gen_basis$
-localf evalpf,eval_pfaffian,genrk45$
+localf evalpf,eval_pfaffian,genrk45,genrk45_2f1$
 localf solve_leq,ptom$
 localf msubst$
 localf vton,encodef1,encodef,encodec1,encodec$
 localf vton,ftotex,ctotex,pftotex,optotex,eqtotex$
-localf genprc,prob_by_hgm,prob_by_ps$
+localf genprc,genprc_2f1,prob_by_hgm,prob_by_hgm_2f1,prob_by_ps,prob_by_ps_2f1$
 localf partition, all_partition,  coef_partition, count_dup,simp_power1$
 localf lop1,lopn,loph,mul_lopitalpf2$
 localf muldmpf$
 localf diagcheck,eliminatecheck$
 localf getchi$
 localf message$
-localf pfaffian2, eval_pfaffian2$
+localf pfaffian2, pfaffian2_2f1, eval_pfaffian2$
 localf mapleout$
 localf gbcheck$
 localf partition,all_partition,partition_to_pattern$
@@ -1440,6 +1440,16 @@ def genprc(M,N,PL,SL)
   return C;
 }
 
+def genprc_2f1(M,N1,PL,SL)
+{
+  DetS = 1;
+  for ( T = PL, S = SL; T != []; T = cdr(T), S = cdr(S) ) {
+    DetS *= car(S)^car(T);
+  }
+  C = 1/eval(DetS^(1/2*N1));
+  return C;
+}
+
 def distinct_diag(S)
 {
   for ( T = S; T != []; T = cdr(T) ) {
@@ -1501,6 +1511,51 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   return F;
 }
 
+def prob_by_hgm_2f1(M,N1,N2,PL,SL,X)
+{
+  A = N1/2; Bb = (N1+N2)/2; C = (N1+M+1)/2;
+
+  if ( !distinct_diag(SL) ) error("eigenvaules must be distinct");
+  B = []; V = []; Beta = [];
+  Prev = 1;
+  for ( T = PL, S = SL; T != []; T = cdr(T), S = cdr(S) ) {
+    V = cons(strtov("y"+rtostr(Prev)),V);
+    B = cons([Prev,Prev+car(T)-1],B);
+    Prev += car(T);
+    Beta = cons(1/(car(S)),Beta);
+  }
+  if ( Prev != M+1 )
+    error("invalid block specification");
+  B = reverse(B); V = reverse(V);
+  Beta = reverse(Beta);
+
+T0 = time();
+  if ( type(Z=getopt(eq)) == -1 )
+    Z = diagpf(M,B|w2f1=1);
+T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
+
+  if ( type(Step=getopt(step)) == -1 )
+    Step = 10000;
+
+  Z = subst(Z,a,A,b,Bb,c,C);
+  if ( type(X0=getopt(x0)) == -1 ) {
+    if ( type(Init=getopt(init)) == -1 ) Init = 1;
+    X0 = 0;
+    Len = length(Beta);
+    for ( I = 0; I < Len; I++ )
+      if ( Beta[I] > X0 ) X0 = Beta[I];
+    X0 = Init/X0;
+  }
+  if ( type(Rk=getopt(rk)) == -1 ) Rk = 5;
+  if ( type(Eps=getopt(eps)) == -1 ) Eps = 10^(-4);
+  if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
+  if ( type(PS=getopt(ps)) == -1 ) PS = 0;
+  if ( type(TD=getopt(td)) == -1 ) TD = 0;
+  F = genrk45_2f1(Z,M,N1,N2,V,PL,SL,Beta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD);
+  if ( Print ) print(["diag",Tdiag,"pfaffian",Tp,"ps",Tps,"rk",Trk]);
+  return F;
+}
+
 def prob_by_ps(M,N,PL,SL,X)
 {
   if ( !distinct_diag(SL) ) error("eigenvaules must be distinct");
@@ -1536,6 +1591,39 @@ def prob_by_ps(M,N,PL,SL,X)
   MN2 = M*N/2;
   ExpF = eval(X^(MN2)*exp(-SBeta*X));
   return C*L[1]*ExpF;
+}
+
+def prob_by_ps_2f1(M,N1,N2,PL,SL,X)
+{
+  if ( !distinct_diag(SL) ) error("eigenvaules must be distinct");
+  A = N1/2; Bb = (N1+N2)/2; C = (N1+M+1)/2; MN2 = M*N1/2;
+
+  B = []; V = []; Beta = []; SBeta = 0;
+  Prev = 1;
+  for ( T = PL, S = SL; T != []; T = cdr(T), S = cdr(S) ) {
+    V = cons(strtov("y"+rtostr(Prev)),V);
+    B = cons([Prev,Prev+car(T)-1],B);
+    Prev += car(T);
+    Beta = cons(1/(car(S)),Beta);
+  }
+  if ( Prev != M+1 )
+    error("invalid block specification");
+  B = reverse(B); V = reverse(V);
+  Beta = reverse(Beta);
+
+  if ( type(Z=getopt(eq)) == -1 )
+    Z = diagpf(M,B|w2f1=1);
+
+  Z = subst(Z,a,A,b,Bb,c,C);
+  C = gammam(M,(M+1)/2)*gammam(M,Bb)/(gammam(M,C)*gammam(M,N2/2))*genprc_2f1(M,N1,PL,SL);
+
+  Eps = getopt(eps);
+  if ( type(Eps) == -1 ) Eps = 2^(-52);
+
+  Beta = ltov(Beta)*eval(exp(0));
+  X *= eval(exp(0));
+  L = psvalue(Z,V,-Beta*X|eps=Eps); PS = L[0];
+  return C*L[1]*eval(X^(M*N1/2));
 }
 
 def ps(Z,V,TD)
@@ -1892,8 +1980,9 @@ def pfaffian2(Z,V,Beta,SBeta,MN2,XV)
   Lcm = XV;
   for ( I = 0; I < N; I++ )
     Lcm = lcm(Mat[I][1],Lcm);
-  /* R = (MN2/XV-SBeta)*Id = (MN2-SBeta*XV)*(Lcm/XV)/Lcm*Id */
   R = matrix(Dim,Dim);
+  /* 1F1 : R = (MN2/XV-SBeta)*Id = (MN2-SBeta*XV)*(Lcm/XV)/Lcm*Id */
+  /* 2F1 : R = (MN2/XV)*Id = (MN2)*(Lcm/XV)/Lcm*Id */
   D = (MN2-SBeta*XV)*sdiv(Lcm,XV);
   for ( I = 0; I < Dim; I++ ) R[I][I] = D;
   for ( I = 0; I < N; I++ ) {
@@ -2023,6 +2112,109 @@ T0 = time();
     for ( J = 0; J < Len; J++ )
       DPS = subst(DPS,V[J],Beta0[J]);
     F0[I] = DPS*ExpF;
+  }
+  First = 1;
+  Val = [];
+  LVal = [];
+  DVal = [];
+  RDVal = [];
+  if ( MapleOut ) {
+    mapleout(Mat[0],Mat[1],X0,F0,X,MapleOut);
+    return;
+  }
+  for ( I = 0; ; Step *= 2, I++ ) {
+    if ( Print ) print("Step=",0); if ( Print ) print(Step);
+    F = F0*1;
+    T = F[0]; F /= T;
+    R = [[X0,T]];
+    R1 = rk_ratmat(RK,Mat[0],Mat[1],X0,X,Step,F);
+    R = append(R1,R);
+
+    setround(1);
+    Adj = eval(exp(0));
+    for ( T = R; T != []; T = cdr(T) )
+      Adj *= car(T)[1];
+    LVal = cons(Adj,LVal);
+    setround(2);
+    Adj = eval(exp(0));
+    for ( T = R; T != []; T = cdr(T) )
+      Adj *= car(T)[1];
+    Val = cons(Adj,Val);
+    setround(0);
+
+    if ( Print ) { print(""); print([LVal[0],Val[0]]); }
+    if ( I >= 1 ) DVal = cons(Val[0]-Val[1],DVal);
+    if ( I >= 2 ) {
+      RDVal = cons(DVal[1]/DVal[0],RDVal);
+      print(["log ratio=",eval(log(RDVal[0])/log(2))]);
+    }
+    if ( I >= 1 && abs(1-Val[0]/Val[1])<Eps ) {
+      T1 = time(); Trk = (T1[0]-T0[0])+(T1[1]-T0[1]);
+      return Val[0];
+    }
+    if ( Print ) print("");
+  }
+}
+
+def genrk45_2f1(Z,M,N1,N2,V,PL,SL,Beta,X,RK,Step,X0,Eps)
+{
+  if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
+  if ( type(PSL=getopt(ps)) == -1 ) PSL = 0;
+  if ( type(TD=getopt(td)) == -1 || !TD ) TD = 100;
+  ctrl("bigfloat",1);
+  O = eval(exp(0));
+  Len = length(V);
+  DV = vector(Len);
+  for ( I = 0; I < Len; I++ )
+    DV[I] = strtov("d"+rtostr(V[I]));
+  DV = vtol(DV);
+  A = N1/2; Bb = (N1+N2)/2; C = (N1+M+1)/2; MN2 = M*N1/2;
+  Z0 = subst(Z,a,A,b,Bb,c,C);
+T0 = time();
+  Q = pfaffian2(Z0,V,vtol(-ltov(Beta)),0,MN2,t); Mat = Q[0]; Base = Q[1];
+  MatLen = length(Q[0][0]);
+  for ( I = 0; I < MatLen; I++ )
+    Mat[0][I] *= O;
+T1 = time(); Tp = (T1[0]-T0[0])+(T1[1]-T0[1]);
+T0 = time();
+  Beta = ltov(Beta)*O;
+  X *= O;
+  Beta0 = -Beta*X0;
+  if ( !PSL ) PSL = ps(Z0,V,TD);
+  PS = PSL[0]; PSd = PSL[1];
+  while ( 1 ) {
+    if ( X0 >= X ) {
+      X0 = X;
+      Beta0 = -Beta*X0;
+      break;
+    }
+    Val = msubst(PS,V,Beta0);
+    Vald = msubst(PSd,V,Beta0);
+    if ( Val+Vald != Val ) {
+      if ( !PrevX0 )
+        error("X0 too large");
+      else {
+        X0 = PrevX0;
+        Beta0 = PrevBeta0;
+      }
+      break;
+    }
+    PrevX0 = X0;
+    PrevBeta0 = Beta0;
+    X0 *= 2;
+    Beta0 = -Beta*X0;
+  }
+  if ( Print ) print(["x0=",X0]);
+T1 = time(); Tps = (T1[0]-T0[0])+(T1[1]-T0[1]);
+T0 = time();
+  Dim = length(Base);
+  GM = gammam(M,(M+1)/2)*gammam(M,Bb)/(gammam(M,C)*gammam(M,N2/2))*genprc_2f1(M,N1,PL,SL)*eval(X0^(M*N1/2));
+  F0 = vector(Dim);
+  for ( I = 0; I < Dim; I++ ) {
+    DPS = act_op(dp_ptod(Base[I],DV),V,PS);
+    for ( J = 0; J < Len; J++ )
+      DPS = subst(DPS,V[J],Beta0[J]);
+    F0[I] = DPS*GM;
   }
   First = 1;
   Val = [];
