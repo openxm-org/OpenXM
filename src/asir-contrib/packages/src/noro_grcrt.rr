@@ -358,10 +358,6 @@ def nd_gbcheck(G,V,P,O)
 	if ( type(Proc) == -1 ) Proc = 0;
 	F4 = getopt(f4);
 	if ( type(F4) == -1 ) F4 = 0;
-	Weight = getopt(weight);
-	if ( type(Weight) == -1 ) Weight = 0;
-  OldWeight = dp_set_weight();
-  dp_set_weight(Weight);
 	/* XXX */
 	S = getopt(splist);
 	if ( type(S) == -1 ) {
@@ -370,7 +366,6 @@ def nd_gbcheck(G,V,P,O)
 		else
 			S = nd_gr(G,V,lprime(0),O|splist=1);
 	}
-  dp_set_weight(OldWeight);
 	if ( Proc ) {
 		N = length(Proc);
 		L = vector(N);
@@ -378,7 +373,7 @@ def nd_gbcheck(G,V,P,O)
 		for ( I = 0, T = S; T != []; T = cdr(T), I = (I+1)%N )
 			L[I] = cons(car(T),L[I]);
 		for ( I = 0; I < N; I++ )
-			ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4,Weight);
+			ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4);
 		for ( I = 0; I < N; I++ )
 			if ( !ox_pop_local(Proc[I]) ) return 0;
 		return 1;
@@ -391,18 +386,14 @@ def nd_gbcheck(G,V,P,O)
 	}
 }
 
-def gbcheck_p(G,V,P,O,S,F4,Weight)
+def gbcheck_p(G,V,P,O,S,F4)
 {
 	if ( type(G) == 7 )
 		G = bload(G);
-  OldWeight = dp_set_weight();
-  dp_set_weight(Weight);
 	if ( F4 )
-		Ret = nd_f4(G,V,P,O|check_splist=S);
+		return nd_f4(G,V,P,O|check_splist=S);
 	else
-		Ret = nd_gr(G,V,P,O|check_splist=S);
-  dp_set_weight(OldWeight);
-  return Ret;
+		return nd_gr(G,V,P,O|check_splist=S);
 }
 
 def elimination(L,Elim)
@@ -425,8 +416,8 @@ def iso_eq_mod(Mod,UseNZ)
 {
   B = GB_B; V = GB_V;
 
-  /* V = [c1,bb,aa,b,a], W = [1,3,2,3,1] */
-  W = [1,3,2,3,1];
+  /* V = [c1,bb,aa,b,a], W = [1,3,2,3,2,1] */
+  W = [1,3,2,3,2,1];
   dp_set_weight(W);
   G1 = nd_f4(B,V,Mod,[[0,1],[0,4]]);
   V1 = cdr(V);
@@ -454,7 +445,7 @@ def iso_eq_mod(Mod,UseNZ)
 
 def iso_eq_gentrace(B,V,Mod)
 {
-  W = [1,3,2,3,1];
+  W = [1,3,2,3,2,1];
 
   dp_set_weight(W);
   N1 = nd_f4(B,V,Mod,[[0,1],[0,4]]|dp=1,nora=1,gentrace=1);
@@ -478,7 +469,7 @@ def iso_eq_gentrace(B,V,Mod)
 def iso_eq_mod(Mod)
 {
   V = [c1,bb,aa,b,a];
-  W = [1,3,2,3,1];
+  W = [1,3,2,3,2,1];
 
   dp_set_weight(W);
   if ( GB_N1 )
@@ -587,7 +578,7 @@ T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 def iso_c1eq_mod(Mod)
 {
   V = [c1,bb,aa,b,a];
-  W = [1,3,2,3,1];
+  W = [1,3,2,3,2,1];
 
   dp_set_weight(W);
   if ( GB_N1 )
@@ -619,7 +610,7 @@ def iso_c1eq_d2(L)
 	NProc = length(Proc);
 	CRTime = 0; IRTime = 0;
 	/* gentrace */
-    W = [1,3,2,3,1];
+    W = [1,3,2,3,2,1];
     dp_set_weight(W);
     N1 = nd_f4(B,V,lprime(0),[[0,1],[0,4]]|dp=1,nora=1,gentrace=1);
 	map(ox_rpc,Proc,"noro_grcrt.store_bvn3",B,V,N1,0,0);
@@ -666,7 +657,7 @@ T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 
 def iso_eq_gentrace2(B,V,Mod)
 {
-  Wt = [1,1,3,2,3,1];
+  Wt = [1,1,3,2,3,2,1];
   Vt = cons(t,V);
   dp_set_weight(Wt);
   D = res(x,x^3+a*x+b,3*x^2+a);
@@ -693,7 +684,7 @@ def iso_eq_mod2(Mod)
 {
   V = [c1,bb,aa,b,a];
   Vt = cons(t,V);
-  Wt = [1,1,3,2,3,1];
+  Wt = [1,1,3,2,3,2,1];
   dp_set_weight(Wt);
   D = res(x,x^3+a*x+b,3*x^2+a);
   if ( GB_N1 )
@@ -790,7 +781,7 @@ T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 
 def iso_sat_gentrace(B,V,Mod)
 {
-  Wt = [1,1,3,2,3,1];
+  Wt = [1,1,3,2,3,2,1];
   Vt = cons(t,V);
   dp_set_weight(Wt);
   D = res(x,x^3+a*x+b,3*x^2+a);
@@ -802,7 +793,7 @@ def iso_sat_mod(Mod)
 {
   V = [c1,bb,aa,b,a];
   Vt = cons(t,V);
-  Wt = [1,1,3,2,3,1];
+  Wt = [1,1,3,2,3,2,1];
   dp_set_weight(Wt);
   D = res(x,x^3+a*x+b,3*x^2+a);
   if ( GB_N1 )
