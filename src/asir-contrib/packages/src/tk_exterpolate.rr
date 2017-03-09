@@ -1,0 +1,226 @@
+/* $OpenXM$ */
+/*  misc-2016/A3/rk-k/Prog/tk_exterpolate.rr  is the original. 
+    See the Makefile there.
+*/
+/* tk_exterpolate.rr
+   2017.02.27, exterpolate.rr --> tk_exterpolate.rr
+*/
+import("names.rr")$
+// 2017.02.14   exterpolation from numerical recipes 
+// 2017.02.21
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module tk_exterpolate;
+static CC$
+static DD$
+static XX$
+static Npoints$
+#else
+extern CC$
+extern DD$
+extern XX$
+extern Npoints$
+#endif
+
+#ifdef USE_MODULE
+localf initCD$
+localf nextCD$
+localf nextCD_rational$
+localf nextCD_poly$
+localf test1$
+localf rat_extpl$
+localf rat_extpl2$
+localf poly_extpl$
+localf poly_extpl2$
+localf evalx$
+localf test2$
+localf is_zero_vect$
+localf rat_extpl_list$
+localf rel_test1$
+localf rel_test2$
+#endif
+
+def initCD(X,Y) {
+  Npoints=Size=length(X);
+  XX=newvect(Size+1,cons(0,X));
+  YY=newvect(Size+1,cons(0,Y));
+  CC=newmat(Size+1,Size+1);
+  DD=newmat(Size+1,Size+1);
+  for (I=1; I<=Size; I++) {
+    CC[0][I]=YY[I];
+    DD[0][I]=YY[I];
+  }
+}
+
+// (3.2.8)  この II+1 を端でどう扱うか?
+def nextCD(MM,II,X) {
+  if (type(getopt(poly)) >0) Rational=0;
+  else Rational=1;
+  if (Rational) return(nextCD_rational(MM,II,X));
+  else return(nextCD_poly(MM,II,X));
+}
+def nextCD_rational(MM,II,X) {
+   if ((II >= Npoints-MM) || II < 1) {
+     printf("II(2nd arg) should satify 1 <= II <= %a\n",Npoints-MM-1);
+     debug(); return;
+   } 
+   Xfac=(X-XX[II])/(X-XX[II+MM+1]);  // M in the program is M+1
+   NextD=CC[MM][II+1]*(CC[MM][II+1]-DD[MM][II]);
+   NextD=NextD/(Xfac*DD[MM][II]-CC[MM][II+1]);
+   DD[MM+1][II]=NextD;
+
+   NextC=Xfac*DD[MM][II]*(CC[MM][II+1]-DD[MM][II]);
+   NextC=NextC/(Xfac*DD[MM][II]-CC[MM][II+1]);
+   CC[MM+1][II]=NextC;
+}
+def nextCD_poly(MM,II,X) {
+   if ((II >= Npoints-MM) || II < 1) {
+     printf("II(2nd arg) should satify 1 <= II <= %a\n",Npoints-MM-1);
+     debug(); return;
+   } 
+   Xfac=(CC[MM][II+1]-DD[MM][II])/(XX[II]-XX[II+MM+1]);  
+   NextD=Xfac*(XX[II+MM+1]-X);
+   DD[MM+1][II]=NextD;
+
+   NextC=Xfac*(XX[II]-X);
+   CC[MM+1][II]=NextC;
+}
+
+def test1() {
+  X=[1,2,3]; Y=[1,4,9];
+  R1=1; R2=4; R3=9;
+  Xfac=(x-X[1-1])/(x-X[2-1]);
+  R12=R2+(R2-R1)/(Xfac*(1-(R2-R1)/(R2-0))-1);
+  printf("R12=%a\n",R12=red(R12));
+  initCD(X,Y)$
+  nextCD(0,1,x); nextCD(0,2,x);
+  nextCD(1,1,x);
+  CC=map(red,CC); DD=map(red,DD);
+  printf("R12 by CC, DD is %a\n",red(CC[0][1]+CC[1][1]));
+  Ans=red(CC[0][1]+CC[1][1]+CC[2][1]);
+  print(base_replace(Ans,[[x,1]]));
+  print(base_replace(Ans,[[x,2]]));
+  print(base_replace(Ans,[[x,3]]));
+  return(Ans);
+}
+//  CC[1][2]-DD[1][2]-(CC[0][3]-DD[0][2]);  should be 0
+
+// Find rational interpolation for X and Y and get the value at Pt.
+def rat_extpl(X,Y,Pt) 
+"Example: rat_extpl([1,2,3],[1,4,9],4);\
+ options: poly"
+{
+  if (type(X) > 4) X=matrix_matrix_to_list(X);
+  if (type(Y) >= 4) Y=matrix_matrix_to_list(Y);
+  if (type(Y[0]) == 4) return rat_extpl_list(X,Y,Pt|option_list=getopt());
+  if (type(Y[0]) > 4) {printf("Error: rat_extpl; vector or matrix args are not allowed.");debug();}
+  initCD(X,Y);
+  if (is_zero_vect(CC[0])) {
+    printf("CC[0] is a zero vector. Break. \n");
+    return(0);
+  }
+  M=length(X);
+  for (I=0; I<M-1; I++) {
+    for (J=1; J<M-I; J++) {
+      nextCD(I,J,Pt|option_list=getopt());
+      if (type(Pt)>1) { CC=map(red,CC); DD=map(red,DD); }
+    }
+    if (is_zero_vect(CC[I+1])) {
+      printf("CC[I+1] is a zero vector. Break. \n");
+      break;
+    }
+  }
+  Ans=0;
+  for (I=0; I<M; I++) {
+    Ans += CC[I][1];
+    if (type(Pt)>1) Ans=red(Ans);
+  }
+  return(Ans);
+}
+def rat_extpl2(Y,X,Pt) {
+  return rat_extpl(X,Y,Pt | option_list=getopt());
+}
+def poly_extpl(X,Y,Pt) 
+"Example: poly_extpl([1,2,3],[1,4,9],4);"
+{
+  return(rat_extpl(X,Y,Pt | poly=1));
+}
+def poly_extpl2(Y,X,Pt) 
+"Example: poly_extpl2([1,2,3],[1,4,9],4);"
+{
+  return(rat_extpl2(Y,X,Pt | poly=1));
+}
+
+def evalx(X,F) { return base_replace(F,[[x,X]]); }
+
+// See the note: misc-2016/A2/rk/Notes/20170222-extpl.tex
+def test2() {
+  // import("tk_fd.rr");
+  F=tk_fd.fdah_poly(-2,[-3,-2],2,tk_fd.yvars(3) | approx=10);
+  V=base_flatten(tk_fd.yvars(3));
+  F12=y_1_2*diff(F,y_1_2);
+  Rule=assoc(V,[x,x+1/2,x+1/3, x+1,x+1,x+1]);
+  Fx=base_replace(F,Rule);
+  F12x=base_replace(F12,Rule);
+  printf("[Fx,F12x]=%a\n",[Fx,F12x]); // degree 8
+  printf("value F12x/Fx at 0 is %a\n",base_replace(F12x/Fx,[[x,0]]));
+  X = [1,1/2,3,4,5,6,7,8, 9,10,11,12,13,14,15];
+  Y = map(evalx,X,F12x/Fx);
+  Ans=rat_extpl(X,Y,0);
+  printf("Value by rat_extpl is %a\n",Ans);
+  return(Ans);
+}
+
+// 2017.02.23
+def is_zero_vect(Vec) {
+  N=length(Vec);
+  for (I=0; I<N; I++) {
+    if (Vec[I] != 0) return(0);
+  }
+  return(1);
+}
+
+// 2017.03.05  rat_extpl with arguments vect or list and mat
+def rat_extpl_list(X,Y,Pt) {
+   if ((Y == 0) || (length(Y)==0)) return([]);
+   if (type(Y[0]) < 4) return rat_extpl(X,Y,Pt|option_list=getopt());
+   N=length(Y);
+   Ycar=newvect(N); for (I=0; I<N; I++) Ycar[I] = car(Y[I]);
+   Ycar = vtol(Ycar);
+   // Ycar=map(car,Y);
+   Val = rat_extpl_list(X,Ycar,Pt | option_list=getopt());
+   Ycdr=newvect(N); for (I=0; I<N; I++) Ycdr[I] = cdr(Y[I]);
+   Ycdr = vtol(Ycdr);
+   if ((Ycdr[0] == 0) || (Ycdr[0]==[])) Ycdr=0;
+   // Ycdr=map(cdr,Y);
+   return cons(Val,rat_extpl_list(X,Ycdr,Pt|option_list=getopt()));
+}
+def rel_test1() {
+  X=[-1,1,2,3];Y=[[1,-1],[1,1],[4,8],[9,27]];Pt=4; // [x^2,x^3]
+  printf("poly: %a\n",rat_extpl_list(X,Y,Pt | poly=1));
+  printf("rat: %a\n",rat_extpl_list(X,Y,Pt));
+  return([rat_extpl(X,[1,1,4,9],Pt),rat_extpl(X,[-1,1,8,27],Pt)]);
+}
+def rel_test2() {
+  X=[-1,1,2,3];Y=[[[1,-1],[-1,1]],
+                  [[1,1],[1,1]],
+                  [[4,8],[8,4]],
+                  [[9,27],[27,9]]];Pt=4; // [[x^2,x^3],[x^3,x^2]]
+  printf("poly: %a\n",rat_extpl_list(X,Y,Pt | poly=1));
+  printf("rat: %a\n",rat_extpl_list(X,Y,Pt));
+  printf("poly (rat_extpl): %a\n",rat_extpl(X,Y,Pt | poly=1));
+  return([rat_extpl(X,[1,1,4,9],Pt),rat_extpl(X,[-1,1,8,27],Pt)]);
+}
+
+#ifdef USE_MODULE
+endmodule$
+#endif
+
+#ifdef USE_MODULE
+tk_exterpolate.initCD([1,2,3],[1,4,9])$
+#else
+initCD([1,2,3],[1,4,9])$
+#endif
+
+end$
