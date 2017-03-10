@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_approx-r.rr,v 1.1 2017/03/03 09:00:26 takayama Exp $ */
 /* Maintained in ekn/Prog */
 // approximate ratinoal.  
 // 2017.02.19, Imported from rk-k/Prog/rk-mfac.rr
@@ -57,6 +57,7 @@ def cont_frac(R,Err,Rel_err)
   if (R < 0) {Sign=-1; R=-R;} else Sign=1;
   if (R==0) return(0);
   Num=nm(R); Den=dn(R);
+  if (Den == 1) return(R);
   if (Num > Den) {
     Int_part=idiv(Num,Den); Num=Num-Int_part*Den;
   }else Int_part=0;

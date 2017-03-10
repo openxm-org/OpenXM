@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.2 2017/03/03 10:36:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.3 2017/03/03 12:02:32 takayama Exp $ */
 // 2017.02.19 from tatibana version.
 import("tk_approx-r.rr")$
 module gtt_ekn$
@@ -14,7 +14,9 @@ localf oddsvect$
 localf next$
 localf go_next$
 localf abs_max$
+localf cmle_3_v1$
 localf cmle_3$
+localf has_negative_elem$
 localf cmle_test1$
 localf cmle_test2$
 localf cmle_test3$
@@ -197,13 +199,13 @@ def abs_max(Step) {
       //      V=number_abs(Step[I][J]);  // number_abs seems to be buggy. Try cmle_test2() with this line.  See mydebug.rr
       if (Step[I][J] < 0) V=-Step[I][J]; else V=Step[I][J];
       if (V > Max) Max=V;
-      if (Max > 10) debug(); 
+      // if (Max > 10) debug(); 
     }
   }
   return(Max);
 }
 
-def cmle_3(U){
+def cmle_3_v1(U){
   Prec_step = 1/10^2;
   if (type(getopt(eps)) < 0) Eps=Prec_step;
   else { Eps = getopt(eps); Prec_step=Eps; }
@@ -245,6 +247,86 @@ def cmle_3(U){
     }
     printf("P might not be correct.\n");
     return([UM,Beta,P]);
+}
+
+/* 2017.03.10 */
+def cmle_3(U){
+  Prec_step = 1/10^2;
+  if (type(getopt(eps)) < 0) Eps=Prec_step;
+  else { Eps = getopt(eps); Prec_step=Eps; }
+    Data = dataset(U);
+    UM = Data[0];
+    Beta = Data[1];
+    P = Data[2];
+
+    Prec = 1/10^5;
+    //    Count = 10;
+    Count = 50;
+    CMLE_eVect=newvect(Count);
+    Digit = 10;
+    StepSize = 10^Digit;
+    Retry=0; Prev_P=0; Prev_Amax=10^20;
+    Fine=0; Fine_max=5;
+
+    S = size(UM);
+    R1 = S[0];
+    R2 = S[1];
+
+    for(I=0;I<Count;I++){
+        if (CMLE_debug) printf("gtt_ekn.gmvector(Beta=%a,P=%a);\n",Beta,P);
+        GM = gtt_ekn.gmvector(Beta,P);
+        if (CMLE_debug) printf("gtt_ekn.cBasistoE(GM=...,Beta,P);\n");
+        UsubE = UM - gtt_ekn.cBasistoE(GM,Beta,P);
+        Amax=abs_max(UsubE);
+        if (CMLE_debug) {
+          printf("UsubE=%a, max(UsubE)=%a\n",tk_approx_r.number_eval(UsubE),Amax=tk_approx_r.number_eval(abs_max(UsubE))); 
+          CMLE_eVect[I]=Amax;
+        }
+        if (Amax > Prev_Amax) {
+          P = Prev_P;  // throw away this P.
+          Step = Step/2; StepSize = StepSize/2; Fine=0; Retry++;
+          if (CMLE_debug) printf("Retry with Stepsize=%a\n",StepSize);
+          if (Retry > Count) break;
+          if (CMLE_err || CMLE_relerr) {
+            P = map(tk_approx_r.cont_frac,P + Step,CMLE_err,CMLE_relerr); 
+            if (CMLE_debug) printf("P(truncated)=%a\n",P);
+          }else {P = P+Step;}
+          continue;
+        }else{
+          Prev_P = P;  // keep this P.
+          Prev_Amax = Amax; Fine++; Retry=0;
+          if (Fine > Fine_max) {
+             StepSize = StepSize*3/2;
+             Fine=0;
+          }
+        }
+
+        if(go_next(UsubE,R1,R2,Prec) == 0)  return([UM,Beta,P]);
+        if (CMLE_debug) printf("gtt_ekn.cBasistoEdiff(GM,Beta,P);\n",GM);
+        Ediff = gtt_ekn.cBasistoEdiff(GM,Beta,P);
+        CMLE_Ediff=Ediff;  // for debug
+        Step = move(next(UsubE,Ediff),StepSize,Digit);
+
+        while (has_negative_elem(P+Step)) {
+           Step = Step/2; StepSize = StepSize/2;
+        }
+        if (CMLE_debug) printf("StepSize=%a\n",StepSize);
+        if (CMLE_err || CMLE_relerr) {
+          P = map(tk_approx_r.cont_frac,P + Step,CMLE_err,CMLE_relerr); 
+          if (CMLE_debug) printf("P(truncated)=%a\n",P);
+        }else {P = P+Step;}
+    }
+    printf("P might not be correct.\n");
+    return([UM,Beta,P]);
+}
+def has_negative_elem(P) {  
+   P = matrix_list_to_matrix(P);
+   for (I=0; I<size(P)[0]; I++) {
+     for (J=0; J<size(P)[1]; J++) {
+        if (P[I][J] < 0) return(1);
+     }
+   }
+   return(0);
 }
 
 /*
