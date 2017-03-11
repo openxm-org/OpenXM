@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.3 2017/03/03 12:02:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.4 2017/03/10 13:12:33 takayama Exp $ */
 // 2017.02.19 from tatibana version.
 import("tk_approx-r.rr")$
 module gtt_ekn$
@@ -264,7 +264,8 @@ def cmle_3(U){
     Count = 50;
     CMLE_eVect=newvect(Count);
     Digit = 10;
-    StepSize = 10^Digit;
+    // StepSize = 10^Digit;
+    StepSize = 11/10; /* default value */
     Retry=0; Prev_P=0; Prev_Amax=10^20;
     Fine=0; Fine_max=5;
 
@@ -285,7 +286,7 @@ def cmle_3(U){
         if (Amax > Prev_Amax) {
           P = Prev_P;  // throw away this P.
           Step = Step/2; StepSize = StepSize/2; Fine=0; Retry++;
-          if (CMLE_debug) printf("Retry with Stepsize=%a\n",StepSize);
+          if (CMLE_debug) printf("Retry with Stepsize=%a=%a\n",StepSize,deval(StepSize));
           if (Retry > Count) break;
           if (CMLE_err || CMLE_relerr) {
             P = map(tk_approx_r.cont_frac,P + Step,CMLE_err,CMLE_relerr); 
@@ -297,6 +298,7 @@ def cmle_3(U){
           Prev_Amax = Amax; Fine++; Retry=0;
           if (Fine > Fine_max) {
              StepSize = StepSize*3/2;
+             if (CMLE_debug) printf("New StepSize=%a=%a\n",StepSize,deval(StepSize));
              Fine=0;
           }
         }
