@@ -1,19 +1,13 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_approx-r.rr,v 1.1 2017/03/03 09:00:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_approx-r.rr,v 1.2 2017/03/10 13:12:33 takayama Exp $ */
 /* Maintained in ekn/Prog */
 // approximate ratinoal.  
 // 2017.02.19, Imported from rk-k/Prog/rk-mfac.rr
 
 module tk_approx_r;
-localf number_eval$
 localf frac2rat$
 localf cont_frac0$
 localf cont_frac$
 
-def number_eval(F) {
-  if (type(F)==0) return(F);
-  if (type(F)<=3) return(eval(exp(0)*F));
-  if ((type(F)>=4) && (type(F)<=6)) return(map(number_eval,F));
-}
 
 def frac2rat(Fraction) {
   F=Fraction;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.139 2017/02/27 09:57:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.140 2017/03/07 11:47:57 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -308,6 +308,8 @@ def number_ceiling(X) { return(pari(ceil,X)); }
 def number_chop(Exp,Dx) {  NOT_YET; }
 /*&usage begin: number_factor(X)  It factors the given integer {X}.
   example: number_factor(20); end: */
+/*&usage begin: number_eval(X) example: number_eval([1/10^10,@pi,exp(1)]); end: */
+def number_eval(X) { return(taka_base_number_eval(X)); }
 def number_factor(X) { return(pari(factorint,X)); }
 /*&usage begin: number_float_to_rational(X) 
     example: number_float_to_rational(1.5234); 
