@@ -1,0 +1,213 @@
+/* $OpenXM$
+  original source was under misc-2016/A3/rk-k/Prog
+ */
+// Burlirsch-Store method to solve ODE.
+import("names.rr")$
+import("tk_exterpolate.rr")$
+import("tk_rk-mfac.rr")$
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module tk_bs;
+#endif
+
+#ifdef USE_MODULE
+localf ode_by_mid_point$
+localf mp_test1$
+localf vect_err$
+localf bs_next$
+localf bs_test1$
+localf mid_point_mat$
+localf append_vec$
+localf decomp_vec$
+localf ode_by_mid_point_mfac_itor$
+localf bs_test2$
+
+static  Hseq_i$
+static Tk_bs_plist;
+static Tk_bs_idl;
+#else
+extern Hseq_i$
+extern Tk_bs_plist;
+extern Tk_bs_idl;
+#endif
+
+def ode_by_mid_point(P,Y0,X,X0,H,N) 
+"Solve dY/dX=PY, Y(X0)=Y0, by modified mid point method with steps N (hh=H/N)"
+{
+   Z0=matrix_list_to_matrix(Y0);
+   P = matrix_list_to_matrix(P);
+   HH=H/N;
+   Fp=base_replace(P,[[X,X0]])*Z0;
+   Z1=Z0+HH*Fp;
+   for (M=1; M<N; M++) {
+     Fp = base_replace(P,[[X,X0+M*HH]])*Z1;
+     Z2 = Z0+2*HH*Fp;
+     Z0 = Z1; Z1 = Z2;
+   }
+   Fp = base_replace(P,[[X,X0+H]])*Z1;
+   return (1/2)*(Z1+Z0+HH*Fp);
+}
+
+def mp_test1() {
+  F_ans=exp(-x^2)*newvect(2,[cos(x),sin(x)]);
+  P=newmat(2,2,[[0,-1],[1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  H=1.0; N=100;
+  Y=ode_by_mid_point(P,[1,0],x,0,H,N);
+  return (Y-map(eval,base_replace(F_ans,[[x,H]])));
+}
+
+def vect_err(F,G) 
+"max |F_i-G_i|"
+{  
+  N = length(F);
+  Err=0;
+  for (I=0; I<N; I++) {
+    if ((T=number_abs(F[I]-G[I]))>Err) Err=T;
+  }
+  return(T);
+}
+def bs_next(P,Y0,X,X0,H,Eps) 
+"dY/dX=PY, Y(X0)=Y0. Evaluate Y(X0+H) by the Burlirsch-Store method\
+(rational exterpolation). When the step error < Eps, it returns.\
+Options: mfac[0], same options with gtt_ekn.setup when mfac=1."
+{
+   if (type(getopt(mfac))>0) {
+     Use_mfac=1; Tk_bs_plist=0; // initialize servers.
+     Y1=ode_by_mid_point_mfac_itor(0,0,0,0,0,0|option_list=getopt()); // initialize only.
+   }else{
+     Use_mfac=0;
+   }
+   Hseq=[0,2,4,6,8,12,16,24,32,48,64,96]; // by Numerical Recipes, bsstep
+   Xlist=[]; Ylist=[];
+   for (I=1; I<length(Hseq); I++) {
+     if (Use_mfac) {
+       Y1=ode_by_mid_point_mfac_itor(P,Y0,X,X0,H,Hseq[I]|option_list=getopt());
+     }else{
+       Y1=ode_by_mid_point(P,Y0,X,X0,H,Hseq[I]);
+     }
+     Xlist=cons( (H/Hseq[I])^2, Xlist);
+     Ylist=cons( vtol(Y1), Ylist);
+     if (I==1) Yprev=Y1;
+     if (I>3) {
+        Yextpl = matrix_list_to_matrix(tk_exterpolate.rat_extpl(Xlist,Ylist,0));
+        if (vect_err(Yextpl,Yprev) < Eps) {
+           Hseq_i = I;
+           return Yextpl;
+        }
+        Yprev = Yextpl;
+     }
+   }
+   printf("H seems to be too large. H<-H/2\n");
+   return bs_next(P,Y0,X,X0,H/2);
+}
+def bs_test1() {
+  F_ans=exp(-x^2)*newvect(2,[cos(x),sin(x)]);
+  P=newmat(2,2,[[0,-1],[1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  H=1.0; 
+//  H=1;
+  Y=bs_next(P,[1,0],x,0,H,1/10^5);
+  printf("Nseq[%a] is used.\n",Hseq_i);
+  printf("Ans = %a\nErr=",Y);
+  return (Y-map(eval,base_replace(F_ans,[[x,H]])));
+}
+
+/* 2017.03.12 */
+def mid_point_mat(P,X,X0,H) 
+"It returns a matrix of the mid point method for matrix factorial evaluation."
+{
+  if (type(getopt(replace_n)) > 0) {
+    Replace=base_replace_n;
+  }else{
+    Replace=base_replace;
+  }
+  N = size(P)[0];
+  Mat = newmat(2*N,2*N);
+  K1 = (*Replace)(P,[[X,X0]]);
+  K1 = K1*2*H;
+  for (I=0; I<N; I++) {Mat[I][N+I]=1; Mat[N+I][I]=1;}
+  for (I=0; I<N; I++) for (J=0; J<N; J++) Mat[N+I][N+J] = K1[I][J];
+  return(Mat);
+}
+
+def append_vec(A,B) {
+  N = length(A); M=length(B);
+  C=newvect(N+M);
+  for (I=0; I<N; I++) C[I]=A[I];
+  for (I=0; I<M; I++) C[N+I]=B[I];
+  return(C);
+}
+
+def decomp_vec(C,N) 
+"Example: decomp_vec(newvect(5,[0,1,2,3,4]),2) returns [newvect(2,[0,1]),newvect(3,[2,3,4])]"
+{
+  A=newvect(N);  M=length(C)-N;
+  B=newvect(M);
+  for (I=0;I<N; I++) A[I]=C[I];
+  for (I=0;I<M; I++) B[I]=C[N+I];
+  return([A,B]);
+}
+
+def ode_by_mid_point_mfac_itor(P,Y0,X,X0,H,N) 
+"Solve dY/dX=PY, Y(X0)=Y0, by modified mid point method and matrix factorial (itor) with steps N (hh=H/N)"
+{
+   if (Tk_bs_plist == 0) {
+     gtt_ekn.setup(|option_list=getopt());
+     Info = gtt_ekn.get_svalue();
+     Tk_bs_plist=Info[0];
+     Tk_bs_idl=Info[1];
+     return(0); // initialize only.
+   }
+   if (type(H) > 1) error("ode_by_mid_point_mfac_itor: H must be a rational number.");
+   if (ntype(H) >= 1) error("ode_by_mid_point_mfac_itor: H must be a rational number.");
+   Z0=matrix_list_to_matrix(Y0);
+   P = matrix_list_to_matrix(P);
+   HH=H/N;
+   M = mid_point_mat(P,x,X0+x*HH,HH);
+   Fp=base_replace(P,[[X,X0]])*Z0;
+   Z1=Z0+HH*Fp;
+
+   Y0=append_vec(Z0,Z1); 
+   M_decomp=tk_rk.decomp_rk(M,[X]);
+   Mnm=M_decomp[0];
+   Mdn=M_decomp[1];
+   F0=Y0; // initial value at x=X0=Start 
+   F=F0;
+   Fdn=gtt_ekn.g_mat_fac_itor(newvect(1,[1]),newmat(1,1,[[Mdn]]),1,N-1,1,x,Tk_bs_plist,Tk_bs_idl);
+   R=gtt_ekn.g_mat_fac_itor(F,Mnm,1,N-1,1,x,Tk_bs_plist,Tk_bs_idl);
+   F=R/Fdn[0];
+   /*   for (M=1; M<N; M++) {
+     Fp = base_replace(P,[[X,X0+M*HH]])*Z1;
+     Z2 = Z0+2*HH*Fp;
+     Z0 = Z1; Z1 = Z2;
+   }
+   */ 
+   Z01 = decomp_vec(F,length(Z0));
+   Z0 = Z01[0]; Z1=Z01[1];
+
+   Fp = base_replace(P,[[X,X0+H]])*Z1;
+   return (1/2)*(Z1+Z0+HH*Fp);
+}
+
+def bs_test2() 
+"It asserts bs_next, which calls ode_by_mid_point_mfac_itor."
+{
+  F_ans=exp(-x^2)*newvect(2,[cos(x),sin(x)]);
+  P=newmat(2,2,[[0,-1],[1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  H=1;
+  Y=bs_next(P,[1,0],x,0,H,1/10^5 | mfac=1);
+  printf("Nseq[%a] is used.\n",Hseq_i);
+  printf("Ans = %a\nErr=",Y);
+  return (Y-map(eval,base_replace(F_ans,[[x,H]])));
+}
+
+#define USE_MODULE
+#ifdef USE_MODULE
+endmodule$
+#endif
+
+
+end$

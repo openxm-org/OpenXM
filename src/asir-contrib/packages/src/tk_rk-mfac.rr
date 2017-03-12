@@ -1,0 +1,376 @@
+/* $OpenXM$
+  original source were at misc-2016/A3/rk-k/Prog
+  2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
+  2017.01.14  runge-kutta by matrix factorial
+  Prototype for tk_rk-mfac.rr  runge-kutta by matrix factorial.
+*/
+import("names.rr")$
+import("gtt_ekn.rr")$
+import("tk_approx-r.rr")$
+//#define FOR_DEBUG
+#ifdef FOR_DEBUG
+load("g_mat_fac-debug.rr")$
+load("childprocess-debug.rr")$
+#define gtt_ekn_set_debug(L) gtt_ekn.set_debug(L)
+#else
+#define gtt_ekn_set_debug(L) printf("gtt_ekn_set_debug is not installed.\n");
+#endif
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module tk_rk$
+localf init_const$
+localf rk4_mat$
+localf rk1_mat$
+localf test1$
+localf test1b$
+localf mylcm$
+localf lcm_of_dn$
+localf mylcm_p$
+localf decomp_rk$
+localf test1c$
+localf test2$
+localf test2b$
+localf foo1$
+localf foo2$
+localf rk4_mfac$
+localf test3$
+localf test4$
+
+static Tk_rk_a$
+static Tk_rk_b$
+static Tk_rk_c$
+
+static Tk_rk_plist$
+static Tk_rk_idl$
+
+static Tk_rk_debug$
+
+static Tk_rk_xval$
+static Tk_rk_yval$
+static Tk_rk_trunc$
+static Tk_rk_trunc_rel$
+#else
+extern Tk_rk_a$
+extern Tk_rk_b$
+extern Tk_rk_c$
+
+extern Tk_rk_plist$
+extern Tk_rk_idl$
+
+extern Tk_rk_debug$
+
+extern Tk_rk_xval$
+extern Tk_rk_yval$
+extern Tk_rk_trunc$
+extern Tk_rk_trunc_rel$
+#endif
+
+def init_const() {
+  // constants for 4th RK
+  Tk_rk_a=newmat(5,5,[[0,0,0,0,0],
+                   [0,0,0,0,0],
+                   [0,1/2,0,0],
+                   [0,0,1/2,0,0],
+                   [0,0,0,1,0]]);
+  Tk_rk_b=newvect(5,[0,1/6,2/6,2/6,1/6]);
+  Tk_rk_c=newvect(5,[0,0,1/2,1/2,1]);
+
+  Tk_rk_debug=0;
+  Tk_rk_trunc = 1/10^10;
+  Tk_rk_trunc_rel = 1/10^10;
+}
+
+/*  y'=P(x)y, P is matrix. */
+def rk4_mat(P,X,X0,H) 
+"It returns a matrix by the 4th order Runge-Kutta method for matrix factorial\
+evaluation. See the source of tk_rk.test1(X0) as to an example."
+{
+  if (type(getopt(replace_n)) > 0) {
+    Replace=base_replace_n;
+  }else{
+    Replace=base_replace;
+  }
+  N = size(P)[0];
+  E = matrix_identity_matrix(N);
+  K1t = (*Replace)(P,[[X,X0]]);
+  K2t = (*Replace)(P,[[X,X0+Tk_rk_c[2]*H]])*(E+H*Tk_rk_a[2][1]*K1t);
+  K3t = (*Replace)(P,[[X,X0+Tk_rk_c[3]*H]])
+      *(E+H*Tk_rk_a[3][1]*K1t+H*Tk_rk_a[3][2]*K2t);
+  K4t = (*Replace)(P,[[X,X0+Tk_rk_c[4]*H]])
+      *(E+H*Tk_rk_a[4][1]*K1t+H*Tk_rk_a[4][2]*K2t+H*Tk_rk_a[4][3]*K3t);
+  Mat=E+H*(Tk_rk_b[1]*K1t+Tk_rk_b[2]*K2t+Tk_rk_b[3]*K3t+Tk_rk_b[4]*K4t);
+  return(Mat);
+}
+
+def rk1_mat(P,X,X0,H) {
+  if (type(getopt(replace_n)) > 0) Replace=base_replace_n; else Replace=base_replace;
+  N = size(P)[0];  E = matrix_identity_matrix(N);
+  K1t = (*Replace)(P,[[X,X0]]);
+  Mat=E+H*K1t;
+  return(Mat);
+}
+
+/*
+  exp(-x^2)*[cos(x),-sin(x)]
+*/
+def test1(X0) {
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  return(rk4_mat(P,x,X0,1/100));
+}
+
+def test1b() {
+  Double=1;
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  N=100;
+  H=1/N;
+  M=rk4_mat(P,x,x,H);
+  F0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  F=F0;
+  for (I=0; I<=N; I++) {
+    X0=0+I*H;
+    F=base_replace_n(M,[[x,X0]])*F;
+    if (Double) F=map(deval,F);
+    printf("x=%a, val=%a, exact=%a\n",X0+H,eval(F[0]*exp(0)),eval(exp(-(X0+H)^2)*cos(X0+H)));
+  }
+  return([X0+H,F]);
+}
+
+//Ex. mylcm(1,[4,6]);
+//    mylcm(3,[]);
+//    mylcm(4,6);
+def mylcm(A,B) {
+  if (type(B) <= 1) return(ilcm(A,B));
+  else {
+    if (length(B)==0) return(A);
+    B0=B[0];
+    return(mylcm(ilcm(A,B0),cdr(B)));
+  }
+}
+def lcm_of_dn(F,V) {
+  F=dp_ptod(F,V);
+  L=1;
+  while (F != 0) {
+    L=mylcm(L,dn(dp_hc(F)));
+    F=dp_rest(F);
+  }
+  return(L);
+}
+/* for polynomial */
+def mylcm_p(A,B) {
+  if (type(B) <= 1) return(lcm(A,B)); else {
+    if (length(B)==0) return(A);
+    B0=B[0]; return(mylcm_p(lcm(A,B0),cdr(B))); }
+}
+
+/*Ex. R=decomp_rk(R0=newmat(2,2,[[1/x,1/2*x*y+1/3],[0,1]]),[x,y]);
+      R0-R[0]/R[1];  should be  0. matrix/scalar  all are integral
+*/
+def decomp_rk(P,V) {
+  DenList = base_flatten(map(dn,P)); 
+  L_poly = mylcm_p(1,DenList);
+  P = map(red,L_poly*P);
+  DenList = base_flatten(map(lcm_of_dn,P,V));
+  L_num = mylcm(1,DenList);
+  P=L_num*P;
+  return([P,L_poly*L_num]);
+}
+
+// Use only integral
+/* test1c();
+x=17/100, val=0.957509015829876, exact=0.957509015817625
+x=9/50, val=0.952478024797424, exact=0.952478024784083
+x=19/100, val=0, exact=0.947186130216083    // Fdn will be too big for double.
+x=1/5, val=0, exact=0.941637617656023
+*/
+def test1c() {
+  Double=1;
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  N=100;
+  H=1/N;
+  M=rk4_mat(P,x,x*H,H);
+  M_decomp=decomp_rk(M,[x]);
+  Mnm=M_decomp[0];
+  Mdn=M_decomp[1];
+  F0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  F=F0;  Fdn=1;
+  for (I=0; I<=N; I++) {
+    X0=0+I*H;
+    F=base_replace_n(Mnm,[[x,I]])*F;
+    Fdn=base_replace_n(Mdn,[[x,I]])*Fdn;
+    if (Double) {F=map(deval,F); Fdn=deval(Fdn);}
+    printf("x=%a, val=%a, exact=%a\n",X0+H,eval(F[0]*exp(0)/Fdn),eval(exp(-(X0+H)^2)*cos(X0+H)));
+  }
+  return([X0+H,F,Fdn]);
+}
+
+// 2017.01.14, 14:13  Try to use g_mat_facrr by Tachibana.
+def test2(NN) {
+  gtt_ekn_set_debug(0);
+//  gtt_ekn.setup(|minp=10^30);
+  gtt_ekn.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt"); // num of ps, num of p
+  Info=gtt_ekn.get_svalue();
+  Tk_rk_plist=Info[0]; Tk_rk_idl=Info[1];
+
+  Double=0;
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  N=100;
+  H=1/N;
+  M=rk4_mat(P,x,x*H,H);
+  M_decomp=decomp_rk(M,[x]);
+  Mnm=M_decomp[0];
+  Mdn=M_decomp[1];
+  F0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  F=F0;  Fdn=Mdn^(NN+1);
+  R=gtt_ekn.g_mat_fac_itor(F,Mnm,0,NN,1,x,Tk_rk_plist,Tk_rk_idl);
+  X0=0+NN*H;
+  Val=R[0]/Fdn;
+  if (Double) Val=map(deval,Val);
+  printf("x=%a, val=%a, exact=%a\n",X0+H,eval(Val*exp(0)),eval(exp(-(X0+H)^2)*cos(X0+H)));
+  return([X0+H,Val]);
+}
+/*
+  y''+y=0. G=exp(-x^2)*[y,y']
+  Solving G'=[[0,1],[-1,0]] G + [[-2x,0],[0,-2x]]G
+  Answer is G=exp(-x^2)*[cos(x),sin(x)]
+*/
+// test2(3) --> strange value...   Mdn^NN --> Mdn^(NN+1)
+// test2(4) OK.  test2(5) wrong. The prime seems not to be sufficiently big.
+
+//  Step 毎に Denominator で割って簡略化. bignum が大きくなりすぎるのを防ぐ.
+//  test2(5) でだめになる.  nprm=20, minp=10^30 では failure.
+def test2b(NN) {
+  T0=time();
+  gtt_ekn_set_debug(0);
+  gtt_ekn.setup(|nps=2,nprm=100,minp=10^40,fgp="p.txt"); // num of ps, num of p
+  Info=gtt_ekn.get_svalue();
+  Tk_rk_plist=Info[0]; Tk_rk_idl=Info[1];
+
+  if (type(getopt(step)) <=0) Step=5;
+  else Step = getopt(step);
+  Double=0;
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  N=100;
+  H=1/N;
+  M=rk4_mat(P,x,x*H,H);
+  M_decomp=decomp_rk(M,[x]);
+  Mnm=M_decomp[0];
+  Mdn=M_decomp[1];
+  F0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  F=F0;
+  for (I=0; I<NN; I += Step) {
+     Fdn=Mdn^(Step);
+     R=gtt_ekn.g_mat_fac_itor(F,Mnm,I,I+Step-1,1,x,Tk_rk_plist,Tk_rk_idl);
+     X0=(I+Step-1)*H;
+     F=R/Fdn;
+     if (Double) Val=map(deval,F);
+     printf("x=%a, val=%a, exact=%a\n",X0+H,eval(F[0]*exp(0)),eval(exp(-(X0+H)^2)*cos(X0+H)));
+  }
+  T1=time();
+  printf("CPU=%a, GC=%a, real=%a\n",T1[0]-T0[0],T1[1]-T0[1],T1[3]-T0[3]);
+  return([X0+H,Val]);
+}
+
+// foo1(|opt=1, opt=2);  // 1 is set to opt.    2017.02.27
+def foo1() { print(getopt(opt));}
+// foo2(|hoge=1);
+def foo2() { return foo1(|option_list=append(getopt(),[["opt",1],["opt",2]])); }
+
+// 2017.01.29  generic rk4 solver for real X.  cf. bess.rr
+def rk4_mfac(P,Y0,X,Start,End,H) 
+"It approximately solves Y'=P(X)Y in Start<=X<=End,  Y(Start)=Y0 \
+with H is the step size by the 4th order Runge-Kutta method.\
+Rational arithmetic is used and rational numbers are truncated\
+when trunc >0 or trunc_rel >0.\
+ Options: (for gtt_ekn.setup) nps(number of ps), nprm(number of primes), minp(minimal prime), fgp(file to save primes),\
+ Options: step(step no to use matrix factorial)[10],ratval(output by rational)[1],\
+trunc[1/10^10,global],trunc_rel[1/10^10,global];"
+{
+  T0=time();
+  gtt_ekn_set_debug(0);
+  gtt_ekn.setup(|option_list=append(getopt(),
+    [["nps",2],["nprm",100],["minp",10^40],["fgp","tmp-p.txt"]])); // num of ps, num of p
+  Info=gtt_ekn.get_svalue();
+  Tk_rk_plist=Info[0]; Tk_rk_idl=Info[1];
+
+  if (type(getopt(step)) <=0) Step=10; else Step = getopt(step);
+  if (type(getopt(ratval))<=0) RatVal=1; else RatVal=getopt(ratval);
+  if (type(getopt(trunc)) >= 0) Tk_rk_trunc=getopt(trunc);
+  if (type(getopt(trunc_rel)) >= 0) Tk_rk_trunc_rel=getopt(trunc_rel);
+  Double=0;
+  P=matrix_list_to_matrix(P);
+
+  Tk_rk_xval=[]; Tk_rk_yval=[];
+  NN=number_floor((End-Start)/H)+1;
+  X0=Start; // Starting point.
+  M=rk4_mat(P,X,X0+X*H,H);
+  M_decomp=decomp_rk(M,[X]);
+  Mnm=M_decomp[0];
+  Mdn=M_decomp[1];
+  // printf("Mdn=%a¥n",Mdn); debug();
+  F0=Y0; // initial value at x=X0=Start 
+  F=F0;
+  Tk_rk_xval=cons(X0,Tk_rk_xval); Tk_rk_yval=cons(F,Tk_rk_yval);
+  for (I=0; I<NN; I += Step) {
+    // Fdn=Mdn^(Step);
+    Fdn=gtt_ekn.g_mat_fac_itor(newvect(1,[1]),newmat(1,1,[[Mdn]]),I,I+Step-1,1,x,Tk_rk_plist,Tk_rk_idl);
+     R=gtt_ekn.g_mat_fac_itor(F,Mnm,I,I+Step-1,1,x,Tk_rk_plist,Tk_rk_idl);
+     X1=X0+(I+Step-1)*H;
+     F=R/Fdn[0];
+     if (Tk_rk_trunc) {
+       F = map(tk_approx_r.cont_frac,F,Tk_rk_trunc,Tk_rk_trunc_rel);
+     }
+     if (RatVal) Val=F; else Val=number_eval(F); 
+     printf("x=%a, val=%a\n",X1+H,eval(F[0]*exp(0)));
+     Tk_rk_xval=cons(X1+H,Tk_rk_xval); Tk_rk_yval=cons(F,Tk_rk_yval);
+  }
+  T1=time();
+  printf("CPU=%a, GC=%a, real=%a\n",T1[0]-T0[0],T1[1]-T0[1],T1[3]-T0[3]);
+  Tk_rk_xval=reverse(Tk_rk_xval); Tk_rk_yval=reverse(Tk_rk_yval);
+  return([X1+H,Val]);
+}
+
+def test3() 
+"It is used to assert rk4_mfac(). err at 5/2=... must be small."
+{
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  Y0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  X=x; Start=0; End=2;  H=1/100; 
+  Step=50;  // Step iterations are done over finite fields.
+  // 2017.02.01, For Step=100, it seems to hang but after ctrl-C it seems to output correct ans.
+
+  printf("Expected values\n");
+  for (T=0; T<=End; T += H*Step) printf("x=%a, exact val=%a\n",T,eval(exp(-T^2)*cos(T)));
+
+  Ans=rk4_mfac(P,Y0,X,Start,End,H | ratval=0, step=Step);
+  printf("err at %a=%a\n",Ans[0],number_eval(Ans[1][0]-exp(-Ans[0]^2)*cos(Ans[0])));
+  return(Ans);
+}
+
+// 2017.02.25   it retuns [[fac(NN),0],[0,fac(NN)]].
+def test4(NN) {
+  gtt_ekn_set_debug(2);
+  gtt_ekn.setup(|nps=2,nprm=3,minp=101,fgp="p_small.txt"); // num of ps, num of p
+  Info=gtt_ekn.get_svalue();
+  Tk_rk_plist=Info[0]; Tk_rk_idl=Info[1];
+
+  Mnm=newmat(2,2,[[x,0],[0,5*x]]);
+  F0=newvect(2,[1,1]); 
+  F=F0; 
+//  R=gtt_ekn.g_mat_fac_itor(F,Mnm,0,NN,1,x,Tk_rk_plist,Tk_rk_idl); // start with 0 case out of range.
+  R=gtt_ekn.g_mat_fac_itor(F,Mnm,1,NN,1,x,Tk_rk_plist,Tk_rk_idl);
+}
+#ifdef USE_MODULE
+endmodule$
+tk_rk.init_const()$
+#else
+init_const()$
+#endif
+
+end$
