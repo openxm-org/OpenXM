@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.6 2017/03/03 12:02:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.7 2017/03/10 05:19:44 takayama Exp $ */
 import("names.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
@@ -6,11 +6,13 @@ load("gtt_ekn/g_mat_fac.rr")$
 load("gtt_ekn/ekn_eval.rr")$
 load("gtt_ekn/mle.rr")$
 load("gtt_ekn/ekn_hgm_0.rr")$
+load("gtt_ekn/ekn_restriction_2.rr")$
 
 #ifdef USE_MODULE
 module gtt_ekn$
 localf get_svalue$
 localf gmvector$
+localf gmvector_g_1$
 localf nc$
 localf lognc$
 localf expectation$
@@ -34,6 +36,13 @@ def gmvector(Beta,Prob) {
   if (base_sum(Beta[0],0,0,length(Beta[0])-1) != base_sum(Beta[1],0,0,length(Beta[1])-1)){
     error("gmvector: The sums of Beta[0] and Beta[1] must be equal.");}
   return(ekn_cBasis_2(Beta,Prob|option_list=getopt()));
+}
+def gmvector_g_1(Beta,Prob) {
+  if ((base_memberq(0,Beta[0])) || (base_memberq(0,Beta[1]))){
+    error("gmvector: Marginal sums must be positive integers.");}
+  if (base_sum(Beta[0],0,0,length(Beta[0])-1) != base_sum(Beta[1],0,0,length(Beta[1])-1)){
+    error("gmvector: The sums of Beta[0] and Beta[1] must be equal.");}
+  return(ekn_cBasis_g_1(Beta,Prob|option_list=getopt()));
 }
 
 // Normalizing constant and its derivatives
@@ -169,7 +178,12 @@ def report(){
     setup(|report=1);
 }
 
-def cmle(U){
+def cmle(U)
+"It returns an approximate value of the conditional MLE for the table U. \
+Options: see cBasistoEdiff.\
+Example:   U=[[1,1,2,3],[1,3,1,1]]; M=gtt_ekn.cmle(U); M[2] is the probability. \
+M[0] is U(input data), M[1] is maginal sums."
+{
 //    return(cmle_2(U|option_list=getopt()));
    return(cmle_3(U|option_list=getopt()));
 }

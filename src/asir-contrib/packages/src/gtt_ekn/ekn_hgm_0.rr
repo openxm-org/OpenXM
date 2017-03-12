@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_hgm_0.rr,v 1.1 2017/03/10 05:14:40 takayama Exp $ */
 // 2017.03.10  Added dummy parameter GM.
 /*  misc-2016/A3/rk-k/Prog/tk_exterpolate.rr  was the original. 
     ---> moved to ekn/Prog/ekn_hgm_0.rr (current original)
@@ -59,7 +59,7 @@ Options: randinit(random coef for 0-cell), ptb(perturbation for 0-cell),\
 deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
 Example: gmvector_0([[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-  if (type(getopt(by_g))>0) return "Not implemented";
+  if (type(getopt(by_g))>0) return gtt_ekn.gmvector_g_1(Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
@@ -140,10 +140,10 @@ If GM==0 (value by gmvector), then GM is evaluted in this function.\
 GM is ignoted if there is a 0-cell.\
 Options: randinit(random coef for 0-cell), ptb(perturbation for 0-cell),\
 deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
-by_g (use _g functions --- restriction method.\
+by_g (use _g_1 functions --- restriction method.)\
 Example: cBasistoEdiff_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-  if (type(getopt(by_g))>0) return "Not implemented";
+  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoEdiff_g_1(GM,Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
@@ -263,7 +263,7 @@ GM is ignoted if there is a 0-cell.\
 Options: see cBasistoEdiff.\
 Example: cBasistoE_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-   if (type(getopt(by_g))>0) return "Not implemented";
+  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoE_g_1(GM,Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
