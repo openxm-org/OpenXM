@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.14 2005/08/15 16:28:59 ohara Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.15 2013/08/31 08:16:02 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +21,7 @@ struct item {
   char *changelog;
   char *examplev[VMAX];
   char *exampleDescv[VMAX];
+  char *options;
   int examplec;
   int refc;
   char *refv[VMAX];
@@ -255,6 +256,8 @@ printItem(struct item *it) {
     printf("exampleDescv[%d]=%s\n",i,it->exampleDescv[i]);
   if (it->changelog != NULL)
     printf("changelog=%s\n",it->changelog);
+  if (it->options != NULL)
+    printf("options=%s\n",it->options);
   for (i=0; i<it->refc; i++)
     printf("  refv[%d]=%s\n",i,it->refv[i]);
   if (it->author != NULL)
@@ -397,7 +400,11 @@ struct item *getItem() {
         strcmp(key,"changelog:") == 0 ||
         strcmp(key,"sortKey:") == 0 ||
         strcmp(key,"example:") == 0 ||
-        strcmp(key,"example_description:") ==0 ) {
+        strcmp(key,"example_description:") ==0 ||
+        strcmp(key,"options:") ==0  ||
+        strcmp(key,"Options:") ==0  ||
+        strcmp(key,"Example:") ==0 
+        ) {
       pp = p;
       strcpy(key2,key);
       do {
@@ -412,7 +419,7 @@ struct item *getItem() {
       if (strcmp(key2,"description:") == 0) {
         it->description = str2(&(S[pp]),pOld-pp);
       }
-      if (strcmp(key2,"example:") == 0) {
+      if ((strcmp(key2,"example:") == 0) || (strcmp(key2,"Example:") == 0)) {
         it->examplev[examplec++] = str2(&(S[pp]),pOld-pp);
         it->exampleDescv[examplec-1] = "";
         it->examplec = examplec;
@@ -436,6 +443,9 @@ struct item *getItem() {
       }
       if (strcmp(key2,"changelog:") == 0) {
         it->changelog = str2(&(S[pp]),pOld-pp);
+      }
+      if ((strcmp(key2,"options:") == 0) || (strcmp(key2,"Options:")==0)) {
+        it->options = str2(&(S[pp]),pOld-pp);
       }
     }else if (strcmp(key,"ref:") == 0) {
       argc = 0;
@@ -546,6 +556,10 @@ printTexi_common(FILE *fp,struct item *it) {
   if (it->changelog != NULL) {
     fprintf(fp,"\n\nChange Log:\n@quotation\n");
     fprintf(fp,"%s\n@end quotation\n",it->changelog);
+  }
+  if (it->options != NULL) {
+    fprintf(fp,"\nOptinal variabes:");
+    fprintf(fp,"%s\n\n",it->options);
   }
   if (it->refc > 0) {
     fprintf(fp,"\n\nReferences:\n@quotation\n");
