@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/util/oxlistusage.c,v 1.1 2017/03/10 01:32:50 takayama Exp $ */
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -7,6 +7,17 @@
 #include <string.h>
 #include "oxlistlocalf.h"
 
+void putchar0(int c);
+int fsgetc(FILE *fp);
+int readchar(void);
+int isReserved(char *name);
+void printf0(char *s);
+int shouldReplace(char *name);
+void printf1(char *name);
+int readcomment(void);
+int readcomment2(void);
+
+#define MAX_ITEM 1024*10
 int Mydebug=0;
 
 objectp KClval;
@@ -15,8 +26,12 @@ int Linenumber = 0;
 int Saki = 0;
 int Debug2 = 0;
 FILE *Inop = NULL;
+char *Functions[MAX_ITEM];
+char *Args[MAX_ITEM];
+char *Usages[MAX_ITEM];
+int Entries=0;
 
-char *readstring(void);
+char *readstring(int endquote);
 
 void *mymalloc(int n) { return malloc(n); }
 
@@ -110,7 +125,7 @@ int KClex() {
         Saki = fsgetc(Inop); break;
       }
       if ( Saki == '\"' ) {
-        str = readstring();
+        str = readstring('\"');
         if (Mydebug) printf("[string: %s]",str); 
 
         KClval = newObject_d();
@@ -123,7 +138,9 @@ int KClex() {
         break;
       }
       if (Saki == '\'' ) {
-        d = readchar();
+        str = readstring('\'');
+        if (strlen(str)==1) d=str[0];
+        else d='E';
         Saki = fsgetc(Inop);
 
         KClval = newObject_d();
@@ -191,7 +208,7 @@ int KClex() {
       if (Mydebug) printf("identifier string=[%s]",name);
       if (isdigit(name[0])) {
         /****************************
-      /**case : machine integer. 
+      case : machine integer. 
     KClval = newObject_d();
     KClval->tag = Sinteger;
     sscanf(name,"%d",&(KClval->lc.ival));*************/
@@ -204,7 +221,7 @@ int KClex() {
         break;
       } /* else : Identifier case.*/
       
-      if (d = isReserved(name)) {
+      if ((d = isReserved(name))) {
         if (Replace) printf0(name);
         return(d);
       } else {
@@ -361,7 +378,7 @@ int KClex() {
 }
 
 
-readcomment() {
+int readcomment() {
   int c;
   while (1) {
     c = fsgetc(Inop);
@@ -376,7 +393,7 @@ readcomment() {
   }
 }
 
-readcomment2() {
+int readcomment2() {
   int c;
   while (1) {
     c = fsgetc(Inop);
@@ -391,7 +408,7 @@ readcomment2() {
 }
       
 
-char *readstring() {
+char *readstring(int endquote) {
   static char strtmp[1024]; /* temporary */
   static int size = 1024;
   static char *str = strtmp;
@@ -404,7 +421,7 @@ char *readstring() {
   while (1) {
     c = fsgetc(Inop);
     if (Replace) putchar0(c);
-    if (c == '\"') {
+    if (c == endquote) {
       str[i] = '\0';
       return(str);
     }
@@ -416,7 +433,12 @@ char *readstring() {
     if (c == '\\') {
       c = fsgetc(Inop);
       if (Replace) {
-        putchar0(c);
+	putchar0(c); 
+      }
+      switch(c) {  /* interprete as escape sequence. */
+      case 'n': c='\n'; break;
+      case 't': c='\t'; break;
+      default: break;
       }
       if (c == EOF) {
         fprintf(stderr,"%d: Unexpected end of file in the escape sequence.\n",Linenumber);
@@ -436,7 +458,7 @@ char *readstring() {
 }
       
 
-readchar() {
+int readchar() {
   int c;
   if (Replace) putchar0('\'');
   c = fsgetc(Inop); /* 'c.'   '\.c' */
@@ -463,20 +485,20 @@ readchar() {
   return(c);
 }
   
-putchar0(c)
+void putchar0(c)
   int c;
 {
   if (c > 0) putchar(c);
 }
 
-printf0(s)
+void printf0(s)
   char *s;
 {
   int i = 0;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-printf1(s)
+void printf1(s)
   char *s;
 {
   int i = 0;
@@ -484,7 +506,7 @@ printf1(s)
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-isReserved(s)
+int isReserved(s)
   char *s;
 {
   char *r[] = {"auto","break","case","char","const","continue",
@@ -494,7 +516,7 @@ isReserved(s)
                "switch","typedef","union","unsigned","volatile",
                "void","while",
                "print","module","local","def","sm1","load","Test","special",
-               "class","super","operator","final","extends",
+               "class","super","final","extends",
                "incetanceVariable","this","new","startOfThisClass",
                "sizeOfThisClass","PSfor","OutputPrompt"};
            
@@ -505,9 +527,9 @@ isReserved(s)
                TYPEDEF, UNION,
                UNSIGNED, VOLATILE, VOID, WHILE,
                PRINT,MODULE,LOCAL,DEF,SM1,LOAD,TEST,SPECIAL,
-               CLASS,SUPER,OPERATOR,FINAL,EXTENDS,INCETANCEVARIABLE,
+               CLASS,SUPER,FINAL,EXTENDS,INCETANCEVARIABLE,
                THIS, NEW, STARTOFTHISCLASS, SIZEOFTHISCLASS,PSFOR,PROMPT}; 
-  int  n = 52; /* Length of the list above */
+  int  n = 51; /* Length of the list above */
   /* You have to change simple.y, too. */
 
   int i;
@@ -521,7 +543,7 @@ isReserved(s)
 
 }
 
-shouldReplace(s)
+int shouldReplace(s)
   char *s;
 {
   char *r[] = {"dummy"};
@@ -543,27 +565,34 @@ int fsgetc(FILE *fp) {
   return(fgetc(fp));
 }
 
+int oxgOut(char *inFname) {
+  FILE *fp;
+  int i;
+  fp = stdout;
+  for (i=0; i<Entries; i++) {
+    fprintf(fp,"/*&usage begin:\n");
+    fprintf(fp,"%s%s\n",Functions[i],Args[i]);
+    fprintf(fp,"description: %s\n",Usages[i]);
+    fprintf(fp,"end: */\n\n");
+  }
+  return(0);
+}
 
-int main(int argc,char *argv[]) {
+int outUsage(char *inFname,int oxg) {
   int c;
-  char usage[1024*10];
+  char usage[1024*100];
   char fname[1024];
   char *args[1024];
+  char outbuf[1024*10];
   char *tt;
   int prevtype;
   int i;
-  if (argc <= 1) Inop = stdin;
-  else {
-    Inop = fopen(argv[1],"r");
-    if (Inop == NULL) {
-      fprintf(stderr,"File %s is not found.\n",argv[1]); return(-1);
-    }
-  }
+  Entries=0;
   while ((c=KClex()) != EOF) {
     if (c == DEF) {
       c=KClex();
       if (c != ID) {
-        fprintf(stderr,"ID (identifier) is expected, but the token type is %d\n",c);
+        fprintf(stderr,"ID (identifier) is expected, but the token type is %d. See isReserved() in oxlistusage.c\n",c);
       }else {
         if (Mydebug) printf("ID=%s",(KClval->lc).str);
         strcpy(fname,(KClval->lc).str); // def ... 
@@ -590,16 +619,49 @@ int main(int argc,char *argv[]) {
           }
         }
         if (prevtype == QUOTE) {
-          printf("Function %s(",fname);
+          /**/printf("\nFunction: %s(",fname);
+          Functions[Entries]=(char *)mymalloc(strlen(fname)+2);
+          strcpy(Functions[Entries],fname);
+          sprintf(outbuf,"(");
           for (i=0; args[i] != NULL; i++) {
-            printf("%s",args[i]);
-            if (args[i+1] != NULL) printf(",");
+            /**/printf("%s",args[i]);
+            sprintf(&(outbuf[strlen(outbuf)]),"%s",args[i]);
+            if (args[i+1] != NULL) {
+              /**/printf(",");
+	      sprintf(&(outbuf[strlen(outbuf)]),",");
+             }
           }
-          printf(")\n");
-          printf("Usage: %s\n",usage);
+          /**/printf(")\n");
+	  sprintf(&(outbuf[strlen(outbuf)]),")");
+	  Args[Entries] = (char *)mymalloc(strlen(outbuf)+2);
+	  strcpy(Args[Entries],outbuf);
+          /**/printf("Usage: %s\n",usage);
+	  Usages[Entries] = (char *)mymalloc(strlen(usage)+2);
+	  strcpy(Usages[Entries],usage);
+          Entries++;
         }
       }
     }
   }
+  if (oxg) { oxgOut(inFname); Entries=0;}
   return(0);
+}
+
+int main(int argc,char *argv[]) {
+  int i;
+  int oxg=0;
+  Inop = stdin;
+  for (i=1; i<argc; i++) {
+    if (argv[i][0] == '-') {
+      if (strcmp(argv[i],"--oxgentexi")==0) oxg=1;
+    }else {
+      Inop = fopen(argv[i],"r");
+      if (Inop == NULL) {
+	fprintf(stderr,"File %s is not found.\n",argv[1]); return(-1);
+      }
+      outUsage(argv[i],oxg);
+      fclose(Inop);
+    }
+  }
+  if (Inop == stdin) outUsage("stdin",oxg);
 }
