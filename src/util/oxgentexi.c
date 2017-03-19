@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.15 2013/08/31 08:16:02 ohara Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.16 2017/03/18 01:17:44 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -462,11 +462,10 @@ struct item *getItem() {
         }
       }
     }else{
-      fprintf(stderr,"Error: unknown keyword << %s >> at %s.\n",key, it->name);
+      fprintf(stderr,"Warning: unknown keyword << %s >> at %s.\n",key, it->name);
 	  fprintf(stderr,"       The error occurs around ");
 	  for (i=pp ; i < p; i++) fputc(S[i],stderr);
 	  fprintf(stderr,"\n\n");
-	  exit(1);
       p = nextToken(key,LIMIT);
     }
   }while (p >= 0);
