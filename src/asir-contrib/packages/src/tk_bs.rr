@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_bs.rr,v 1.1 2017/03/12 07:51:24 takayama Exp $
   original source was under misc-2016/A3/rk-k/Prog
  */
 // Burlirsch-Store method to solve ODE.
@@ -33,7 +33,7 @@ extern Tk_bs_idl;
 #endif
 
 def ode_by_mid_point(P,Y0,X,X0,H,N) 
-"Solve dY/dX=PY, Y(X0)=Y0, by modified mid point method with steps N (hh=H/N)"
+"Solve dY/dX=PY, Y(X0)=Y0, by the modified mid point method with steps N (hh=H/N). ref: Numerical_Recipes."
 {
    Z0=matrix_list_to_matrix(Y0);
    P = matrix_list_to_matrix(P);
@@ -59,7 +59,7 @@ def mp_test1() {
 }
 
 def vect_err(F,G) 
-"max |F_i-G_i|"
+"It returns max |F_i-G_i| for arguments F and G"
 {  
   N = length(F);
   Err=0;
@@ -69,9 +69,12 @@ def vect_err(F,G)
   return(T);
 }
 def bs_next(P,Y0,X,X0,H,Eps) 
-"dY/dX=PY, Y(X0)=Y0. Evaluate Y(X0+H) by the Burlirsch-Store method\
+"For dY/dX=PY, Y(X0)=Y0, it evaluates Y(X0+H) by the Burlirsch-Store method\
 (rational exterpolation). When the step error < Eps, it returns.\
-Options: mfac[0], same options with gtt_ekn.setup when mfac=1."
+Options: mfac[0], same options with gtt_ekn.setup when mfac=1.\n\
+Example: T=tk_bs.bs_next([[0,1],[0,x/(1-x^2)]],[0,2],x,0,9/10,10^(-5));\n\
+ number_eval(T); eval(2*ssin(0.9));\n\
+ref: Numerical_Recipes"
 {
    if (type(getopt(mfac))>0) {
      Use_mfac=1; Tk_bs_plist=0; // initialize servers.
@@ -116,7 +119,7 @@ def bs_test1() {
 
 /* 2017.03.12 */
 def mid_point_mat(P,X,X0,H) 
-"It returns a matrix of the mid point method for matrix factorial evaluation."
+"It returns a matrix of the mid point method for the matrix factorial evaluationgtt_ekn.g_mat_fac_itor()."
 {
   if (type(getopt(replace_n)) > 0) {
     Replace=base_replace_n;
@@ -141,7 +144,7 @@ def append_vec(A,B) {
 }
 
 def decomp_vec(C,N) 
-"Example: decomp_vec(newvect(5,[0,1,2,3,4]),2) returns [newvect(2,[0,1]),newvect(3,[2,3,4])]"
+"Example: decomp_vec(newvect(5,[0,1,2,3,4]),2) \nreturns [newvect(2,[0,1]),newvect(3,[2,3,4])]"
 {
   A=newvect(N);  M=length(C)-N;
   B=newvect(M);
