@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.3 2016/02/13 22:56:50 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.c2wishart.R,v 1.4 2016/03/01 07:29:18 takayama Exp $
 "hgm.tk.p2wishart" <-
 function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=-1,q=4,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
@@ -13,7 +13,7 @@ function(m=3,n1=5,n2=10,beta=c(1,2,4),q0=0.3,approxdeg=-1,h=0.001,dp=-1,q=4,
   if (!is.loaded("hgm")) library.dynam("hgm",package="hgm",lib.loc=NULL);
 
   .C("Rmh_set_strategy",as.integer(nstrategy),as.double(err),retv=double(1),
-     package="hgm")$retv ;
+     PACKAGE="hgm")$retv ;
 
   if (m<1) m=1;
   rank <- 2^m;
