@@ -2600,19 +2600,29 @@ T0 = time();
 def plot_2f1(Data)
 {
   P = Data[0]; Q = ltov(Data[1]);
-  M = P[0]; N1 = P[1]; N2 = P[2]; PL = P[3]; Beta = P[4]; X = P[5];
+  M = P[0]; N1 = P[1]; N2 = P[2]; PL = P[3]; Beta = P[4];
+  if ( type(X=getopt(max))==-1 ) X = P[5];
   L = length(Q);
-  S = idiv(L,1000);
+  for ( I = 0; I < L && Q[I][0] < X; I++ );
+  S = idiv(I,1000);
+  if ( !S ) S = 1;
   Name = rtostr(M)+"-"+rtostr(N1)+"-"+rtostr(N2);
   for ( T = PL; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
   for ( T = Beta; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
   shell("rm -f "+Name);
   output(Name);
-  for ( I = 0; I <= L; I += S ) {
+  for ( I = 0; I < L && Q[I][0] < X; I += S ) {
     T = Q[I];
     print(T[0],0); print(" ",0); print(T[1]);
   }
   output();
+  TmpName = "/tmp/"+Name;
+  shell("rm -f "+TmpName);
+  output(TmpName);
+  print("plot \""+Name+"\" with lines");
+  output();
+  Cmd = "gnuplot -persist "+TmpName;
+  shell(Cmd);
 }
 
 def solve_leq(L,V)
