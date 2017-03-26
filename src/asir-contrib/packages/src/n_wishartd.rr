@@ -27,7 +27,7 @@ localf solve_leq,ptom$
 localf msubst$
 localf vton,encodef1,encodef,encodec1,encodec$
 localf vton,ftotex,ctotex,pftotex,optotex,eqtotex$
-localf genprc,genprc_2f1n,prob_by_hgm,prob_by_hgm_2f1n,prob_by_ps,prob_by_ps_2f1n$
+localf genprc,genprc_2f1n,prob_by_hgm,prob_by_hgm_2f1n,prob_by_ps,prob_by_ps_2f1n,plot_2f1$
 localf prob_by_hgm,prob_by_hgm_2f1,prob_by_ps_2f1,pfaffian_2f1,genrk45_2f1,setup_hgm_2f1$
 localf partition, all_partition,  coef_partition, count_dup,simp_power1$
 localf lop1,lopn,loph,mul_lopitalpf2$
@@ -1647,7 +1647,8 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   if ( !PS && type(PS=getopt(ps)) == -1 ) PS = 0;
   if ( type(TD=getopt(td)) == -1 ) TD = 0;
   if ( !Q && type(Q=getopt(pf)) == -1 ) Q = 0;
-  F = genrk45_2f1(Z,M,N1,N2,V,PL,Beta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD,pf=Q);
+  if ( type(All=getopt(all)) == -1 ) All = 0;
+  F = genrk45_2f1(Z,M,N1,N2,V,PL,Beta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD,pf=Q,all=All);
   if ( Print ) print(["diag",Tdiag,"pfaffian",Tp,"ps",Tps,"rk",Trk]);
   return F;
 }
@@ -2493,6 +2494,7 @@ def genrk45_2f1(Z,M,N1,N2,V,PL,Beta,X,RK,Step,X0,Eps)
   if ( type(PSL=getopt(ps)) == -1 ) PSL = 0;
   if ( type(TD=getopt(td)) == -1 || !TD ) TD = 100;
   if ( type(Q=getopt(pf)) == -1 ) Q=0;
+  if ( type(All=getopt(all)) == -1 ) All=0;
   ctrl("bigfloat",1);
   O = eval(exp(0));
   Len = length(V);
@@ -2517,12 +2519,13 @@ T0 = time();
   Y0 = vector(Len);
   while ( 1 ) {
     for ( I = 0; I < Len; I++ ) Y0[I] = X0/(X0+Beta[I]);
+    Val0 = Val;
     Val = msubst(PS,V,Y0);
     Vald = msubst(PSd,V,Y0);
     if ( Val+Vald == Val ) break;
     X0 /= 2;
   }
-  if ( Print ) print(["x0=",X0]);
+  if ( Print ) print(["x0=",X0,"relative error=",Vald/Val]);
 T1 = time(); Tps = (T1[0]-T0[0])+(T1[1]-T0[1]);
 T0 = time();
 
@@ -2580,7 +2583,36 @@ T0 = time();
     }
     if ( Print ) print("");
   }
-  return Val[0];
+  if ( All ) {
+    setround(2);
+    Adj = eval(exp(0));
+    D = [];
+    for ( T = reverse(R); T != []; T = cdr(T) ) {
+      Adj *= car(T)[1];
+      D = cons([car(T)[0],Adj],D);
+    }
+    setround(0);
+    return [[M,N1,N2,PL,Beta,X],reverse(D)];
+  } else
+    return Val[0];
+}
+
+def plot_2f1(Data)
+{
+  P = Data[0]; Q = ltov(Data[1]);
+  M = P[0]; N1 = P[1]; N2 = P[2]; PL = P[3]; Beta = P[4]; X = P[5];
+  L = length(Q);
+  S = idiv(L,1000);
+  Name = rtostr(M)+"-"+rtostr(N1)+"-"+rtostr(N2);
+  for ( T = PL; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
+  for ( T = Beta; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
+  shell("rm -f "+Name);
+  output(Name);
+  for ( I = 0; I <= L; I += S ) {
+    T = Q[I];
+    print(T[0],0); print(" ",0); print(T[1]);
+  }
+  output();
 }
 
 def solve_leq(L,V)
