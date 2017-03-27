@@ -20,6 +20,9 @@ make-link-p:
 clean:
 	rm -f *.o *~ gsl-t-1.a oxprint.h .link_done_p
 
+all: gsl-t-1.a
+distclean: clean
+install: all
 # Only the MacOS X accepts the above libtool options.
 ## test implementation including the minimum codes from the gsl 4.47
 ## @s/2012/12/23-gsl* (gsl 4.47 code).  See ode-initval, err, sys

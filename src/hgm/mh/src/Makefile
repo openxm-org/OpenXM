@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.20 2016/02/13 02:18:59 takayama Exp $
+## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.21 2016/10/30 01:10:18 takayama Exp $
 OPT=-g -DSTANDALONE 
 OPT2=-g
 OPT3=-g -DSTANDALONE2
@@ -79,3 +79,9 @@ test3.sh:
 test2-a.sh:
 	(cd Testdata ; ./test2-a.sh )
 	@echo "Test of the adaptive method."
+
+install: all
+	cp hgm_w-n hgm_jack-n ../../../../bin
+distclean: clean
+	rm -f ../../../../bin/hgm_w-n ../../../../bin/hgm_jack-n
+
