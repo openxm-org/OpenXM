@@ -27,8 +27,8 @@ localf solve_leq,ptom$
 localf msubst$
 localf vton,encodef1,encodef,encodec1,encodec$
 localf vton,ftotex,ctotex,pftotex,optotex,eqtotex$
-localf genprc,genprc_2f1n,prob_by_hgm,prob_by_hgm_2f1n,prob_by_ps,prob_by_ps_2f1n,plot_2f1$
-localf prob_by_hgm,prob_by_hgm_2f1,prob_by_ps_2f1,pfaffian_2f1,genrk45_2f1,setup_hgm_2f1$
+localf genprc,genprc_2f1n,prob_by_hgm,prob_by_hgm_2f1n,prob_by_ps,prob_by_ps_2f1n,plot_2f1,plot$
+localf prob_by_hgm,prob_by_hgm_2f1,prob_by_ps_2f1,pfaffian_2f1,genrk45_2f1,setup_hgm_2f1,setup_hgm$
 localf partition, all_partition,  coef_partition, count_dup,simp_power1$
 localf lop1,lopn,loph,mul_lopitalpf2$
 localf muldmpf$
@@ -40,6 +40,7 @@ localf mapleout$
 localf gbcheck$
 localf partition,all_partition,partition_to_pattern$
 localf distinct_diag$
+localf rtostr_rat$
 
 /* 
  * pfpoly = [[C,<<...>>],...]
@@ -919,7 +920,9 @@ def diagpf(N,Blocks)
    where M is the number of variables and [Si,Ei] is a diagonal block 
    and S(i+1)=Ei + 1.  
    For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of 
-   PDEs satisfied by 1F1(y1,...,y1,y10)."
+   PDEs satisfied by 1F1(y1,...,y1,y10).
+   If option w2f1=1 is specified, this function computes the diagonalized system
+   satisfied by 2F1."
 {
   W2F1 = getopt(w2f1);
   if ( type(W2F1) == -1 ) W2F1 = 0;
@@ -1544,7 +1547,8 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
   if ( type(PS=getopt(ps)) == -1 ) PS = 0;
   if ( type(TD=getopt(td)) == -1 ) TD = 0;
-  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD);
+  if ( type(All=getopt(all)) == -1 ) All = 0;
+  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD,all=All);
   if ( Print ) print(["diag",Tdiag,"pfaffian",Tp,"ps",Tps,"rk",Trk]);
   return F;
 }
@@ -1594,6 +1598,31 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   return F;
 }
 
+def setup_hgm(M,N,PL,SL)
+{
+  if ( type(TD=getopt(td)) == -1 ) TD = 100;
+  A = (M+1)/2; C = (N+M+1)/2; MN2 = M*N/2;
+  if ( !distinct_diag(SL) ) error("eigenvaules must be distinct");
+  B = []; V = [];
+  Prev = 1;
+  Beta = []; SBeta = 0;
+  for ( T = PL, S = SL; T != []; T = cdr(T), S = cdr(S) ) {
+    V = cons(strtov("y"+rtostr(Prev)),V);
+    B = cons([Prev,Prev+car(T)-1],B);
+    Prev += car(T);
+    Beta = cons(1/(2*car(S)),Beta);
+    SBeta += car(T)/(2*car(S));
+  }
+  if ( Prev != M+1 )
+    error("invalid block specification");
+  B = reverse(B); V = reverse(V);
+  Z = diagpf(M,B);
+  Z0 = subst(Z,a,A,b,Bb,c,C);
+  Q = pfaffian2(Z0,V,Beta,SBeta,MN2,t);
+  PSL = ps(Z0,V,TD);
+  return [M,N,PL,SL,Z,Z0,Q,PSL];
+}
+
 def setup_hgm_2f1(M,N1,N2,PL,Beta)
 {
   if ( type(TD=getopt(td)) == -1 ) TD = 100;
@@ -1617,6 +1646,16 @@ def setup_hgm_2f1(M,N1,N2,PL,Beta)
 }
 
 def prob_by_hgm_2f1(M,N1,N2,PL,Beta,X)
+"usage : n_wishartd.prob_by_hgm_2f1(M,N1,N2,[P1,P2,...],[S1,S2,...]|options),
+   where M is the number of variables, N1 and N2 are the degrees of freedom, 
+   Pi is the size of i-th block and Si is the value of i-th (repeated) 
+   eigenvalue of Beta.  
+   options : rk=4|5 => use 4|5-th order Runge-Kutta method (default : rk=5) 
+   step=k => set the number of steps=k (default : 10^4),
+   eps=e => set the approximate relative error bound=e (default : 10^(-4)),
+   all=1 => return a list of [Xi,P(Xi)] computed by HGM.
+   For example, n_wishartd.prob_by_hgm_2f1(3,10,20,[2,1],[10,1],10|rk=5) 
+   computes Pr[l1<10|diag(10,10,1)] by RK5."
 {
   if ( type(S=getopt(setup)) == -1 ) S = 0;
 
@@ -2296,6 +2335,7 @@ def genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,RK,Step,X0,Eps)
   if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
   if ( type(PSL=getopt(ps)) == -1 ) PSL = 0;
   if ( type(TD=getopt(td)) == -1 || !TD ) TD = 100;
+  if ( type(All=getopt(all)) == -1 ) All=0;
   ctrl("bigfloat",1);
   O = eval(exp(0));
   Len = length(V);
@@ -2390,10 +2430,22 @@ T0 = time();
     }
     if ( I >= 1 && abs(1-Val[0]/Val[1])<Eps ) {
       T1 = time(); Trk = (T1[0]-T0[0])+(T1[1]-T0[1]);
-      return Val[0];
+      break;
     }
     if ( Print ) print("");
   }
+  if ( All ) {
+    setround(2);
+    Adj = eval(exp(0));
+    D = [];
+    for ( T = reverse(R); T != []; T = cdr(T) ) {
+      Adj *= car(T)[1];
+      D = cons([car(T)[0],Adj],D);
+    }
+    setround(0);
+    return [[M,N,PL,SL,X],reverse(D)];
+  } else 
+    return Val[0];
 }
 
 def genrk45_2f1n(Z,M,N1,N2,V,PL,SL,Beta,X,RK,Step,X0,Eps)
@@ -2612,6 +2664,40 @@ T0 = time();
     return Val[0];
 }
 
+def rtostr_rat(A)
+{
+  if ( dn(A) == 1 ) return rtostr(A);
+  else return rtostr(nm(A))+":"+rtostr(dn(A));
+}
+
+def plot(Data)
+{
+  P = Data[0]; Q = ltov(Data[1]);
+  M = P[0]; N = P[1]; PL = P[2]; SL = P[3];
+  if ( type(X=getopt(max))==-1 ) X = P[4];
+  L = length(Q);
+  for ( I = 0; I < L && Q[I][0] < X; I++ );
+  S = idiv(I,1000);
+  if ( !S ) S = 1;
+  Name = rtostr_rat(M)+"-"+rtostr_rat(N);
+  for ( T = PL; T != []; T = cdr(T) ) Name += "-"+rtostr_rat(car(T));
+  for ( T = SL; T != []; T = cdr(T) ) Name += "-"+rtostr_rat(car(T));
+  shell("rm -f "+Name);
+  output(Name);
+  for ( I = 0; I < L && Q[I][0] < X; I += S ) {
+    T = Q[I];
+    print(T[0],0); print(" ",0); print(T[1]);
+  }
+  output();
+  TmpName = "/tmp/"+Name;
+  shell("rm -f "+TmpName);
+  output(TmpName);
+  print("plot \""+Name+"\" with lines");
+  output();
+  Cmd = "gnuplot -persist "+TmpName;
+  shell(Cmd);
+}
+
 def plot_2f1(Data)
 {
   P = Data[0]; Q = ltov(Data[1]);
@@ -2621,9 +2707,9 @@ def plot_2f1(Data)
   for ( I = 0; I < L && Q[I][0] < X; I++ );
   S = idiv(I,1000);
   if ( !S ) S = 1;
-  Name = rtostr(M)+"-"+rtostr(N1)+"-"+rtostr(N2);
-  for ( T = PL; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
-  for ( T = Beta; T != []; T = cdr(T) ) Name += "-"+rtostr(car(T));
+  Name = rtostr_rat(M)+"-"+rtostr_rat(N1)+"-"+rtostr_rat(N2);
+  for ( T = PL; T != []; T = cdr(T) ) Name += "-"+rtostr_rat(car(T));
+  for ( T = Beta; T != []; T = cdr(T) ) Name += "-"+rtostr_rat(car(T));
   shell("rm -f "+Name);
   output(Name);
   for ( I = 0; I < L && Q[I][0] < X; I += S ) {
