@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.20 2016/08/26 04:56:07 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.21 2016/08/29 04:56:58 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -984,9 +984,12 @@ returns the value of @var{function}(@var{arg0},@var{arg1},@dots{}).
 @findex flist
 
 @table @t
-@item flist()
+@item flist([mname])
 \JP :: 現在定義されている函数名を文字列リストとして返す. 
 \EG :: Returns the list of function names currently defined.
+@item mname
+\JP モジュール名
+\EG a module name
 @end table
 
 @table @var
@@ -999,7 +1002,8 @@ returns the value of @var{function}(@var{arg0},@var{arg1},@dots{}).
 \BJP
 @item
 現在定義されている組み込み函数, ユーザ定義函数の函数名を文字列リスト
-として返す. 
+として返す. モジュール名が指定された場合, そのモジュールで定義されている
+関数名のみを返す.
 @item
 システム函数の後にユーザ定義函数が続く. 
 \E
@@ -1007,6 +1011,8 @@ returns the value of @var{function}(@var{arg0},@var{arg1},@dots{}).
 @item 
 Returns the list of names of built-in functions and user defined functions
 currently defined. The return value is a list of character strings.
+If a module name is specified, only the names of functions defined in the module
+are returned.
 @item 
 The names of built-in functions are followed by those of user defined
 functions.
