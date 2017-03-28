@@ -1,0 +1,241 @@
+/* 
+$OpenXM$
+In order to use this module, 
+  cd OpenXM/src/hgm ; make install
+
+misc-2016/A3/kanazawa/tk_hgm_mh.rr
+orig: OpenXM/src/hgm/mh/src/Testdata/test1.rr,v 1.5 2016/02/09 05:00:31 takayama 
+*/
+import("names.rr")$
+#define USE_MODULE
+
+#ifdef USE_MODULE
+module tk_hgm_mh;
+localf gen_input$
+localf gen4$
+localf gen4b$
+localf gen5$
+localf myinv$
+localf prob_by_2f1$
+localf test1$
+localf my_get_line$
+localf my_scan$
+localf parse_jack_out$
+#else
+
+#endif
+
+def gen_input(Param) {
+  if (type(getopt(fname)) > 0) {
+    Fname=rtostr(getopt(fname));
+  }else Fname="tmp-2f1-in.txt";
+  Beta=Param[0]; 
+  M = length(Beta);
+  A=Param[1][0];
+  B=Param[1][1];
+  C=Param[1][2];
+  X0=Param[2];
+  X1=Param[3];
+  Fp = open_file(Fname,"w");
+  fprintf(Fp,"%Mg=\n%a\n",M);
+  for (I=0; I<M; I++) {
+    fprintf(Fp,"%Beta[%a]=\n%a\n",I,deval(Beta[I]));
+  }
+  fprintf(Fp,"%Ng=\n1.0\n");
+  fprintf(Fp,"%X0g=\n%a\n",deval(X0));
+  fprintf(Fp,"%Iv's=\n*\n");
+  fprintf(Fp,"%Ef=\n*\n");
+  fprintf(Fp,"%Hg=\n0.001\n");
+  fprintf(Fp,"%Dp=\n1\n");
+  fprintf(Fp,"%Xng=\n%a\n",deval(X1));
+  fprintf(Fp,"%p_pFq=2, %a, %a\n",deval(A),deval(B));
+  fprintf(Fp,"%q_pFq=1, %a\n",deval(C));
+  fprintf(Fp,"%ef_type=2\n"); // Bug, todo, これが元 Testdata/test1.rr にないので注意.
+  close_file(Fp);
+  return(Fname);
+}
+
+
+// For new hgm_jack-n-2f1
+// Sample use of gen_input();
+def gen4() {
+  Lam = [1,2,4];
+  N1 = 5;
+  N2 = 10;
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X0=Beta[0]/10;
+  X1=4;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-4.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-4.txt --verbose\n");
+  gen_input(Param);
+}
+def gen4b() {
+  Lam = [1,4,4]; // degenerated eighen values
+  N1 = 5;
+  N2 = 10;
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X0=Beta[0]/10;
+  X1=4;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-4.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-4.txt --verbose\n");
+  gen_input(Param);
+}
+
+// This example is hard even when --assigned_series_error=1e-1
+def gen5() {
+  Lam = [1,2,3,4,5,6,7,8];
+  N1 = 10;
+  N2 = 15;
+  M = length(Lam);
+  X = Lam[idiv(M,2)];
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X0=1/3;
+  X1=80;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
+  printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-5.txt\n");
+  printf("../hgm_w-n-2f1 --idata tt-2016-02-04-5.txt [--gnuplotf test-g] --verbose\n");
+  printf("Change the plot range by hand in test-g-gp.txt\n");
+  gen_input(Param);
+}
+def myinv(A) { return(1/A);}
+def prob_by_2f1(M,N1,N2,Cov,X0)
+"It returns the cumulative distribution function of the largest eigenvalues of\
+ W1*inverse(W2) where W1 and W2 are Wishart matrices of size M*M  of the freedom\
+ N1 and N2 respectively. Cov=S1^(-1)*S2 where S1 and S2 are covariant \
+diagonal matrices of W1 and W2 respectively. \n\
+It uses series expansion of the matrix 2F1 and returns [X0,Prob,exponential factor,2F1 and its derivatives]\n\
+Options: oxhome,err,degree\n\
+Example: tk_hgm_mh.prob_by_2f1(3,5,10,[1,1/4,1/4],1/10|err=10^(-5),degree=10);\n"
+// ref: Hashiguchi, Takayama, Takemura"  asirgui hangs with long help.
+{
+  Lam = map(myinv,Cov);
+  if (M != length(Lam)) error("length of covariant matrix must be equal to m. Ex: Cov=[1,1/4,1/4]"); 
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I];
+  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  A=(M+1)/2;
+  B=(N1+N2)/2;
+  C=(N1+M+1)/2;
+  X1=100;
+  Param=[vtol(Beta),[A,B,C],X0,X1];
+  //  print(Param);
+  gen_input(Param|option_list=getopt());
+  if (type(getopt(ox_home))>0) Comm0=sprintf("%a/",getopt(ox_home));
+  else Comm0="";
+  Comm=Comm0+sprintf("hgm_jack-n --idata  tmp-2f1-in.txt ");
+  //  print(Comm);
+  if (type(getopt(err))>0) Comm2=sprintf(" --assigned_series_error %a ",number_eval(getopt(err)));
+  else Comm2=" ";
+  if (type(getopt(degree))>0) Comm3=sprintf(" --degree %a ",getopt(degree));
+  else Comm3=" ";
+  Comm = Comm+Comm2+Comm3+" >tmp-2f1-out.txt ";
+  printf("Executing "+Comm);
+  Status=shell(Comm);
+  if (Status < 0) {
+    printf("Error: hgm_jack-n is not installed in the search path. Try to use ox_home option if it is installed out of the search path."); 
+    error("hgm_jack-n is not installed. (cd OpenXM/src/hgm ; make install");
+  }
+  printf("  ...   Done.\n");
+  return parse_jack_out();
+}
+def test1() {
+  if ((sysinfo()[0] == "windows") && (getenv("USERNAME")=="Nobuki")) {
+  prob_by_2f1(3,5,10,[1,1/4,1/4],1/10 
+	      | err=10^(-5), degree=10, ox_home="c:/msys64/home/nobuki/OX4/OpenXM/bin");
+  }else{
+  prob_by_2f1(3,5,10,[1,1/4,1/4],1/10 
+	      | err=10^(-5), degree=10);
+  }
+}
+/*  copy /bin/msys64-2.0.dll to OpenXM/bin in case of windows. */
+
+/* scan the following symbols
+#Iv[0]=
+%Ef=
+%X0g=
+get_line(Fd)
+sub_str(S,Start,End)
+str_len(S)
+ */
+
+def my_get_line(Fd) {
+  T=string_to_tb("");
+  while ((C=get_byte(Fd)) >= 0) {
+    if (C==0xd) C = get_byte(Fd); // Assumes it is 0xa and discard them. 
+                                // old mac newline cannot be used.
+    if (C==0xa) return(tb_to_string(T));
+    write_to_tb(asciitostr([C]),T);
+  }
+  S=tb_to_string(T);
+  if ((C < 0) && (str_len(S)==0)) return(0);
+  else return(S);
+}
+def my_scan(S) {
+  // not implemented.
+  // Read Key=value data from S. It returns [key,value] when the format is key=value
+  // If it is not, it returns 0. 
+}
+def parse_jack_out() {
+  if (type(getopt(fname)) > 0) Fname=getopt(fname);
+  else Fname="tmp-2f1-out.txt";
+  Fd = open_file(Fname,"r");
+  if (Fd < 0) error("File does not exist.");
+  Smg="%Mg=";
+  Sef="%Ef=";
+  Sx0g="%X0g=";
+  while (type(S=my_get_line(Fd)) > 0) {
+    if (S == Smg) {
+      T=my_get_line(Fd);  Mg=eval_str(T);
+      break;
+    }
+  }
+  Iv=newvect(2^Mg);
+  Siv=newvect(2^Mg);
+  for (I=0; I<2^Mg; I++) {
+    Siv[I] = sprintf("#Iv[%a]=",I);
+  }
+  K=0;
+  while (type(S=my_get_line(Fd)) > 0) {
+    if (S == Siv[K]) {
+      T=my_get_line(Fd);  Iv[K]=eval_str(T); 
+      K++; if (K>=2^Mg) K=0;
+    }else if (S == Sef) {
+      T=my_get_line(Fd);  Ef=eval_str(T);
+    }else if (S == Sx0g) {
+      T=my_get_line(Fd);  X0g=eval_str(T);
+    }  
+  }
+  return [X0g,Iv[0]*Ef,Ef,vtol(Iv)];
+}
+
+#ifdef USE_MODULE
+endmodule;
+#else
+
+#endif
+
+end$
