@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.16 2017/03/18 01:17:44 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.17 2017/03/19 00:22:16 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -514,6 +514,7 @@ printTexi(FILE *fp, struct item *it) {
 void
 printTexi_common(FILE *fp,struct item *it) {
   int i;
+  int elen;
   if ((it->shortDescription != NULL) || (it->refc >0)
       || (it->examplec > 0)) {
     if (it->description != NULL) { 
@@ -543,7 +544,9 @@ printTexi_common(FILE *fp,struct item *it) {
       if (GenExample) {
         outputOfExample(it->examplev[i]);
       }
-      fprintf(fp,"@end example\n");
+      elen=strlen(it->examplev[i]);
+      if ((it->examplev[i])[elen-1] == '\n') fprintf(fp,"@end example\n");
+      else fprintf(fp,"\n@end example\n");
       if (it->exampleDescv[i] != NULL && strlen(it->exampleDescv[i]) > 0) {
         fprintf(fp,"%s\n\n",it->exampleDescv[i]);
       }
