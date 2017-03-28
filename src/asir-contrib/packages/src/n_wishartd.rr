@@ -915,6 +915,11 @@ T1 = time(); Tred += T1[0]-T0[0];
 }
 
 def diagpf(N,Blocks)
+"usage : n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]),
+   where M is the number of variables and [Si,Ei] is a diagonal block 
+   and S(i+1)=Ei + 1.  
+   For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of 
+   PDEs satisfied by 1F1(y1,...,y1,y10)."
 {
   W2F1 = getopt(w2f1);
   if ( type(W2F1) == -1 ) W2F1 = 0;
@@ -1489,6 +1494,16 @@ def distinct_diag(S)
  */
 
 def prob_by_hgm(M,N,PL,SL,X)
+"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options),
+   where M is the number of variables, N is the degrees of freedom, 
+   Pi is the size of i-th block and Si is the value of i-th (repeated) 
+   eigenvalue of Sigma.  
+   options : rk=4|5 => use 4|5-th order Runge-Kutta method (default : rk=5) 
+   step=k => set the number of steps=k (default : 10^4) init=x => set 
+   the maximal coordinate of the initial point=x (default : 1), 
+   eps=e => set the approximate relative error bound=e (default : 10^(-4)).
+   For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk=5) 
+   computes Pr[l1<10|diag(1/10,1/10,1)] by RK5."
 {
   A = (M+1)/2; C = (N+M+1)/2;
 
@@ -3053,6 +3068,3 @@ def ntop(N)
 endmodule$
 end$
 
-"usage : n_wishartd.diagpf(M,[[S1,E1],[S2,E2],...]),\n where M is the number of variables and [Si,Ei] is a diagonal block and S(i+1)=Ei + 1.  For example, n_wishartd.diagpf(10,[[1,9],[10,10]) returns a system of PDEs satisfied by 1F1(y1,...,y1,y10)."
-
-"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options) where M is the number of variables, N is the degrees of freedom, Pi is the size of i-th block and Si is the value of i-th (repeated) eigenvalue of Sigma.  options : rk=4|5 => use 4|5-th order Runge-Kutta method (default : rk=5) step=k => set the number of steps=k (default : 10^4) init=x => set the maximal coordinate of the initial point=x (default : 1), eps=e => set the approximate relative error bound=e (default : 10^(-4)).  For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk=5) computes Pr[l1<10|diag(1/10,1/10,1)] by RK5."
