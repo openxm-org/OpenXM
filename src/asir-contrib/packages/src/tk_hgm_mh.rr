@@ -1,5 +1,5 @@
 /* 
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgm_mh.rr,v 1.1 2017/03/28 01:37:07 takayama Exp $
 In order to use this module, 
   cd OpenXM/src/hgm ; make install
 
@@ -11,12 +11,14 @@ import("names.rr")$
 
 #ifdef USE_MODULE
 module tk_hgm_mh;
-localf gen_input$
+localf gen_input_2f1$
+localf gen_input_1f1$
 localf gen4$
 localf gen4b$
 localf gen5$
 localf myinv$
 localf prob_by_2f1$
+localf prob_by_1f1$
 localf test1$
 localf my_get_line$
 localf my_scan$
@@ -25,7 +27,7 @@ localf parse_jack_out$
 
 #endif
 
-def gen_input(Param) {
+def gen_input_2f1(Param) {
   if (type(getopt(fname)) > 0) {
     Fname=rtostr(getopt(fname));
   }else Fname="tmp-2f1-in.txt";
@@ -41,7 +43,7 @@ def gen_input(Param) {
   for (I=0; I<M; I++) {
     fprintf(Fp,"%Beta[%a]=\n%a\n",I,deval(Beta[I]));
   }
-  fprintf(Fp,"%Ng=\n1.0\n");
+  fprintf(Fp,"%Ng=\n1.0\n"); // dummy parameter in case of 2F1
   fprintf(Fp,"%X0g=\n%a\n",deval(X0));
   fprintf(Fp,"%Iv's=\n*\n");
   fprintf(Fp,"%Ef=\n*\n");
@@ -57,7 +59,7 @@ def gen_input(Param) {
 
 
 // For new hgm_jack-n-2f1
-// Sample use of gen_input();
+// Sample use of gen_input_2f1();
 def gen4() {
   Lam = [1,2,4];
   N1 = 5;
@@ -76,7 +78,7 @@ def gen4() {
   printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
   printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-4.txt\n");
   printf("../hgm_w-n-2f1 --idata tt-2016-02-04-4.txt --verbose\n");
-  gen_input(Param);
+  gen_input_2f1(Param);
 }
 def gen4b() {
   Lam = [1,4,4]; // degenerated eighen values
@@ -96,7 +98,7 @@ def gen4b() {
   printf("[Beta,[A,B,C],X0,X1]=%a\n",Param);
   printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-4.txt\n");
   printf("../hgm_w-n-2f1 --idata tt-2016-02-04-4.txt --verbose\n");
-  gen_input(Param);
+  gen_input_2f1(Param);
 }
 
 // This example is hard even when --assigned_series_error=1e-1
@@ -119,7 +121,7 @@ def gen5() {
   printf("../hgm_jack-n-2f1 --idata tmp-2f1-in.txt --degree ?? >tt-2016-02-04-5.txt\n");
   printf("../hgm_w-n-2f1 --idata tt-2016-02-04-5.txt [--gnuplotf test-g] --verbose\n");
   printf("Change the plot range by hand in test-g-gp.txt\n");
-  gen_input(Param);
+  gen_input_2f1(Param);
 }
 def myinv(A) { return(1/A);}
 def prob_by_2f1(M,N1,N2,Cov,X0)
@@ -136,14 +138,14 @@ Example: tk_hgm_mh.prob_by_2f1(3,5,10,[1,1/4,1/4],1/10|err=10^(-5),degree=10);\n
   if (M != length(Lam)) error("length of covariant matrix must be equal to m. Ex: Cov=[1,1/4,1/4]"); 
   Beta = newvect(M);
   for (I=0; I<M; I++) Beta[I] = Lam[I];
-  if (N1 < M || N2 < M) debug("N1 or N2 is small.");
+  if (N1 < M || N2 < M) error("N1 or N2 is small.");
   A=(M+1)/2;
   B=(N1+N2)/2;
   C=(N1+M+1)/2;
   X1=100;
   Param=[vtol(Beta),[A,B,C],X0,X1];
   //  print(Param);
-  gen_input(Param|option_list=getopt());
+  gen_input_2f1(Param|option_list=getopt());
   if (type(getopt(ox_home))>0) Comm0=sprintf("%a/",getopt(ox_home));
   else Comm0="";
   Comm=Comm0+sprintf("hgm_jack-n --idata  tmp-2f1-in.txt ");
@@ -230,6 +232,73 @@ def parse_jack_out() {
     }  
   }
   return [X0g,Iv[0]*Ef,Ef,vtol(Iv)];
+}
+
+def gen_input_1f1(Param) {
+  if (type(getopt(fname)) > 0) {
+    Fname=rtostr(getopt(fname));
+  }else Fname="tmp-1f1-in.txt";
+  Beta=Param[0]; 
+  M = length(Beta);
+  A=Param[1][0];
+  C=Param[1][1];
+  X0=Param[2];
+  X1=Param[3];
+  Fp = open_file(Fname,"w");
+  fprintf(Fp,"%Mg=\n%a\n",M);
+  for (I=0; I<M; I++) {
+    fprintf(Fp,"%Beta[%a]=\n%a\n",I,deval(Beta[I]));
+  }
+  fprintf(Fp,"%Ng=\n%a\n",C*2-M-1);
+  fprintf(Fp,"%X0g=\n%a\n",deval(X0));
+  fprintf(Fp,"%Iv's=\n*\n");
+  fprintf(Fp,"%Ef=\n*\n");
+  fprintf(Fp,"%Hg=\n0.001\n");
+  fprintf(Fp,"%Dp=\n1\n");
+  fprintf(Fp,"%Xng=\n%a\n",deval(X1));
+  fprintf(Fp,"%p_pFq=1, %a\n",deval(A));
+  fprintf(Fp,"%q_pFq=1, %a\n",deval(C));
+  fprintf(Fp,"%ef_type=1\n");
+  close_file(Fp);
+  return(Fname);
+}
+
+def prob_by_1f1(M,N,Cov,X0)
+"It returns the cumulative distribution function of the largest eigenvalues of\
+ W1 where W1 is a Wishart matrix of size M*M  of the freedom N.\
+ Cov is the  covariant diagonal matrices of W1. Beta = (Cov/2)^(-1).\n\
+It uses series expansion of the matrix 1F1 and returns [X0,Prob,exponential factor,1F1 and its derivatives]\n\
+Options: oxhome,err,degree\n\
+Example: tk_hgm_mh.prob_by_1f1(4,10,[2,2/2,2/3,2/4],1|err=10^(-5),degree=20);\n"
+// ref: Hashiguchi, Takayama, Takemura"  asirgui hangs with long help.
+{
+  Lam = map(myinv,Cov);
+  if (M != length(Lam)) error("length of covariant matrix must be equal to m. Ex: Cov=[1,1/4,1/4]"); 
+  Beta = newvect(M);
+  for (I=0; I<M; I++) Beta[I] = Lam[I]*2;
+  A=(M+1)/2;
+  C=(N+M+1)/2;
+  X1=100;
+  Param=[vtol(Beta),[A,C],X0,X1];
+  //  print(Param);
+  gen_input_1f1(Param|option_list=getopt());
+  if (type(getopt(ox_home))>0) Comm0=sprintf("%a/",getopt(ox_home));
+  else Comm0="";
+  Comm=Comm0+sprintf("hgm_jack-n --idata  tmp-1f1-in.txt ");
+  //  print(Comm);
+  if (type(getopt(err))>0) Comm2=sprintf(" --assigned_series_error %a ",number_eval(getopt(err)));
+  else Comm2=" ";
+  if (type(getopt(degree))>0) Comm3=sprintf(" --degree %a ",getopt(degree));
+  else Comm3=" ";
+  Comm = Comm+Comm2+Comm3+" >tmp-1f1-out.txt ";
+  printf("Executing "+Comm);
+  Status=shell(Comm);
+  if (Status < 0) {
+    printf("Error: hgm_jack-n is not installed in the search path. Try to use ox_home option if it is installed out of the search path."); 
+    error("hgm_jack-n is not installed. (cd OpenXM/src/hgm ; make install");
+  }
+  printf("  ...   Done.\n");
+  return parse_jack_out(|fname="tmp-1f1-out.txt");
 }
 
 #ifdef USE_MODULE
