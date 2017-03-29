@@ -1508,6 +1508,14 @@ def prob_by_hgm(M,N,PL,SL,X)
    For example, n_wishartd.prob_by_hgm(3,10,[2,1],[1/10,1],10|rk=5) 
    computes Pr[l1<10|diag(1/10,1/10,1)] by RK5."
 {
+  Z = Z0 = PS = Q = 0;
+  if ( type(S=getopt(setup)) == -1 ) S = 0;
+  if ( S ) {
+    /* S=[M,N,PL,SL,Z,Z0,Q,PSL] */
+    if ( M != S[0] || N != S[1] || PL != S[2] || SL != S[3] )
+      error("inconsitent setup data");
+    Z = S[4]; Z0 = S[5]; Q = S[6]; PS = S[7];
+  }
   A = (M+1)/2; C = (N+M+1)/2;
 
   if ( !distinct_diag(SL) ) error("eigenvaules must be distinct");
@@ -1525,15 +1533,17 @@ def prob_by_hgm(M,N,PL,SL,X)
   B = reverse(B); V = reverse(V);
   Beta = reverse(Beta);
 
+
 T0 = time();
-  if ( type(Z=getopt(eq)) == -1 )
+  if ( !Z && type(Z=getopt(eq)) == -1 )
     Z = diagpf(M,B);
 T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
 
   if ( type(Step=getopt(step)) == -1 )
     Step = 10000;
 
-  Z = subst(Z,a,A,c,C);
+  if ( !Z0 ) Z = subst(Z,a,A,c,C);
+  else Z = Z0;
   if ( type(X0=getopt(x0)) == -1 ) {
     if ( type(Init=getopt(init)) == -1 ) Init = 1;
     X0 = 0;
@@ -1545,10 +1555,11 @@ T1 = time(); Tdiag = (T1[0]-T0[0])+(T1[1]-T0[1]);
   if ( type(Rk=getopt(rk)) == -1 ) Rk = 5;
   if ( type(Eps=getopt(eps)) == -1 ) Eps = 10^(-4);
   if ( type(MapleOut=getopt(mapleout)) == -1 ) MapleOut = 0;
-  if ( type(PS=getopt(ps)) == -1 ) PS = 0;
+  if ( !PS && type(PS=getopt(ps)) == -1 ) PS = 0;
+  if ( !Q && type(Q=getopt(pf)) == -1 ) Q = 0;
   if ( type(TD=getopt(td)) == -1 ) TD = 0;
   if ( type(All=getopt(all)) == -1 ) All = 0;
-  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD,all=All);
+  F = genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,Rk,Step,X0,Eps|mapleout=MapleOut,ps=PS,td=TD,all=All,pf=Q);
   if ( Print ) print(["diag",Tdiag,"pfaffian",Tp,"ps",Tps,"rk",Trk]);
   return F;
 }
@@ -1616,6 +1627,7 @@ def setup_hgm(M,N,PL,SL)
   if ( Prev != M+1 )
     error("invalid block specification");
   B = reverse(B); V = reverse(V);
+  Beta = reverse(Beta);
   Z = diagpf(M,B);
   Z0 = subst(Z,a,A,b,Bb,c,C);
   Q = pfaffian2(Z0,V,Beta,SBeta,MN2,t);
@@ -1659,6 +1671,7 @@ def prob_by_hgm_2f1(M,N1,N2,PL,Beta,X)
 {
   if ( type(S=getopt(setup)) == -1 ) S = 0;
 
+  Z = Z0 = Q = PS = 0;
   A = (M+1)/2; Bb = (N1+N2)/2; C = (N1+M+1)/2;
   if ( S ) {
     if ( M != S[0] || N1 != S[1] || N2 != S[2] || PL != S[3] || Beta != S[4] )
@@ -2336,6 +2349,7 @@ def genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,RK,Step,X0,Eps)
   if ( type(PSL=getopt(ps)) == -1 ) PSL = 0;
   if ( type(TD=getopt(td)) == -1 || !TD ) TD = 100;
   if ( type(All=getopt(all)) == -1 ) All=0;
+  if ( type(Q=getopt(pf)) == -1 ) Q=0;
   ctrl("bigfloat",1);
   O = eval(exp(0));
   Len = length(V);
@@ -2346,7 +2360,8 @@ def genrk45(Z,M,N,V,PL,SL,Beta,SBeta,X,RK,Step,X0,Eps)
   A = (1+M)/2; C = (1+M+N)/2; MN2 = M*N/2;
   Z0 = subst(Z,a,A,c,C);
 T0 = time();
-  Q = pfaffian2(Z0,V,Beta,SBeta,MN2,t); Mat = Q[0]; Base = Q[1];
+  if ( !Q ) Q = pfaffian2(Z0,V,Beta,SBeta,MN2,t); 
+  Mat = Q[0]; Base = Q[1];
   MatLen = length(Q[0][0]);
   for ( I = 0; I < MatLen; I++ )
     Mat[0][I] *= O;
