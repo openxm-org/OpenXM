@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.3 2007/09/29 05:29:10 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.4 2009/02/23 06:56:47 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT
@@ -10,8 +10,8 @@ AC_SUBST([MAKEINFO])
 AC_PATH_PROGS([DVIPDF],[dvipdfmx dvipdfm divpdf])
 AC_SUBST([DVIPDF])
 AC_PATH_PROG([PTEX],[ptex])
-if ${PTEX} -kanji=euc -version; then
-   PTEX="${PTEX} -kanji=euc"
+if ${PTEX} -kanji=utf8 -version; then
+   PTEX="${PTEX} -kanji=utf8"
 fi
 AC_SUBST([PTEX])
 

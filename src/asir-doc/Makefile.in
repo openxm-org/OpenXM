@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.8 2009/02/23 06:56:46 ohara Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.9 2009/05/16 04:45:43 ohara Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -86,7 +86,7 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
     int-parts/datatype/vect.texi
 
 tmp-en tmp-html-en: extract_man
-tmp-ja tmp-ja_euc tmp-html-ja tmp-html-internal-ja: extract_man
+tmp-ja tmp-ja_utf8 tmp-html-ja tmp-html-internal-ja: extract_man
 man-en.dvi man-ja.dvi: texindex
 help-en help-func: extract_func
 html-win-en html-win: gen_hh
@@ -97,18 +97,18 @@ tmp-ja: ${SRCS}
 	-cp texinfo.* txi*tex $@
 	-for i in ${SRCS}; do ./extract_man ja $$i > $@/$$i; done
 
-tmp-ja_euc: ${SRCS}
+tmp-ja_utf8: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
 	-cp texinfo.* txi*tex $@
-	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -e > $@/$$i; done
+	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
 
 tmp-html-ja: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
 	-cp texinfo.* txi*tex $@
 	-for i in ${SRCS}; do \
-	  ./extract_man ja $$i | nkf -e | sed -e "s/@fref/@ref/g" > $@/$$i; \
+	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
 
 tmp-en: ${SRCS}
@@ -130,7 +130,7 @@ tmp-html-internal-ja: ${INTERNAL_SRCS}
 	-mkdir -p $@/parts/builtin $@/int-parts/datatype
 	-cp texinfo.* txi*tex $@
 	-for i in ${INTERNAL_SRCS}; do \
-	  ./extract_man ja $$i | nkf -e | sed -e "s/@fref/@ref/g" > $@/$$i; \
+	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
 
 man-ja.dvi: tmp-ja
@@ -146,11 +146,11 @@ man-en.dvi: tmp-en
 
 man: man-ja.pdf man-en.pdf
 
-help-ja: tmp-ja_euc man-ja.dvi
+help-ja: tmp-ja_utf8 man-ja.dvi
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
-	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
+	-(cd tmp-ja_utf8; ${MAKEINFO} man.texi)
+	-(cd $@; for i in ../tmp-ja_utf8/risaman*; do ../extract_func -j $$i; done)
 
 help-en: tmp-en man-en.dvi
 	-rm -rf $@
@@ -187,7 +187,7 @@ html-internal-ja: tmp-html-internal-ja
 html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
-	-nkf -e exp/exp-ja.texi > $@/exp-ja.texi
+	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
 	-(cd $@; ../texi2html -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.dvi: tmp-html-internal-ja
