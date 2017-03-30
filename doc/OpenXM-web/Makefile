@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.51 2011/06/27 07:04:47 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.52 2017/03/30 09:30:54 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -58,10 +58,7 @@ all-ascm2001: configure-dir
 	make -f Makefile-intro all-html-ascm
 	-(cd ${OpenXM_ascm} ; ${RSYNC} ascm2001 ${OXHOME}/ascm2001)
 
-all-current: configure-dir
-	(cd ${OpenXM_doc} ; make all)
-	(cd ${OpenXM_doc} ; ${RSYNC} ${OXWEAVE_FILES_in_doc} ${CURRENT})
-	${RSYNC} ${CURRENT_FILES} ${CURRENT}
+all-current-index: configure-dir
 	cp index-doc.html ${CURRENT_DOC}/index-doc.html
 	cp index-doc-ja.html ${CURRENT_DOC}/index-doc-ja.html
 	cp google-ja.html ${CURRENT_DOC}/google-ja.html
@@ -70,6 +67,10 @@ all-current: configure-dir
 	cp index-license.html ${CURRENT_DOC}/index-license.html
 	cp video.html ${CURRENT}/video.html
 	cp video-ja.html ${CURRENT}/video-ja.html
+all-current: all-current-index configure-dir
+	(cd ${OpenXM_doc} ; make all)
+	(cd ${OpenXM_doc} ; ${RSYNC} ${OXWEAVE_FILES_in_doc} ${CURRENT})
+	${RSYNC} ${CURRENT_FILES} ${CURRENT}
 	@echo "***************************************************"
 	@echo "*  Have you done (cd OpenXM/src ; make install)   *"
 	@echo "*                (cd OpenXM/src ; make install-document) "
