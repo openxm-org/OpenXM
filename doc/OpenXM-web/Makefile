@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.50 2005/11/18 12:20:58 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.51 2011/06/27 07:04:47 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -64,6 +64,7 @@ all-current: configure-dir
 	${RSYNC} ${CURRENT_FILES} ${CURRENT}
 	cp index-doc.html ${CURRENT_DOC}/index-doc.html
 	cp index-doc-ja.html ${CURRENT_DOC}/index-doc-ja.html
+	cp google-ja.html ${CURRENT_DOC}/google-ja.html
 	cp index-doc-asir-contrib2-ja.html ${CURRENT_DOC}/asir-contrib
 	cp index-doc-asir-contrib2-en.html ${CURRENT_DOC}/asir-contrib
 	cp index-license.html ${CURRENT_DOC}/index-license.html
