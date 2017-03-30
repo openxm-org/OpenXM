@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/plucker/Makefile,v 1.3 2007/09/29 07:29:30 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/plucker/Makefile,v 1.4 2009/02/21 22:09:12 ohara Exp $
 
 # Name of this document.
 MYNAME=plucker
@@ -13,7 +13,7 @@ clean_private:
 
 ${MYNAME}-ja.texi: ${MYNAME}.oxg ${MYNAME}-auto.ja
 	@echo "plucker =?ISO-2022-JP?B?GyRCJV4lSyVlJSIlaxsoQg==?= " > title.tmp
-	cat ${MYNAME}.oxg | ${OXWEAVE} usage-ja | ${OXGENTEXI} ${GENTEXI_OPT} --title "`${NKF} -e title.tmp`" > $@
+	cat ${MYNAME}.oxg | ${OXWEAVE} usage-ja | ${OXGENTEXI} ${GENTEXI_OPT} --title "`${NKF} -w title.tmp`" > $@
 	${RM} title.tmp
 
 ${MYNAME}-en.texi: ${MYNAME}.oxg ${MYNAME}-auto.en
