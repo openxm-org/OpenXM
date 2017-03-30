@@ -1,6 +1,6 @@
-$OpenXM: OpenXM/src/asir-contrib/packages/doc/nk_fb_gen_c/nk_fb_gen_c.oxg,v 1.1 2014/03/27 05:24:28 takayama Exp $
-test1.c, test1.h $B$O$3$N%W%m%0%i%`$G@8@.$5$l$?Nc(B. data, $B=i4|CM$O$9$G$K@_Dj:Q(B.
-/*  $B$^$@=q$$$F$J$$(B.
+$OpenXM: OpenXM/src/asir-contrib/packages/doc/nk_fb_gen_c/nk_fb_gen_c.oxg,v 1.2 2014/04/03 07:34:30 takayama Exp $
+test1.c, test1.h はこのプログラムで生成された例. data, 初期値はすでに設定済.
+/*  まだ書いてない.
 begin: include|
 
 @include nk_fb_gen_c_intro.ja
@@ -8,7 +8,7 @@ begin: include|
 end:
 */
 
-/* $B$^$@=q$$$F$J$$(B.
+/* まだ書いてない.
 begin: include|
 
 @include nk_fb_gen_c_intro.en
@@ -18,30 +18,30 @@ end:
 
 /*&usage-ja
 begin:  nk_fb_gen_c.gen_c(N)
-  {N} $B<!85(B Fisher-Bingham $BJ,I[$K$D$$$F$N:GL`?dDj$r(B HGD $BK!(B(holonomic gradient descent) $B$G$d$k$?$a$N(B C $B$N%W%m%0%i%`$r@8@.$9$k(B.
+  {N} 次元 Fisher-Bingham 分布についての最尤推定を HGD 法(holonomic gradient descent) でやるための C のプログラムを生成する.
 description:
-   $B$3$N4X?t$K$h$j(B, testN.c, testN.h $B$J$kFs$D$N(B C $B$N%W%m%0%i%`$,@8@.$5$l$k(B.
-   testN.c $B$K%G!<%?(B, $B:GL`?dDjC5:wMQ$N%Q%i%a!<%?=i4|CM$r@_Dj$9$k(B.
-   $B%3%^%s%I(B
+   この関数により, testN.c, testN.h なる二つの C のプログラムが生成される.
+   testN.c にデータ, 最尤推定探索用のパラメータ初期値を設定する.
+   コマンド
    @quotation
    @code{gcc testN.c $OpenXM_HOME/lib/libko_fb.a -lgsl -lblas }
    @end quotation
-   $B$G<B9T2DG=7A<0$N%U%!%$%k$r:n@.$9$k(B. @*
-   $B$J$*(B,
-   libko_fb.a $B$O(B @file{OpenXM/src/hgm/fisher-bingham/src/} $B$G(B @code{make install} $B$9$k$3$H$K$h$j@8@.$5$l$k(B.
-   $B$^$?%7%9%F%`$K$O(B gsl $B$,%$%s%9%H!<%k$5$l$F$$$J$$$H$$$1$J$$(B.
-   @file{OpenXM/src/hgm/fisher-bingham/src/Testdata} $B$K%5%s%W%k$N(B
-  $B%G!<%?(B, $B:GL`?dDjC5:wMQ$N%Q%i%a!<%?=i4|CM$,$"$k(B. @*
-  testN.h $B$N(B @code{#define MULTIMIN_FDFMINIMIZER_TYPE} $B$G(B gsl $B$N$I$N:GE,2=4X?t$r8F$S=P$9$+JQ99$G$-$k(B.
-  testN.h $B$N(B @code{#define ODEIV_STEP_TYPE} $B$G(B gsl $B$N$I$N>oHyJ,J}Dx<0?tCM2r@O4X?t$r8F$S=P$9$+JQ99$G$-$k(B. @*
-  $B%"%k%4%j%:%`$N>\:Y$O(B,
+   で実行可能形式のファイルを作成する. @*
+   なお,
+   libko_fb.a は @file{OpenXM/src/hgm/fisher-bingham/src/} で @code{make install} することにより生成される.
+   またシステムには gsl がインストールされていないといけない.
+   @file{OpenXM/src/hgm/fisher-bingham/src/Testdata} にサンプルの
+  データ, 最尤推定探索用のパラメータ初期値がある. @*
+  testN.h の @code{#define MULTIMIN_FDFMINIMIZER_TYPE} で gsl のどの最適化関数を呼び出すか変更できる.
+  testN.h の @code{#define ODEIV_STEP_TYPE} で gsl のどの常微分方程式数値解析関数を呼び出すか変更できる. @*
+  アルゴリズムの詳細は,
   T. Koyama, H. Nakayama, K. Nishiyama, N. Takayama, Holonomic Gradient Descent for the Fisher-Bingham Distribution on the d-dimensional Sphere, Computational Statistics (2013),
   @url{http://dx.doi.org/10.1007/s00180-013-0456-z} 
-  $B$r;2>H(B. @*
+  を参照. @*
   Authors; T.Koyama, H.Nakayama, K.Nishiyama, N.Takayama.
 example:
 [1854] load("nk_fb_gen_c.rr");
-[2186]  nk_fb_gen_c.gen_c(1);     S^1 $B$NLdBj$r2r$/(B program $B$r@8@.(B.
+[2186]  nk_fb_gen_c.gen_c(1);     S^1 の問題を解く program を生成.
 generate test1.h
 generate test1.c
 1
@@ -50,9 +50,9 @@ $ emacs test1.c &
 
 
 	 Write data here. 
-$B$H%3%a%s%H$K=q$+$l$F$$$k$H$3$m$N8e(B
-$B$K(B $(OpenXM_HOME)/src/hgm/fisher-bingham/Testdata/s1_wind_data.h $B$rA^F~(B.
-$BJ]B8=*N;(B.
+とコメントに書かれているところの後
+に $(OpenXM_HOME)/src/hgm/fisher-bingham/Testdata/s1_wind_data.h を挿入.
+保存終了.
 
 $ gcc test1.c $OpenXM_HOME/lib/libko_fb.a -lgsl -lblas 
 $ ./a.out
@@ -63,8 +63,8 @@ grad ; 0.005644 -0.033429 -0.005644 0.045820 0.047695
 norm(grad) ; 0.074535
   --- snip
 
-$B$3$3$G(B, points $B$,(B parameter x11,x12,x22,y1,y2 $B$N?dDjCM(B.
-Value 3.4421 $B$,(B $BL`EYCM$N5U?t$G(B, $B$3$l$,:G>.2=$5$l$F$$$k(B.
+ここで, points が parameter x11,x12,x22,y1,y2 の推定値.
+Value 3.4421 が 尤度値の逆数で, これが最小化されている.
 end:
 */
 
