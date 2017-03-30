@@ -1,5 +1,5 @@
 \input texinfo
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/f_res/f_res-ja.texi,v 1.1 2007/03/17 10:18:54 noro Exp $
 @comment    Copyright (c)  2005, Kenji Fujiwara,
 @comment    Permission is granted to copy, distribute and/or modify this document
 @comment    under the terms of the GNU Free Documentation License, Version 1.1
@@ -19,18 +19,18 @@
 @overfullrule=0pt
 @c -*-texinfo-*-
 @comment %**start of header
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- GNU info ¥Õ¥¡¥¤¥ë¤ÎÌ¾Á° ---
+@comment --- GNU info ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ ---
 @setfilename asir-contrib-f_res
 
-@comment --- ¥¿¥¤¥È¥ë ---
-@settitle Risa/Asir ½ª·ë¼°·×»»¥Ñ¥Ã¥±¡¼¥¸ @code{f_res}
+@comment --- ã‚¿ã‚¤ãƒˆãƒ« ---
+@settitle Risa/Asir çµ‚çµå¼è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @code{f_res}
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -42,13 +42,13 @@
 @end iftex
 
 @titlepage
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- ¥¿¥¤¥È¥ë, ¥Ğ¡¼¥¸¥ç¥ó, Ãø¼ÔÌ¾, Ãøºî¸¢É½¼¨ ---
-@title Risa/Asir ½ª·ë¼°·×»»¥Ñ¥Ã¥±¡¼¥¸ @code{f_res} ÀâÌÀ½ñ
-@subtitle ÍøÍÑÀâÌÀ½ñ
-@subtitle 1.0 ÈÇ
-@subtitle 2005 Ç¯ 6 ·î
+@comment --- ã‚¿ã‚¤ãƒˆãƒ«, ãƒãƒ¼ã‚¸ãƒ§ãƒ³, è‘—è€…å, è‘—ä½œæ¨©è¡¨ç¤º ---
+@title Risa/Asir çµ‚çµå¼è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @code{f_res} èª¬æ˜æ›¸
+@subtitle åˆ©ç”¨èª¬æ˜æ›¸
+@subtitle 1.0 ç‰ˆ
+@subtitle 2005 å¹´ 6 æœˆ
 
 @author  by Kenji Fujiwara and Masayuki Noro
 @page
@@ -57,73 +57,73 @@ Copyright @copyright{} Risa/Asir committers
 2001. All rights reserved.
 @end titlepage
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @synindex vr fn
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- @node ¤Ï GNU info, HTML ÍÑ ---
-@comment --- @node  ¤Î°ú¿ô¤Ï node-name,  next,  previous,  up --- 
+@comment --- @node ã¯ GNU info, HTML ç”¨ ---
+@comment --- @node  ã®å¼•æ•°ã¯ node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
 @menu
-* ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë::
+* é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«::
 * Index::
 @end menu
 
-@node ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë,,, Top
-@chapter ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
+@node é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«,,, Top
+@chapter é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
 
 @menu
-* ³µÍ×::
+* æ¦‚è¦::
 * Notation::
-* ¼ç¤Ê´Ø¿ô::
+* ä¸»ãªé–¢æ•°::
 @end menu
 
-@comment --- ½ñÂÎ»ØÄê¤Ë¤Ä¤¤¤Æ ---
-@comment --- @code{} ¤Ï¥¿¥¤¥×¥é¥¤¥¿ÂÎÉ½¼¨ ---
-@comment --- @var{} ¤Ï¼Ğ»úÂÎÉ½¼¨ ---
-@comment --- @b{} ¤Ï¥Ü¡¼¥ë¥ÉÉ½¼¨ ---
-@comment --- @samp{} ¤Ï¥Õ¥¡¥¤¥ëÌ¾¤Ê¤É¤ÎÉ½¼¨ ---
+@comment --- æ›¸ä½“æŒ‡å®šã«ã¤ã„ã¦ ---
+@comment --- @code{} ã¯ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ä½“è¡¨ç¤º ---
+@comment --- @var{} ã¯æ–œå­—ä½“è¡¨ç¤º ---
+@comment --- @b{} ã¯ãƒœãƒ¼ãƒ«ãƒ‰è¡¨ç¤º ---
+@comment --- @samp{} ã¯ãƒ•ã‚¡ã‚¤ãƒ«åãªã©ã®è¡¨ç¤º ---
 
-@node ³µÍ×,,, ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
-@section ³µÍ×
+@node æ¦‚è¦,,, é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
+@section æ¦‚è¦
 
-@code{f_res} ¥Ñ¥Ã¥±¡¼¥¸¤Ï, Â¿ÊÑ¿ôÂ¿¹à¼°½¸¹ç¤ËÂĞ¤·, dense ¤Ê·¸¿ô¤ò¤â¤Ä
-¤È¤·¤Æmultipolynomial resultant ¤ò·×»»¤¹¤ë @code{f_res.mres}, 
-sparse ¤Ê·¸¿ô¤ò»ı¤Ä
-¾ì¹ç¤Ë sparse resultant ¤ò·×»»¤¹¤ë @code{f_res.sres}, Dixon ¤ÎÊıË¡¤Ë¤è¤ê
-resultant ¤ò·×»»¤¹¤ë @code{f_res.dres} ¤ª¤è¤Ó, ÉÕ¿ï¤¹¤ë´Ø¿ô¤ò¼ÂÁõ¤·¤Æ¤¤¤ë. 
-¼Âºİ¤Ë¤Ï, ¤³¤ì¤é¤Ï¿¿¤Î resultant ¤ÎÂ¿¹à¼°ÇÜ¤òÊÖ¤¹¾ì¹ç¤¬¤¢¤ë¤¬, ¾Ãµî¥¤¥Ç¥¢¥ë
-¤ËÂ°¤¹¤ëÂ¿¹à¼°¤ò°ì¤Äµá¤á¤¿¤¤¾ì¹ç¤Ë¤Ï, ¥°¥ì¥Ö¥Ê¡¼´ğÄì¤Ë¤è¤ë¾Ãµî¤ËÈæ³Ó¤·¤Æ
-¸úÎ¨¤¬¤è¤¤¾ì¹ç¤¬¤¢¤ë. 
+@code{f_res} ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã¯, å¤šå¤‰æ•°å¤šé …å¼é›†åˆã«å¯¾ã—, dense ãªä¿‚æ•°ã‚’ã‚‚ã¤
+ã¨ã—ã¦multipolynomial resultant ã‚’è¨ˆç®—ã™ã‚‹ @code{f_res.mres}, 
+sparse ãªä¿‚æ•°ã‚’æŒã¤
+å ´åˆã« sparse resultant ã‚’è¨ˆç®—ã™ã‚‹ @code{f_res.sres}, Dixon ã®æ–¹æ³•ã«ã‚ˆã‚Š
+resultant ã‚’è¨ˆç®—ã™ã‚‹ @code{f_res.dres} ãŠã‚ˆã³, ä»˜éšã™ã‚‹é–¢æ•°ã‚’å®Ÿè£…ã—ã¦ã„ã‚‹. 
+å®Ÿéš›ã«ã¯, ã“ã‚Œã‚‰ã¯çœŸã® resultant ã®å¤šé …å¼å€ã‚’è¿”ã™å ´åˆãŒã‚ã‚‹ãŒ, æ¶ˆå»ã‚¤ãƒ‡ã‚¢ãƒ«
+ã«å±ã™ã‚‹å¤šé …å¼ã‚’ä¸€ã¤æ±‚ã‚ãŸã„å ´åˆã«ã¯, ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼åŸºåº•ã«ã‚ˆã‚‹æ¶ˆå»ã«æ¯”è¼ƒã—ã¦
+åŠ¹ç‡ãŒã‚ˆã„å ´åˆãŒã‚ã‚‹. 
 
-¤³¤ì¤é¤ÎÊıË¡¤Ë¤ª¤¤¤Æ¤Ï, Àş·Á·×²èË¡, ÆÌÊñ, mixed volume ¤Î·×»»¤Ê¤É¤¬
-É¬Í×¤È¤Ê¤ë¤¬, ¤³¤ì¤é¤Ë¤Ä¤¤¤Æ¤Ï¥Õ¥ê¡¼¥½¥Õ¥È
-¤Ç¤¢¤ë @code{cddlib} ¤ª¤è¤Ó @code{MixedVol} ¤òÍøÍÑ¤·¤¿. ¤³¤ì¤é¤Ï
-OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤È¤·¤Æ¤Ş¤È¤á¤é¤ì¤Æ¤¤¤ë. ¤³¤ì¤Ï, 
-¥½¡¼¥¹¥Ç¥£¥¹¥È¥ê¥Ó¥å¡¼¥·¥ç¥ó¤Ç¤Ï, ¼«Æ°Åª¤Ë¤Ï make ¤µ¤ì¤Ê¤¤¤¬,
-@samp{OpenXM/src/ox_cdd} ¤Ë¤ª¤¤¤Æ  make, make install ¤¹¤ë¤³¤È¤Ë¤è¤ê,
-asir ¤Î¥é¥¤¥Ö¥é¥ê¥Ç¥£¥ì¥¯¥È¥ê¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤ë. ¤³¤ì¤òÍøÍÑ¤·¤Æ
-¾å¤Ç½Ò¤Ù¤¿ resultant ¤ò·×»»¤¹¤ë asir ´Ø¿ô¤¬, 
-@samp{OpenXM/src/asir-contrib/packages/f_res/f_res.rr} ¤Ë¤¢¤ë. 
-¤³¤ì¤ò load ¤¹¤ë¤³¤È¤Ç, ¼¡Àá°Ê¹ß¤Ç½Ò¤Ù¤ëµ¡Ç½¤¬»È¤¨¤ë¤è¤¦¤Ë¤Ê¤ë.
-¤Ê¤ª, Àş·Á·×²èË¡¤ª¤è¤ÓÆÌÊñ·×»»¤Ï, @code{gmp} ¤Ë¤è¤ë
-¸·Ì©·×»»¤ò¹Ô¤¦¤â¤Î¤È, ÉâÆ°¾®¿ô¤Ë¤è¤ë¶á»÷·×»»¤Ç¹Ô¤¦¤â¤Î¤Î 2 ÄÌ¤ê¤¬
-ÍÑ°Õ¤µ¤ì¤Æ¤¤¤ë. ¸å¼Ô¤ÎÊı¤¬¹âÂ®¤À¤¬, ¸íº¹¤¬À¸¤º¤ë¾ì¹ç¤¬¤¢¤ë.
-¤³¤ÎÁªÂò¤Ï, @code{f_res.gmp()}, @code{f_res.float()} ¤ò¸Æ¤Ó½Ğ¤¹
-¤³¤È¤Ç¹Ô¤¦. 
+ã“ã‚Œã‚‰ã®æ–¹æ³•ã«ãŠã„ã¦ã¯, ç·šå½¢è¨ˆç”»æ³•, å‡¸åŒ…, mixed volume ã®è¨ˆç®—ãªã©ãŒ
+å¿…è¦ã¨ãªã‚‹ãŒ, ã“ã‚Œã‚‰ã«ã¤ã„ã¦ã¯ãƒ•ãƒªãƒ¼ã‚½ãƒ•ãƒˆ
+ã§ã‚ã‚‹ @code{cddlib} ãŠã‚ˆã³ @code{MixedVol} ã‚’åˆ©ç”¨ã—ãŸ. ã“ã‚Œã‚‰ã¯
+OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ã¨ã—ã¦ã¾ã¨ã‚ã‚‰ã‚Œã¦ã„ã‚‹. ã“ã‚Œã¯, 
+ã‚½ãƒ¼ã‚¹ãƒ‡ã‚£ã‚¹ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ã‚·ãƒ§ãƒ³ã§ã¯, è‡ªå‹•çš„ã«ã¯ make ã•ã‚Œãªã„ãŒ,
+@samp{OpenXM/src/ox_cdd} ã«ãŠã„ã¦  make, make install ã™ã‚‹ã“ã¨ã«ã‚ˆã‚Š,
+asir ã®ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã‚‹. ã“ã‚Œã‚’åˆ©ç”¨ã—ã¦
+ä¸Šã§è¿°ã¹ãŸ resultant ã‚’è¨ˆç®—ã™ã‚‹ asir é–¢æ•°ãŒ, 
+@samp{OpenXM/src/asir-contrib/packages/f_res/f_res.rr} ã«ã‚ã‚‹. 
+ã“ã‚Œã‚’ load ã™ã‚‹ã“ã¨ã§, æ¬¡ç¯€ä»¥é™ã§è¿°ã¹ã‚‹æ©Ÿèƒ½ãŒä½¿ãˆã‚‹ã‚ˆã†ã«ãªã‚‹.
+ãªãŠ, ç·šå½¢è¨ˆç”»æ³•ãŠã‚ˆã³å‡¸åŒ…è¨ˆç®—ã¯, @code{gmp} ã«ã‚ˆã‚‹
+å³å¯†è¨ˆç®—ã‚’è¡Œã†ã‚‚ã®ã¨, æµ®å‹•å°æ•°ã«ã‚ˆã‚‹è¿‘ä¼¼è¨ˆç®—ã§è¡Œã†ã‚‚ã®ã® 2 é€šã‚ŠãŒ
+ç”¨æ„ã•ã‚Œã¦ã„ã‚‹. å¾Œè€…ã®æ–¹ãŒé«˜é€Ÿã ãŒ, èª¤å·®ãŒç”Ÿãšã‚‹å ´åˆãŒã‚ã‚‹.
+ã“ã®é¸æŠã¯, @code{f_res.gmp()}, @code{f_res.float()} ã‚’å‘¼ã³å‡ºã™
+ã“ã¨ã§è¡Œã†. 
 
 
 
-@node Notation,,,´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
+@node Notation,,,é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
 @section Notation
 
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤ÏÅÀ¤ò¥ê¥¹¥È¤Ç, support ¤ä polytope ¤ò¥ê¥¹¥È¤Î¥ê¥¹¥È¤Ç
-É½¤¹. ¤Ä¤Ş¤ê, ÅÀ (1,1) ¤Ï¥ê¥¹¥È @code{[1,1]} ¤ÇÉ½¤·, ÅÀ @{(0,0),
-(1,0), (0,1) @} ¤«¤é¤Ê¤ë polytope ¤ò¥ê¥¹¥È¤Î¥ê¥¹¥È 
-@code{[[0,0],[1,0],[0,1] ]} ¤ÇÉ½¤¹.
-@node ¼ç¤Ê´Ø¿ô,,, ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
-@section ¼ç¤Ê´Ø¿ô
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯ç‚¹ã‚’ãƒªã‚¹ãƒˆã§, support ã‚„ polytope ã‚’ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã§
+è¡¨ã™. ã¤ã¾ã‚Š, ç‚¹ (1,1) ã¯ãƒªã‚¹ãƒˆ @code{[1,1]} ã§è¡¨ã—, ç‚¹ @{(0,0),
+(1,0), (0,1) @} ã‹ã‚‰ãªã‚‹ polytope ã‚’ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ 
+@code{[[0,0],[1,0],[0,1] ]} ã§è¡¨ã™.
+@node ä¸»ãªé–¢æ•°,,, é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
+@section ä¸»ãªé–¢æ•°
 
 @menu
 * f_res.mres f_res.mresM::
@@ -144,58 +144,58 @@ asir ¤Î¥é¥¤¥Ö¥é¥ê¥Ç¥£¥ì¥¯¥È¥ê¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤ë. ¤³¤ì¤òÍøÍÑ¤·¤Æ
 * f_res.submatrix::
 @end menu
 
-@node intersect,,, ¼ç¤Ê´Ø¿ô
+@node intersect,,, ä¸»ãªé–¢æ•°
 
-@node f_res.mres f_res.mresM,,, ¼ç¤Ê´Ø¿ô
+@node f_res.mres f_res.mresM,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.mres}, @code{f_res.mresM}
 @findex f_res.mres
 @findex f_res.mresM
 
 @table @t
 @item f_res.mres(@var{Equations}, @var{Vars} )
-:: Multipolynomial resultant ¤ÎÂ¿¹à¼°ÇÜ¤òÊÖ¤¹
+:: Multipolynomial resultant ã®å¤šé …å¼å€ã‚’è¿”ã™
 @item f_res.mresM(@var{Equations}, @var{Vars} )
-:: ¹ÔÎó¼°¤¬ @code{f_res.mres} ¤¬ÊÖ¤¹ÃÍ¤Ë¤Ê¤ë¤è¤¦¤Ê¹ÔÎó¤òÊÖ¤¹
+:: è¡Œåˆ—å¼ãŒ @code{f_res.mres} ãŒè¿”ã™å€¤ã«ãªã‚‹ã‚ˆã†ãªè¡Œåˆ—ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
 @table @t
  @item f_res.mres
- Â¿¹à¼°¤â¤·¤¯¤Ï 0
+ å¤šé …å¼ã‚‚ã—ãã¯ 0
  @item f_res.mresM
- ¹ÔÎó
+ è¡Œåˆ—
 @end table
 @item Equaitons
-Â¿¹à¼°¤Î¥ê¥¹¥È
+å¤šé …å¼ã®ãƒªã‚¹ãƒˆ
 @item Vars
-ÊÑ¿ô¤Î¥ê¥¹¥È.
-@item ¥ª¥×¥·¥ç¥ó
+å¤‰æ•°ã®ãƒªã‚¹ãƒˆ.
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @t
  @item rsc
- Ç¤°Õ
+ ä»»æ„
  @item rowidx
- ÇÛÎó
+ é…åˆ—
  @item colidx
- ÇÛÎó
+ é…åˆ—
  @item p
- ÁÇ¿ô
+ ç´ æ•°
  @item sub
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @end table
 @end table
 
 @itemize @bullet
-@item @var{Equations} ¤ÎÀ®Ê¬¤ÎÂ¿¹à¼°¤Ë¤è¤ëÉÔÄê¸µ¤ò @var{Vars} 
-¤È¤·¤¿¤È¤­ÀÆ¼¡Â¿¹à¼°¤Î¾ì¹ç¤ÎÊıË¡¤Ç @code{f_res.mres} ¤Ï resultant ¤ÎÂ¿¹à¼°ÇÜ
-¤ò, @code{f_res.mresM} ¤Ï resultant ¤ÎÂ¿¹à¼°ÇÜ¤ò¹ÔÎó¼°¤Ë¤â¤Ä¹ÔÎó¤òÊÖ¤¹.
+@item @var{Equations} ã®æˆåˆ†ã®å¤šé …å¼ã«ã‚ˆã‚‹ä¸å®šå…ƒã‚’ @var{Vars} 
+ã¨ã—ãŸã¨ãæ–‰æ¬¡å¤šé …å¼ã®å ´åˆã®æ–¹æ³•ã§ @code{f_res.mres} ã¯ resultant ã®å¤šé …å¼å€
+ã‚’, @code{f_res.mresM} ã¯ resultant ã®å¤šé …å¼å€ã‚’è¡Œåˆ—å¼ã«ã‚‚ã¤è¡Œåˆ—ã‚’è¿”ã™.
 
-@item @var{Equations} ¤ÎÀ®Ê¬¤ÎÂ¿¹à¼°¤ÏÆâÉô¤Ç¼«Æ°Åª¤ËÀÆ¼¡²½¤µ¤ì¤Æ¤¤¤ë¤«¤é,ÀÆ¼¡Â¿¹à¼°¤Ç¤¢¤ëÉ¬Í×¤Ï¤Ê¤¤.
+@item @var{Equations} ã®æˆåˆ†ã®å¤šé …å¼ã¯å†…éƒ¨ã§è‡ªå‹•çš„ã«æ–‰æ¬¡åŒ–ã•ã‚Œã¦ã„ã‚‹ã‹ã‚‰,æ–‰æ¬¡å¤šé …å¼ã§ã‚ã‚‹å¿…è¦ã¯ãªã„.
 
-@item Rank Submatrix Construction ¤ò¹Ô¤Ê¤¤¤¿¤¤¤È¤­¤Ï
-¥ª¥×¥·¥ç¥ó @code{rsc} ¤ò 1 ¤ËÀßÄê¤¹¤ë.  ¤½¤Î¾ì¹ç,¤³¤Î´Ø¿ô¤ÏÆâÉô¤Ç´Ø¿ô 
-@code{f_res.submatrix} ¤ò¸Æ¤Ó½Ğ¤·¤Æ¤¤¤ë¤Î¤Ç, ¤½¤Î¤¿¤á¤Î¥ª¥×¥·¥ç¥ó¤Ï¤¹
-¤Ù¤Æ¼õ¤±ÉÕ¤±¤ë.
+@item Rank Submatrix Construction ã‚’è¡Œãªã„ãŸã„ã¨ãã¯
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{rsc} ã‚’ 1 ã«è¨­å®šã™ã‚‹.  ãã®å ´åˆ,ã“ã®é–¢æ•°ã¯å†…éƒ¨ã§é–¢æ•° 
+@code{f_res.submatrix} ã‚’å‘¼ã³å‡ºã—ã¦ã„ã‚‹ã®ã§, ãã®ãŸã‚ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯ã™
+ã¹ã¦å—ã‘ä»˜ã‘ã‚‹.
 @end itemize
 
 @example
@@ -222,33 +222,33 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 @end example
 
 
-@node f_res.indexof,,, ¼ç¤Ê´Ø¿ô
+@node f_res.indexof,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.indexof}
 @findex f_res.indexof
 
 @table @t
 @item f_res.indexof(@var{Element}, @var{List} )
-:: ¥ê¥¹¥ÈÃæ¤ËÍ×ÁÇ¤¬ºÇ½é¤Ë¸½¤ì¤ë°ÌÃÖ¤òÊÖ¤¹
+:: ãƒªã‚¹ãƒˆä¸­ã«è¦ç´ ãŒæœ€åˆã«ç¾ã‚Œã‚‹ä½ç½®ã‚’è¿”ã™
 @end table
 
 @table @var
 @item Element
-¸¡º÷¤·¤¿¤¤Í×ÁÇ
+æ¤œç´¢ã—ãŸã„è¦ç´ 
 @item List
-¸¡º÷ÂĞ¾İ¤Î¥ê¥¹¥È
+æ¤œç´¢å¯¾è±¡ã®ãƒªã‚¹ãƒˆ
 @item return
-@var{List} ¤ÇºÇ½é¤Ë¸½¤ì¤ë @var{Element} ¤Î¥¤¥ó¥Ç¥Ã¥¯¥¹ÈÖ¹æ.
-@var{List} ¤Ë @var{Element} ¤¬¸½¤ì¤Ê¤¤¾ì¹ç¤ÏÀ°¿ô -1.
+@var{List} ã§æœ€åˆã«ç¾ã‚Œã‚‹ @var{Element} ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·.
+@var{List} ã« @var{Element} ãŒç¾ã‚Œãªã„å ´åˆã¯æ•´æ•° -1.
 @end table
 
 @itemize @bullet
-@item @var{List} ¤ÇºÇ½é¤Ë¸½¤ì¤ë @var{Element} ¤Î¥¤¥ó¥Ç¥Ã¥¯¥¹ÈÖ¹æ¤òÊÖ¤¹.
-@var{List} ¤Ë @var{Element} ¤¬¸½¤ì¤Ê¤¤¾ì¹ç¤Ï -1 ¤òÊÖ¤¹.
+@item @var{List} ã§æœ€åˆã«ç¾ã‚Œã‚‹ @var{Element} ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã‚’è¿”ã™.
+@var{List} ã« @var{Element} ãŒç¾ã‚Œãªã„å ´åˆã¯ -1 ã‚’è¿”ã™.
 
-@item @var{Element} ¤Î·¿¤Ï²¿¤Ç¤¢¤Ã¤Æ¤â¹½¤ï¤Ê¤¤.
+@item @var{Element} ã®å‹ã¯ä½•ã§ã‚ã£ã¦ã‚‚æ§‹ã‚ãªã„.
 
-@item ´Ø¿ô @code{flist} ¤ÈÁÈ¤ß¹ç¤ï¤»¤ë¤È,¤¢¤ë´Ø¿ô¤¬ Asir ¤Ë
-Æş¤Ã¤Æ¤¤¤ë¤«¤¬Ê¬¤«¤ë.
+@item é–¢æ•° @code{flist} ã¨çµ„ã¿åˆã‚ã›ã‚‹ã¨,ã‚ã‚‹é–¢æ•°ãŒ Asir ã«
+å…¥ã£ã¦ã„ã‚‹ã‹ãŒåˆ†ã‹ã‚‹.
 @end itemize
 
 @example
@@ -262,26 +262,26 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 -1
 @end example
 
-@node f_res.listadd,,, ¼ç¤Ê´Ø¿ô
+@node f_res.listadd,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.listadd}
 @findex f_res.listadd
 
 @table @t
 @item f_res.listadd(@var{A}, @var{B} )
-:: ¥ê¥¹¥È¤ò¥Ù¥¯¥È¥ë¤È¸«¤ÆÏÂ¤òµá¤á¤ë
+:: ãƒªã‚¹ãƒˆã‚’ãƒ™ã‚¯ãƒˆãƒ«ã¨è¦‹ã¦å’Œã‚’æ±‚ã‚ã‚‹
 @end table
 
 @table @var
 @item A
 @itemx B
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item ¥Ù¥¯¥È¥ë¤ÎÏÂ¤Î¤è¤¦¤Ë¥ê¥¹¥È@var{A} ¤È¥ê¥¹¥È@var{B} ¤ÎÏÂ¤òµá¤á¤ë.
-@item ¥ê¥¹¥È @var{A} ¤È¥ê¥¹¥È @var{B} ¤ÎÄ¹¤µ¤ÏÅù¤·¤¯¤Ê¤¯¤Æ¤Ï¤¤¤±¤Ê¤¤.
+@item ãƒ™ã‚¯ãƒˆãƒ«ã®å’Œã®ã‚ˆã†ã«ãƒªã‚¹ãƒˆ@var{A} ã¨ãƒªã‚¹ãƒˆ@var{B} ã®å’Œã‚’æ±‚ã‚ã‚‹.
+@item ãƒªã‚¹ãƒˆ @var{A} ã¨ãƒªã‚¹ãƒˆ @var{B} ã®é•·ã•ã¯ç­‰ã—ããªãã¦ã¯ã„ã‘ãªã„.
 @end itemize
 
 @example
@@ -302,93 +302,93 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 
 
 
-@node f_res.start,,, ¼ç¤Ê´Ø¿ô
+@node f_res.start,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.start}
 @findex f_res.start
 
 @table @t
 @item f_res.start(@var{N})
-:: @code{ox_sres} ¤òµ¯Æ°¤¹¤ë
+:: @code{ox_sres} ã‚’èµ·å‹•ã™ã‚‹
 @end table
 
 @table @var
 @item N
-Ç¤°Õ
+ä»»æ„
 @item return
-À°¿ô
+æ•´æ•°
 @end table
 
 @itemize @bullet
-@item ¥Ñ¥é¥á¡¼¥¿ @var{N} ¤¬ 1 ¤Î¤È¤­¤Ï GMPÈÇ, ¤½¤ì°Ê³°¤Î¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤Î¿·¤·¤¤ OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤òµ¯Æ°¤·,
-Â¾¤Î´Ø¿ô¤Ç»È¤ï¤ì¤ë¥µ¡¼¥Ğ¤ËÀßÄê¤¹¤ë.
-@item ¼Â¹Ô¥Õ¥¡¥¤¥ë¤¬¸«¤Ä¤«¤é¤Ê¤¤¤È¤­¤Ï¥Ç¥Ğ¥Ã¥°¥â¡¼¥É¤ËÆş¤ë.
-@item ÊÖ¤µ¤ì¤ëÀ°¿ô¤ÏÄÌ¿®¤Î¤¿¤á¤Î¼±ÊÌ»Ò	.
+@item ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ @var{N} ãŒ 1 ã®ã¨ãã¯ GMPç‰ˆ, ãã‚Œä»¥å¤–ã®ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã®æ–°ã—ã„ OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ã‚’èµ·å‹•ã—,
+ä»–ã®é–¢æ•°ã§ä½¿ã‚ã‚Œã‚‹ã‚µãƒ¼ãƒã«è¨­å®šã™ã‚‹.
+@item å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã¯ãƒ‡ãƒãƒƒã‚°ãƒ¢ãƒ¼ãƒ‰ã«å…¥ã‚‹.
+@item è¿”ã•ã‚Œã‚‹æ•´æ•°ã¯é€šä¿¡ã®ãŸã‚ã®è­˜åˆ¥å­	.
 @end itemize
 
-@node f_res.float,,, ¼ç¤Ê´Ø¿ô
+@node f_res.float,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.float}
 @findex f_res.float
 
 @table @t
 @item f_res.float()
-:: @code{ox_sres} ¤òµ¯Æ°¤¹¤ë
+:: @code{ox_sres} ã‚’èµ·å‹•ã™ã‚‹
 @end table
 
 @table @var
 @item return
-À°¿ô
+æ•´æ•°
 @end table
 
 @itemize @bullet
-@item ÉâÆ°¾®¿ôÈÇ¤Î OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤Ïµ¯Æ°¤·,
-Â¾¤Î´Ø¿ô¤Ç»È¤ï¤ì¤ë¥µ¡¼¥Ğ¤ËÀßÄê¤¹¤ë.
-@item ¼Â¹Ô¥Õ¥¡¥¤¥ë¤¬¸«¤Ä¤«¤é¤Ê¤¤¤È¤­¤Ï¥Ç¥Ğ¥Ã¥°¥â¡¼¥É¤ËÆş¤ë.
-@item ¤¹¤Ç¤ËÂ¸ºß¤·¤Æ¤¤¤ë¾ì¹ç¤ÏÂ¾¤Î´Ø¿ô¤Ç»È¤ï¤ì¤ë¥µ¡¼¥Ğ¤ËÀßÄê¤¹¤ë¤À¤±¤Ç¿·¤¿¤Ëµ¯Æ°¤Ï¤·¤Ê¤¤.
-@item ÊÖ¤µ¤ì¤ëÀ°¿ô¤ÏÄÌ¿®¤Î¤¿¤á¤Î¼±ÊÌ»Ò	.
+@item æµ®å‹•å°æ•°ç‰ˆã® OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯èµ·å‹•ã—,
+ä»–ã®é–¢æ•°ã§ä½¿ã‚ã‚Œã‚‹ã‚µãƒ¼ãƒã«è¨­å®šã™ã‚‹.
+@item å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã¯ãƒ‡ãƒãƒƒã‚°ãƒ¢ãƒ¼ãƒ‰ã«å…¥ã‚‹.
+@item ã™ã§ã«å­˜åœ¨ã—ã¦ã„ã‚‹å ´åˆã¯ä»–ã®é–¢æ•°ã§ä½¿ã‚ã‚Œã‚‹ã‚µãƒ¼ãƒã«è¨­å®šã™ã‚‹ã ã‘ã§æ–°ãŸã«èµ·å‹•ã¯ã—ãªã„.
+@item è¿”ã•ã‚Œã‚‹æ•´æ•°ã¯é€šä¿¡ã®ãŸã‚ã®è­˜åˆ¥å­	.
 @end itemize
 
-@node f_res.gmp,,, ¼ç¤Ê´Ø¿ô
+@node f_res.gmp,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.gmp}
 @findex f_res.gmp
 
 @table @t
 @item f_res.gmp()
-:: @code{ox_sres} ¤òµ¯Æ°¤¹¤ë
+:: @code{ox_sres} ã‚’èµ·å‹•ã™ã‚‹
 @end table
 
 @table @var
 @item return
-À°¿ô
+æ•´æ•°
 @end table
 
 @itemize @bullet
-@item GMP ÈÇ¤Î OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤Ïµ¯Æ°¤·,
-Â¾¤Î´Ø¿ô¤Ç»È¤ï¤ì¤ë¥µ¡¼¥Ğ¤ËÀßÄê¤¹¤ë.
-@item ¼Â¹Ô¥Õ¥¡¥¤¥ë¤¬¸«¤Ä¤«¤é¤Ê¤¤¤È¤­¤Ï¥Ç¥Ğ¥Ã¥°¥â¡¼¥É¤ËÆş¤ë.
-@item ¤¹¤Ç¤ËÂ¸ºß¤·¤Æ¤¤¤ë¾ì¹ç¤ÏÂ¾¤Î´Ø¿ô¤Ç»È¤ï¤ì¤ë¥µ¡¼¥Ğ¤ËÀßÄê¤¹¤ë¤À¤±¤Ç¿·¤¿¤Ëµ¯Æ°¤Ï¤·¤Ê¤¤.
-@item ÊÖ¤µ¤ì¤ëÀ°¿ô¤ÏÄÌ¿®¤Î¤¿¤á¤Î¼±ÊÌ»Ò.
+@item GMP ç‰ˆã® OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯èµ·å‹•ã—,
+ä»–ã®é–¢æ•°ã§ä½¿ã‚ã‚Œã‚‹ã‚µãƒ¼ãƒã«è¨­å®šã™ã‚‹.
+@item å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã¯ãƒ‡ãƒãƒƒã‚°ãƒ¢ãƒ¼ãƒ‰ã«å…¥ã‚‹.
+@item ã™ã§ã«å­˜åœ¨ã—ã¦ã„ã‚‹å ´åˆã¯ä»–ã®é–¢æ•°ã§ä½¿ã‚ã‚Œã‚‹ã‚µãƒ¼ãƒã«è¨­å®šã™ã‚‹ã ã‘ã§æ–°ãŸã«èµ·å‹•ã¯ã—ãªã„.
+@item è¿”ã•ã‚Œã‚‹æ•´æ•°ã¯é€šä¿¡ã®ãŸã‚ã®è­˜åˆ¥å­.
 @end itemize
 
-@node f_res.conv,,, ¼ç¤Ê´Ø¿ô
+@node f_res.conv,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.conv}
 @findex f_res.conv
 
 @table @t
 @item f_res.conv(@var{List})
-:: polytope ¤ÎÆÌÊÄÊñ¤òµá¤á¤ë
+:: polytope ã®å‡¸é–‰åŒ…ã‚’æ±‚ã‚ã‚‹
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @item List
-ÅÀ¤òÉ½¤¹¥ê¥¹¥È¤Î¥ê¥¹¥È
+ç‚¹ã‚’è¡¨ã™ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item @var{List} ¤ÇÍ¿¤¨¤é¤ì¤ë polytope ¤ÎÆÌÊÄÊñ¤òµá¤á¤ë.
-@item OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
-@item ÅÀ¤ÎºÂÉ¸¤ÏÀ°¿ô¤·¤«¼õ¤±ÉÕ¤±¤Ê¤¤.
+@item @var{List} ã§ä¸ãˆã‚‰ã‚Œã‚‹ polytope ã®å‡¸é–‰åŒ…ã‚’æ±‚ã‚ã‚‹.
+@item OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã‚’èµ·å‹•ã™ã‚‹.
+@item ç‚¹ã®åº§æ¨™ã¯æ•´æ•°ã—ã‹å—ã‘ä»˜ã‘ãªã„.
 @end itemize
 
 @example
@@ -396,26 +396,26 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 [[0,0],[0,2],[2,0],[2,2]]
 @end example
 
-@node f_res.support,,, ¼ç¤Ê´Ø¿ô
+@node f_res.support,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.support}
 @findex f_res.support
 
 @table @t
 @item f_res.support(@var{Equation},@var{Vars})
-::  Â¿¹à¼°¤Î support ¤òÊÖ¤¹
+::  å¤šé …å¼ã® support ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @item Equation
-Â¿¹à¼°
+å¤šé …å¼
 @item Vars
-ÉÔÄê¸µ¤Î¥ê¥¹¥È
+ä¸å®šå…ƒã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item ÉÔÄê¸µ¤ò @var{Vars} ¤È¤·¤¿¤È¤­¤ÎÂ¿¹à¼° @var{Equation} ¤Î support ¤ò¥ê¥¹¥È¤Î¥ê¥¹¥È¤È¤·¤ÆÊÖ¤¹.
+@item ä¸å®šå…ƒã‚’ @var{Vars} ã¨ã—ãŸã¨ãã®å¤šé …å¼ @var{Equation} ã® support ã‚’ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã¨ã—ã¦è¿”ã™.
 @end itemize
 
 @example
@@ -425,27 +425,27 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 [[0,2,0],[1,1,0],[2,0,0]]
 @end example
 
-@node f_res.np,,, ¼ç¤Ê´Ø¿ô
+@node f_res.np,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.np}
 @findex f_res.np
 
 @table @t
 @item f_res.np(@var{Equation},@var{Vars})
-:: Newton polytope ¤òÊÖ¤¹
+:: Newton polytope ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @item Equation
-Â¿¹à¼°
+å¤šé …å¼
 @item Vars
-ÉÔÄê¸µ¤Î¥ê¥¹¥È
+ä¸å®šå…ƒã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item ÉÔÄê¸µ¤ò @var{Vars} ¤È¤·¤¿¤È¤­¤ÎÂ¿¹à¼° @var{Equation} ¤Î Newton polytope ¤ò¥ê¥¹¥È¤Î¥ê¥¹¥È¤È¤·¤ÆÊÖ¤¹.
-@item OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
+@item ä¸å®šå…ƒã‚’ @var{Vars} ã¨ã—ãŸã¨ãã®å¤šé …å¼ @var{Equation} ã® Newton polytope ã‚’ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã¨ã—ã¦è¿”ã™.
+@item OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã‚’èµ·å‹•ã™ã‚‹.
 @end itemize
 
 
@@ -457,32 +457,32 @@ c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
 @end example
 
 
-@node f_res.msum,,, ¼ç¤Ê´Ø¿ô
+@node f_res.msum,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.msum}
 @findex f_res.msum
 
 @table @t
 @item f_res.msum(@var{Polytopes})
-:: polytope ¤¿¤Á¤Î Minkowski sum ¤òÊÖ¤¹
+:: polytope ãŸã¡ã® Minkowski sum ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @item Polytopes
-¥ê¥¹¥È¤Î¥ê¥¹¥È¤Î¥ê¥¹¥È
-@item ¥ª¥×¥·¥ç¥ó
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @var
  @item conv
- Ç¤°Õ.
+ ä»»æ„.
 @end table
 @end table
 
 @itemize @bullet
-@item @var{Polytopes} ¤ÎÀ®Ê¬¤Ç¤¢¤ë polytope ¤Ë¤è¤ë 
-Minkowski sum Æâ¤Î¤¹¤Ù¤Æ¤Î lattice points ¤òµá¤á¤ë.
-@item @var{conv} ¤¬ 1 ¤Î¤È¤­¤Ï Minkowski sum ¤ÎÆÌÊÄÊñ¤òÊÖ¤¹.
-OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
+@item @var{Polytopes} ã®æˆåˆ†ã§ã‚ã‚‹ polytope ã«ã‚ˆã‚‹ 
+Minkowski sum å†…ã®ã™ã¹ã¦ã® lattice points ã‚’æ±‚ã‚ã‚‹.
+@item @var{conv} ãŒ 1 ã®ã¨ãã¯ Minkowski sum ã®å‡¸é–‰åŒ…ã‚’è¿”ã™.
+OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã‚’èµ·å‹•ã™ã‚‹.
 @end itemize
 
 @example
@@ -501,26 +501,26 @@ OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
 @end example
 
 
-@node f_res.mvol,,, ¼ç¤Ê´Ø¿ô
+@node f_res.mvol,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.mvol}
 @findex f_res.mvol
 
 @table @t
 @item f_res.mvol(@var{Polytopes})
-:: polytope ¤¿¤Á¤Î mixed volume ¤òµá¤á¤ë
+:: polytope ãŸã¡ã® mixed volume ã‚’æ±‚ã‚ã‚‹
 @end table
 
 @table @var
 @item return
-À°¿ô
+æ•´æ•°
 @item Polytopes
-¥ê¥¹¥È¤Î¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item var{Polytopes} ¤ÎÀ®Ê¬¤Ç¤¢¤ë polytope ¤Ë¤è¤ë mixed volume ¤òµá¤á¤ë.
-@item Mixed volume ¤ÎÄêµÁ¤«¤é polytope ¤Î¼¡¸µ¤È¿ô¤ÏÅù¤·¤¤É¬Í×¤¬¤¢¤ë.
-@item OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
+@item var{Polytopes} ã®æˆåˆ†ã§ã‚ã‚‹ polytope ã«ã‚ˆã‚‹ mixed volume ã‚’æ±‚ã‚ã‚‹.
+@item Mixed volume ã®å®šç¾©ã‹ã‚‰ polytope ã®æ¬¡å…ƒã¨æ•°ã¯ç­‰ã—ã„å¿…è¦ãŒã‚ã‚‹.
+@item OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã‚’èµ·å‹•ã™ã‚‹.
 @end itemize
 
 @example
@@ -535,47 +535,47 @@ OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
 @end example
 
 
-@node f_res.sres,,, ¼ç¤Ê´Ø¿ô
+@node f_res.sres,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.sres}
 @findex f_res.sres
 
 @table @t
 @item f_res.sres(@var{Equations},@var{Vars})
-:: sparse resultant ¤ÎÂ¿¹à¼°ÇÜ¤òÊÖ¤¹
+:: sparse resultant ã®å¤šé …å¼å€ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
-Â¿¹à¼°
+å¤šé …å¼
 @item Equations
-Â¿¹à¼°¤Î¥ê¥¹¥È
+å¤šé …å¼ã®ãƒªã‚¹ãƒˆ
 @item Vars
-ÉÔÄê¸µ¤Î¥ê¥¹¥È
-@item ¥ª¥×¥·¥ç¥ó
+ä¸å®šå…ƒã®ãƒªã‚¹ãƒˆ
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @var
  @item v
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
  @item p
- ÁÇ¿ô
+ ç´ æ•°
  @item sub
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @end table
 @end table
 
 @itemize @bullet
-@item @var{Equations} ¤ÎÀ®Ê¬¤ÎÂ¿¹à¼°¤Ë¤è¤ëÉÔÄê¸µ¤ò @var{Vars} ¤È¤·¤¿¤È¤­ Incremental algorithm ¤Ç·×»»¤·¤¿ resultant ¤ÎÂ¿¹à¼°ÇÜ¤òÊÖ¤¹.
+@item @var{Equations} ã®æˆåˆ†ã®å¤šé …å¼ã«ã‚ˆã‚‹ä¸å®šå…ƒã‚’ @var{Vars} ã¨ã—ãŸã¨ã Incremental algorithm ã§è¨ˆç®—ã—ãŸ resultant ã®å¤šé …å¼å€ã‚’è¿”ã™.
 
-@item ¥ª¥×¥·¥ç¥ó @var{v} ¤Ï v-distance ¤òÉ½¤¹¥ê¥¹¥È¤Ç, ÄêµÁ¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï 
-[11,12,13,@dots{}]$ ¤¬»È¤ï¤ì¤ë.
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @var{v} ã¯ v-distance ã‚’è¡¨ã™ãƒªã‚¹ãƒˆã§, å®šç¾©ã•ã‚Œã¦ã„ãªã„å ´åˆã¯ 
+[11,12,13,@dots{}]$ ãŒä½¿ã‚ã‚Œã‚‹.
 
-@item ¹ÔÎó¤Î rank ¤Î·×»»¤Ï GF(@var{p}) ¾å¤Ç¹Ô¤Ê¤ï¤ì,
-¹ÔÎó¤ÎÃæ¤ÎÉÔÄê¸µ¤Ë¤Ï¥ª¥×¥·¥ç¥ó¤Ç @var{sub} ¤Ç»ØÄê¤µ¤ì¤ë
-¥ê¥¹¥È¤ÎÍ×ÁÇ¤¬Á°¤«¤é½ç¤ËÂåÆş¤µ¤ìÉ¾²Á¤µ¤ì¤ë.
-¤³¤³¤Ç @var{p} ¤Ï¥ª¥×¥·¥ç¥ó¤Î @var{p} ¤Ç¤¢¤ë.
-ÁÇ¿ô @var{p} ¤¬»ØÄê¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï 65521 ¤¬»È¤ï¤ì,
-¥ê¥¹¥È @var{sub} ¤¬»ØÄê¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï 53,59,@dots{} ¤ÎÁÇ¿ô¤¬»È¤ï¤ì¤ë.
+@item è¡Œåˆ—ã® rank ã®è¨ˆç®—ã¯ GF(@var{p}) ä¸Šã§è¡Œãªã‚ã‚Œ,
+è¡Œåˆ—ã®ä¸­ã®ä¸å®šå…ƒã«ã¯ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã§ @var{sub} ã§æŒ‡å®šã•ã‚Œã‚‹
+ãƒªã‚¹ãƒˆã®è¦ç´ ãŒå‰ã‹ã‚‰é †ã«ä»£å…¥ã•ã‚Œè©•ä¾¡ã•ã‚Œã‚‹.
+ã“ã“ã§ @var{p} ã¯ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã® @var{p} ã§ã‚ã‚‹.
+ç´ æ•° @var{p} ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ 65521 ãŒä½¿ã‚ã‚Œ,
+ãƒªã‚¹ãƒˆ @var{sub} ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ 53,59,@dots{} ã®ç´ æ•°ãŒä½¿ã‚ã‚Œã‚‹.
 
-@item OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
+@item OpenXM ã‚µãƒ¼ãƒ @code{ox_sres} ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯æµ®å‹•å°æ•°ç‰ˆã‚’èµ·å‹•ã™ã‚‹.
 @end itemize
 
 @example
@@ -594,56 +594,56 @@ OpenXM ¥µ¡¼¥Ğ @code{ox_sres} ¤¬Â¸ºß¤·¤Ê¤¤¤È¤­¤ÏÉâÆ°¾®¿ôÈÇ¤òµ¯Æ°¤¹¤ë.
 )*a3^2,1]]
 @end example
 
-@node f_res.dres f_res.dresM,,, ¼ç¤Ê´Ø¿ô
+@node f_res.dres f_res.dresM,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.dres}, @code{f_res.dresM}
 @findex f_res.dres
 @findex f_res.dresM
 
 @table @t 
 @item f_res.dres(@var{Equations},@var{Vars})
-:: Dixon resultant ¤òÊÖ¤¹
+:: Dixon resultant ã‚’è¿”ã™
 @item f_res.dresM(@var{Equations},@var{Vars})
-:: ¹ÔÎó¼°¤¬ Dixon resultant ¤Ë¤Ê¤ë¤è¤¦¤Ê¹ÔÎó¤òÊÖ¤¹
+:: è¡Œåˆ—å¼ãŒ Dixon resultant ã«ãªã‚‹ã‚ˆã†ãªè¡Œåˆ—ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
 @table @t
  @item f_res.dres
- Â¿¹à¼°
+ å¤šé …å¼
  @item f_res.dresM
- ¹ÔÎó
+ è¡Œåˆ—
 @end table
 @item Equaitons
-Â¿¹à¼°¤Î¥ê¥¹¥È
+å¤šé …å¼ã®ãƒªã‚¹ãƒˆ
 @item Vars
-ÉÔÄê¸µ¤Î¥ê¥¹¥È
-@item ¥ª¥×¥·¥ç¥ó
+ä¸å®šå…ƒã®ãƒªã‚¹ãƒˆ
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @var
  @item norsc
- Ç¤°Õ
+ ä»»æ„
  @item rowidx
- ÇÛÎó
+ é…åˆ—
  @item colidx
- ÇÛÎó
+ é…åˆ—
  @item p
- ÁÇ¿ô
+ ç´ æ•°
  @item sub
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @end table
 @end table
 
 
 @itemize @bullet
-@item @var{Equations} ¤Î À®Ê¬¤ÎÂ¿¹à¼°¤Ë¤è¤ëÉÔÄê¸µ¤ò @var{Vars} 
-¤È¤·¤¿¤È¤­ Dixon ¤ÎÊıË¡¤Ç @code{f_res.dres} ¤Ï resultant ¤ÎÂ¿¹à¼°ÇÜ¤ò,
-@code{f_res.dresM} ¤Ï resultant ¤ÎÂ¿¹à¼°ÇÜ¤ò¹ÔÎó¼°¤Ë¤â¤Ä¹ÔÎó¤òÊÖ¤¹.
+@item @var{Equations} ã® æˆåˆ†ã®å¤šé …å¼ã«ã‚ˆã‚‹ä¸å®šå…ƒã‚’ @var{Vars} 
+ã¨ã—ãŸã¨ã Dixon ã®æ–¹æ³•ã§ @code{f_res.dres} ã¯ resultant ã®å¤šé …å¼å€ã‚’,
+@code{f_res.dresM} ã¯ resultant ã®å¤šé …å¼å€ã‚’è¡Œåˆ—å¼ã«ã‚‚ã¤è¡Œåˆ—ã‚’è¿”ã™.
 
-@item Rank Submatrix Construction ¤ò¹Ô¤Ê¤¤¤¿¤¯¤Ê¤¤¤È¤­¤Ï
-¥ª¥×¥·¥ç¥ó @var{norsc} ¤ò 1 ¤ËÀßÄê¤¹¤ë.
+@item Rank Submatrix Construction ã‚’è¡Œãªã„ãŸããªã„ã¨ãã¯
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @var{norsc} ã‚’ 1 ã«è¨­å®šã™ã‚‹.
 
-@item ¤³¤Î´Ø¿ô¤ÏÆâÉô¤Ç´Ø¿ô @code{f_res.submatrix} ¤ò¸Æ¤Ó½Ğ¤·¤Æ¤¤¤ë¤Î¤Ç,
-¤½¤Î¤¿¤á¤Î¥ª¥×¥·¥ç¥ó¤Ï¤¹¤Ù¤Æ¼õ¤±ÉÕ¤±¤ë.
+@item ã“ã®é–¢æ•°ã¯å†…éƒ¨ã§é–¢æ•° @code{f_res.submatrix} ã‚’å‘¼ã³å‡ºã—ã¦ã„ã‚‹ã®ã§,
+ãã®ãŸã‚ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯ã™ã¹ã¦å—ã‘ä»˜ã‘ã‚‹.
 @end itemize
 
 @example
@@ -673,30 +673,30 @@ c2*b1^2-c4*b2*b1+c1*b2^2)*a3^2,1]]
 @end example
 
 
-@node f_res.dixonpolynomial,,, ¼ç¤Ê´Ø¿ô
+@node f_res.dixonpolynomial,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.dixonpolynomial}
 @findex f_res.dixonpolynomial
 
 @table @t
 @item f_res.dixonpolynomial(@var{Equations},@var{Vars})
-:: Dixon polynomial ¤òÊÖ¤¹
+:: Dixon polynomial ã‚’è¿”ã™
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item Equaitons
-Â¿¹à¼°¤Î¥ê¥¹¥È
+å¤šé …å¼ã®ãƒªã‚¹ãƒˆ
 @item Vars
-ÉÔÄê¸µ¤Î¥ê¥¹¥È
+ä¸å®šå…ƒã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@var{Equations} ¤Î À®Ê¬¤ÎÂ¿¹à¼°¤Ë¤è¤ëÉÔÄê¸µ¤ò @var{Vars} 
-¤È¤·¤¿¤È¤­¤Î Dixon polynomial ¤ò·×»»¤·,
-@code{[ (Dixon polynomial), (¿·¤·¤¤ÊÑ¿ô¤ÎÇÛÎó) ]} ¤È¤¤¤¦¥ê¥¹¥È¤òÊÖ¤¹.
-¿·¤·¤¤ÊÑ¿ô¤Ï´Ø¿ô @code{uc} ¤Ë¤è¤Ã¤ÆÀ¸À®¤µ¤ì¤¿ÉÔÄê¸µ¤Ç¤¢¤ë.
-Â¿¹à¼°¤Î¿ô¤ÏÊÑ¿ô¤Î¿ô¤è¤ê¤â°ì¤ÄÂ¿¤¤É¬Í×¤¬¤¢¤ë.
+@var{Equations} ã® æˆåˆ†ã®å¤šé …å¼ã«ã‚ˆã‚‹ä¸å®šå…ƒã‚’ @var{Vars} 
+ã¨ã—ãŸã¨ãã® Dixon polynomial ã‚’è¨ˆç®—ã—,
+@code{[ (Dixon polynomial), (æ–°ã—ã„å¤‰æ•°ã®é…åˆ—) ]} ã¨ã„ã†ãƒªã‚¹ãƒˆã‚’è¿”ã™.
+æ–°ã—ã„å¤‰æ•°ã¯é–¢æ•° @code{uc} ã«ã‚ˆã£ã¦ç”Ÿæˆã•ã‚ŒãŸä¸å®šå…ƒã§ã‚ã‚‹.
+å¤šé …å¼ã®æ•°ã¯å¤‰æ•°ã®æ•°ã‚ˆã‚Šã‚‚ä¸€ã¤å¤šã„å¿…è¦ãŒã‚ã‚‹.
 @end itemize
 
 @example
@@ -710,32 +710,32 @@ _1*c2+_0*c4)*b1+c4*b3)*a2+(c2*b1-c4*b2)*a3)*y+(c3*b2+(-_1*c2-_0*c4-c6)*b3)*a1+(
 @end example
 
 
-@node f_res.matrixdecomp,,, ¼ç¤Ê´Ø¿ô
+@node f_res.matrixdecomp,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.matrixdecomp}
 @findex f_res.matrixdecomp
 
 @table @t
 @item f_res.matrixdecomp( @var{Dpoly}, @var{UC}, @var{Vars} )
-:: Dixon polynomial ¤ò¹ÔÎó¤ËÊ¬²ò¤¹¤ë.
+:: Dixon polynomial ã‚’è¡Œåˆ—ã«åˆ†è§£ã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item Dpoly
-Â¿¹à¼°
+å¤šé …å¼
 @item UC
-ÇÛÎó
+é…åˆ—
 @item Vars
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
-@item dixonpolynomial @var{Dpoly} ¤ò¹Ô¤¬ @var{UC} ¤Î monomial,
-Îó¤¬ @var{Vars} ¤Î monomial ¤ÇÅº»úÉÕ¤±¤é¤ì¤ë¹ÔÎó¤ËÊ¬²ò¤¹¤ë.
-@item Ìá¤êÃÍ¤Ï, 
-@code{[ (@var{UC} ¤Î monomial ¤ÎÇÛÎó),(¹ÔÎó),(@var{Vars} ¤Î monomial ¤ÎÇÛÎó) ]}
-¤È¤¤¤¦·Á¤Ç,¤½¤ì¤¾¤ì@var{sigma_P = V D_P W} ¤Î @var{V}, @var{D_P}, @var{W} ¤òÉ½¤¹.
+@item dixonpolynomial @var{Dpoly} ã‚’è¡ŒãŒ @var{UC} ã® monomial,
+åˆ—ãŒ @var{Vars} ã® monomial ã§æ·»å­—ä»˜ã‘ã‚‰ã‚Œã‚‹è¡Œåˆ—ã«åˆ†è§£ã™ã‚‹.
+@item æˆ»ã‚Šå€¤ã¯, 
+@code{[ (@var{UC} ã® monomial ã®é…åˆ—),(è¡Œåˆ—),(@var{Vars} ã® monomial ã®é…åˆ—) ]}
+ã¨ã„ã†å½¢ã§,ãã‚Œãã‚Œ@var{sigma_P = V D_P W} ã® @var{V}, @var{D_P}, @var{W} ã‚’è¡¨ã™.
 @end itemize
 
 @example
@@ -755,47 +755,47 @@ b3)*a1+(-c3*b1+c5*b3)*a2+(c6*b1-c5*b2)*a3 ]
 @end example
 
 
-@node f_res.submatrix,,, ¼ç¤Ê´Ø¿ô
+@node f_res.submatrix,,, ä¸»ãªé–¢æ•°
 @subsection @code{f_res.submatrix}
 @findex f_res.submatrix
 
 @table @t
 @item f_res.submatrix( @var{Matrix} )
-:: °ú¿ô¤Ç¤¢¤ë¹ÔÎó¤Î rank ¤ò»ı¤ÄÉôÊ¬¹ÔÎó¤òÊÖ¤¹.
+:: å¼•æ•°ã§ã‚ã‚‹è¡Œåˆ—ã® rank ã‚’æŒã¤éƒ¨åˆ†è¡Œåˆ—ã‚’è¿”ã™.
 @end table
 
 @table @var
 @item return
-¹ÔÎó
+è¡Œåˆ—
 @item Matrix
-¹ÔÎó
-@item ¥ª¥×¥·¥ç¥ó
+è¡Œåˆ—
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @var
  @item rowidx
- ÇÛÎó
+ é…åˆ—
  @item colidx
- ÇÛÎó
+ é…åˆ—
  @item p
- ÁÇ¿ô
+ ç´ æ•°
  @item sub
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @end table
 @end table
 
 @itemize @bullet
-@item ¹ÔÎó @var{Matrix} ¤Î rank ¤ò»ı¤ÄÉôÊ¬¹ÔÎó¤òÊÖ¤¹.
+@item è¡Œåˆ— @var{Matrix} ã® rank ã‚’æŒã¤éƒ¨åˆ†è¡Œåˆ—ã‚’è¿”ã™.
 
-@item ¹ÔÎó¤Î rank ¤Î·×»»¤Ç¹ÔÎó¤ÎÃæ¤ÎÉÔÄê¸µ¤Ë¤Ï¥ê¥¹¥È @var{sub} 
-¤ÎÃÍ¤¬Á°¤«¤é½ç¤ËÂåÆş¤µ¤ì GF(@var{p}) ¤ÇÉ¾²Á¤µ¤ì¤ë.
-¤³¤³¤Ç @var{p} ¤Ï¥ª¥×¥·¥ç¥ó¤Î @var{p} ¤¬»È¤ï¤ì¤ë.
+@item è¡Œåˆ—ã® rank ã®è¨ˆç®—ã§è¡Œåˆ—ã®ä¸­ã®ä¸å®šå…ƒã«ã¯ãƒªã‚¹ãƒˆ @var{sub} 
+ã®å€¤ãŒå‰ã‹ã‚‰é †ã«ä»£å…¥ã•ã‚Œ GF(@var{p}) ã§è©•ä¾¡ã•ã‚Œã‚‹.
+ã“ã“ã§ @var{p} ã¯ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã® @var{p} ãŒä½¿ã‚ã‚Œã‚‹.
 
-@item Í¿¤¨¤é¤ì¤¿¹ÔÎó¤¬ÀµÂ§¤Ç¤Ï¤Ê¤¤¤È¤­ÉôÊ¬¹ÔÎó¤Ï°ì°Õ¤ËÄê¤Ş¤é¤Ê¤¤.
-¤½¤³¤Ç¤É¤Î¹ÔÎó¤ò»ØÄê¤¹¤ë¤«¤È¤¤¤¦¤Î¤òÇÛÎó @var{rowidx,colidx} ¤Ç¹Ô¤Ê¤¦.
-¼Âºİ¤Ë¤Ï¹ÔÎó @var{Matrix}¤Î (i,j) À®Ê¬¤ò (@var{rowidx}[i],@var{colidx}[j])
- À®Ê¬¤ÈÆş¤ì´¹¤¨¤Æ¤¤¤ë¤À¤±¤Ç¤¢¤ë.
+@item ä¸ãˆã‚‰ã‚ŒãŸè¡Œåˆ—ãŒæ­£å‰‡ã§ã¯ãªã„ã¨ãéƒ¨åˆ†è¡Œåˆ—ã¯ä¸€æ„ã«å®šã¾ã‚‰ãªã„.
+ãã“ã§ã©ã®è¡Œåˆ—ã‚’æŒ‡å®šã™ã‚‹ã‹ã¨ã„ã†ã®ã‚’é…åˆ— @var{rowidx,colidx} ã§è¡Œãªã†.
+å®Ÿéš›ã«ã¯è¡Œåˆ— @var{Matrix}ã® (i,j) æˆåˆ†ã‚’ (@var{rowidx}[i],@var{colidx}[j])
+ æˆåˆ†ã¨å…¥ã‚Œæ›ãˆã¦ã„ã‚‹ã ã‘ã§ã‚ã‚‹.
 
-@item ÁÇ¿ô @var{p} ¤¬»ØÄê¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï 65521 ¤¬»È¤ï¤ì,
-¥ê¥¹¥È @var{sub} ¤¬»ØÄê¤µ¤ì¤Æ¤¤¤Ê¤¤¾ì¹ç¤Ï 53,59,dots{} ¤ÎÁÇ¿ô¤¬»È¤ï¤ì¤ë.
+@item ç´ æ•° @var{p} ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ 65521 ãŒä½¿ã‚ã‚Œ,
+ãƒªã‚¹ãƒˆ @var{sub} ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ 53,59,dots{} ã®ç´ æ•°ãŒä½¿ã‚ã‚Œã‚‹.
 @end itemize
 
 @example
@@ -811,7 +811,7 @@ b3)*a1+(-c3*b1+c5*b3)*a2+(c6*b1-c5*b2)*a3 ]
 [ 0 b ]
 @end example
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -822,5 +822,5 @@ b3)*a1+(-c3*b1+c5*b3)*a2+(c6*b1-c5*b2)*a3 ]
 @summarycontents
 @contents
 @bye
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 

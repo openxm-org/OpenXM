@@ -1,5 +1,5 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_matrix/noro_matrix-ja.texi,v 1.2 2009/05/07 06:13:22 noro Exp $
-%comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_matrix/noro_matrix-ja.texi,v 1.3 2009/11/03 02:43:36 noro Exp $
+%comment --- ãŠã¾ã˜ãªã„ ---
 \input ../../../../asir-doc/texinfo
 @iftex
 @catcode`@#=6
@@ -10,18 +10,18 @@
 @overfullrule=0pt
 @c -*-texinfo-*-
 @comment %**start of header
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- GNU info ¥Õ¥¡¥¤¥ë¤ÎÌ¾Á° ---
+@comment --- GNU info ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ ---
 @setfilename asir-contrib-noro_matrix
 
-@comment --- ¥¿¥¤¥È¥ë ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ« ---
 @settitle noro_matrix
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -33,9 +33,9 @@
 @end iftex
 
 @titlepage
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- ¥¿¥¤¥È¥ë, ¥Ğ¡¼¥¸¥ç¥ó, Ãø¼ÔÌ¾, Ãøºî¸¢É½¼¨ ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ«, ãƒãƒ¼ã‚¸ãƒ§ãƒ³, è‘—è€…å, è‘—ä½œæ¨©è¡¨ç¤º ---
 @title noro_matrix
 @subtitle noro_matrix User's Manual
 @subtitle Edition 1.0
@@ -48,56 +48,56 @@ Copyright @copyright{} Masayuki Noro
 2008. All rights reserved.
 @end titlepage
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @synindex vr fn
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- @node ¤Ï GNU info, HTML ÍÑ ---
-@comment --- @node  ¤Î°ú¿ô¤Ï node-name,  next,  previous,  up --- 
+@comment --- @node ã¯ GNU info, HTML ç”¨ ---
+@comment --- @node  ã®å¼•æ•°ã¯ node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
-@comment --- @menu ¤Ï GNU info, HTML ÍÑ ---
-@comment --- chapter Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- @menu ã¯ GNU info, HTML ç”¨ ---
+@comment --- chapter åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-* ¹ÔÎó±é»»¥Ñ¥Ã¥±¡¼¥¸ noro_matrix.rr::
+* è¡Œåˆ—æ¼”ç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_matrix.rr::
 * Index::
 @end menu
 
-@comment --- chapter ¤Î³«»Ï ---
-@comment --- ¿Æ chapter Ì¾¤òÀµ³Î¤Ë ---
-@node ¹ÔÎó±é»»¥Ñ¥Ã¥±¡¼¥¸ noro_matrix.rr,,, Top
-@chapter ¹ÔÎó±é»»¥Ñ¥Ã¥±¡¼¥¸ noro_matrix.rr
+@comment --- chapter ã®é–‹å§‹ ---
+@comment --- è¦ª chapter åã‚’æ­£ç¢ºã« ---
+@node è¡Œåˆ—æ¼”ç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_matrix.rr,,, Top
+@chapter è¡Œåˆ—æ¼”ç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_matrix.rr
 
-@comment --- section Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- section åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-* ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô::
+* è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°::
 @end menu
 
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤Ï, asir-contrib ¥Ñ¥Ã¥±¡¼¥¸¤Ë¼ıÏ¿¤µ¤ì¤Æ¤¤¤ë,
-¹ÔÎó±é»»¥Ñ¥Ã¥±¡¼¥¸ @samp{noro_matrix.rr} ¤Ë¤Ä¤¤¤Æ²òÀâ¤¹¤ë.
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò»È¤¦¤Ë¤Ï, ¤Ş¤º @samp{noro_matrix.rr} ¤ò¥í¡¼¥É¤¹¤ë.
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯, asir-contrib ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã«åéŒ²ã•ã‚Œã¦ã„ã‚‹,
+è¡Œåˆ—æ¼”ç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{noro_matrix.rr} ã«ã¤ã„ã¦è§£èª¬ã™ã‚‹.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚’ä½¿ã†ã«ã¯, ã¾ãš @samp{noro_matrix.rr} ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹.
 @example
 [1831] load("noro_matrix.rr");
 [2014] 
 @end example
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ÎÈ¡¿ô¤ò¸Æ¤Ó½Ğ¤¹¤Ë¤Ï, Á´¤Æ @code{linalg.} ¤òÀèÆ¬¤Ë¤Ä¤±¤ë.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®å‡½æ•°ã‚’å‘¼ã³å‡ºã™ã«ã¯, å…¨ã¦ @code{linalg.} ã‚’å…ˆé ­ã«ã¤ã‘ã‚‹.
 @example
 [2014] linalg.random_mat(3,5);
 [ 0 -1 -1 ]
 [ -1 3 0 ]
 [ -2 -2 4 ]
 @end example
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤Ï, ´ØÏ¢¤¹¤ëÁÈ¹ş¤ßÈ¡¿ô¤Ë¤Ä¤¤¤Æ¤â²òÀâ¤¹¤ë.
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯, é–¢é€£ã™ã‚‹çµ„è¾¼ã¿å‡½æ•°ã«ã¤ã„ã¦ã‚‚è§£èª¬ã™ã‚‹.
 
-@comment --- section ¤Î³«»Ï ---
-@comment --- ½ñÂÎ»ØÄê¤Ë¤Ä¤¤¤Æ ---
-@comment --- @code{} ¤Ï¥¿¥¤¥×¥é¥¤¥¿ÂÎÉ½¼¨ ---
-@comment --- @var{} ¤Ï¼Ğ»úÂÎÉ½¼¨ ---
-@comment --- @b{} ¤Ï¥Ü¡¼¥ë¥ÉÉ½¼¨ ---
-@comment --- @samp{} ¤Ï¥Õ¥¡¥¤¥ëÌ¾¤Ê¤É¤ÎÉ½¼¨ ---
+@comment --- section ã®é–‹å§‹ ---
+@comment --- æ›¸ä½“æŒ‡å®šã«ã¤ã„ã¦ ---
+@comment --- @code{} ã¯ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ä½“è¡¨ç¤º ---
+@comment --- @var{} ã¯æ–œå­—ä½“è¡¨ç¤º ---
+@comment --- @b{} ã¯ãƒœãƒ¼ãƒ«ãƒ‰è¡¨ç¤º ---
+@comment --- @samp{} ã¯ãƒ•ã‚¡ã‚¤ãƒ«åãªã©ã®è¡¨ç¤º ---
 
-@node ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô,,, ¹ÔÎó±é»»¥Ñ¥Ã¥±¡¼¥¸ noro_matrix.rr
-@section ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°,,, è¡Œåˆ—æ¼”ç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_matrix.rr
+@section è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 
 @menu
 * matrix vector linalg.unit_mat::
@@ -110,46 +110,46 @@ Copyright @copyright{} Masayuki Noro
 * linalg.jordan_canonical_form linalg.sample_mat::
 @end menu
 
-@node matrix vector linalg.unit_mat,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node matrix vector linalg.unit_mat,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{matrix},@code{vector},@code{linalg.unit_mat}
 @findex matrix
 @findex vector
 @findex linalg.unit_mat
 
 @table @t
-@item matrix(@var{m},@var{n}[,@var{listoflist}]) :: @var{m}¹Ô@var{n}Îó¤Î¹ÔÎó¤òÀ¸À®¤¹¤ë.
-@itemx vector(@var{size}[,@var{list}]) :: ¥µ¥¤¥º¤¬ @var{size} ¤Î¥Ù¥¯¥È¥ë¤òÀ¸À®¤¹¤ë.
-@itemx linalg.unit_mat(@var{size}) :: ¥µ¥¤¥º¤¬ @var{size} ¤ÎÃ±°Ì¹ÔÎó¤òÀ¸À®¤¹¤ë.
+@item matrix(@var{m},@var{n}[,@var{listoflist}]) :: @var{m}è¡Œ@var{n}åˆ—ã®è¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹.
+@itemx vector(@var{size}[,@var{list}]) :: ã‚µã‚¤ã‚ºãŒ @var{size} ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’ç”Ÿæˆã™ã‚‹.
+@itemx linalg.unit_mat(@var{size}) :: ã‚µã‚¤ã‚ºãŒ @var{size} ã®å˜ä½è¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¹ÔÎó
+è¡Œåˆ—
 @item size
 @itemx m
 @itemx n
-ÀµÀ°¿ô
+æ­£æ•´æ•°
 @item listoflist
-¥ê¥¹¥È¤Î¥ê¥¹¥È
+ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
 @item list
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
 @item
-@code{matrix}, @code{vector} ¤ÏÁÈ¹ş¤ß, @code{linalg.unit_mat} ¤Ï @samp{noro_matrix.rr}
-¤ÇÄêµÁ¤µ¤ì¤Æ¤¤¤ë.
+@code{matrix}, @code{vector} ã¯çµ„è¾¼ã¿, @code{linalg.unit_mat} ã¯ @samp{noro_matrix.rr}
+ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹.
 @item
-@code{matrix}, @code{vector} ¤Ï, @var{listoflist}, @var{list} ¤¬
-¤Ê¤¤¾ì¹ç¤Ë¤ÏÎí¹ÔÎó, Îí¥Ù¥¯¥È¥ë¤òÀ¸À®¤¹¤ë.
+@code{matrix}, @code{vector} ã¯, @var{listoflist}, @var{list} ãŒ
+ãªã„å ´åˆã«ã¯é›¶è¡Œåˆ—, é›¶ãƒ™ã‚¯ãƒˆãƒ«ã‚’ç”Ÿæˆã™ã‚‹.
 @item
-@var{listoflist} ¤Ï @var{[[1,2,3],[3,4,5]]} ¤Î¤è¤¦¤Ë¥ê¥¹¥È¤«¤é¤Ê¤ë¥ê¥¹¥È¤Ç
-¤¢¤ë. ¤³¤ì¤¬°ú¿ô¤È¤·¤ÆÍ¿¤¨¤é¤ì¤¿¾ì¹ç, Í×ÁÇ¤Ç¤¢¤ë¥ê¥¹¥È¤ò»È¤Ã¤Æ
-¹ÔÎó¤Î³Æ¹Ô¤¬½ç¤Ë½é´ü²½¤µ¤ì¤ë.
+@var{listoflist} ã¯ @var{[[1,2,3],[3,4,5]]} ã®ã‚ˆã†ã«ãƒªã‚¹ãƒˆã‹ã‚‰ãªã‚‹ãƒªã‚¹ãƒˆã§
+ã‚ã‚‹. ã“ã‚ŒãŒå¼•æ•°ã¨ã—ã¦ä¸ãˆã‚‰ã‚ŒãŸå ´åˆ, è¦ç´ ã§ã‚ã‚‹ãƒªã‚¹ãƒˆã‚’ä½¿ã£ã¦
+è¡Œåˆ—ã®å„è¡ŒãŒé †ã«åˆæœŸåŒ–ã•ã‚Œã‚‹.
 @item
-@var{list} ¤Ï @var{[1,2,3]} ¤Î¤è¤¦¤Ê¥ê¥¹¥È¤Ç¤¢¤ë.
-¤³¤ì¤¬°ú¿ô¤È¤·¤ÆÍ¿¤¨¤é¤ì¤¿¾ì¹ç, ¤³¤Î¥ê¥¹¥È¤ÎÍ×ÁÇ¤Ë¤è¤ê¥Ù¥¯¥È¥ë¤Î³Æ
-À®Ê¬¤¬½é´ü²½¤µ¤ì¤ë.
+@var{list} ã¯ @var{[1,2,3]} ã®ã‚ˆã†ãªãƒªã‚¹ãƒˆã§ã‚ã‚‹.
+ã“ã‚ŒãŒå¼•æ•°ã¨ã—ã¦ä¸ãˆã‚‰ã‚ŒãŸå ´åˆ, ã“ã®ãƒªã‚¹ãƒˆã®è¦ç´ ã«ã‚ˆã‚Šãƒ™ã‚¯ãƒˆãƒ«ã®å„
+æˆåˆ†ãŒåˆæœŸåŒ–ã•ã‚Œã‚‹.
 @end itemize
 
 @example
@@ -168,35 +168,35 @@ Copyright @copyright{} Masayuki Noro
 @end example
 
 
-@node linalg.random_mat linalg.random_rmat linalg.random_vect,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node linalg.random_mat linalg.random_rmat linalg.random_vect,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{linalg.random_mat}, @code{linalg.random_rmat}, @code{linalg.random_vect}
 @findex linalg.random_mat
 @findex linalg.random_rmat
 @findex linalg.random_vect
 
 @table @t
-@item linalg.random_mat(@var{size},@var{bound}) :: ÀµÊıÀ°¿ô¹ÔÎó¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
-@itemx linalg.random_rmat(@var{m},@var{n},@var{bound}) :: @var{m} ¹Ô @var{n} Îó¤ÎÀ°¿ô¹ÔÎó¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
-@itemx linalg.random_vect(@var{size},@var{bound}) :: À°¿ô¥Ù¥¯¥È¥ë¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
+@item linalg.random_mat(@var{size},@var{bound}) :: æ­£æ–¹æ•´æ•°è¡Œåˆ—ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
+@itemx linalg.random_rmat(@var{m},@var{n},@var{bound}) :: @var{m} è¡Œ @var{n} åˆ—ã®æ•´æ•°è¡Œåˆ—ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
+@itemx linalg.random_vect(@var{size},@var{bound}) :: æ•´æ•°ãƒ™ã‚¯ãƒˆãƒ«ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
 @end table
 
 @table @var
 @item return
-À°¿ô
+æ•´æ•°
 @item number
-À°¿ô
+æ•´æ•°
 @end table
 
 @itemize @bullet
-@item linalg.random_mat(@var{size},@var{bound}) ¤Ï, ¥µ¥¤¥º @var{size}, 
-Í×ÁÇ¤¬@var{bound}Ì¤Ëş¤Î
-ÀµÊıÀ°¿ô¹ÔÎó¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
+@item linalg.random_mat(@var{size},@var{bound}) ã¯, ã‚µã‚¤ã‚º @var{size}, 
+è¦ç´ ãŒ@var{bound}æœªæº€ã®
+æ­£æ–¹æ•´æ•°è¡Œåˆ—ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
 @item
-@item linalg.random_rmat(@var{m},@var{n},@var{bound}) ¤Ï
-@var{m} ¹Ô @var{n} Îó¤Î,
-Í×ÁÇ¤¬@var{bound}Ì¤Ëş¤ÎÀ°¿ô¹ÔÎó¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
-@item linalg.random_vect(@var{size},@var{bound}) ¤ÏÄ¹¤µ @var{size}¤Î,
-Í×ÁÇ¤¬@var{bound}Ì¤Ëş¤ÎÀ°¿ô¥Ù¥¯¥È¥ë¤ò¥é¥ó¥À¥àÀ¸À®¤¹¤ë.
+@item linalg.random_rmat(@var{m},@var{n},@var{bound}) ã¯
+@var{m} è¡Œ @var{n} åˆ—ã®,
+è¦ç´ ãŒ@var{bound}æœªæº€ã®æ•´æ•°è¡Œåˆ—ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
+@item linalg.random_vect(@var{size},@var{bound}) ã¯é•·ã• @var{size}ã®,
+è¦ç´ ãŒ@var{bound}æœªæº€ã®æ•´æ•°ãƒ™ã‚¯ãƒˆãƒ«ã‚’ãƒ©ãƒ³ãƒ€ãƒ ç”Ÿæˆã™ã‚‹.
 @end itemize
 
 @example
@@ -212,32 +212,32 @@ Copyright @copyright{} Masayuki Noro
 [ -3 2 3 ]
 @end example
 
-@node invmat,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node invmat,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{invmat}
 @findex invmat
 
 @table @t
 @item invmat(@var{mat}) 
-:: @var{mat} ¤ÎµÕ¹ÔÎó¤ò·×»»¤¹¤ë.
+:: @var{mat} ã®é€†è¡Œåˆ—ã‚’è¨ˆç®—ã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item mat
-ÀµÊı¹ÔÎó
+æ­£æ–¹è¡Œåˆ—
 @end table
 
 @itemize @bullet
 @item
-ÀµÊı¹ÔÎó @var{mat} ¤ÎµÕ¹ÔÎó¤ò·×»»¤¹¤ë.
+æ­£æ–¹è¡Œåˆ— @var{mat} ã®é€†è¡Œåˆ—ã‚’è¨ˆç®—ã™ã‚‹.
 @item
-·ë²Ì¤Ï @var{[invmat,denom]} ¤Ê¤ë¥ê¥¹¥È¤Ç¤¢¤ë. ¤³¤³¤Ç, @var{invmat} ¤Ï
-¹ÔÎó, @var{denom} ¤ÏÊ¬Êì¤òÉ½¤¹¼°¤Ç¤¢¤ê, @var{invmat/denom} ¤¬µÕ¹ÔÎó¤òÉ½¤¹.
+çµæœã¯ @var{[invmat,denom]} ãªã‚‹ãƒªã‚¹ãƒˆã§ã‚ã‚‹. ã“ã“ã§, @var{invmat} ã¯
+è¡Œåˆ—, @var{denom} ã¯åˆ†æ¯ã‚’è¡¨ã™å¼ã§ã‚ã‚Š, @var{invmat/denom} ãŒé€†è¡Œåˆ—ã‚’è¡¨ã™.
 @item
-@var{mat}¤¬À°¿ô¹ÔÎó, ¤¢¤ë¤¤¤ÏÂ¿¹à¼°¹ÔÎó¤Î¾ì¹ç, @var{invmat} ¤Ï
-¤½¤ì¤¾¤ìÀ°¿ô¹ÔÎó, ¤¢¤ë¤¤¤ÏÂ¿¹à¼°¤È¤Ê¤ë. ¤³¤Î»ÅÍÍ¤Ï, ÌµÂÌ¤ÊÊ¬¿ô, Í­Íı¼°
-·×»»¤ò¾Ê¤¯¤¿¤á¤ËÄê¤á¤é¤ì¤Æ¤¤¤ë¤¬, »È¤¤¤Ë¤¯¤¤¾ì¹ç¤â¤¢¤ë.
+@var{mat}ãŒæ•´æ•°è¡Œåˆ—, ã‚ã‚‹ã„ã¯å¤šé …å¼è¡Œåˆ—ã®å ´åˆ, @var{invmat} ã¯
+ãã‚Œãã‚Œæ•´æ•°è¡Œåˆ—, ã‚ã‚‹ã„ã¯å¤šé …å¼ã¨ãªã‚‹. ã“ã®ä»•æ§˜ã¯, ç„¡é§„ãªåˆ†æ•°, æœ‰ç†å¼
+è¨ˆç®—ã‚’çœããŸã‚ã«å®šã‚ã‚‰ã‚Œã¦ã„ã‚‹ãŒ, ä½¿ã„ã«ãã„å ´åˆã‚‚ã‚ã‚‹.
 @end itemize
 
 @example
@@ -258,7 +258,7 @@ Copyright @copyright{} Masayuki Noro
 [ 0 0 0 1 ]
 @end example
 
-@node det nd_det,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node det nd_det,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{det},@code{nd_det}
 @findex det
 @findex nd_det
@@ -266,31 +266,31 @@ Copyright @copyright{} Masayuki Noro
 @table @t
 @item det(@var{mat}[,@var{mod}])
 @itemx nd_det(@var{mat}[,@var{mod}])
-:: @var{mat} ¤Î¹ÔÎó¼°¤òµá¤á¤ë. 
+:: @var{mat} ã®è¡Œåˆ—å¼ã‚’æ±‚ã‚ã‚‹. 
 @end table
 
 @table @var
 @item return
-¼°
+å¼
 @item mat
-¹ÔÎó
+è¡Œåˆ—
 @item mod
-ÁÇ¿ô
+ç´ æ•°
 @end table
 
 @itemize @bullet
 @item
-@code{det} ¤ª¤è¤Ó @code{nd_det} ¤Ï¹ÔÎó @var{mat} ¤Î¹ÔÎó¼°¤òµá¤á¤ë. 
+@code{det} ãŠã‚ˆã³ @code{nd_det} ã¯è¡Œåˆ— @var{mat} ã®è¡Œåˆ—å¼ã‚’æ±‚ã‚ã‚‹. 
 @item
-°ú¿ô @var{mod} ¤¬¤¢¤ë»ş, GF(@var{mod}) ¾å¤Ç¤Î¹ÔÎó¼°¤òµá¤á¤ë. 
+å¼•æ•° @var{mod} ãŒã‚ã‚‹æ™‚, GF(@var{mod}) ä¸Šã§ã®è¡Œåˆ—å¼ã‚’æ±‚ã‚ã‚‹. 
 @item
-Ê¬¿ô¤Ê¤·¤Î¥¬¥¦¥¹¾ÃµîË¡¤Ë¤è¤Ã¤Æ¤¤¤ë¤¿¤á, Â¿ÊÑ¿ôÂ¿¹à¼°¤òÀ®Ê¬¤È¤¹¤ë
-¹ÔÎó¤ËÂĞ¤·¤Æ¤Ï¾®¹ÔÎó¼°Å¸³«¤Ë¤è¤ëÊıË¡¤Î¤Û¤¦¤¬¸úÎ¨¤¬¤è¤¤¾ì¹ç¤â¤¢¤ë. 
+åˆ†æ•°ãªã—ã®ã‚¬ã‚¦ã‚¹æ¶ˆå»æ³•ã«ã‚ˆã£ã¦ã„ã‚‹ãŸã‚, å¤šå¤‰æ•°å¤šé …å¼ã‚’æˆåˆ†ã¨ã™ã‚‹
+è¡Œåˆ—ã«å¯¾ã—ã¦ã¯å°è¡Œåˆ—å¼å±•é–‹ã«ã‚ˆã‚‹æ–¹æ³•ã®ã»ã†ãŒåŠ¹ç‡ãŒã‚ˆã„å ´åˆã‚‚ã‚ã‚‹. 
 @item
-@code{nd_det} ¤ÏÍ­Íı¿ô¤Ş¤¿¤ÏÍ­¸ÂÂÎ¾å¤ÎÂ¿¹à¼°¹ÔÎó¤Î¹ÔÎó¼°
-·×»»ÀìÍÑ¤Ç¤¢¤ë. ¥¢¥ë¥´¥ê¥º¥à¤Ï¤ä¤Ï¤êÊ¬¿ô¤Ê¤·¤Î¥¬¥¦¥¹¾ÃµîË¡¤À¤¬,
-¥Ç¡¼¥¿¹½Â¤¤ª¤è¤Ó¾è½ü»»¤Î¹©É×¤Ë¤è¤ê, °ìÈÌ¤Ë @code{det} ¤è¤ê¹âÂ®¤Ë
-·×»»¤Ç¤­¤ë.
+@code{nd_det} ã¯æœ‰ç†æ•°ã¾ãŸã¯æœ‰é™ä½“ä¸Šã®å¤šé …å¼è¡Œåˆ—ã®è¡Œåˆ—å¼
+è¨ˆç®—å°‚ç”¨ã§ã‚ã‚‹. ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã¯ã‚„ã¯ã‚Šåˆ†æ•°ãªã—ã®ã‚¬ã‚¦ã‚¹æ¶ˆå»æ³•ã ãŒ,
+ãƒ‡ãƒ¼ã‚¿æ§‹é€ ãŠã‚ˆã³ä¹—é™¤ç®—ã®å·¥å¤«ã«ã‚ˆã‚Š, ä¸€èˆ¬ã« @code{det} ã‚ˆã‚Šé«˜é€Ÿã«
+è¨ˆç®—ã§ãã‚‹.
 @end itemize
 
 @example
@@ -309,40 +309,40 @@ Copyright @copyright{} Masayuki Noro
 [-x+z,1],[-x+v,1],[-x+y,1]]
 @end example
 
-@node generic_gauss_elim,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node generic_gauss_elim,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{generic_gauss_elim}
 @findex generic_gauss_elim
 
 @table @t
 @item generic_gauss_elim(@var{mat}) 
-:: À°¿ô¹ÔÎó¤ò´ÊÌó¤¹¤ë.
+:: æ•´æ•°è¡Œåˆ—ã‚’ç°¡ç´„ã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item mat
-À°¿ô¹ÔÎó
+æ•´æ•°è¡Œåˆ—
 @end table
 
 @itemize @bullet
 @item
-À°¿ô¹ÔÎó @var{mat} ¤Î´ÊÌó³¬ÃÊ·Á (reduced row echelon form; rref) ¤ò·×»»¤·,
-¤½¤ì¤ò¹½À®¤¹¤ë¥Ç¡¼¥¿¤ò¥ê¥¹¥È¤È¤·¤ÆÊÖ¤¹.
+æ•´æ•°è¡Œåˆ— @var{mat} ã®ç°¡ç´„éšæ®µå½¢ (reduced row echelon form; rref) ã‚’è¨ˆç®—ã—,
+ãã‚Œã‚’æ§‹æˆã™ã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’ãƒªã‚¹ãƒˆã¨ã—ã¦è¿”ã™.
 @item
-½ĞÎÏ¤Ï @var{[B,D,J,K]} ¤Î·Á¤Î¥ê¥¹¥È¤Ç¤¢¤ë. ÆşÎÏ @var{mat} ¤¬ @var{m} ¹Ô
-@var{n} Îó¤È¤·, ¤½¤Î¥é¥ó¥¯¤¬ @var{r} ¤È¤¹¤ì¤Ğ, @var{B} ¤Ï @var{r} ¹Ô
-@var{n-r} Îó¤Î¹ÔÎó¤Ç¤¢¤ë. @var{D} ¤ÏÀ°¿ô, @var{J} ¤ÏÄ¹¤µ @var{r},
-@var{K} ¤ÏÄ¹¤µ @var{n-r} ¤ÎÀ°¿ô¥Ù¥¯¥È¥ë¤Ç¤¢¤ë.
+å‡ºåŠ›ã¯ @var{[B,D,J,K]} ã®å½¢ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹. å…¥åŠ› @var{mat} ãŒ @var{m} è¡Œ
+@var{n} åˆ—ã¨ã—, ãã®ãƒ©ãƒ³ã‚¯ãŒ @var{r} ã¨ã™ã‚Œã°, @var{B} ã¯ @var{r} è¡Œ
+@var{n-r} åˆ—ã®è¡Œåˆ—ã§ã‚ã‚‹. @var{D} ã¯æ•´æ•°, @var{J} ã¯é•·ã• @var{r},
+@var{K} ã¯é•·ã• @var{n-r} ã®æ•´æ•°ãƒ™ã‚¯ãƒˆãƒ«ã§ã‚ã‚‹.
 @item
-½ĞÎÏ¥Ç¡¼¥¿¤Ï @var{mat} ¤Î rref ¤ò¥¨¥ó¥³¡¼¥É¤·¤Æ¤¤¤ë.
-rref ¤ÎÂè @var{J[l]} Îó¤Ï @var{l} ¹ÔÌÜ¤Î¤ß¤¬ @var{D}, ¤½¤ì°Ê³°¤Ï 0 ¤Î
-Îó¥Ù¥¯¥È¥ë, rref ¤Î Âè @var{K[l]} Îó¤Ï @var{B} ¤ÎÂè @var{l} Îó¤ò, ¾å¤«¤é
-µÍ¤á¤¿¤â¤Î¤È¤Ê¤ë.
+å‡ºåŠ›ãƒ‡ãƒ¼ã‚¿ã¯ @var{mat} ã® rref ã‚’ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã—ã¦ã„ã‚‹.
+rref ã®ç¬¬ @var{J[l]} åˆ—ã¯ @var{l} è¡Œç›®ã®ã¿ãŒ @var{D}, ãã‚Œä»¥å¤–ã¯ 0 ã®
+åˆ—ãƒ™ã‚¯ãƒˆãƒ«, rref ã® ç¬¬ @var{K[l]} åˆ—ã¯ @var{B} ã®ç¬¬ @var{l} åˆ—ã‚’, ä¸Šã‹ã‚‰
+è©°ã‚ãŸã‚‚ã®ã¨ãªã‚‹.
 @item
-¤³¤Î¤è¤¦¤Ê·Á¼°¤Ç½ĞÎÏ¤¹¤ëÍıÍ³¤Ï, ÆşÎÏ¹ÔÎó¤Î¥é¥ó¥¯¤¬Âç¤­¤¤¾ì¹ç¤Ë,
-rref ¤Ï 0 ¤¬Â¿¤¤ÁÂ¤Ê¹ÔÎó¤È¤Ê¤ê, ¥á¥â¥ê¤òÂ¿¤¯¾ÃÈñ¤¹¤ë¤³¤È¤È,
-¤³¤Î·Á¤ÎÊı¤¬, ¥×¥í¥°¥é¥à¾å¤Ç¥Ç¡¼¥¿¤òÍøÍÑ¤·¤ä¤¹¤¤¤³¤È¤Ë¤è¤ë.
+ã“ã®ã‚ˆã†ãªå½¢å¼ã§å‡ºåŠ›ã™ã‚‹ç†ç”±ã¯, å…¥åŠ›è¡Œåˆ—ã®ãƒ©ãƒ³ã‚¯ãŒå¤§ãã„å ´åˆã«,
+rref ã¯ 0 ãŒå¤šã„ç–ãªè¡Œåˆ—ã¨ãªã‚Š, ãƒ¡ãƒ¢ãƒªã‚’å¤šãæ¶ˆè²»ã™ã‚‹ã“ã¨ã¨,
+ã“ã®å½¢ã®æ–¹ãŒ, ãƒ—ãƒ­ã‚°ãƒ©ãƒ ä¸Šã§ãƒ‡ãƒ¼ã‚¿ã‚’åˆ©ç”¨ã—ã‚„ã™ã„ã“ã¨ã«ã‚ˆã‚‹.
 @end itemize
 
 @example
@@ -356,7 +356,7 @@ rref ¤Ï 0 ¤¬Â¿¤¤ÁÂ¤Ê¹ÔÎó¤È¤Ê¤ê, ¥á¥â¥ê¤òÂ¿¤¯¾ÃÈñ¤¹¤ë¤³¤È¤È,
 [ -1 1 ],2,[ 0 1 2 ],[ 3 4 ]]
 @end example
 
-Îã¤¨¤Ğ, rref ¤ò·×»»¤¹¤ëÈ¡¿ô¤Ï¼¡¤Î¤è¤¦¤Ë½ñ¤±¤ë.
+ä¾‹ãˆã°, rref ã‚’è¨ˆç®—ã™ã‚‹å‡½æ•°ã¯æ¬¡ã®ã‚ˆã†ã«æ›¸ã‘ã‚‹.
 @example
 def my_rref(A)
 @{
@@ -375,60 +375,60 @@ def my_rref(A)
 
 
 @table @t
-@item »²¾È
+@item å‚ç…§
 @fref{matrix vector linalg.unit_mat}
 @end table
 
-@node linalg.compute_kernel linalg.compute_image,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node linalg.compute_kernel linalg.compute_image,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{linalg.compute_kernel}, @code{linalg.compute_image}
 @findex linalg.compute_kernel
 @findex linalg.compute_image
 
 @table @t
 @item linalg.compute_kernel(@var{mat}[|rhs=@var{vect}]) 
-:: Í­Íı¿ô¹ÔÎó¤Î³Ë¤Î´ğÄì¤ò·×»»¤¹¤ë.
+:: æœ‰ç†æ•°è¡Œåˆ—ã®æ ¸ã®åŸºåº•ã‚’è¨ˆç®—ã™ã‚‹.
 @itemx linalg.compute_image(@var{mat})
-:: Í­Íı¿ô¹ÔÎó¤ÎÁü¤Î´ğÄì¤ò·×»»¤¹¤ë.
+:: æœ‰ç†æ•°è¡Œåˆ—ã®åƒã®åŸºåº•ã‚’è¨ˆç®—ã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item mat
-Í­Íı¿ô¹ÔÎó
+æœ‰ç†æ•°è¡Œåˆ—
 @item vect
-Í­Íı¿ô¥Ù¥¯¥È¥ë
+æœ‰ç†æ•°ãƒ™ã‚¯ãƒˆãƒ«
 @end table
 
 @itemize @bullet
 @item
-@var{m} ¹Ô @var{n} Îó¤Î¹ÔÎó¤ò, Îó¥Ù¥¯¥È¥ë¤Ëº¸¤«¤é³İ¤±¤ë¤³¤È¤Ë¤è¤ê
-@var{n} ¼¡¸µ¥Ù¥¯¥È¥ë¶õ´Ö¤«¤é
-@var{m} ¼¡¸µ¥Ù¥¯¥È¥ë¶õ´Ö¤Ø¤ÎÀş·Á¼ÌÁü¤È¤ß¤Ê¤¹.
+@var{m} è¡Œ @var{n} åˆ—ã®è¡Œåˆ—ã‚’, åˆ—ãƒ™ã‚¯ãƒˆãƒ«ã«å·¦ã‹ã‚‰æ›ã‘ã‚‹ã“ã¨ã«ã‚ˆã‚Š
+@var{n} æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«ç©ºé–“ã‹ã‚‰
+@var{m} æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«ç©ºé–“ã¸ã®ç·šå½¢å†™åƒã¨ã¿ãªã™.
 @item
-@code{linalg.compute_kernel} ¤ÏÍ­Íı¿ô¹ÔÎó @var{mat} ¤Î³Ë¤Î´ğÄì¤ò·×»»¤¹¤ë.
+@code{linalg.compute_kernel} ã¯æœ‰ç†æ•°è¡Œåˆ— @var{mat} ã®æ ¸ã®åŸºåº•ã‚’è¨ˆç®—ã™ã‚‹.
 @item
-@code{linalg.compute_kernel} ¤Î½ĞÎÏ¤Ï @var{[[v1,pos1],@dots{},[vl,posl]]} ¤Î·Á¤Î¥ê¥¹¥È¤Ç¤¢¤ë. ¤³¤³¤Ç,
-@var{vi} ¤Ï´ğÄì¥Ù¥¯¥È¥ë, @var{posi} ¤Ï, @var{vi} ¤Î¼çÀ®Ê¬°ÌÃÖ, ¤¹¤Ê¤ï¤Á
-ºÇ¾®¤Î¥¤¥ó¥Ç¥Ã¥¯¥¹¤ò»ı¤ÄÀ®Ê¬¤Î°ÌÃÖ¤òÉ½¤¹. @var{posi} ¤ÏÁ´¤Æ°Û¤Ê¤ë¤³¤È
-¤¬Êİ¾Ú¤µ¤ì¤ë.
+@code{linalg.compute_kernel} ã®å‡ºåŠ›ã¯ @var{[[v1,pos1],@dots{},[vl,posl]]} ã®å½¢ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹. ã“ã“ã§,
+@var{vi} ã¯åŸºåº•ãƒ™ã‚¯ãƒˆãƒ«, @var{posi} ã¯, @var{vi} ã®ä¸»æˆåˆ†ä½ç½®, ã™ãªã‚ã¡
+æœ€å°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒã¤æˆåˆ†ã®ä½ç½®ã‚’è¡¨ã™. @var{posi} ã¯å…¨ã¦ç•°ãªã‚‹ã“ã¨
+ãŒä¿è¨¼ã•ã‚Œã‚‹.
 @item
-¥ª¥×¥·¥ç¥ó @var{vect} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, ·ë²Ì¤Ï
-@var{[@var{sol},[[v1,pos1],@dots{},[vl,posl]]]} ¤Ê¤ë¥ê¥¹¥È¤È¤Ê¤ë.
-¤³¤³¤Ç @var{sol} ¤Ï @var{mat sol = vect} ¤òËş¤¿¤¹¥Ù¥¯¥È¥ë (ÆÃ¼ì²ò),
-¤Î¤³¤ê¤Ï³Ë¤Î´ğÄì¤Ç¤¢¤ë.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @var{vect} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, çµæœã¯
+@var{[@var{sol},[[v1,pos1],@dots{},[vl,posl]]]} ãªã‚‹ãƒªã‚¹ãƒˆã¨ãªã‚‹.
+ã“ã“ã§ @var{sol} ã¯ @var{mat sol = vect} ã‚’æº€ãŸã™ãƒ™ã‚¯ãƒˆãƒ« (ç‰¹æ®Šè§£),
+ã®ã“ã‚Šã¯æ ¸ã®åŸºåº•ã§ã‚ã‚‹.
 @item
-²ò¤¬Â¸ºß¤·¤Ê¤¤¤è¤¦¤Ê @var{vect} ¤ò»ØÄê¤¹¤ë¤È¥¨¥é¡¼¤òµ¯¤³¤¹.
+è§£ãŒå­˜åœ¨ã—ãªã„ã‚ˆã†ãª @var{vect} ã‚’æŒ‡å®šã™ã‚‹ã¨ã‚¨ãƒ©ãƒ¼ã‚’èµ·ã“ã™.
 @item
-@code{linalg.compute_image} ¤ÏÍ­Íı¿ô¹ÔÎó @var{mat} ¤ÎÁü¤Î´ğÄì¤ò·×»»¤¹¤ë.
+@code{linalg.compute_image} ã¯æœ‰ç†æ•°è¡Œåˆ— @var{mat} ã®åƒã®åŸºåº•ã‚’è¨ˆç®—ã™ã‚‹.
 @item
-@code{linalg.compute_image} ¤Î½ĞÎÏ¤Ï, @var{[v1,pos1,hist1],@dots{},[vl,posl,histl]} ¤Î·Á¤Î¥ê¥¹¥È¤Ç¤¢¤ë.
-¤³¤³¤Ç, @var{vi} ¤Ï´ğÄì¥Ù¥¯¥È¥ë, @var{posi} ¤Ï, @var{vi} ¤Î¼çÀ®Ê¬°ÌÃÖ, ¤¹¤Ê¤ï¤Á
-ºÇ¾®¤Î¥¤¥ó¥Ç¥Ã¥¯¥¹¤ò»ı¤ÄÀ®Ê¬¤Î°ÌÃÖ¤òÉ½¤¹. @var{posi} ¤ÏÁ´¤Æ°Û¤Ê¤ë¤³¤È
-¤¬Êİ¾Ú¤µ¤ì¤ë. @var{histi} ¤Ï, @var{vi} ¤¬, @var{mat} ¤ÎÎó¤«¤é¤É¤Î¤è¤¦¤Ë
-ºî¤é¤ì¤ë¤«¤ò¼¨¤¹¥Ç¡¼¥¿¤Ç¤¢¤ë. Ê¬»¶Â¿¹à¼°¤ÇÉ½¸½¤µ¤ì¤Æ¤ª¤ê, »Ø¿ô¤¬¹Ô¥¤¥ó¥Ç¥Ã¥¯¥¹,
-·¸¿ô¤¬, °ì¼¡·ë¹ç¤Î·¸¿ô¤òÉ½¤¹. ¤³¤Î¥Ç¡¼¥¿¤Ë¤è¤êºî¤é¤ì¤ë¥Ù¥¯¥È¥ë¤Ï, Äê¿ôÇÜ¤ò
-½ü¤¤¤Æ @var{vi} ¤ËÅù¤·¤¤.
+@code{linalg.compute_image} ã®å‡ºåŠ›ã¯, @var{[v1,pos1,hist1],@dots{},[vl,posl,histl]} ã®å½¢ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹.
+ã“ã“ã§, @var{vi} ã¯åŸºåº•ãƒ™ã‚¯ãƒˆãƒ«, @var{posi} ã¯, @var{vi} ã®ä¸»æˆåˆ†ä½ç½®, ã™ãªã‚ã¡
+æœ€å°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒã¤æˆåˆ†ã®ä½ç½®ã‚’è¡¨ã™. @var{posi} ã¯å…¨ã¦ç•°ãªã‚‹ã“ã¨
+ãŒä¿è¨¼ã•ã‚Œã‚‹. @var{histi} ã¯, @var{vi} ãŒ, @var{mat} ã®åˆ—ã‹ã‚‰ã©ã®ã‚ˆã†ã«
+ä½œã‚‰ã‚Œã‚‹ã‹ã‚’ç¤ºã™ãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚‹. åˆ†æ•£å¤šé …å¼ã§è¡¨ç¾ã•ã‚Œã¦ãŠã‚Š, æŒ‡æ•°ãŒè¡Œã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹,
+ä¿‚æ•°ãŒ, ä¸€æ¬¡çµåˆã®ä¿‚æ•°ã‚’è¡¨ã™. ã“ã®ãƒ‡ãƒ¼ã‚¿ã«ã‚ˆã‚Šä½œã‚‰ã‚Œã‚‹ãƒ™ã‚¯ãƒˆãƒ«ã¯, å®šæ•°å€ã‚’
+é™¤ã„ã¦ @var{vi} ã«ç­‰ã—ã„.
 @end itemize
 
 @example
@@ -445,26 +445,26 @@ def my_rref(A)
 [[ 0 0 3 ],2,(-3)*<<2>>+(-1)*<<1>>+(1)*<<0>>]]
 @end example
 
-@node linalg.minipoly_mat,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node linalg.minipoly_mat,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{linalg.minipoly_mat}
 @findex linalg.minipoly_mat
 
 @table @t
 @item linalg.minipoly_mat(@var{mat}) 
-:: Í­Íı¿ô¹ÔÎó @var{mat} ¤ÎºÇ¾®Â¿¹à¼°¤ò·×»»¤¹¤ë.
+:: æœ‰ç†æ•°è¡Œåˆ— @var{mat} ã®æœ€å°å¤šé …å¼ã‚’è¨ˆç®—ã™ã‚‹.
 @end table
 
 @table @var
 @item return
-°ìÊÑ¿ôÂ¿¹à¼°
+ä¸€å¤‰æ•°å¤šé …å¼
 @item mat
-Í­Íı¿ô¹ÔÎó
+æœ‰ç†æ•°è¡Œåˆ—
 @end table
 
 @itemize @bullet
 @item
-Í­Íı¿ô¹ÔÎó @var{mat} ¤ÎºÇ¾®Â¿¹à¼°¤ò·×»»¤·, ÊÑ¿ô @var{x} ¤Î°ìÊÑ¿ôÂ¿¹à¼°¤È¤·¤Æ
-ÊÖ¤¹.
+æœ‰ç†æ•°è¡Œåˆ— @var{mat} ã®æœ€å°å¤šé …å¼ã‚’è¨ˆç®—ã—, å¤‰æ•° @var{x} ã®ä¸€å¤‰æ•°å¤šé …å¼ã¨ã—ã¦
+è¿”ã™.
 @end itemize
 
 @example
@@ -480,48 +480,48 @@ x^3+2*x^2-x-6
 [ 0 0 0 ]
 @end example
 
-@node linalg.jordan_canonical_form linalg.sample_mat,,, ¹ÔÎó¤Ë´Ø¤¹¤ëÈ¡¿ô
+@node linalg.jordan_canonical_form linalg.sample_mat,,, è¡Œåˆ—ã«é–¢ã™ã‚‹å‡½æ•°
 @subsection @code{linalg.jordan_canonical_form},@code{linalg.sample_mat}
 @findex linalg.jordan_canonical_form
 
 @table @t
 @item linalg.jordan_canonical_form(@var{mat}) 
-:: Í­Íı¿ôÀµÊı¹ÔÎó¤Î¥¸¥ç¥ë¥À¥óÉ¸½à·Á¤ò·×»»¤¹¤ë.
+:: æœ‰ç†æ•°æ­£æ–¹è¡Œåˆ—ã®ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³æ¨™æº–å½¢ã‚’è¨ˆç®—ã™ã‚‹.
 @itemx linalg.sample_mat(@var{list}) 
-:: »ØÄê¤µ¤ì¤¿¥¸¥ç¥ë¥À¥óÉ¸½à·Á¤ò»ı¤ÄÍ­Íı¿ôÀµÊı¹ÔÎó¤òÀ¸À®¤¹¤ë.
+:: æŒ‡å®šã•ã‚ŒãŸã‚¸ãƒ§ãƒ«ãƒ€ãƒ³æ¨™æº–å½¢ã‚’æŒã¤æœ‰ç†æ•°æ­£æ–¹è¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹.
 @end table
 
 @table @var
 @item return
-¥ê¥¹¥È
+ãƒªã‚¹ãƒˆ
 @item mat
-Í­Íı¿ôÀµÊı¹ÔÎó
+æœ‰ç†æ•°æ­£æ–¹è¡Œåˆ—
 @item list
-¥¸¥ç¥ë¥À¥ó¥Ö¥í¥Ã¥¯¤Î¥ê¥¹¥È
+ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³ãƒ–ãƒ­ãƒƒã‚¯ã®ãƒªã‚¹ãƒˆ
 @end table
 
 @itemize @bullet
 @item
-@code{linalg.jordan_canonical_form(@var{mat})} ¤Ï
-Í­Íı¿ôÀµÊı¹ÔÎó @var{mat} ¤Î¥¸¥ç¥ë¥À¥óÉ¸½à·Á¤ò·×»»¤¹¤ë.
+@code{linalg.jordan_canonical_form(@var{mat})} ã¯
+æœ‰ç†æ•°æ­£æ–¹è¡Œåˆ— @var{mat} ã®ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³æ¨™æº–å½¢ã‚’è¨ˆç®—ã™ã‚‹.
 @item
-½ĞÎÏ¤Ï @var{[P,[[e1,s1,n1],@dots{},[el,sl,nl]],defideal]} ¤È¤¤¤¦·Á¤Î¥ê¥¹¥È
-¤Ç¤¢¤ë. ¤³¤³¤Ç, @var{P} ¤ÏÊÑ´¹¹ÔÎó, ¤¹¤Ê¤ï¤Á @var{P^(-1)AP} ¤¬¥¸¥ç¥ë¥À¥ó
-É¸½à·Á¤È¤Ê¤ëÀµÂ§¹ÔÎó, @var{[ei,si,ni]} ¤Ï, ¸ÇÍ­ÃÍ @var{ei}, ¥µ¥¤¥º @var{si}
-¤Î¥¸¥ç¥ë¥À¥ó¥Ö¥í¥Ã¥¯¤¬ @var{ni} ¸ÄÊÂ¤Ö¤³¤È¤ò°ÕÌ£¤¹¤ë.
+å‡ºåŠ›ã¯ @var{[P,[[e1,s1,n1],@dots{},[el,sl,nl]],defideal]} ã¨ã„ã†å½¢ã®ãƒªã‚¹ãƒˆ
+ã§ã‚ã‚‹. ã“ã“ã§, @var{P} ã¯å¤‰æ›è¡Œåˆ—, ã™ãªã‚ã¡ @var{P^(-1)AP} ãŒã‚¸ãƒ§ãƒ«ãƒ€ãƒ³
+æ¨™æº–å½¢ã¨ãªã‚‹æ­£å‰‡è¡Œåˆ—, @var{[ei,si,ni]} ã¯, å›ºæœ‰å€¤ @var{ei}, ã‚µã‚¤ã‚º @var{si}
+ã®ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³ãƒ–ãƒ­ãƒƒã‚¯ãŒ @var{ni} å€‹ä¸¦ã¶ã“ã¨ã‚’æ„å‘³ã™ã‚‹.
 @item
-°ìÈÌ¤Ë, ½ĞÎÏ¤Ï @var{a0}, @dots{}, @var{am} ¤Î·Á¤Î¥Ñ¥é¥á¥¿¤ò´Ş¤à. ¤³¤ì¤é¤Ï
-¼Âºİ¤Ë¤Ï, ¤¢¤ëÍ­Íı¿ôÂÎ¾å´ûÌó¤ÊÂ¿¹à¼°¤Îº¬¤Ç¤¢¤ë. ¤³¤ì¤é¤òÄêµÁ¤¹¤ë
-ÊıÄø¼°¤È¤·¤Æ, @var{defideal} ¤¬Í¿¤¨¤é¤ì¤ë. @var{deflideal} ¤Ï¥ê¥¹¥È¤Î¥ê¥¹¥È
-¤Ç¤¢¤ê, ³ÆÍ×ÁÇ¤Ç¤¢¤ë¥ê¥¹¥È¤Ï, °ìÁÈ¤Î¶¦Ìò¤Êº¬Á´ÂÎ¤òÄêµÁ¤¹¤ë¥¤¥Ç¥¢¥ë¤ò
-É½¤¹. ¼Âºİ¤Ë¤Ï, ÂĞ±ş¤¹¤ë°ìÊÑ¿ôÂ¿¹à¼°¤Îº¬¤ò, º¬¤È·¸¿ô¤Î´Ø·¸¤Ë¤è¤êÉ½¤·¤¿
-¤â¤Î¤Ç¤¢¤ë.
+ä¸€èˆ¬ã«, å‡ºåŠ›ã¯ @var{a0}, @dots{}, @var{am} ã®å½¢ã®ãƒ‘ãƒ©ãƒ¡ã‚¿ã‚’å«ã‚€. ã“ã‚Œã‚‰ã¯
+å®Ÿéš›ã«ã¯, ã‚ã‚‹æœ‰ç†æ•°ä½“ä¸Šæ—¢ç´„ãªå¤šé …å¼ã®æ ¹ã§ã‚ã‚‹. ã“ã‚Œã‚‰ã‚’å®šç¾©ã™ã‚‹
+æ–¹ç¨‹å¼ã¨ã—ã¦, @var{defideal} ãŒä¸ãˆã‚‰ã‚Œã‚‹. @var{deflideal} ã¯ãƒªã‚¹ãƒˆã®ãƒªã‚¹ãƒˆ
+ã§ã‚ã‚Š, å„è¦ç´ ã§ã‚ã‚‹ãƒªã‚¹ãƒˆã¯, ä¸€çµ„ã®å…±å½¹ãªæ ¹å…¨ä½“ã‚’å®šç¾©ã™ã‚‹ã‚¤ãƒ‡ã‚¢ãƒ«ã‚’
+è¡¨ã™. å®Ÿéš›ã«ã¯, å¯¾å¿œã™ã‚‹ä¸€å¤‰æ•°å¤šé …å¼ã®æ ¹ã‚’, æ ¹ã¨ä¿‚æ•°ã®é–¢ä¿‚ã«ã‚ˆã‚Šè¡¨ã—ãŸ
+ã‚‚ã®ã§ã‚ã‚‹.
 @item
-@code{linalg.sample_mat(@var{list})} ¤Ï»ØÄê¤µ¤ì¤¿¥¸¥ç¥ë¥À¥óÉ¸½à·Á¤ò
-»ı¤Ä¤è¤¦¤Ê¹ÔÎó¤òÀ¸À®¤¹¤ë. @var{list} ¤Ï @var{[[e1,s1],@dots{},[el,sl]]}
-¤Î·Á¤Î¥ê¥¹¥È¤Ç, @var{[ei,s1]} ¤Ï¸ÇÍ­ÃÍ @var{ei}, ¥µ¥¤¥º @var{si} ¤Î
-¥¸¥ç¥ë¥À¥ó¥Ö¥í¥Ã¥¯¤òÉ½¤¹. Æ±¤¸¥µ¥¤¥º¤Î¥¸¥ç¥ë¥À¥ó¥Ö¥í¥Ã¥¯¤Ï¤¤¤¯¤Ä¤¢¤Ã¤Æ
-¤â¤è¤¤.
+@code{linalg.sample_mat(@var{list})} ã¯æŒ‡å®šã•ã‚ŒãŸã‚¸ãƒ§ãƒ«ãƒ€ãƒ³æ¨™æº–å½¢ã‚’
+æŒã¤ã‚ˆã†ãªè¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹. @var{list} ã¯ @var{[[e1,s1],@dots{},[el,sl]]}
+ã®å½¢ã®ãƒªã‚¹ãƒˆã§, @var{[ei,s1]} ã¯å›ºæœ‰å€¤ @var{ei}, ã‚µã‚¤ã‚º @var{si} ã®
+ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³ãƒ–ãƒ­ãƒƒã‚¯ã‚’è¡¨ã™. åŒã˜ã‚µã‚¤ã‚ºã®ã‚¸ãƒ§ãƒ«ãƒ€ãƒ³ãƒ–ãƒ­ãƒƒã‚¯ã¯ã„ãã¤ã‚ã£ã¦
+ã‚‚ã‚ˆã„.
 @end itemize
 
 @example
@@ -558,11 +558,11 @@ x^3+2*x^2-x-6
 @end example
 
 @table @t
-@item »²¾È
+@item å‚ç…§
 @fref{linalg.minipoly_mat}
 @end table
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -573,7 +573,7 @@ x^3+2*x^2-x-6
 @summarycontents
 @contents
 @bye
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
 * linalg.reduce_vect::
 * linalg.partial_fraction::

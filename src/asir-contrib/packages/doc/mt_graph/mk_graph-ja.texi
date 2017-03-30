@@ -1,5 +1,5 @@
 \input texinfo
-@comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_graph/mk_graph-ja.texi,v 1.4 2009/02/21 21:21:18 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_graph/mk_graph-ja.texi,v 1.5 2010/08/31 06:37:13 takayama Exp $
 @iftex
 @catcode`@#=6
 @def@fref#1{@xrefX[#1,,@code{#1},,,]}
@@ -9,18 +9,18 @@
 @overfullrule=0pt
 @c -*-texinfo-*-
 @comment %**start of header
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- GNU info ¥Õ¥¡¥¤¥ë¤ÎÌ¾Á° ---
+@comment --- GNU info ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ ---
 @setfilename asir-contrib-mk_graph
 
-@comment --- ¥¿¥¤¥È¥ë ---
-@settitle Risa/Asir mt_graph ¥Ñ¥Ã¥±¡¼¥¸ @code{mt_graph}
+@comment --- ã‚¿ã‚¤ãƒˆãƒ« ---
+@settitle Risa/Asir mt_graph ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @code{mt_graph}
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -32,12 +32,12 @@
 @end iftex
 
 @titlepage
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- ¥¿¥¤¥È¥ë, ¥Ğ¡¼¥¸¥ç¥ó, Ãø¼ÔÌ¾, Ãøºî¸¢É½¼¨ ---
-@title Risa/Asir @code{mt_graph} ÀâÌÀ½ñ
-@subtitle ÍøÍÑÀâÌÀ½ñ
-@subtitle 1.0 ÈÇ
+@comment --- ã‚¿ã‚¤ãƒˆãƒ«, ãƒãƒ¼ã‚¸ãƒ§ãƒ³, è‘—è€…å, è‘—ä½œæ¨©è¡¨ç¤º ---
+@title Risa/Asir @code{mt_graph} èª¬æ˜æ›¸
+@subtitle åˆ©ç”¨èª¬æ˜æ›¸
+@subtitle 1.0 ç‰ˆ
 @subtitle 2009.02.12
 
 @author  by OpenXM.org
@@ -47,89 +47,89 @@ Copyright @copyright{} OpenXM.org
 All rights reserved.  (GFL)
 @end titlepage
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @synindex vr fn
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- @node ¤Ï GNU info, HTML ÍÑ ---
-@comment --- @node  ¤Î°ú¿ô¤Ï node-name,  next,  previous,  up --- 
+@comment --- @node ã¯ GNU info, HTML ç”¨ ---
+@comment --- @node  ã®å¼•æ•°ã¯ node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
 @menu
-* ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë::
+* é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«::
 * Index::
 @end menu
 
-@node ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë,,, Top
-@chapter ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
+@node é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«,,, Top
+@chapter é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
 
 @menu
-* ³µÍ×::
+* æ¦‚è¦::
 * Notation::
-* ¼ç¤Ê´Ø¿ô::
+* ä¸»ãªé–¢æ•°::
 @end menu
 
-@comment --- ½ñÂÎ»ØÄê¤Ë¤Ä¤¤¤Æ ---
-@comment --- @code{} ¤Ï¥¿¥¤¥×¥é¥¤¥¿ÂÎÉ½¼¨ ---
-@comment --- @var{} ¤Ï¼Ğ»úÂÎÉ½¼¨ ---
-@comment --- @b{} ¤Ï¥Ü¡¼¥ë¥ÉÉ½¼¨ ---
-@comment --- @samp{} ¤Ï¥Õ¥¡¥¤¥ëÌ¾¤Ê¤É¤ÎÉ½¼¨ ---
+@comment --- æ›¸ä½“æŒ‡å®šã«ã¤ã„ã¦ ---
+@comment --- @code{} ã¯ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ä½“è¡¨ç¤º ---
+@comment --- @var{} ã¯æ–œå­—ä½“è¡¨ç¤º ---
+@comment --- @b{} ã¯ãƒœãƒ¼ãƒ«ãƒ‰è¡¨ç¤º ---
+@comment --- @samp{} ã¯ãƒ•ã‚¡ã‚¤ãƒ«åãªã©ã®è¡¨ç¤º ---
 
-@node ³µÍ×,,, ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
-@section ³µÍ×
+@node æ¦‚è¦,,, é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
+@section æ¦‚è¦
 
-@code{mt_graph.rr} ¤Ë´Ş¤Ş¤ì¤ë ¥Ñ¥Ã¥±¡¼¥¸ @code{mtg}, @code{mtp} ¤Ï
-@code{oxmgraph} ¤òÍøÍÑ¤·¤Æ¥°¥é¥Õ¤Î»°¼¡¸µÉ½¼¨¤ò¤ª¤³¤Ê¤¦´Ø¿ô¤Î½¸¹çÂÎ.
+@code{mt_graph.rr} ã«å«ã¾ã‚Œã‚‹ ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @code{mtg}, @code{mtp} ã¯
+@code{oxmgraph} ã‚’åˆ©ç”¨ã—ã¦ã‚°ãƒ©ãƒ•ã®ä¸‰æ¬¡å…ƒè¡¨ç¤ºã‚’ãŠã“ãªã†é–¢æ•°ã®é›†åˆä½“.
 
 
 
-@node Notation,,,´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
+@node Notation,,,é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
 @section Notation
 
-@node ¼ç¤Ê´Ø¿ô,,, ´Ø¿ô¥Ş¥Ë¥å¥¢¥ë
-@section ¼ç¤Ê´Ø¿ô
+@node ä¸»ãªé–¢æ•°,,, é–¢æ•°ãƒãƒ‹ãƒ¥ã‚¢ãƒ«
+@section ä¸»ãªé–¢æ•°
 
 @menu
 * mtg.plot3d::
 * mtp.parametric_plot3d::
 @end menu
 
-@node intersect,,, ¼ç¤Ê´Ø¿ô
+@node intersect,,, ä¸»ãªé–¢æ•°
 
-@node mtg.plot3d,,, ¼ç¤Ê´Ø¿ô
+@node mtg.plot3d,,, ä¸»ãªé–¢æ•°
 @subsection @code{mtg.plot3d}
 @findex mtg.plot3d
 
 @table @t
 @item mtg.plot3d(@var{formula})
-:: @var{formula} ¤Î¥°¥é¥Õ¤òÉÁ²è¤¹¤ë.
+:: @var{formula} ã®ã‚°ãƒ©ãƒ•ã‚’æç”»ã™ã‚‹.
 @item mtg.plot3d(@var{formula} | @var{options})
-:: @var{formula} ¤Î¥°¥é¥Õ¤òÉÁ²è¤¹¤ë. @var{options} ¤ÇÉÁ²èÈÏ°Ï¤Ê¤É¤ò»ØÄê¤¹¤ë.
+:: @var{formula} ã®ã‚°ãƒ©ãƒ•ã‚’æç”»ã™ã‚‹. @var{options} ã§æç”»ç¯„å›²ãªã©ã‚’æŒ‡å®šã™ã‚‹.
 @end table
 
 @table @var
 @item return
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @item formula
-¼° ¤Ş¤¿¤Ï quote ·¿¥Ç¡¼¥¿.  @code{x}, @code{y} ¤Î´Ø¿ô.
-@item ¥ª¥×¥·¥ç¥ó
+å¼ ã¾ãŸã¯ quote å‹ãƒ‡ãƒ¼ã‚¿.  @code{x}, @code{y} ã®é–¢æ•°.
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @t
  @item domain
- ¥ê¥¹¥È.  [[xmin,xmax],[ymin,ymax]] 
+ ãƒªã‚¹ãƒˆ.  [[xmin,xmax],[ymin,ymax]] 
  @item mesh
- ¼«Á³¿ô. ¥á¥Ã¥·¥å¤ÎÊ¬³ä¿ô.
+ è‡ªç„¶æ•°. ãƒ¡ãƒƒã‚·ãƒ¥ã®åˆ†å‰²æ•°.
  @item fit
- 1 ¤Î»ş¤Ë (max+min)/2 ¤¬ z=0 ¤È¤Ê¤ë¤è¤¦¤Ë°ÜÆ°¤¹¤ë.
+ 1 ã®æ™‚ã« (max+min)/2 ãŒ z=0 ã¨ãªã‚‹ã‚ˆã†ã«ç§»å‹•ã™ã‚‹.
 @end table
 @end table
 
 @itemize @bullet
-@item º¸¥Ü¥¿¥ó¤ò¤ª¤·¤¿¤Ş¤Ş¥É¥é¥Ã¥°¤¹¤ë¤È²óÅ¾¤Ç¤­¤ë.
-@item ¥°¥é¥Õ¤¬É½¼¨¤µ¤ì¤¿¤é±¦¥¯¥ê¥Ã¥¯¤¹¤ë¤³¤È¤ÇÉ½¼¨·Á¼°¤òÊÑ¹¹¤¹¤ë¤¿¤á¤Î¥á¥Ë¥å¡¼¤¬É½¼¨¤µ¤ì¤ë.
-@item short cut ¤Î M ¤¬ÊØÍø (³ÈÂç).
-@item Box ¤Ë¼«Æ°Åª¤Ë¥°¥é¥Õ¤òÇÛÃÖ¤¹¤ë¤Î¤Ç, ºÂÉ¸¼´¤Î¸¶ÅÀ¤¬ 0 ¤È¤Ï¸Â¤é¤Ê¤¤.
-at ¥Ş¡¼¥¯¤È, dollar ¥Ş¡¼¥¯¤ÎºÂÉ¸¤ÏÌáÃÍ¤ÎÃæ¤Ë½ñ¤«¤ì¤Æ¤¤¤ë.
-@item ÆÃ°ÛÅÀ¤Î²óÈò¤Ï¼«Æ°¤Ç¤Ï¤Ê¤¤. ¤è¤Ã¤ÆÆÃ°ÛÅÀ¤ò´Ş¤à¥°¥é¥Õ¤ÏÉÔÀµ³Î¤Ê²ÄÇ½À­¤¬¹â¤¤.
+@item å·¦ãƒœã‚¿ãƒ³ã‚’ãŠã—ãŸã¾ã¾ãƒ‰ãƒ©ãƒƒã‚°ã™ã‚‹ã¨å›è»¢ã§ãã‚‹.
+@item ã‚°ãƒ©ãƒ•ãŒè¡¨ç¤ºã•ã‚ŒãŸã‚‰å³ã‚¯ãƒªãƒƒã‚¯ã™ã‚‹ã“ã¨ã§è¡¨ç¤ºå½¢å¼ã‚’å¤‰æ›´ã™ã‚‹ãŸã‚ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒè¡¨ç¤ºã•ã‚Œã‚‹.
+@item short cut ã® M ãŒä¾¿åˆ© (æ‹¡å¤§).
+@item Box ã«è‡ªå‹•çš„ã«ã‚°ãƒ©ãƒ•ã‚’é…ç½®ã™ã‚‹ã®ã§, åº§æ¨™è»¸ã®åŸç‚¹ãŒ 0 ã¨ã¯é™ã‚‰ãªã„.
+at ãƒãƒ¼ã‚¯ã¨, dollar ãƒãƒ¼ã‚¯ã®åº§æ¨™ã¯æˆ»å€¤ã®ä¸­ã«æ›¸ã‹ã‚Œã¦ã„ã‚‹.
+@item ç‰¹ç•°ç‚¹ã®å›é¿ã¯è‡ªå‹•ã§ã¯ãªã„. ã‚ˆã£ã¦ç‰¹ç•°ç‚¹ã‚’å«ã‚€ã‚°ãƒ©ãƒ•ã¯ä¸æ­£ç¢ºãªå¯èƒ½æ€§ãŒé«˜ã„.
 @end itemize
 
 @example
@@ -157,40 +157,40 @@ at ¥Ş¡¼¥¯¤È, dollar ¥Ş¡¼¥¯¤ÎºÂÉ¸¤ÏÌáÃÍ¤ÎÃæ¤Ë½ñ¤«¤ì¤Æ¤¤¤ë.
 
 
 
-@node mtp.parametric_plot3d,,, ¼ç¤Ê´Ø¿ô
+@node mtp.parametric_plot3d,,, ä¸»ãªé–¢æ•°
 @subsection @code{mtp.parametric_plot3d}
 @findex mtp.parametric_plot3d
 
 @table @t
 @item mtp.parametric_plot3d(@var{formula})
-:: @var{formula} ¤Î¥°¥é¥Õ¤òÉÁ²è¤¹¤ë.
+:: @var{formula} ã®ã‚°ãƒ©ãƒ•ã‚’æç”»ã™ã‚‹.
 @item mtp.parametric_plot3d(@var{formula} | @var{options})
-:: @var{formula} ¤Î¥°¥é¥Õ¤òÉÁ²è¤¹¤ë. @var{options} ¤ÇÉÁ²èÈÏ°Ï¤Ê¤Î¤ò»ØÄê¤¹¤ë.
+:: @var{formula} ã®ã‚°ãƒ©ãƒ•ã‚’æç”»ã™ã‚‹. @var{options} ã§æç”»ç¯„å›²ãªã®ã‚’æŒ‡å®šã™ã‚‹.
 @end table
 
 @table @var
 @item return
- ¥ê¥¹¥È
+ ãƒªã‚¹ãƒˆ
 @item formula
-¼° ¤Ş¤¿¤Ï quote ·¿¥Ç¡¼¥¿¤Î¥ê¥¹¥È.  @code{s}, @code{t} ¤Î´Ø¿ô.
-@item ¥ª¥×¥·¥ç¥ó
+å¼ ã¾ãŸã¯ quote å‹ãƒ‡ãƒ¼ã‚¿ã®ãƒªã‚¹ãƒˆ.  @code{s}, @code{t} ã®é–¢æ•°.
+@item ã‚ªãƒ—ã‚·ãƒ§ãƒ³
 @table @t
  @item domain
- ¥ê¥¹¥È.  [[xmin,xmax],[ymin,ymax]] 
+ ãƒªã‚¹ãƒˆ.  [[xmin,xmax],[ymin,ymax]] 
  @item mesh
- ¼«Á³¿ô. ¥á¥Ã¥·¥å¤ÎÊ¬³ä¿ô.
+ è‡ªç„¶æ•°. ãƒ¡ãƒƒã‚·ãƒ¥ã®åˆ†å‰²æ•°.
  @item fitting
- ÃÍ¤ò 0 ¤È¤¹¤ë¤³¤È¤Ç, z Êı¸ş¤Î½Ì¼Ü¤Î¼«Æ°Ä´À°¤ò¤·¤Ê¤¤.
+ å€¤ã‚’ 0 ã¨ã™ã‚‹ã“ã¨ã§, z æ–¹å‘ã®ç¸®å°ºã®è‡ªå‹•èª¿æ•´ã‚’ã—ãªã„.
 @end table
 @end table
 
 @itemize @bullet
-@item º¸¥Ü¥¿¥ó¤ò¤ª¤·¤¿¤Ş¤Ş¥É¥é¥Ã¥°¤¹¤ë¤È²óÅ¾¤Ç¤­¤ë.
-@item ¥°¥é¥Õ¤¬É½¼¨¤µ¤ì¤¿¤é±¦¥¯¥ê¥Ã¥¯¤¹¤ë¤³¤È¤ÇÉ½¼¨·Á¼°¤òÊÑ¹¹¤¹¤ë¤¿¤á¤Î¥á¥Ë¥å¡¼¤¬É½¼¨¤µ¤ì¤ë.
-@item short cut ¤Î M ¤¬ÊØÍø (³ÈÂç).
-@item Box ¤Ë¼«Æ°Åª¤Ë¥°¥é¥Õ¤òÇÛÃÖ¤¹¤ë¤Î¤Ç, ºÂÉ¸¼´¤Î¸¶ÅÀ¤¬ 0 ¤È¤Ï¸Â¤é¤Ê¤¤.
-at ¥Ş¡¼¥¯¤È, dollar ¥Ş¡¼¥¯¤ÎºÂÉ¸¤ÏÌáÃÍ¤ÎÃæ¤Ë½ñ¤«¤ì¤Æ¤¤¤ë.
-@item ÆÃ°ÛÅÀ¤Î²óÈò¤Ï¼«Æ°¤Ç¤Ï¤Ê¤¤. ¤è¤Ã¤ÆÆÃ°ÛÅÀ¤ò´Ş¤à¥°¥é¥Õ¤ÏÉÔÀµ³Î¤Ê²ÄÇ½À­¤¬¹â¤¤.
+@item å·¦ãƒœã‚¿ãƒ³ã‚’ãŠã—ãŸã¾ã¾ãƒ‰ãƒ©ãƒƒã‚°ã™ã‚‹ã¨å›è»¢ã§ãã‚‹.
+@item ã‚°ãƒ©ãƒ•ãŒè¡¨ç¤ºã•ã‚ŒãŸã‚‰å³ã‚¯ãƒªãƒƒã‚¯ã™ã‚‹ã“ã¨ã§è¡¨ç¤ºå½¢å¼ã‚’å¤‰æ›´ã™ã‚‹ãŸã‚ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒè¡¨ç¤ºã•ã‚Œã‚‹.
+@item short cut ã® M ãŒä¾¿åˆ© (æ‹¡å¤§).
+@item Box ã«è‡ªå‹•çš„ã«ã‚°ãƒ©ãƒ•ã‚’é…ç½®ã™ã‚‹ã®ã§, åº§æ¨™è»¸ã®åŸç‚¹ãŒ 0 ã¨ã¯é™ã‚‰ãªã„.
+at ãƒãƒ¼ã‚¯ã¨, dollar ãƒãƒ¼ã‚¯ã®åº§æ¨™ã¯æˆ»å€¤ã®ä¸­ã«æ›¸ã‹ã‚Œã¦ã„ã‚‹.
+@item ç‰¹ç•°ç‚¹ã®å›é¿ã¯è‡ªå‹•ã§ã¯ãªã„. ã‚ˆã£ã¦ç‰¹ç•°ç‚¹ã‚’å«ã‚€ã‚°ãƒ©ãƒ•ã¯ä¸æ­£ç¢ºãªå¯èƒ½æ€§ãŒé«˜ã„.
 @end itemize
 
 @example
@@ -213,7 +213,7 @@ at ¥Ş¡¼¥¯¤È, dollar ¥Ş¡¼¥¯¤ÎºÂÉ¸¤ÏÌáÃÍ¤ÎÃæ¤Ë½ñ¤«¤ì¤Æ¤¤¤ë.
 
 
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -224,5 +224,5 @@ at ¥Ş¡¼¥¯¤È, dollar ¥Ş¡¼¥¯¤ÎºÂÉ¸¤ÏÌáÃÍ¤ÎÃæ¤Ë½ñ¤«¤ì¤Æ¤¤¤ë.
 @summarycontents
 @contents
 @bye
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 

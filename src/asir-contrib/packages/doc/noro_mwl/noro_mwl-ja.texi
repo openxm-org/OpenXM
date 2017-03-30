@@ -1,5 +1,5 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_mwl/noro_mwl-ja.texi,v 1.2 2009/11/03 02:43:36 noro Exp $
-%comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_mwl/noro_mwl-ja.texi,v 1.3 2009/12/07 01:47:35 noro Exp $
+%comment --- ãŠã¾ã˜ãªã„ ---
 \input ../../../../asir-doc/texinfo
 @iftex
 @catcode`@#=6
@@ -10,18 +10,18 @@
 @overfullrule=0pt
 @c -*-texinfo-*-
 @comment %**start of header
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- GNU info ¥Õ¥¡¥¤¥ë¤ÎÌ¾Á° ---
+@comment --- GNU info ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ ---
 @setfilename asir-contrib-noro_mwl
 
-@comment --- ¥¿¥¤¥È¥ë ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ« ---
 @settitle noro_mwl
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -33,9 +33,9 @@
 @end iftex
 
 @titlepage
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- ¥¿¥¤¥È¥ë, ¥Ğ¡¼¥¸¥ç¥ó, Ãø¼ÔÌ¾, Ãøºî¸¢É½¼¨ ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ«, ãƒãƒ¼ã‚¸ãƒ§ãƒ³, è‘—è€…å, è‘—ä½œæ¨©è¡¨ç¤º ---
 @title noro_mwl
 @subtitle noro_mwl User's Manual
 @subtitle Edition 1.0
@@ -48,57 +48,57 @@ Copyright @copyright{} Masayuki Noro
 2009. All rights reserved.
 @end titlepage
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @synindex vr fn
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- @node ¤Ï GNU info, HTML ÍÑ ---
-@comment --- @node  ¤Î°ú¿ô¤Ï node-name,  next,  previous,  up --- 
+@comment --- @node ã¯ GNU info, HTML ç”¨ ---
+@comment --- @node  ã®å¼•æ•°ã¯ node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
-@comment --- @menu ¤Ï GNU info, HTML ÍÑ ---
-@comment --- chapter Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- @menu ã¯ GNU info, HTML ç”¨ ---
+@comment --- chapter åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-* MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ noro_mwl.rr::
+* MWL é–¢é€£è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_mwl.rr::
 * Index::
 @end menu
 
-@comment --- chapter ¤Î³«»Ï ---
-@comment --- ¿Æ chapter Ì¾¤òÀµ³Î¤Ë ---
-@node MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ noro_mwl.rr,,, Top
-@chapter MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ noro_mwl.rr
+@comment --- chapter ã®é–‹å§‹ ---
+@comment --- è¦ª chapter åã‚’æ­£ç¢ºã« ---
+@node MWL é–¢é€£è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_mwl.rr,,, Top
+@chapter MWL é–¢é€£è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_mwl.rr
 
-@comment --- section Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- section åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-* MWL ´ØÏ¢·×»»::
+* MWL é–¢é€£è¨ˆç®—::
 @end menu
 
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤Ï, asir-contrib ¥Ñ¥Ã¥±¡¼¥¸¤Ë¼ıÏ¿¤µ¤ì¤Æ¤¤¤ë,
-MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ @samp{noro_mwl.rr} ¤Ë¤Ä¤¤¤Æ²òÀâ¤¹¤ë.
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò»È¤¦¤Ë¤Ï, ¤Ş¤º @samp{noro_mwl.rr} ¤ò¥í¡¼¥É¤¹¤ë.
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯, asir-contrib ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã«åéŒ²ã•ã‚Œã¦ã„ã‚‹,
+MWL é–¢é€£è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{noro_mwl.rr} ã«ã¤ã„ã¦è§£èª¬ã™ã‚‹.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚’ä½¿ã†ã«ã¯, ã¾ãš @samp{noro_mwl.rr} ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹.
 @example
 [1518] load("noro_mwl.rr");
 @end example
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ÎÈ¡¿ô¤ò¸Æ¤Ó½Ğ¤¹¤Ë¤Ï, Á´¤Æ @code{mwl.} ¤òÀèÆ¬¤Ë¤Ä¤±¤ë.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®å‡½æ•°ã‚’å‘¼ã³å‡ºã™ã«ã¯, å…¨ã¦ @code{mwl.} ã‚’å…ˆé ­ã«ã¤ã‘ã‚‹.
 @example
 
 @end example
 
-@comment --- section ¤Î³«»Ï ---
-@comment --- ½ñÂÎ»ØÄê¤Ë¤Ä¤¤¤Æ ---
-@comment --- @code{} ¤Ï¥¿¥¤¥×¥é¥¤¥¿ÂÎÉ½¼¨ ---
-@comment --- @var{} ¤Ï¼Ğ»úÂÎÉ½¼¨ ---
-@comment --- @b{} ¤Ï¥Ü¡¼¥ë¥ÉÉ½¼¨ ---
-@comment --- @samp{} ¤Ï¥Õ¥¡¥¤¥ëÌ¾¤Ê¤É¤ÎÉ½¼¨ ---
+@comment --- section ã®é–‹å§‹ ---
+@comment --- æ›¸ä½“æŒ‡å®šã«ã¤ã„ã¦ ---
+@comment --- @code{} ã¯ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ä½“è¡¨ç¤º ---
+@comment --- @var{} ã¯æ–œå­—ä½“è¡¨ç¤º ---
+@comment --- @b{} ã¯ãƒœãƒ¼ãƒ«ãƒ‰è¡¨ç¤º ---
+@comment --- @samp{} ã¯ãƒ•ã‚¡ã‚¤ãƒ«åãªã©ã®è¡¨ç¤º ---
 
-@node MWL ´ØÏ¢·×»»,,, MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ noro_mwl.rr
-@section MWL ´ØÏ¢·×»»
+@node MWL é–¢é€£è¨ˆç®—,,, MWL é–¢é€£è¨ˆç®—ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ noro_mwl.rr
+@section MWL é–¢é€£è¨ˆç®—
 
 @menu
 * mwl.pdecomp::
 @end menu
 
-@node mwl.pdecomp mwl.pdecomp_ff,,, MWL ´ØÏ¢·×»»
+@node mwl.pdecomp mwl.pdecomp_ff,,, MWL é–¢é€£è¨ˆç®—
 
 @subsection @code{mwl.pdecomp}, @code{mwl.pdecomp_ff}
 @findex mwl.pdecomp
@@ -106,48 +106,48 @@ MWL ´ØÏ¢·×»»¥Ñ¥Ã¥±¡¼¥¸ @samp{noro_mwl.rr} ¤Ë¤Ä¤¤¤Æ²òÀâ¤¹¤ë.
 
 @table @t
 @item mwl.pdecomp(@var{ideal},@var{varlist}[|gbcheck=@var{yesno},f4=@var{yesno}])
-@itemx mwl.pdecomp_ff(@var{ideal},@var{varlist},@var{mod}[|gbcheck=@var{yesno},f4=@var{yesno}]) :: 0 ¼¡¸µ¥¤¥Ç¥¢¥ë @var{ideal} ¤ò¤¤¤¯¤Ä¤«¤Î¥¤¥Ç¥¢¥ë¤Î¶¦ÄÌÉôÊ¬¤È¤·¤ÆÉ½¤¹.
+@itemx mwl.pdecomp_ff(@var{ideal},@var{varlist},@var{mod}[|gbcheck=@var{yesno},f4=@var{yesno}]) :: 0 æ¬¡å…ƒã‚¤ãƒ‡ã‚¢ãƒ« @var{ideal} ã‚’ã„ãã¤ã‹ã®ã‚¤ãƒ‡ã‚¢ãƒ«ã®å…±é€šéƒ¨åˆ†ã¨ã—ã¦è¡¨ã™.
 @end table
 
 @table @var
 @item return
-ÆóÍ×ÁÇ¤«¤é¤Ê¤ë¥ê¥¹¥È
+äºŒè¦ç´ ã‹ã‚‰ãªã‚‹ãƒªã‚¹ãƒˆ
 @item ideal
-Â¿¹à¼°¥ê¥¹¥È
+å¤šé …å¼ãƒªã‚¹ãƒˆ
 @item varlist
-ÊÑ¿ô¥ê¥¹¥È
+å¤‰æ•°ãƒªã‚¹ãƒˆ
 @item mod
-ÁÇ¿ô
+ç´ æ•°
 @item yesno
-0 ¤Ş¤¿¤Ï 1
+0 ã¾ãŸã¯ 1
 @end table
 
 @itemize @bullet
 @item
-0 ¼¡¸µ¥¤¥Ç¥¢¥ë @var{ideal} ¤Î³ÆÊÑ¿ô¤ÎºÇ¾®Â¿¹à¼°¤ò´ûÌóÊ¬²ò¤·, ³Æ´ûÌó
-À®Ê¬¤ò½ÅÊ£ÅÙ¤Ä¤­¤Ç @var{ideal} ¤ËÅº²Ã¤¹¤ë¤³¤È¤ò·«¤êÊÖ¤·¤ÆÆÀ¤é¤ì¤¿
-¥¤¥Ç¥¢¥ë¤Î¥ê¥¹¥È¤òÂè°ìÍ×ÁÇ, @var{ideal} ¤ÎÁ´¼¡¿ôµÕ¼­½ñ¼°½ç½ø¤Ë
-´Ø¤¹¤ë¥°¥ì¥Ö¥Ê¡¼´ğÄì¤òÂèÆóÍ×ÁÇ¤È¤¹¤ë¥ê¥¹¥È¤òÊÖ¤¹.
+0 æ¬¡å…ƒã‚¤ãƒ‡ã‚¢ãƒ« @var{ideal} ã®å„å¤‰æ•°ã®æœ€å°å¤šé …å¼ã‚’æ—¢ç´„åˆ†è§£ã—, å„æ—¢ç´„
+æˆåˆ†ã‚’é‡è¤‡åº¦ã¤ãã§ @var{ideal} ã«æ·»åŠ ã™ã‚‹ã“ã¨ã‚’ç¹°ã‚Šè¿”ã—ã¦å¾—ã‚‰ã‚ŒãŸ
+ã‚¤ãƒ‡ã‚¢ãƒ«ã®ãƒªã‚¹ãƒˆã‚’ç¬¬ä¸€è¦ç´ , @var{ideal} ã®å…¨æ¬¡æ•°é€†è¾æ›¸å¼é †åºã«
+é–¢ã™ã‚‹ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼åŸºåº•ã‚’ç¬¬äºŒè¦ç´ ã¨ã™ã‚‹ãƒªã‚¹ãƒˆã‚’è¿”ã™.
 @item
-@code{mwl.pdecomp} ¤ÏÍ­Íı¿ôÂÎ¾å, @code{mwl.pdecomp_ff} ¤Ï
-GF(@var{mod}) (°Ì¿ô @var{mod} ¤ÎÍ­¸ÂÂÎ) ¾å¤Ç¤ÎÊ¬²ò¤ò¹Ô¤¦.
+@code{mwl.pdecomp} ã¯æœ‰ç†æ•°ä½“ä¸Š, @code{mwl.pdecomp_ff} ã¯
+GF(@var{mod}) (ä½æ•° @var{mod} ã®æœ‰é™ä½“) ä¸Šã§ã®åˆ†è§£ã‚’è¡Œã†.
 @item
-½ĞÎÏ¥ê¥¹¥È¤ÎÍ×ÁÇ¤Ç¤¢¤ë¥¤¥Ç¥¢¥ë¤Ï, É¬¤º¤·¤â½àÁÇ¤È¤Ï¸Â¤é¤Ê¤¤¤¬,
-³ÆÊÑ¿ô¤ÎºÇ¾®Â¿¹à¼°¤¬´ûÌóÂ¿¹à¼°¤Î¤Ù¤­¤È¤Ê¤Ã¤Æ¤¤¤ë¤Î¤Ç, ½àÁÇ¤Ë
-¶á¤¤¤³¤È¤¬´üÂÔ¤µ¤ì¤ë. ¤³¤ì¤ò½àÁÇÊ¬²ò¤ÎÆşÎÏ¤È¤¹¤ë¤³¤È¤Ç, ¤â¤È¤Î
-¥¤¥Ç¥¢¥ë¤ò¤½¤Î¤Ş¤Ş½àÁÇÊ¬²ò¤¹¤ë¤è¤ê¸úÎ¨¤è¤¯½àÁÇÊ¬²ò¤Ç¤­¤ë¤³¤È¤¬
-´üÂÔ¤µ¤ì¤ë.
+å‡ºåŠ›ãƒªã‚¹ãƒˆã®è¦ç´ ã§ã‚ã‚‹ã‚¤ãƒ‡ã‚¢ãƒ«ã¯, å¿…ãšã—ã‚‚æº–ç´ ã¨ã¯é™ã‚‰ãªã„ãŒ,
+å„å¤‰æ•°ã®æœ€å°å¤šé …å¼ãŒæ—¢ç´„å¤šé …å¼ã®ã¹ãã¨ãªã£ã¦ã„ã‚‹ã®ã§, æº–ç´ ã«
+è¿‘ã„ã“ã¨ãŒæœŸå¾…ã•ã‚Œã‚‹. ã“ã‚Œã‚’æº–ç´ åˆ†è§£ã®å…¥åŠ›ã¨ã™ã‚‹ã“ã¨ã§, ã‚‚ã¨ã®
+ã‚¤ãƒ‡ã‚¢ãƒ«ã‚’ãã®ã¾ã¾æº–ç´ åˆ†è§£ã™ã‚‹ã‚ˆã‚ŠåŠ¹ç‡ã‚ˆãæº–ç´ åˆ†è§£ã§ãã‚‹ã“ã¨ãŒ
+æœŸå¾…ã•ã‚Œã‚‹.
 @item
-¥Ç¥Õ¥©¥ë¥È¤Ç¤Ï, ¥°¥ì¥Ö¥Ê¡¼´ğÄì·×»»¤Ë¤Ï @code{nd_gr_trace} ¤¬
-ÍÑ¤¤¤é¤ì¤ë¤¬, ¥ª¥×¥·¥ç¥ó @code{f4=1} ¤ò»ØÄê¤¹¤ë¤È @code{nd_f4_trace}
-¤¬ÍÑ¤¤¤é¤ì¤ë.
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯, ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼åŸºåº•è¨ˆç®—ã«ã¯ @code{nd_gr_trace} ãŒ
+ç”¨ã„ã‚‰ã‚Œã‚‹ãŒ, ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{f4=1} ã‚’æŒ‡å®šã™ã‚‹ã¨ @code{nd_f4_trace}
+ãŒç”¨ã„ã‚‰ã‚Œã‚‹.
 @item
-¥ª¥×¥·¥ç¥ó @code{gbcheck=0} ¤ò»ØÄê¤¹¤ë¤È, ¥°¥ì¥Ö¥Ê¡¼´ğÄì·×»»¤Ë¤ª¤±¤ë
-¥Á¥§¥Ã¥¯¤¬¾Ê¤«¤ì¤ë. ¤³¤Î¾ì¹ç, ÂçÊÑ¾®¤µ¤¤³ÎÎ¨¤ÇÀµ¤·¤¤·ë²Ì¤¬½ĞÎÏ¤µ¤ì¤Ê¤¤
-¤³¤È¤¬Í­¤êÆÀ¤ë¤¬, ¤Û¤È¤ó¤É¤Î¾ì¹ç¤ÏÀµ¤·¤¤¤Î¤Ç, Í½È÷Åª¤Ê¼Â¸³¤ò·«¤êÊÖ¤¹¾ì¹ç
-¤ËÍ­ÍÑ¤Ç¤¢¤ë.
-½ĞÎÏ¤µ¤ì¤¿¥¤¥Ç¥¢¥ë¥ê¥¹¥È¤ÎÁ´¤Æ¤Î¶¦ÄÌÉôÊ¬¤¬ÆşÎÏ
-¤È°ìÃ×¤¹¤ì¤Ğ, ½ĞÎÏ¤¬ÆşÎÏ¥¤¥Ç¥¢¥ë¤ÎÊ¬²ò¤Ë¤Ê¤Ã¤Æ¤¤¤ë¤³¤È¤ÏÊİ¾Ú¤µ¤ì¤ë.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{gbcheck=0} ã‚’æŒ‡å®šã™ã‚‹ã¨, ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼åŸºåº•è¨ˆç®—ã«ãŠã‘ã‚‹
+ãƒã‚§ãƒƒã‚¯ãŒçœã‹ã‚Œã‚‹. ã“ã®å ´åˆ, å¤§å¤‰å°ã•ã„ç¢ºç‡ã§æ­£ã—ã„çµæœãŒå‡ºåŠ›ã•ã‚Œãªã„
+ã“ã¨ãŒæœ‰ã‚Šå¾—ã‚‹ãŒ, ã»ã¨ã‚“ã©ã®å ´åˆã¯æ­£ã—ã„ã®ã§, äºˆå‚™çš„ãªå®Ÿé¨“ã‚’ç¹°ã‚Šè¿”ã™å ´åˆ
+ã«æœ‰ç”¨ã§ã‚ã‚‹.
+å‡ºåŠ›ã•ã‚ŒãŸã‚¤ãƒ‡ã‚¢ãƒ«ãƒªã‚¹ãƒˆã®å…¨ã¦ã®å…±é€šéƒ¨åˆ†ãŒå…¥åŠ›
+ã¨ä¸€è‡´ã™ã‚Œã°, å‡ºåŠ›ãŒå…¥åŠ›ã‚¤ãƒ‡ã‚¢ãƒ«ã®åˆ†è§£ã«ãªã£ã¦ã„ã‚‹ã“ã¨ã¯ä¿è¨¼ã•ã‚Œã‚‹.
 @end itemize
 
 @example
@@ -173,33 +173,33 @@ GF(@var{mod}) (°Ì¿ô @var{mod} ¤ÎÍ­¸ÂÂÎ) ¾å¤Ç¤ÎÊ¬²ò¤ò¹Ô¤¦.
 
 @table @t
 @item mwl.generate_coef_ideal(@var{f}[|simp=@var{yesno}])
-:: x, y, t ¤ÎÂ¿¹à¼° @var{f} ¤ÎÂ¿¹à¼°ÎíÅÀ (x(t),y(t)) ¤Î·¸¿ô¤ÎËş¤¿¤¹
-ÊıÄø¼°¤Î¥¤¥Ç¥¢¥ë¤òÀ¸À®¤¹¤ë
+:: x, y, t ã®å¤šé …å¼ @var{f} ã®å¤šé …å¼é›¶ç‚¹ (x(t),y(t)) ã®ä¿‚æ•°ã®æº€ãŸã™
+æ–¹ç¨‹å¼ã®ã‚¤ãƒ‡ã‚¢ãƒ«ã‚’ç”Ÿæˆã™ã‚‹
 @end table
 
 @table @var
 @item return
-Â¿¹à¼°¥ê¥¹¥È¤ÈÊÑ¿ô¥ê¥¹¥È¤Î¥Ú¥¢¤«¤é¤Ê¤ë¥ê¥¹¥È
+å¤šé …å¼ãƒªã‚¹ãƒˆã¨å¤‰æ•°ãƒªã‚¹ãƒˆã®ãƒšã‚¢ã‹ã‚‰ãªã‚‹ãƒªã‚¹ãƒˆ
 @item f
-Â¿¹à¼°
+å¤šé …å¼
 @item yesno
-0 ¤Ş¤¿¤Ï 1
+0 ã¾ãŸã¯ 1
 @end table
 
 @itemize @bullet
 @item
-@var{f(x,y,t)=(y^2+c1(t)xy+c3(t)y)-(x^3+c2(t)x^2+c4(t)x+c6(t))} ¤ËÂĞ¤·,
+@var{f(x,y,t)=(y^2+c1(t)xy+c3(t)y)-(x^3+c2(t)x^2+c4(t)x+c6(t))} ã«å¯¾ã—,
 @var{x=am t^m+...+a0},
-@var{y=bn t^n+...+b0} (@var{ai, bj} ¤ÏÌ¤Äê·¸¿ô)
-¤ò @var{f} ¤ËÂåÆş¤·¤¿¤È¤­¤Î, ³Æ @var{t}¤Î¤Ù¤­¤Î·¸¿ô
-¤òÊÂ¤Ù¤¿¥ê¥¹¥È @var{ideal} ¤ª¤è¤Ó, Ì¤Äê·¸¿ô¤Î¥ê¥¹¥È
-@var{vlist=[b0,...,bn,a0,...,am]} ¤Î¥Ú¥¢ @var{[ideal,vlist]} ¤òÊÖ¤¹.
+@var{y=bn t^n+...+b0} (@var{ai, bj} ã¯æœªå®šä¿‚æ•°)
+ã‚’ @var{f} ã«ä»£å…¥ã—ãŸã¨ãã®, å„ @var{t}ã®ã¹ãã®ä¿‚æ•°
+ã‚’ä¸¦ã¹ãŸãƒªã‚¹ãƒˆ @var{ideal} ãŠã‚ˆã³, æœªå®šä¿‚æ•°ã®ãƒªã‚¹ãƒˆ
+@var{vlist=[b0,...,bn,a0,...,am]} ã®ãƒšã‚¢ @var{[ideal,vlist]} ã‚’è¿”ã™.
 @item
-³Æ @var{x}, @var{y} ¤Î¼¡¿ô¤Ï, @var{f} ¤«¤é¼«Æ°Åª¤Ë·èÄê¤µ¤ì¤ë.
+å„ @var{x}, @var{y} ã®æ¬¡æ•°ã¯, @var{f} ã‹ã‚‰è‡ªå‹•çš„ã«æ±ºå®šã•ã‚Œã‚‹.
 @item
-¥ª¥×¥·¥ç¥ó @var{simp=1} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, @var{am^3-bn^2} ¤¬ @var{ideal}
-¤Ë´Ş¤Ş¤ì¤Æ¤¤¤ë¾ì¹ç¤Ë¤Ï, ¿·¤·¤¤ÊÑ¿ô @var{v} ¤òÆ³Æş¤·,
-@var{am=v^2}, @var{bn=v^3} ¤Ë¤è¤ê @var{am,bn} ¤ò¾Ãµî¤·¤¿·ë²Ì¤òÊÖ¤¹.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @var{simp=1} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, @var{am^3-bn^2} ãŒ @var{ideal}
+ã«å«ã¾ã‚Œã¦ã„ã‚‹å ´åˆã«ã¯, æ–°ã—ã„å¤‰æ•° @var{v} ã‚’å°å…¥ã—,
+@var{am=v^2}, @var{bn=v^3} ã«ã‚ˆã‚Š @var{am,bn} ã‚’æ¶ˆå»ã—ãŸçµæœã‚’è¿”ã™.
 @end itemize
 @example
 [1519] load("noro_mwl.rr")$
@@ -211,7 +211,7 @@ GF(@var{mod}) (°Ì¿ô @var{mod} ¤ÎÍ­¸ÂÂÎ) ¾å¤Ç¤ÎÊ¬²ò¤ò¹Ô¤¦.
 [[-3*a1*v^4+2*b2*v^3,-3*a0*v^4+2*b1*v^3-3*a1^2*v^2+b2^2,...],
 [b2,b1,b0,a1,a0,v]]
 @end example
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -222,5 +222,5 @@ GF(@var{mod}) (°Ì¿ô @var{mod} ¤ÎÍ­¸ÂÂÎ) ¾å¤Ç¤ÎÊ¬²ò¤ò¹Ô¤¦.
 @summarycontents
 @contents
 @bye
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 

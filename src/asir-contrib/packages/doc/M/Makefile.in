@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.7 2009/02/22 06:51:12 ohara Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.8 2009/02/23 04:26:54 ohara Exp $
 # Original file was ../Makefile.common
 # Targets
 # gen-texi : generating texi files.
@@ -66,7 +66,7 @@ SRC_LANG = ${MYNAME}.en ${MYNAME}.ja
 	${OXWEAVE} C en < $< > ${<:.oxw=.en}
 
 .oxw.ja:
-	${OXWEAVE} C ja < $< | ${NKF} -e > ${<:.oxw=.ja}
+	${OXWEAVE} C ja < $< | ${NKF} -w > ${<:.oxw=.ja}
 
 .dvi.pdf:
 	${DVIPDF} $<

@@ -1,5 +1,5 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.5 2010/06/16 10:39:08 noro Exp $
-%comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.6 2010/06/19 09:43:45 noro Exp $
+%comment --- ãŠã¾ã˜ãªã„ ---
 \input ../../../../asir-doc/texinfo
 @iftex
 @catcode`@#=6
@@ -11,19 +11,19 @@
 @overfullrule=0pt
 @c -*-texinfo-*-
 @comment %**start of header
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- GNU info ¥Õ¥¡¥¤¥ë¤ÎÌ¾Á° ---
+@comment --- GNU info ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ ---
 @setfilename asir-contrib-nn_ndbf
 @comment @documentlanguage ja
 
-@comment --- ¥¿¥¤¥È¥ë ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ« ---
 @settitle nn_ndbf
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -35,9 +35,9 @@
 @end iftex
 
 @titlepage
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- ¥¿¥¤¥È¥ë, ¥Ğ¡¼¥¸¥ç¥ó, Ãø¼ÔÌ¾, Ãøºî¸¢É½¼¨ ---
+@comment --- ã‚¿ã‚¤ãƒˆãƒ«, ãƒãƒ¼ã‚¸ãƒ§ãƒ³, è‘—è€…å, è‘—ä½œæ¨©è¡¨ç¤º ---
 @title nn_ndbf
 @subtitle nn_ndbf User's Manual
 @subtitle Edition 1.0
@@ -50,40 +50,40 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 2009. All rights reserved.
 @end titlepage
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @synindex vr fn
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 
-@comment --- @node ¤Ï GNU info, HTML ÍÑ ---
-@comment --- @node  ¤Î°ú¿ô¤Ï node-name,  next,  previous,  up --- 
+@comment --- @node ã¯ GNU info, HTML ç”¨ ---
+@comment --- @node  ã®å¼•æ•°ã¯ node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
-@comment --- @menu ¤Ï GNU info, HTML ÍÑ ---
-@comment --- chapter Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- @menu ã¯ GNU info, HTML ç”¨ ---
+@comment --- chapter åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-\JP * ¿· b ´Ø¿ô¥Ñ¥Ã¥±¡¼¥¸ nn_ndbf.rr::
+\JP * æ–° b é–¢æ•°ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ nn_ndbf.rr::
 \EG * New b-function package nn_ndbf.rr::
 * Index::
 @end menu
 
-@comment --- chapter ¤Î³«»Ï ---
-@comment --- ¿Æ chapter Ì¾¤òÀµ³Î¤Ë ---
-\JP @node ¿· b ´Ø¿ô¥Ñ¥Ã¥±¡¼¥¸ nn_ndbf.rr,,, Top
+@comment --- chapter ã®é–‹å§‹ ---
+@comment --- è¦ª chapter åã‚’æ­£ç¢ºã« ---
+\JP @node æ–° b é–¢æ•°ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ nn_ndbf.rr,,, Top
 \EG @node New b-function package nn_ndbf.rr,,, Top
 \JP @chapter New b-function package nn_ndbf.rr
 
-@comment --- section Ì¾¤òÀµ³Î¤ËÊÂ¤Ù¤ë ---
+@comment --- section åã‚’æ­£ç¢ºã«ä¸¦ã¹ã‚‹ ---
 @menu
-\JP * b ´Ø¿ô·×»»::
+\JP * b é–¢æ•°è¨ˆç®—::
 \EG * Computation of b-function::
-\JP * Annihilator ¥¤¥Ç¥¢¥ë·×»»::
+\JP * Annihilator ã‚¤ãƒ‡ã‚¢ãƒ«è¨ˆç®—::
 \EG * Computation of annihilator ideal::
 @end menu
 
 \BJP
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤Ï, asir-contrib ¥Ñ¥Ã¥±¡¼¥¸¤Ë¼ıÏ¿¤µ¤ì¤Æ¤¤¤ë,
-¿· b ´Ø¿ô¥Ñ¥Ã¥±¡¼¥¸ @samp{nn_ndbf.rr} ¤Ë¤Ä¤¤¤Æ²òÀâ¤¹¤ë.
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ò»È¤¦¤Ë¤Ï, ¤Ş¤º @samp{nn_ndbf.rr} ¤ò¥í¡¼¥É¤¹¤ë.
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯, asir-contrib ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã«åéŒ²ã•ã‚Œã¦ã„ã‚‹,
+æ–° b é–¢æ•°ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{nn_ndbf.rr} ã«ã¤ã„ã¦è§£èª¬ã™ã‚‹.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚’ä½¿ã†ã«ã¯, ã¾ãš @samp{nn_ndbf.rr} ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹.
 \E
 \BEG
 In this manual we explain about a new b-function package @samp{nn_ndbf.rr}
@@ -93,23 +93,23 @@ in asir-contrib. To use this package one has to load @samp{nn_ndbf.rr}.
 [...] load("nn_ndbf.rr");
 @end example
 \BJP
-¤³¤Î¥Ñ¥Ã¥±¡¼¥¸¤ÎÈ¡¿ô¤ò¸Æ¤Ó½Ğ¤¹¤Ë¤Ï, Á´¤Æ @code{ndbf.} ¤òÀèÆ¬¤Ë¤Ä¤±¤ë.
-¤³¤Î¥Ş¥Ë¥å¥¢¥ë¤Ç¤Ï, ´ØÏ¢¤¹¤ëÁÈ¹ş¤ß´Ø¿ô¤Ë¤Ä¤¤¤Æ¤â²òÀâ¤¹¤ë.
+ã“ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®å‡½æ•°ã‚’å‘¼ã³å‡ºã™ã«ã¯, å…¨ã¦ @code{ndbf.} ã‚’å…ˆé ­ã«ã¤ã‘ã‚‹.
+ã“ã®ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã¯, é–¢é€£ã™ã‚‹çµ„è¾¼ã¿é–¢æ•°ã«ã¤ã„ã¦ã‚‚è§£èª¬ã™ã‚‹.
 \E
 \BEG
 A prefix @code{ndbf.} is necessary to call the functions in this package. 
 In this manual we also explain about some related built-in functions.
 \E
-@comment --- section ¤Î³«»Ï ---
-@comment --- ½ñÂÎ»ØÄê¤Ë¤Ä¤¤¤Æ ---
-@comment --- @code{} ¤Ï¥¿¥¤¥×¥é¥¤¥¿ÂÎÉ½¼¨ ---
-@comment --- @var{} ¤Ï¼Ğ»úÂÎÉ½¼¨ ---
-@comment --- @b{} ¤Ï¥Ü¡¼¥ë¥ÉÉ½¼¨ ---
-@comment --- @samp{} ¤Ï¥Õ¥¡¥¤¥ëÌ¾¤Ê¤É¤ÎÉ½¼¨ ---
+@comment --- section ã®é–‹å§‹ ---
+@comment --- æ›¸ä½“æŒ‡å®šã«ã¤ã„ã¦ ---
+@comment --- @code{} ã¯ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ä½“è¡¨ç¤º ---
+@comment --- @var{} ã¯æ–œå­—ä½“è¡¨ç¤º ---
+@comment --- @b{} ã¯ãƒœãƒ¼ãƒ«ãƒ‰è¡¨ç¤º ---
+@comment --- @samp{} ã¯ãƒ•ã‚¡ã‚¤ãƒ«åãªã©ã®è¡¨ç¤º ---
 
-\JP @node b ´Ø¿ô·×»»,,, ¿· b ´Ø¿ô¥Ñ¥Ã¥±¡¼¥¸ nn_ndbf.rr
+\JP @node b é–¢æ•°è¨ˆç®—,,, æ–° b é–¢æ•°ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ nn_ndbf.rr
 \EG @node Computation of b-function,,, New b-function package nn_ndbf.rr
-\JP @section b ´Ø¿ô·×»»
+\JP @section b é–¢æ•°è¨ˆç®—
 \EG @section Computation of b-function
 
 @menu
@@ -119,60 +119,60 @@ In this manual we also explain about some related built-in functions.
 * ndbf.action_on_gfs::
 @end menu
 
-\JP @node ndbf.bfunction,,, b ´Ø¿ô·×»»
+\JP @node ndbf.bfunction,,, b é–¢æ•°è¨ˆç®—
 \EG @node ndbf.bfunction,,, Computation of b-function
 @subsection @code{ndbf.bfunction}
 @findex ndbf.bfunction
 
 @table @t
-\JP @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: Â¿¹à¼° @var{f} ¤ÎÂç°è b ´Ø¿ô¤ò·×»»¤¹¤ë.
+\JP @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: å¤šé …å¼ @var{f} ã®å¤§åŸŸ b é–¢æ•°ã‚’è¨ˆç®—ã™ã‚‹.
 \EG @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: computes the global b-function of a polynomial @var{f}
 @end table
 
 @table @var
 @item return
-\JP Â¿¹à¼°
+\JP å¤šé …å¼
 \EG a polynomial
 @item f
-\JP Â¿¹à¼°
+\JP å¤šé …å¼
 \EG a polynomial
 @item w
-\JP @code{[@var{v1,w1,...,vn,wn}]} ¤Ê¤ë¥ê¥¹¥È
+\JP @code{[@var{v1,w1,...,vn,wn}]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item yesno
-\JP 0 ¤Ş¤¿¤Ï 1
+\JP 0 ã¾ãŸã¯ 1
 \EG 0 or 1
 @item v
-\JP ÊÑ¿ô¤Î¥ê¥¹¥È
+\JP å¤‰æ•°ã®ãƒªã‚¹ãƒˆ
 \EG a list of variables
 @end table
 
 @itemize @bullet
 \BJP
 @item
-¤³¤Î´Ø¿ô¤Ï asir-contrib ¤Î¥Ñ¥Ã¥±¡¼¥¸ @samp{nn_ndbf.rr} ¤ÇÄêµÁ¤µ¤ì¤Æ¤¤¤ë.
+ã“ã®é–¢æ•°ã¯ asir-contrib ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{nn_ndbf.rr} ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹.
 @item
-Â¿¹à¼° @var{f} ¤ÎÂç°è b ´Ø¿ô (global b-function) ¤ò·×»»¤¹¤ë. 
-¥Ç¥Õ¥©¥ë¥È¤Ç¤ÏÂç°è b ´Ø¿ô¤Î¤ß¤¬½ĞÎÏ¤µ¤ì¤ë¤¬, ¥ª¥×¥·¥ç¥ó @code{op=1} ¤¬»ØÄê
-¤µ¤ì¤¿¾ì¹ç, Âç°è b ´Ø¿ô @var{b}, ¤ª¤è¤Ó
-ÈùÊ¬ºîÍÑÁÇ @var{P} ¤ÎÁÈ @var{[b,P]} ¤òÊÖ¤¹. ¤³¤ì¤é¤Ï 
-@var{Pf^(s+1)=b(s)f^s} ¤òËş¤¿¤¹.
-ÈùÊ¬ºîÍÑÁÇ¤Ï @var{v1,...,vn,dv1,...,dvn} ¤Î²Ä´¹Â¿¹à¼°¤È¤·¤Æ
-É½¸½¤µ¤ì¤Æ¤¤¤ë. ¤³¤ÎÉ½¸½¤Ë¤ª¤¤¤Æ¤Ï, ÈùÊ¬¤òÉ½¤¹ d ¤Î¤Ä¤¤¤¿ÊÑ¿ô¤âÃ±¤Ê¤ë
-ÉÔÄê¸µ¤È¤·¤Æ°·¤ï¤ì¤Æ¤¤¤ë¤¿¤á, ·¸¿ôÂ¿¹à¼°´Ä¤ÎÊÑ¿ô¤ÎÁ°¤ËÉ½¼¨¤µ¤ì¤ë¤³¤È¤â
-¤¢¤ê¤¦¤ë¤¬, Â¿¹à¼°·¸¿ô¤òº¸¤ËÃÖ¤¯Àµµ¬É½¸½¤È¤·¤ÆÍı²ò¤¹¤ëÉ¬Í×¤¬¤¢¤ë.
+å¤šé …å¼ @var{f} ã®å¤§åŸŸ b é–¢æ•° (global b-function) ã‚’è¨ˆç®—ã™ã‚‹. 
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯å¤§åŸŸ b é–¢æ•°ã®ã¿ãŒå‡ºåŠ›ã•ã‚Œã‚‹ãŒ, ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{op=1} ãŒæŒ‡å®š
+ã•ã‚ŒãŸå ´åˆ, å¤§åŸŸ b é–¢æ•° @var{b}, ãŠã‚ˆã³
+å¾®åˆ†ä½œç”¨ç´  @var{P} ã®çµ„ @var{[b,P]} ã‚’è¿”ã™. ã“ã‚Œã‚‰ã¯ 
+@var{Pf^(s+1)=b(s)f^s} ã‚’æº€ãŸã™.
+å¾®åˆ†ä½œç”¨ç´ ã¯ @var{v1,...,vn,dv1,...,dvn} ã®å¯æ›å¤šé …å¼ã¨ã—ã¦
+è¡¨ç¾ã•ã‚Œã¦ã„ã‚‹. ã“ã®è¡¨ç¾ã«ãŠã„ã¦ã¯, å¾®åˆ†ã‚’è¡¨ã™ d ã®ã¤ã„ãŸå¤‰æ•°ã‚‚å˜ãªã‚‹
+ä¸å®šå…ƒã¨ã—ã¦æ‰±ã‚ã‚Œã¦ã„ã‚‹ãŸã‚, ä¿‚æ•°å¤šé …å¼ç’°ã®å¤‰æ•°ã®å‰ã«è¡¨ç¤ºã•ã‚Œã‚‹ã“ã¨ã‚‚
+ã‚ã‚Šã†ã‚‹ãŒ, å¤šé …å¼ä¿‚æ•°ã‚’å·¦ã«ç½®ãæ­£è¦è¡¨ç¾ã¨ã—ã¦ç†è§£ã™ã‚‹å¿…è¦ãŒã‚ã‚‹.
 @item
-¥ª¥×¥·¥ç¥ó @code{weight=[@var{v1,w1,...,vn,wn}]} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, 
-ÊÑ¿ô¥ê¥¹¥È @var{(v1,...,vn)} ¤ËÂĞ¤·¤Æ weight @var{(w1,...,wn)}
-¤òÀßÄê¤·¤Æ·×»»¤¬¹Ô¤ï¤ì¤ë. ¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï, @var{f} ¤¬ @var{(w1,...,wn)}
-¤Ë´Ø¤·¤Æ weighted homogeneous ¤Î¾ì¹ç¤ËÍ­¸ú¤ËÆ¯¤¯.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{weight=[@var{v1,w1,...,vn,wn}]} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, 
+å¤‰æ•°ãƒªã‚¹ãƒˆ @var{(v1,...,vn)} ã«å¯¾ã—ã¦ weight @var{(w1,...,wn)}
+ã‚’è¨­å®šã—ã¦è¨ˆç®—ãŒè¡Œã‚ã‚Œã‚‹. ã“ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯, @var{f} ãŒ @var{(w1,...,wn)}
+ã«é–¢ã—ã¦ weighted homogeneous ã®å ´åˆã«æœ‰åŠ¹ã«åƒã.
 @item
-¥ª¥×¥·¥ç¥ó @code{heuristic=1} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, ¤¢¤ë¥¤¥Ç¥¢¥ë¤Î¥°¥ì¥Ö¥Ê¡¼
-´ğÄì¤òÊÌ¤Î¹à½ç½ø¤ËÊÑ´¹¤·¤Æ¤«¤é¾Ãµî·×»»¤ò¹Ô¤¦. ¤³¤ÎÊıË¡¤Ë¤è¤êÁ´ÂÎ¤Î·×»»¤¬
-¹âÂ®²½¤¹¤ë¾ì¹ç¤¬¤¢¤ë.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{heuristic=1} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, ã‚ã‚‹ã‚¤ãƒ‡ã‚¢ãƒ«ã®ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼
+åŸºåº•ã‚’åˆ¥ã®é …é †åºã«å¤‰æ›ã—ã¦ã‹ã‚‰æ¶ˆå»è¨ˆç®—ã‚’è¡Œã†. ã“ã®æ–¹æ³•ã«ã‚ˆã‚Šå…¨ä½“ã®è¨ˆç®—ãŒ
+é«˜é€ŸåŒ–ã™ã‚‹å ´åˆãŒã‚ã‚‹.
 @item
-¥Ç¥Õ¥©¥ë¥È¤Ç¤Ï, ÆâÉô¤ÇÍÑ¤¤¤é¤ì¤ëÊÑ¿ô½ç½ø¤Ï¼«Æ°Åª¤Ë·èÄê¤µ¤ì¤ë¤¬, 
-¥ª¥×¥·¥ç¥ó @code{vord=@var{v}} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç¤½¤ÎÊÑ¿ô½ç½ø¤¬»È¤ï¤ì¤ë.
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯, å†…éƒ¨ã§ç”¨ã„ã‚‰ã‚Œã‚‹å¤‰æ•°é †åºã¯è‡ªå‹•çš„ã«æ±ºå®šã•ã‚Œã‚‹ãŒ, 
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{vord=@var{v}} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆãã®å¤‰æ•°é †åºãŒä½¿ã‚ã‚Œã‚‹.
 \E
 \BEG
 @item
@@ -217,66 +217,66 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 576*s^6+3456*s^5+8588*s^4+11312*s^3+8329*s^2+3250*s+525
 @end example
 
-\JP @node ndbf.bf_local,,, b ´Ø¿ô·×»»
+\JP @node ndbf.bf_local,,, b é–¢æ•°è¨ˆç®—
 \EG @node ndbf.bf_local,,, Computation of b-function
 @subsection @code{ndbf.bf_local}
 @findex ndbf.bf_local
 
 @table @t
-\JP @item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: Â¿¹à¼° @var{f} ¤ÎÅÀ @var{p} ¤Ë¤ª¤±¤ë¶É½ê b ´Ø¿ô¤ò·×»»¤¹¤ë.
+\JP @item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: å¤šé …å¼ @var{f} ã®ç‚¹ @var{p} ã«ãŠã‘ã‚‹å±€æ‰€ b é–¢æ•°ã‚’è¨ˆç®—ã™ã‚‹.
 \EG @item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: computes the local b-function of a polynomial @var{f} at @var{p}.
 @end table
 
 @table @var
 @item return
-\JP ¥ê¥¹¥È
+\JP ãƒªã‚¹ãƒˆ
 \EG a list
 @item f
-\JP Â¿¹à¼°
+\JP å¤šé …å¼
 \EG a polynomail
 @item p
-\JP @code{[@var{v1,a1,...,vn,an}]} ¤Ê¤ë¥ê¥¹¥È
+\JP @code{[@var{v1,a1,...,vn,an}]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @code{[@var{v1,a1,...,vn,an}]}
 @item w
-\JP @code{[@var{v1,w1,...,vn,wn}]} ¤Ê¤ë¥ê¥¹¥È
+\JP @code{[@var{v1,w1,...,vn,wn}]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item yesno
-\JP 0 ¤Ş¤¿¤Ï 1
+\JP 0 ã¾ãŸã¯ 1
 \EG 0 or 1
 @item v
-\JP ÊÑ¿ô¤Î¥ê¥¹¥È
+\JP å¤‰æ•°ã®ãƒªã‚¹ãƒˆ
 \EG a list of variables
 @end table
 
 \BJP
 @itemize @bullet
 @item
-¤³¤Î´Ø¿ô¤Ï asir-contrib ¤Î¥Ñ¥Ã¥±¡¼¥¸ @samp{nn_ndbf.rr} ¤ÇÄêµÁ¤µ¤ì¤Æ¤¤¤ë.
+ã“ã®é–¢æ•°ã¯ asir-contrib ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{nn_ndbf.rr} ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹.
 @item
-Â¿¹à¼° @var{f} ¤Î @var{(v1,...,vn)=(a1,...,an)} ¤Ë¤ª¤±¤ë
-¶É½ê b ´Ø¿ô (local b-function) ¤ò·×»»¤¹¤ë. ½ĞÎÏ¤Ï¶É½ê $b$ ´Ø¿ô¤Î°ø»Ò, ½ÅÊ£ÅÙ¤Î¥Ú¥¢¤Î¥ê¥¹¥È¤Ç¤¢¤ë. 
+å¤šé …å¼ @var{f} ã® @var{(v1,...,vn)=(a1,...,an)} ã«ãŠã‘ã‚‹
+å±€æ‰€ b é–¢æ•° (local b-function) ã‚’è¨ˆç®—ã™ã‚‹. å‡ºåŠ›ã¯å±€æ‰€ $b$ é–¢æ•°ã®å› å­, é‡è¤‡åº¦ã®ãƒšã‚¢ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹. 
 @item
-¥Ç¥Õ¥©¥ë¥È¤Ç¤Ï¶É½ê b ´Ø¿ô¤Î¤ß¤¬½ĞÎÏ¤µ¤ì¤ë¤¬, ¥ª¥×¥·¥ç¥ó @code{op=1} ¤¬»ØÄê
-¤µ¤ì¤¿¾ì¹ç, ¶É½ê b ´Ø¿ô @var{b}, ÈùÊ¬ºîÍÑÁÇ¤Î¶¦ÄÌÊ¬Êì $a(x)$ ¤ª¤è¤Ó
-ÈùÊ¬ºîÍÑÁÇ @var{P} ¤ÎÁÈ @var{[b,a(x),P]} ¤òÊÖ¤¹. ¤³¤ì¤é¤Ï 
-@var{a(x)Pf^(s+1)=b(s)f^s} ¤òËş¤¿¤¹. 
-ÈùÊ¬ºîÍÑÁÇ¤Ï @var{v1,...,vn,dv1,...,dvn} ¤Î²Ä´¹Â¿¹à¼°¤È¤·¤Æ
-É½¸½¤µ¤ì¤Æ¤¤¤ë. ¤³¤ÎÉ½¸½¤Ë¤ª¤¤¤Æ¤Ï, ÈùÊ¬¤òÉ½¤¹ d ¤Î¤Ä¤¤¤¿ÊÑ¿ô¤âÃ±¤Ê¤ë
-ÉÔÄê¸µ¤È¤·¤Æ°·¤ï¤ì¤Æ¤¤¤ë¤¿¤á, ·¸¿ôÂ¿¹à¼°´Ä¤ÎÊÑ¿ô¤ÎÁ°¤ËÉ½¼¨¤µ¤ì¤ë¤³¤È¤â
-¤¢¤ê¤¦¤ë¤¬, Â¿¹à¼°·¸¿ô¤òº¸¤ËÃÖ¤¯Àµµ¬É½¸½¤È¤·¤ÆÍı²ò¤¹¤ëÉ¬Í×¤¬¤¢¤ë.
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯å±€æ‰€ b é–¢æ•°ã®ã¿ãŒå‡ºåŠ›ã•ã‚Œã‚‹ãŒ, ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{op=1} ãŒæŒ‡å®š
+ã•ã‚ŒãŸå ´åˆ, å±€æ‰€ b é–¢æ•° @var{b}, å¾®åˆ†ä½œç”¨ç´ ã®å…±é€šåˆ†æ¯ $a(x)$ ãŠã‚ˆã³
+å¾®åˆ†ä½œç”¨ç´  @var{P} ã®çµ„ @var{[b,a(x),P]} ã‚’è¿”ã™. ã“ã‚Œã‚‰ã¯ 
+@var{a(x)Pf^(s+1)=b(s)f^s} ã‚’æº€ãŸã™. 
+å¾®åˆ†ä½œç”¨ç´ ã¯ @var{v1,...,vn,dv1,...,dvn} ã®å¯æ›å¤šé …å¼ã¨ã—ã¦
+è¡¨ç¾ã•ã‚Œã¦ã„ã‚‹. ã“ã®è¡¨ç¾ã«ãŠã„ã¦ã¯, å¾®åˆ†ã‚’è¡¨ã™ d ã®ã¤ã„ãŸå¤‰æ•°ã‚‚å˜ãªã‚‹
+ä¸å®šå…ƒã¨ã—ã¦æ‰±ã‚ã‚Œã¦ã„ã‚‹ãŸã‚, ä¿‚æ•°å¤šé …å¼ç’°ã®å¤‰æ•°ã®å‰ã«è¡¨ç¤ºã•ã‚Œã‚‹ã“ã¨ã‚‚
+ã‚ã‚Šã†ã‚‹ãŒ, å¤šé …å¼ä¿‚æ•°ã‚’å·¦ã«ç½®ãæ­£è¦è¡¨ç¾ã¨ã—ã¦ç†è§£ã™ã‚‹å¿…è¦ãŒã‚ã‚‹.
 
 @item
-¥ª¥×¥·¥ç¥ó @code{weight=[@var{v1,w1,...,vn,wn}]} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, 
-ÊÑ¿ô¥ê¥¹¥È @var{(v1,...,vn)} ¤ËÂĞ¤·¤Æ weight @var{(w1,...,wn)}
-¤òÀßÄê¤·¤Æ·×»»¤¬¹Ô¤ï¤ì¤ë. ¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï, @var{f} ¤¬ @var{(w1,...,wn)}
-¤Ë´Ø¤·¤Æ weighted homogeneous ¤Î¾ì¹ç¤ËÍ­¸ú¤ËÆ¯¤¯.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{weight=[@var{v1,w1,...,vn,wn}]} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, 
+å¤‰æ•°ãƒªã‚¹ãƒˆ @var{(v1,...,vn)} ã«å¯¾ã—ã¦ weight @var{(w1,...,wn)}
+ã‚’è¨­å®šã—ã¦è¨ˆç®—ãŒè¡Œã‚ã‚Œã‚‹. ã“ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯, @var{f} ãŒ @var{(w1,...,wn)}
+ã«é–¢ã—ã¦ weighted homogeneous ã®å ´åˆã«æœ‰åŠ¹ã«åƒã.
 @item
-¥ª¥×¥·¥ç¥ó @code{heuristic=1} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, ¤¢¤ë¥¤¥Ç¥¢¥ë¤Î¥°¥ì¥Ö¥Ê¡¼
-´ğÄì¤òÊÌ¤Î¹à½ç½ø¤ËÊÑ´¹¤·¤Æ¤«¤é¾Ãµî·×»»¤ò¹Ô¤¦. ¤³¤ÎÊıË¡¤Ë¤è¤êÁ´ÂÎ¤Î·×»»¤¬
-¹âÂ®²½¤¹¤ë¾ì¹ç¤¬¤¢¤ë.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{heuristic=1} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, ã‚ã‚‹ã‚¤ãƒ‡ã‚¢ãƒ«ã®ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼
+åŸºåº•ã‚’åˆ¥ã®é …é †åºã«å¤‰æ›ã—ã¦ã‹ã‚‰æ¶ˆå»è¨ˆç®—ã‚’è¡Œã†. ã“ã®æ–¹æ³•ã«ã‚ˆã‚Šå…¨ä½“ã®è¨ˆç®—ãŒ
+é«˜é€ŸåŒ–ã™ã‚‹å ´åˆãŒã‚ã‚‹.
 @item
-¥Ç¥Õ¥©¥ë¥È¤Ç¤Ï, ÆâÉô¤ÇÍÑ¤¤¤é¤ì¤ëÊÑ¿ô½ç½ø¤Ï¼«Æ°Åª¤Ë·èÄê¤µ¤ì¤ë¤¬, 
-¥ª¥×¥·¥ç¥ó @code{vord=@var{v}} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç¤½¤ÎÊÑ¿ô½ç½ø¤¬»È¤ï¤ì¤ë.
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯, å†…éƒ¨ã§ç”¨ã„ã‚‰ã‚Œã‚‹å¤‰æ•°é †åºã¯è‡ªå‹•çš„ã«æ±ºå®šã•ã‚Œã‚‹ãŒ, 
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{vord=@var{v}} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆãã®å¤‰æ•°é †åºãŒä½¿ã‚ã‚Œã‚‹.
 @end itemize
 \E
 
@@ -323,54 +323,54 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 +(-1152*s^2-3840*s-2688)*y]
 @end example
 
-\JP @node ndbf.bf_strat,,, b ´Ø¿ô·×»»
+\JP @node ndbf.bf_strat,,, b é–¢æ•°è¨ˆç®—
 \EG @node ndbf.bf_strat,,, Computation of b-function
 @subsection @code{ndbf.bf_strat}
 @findex ndbf.bf_strat
 
 @table @t
 @item ndbf.bf_strat(@var{f}[|weight=@var{w},heruristic=@var{h},vord=@var{v}]) 
-\JP :: Â¿¹à¼° @var{f} ¤Î, ¶É½ê b ´Ø¿ô¤ËÉÕ¿ï¤¹¤ë³êÁØÊ¬³ä (stratification) ¤ò·×»»¤¹¤ë.
+\JP :: å¤šé …å¼ @var{f} ã®, å±€æ‰€ b é–¢æ•°ã«ä»˜éšã™ã‚‹æ»‘å±¤åˆ†å‰² (stratification) ã‚’è¨ˆç®—ã™ã‚‹.
 \EG :: computes a stratification associated with local b-function of a polynomial @var{f}.
 @end table
 
 @table @var
 @item return
-\JP ¥ê¥¹¥È
+\JP ãƒªã‚¹ãƒˆ
 \EG a list
 @item f
-\JP Â¿¹à¼°
+\JP å¤šé …å¼
 \EG a polynomial
 @item w
-\JP @code{[@var{v1,w1,...,vn,wn}]} ¤Ê¤ë¥ê¥¹¥È
+\JP @code{[@var{v1,w1,...,vn,wn}]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item h
-\JP 0 ¤Ş¤¿¤Ï 1
+\JP 0 ã¾ãŸã¯ 1
 \EG 0 or 1
 @item v
-\JP ÊÑ¿ô¤Î¥ê¥¹¥È
+\JP å¤‰æ•°ã®ãƒªã‚¹ãƒˆ
 \EG li ist of variables
 @end table
 
 \BJP
 @itemize @bullet
 @item
-¤³¤Î´Ø¿ô¤Ï asir-contrib ¤Î¥Ñ¥Ã¥±¡¼¥¸ @samp{nn_ndbf.rr} ¤ÇÄêµÁ¤µ¤ì¤Æ¤¤¤ë.
+ã“ã®é–¢æ•°ã¯ asir-contrib ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{nn_ndbf.rr} ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹.
 @item
-Â¿¹à¼° @var{f} ¤ÎÂç°è b ´Ø¿ô (global b-function) ¤ò·×»»¤¹¤ë. ½ĞÎÏ¤Ï
-ÊÑ¿ô @var{s} ¤ÎÂ¿¹à¼°¤Ç¤¢¤ë. 
+å¤šé …å¼ @var{f} ã®å¤§åŸŸ b é–¢æ•° (global b-function) ã‚’è¨ˆç®—ã™ã‚‹. å‡ºåŠ›ã¯
+å¤‰æ•° @var{s} ã®å¤šé …å¼ã§ã‚ã‚‹. 
 @item
-¥ª¥×¥·¥ç¥ó @code{weight=[@var{v1,w1,...,vn,wn}]} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, 
-ÊÑ¿ô¥ê¥¹¥È @var{(v1,...,vn)} ¤ËÂĞ¤·¤Æ weight @var{(w1,...,wn)}
-¤òÀßÄê¤·¤Æ·×»»¤¬¹Ô¤ï¤ì¤ë. ¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï, @var{f} ¤¬ @var{(w1,...,wn)}
-¤Ë´Ø¤·¤Æ weighted homogeneous ¤Î¾ì¹ç¤ËÍ­¸ú¤ËÆ¯¤¯.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{weight=[@var{v1,w1,...,vn,wn}]} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, 
+å¤‰æ•°ãƒªã‚¹ãƒˆ @var{(v1,...,vn)} ã«å¯¾ã—ã¦ weight @var{(w1,...,wn)}
+ã‚’è¨­å®šã—ã¦è¨ˆç®—ãŒè¡Œã‚ã‚Œã‚‹. ã“ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯, @var{f} ãŒ @var{(w1,...,wn)}
+ã«é–¢ã—ã¦ weighted homogeneous ã®å ´åˆã«æœ‰åŠ¹ã«åƒã.
 @item
-¥ª¥×¥·¥ç¥ó @code{heuristic=1} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, ¤¢¤ë¥¤¥Ç¥¢¥ë¤Î¥°¥ì¥Ö¥Ê¡¼
-´ğÄì¤òÊÌ¤Î¹à½ç½ø¤ËÊÑ´¹¤·¤Æ¤«¤é¾Ãµî·×»»¤ò¹Ô¤¦. ¤³¤ÎÊıË¡¤Ë¤è¤êÁ´ÂÎ¤Î·×»»¤¬
-¹âÂ®²½¤¹¤ë¾ì¹ç¤¬¤¢¤ë.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{heuristic=1} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, ã‚ã‚‹ã‚¤ãƒ‡ã‚¢ãƒ«ã®ã‚°ãƒ¬ãƒ–ãƒŠãƒ¼
+åŸºåº•ã‚’åˆ¥ã®é …é †åºã«å¤‰æ›ã—ã¦ã‹ã‚‰æ¶ˆå»è¨ˆç®—ã‚’è¡Œã†. ã“ã®æ–¹æ³•ã«ã‚ˆã‚Šå…¨ä½“ã®è¨ˆç®—ãŒ
+é«˜é€ŸåŒ–ã™ã‚‹å ´åˆãŒã‚ã‚‹.
 @item
-¥Ç¥Õ¥©¥ë¥È¤Ç¤Ï, ÆâÉô¤ÇÍÑ¤¤¤é¤ì¤ëÊÑ¿ô½ç½ø¤Ï¼«Æ°Åª¤Ë·èÄê¤µ¤ì¤ë¤¬, 
-¥ª¥×¥·¥ç¥ó @code{vord=@var{v}} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç¤½¤ÎÊÑ¿ô½ç½ø¤¬»È¤ï¤ì¤ë.
+ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯, å†…éƒ¨ã§ç”¨ã„ã‚‰ã‚Œã‚‹å¤‰æ•°é †åºã¯è‡ªå‹•çš„ã«æ±ºå®šã•ã‚Œã‚‹ãŒ, 
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{vord=@var{v}} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆãã®å¤‰æ•°é †åºãŒä½¿ã‚ã‚Œã‚‹.
 @end itemize
 \E
 
@@ -410,43 +410,43 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 [[],[-256*u1^3+128*u3^2*u1^2+...],[]]]
 @end example
 
-\JP @node ndbf.action_on_gfs,,, b ´Ø¿ô·×»»
+\JP @node ndbf.action_on_gfs,,, b é–¢æ•°è¨ˆç®—
 \EG @node ndbf.action_on_gfs,,, Computation of b-function
 @subsection @code{ndbf.action_on_gfs}
 @findex ndbf.action_on_gfs
 
 @table @t
 @item ndbf.action_on_gfs(@var{op},@var{v},@var{gfs})
-\JP :: ÈùÊ¬ºîÍÑÁÇ @var{op} ¤Î @var{gf^(s+a)} ¤Ø¤ÎºîÍÑ¤ò·×»»¤¹¤ë.
+\JP :: å¾®åˆ†ä½œç”¨ç´  @var{op} ã® @var{gf^(s+a)} ã¸ã®ä½œç”¨ã‚’è¨ˆç®—ã™ã‚‹.
 \EG :: computes the action of an operatior @var{op} on @var{gf^(s+a)}
 @end table
 
 @table @var
 @item return
-\JP ¥ê¥¹¥È
+\JP ãƒªã‚¹ãƒˆ
 \EG a list
 @item op
-\JP ÈùÊ¬ºîÍÑÁÇ
+\JP å¾®åˆ†ä½œç”¨ç´ 
 \EG a differential operator
 @item gfs
-\JP @var{[g,f,s+a]} ¤Ê¤ë¥ê¥¹¥È
+\JP @var{[g,f,s+a]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @var{[g,f,s+a]}
 @item v 
-\JP @var{f} ¤ÎÊÑ¿ô¤Î¥ê¥¹¥È (@var{v=[v1,...,vn]})
+\JP @var{f} ã®å¤‰æ•°ã®ãƒªã‚¹ãƒˆ (@var{v=[v1,...,vn]})
 \EG list of variables of @var{f} (@var{v=[v1,...,vn]})
 @end table
 
 \BJP
 @itemize @bullet
-@item ÈùÊ¬ºîÍÑÁÇ @var{op} ¤ò @var{gf^(s+a)} ¤ËºîÍÑ¤µ¤»¤¿·ë²Ì¤ò·×»»¤¹¤ë.
-@item @var{g} ¤Ï @var{v1,...,vn} ¤òÊÑ¿ô¤È¤¹¤ëÂ¿¹à¼°¤Ç¤¢¤ë.
-@item @var{op} ¤Ï @var{[v1,...,vn,dv1,...,dvn]} ¤òÊÑ¿ô¤È¤¹¤ëÂ¿¹à¼°¤ÇÉ½¸½¤¹¤ë.
-@item ÆşÎÏ¥ê¥¹¥È @var{[g,f,s+a]} ¤Ï @var{gf^(s+a)} ¤òÉ½¤¹.
-@item ·ë²Ì¤Ï @var{[h,f,s+c]} ¤Ê¤ë¥ê¥¹¥È¤Ç, @var{hf^(s+b)} ¤ò
-°ÕÌ£¤¹¤ë. ¤³¤³¤Ç @var{c} ¤ÏÀ°¿ô¤Ç¤¢¤ë.
-@var{op} ¤¬ b-´Ø¿ô @var{b(s)} ¤òÍ¿¤¨¤ëºîÍÑÁÇ¤Ê¤é, 
-@var{a=1} ¤ËÂĞ¤· @var{c=0} ¤Ç, @var{h=b(s)} (global case) ¤Ş¤¿¤Ï
-@var{h=d(v)b(s)} (local case) ¤Ç¤¢¤ë.
+@item å¾®åˆ†ä½œç”¨ç´  @var{op} ã‚’ @var{gf^(s+a)} ã«ä½œç”¨ã•ã›ãŸçµæœã‚’è¨ˆç®—ã™ã‚‹.
+@item @var{g} ã¯ @var{v1,...,vn} ã‚’å¤‰æ•°ã¨ã™ã‚‹å¤šé …å¼ã§ã‚ã‚‹.
+@item @var{op} ã¯ @var{[v1,...,vn,dv1,...,dvn]} ã‚’å¤‰æ•°ã¨ã™ã‚‹å¤šé …å¼ã§è¡¨ç¾ã™ã‚‹.
+@item å…¥åŠ›ãƒªã‚¹ãƒˆ @var{[g,f,s+a]} ã¯ @var{gf^(s+a)} ã‚’è¡¨ã™.
+@item çµæœã¯ @var{[h,f,s+c]} ãªã‚‹ãƒªã‚¹ãƒˆã§, @var{hf^(s+b)} ã‚’
+æ„å‘³ã™ã‚‹. ã“ã“ã§ @var{c} ã¯æ•´æ•°ã§ã‚ã‚‹.
+@var{op} ãŒ b-é–¢æ•° @var{b(s)} ã‚’ä¸ãˆã‚‹ä½œç”¨ç´ ãªã‚‰, 
+@var{a=1} ã«å¯¾ã— @var{c=0} ã§, @var{h=b(s)} (global case) ã¾ãŸã¯
+@var{h=d(v)b(s)} (local case) ã§ã‚ã‚‹.
 @end itemize
 \E
 
@@ -477,50 +477,50 @@ or @var{h=b(s)d(v)} (local case).
 x^5-z^2*y^2,s]
 @end example
 
-\JP @node Annihilator ¥¤¥Ç¥¢¥ë·×»»,,, ¿· b ´Ø¿ô¥Ñ¥Ã¥±¡¼¥¸ nn_ndbf.rr
+\JP @node Annihilator ã‚¤ãƒ‡ã‚¢ãƒ«è¨ˆç®—,,, æ–° b é–¢æ•°ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ nn_ndbf.rr
 \EG @node Computation of annihilator ideal,,, New b-function package nn_ndbf.rr
-\JP @section Annihilator ¥¤¥Ç¥¢¥ë·×»»
+\JP @section Annihilator ã‚¤ãƒ‡ã‚¢ãƒ«è¨ˆç®—
 \EG @section Computation of annihilator ideal
 
 @menu
 * ndbf.ann::
 @end menu
 
-\JP @node ndbf.ann,,, Annihilator ¥¤¥Ç¥¢¥ë·×»»
+\JP @node ndbf.ann,,, Annihilator ã‚¤ãƒ‡ã‚¢ãƒ«è¨ˆç®—
 \EG @node ndbf.ann,,, Computation of annihilator ideal
 @subsection @code{ndbf.ann}
 @findex ndbf.ann
 
 @table @t
-\JP @item ndbf.ann(@var{f}[|weight=@var{w}]) :: Â¿¹à¼° @var{f} ¤ËÂĞ¤· @var{f^s} ¤Î annihilator ideal ¤ò·×»»¤¹¤ë.
+\JP @item ndbf.ann(@var{f}[|weight=@var{w}]) :: å¤šé …å¼ @var{f} ã«å¯¾ã— @var{f^s} ã® annihilator ideal ã‚’è¨ˆç®—ã™ã‚‹.
 \EG @item ndbf.ann(@var{f}[|weight=@var{w}]) :: computes the annihilator ideal of @var{f^s} for a polynomial @var{f}.
 @end table
 
 @table @var
 @item return
-\JP ÈùÊ¬ºîÍÑÁÇ¤Î¥ê¥¹¥È
+\JP å¾®åˆ†ä½œç”¨ç´ ã®ãƒªã‚¹ãƒˆ
 \EG a list of differential operators
 @item f
-\JP Â¿¹à¼°
+\JP å¤šé …å¼
 \EG a polynomial
 @item w
-\JP @code{[@var{v1,w1,...,vn,wn}]} ¤Ê¤ë¥ê¥¹¥È
+\JP @code{[@var{v1,w1,...,vn,wn}]} ãªã‚‹ãƒªã‚¹ãƒˆ
 \EG a list @code{[@var{v0,w1,...,vn,wn}]}
 @end table
 
 \BJP
 @itemize @bullet
 @item
-¤³¤Î´Ø¿ô¤Ï asir-contrib ¤Î¥Ñ¥Ã¥±¡¼¥¸ @samp{nn_ndbf.rr} ¤ÇÄêµÁ¤µ¤ì¤Æ¤¤¤ë.
+ã“ã®é–¢æ•°ã¯ asir-contrib ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ @samp{nn_ndbf.rr} ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹.
 @item
-Â¿¹à¼° @var{f} ¤ËÂĞ¤·, @var{f^s} ¤Î annihilator ideal ¤ò·×»»¤¹¤ë.
-½ĞÎÏ¤Ï, @var{s} ¤ò·¸¿ô¤Ë´Ş¤àÈùÊ¬ºîÍÑÁÇ¤Î¥ê¥¹¥È¤Ç¤¢¤ë. ÈùÊ¬ºîÍÑÁÇ¤Î
-É½¸½ÊıË¡¤Ï, @code{ndbf.bf_local} ¤ÈÆ±ÍÍ¤Ç¤¢¤ë.
+å¤šé …å¼ @var{f} ã«å¯¾ã—, @var{f^s} ã® annihilator ideal ã‚’è¨ˆç®—ã™ã‚‹.
+å‡ºåŠ›ã¯, @var{s} ã‚’ä¿‚æ•°ã«å«ã‚€å¾®åˆ†ä½œç”¨ç´ ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹. å¾®åˆ†ä½œç”¨ç´ ã®
+è¡¨ç¾æ–¹æ³•ã¯, @code{ndbf.bf_local} ã¨åŒæ§˜ã§ã‚ã‚‹.
 @item
-¥ª¥×¥·¥ç¥ó @code{weight=[@var{v1,w1,...,vn,wn}]} ¤¬»ØÄê¤µ¤ì¤¿¾ì¹ç, 
-ÊÑ¿ô¥ê¥¹¥È @var{(v1,...,vn)} ¤ËÂĞ¤·¤Æ weight @var{(w1,...,wn)}
-¤òÀßÄê¤·¤Æ·×»»¤¬¹Ô¤ï¤ì¤ë. ¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï, @var{f} ¤¬ @var{(w1,...,wn)}
-¤Ë´Ø¤·¤Æ weighted homogeneous ¤Î¾ì¹ç¤ËÍ­¸ú¤ËÆ¯¤¯.
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ @code{weight=[@var{v1,w1,...,vn,wn}]} ãŒæŒ‡å®šã•ã‚ŒãŸå ´åˆ, 
+å¤‰æ•°ãƒªã‚¹ãƒˆ @var{(v1,...,vn)} ã«å¯¾ã—ã¦ weight @var{(w1,...,wn)}
+ã‚’è¨­å®šã—ã¦è¨ˆç®—ãŒè¡Œã‚ã‚Œã‚‹. ã“ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯, @var{f} ãŒ @var{(w1,...,wn)}
+ã«é–¢ã—ã¦ weighted homogeneous ã®å ´åˆã«æœ‰åŠ¹ã«åƒã.
 @end itemize
 \E
 \BEG
@@ -548,7 +548,7 @@ This option is useful when @var{f} is weighted homogeneous with respect to @var{
 -y*dy+z*dz]
 @end example
 
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤ ---
+@comment --- ãŠã¾ã˜ãªã„ ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -559,5 +559,5 @@ This option is useful when @var{f} is weighted homogeneous with respect to @var{
 @summarycontents
 @contents
 @bye
-@comment --- ¤ª¤Ş¤¸¤Ê¤¤½ª¤ê ---
+@comment --- ãŠã¾ã˜ãªã„çµ‚ã‚Š ---
 

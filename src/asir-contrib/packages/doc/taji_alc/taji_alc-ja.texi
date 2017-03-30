@@ -7,20 +7,20 @@
 @end iftex
 @overfullrule=0pt
 @c -*-texinfo-*-
-@comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/taji_alc/taji_alc-ja.texi,v 1.1 2008/01/23 02:36:14 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/taji_alc/taji_alc-ja.texi,v 1.2 2009/02/22 05:40:48 takayama Exp $
 @comment %**start of header
-@comment --- ���ޤ��ʤ����� ---
+@comment --- おまじない終り ---
 
-@comment --- GNU info �ե������̾�� ---   euc code �ǵ��Ҥ��뤳��.
+@comment --- GNU info ファイルの名前 ---   euc code で記述すること.
 @setfilename asir-contrib-taji_alc_ja
 
-@comment --- �����ȥ� ---
-@settitle 1�ѿ����Ū�ɽꥳ�ۥ���������ѥѥå����� taji_alc
+@comment --- タイトル ---
+@settitle 1変数代数的局所コホモロジー類用パッケージ taji_alc
 
 @comment %**end of header
 @comment %@setchapternewpage odd
 
-@comment --- ���ޤ��ʤ� ---
+@comment --- おまじない ---
 @ifinfo
 @macro fref{name}
 @ref{\name\,,@code{\name\}}
@@ -32,73 +32,73 @@
 @end iftex
 
 @titlepage
-@comment --- ���ޤ��ʤ����� ---
+@comment --- おまじない終り ---
 
-@comment --- �����ȥ�, �С������, ����̾, ���ɽ�� ---
-@title 1�ѿ����Ū�ɽꥳ�ۥ���������ѥѥå����� taji_alc
-@subtitle 1�ѿ����Ū�ɽꥳ�ۥ���������ѥѥå����� taji_alc
-@subtitle 1.0 ��
-@subtitle 2007 ǯ 11 ��
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title 1変数代数的局所コホモロジー類用パッケージ taji_alc
+@subtitle 1変数代数的局所コホモロジー類用パッケージ taji_alc
+@subtitle 1.0 版
+@subtitle 2007 年 11 月
 
-@author  ������̴, ���翵��
+@author  庄司卓夢, 田島慎一
 @page
 @vskip 0pt plus 1filll
 Copyright @copyright{} Takumu Shoji, Shinichi Tajima.
 2007. All rights reserved.  Licensed by GPL.
 @end titlepage
 
-@comment --- ���ޤ��ʤ� ---
+@comment --- おまじない ---
 @synindex vr fn
-@comment --- ���ޤ��ʤ����� ---
+@comment --- おまじない終り ---
 
-@comment --- @node �� GNU info, HTML �� ---
-@comment --- @node  �ΰ����� node-name,  next,  previous,  up --- 
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
 @node Top,, (dir), (dir)
 
-@comment --- @menu �� GNU info, HTML �� ---
-@comment --- chapter ̾�����Τ��¤٤� ---
-@comment --- ����ʸ��Ǥ� chapter XYZ, Chapter Index ������.
-@comment ---  Chapter XYZ �ˤ� section XYZ�ˤĤ���, section XYZ�˴ؤ���ؿ�������.
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する関数がある.
 @menu
-* 1�ѿ����Ū�ɽꥳ�ۥ��������::
+* 1変数代数的局所コホモロジー類::
 * Index::
 @end menu
 
-@comment --- chapter �γ��� ---
-@comment --- �� chapter ̾�����Τ�. �Ƥ��ʤ����� Top ---
-@node 1�ѿ����Ū�ɽꥳ�ۥ��������,,, Top
-@chapter 1�ѿ����Ū�ɽꥳ�ۥ��������
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node 1変数代数的局所コホモロジー類,,, Top
+@chapter 1変数代数的局所コホモロジー類
 
-@comment --- section ̾�����Τ��¤٤�.  ---
+@comment --- section 名を正確に並べる.  ---
 @menu
-* 1�ѿ����Ū�ɽꥳ�ۥ���������ѤΥѥå����� taji_alc �ˤĤ���::
-* 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�::
+* 1変数代数的局所コホモロジー類用のパッケージ taji_alc について::
+* 1変数代数的局所コホモロジー類用の関数::
 @end menu
 
-@comment --- section ``XYZ�ˤĤ���'' �γ��� ---  section XYZ�ˤĤ��ƤοƤ� chapter XYZ
-@node 1�ѿ����Ū�ɽꥳ�ۥ���������ѤΥѥå����� taji_alc �ˤĤ���,,, 1�ѿ����Ū�ɽꥳ�ۥ��������
-@section 1�ѿ����Ū�ɽꥳ�ۥ���������ѤΥѥå����� taji_alc �ˤĤ���
+@comment --- section ``XYZについて'' の開始 ---  section XYZについての親は chapter XYZ
+@node 1変数代数的局所コホモロジー類用のパッケージ taji_alc について,,, 1変数代数的局所コホモロジー類
+@section 1変数代数的局所コホモロジー類用のパッケージ taji_alc について
 
-@comment --- ���λ���ˤĤ��� ---
-@comment --- @code{} �ϥ����ץ饤����ɽ�� ---
-@comment --- @var{} �ϼл���ɽ�� ---
-@comment --- @b{} �ϥܡ����ɽ�� ---
-@comment --- @samp{} �ϥե�����̾�ʤɤ�ɽ�� ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
 
-����������Ǥ�
-1�ѿ����Ū�ɽꥳ�ۥ���������ѤΥѥå����� taji_alc �ˤĤ�����������.
-����Ū������طʤˤĤ��Ƥ�, ���⵭��
-``1�ѿ����Ū�ɽꥳ�ۥ���������Ѥ��Ф��� Risa/Asir �ѥѥå����� taji_alc''
+この説明書では
+1変数代数的局所コホモロジー類用のパッケージ taji_alc について説明する.
+数学的解説や背景については, 解説記事
+``1変数代数的局所コホモロジー類用に対する Risa/Asir 用パッケージ taji_alc''
 (Risa/Asir Journal (2007))
-����Ӥ��λ���ʸ���򻲾�.
+およびその参考文献を参照.
 
 
-@comment --- section ``�¸�Ū�ؿ�'' �γ��� --- 
-@node 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�,,, 1�ѿ����Ū�ɽꥳ�ۥ��������
-@section 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@comment --- section ``実験的関数'' の開始 --- 
+@node 1変数代数的局所コホモロジー類用の関数,,, 1変数代数的局所コホモロジー類
+@section 1変数代数的局所コホモロジー類用の関数
 
-@comment --- section ``�¸�Ū�ؿ�'' �� subsection xyz_abc 
-@comment --- subsection xyz_pqr xyz_stu ������.
+@comment --- section ``実験的関数'' の subsection xyz_abc 
+@comment --- subsection xyz_pqr xyz_stu がある.
 @menu
 * taji_alc.cpfd::
 * taji_alc.snoether::
@@ -112,59 +112,59 @@ Copyright @copyright{} Takumu Shoji, Shinichi Tajima.
 * taji_alc.inv::
 @end menu
 
-�ܥ��������δؿ���ƤӽФ��ˤ�, 
+本セクションの関数を呼び出すには, 
 @example
 import("taji_alc.rr")$
 @end example
-��¹Ԥ��ƥץ�����������ɤ���.
+を実行してプログラムをロードする.
 
 
 @comment ****************************************************************
-@node taji_alc.cpfd,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.cpfd,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.cpfd}
 @findex taji_alc.cpfd
 
 @table @t
 @item taji_alc.cpfd(@var{num},@var{den})
-:: ͭ���ؿ�@var{num}/@var{den}����ʬʬ��ʬ������.
+:: 有理関数@var{num}/@var{den}の部分分数分解を求める.
 @end table
 
 @table @var
 @item return
-@var{switch}��0��1�ʤ��, [[[ʬ��,[ʬ��ΰ���,��ʣ��]],...],...] �ʤ�ꥹ��.
+@var{switch}が0か1ならば, [[[分子,[分母の因子,重複度]],...],...] なるリスト.
 
-@var{switch}��10��11�ʤ��, [[ʬ��,[ʬ��ΰ���,��ʣ��]],...] �ʤ�ꥹ��.
+@var{switch}が10か11ならば, [[分子,[分母の因子,重複度]],...] なるリスト.
 
 @item num
-(ͭ���ؿ���ʬ�Ҥ�) ¿�༰
+(有理関数の分子の) 多項式
 @item den
-(ͭ���ؿ���ʬ���) ¿�༰
+(有理関数の分母の) 多項式
 
-�ޤ��� (ͭ���ؿ���ʬ���Q��Ǵ���ʬ�򤷤�)  [[����,��ʣ��],...] �ʤ�ꥹ��
+または (有理関数の分母をQ上で既約分解した)  [[因子,重複度],...] なるリスト
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : complete����ʬʬ��ʬ����֤�. (ʬ�Ҥ�ͭ��������¿�༰)
+case 0 : completeな部分分数分解を返す. (分子は有理数係数多項式)
 
-case 1 : complete����ʬʬ��ʬ����֤�. (ʬ�Ҥ������������ꥹ��)
+case 1 : completeな部分分数分解を返す. (分子は整数係数化リスト)
 
-case 10 : ʬ�����Ÿ�����ʤ���ʬʬ��ʬ����֤�. (ʬ�Ҥ�ͭ��������¿�༰)
+case 10 : 分母を冪展開しない部分分数分解を返す. (分子は有理数係数多項式)
 
-case 11 : ʬ�����Ÿ�����ʤ���ʬʬ��ʬ����֤�. (ʬ�Ҥ������������ꥹ��)
+case 11 : 分母を冪展開しない部分分数分解を返す. (分子は整数係数化リスト)
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item taji_alc.cpfd()��, proper��ͭ���ؿ����оݤȤ���.
-�����ͤ�proper�Ǥʤ����Ǥ������ư��뤬, ¿�༰�Ȥ��ƽФƤ�����ʬ��ɽ�����ʤ�.
-@item ��ʬʬ��ʬ���, ��Ÿ���򤹤�complete�ʥ����פ�, ��Ÿ���򤷤ʤ������פ�2�ĤΥ����פ�����.
-taji_alc.cpfd()�Ǻ��Ѥ��Ƥ��륢�르�ꥺ��Ǥ�, ���Ԥ���˵�ޤ�.
-��Ԥ�, ���ԤΥǡ�����ۡ��ʡ�ˡ��­���夲�Ƶ���.
-@item @var{den}��, �ꥹ�ȤǤ����Ϥ�˾�ޤ���.
-(¿�༰�����Ϥ����, ���󲽤ν����������뤿��Ť��ʤ�.)
-���������ξ��ˤ�, ��������å�, ͭ��������ʬ, �����������ϹԤ�ʤ��Τ����դ���.
-�����ͤϥ桼��¦����Ǥ����.
+@item taji_alc.cpfd()は, properな有理関数を対象とする.
+入力値がproperでない場合でも正常に動作するが, 多項式として出てくる部分は表示しない.
+@item 部分分数分解は, 冪展開をするcompleteなタイプと, 冪展開をしないタイプの2つのタイプがある.
+taji_alc.cpfd()で採用しているアルゴリズムでは, 前者が先に求まる.
+後者は, 前者のデータをホーナー法で足し上げて求める.
+@item @var{den}は, リストでの入力が望ましい.
+(多項式で入力すると, 簡約化の処理が生じるため重くなる.)
+ただしその場合には, 既約チェック, 有理式の約分, 整数係数化は行わないので注意する.
+入力値はユーザ側が責任をもつ.
 @end itemize
 
 @example
@@ -179,11 +179,11 @@ taji_alc.cpfd()�Ǻ��Ѥ��Ƥ��륢�르�ꥺ��Ǥ�, ���Ԥ���˵�ޤ�.
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -193,56 +193,56 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.snoether,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.snoether,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.snoether}
 @findex taji_alc.snoether
 
 @table @t
 @item taji_alc.snoether(@var{num},@var{den})
-:: ͭ���ؿ�@var{num}/@var{den}���������Ū�ɽꥳ�ۥ��������Υ͡����������Ǥ����.
+:: 有理関数@var{num}/@var{den}が定める代数的局所コホモロジー類のネーター作用素を求める.
 @end table
 
 @table @var
 @item return
-[[����,�͡�����������],...] �ʤ�ꥹ��.
+[[因子,ネーター作用素],...] なるリスト.
 
-�͡����������Ǥ�, ������ⳬ����ʬ����߽���¤٤��ꥹ��
+ネーター作用素は, 係数を高階の部分から降順に並べたリスト
 
 @item num
-(ͭ���ؿ���ʬ�Ҥ�)¿�༰
+(有理関数の分子の)多項式
 @item den
-(ͭ���ؿ���ʬ���)¿�༰
+(有理関数の分母の)多項式
 
-�ޤ��� (ͭ���ؿ���ʬ���Q��Ǵ���ʬ�򤷤�)  [[����,��ʣ��],...] �ʤ�ꥹ��.
+または (有理関数の分母をQ上で既約分解した)  [[因子,重複度],...] なるリスト.
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : �͡����������Ǥ� [ͭ��������¿�༰,...] �ʤ�ꥹ�Ȥ��֤�.
+case 0 : ネーター作用素を [有理数係数多項式,...] なるリストで返す.
 
-case 1 : �͡����������Ǥ� [�����������ꥹ��,...] �ʤ�ꥹ�Ȥ��֤�.
+case 1 : ネーター作用素を [整数係数化リスト,...] なるリストで返す.
 
-case 10 : �͡����������Ǥ� [[��������¿�༰,...],����] �ʤ�ꥹ�Ȥ��֤�.
+case 10 : ネーター作用素を [[整数係数多項式,...],整数] なるリストで返す.
 
-case 20 : �͡����������Ǥ� [[�����������ꥹ��,...],����] �ʤ�ꥹ�Ȥ��֤�.
+case 20 : ネーター作用素を [[整数係数化リスト,...],整数] なるリストで返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item taji_alc.snoether()��, @var{den}��Q��Ǵ���ʬ��,
-�ư��Ҥ��б�����͡����������Ǥ��֤�.
-@item @var{den}��, �ꥹ�ȤǤ����Ϥ�˾�ޤ���.
-(¿�༰�����Ϥ����, ���󲽤ν����������뤿��Ť��ʤ�.)
-���������ξ��ˤ�, ��������å�, ͭ��������ʬ, �����������ϹԤ�ʤ��Τ����դ���.
-�����ͤϥ桼��¦����Ǥ����.
-@item ����ͤη���@var{switch}������Ǥ���.
+@item taji_alc.snoether()は, @var{den}をQ上で既約分解し,
+各因子に対応するネーター作用素を返す.
+@item @var{den}は, リストでの入力が望ましい.
+(多項式で入力すると, 簡約化の処理が生じるため重くなる.)
+ただしその場合には, 既約チェック, 有理式の約分, 整数係数化は行わないので注意する.
+入力値はユーザ側が責任をもつ.
+@item 戻り値の型は@var{switch}で選択できる.
 
-case 10��, �͡����������ǤγƷ������Τ���ʬ��, ����ʬ����ʬ�ȳ�����Ѥ�ꥹ�Ȥ�ʬ����ɽ���Ǥ���.
-�狼��䤹����, ��ʬ�ͤȷ�����ʬ�Ȥ���ʬ�Ǥ�����ʬ������(�ä˹ⳬ����ʬ��¿��)�Τ�, ��Ĺ�����äƤ���.
+case 10は, ネーター作用素の各係数全体を通分し, その分母部分と階乗の積をリストで分けた表現である.
+わかりやすいが, 通分値と係数部分とで約分できる部分がある(特に高階の部分に多い)ので, 冗長性をもっている.
 
-case 20��, �������ʬ�����Τ򤯤���(�ꥹ�Ȥ�ʬ��), �͡����������ǤγƷ�������̤���ʬ���ꥹ�Ȳ�����.
-�������ʬ�ȷ�����ʬ�Ȥ���ʬ�Ǥ�����ʬ������(�ä��㳬����ʬ��¿��)�Τ�,
-��Ĺ�ȸ����ʤ���ʤ�(case 10���Ϥޤ�)��, ����Ū�ʹ�¤�����˸�����ɽ���Ǥ���.
+case 20は, 階乗の部分で全体をくくり(リストで分け), ネーター作用素の各係数を個別に通分しリスト化する.
+階乗の部分と係数部分とで約分できる部分がある(特に低階の部分に多い)ので,
+冗長と言えなくもない(case 10よりはまし)が, 数学的な構造が綺麗に見える表現である.
 @end itemize
 
 @example
@@ -266,11 +266,11 @@ case 20��, �������ʬ�����Τ򤯤���(�ꥹ�Ȥ�ʬ��), �͡����������ǤγƷ�������̤
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -280,49 +280,49 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.laurent_expansion,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.laurent_expansion,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.laurent_expansion}
 @findex taji_alc.laurent_expansion
 
 @table @t
 @item taji_alc.laurent_expansion(@var{num},@var{den})
-:: ͭ���ؿ�@var{num}/@var{den}�ζˤˤ�����������Ÿ���μ������η��������.
+:: 有理関数@var{num}/@var{den}の極におけるローラン展開の主要部の係数を求める.
 @end table
 
 @table @var
 @item return
-[[����,�������Ÿ���η���],...] �ʤ�ꥹ��.
+[[因子,ローラン展開の係数],...] なるリスト.
 
-�������Ÿ���η�����, ��̤η����������¤٤��ꥹ��.
+ローラン展開の係数は, 高位の係数から順に並べたリスト.
 
 @item num
-(ͭ���ؿ���ʬ�Ҥ�)¿�༰
+(有理関数の分子の)多項式
 @item den
-(ͭ���ؿ���ʬ���)¿�༰
+(有理関数の分母の)多項式
 
-�ޤ��� (ͭ���ؿ���ʬ���Q��Ǵ���ʬ�򤷤�)  [[����,��ʣ��],...] �ʤ�ꥹ��
+または (有理関数の分母をQ上で既約分解した)  [[因子,重複度],...] なるリスト
 
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : �������Ÿ���η����� [ͭ��������¿�༰,...] �ʤ�ꥹ�Ȥ��֤�.
+case 0 : ローラン展開の係数を [有理数係数多項式,...] なるリストで返す.
 
-case 1 : �������Ÿ���η����� [�����������ꥹ��,...] �ʤ�ꥹ�Ȥ��֤�.
+case 1 : ローラン展開の係数を [整数係数化リスト,...] なるリストで返す.
 
-case 10 : �������Ÿ���η����� [[��������¿�༰,...],����] �ʤ�ꥹ�Ȥ��֤�.
+case 10 : ローラン展開の係数を [[整数係数多項式,...],整数] なるリストで返す.
 
-case 20 : �������Ÿ���η����� [[�����������ꥹ��,...],����] �ʤ�ꥹ�Ȥ��֤�.
+case 20 : ローラン展開の係数を [[整数係数化リスト,...],整数] なるリストで返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item taji_alc.laurent_expansion()��, taji_alc.snoether()��Ȥä�, �������Ÿ���η��������.
-@item taji_alc.laurent_expansion()�Ǥ�,
-C���1�������ܤ���ΤǤϤʤ�, Q��Ǥδ�����Ҽ��Τ����ܤ��ƥ������Ÿ���η��������.
-����ͤη����ꥹ�Ȥγ���ʬ��, ���ΰ��Ҥ����Ƥ����������̤��������������Ÿ���η���¿�༰�Ǥ���.
-���ä�, 1�����ȤΥ������Ÿ���η����򤵤�˵�᤿�����ˤ�,
-��᤿�������Ÿ���η���¿�༰�˰��Ҥ�����(¨���ð���)���ͤ���������ɬ�פ�����.
+@item taji_alc.laurent_expansion()は, taji_alc.snoether()を使って, ローラン展開の係数を求める.
+@item taji_alc.laurent_expansion()では,
+C上の1点に注目するのではなく, Q上での既約因子自体に注目してローラン展開の係数を求める.
+戻り値の係数リストの各成分は, その因子の全ての零点が共通に満たすローラン展開の係数多項式である.
+従って, 1点ごとのローラン展開の係数をさらに求めたい場合には,
+求めたローラン展開の係数多項式に因子の零点(即ち特異点)の値を代入する必要がある.
 @end itemize
 
 @example
@@ -334,12 +334,12 @@ C���1�������ܤ���ΤǤϤʤ�, Q��Ǥδ�����Ҽ��Τ����ܤ��ƥ������Ÿ���η�����
 @end example
 
 @table @t
-@item ����
+@item 参照
 @ref{taji_alc.snoether}
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -349,59 +349,59 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.residue,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.residue,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.residue}
 @findex taji_alc.residue
 
 @table @t
 @item taji_alc.residue(@var{num},@var{den})
-:: ͭ���ؿ�@var{num}/@var{den}�ζˤˤ�����α�������.
+:: 有理関数@var{num}/@var{den}の極における留数を求める.
 @end table
 
 @table @var
 @item return
-[[����,α��],...] �ʤ�ꥹ��
+[[因子,留数],...] なるリスト
 
 @item num
-(ͭ���ؿ���ʬ�Ҥ�) ¿�༰
+(有理関数の分子の) 多項式
 @item den
-(ͭ���ؿ���ʬ���) ¿�༰
+(有理関数の分母の) 多項式
 
-�ޤ��� (ͭ���ؿ���ʬ���Q��Ǵ���ʬ�򤷤�)  [[����,��ʣ��],...] �ʤ�ꥹ��
+または (有理関数の分母をQ上で既約分解した)  [[因子,重複度],...] なるリスト
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : α����ͭ��������¿�༰���֤�.
+case 0 : 留数を有理数係数多項式で返す.
 
-case 1 : α���������������ꥹ�Ȥ��֤�.
+case 1 : 留数を整数係数化リストで返す.
 
 default : case 0
 
 @item pole
-���ץ�������
+オプション指定
 
-[����,...] �ʤ륪�ץ����ꥹ��
+[因子,...] なるオプションリスト
 @end table
 
 @itemize @bullet
-@item taji_alc.residue()��, @var{den}��Q��Ǵ���ʬ��, �ư��Ҥ�����(¨��ͭ���ؿ��ζ�)�ˤ�����α�����֤�.
-@item ���ץ�����@var{pole}����ꤹ��Ф��ΰ��ҤΤߤ�α�����֤�. ���꤬��Ŭ������0���֤�.
-@item taji_alc.residue()�Ǻ��Ѥ��Ƥ��륢�르�ꥺ��Ǥ�,
-C���1�������ܤ���ΤǤϤʤ�, Q��Ǥδ�����Ҽ��Τ����ܤ���α�������.
-����ͤ�α����, ���ΰ��Ҥ����Ƥ����������̤�������α��¿�༰�Ǥ���.
-���ä�, 1�����Ȥ�α���ͤ򤵤�˵�᤿�����ˤ�,
-��᤿α��¿�༰�˰��Ҥ�����(¨���ð���)���ͤ���������ɬ�פ�����.
+@item taji_alc.residue()は, @var{den}をQ上で既約分解し, 各因子の零点(即ち有理関数の極)における留数を返す.
+@item オプションで@var{pole}を指定すればその因子のみの留数を返す. 指定が不適当だと0を返す.
+@item taji_alc.residue()で採用しているアルゴリズムでは,
+C上の1点に注目するのではなく, Q上での既約因子自体に注目して留数を求める.
+戻り値の留数は, その因子の全ての零点が共通に満たす留数多項式である.
+従って, 1点ごとの留数値をさらに求めたい場合には,
+求めた留数多項式に因子の零点(即ち特異点)の値を代入する必要がある.
 
 @example
 [219] taji_alc.residue(1,x^4+1);
 [[x^4+1,-1/4*x]]
 @end example
 
-������Ǹ�����, ��᤿α��¿�༰-1/4*x��, x^4+1��(4�Ĥ���)�����򤽤줾������������Τ����̤�α���ͤǤ���.
-@item @var{den}��, �ꥹ�ȤǤ����Ϥ�˾�ޤ���.
-(¿�༰�����Ϥ����, ���󲽤ν����������뤿��Ť��ʤ�.)
-���������ξ��ˤ�, ��������å�, ͭ��������ʬ, �����������ϹԤ�ʤ��Τ����դ���.
-�����ͤϥ桼��¦����Ǥ����.
+この例で言うと, 求めた留数多項式-1/4*xに, x^4+1の(4つある)零点をそれぞれ代入したものが個別の留数値である.
+@item @var{den}は, リストでの入力が望ましい.
+(多項式で入力すると, 簡約化の処理が生じるため重くなる.)
+ただしその場合には, 既約チェック, 有理式の約分, 整数係数化は行わないので注意する.
+入力値はユーザ側が責任をもつ.
 @end itemize
 
 @example
@@ -421,11 +421,11 @@ pole=[x+1]);
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -435,38 +435,38 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.invpow,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.invpow,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.invpow}
 @findex taji_alc.invpow
 
 @table @t
 @item taji_alc.invpow(@var{poly},@var{f},@var{m})
-:: ��;��Q[x]/<@var{f}>��Ǥ�@var{poly}�εո���@var{m}������.
+:: 剰余体Q[x]/<@var{f}>上での@var{poly}の逆元の@var{m}乗を求める.
 @end table
 
 @table @var
 @item return
-����
+逆冪
 
 @item poly
-¿�༰
+多項式
 @item f
-Q��Ǵ����¿�༰
+Q上で既約な多項式
 @item m
-������
+自然数
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : ���Ѥ�ͭ��������¿�༰���֤�.
+case 0 : 逆冪を有理数係数多項式で返す.
 
-case 1 : ���Ѥ������������ꥹ�Ȥ��֤�.
+case 1 : 逆冪を整数係数化リストで返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item @var{poly}��@var{f}�ϸߤ����ǤǤʤ���Фʤ�ʤ�.
-@item ���르�ꥺ��ι��ʤϷ����֤�2��ˡ�Ǥ���. �����˺Ǿ�¿�༰����������Ѥ��ƹ�®�����Ƥ���.
+@item @var{poly}と@var{f}は互いに素でなければならない.
+@item アルゴリズムの骨格は繰り返し2乗法である. そこに最小多項式の理論を応用して高速化している.
 @end itemize
 
 @example
@@ -479,11 +479,11 @@ default : case 0
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -493,85 +493,85 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.rem_formula,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.rem_formula,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.rem_formula}
 @findex taji_alc.rem_formula
 
 @table @t
 @item taji_alc.rem_formula(@var{polylist})
-:: ¿�༰f(x)��Ϳ�����Ȥ��ξ�;���������.
+:: 多項式f(x)を与えたときの剰余公式を求める.
 @end table
 
 @table @var
 @item return
-@var{switch} ����� ����ʸ�򻲾�
+@var{switch} および 説明文を参照
 
 @item polylist
-f(x)��Q��Ǵ���ʬ�򤷤� [[����,��ʣ��,�����ε���],...] �ʤ�ꥹ��
+f(x)をQ上で既約分解した [[因子,重複度,零点の記号],...] なるリスト
 
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : x���Ѥ�������, �ꥹ�Ȥ��֤�.
+case 0 : xの冪で整理し, リストで返す.
 
-case 10 : f(x)���Ѥ�������, �ꥹ�Ȥ��֤�. (����Ҥξ��Τ��б�)
+case 10 : f(x)の冪で整理し, リストで返す. (一因子の場合のみ対応)
 
-case 20 : x���Ѥ�������, symbolic��ɽ�����֤�.
+case 20 : xの冪で整理し, symbolicな表現で返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item ���르�ꥺ���, ����ߡ��Ȥ���־�;���Ѥ��Ƥ���.
-@item ��;������ɽ����ˡ�Ϥ����Ĥ��ͤ����뤿��, @var{switch}�����򼰤Ȥ���.
-@item @var{switch}=0 ������ͤθ�����Ҥ٤�. ��Ȥ���, f(x)=f1(x)^m1*f2(x)^m2��ͤ���.
-���Ϥ� [[f1(x),m1,z1],[f2(x),m2,z2]] �Ȥʤ�. ���ΤȤ�����ͤ�,
+@item アルゴリズムは, エルミートの補間剰余を用いている.
+@item 剰余公式の表現方法はいくつか考えられるため, @var{switch}で選択式とした.
+@item @var{switch}=0 の戻り値の見方を述べる. 例として, f(x)=f1(x)^m1*f2(x)^m2を考える.
+入力は [[f1(x),m1,z1],[f2(x),m2,z2]] となる. そのとき戻り値は,
 
 [r_{f1}(x,z1),r_{f2}(x,z2)]
 
-�ʤ�ꥹ�Ȥ��֤����. �����, ��;������
+なるリストで返される. これは, 剰余公式が
 
 @tex
 $r(x)=r_{f1}(x,z1)+r_{f2}(x,z2)$
 @end tex
 
-�ʤ����Ϳ�����뤳�Ȥ��̣���Ƥ���.
-����ʬ��r_{fi}(x,zi)��,
+なる形で与えられることを意味している.
+各成分のr_{fi}(x,zi)は,
 
-[p^(mi-1)(zi)�η����Ȥʤ�x��zi��¿�༰,...,p^(0)(zi)�η����Ȥʤ�x��zi��¿�༰]
+[p^(mi-1)(zi)の係数となるxとziの多項式,...,p^(0)(zi)の係数となるxとziの多項式]
 
-�ʤ�ꥹ�ȤǤ���.
-@item @var{switch}=10 ������ͤθ�����Ҥ٤�. ��Ȥ���, f(x)=f1(x)^m��ͤ���.
-���Ϥ� [[f1(x),m,z]] �Ȥʤ�. ���ΤȤ�����ͤ�,
+なるリストである.
+@item @var{switch}=10 の戻り値の見方を述べる. 例として, f(x)=f1(x)^mを考える.
+入力は [[f1(x),m,z]] となる. そのとき戻り値は,
 
 [r_(m-1)(x,z),...,r_0(x,z)]
 
-�ʤ�ꥹ�Ȥ��֤����. ����ʬ��, ��;������
+なるリストで返される. 各成分は, 剰余公式を
 
 @tex
 $r(x)=r_{m-1}(x,z)f_1(x)^{m-1}+\cdots+r_0(x,z)$
 @end tex
 
-�Τ褦��f1(x)���Ѥ�Ÿ�������Ȥ��γƷ������̣���Ƥ���. 
-����ʬ��r_{i}(x,z)��,
+のようにf1(x)の冪で展開したときの各係数を意味している. 
+各成分のr_{i}(x,z)は,
 
-[p^(m-1)(z)�η����Ȥʤ�x��z��¿�༰,...,p^(0)(z)�η����Ȥʤ�x��z��¿�༰]
+[p^(m-1)(z)の係数となるxとzの多項式,...,p^(0)(z)の係数となるxとzの多項式]
 
-�ʤ�ꥹ�ȤǤ���.
-@item @var{switch}=20 ������ͤθ�����Ҥ٤�.
-symbolic�ʽ��Ϥ�p^(m)(z)��, p(x)��m����Ƴ�ؿ���z�����������ͤȤ�����̣�Ǥ���.
-@item ����ͤ�, Ϳ�������Ҥ����Ƥ�����������������Τ��¤Ȥ��Ƹ���.
-����ϰ��Ҥ�2���ʾ��¿�༰�ξ��˴ط����Ƥ���. �㤨��,
+なるリストである.
+@item @var{switch}=20 の戻り値の見方を述べる.
+symbolicな出力のp^(m)(z)は, p(x)のm階の導関数にzを代入した値という意味である.
+@item 戻り値は, 与えた因子の全ての零点を代入したものの和として見る.
+これは因子が2次以上の多項式の場合に関係してくる. 例えば,
 
 @example
 [228] taji_alc.rem_formula([[x^2+1,1,z]]);
 [[-1/2*z*x+1/2]]
 @end example
 
-��������������, x^2+1��������a1,a2�Ȥ������Ȥ���, z��a1��a2����������,
+の正しい見方は, x^2+1の零点をa1,a2とおいたときに, zにa1とa2を代入した,
 
 r(x)=(-1/2*a1*x+1/2)+(-1/2*a2*x+1/2)
-�Ǥ���. ���������ϤǤ�, �������¤���ʬ���ص����ά�����֤�.
+である. しかし出力では, 零点の和の部分を便宜上省略して返す.
 @end itemize
 
 @example
@@ -609,11 +609,11 @@ z^2-174/529*z-108/529)*x^2+(-105/529*z^2+54/529*z+70/529)*x-108/529*z^
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -623,90 +623,90 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.solve_ode_cp,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.solve_ode_cp,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.solve_ode_cp}
 @findex taji_alc.solve_ode_cp
 
 @table @t
 @item taji_alc.solve_ode_cp(@var{poly},@var{var},@var{exppoly})
-:: ͭ������������������ʬ�������Υ�����������
+:: 有理数係数の線形常微分方程式のコーシー問題
 
 @tex
 $Pu(z)=f(z)$, $u^{(0)}(0)=c_0,\ldots,u^{(n-1)}(0)=c_{n-1}$
 @end tex
 
-�β�����.
+の解を求める.
 
-������, P��n����ͭ������������������ʬ������, f(z)�ϻؿ�¿�༰�Ȥ���.
+ただし, Pはn階の有理数係数の線形常微分作用素, f(z)は指数多項式とする.
 @end table
 
 @table @var
 @item return
-2�̤��ɽ��������.
+2通りの表現がある.
 
-��ɽ��1 (���������ǡ���������������)
+・表現1 (コーシーデータで整理した形)
 
-������������ΰ��̲�u(z)��,
+コーシー問題の一般解u(z)は,
 
 @tex$u(z)=c_0u_0(z)+\cdots+c_{n-1}u_{n-1}(z)+v(z)$@end tex
 
-�ʤ��������η���Ϳ������.
+なる線形結合の形で与えられる.
 @tex$u_0(z),\ldots,u_{n-1}(z)$@end tex
-�򥳡���������δ��ܲ�,
+をコーシー問題の基本解,
 @tex$v(z)$@end tex
-�򥳡�����������ü��Ȥ���,
+をコーシー問題の特殊解といい,
 
 [u_0(z),...,u_(n-1)(z),v(z)]
 
-�ʤ�ꥹ�Ȥ��֤�.
-���ܲ���ü���, �ؿ�¿�༰�ꥹ�ȤǤ���.
+なるリストで返す.
+基本解と特殊解は, 指数多項式リストである.
 
-��ɽ��2 (�ؿ��ؿ�������������)
+・表現2 (指数関数で整理した形)
 
-@var{data}�˥��������ǡ�����Ϳ�����,
-������������ΰ��̲�u(z)��
+@var{data}にコーシーデータを与えると,
+コーシー問題の一般解u(z)の
 @tex$c_0,\ldots,c_{n-1}$@end tex
-�ΤȤ����˥ǡ�����������,
-�����ؿ��ؿ���������ľ�����ؿ�¿�༰�ꥹ�Ȥ��֤�.
+のところにデータを代入し,
+それを指数関数で整理し直した指数多項式リストを返す.
 
 @item poly
-¿�༰ (P������¿�༰)
+多項式 (Pの特性多項式)
 
-�ޤ��� (P������¿�༰��Q��Ǵ���ʬ�򤷤�) [[����,��ʣ��],...] �ʤ�ꥹ��
+または (Pの特性多項式をQ上で既約分解した) [[因子,重複度],...] なるリスト
 
 @item var
-���긵 (�ؿ�����Ω�ѿ�)
+不定元 (関数の独立変数)
 
 @item exppoly
-�Ƽ����ΤȤ�0, ���Ƽ����ΤȤ�f(z)�λؿ�¿�༰�ꥹ��.
+斉次形のとき0, 非斉次形のときf(z)の指数多項式リスト.
 
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ��ͭ��������¿�༰���֤�.
+case 0 : 指数多項式リストの2番目の成分を有理数係数多項式で返す.
 
-case 1 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ�������������ꥹ�Ȥ��֤�.
+case 1 : 指数多項式リストの2番目の成分を整数係数化リストで返す.
 
 default : case 0
 @item data
-���ץ�������
+オプション指定
 
-���������ǡ����� [c_0,...,c_(n-1)] �ν���¤٤��ꥹ��.
+コーシーデータを [c_0,...,c_(n-1)] の順に並べたリスト.
 @end table
 
 @itemize @bullet
-@item ��ˡ�ϥ���ߡ��Ȥ���ˡ(α���׻��˵��夵������ˡ)����Ѥ��Ƥ���.
-@item �ѿ���2����ɬ��(����¿�༰���ѿ��ȴؿ�����Ω�ѿ�).
-@var{poly}�����긵��@var{var}�����긵�����ͤ��ʤ��褦����.
-@item ����ͤ��ü��
+@item 解法はエルミートの方法(留数計算に帰着させる方法)を採用している.
+@item 変数は2種類必要(特性多項式の変数と関数の独立変数).
+@var{poly}の不定元と@var{var}の不定元が衝突しないよう注意.
+@item 戻り値の特殊解
 @tex
 $v(z)$
 @end tex
-��, �����������
+は, コーシー条件
 @tex
 $v(0)=0,\ldots,v^{(n-1)}(0)=0$
 @end tex
-����������������������ü��Ǥ���.
+を満たすコーシー問題の特殊解である.
 @end itemize
 
 @example
@@ -729,11 +729,11 @@ $v(0)=0,\ldots,v^{(n-1)}(0)=0$
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -743,65 +743,65 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.solve_ode_cp_ps,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.solve_ode_cp_ps,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.solve_ode_cp_ps}
 @findex taji_alc.solve_ode_cp_ps
 
 @table @t
 @item taji_alc.solve_ode_cp_ps(@var{poly},@var{var},@var{exppoly})
-:: ͭ������������������ʬ�������Υ�����������
+:: 有理数係数の線形常微分方程式のコーシー問題
 
 @tex
 $Pu(z)=f(z)$, $u^{(0)}(0)=c_0,\ldots,u^{(n-1)}(0)=c_{n-1}$
 @end tex
 
-���ü������.
+の特殊解を求める.
 
-������, ���Ƽ����Τߤ��оݤȤ��Ƥ���Τ�,
+ただし, 非斉次形のみを対象としているので,
 @tex
 $f(z)\neq0$
 @end tex
-�Ȥ���.
+とする.
 
 @end table
 
 @table @var
 @item return
-�ؿ�¿�༰�ꥹ��
+指数多項式リスト
 
 @item poly
-¿�༰ (P������¿�༰)
+多項式 (Pの特性多項式)
 
-�ޤ��� (P������¿�༰��Q��Ǵ���ʬ�򤷤�) [[����,��ʣ��],...] �ʤ�ꥹ��
+または (Pの特性多項式をQ上で既約分解した) [[因子,重複度],...] なるリスト
 
 @item var
-���긵 (�ؿ�����Ω�ѿ�)
+不定元 (関数の独立変数)
 
 @item exppoly
-f(z)�λؿ�¿�༰�ꥹ��
+f(z)の指数多項式リスト
 
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ��ͭ��������¿�༰���֤�.
+case 0 : 指数多項式リストの2番目の成分を有理数係数多項式で返す.
 
-case 1 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ�������������ꥹ�Ȥ��֤�.
+case 1 : 指数多項式リストの2番目の成分を整数係数化リストで返す.
 
 default : case 0
 
 @item switch2
-���ץ�������
+オプション指定
 
-case 0 : ��������������ü����֤�.
+case 0 : コーシー問題の特殊解を返す.
 
-case 1 : ��ñ�ʷ����ü����֤�.
+case 1 : 簡単な形の特殊解を返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item �ѿ���2����ɬ��(����¿�༰���ѿ��ȴؿ�����Ω�ѿ�).
-@var{poly}�����긵��@var{var}�����긵�����ͤ��ʤ��褦����.
+@item 変数は2種類必要(特性多項式の変数と関数の独立変数).
+@var{poly}の不定元と@var{var}の不定元が衝突しないよう注意.
 @end itemize
 
 @example
@@ -824,11 +824,11 @@ x-3,[4232*z^2-4278*z-4295,97336]]]
 @end example
 
 @table @t
-@item ����
+@item 参照
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -838,43 +838,43 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.fbt,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.fbt,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.fbt}
 @findex taji_alc.fbt
 
 @table @t
 @item taji_alc.fbt(@var{num},@var{den},@var{var})
-:: ͭ���ؿ�@var{num}/@var{den}���������Ū�ɽꥳ�ۥ��������Υա��ꥨ���ܥ���Ѵ���Ԥ�.
+:: 有理関数@var{num}/@var{den}が定める代数的局所コホモロジー類のフーリエ・ボレル変換を行う.
 @end table
 
 @table @var
 @item return
-[�ؿ�¿�༰�ꥹ��,...] �ʤ�ꥹ��
+[指数多項式リスト,...] なるリスト
 
 @item num
-(ͭ���ؿ���ʬ�Ҥ�) ¿�༰
+(有理関数の分子の) 多項式
 @item den
-(ͭ���ؿ���ʬ���) ¿�༰
+(有理関数の分母の) 多項式
 
-�ޤ��� (ͭ���ؿ���ʬ���Q��Ǵ���ʬ�򤷤�)  [[����,��ʣ��],...] �ʤ�ꥹ��
+または (有理関数の分母をQ上で既約分解した)  [[因子,重複度],...] なるリスト
 @item var
-���긵 (������Ω�ѿ�)
+不定元 (像の独立変数)
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ��ͭ��������¿�༰���֤�.
+case 0 : 指数多項式リストの2番目の成分を有理数係数多項式で返す.
 
-case 1 : �ؿ�¿�༰�ꥹ�Ȥ�2���ܤ���ʬ�������������ꥹ�Ȥ��֤�.
+case 1 : 指数多項式リストの2番目の成分を整数係数化リストで返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item �ѿ���2����ɬ��(���Ū�ɽꥳ�ۥ����������ѿ���������Ω�ѿ�).
-@var{num/den}�����긵��@var{var}�����긵�����ͤ��ʤ��褦����.
-@item taji_alc.fbt()��, Res(Rat*exp(z*x))�ʤ����ͭ�����ؿ���α�������.
-����ͭ�����ؿ���α���ϻؿ�¿�༰�Ȥʤ뤿��, �ؿ�¿�༰�ꥹ�Ȥ��֤�.
-@item �����Υ��르�ꥺ���taji_alc.residue()�Ȥۤ�Ʊ���Ǥ���, �ºݤ�taji_alc.residue()��ƤӽФ��Ʒ׻���ԤäƤ���.
+@item 変数は2種類必要(代数的局所コホモロジー類の変数と像の独立変数).
+@var{num/den}の不定元と@var{var}の不定元が衝突しないよう注意.
+@item taji_alc.fbt()は, Res(Rat*exp(z*x))なる形の有理形関数の留数を求める.
+この有理形関数の留数は指数多項式となるため, 指数多項式リストで返す.
+@item 内部のアルゴリズムはtaji_alc.residue()とほぼ同じであり, 実際にtaji_alc.residue()を呼び出して計算を行っている.
 @end itemize
 
 @example
@@ -884,12 +884,12 @@ default : case 0
 @end example
 
 @table @t
-@item ����
+@item 参照
 @ref{taji_alc.residue, taji_alc.invfbt}
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -899,39 +899,39 @@ ChangeLog
 
 @page
 @comment ****************************************************************
-@node taji_alc.inv,,, 1�ѿ����Ū�ɽꥳ�ۥ���������Ѥδؿ�
+@node taji_alc.inv,,, 1変数代数的局所コホモロジー類用の関数
 @subsection @code{taji_alc.invfbt}
 @findex taji_alc.invfbt
 
 @table @t
 @item taji_alc.invfbt(@var{exppoly},@var{var})
-:: �ؿ�¿�༰�εեա��ꥨ���ܥ���Ѵ���Ԥ�.
+:: 指数多項式の逆フーリエ・ボレル変換を行う.
 @end table
 
 @table @var
 @item return
-ͭ���ؿ�
+有理関数
 
 @item exppoly
-�ؿ�¿�༰�ꥹ��
+指数多項式リスト
 @item var
-���긵 (�ؿ�¿�༰����Ω�ѿ�)
+不定元 (指数多項式の独立変数)
 
 @item switch
-���ץ�������
+オプション指定
 
-case 0 : ͭ���ؿ����֤�.
+case 0 : 有理関数で返す.
 
-case 1 : ͭ���ؿ���[ʬ��,ʬ���Q��Ǵ���ʬ�򤷤��ꥹ��]�ʤ�ꥹ�Ȥ��֤�.
+case 1 : 有理関数を[分子,分母をQ上で既約分解したリスト]なるリストで返す.
 
 default : case 0
 @end table
 
 @itemize @bullet
-@item �ѿ���2����ɬ��(���Ū���κǾ�¿�༰���ѿ��Ȼؿ�¿�༰����Ω�ѿ�).
-���ͤ��ʤ��褦����.
-@item taji_alc.invfbt()��, exppoly��, Res(Rat*exp(z*x))�ʤ����α��ɽ�����Ѵ���, Rat��ʬ���֤�.
-@item taji_alc.fbt()�εձ黻�Ǥ���.
+@item 変数は2種類必要(代数的数の最小多項式の変数と指数多項式の独立変数).
+衝突しないよう注意.
+@item taji_alc.invfbt()は, exppolyを, Res(Rat*exp(z*x))なる形の留数表示に変換し, Rat部分を返す.
+@item taji_alc.fbt()の逆演算である.
 @end itemize
 
 @example
@@ -947,12 +947,12 @@ ch=1);
 @end example
 
 @table @t
-@item ����
+@item 参照
 @ref{taji_alc.fbt}
 @end table
 
-@comment --- ChangeLog ���. ư��. �����������ɤΰ���. �ѹ����� �ʤ� CVS�����Ф򸫤뤿��
-@comment --- openxm �γ�������δ�Ϳ��Ҥ٤�. Credit.
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
@@ -964,7 +964,7 @@ ChangeLog
 
 
 
-@comment --- ���ޤ��ʤ� ---
+@comment --- おまじない ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -975,4 +975,4 @@ ChangeLog
 @summarycontents
 @contents
 @bye
-@comment --- ���ޤ��ʤ����� ---
+@comment --- おまじない終り ---
