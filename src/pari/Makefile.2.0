@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.5 2015/02/21 06:20:36 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.6 2017/03/31 02:18:33 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -56,7 +56,6 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		(cd work/${PARI} ; ${MAKE} install) ; \
-		${RANLIB} ${PREFIX}/lib/libpari.a ; \
 	fi
 	@touch work/.install_done
 
