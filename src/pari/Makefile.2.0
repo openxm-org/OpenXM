@@ -1,13 +1,13 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.6 2017/03/31 02:18:33 takayama Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.7 2017/03/31 02:50:47 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 RANLIB=ranlib
-PARI=pari-2.9.1
+PARI=pari-2.0.21.beta
 PATCH_FILE=${PARI}.diff
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DIST_SUFFIX=.tar.gz
+DIST_SUFFIX=.tgz
 DISTFILES=${PARI}${DIST_SUFFIX}
 
 all: build 
@@ -42,7 +42,7 @@ configure: patch
 
 build: configure
 	@if [ ! -f work/.build_done ]; then \
-		(cd work/${PARI} ; ${MAKE} all) ; \
+		(cd work/${PARI} ; ${MAKE} lib-sta) ; \
 	fi
 	@touch work/.build_done
 
@@ -55,7 +55,8 @@ build-doc: configure
 install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
-		(cd work/${PARI} ; ${MAKE} install) ; \
+		(cd work/${PARI} ; ${MAKE} install-lib-sta install-include) ; \
+		${RANLIB} ${PREFIX}/lib/libpari.a ; \
 	fi
 	@touch work/.install_done
 
