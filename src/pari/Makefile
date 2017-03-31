@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.22 2008/08/11 15:53:33 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.23 2015/08/05 00:59:05 noro Exp $
 
 # Choose one of pari version.
 # Example.
@@ -7,7 +7,8 @@
 
 #PARI_VER=2.0
 #PARI_VER=2.2
-PARI_VER=2.3
+#PARI_VER=2.3
+PARI_VER=2.9.1
 
 ## for PARI/GP unstable (2.2)
 PARI_DEVEL_VER=pari-2.2.8.alpha
