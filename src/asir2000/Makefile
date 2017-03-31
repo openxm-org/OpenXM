@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.33 2015/08/05 14:38:55 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.34 2016/09/23 03:04:22 takayama Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -12,6 +12,12 @@ ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
 
 all: configure install-pari
+	@if [ ! -f ./.make_done ]; then \
+		(cd ${ASIR} ; ${MAKE} all) \
+	fi
+	@touch ./.make_done
+
+all-nox: configure-nox install-pari
 	@if [ ! -f ./.make_done ]; then \
 		(cd ${ASIR} ; ${MAKE} all) \
 	fi
@@ -41,6 +47,14 @@ configure: fetch
             ./configure --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_done
+
+configure-nox: fetch
+	@if [ ! -f ./.configure_done ]; then \
+		(cd $(ASIR) ; \
+            ./configure --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
+	fi
+	@touch ./.configure_done
+
 configure-static: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
