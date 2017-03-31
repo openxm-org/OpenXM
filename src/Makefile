@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.175 2016/09/23 05:37:43 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.176 2016/09/26 05:41:30 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -25,7 +25,7 @@ all-mpfr: configure-mpfr
 all-mpc: configure-mpc
 	(cd mpc; ${MAKE} all)
 
-all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-gc install-util install-kan96xx
+all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-gc install-util install-oxtags
 	(cd ox_toolkit; ${MAKE} all)
 
 all-oxc: configure-oxc install-oxtoolkit 
@@ -341,7 +341,6 @@ install-document-kan96xx: install-kan96xx
 
 install-document-asir-contrib: all-document-asir-contrib
 	(cd asir-contrib/packages/doc; ${MAKE} install ; ${MAKE} install-document)
-
 ## Targets for debugging
 install-for-debug:
 	(cd kan96xx; ${MAKE} install-for-debug)
