@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.21 2015/09/28 05:52:13 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.22 2017/03/30 13:17:15 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -68,7 +68,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		(cd ${WRKSRC} ; ${MAKE} install) ; \
-		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h; do \
+		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h fac_table.h ; do \
 			cp ${WRKSRC}/$$i ${OpenXM_HOME}/include ; \
 		done ; \
 	fi
