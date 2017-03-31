@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.140 2017/03/07 11:47:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.141 2017/03/12 00:39:26 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -1208,7 +1208,7 @@ example:
   T2=asciitostr(T)$
   util_damepathq(T2);
   end: */
-def util_damepathq(S) { return tk_util_damepathq(S); }
+def util_damepathq(S) { return tk_util_damepathq(S|option_list=getopt()); }
 
 end$
 
