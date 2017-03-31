@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.52 2017/03/30 09:30:54 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.53 2017/03/30 13:32:30 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -30,6 +30,12 @@ LOGOS=logo-openxm2.jpg logo-openxm5.jpg logo-openxm_simple0.jpg
 
 MANUALS=asir2000 asir-contrib kan96xx ox_math
 
+usage:
+	@echo "targets are all"
+	@echo "all-top (copy only top html files to web)"
+	@echo "all-current (generates html files form texi etc and copy to web)"
+	@echo "all-current-index (no new generation of html files from texi etc, <all-current)"
+	@echo "all-current-spec"
 all: all-stable all-ascm2001 all-current all-top all-current-spec
 	@echo "************************************************************"
 	@echo "* cp -r  /home/web/OpenXM/Current /home/web/OpenXM/x.y.z   *"
