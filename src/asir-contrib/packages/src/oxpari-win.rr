@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxpari-win.rr,v 1.2 2015/09/29 10:53:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxpari-win.rr,v 1.3 2016/08/30 12:03:31 takayama Exp $ */
 module oxpari;
 localf start_win$
 static OpenXM_HOME_WIN$
@@ -13,12 +13,23 @@ def start_win() {
     /* NOTE!!  No space or damemoji are allowed in the user name. */
   }
   printf("OpenXM_HOME_WIN=%a\n",OpenXM_HOME_WIN);
-  printf(" NOTE!!  No space or damemoji are allowed in the OpenXM_HOME_WIN\n");
-  printf("To set manually call pari.start_win(|openxm_home_win=\"...\");\n");
+  if (util_damepathq(OpenXM_HOME_WIN|checkspace=1)[0]) {
+    printf(" Error:  No space or damemoji (shift-jis) are allowed in the OpenXM_HOME_WIN=%a\n",OpenXM_HOME_WIN);
+    printf("    Please use the Risa/Asir with pari with a different login ID which contains no space and damemoji.\n");
+    printf("To set manually the location of ox_pari, call pari.start_win(|openxm_home_win=\"...\");\n");
+    error("");
+  }
   CPort = generate_port();
   SPort = generate_port();
 
   Ox_sm1_forAsir = OpenXM_HOME_WIN+"/bin/ox_pari" ;
+  Fd=open_file(Ox_sm1_forAsir+".exe","r");
+  if (Fd < 0) {
+    printf("Error: ox_pari is not found. To install it do as follows\n");
+    printf("import(\"names.rr\");\nasir_contrib_update(|update=4);\n");
+    error("");
+  }
+  close_file(Fd);
   OpenXM_START_EXE="start  ";
   Xm_use_timer_to_start_server=1;
     Com = OpenXM_HOME_WIN+"/bin/ox -ox " + 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.19 2014/05/27 05:47:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.20 2014/05/29 11:19:55 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -262,6 +262,8 @@ example:
   util_damepathq(T2);
 */
 def tk_util_damepathq(S) {
+  if (type(getopt(checkspace))>0) Checkspace=1;
+  else Checkspace=0;
   S=rtostr(S);
   S=strtoascii(S);
   Slash = 0x2f;
@@ -275,10 +277,12 @@ def tk_util_damepathq(S) {
          Dame=I; break;
       }
     }
+    if (Checkspace && ( S[I] == 0x20)) { Dame=(I==0?1:I); break; }
   }
   if (Dame) T=asciitostr([S[Dame-1],S[Dame]]); else T=0;
   return [Dame, T];
 }
+
 
 Loaded_taka_util=1$
 end$
