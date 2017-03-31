@@ -4,6 +4,8 @@
 #include "pari/pari.h"
 #include "pari/paripriv.h"
 #include "gmp.h"
+/* inconsistency between PARI and GMP */
+#undef un
 #include "gmp-impl.h"
 #include "mpfr.h"
 #include "ox_toolkit.h"
