@@ -14,7 +14,7 @@ build-hgm: rsync
 	R CMD build hgm
 	touch hgm/src/@dont-edit-files
 
-rsync: rsync-gsl-t-1 rsync-so3 rsync-mh rsync-orthant
+rsync: rsync-gsl-t-1 rsync-so3 rsync-mh rsync-orthant rsync-oxprint
 rsync-gsl-t-1: 
 	${RSYNC} ../../hgm/gsl-t-1/src/*.c hgm/src/
 	${RSYNC} ../../hgm/gsl-t-1/src/*.h hgm/src/
@@ -25,6 +25,8 @@ rsync-mh:
 	${RSYNC} ../../hgm/mh/src/*.h hgm/src/
 rsync-orthant:
 	${RSYNC} ../../hgm/orthant/src/hgm_ko_orthant*.c  hgm/src/
+rsync-oxprint:
+	${RSYNC} ../../hgm/oxprint/oxprint.h  hgm/src/
 
 check-hgmFB:
 	R CMD check hgm_fb

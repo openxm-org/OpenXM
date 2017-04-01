@@ -1,6 +1,8 @@
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <R_ext/Print.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 #define oxprintf(...)  Rprintf(__VA_ARGS__)
 #define oxprintfe(...) REprintf(__VA_ARGS__)
 #define oxflush()  
