@@ -1,8 +1,13 @@
-#define oxprintf(...)  printf(__VA_ARGS__)
-#define oxprintfe(...) fprintf(stderr,__VA_ARGS__)
-#define oxflush()  fflush(NULL)
-#define oxabort()  abort()
-#define oxstdout  stdout
-#define oxstdin   stdin
-#define oxexit(a) exit(a)
-#define oxexit0(a) exit(a)
+#include <R.h>
+#include <R_ext/Utils.h>
+#include <R_ext/Print.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+#define oxprintf(...)  Rprintf(__VA_ARGS__)
+#define oxprintfe(...) REprintf(__VA_ARGS__)
+#define oxflush()  
+#define oxabort()  error("Fatal error in the shared lib hgm.\n")
+#define oxstdout  NULL
+#define oxstdin  NULL
+#define oxexit(a)  error("Fatal error in the shared lib hgm.\n");
+#define oxexit0(a)  error("Fatal error in the shared lib hgm.\n");
