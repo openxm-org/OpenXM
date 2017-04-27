@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.14 2004/06/27 11:58:48 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.15 2004/11/06 03:56:50 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -425,6 +425,7 @@ def insert_to_base(R,Base)
 
 def minipoly_check_mat(S,P)
 {
+  N = size(S)[0];
 	B = subst_mat(P,S);
 	for ( I = 0; I < N; I++ )
 		for ( J = 0; J < N; J++ )
