@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.5 2016/06/08 01:07:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.6 2017/03/29 12:10:51 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Nov. 2016)
+ *          Toshio Oshima (Nov. 2007 - Apr. 2017)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -447,7 +447,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot;
 extern AMSTeX$
-Muldif.rr="00161101"$
+Muldif.rr="00170429"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -638,6 +638,22 @@ def findin(M,L)
 
 def countin(S,M,L)
 {
+	if(((Step=getopt(step))==1)||Step==-1){
+		if(type(L)==5) L=vtol(L);
+		L=qsort(L);
+		while(car(L)<S&&L!=[]) L=cdr(L);
+		S+=M;
+		for(R=[],C=0;L!=[];){
+			if(car(L)<S||(Step==1&&car(L)==S)){
+				C++;
+				L=cdr(L);
+			}else{
+				R=cons(C,R);C=0;S+=M;
+			}
+		}
+		if(C>0) R=cons(C,R);
+		return reverse(R);
+	}
 	if(type(L)==4){
 		for(N=0; L!=[]; L=cdr(L))
 			if(car(L)>=S && car(L)<=M) N++;
@@ -12844,14 +12860,13 @@ def cutf(F,X,VV)
 	}
 }
 
-def fsum(F,L)
+def fsum(F,L,X)
 {
 	if(type(L[0])==2){
 		X=L[0];
 		L=cdr(L);
 	}else X=0;
 	V=(length(L)>2)?L[2]:1;
-	if(getopt(deval)==1) F=f2df(F);
 	for(R=0,I=L[0];;I+=V){
 		if(V==0||(I-L[1])*V>0) return R;
 		R+=os_md.myfeval(F,X?[X,I]:I);
@@ -14317,10 +14332,11 @@ def ltotex(L)
 	}else if(Op==11){	/* graph */
 		Width=8; Hight=3; WRet=1/2; HMerg=0.2;
 		if(!TikZ){
-			Width*=10; Height*=10; HMerg*=10;
+			Width*=10; Hight*=10; HMerg*=10;
 		}
 		if(type(V=getopt(size))==4){
 			Width=V[0];Hight=V[1];
+			if(Hight<0) Hight=-Hight*lmax(L[0]);
 			if(length(V)>2) WRet=V[2];
 			if(length(V)>3) HMerg=V[3];
 		}
@@ -14370,6 +14386,8 @@ def ltotex(L)
 		WStep=Width/S;
 		WWStep=WStep*WRet;
 		HStep=Hight/MX;
+		if(LL!=[]&&length(LL)==S-1) WS2=WStep/2;
+		else WS2=0;
 		Out=str_tb(xyproc(1),0);
 		str_tb(xyline([0,0],[Width-WStep+WWStep,0]),Out);
 		for(I=0,LT=L;LT!=[]; LT=cdr(LT),I++){
@@ -14388,7 +14406,7 @@ def ltotex(L)
 					 str_tb(xyput([XPM,(YP<0)?(YP-HMerg):(YP+HMerg),car(LT)]),Out);
 				}
 			}
-			if(LL!=[]) str_tb(xyput([XPM,-HMerg,LL[I]]),Out);
+			if(LL!=[]&&I<length(LL)) str_tb(xyput([XPM+WS2,-HMerg,LL[I]]),Out);
 		}
 		str_tb(xyproc(0),Out);
 	}else if(Op==12){	/* coord */
