@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.6 2017/03/29 12:10:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.7 2017/05/04 11:12:16 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -276,6 +276,7 @@ localf iscrat$
 localf isalpha$
 localf isnum$
 localf isalphanum$
+localf isdecimal$
 localf isvar$
 localf isyes$
 localf isall$
@@ -447,7 +448,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot;
 extern AMSTeX$
-Muldif.rr="00170429"$
+Muldif.rr="00170510"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3041,8 +3042,105 @@ def llbase(VV,L)
 
 def lsort(L1,L2,T)
 {
+	if(type(T)==4){
+		K=T;
+		T=K[0];
+		K=cdr(K);
+	}else K=0;
 	if(type(T)==7)
 		T = findin(T,["cup","setminus","cap","reduce"]);
+	if(K){
+		C1=getopt(c1);C2=getopt(c2);
+		KN=K[0];
+		if(L2==[]){ /* sort or deduce duplication */
+			if((T!=0&&T!=1)||length(K)!=1) return L1;
+			if(KN<0){
+				KN=-KN-1;
+				F=-1;
+			}else F=1;
+			L1=msort(L1,[F,0,KN]);
+			if(T==1){
+				R=[car(L1)];L1=cdr(L1);
+				for(;L1!=[];L1=cdr(L1)){
+					if(car(L1)[KN]!=car(R)[KN]) R=cons(car(L1),R);
+				}
+				L1=reverse(R);
+			}
+			return L1;
+		}else if(L2==0&&type(C1)==4){
+			if(T==0||T==1){ /* extract or delete columns */
+				for(R=[];L1!=[];L1=cdr(L1)){
+					if(T==1&&L=[0]){	/* delete top column */
+						R=cons(cdr(car(L1)),R);
+						continue;
+					}
+					LT=car(L1);
+					if(T==0){
+						for(CT=C1;CT!=[];CT=cdr(CT)){
+							for(RT=[],CT=C1;CT!=[];CT=cdr(CT))
+								RT=cons(LT[car(CT)],R);
+						}
+					}else{
+						for(I=0,RT=[];LT!=[];I++,LT=cdr(LT))
+							if(findin(I,C1)<0) RT=cons(car(LT),RT); 
+						RT=reverse(RT);
+					}
+					R=cons(RT,R);
+				}
+				return reverse(R);
+			}
+		}else{
+			if(type(car(L2))!=4){
+				for(R=[];L2!=[];L2=cdr(L2)) R=cons([car(L2)],R);
+				R=reverse(R);
+				if(length(K)==1) K=[K[0],0];
+			}
+			for(R=[],I=0;L1!=[];I++,L1=cdr(L1))
+				R=cons(cons(I,car(L1)),R);
+			KN++;
+			KR=K[1];
+			K0=K[0];K1=K[1];
+			L1=msort(R,[],[1,0,K0]);
+			if(type(C2)==4){
+				L2=msort(L2,0,0|c1=cons(K1,C2)); /* extract columns */
+				C2=0;
+				K1=0;
+			}
+			L2=msort(L2,[],[1,0,K1]);
+			S=size(L2);
+			for(R0=[];S>0;S--) R0=cons("",R0);
+			R0=[R0];
+			if(T==0||T==1||T==3){ /* cup or setminus or cap */
+				for(R=[];L1!=[];L1=cdr(L1)){
+					while(L2!=[]&&car(L1)[K0]>car(L2)[K1]) L2=cdr(L2);
+					if(L2==[]||car(L1)[K0]<car(L2)[K1]){
+						if(T1==0||T1==1)
+								R=cons((T1==0)?append(car(L1),R0):car(L1),R);
+					}else if(T==1||T1==3) R=cons([car(L1),car(L2)],R);
+				}
+			}
+			R=msort(R,[],[1,0,K0]);
+			R=msort(R,0,[1]|c1=(T1!=0&&T!=3)?[0]:[0,length(L1)+K[1]]);
+			if(type(C1)!=4&&type(C2)!=4) return R;
+			C=[];S0=size(L1);
+			if(type(C1)==4)
+				for(;C1!=[];C1=cdr(C1)) C=cons(car(C1),C);
+			else for(I=0;I<S0; I++) C=cons(I,C);
+/*
+			if(type(C2)==4){
+				for(F=0,I=0;C1!=[];I++,C1=cdr(C1)){
+					if(I==I) continue;
+					if(car(C1)==K1) continue;
+					F=(car(C1)>K1)?S0:(S0-1);
+					C=cons(car(C1)+F,C);
+				}
+			}else 
+*/
+			for(I=0;I<S-1;I++) C=cons(I+S0,C);
+			C=reverse(C);
+			return msort(L,0,[0]|c1=C);
+		}
+	}
 	if(L2 == []){
 		if(T == 2) return L2;
 		if(T == 3)	return [L1,L2];
@@ -7133,6 +7231,29 @@ def isalphanum(X)
 	return (isalpha(X)||isnum(X))?1:0;
 }
 
+def isdecimal(X)
+{
+	if(type(X)!=7) return 0;
+	F=S=0;
+	L=strtoascii(X);
+	while(L!=[]&&car(L)==32) L=cdr(L);
+	if(L!=[]&&car(L)==45) L=cdr(L);  /* - */
+	while(L!=[]&&isnum(car(L))){
+		F=1; L=cdr(L);
+	}
+	while(L!=[]&&car(L)<33){
+		S=1;L=cdr(L);
+	}
+	if(L==[]) return F;
+	else if(S||car(L)!=46) return 0; /* . */
+	L=cdr(L);F=0;
+	while(L!=[]&&isnum(car(L))){
+		F=1; L=cdr(L);
+	}
+	while(L!=[]&&car(L)<33) L=cdr(L);
+	return (L==[])?F:0;
+}
+
 def isvar(X)
 {
 	return ([X]==vars(X)&&vtype(X)<3)?1:0;
@@ -9990,6 +10111,7 @@ def readcsv(F)
 	Sp=getopt(sp);
 	if(type(T=getopt(col))!=1) T=0;
 	Null=getopt(null);
+	if(type(Null)<0) Null="";
 	while((S=get_line(ID))!=0){
 		S=strtoascii(S);
 		N=length(S);
@@ -10017,14 +10139,14 @@ def readcsv(F)
 				LT=cons(C,LT);continue;
 			}
 			LS=asciitostr(reverse(LT));
-			if(V==1||findin(++J,V)>=0) LS=(type(Null)>=0 && LS=="")?Null:eval_str(LS);
+			if(V==1||findin(++J,V)>=0) LS=(isdecimal(LS))?eval_str(LS):((LS=="")?Null:LS);
 			if(!T || T==J) LL=cons(LS,LL);
 			if(F==-2) while(++I<N && Sp!=1 && S[I]!=44);
 			F=0;LT=[];
 		}
 		if(I<=N && (Sp!=1 || length(LT)>0)){ /* lastline */
 			LS=asciitostr(reverse(LT));
-			if(findin(++J,V)>=0) LS=(type(Null)>=0 && LS=="")?Null:eval_str(LS);
+			if(findin(++J,V)>=0) LS=(isdecimal(LS))?eval_str(LS):((LS=="")?Null:LS);
 			if(!T || T==J) LL=cons(LS,LL);
 		}
 		L=cons(reverse(LL),L);
@@ -10565,12 +10687,13 @@ def sint(N,P)
 			return sint(NN,P|option_list=getopt());
 		else return N;
 	}
-    if( type(N)>3 )
+    if( type(N)>3 && type(N) < 7)
 #ifdef	USEMODULE
         return mtransbys(os_md.sint,N,[P]|option_list=getopt());
 #else
         return mtransbys(sint,N,[P]|option_list=getopt()));
 #endif
+	return N;
 }
 
 def frac2n(N)
@@ -12505,7 +12628,7 @@ def xyarrow(P,Q)
 		if(SU!="") SU="["+SU+"]";
 		return S+xypos(P)+ST+SU+";\n";
 	}
-	if(SS!="-") S=S+"["+SS+"]";
+	if(SS!="-"&&SS!="") S=S+"["+SS+"]";
 	if(length(P)<3 && length(Q)<3)
 		return S+xypos(P)+ST+xypos(Q)+SU+";\n";
 	if(length(P)==2) P=[P[0],P[1],"","_0"];
@@ -13486,6 +13609,17 @@ def xybox(L)
 	}
 	Opt=getopt();
 	SS=getopt(opt);
+	FL=getopt(color);
+	if(TikZ&&type(SS)<1&&K==2){
+		if(type(FL)==4){
+			F=FL[0];
+			if(length(FL)>1) CMD=FL[1];
+		}else if(type(FL)==7) F=FL;
+		else F="";
+		F=cons(F,["rectangle"]);
+		if(CMD) return xyarrow(P,Q|opt=F,cmd=CMD);
+		else return xyarrow(P,Q|opt=F);
+	}
 	if(type(SS)!=7&&!TikZ) Opt=cons(["opt","@{-}"],Opt);
 	Opt=cons(["close",1],Opt);
 	return xylines(LL|option_list=Opt);
@@ -13642,7 +13776,7 @@ def xycirc(P,R)
 			if(ST!="") ST=ST+",";
 			return "\\node ["+ST+"circle,draw]"+xypos([P[0],P[1]])+ "{"+SP+"};\n";
 		}
-		if(type(R)!=7) R=rtostr((R+0.1)-0.1);
+		if(type(R)!=7) R=rtostr(deval(R));
 		if(ST!="") ST="["+ST+"]";
 		S="\\draw "+ST+xypos([P[0],P[1]])+" circle [radius="+R+"]";
 		if(SP!="") S=S+" node at"+xypos([P[0],P[1]])+" {"+SP+"}";
@@ -13656,7 +13790,7 @@ def xycirc(P,R)
 	}
 	S =S+" *\\cir";
 	if(R!=0){
-		R=(R+0.1)-0.1;
+		R=deval(R);
 		S=S+"<"+rtostr(R)+((XYcm)?"cm>":"mm>");
 	}
 	S = S+"{";
@@ -13961,8 +14095,9 @@ def	average(L)
 		else if(V>M1)	M1=V; 
 	}
 	SS=dsqrt(SS/I-S^2/I^2);
-	S=((S+0.1)-0.1)/I;
-	return [S,SS,I,M0,M1];
+	S=[deval(S/I),SS,I,M0,M1];
+	if(isint(N=getopt(sint))) S=sint(S,N);
+	return S;
 }
 
 def m2ll(M)
@@ -14390,6 +14525,8 @@ def ltotex(L)
 		else WS2=0;
 		Out=str_tb(xyproc(1),0);
 		str_tb(xyline([0,0],[Width-WStep+WWStep,0]),Out);
+		if(TikZ) CL=getopt(color);
+		else CL=0;
 		for(I=0,LT=L;LT!=[]; LT=cdr(LT),I++){
 			XP=WStep*I; XPM=XP+WWStep/2; YP=(car(LT)-Shift)*HStep;
 			if(Line!=0){
@@ -14401,7 +14538,8 @@ def ltotex(L)
 					str_tb(xyput([XPM,YP,"$\\bullet$"]),Out);
 				YPP=YP;
 			}else if(YP!=0 || Val==1){
-				str_tb(xybox([[XP,0],[XP+WWStep,YP]]),Out);
+				if(CL) str_tb(xybox([[XP,0],[XP+WWStep,YP]]|color=CL),Out);
+				else str_tb(xybox([[XP,0],[XP+WWStep,YP]]),Out);
 				if(Val!=0){
 					 str_tb(xyput([XPM,(YP<0)?(YP-HMerg):(YP+HMerg),car(LT)]),Out);
 				}
