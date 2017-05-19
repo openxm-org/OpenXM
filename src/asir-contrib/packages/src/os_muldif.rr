@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.8 2017/05/10 02:37:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.9 2017/05/11 04:55:18 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Apr. 2017)
+ *          Toshio Oshima (Nov. 2007 - May 2017)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -451,7 +451,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot;
 extern AMSTeX$
-Muldif.rr="00170510"$
+Muldif.rr="00170517"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -655,20 +655,24 @@ def findin(M,L)
 
 def countin(S,M,L)
 {
-	if(((Step=getopt(step))==1)||Step==-1){
+	Step=getopt(step);
+	if(type(Step)==1){
+		N=(Step>0)?Step:-Step;
 		if(type(L)==5) L=vtol(L);
 		L=qsort(L);
 		while(car(L)<S&&L!=[]) L=cdr(L);
 		S+=M;
-		for(R=[],C=0;L!=[];){
-			if(car(L)<S||(Step==1&&car(L)==S)){
+		for(R=[],C=I=0;L!=[];){
+			if(car(L)<S||(Step>0&&car(L)==S)){
 				C++;
 				L=cdr(L);
 			}else{
 				R=cons(C,R);C=0;S+=M;
+				if(N>1&&++I>=N) break;
 			}
 		}
 		if(C>0) R=cons(C,R);
+		if(N>1&&(N-=length(R))>0) while(N-->0) R=cons(0,R);
 		return reverse(R);
 	}
 	if(type(L)==4){
@@ -3058,24 +3062,28 @@ def llbase(VV,L)
 
 def lsort(L1,L2,T)
 {
+	C1=getopt(c1);C2=getopt(c2);
 	if(type(T)==4){
 		K=T;
-		T=K[0];
-		K=cdr(K);
+		if(length(T)>0){
+			T=K[0];
+			K=cdr(K);
+		}
 	}else K=0;
-	if(type(T)==7)
-		T = findin(T,["cup","setminus","cap","reduce"]);
-	if(K){
-		C1=getopt(c1);C2=getopt(c2);
-		KN=K[0];
-		if(L2==[]){ /* sort or deduce duplication */
-			if((T!=0&&T!=1)||length(K)!=1) return L1;
+	if(type(TT=T)==7)
+		T = findin(T,["cup","setminus","cap","reduce","sum","subst"]);
+	if(type(L2)==7&&T<0)
+		T=findin(TT,["put","get","sub"]);
+	if(K){		 /* [[..],..] */
+		if(K!=[]) KN=K[0];
+		if(L2==[]||L2=="sort"){ /* sort or deduce duplication */
+			if((T!=0&&T!=3)||length(K)!=1) return L1;
 			if(KN<0){
 				KN=-KN-1;
 				F=-1;
 			}else F=1;
 			L1=msort(L1,[F,0,KN]);
-			if(T==1){
+			if(T==3){
 				R=[car(L1)];L1=cdr(L1);
 				for(;L1!=[];L1=cdr(L1)){
 					if(car(L1)[KN]!=car(R)[KN]) R=cons(car(L1),R);
@@ -3083,21 +3091,18 @@ def lsort(L1,L2,T)
 				L1=reverse(R);
 			}
 			return L1;
-		}else if(L2==0&&type(C1)==4){
+		}else if((L2==0||L2=="col")&&type(C1)==4){
 			if(T==0||T==1){ /* extract or delete columns */
 				for(R=[];L1!=[];L1=cdr(L1)){
-					if(T==1&&L=[0]){	/* delete top column */
+					if(T==1&&C1==[0]){	/* delete top column */
 						R=cons(cdr(car(L1)),R);
 						continue;
 					}
-					LT=car(L1);
+					LT=car(L1);RT=[];
 					if(T==0){
-						for(CT=C1;CT!=[];CT=cdr(CT)){
-							for(RT=[],CT=C1;CT!=[];CT=cdr(CT))
-								RT=cons(LT[car(CT)],R);
-						}
+						for(CT=C1;CT!=[];CT=cdr(CT)) RT=cons(LT[car(CT)],RT);
 					}else{
-						for(I=0,RT=[];LT!=[];I++,LT=cdr(LT))
+						for(I=0;LT!=[];I++,LT=cdr(LT))
 							if(findin(I,C1)<0) RT=cons(car(LT),RT); 
 						RT=reverse(RT);
 					}
@@ -3105,61 +3110,142 @@ def lsort(L1,L2,T)
 				}
 				return reverse(R);
 			}
-		}else{
+		}else if(type(L2)==1||type(L2)==7){
+			if(L2==1||L2=="num"){
+				if(T==4) T=3;
+				I=(length(K)<2)?(-1):K[1];
+				if(T==0||T==1||T==2||T==3){
+					S=F=CT=0;R=[];
+					if(K==[] || type((S=K[0]))==1 || S==0){
+						if(T==0||T==1||T==2){
+							for(J;L1!=[];L1=cdr(L1),J++){
+								if(T==0) R=cons(cons(J+S,car(L1)),R);
+								else if(T==1){
+									for( ;C1!=[]; C1=cdr(C1))
+										R=cons(L1[car(C1)],R);
+								}else{
+									if(findin(J,C1)<0) R=cons(car(L1),R);
+								}
+							}
+							return reverse(R);
+						}else if(T==3) return length(L1);
+					}else{
+						if(type(S)==2&&vtype(S)>2) F=1;
+						else if(type(S)==4) F=2;
+						else if(S=="+") F=3;
+						else return L1;
+					}
+					for(R=[];L1!=[];L1=cdr(L1)){
+						L1T=car(L1);
+						if(F==1) V=call(S,(I<0)?L1T:L1T[I]);
+						else if(F==2) V=calc((I<0)?L1T:L1T[I],S);
+						else if(F==3){
+							for(C=C1,V=0;C!=[];C=cdr(C))
+								if(type(X=L1T[car(C)])==1) V+=X;
+						}
+						if(T==0) R=cons(cons(V,L1T),R);
+						else if(T==1){
+							if(V) R=cons(L1T,R);
+						}else if(T==2){
+							if(!V) R=cons(L1T,R);
+						}else if(T==3){
+							if(F==3) CT+=V;
+							else if(V) CT++;
+						}
+					}
+					return (T==3)?CT:reverse(R);
+				}else if(TT=="col"){
+					J=(length(K)>0)?car(K):0;
+					I=length(car(L1))+J;
+					for(V=[];I>J;)
+						V=cons(--I,V);
+					return cons(V,L1);
+				}
+			}else if(L2=="transpose") return mtranspose(L1);
+			else if(L2=="subst"){
+				R=lv2m(L1);
+				for(;C1!=[];C1=cdr(C1)) R[car(C1)[0]][car(C1)[1]]=car(C1)[2]; 
+				return m2ll(R);
+			}
+			return L1;
+		}else{		 /* [[..],..], [[..],..] */
+			if(type(L2[0])<4){
+				for(R=[];L2!=[];L2=cdr(L2)) R=cons([car(L2)],R);
+				L2=reverse(R);
+			}
+			if(TT=="sum")  T=3;
+			if(TT=="over") T=4;
+			if(findin(T,[0,1,2,3,4,5])<0) return L1;
+			if(T==4||T==5){
+				if(type(C1)<2) C1=[C1];
+				if(type(C2)<2) C2=[C2];
+			}
 			if(type(car(L2))!=4){
 				for(R=[];L2!=[];L2=cdr(L2)) R=cons([car(L2)],R);
 				R=reverse(R);
 				if(length(K)==1) K=[K[0],0];
-			}
-			for(R=[],I=0;L1!=[];I++,L1=cdr(L1))
-				R=cons(cons(I,car(L1)),R);
-			KN++;
-			KR=K[1];
-			K0=K[0];K1=K[1];
-			L1=msort(R,[],[1,0,K0]);
-			if(type(C2)==4){
-				L2=msort(L2,0,0|c1=cons(K1,C2)); /* extract columns */
 				C2=0;
-				K1=0;
 			}
-			L2=msort(L2,[],[1,0,K1]);
-			S=size(L2);
-			for(R0=[];S>0;S--) R0=cons("",R0);
-			R0=[R0];
-			if(T==0||T==1||T==3){ /* cup or setminus or cap */
-				for(R=[];L1!=[];L1=cdr(L1)){
-					while(L2!=[]&&car(L1)[K0]>car(L2)[K1]) L2=cdr(L2);
-					if(L2==[]||car(L1)[K0]<car(L2)[K1]){
-						if(T1==0||T1==1)
-								R=cons((T1==0)?append(car(L1),R0):car(L1),R);
-					}else if(T==1||T1==3) R=cons([car(L1),car(L2)],R);
+			L1=lsort(L1,"num",["put",0]);		/* insert number */
+			K0=(length(K)>0)?K[0]+1:1;
+			K1=(length(K)>1)?K1=K[1]:0;
+			L1=lsort(L1,"sort",[0,K0]);
+			if(T<4&&type(C2)==4&&length(L2[0])>1){
+				L2=lsort(L2,"col",["put"]|c1=cons(K1,C2)); /* add key and extract columns */
+				C2=0;K1=0;
+			}
+			L2=lsort(L2,"sort",[0,K1]);
+			for(R0=[],S=S1=length(L1[0]);S>0;S--) R0=cons("",R0);
+			for(R1=[],S=length(L2[0]);S>0;S--) R1=cons("",R1);
+			if(!K1&&T!=3) R1=cdr(R1);
+			for(R=[];L1!=[];L1=cdr(L1)){
+				while(L2!=[]&&car(L1)[K0]>car(L2)[K1]){
+					if(T==3) R=cons(append(R0,car(L2)),R);
+					L2=cdr(L2);
+				}
+				if(L2==[]||car(L1)[K0]<car(L2)[K1]){
+					if(T!=2) R=cons((T==1||T>3||R1==[])?car(L1):append(car(L1),R1),R);
+				}else if(T==0||T==2||T==3){
+					if(R0==[]) R=append(car(L1),R);
+					else R=cons(append(car(L1),(!K1&&T!=3)?cdr(car(L2)):car(L2)),R);
+					L2=cdr(L2);
+				}else if(T==4||T==5){
+					V1=ltov(car(L1));V2=ltov(car(L2));
+					for(D1=C1,D2=C2;D1!=[];D1=cdr(D1),D2=cdr(D2))
+						if((I=V2[car(D2)])!=""||T==4) V1[car(D1)+1]=I;
+					R=cons(vtol(V1),R);
 				}
 			}
-			R=msort(R,[],[1,0,K0]);
-			R=msort(R,0,[1]|c1=(T1!=0&&T!=3)?[0]:[0,length(L1)+K[1]]);
-			if(type(C1)!=4&&type(C2)!=4) return R;
-			C=[];S0=size(L1);
-			if(type(C1)==4)
-				for(;C1!=[];C1=cdr(C1)) C=cons(car(C1),C);
-			else for(I=0;I<S0; I++) C=cons(I,C);
-/*
-			if(type(C2)==4){
-				for(F=0,I=0;C1!=[];I++,C1=cdr(C1)){
-					if(I==I) continue;
-					if(car(C1)==K1) continue;
-					F=(car(C1)>K1)?S0:(S0-1);
-					C=cons(car(C1)+F,C);
+			if(T==3){
+				while(L2!=[]){
+					R=cons(append(R0,car(L2)),R);
+					L2=cdr(L2);
 				}
-			}else 
-*/
-			for(I=0;I<S-1;I++) C=cons(I+S0,C);
+			}
+			R=lsort(R,"sort",["put",0]);	/* original order */
+			D=(((T==0||T==2)&&!K1)||T==3)?[0]:[0,S1+K1];
+			R=lsort(R,0,[1]|c1=D); /* delete */
+			if(type(C1)!=4||T==1||T==4||T==5) return R;
+			C=[];S0=size(L1[0]);
+			for(;C1!=[];C1=cdr(C1)) C=cons(car(C1),C);
+			for(I=0;I<S0-S1;I++) C=cons(I+S1,C);
 			C=reverse(C);
-			return msort(L,0,[0]|c1=C);
+			return lsort(R,"col",[1]|c1=C);
 		}
 	}
-	if(L2 == []){
-		if(T == 2) return L2;
-		if(T == 3)	return [L1,L2];
+	if(L2 == []){ 		/* [...] */
+		if(T==8||TT=="count") return [length(L1),length(lsort(L1,[],1))];
+		if(T==7||TT=="cut"){
+			K=length(L1);
+			if(C1<0) C1=K+C1;
+			for(R=[],I=0;I<C1&&L1!=[];I++,L1=cdr(L1))
+				R=cons(car(L1),R);
+			for(S=[];L1!=[];L1=cdr(L1))
+				S=cons(car(L1),S);
+			return [reverse(R),reverse(S)];
+		}
+		if(T==2) return L2;
+		if(T==3) return [L1,L2];
 		L1 = ltov(L1); qsort(L1);
 		if(T != 1)
 			return vtol(L1);
@@ -3170,6 +3256,15 @@ def lsort(L1,L2,T)
 			L3 = cons(L1[I], L3);
 		}
 		return L3;
+	}
+	if(T==8||TT=="count"){
+		K=length(lsort(L1,L2,3)[0]);
+		R=[length(L2),length(L1)];
+		L1 = lsort(L1,[],1);
+		L2 = lsort(L2,[],1);
+		R=append([length(L2),length(L1)],R);
+		R=cons(length(lsort(L1,L2,2)),R);
+		return reverse(cons(K,R));
 	}
 	if(T == 1 || T == 2){
 		L1 = lsort(L1,[],1);
@@ -7185,21 +7280,23 @@ def abs(X)
 
 def calc(X,L)
 {
-	if(type(X)<4){
-		if(type(L)==4){
+	if(type(X)<4||type(X)==7){
+		if(type(L)==4||type(L)==7){
 			V=L[1];
-			if((L0=L[0])=="+") X+=V;
-			else if(L0=="-")   X-=V;
-			else if(L0=="*")   X*=V;
-			else if(L0=="/")   X/=V;
-			else if(L0=="^")   X^=V;
-			else if(L0==">")   X=(X>V);
-			else if(L0=="<")   X=(X<V);
-			else if(L0=="=")   X=(X==V);
+			if(type(X)!=7){
+				if((L0=L[0])=="+") X+=V;
+				else if(L0=="-")   X-=V;
+				else if(L0=="*")   X*=V;
+				else if(L0=="/")   X/=V;
+				else if(L0=="^")   X^=V;
+			}
+			if((L0=L[0])==">") 	X=(X>V);
+			else if(L0=="<")	X=(X<V);
+			else if(L0=="=")	X=(X==V);
 			else if(L0==">=")   X=(X>=V);
 			else if(L0=="<=")   X=(X<=V);
 			else if(L0=="!=")	X=(X!=V);
-		}else if(type(L)==7){
+		}else if(type(L)==7&&type(X)<4){
 			if(L=="neg") X=-X;
 			else if(L=="abs") X=abs(X);
 			else if(L=="neg") X=-X;
@@ -14489,20 +14586,79 @@ def ltotex(L)
 		}
 		str_tb("\\end{tabular}\n",Out);
 	}else if(Op==11){	/* graph */
-		Width=8; Hight=3; WRet=1/2; HMerg=0.2;
+		if(type(Strip=getopt(strip))!=1) Strip=0;
+		if(type(MX=getopt(max))!=1)  MX=0;
+		if(type(ML=getopt(mult))!=1) ML=0;
+		if((REL=getopt(relative))!=1) REL=0;
+		CL=getopt(color);
+		OL=delopt(getopt(),["color","strip","mult"]);
+		if(ML==1&&type(CL)==4){
+			LL=L[1];L=L[0];K=length(L);S=T="";
+			if(!MX){
+				MX=vector(length(L[0]));
+				for(LT=L;LT!=[];LT=cdr(LT)){
+					for(I=0,LTT=car(LT);LTT!=[];I++,LTT=cdr(LTT)){
+						if(REL==1) MX[I]+=car(LTT);
+						else if(MX[I]<car(LTT)) MX[I]=car(LTT);
+					}
+				}
+				MX=lmax(MX);
+				OL=cons(["max",MX],OL);
+			}
+			if(REL==1) MX=newvect(length(L[0]));
+			for(I=0;I<K;I++){
+				for(R=[],J=length(L[I]);--J>=0;){
+					if(REL==1){
+						R=cons([MX[J],V=MX[J]+L[I][J]],R);
+						MX[J]=V;
+					}else R=cons([(!I)?0:L[I-1][J],L[I][J]],R);
+				}
+				OP=cons(["color",CL[I]],OL);
+				S+=ltotex([R,LL]|option_list=cons(["value",0],cons(["strip",(!I)?1:2],OP)));
+				T+=ltotex([R,LL]|option_list=cons(["strip",3],OP));
+			}
+			return(!Strip)?xyproc(S+T):(S+T);
+		}else if(!TikZ) CL=0;
+		if(type(Line=getopt(line))!=1){
+			if(type(Line)==4){
+				if(type(Line[0])==1 && (type(Line[1])==7 || type(Line[1])==1)){
+					Opt=Line[1]; Line=Line[0];
+				}else if(ML==1){
+					OL=delopt(OL,"line");
+					LL=L[1];L=L[0];K=length(L);S="";
+					if(!MX){
+						MX=newvec(Length(L[0]));
+						for(LT=L;LT!=[];LT=cdr(LT)){
+							for(I=0,LTT=car(LT);LTT!=[];I++,LTT=cdr(LTT)){
+								if(REL==1) MX[I]+=car(LTT);
+								else if(MX[I]<car(LTT)) MX[I]=car(LTT);
+							}
+						}
+						MX=lmax(MX);
+						OL=cons(["max",MX],OL);
+					}
+					for(I=0;I<L[I];I++)
+						S+=ltotex([R,LL]|option_list
+							=cons(["line",Line[I]],cons(["strip",(!I)?1:2],OL)));
+					return(!Strip)?xyproc(S):S;
+				}
+			}else Line=0;
+		}else Opt="@{-}";
+		Width=8; Hight=3; WRet=1/2; HMerg=(getopt(horiz)==1)?0.3:0.2;
 		if(!TikZ){
 			Width*=10; Hight*=10; HMerg*=10;
 		}
+		VMerg=HMerg;
+		if(type(Shift=getopt(shift))!=1)
+			Shift=0;
 		if(type(V=getopt(size))==4){
 			Width=V[0];Hight=V[1];
-			if(Hight<0) Hight=-Hight*lmax(L[0]);
 			if(length(V)>2) WRet=V[2];
-			if(length(V)>3) HMerg=V[3];
+			if(length(V)>3) VMerg=VMerg=V[3];
+			if(length(V)>4) HMerg=V[4];
 		}
 		Val=getopt(value);
 		if(!isint(Val)) Val=-1;
-		if(type(Shift=getopt(shift))!=1)
-			Shift=0;
 		if(type(Line=getopt(line))!=1){
 			if(type(Line)==4 && type(Line[0])==1 && (type(Line[1])==7 || type(Line[1])==1)){
 				Opt=Line[1]; Line=Line[0];
@@ -14520,7 +14676,7 @@ def ltotex(L)
 				R=cons(car(LT)/Sum,R);
 			R=reverse(R);
 			Opt0=Opt*2/3;
-			Out=str_tb(xyproc(1),0);
+			Out=str_tb((Strip>0)?0:xyproc(1),0);
 			str_tb(xylines(ptpolygon(6,Opt)|close=1,curve=1),Out);
 			for(S=0,RT=R,LT=LL;RT!=[];RT=cdr(RT)){
 				str_tb(xyline([0,0],[Opt*dsin(S*6.2832),Opt*dcos(S*6.2832)]),Out);
@@ -14531,11 +14687,9 @@ def ltotex(L)
 					LT=cdr(LT);
 				}
 			}
-			str_tb(xyproc(0),Out);
+			if(!Strip) str_tb(xyproc(0),Out);
 			return str_tb(0,Out);
 		}
-		if(type(MX=getopt(max))!=1)
-			MX=0;
 		if(MX==0){
 			for(MX=0,LT=L; LT!=[]; LT=cdr(LT))
 				if(car(LT)>MX) MX=car(LT);
@@ -14544,33 +14698,61 @@ def ltotex(L)
 		S=length(L);
 		WStep=Width/S;
 		WWStep=WStep*WRet;
-		HStep=Hight/MX;
+		HStep=(Hight<0)?-Hight:Hight/MX;
 		if(LL!=[]&&length(LL)==S-1) WS2=WStep/2;
 		else WS2=0;
-		Out=str_tb(xyproc(1),0);
-		str_tb(xyline([0,0],[Width-WStep+WWStep,0]),Out);
-		if(TikZ) CL=getopt(color);
-		else CL=0;
-		for(I=0,LT=L;LT!=[]; LT=cdr(LT),I++){
-			XP=WStep*I; XPM=XP+WWStep/2; YP=(car(LT)-Shift)*HStep;
-			if(Line!=0){
-				if(I>0)
-					str_tb(xyarrow([XPM-WStep,YPP],[XPM,YP]|opt=Opt),Out);
-				if(Val!=0)
-					str_tb(xyput([XPM,YP+HMerg,car(LT)]),Out);
-				if(Line==2)
-					str_tb(xyput([XPM,YP,"$\\bullet$"]),Out);
-				YPP=YP;
-			}else if(YP!=0 || Val==1){
-				if(CL) str_tb(xybox([[XP,0],[XP+WWStep,YP]]|color=CL),Out);
-				else str_tb(xybox([[XP,0],[XP+WWStep,YP]]),Out);
-				if(Val!=0){
-					 str_tb(xyput([XPM,(YP<0)?(YP-HMerg):(YP+HMerg),car(LT)]),Out);
-				}
-			}
-			if(LL!=[]&&I<length(LL)) str_tb(xyput([XPM+WS2,-HMerg,LL[I]]),Out);
+		Out=str_tb((Strip>0)?0:xyproc(1),0);
+		Hori=getopt(horiz);
+		if(Strip<2){
+			if(Hori==1)  str_tb(xyline([0,0],[0,Width-WStep+WWStep]),Out);
+			else str_tb(xyline([0,0],[Width-WStep+WWStep,0]),Out);
 		}
-		str_tb(xyproc(0),Out);
+		for(I=0,LT=L;LT!=[]; LT=cdr(LT),I++){
+			XP=WStep*I; XPM=XP+WWStep/2; 
+			if(type(LTT=car(LT))==4){
+				YP0=(car(LTT)-Shift)*HStep;YP=(LTT[1]-Shift)*HStep;
+				VL=LTT[1];
+				if(REL) VL-=LTT[0];
+			}else{
+				YP0=0;YP=(LTT-Shift)*HStep;VL=LTT;
+			}
+			if(Hori==1){
+				if(Line!=0){
+					if(I>0)
+						str_tb(xyarrow([XPM,YP],[XPM-WStep,YPP]|opt=Opt),Out);
+					if(Val!=0)
+						str_tb(xyput([YP+HMerg, XPM,car(LT)]),Out);
+					if(Line==2)
+						str_tb(xyput([YP,XPM,"$\\bullet$"]),Out);
+					YPP=YP;
+				}else if(YP!=0 || Val==1){
+					if(Strip!=3){
+						if(CL) str_tb(xybox([[YP,XP+WWStep], [YP0,XP]]|color=CL),Out);
+						else str_tb(xybox([[YP,XP+WWStep],[YP0,XP]]),Out);
+					}
+					if(Val!=0) str_tb(xyput([(YP<0||REL==1)?(YP-HMerg):(YP+HMerg),XPM,VL]),Out);
+				}
+				if(LL!=[]&&I<length(LL)&&Strip<2) str_tb(xyput([-VMerg,XPM+WS2,LL[I]]),Out); 
+			}else{
+				if(Line!=0){
+					if(I>0)
+						str_tb(xyarrow([XPM-WStep,YPP],[XPM,YP]|opt=Opt),Out);
+					if(Val!=0)
+						str_tb(xyput([XPM,YP+HMerg,car(LT)]),Out);
+					if(Line==2)
+						str_tb(xyput([XPM,YP,"$\\bullet$"]),Out);
+					YPP=YP;
+				}else if(YP!=0 || Val==1){
+					if(Strip!=3){
+						if(CL) str_tb(xybox([[XP,YP0],[XP+WWStep,YP]]|color=CL),Out);
+						else str_tb(xybox([[XP,YP0],[XP+WWStep,YP]]),Out);
+					}
+					if(Val!=0) str_tb(xyput([XPM,(YP<0||REL==1)?(YP-HMerg):(YP+HMerg),VL]),Out);
+				}
+				if(LL!=[]&&I<length(LL)&&Strip<2) str_tb(xyput([XPM+WS2,-VMerg,LL[I]]),Out); 
+			}
+		}
+		if(!Strip)str_tb(xyproc(0),Out);
 	}else if(Op==12){	/* coord */
 		Out=str_tb("(",0);
 		for(LT=L;;){
