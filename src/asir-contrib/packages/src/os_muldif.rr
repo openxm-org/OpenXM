@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.10 2017/05/19 02:18:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.11 2017/05/23 00:17:40 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -3068,7 +3068,7 @@ def lsort(L1,L2,T)
 		if(length(T)>0){
 			T=K[0];
 			K=cdr(K);
-		}
+		}else T=0;
 	}else K=0;
 	if(type(TT=T)==7)
 		T = findin(T,["cup","setminus","cap","reduce","sum","subst"]);
@@ -3162,8 +3162,10 @@ def lsort(L1,L2,T)
 					return cons(V,L1);
 				}
 			}else if(L2=="transpose") return mtranspose(L1);
-			else if(L2=="subst"){
-				R=lv2m(L1);
+			else if(L2=="subst"||L2=="adjust"){
+				Null=(!K)?"":car(K);
+				if(L2=="adjust) C1=[];
+				R=lv2m(L1|null="");
 				for(;C1!=[];C1=cdr(C1)) R[car(C1)[0]][car(C1)[1]]=car(C1)[2]; 
 				return m2ll(R);
 			}
@@ -3265,6 +3267,14 @@ def lsort(L1,L2,T)
 		R=append([length(L2),length(L1)],R);
 		R=cons(length(lsort(L1,L2,2)),R);
 		return reverse(cons(K,R));
+	}
+	if((T==9||TT=="cons")&&type(car(L1))==4){
+		if(type(L2)!=4) L2=[L2];
+		for(R=[];L1!=[];L1=cdr(L1)){
+			R=cons(cons(car(L2),car(L1)),R);
+			if(length(L2)>1) L2=cdr(L2);
+		}
+		return reverse(R);
 	}
 	if(T == 1 || T == 2){
 		L1 = lsort(L1,[],1);
@@ -13106,8 +13116,11 @@ def cutf(F,X,VV)
 	}
 }
 
-def fsum(F,L,X)
+def fsum(F,L)
 {
+	if(getopt(df)==1){
+		F=f2df(F);
+	}else Sub=getopt(subst);
 	if(type(L[0])==2){
 		X=L[0];
 		L=cdr(L);
@@ -13115,7 +13128,7 @@ def fsum(F,L,X)
 	V=(length(L)>2)?L[2]:1;
 	for(R=0,I=L[0];;I+=V){
 		if(V==0||(I-L[1])*V>0) return R;
-		R+=os_md.myfeval(F,X?[X,I]:I);
+		R+=(Sub==1)?subst(F,X?X:x,I):os_md.myfeval(F,X?[X,I]:I);
 	}
 }
 
