@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.11 2017/05/23 00:17:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.12 2017/05/23 01:52:11 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -169,6 +169,7 @@ localf myacos$
 localf myatan$
 localf mylog$
 localf mypow$
+localf scale$
 localf arg$
 localf sqrt$
 localf gamma$
@@ -451,7 +452,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot;
 extern AMSTeX$
-Muldif.rr="001705179$
+Muldif.rr="00170524$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1237,6 +1238,66 @@ def mulseries(V1,V2)
 		VV[J] = R;
 	}
 	return VV;
+}
+
+def scale(L)
+{
+	if(type(L)!=4)
+		L=[[[1,2,1/50],[5,10,1/2],[5,10,1/10]],[[1,5,1/10],[5,10,1/2]],
+			[[1,5,1/2],[5,10,1]]];
+	else if(type(L[0])!=4) L=[L];
+	if(type(L[0][0])!=4) L=[L];
+	for(R=[];L!=[];L=cdr(L)){
+		for(RR=[],LT=car(L);LT!=[];LT=cdr(LT))
+			for(I=car(LT)[0];I<=car(LT)[1];I+=car(LT)[2]) RR=cons(I,RR);
+    	RR=lsort(RR,[],1);
+		R=cons(RR,R);
+	}
+	R=reverse(R);
+	for(T=[];R!=[];R=cdr(R)){
+		if(length(R)>1) T=cons(lsort(R[0],R[1],"setminus"),T);
+		else T=cons(R[0],T);
+	}
+	V0=dlog(10);
+	S0=S1=1;D0=D1=0;
+	SC=getopt(scale);
+	if(type(SC)==4){
+		S0=SC[0];S1=SC[1];
+	}else if(type(S)==1){
+		S0=S;S1=0;
+	}else return T;
+	if(type(D=getopt(shift))==4){
+		D0=D[0];D1=D[1];
+	}
+	if(type(F=getopt(f))>1) F=f2df(F);
+	else F=0;
+	for(M=[],I=length(T);T!=[];T=cdr(T),I--){
+		for(S=car(T);S!=[];S=cdr(S)){
+			V=((!F)?dlog(car(S))/dlog(10):myfdeval(F,car(S)))*S0;
+			if(S1!=0){
+				M=cons([V+D0,D1],M);
+				M=cons([V+D0,I*((length(SC)>2)?SC[I]:S1)+D1],M);
+				M=cons(0,M);
+			}else M=cons(V+D0,M);
+		}
+	}
+	if(S1!=0) M=cdr(M);
+	M=reverse(M);
+	if(getopt(TeX)==1){
+		if(type(U=getopt(line))==4)
+			M=cons([U[0]+D0,D1],cons([U[1]+D0,D1],cons(0,M)));
+		S=xylines(M);
+		if(type(Mes=getopt(mes))==4){
+			S3=car(Mes);
+			V=car(scale(cdr(Mes)));
+			if(!F) Mes=scale(cdr(Mes)|scale=[S0,0],shift=[D0,D1]);
+			else Mes=scale(cdr(Mes)|f=F,scale=[S0,0],shift=[D0,D1]);
+			for(M=Mes;M!=[];M=cdr(M),V=cdr(V))
+				S+=xyput([car(M),S3,deval(car(V))]);
+		}
+		return S;
+	}
+	return M;
 }
 
 def pluspower(P,V,N,M)
@@ -3274,6 +3335,34 @@ def lsort(L1,L2,T)
 			R=cons(cons(car(L2),car(L1)),R);
 			if(length(L2)>1) L2=cdr(L2);
 		}
+		return reverse(R);
+	}
+	if(T==10||TT=="cmp"){
+		if(length(L1)!=length(L2)){
+			mycat("Different length!");
+			return 1;
+		}
+		R=[];
+		if(type(car(L1))==4){
+			for(U=[],I=0;L1!=[];I++,L1=cdr(L1),L2=cdr(L2)){
+				if(length(S=car(L1))!=length(T=car(L2))){
+					mycat(["Different size : line ",I]);
+					return 0;
+				}
+				for(J=0;S!=[];S=cdr(S),T=cdr(T),J++)
+					if(car(S)!=car(T)) U=cons([[I,J],car(S),car(T)],U);
+			}
+			if(U!=[]) R=cons(reverse(U),R);
+		}else{
+			for(I=0;L1!=[];L1=cdr(L1),L2=cdr(L2),I++)
+				if(car(L1)!=car(L2)) R=cons([I,car(L1),car(L2)],R);
+		}
+		return reverse(R);
+	}
+	if(T==11||TT=="append"){
+		if(type(car(L1))!=4) return append(L1,L2);
+		for(R=[];L1!=[];L1=cdr(L1),L2=cdr(L2))
+			R=cons(append(car(L1),car(L2)),R);
 		return reverse(R);
 	}
 	if(T == 1 || T == 2){
