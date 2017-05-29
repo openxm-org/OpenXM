@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.12 2017/05/23 01:52:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.13 2017/05/26 12:16:29 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -14635,7 +14635,7 @@ def ltotex(L)
 		else Hline=subst(Hline,z,S);
 		for(VV=[],VT=Hline;VT!=[];VT=cdr(VT)){
 			if(type(T=car(VT))==4 && T[1]>0){
-				for(I=T[0];I<=CS;I+=T[1]) VV=cons(I,VV);
+				for(I=T[0];I<=S;I+=T[1]) VV=cons(I,VV);
 			}else VV=cons(T,VV);
 		}
 		Hline=qsort(VV);
