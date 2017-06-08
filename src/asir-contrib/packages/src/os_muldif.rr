@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.14 2017/05/29 00:06:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.15 2017/06/02 05:36:32 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - May 2017)
+ *          Toshio Oshima (Nov. 2007 - June 2017)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -22,12 +22,12 @@ static Muldif.rr$
 static TeXEq$
 static TeXLim$
 static DIROUT$
+static DIROUTD$
 static DVIOUTL$
 static DVIOUTA$
 static DVIOUTB$
 static DVIOUTH$
 static DVIOUTF$
-static FCAT$
 static LCOPT$
 static COLOPT$
 static LPOPT$
@@ -426,12 +426,12 @@ extern Muldif.rr$
 extern TeXEq$
 extern TeXLim$
 extern DIROUT$
+extern DIROUTD$
 extern DVIOUTL$
 extern DVIOUTA$
 extern DVIOUTB$
 extern DVIOUTH$
 extern DVIOUTF$
-extern FCAT$
 static LCOPT$
 static COLOPT$
 static LPOPT$
@@ -450,9 +450,9 @@ extern Rand$
 extern LQS$
 #endif
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
-static S_FDot;
+static S_FDot$
 extern AMSTeX$
-Muldif.rr="00170530"$
+Muldif.rr="00170607"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -466,7 +466,6 @@ DVIOUTL="%ASIRROOT%\\bin\\risatex0.bat"$
 DVIOUTA="%ASIRROOT%\\bin\\risatex.bat"$
 DVIOUTB="%ASIRROOT%\\bin\\risatex1%TikZ%.bat"$
 DVIOUTH="start dviout -2 -hyper=0x90 \"%ASIRROOT%\\help\\os_muldif.dvi\" #%LABEL%"$
-FCAT="%TEMP%\\fcat.txt"$
 DVIOUTF=0$
 LCOPT=["red","green","blue","yellow","cyan","magenta","black","white","gray"]$
 COLOPT=[0xff,0xff00,0xff0000,0xffff,0xffff00,0xff00ff,0,0xffffff,0xc0c0c0]$
@@ -618,13 +617,17 @@ def mycat(L)
 def fcat(S,X)
 {
 	if(type(S)!=7){
-		if(S==-1) return FCAT;
-		if(S==0&&access(FCAT)) remove_file(FCAT);
-		S=FCAT;
+		T="fcat";
+		if(S>=2&&S<=9) T+=rtostr(S);
+		T=DIROUTD+T+".txt";
+		if(S==-1) return T;
+		if(S!=0&&access(T)) remove_file(T);
+		S=T;
 	}
 	output(S);
 	print(X);
 	output();
+	if(getopt(exe)==1) shell("\""+S+"\"");
 }
 
 def mycat0(L,T)
@@ -10216,7 +10219,6 @@ def dviout0(L)
 		mycat0(["DVIOUTA=\"", DVIOUTA,"\""],1);
 		mycat0(["DVIOUTB=\"", DVIOUTB,"\""],1);
 		mycat0(["DVIOUTL=\"", DVIOUTL,"\""],1);
-		mycat0(["FCAT   =\"", FCAT,"\""],1);
 		mycat(["Canvas =", Canvas]);
 		mycat(["TeXLim =", TeXLim]);
 		mycat(["TeXEq  =", TeXEq]);
@@ -10327,7 +10329,16 @@ def tocsv(L)
 		}
 		str_tb("\n",Tb);
 	}
-	return str_tb(0,Tb);
+	S=str_tb(0,Tb);
+	if(type(EXE=getopt(exe))!=1&&EXE!=0&&type(EXE)!=7) return S;
+	if(type(F)!=7){
+		F="risaout";
+		if(EXE>=2&&EXE<=9) F+=rtostr(EXE);
+		F=DIROUTD+F+".csv";
+	}else F=S;
+	if(EXE!=0 && access(F)) remove_file(F);
+	fcat(F,S|exe=1);
+	return 1;
 }
 
 def readcsv(F)
@@ -10392,7 +10403,8 @@ def readcsv(F)
 	}
 	close_file(ID);
 	if(T) L=m2l(L|flat=1);
-	return reverse(L);
+	L=reverse(L);
+	return L;
 }
 
 def showbyshell(S)
@@ -10414,7 +10426,7 @@ def getbyshell(S)
 		Tmp=str_subst(DIROUT,["%HOME%","%ASIRROOT%"],[Home,get_rootdir()]);
 	Sep=isMs()?"\\":"/";
 	F=Tmp+Sep+"muldif.tmp";
-	if(type(S)<=1 && S>=0)	close_file(Id);
+	if(type(S)<=1 && S>=0)	close_file(S);
 	remove_file(F);
 	if(type(S)<=1) return -1;
 	shell(S+" > \""+F+"\"");
@@ -13246,18 +13258,18 @@ def periodicf(F,L,X)
 	else L=eval(L);
 	if(isvar(X)){
 		Y=makenewv([X,V]);
-		if(type(F)==5) return [Y,[Y,os_md.periodicf,[F],L,X]];
 		Z=makenewv([X,Y,V]);
-		return [Z,[Z,os_md.periodicf,[mysubst(F,[x,Y])],[L],[[Y,X]]]];
+		return [Z,[Z,os_md.periodicf,[mysubst(F,[x,Y])],(type(L)==4)?[L]:L,[[Y,X]]]];
 	}
-	X=eval(X);
-	if(type(F)==5)
-		return myfeval(F[floor(X/L)%length(F)],X-floor(X/L)*L);
+	if(type(X)==4){
+		V=X[0];
+		X=X[1];
+	}else V=x;
+	if(type(F)==5){
+		X=eval(X);
+		return myfeval(F[floor(X/L)%length(F)],[V,X-floor(X/L)*L]);
+	}
 	if(type(L)==4){
-		if(type(X)==4){
-			V=X[0];
-			X=X[1];
-		}else V=x;
 		X-=floor((X-L[0])/(L[1]-L[0]))*(L[1]-L[0]);
 		return myfeval(F,[V,X]);
 	}
@@ -14795,18 +14807,21 @@ def ltotex(L)
 				if((S=car(LT))<=0) return 0;
 				Sum+=S;
 			}
-			for(R=[],LT=L;LT!=[];LT=cdr(LT))
-				R=cons(car(LT)/Sum,R);
+			for(R=[],LT=L;LT!=[];LT=cdr(LT)) R=cons(car(LT)/Sum,R);
 			R=reverse(R);
 			Opt0=Opt*2/3;
 			Out=str_tb((Strip>0)?0:xyproc(1),0);
-			str_tb(xylines(ptpolygon(6,Opt)|close=1,curve=1),Out);
+			if(type(CL)!=4) str_tb(xylines(ptpolygon(6,Opt)|close=1,curve=1),Out);
 			for(S=0,RT=R,LT=LL;RT!=[];RT=cdr(RT)){
-				str_tb(xyline([0,0],[Opt*dsin(S*6.2832),Opt*dcos(S*6.2832)]),Out);
-				T=S+RT[0]/2;
-				S+=RT[0];
+				SS=S+RT[0];
+				if(type(CL)==4){
+					str_tb(xyang(Opt,[0,0],(0.25-SS)*6.2832,(0.25-S)*6.2832|ar=1,opt=car(CL)),Out);
+					if(length(CL)>0) CL=cdr(CL);
+				}else str_tb(xyline([0,0],[Opt*dsin(S*6.2832),Opt*dcos(S*6.2832)]),Out);
+				T=(S+SS)/2;
+				S=SS;
 				if(LT!=[]){
-					str_tb(xyput([Opt0*dsin(T*6.2832),Opt0*dcos(T*6.2832),SS]),Out);
+					str_tb(xyput([Opt0*dsin(T*6.2832),Opt0*dcos(T*6.2832),car(LT)]),Out);
 					LT=cdr(LT);
 				}
 			}
@@ -18564,9 +18579,83 @@ def ntable(F,II,D)
 {
 	F=f2df(F|opt=-1);
 	Df=getopt(dif);
-	if(Df!=1) Df=0;
 	Str=getopt(str);
-	L=[];T=II[1]-II[0];
+	if(Df!=1) Df=0;
+	L=[];
+	if(type(D)==4){
+		if(type(II[0])==4){
+			T1=II[0][1]-II[0][0];T2=II[1][1]-II[1][0];
+			for(L0=[],I=0;I<D[0];I++){
+				for(R=[],J=0;J<D[1];J++)
+					R=cons(myf2eval(F,II[0][0]+I*T1/D[0],II[1][0]+J*T2/D[1]),R);
+				L=cons(reverse(R),L);L0=cons(II[0][0]+I*T1/D[0],L0);
+			}
+		}else{
+			for(T=II[1]-II[0],L0=[],I=0;I<D[0];I++){
+				for(R=[],J=0;J<D[1];J++)
+					R=cons(myfdeval(F,II[0]+I*T/D[0]+J*T/D[0]/D[1]),R);
+				L=cons(reverse(R),L);L0=cons(II[0]+I*T/D[0],L0);
+			}
+		}
+		L=reverse(L);L0=reverse(L0);
+		if(type(Str)==4){
+			L0=mtransbys(os_md.sint,L0,[Str[0]]|str=1,zero=0);
+			L=mtransbys(os_md.sint,L,[Str[1]]|str=1,zero=0);
+			if(Df==1){
+				for(DT=[],RT=L,I=0;RT!=[];){
+					for(LT=[],TT=car(RT);TT!=[];TT=cdr(TT)){
+						VV=car(TT);
+						if((J=str_char(VV,0,"."))>=0){
+							if(J==0) VV=str_cut(VV,1,10000);
+							else VV=str_cut(VV,0,J-1)+str_cut(VV,J+1,10000);
+						}
+						V1=eval_str(VV);
+						if(I++) LT=cons(V1-V0,LT);
+						V0=V1;
+					}
+					DT=cons(LT,DT);
+					if((RT=cdr(RT))==[]){
+						VE=rint(myfdeval(F,II[1])*10^Str[1]);
+ 						DT=cons([VE-V0],DT);
+					}
+				}
+				for(I=0,D=[],TT=DT;TT!=[];TT=cdr(TT)){
+					if(!I++) V=car(TT)[0];
+					else{
+						T1=reverse(cons(V,car(TT)));
+						V=car(T1);
+						if(length(TT)>1) T1=cdr(T1);
+						D=cons(T1,D);
+					}
+				}
+				for(DD=[],TT=D;TT!=[];TT=cdr(TT))
+				DD=cons([os_md.lmin(car(TT)),os_md.lmax(car(TT))],DD);
+				DD=reverse(DD);
+				L=lsort(L,DD,"append");
+			}
+		}
+		L=lsort(L,L0,"cons");
+		if(type(Top=getopt(top))==4||getopt(TeX)==1){
+			if(type(Top)==4){
+				K=length(L[0])-length(Top);
+				if(K>0&&K<4){
+					if(K>1){
+						Top=append(Top,["",""]);
+						K-=2;
+					}
+					if(K) Top=cons("",Top);
+				}
+				L=cons(Top,L);
+			}
+			if(type(H=getopt(hline))!=4) H=[0,1,z];
+			if(type(V=getopt(vline))!=4) V=[0,1,(DF)?z-2:z];
+			if(type(T=getopt(title))!=7) Out=ltotex(L|opt="tab",hline=H,vline=V);
+			else Out=ltotex(L|opt="tab",hline=H,vline=V,title=T);
+			if(Df) Out=str_subst(Out,"\\hline","\\cline{1-"+rtostr(length(L[0])-2)+"}");
+			return Out;
+		}
+		return L;
+	}
 	for(L=[],I=0;I<=D;I++){
 		X=II[0]+I*T/D;
 		L=cons([X,myfdeval(F,X)],L);
@@ -18578,9 +18667,9 @@ def ntable(F,II,D)
 		}
 		L=reverse(LD);
 	}
-	if(type(Str=getopt(str))==4){
+	if(type(Str)==4){
 		if(length(Str)==1) Str=[Str[0],Str[0]];
-		if(Df==1 && length(Str)==2) Str=[Str[0],Str[1],Str[2]];
+		if(Df==1 && length(Str)==2) Str=[Str[0],Str[1],Str[1]];
 		for(S=Str,Str=[];S!=[];S=cdr(S)){
 			if(type(car(S))!=4) Str=cons([car(S),3],Str);
 			else Str=cons(car(S),Str);
@@ -18677,7 +18766,7 @@ def keyin(S)
 }
 
 def init() {
-	LS=["DIROUT","DVIOUTA","DVIOUTB","DVIOUTH","DVIOUTL","FCAT","TeXLim","TeXEq","TikZ",
+	LS=["DIROUT","DVIOUTA","DVIOUTB","DVIOUTH","DVIOUTL","TeXLim","TeXEq","TikZ",
 		"XYPrec","XYcm","Canvas"];
 	if(!access(get_rootdir()+"/help/os_muldif.dvi")||!access(get_rootdir()+"/help/os_muldif.pdf"))
 		mycat(["Put os_muldif.dvi and os_muldif.pdf in", get_rootdir()+(isMs()?"\\help.":"/help.")]);
@@ -18687,7 +18776,6 @@ def init() {
 		DVIOUTB=str_subst(DVIOUTB,[["\\","/"],[".bat",".sh"]],0);
 		DVIOUTL=str_subst(DVIOUTL,[["\\","/"],[".bat",".sh"]],0);
 		DVIOUTH="%ASIRROOT%/help/os_muldif.pdf";
-		FCAT=str_subst(DVIOUTB,"\\","/");
 	}
 	Home=getenv("HOME");
 	if(type(Home)!=7)	Home="";
@@ -18715,27 +18803,26 @@ def init() {
 							else if(P[0]==2)	DVIOUTB=SS;
 							else if(P[0]==3)	DVIOUTH=SS;
 							else if(P[0]==4)	DVIOUTL=SS;
-							else if(P[0]==5)	CATF=SS;
 						}
 					}
 					if(P0<0 || P1<P0+2) mycat(["Error!  Definiton of", LS[P[0]], 
 						"in .muldif"]);
 				}else{
 					SV=eval_str(str_cut(S,P0+1,str_len(S)-1));
-					if(P[0]==6)			TeXLim=SV;
-					else if(P[0]==7)	TeXEq=SV;
-					else if(P[0]==8)	TikZ=SV;
-					else if(P[0]==9)	XYPrec=SV;
-					else if(P[0]==10)	XYcm=SV;
-					else if(P[0]==11)	XYcm=Canvas;
+					if(P[0]==5)			TeXLim=SV;
+					else if(P[0]==6)	TeXEq=SV;
+					else if(P[0]==7)	TikZ=SV;
+					else if(P[0]==8)	XYPrec=SV;
+					else if(P[0]==9)	XYcm=SV;
+					else if(P[0]==10)	XYcm=Canvas;
 				}
 			}
 		}
 		close_file(Id);
 	}
-	if(type(TEMP=getenv("temp"))!=7) TEMP="";
-	if(type(HOME=getenv("HOME"))!=7) HOME="";
-	FCAT=str_subst(FCAT,[["%TEMP%",TEMP],["%HOME%",HOME],["%ASIRROOT%",get_rootdir()]],0);	
+	DIROUTD=str_subst(DIROUT,["%HOME%","%ASIRROOT%","%TMP%","%TEMP%"],
+		[getenv("HOME"),get_rootdir(),getenv("TMP"),getenv("TEMP")])
+		+((isMs())?"\\":"/");
 	chkfun(1,0);
 }
 
