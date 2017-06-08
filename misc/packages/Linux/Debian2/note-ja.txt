@@ -48,6 +48,8 @@ A.  orange (32bit, etch),  orange3m (64bit) で作業. (orange3c では a
      [knoppix/math:  make USER=taka ]
      << tar: file changed as we read it. 1.17 よりエラーコードを戻す. dpkg-deb
         make をもう一度やると, このエラーがでなくなる. 下のR参照. >>
+    (orange では openjdk-7-jdk --> sun-java5-jdk, libtinfo-dev なので
+     debian/control を書き直して, commit せず, build が終わったら rcvs update で元へ戻す)
    6. make copy-tar-ball-and-asir
      [knoppix/math:  make USER=taka copy-tar-ball-and-asir]
    (7. orange2 で /root/bin/mirror-pub
@@ -249,7 +251,7 @@ A. rm /var/cache/apt/archives/xxx.deb
    apt-cache showpg openxm
    など.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.29 2016/02/12 07:37:32 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.30 2016/06/02 01:00:30 takayama Exp $
 
 
    
