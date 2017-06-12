@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM$
+# $OpenXM: OpenXM/doc/OpenXM-web/src/os_muldif-get.sh,v 1.1 2017/03/31 01:03:51 takayama Exp $
 OpenXM_HOME=/home/taka/OX4/OX64/OpenXM
 #OpenXM_HOME=/home/nobuki/OX4/OpenXM
 OX_MULDIF=${OpenXM_HOME}/src/asir-contrib/packages/src/os_muldif.rr
@@ -24,6 +24,10 @@ if diff -B -b -q muldif/tmp-os_muldif.rr ${OX_MULDIF} >/dev/null ; then
 else
   mail -s 'os_muldif_is_updated_check_ox_current_doc_other_docs' takayama@math.kobe-u.ac.jp </dev/null
 fi
+if true ; then
+(cd muldif ; curl ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif/changelog.txt >changelog.txt)
+fi
+
 
 
 
