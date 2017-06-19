@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.15 2017/06/02 05:36:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.16 2017/06/08 06:41:51 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -452,7 +452,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00170607"$
+Muldif.rr="00170612"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3247,7 +3247,7 @@ def lsort(L1,L2,T)
 			}else if(L2=="transpose") return mtranspose(L1);
 			else if(L2=="subst"||L2=="adjust"){
 				Null=(!K)?"":car(K);
-				if(L2=="adjust) C1=[];
+				if(L2=="adjust") C1=[];
 				R=lv2m(L1|null="");
 				for(;C1!=[];C1=cdr(C1)) R[car(C1)[0]][car(C1)[1]]=car(C1)[2]; 
 				return m2ll(R);
@@ -5830,14 +5830,31 @@ def evalred(F)
 		 Opt=[];
 	}else if(length(Opt)==2 && type(Opt[0])!=4)	Opt=[Opt];
 	for(;;){
-		G=mysubst(F,[[sin(0),0],[tan(0),0],[asin(0),0],[atan(0),0],[sinh(0),0],[tanh(0),0],
-			[log(1),0],[cos(0),1],[cosh(0),1],[exp(0),1]]);
+		G=mysubst(F,[[tan(0),0],[asin(0),0],[atan(0),0],[sinh(0),0],[tanh(0),0],
+			[log(1),0],[cosh(0),1],[exp(0),1]]);
 		for(Rep=Opt; Rep!=[]; Rep=cdr(Rep))
 			G=subst(G,car(Rep)[0],car(Rep)[1]);
 		Var=vars(G);
 		for(V=Var; V!=[]; V=cdr(V)){
-			if(functor(car(V))!=pow || (P=args(car(V))[0])!=1) continue;
-			G=subst(G,car(V),1);
+			if(!(VV=args(CV=car(V)))) continue;
+			if((functor(CV)==sin||functor(CV)==cos)){
+				P=2*red(VV[0]/@pi);
+				if(functor(CV)==sin) P=1-P;
+				if(isint(P)){
+					if(iand(P,1)) G=subst(G,CV,0);
+					else if(!iand(P,3)) G=subst(G,CV,1);
+					else G=subst(G,CV,-1);
+					continue;
+				}
+				if(isint(P*=3/2)){
+					if(iand(P,3)==1) G=subst(G,CV,1/2);
+					else G=subst(G,CV,-1/2);
+				}
+			}
+			for(;VV!=[];VV=cdr(VV))
+				if(car(VV)!=(TV=evalred(car(VV)))) G=subst(G,car(VV),TV);
+			if(functor(CV)!=pow || (args(CV)[0])!=1) continue;
+			G=subst(G,CV,1);
 		}
 		if(G==F) return F;
 		F=G;
@@ -7701,6 +7718,7 @@ def spgen(MO)
 					B=cons(sub_str(S,P0,P1-1),B);
 				}
 			}
+			close_file(Id);
 		}else{
 			MO/=2;
 			if(L1<=1) L1=MO+4;
@@ -11738,7 +11756,7 @@ def mysin(Z)
 def mytan(Z)
 {
 	if(type(Z=eval(Z))>1) return todf(os_md.mytan,[Z]);
-	if((Im=imag(Z))==0) return dsin(Z);
+	if((Im=imag(Z))==0) return dtan(Z);
 	V=myexp(2*Z*@i);
 	return @i*(1-V)/(1+V);
 }
@@ -12950,7 +12968,11 @@ def polroots(L,V)
 	Lim=Lim2=[];
 	if(type(L)<4){
 		if(type(Lim=getopt(lim))==4){
-			if(type(Lim[0])!=4) Lim=[Lim];
+			if(type(Lim[0])!=4){
+				if(!isvar(Lim[0])) Lim=cons(V,[Lim]);
+				Lim=[Lim];
+			}
+			if(!isvar(Lim[0][0])) Lim=[cons(V,Lim)];
 			Lim=delopt(Lim,V|inv=1);
 			if(Lim!=[]){
 				Lim=Lim[0];
@@ -13038,6 +13060,7 @@ def polroots(L,V)
 	for(SS=[];R!=[];R=cdr(R)){
 		RS=(N==2)?[car(R)]:car(R);
 		for(I=0,L0=L[0];I<N-1;I++) L0=mysubst(L0,[V1[I],RS[I]]);
+		if(L0==0) return 0;
 		S0=polroots(L0,V[0]|option_list=OL);
 		if(type(S0)<2) return S0;
 		for(S=S0;S!=[];S=cdr(S)){
@@ -18820,9 +18843,6 @@ def init() {
 		}
 		close_file(Id);
 	}
-	DIROUTD=str_subst(DIROUT,["%HOME%","%ASIRROOT%","%TMP%","%TEMP%"],
-		[getenv("HOME"),get_rootdir(),getenv("TMP"),getenv("TEMP")])
-		+((isMs())?"\\":"/");
 	chkfun(1,0);
 }
 
