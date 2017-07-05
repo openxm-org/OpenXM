@@ -26,6 +26,15 @@ ftp://ftp.math.kobe-u.ac.jp/pub/XXX no longer works. Use http://www.math.kobe-u.
 <h2> News </h2>
 
 <ul>
+<li> Debian package openxm-1.3.2-3 (network installer, 64bit) can be obtained from
+  <a href="http://fe.math.kobe-u.ac.jp/MathLibre-amd64"> here </a>.
+  Please read <a href="http://fe.math.kobe-u.ac.jp/MathLibre/readme-en.html">readme-en.html</a>
+  in the directory. 
+  (Mar 1, 2017. openxm-1.3.2-3)
+<li> Bug fix (ox_pari does not start with "invalid server id" in 1.3.2-3): execute the following commands as the root.
+<pre>
+(cd  /usr/local/OpenXM/lib/asir ; rm ox_pari ; ln -s ../../bin/ox_pari ox_pari)
+</pre>
 <li> Debian package openxm-1.3.2-1 (network installer, 64bit) can be obtained from
   <a href="http://fe.math.kobe-u.ac.jp/MathLibre-amd64-2016"> here </a>.
   Please read <a href="http://fe.math.kobe-u.ac.jp/MathLibre/readme-en.html">readme-en.html</a>
@@ -158,7 +167,7 @@ nk_mora (tangent cone algorithm for D, local b-function) (Nov 11, 2005).
 </ul>
 
 <pre>
-$OpenXM: OpenXM/doc/OpenXM-web/news-o.html,v 1.13 2016/03/29 06:28:27 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/news-o.html,v 1.14 2016/03/31 07:49:28 takayama Exp $
 </pre>
 
 </BODY>
