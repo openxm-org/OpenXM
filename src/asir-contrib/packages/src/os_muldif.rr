@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.16 2017/06/08 06:41:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.17 2017/06/19 02:10:04 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - June 2017)
+ *          Toshio Oshima (Nov. 2007 - July 2017)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -399,6 +399,8 @@ localf areabezier$
 localf saveproc$
 localf xygraph$
 localf xy2graph$
+localf xycurve$
+localf xygrid$
 localf xyarrow$
 localf xyarrows$
 localf xyang$
@@ -452,7 +454,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00170612"$
+Muldif.rr="00170708"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -617,6 +619,12 @@ def mycat(L)
 def fcat(S,X)
 {
 	if(type(S)!=7){
+		if(type(DIROUTD)!=7){
+			DIROUTD=str_subst(DIROUT,["%HOME%","%ASIRROOT%","\\"],
+				[getenv("HOME"),get_rootdir(),"/"])+"/";
+			if(isMs()) DIROUTD=str_subst(DIROUTD,"/","\\"|sjis=1);
+		}
+		if(S==-1) return;
 		T="fcat";
 		if(S>=2&&S<=9) T+=rtostr(S);
 		T=DIROUTD+T+".txt";
@@ -1246,21 +1254,36 @@ def mulseries(V1,V2)
 def scale(L)
 {
 	T=0;LS=1;
+	Pr=getopt(prec);
 	if(type(L)!=4){
 		if(L==2){
-			L=[[[1,2,1/20],[2,5,1/10],[5,10,1/5], [10,20,1/2],[20,50,1],[50,100,2]],
+			L=(Pr!=1)?
+			  [[[1,2,1/20],[2,5,1/10],[5,10,1/5], [10,20,1/2],[20,50,1],[50,100,2]],
     		   [[1,2,1/10],[2,5,1/2], [10,20,1],[20,50,5]],
-    		   [[1,2,1/2],[2,10,1], [10,20,5],[20,100,10]]];
+    		   [[1,2,1/2],[2,10,1], [10,20,5],[20,100,10]]]:
+			   [[[1,2,1/50],[2,5,1/20],[5,10,1/10], [10,20,1/5],[20,50,1/2],[50,100,1]],
+				[[1,5,1/10],[5,10,1/2], [10,20,1],[50,100,5]],
+				[[1,5,1/2],[5,10,1], [10,50,5],[50,100,10]]];
 			LS=2;
 		}else if(L==3){
-			L=[[[1,2,1/20],[2,5,1/10],[5,10,1/5], [10,20,1/2],[20,50,1],[50,100,2],
-                [100,200,5],[200,500,10],[500,1000,20]],
+			L=(Pr!=1)?
+			  [[[1,2,1/20],[2,5,1/10],[5,10,1/5], [10,20,1/2],[20,50,1],[50,100,2],
+                  [100,200,5],[200,500,10],[500,1000,20]],
     			[[1,2,1/10],[2,5,1/2], [10,20,1],[20,50,5], [100,200,10],[200,500,50]],
-    			[[1,2,1/2],[2,10,1], [10,20,5],[20,100,10], [100,200,50],[200,1000,100]]];
+    			[[1,2,1/2],[2,10,1], [10,20,5],[20,100,10], [100,200,50],[200,1000,100]]]:
+			  [[[1,2,1/50],[2,5,1/20],[5,10,1/10],[10,20,1/5],[20,50,1/2],[50,100,1], 
+			      [100,200,2],[200,500,5],[500,1000,10]],
+				[[1,5,1/10],[5,10,1/2], [10,50,1],[50,100,5], [100,500,10],[500,1000,50]],
+				[[1,5,1/2],[5,10,1], [10,50,5],[50,100,10], [100,500,50],[500,1000,100]]];
 			LS=3;
 		}else{
-			L=[[[1,2,1/50],[5,10,1/2],[5,10,1/10]],[[1,5,1/10],[5,10,1/2]],
-				[[1,5,1/2],[5,10,1]]];
+			L=(Pr!=1)?
+			   [[[1,2,1/50],[2,5,1/20],[5,10,1/10]],
+				[[1,5,1/10],[5,10,1/2]],
+				[[1,5,1/2],[5,10,1]]]:
+			   [[[1,2,1/100],[2,5,1/50],[5,10,1/20]],
+			    [[1,2,1/20],[2,10,1/10]],
+			    [[1,2,1/10],[2,10,1/2]]];
 		}
 	}else if(type(L[0])!=4){
 		L=[L];
@@ -1285,41 +1308,48 @@ def scale(L)
 	SC=getopt(scale);
 	if(type(SC)==4){
 		S0=SC[0];S1=SC[1];
-	}else if(type(S)==1){
-		S0=S;S1=0;
+	}else if(type(SC)==1){
+		S0=SC;S1=0;
 	}else return T;
 	if(type(D=getopt(shift))==4){
 		D0=D[0];D1=D[1];
 	}
 	if(type(F=getopt(f))>1) F=f2df(F);
 	else F=0;
-	for(M=[],I=length(T);T!=[];T=cdr(T),I--){
+	for(M=M0=[],I=length(T);T!=[];T=cdr(T),I--){
 		for(S=car(T);S!=[];S=cdr(S)){
 			V=((!F)?dlog(car(S))/dlog(10)/LS:myfdeval(F,car(S)))*S0;
 			if(S1!=0){
 				M=cons([V+D0,D1],M);
 				M=cons([V+D0,I*((length(SC)>2)?SC[I]:S1)+D1],M);
 				M=cons(0,M);
-			}else M=cons(V+D0,M);
+			}else M0=cons(V+D0,M0);
 		}
+		if(S1==0) M=cons(reverse(M0),M);
 	}
 	if(S1!=0) M=cdr(M);
+	if(S1==0||getopt(TeX)!=1) return M;
 	M=reverse(M);
-	if(getopt(TeX)==1){
-		if(type(U=getopt(line))==4)
-			M=cons([U[0]+D0,D1],cons([U[1]+D0,D1],cons(0,M)));
-		S=xylines(M);
-		if(type(Mes=getopt(mes))==4){
-			S3=car(Mes);
-			V=car(scale(cdr(Mes)));
-			if(!F) Mes=scale(cdr(Mes)|scale=[S0/LS,0],shift=[D0,D1]);
-			else Mes=scale(cdr(Mes)|f=F,scale=[S0,0],shift=[D0,D1]);
-			for(M=Mes;M!=[];M=cdr(M),V=cdr(V))
-				S+=xyput([car(M),S3,deval(car(V))]);
+	if(type(U=getopt(line))==4)
+		M=cons([U[0]+D0,D1],cons([U[1]+D0,D1],cons(0,M)));
+	if(type(Col=getopt(col))<1) S=xylines(M);
+	else S=xylines(M|opt=Col);
+	if(type(Mes=getopt(mes))==4){
+		S3=car(Mes);
+		if(type(S3)==4){
+			Col=S3[1];
+			S3=car(S3);
+		}else Col=0;
+		V=car(scale(cdr(Mes)));
+		if(!F) Mes=scale(cdr(Mes)|scale=[S0/LS,0],shift=[D0,D1]);
+		else Mes=scale(cdr(Mes)|f=F,scale=[S0,0],shift=[D0,D1]);
+		for(M=car(Mes);M!=[];M=cdr(M),V=cdr(V)){
+			VT=deval(car(V));
+			if(Col!=0) VT=[Col,VT];
+			S+=xyput([car(M),S3,VT]);
 		}
-		return S;
 	}
-	return M;
+	return S;
 }
 
 def pluspower(P,V,N,M)
@@ -10350,6 +10380,7 @@ def tocsv(L)
 	S=str_tb(0,Tb);
 	if(type(EXE=getopt(exe))!=1&&EXE!=0&&type(EXE)!=7) return S;
 	if(type(F)!=7){
+		fcat(-1,0);
 		F="risaout";
 		if(EXE>=2&&EXE<=9) F+=rtostr(EXE);
 		F=DIROUTD+F+".csv";
@@ -11260,9 +11291,176 @@ def saveproc(S,Out)
 	}
 }
 
+def xygrid(X,Y)
+{
+	for(RR=[],I=0,Z=X;I<2;I++){
+		U=Z[2];L=[];M=Z[3];
+		if(Z[1]==1){
+			if(type(M)==4) L=M;
+			else{
+				if(U*(-dlog(1-1/20)/dlog(10))>=M)
+					L=cons([1,2,1/10],L);
+				else if(U*(-dlog(1-1/10)/dlog(10))>=M)
+					L=cons([1,2,1/5],L);
+				else if(U*(-dlog(1-1/4)/dlog(10))>=M)
+					L=cons([1,2,1/2],L);
+				if(U*(-dlog(1-1/50)/dlog(10))>=M)
+					L=cons([2,5,1/10],L);
+				else if(U*(-dlog(1-1/25)/dlog(10))>=M)
+					L=cons([2,5,1/5],L);
+				else if(U*(-dlog(1-1/10)/dlog(10))>=M)
+					L=cons([2,5,1/2],L);
+				if(U*(-dlog(1-1/100)/dlog(10))>=M)
+					L=cons([5,10,1/10],L);
+				else if(U*(-dlog(1-1/50)/dlog(10))>=M)
+					L=cons([5,10,1/5],L);
+				else if(U*(-dlog(1-1/20)/dlog(10))>=M)
+					L=cons([5,10,1/2],L);
+				L=cons(L,[[[1,10,1]]]);
+			}
+			R=scale(L|scale=U);
+		}else if(Z[1]==0){
+			if(type(M)==4){
+				R=scale(M|f=x,scale=U);
+			}else{
+				V=0;
+				if(U/10>=M) V=1/10;
+				else if(U/5>=M) V=1/5;
+				else if(U/2>=M) V=1/2;
+				R=[];
+				if(V>0){
+					UU=U*V;
+					for(R=[],J=UU;J<U;J+=UU) R=cons(J,R);
+				}
+				R=cons(R,[[0,U]]);
+			}
+		}else if(type(Z[1])==4){
+			R=Z[1];
+			if(length(R)==0||type(R[0])!=4) R=[[],R];
+		}else return 0;
+		for(S=[],J=0;J<=Z[0];J+=U){
+			for(P=R[0];P!=[];P=cdr(P))
+				if(car(P)+J<=Z[0]) S=cons(car(P)+J,S);
+		}
+		for(T=[],J=0;J<=Z[0];J+=U){
+			for(P=R[1];P!=[];P=cdr(P))
+				if(car(P)+J<=Z[0]) T=cons(car(P)+J,T);
+		}
+		S=lsort(S,[],1);T=lsort(T,[],1);S=lsort(S,T,1);
+		RR=cons([S,T],RR);
+		Z=Y;
+	}
+	if((Raw=getopt(raw))==1) return RR;
+	SS=[];
+	if(type(Sf=getopt(shift))==7){
+		Sx=Sf[0];Sy=Sf[1];
+	}else Sx=Sy=0;
+	for(I=0;I<2;I++){
+		for(S0=[],L=RR[I];L!=[];L=cdr(L)){
+			for(S=[],T=car(L);T!=[];T=cdr(T)){
+				if(S!=[]) S=cons(0,S);
+				if(I==0){
+					S=cons([X[0]+Sx,car(T)+Sy],S);
+					S=cons([Sx,car(T)+Sy],S);
+				}else{
+					S=cons([car(T)+Sx,Y[0]+Sy],S);
+					S=cons([car(T)+Sx,Sy],S);
+				}
+			}
+			S0=cons(S,S0);
+		}
+		SS=cons(reverse(S0),SS);
+	}
+	SS=reverse(SS);
+	if(Raw==2) return SS;
+	if(length(Y)<5) T=[["",""]];
+	else if(type(Y[4])==4) T=[Y[4]];
+	else T=[Y[4],Y[4]];
+	if(length(X[4])==4) T=cons([""],T);
+	else if(type(X[4])==4) T=cons(X[4],T);
+	else T=cons([X[4]],T);
+	for(Sx=Sy=[],I=0;I<2;I++){
+		TT=T[I];
+		for(V=SS[I];V!=[];V=cdr(V)){
+			Op=car(TT);
+			if(length(TT)>1) TT=cdr(TT);
+			if(car(V)==[]) continue;
+			if(Op=="") S=xylines(car(V));
+			else S=xylines(car(V)|opt=Op);
+			if(I==0) Sx=cons(S,Sx);
+			else Sy=cons(S,Sy);
+		}
+	}
+	for(S="",Sx=reverse(Sx), Sy=reverse(Sy);Sx!=[]&&Sy!=[];){
+		if(Sx!=[]){
+			S+=car(Sx);Sx=cdr(Sx);
+		}
+		if(Sy!=[]){
+			S+=car(Sy);Sy=cdr(Sy);
+		}
+	}
+	return S;
+}
+
+
+/*
+def xy2cross(F,G)
+{
+	X=ptcombz(F[0],(G==0)?0:G[0]);
+	for(XT=X;XT!=[];XT=cdr(XT)){
+		
+	}
+}
+
+def xy2curve(F,N,Lx,Ly,Lz,A,B)
+{
+	Raw=getopt(Raw);
+	if(type(Sc=getopt(scale))!=1 && type(Sc)!=4) Sc=[1,1];
+	else if(type(Sc)!=4) Sc=[Sc,Sc];
+	M=diagm(3,[Sc[0],Sc[0],Sc[1]]);
+	Pi=deval(@pi);
+	Ac=dcos(Pi*A/180);As=dcos(Pi*A/180);
+	M=mat([Ac,As,0],[-As,Ac,0],[0,0,1])*M;
+	Ac=deval(dcos(@pi*B/180);As=dsin(@pi*A/180);
+	M=mat([Ac,0,As],[0,1,0],[-As,0,Ac])*M;
+	V=M*newvect(3,[x,y,z]);
+	Fx=compdf(V[0],[x,y,z],F);Fy=compdf(V[1],[x,y,z],F);Fz=compdf(V[2],[x,y,z],F);
+	if(Raw==-1) return [Fx,Fy,Fz];
+	R=xygraph([Fy,Fz],N,Lx,Ly,Lz|raw=2);
+	Be=xylines(car(R)|curve=1,proc=3);  // close=-1
+	Be=cdr(cdr(Be));
+	for(Ce=[],T=Be,VT=V;T!=[];T=cdr(T)){
+		if(car(T)!=4){
+			Ce=cons(car(T),Ce);
+			continue;
+		}
+		Ce=cons([car(VT)],Ce);
+		VT=cdr(VT);
+	}
+	Be=lbezier(Be);
+	Ce=lbezier(reverse(Ce));
+	if(Raw==2) return [Be,Ce,Lx];
+	X=ptcombz(F[0],0);
+	for(R=[],XT=X;XT!=[];XT=cdr(XT)){
+		V=car(XT);
+		U=Ce[V[0][0]];
+		T=U[0]*V[1][0]+U[1]*(1-V[0][1]);
+		VV=myfdeval(Lx,T);
+		U=Ce[V[0][1]];
+		T=U[0]*V[1][1]+U[1]*(1-V[1][1]);
+		VV-=myfdeval(Lx,T);
+		I=(VV<0)?1:0;
+		R=cons([V[0][I],V[1][I]],R);
+	}
+	R=qsort(R);
+	if(Raw==R) return [Be,R];
+}
+*/
+
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 {
-	/* (x,y,z) -> ( -x sin A + y cos A, z cos B - x cos A sin B - y sin A sin B) */
+	/* (x,y,z) -> (z sin B + x cos A cos B + y sin A cos B, 
+	    -x sin A + y cos A, z cos B - x cos A sin B - y sin A sin B) */
 	if((Proc=getopt(proc))==1||Proc==2){
 		OPT0=[["proc",3]];
 	}else{
@@ -12710,7 +12908,8 @@ def xygraph(F,N,LT,LX,LY)
 		}
 		V=reverse(NV);
 	}
-	if(getopt(raw)==1) return V;
+	if((Raw=getopt(raw))==1) return V;
+	if(Raw==2) return [V,LT];
 	OL=[["curve",1]];OLP=[];
 	if(type(C=getopt(ratio))==1){
 		OL=cons(["ratio",C],OL);OLP=cons(["ratio",C],OLP);
@@ -13034,7 +13233,7 @@ def polroots(L,V)
 	if(SS==0&&INIT==1){
 		SS=polroots(L,V|option_list=OL);
 		if(SS!=0) return SS;
-		for(C=0;SS==0&&C<4;C++){
+		for(C=0;SS==0&&C<5;C++){
 			I=(C==0)?1:(iand(random(),0xff)-0x80);
 			for(LL=[],K=length(L)-1;K>=0;K--){
 				for(Q=0,J=length(L)-1;J>=0;J--)
@@ -18813,7 +19012,7 @@ def init() {
 	}
 	if(Id>=0){
 		while((S=get_line(Id))!=0){
-			if(type(P=str_str(S,LS))==4 && (P0=str_char(S,P[1]+5,"="))>0){
+			if(type(P=str_str(S,LS))==4 && (P0=str_char(S,P[1]+4,"="))>0){
 				if(P[0]<5){
 					P0=str_chr(S,P0+1,"\"");
 					if(P0>0){
@@ -18837,7 +19036,7 @@ def init() {
 					else if(P[0]==7)	TikZ=SV;
 					else if(P[0]==8)	XYPrec=SV;
 					else if(P[0]==9)	XYcm=SV;
-					else if(P[0]==10)	XYcm=Canvas;
+					else if(P[0]==10)	Canvas=SV;
 				}
 			}
 		}

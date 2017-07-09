@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.23 2013/12/15 23:25:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.24 2013/12/18 04:31:25 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -327,8 +327,13 @@ def taka_runge_kutta_4_linear(F,X,Y,X0,Y0,H,X1) {
 /* N : rank of the ODE. */
   extern Taka_Runge_kutta_adapted0, Taka_Runge_kutta_epsilon,
          Taka_Runge_kutta_graphic0, Taka_Runge_kutta_yrange,
-         Taka_Runge_kutta_save_data, Taka_Runge_kutta_debug;
+         Taka_Runge_kutta_save_data, Taka_Runge_kutta_debug,
+         Tk_rk_deep_eval;
 
+  if (type(getopt(number_eval))>0) {
+    Neval=1;  Tk_rk_deep_eval=1;
+  } else Neval=0; 
+  //printf("Neval=%a\n",Neval);
   OneStep = getopt(onestep);
   if (type(OneStep) <= 0) OneStep = 0; else OneStep = 1;
   if (OneStep) X1=X0+2*H;
@@ -369,6 +374,7 @@ def taka_runge_kutta_4_linear(F,X,Y,X0,Y0,H,X1) {
     taka_runge_kutta_replace_linear(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H,Inhom);
     taka_runge_kutta_replace_linear(K4,F,Y,N,X,Xk+H,Yk+K3*H,Inhom);
     Yk1 = Yk+H*(K1/6+K2/3+K3/3+K4/6);
+    if (Neval) {Yk=number_eval(Yk); Yk1 = number_eval(Yk1);}
     if (Taka_Runge_kutta_debug) print([Xk,Yk[0]]);
     if (Taka_Runge_kutta_save_data) {
       Ans = cons(cons(Xk,vtol(Yk)),Ans);
@@ -483,6 +489,7 @@ def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
     /* opposite direction */
     if (H<0) H=-H;
     Opt = [];
+    if (type(getopt(number_eval)) >= 0) Opt=[["number_eval",getopt(number_eval)]];
     if (type(getopt(onestep)) >= 0) Opt=[["onestep",getopt(onestep)]];
     if (type(getopt(inhom)) >= 0) Inhom = getopt(inhom); else Inhom = 0;
     if (Inhom != 0) {
