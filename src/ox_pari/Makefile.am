@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/ox_pari/Makefile.am,v 1.4 2016/09/26 13:05:17 ohara Exp $
+## $OpenXM: OpenXM/src/ox_pari/Makefile.am,v 1.5 2016/09/26 14:50:40 ohara Exp $
 
 AUTOMAKE_OPTIONS = foreign no-dependencies 1.5
 DISTCLEANFILES     = .configure_done
@@ -16,4 +16,4 @@ ox_pari_SOURCES = ox_pari.c convert.c pari_ftab.c
 install-exec-hook: 
 	-@${MKDIR_P} ${libdir}/asir
 	-@rm -f ${libdir}/asir/ox_pari
-	(cd ${libdir}/asir && ${LN_S} ${bindir}/ox_pari${EXEEXT} ox_pari${EXEEXT} )
+	(cd ${libdir}/asir && ${LN_S} ../../bin/ox_pari${EXEEXT} ox_pari${EXEEXT} )
