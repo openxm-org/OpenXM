@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.17 2017/06/19 02:10:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.18 2017/07/09 23:57:36 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -399,6 +399,7 @@ localf areabezier$
 localf saveproc$
 localf xygraph$
 localf xy2graph$
+localf xy2curve$
 localf xycurve$
 localf xygrid$
 localf xyarrow$
@@ -632,10 +633,11 @@ def fcat(S,X)
 		if(S!=0&&access(T)) remove_file(T);
 		S=T;
 	}
-	output(S);
+	R=output(S);
 	print(X);
 	output();
 	if(getopt(exe)==1) shell("\""+S+"\"");
+	return R;
 }
 
 def mycat0(L,T)
@@ -737,7 +739,7 @@ def mydiff(P,X)
 		for(;X!=[];X=cdr(X)) P=mydiff(P,car(X));
 		return P;
 	}
-	if(deg(dn(P),X) == 0) 
+	if(ptype(dn(P),X)<2) 
 		return red(diff(nm(P),X)/dn(P));
 	return red(diff(P,X));
 }
@@ -11294,31 +11296,42 @@ def saveproc(S,Out)
 def xygrid(X,Y)
 {
 	for(RR=[],I=0,Z=X;I<2;I++){
-		U=Z[2];L=[];M=Z[3];
-		if(Z[1]==1){
+		U=Z[2];L=LL=[];M=Z[3];
+		if(Z[1]==1||Z[1]==-1){
 			if(type(M)==4) L=M;
 			else{
-				if(U*(-dlog(1-1/20)/dlog(10))>=M)
+				if(U*(-dlog(1-1/20)/dlog(10))>=M){
 					L=cons([1,2,1/10],L);
-				else if(U*(-dlog(1-1/10)/dlog(10))>=M)
+					LL=cons([1,2,1/2],LL);
+				}else if(U*(-dlog(1-1/10)/dlog(10))>=M)
 					L=cons([1,2,1/5],L);
 				else if(U*(-dlog(1-1/4)/dlog(10))>=M)
 					L=cons([1,2,1/2],L);
-				if(U*(-dlog(1-1/50)/dlog(10))>=M)
+				if(U*(-dlog(1-1/50)/dlog(10))>=M){
 					L=cons([2,5,1/10],L);
-				else if(U*(-dlog(1-1/25)/dlog(10))>=M)
+					LL=cons([2,5,1/2],LL);
+				}else if(U*(-dlog(1-1/25)/dlog(10))>=M)
 					L=cons([2,5,1/5],L);
 				else if(U*(-dlog(1-1/10)/dlog(10))>=M)
 					L=cons([2,5,1/2],L);
-				if(U*(-dlog(1-1/100)/dlog(10))>=M)
+				if(U*(-dlog(1-1/100)/dlog(10))>=M){
 					L=cons([5,10,1/10],L);
+					LL=cons([5,10,1/2],LL);
+				}
 				else if(U*(-dlog(1-1/50)/dlog(10))>=M)
 					L=cons([5,10,1/5],L);
 				else if(U*(-dlog(1-1/20)/dlog(10))>=M)
 					L=cons([5,10,1/2],L);
-				L=cons(L,[[[1,10,1]]]);
+				L=cons(L,cons(LL,[[[1,10,1]]]));
 			}
 			R=scale(L|scale=U);
+			if(Z[1]==-1){
+				for(LL=[];R!=[];R=cdr(R)){
+					for(L=[],T=car(R);T!=[];T=cdr(T)) L=cons(U-car(T),L);
+					LL=cons(reverse(L),LL);
+				}
+				R=reverse(LL);
+			}
 		}else if(Z[1]==0){
 			if(type(M)==4){
 				R=scale(M|f=x,scale=U);
@@ -11332,22 +11345,27 @@ def xygrid(X,Y)
 					UU=U*V;
 					for(R=[],J=UU;J<U;J+=UU) R=cons(J,R);
 				}
-				R=cons(R,[[0,U]]);
+				if(V==1/10) L=[U/2];
+				else L=[];
+				R=cons(R,cons(L,[[0,U]]));
 			}
 		}else if(type(Z[1])==4){
 			R=Z[1];
-			if(length(R)==0||type(R[0])!=4) R=[[],R];
+			if(length(R)==0||type(R[0])!=4) R=[[],[],R];
 		}else return 0;
-		for(S=[],J=0;J<=Z[0];J+=U){
-			for(P=R[0];P!=[];P=cdr(P))
-				if(car(P)+J<=Z[0]) S=cons(car(P)+J,S);
+		K=length(R);
+		S=newvect(K);
+		for(J=0;J<K;J++){
+			for(S[J]=[],JJ=0;JJ<=Z[0];JJ+=U){
+				for(P=R[J];P!=[];P=cdr(P))
+					if(car(P)+JJ<=Z[0]) S[J]=cons(car(P)+JJ,S[J]);
+			}
 		}
-		for(T=[],J=0;J<=Z[0];J+=U){
-			for(P=R[1];P!=[];P=cdr(P))
-				if(car(P)+J<=Z[0]) T=cons(car(P)+J,T);
+		for(J=0;J<K;J++) S[J]=lsort(S[J],[],1);
+		for(U=[],J=K-1;J>0;J--){
+			U=lsort(S[J],U,0);S[J-1]=lsort(S[J-1],U,1);
 		}
-		S=lsort(S,[],1);T=lsort(T,[],1);S=lsort(S,T,1);
-		RR=cons([S,T],RR);
+		RR=cons(vtol(S),RR);
 		Z=Y;
 	}
 	if((Raw=getopt(raw))==1) return RR;
@@ -11411,6 +11429,7 @@ def xy2cross(F,G)
 		
 	}
 }
+*/
 
 def xy2curve(F,N,Lx,Ly,Lz,A,B)
 {
@@ -11421,15 +11440,21 @@ def xy2curve(F,N,Lx,Ly,Lz,A,B)
 	Pi=deval(@pi);
 	Ac=dcos(Pi*A/180);As=dcos(Pi*A/180);
 	M=mat([Ac,As,0],[-As,Ac,0],[0,0,1])*M;
-	Ac=deval(dcos(@pi*B/180);As=dsin(@pi*A/180);
+	Ac=dcos(@pi*B/180);As=dsin(@pi*A/180);
 	M=mat([Ac,0,As],[0,1,0],[-As,0,Ac])*M;
 	V=M*newvect(3,[x,y,z]);
 	Fx=compdf(V[0],[x,y,z],F);Fy=compdf(V[1],[x,y,z],F);Fz=compdf(V[2],[x,y,z],F);
 	if(Raw==-1) return [Fx,Fy,Fz];
 	R=xygraph([Fy,Fz],N,Lx,Ly,Lz|raw=2);
-	Be=xylines(car(R)|curve=1,proc=3);  // close=-1
+	LT=R[1];
+	if(N<0){
+		Be=xylines(car(R)|curve=1,proc=3,close=-1);
+		LT=reverse(cdr(LT));
+		LT=reverse(cdr(LT));
+	}
+	else Be=xylines(car(R)|curve=1,proc=3);
 	Be=cdr(cdr(Be));
-	for(Ce=[],T=Be,VT=V;T!=[];T=cdr(T)){
+	for(Ce=[],T=Be,VT=LT;T!=[];T=cdr(T)){
 		if(car(T)!=4){
 			Ce=cons(car(T),Ce);
 			continue;
@@ -11440,7 +11465,8 @@ def xy2curve(F,N,Lx,Ly,Lz,A,B)
 	Be=lbezier(Be);
 	Ce=lbezier(reverse(Ce));
 	if(Raw==2) return [Be,Ce,Lx];
-	X=ptcombz(F[0],0);
+
+	X=ptcombz(Be,0);
 	for(R=[],XT=X;XT!=[];XT=cdr(XT)){
 		V=car(XT);
 		U=Ce[V[0][0]];
@@ -11455,7 +11481,6 @@ def xy2curve(F,N,Lx,Ly,Lz,A,B)
 	R=qsort(R);
 	if(Raw==R) return [Be,R];
 }
-*/
 
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 {
