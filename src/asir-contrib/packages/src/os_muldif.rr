@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.18 2017/07/09 23:57:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.19 2017/07/13 05:13:34 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -181,6 +181,8 @@ localf eta$
 localf jell$
 localf frac$
 localf erfc$
+localf orthpoly$
+localf schurpoly$
 localf fouriers$
 localf todf$
 localf f2df$
@@ -272,6 +274,7 @@ localf okuboetos$
 localf heun$
 localf fspt$
 localf abs$
+localf sgn$
 localf calc$
 localf isint$
 localf israt$
@@ -554,9 +557,11 @@ def makenewv(L)
 	if((V=getopt(var))<2) V="z_";
 	else if(isvar(V)) V=rtostr(V);
 	if(type(N=getopt(num))!=1) N=0;
-	Var=vars(L);
+	Var=varargs(L|all=1)[1];
+/*
 	for(Va=Var;Va!=[];Va=cdr(Va))
 		if(vtype(car(Va))==2) Var=append(vars(args(car(Va))),Var);
+*/
 	for(XX=[],I=J=0;;I++){
 		X=strtov(V+rtostr(I));
 		if(findin(X,Var)<0){
@@ -644,6 +649,7 @@ def mycat0(L,T)
 {
 	Opt = getopt(delim);
 	Del = (type(Opt) >= 0)?Opt:"";
+	if(type(L)!=4) L=[L];
 	while(L != []){
 		if(Do==1)
 			print(Del,0);
@@ -5812,7 +5818,7 @@ def pol2sft(F,A)
 
 def binom(P,N)
 {
-	if(type(N)!=1 || N<0) return 1;
+	if(type(N)!=1 || N<=0) return 1;
 	for(S=1;N>0;N--,P-=1)	S*=P/N;
 	return red(S);
 }
@@ -5828,6 +5834,7 @@ def expower(P,R,N)
 
 def seriesHG(A,B,X,N)
 {
+	if(N==0) return 1;
 	if(type(N)!=1 || N<0) return 0;
 	if(type(X)<4){
 		for(K=0,S=S0=1;K<N;K++){
@@ -7446,6 +7453,22 @@ def abs(X)
 		}else if(T==4) X=P?pari(abs,X,P):pari(abs,X);
 	}
 	return X;
+}
+
+def sgn(X)
+{
+	if(X==0) return 0;
+	if(type(X)==1){
+		return (X>0)?1:-1;
+	}
+	if(type(X)==5) X=vtol(X);
+	if(type(X)==4){
+		for(W=0,Y=X;Y!=[];Y=cdr(Y))
+			for(Z=cdr(Y);Z!=[];Z=cdr(Z))
+				if(car(Y)>car(Z)) W++;
+		if(getopt(val)==1) return W;
+		return (iand(W,1))?-1:1;
+	}
 }
 
 def calc(X,L)
@@ -11919,22 +11942,100 @@ def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 	if(Dvi<0) return Lout;
 }
 
+def orthpoly(N)
+{
+	F=0;
+	if(type(P=getopt(pol))==7){
+		for(L=["Le","Ge","Tc","2T","Ja","He","La","Se"];L!=[];L=cdr(L),F++)
+			if(str_str(P,car(L)|end=2)==0) break;
+	}else P=0;
+	if(type(D=N)==4) D=N[0];
+	if(!isint(D)||D<0) return 0;
+	if(F==0) return seriesHG([-D,D+1],[1],(1-x)/2,D);
+	if(F==1) return red(seriesHG([-D,D+2*N[1]],[N[1]+1/2],(1-x)/2,D)*binom(D+2*N[1]-1,D));
+	if(F==2) return seriesHG([-D,D],[1/2],(1-x)/2,D);
+	if(F==3){
+		if(D==0) return 0;
+		return orthpoly([D-1,1]|pol="Ge");
+	}
+	if(F==4) return red(seriesHG([-D,D+N[1]],[N[2]],x,D));
+	if(F==5){
+		for(S=I=1;I<=D;I+=2) S*=I;
+		if(iand(D,1)) return seriesHG([-(D-1)/2],[3/2],x^2/2,D-1)*x*S*(-1)^((D-1)/2);
+		else return seriesHG([-D/2],[1/2],x^2/2,D)*S*(-1)^(D/2);
+	}
+	if(F==6){
+		NN=(type(N)==4)?N[1]:0;
+		return red(seriesHG([-D],[NN+1],x,D)*binom(D+NN,D)); 
+	}
+	if(F==7){
+		NN=N[1];
+		for(S=1,I=1;I<=D;I++) S+=(-1)^I*binom(D,I)*binom(D+I,I)*sftpow(x,I)/sftpow(NN,I);
+		return S;
+	}
+	return 0;
+}
+
+def schurpoly(L)
+{
+	N=length(L);
+	for(R=[],I=1;L!=[];L=cdr(L),I++) R=cons(car(L)+N-I,R);
+	L=reverse(R);
+	if(type(X=getopt(var))!=4){
+		V=(type(X)>1)?X:"x";
+		for(X=[],I=0;I<N;I++) X=cons(makev([V,N-I]),X);
+	}
+	M=newmat(N,N);
+	for(I=0;I<N;I++)
+		for(J=0;J<N;J++) M[I][J]=X[I]^L[J];
+	P=det(M);
+	for(I=0;I<N;I++)
+		for(J=I+1;J<N;J++) P=sdiv(P,X[I]-X[J]);
+	return P;
+}
+
 def fouriers(A,B,X)
 {
+	if((Y=getopt(y))==0||type(Y)>0) Y=deval(Y);
+	else Y=0;
+	if((V=getopt(const))==0||type(V)>0){
+		V=myfeval(V,Y);
+		K=1;
+	}else K=0;
 	if(A!=[]&&type(car(A))>1){
-		for(C=[],I=A[1];I>=0;I--) C=cons(myfeval(car(A),I),C);
+		for(C=[],I=A[1];I>=K;I--) C=cons(myf2eval(car(A),I,Y),C);
+		if(K) C=cons(0,C);
 		A=C;
 	}
+	if(K){
+		if(A!=[]) A=cdr(A);
+		A=cons(V,A);
+	}
 	if(B!=[]&&type(car(B))>1){
-		for(C=[],I=B[1];I>0;I--) C=cons(myfeval(car(B),I),C);
+		for(C=[],I=B[1];I>0;I--) C=cons(myf2eval(car(B),I,Y),C);
 		B=C;
 	}
-	R=0;
+	L=length(B)+1;
+	if(length(A)>=L) L=length(A)+1;
+	if(type(Sum=getopt(sum))>0){
+		if(Sum==1) Sum=1-x;
+		else if(Sum==2) Sum=[(z__)/(3.1416*x),[z__,os_md.mysin,3.1416*x]];
+ 		else Sum=f2df(Sum);
+		C=[];
+		if(A!=[]){
+			C=cons(car(A),C);
+			A=cdr(A);
+		}
+		for(I=1;A!=[];A=cdr(A),I++) C=cons(car(A)*myf2eval(Sum,I/L,L),C);
+		A=reverse(C);
+		for(C=[],I=1;B!=[];B=cdr(B),I++) C=cons(car(B)*myf2eval(Sum,I/L,L),C);
+		B=reverse(C);
+	}
 	if(getopt(cpx)==1){
-	if(type(X=eval(X))>1) return todf([os_md.fouriers,[["cpx",1]]],[[A],[B],[X]]);
+		if(type(X=eval(X))>1) return todf([os_md.fouriers,[["cpx",1]]],[[A],[B],[X]]);
 		V=dexp(@i*X);
 		for(C=A,P=1,I=0;C!=[];C=cdr(C),I++){
-			R+=car(C)*P;
+			R+=S*car(C)*P;
 			P*=V;
 		}
 		V=dexp(-@i*X);
@@ -12450,10 +12551,6 @@ def compdf(F,V,G)
 {
 	FL=["abs","floor","rint","zeta","gamma","arg","real","imag","conj"];
 	FS=[os_md.abs,floor,rint,os_md.zeta,os_md.gamma,os_md.myarg,real,imag,conj];
-	if(type(V)==4){
-		for(;V!=[];V=cdr(V),G=cdr(G)) F=compdf(F,car(V),car(G));
-		return F;
-	}
 	if(type(F)==7){
 		if(str_str(F,"|")==0){
 			F="abs("+str_cut(F,1,str_len(F)-2)+")";
@@ -12474,7 +12571,20 @@ def compdf(F,V,G)
 	}
 	if(type(F)!=4) F=f2df(F);
 	if(type(G)!=4) G=f2df(G);
+	if(V==G) return F;	/* subst(F(V),V,G) */ 
 	VF=vars(F);VG=vars(G);
+	if(type(V)==4){
+		for(VT=[],VV=V;VV!=[];VV=cdr(VV)){
+			if(findin(car(VV),VF)>=0){
+				X=makenewv(append(VF,VG));
+				VF=cons(X,VF);
+				F=mysubst(F,[car(VV),X]);
+				VT=cons(X,VT);
+			}else VT=cons(car(VV),VT);
+		}
+		for(V=reverse(VT);V!=[];V=cdr(V),G=cdr(G)) F=compdf(F,car(V),car(G));
+		return F;
+	}
 	for(E=I=0;I<30;I++){
 		for(J=0;J<30;J++){
 			X=makev(["z__",I,J]);
@@ -12485,7 +12595,6 @@ def compdf(F,V,G)
 		if(E) break;
 	}
 	if(!E) return 0;
-	if(V==G) return F;	/* subst(F(V),V,G) */ 
 	if(type(G)<4) return mysubst(F,[V,G]);
 	if(type(F)<4) F=[F]; /* return compdf([X,[X,0,F]],V,G); */
 	F=mysubst(F,[V,X]);
@@ -13477,7 +13586,7 @@ def cutf(F,X,VV)
 			if(car(V)!=[] && car(V)[0]<X) return myfeval(car(V)[1],Y);
 			return myfeval(F,Y);
 		}
-		if(X>car(V)[0]) continue;
+		if(car(V)==[]||X>car(V)[0]) continue;
 		if(X==car(V)[0]) return car(V)[1];
 		return myfeval(F,Y);
 	}
@@ -13504,8 +13613,8 @@ def periodicf(F,L,X)
 	if(type(L)==4) L=[eval(L[0]),eval(L[1])];
 	else L=eval(L);
 	if(isvar(X)){
-		Y=makenewv([X,V]);
-		Z=makenewv([X,Y,V]);
+		Y=makenewv([X,F]);
+		Z=makenewv([X,Y,F]);
 		return [Z,[Z,os_md.periodicf,[mysubst(F,[x,Y])],(type(L)==4)?[L]:L,[[Y,X]]]];
 	}
 	if(type(X)==4){
