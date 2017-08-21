@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.19 2017/07/13 05:13:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.20 2017/08/17 01:33:12 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - July 2017)
+ *          Toshio Oshima (Nov. 2007 - Aug. 2017)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -458,7 +458,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00170708"$
+Muldif.rr="00170812"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -557,11 +557,7 @@ def makenewv(L)
 	if((V=getopt(var))<2) V="z_";
 	else if(isvar(V)) V=rtostr(V);
 	if(type(N=getopt(num))!=1) N=0;
-	Var=varargs(L|all=1)[1];
-/*
-	for(Va=Var;Va!=[];Va=cdr(Va))
-		if(vtype(car(Va))==2) Var=append(vars(args(car(Va))),Var);
-*/
+	Var=varargs(L|all=2);
 	for(XX=[],I=J=0;;I++){
 		X=strtov(V+rtostr(I));
 		if(findin(X,Var)<0){
@@ -17569,7 +17565,7 @@ def integrate(P,X)
 			if(S!=RR) R=cons([[1,RR=S]],R);
 			for(V=FR=[];R!=[];R=cdr(R))
 				if(car(R)!=FR) V=cons(FR=car(R),V);
-			Var=varargs(V|all=1)[1];
+			Var=varargs(V|all=2);
 			for(S0=[x0,x1,x2,x3],S=[t,s,u,v,w];S0!=[]&&S!=[];){
 				if(findin(car(S0),Var)<0){
 					S0=cdr(S0); continue;
@@ -18700,10 +18696,10 @@ def linfrac01(X)
 
 def varargs(P)
 {
-	if((All=getopt(all))!=1) All=0;
+	if((All=getopt(all))!=1&&All!=2) All=0;
 	V=vars(P);
 	for(Arg=FC=[];V!=[];V=cdr(V)){
-		if(vtype(CV=car(V))==0&&All==1){
+		if(vtype(CV=car(V))==0&&All!=0){
 			Arg=lsort([CV],Arg,0);
 		}
 		if(vtype(CV)!=2) continue;
@@ -18720,7 +18716,8 @@ def varargs(P)
 			}
 		}
 	}
-	return [FC,Arg];
+	Arg=reverse(Arg);
+	return (All==2)?Arg:[reverse(FC),Arg];
 }
 
 def pfargs(P,X)
