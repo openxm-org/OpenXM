@@ -1,20 +1,20 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.9 2009/05/16 04:45:43 ohara Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.10 2017/03/30 05:36:04 takayama Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
 OpenXM_man=${OpenXM_HOME}/man/man1
 CC=@CC@
-TEX=tex
+TEX=@TEX@
 PTEX=@PTEX@
-DVIPDF=@DVIPDF@
 MAKEINFO=@MAKEINFO@
 LANGUAGES = en ja
 INSTALL = cp -f
+TEXI2HTML = texi2html
 
 .SUFFIXES: .dvi .pdf
 
 .dvi.pdf:
-	${DVIPDF} $<
+	@echo "xetex has already generated PDF files"
 
 all:
 	if [ ! -f .make_done ]; then ${MAKE} all2 ; touch .make_done ; fi
@@ -94,19 +94,19 @@ html-win-en html-win: gen_hh
 tmp-ja: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo.* txi*tex $@
-	-for i in ${SRCS}; do ./extract_man ja $$i > $@/$$i; done
+	-cp texinfo*.* txi*tex $@
+	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
 
 tmp-ja_utf8: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo.* txi*tex $@
+	-cp texinfo*.* txi*tex $@
 	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
 
 tmp-html-ja: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo.* txi*tex $@
+	-cp texinfo*.* txi*tex $@
 	-for i in ${SRCS}; do \
 	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
@@ -114,13 +114,13 @@ tmp-html-ja: ${SRCS}
 tmp-en: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo.* txi*tex $@
+	-cp texinfo*.* txi*tex $@
 	-for i in ${SRCS}; do ./extract_man en $$i > $@/$$i; done
 
 tmp-html-en: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo.* txi*tex $@
+	-cp texinfo*.* txi*tex $@
 	-for i in ${SRCS}; do \
 		./extract_man en $$i | sed -e "s/@fref/@ref/g" > $@/$$i;\
 	done
@@ -128,7 +128,7 @@ tmp-html-en: ${SRCS}
 tmp-html-internal-ja: ${INTERNAL_SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin $@/int-parts/datatype
-	-cp texinfo.* txi*tex $@
+	-cp texinfo*.* txi*tex $@
 	-for i in ${INTERNAL_SRCS}; do \
 	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
@@ -182,13 +182,13 @@ html-win-en: html-en gen_hh
 html-internal-ja: tmp-html-internal-ja
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ../texi2html ../tmp-html-internal-ja/internal.texi)
+	-(cd $@; ${TEXI2HTML} ../tmp-html-internal-ja/internal.texi)
 
 html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
 	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
-	-(cd $@; ../texi2html -expandinfo -menu -split_node exp-ja.texi)
+	-(cd $@; ${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.dvi: tmp-html-internal-ja
 	-(cd tmp-html-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)

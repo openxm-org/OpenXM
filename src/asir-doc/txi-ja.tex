@@ -1,564 +1,488 @@
-%% TeX macros to handle Japanese texinfo files for Egg
-%% Modified by Satoru Tomura (tomura@etl.go.jp)
-%% 92.7.8   modified for Mule Ver.0.9.5 by K.Handa <handa@etl.go.jp>
-%%      To detect type of jTeX and its version, the method
-%%      posted by Takafumi SAKURAI <sakurai@math.metro-u.ac.jp> is used.
-%% 92.9.30  modified for Mule Ver.0.9.6 by K.Handa <handa@etl.go.jp>
-%%      For unknown reason, \newif\ifNTTOLD should be before
-%%      \ifNTT.
-%% 93.4.29  modified for Mule Ver.0.9.7 by N.Hikichi <hikichi@sra.co.jp>
-%% 95.10.6  modified for texinfo 2.145 by K.Handa <handa@etl.go.jp>
-%% 95.10.13 modified by J.Sato <jun@svgw.rd.casio.co.jp>
-%%      Support many Japanese oriented phrases (reference, etc)
-%% 95.10.14 modified by K.Handa <handa@etl.go.jp>
-%%      Bug for handling index fixed.
-%% 96.1.16 modified by J.Sato <jun@svgw.rd.casio.co.jp>
-%%      index with [] of @deffn.
-%% 99.6.27 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
-%%	for texinfo 1999-05-25.6
-%% 2000.2.23 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
-%%	for texinfo.tex 1999-09-25.10
-%% 2000.4.11 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
-%%      for texinfo.tex 1999-09-25.10
-%%      fixed for jTeX/pTeX/MulTeX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 92.7.8 by K.Handa
-\newif\ifNTT
-\ifx\gtfam\undefined
-\NTTtrue
-\else
-\NTTfalse
-\fi
+% $Id$
+% txi-ja.tex -- Japanese translations and font definitions for texinfo.tex.
+%
+% Copyright 1999, 2007, 2008, 2016 Free Software Foundation, Inc.
+% 
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 3 of the license, or (at
+% your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+% Written by Masamichi Hosoda, 5 May 2016, <trueroad@trueroad.jp>
 
-\newif\ifNTTOLD
-\ifNTT
-\ifx\jendlinetype\undefined
-\NTTOLDtrue
-\else
-\NTTOLDfalse
-\fi
-\fi
+\txisetlanguage{USenglish}{2}{3}
 
-\newif\ifMULTEX
-\ifx\mlbaseversion\undefined
-\MULTEXfalse
-\else
-\MULTEXtrue
-\fi
+\plainnonfrenchspacing
 
-%% TeX macros to handle Japanese texinfo files
-%% 92/05/24 merged jtexinfo.tex (by H. Isozaki and N. Hikichi) into this
-%% Created by Satoru Tomura (tomura@etl.go.jp)
-
-\def\texinfoJPversion{2.145J.2+++}
-%% ¤³¤ì¤Ï¤É¤¦ÊÑ¤¨¤ë¤Î¤¬¤¤¤¤¤Î¤«¤Ê¤¡
-
-\ifNTT
-\ifMULTEX
-\message{txi-ja (Multi-Lingual TeX) package [Version \texinfoJPversion]:}
-\else
-\message{txi-ja (NTT JTeX) package [Version \texinfoJPversion]:}
-\fi
-\else
-\message{txi-ja (ASCII JTeX) package [Version \texinfoJPversion]:}
-\fi
-\message{}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set up fixed words for Japanese.
-\gdef\putwordAppendix{ÉÕÏ¿}
-\gdef\putwordChapter{¾Ï}
-\gdef\putwordfile{¥Õ¥¡¥¤¥ë}
+\gdef\putwordAppendix{ä»˜éŒ²}
+\gdef\putwordChapter{Chapter}
+\gdef\putworderror{ã‚¨ãƒ©ãƒ¼}
+\gdef\putwordfile{ãƒ•ã‚¡ã‚¤ãƒ«}
 \gdef\putwordin{in}
-\gdef\putwordIndexIsEmpty{(º÷°ú¤¬¶õ¤Ç¤¹)}
-\gdef\putwordIndexNonexistent{(º÷°ú¤¬¤¢¤ê¤Þ¤»¤ó)}
+\gdef\putwordIndexIsEmpty{ï¼ˆã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒç©ºã§ã™ï¼‰}
+\gdef\putwordIndexNonexistent{ï¼ˆã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒã‚ã‚Šã¾ã›ã‚“ï¼‰}
 \gdef\putwordInfo{Info}
 \gdef\putwordInstanceVariableof{Instance Variable of}
 \gdef\putwordMethodon{Method on}
-\gdef\putwordNoTitle{Ìµ¥¿¥¤¥È¥ë}
+\gdef\putwordNoTitle{ç„¡é¡Œ}
 \gdef\putwordof{of}
 \gdef\putwordon{on}
-\gdef\putwordpage{p.\gobble}
-\gdef\putwordsection{Àá}
-\gdef\putwordSection{Àá}
-\gdef\putwordsee{»²¾È}
-%\gdef\putwordSee{¤ò»²¾È¤·¤Æ¤¯¤À¤µ¤¤}
-\gdef\putwordSee{¤ò»²¾È}
-\gdef\putwordShortTOC{´ÊÎ¬ÌÜ¼¡}
-\gdef\putwordTOC{ÌÜ¼¡}
+\gdef\putwordpage{p.}
+\gdef\putwordsection{section}
+\gdef\putwordSection{Section}
+\gdef\putwordsee{see}
+\gdef\putwordSee{See}
+\gdef\putwordShortTOC{ç°¡å˜ãªç›®æ¬¡}
+\gdef\putwordTOC{ç›®æ¬¡}
 %
-\global\newif\ifIGUMO\IGUMOfalse
-\gdef\igumo{\IGUMOtrue}
-\gdef\putwordMJan{ËÓ·î}
-\gdef\putwordMFeb{Ç¡·î}
-\gdef\putwordMMar{ÌïÀ¸}
-\gdef\putwordMApr{±¬·î}
-\gdef\putwordMMay{»©·î}
-\gdef\putwordMJun{¿åÌµ·î}
-\gdef\putwordMJul{Ê¸·î}
-\gdef\putwordMAug{ÍÕ·î}
-\gdef\putwordMSep{Ä¹·î}
-\gdef\putwordMOct{\ifIGUMO{¿Àºß·î}\else{¿ÀÌµ·î}\fi}
-\gdef\putwordMNov{Áú·î}
-\gdef\putwordMDec{»ÕÁö}
+\gdef\putwordMJan{1æœˆ}
+\gdef\putwordMFeb{2æœˆ}
+\gdef\putwordMMar{3æœˆ}
+\gdef\putwordMApr{4æœˆ}
+\gdef\putwordMMay{5æœˆ}
+\gdef\putwordMJun{6æœˆ}
+\gdef\putwordMJul{7æœˆ}
+\gdef\putwordMAug{8æœˆ}
+\gdef\putwordMSep{9æœˆ}
+\gdef\putwordMOct{10æœˆ}
+\gdef\putwordMNov{11æœˆ}
+\gdef\putwordMDec{12æœˆ}
 %
-\gdef\putwordDefmac{¥Þ¥¯¥í}
-\gdef\putwordDefspec{Special Form}
-\gdef\putwordDefvar{ÊÑ¿ô}
-\gdef\putwordDefopt{¥ª¥×¥·¥ç¥ó}
-\gdef\putwordDeftypevar{ÊÑ¿ô}
-\gdef\putwordDeffunc{´Ø¿ô}
-\gdef\putwordDeftypefun{´Ø¿ô}
+\gdef\putwordDefmac{ãƒžã‚¯ãƒ­}
+\gdef\putwordDefspec{ç‰¹æ®Šãƒ•ã‚©ãƒ¼ãƒ }
+\gdef\putwordDefvar{å¤‰æ•°}
+\gdef\putwordDefopt{ãƒ¦ãƒ¼ã‚¶ã‚ªãƒ—ã‚·ãƒ§ãƒ³}
+\gdef\putwordDeffunc{é–¢æ•°}
 
-\def\today{\number\year Ç¯ \number\month ·î \number\day Æü}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% A4 size(Japanese) define, top margin = 20, bottom margin = 21,
-%  left margin = 30, right margin = 15
-%
-
-% ???
-%\global\def\a4book{
-%\global\lispnarrowing = 0.3in
-%\global\baselineskip 12pt
-%\global\parskip 3pt plus 1pt
-%
-%% for @cropmarks
-%%\global\hsize = 6.5in
-%% without @cropmarks
-%\global\hsize = 6.7in
-%
-%\global\doublecolumnhsize=2.4in \global\doublecolumnvsize=15.0in
-%\global\vsize=9.8in
-%\global\tolerance=700
-%\global\hfuzz=1pt
-%
-%\global\pagewidth=\hsize
-%\global\pageheight=\vsize
-%\global\font\ninett=cmtt9
-%
-%\global\let\smalllisp=\smalllispx
-%\global\let\smallexample=\smalllispx
-%\global\def\Esmallexample{\Esmalllisp}
-%
-%% for @cropmarks
-%%\global\voffset = -1.0in
-%%\global\hoffset = -0.2in
-%
-%% without @cropmarks
-%\global\voffset = 0.0in
-%%\global\hoffset = -1.0in
-%\global\hoffset = -0.2in
-%}
-
-% ÆüËÜ¿Í¹¥¤­¤Î¥®¥Ã¥·¥êµÍ¤Þ¤Ã¤¿»æ
-% hack please !!
-\global\def\afourbook{{\globaldefs = 1
-  \setleading{12pt}%
-  \parskip = 3pt plus 2pt minus 1pt
-  %
-  \internalpagesizes{248mm}{170mm}{0mm}{-5mm}{0mm}{8mm}%
-  %
-  \tolerance = 700
-  \hfuzz = 1pt
-}}
-
-%% @smallbook for B5
-%\global\def\smallbook{
-%\outerhsize=182mm
-%\outervsize=257mm
-%\hoffset=-0.3in
-%\voffset=-0.3in
-%
-%% These values for secheadingskip and subsecheadingskip are
-%% experiments.  RJC 7 Aug 1992
-%\global\secheadingskip = 17pt plus 6pt minus 3pt
-%\global\subsecheadingskip = 14pt plus 6pt minus 3pt
-%
-%\global\lispnarrowing = 0.3in
-%\setleading{14pt}
-%\advance\topskip by -7mm
-%\global\parskip 3pt plus 1pt
-%\global\hsize = 5.5in
-%\global\vsize=8.25in
-%\global\tolerance=700
-%\global\hfuzz=1pt
-%\global\contentsrightmargin=0pt
-%\global\deftypemargin=0pt
-%\global\defbodyindent=.5cm
-%
-%\global\pagewidth=\hsize
-%\global\pageheight=\vsize
-%
-%\global\let\smalllisp=\smalllispx
-%\global\let\smallexample=\smalllispx
-%\global\def\Esmallexample{\Esmalllisp}
-%}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% ÆüËÜ¸ì¥Õ¥©¥ó¥È¤Ë´Ø¤¹¤ë¸ß´¹À­
-%
-% Debian/Linux ¤Ç¥Ñ¥Ã¥±¡¼¥¸²½¤µ¤ì¤Æ¤¤¤ë
-%  NTT jTeX / ASCII pTeX / MulTeX(ÆüËÜ¸ì¸ÂÄê) ¤Î¤ß¹ÍÎ¸¤·¤Æ¤¤¤ë¡£
-% (Â¾¤Î¥µ¥¤¥È¤ÎÆüËÜ¸ìTeX¤âÆ±ÍÍ¤À¤È´üÂÔ¤·¤Æ¤ë¡¢¡¢¡¢)
-%
-% xdvi/jdvi2kps ¤Ç»È¤Ã¤Æ¤¤¤ë vf ¤Î¼ïÎà¤Ï 5,6,7,8,9,10/min,goth ¡£
-%
-
-\ifNTT
-%\global\kanjifiletype=20 % ??
-\global\let\min=\dm\global\let\goth=\dg
-\else
-\global\let\dm=\min\global\let\dg=\goth
-\fi
-
-\def\uniJFont{%
-\ifNTT%
-\ifNTTOLD                       % 92.7.8 by K.Handa
-\let\next=\jTeXoldJFont%
-\else
-\ifMULTEX
-\let\next=\MulTeXJFont%
-\else
-\let\next=\jTeXJFont%
-\fi
-\fi
-\else%
-\let\next=\pTeXJFont%
-\fi%
-\next}
-
-\def\jTeXoldJFont#1#2#3#4{%
-\def\tempa{#2}
-\def\tempb{dm}
-\ifx\tempa\tempb% dm
-\expandafter\gjfont\csname#1\endcsname=dm#3 scaled {#4}%
-\else% dg
-\expandafter\gjfont\csname#1\endcsname=dg#3 scaled {#4}%
-\fi%
-}
-
-% backward compatibility for JTeX ¤Ç \gjfont ¤¬Ìµ¤¤¤È¤Ï MulTeX ¤á¡£
-
-\def\MulTeXJFont#1#2#3#4{%
-\def\tempa{#2}
-\def\tempb{dm}
-{\globaldefs=1%
-\ifx\tempa\tempb% dm
-\expandafter\jfont\csname#1\endcsname=dm#3 scaled #4%
-\else% dg
-\expandafter\jfont\csname#1\endcsname=dg#3 scaled #4%
-\fi}%
-}
-
-\def\jTeXJFont#1#2#3#4{%
-\def\tempa{#2}
-\def\tempb{dm}
-\ifx\tempa\tempb% dm
-\expandafter\gjfont\csname#1\endcsname=dm#3 scaled #4%
-\else% dg
-\expandafter\gjfont\csname#1\endcsname=dg#3 scaled #4%
-\fi%
-}
-
-\def\pTeXJFont#1#2#3#4{%
-\def\tempa{#2}
-\def\tempb{dm}
-\ifx\tempa\tempb% dm
-\global\expandafter\font\csname#1\endcsname=min#3 scaled #4%
-\else% dg
-\global\expandafter\font\csname#1\endcsname=goth#3 scaled #4%
-\fi
-}
-
-%
-% ÆüËÜ¸ì¥Õ¥©¥ó¥È¤ÎÄêµÁ
-%
-
-%% Fonts for text (10pt)
-\uniJFont{textdm}{dm}{10}{1000}
-\uniJFont{textdg}{dg}{10}{1000}
-
-\global\setfont\textrm\rmshape{10}{1000}
-\global\setfont\texttt\ttshape{10}{1000}
-\global\setfont\textbf\bfshape{10}{1000}
-\global\setfont\textit\itshape{10}{1000}
-\global\setfont\textsl\slshape{10}{1000}
-\global\setfont\textsf\sfshape{10}{1000}
-\global\setfont\textsc\scshape{10}{1000}
-\global\setfont\textttsl\ttslshape{10}{1000}
-\global\font\texti=cmmi10
-\global\font\textsy=cmsy10
-
-%% Fonts for shortcontext (12pt)
-\uniJFont{shortcontdm}{dm}{10}{\magstep1}
-\uniJFont{shortcontdg}{dg}{10}{\magstep1}
-
-%% Fonts for title (20.74pt)
-\uniJFont{titledm}{dg}{10}{\magstep4}
-
-%% Fonts for indics and small examples 
-\uniJFont{smalldm}{dm}{9}{1000}
-\uniJFont{smalldg}{dg}{9}{1000}
-
-%% Fonts for headings (17.28pt)
-\uniJFont{chapdm}{dg}{10}{\magstep3}
-\uniJFont{chapdg}{dg}{10}{\magstep3}
-
-%% Fonts for sections (14.40pt)
-\uniJFont{secdm}{dm}{10}{\magstep2}
-\uniJFont{secdg}{dg}{10}{\magstep2}
-
-%% Fonts for subsections (13.15pt)
-\uniJFont{ssecdm}{dm}{10}{1315}
-\uniJFont{ssecdg}{dg}{10}{1315}
-
-% 95.11.2 by K.Handa
-% Reduce Overfull/Underfull \hbox by relaxing these glues.
-\ifNTT
-\global\jintercharskip=0pt plus 0.5pt minus -0.2pt
-\global\jasciikanjiskip=2.28854pt plus 0.5pt minus -0.2pt
-\fi
-
-%%%%
-
-%% (^^;)
-%\global\def\tendm{}
-%\global\def\tendg{}
-
-%% Re-definitions
-\gdef\addjfont#1#2{%
-\cslet{orig#1}{#1}%
-\expandafter\def\csname#1\endcsname{\csname orig#1\endcsname\csname #2\endcsname}%
-}
-
-\def\gaddjfont#1#2{{\globaldefs=1\addjfont{#1}{#2}}}
-
-\def\gaddjfonts#1#2{{\globaldefs=1%
-\cslet{orig#1fonts}{#1fonts}%
-\expandafter\def\csname#1fonts\endcsname{\csname orig#1fonts\endcsname\cslet{tendm}{#2dm}\cslet{tendg}{#2dg}}%
-}}
-
-\gaddjfont{rm}{tendm}
-\gaddjfont{bf}{tendg}
-\gaddjfont{sl}{tendg}
-\gaddjfont{authorrm}{secdm}
-
-\gaddjfonts{text}{text}
-\gaddjfonts{title}{title}
-\gaddjfonts{chap}{chap}
-\gaddjfonts{sec}{sec}
-\gaddjfonts{subsec}{ssec}
-\gaddjfonts{small}{small}
-
-\global\let\subsubsecfonts = \subsecfonts
-\global\let\subsecentryfonts = \textfonts
-\global\let\subsubsecentryfonts = \textfonts
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%% Utility routines.
-%%
-
-\def\gaddsequence#1{%
-\if#1[%]
-\def\next{\gaddsequencez#1}%
-\else%
-\def\next{\gaddsequencez[0]{#1}}%
-\fi%
-\next%
-}
-
-\def\gaddsequencez[#1]#2{%
-\if#2[%]
-\def\next{\gaddsequencezz[#1]#2}%
-\else%
-\def\next{\gaddsequencezz[#1][lb]{#2}}%
-\fi%
-\next%
-}
-
-\newif\ifL\newif\ifB
-\def\aslb{\Ltrue\Btrue}
-\def\asla{\Ltrue\Bfalse}
-\def\asgb{\Lfalse\Btrue}
-\def\asga{\Lfalse\Bfalse}
-
-%%
-%% ±ø¤¤¥Þ¥¯¥í¤À¤Ê¤¡¡Á
-%%
-
-\def\gaddsequencezz[#1][#2]#3#4{%
-\global\cslet{orig#3}{#3}%
-\csname as#2\endcsname%
-\ifcase#1%
-\ifL
- \ifB
-  \expandafter\gdef\csname#3\endcsname{{#4\csname orig#3\endcsname}}%
- \else
-  \expandafter\gdef\csname#3\endcsname{{\csname orig#3\endcsname#4}}%
- \fi
-\else
- \ifB
-  \expandafter\gdef\csname#3\endcsname{#3\csname orig#3\endcsname}%
- \else
-  \expandafter\gdef\csname#3\endcsname{\csname orig#3\endcsname#3}%
- \fi
-\fi
-\or 
-\ifL
- \ifB
-  \expandafter\gdef\csname#3\endcsname##1{{#4\csname orig#3\endcsname{##1}}}%
- \else
-  \expandafter\gdef\csname#3\endcsname##1{{\csname orig#3\endcsname{##1}#4}}%
- \fi
-\else
- \ifB
-  \expandafter\gdef\csname#3\endcsname##1{#4\csname orig#3\endcsname{##1}}%
- \else
-  \expandafter\gdef\csname#3\endcsname##1{\csname orig#3\endcsname{##1}#4}%
- \fi
-\fi
-\fi
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\gaddsequence[1]{initial}{%
-\addjfont{secbf}{secdg}%
-}
-
-\gaddsequence{summarycontents}{%
-\addjfont{shortcontrm}{shortcontdm}%
-\addjfont{shortcontbf}{shortcontdg}%
-\addjfont{shortcontsl}{shortcontdg}%
-}
-\global\let\shortcontents = \summarycontents
-
-\gaddsequence{shorttitlepagezzz}{%
-\addjfont{chaprm}{chapdm}%
-}
-
-%%
-%%
-
-\global\def\thischapterspace{\hskip \SETthischapterspace em}
-\set thischapterspace 1
-
-\gaddsequence[1][ga]{chapterzzz}{%
-\xdef\thischapter{Âè\the\chapno\putwordChapter{}\thischapterspace\noexpand\thischaptername}%
-}
-
-\gaddsequence[1][ga]{appendixzzz}{%
-\xdef\thischapter{\putwordAppendix{}\appendixletter\thischapterspace\noexpand\thischaptername}%
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%%
-%%
-
-\global\def\inforefzzz #1,#2,#3,#4**{\putwordInfo{}\putwordfile{} \file{\ignorespaces #3{}},  ¥Î¡¼¥É\samp{\ignorespaces#1{}}\putwordSee{}}
-
-\global\def\pxref#1{\xrefX[#1,,,,,,,]\putwordsee{}}
-\global\def\xref#1{\xrefX[#1,,,,,,,]\putwordSee{}}
-
-\global\def\xrefX[#1,#2,#3,#4,#5,#6]{\begingroup
-  \unsepspaces
-  \def\printedmanual{\ignorespaces #5}%
-  \def\printednodename{\ignorespaces #3}%
-  \setbox1=\hbox{\printedmanual}%
-  \setbox0=\hbox{\printednodename}%
-  \ifdim \wd0 = 0pt
-    % No printed node name was explicitly given.
-    \expandafter\ifx\csname SETxref-automatic-section-title\endcsname\relax
-      % Use the node name inside the square brackets.
-      \def\printednodename{\ignorespaces #1}%
-    \else
-      % Use the actual chapter/section title appear inside
-      % the square brackets.  Use the real section title if we have it.
-      \ifdim \wd1 > 0pt
-        % It is in another manual, so we don't have it.
-        \def\printednodename{\ignorespaces #1}%
-      \else
-        \ifhavexrefs
-          % We know the real title if we have the xref values.
-          \def\printednodename{\refx{#1-title}{}}%
-        \else
-          % Otherwise just copy the Info node name.
-          \def\printednodename{\ignorespaces #1}%
-        \fi%
-      \fi
-    \fi
+% Produces Year Month Day style of output.
+\def\today{%
+  \number\year å¹´\space
+  \ifcase\month
+  \or\putwordMJan\or\putwordMFeb\or\putwordMMar\or\putwordMApr
+  \or\putwordMMay\or\putwordMJun\or\putwordMJul\or\putwordMAug
+  \or\putwordMSep\or\putwordMOct\or\putwordMNov\or\putwordMDec
   \fi
+  \space\number\day æ—¥}
+
+
+%
+% Japanese font definitions
+%
+
+\ifx\txijapackage\thisisundefined
+  \errmessage{Required CJK package is not found.
+  Use `texinfo-ja.tex' instead of `texinfo.tex'}
+\else
+
   %
-  % If we use \unhbox0 and \unhbox1 to print the node names, TeX does not
-  % insert empty discretionaries after hyphens, which means that it will
-  % not find a line break at a hyphen in a node names.  Since some manuals
-  % are best written with fairly long node names, containing hyphens, this
-  % is a loss.  Therefore, we give the text of the node name again, so it
-  % is as if TeX is seeing it for the first time.
-%  \ifpdf
-%    \leavevmode
-%    \getfilename{#4}%
-%    \ifnum\filenamelength>0
-%      \startlink attr{/Border [0 0 0]}%
-%	 goto file{\the\filename.pdf} name{#1@}%
-%    \else
-%      \startlink attr{/Border [0 0 0]}%
-%	 goto name{#1@}%
-%    \fi
-%    \linkcolor
-%  \fi
+  % For LuaTeX
   %
-  \ifdim \wd1 > 0pt
-%    \putwordsection{} ``\printednodename'' \putwordin{} \cite{\printedmanual}%
-    \cite{\printedmanual}¤Î``\printednodename''\putwordsection{}%
+  \ifx\luatexversion\thisisundefined
   \else
-    % _ (for example) has to be the character _ for the purposes of the
-    % control sequence corresponding to the node, but it has to expand
-    % into the usual \leavevmode...\vrule stuff for purposes of
-    % printing. So we \turnoffactive for the \refx-snt, back on for the
-    % printing, back off for the \refx-pg.
-    {\normalturnoffactive
-     % Only output a following space if the -snt ref is nonempty; for
-     % @unnumbered and @anchor, it won't be.
-     \setbox2 = \hbox{\ignorespaces \refx{#1-snt}{}}%
-%     \ifdim \wd2 > 0pt \refx{#1-snt}\space\fi
-     \ifdim \wd2 > 0pt \refx{#1-snt}\fi
-    }%
-    % [mynode],
-    ¡Ö\printednodename ¡×%
-%    [\printednodename],\space
-    % page 3
-    \turnoffactive \putwordpage\tie\refx{#1-pg}{}%
-  \fi
-  \endlink
-\endgroup}
+    % Definitions for a main text size of 11pt.  (The default in Texinfo.)
+    % Japanese font size is muliplied by 0.962216.
+    \let\definealphabetictextfontsizexi\definetextfontsizexi
+    \gdef\definetextfontsizexi{%
+      % Text fonts (11.2pt, magstep1).
+      \jfont\textmc{file:ipaexm.ttf:jfm=ujis} at 10.78pt
+      \jfont\textgt{file:ipaexg.ttf:jfm=ujis} at 10.78pt
 
-\global\def\Ysectionnumberandtype{%
-\ifnum\secno=0 Âè\the\chapno\putwordChapter%
-\else \ifnum \subsecno=0 \the\chapno.\the\secno\putwordSection%
-\else \ifnum \subsubsecno=0 %
-\the\chapno.\the\secno.\the\subsecno\putwordSection%
-\else %
-\the\chapno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection%
-\fi \fi \fi }
+      % Fonts for indices, footnotes, small examples (9pt).
+      \jfont\smallmc{file:ipaexm.ttf:jfm=ujis} at 8.66pt
+      \jfont\smallgt{file:ipaexg.ttf:jfm=ujis} at 8.66pt
 
-\global\def\Yappendixletterandtype{%
-\ifnum\secno=0 \putwordAppendix\xreftie'char\the\appendixno{}%
-\else \ifnum \subsecno=0 \xreftie'char\the\appendixno.\the\secno\putwordSection %
-\else \ifnum \subsubsecno=0 %
-\xreftie'char\the\appendixno.\the\secno.\the\subsecno\putwordSection %
-\else %
-\xreftie'char\the\appendixno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection %
-\fi \fi \fi }
+      % Fonts for small examples (8pt).
+      \jfont\smallermc{file:ipaexm.ttf:jfm=ujis} at 7.70pt
+      \jfont\smallergt{file:ipaexg.ttf:jfm=ujis} at 7.70pt
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Fonts for title page (20.4pt):
+      \jfont\titlemc{file:ipaexm.ttf:jfm=ujis} at 19.63pt
+      \jfont\titlegt{file:ipaexg.ttf:jfm=ujis} at 19.63pt
 
-% @dfn
-\global\def\doublebracket#1{¡Ø#1¡Ù}
-\global\let\dfn=\doublebracket
+      % Chapter (and unnumbered) fonts (17.28pt).
+      \jfont\chapmc{file:ipaexm.ttf:jfm=ujis} at 16.63pt
+      \jfont\chapgt{file:ipaexg.ttf:jfm=ujis} at 16.63pt
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Section fonts (14.4pt).
+      \jfont\secmc{file:ipaexm.ttf:jfm=ujis} at 13.86pt
+      \jfont\secgt{file:ipaexg.ttf:jfm=ujis} at 13.86pt
+
+      % Subsection fonts (13.15pt).
+      \jfont\ssecmc{file:ipaexm.ttf:jfm=ujis} at 12.65pt
+      \jfont\ssecgt{file:ipaexg.ttf:jfm=ujis} at 12.65pt
+
+      % Reduced fonts for @acro in text (10pt).
+      \jfont\reducedmc{file:ipaexm.ttf:jfm=ujis} at 9.62pt
+      \jfont\reducedgt{file:ipaexg.ttf:jfm=ujis} at 9.62pt
+
+      % Fonts for short table of contents.
+      \jfont\shortcontmc{file:ipaexm.ttf:jfm=ujis} at 11.55pt
+      \jfont\shortcontgt{file:ipaexg.ttf:jfm=ujis} at 11.55pt
+
+      \definealphabetictextfontsizexi
+    }
+
+    % Definitions for a main text size of 10pt.
+    % Japanese font size is muliplied by 0.962216.
+    \let\definealphabetictextfontsizex\definetextfontsizex
+    \gdef\definetextfontsizex{%
+      % Text fonts (10pt).
+      \jfont\textmc{file:ipaexm.ttf:jfm=ujis} at 9.62pt
+      \jfont\textgt{file:ipaexg.ttf:jfm=ujis} at 9.62pt
+
+      % Fonts for indices, footnotes, small examples (9pt).
+      \jfont\smallmc{file:ipaexm.ttf:jfm=ujis} at 8.66pt
+      \jfont\smallgt{file:ipaexg.ttf:jfm=ujis} at 8.66pt
+
+      % Fonts for small examples (8pt).
+      \jfont\smallermc{file:ipaexm.ttf:jfm=ujis} at 7.70pt
+      \jfont\smallergt{file:ipaexg.ttf:jfm=ujis} at 7.70pt
+
+      % Fonts for title page (20.4pt):
+      \jfont\titlemc{file:ipaexm.ttf:jfm=ujis} at 19.63pt
+      \jfont\titlegt{file:ipaexg.ttf:jfm=ujis} at 19.63pt
+
+      % Chapter fonts (14.4pt).
+      \jfont\chapmc{file:ipaexm.ttf:jfm=ujis} at 13.86pt
+      \jfont\chapgt{file:ipaexg.ttf:jfm=ujis} at 13.86pt
+
+      % Section fonts (12pt).
+      \jfont\secmc{file:ipaexm.ttf:jfm=ujis} at 11.55pt
+      \jfont\secgt{file:ipaexg.ttf:jfm=ujis} at 11.55pt
+
+      % Subsection fonts (10pt).
+      \jfont\ssecmc{file:ipaexm.ttf:jfm=ujis} at 9.62pt
+      \jfont\ssecgt{file:ipaexg.ttf:jfm=ujis} at 9.62pt
+
+      % Reduced fonts for @acro in text (9pt).
+      \jfont\reducedmc{file:ipaexm.ttf:jfm=ujis} at 8.66pt
+      \jfont\reducedgt{file:ipaexg.ttf:jfm=ujis} at 8.66pt
+
+      % Fonts for short table of contents.
+      \jfont\shortcontmc{file:ipaexm.ttf:jfm=ujis} at 11.55pt
+      \jfont\shortcontgt{file:ipaexg.ttf:jfm=ujis} at 11.55pt
+
+      \definealphabetictextfontsizex
+    }
+
+    % Ignore LuaTeX-ja added line end comment
+    % https://osdn.jp/ticket/browse.php?group_id=5593&tid=36096
+    %
+    % Re-define texinfo.tex's \parseargusing
+    \def\parseargusing#1#2{%
+      \def\argtorun{#2}%
+      \begingroup
+        \ifx\ltjlineendcomment\thisisundefined
+          % Ignore U+FFFFF for LuaTeX-ja <= 20160208.0
+          \catcode"FFFFF=9
+        \else
+          % Ignore the character \ltjlineendcomment for LuaTeX-ja > 20160208.0
+          \catcode\ltjlineendcomment=9
+        \fi
+        \obeylines
+        \spaceisspace
+        #1%
+        \parseargline\empty% Insert the \empty token, see \finishparsearg below.
+    }
+    % Re-define texinfo.tex's \comment
+    \def\comment{\begingroup \catcode`\^^M=\active%
+      \ifx\ltjlineendcomment\thisisundefined
+        % Ignore U+FFFFF for LuaTeX-ja <= 20160208.0
+        \catcode"FFFFF=9%
+      \else
+        % Ignore the character \ltjlineendcomment for LuaTeX-ja > 20160208.0
+        \catcode\ltjlineendcomment=9%
+      \fi
+    \catcode`\@=\other \catcode`\{=\other \catcode`\}=\other\commentxxx}%
+    % Re-let \comment related macros
+    \let\setfilename=\comment
+    \let\dircategory=\comment
+    \let\definfoenclose=\comment
+    \let\footnotestyle=\comment
+    % Re-define texinfo.tex's \c
+    \def\c{\begingroup \catcode`\^^M=\active%
+      \ifx\ltjlineendcomment\thisisundefined
+        % Ignore U+FFFFF for LuaTeX-ja <= 20160208.0
+        \catcode"FFFFF=9%
+      \else
+        % Ignore the character \ltjlineendcomment for LuaTeX-ja > 20160208.0
+        \catcode\ltjlineendcomment=9%
+      \fi
+    \catcode`\@=\other \catcode`\{=\other \catcode`\}=\other%
+    \cxxx}
+    % Re-let \c related macro
+    \let\texinfoc=\c
+  \fi % LuaTeX
+
+  %
+  % For XeTeX
+  %
+  \ifx\XeTeXrevision\thisisundefined
+  \else
+    % Fix some Japanese character class
+    % (unicode-letters.tex is wrong.)
+    \def\do#1{\XeTeXcharclass"#1=1 }
+    \do{3041}\do{3043}\do{3045}\do{3047}\do{3049}\do{3063}
+    \do{3083}\do{3085}\do{3087}\do{308E}\do{3095}\do{3096}
+    \do{30A1}\do{30A3}\do{30A5}\do{30A7}\do{30A9}\do{30C3}
+    \do{30E3}\do{30E5}\do{30E7}\do{30EE}\do{30F5}\do{30F6}
+    \do{30FC}\do{31F0}\do{31F1}\do{31F2}\do{31F3}\do{31F4}
+    \do{31F5}\do{31F6}\do{31F7}\do{31F8}\do{31F9}\do{31FA}
+    \do{31FB}\do{31FC}\do{31FD}\do{31FE}\do{31FF}
+
+    % Add some character class
+    \do{2015}\do{2016}\do{2025}\do{2030}\do{2032}\do{2033}
+    \do{203B}\do{2103}\do{212B}
+
+    \do{2500}\do{2501}\do{2502}\do{2503}\do{250C}\do{250F}
+    \do{2510}\do{2513}\do{2514}\do{2517}\do{2518}\do{251B}
+    \do{251C}\do{251D}\do{2520}\do{2523}\do{2524}\do{2525}
+    \do{2528}\do{252B}\do{252C}\do{252F}\do{2530}\do{2533}
+    \do{2534}\do{2537}\do{2538}\do{253B}\do{253C}\do{253F}
+    \do{2542}\do{254B}
+
+    \do{25A0}\do{25A1}\do{25B2}\do{25B3}\do{25BC}\do{25BD}
+    \do{25C6}\do{25C7}\do{25CB}\do{25CE}\do{25CF}\do{25EF}
+    \do{2605}\do{2606}\do{2640}\do{2642}
+
+    \do{3000}
+
+    % Setting Japanese font instead of Chinese font
+    \def\setjafont#1{%
+      \let\zhfont#1\let\zhpunctfont#1%
+      \let\zhextafont#1\let\zhextbfont#1%
+    }
+
+    % Definitions for a main text size of 11pt.  (The default in Texinfo.)
+    % Japanese font size is muliplied by 0.962216.
+    \let\definealphabetictextfontsizexi\definetextfontsizexi
+    \gdef\definetextfontsizexi{%
+      % Text fonts (11.2pt, magstep1).
+      \font\textmczzz"[ipaexm.ttf]:mapping=tex-text" at 10.78pt
+      \font\textgtzzz"[ipaexg.ttf]:mapping=tex-text" at 10.78pt
+      \def\textmc{\setjafont\textmczzz}
+      \def\textgt{\setjafont\textgtzzz}
+
+      % Fonts for indices, footnotes, small examples (9pt).
+      \font\smallmczzz"[ipaexm.ttf]:mapping=tex-text" at 8.66pt
+      \font\smallgtzzz"[ipaexg.ttf]:mapping=tex-text" at 8.66pt
+      \def\smallmc{\setjafont\smallmczzz}
+      \def\smallgt{\setjafont\smallgtzzz}
+
+      % Fonts for small examples (8pt).
+      \font\smallermczzz"[ipaexm.ttf]:mapping=tex-text" at 7.70pt
+      \font\smallergtzzz"[ipaexg.ttf]:mapping=tex-text" at 7.70pt
+      \def\smallermc{\setjafont\smallermczzz}
+      \def\smallergt{\setjafont\smallergtzzz}
+
+      % Fonts for title page (20.4pt):
+      \font\titlemczzz"[ipaexm.ttf]:mapping=tex-text" at 19.63pt
+      \font\titlegtzzz"[ipaexg.ttf]:mapping=tex-text" at 19.63pt
+      \def\titlemc{\setjafont\titlemczzz}
+      \def\titlegt{\setjafont\titlegtzzz}
+
+      % Chapter (and unnumbered) fonts (17.28pt).
+      \font\chapmczzz"[ipaexm.ttf]:mapping=tex-text" at 16.63pt
+      \font\chapgtzzz"[ipaexg.ttf]:mapping=tex-text" at 16.63pt
+      \def\chapmc{\setjafont\chapmczzz}
+      \def\chapgt{\setjafont\chapgtzzz}
+
+      % Section fonts (14.4pt).
+      \font\secmczzz"[ipaexm.ttf]:mapping=tex-text" at 13.86pt
+      \font\secgtzzz"[ipaexg.ttf]:mapping=tex-text" at 13.86pt
+      \def\secmc{\setjafont\secmczzz}
+      \def\secgt{\setjafont\secgtzzz}
+
+      % Subsection fonts (13.15pt).
+      \font\ssecmczzz"[ipaexm.ttf]:mapping=tex-text" at 12.65pt
+      \font\ssecgtzzz"[ipaexg.ttf]:mapping=tex-text" at 12.65pt
+      \def\ssecmc{\setjafont\ssecmczzz}
+      \def\ssecgt{\setjafont\ssecgtzzz}
+
+      % Reduced fonts for @acro in text (10pt).
+      \font\reducedmczzz"[ipaexm.ttf]:mapping=tex-text" at 9.62pt
+      \font\reducedgtzzz"[ipaexg.ttf]:mapping=tex-text" at 9.62pt
+      \def\reducedmc{\setjafont\reducedmczzz}
+      \def\reducedgt{\setjafont\reducedgtzzz}
+
+      % Fonts for short table of contents.
+      \font\shortcontmczzz"[ipaexm.ttf]:mapping=tex-text" at 11.55pt
+      \font\shortcontgtzzz"[ipaexg.ttf]:mapping=tex-text" at 11.55pt
+      \def\shortcontmc{\setjafont\shortcontmczzz}
+      \def\shortcontgt{\setjafont\shortcontgtzzz}
+
+      \definealphabetictextfontsizexi
+    }
+
+    % Definitions for a main text size of 10pt.
+    % Japanese font size is muliplied by 0.962216.
+    \let\definealphabetictextfontsizex\definetextfontsizex
+    \gdef\definetextfontsizex{%
+      % Text fonts (10pt).
+      \font\textmczzz"[ipaexm.ttf]:mapping=tex-text" at 9.62pt
+      \font\textgtzzz"[ipaexg.ttf]:mapping=tex-text" at 9.62pt
+      \def\textmc{\setjafont\textmczzz}
+      \def\textgt{\setjafont\textgtzzz}
+
+      % Fonts for indices, footnotes, small examples (9pt).
+      \font\smallmczzz"[ipaexm.ttf]:mapping=tex-text" at 8.66pt
+      \font\smallgtzzz"[ipaexg.ttf]:mapping=tex-text" at 8.66pt
+      \def\smallmc{\setjafont\smallmczzz}
+      \def\smallgt{\setjafont\smallgtzzz}
+
+      % Fonts for small examples (8pt).
+      \font\smallermczzz"[ipaexm.ttf]:mapping=tex-text" at 7.70pt
+      \font\smallergtzzz"[ipaexg.ttf]:mapping=tex-text" at 7.70pt
+      \def\smallermc{\setjafont\smallermczzz}
+      \def\smallergt{\setjafont\smallergtzzz}
+
+      % Fonts for title page (20.4pt):
+      \font\titlemczzz"[ipaexm.ttf]:mapping=tex-text" at 19.63pt
+      \font\titlegtzzz"[ipaexg.ttf]:mapping=tex-text" at 19.63pt
+      \def\titlemc{\setjafont\titlemczzz}
+      \def\titlegt{\setjafont\titlegtzzz}
+
+      % Chapter fonts (14.4pt).
+      \font\chapmczzz"[ipaexm.ttf]:mapping=tex-text" at 13.86pt
+      \font\chapgtzzz"[ipaexg.ttf]:mapping=tex-text" at 13.86pt
+      \def\chapmc{\setjafont\chapmczzz}
+      \def\chapgt{\setjafont\chapgtzzz}
+
+      % Section fonts (12pt).
+      \font\secmczzz"[ipaexm.ttf]:mapping=tex-text" at 11.55pt
+      \font\secgtzzz"[ipaexg.ttf]:mapping=tex-text" at 11.55pt
+      \def\secmc{\setjafont\secmczzz}
+      \def\secgt{\setjafont\secgtzzz}
+
+      % Subsection fonts (10pt).
+      \font\ssecmczzz"[ipaexm.ttf]:mapping=tex-text" at 9.62pt
+      \font\ssecgtzzz"[ipaexg.ttf]:mapping=tex-text" at 9.62pt
+      \def\ssecmc{\setjafont\ssecmczzz}
+      \def\ssecgt{\setjafont\ssecgtzzz}
+
+      % Reduced fonts for @acro in text (9pt).
+      \font\reducedmczzz"[ipaexm.ttf]:mapping=tex-text" at 8.66pt
+      \font\reducedgtzzz"[ipaexg.ttf]:mapping=tex-text" at 8.66pt
+      \def\reducedmc{\setjafont\reducedmczzz}
+      \def\reducedgt{\setjafont\reducedgtzzz}
+
+      % Fonts for short table of contents.
+      \font\shortcontmczzz"[ipaexm.ttf]:mapping=tex-text" at 11.55pt
+      \font\shortcontgtzzz"[ipaexg.ttf]:mapping=tex-text" at 11.55pt
+      \def\shortcontmc{\setjafont\shortcontmczzz}
+      \def\shortcontgt{\setjafont\shortcontgtzzz}
+
+      \definealphabetictextfontsizex
+    }
+
+    % Japanese line break settings
+    \XeTeXlinebreaklocale "ja_JP"
+    \XeTeXlinebreakskip=0em plus 0.1em minus 0.01em
+    \XeTeXlinebreakpenalty=0
+
+    % For copy & paste Unicode characters (XeTeX 0.99995+)
+    \ifx\XeTeXgenerateactualtext\thisisundefined
+    \else
+      \XeTeXgenerateactualtext=1
+    \fi
+
+  \fi % XeTeX
+
+  \iftxinativeunicodecapable
+
+    % Sync fonts
+
+    \let\alphabeticrm\rm
+    \gdef\rm{\alphabeticrm\tenmc}
+
+    \let\alphabeticit\it
+    \gdef\it{\alphabeticit\tenmc}
+
+    \let\alphabeticsl\sl
+    \gdef\sl{\alphabeticsl\tengt}
+
+    \let\alphabeticbf\bf
+    \gdef\bf{\alphabeticbf\tengt}
+
+    \let\alphabetictt\tt
+    \gdef\tt{\alphabetictt\tengt}
+
+    % Add fonts
+
+    \let\alphabetictextfonts\textfonts
+    \gdef\textfonts{%
+      \alphabetictextfonts
+      \let\tenmc\textmc
+      \let\tengt\textgt
+    }
+
+    \let\alphabetictitlefonts\titlefonts
+    \gdef\titlefonts{%
+      \alphabetictitlefonts
+      \let\tenmc\titlemc
+      \let\tengt\titlegt
+    }
+
+    \let\alphabeticchapfonts\chapfonts
+    \gdef\chapfonts{%
+      \alphabeticchapfonts
+      \let\tenmc\chapmc
+      \let\tengt\chapgt
+    }
+
+    \let\alphabeticsecfonts\secfonts
+    \gdef\secfonts{%
+      \alphabeticsecfonts
+      \let\tenmc\secmc
+      \let\tengt\secgt
+    }
+
+    \let\alphabeticsubsecfonts\subsecfonts
+    \gdef\subsecfonts{%
+      \alphabeticsubsecfonts
+      \let\tenmc\ssecmc
+      \let\tengt\ssecgt
+    }
+
+    \global\let\subsubsecfonts\subsecfonts
+
+    \let\alphabeticreducedfonts\reducedfonts
+    \gdef\reducedfonts{%
+      \alphabeticreducedfonts
+      \let\tenmc\reducedmc
+      \let\tengt\reducedgt
+    }
+
+    \let\alphabeticsmallfonts\smallfonts
+    \gdef\smallfonts{%
+      \alphabeticsmallfonts
+      \let\tenmc\smallmc
+      \let\tengt\smallgt
+    }
+
+    \let\alphabeticsmallerfonts\smallerfonts
+    \gdef\smallerfonts{%
+      \alphabeticsmallerfonts
+      \let\tenmc\smallermc
+      \let\tengt\smallergt
+    }
+
+    \let\smallexamplefonts\smallfonts
+
+    % Reset fonts
+
+    \globaldefs = 1
+    \definetextfontsizexi
+    \globaldefs = 0
+
+  \fi % \iftxinativeunicodecapable
+
+\fi % \ifx\txijapackage\thisisundefined
