@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.18 2016/03/24 20:58:50 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.19 2016/08/29 04:56:58 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -219,6 +219,44 @@ with respect to the order the head monomial, and its term and coefficient
 the head term and the head coefficient respectively.
 \E
 @end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+\BJP
+@item 分散表現多項式は任意のオブジェクトを係数にもてるようになった.
+また加群のk成分の要素を次の形式 <<d0,d1,...:k>> で表現するようになった (2017-08-31).
+\E
+\BEG
+@item Distributed polynomials accept objects as coefficients.
+The k-th element of a free module is expressed as <<d0,d1,...:k>> (2017-08-31).
+\E
+@item 
+1.15 algnum.c,
+1.53 ctrl.c,
+1.66 dp-supp.c,
+1.105 dp.c,
+1.73 gr.c,
+1.4 reduct.c,
+1.16 _distm.c,
+1.17 dalg.c,
+1.52 dist.c,
+1.20 distm.c,
+1.8  gmpq.c,
+1.238 engine/nd.c,
+1.102  ca.h,
+1.411  version.h,
+1.28 cpexpr.c,
+1.42 pexpr.c,
+1.20 pexpr_body.c,
+1.40 spexpr.c,
+1.27 arith.c,
+1.77 eval.c,
+1.56 parse.h,
+1.37 parse.y,
+1.8 stdio.c,
+1.31 plotf.c
+@end itemize
 
 \BJP
 @node ファイルの読み込み,,, グレブナ基底の計算
