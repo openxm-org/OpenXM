@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.8 2009/02/23 04:26:54 ohara Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.9 2017/03/30 06:16:36 takayama Exp $
 # Original file was ../Makefile.common
 # Targets
 # gen-texi : generating texi files.
@@ -45,6 +45,7 @@ ASIRLIB=${OpenXM_ROOT}/../OpenXM_contrib2/asir2000/lib
 CONTRIB=${OpenXM_ROOT}/src/asir-contrib/packages/src
 EXTRACT_FUNC=${ASIRDOC}/extract_func
 PTEX=@PTEX@
+TEX=@TEX@
 DVIPDF=@DVIPDF@
 MAKEINFO=@MAKEINFO@
 #
@@ -54,7 +55,7 @@ OPTGENTEXI= --include
 DVIPS=dvips -f
 TEXI2HTML=${ASIRDOC}/texi2html -menu
 RM=rm -f
-NKF=nkf
+NKF=nkf -w
 
 # source files
 SRC_TEXI = ${MYNAME}-en.texi ${MYNAME}-ja.texi
@@ -69,7 +70,7 @@ SRC_LANG = ${MYNAME}.en ${MYNAME}.ja
 	${OXWEAVE} C ja < $< | ${NKF} -w > ${<:.oxw=.ja}
 
 .dvi.pdf:
-	${DVIPDF} $<
+	@echo "xetex has already generated PDF files."
 
 .dvi.ps:
 	${DVIPS} $< > ${<:.dvi=.ps}

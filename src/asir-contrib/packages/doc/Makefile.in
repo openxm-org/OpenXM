@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.27 2016/08/24 07:39:41 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.28 2016/10/12 02:19:16 takayama Exp $
 RM=rm -f
 
 LANGUAGES = en ja
@@ -16,7 +16,7 @@ SUBDIRS=dsolv gnuplot mathematica ok_diff ok_dmodule om \
 
 all :
 	@if [ ! -f ./.build_done ] ; then \
-		for i in ${SUBDIRS}; do (cd $$i && ${MAKE}); done ; \
+		for i in ${SUBDIRS}; do (cp texinfo*.tex txi-ja.tex $$i; cd $$i && ${MAKE}); done ; \
 	    touch ./.build_done ; \
 	fi
 
@@ -40,7 +40,7 @@ install-document: all
 	fi
 
 clean:
-	for i in ${SUBDIRS}; do (cd $$i; ${MAKE} clean); done
+	for i in ${SUBDIRS}; do (cd $$i; ${RM} -f texinfo*.tex txi-ja.tex ; ${MAKE} clean); done
 
 distclean: clean
 	-for j in ${LANGUAGES}; do \

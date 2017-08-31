@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.6 2009/02/23 04:26:54 ohara Exp $
+dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.7 2017/03/30 06:16:36 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT
@@ -9,11 +9,10 @@ AC_PATH_PROGS([MAKEINFO],[jmakeinfo makeinfo])
 AC_SUBST([MAKEINFO])
 AC_PATH_PROGS([DVIPDF],[dvipdfmx dvipdfm divpdf])
 AC_SUBST([DVIPDF])
-AC_PATH_PROG([PTEX],[ptex])
-if ${PTEX} -kanji=utf8 -version; then
-   PTEX="${PTEX} -kanji=utf8"
-fi
+AC_PATH_PROG([PTEX],[xetex])
 AC_SUBST([PTEX])
+AC_PATH_PROG([TEX],[xetex])
+AC_SUBST([TEX])
 
 OpenXM_ROOT=`cd ../../../..; pwd`
 AC_SUBST([OpenXM_ROOT])
