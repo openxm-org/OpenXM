@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.15 2014/12/14 00:53:08 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.16 2015/03/11 06:08:05 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -453,6 +453,28 @@ some functions of asir may not work properly.
 For example, in the Japense locale, names which may cause troubles
 can be checked by ``damemoji checker''.
 \E
+
+@noindent
+ChangeLog
+@itemize @bullet
+\BJP
+@item Windows 版は signal を thread で emulate するため ctrl-C や OpenXM 通信で問題を起こすことがあった. 次の変更によりかなり問題が改善された (2017-08-30). 
+\E
+\BEG
+@item Signals are emulated by threads. Some bugs related to signals are fixed by the following commit (2017-08-30).
+\E
+@item 
+1.13 gc-7.0-risa.diff,
+1.37 parif.c,
+1.101 ca.h,
+1.40 ox.c,
+1.79 ox_asir.c,
+1.17 gc_risa.c,
+1.97 glob.c,
+1.30 ox_plot.c,
+1.9  io.c,
+1.12 plot.c
+@end itemize
 
 \BJP
 @node コマンドラインオプション,,, Risa/Asir
