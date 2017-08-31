@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/html_tools/gen_hh.c,v 1.3 2013/08/31 13:45:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/html_tools/gen_hh.c,v 1.4 2013/09/02 20:08:41 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +87,6 @@ void conv_index(char *in, char *out, char *prefix_, char *indir)
 	fprintf(outf,"<HTML>\n<HEAD>\n");
 	fprintf(outf,"<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n");
 	fprintf(outf,"<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n");
-	fprintf(outf,"</HEAD><BODY>\n");
 
 	while ( 1 ) {
 		fgets(buf,BUFSIZ,inf);

@@ -85,7 +85,6 @@ void conv_index (char *in, char *out, char *prefix_, char *htmldir)
 	fprintf(outf,"<HTML>\n<HEAD>\n");
 	fprintf(outf,"<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n");
 	fprintf(outf,"<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n");
-	fprintf(outf,"</HEAD><BODY>\n");
 
 	while ( 1 ) {
 		fgets(buf,BUFSIZ,inf);
