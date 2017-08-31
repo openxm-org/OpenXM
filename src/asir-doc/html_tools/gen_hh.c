@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/html_tools/gen_hh.c,v 1.4 2013/09/02 20:08:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/html_tools/gen_hh.c,v 1.5 2017/08/31 03:53:00 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +8,21 @@
 #else 
 #include <windows.h>
 #endif
+
+#define HEADER_INDEX \
+  "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n" \
+  "<HTML>\n<HEAD>\n" \
+  "<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n" \
+  "<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n"
+
+#define HEADER_TOC \
+  "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n" \
+  "<HTML>\n<HEAD>\n" \
+  "<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n" \
+  "<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n" \
+  "<OBJECT type=\"text/site properties\">\n" \
+  "<param name=\"ImageType\" value=\"Folder\">\n" \
+  "</OBJECT>\n<UL>\n"
 
 void gen_hhp(char *out, int n, char *indir, char *prefix_, char *help)
 {
@@ -40,13 +55,7 @@ void conv_toc(char *in, char *out, char *prefix_, char *indir)
 
 	inf = fopen(in,"r");
 	outf = fopen(out,"w");
-	fprintf(outf,"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n");
-	fprintf(outf,"<HTML>\n<HEAD>\n");
-	fprintf(outf,"<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n");
-	fprintf(outf,"<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n");
-	fprintf(outf,"<OBJECT type=\"text/site properties\">\n");
-	fprintf(outf,"<param name=\"ImageType\" value=\"Folder\">\n");
-	fprintf(outf,"</OBJECT>\n<UL>\n");
+	fputs(HEADER_TOC,outf);
 
 	while ( 1 ) {
 		c = fgetc(inf);
@@ -58,13 +67,14 @@ void conv_toc(char *in, char *out, char *prefix_, char *indir)
 			break;
 		if ( fname = strstr(buf,prefix_) ) {
 			ptr = strchr(buf,'#');
+			if(!ptr) continue;
 			*ptr = 0;
 			ptr = strchr(ptr+1,'>');
 			ptr++;
 			if ( *ptr == '<' )
 				ptr = strchr(ptr+1,'>')+1;
 			ptr1 = strchr(ptr,'<');
-			*ptr1 = 0;
+			if(ptr1) *ptr1 = 0;
 			fprintf(outf,"<LI><OBJECT type=\"text/sitemap\">\n");
 			fprintf(outf,"<param name=\"Name\" value=\"%s\">\n",ptr);
 			fprintf(outf,"<param name=\"Local\" value=\"%s\\%s\">\n",indir,fname);
@@ -83,10 +93,7 @@ void conv_index(char *in, char *out, char *prefix_, char *indir)
 	inf = fopen(in,"r");
 	outf = fopen(out,"w");
 
-	fprintf(outf,"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n");
-	fprintf(outf,"<HTML>\n<HEAD>\n");
-	fprintf(outf,"<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n");
-	fprintf(outf,"<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n");
+	fputs(HEADER_INDEX, outf);
 
 	while ( 1 ) {
 		fgets(buf,BUFSIZ,inf);
@@ -99,13 +106,14 @@ void conv_index(char *in, char *out, char *prefix_, char *indir)
 			break;
 		if ( fname = strstr(buf,prefix_) ) {
 			ptr = strchr(buf,'#');
+			if(!ptr) continue;
 			*ptr = 0;
 			ptr = strchr(ptr+1,'>');
 			ptr++;
 			if ( *ptr == '<' )
 				ptr = strchr(ptr+1,'>')+1;
 			ptr1 = strchr(ptr,'<');
-			*ptr1 = 0;
+			if(ptr1) *ptr1 = 0;
 			fprintf(outf,"<LI><OBJECT type=\"text/sitemap\">\n");
 			fprintf(outf,"<param name=\"Name\" value=\"%s\">\n",ptr);
 			fprintf(outf,"<param name=\"Local\" value=\"%s\\%s\">\n",indir,fname);
