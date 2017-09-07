@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.21 2016/08/29 04:56:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.22 2017/03/28 03:47:36 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -127,6 +127,9 @@ ox_reset の実装の有無は mathcap の optional argument (第四引数
 ox_pari を利用するときはこのフラグを1にしておくことが望ましい.
 (デフォルト値は 0.)
 @xref{分散計算}.
+@item plot_by_bigfloat
+N のとき, 10進数での精度を N 桁として, bigfloat を用いて plot を行う.
+(デフォルトでは double を用いて plot を行う.)
 @end table
 \E
 \BEG
@@ -220,6 +223,9 @@ of mathcap if ox_reset is implemented or not.
 When you use ox_pari, it is recommended to set this flag 1.
 (The default value is 0.)
 @xref{Distributed computation}.
+@item plot_by_bigfloat
+If its value N is not equal to zero, then plotting is done by bigfloat.
+(The double numbers are used as the default.)
 @end table
 \E
 @end itemize
@@ -230,6 +236,24 @@ When you use ox_pari, it is recommended to set this flag 1.
 @fref{cputime tstart tstop}, @fref{output},
 @fref{pari}, @fref{setbprec setprec}, @fref{eval deval}.
 @end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+\BEG
+@item plot_by_bigfloat switch is added on 2017.09.04. The following files are changed.
+\E
+\BJP
+@item plot_by_bigfloat スイッチは 2017.09.04 に加えられた. 変更を受けたファイルは下記のとおり.
+\E
+@item 1.54 ctrl.c,
+  1.14 bf.c,
+  1.75 tcpf.c,
+  1.13 calc.c,
+  1.36 if.c,
+  1.25 ifplot.h,
+  1.33 plotf.c
+@end itemize
 
 \JP @node debug,,, その他
 \EG @node debug,,, Miscellaneouses
