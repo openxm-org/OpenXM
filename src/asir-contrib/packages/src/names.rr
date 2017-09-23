@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.141 2017/03/12 00:39:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.142 2017/03/31 03:08:11 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -855,6 +855,24 @@ end: */
 def matrix_gauge_transformation(M,T,V) { 
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_gauge_transformation(M,T,V);
+}
+
+/*&usage begin: matrix_ij(N,II,JJ)
+ It returns the matrix for exchanging II-th row(col) and JJ-th row(col).
+ example: matrix_ij(4,0,2);
+end: */
+def matrix_ij(N,II,JJ){
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return ok_matrix_ij(N,II,JJ);
+}
+
+/*&usage begin: matrix_inverse_singular(Mat)
+ It returns a quasi-inverse matrix of Mat when it has 0-row and 0-column.
+ example: matrix_inverse_singular(newmat(3,3,[[1,0,2],[0,0,0],[3,0,4]]));
+end: */
+def matrix_inverse_singular(Mat) {
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return ok_matrix_inverse_singular(Mat);
 }
 
 
