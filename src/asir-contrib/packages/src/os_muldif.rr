@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.22 2017/08/29 01:13:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.23 2017/10/06 02:30:33 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8399,7 +8399,7 @@ def redgrs(M)
 				}
 				L = cons([VM,EV], L);
 /*
-				if(R[2] >= 2){ */ /* digid */
+				if(R[2] >= 2){ */ /* rigid */
 /*          P = dx^(R[1]);
 				} */
 			}
@@ -8426,30 +8426,51 @@ def mcgrs(G, R)
 {
 	NP = length(G);
 	Mat = (getopt(mat)==1)?0:1;
+	if(Mat==1 && type(SM=getopt(slm))==4){
+		SM0=SM[0];SM1=anal2sp(SM[1],["*",-1]);
+		if(findin(0,SM0)>=0){
+			for(SM=[],I=length(G)-1;I>0;I--)
+				if(findin(I,SM0)<0) SM=cons(I,SM);
+			SM=[SM,SM1];
+			G=mcgrs(G,R|slm=SM);
+			return [G[0],anal2sp(G[1],["*",-1])];
+		}
+	}else SM0=0;
 	for(R = reverse(R) ; R != []; R = cdr(R)){
 		GN = [];
 		L = length(G)-1;
 		RT = car(R);
 		if(type(RT) == 4){
-			RT = reverse(RT); S = 0;
+			if(length(RT)==L&&RT[0]!=0){
+				R=cons(cdr(RT),R);
+				R=cons(RT[0],R);
+				continue;
+			}		/* addition */
+			RT = reverse(RT); S = ADS = 0;
 			for(G = reverse(G); G != []; G = cdr(G), L--){
 				AD = car(RT); RT = cdr(RT);
-				if(L > 0)
+				if(L > 0){
 					S += AD;
-				else
+					if(SM && findin(L,SM0)>=0) ADS+=AD;
+				}else
 					AD = -S;
 				for(GTN = [], GT = reverse(car(G)); GT != []; GT = cdr(GT))
 					GTN = cons([car(GT)[0],car(GT)[1]+AD], GTN);
 				GN = cons(GTN, GN);
 			}
 			G = GN;
+			if(SM0){
+				for(ST=reverse(SM1),SM1=[]; ST!=[]; ST=cdr(ST))
+					SM1 = cons([car(ST)[0],car(ST)[1]+ADS], SM1);
+			}
 			continue;
 		}
-		VP = newvect(L+1); GV = ltov(G);
+		if(RT==0) continue;
+		VP = newvect(L+1); GV = ltov(G);	/* middle convolution */
 		for(I = S = OD = 0; I <= L; I++){
 			RTT = (I==0)?(Mat-RT):0;
 			VP[I] = -1;
-			for(J = M = 0, GT = GV[I]; GT != []; GT = cdr(GT), J++){
+			for(J = M = K = 0, GT = GV[I]; GT != []; GT = cdr(GT), J++){
 				if(I == 0)
 					OD += car(GT)[0];
 				if(car(GT)[1] == RTT && car(GT)[0] > M){
@@ -8457,29 +8478,45 @@ def mcgrs(G, R)
 					VP[I] = J;
 				}
 			}
-			S -= (L-1)*OD;
-			for(GN = [] ; L >= 0; L--){
-				GT = GV[L];
-				RTT = (L==0)?(-RT):RT;
-				FTN = (VP[L] >= 0 || S == 0)?[]:[-S,(L==0)?(Mat-RT):0];
-				for(J = 0; GT != []; GT = cdr(GT), J++){
-					if(J != VP[L]){
-						GTN = cons([car(GT)[0],car(GT)[1]+RTT], GTN);
-						continue;
-					}
-					K = car(GT)[0] - S;
-					if(K < 0){
-						print("Not realizable");
-						return;
-					}
-					GTN = cons([K,(L==0)?(Mat-RT):0], GTN);
+		}
+		S -= (L-1)*OD;
+		for(GN = []; L >= 0; L--){
+			GT = GV[L];
+			RTT = (L==0)?(-RT):RT;
+			GTN = [(VP[L] >= 0 || S == 0)?[]:[-S,(L==0)?(Mat-RT):0]];
+			for(J = 0; GT != []; GT = cdr(GT), J++){
+				if(J != VP[L]){
+					GTN = cons([car(GT)[0],car(GT)[1]+RTT], GTN);
+					continue;
 				}
-				GN = cons(reverse(GTN), GN);
+				K = car(GT)[0] - S;
+				if(K < 0){
+					print("Not realizable");
+					return;
+				}
+				GTN = cons([K,(L==0)?(Mat-RT):0], GTN);
 			}
+			if(VP[L]<0) GTN=cons([-S,(L==0)?(Mat-RT):0],GTN);
+			GN = cons(reverse(GTN), GN);
+		}
+		if(SM0){
+			for(M=0,L=length(G)-1;L>0;L--)
+				if(findin(L,SM0)>=0&&VP[L]>=0) M+=GV[L][VP[L]][0];
+			Mx=sp2anal(SM1,["max",1,0]);
+			for(SM2=[],J=0;SM1!=[];J++,SM1=cdr(SM1)){
+				if(J!=Mx[0]) SM2=cons([car(SM1)[0],car(SM1)[1]+RT],SM2);
+				else if((V=car(SM1)[0]-M)!=0) SM2=cons([V,RT],SM2);
+			}
+			Mx=sp2anal(SM1,["max",1,0]);
+			for(J=0;SM2!=[];J++,SM2=cdr(SM2)){
+				if(J!=Mx[0]) SM1=cons(car(SM2),SM1);
+				else if((V=car(SM1)[0]-S+M)!=0) SM1=cons([V,0],SM2);
+			}
+			if(Mx[0]<0) SM1=cons([-S,0],SM1);
 		}
 		G = cutgrs(GN);
 	}
-	return G;
+	return SM0?[G[0],SM1]:G;
 }
 
 /*
@@ -8493,6 +8530,8 @@ def mcgrs(G, R)
   F=["put",F,V] : 
   F=["get1",F,V] : 
   F=["put1",F,V] : 
+  F=["max"] : 
+  F=["max",F.V] : 
   F=["put1"] : 
   F=["val",F];
   F=["swap"];
@@ -8537,6 +8576,18 @@ def anal2sp(R,F)
 		return G;
 	}
 	if(F[0]=="add") return append(R,F[1]);
+	if(F[0]=="max"){
+		if(length(F)==3) C=1;
+		else C=0;
+		M=-10^10;K=[-1];
+		for(I=0;R!=[];R=cdr(R),I++){
+			if(C>0&&car(R)[F[1]]!=F[2]) continue;
+			if(M<car(R)[0]){
+				M=car(R)[0];K=[I,car(R)];
+			}
+		}
+		return K;
+	}
 	R=reverse(R);
 	if(F[0]=="sub"){
 		for(S=F[1];S!=[];S=cdr(S))
@@ -8549,13 +8600,19 @@ def anal2sp(R,F)
 		return G;
 	}
 	if(F[0]=="+"){
-		for(G=[];R!=[];R=cdr(R))
-			G=cons([car(R)[0],car(R)[1]+F[1],car(R)[2]+F[2]],G);
+		L=length(F);
+		for(G=[];R!=[];R=cdr(R)){
+			for(S=[],I=L-1;I>0;I--) S=cons(car(R)[I]+F[I],S);
+			G=cons(cons(car(R)[0],S),G);
+		}
 		return G;
 	}
 	if(F[0]=="*"){
-		for(G=[];R!=[];R=cdr(R))
-			G=cons([car(R)[0],car(R)[1]*F[1]+car(R)[2]*F[2]],G);
+		L=length(F);
+		for(G=[];R!=[];R=cdr(R)){
+			for(S=0,I=1;I<L;I++) S+=car(R)[I]*F[I];
+			G=cons([car(R)[0],S],G);
+		}
 		return G;
 	}
 	if(F[0]=="mult"){
@@ -8618,7 +8675,6 @@ def anal2sp(R,F)
  P=["eigen",I]   decomposition of A_I
  P=["get0",[m,n],[m',n']] for the sum of residues
  P=["rest",[m,n]] restriction 
- P=["rest0",[m,n]] restriction 
  P=["swap",[m,n]] for symmetry
  P=["perm",[...]] for symmetry
  P=["deg"]
@@ -8806,14 +8862,14 @@ def mc2grs(G,P)
 					if(I[0]>I[0]){S=I;I=J;J=S;};
 					K=lsort(I,J,0);
 					if(length(K)==4){
-						S=sp2grs(G,["get0",[I,J]]);
+						S=mc2grs(G,["get0",[I,J]]);
 						return anal2sp(S,[["*",1,1],0]);
 					}
 					I=lsort(K,lsort(I,J,2),1);
 					S=lsort([0,1,2,3,4],K,1);
-					D=sp2grs(G,"deg");
+					D=mc2grs(G,"deg");
 					if(findin(4,S)<0) D=-D;
-					J=sp2grs(G,["get0",[I,S]]);
+					J=mc2grs(G,["get0",[I,S]]);
 					if(I[0]>S[0]) J=sp2grs(J,"swap");
 					return anal2sp(J,[["+",0,D],["*",-1,1]]);
 				}
@@ -8857,13 +8913,38 @@ def mc2grs(G,P)
 			if(I[0]>I[1]) I=[I[1],I[0]];
 			L=lsort([0,1,2,3,4],I,1);
 			L=[[L[0],L[1]],[L[0],L[2]],[L[1],L[2]]];
+			if(F!="eigen"){
+				if(I==[0,4]) L=reverse(L);
+				else{
+					for(V=[],J=2;J>=0;J--){
+						if(L[J][0]==0) V=cons([L[J][1],J],V);
+						else{
+							for(K=4;K>=0;K--){
+								if(findin(K,L[J])<0){
+									V=cons([K,J],V);break;
+								} 
+							}
+						}
+					}
+					V=qsort(V);
+					L=[L[V[0][1]],L[V[1][1]],L[V[2][1]]];
+				}
+			}
 			for(LL=[],T=L;T!=[];T=cdr(T))
 				LL=cons(mc2grs(G,["get0",[I,car(T)]]),LL);
 			LL=reverse(LL);
 			for(R=[],Q=mc2grs(G,["get0",I]);Q!=[];Q=cdr(Q)){
-				V=car(Q)[1];
-				for(T=[],J=2;J>=0;J--)
-					T=cons(anal2sp(LL[J],["get1",(I[0]<L[J][0])?1:2,V]),T);
+				for(T=[],J=2;J>=0;J--){
+					V=anal2sp(LL[J],["get1",(I[0]<L[J][0])?1:2,car(Q)[1]]);
+					if(F=="rest"){
+						if(I[0]==0){
+							if(I[1]!=4){
+								if(L[J][1]!=4) V=anal2sp(V,["+",-car(Q)[1]]);
+							}else if (L[J][0]!=2) V=anal2sp(V,["+",-car(Q)[1]]);
+						}else if(L[J][0]!=0) V=anal2sp(V,["+",-car(Q)[1]]);
+					}
+					T=cons(V,T);
+				}
 				R=cons(cons(car(Q)[1],T),R);
 			}
 			if(F=="rest0"){
@@ -9177,7 +9258,7 @@ def mcmgrs(G,P)
 	Keep=(Dvi==2)?1:0;
 	if(type(P)==4 && type(F=car(P))==7){
 		if(F=="mult"){
-			for(P=cdr(P);P!=[];P=cdr(P)) G=os_md.mc2grs(G,car(P)|option_list=getopt());
+			for(P=cdr(P);P!=[];P=cdr(P)) G=mc2grs(G,car(P)|option_list=getopt());
 			return G;
 		}
 		if(F=="get"||F=="get0"){
