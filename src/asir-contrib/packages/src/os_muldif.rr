@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.23 2017/10/06 02:30:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.24 2017/11/01 00:48:28 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8744,7 +8744,9 @@ def mc2grs(G,P)
 	}
 	if(type(P)<2) return G;
 	F=0;
-	if(type(P)==7||(type(P)==4&&type(P[0])<4)) P=[P];
+	if(type(P)==7||(type(P)==4&&
+		(type(P[0])<4||(type(P[0])==4&&length(P[0])==2&&type(P[0][0])<4&&type(P[1])<4))
+	  )) P=[P];
 	if((Dvi=getopt(dviout))!=1&&Dvi!=2&&Dvi!=-1) Dvi=0;
 	Keep=(Dvi==2)?1:0;
 	if(type(P)==4&&type(F=car(P))==7){
