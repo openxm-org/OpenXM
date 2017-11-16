@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.25 2017/11/06 05:24:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.26 2017/11/14 00:05:22 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -241,6 +241,7 @@ localf expower$
 localf seriesHG$
 localf seriesMc$
 localf seriesTaylor$
+localf mulpolyMod$
 localf taylorODE$
 localf evalred$
 localf toeul$
@@ -462,7 +463,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00171111"$
+Muldif.rr="00171115"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -6148,27 +6149,63 @@ def seriesTaylor(F,N,V)
 	return F;
 }
 
+def mulpolyMod(P,Q,X,N)
+{
+	Red=(type(P)>2||type(Q)>2)?1:0;
+	for(I=R=0;I<=N;I++){
+		P0=mycoef(P,I,X);
+		for(J=0;J<=N-I;J++){
+			R+=P0*mycoef(Q,J,X)*X^(I+J);
+			if(Red) R=red(R);
+		}
+	}
+	return R;
+}
+
 def taylorODE(D){
 	Dif=(getopt(dif)==1)?1:0;
 	if(D==0) return Dif?f:f_00;
-	if(type(T=getopt(runge))!=1||ntype(T)!=1) T=0;
+	if(type(T=getopt(runge))!=1||ntype(T)!=0) T=0;
 	if(type(F=getopt(f))!=7&&type(F)<2) F="f_";
 	if(type(D)!=1||ntype(D)!=0||D<0||D>30) return 0;
 	if(type(H=getopt(taylor))==4&&length(H)==2){
-		if(type(F)!=7){
-			for(R=I=0;I<=D;I++){
-				G=I?mydiff(G,x):F;
-				for(J=0;J<=D-I;J++){
-					if(I) G=mydiff(G,y);
-					R+=G*H[0]^I*H[1]^J/fac(I)/fac(J);
-				}
-			}
-			return G;
-		}
+		if(type(Lim=getopt(lim))==2) DD=D;
+		else if(type(Lim)==4){
+			DD=Lim[1];Lim=Lim[0];
+		}else Lim=0;
 		for(R=I=0;I<=D;I++){
-			for(J=0;J<=D-I;J++)
-				R+=makev([F,I,J])*H[0]^I*H[1]^J/fac(I)/fac(J);
+#if 0
+			if(I) H0*=H[0];
+			else  H0=1;
+			if(Lim) H0=os_md.polcut(H0,DD,Lim);
+			if(type(F)!=7) G=I?mydiff(G,x):F;
+			for(J=0;J<=D-I;J++){
+				if(J) H1*=H[1];
+				else H1=H0;
+				if(Lim) H1=os_md.polcut(H1,DD,Lim);
+				if(type(F)==7) G=makev([F,I,J]);
+				else if(J) G=mydiff(G,y);
+				if(Lim) H1=os_md.polcut(H1,DD,Lim);
+				R+=G*H1/fac(I)/fac(J);
+#else
+			if(I){
+				if(Lim) H0=mulpolyMod(H0,H[0],Lim,DD);
+				else H0*=H[0];
+			}else  H0=1;
+			if(type(F)!=7) G=I?mydiff(G,x):F;
+			for(J=0;J<=D-I;J++){
+				if(J){
+					if(Lim) H1=mulpolyMod(H1,H[1],Lim,DD);
+					else H1*=H[1];
+				}else H1=H0;
+				if(type(F)==7) G=makev([F,I,J]);
+				else if(J) G=mydiff(G,y);
+				R+=G*H1/fac(I)/fac(J);
+#endif
+			}
 		}
+		if(Lim) R=os_md.polcut(R,DD,Lim);
+		return R;
 	}else{
 		if(type(H=getopt(series))>=0||getopt(list)==1){
 			if(type(F)!=7){
@@ -6200,8 +6237,7 @@ def taylorODE(D){
 				K=newvect(TT);K[0]=Dif?f:f_00;
 				for(I=1;I<TT;I++){
 					for(S=J=0;J<I;J++) S+=makev(["a_",I+1,J+1])*K[J];
-					K[I]=taylorODE(D|taylor=[makev(["c_",I+1])*H,S*H]);
-					K[I]=os_md.polcut(K[I],TT-1,H);
+					K[I]=taylorODE(D|taylor=[makev(["c_",I+1])*H,S*H],lim=[H,TT-1]);
 				}
 				for(S=I=0;I<TT;I++) S+=makev(["b_",I+1])*K[I];
 				S=S*H+y;
@@ -9038,19 +9074,19 @@ def mc2grs(G,P)
 				return (F=="get")?cons(T,L):L;
 			}
 		}
-		if(F=="rest"||F=="eigen"||F=="rest0"){
+		if(F=="rest"||F=="eigen"||F=="rest0"||F=="rest1"){
 			if(F!="eigen") G=mc2grs(G,"homog");
 			if(length(P)==1){
 				for(R=[],I=0;I<4;I++){
 					for(J=I+1;J<5;J++){
 						S=mc2grs(G,[F,[I,J]]);
-						R=cons(cons([I,J],S),R);
+						if(S!=[]) R=cons(cons([I,J],S),R);
 					}
 				}
 				R=reverse(R);
 				if(Dvi){
 					TB=str_tb(0,0);
-					if(F=="rest0"){
+					if(F=="rest0"||F=="rest1"){
 						for(T=R;;){
 							TT=car(T);
 							S=rtostr(car(TT)[0])+rtostr(car(TT)[1]);
@@ -9122,9 +9158,12 @@ def mc2grs(G,P)
 				}
 				R=cons(cons(car(Q)[1],T),R);
 			}
-			if(F=="rest0"){
-				for(L=[];R!=[];R=cdr(R))
-					L=cons([car(R)[0],s2sp(chkspt(cdr(car(R))|opt=6))],L);
+			if(F=="rest0"||F=="rest1"){
+				for(L=[];R!=[];R=cdr(R)){
+					TR=cdr(car(R));
+					if(F=="rest1"&&chkspt(TR)[2]==2) continue;
+					L=cons([car(R)[0],s2sp(chkspt(TR|opt=6))],L);
+				}
 				R=reverse(L);
 			}
 			return R;
@@ -9139,9 +9178,10 @@ def mc2grs(G,P)
 			}
 			return S/L[0];
 		}
-		if(F=="spct"){
+		if(F=="spct"||F=="spct1"){
+			K=(F=="spct")?5:6;
 			G=mc2grs(G,"get");
-			M=newmat(5,5);
+			M=newmat(5,K);
 			for(;G!=[];G=cdr(G)){
 				GT=car(G);I=GT[0][0];J=GT[0][1];
 				for(S=0,L=[],GT=cdr(GT);GT!=[];GT=cdr(GT)){
@@ -9158,19 +9198,28 @@ def mc2grs(G,P)
 					for(L=M[I][J];L!=[];L=cdr(L)) S+=car(L)^2;
 				}
 				M[I][I]=S;
+				if(K==6){
+					for(S=[],J=4;J>=0;J--)
+						if(I!=J) S=cons(M[I][J],S);
+					R=chkspt(S|opt=2);
+					M[I][5]=((L=length(R))>1)?s2sp(R[L-2]|short=1):"";
+				}
 			}
 			if(Dvi){
 				S=[];
 				for(I=4;I>=0;I--){
-					L=[M[I][I]];
+					L=(K==6)?[M[I][5]]:[];
+					L=cons(M[I][I],L);
 					for(J=4;J>=0;J--){
 						if(I==J) L=cons("",L);
 						else L=cons(s2sp([M[I][J]]),L);
 					}
 					S=cons(L,S);
 				}
-				S=cons([x0,x1,x2,x3,x4,"idx"],S);
-				M=ltotex(S|opt="tab",hline=[0,1,z],vline=[0,1,z-1,z],
+				T=(K==6)?["reduction"]:[];
+				S=cons(append([x0,x1,x2,x3,x4,"idx"],T),S);
+				M=ltotex(S|opt="tab",hline=[0,1,z],
+					vline=(K==6)?[0,1,z-2,z-1,z]:[0,1,z-2,z-1,z],
 					left=["","$x_0$","$x_1$","$x_2$","$x_3$","$x_4$"]);
 				if(Dvi>0) dviout(M|keep=Keep);
 			}
