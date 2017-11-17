@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.26 2017/11/14 00:05:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.27 2017/11/16 02:50:40 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -463,7 +463,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00171115"$
+Muldif.rr="00171116"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -8342,7 +8342,7 @@ def chkspt(M)
 	Opt= getopt(opt);
 	Mat= getopt(mat);
 	if(type(M)==7) M=s2sp(M);
-	if(type(Opt) >= 0){
+	if(type(Opt) >= 0&&Opt!="idx"){
 		if(type(Opt) == 7)
 			Opt = findin(Opt, ["sp","basic","construct","strip","short","long","sort","root"]);
 		if(Opt < 0){
@@ -8351,7 +8351,6 @@ def chkspt(M)
 		}
 		return fspt(M,Opt);
 	}
-	MR = fspt(M,1);
 	P  = length(M);
 	OD = -1;
 	XM = newvect(P);
@@ -8374,8 +8373,8 @@ def chkspt(M)
 		if(OD < 0)
 			OD = SM;
 		else if(OD != SM){
-			print("irregal partitions");
-			return 0;
+			if(getopt(dumb)!=1) print("irregal partitions");
+			return -1;
 		}
 		XM[I] = JM;
 	}
@@ -8392,13 +8391,14 @@ def chkspt(M)
 		SM += MV;
 	}
 	SM -= (P-2)*OD;
+	if(Opt=="idx") return SSM;
 	if(SM > SMM && SM != 2*OD){
-		print("not realizable");
-		return -1;
+		if(getopt(dumb)!=1) print("not realizable");
+		return 0;
 	}
 	if(JM==1 && Mat!=1)
 		Fu -= OD - SSM/2;
-	return [P, OD, SSM, Fu, SM, XM, MR];
+	return [P, OD, SSM, Fu, SM, XM, fspt(M,1)];
 }
 
 def cterm(P)
@@ -9161,7 +9161,7 @@ def mc2grs(G,P)
 			if(F=="rest0"||F=="rest1"){
 				for(L=[];R!=[];R=cdr(R)){
 					TR=cdr(car(R));
-					if(F=="rest1"&&chkspt(TR)[2]==2) continue;
+					if(F=="rest1"&&chkspt(TR|opt="idx")==2) continue;
 					L=cons([car(R)[0],s2sp(chkspt(TR|opt=6))],L);
 				}
 				R=reverse(L);
