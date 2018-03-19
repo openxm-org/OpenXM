@@ -1,5 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.5 2017/03/11 07:02:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.6 2017/03/12 12:01:39 takayama Exp $ */
 // 2017.02.19 from tatibana version.
+import("names.rr")$
+import("gtt_ekn.rr")$
+// demo: gtt_ekn.cmle_test2();  (math.kobe wake up/bed time)
 import("tk_approx-r.rr")$
 module gtt_ekn$
 localf mle_init$
@@ -22,6 +25,18 @@ localf cmle_test2$
 localf cmle_test2b$
 localf cmle_test2c$
 localf cmle_test3$
+localf cmle_test1c$
+
+localf test111$
+localf test222$
+localf cmle_test4$
+localf cmle_test5$
+localf cmle_test5_female$
+localf cmle_test5_male$
+localf cmle_test5_ans$
+localf cmle_test5b$
+localf swap_row$
+localf swap_col$
 
 /* imported from ekn/Prog/cmle.rr 
 localf next_2$
@@ -110,7 +125,9 @@ def jinv(Ediff){
       Jac[I][J] = Ediff[II][JJ][KK][LL-1];  
     }
   }
-  matrix_inverse(Jac);
+  //  printf("Jac=%a\n",Jac); bsave(Jac,"tt.ab");
+  // matrix_inverse(Jac);  // changed to matrix_inverse_singular(Jac); 2017.09.24
+  return matrix_inverse_singular(Jac);
 }
 
 def jinv_v2(Ediff){
@@ -443,6 +460,14 @@ def cmle_test1() {
   CMLE_debug=1;
   return(cmle_3(U));
 }
+def cmle_test1c() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  U=[[0,6,123],[3,22,145],[86,91,176]];
+  P=matrix_ij(3,0,1); U=newmat(3,3,U); U=P*U*P;
+  U=matrix_matrix_to_list(U); printf("U=%a\n",U);
+  CMLE_debug=1;
+  return(cmle_3(U|by_g=1));
+}
 
 def cmle_test2() {
   printf("make_2wayTable(  ,[0,1],[6,7])\n");
@@ -474,7 +499,7 @@ def cmle_test2c() {
   U=[[1,3,4],[2,0,5],[3,1,3]];
   CMLE_debug=1;
   //  return(cmle_3(U));  // bug: it falls into infinite loop.
-  return(cmle_3(U|by_g=1)); // bug: invmatp is singular
+  return(cmle_3(U|by_g=1)); // bug: invmatp is singular. fixed 2017.09.24 
 }
 
 def cmle_test3() {
@@ -485,6 +510,120 @@ def cmle_test3() {
   CMLE_debug=1;
   return(cmle_3(U));
 }
+
+
+def test111() {
+  /* approx mle for cmle_test1c */
+  M=[[ 1, 273/1892, 13195/3872 ],
+     [ 1, 0, 3731/352 ],
+     [ 1, 1, 1 ]];
+  M=matrix_list_to_matrix(M);
+  P=matrix_ij(3,0,1);
+  number_eval(P*M*P);
+}
+def test222() {
+  /* approx mle for cmle_test2c */
+  M=[[ 1, 9, 4 ],
+     [ 1, 0, 5/2 ],
+     [ 1, 1, 1 ]];
+  M=matrix_list_to_matrix(M);
+  P=matrix_ij(3,0,1);
+  number_eval(P*M*P);
+}
+
+def cmle_test4() {  // 2017.10.16
+  /*  
+   0 3 9
+   0 3 1
+   1 1 1
+  */
+  U=[[3,3,1],[9,1,1]];
+  CMLE_debug=1;
+  return(gtt_ekn.cmle_3(U|by_g=1)); 
+}
+
+/* gen_data.rr 2017.11.17 */
+def cmle_test5() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  U=[[1,6,123],[3,22,145],[86,91,176]];
+  CMLE_debug=1;
+  return(gtt_ekn.cmle_3(U|by_g=1));
+}
+def cmle_test5_female() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  /*  col-1<->col-2, row-1<->row-2 */
+  // U=[[0,4,95],[3,18,98],[51,59,105]];
+  U=[[18,3,98],[4,0,95],[59,51,105]];
+  CMLE_debug=1;
+  return(gtt_ekn.cmle_3(U|by_g=1));
+}
+def cmle_test5_male() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  /*  col-1<->col-2 */
+  // U=[[1,2,28],[0,4,47],[35,32,71]];
+  U=[[2,1,28],[4,0,47],[32,35,71]];
+  CMLE_debug=1;
+  return(gtt_ekn.cmle_3(U|by_g=1));
+}
+
+extern C_data$
+def cmle_test5_ans() {
+  C_female=[[0,4,95],[3,18,98],[51,59,105]];
+  //出力. P_female=[[1,66529/344084,295388/96889],[1,0,1417991/106845],[1,1,1]];
+  // 入れ替えたもの.
+  P_female=[[0,1,1417991/106845],[66529/344084,1,295388/96889],[1,1,1]];
+  printf("count female=\n%a\n",newmat(3,3,number_eval(C_female)));
+  printf("cmle  female=\n%a\n\n",newmat(3,3,number_eval(P_female)));
+
+  C_male=[[1,2,28],[0,4,47],[35,32,71]];
+  // P_male=[[1,94832/206981,2385997/381347],[1,0,1603831/305375],[1,1,1]];
+  P_male=[[94832/206981,1,2385997/381347],[0,1,1603831/305375],[1,1,1]];
+  printf("count male=\n%a\n",newmat(3,3,number_eval(C_male)));
+  printf("cmle  male=\n%a\n\n",newmat(3,3,number_eval(P_male)));
+
+  C_all=[[1,6,123],[3,22,145],[86,91,176]];
+//  P_all=[[1,644866/113855,12904014/215675],[1,1632327/235925,3397111/144423],[1,1,1]];  // by test5
+  
+  P_all=  // by test5b
+[[ 1, 49819/282171, 537946/50925 ],
+ [ 1, 4374/30263, 439387/129243 ],
+ [ 1, 1, 1 ]];
+  P_all = matrix_matrix_to_list(swap_col(P_all,0,1));
+  printf("count all=\n%a\n",newmat(3,3,number_eval(C_all)));
+  printf("cmle  all=\n%a\n",newmat(3,3,number_eval(P_all)));
+  C_data=[C_all,C_male,C_female]; C_data=map(matrix_list_to_matrix,C_data);
+  return([P_all,P_male,P_female]);
+}
+
+// 2017.11.22
+def cmle_test5b() {
+  printf("make_2wayTable(  ,[0,1],[6,7])\n");
+  // 1-column <--> 2-column
+  U=[[6,1,123],[22,3,145],[91,86,176]];
+  CMLE_debug=1;
+  return(gtt_ekn.cmle_3(U|by_g=1));
+}
+def swap_row(Mat,P,Q) {
+  Mat = matrix_list_to_matrix(Mat);
+  New=matrix_clone(Mat);
+  M=size(Mat)[0]; N=size(Mat)[1];
+  for (I=0; I<N; I++) {
+    New[P][I] = Mat[Q][I];
+    New[Q][I] = Mat[P][I];    
+  }
+  return(New);
+}
+def swap_col(Mat,P,Q) {
+  Mat = matrix_list_to_matrix(Mat);
+  New=matrix_clone(Mat);
+  M=size(Mat)[0]; N=size(Mat)[1];
+  for (I=0; I<M; I++) {
+    New[I][Q] = Mat[I][P];
+    New[I][P] = Mat[I][Q];    
+  }
+  return(New);
+}
+
 endmodule$
 gtt_ekn.mle_init()$
 
