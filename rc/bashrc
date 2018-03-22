@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/bashrc,v 1.16 2014/04/02 10:25:24 takayama Exp $
+# $OpenXM: OpenXM/rc/bashrc,v 1.17 2014/05/12 10:39:50 takayama Exp $
 OpenXM_HOME=$HOME/OpenXM
 export OpenXM_HOME
 PATH=$OpenXM_HOME/bin:$PATH
@@ -25,7 +25,7 @@ export LD_LIBRARY_PATH
 OpenXM_tmp=$HOME/.OpenXM_tmp
 export OpenXM_tmp
 mkdir -p $OpenXM_tmp 
-ASIRLOADPATH=$OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-contrib/packages/sample:$OpenXM_tmp/OpenXM/lib/asir-contrib:$OpenXM_HOME/lib/asir-contrib:.
+ASIRLOADPATH=.:$OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-contrib/packages/sample:$OpenXM_tmp/OpenXM/lib/asir-contrib:$OpenXM_HOME/lib/asir-contrib
 export ASIRLOADPATH
 # for MacOS
 if test $DYLD_LIBRARY_PATH ; then
