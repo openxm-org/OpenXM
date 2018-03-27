@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.53 2016/06/01 06:33:17 nakayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.54 2017/08/31 01:24:33 takayama Exp $
 \input texinfo-ja
 @iftex
 @catcode`@#=6
@@ -83,63 +83,57 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 @comment --- section ``実験的関数'' の subsection xyz_abc
 @comment --- subsection xyz_pqr xyz_stu がある.
 @menu
-* quotetotex::
-* quotetotex_env::
-* objtoquote::
+* asir-port.sh asir-install.sh::
+* asirgui.hnd::
+* chdir pwd::
 * copyright::
-* string_to_tb::
-* tb_to_string::
-* write_to_tb::
+* dcurrenttime::
 * dp_gr_main::
-* asir-port.sh::
-* asir-install.sh::
-* get_struct_name::
-* get_element_names::
-* get_element_at::
-* put_element_at::
 * dp_initial_term::
 * dp_order::
 * dp_weyl_gr_main::
+* eval_quote::
+* f_res::
+* fj_simp.simplify::
+* flatten_quote::
+* get_struct_name get_element_names get_element_at put_element_at::
+* getpid::
+* initialize_static_variable::
 * list::
 * mapat::
-* set_print_function::
-* small_jacobi::
-* flatten_quote::
-* printf::
-* fprintf::
-* sprintf::
-* quote_to_funargs::
-* funargs_to_quote::
-* get_function_name::
-* remove_paren::
-* set_secure_mode::
-* set_secure_flag::
-* initialize_static_variable::
-* eval_quote::
+* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
+* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
+* noro_matrix.rr::
+* nqt_comp::
 * nqt_match::
 * nqt_match_rewrite::
+* objtoquote::
+* ot_hgm_ahg.cbase::
+* ot_hgm_ahg.get_mat2::
+* ot_hgm_ahg.hgm_ahg_contiguity::
+* pari setbprec setround todouble mpfr_gamma mpfr_floor mpfr_round::
+* printf fprintf sprintf::
+* qt_is_var qt_is_coef::
 * qt_normalize::
+* qt_rewrite::
 * qt_set_coef::
 * qt_set_ord::
 * qt_set_weight::
-* nqt_comp::
-* qt_is_var::
-* qt_is_ceof::
-* qt_rewrite::
-* asirgui.hnd::
-* noro_matrix.rr:
-* f_res::
-* chdir::
-* pwd::
-* dcurrenttime::
-* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
-* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
-* tk_pfn.rkn::
+* quote_to_funargs funargs_to_quote remove_paren get_function_name::
+* quotetotex quotetotex_env::
+* set_print_function::
+* set_secure_flag set_secure_mode::
+* small_jacobi::
+* string_to_tb tb_to_string write_to_tb::
+* tk_fd.abc2ahg::
+* tk_fd.ahvec_abc::
+* tk_hgpoly.hgpoly::
+* tk_hgpoly.optip::
+* tk_jack.zonal::
 * tk_pfn.graph::
+* tk_pfn.rkn::
 * tk_rk.runge_kutta_4::
 * tk_rk.runge_kutta_4_linear::
-* tk_rk.zonal::
-* getpid::
 @end menu
 
 @node クオート,,, 実験的仕様の関数
@@ -401,11 +395,12 @@ ChangeLog
 @end itemize
 
 
-@node quote_to_funargs,,, クオート
-@subsection @code{quote_to_funargs}, @code{funargs_to_quote}, @code{remove_paren}
+@node quote_to_funargs funargs_to_quote remove_paren get_function_name,,, クオート
+@subsection @code{quote_to_funargs}, @code{funargs_to_quote}, @code{remove_paren}, @code{get_function_name}
 @findex quote_to_funargs
 @findex funargs_to_quote
 @findex remove_paren
+@findex get_function_name
 
 @table @t
 @item quote_to_funargs(@var{q})
@@ -1014,7 +1009,7 @@ ChangeLog
 @end itemize
 @comment ****************************************************************
 
-@node qt_is_var,,, クオート
+@node qt_is_var qt_is_coef,,, クオート
 @subsection @code{qt_is_var}, @code{qt_is_coef}
 @findex qt_is_var
 @findex qt_is_coef
@@ -1328,8 +1323,10 @@ ChangeLog
 @end itemize
 
 
-@node sprintf,,, 文字列処理
+@node printf fprintf sprintf,,, 文字列処理
 @subsection @code{printf}, @code{fprintf}, @code{sprintf}
+@findex printf
+@findex fprintf
 @findex sprintf
 
 @table @t
@@ -1893,7 +1890,7 @@ builtin/dp.c 1.49
 
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯
 @comment --- 複数の関数をまとめて説明する例 ---
-@node asir-install.sh,,, システム
+@node asir-port.sh asir-install.sh,,, システム
 @subsection @code{asir-port.sh}, @code{asir-install.sh}
 @findex asir-port.sh
 @findex asir-install.sh
@@ -2002,7 +1999,7 @@ ChangeLog
 
 @comment ****************************************************************
 
-@node chdir,,, システム
+@node chdir pwd,,, システム
 @subsection @code{chdir}, @code{pwd}
 @findex chdir
 @findex pwd
@@ -2216,7 +2213,7 @@ ChangeLog
 @node 言語,,, 実験的仕様の関数
 @section 言語
 
-@node get_struct_name,,, 言語
+@node get_struct_name get_element_names get_element_at put_element_at,,, 言語
 @subsection @code{get_struct_name}, @code{get_element_names}, @code{get_element_at}, @code{put_element_at}
 @findex get_struct_name
 @findex get_element_names
@@ -2439,7 +2436,7 @@ ChangeLog
 @end itemize
 
 
-@node set_secure_flag,,, 言語
+@node set_secure_flag set_secure_mode,,, 言語
 @subsection @code{set_secure_flag}, @code{set_secure_mode}
 @findex set_secure_flag
 @findex set_secure_mode
@@ -4228,7 +4225,7 @@ ChangeLog
 @end itemize
 
 
-@node pari,,, 実験的仕様の関数
+@node pari setbprec setround todouble mpfr_gamma mpfr_floor mpfr_round,,, 実験的仕様の関数
 @subsection @code{pari}, @code{setbprec},@code{setround},@code{todouble},@code{mpfr_gamma},@code{mpfr_floor},@code{mpfr_round},
 @findex pari
 @findex setbprec
@@ -4306,7 +4303,8 @@ asir2000/engine/bf.c, asir2000/builtin/parif.c 等多数.
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯
 @comment --- 複数の関数をまとめて説明する例 ---
-@node xyz_pqr,,, 実験的仕様の関数
+@node xyz_pqr syz_stu,,, 実験的仕様の関数
+@comment @menu にも * syz_pqr syz_stu::  と続けて書く事. 分けてはいけない.
 @subsection @code{xyz_pqr}, @code{syz_stu}
 @findex xyz_pqr
 @findex xyz_stu
