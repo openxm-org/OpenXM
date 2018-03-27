@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.14 2016/08/23 03:03:26 ohara Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.15 2016/09/23 07:03:29 noro Exp $  */
 
 #include "ox_pari.h"
 
@@ -85,8 +85,12 @@ void pops(int n)
 
 int sm_mathcap()
 {
+#if 0
   char *opts[] = {"no_ox_reset", NULL};
   mathcap_init2(OX_PARI_VERSION, ID_STRING, "ox_pari", NULL, NULL, opts);
+#else
+  mathcap_init2(OX_PARI_VERSION, ID_STRING, "ox_pari", NULL, NULL, NULL);
+#endif
   push((cmo*)oxf_cmo_mathcap(fd_rw));
   return 0;
 }
@@ -291,17 +295,33 @@ int receive()
   return 0;
 }
 
+jmp_buf ox_env;
+
+void usr1_handler(int sig)
+{
+  longjmp(ox_env,1);
+}
+
 int main()
 {
-  init_gc();
-  ox_stderr_init(stderr);
-  initialize_stack();
-  init_pari();
+  if ( setjmp(ox_env) ) {
+    fprintf(stderr,"resetting libpari and sending OX_SYNC_BALL...");
+    initialize_stack();
+    init_pari();
+    send_ox_tag(fd_rw,OX_SYNC_BALL);
+    fprintf(stderr,"done\n");
+  } else {
+    init_gc();
+    ox_stderr_init(stderr);
+    initialize_stack();
+    init_pari();
+  
+    fprintf(stderr,"ox_pari\n");
 
-  fprintf(stderr,"ox_pari\n");
-
-  fd_rw = oxf_open(3);
-  oxf_determine_byteorder_server(fd_rw);
+    fd_rw = oxf_open(3);
+    oxf_determine_byteorder_server(fd_rw);
+  }
+  signal(SIGUSR1,usr1_handler);
 
   while(1){
     receive();
