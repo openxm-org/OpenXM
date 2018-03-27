@@ -1,0 +1,3684 @@
+/* $OpenXM$ */
+/* $Id$ */
+
+import("bfct")$
+import("gr")$
+
+module nk_mora;
+
+/* wrapper functions of weyl_mora */
+localf weyl_mora_div1;
+localf weyl_mora_div2;
+localf weyl_mora_div3;
+
+/* wrapper functions of mora_gr */
+localf weyl_mora_gr1;
+localf weyl_mora_gr2;
+localf weyl_mora_gr3;
+
+localf show_option;
+localf dp_s_dehomo;
+localf l_min;
+localf l_max;
+localf dp_weyl_reduce;
+localf weyl_reduce;
+localf dp_s_div;
+localf dp_s_deg;
+localf dp_d_deg;
+localf ord_weight;
+localf div_check;
+localf weyl_sp;
+localf reconst;
+localf s_homo_vect;
+localf dp_s_homo_vect;
+localf dp_weyl_mora;
+localf weyl_mora;
+localf test_weyl_mora;
+localf test_weyl_mora2;
+localf weyl_mora_remainder;
+localf find_reducer;
+localf find_reducer_internal0;
+localf find_reducer_internal1;
+localf find_reducer_internal2;
+localf find_reducer_internal3;
+localf find_reducer_internal4;
+localf dp_weight;
+localf mora_gr;
+localf criF;
+localf criM;
+localf criB;
+localf update;
+localf select;
+localf insert_cons;
+localf insert_normal_strategy;
+localf insert_sugar_strategy;
+localf is_gr;
+localf dp_weyl_mora_mod;
+localf dp_weyl_reduce_mod;
+localf reconst_mod;
+localf mora_gr_mod;
+localf dp_weyl_sp_mod;
+localf weyl_mora_mod;
+localf div_check_mod;
+localf mora_gr_trace;
+localf tangentcone_gr;
+localf tangentcone_gr2;
+localf tangentcone_gr3;
+localf to_minimal;
+localf check_to_minimal;
+localf pick_s;
+localf jf;
+localf localb_nf;
+localf localb_nf2;
+localf sol_space;
+localf mat_elim;
+localf pickcoef;
+localf eq2mat;
+localf mat_combine;
+localf test_nf;
+localf trans_tdt;
+localf trans_s ;
+localf sfact;
+localf tt_table;
+localf divisible_perfect;
+localf mono_div;
+localf whdiv;
+localf whdiv_;
+localf check_whdiv;
+localf bbeta;
+localf d_app_div;
+localf check_d_app_div;
+localf d_app_div_;
+localf max ;
+localf divisible_monos;
+localf ord_w;
+localf pick_td;
+localf pick_ord_w;
+localf pick_hmord;
+localf in_w;
+localf print_poly_w;
+localf d_mora_div;
+localf check_d_mora_div;
+localf localb_rr;
+localf localb_roundrobin;
+localf fctrvect;
+localf gen_fctr_decexp;
+localf gcdlist;
+localf lcmlist;
+localf hm;
+localf ht;
+localf hc;
+localf rest;
+localf print_dp_dtop;
+localf print_poly;
+localf poly_cmp;
+localf poly_cmp_sort;
+localf poly_weight;
+localf ord_weight;
+localf ord_show_poly1;
+localf ord_show_all1;
+localf exp_sort;
+localf mysort;
+localf listshow;
+localf vectshow;
+localf check_order;
+localf sort_polylist;
+localf divisibleterms;
+localf terms;
+localf l_sum;
+localf pick_term_bigger;
+localf pick_term;
+localf sublist;
+localf numlist;
+localf tail;
+localf pick_d;
+localf make_varlist;
+localf cut_var;
+localf h_cut_var;
+localf myunion;
+localf flat;
+localf cut_set;
+localf count_term;
+localf is_element;
+localf is_subset;
+localf pick_term_vars;
+localf gen_index;
+localf weyl_mul;
+localf td_ht;
+
+
+
+/************************************************************
+ *
+ * global setting(list of variables and order matrix)         
+ *
+ ************************************************************/
+static VL1;
+static V1;
+static W1;
+static VV1;
+static VL2;
+static V2;
+static W2;
+static VV2;
+static VL3;
+static V3;
+static W3;
+static VV3;
+
+static A1;
+static A1S;
+static A2;
+static A2S;
+static A3;
+static A3S;
+static B1;
+static B1S;
+static B2;
+static B2S;
+static B3;
+static B3S;
+static C2;
+static C2S;
+static C3;
+static C3S;
+
+
+VL1 = 
+[ x,ss, s,dx,dss,ds]$
+V1  = 
+[-1, 1,-1, 1, 0, 0]$
+W1  = 
+[ 0, 1, 0, 1, 0, 0]$
+VV1 =
+[-1, 0,-1, 1, 0, 0]$
+
+VL2 = 
+[ x, y,ss, s,dx,dy,dss,ds]$
+V2 =
+[-1,-1, 1,-1, 1, 1, 0, 0]$
+W2 =
+[ 0, 0, 1, 0, 1, 1, 0, 0]$
+VV2 = 
+[-1,-1, 0,-1, 1, 1, 0, 0]$
+
+VL3=
+[ x, y, z,ss, s,dx,dy,dz,dss,ds]$
+V3 =
+[-1,-1,-1, 1,-1, 1, 1, 1, 0, 0]$
+W3 =
+[ 0, 0, 0, 1, 0, 1, 1, 1, 0, 0]$
+VV3 = 
+[-1,-1,-1, 0,-1, 1, 1, 1, 0, 0]$
+
+A1=newmat(5, 6, 
+[
+[ 0, 1, 0, 1, 0, 0],
+[-1, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0]
+])$
+
+A1S=newmat(6, 6, 
+[
+[ 1, 0, 1, 0, 0, 0],
+[ 0, 1, 0, 1, 0, 0],
+[-1, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0]
+])$
+
+A2=newmat(9, 8, 
+[
+[ 0, 0, 1, 0, 1, 1, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+A2S=newmat(9, 8, 
+[
+[ 1, 1, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 1, 1, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+A3=newmat(11, 10, 
+[
+[ 0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+A3S=newmat(11, 10, 
+[
+[ 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+B2=newmat(9, 8, 
+[
+[ 0, 0, 0, 0, 1, 1, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+B2S=newmat(10, 8, 
+[
+[ 1, 1, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 1, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+B3 = newmat(9, 10, 
+[
+[ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+ 
+B3S = newmat(10, 10, 
+[
+[ 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+/* ss : global order + x,y,dx,dy : local order */
+C2=newmat(9, 8, 
+[
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 1, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+C2S=newmat(10, 8, 
+[
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 1, 1, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 1, 0, 0],
+[-1,-1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+C3 = newmat(9, 10, 
+[
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+
+C3S = newmat(10, 10, 
+[
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+]
+)$
+ 
+/* for print_poly */
+ord(reverse(VL3))$
+
+/************************************************************
+ *
+ * Mora's division algorithm and groebner basis in D_alg      
+ *
+ ************************************************************/
+#define STATE_MORA_GR
+
+static IndexLL;
+static GB_G;
+static GB_G_Mod;
+static CriB_Count;
+static CriF_Count;
+static CriM_Count;
+static Strategy;
+static ShowState;
+static PPrime;
+static UseToMinimal;
+
+/* for find_reducer */
+static RedLen;
+static RedLmL;
+static RedDegL;
+static RedSugarL;
+static RedStrategy;  
+static RedWeightL;
+static RedWeightV;
+static RedCount;
+
+IndexLL = []$
+GB_G = []$
+CriB_Count = 0$
+CriF_Count = 0$
+CriM_Count = 0$
+Strategy = 2$ /* 0 : cons , 1 : normal, 2 : sugar */
+RedStrategy = 2$ /* 0 : simple, 1 : max sugar, 2 : min sugar 
+                    3 : max weight,  4 : min weight */
+RedWeightV = [0, 0, 0, 1, 0, 1, 1, 1, 0, 0]$ /* W3 vector  */
+PPrime = lprime(100)$
+UseToMinimal = 1$  /* 0 : not use, 1 : use func to_minimal */
+
+/* for dp_weyl_mora test */
+static TestP;
+static TestPL;
+
+/* for debug of mora_gr */
+static HistoryGB_G$;
+
+
+/* wrapper function of weyl_mora */
+/* P, PL は x, dx の微分作用素 */ 
+def weyl_mora_div1(P, PL)
+{
+	return weyl_mora(P, PL, VL1, A1S, V1);
+}
+
+/* P, PL は x, y, dx ,dy の微分作用素 */ 
+def weyl_mora_div2(P, PL)
+{
+	return weyl_mora(P, PL, VL2, A2S, V2);
+}
+
+/* P, PL は x, y, z, dx ,dy, dz の微分作用素 */ 
+def weyl_mora_div3(P, PL)
+{
+	return weyl_mora(P, PL, VL3, A3S, V3);
+}
+
+/* wrapper function of weyl_mora_gr */
+/* x, dx の微分作用素のリスト */
+def weyl_mora_gr1(Id)
+{
+	return mora_gr(Id, VL1, A1, A1S, V1);
+}
+
+/* x, y, dx, dy の微分作用素のリスト */
+def weyl_mora_gr2(Id)
+{
+	return mora_gr(Id, VL2, A2, A2S, V2);
+}
+
+/* x, y, z, dx, dy, dz の微分作用素のリスト */
+def weyl_mora_gr3(Id)
+{
+	return mora_gr(Id, VL3, A3, A3S, V3);
+}
+
+def show_option()
+{
+	print("Strategy : " + rtostr(Strategy));
+	if (Strategy == 0) 
+		print("simple");
+	else if (Strategy == 1) 
+		print("normal");
+	else if (Strategy == 2) 
+		print("sugar");
+
+	print("RedStrategy : " + rtostr(RedStrategy));
+	if (RedStrategy == 0)	
+		print("simple");
+	else if (RedStrategy == 1)
+		print("max sugar");
+	else if (RedStrategy == 2)
+		print("min sugar");
+	else if (RedStrategy == 3)
+		print("max weight");
+	else if (RedStrategy == 4)
+		print("min weight");
+
+	print("UseToMinimal : " + rtostr(UseToMinimal));
+}
+
+def dp_s_dehomo(DP, VL)
+{
+	P = dp_dtop(DP, VL);
+	P = subst(P, s, 1);
+	DP = dp_ptod(P, VL);
+	return DP;
+}
+
+def l_min(L)
+{
+	Len = length(L);
+	if (Len == 0) {
+		return 0;
+	} 
+	Min = L[0];
+
+	for (I = 1; I < Len; I++) 
+		if (Min > L[I]) 
+			Min = L[I];
+	return Min;
+}
+
+def l_max(L)
+{
+	Len = length(L);
+	if (Len == 0) {
+		return 0;
+	} 
+	Max = L[0];
+
+	for (I = 1; I < Len; I++) 
+		if (Max < L[I]) 
+			Max = L[I];
+	return Max;
+}
+
+/* G | F としておく */
+def dp_weyl_reduce(F, G)
+{
+	M = dp_subd(F, G);
+	M *= dp_hc(F) / dp_hc(G);
+	T = dp_weyl_mul(M, G);
+	return [F - T, M];	
+}
+
+def weyl_reduce(F, G, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DF = dp_ptod(F, VL);
+	DG = dp_ptod(G, VL);
+	L = dp_weyl_reduce(DF, DG);
+	L = map(dp_dtop, L, VL);
+	dp_ord(Tmp);
+	return L; 
+}
+
+/* DP を s で割れるだけ割った結果を返す */ 
+def dp_s_div(DP, VL)
+{
+	N = length(VL);
+	Index = N / 2 - 1; /* VL[Index] == s */
+	Tmp = DP;
+
+	if (DP == 0)
+		return 0;
+	H = dp_etov(DP);
+	Min = H[Index];
+	while (DP != 0) {
+		H = dp_etov(DP);
+		Deg = H[Index];
+		if (Deg == 0) 
+			return Tmp;
+		if (Deg < Min)
+			Min = Deg;
+		DP = dp_rest(DP);
+	}
+	if (Min == 0)
+		return Tmp;
+	DP = 0;
+	while (Tmp != 0) {
+		H = dp_etov(Tmp);
+		H[Index] = H[Index] - Min;
+		DP += dp_hc(Tmp) * dp_vtoe(H);
+		Tmp = dp_rest(Tmp);
+	}	
+	return DP;
+}
+
+def dp_s_deg(DP, VL)
+{
+	N = length(VL);
+	Index = N / 2 - 1; /* VL[Index] == s */
+	V = dp_etov(DP);
+	return V[Index];
+}
+
+def dp_d_deg(DP, VL)
+{
+	N = length(VL);
+	V = dp_etov(DP);
+	for (Deg = 0, I = N / 2; I < N; I++)
+		Deg += V[I];
+	return Deg;
+}
+
+def ord_weight(DP, A, M)
+{
+	N = size(A)[1];
+	L = [];
+	V = dp_etov(DP);
+	for (I = 0; I < M; I++) {
+		W = 0;
+		for (J = 0; J < N; J++)	
+			W += A[I][J] * V[J];
+		L = cons(W, L);
+	}
+	return reverse(L);	
+}
+
+/* A, P, PL, Q, R : dp */
+def div_check(A, P, PL, Q, R)
+{
+	N = length(PL);
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R ? */
+	RS = dp_weyl_mul(A, P);
+	LS = 0;
+	for (I = 0; I < N; I++) 
+		LS += dp_weyl_mul(Q[I], PL[I]);
+	LS += R;
+	print("RS :");
+	print(RS);
+	print("LS :");
+	print(LS);
+	return RS == LS;
+}
+
+def weyl_sp(P, Q, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	DQ = dp_ptod(Q, VL);
+	SP = dp_weyl_sp(DP, DQ);
+	dp_ord(Tmp);
+	return dp_dtop(SP, VL);
+}
+
+def reconst(DF, VL)
+{
+	P = dp_dtop(DF, VL);
+	return dp_ptod(P, VL);
+}
+
+/* 
+ * Input : P : 微分作用素, VL : 変数リスト, 
+ *         Vect : s-斉次化のための重みベクトル
+ * Output: P の s-斉次化した結果
+ */
+def s_homo_vect(P, VL, Vect)
+{
+	N  = length(VL);
+	DP = dp_ptod(P, VL);	
+	WL = [];
+	ML = [];
+	while (DP != 0) {
+		V = dp_etov(DP);
+		Weight = 0;
+		for (I = 0; I < N; I++)
+			Weight += V[I] * Vect[I];
+		WL = append(WL, [Weight]);
+		ML = append(ML, [dp_hm(DP)]);
+		DP = dp_rest(DP);
+	}
+	Min = l_min(WL);
+	Len = length(WL);
+	Sum = 0;
+	for (I = 0; I < Len; I++) {
+		T = dp_dtop(ML[I], VL);
+		T = T * s^(WL[I] - Min);
+		Sum += T;
+	}
+	return Sum;
+}
+
+def dp_s_homo_vect(DP, VL, Vect)
+{
+	P = dp_dtop(DP, VL);
+	HP = s_homo_vect(P, VL, Vect);
+	return dp_ptod(HP, VL);
+}
+
+/*
+ * ecart division algorithm
+ * Input : P : 割る元(dp), PL : 割られる元(dp), 
+ *         VL : 変数リスト, Ord : s を含めた order  
+ *         Vect : s-斉次化のための重みベクトル 
+ * Output: R : 余り(dp) s.t.
+ *         A P = Q[0] PL[0] + ... + Q[N - 1] PL[N - 1]
+ *         LM(Q[I] PL[I]) <= LM(P)
+ *         LM(R) は LM(PL[I]) のいづれでも割り切れない
+ */
+def dp_weyl_mora(P, PL, VL, Ord, Vect)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+
+	P = reconst(P, VL);
+	PL = map(reconst, PL, VL);
+	P = dp_s_homo_vect(P, VL, Vect);
+	PL = map(dp_s_homo_vect, PL, VL,Vect);
+	G = PL;
+	/* arguments of find_reducer */
+	RedLen = length(G);
+	RedLmL = map(dp_ht, G);
+	RedLmL = map(dp_s_dehomo, RedLmL, VL);
+	RedDegL = map(dp_s_deg, G, VL);
+	RedSugarL = map(dp_sugar, G);
+	RedWeightL = map(dp_weight, G, RedWeightV);
+
+#ifdef DEBUG_MORA
+	print("P :");
+	print(P);
+	print("G :");
+	print(G);
+#endif
+	if (ShowState == 1)
+		print("[", 2);
+
+	/* P, PL の division algorithm */
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R */	
+	R = P;
+	N = length(PL);
+
+	while ((T = find_reducer(R, VL)) != []) {
+		PP = G[T[0]];
+		SL = T[1];
+#ifdef DEBUG_MORA
+		print("T :");
+		print(T);
+		print("PP :");
+		print(PP);
+		print("SL :");
+		print(SL);
+#endif
+		if (SL > 0) {
+			if (ShowState == 1) {	
+				print("+<" + rtostr(T) + ">", 2);
+				print("(" + rtostr(length(G) + 1) + ")", 2);
+				print(rtostr(dp_mag(R)), 2);
+			}
+			G = append(G, [R]);
+			RedLen++;
+			RedLmL = append(RedLmL, [dp_s_dehomo(dp_ht(R), VL)]);
+			RedDegL = append(RedDegL, [dp_s_deg(R, VL)]);
+			RedSugarL = append(RedSugarL, [dp_sugar(R)]);
+			RedWeightL = append(RedWeightL, [dp_weight(R, RedWeightV)]);
+			SS = s^SL;
+			SS = dp_ptod(SS, VL);
+			R = SS * R;
+		} else {
+			if (ShowState == 1) {
+				print("<" + rtostr(T[0]) + ">", 2);
+				print(rtostr(dp_mag(R)), 2);
+			}
+		}
+		TL = dp_weyl_reduce(R, PP);
+		R = TL[0];
+
+		/* R が s で割れるとき s で割る */
+		Old_R = R;
+		R = dp_s_div(R, VL);
+		if (ShowState == 1) 
+			if (Old_R != R)
+				print("D", 2);
+
+#ifdef DEBUG_MORA
+		print("R :");
+		print(R);
+#endif
+	}
+	if (ShowState == 1)
+		print("]");
+	/* dehomogenization */
+	R = dp_dtop(R, VL);
+	R = subst(R, s, 1);	
+	dp_ord(Ord);
+	/* R = dp_ptod(R, VL); move below */
+	dp_ord(Tmp);
+	/* もともとの順序にもどす */
+	R = dp_ptod(R, VL);
+	return R;
+}
+
+/*
+ * ecart division algorithm
+ * Input : P : 割る元, PL : 割られる元, 
+ *         VL : 変数リスト, Ord : s を含めた order  
+ *         Vect : s-斉次化のための重みベクトル 
+ * Output: Q : 商のリスト, A : A(0) \neq 0 なる多項式(unit), 
+           R : 余り s.t.
+ *         A P = Q[0] PL[0] + ... + Q[N - 1] PL[N - 1]
+ *         LM(Q[I] PL[I]) <= LM(P)
+ *         LM(R) は LM(PL[I]) のいづれでも割り切れない
+ */
+def weyl_mora(P, PL, VL, Ord, Vect)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	/* s で (-1,1) - homogenization */
+	P = s_homo_vect(P, VL, Vect);
+	PL = map(s_homo_vect, PL, VL, Vect);
+	G = PL;
+
+#ifdef DEBUG_MORA
+	print("P :");
+	print(P);
+	print("G :");
+	print(G);
+#endif
+
+	P = dp_ptod(P, VL);
+	PL = map(dp_ptod, PL, VL);
+	G = PL;
+	/* arguments of find_reducer */
+	RedLen = length(G);
+	RedLmL = map(dp_ht, G);
+	RedLmL = map(dp_s_dehomo, RedLmL, VL);
+	RedDegL = map(dp_s_deg, G, VL);
+	RedSugarL = map(dp_sugar, G);
+	RedWeightL = map(dp_weight, G, RedWeightV);
+	RedCount = 0;
+
+	if (ShowState == 1)
+		print("[", 2); 
+	
+	/* P, PL の division algorithm */
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R */	
+	A = dp_ptod(1, VL);
+	R = P;
+	N = length(PL);
+	Q = newvect(N);
+	H = [];
+	QQ = newvect(N);
+
+	while ((T = find_reducer(R, VL)) != []) {
+		PP = G[T[0]];
+		SL = T[1];
+#ifdef DEBUG_MORA
+		print("T :");
+		print(T);
+		print("PP :");
+		print(PP);
+		print("SL :");
+		print(SL);
+#endif
+		if (SL > 0) {
+			if (ShowState == 1) {
+				print("<" + rtostr(T) + ">", 2);
+				print("+(" + rtostr(length(G) + 1) + ")", 2);
+				print(rtostr(dp_mag(R)), 2);
+			}
+			G = append(G, [R]);
+			RedLen++;
+			RedLmL = append(RedLmL, [dp_s_dehomo(dp_ht(R), VL)]);
+			RedDegL = append(RedDegL, [dp_s_deg(R, VL)]);
+			RedSugarL = append(RedSugarL, [dp_sugar(R)]);
+			RedWeightL = append(RedWeightL, [dp_weight(R, RedWeightV)]);
+			SS = s^SL;
+			SS = dp_ptod(SS, VL);
+			R = SS * R;
+			/* attention : Q vector */
+			H = append(H, [[A, vtol(Q)]]);
+			A = SS * A;
+			for (I = 0; I < N; I++)
+				Q[I] = SS * Q[I];	
+		} else {
+			if (ShowState == 1) {
+				print("<" + rtostr(T[0]) + ">", 2);
+				print(rtostr(dp_mag(R)), 2);
+			}
+		}
+		TL = dp_weyl_reduce(R, PP);
+		R = TL[0];
+		U = TL[1];
+		RedCount++;
+		if (T[0] < N) {
+			Q[T[0]] += U;
+		} else {
+			AA = H[T[0] - N][0];
+			for (I = 0; I < N; I++)
+				QQ[I] = H[T[0] - N][1][I];
+			A = A - dp_weyl_mul(U, AA);
+			for (I = 0; I < N; I++)
+				Q[I] = Q[I] - dp_weyl_mul(U, QQ[I]);
+		}
+
+#ifdef DEBUG_MORA 
+		print("R :");
+		print(R);
+		print("A :");
+		print(A);
+		print("Q :");
+		print(Q);
+		print("div_check :");
+		print(div_check(A, P, PL, Q, R));
+#endif
+
+		/* R が s で割れるとき s で割る */
+		Old_R = R;
+		R = dp_s_div(R, VL);
+		if (ShowState == 1) 
+			if (Old_R != R)
+				print("D-", 2);
+	}
+	if (ShowState == 1)
+		print("]");
+	/* dehomogenization */
+	Q = vtol(Q);
+	Q = map(dp_dtop, Q, VL);
+	Q = map(subst, Q, s, 1);
+	A = dp_dtop(A, VL);
+	A = subst(A, s, 1);
+	R = dp_dtop(R, VL);
+	R = subst(R, s, 1);	
+
+#ifdef DEBUG_MORA
+	/* 最終結果の確認 */
+	DQ = map(dp_ptod, Q, VL);
+	DA = dp_ptod(A, VL);
+	DR = dp_ptod(R, VL);
+	P = dp_dtop(P, VL);
+	P = subst(P, s, 1);
+	DP = dp_ptod(P, VL);
+	PL = map(dp_dtop, PL, VL);
+	PL = map(subst, PL, s, 1);
+	DPL = map(dp_ptod, PL, VL);
+	print(div_check(DA, DP, DPL, DQ, DR));	
+#endif
+	
+	dp_ord(Ord);
+	return [R, A, Q];
+}
+
+def test_weyl_mora()
+{
+	P = x^2;
+	PL = [1+x^2];
+	return weyl_mora(P, PL, VL1, A1S, V1);	
+}
+
+def test_weyl_mora2()
+{
+	P = x*y;
+	PL = [1+x^2, 1+y^2];
+	return weyl_mora(P, PL, VL2, A2S, V2);	
+}
+
+
+/* 商の計算を省略した weyl_mora */
+def weyl_mora_remainder(P, PL, VL, Ord, Vect)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	DPL = map(dp_ptod, PL, VL);
+	DR = dp_weyl_mora(DP, DPL, VL, Ord, Vect);
+	dp_ord(Tmp);
+	return dp_dtop(DR, VL);
+}
+
+def find_reducer(R, VL)
+{
+	if (RedStrategy == 0)
+		return find_reducer_internal0(R, VL);
+	if (RedStrategy == 1)
+		return find_reducer_internal1(R, VL);
+	if (RedStrategy == 2)
+		return find_reducer_internal2(R, VL);
+	if (RedStrategy == 3)
+		return find_reducer_internal3(R, VL);
+	if (RedStrategy == 4)
+		return find_reducer_internal4(R, VL);
+}
+
+def find_reducer_internal0(R, VL)
+{
+	if (R == 0)
+		return [];
+	R = dp_ht(R);
+	RR = dp_s_dehomo(R, VL);
+	DegR = dp_s_deg(R, VL);
+	Index = -1;
+	Min = -1;
+	for (I = 0; I < RedLen; I++) 
+		if (dp_redble(RR, RedLmL[I])) {
+			if (DegR - RedDegL[I] >= 0) {
+				return [I, 0];
+			} else {
+				if (Index == -1) {
+					Index = I;
+					Min = RedDegL[I] - DegR;
+				} else if (Min > RedDegL[I] - DegR) {
+					Index = I;
+					Min = RedDegL[I] - DegR;
+				}
+			}
+		}
+	if (Index == -1)
+		return [];
+	return [Index, Min];
+}
+
+def find_reducer_internal1(R, VL)
+{
+	if (R == 0)
+		return [];
+	R = dp_ht(R);
+	RR = dp_s_dehomo(R, VL);
+	DegR = dp_s_deg(R, VL);
+	Index = -1;
+	Min = -1;
+	Sugar = -1;
+	for (I = 0; I < RedLen; I++) 
+		if (dp_redble(RR, RedLmL[I])) {
+			if (Index == -1) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Sugar = RedSugarL[I];
+			} else if (Min > RedDegL[I] - DegR) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Sugar = RedSugarL[I];
+			} else if (Min == RedDegL[I] - DegR) {
+				if (Sugar < RedSugarL[I]) {
+					Index = I;
+					Sugar = RedSugarL[I];
+				}
+			}
+		}
+	if (Index == -1)
+		return [];
+	return [Index, Min, Sugar];
+}
+
+def find_reducer_internal2(R, VL)
+{
+	if (R == 0)
+		return [];
+	R = dp_ht(R);
+	RR = dp_s_dehomo(R, VL);
+	DegR = dp_s_deg(R, VL);
+	Index = -1;
+	Min = -1;
+	Sugar = -1;
+	for (I = 0; I < RedLen; I++) 
+		if (dp_redble(RR, RedLmL[I])) {
+			if (Index == -1) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Sugar = RedSugarL[I];
+			} else if (Min > RedDegL[I] - DegR) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Sugar = RedSugarL[I];
+			} else if (Min == RedDegL[I] - DegR) {
+				if (Sugar > RedSugarL[I]) {
+					Index = I;
+					Sugar = RedSugarL[I];
+				}
+			}
+		}
+	if (Index == -1)
+		return [];
+	return [Index, Min, Sugar];
+}
+
+def find_reducer_internal3(R, VL)
+{
+	if (R == 0)
+		return [];
+	R = dp_ht(R);
+	RR = dp_s_dehomo(R, VL);
+	DegR = dp_s_deg(R, VL);
+	Index = -1;
+	Min = -1;
+	Weight = -1;
+	for (I = 0; I < RedLen; I++) 
+		if (dp_redble(RR, RedLmL[I])) {
+			if (Index == -1) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Weight = RedWeightL[I];
+			} else if (Min > RedDegL[I] - DegR) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Weight = RedWeightL[I];
+			} else if (Min == RedDegL[I] - DegR) {
+				if (Weight < RedWeightL[I]) {
+					Index = I;
+					Weight = RedWeightL[I];
+				}
+			}
+		}
+	if (Index == -1)
+		return [];
+	return [Index, Min, Weight];
+}
+
+def find_reducer_internal4(R, VL)
+{
+	if (R == 0)
+		return [];
+	R = dp_ht(R);
+	RR = dp_s_dehomo(R, VL);
+	DegR = dp_s_deg(R, VL);
+	Index = -1;
+	Min = -1;
+	Weight = -1;
+	for (I = 0; I < RedLen; I++) 
+		if (dp_redble(RR, RedLmL[I])) {
+			if (Index == -1) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Weight = RedWeightL[I];
+			} else if (Min > RedDegL[I] - DegR) {
+				Index = I;
+				Min = RedDegL[I] - DegR;
+				Weight = RedWeightL[I];
+			} else if (Min == RedDegL[I] - DegR) {
+				if (Weight > RedWeightL[I]) {
+					Index = I;
+					Weight = RedWeightL[I];
+				}
+			}
+		}
+	if (Index == -1)
+		return [];
+	return [Index, Min, Weight];
+}
+
+def dp_weight(DP, V)
+{
+	if (type(V) == 4)
+		N = length(V);
+	else
+		N = size(V)[0];
+	
+	EV = dp_etov(DP);
+	if (N > (M = size(EV)[0]))
+		N = M;
+	for (W = 0, I = 0; I < N; I++)
+		W += EV[I] * V[I];
+	return W;
+}
+
+/* 
+ * buchberger algorithm with ecart division  
+ * Input : Id : イデアルの生成元のリスト, VL : 変数リスト, 
+ *         Ord1 : order, Ord2 : Ord1 に附随する order(s を含めた order)
+ *         Vect : s-斉次化のための重みベクトル
+ * Output : Id の order Ord1 についてのグレブナ基底
+ */ 
+def mora_gr(Id, VL, Ord1, Ord2, Vect)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord1);
+	IndexLL = [];
+	
+	GB_G = map(dp_ptod, Id, VL);
+	N = length(GB_G);
+	CriB_Count = 0;
+	CriF_Count = 0;
+	CriM_Count = 0;
+	HistoryGB_G = GB_G; /* for debug */
+
+	for (I = 0; I < N; I++) 
+		update(I);
+	print(IndexLL);
+	while (IndexLL != []) {
+		P = select();
+		print("[" + rtostr(P[0]) + "," + rtostr(P[1]) + "]:" 
+		      + "Rest " + rtostr(length(IndexLL)));
+		if (Strategy != 2) 
+			Sp = dp_weyl_sp(GB_G[P[0]], GB_G[P[1]]);
+		else
+			Sp = P[4];
+		TestP = Sp;    /* for debug */
+		TestPL = GB_G;
+		Nf = dp_weyl_mora(Sp, GB_G, VL, Ord2, Vect);
+#ifdef DEBUG
+		print("P :"+ rtostr(P));
+		print("Sp:"+ rtostr(Sp));
+		print("Nf:"+ rtostr(Nf));
+#endif
+		if (Nf != 0) {
+			/* for debug */
+			HistoryGB_G = append(HistoryGB_G, [[Sp, GB_G]]);
+			print("N:" + rtostr(N) +
+			      ",bits of Nf:" + rtostr(dp_mag(Nf)));
+	
+			GB_G = append(GB_G, [Nf]);
+			update(N);
+			print("Rest:" + rtostr(length(IndexLL)));
+			print("LM:" + rtostr(dp_ht(Nf)) +
+			      "," + rtostr(dp_sugar(Nf)));
+			N++;
+		}
+#ifdef DEBUG
+		print("IndexLL:" + rtostr(IndexLL));
+#endif
+	}
+	print("Count :");
+	print("criB:" + rtostr(CriB_Count));
+	print("criF:" + rtostr(CriF_Count));
+	print("criM:" + rtostr(CriM_Count));
+
+	dp_ord(Tmp);
+	GB = map(dp_dtop, GB_G, VL);
+
+	if (UseToMinimal == 1) {
+		GB = to_minimal(GB, VL, Ord1);
+		print("to_minimal :");
+		print(GB);
+	}
+
+	return GB;
+}
+
+/* K < I < J and T_K | T_IJ  and T_IK <= T_IJ and T_JK <= T_IJ */
+def criF(K, I, J)
+{
+	TIJ = dp_lcm(GB_G[I], GB_G[J]);
+	TK = dp_ht(GB_G[K]);
+	if (!dp_redble(TIJ, TK))
+		return 0;
+	TIK = dp_lcm(GB_G[I], GB_G[K]);
+	if (TIK > TIJ)
+		return 0;
+	TJK = dp_lcm(GB_G[J], GB_G[K]);
+	if (TJK > TIJ)
+		return 0;
+	CriF_Count++;
+#ifdef DEBUG
+	print("CriF:" + rtostr([I, J]));
+#endif
+	return 1;	
+}
+
+/* I < K < J and T_K | T_IJ and T_KJ < T_IJ */
+def criM(K, I, J)
+{
+	if (I >= K || K >= J)
+		return 0;
+	TIJ = dp_lcm(GB_G[I], GB_G[J]);
+	TK = dp_ht(GB_G[K]);
+	if (!dp_redble(TIJ, TK))
+		return 0;
+	TJK = dp_lcm(GB_G[J], GB_G[K]);
+	if (TJK >= TIJ)
+		return 0;
+	CriM_Count++;
+#ifdef DEBUG
+	print("CriM:" + rtostr([I, J]));
+#endif
+	return 1;
+}
+
+/* I < J < K and T_K | T_IJ and T_IK < T_IJ and T_JK < T_IJ */
+def criB(K, I, J)
+{
+	TIJ = dp_lcm(GB_G[I], GB_G[J]);
+	TK = dp_ht(GB_G[K]);
+	if (!dp_redble(TIJ, TK))
+		return 0;
+	TIK = dp_lcm(GB_G[I], GB_G[K]);
+	if (TIK >= TIJ)
+		return 0;
+	TJK = dp_lcm(GB_G[J], GB_G[K]);
+	if (TJK >= TIJ)
+		return 0;
+	CriB_Count++;
+#ifdef DEBUG
+	print("CriB:" + rtostr([I, J]));
+#endif
+	return 1;	
+}
+
+def update(M)
+{
+#ifdef SIMPLE_UPDATE
+	for (I = 0; I < M; I++) 
+		IndexLL = append(IndexLL, [[I, M]]);
+#else
+	L = [];
+	while (IndexLL != []) {
+		P = car(IndexLL);
+		IndexLL = cdr(IndexLL);
+		if (!criB(M, P[0], P[1]))
+			L = cons(P, L);
+	}
+	IndexLL = reverse(L);
+	for (I = 0; I < M; I++) {
+		P = [I, M];
+		Skip = 0;
+		for (K = 0; K < I; K++)  
+			if (criF(K, P[0], P[1])) {
+				Skip = 1;
+				break;
+			}
+		if (Skip == 1)
+			continue;
+		for (K = I + 1; K < M; K++)
+			if (I != K && criM(K, P[0], P[1])) {
+				Skip = 1;
+				break;
+			}
+		if (Skip == 1)
+			continue;
+		L = cons(P, L);
+		if (Strategy == 0) {
+			/* cons */
+			insert_cons(P);
+		} else if (Strategy == 1) {
+			/* normal strategy */
+			TIM = dp_lcm(GB_G[I], GB_G[M]);
+			P = append(P, [TIM]);
+			insert_normal_strategy(P);
+		} else if (Strategy == 2) {
+			/* sugar strategy */
+			TIM = dp_lcm(GB_G[I], GB_G[M]);
+			Sp = dp_weyl_sp(GB_G[I], GB_G[M]);
+			Sg = dp_sugar(Sp);
+			P = append(P, [TIM, Sg, Sp]);
+			insert_sugar_strategy(P);
+		}
+	}
+#endif
+}
+
+def select()
+{
+	T = car(IndexLL);
+	IndexLL = cdr(IndexLL);
+	return T;
+}
+
+def insert_cons(P)
+{
+	IndexLL = cons(P, IndexLL);
+}
+
+def insert_normal_strategy(P)
+{
+	IndexLL = cons(P, IndexLL);
+	N = length(IndexLL);
+	V = newvect(N, IndexLL);
+	
+	for (I = 1; I < N; I++) {
+		if (V[I][2] < P[2])
+			V[I - 1] = V[I];
+		else {
+			V[I - 1] = P;
+			break;
+		}
+	}
+	if (I == N)
+		V[N - 1] = P;
+	IndexLL = vtol(V);
+}
+
+def insert_sugar_strategy(P)
+{
+	IndexLL = cons(P, IndexLL);
+	N = length(IndexLL);
+	V = newvect(N, IndexLL);
+	
+	for (I = 1; I < N; I++) {
+		if (V[I][3] < P[3]) {
+			V[I - 1] = V[I];
+		} else if (V[I][3] == P[3]) {
+			if (V[I][2] < P[2]) 
+				V[I - 1] = V[I];
+			else {
+				V[I - 1] = P;
+				break;
+			}
+		} else {
+			V[I - 1] = P;
+			break;
+		}
+	}
+	if (I == N)
+		V[N - 1] = P;
+	IndexLL = vtol(V);
+}
+
+
+def is_gr(G, VL, Ord1, Ord2, Vect)
+{
+#if 0
+	N = length(G);
+	
+	for (I = 0; I < N; I++) {
+		for (J = I + 1; J < N; J++) {
+			Sp = weyl_sp(G[I], G[J], VL, Ord1);
+			print(rtostr([I, J]) + ":", 2);
+			R = weyl_mora(Sp, G, VL, Ord2, Vect); 
+			print(rtostr(R[0] == 0));
+			if (R[0] != 0) {
+				return 0; 
+			}
+		}
+	}
+	return 1;			
+#endif 
+	Tmp = dp_ord();
+	dp_ord(Ord1);
+	IndexLL = [];
+	GB_G = map(dp_ptod, G, VL);
+	N = length(GB_G);
+	
+	for (I = 0; I < N; I++)
+		update(I);
+	print("rest pair :" + rtostr(length(IndexLL)));
+	while (IndexLL != []) {
+		P = select();
+		I = P[0];
+		J = P[1];
+		Sp = weyl_sp(G[I], G[J], VL, Ord1);
+		print(rtostr([I, J]) + ":", 2);
+		R = weyl_mora(Sp, G, VL, Ord2, Vect); 
+		print(rtostr(R[0] == 0));
+		if (R[0] != 0) {
+			return 0; 
+		}
+	}
+	return 1;
+}
+
+/*
+ * ecart division algorithm on GF(Prime)
+ * Input : P : 割る元(dp), PL : 割られる元(dp), 
+ *         VL : 変数リスト, Ord : s を含めた order  
+ *         Vect : s-斉次化のための重みベクトル 
+ *         Prime : 素数 
+ * Output: R : 余り(dp) s.t.
+ *         P = Q[0] PL[0] + ... + Q[N - 1] PL[N - 1]
+ *         LM(Q[I] PL[I]) <= LM(P)
+ *         LM(R) は LM(PL[I]) のいづれでも割り切れない
+ */
+def dp_weyl_mora_mod(P, PL, VL, Ord, Vect, Prime)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+
+	setmod(Prime);
+	P = reconst(P, VL);
+	PL = map(reconst, PL, VL);
+	P = dp_s_homo_vect(P, VL, Vect);
+	PL = map(dp_s_homo_vect, PL, VL,Vect);
+	P = dp_mod(P, Prime, []);
+	PL = map(dp_mod, PL, Prime, []);
+	G = PL;
+	/* arguments of find_reducer */
+	RedLen = length(G);
+	RedLmL = map(dp_ht, G); 
+	RedLmL = map(dp_s_dehomo, RedLmL, VL);
+	RedDegL = map(dp_s_deg, G, VL);
+	RedSugarL = map(dp_sugar, G); 
+	RedWeightL = map(dp_weight, G, RedWeightV);
+
+#ifdef DEBUG_MORA
+	print("P :");
+	print(P);
+	print("G :");
+	print(G);
+#endif
+	if (ShowState == 1)
+		print("[", 2);
+
+	/* P, PL の division algorithm */
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R */	
+	R = P;
+	N = length(PL);
+
+	while ((T = find_reducer(R, VL)) != []) {
+		PP = G[T[0]];
+		SL = T[1];
+#ifdef DEBUG_MORA
+		print("T :");
+		print(T);
+		print("PP :");
+		print(PP);
+		print("SL :");
+		print(SL);
+#endif
+		if (SL > 0) {
+			if (ShowState == 1) {
+				print("+<" + rtostr(T) + ">", 2);
+				print("(" + rtostr(length(G) + 1) + ")", 2);
+				print(rtostr(count_term(R)), 2);
+			}
+			G = append(G, [R]);
+			/* arguments of find_reducer */
+			RedLen++;
+			RedLmL = append(RedLmL, [dp_s_dehomo(dp_ht(R), VL)]);
+			RedDegL = append(RedDegL, [dp_s_deg(R, VL)]);
+ 
+			RedSugarL = append(RedSugarL, [dp_sugar(R)]);
+			RedWeightL = append(RedWeightL, [dp_weight(R, RedWeightV)]);
+			SS = s^SL;
+			SS = dp_ptod(SS, VL);
+			SS = dp_mod(SS, Prime, []);
+			R = SS * R;
+		} else {
+			if (ShowState == 1) {
+				print("<" + rtostr(T[0]) + ">", 2);
+				print(rtostr(count_term(R)), 2);
+			}
+		}
+		TL = dp_weyl_reduce_mod(R, PP, Prime);
+		R = TL[0];
+
+		/* R が s で割れるとき s で割る */
+		Old_R = R;
+		R = dp_s_div(R, VL);
+		if (ShowState == 1) 
+			if (Old_R != R)
+				print("D", 2);
+
+#ifdef DEBUG_MORA
+		print("R :");
+		print(R);
+#endif
+	}
+	if (ShowState == 1)
+		print("]");
+	/* dehomogenization */
+	R = dp_dtop(R, VL);
+	R = subst(R, s, 1);	
+	dp_ord(Ord);
+	/* R = dp_ptod(R, VL); move below */
+	dp_ord(Tmp);
+	/* もともとの順序にもどす */
+	R = dp_ptod(R, VL);
+	R = dp_mod(R, Prime, []);
+	return R;
+}
+
+def dp_weyl_reduce_mod(F, G, Prime)
+{
+	M = dp_subd(F, G);
+	M *= dp_hc(F) * inv(dp_hc(G), Prime);
+	T = dp_weyl_mul_mod(M, G, Prime);
+	return [F - T, M];
+}
+
+def reconst_mod(DF, VL, Prime)
+{
+	P = dp_dtop(DF, VL);
+	return dp_mod(dp_ptod(P, VL), Prime, []);
+}
+
+/* 
+ * buchberger algorithm with ecart division and modular   
+ * Input : I : イデアルの生成元のリスト, VL : 変数リスト, 
+ *         Ord1 : order, Ord2 : Ord1 に附随する order(s を含めた order)
+ *         Vect : s-斉次化のための重みベクトル
+ *         Prime : 素数
+ * Output : I の order Ord1 についてのグレブナ基底の侯補
+ */ 
+def mora_gr_mod(I, VL, Ord1, Ord2, Vect, Prime)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord1);
+	IndexLL = [];
+	GB_G = map(dp_ptod, I, VL);
+	setmod(Prime);
+	GB_G_Mod = map(dp_mod, GB_G, Prime, []);
+	N = length(GB_G);
+	CriB_Count = 0;
+	CriF_Count = 0;
+	CriM_Count = 0;
+	Mod_Nonzero_Count = 0;
+
+	for (I = 0; I < N; I++) 
+		update(I);
+	print(IndexLL);
+	while (IndexLL != []) {
+		P = select();
+		print("[" + rtostr(P[0]) + "," + rtostr(P[1]) + "]:" 
+		      + "Rest " + rtostr(length(IndexLL)));
+		Sp_Mod = dp_weyl_sp_mod(GB_G_Mod[P[0]], GB_G_Mod[P[1]],
+		         Prime);
+		TestP = Sp_Mod;    /* for debug */
+		TestPL = GB_G_Mod;
+		Nf_Mod = dp_weyl_mora_mod(Sp_Mod, GB_G_Mod, VL, Ord2, Vect, Prime);
+#ifdef DEBUG
+		print("P :"+ rtostr(P));
+		print("Sp_Mod:"+ rtostr(Sp_Mod));
+		print("Nf_Mod:"+ rtostr(Nf_Mod));
+#endif
+		if (Nf_Mod != 0) {
+			Mod_Nonzero_Count++;
+			Sp = dp_weyl_sp(GB_G[P[0]], GB_G[P[1]]);
+			TestP = Sp;    /* for debug */
+			TestPL = GB_G;
+			Nf = dp_weyl_mora(Sp, GB_G, VL, Ord2, Vect);
+			if (Nf != 0) {
+				/* when Prime | LC(Nf), return failure */
+				LC = dp_hc(reconst(Nf, VL));
+				if (LC % Prime == 0)
+					return [];
+				GB_G = append(GB_G, [Nf]);
+				Nf_Mod = dp_mod(Nf, Prime, []);
+				GB_G_Mod = append(GB_G_Mod, [Nf_Mod]);
+				update(N);
+				print("N:" + rtostr(N)); 
+				print("Rest:" + rtostr(length(IndexLL)));
+				print("LM:" + rtostr(dp_ht(Nf)) +
+				      "," + rtostr(dp_sugar(Nf)));
+				N++;
+			}
+		}
+#ifdef DEBUG
+		print("IndexLL:" + rtostr(IndexLL));
+#endif
+	}
+	print("Count :");
+	print("criB:" + rtostr(CriB_Count));
+	print("criF:" + rtostr(CriF_Count));
+	print("criM:" + rtostr(CriM_Count));
+	print("Mod_Nonzero:" + rtostr(Mod_Nonzero_Count));
+
+	dp_ord(Tmp);
+	return map(dp_dtop, GB_G, VL);
+}
+
+def dp_weyl_sp_mod(DP, DQ, Prime)
+{
+	HP = dp_ht(DP);
+	HQ = dp_ht(DQ);
+	M = dp_lcm(DP, DQ);
+	MP = dp_subd(M, HP) * inv(dp_hc(DP), Prime);	
+	MQ = dp_subd(M, HQ) * inv(dp_hc(DQ), Prime);
+	return dp_weyl_mul_mod(MP, DP, Prime) - 
+	       dp_weyl_mul_mod(MQ, DQ, Prime);
+}
+
+
+/*
+ * ecart division algorithm on GF(Prime)
+ * Input : P : 割る元, PL : 割られる元, 
+ *         VL : 変数リスト, Ord : s を含めた order  
+ *         Vect : s-斉次化のための重みベクトル 
+ *         Prime : 素数 
+ * Output: Q : 商のリスト, R : 余り s.t.
+ *         P = Q[0] PL[0] + ... + Q[N - 1] PL[N - 1]
+ *         LM(Q[I] PL[I]) <= LM(P)
+ *         LM(R) は LM(PL[I]) のいづれでも割り切れない
+ */
+def weyl_mora_mod(P, PL, VL, Ord, Vect, Prime)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	
+	P = s_homo_vect(P, VL, Vect);
+	PL = map(s_homo_vect, PL, VL, Vect);
+	G = PL;
+#ifdef DEBUG_MORA
+	print("P :");
+	print(P);
+	print("G :");
+	print(G);
+#endif
+	P = dp_ptod(P, VL);
+	PL = map(dp_ptod, PL, VL);
+	G = PL;
+	setmod(Prime);
+	P = dp_mod(P, Prime, []);
+	PL = map(dp_mod, PL, Prime, []);
+	G = PL;
+	/* arguments of find_reducer */
+	RedLen = length(G);
+	RedLmL = map(dp_ht, G);
+	RedLmL = map(dp_s_dehomo, RedLmL, VL);
+	RedDegL = map(dp_s_deg, G, VL);
+	RedSugarL = map(dp_sugar, G);	
+	RedWeightL = map(dp_weight, G, RedWeightV);
+#ifdef DEBUG_MORA
+	print("P :");
+	print(P);
+	print("G :");
+	print(G);
+#endif
+	if (ShowState == 1)
+		print("[", 2); 
+	
+	/* P, PL の division algorithm */
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R */	
+	A = dp_ptod(1, VL);
+	A = dp_mod(A, Prime, []);
+	R = P;
+	N = length(PL);
+	Q = newvect(N);
+	H = [];
+	QQ = newvect(N);
+
+	while ((T = find_reducer(R, VL)) != []) {
+		PP = G[T[0]];
+		SL = T[1];
+#ifdef DEBUG_MORA
+		print("T :");
+		print(T);
+		print("PP :");
+		print(PP);
+		print("SL :");
+		print(SL);
+#endif
+		if (SL > 0) {
+			if (ShowState == 1) {
+				print("<" + rtostr(T) + ">", 2);
+				print("+(" + rtostr(length(G) + 1) + ")", 2);
+				print(rtostr(count_term(R)), 2);
+			}
+			G = append(G, [R]);
+			/* arguments of find_reducer */			
+			RedLen++;
+			RedLmL = append(RedLmL, [dp_s_dehomo(dp_ht(R), VL)]);  
+			RedDegL = append(RedDegL, [dp_s_deg(R, VL)]);
+			RedSugarL = append(RedSugarL, [dp_sugar(R)]);	
+			RedWeightL = append(RedWeightL, [dp_weight(R, RedWeightV)]);
+			SS = s^SL;
+			SS = dp_ptod(SS, VL);
+			SS = dp_mod(SS, Prime, []);
+			R = SS * R;
+			/* attention : Q vector */
+			H = append(H, [[A, vtol(Q)]]);
+			A = SS * A;
+			for (I = 0; I < N; I++)
+				Q[I] = SS * Q[I];	
+		} else {
+			if (ShowState == 1) {
+				print("<" + rtostr(T[0]) + ">", 2);
+				print(rtostr(count_term(R)), 2);
+			}
+		}
+		TL = dp_weyl_reduce_mod(R, PP, Prime);
+		R = TL[0];
+		U = TL[1];
+		if (T[0] < N) {
+			Q[T[0]] += U;
+		} else {
+			AA = H[T[0] - N][0];
+			for (I = 0; I < N; I++)
+				QQ[I] = H[T[0] - N][1][I];
+			A = A - dp_weyl_mul_mod(U, AA, Prime);
+			for (I = 0; I < N; I++)
+				Q[I] = Q[I] - dp_weyl_mul_mod(U, QQ[I], Prime);
+		}
+
+#ifdef DEBUG_MORA 
+		print("R :");
+		print(R);
+		print("A :");
+		print(A);
+		print("Q :");
+		print(Q);
+		print("div_check_mod :");
+		print(div_check_mod(A, P, PL, Q, R, Prime));
+#endif
+
+		/* R が s で割れるとき s で割る */
+		Old_R = R;
+		R = dp_s_div(R, VL);
+		if (ShowState == 1)
+			if (Old_R != R)
+				print("D-", 2);
+	}
+	if (ShowState == 1)
+		print("]");
+	/* dehomogenization */
+	Q = vtol(Q);
+	Q = map(dp_dtop, Q, VL);
+	Q = map(subst, Q, s, 1);
+	A = dp_dtop(A, VL);
+	A = subst(A, s, 1);
+	R = dp_dtop(R, VL);
+	R = subst(R, s, 1);	
+
+	if (ShowState == 1) {
+		/* 最終結果の確認 */
+		DQ = map(dp_ptod, Q, VL);
+		DQ = map(dp_mod, DQ, Prime, []);
+		DA = dp_ptod(A, VL);
+		DA = dp_mod(DA, Prime, []);
+		DR = dp_ptod(R, VL);
+		DR = dp_mod(DR, Prime, []);
+		P = dp_dtop(P, VL);
+		P = subst(P, s, 1);
+		DP = dp_ptod(P, VL);
+		DP = dp_mod(DP, Prime, []);
+		PL = map(dp_dtop, PL, VL);
+		PL = map(subst, PL, s, 1);
+		DPL = map(dp_ptod, PL, VL);
+		DPL = map(dp_mod, DPL, Prime, []);
+		print(div_check_mod(DA, DP, DPL, DQ, DR, Prime));	
+	}
+	
+	dp_ord(Ord);
+	return [R, A, Q];
+}
+
+/* A, P, PL, Q, R : dp with GF coef */
+def div_check_mod(A, P, PL, Q, R, Prime)
+{
+	N = length(PL);
+	/* A * P = Q[0] * PL[0] + ... + Q[N - 1] * PL[N - 1] + R ? */ 	
+	Left = dp_weyl_mul_mod(A, P, Prime);
+	for (Right = 0, I = 0; I < N; I++)
+		Right += dp_weyl_mul_mod(Q[I], PL[I], Prime);
+	Right += R;
+	/*
+	print("Left:" + rtostr(Left));	
+	print("Right:" + rtostr(Right));	
+	*/
+	if (Left == Right)
+		print("div_check_mod : OK");
+	else 
+		print("div_check_mod : False");
+}
+
+def mora_gr_trace(J, VL, Ord1, Ord2, Vect)
+{
+	PrimeIndex = 100;
+	Prime = lprime(PrimeIndex);
+	while (1) {
+		print("Prime:" + rtostr(Prime));
+		print("guess GB:");
+		G = mora_gr_mod(J, VL, Ord1, Ord2, Vect, Prime);
+		if (G != []) {
+			Gred = gr_reduced(G, VL, Ord1);
+			print("check GB:");
+			if (is_gr(Gred, VL, Ord1, Ord2, Vect))
+				return Gred;
+		}		
+		PrimeIndex++;
+		Prime = lprime(PrimeIndex);
+	}
+}
+ 
+def tangentcone_gr(I, VL, Ord, Vect)
+{
+	I = map(s_homo_vect, I, VL, Vect);
+
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	IndexLL = [];
+	GB_G = map(dp_ptod, I, VL);
+	N = length(GB_G);
+	Nf_IndexL = gen_index(GB_G);
+	ReducerV = newvect(length(GB_G), GB_G);	
+	CriB_Count = 0;
+	CriF_Count = 0;
+	CriM_Count = 0;
+
+	for (I = 0; I < N; I++) 
+		update(I);
+	print(IndexLL);
+	while (IndexLL != []) {
+		P = select();
+		print("[" + rtostr(P[0]) + "," + rtostr(P[1]) + "]:");
+		if (Strategy != 2) 
+			Sp = dp_weyl_sp(GB_G[P[0]], GB_G[P[1]]);
+		else
+			Sp = P[4];
+		TestP = Sp;    /* for debug */
+		TestPL = GB_G;
+		Nf = dp_weyl_nf(Nf_IndexL, Sp, ReducerV, 1);
+#ifdef DEBUG
+		print("P :"+ rtostr(P));
+		print("Sp:"+ rtostr(Sp));
+		print("Nf:"+ rtostr(Nf));
+#endif
+		if (Nf != 0) {
+			print("N:" + rtostr(N) +
+			      ",bits of Nf:" + rtostr(dp_mag(Nf)));
+			GB_G = append(GB_G, [Nf]);
+			Nf_IndexL = gen_index(GB_G);
+			ReducerV = newvect(length(GB_G), GB_G);	
+			update(N);
+			print("Rest:" + rtostr(length(IndexLL)));
+			N++;
+		}
+#ifdef DEBUG
+		print("IndexLL:" + rtostr(IndexLL));
+#endif
+	}
+	print("Count :");
+	print("criB:" + rtostr(CriB_Count));
+	print("criF:" + rtostr(CriF_Count));
+	print("criM:" + rtostr(CriM_Count));
+
+	dp_ord(Tmp);
+
+	GB_S = map(dp_dtop, GB_G, VL);
+	if (ShowState == 1) 
+		map(print_poly, GB_S, VL, Ord);
+	return map(subst, GB_S, s, 1);
+}
+
+def tangentcone_gr2(I, VL, Ord, Vect)
+{
+	I = map(s_homo_vect, I, VL, Vect);
+	GS = dp_weyl_gr_main(I, VL, 0, 0, Ord);
+	if (ShowState == 1) 
+		map(print_poly, GS, VL, Ord);
+	return map(subst, GS, s, 1);	
+}
+
+/* use F4 algorithm */
+def tangentcone_gr3(I, VL, Ord, Vect)
+{
+	I = map(s_homo_vect, I, VL, Vect);
+	GS = dp_weyl_F4_main(I, VL, Ord);
+	if (ShowState == 1) 
+		map(print_poly, GS, VL, Ord);
+	return map(subst, GS, s, 1);	
+}
+
+/* 
+ * G : GB w.r.t. Ord 
+ * return minimal GB 
+ */
+def to_minimal(G, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DG = map(dp_ptod, G, VL);
+	N = length(DG);
+	Check = newvect(N);  
+	for (I = 0; I < N; I++) {
+		if (Check[I] == 0) {
+			DP = DG[I];
+			for (J = 0; J < N; J++) {
+				if (J != I && Check[J] == 0 && dp_redble(DP, DG[J])) {
+					print(rtostr(I) + " <- " + rtostr(J));  
+					Check[I] = 1;
+					break;
+				}
+			}
+		}
+	}			 
+	dp_ord(Tmp);
+	MiniG = [];
+	for (I = 0; I < N; I++) 
+		if (Check[I] == 0) 
+			MiniG = cons(G[I], MiniG);
+	return reverse(MiniG);
+}
+
+def check_to_minimal(G, MiniG, VL, OrdS, V)
+{
+	N = length(G);
+	for (I = 0; I < N; I++) {
+		L = weyl_mora(G[I], MiniG, VL, OrdS, V);
+		print(rtostr(I) + ":" + rtostr(L));
+	}
+}
+
+def pick_s(G, VL, Ord)
+{
+	G = gr_reduced(G, VL, Ord);
+	LG = map(ht, G, VL, Ord);
+	VarL = map(vars, LG);
+	N = length(LG);
+
+	for (I = 0; I < N; I++) 
+		if (VarL[I] == [ss]) 
+			P = G[I]; 
+	print("P :");
+	print_poly(P, VL, Ord);
+
+	B = 0;
+	PP = P;
+	while (PP != 0) {
+		T = hm(PP, VL, Ord);
+		if (vars(T) == [ss] || vars(T) == [])
+			B += T;
+		PP = rest(PP, VL, Ord);
+	}
+	print("const :");
+	print(B);
+
+	return [B, P];
+}
+
+/************************************************************
+ *
+ * computing local b-function                                
+ *
+ ************************************************************/
+
+/*
+ * Input : F : 多項式
+ * Output: Ann_{D[ss]} F^{ss} の生成元と F からなるリスト
+ */
+def jf(F)
+{
+	L = ann(F);
+	L = map(subst, L, s, ss);
+	L = append(L,[F]);
+	L = reverse(L);
+	return L;
+}
+
+
+static NFUseMoraGr;
+NFUseMoraGr=1$
+
+def localb_nf(F, VL, Ord1, Ord2, Vect, W, Deg, N)
+{
+	NF = newvect(Deg + 1);
+
+	tstart();
+	J = jf(F); 
+	tstop(); 	
+	print("J :"); 
+	map(print_poly, J, VL, Ord1);
+
+	tstart();
+	if (NFUseMoraGr == 1)
+		G = mora_gr(J, VL, Ord1, Ord2, Vect);
+	else 
+		G = tangentcone_gr2(J, VL, Ord2, Vect);
+	tstop();
+	print("Gr(J) :");
+	map(print_poly, G, VL, Ord1);
+
+	for (;;) {
+		for (I = 0; I <= Deg; I++) {
+			T = d_app_div(ss^I, G, VL, W, Ord1, N);
+			NF[I] = pick_td(T[1], VL, N);
+		}
+		print("NF :");
+		map(print_poly, NF, VL, Ord1);
+		N++;
+		S = sol_space(NF, Deg + 1, VL);
+		print("sol_space(" + rtostr(Deg + 1) + ")");
+		print(S);
+		if (size(S)[0] == 1)
+			continue;
+		for (I = Deg; I >= 0; I--) {
+			SS = sol_space(NF, I, VL);
+			print("sol_space(" + rtostr(I) + ")");
+			print(SS);
+			if (size(SS)[0] == 1)
+				break;
+			S = SS;
+		}
+		for (J = 0, BSum = 0; J <= I; J++)
+			BSum += S[1][J]	* ss^J;
+		print("BSum:");
+		print(BSum);
+		L = weyl_mora(BSum, G, VL, Ord2, Vect);
+		print("weyl_mora(BSum, G)");
+		print(L[0]);
+		if (L[0] == 0)
+			return BSum;
+	}
+}
+
+def localb_nf2(F, VL, Ord1, Ord2, Vect, W, N)
+{
+	NF = [];
+
+	tstart();
+	J = jf(F); 
+	tstop(); 	
+	print("J :"); 
+	map(print_poly, J, VL, Ord1);
+
+	tstart();
+	if (NFUseMoraGr == 1)
+		G = mora_gr(J, VL, Ord1, Ord2, Vect);
+	else 
+		G = tangentcone_gr2(J, VL, Ord2, Vect);
+	tstop();
+	print("Gr(J) :");
+	map(print_poly, G, VL, Ord1);
+
+	T = d_app_div(1, G, VL, W, Ord1, N);
+	TT = pick_td(T[1], VL, N);
+	NF = append(NF, [TT]);
+	I = 1;
+
+	for (;;) {
+		/* find the minimum i s.t. L_{i,N} \neq \{0\} */
+		while (size(S = sol_space(NF, I, VL))[0] == 1) {
+			print("L_{" + rtostr(I) + "," + rtostr(N) + "}");
+			print(S);
+			T = d_app_div(ss^I, G, VL, W, Ord1, N);
+			TT = pick_td(T[1], VL, N);
+			NF = append(NF, [TT]);
+			I++;
+		}
+		print("app_NF :");
+		map(print_poly, NF, VL, Ord1); 
+		print("L_{" + rtostr(I) + "," + rtostr(N) + "}");
+		print(S);
+	
+		/* make a candidate polynomial */
+		for (J = 0, BSum = 0; J < I; J++)
+			BSum += S[1][J] * ss^J;
+		print("BSum:");
+		print(BSum);
+
+		/* check ideal membership by the Mora division algorithm */
+		L = weyl_mora(BSum, G, VL, Ord2, Vect);
+		print("check by the Mora division algorithm");
+		print(L[0]);
+		if (L[0] == 0)
+			return BSum;
+	
+		N++;
+		/* L_{0} = L_{1} = \cdots = L_{I-1} = \{0\} holds.     */
+		/* compute \nf(ss^J, G, N) (0 \leq J \leq I - 1) again */
+		V_NF = newvect(I);
+		for (J = 0; J < I; J++) {
+			T = d_app_div(ss^J, G, VL, W, Ord1, N);
+			V_NF[J] = pick_td(T[1], VL, N);
+		}
+		NF = vtol(V_NF);
+	}
+}
+
+def sol_space(NF, M, VL) 
+{
+	for (I = 0, AL = []; I < M; I++)
+		AL = cons(strtov("a" + rtostr(I)), AL);
+	AL = reverse(AL);
+	for (I = 0, Sum = 0; I < M; I++)
+		Sum += NF[I] * AL[I];
+	C = pickcoef(Sum, VL);
+	if (C[0] == 1)
+		return [];
+	A = eq2mat(C[1], AL);
+	A = mat_combine(A[0], A[1]);
+	Solve = mat_elim(A);	
+	return Solve;
+}
+	
+/* 
+ * B = (A | b) 拡大係数行列         
+ * Ax = b の解を返す 
+ */
+def mat_elim(B) {
+	Rank = 0;
+	M = size(B)[0];
+	N = size(B)[1];
+#ifdef DEBUG_ELIM
+	print("M :" + rtostr(M));
+	print("N :" + rtostr(N));
+#endif
+
+	Index = [];
+	Mainele = [];
+	/* 各列を見ていく */
+	for (I = 0; I < N - 1; I++) {
+#ifdef DEBUG_ELIM
+		print(rtostr(I) + " : ");
+#endif
+		J = Rank;
+		/* 非ゼロ成分を見つける */
+		while (J < M && B[J][I] == 0)
+			J++;
+		/* 見つからない場合 */
+		if (J == M) {
+			Index = cons(I, Index);
+#ifdef DEBUG_ELIM
+			print("add Index :" + rtostr(I));
+#endif
+			continue;
+		}
+#ifdef DEBUG_ELIM
+		print("non zero : " + rtostr([J, I]));
+#endif
+		/* Rank 行と J 行の交換 */
+		for (K = Rank; K < N; K++) {
+			T = B[J][K];
+			B[J][K] = B[Rank][K];
+			B[Rank][K] = T;
+		}
+
+		/* Rank 行目を 1/B[Rank][I] 倍する */
+		V = B[Rank][I];
+		B[Rank][I] = 1;
+		for (K = I + 1; K < N; K++)
+			B[Rank][K] = B[Rank][K] / V;
+#ifdef DEBUG_ELIM
+		print(B);
+		print("");
+#endif
+		/* Rank 行目以外の全ての行 J 行目について、*/
+		/* Rank 行目の B[J][I] 倍を引く            */
+		for (J = 0; J < M; J++) {
+			if (J == Rank) 
+				continue;
+			V = B[J][I];
+			B[J][I] = 0;
+			for (K = I + 1; K < N; K++)
+				B[J][K] = B[J][K] - B[Rank][K] * V;
+		}
+		Mainele = cons(I, Mainele);
+		Rank++;
+#ifdef DEBUG_ELIM
+		print(B);
+		print("");
+#endif
+	}
+	
+	Index = reverse(Index);
+	Mainele = reverse(Mainele);
+#ifdef DEBUG_ELIM
+	print("Index, Mainele :");
+	print(Index);
+	print(Mainele);
+#endif
+
+	
+	/* Ax=b がとけるための条件 */
+	for (I = Rank; I < M; I++) {
+		if (B[I][N - 1] != 0) {
+			print(rtostr(B[I][N - 1]) + " != 0");
+			return [];
+		}
+	}
+
+	/* 解空間の決定 */
+	/* X[0] + c1 * X[1] + ... + cDim * X[Dim] が解 */
+	Dim = length(Index);			
+	X = newmat(Dim + 1, N - 1);
+	for (I = 0; I < Rank; I++)
+		X[0][Mainele[I]] = B[I][N - 1];
+	for (I = 0; I < Dim; I++) {
+		X[I + 1][Index[I]] = 1;
+		for (J = 0; J < Rank; J++)
+			X[I + 1][Mainele[J]] = -B[J][Index[I]];
+	}
+	return X;
+}
+
+/*
+ * example :
+ * when P = a0 * x + a1 * y + (a0 + a1) * x * y, VL = [x,y], then
+ * pickcoef return [0, [a0, a1, a0 + a1], [x, y, x*y]].
+ */  
+def pickcoef(P, VL)
+{
+	DP = dp_ptod(P, VL);
+	Exist = 0; /* const coef exists or not */
+	Coef = [];
+	Term = [];
+	while (DP != 0) {
+		C = dp_hc(DP);
+		if (vars(C) == []) {
+			Exist = 1;
+			break;
+		} else {
+			Coef = cons(C, Coef);
+			Term = cons(dp_dtop(dp_ht(DP), VL), Term);
+		}
+		DP = dp_rest(DP);
+	}
+	return [Exist, Coef, Term];
+}
+
+def eq2mat(L, VL)
+{
+	M = length(L);
+	N = length(VL);
+	A = newmat(M, N);
+	B = newvect(M);
+	
+	for (I = 0; I < M; I++) {
+		CC = L[I];
+		for (J = 0; J < N; J++) {
+			A[I][J] = coef(L[I], 1, VL[J]);
+			CC = coef(CC, 0, VL[J]);
+		}
+		B[I] = -CC;
+	}	
+	return [A, B];
+}
+
+
+/*  A : mat B : vect */
+def mat_combine(A, B)
+{
+	M1 = size(A)[0];
+	M2 = size(B)[0];
+	N1 = size(A)[1];
+	if (M1 != M2) {
+		print("column size is wrong");
+		return 0;
+	}
+	C = newmat(M1, N1 + 1);		
+	for (I = 0; I < M1; I++) {
+		for (J = 0; J < N1; J++)
+			C[I][J] = A[I][J];	
+		C[I][J] = B[I];
+	}
+	return C;
+}
+
+def test_nf(F, L)
+{
+	BF = bfct(F);
+	Deg = deg(BF, s);
+	for (I = 0, Sum = 0; I <= Deg; I++) 
+		Sum += coef(BF, I, s) * L[I];
+	return Sum;
+}
+
+def trans_tdt(F, VL)
+{
+	T_table = tt_table(50, [t,dt]);
+	Deg = deg(F, s);
+	for (I = 0, Sum = 0; I <= Deg; I++)
+		Sum += coef(F, I, s) * T_table[I]; 	
+	return Sum;
+}
+
+/* t^I*dt^I -> (-s-1)*(-s-1-1)* ... *(-s-1-I+1) */
+def trans_s(G) 
+{
+	G = subst(G, t, 1);
+	Deg = deg(G, dt);
+	S = 0;
+	while (G != 0) {
+		C = coef(G, Deg, dt);
+		S += C * sfact(Deg);
+		G -= C * dt^Deg;
+		Deg = deg(G, dt);
+	} 
+	return S;
+}
+
+/* (-s-1)*(-s-2)* ... *(-s-N) */
+def sfact(N)
+{
+	Sum = 1;
+	for (I = 0; I < N; I++)
+		Sum *= (-s-1 - I);
+	return Sum;
+}
+
+def tt_table(N, VL)
+{
+	T = newvect(N);
+	T[0] = 1;
+	for (I = 1; I < N; I++)
+		T[I] = weyl_mul(-1 - t * dt, T[I - 1], VL); 
+	return T;
+}
+
+
+/************************************************************
+ *
+ * computing normal form in D_alg                            
+ *
+ ************************************************************/
+
+/* 
+ * Input : P, G dp 
+ * Output: P の任意の項 T について、LM(G[I]) | T なる I があるか
+ */
+def divisible_perfect(P, G)
+{
+	N = length(G);
+	while (P != 0) {
+		H = dp_hm(P);
+		for (I = 0; I < N; I++)
+			if (dp_redble(H, G[I]))
+				return [1, I, H];
+		P = dp_rest(P);	
+	}	
+	return [0];
+}
+
+/*
+ * Input : P, G poly, VL, Ord
+ * Output: P = Q[0] LT(G[0]) + ... + Q[N - 1] LT(G[N - 1]) + R
+ *         R の各項は LM(G[I]) で割り切れない 
+ *         LM(P) >= LM(Q[I] G[I])
+ */
+def mono_div(P, G, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	N = length(G);
+	Q = newvect(N);
+	P = dp_ptod(P, VL);
+	G = map(dp_ptod, G, VL);
+	R = P;
+
+#ifdef DEBUG_MONO_DIV
+	print("P :"); print_dp_dtop(P, VL); print("");
+	print("G :"); map(print_dp_dtop, G, VL); print("");
+	print("R :"); print_dp_dtop(R, VL); print("");
+#endif
+	while (R != 0 && (L = divisible_perfect(R, G))[0]) {
+		I = L[1];
+		H = L[2]; /* LM(G[I]) | LM(H) (R = HH + H) */
+		T = dp_hc(H) / dp_hc(G[I]) * 
+		    dp_subd(H, G[I]);
+		Q[I] += T;
+		R -= T * G[I];
+#ifdef DEBUG_MONO_DIV
+		print("T :"); print_dp_dtop(T, VL); print("");
+		print("G[" + rtostr(I) + "] :"); 
+		print_dp_dtop(G[I], VL); print("");
+		print("R :"); print_dp_dtop(R, VL); print("");
+#endif
+	}
+	Q = vtol(Q);
+	Q = map(dp_dtop, Q, VL);
+	R = dp_dtop(R, VL);
+	dp_ord(Tmp);
+	return [Q, R];
+}
+	
+/*
+ * Weierstrass - Hironaka division theorem 
+ * Input : F : 割られる元, G : 割る元, VL : 変数リスト, Ord : order
+ *         N : 近似の精度
+ * Output: Q : 商のリスト, R : 余り s.t.
+ *         F = Q[0] * G[0] + ... + Q[N - 1] * G[N - 1] + R
+ *         \LM(Q[I] * G[I]) \leq \LM(F)
+ *         R の全次数の N 未満の項は\LM(G[I])のいづれでも割り切れない
+ */
+def whdiv(F, G, VL, Ord, N)
+{
+	HG = map(hm, G, VL, Ord);
+	RG = map(rest, G, VL, Ord);
+	Count = 0;
+	M = length(G);
+	TD_Beta = 0;
+	FF = F; 
+	QQ = newvect(M);
+	RR = 0;
+#ifdef DEBUG_WH_DIV
+	print("[", 2);
+#endif
+	while (F != 0 && TD_Beta < N) {
+		Tmp = mono_div(F, HG, VL, Ord);
+		Q = Tmp[0];
+		R = Tmp[1];
+#ifdef DEBUG_WH_DIV
+		print("Count : " + rtostr(Count));
+		print_poly(F, VL, Ord|no=1); 
+		print(" = ", 2);
+		for (I = 0; I < M; I++) {
+			print_poly(Q[I], VL, Ord|no=1);
+			print(" * ", 2);
+			print_poly(HG[I], VL, Ord|no=1);
+			print(" + ", 2);	
+		}
+		print_poly(R, VL, Ord|no=1);
+		print("");	
+#endif
+		Beta = bbeta(HG, Q, R, VL, Ord);
+		TD_Beta = dp_td(dp_ptod(Beta, VL));
+#ifdef DEBUG_WH_DIV
+		print(rtostr(TD_Beta) + ",", 2);
+#endif
+		for (I = 0; I < M; I++)
+			QQ[I] += Q[I];
+		RR += R;
+		for (I = 0, F = 0; I < M; I++)
+			F -= Q[I] * RG[I];
+		Count++;
+	}	
+#ifdef DEBUG_WH_DIV
+	print("]", 2);
+	check_whdiv(FF, G, QQ, RR, F, VL, Ord);
+#endif
+	return [QQ, RR + F, F == 0];
+}
+
+/* 終了判定を変更 */
+def whdiv_(F, G, VL, Ord, N)
+{
+	HG = map(hm, G, VL, Ord);
+	RG = map(rest, G, VL, Ord);
+	Count = 0;
+	M = length(G);
+	FF = F; 
+	TD_F = td_ht(F, VL, Ord);
+	QQ = newvect(M);
+	RR = 0;
+	while (F != 0 && TD_F < N) {
+		Tmp = mono_div(F, HG, VL, Ord);
+		Q = Tmp[0];
+		R = Tmp[1];
+		for (I = 0; I < M; I++)
+			QQ[I] += Q[I];
+		RR += R;
+		for (I = 0, F = 0; I < M; I++)
+			F -= Q[I] * RG[I];
+		TD_F = td_ht(F, VL, Ord);
+	}	
+	return [QQ, RR + F, F == 0];
+}
+
+def check_whdiv(F, G, Q, R, RR, VL, Ord)
+{
+	M = length(G);
+	for (I = 0, Sum = 0; I < M; I++)
+		Sum += Q[I] * G[I];
+	Sum += R;
+	Sum += RR;
+	print("F  :", 0); print_poly(F, VL, Ord);
+	print("Sum:", 0); print_poly(Sum, VL, Ord);
+	if (F == Sum)
+		print("OK : sum");
+	else
+		print("FALSE : sum");
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	G = map(dp_ptod, G, VL);
+	G = map(dp_hm, G);
+	R = dp_ptod(R, VL);
+	if (divisible_perfect(R, G)[0] == 0)
+		print("OK : normalform");
+	else
+		print("FALSE : not normalform");
+	dp_ord(Tmp);
+}
+
+/* return max {LM(Q[I] * HG[I]), LM(R)} */
+def bbeta(HG, Q, R, VL, Ord)
+{
+	N = length(HG);
+	HQ = newvect(N);
+	for (I = 0; I < N; I++)
+		HQ[I] = ht(Q[I], VL, Ord);
+	for (I = 0, L = []; I < N; I++) 
+		L = cons(HQ[I] * HG[I], L);
+	L = cons(ht(R, VL, Ord), L);
+	L = sort_polylist(L, VL, Ord);
+#ifdef DEBUG_WH_DIV
+	print("Beta :", 0); print(L);
+#endif
+	return L[N];
+}
+
+/*
+ * Input: P : 割られる元, G : 割る元, VL : 変数リスト,
+ *        W : 重みベクトル
+ *        Ord : order, N : 次数の精度  
+ * Output: Q : 商のリスト, R : 余り s.t.
+ *         P = Q[0] * G[0] + ... + Q[N - 1] * G[N - 1] + R
+ *         \LM(Q[I] * G[I]) \leq \LM(F)
+ *         R の全次数の N 未満の項は\LM(G[I])のいづれでも割り切れない
+ *         Q の全次数が N - |\LM(G[I])| 次未満の部分は正確
+ *         R の全次数が N 次未満の部分は正確
+ */
+def d_app_div(P, G, VL, W, Ord, N)
+{
+	Len = length(G);
+	Q = newvect(Len);
+	In = map(in_w, G, VL, W);
+	R = P;
+	LLen = length(VL);
+
+	M0 = ord_w(P, VL, W);		
+#ifdef DEBUG_D_APP_DIV
+	print("M0 :" + rtostr(M0));
+#endif
+
+	M = newvect(M0 + 1);
+	HG = newvect(Len);
+	TDG = newvect(Len);
+	OrdG = newvect(Len);		 
+	for (I = 0; I < Len; I++) {
+		HG[I] = ht(G[I], VL, Ord);
+		TDG[I] = dp_td(dp_ptod(HG[I], VL));
+		OrdG[I] = ord_w(HG[I], VL, W);
+	}		
+	/* M[I] = \max(\{|\LE(G[I])| + 2 * (\max(I - \ord_e(G[I]), 0))\}) */
+	for (I = 0; I <= M0; I++) {
+		Max = TDG[0] + 2 * max(I - OrdG[0], 0);
+		for (J = 1; J < Len; J++) {
+			T = TDG[J] + 2 * max(I - OrdG[J], 0);
+			if (T > Max)
+				Max = T;
+		} 
+		M[I] = Max;
+	}
+#ifdef DEBUG_D_APP_DIV
+	for (I = 0; I <= M0; I++) 
+		print("M[" + rtostr(I) +"] :" + rtostr(M[I]));
+#endif
+
+	for (I = 0, Bound = N; I <= M0; I++) 
+		Bound += M[I];	
+#ifdef DEBUG_D_APP_DIV
+	print("Bound :" + rtostr(Bound));
+#endif
+	
+	for (K = M0; K >= 0; K--) {
+		/* R の階数 K の部分でかつ全次数が Bound 未満を RK */
+		RK = pick_ord_w(R, VL, W, K);  
+		RK = pick_td(RK, VL, Bound);
+		L = whdiv(RK, In, VL, Ord, Bound); 
+#ifdef DEBUG_D_APP_DIV
+		print("K :" + rtostr(K));
+		print("RK:", 2);
+		print_poly(RK, VL, Ord);
+		print("WH-division:" + rtostr(L));
+#endif
+		QQ = L[0];
+		for (I = 0; I < Len; I++) {
+			R -= weyl_mul(QQ[I], G[I], VL);
+			Q[I] += QQ[I];
+		}
+		Bound = Bound - M[K];
+#ifdef DEBUG_D_APP_DIV
+		print("R:",2);
+		print_poly(R, VL, Ord);
+		print("Bound:" + rtostr(Bound));
+#endif
+	}	
+#ifdef DEBUG_D_APP_DIV
+	print("");
+	check_d_app_div(P, G, Q, R, VL, Ord, N);
+#endif
+	return [Q, R];
+}
+
+def check_d_app_div(P, G, Q, R, VL, Ord, N)
+{
+	Len = length(G);
+	for (Sum = 0, I = 0; I < Len; I++) {
+		T = weyl_mul(Q[I], G[I], VL);
+		Sum += T;
+		if (T != 0 && poly_cmp(P, T, VL, Ord) == -1)
+			print("false : LM(G[" + rtostr(I) + 
+			      "]) > LM(P)"); 
+	}	
+	Sum += R;
+
+	print("check---------------------");
+	print("Sum :", 2);
+	print_poly(Sum, VL, Ord);
+	print("P :",2);
+	print_poly(P, VL, Ord);
+
+	Monos = divisible_monos(R, G, VL, Ord, N);
+	print("Monos :", 2);
+	print(Monos);
+	print("-------------------------");
+}
+
+def d_app_div_(P, G, VL, W, Ord, N)
+{
+	Len = length(G);
+	Q = newvect(Len);
+	In = map(in_w, G, VL, W);
+	R = P;
+	LLen = length(VL);
+
+	M0 = ord_w(P, VL, W);		
+	print("M0 :" + rtostr(M0));
+
+	M = newvect(M0 + 1);
+	HG = newvect(Len);
+	TDG = newvect(Len);
+	OrdG = newvect(Len);		 
+	for (I = 0; I < Len; I++) {
+		HG[I] = ht(G[I], VL, Ord);
+		TDG[I] = dp_td(dp_ptod(HG[I], VL));
+		OrdG[I] = ord_w(HG[I], VL, W);
+	}		
+	/* M[I] = \max(\{|\LE(G[I])| + 2 * (\max(I - \ord_e(G[I]), 0))\}) */
+	for (I = 0; I <= M0; I++) {
+		Max = TDG[0] + 2 * max(I - OrdG[0], 0);
+		for (J = 1; J < Len; J++) {
+			T = TDG[J] + 2 * max(I - OrdG[J], 0);
+			if (T > Max)
+				Max = T;
+		} 
+		M[I] = Max;
+	}
+	for (I = 0; I <= M0; I++) 
+		print("M[" + rtostr(I) +"] :" + rtostr(M[I]));
+
+	for (I = 0, Bound = N; I <= M0; I++) 
+		Bound += M[I];	
+	print("Bound :" + rtostr(Bound));
+	
+	for (K = M0; K >= 0; K--) {
+		/* R の階数 K の部分でかつ全次数が Bound 未満を RK */
+		RK = pick_ord_w(R, VL, W, K);  
+		RK = pick_td(RK, VL, Bound);
+		L = whdiv_(RK, In, VL, Ord, Bound); 
+#ifdef DEBUG_D_APP_DIV
+		print("K :" + rtostr(K));
+		print("RK:", 2);
+		print_poly(RK, VL, Ord);
+		print("WH-division:" + rtostr(L));
+#endif
+		QQ = L[0];
+		for (I = 0; I < Len; I++) {
+			R -= weyl_mul(QQ[I], G[I], VL);
+			Q[I] += QQ[I];
+		}
+		Bound = Bound - M[K];
+#ifdef DEBUG_D_APP_DIV
+		print("R:",2);
+		print_poly(R, VL, Ord);
+		print("Bound:" + rtostr(Bound));
+#endif
+	}	
+	print("");
+	check_d_app_div(P, G, Q, R, VL, Ord, N);
+	return [Q, R];
+}
+
+def max(A, B) 
+{
+	if (A > B)
+		return A;
+	return B;
+}
+
+/*
+ * P の全次数が N 未満の項のうちで LM(G) の何れかでわりきれるもの
+ */
+def divisible_monos(P, G, VL, Ord, N)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	M = length(G);
+	DP = dp_ptod(P, VL);
+	DG = map(dp_ptod, G, VL);
+	Monos = 0;
+	while (DP != 0) {
+		T = dp_hm(DP);
+		DP = dp_rest(DP);
+		Deg = dp_td(T);
+		if (Deg < N) {
+			for (I = 0; I <	M; I++)
+				if (dp_redble(T, DG[I])) {
+					Monos += T;
+					break;
+				}
+		}
+	}
+	Monos = dp_dtop(Monos, VL);
+	dp_ord(Tmp);
+	return Monos;
+}
+
+def ord_w(P, VL, W)
+{
+	if (P == 0) {
+		print("ord_w(0)");
+		return;
+	}
+
+	N = length(VL);
+	DP = dp_ptod(P, VL);
+
+	V = dp_etov(DP);
+	DP = dp_rest(DP);	
+	for (Max = 0, I = 0; I < N; I++)
+		Max += V[I] * W[I];	
+	while (DP != 0) {
+		V = dp_etov(DP);
+		DP = dp_rest(DP);	
+		for (Weight = 0, I = 0; I < N; I++)
+			Weight += V[I] * W[I];	
+		if (Max < Weight)
+			Max = Weight;
+	}
+	return Max;
+}
+
+/*
+ * P の項で全次数が N 未満のものを抜きだす
+ */
+def pick_td(P, VL, N)
+{
+	if (P == 0)
+		return 0;
+
+	DP = dp_ptod(P, VL);
+	Pick = 0;
+	while (DP != 0) {
+		T = dp_hm(DP);
+		DP = dp_rest(DP);
+	/*	print("T :" + rtostr(T) + " : " + rtostr(dp_td(T))); */
+		if (dp_td(T) < N) {
+			Pick += T;
+	/*		print("ok : " + rtostr(Pick)); */
+		}
+	}
+	return dp_dtop(Pick, VL);
+}
+
+/*
+ * P から W による weight が M の項を抜きだす
+ */
+def pick_ord_w(P, VL, W, M)
+{
+	if (P == 0)
+		return 0;
+	N = length(VL);
+
+	DP = dp_ptod(P, VL);
+	Pick = 0;
+	while (DP != 0) {
+		T = dp_hm(DP);
+		V = dp_etov(T);
+		DP = dp_rest(DP);
+		for (Weight = 0, I = 0; I < N; I++)
+			Weight += W[I] * V[I];
+		if (Weight == M)
+			Pick += T;
+	}
+	return dp_dtop(Pick, VL);	
+}
+
+def pick_hmord(P, VL, Ord, W)
+{
+	M = ord_w(P, VL, W);
+	for (I = 0, L = []; I <= M; I++) {
+		PM = pick_ord_w(P, VL, W, I);
+		T = ht(PM, VL, Ord);
+		L = cons(T, L);
+	}
+	return L;
+}
+
+def in_w(P, VL, W)
+{
+	Order = ord_w(P, VL, W);
+	return pick_ord_w(P, VL, W, Order);
+}
+
+def print_poly_w(P, VL, A, W)
+{
+	M = ord_w(P, VL, W);
+	for (I = M; I >= 0; I--) {
+		T = pick_ord_w(P, VL, W, I);
+		print("ord " + rtostr(I) + " :", 2);
+		print_poly(T, VL, A);
+	}	
+}
+
+/* 
+ * K[[x]] の Mora-division algorithm を用いた 
+ * D-Mora-division algorithm
+ * Ord についての D-Mora-division
+ * OrdR  --> <_r, OrdRT --> <_r に付随する順序 <_r^t
+ */
+def d_mora_div(P, G, VL, W, Ord, OrdR, OrdRT)
+{
+	Len = length(G);
+	Q = newvect(Len);
+	In = map(in_w, G, VL, W);
+	R = P;
+	A = 1;
+
+	M0 = ord_w(P, VL, W);		
+	print("M0 :" + rtostr(M0));
+
+	for (K = M0; K >= 0; K--) {
+		/* R の階数 K の部分 RK */
+		RK = pick_ord_w(R, VL, W, K);  
+		L = mora_div(RK, In, VL, OrdR, OrdRT);
+#ifdef DEBUG_D_MORA_DIV
+		print("K :" + rtostr(K));
+		print("RK:", 2);
+		print_poly(RK, VL, Ord);
+		print("Mora-division:" + rtostr(L));
+#endif
+		RR = L[0];
+		AA = L[1];
+		QQ = L[2];
+		A *= AA;
+		R *= AA;
+		for (I = 0; I < Len; I++) {
+			R -= weyl_mul(QQ[I], G[I], VL);
+			Q[I] = AA * Q[I] + QQ[I];
+		}
+#ifdef DEBUG_D_MORA_DIV
+		print("R :", 2);
+		print_poly(R, VL, Ord);
+		print("A :", 2);
+		print_poly(A, VL, Ord);
+		check_d_mora_div(P, G, R, A, Q, VL, Ord);
+#endif
+	}	
+	check_d_mora_div(P, G, R, A, Q, VL, Ord);
+	return [R, A, Q];
+}
+
+def check_d_mora_div(P, G, R, A, Q, VL, Ord)
+{
+	Len = length(G);
+	for (Sum = 0, I = 0; I < Len; I++) {
+		T = weyl_mul(Q[I], G[I], VL);
+		Sum += T;
+		if (T != 0 && poly_cmp(P, T, VL, Ord) == -1)
+			print("false : LM(G[" + rtostr(I) + "]) > LM(P)"); 
+	}	
+	Sum += R;
+
+	print("check---------------------");
+	print("Sum :", 2);
+	print_poly(Sum, VL, Ord);
+	print("A * P :",2);
+	print_poly(A * P, VL, Ord);
+	
+	if (R == 0) {
+		print("OK");
+		print("--------------------------");
+		return;
+	} 	
+
+	HG = map(ht, G, VL, Ord);
+	HG = map(dp_ptod, G, VL); 
+	HR = ht(R, VL, Ord);
+	HR = dp_ptod(HR, VL); 
+	for (I = 0; I < Len; I++)
+		if (dp_redble(HR, HG[I])) {
+			print("false : LM(G[" + rtostr(I) + "]) | LM(R)");
+			print("--------------------------");
+			return;
+		}
+	print("OK");
+	print("--------------------------");
+}
+
+/************************************************************
+ *
+ * computing local-b by using round-robin method                                 *
+ ************************************************************/
+def localb_rr(F, VL, Ord1, Ord2, Vect)
+{
+	tstart();
+	J = jf(F); 
+	tstop(); 	
+	print("J :"); 
+	map(print_poly, J, VL, Ord1);
+
+	tstart();
+	G = tangentcone_gr2(J, VL, Ord2, Vect);
+	tstop();
+	print("Gr(J) :");
+	map(print_poly, G, VL, Ord1);
+
+	return localb_roundrobin(F, G, VL, Ord2, Vect);
+}
+
+def localb_roundrobin(F, G, VL, Ord, Vect)
+{
+	BF = bfct(F);
+	BF = subst(BF, s, ss); 
+	Pick = BF; /* the nomination of local-b */
+
+	print("compute global-b.");
+	R = weyl_mora_remainder(BF, G, VL, Ord, Vect);
+	if (R != 0) {
+		print("error : the remainder of global-b is not 0.");  	
+		return;
+	} else {
+		print("ok : the remainder of global-b is 0.");  	
+	}		 
+	Count = 0;
+	while (1) {
+		InL = [];
+		NotInL = [];
+		print(rtostr(Count) + "th challenge");
+		print("Pick :" + rtostr(Pick));
+		GenL = gen_fctr_decexp(Pick);
+		print("length(GenL):" + rtostr(length(GenL)));
+		while (GenL != []) {
+			S = car(GenL);
+			GenL = cdr(GenL);
+			R = weyl_mora_remainder(S, G, VL, Ord, Vect);
+			print(rtostr(S) + "-->", 2);
+			if (R == 0) {
+				print("zero");
+				InL = cons(S, InL);
+			} else {
+				print("non-zero");
+				NotInL = cons(S, NotInL);
+			}
+		}
+		print("InL :" + rtostr(length(InL)) + "," +
+		      "NotInL :" + rtostr(length(NotInL)));
+		if (InL == []) {
+			return Pick;
+		} 
+		Pick = gcdlist(InL);
+		Count++;
+	}
+}
+
+def fctrvect(F)
+{
+	L = fctr(F);
+	N = length(L);
+	FctrV = newvect(N - 1);
+	ExpV = newvect(N - 1);
+	for (I = 1; I < N; I++) {
+		FctrV[I - 1] = L[I][0];
+		ExpV[I - 1] = L[I][1];
+	}
+	return [FctrV, ExpV];
+}
+
+/*
+ * if F = F1^E1 * ... * FM^EM, then return the list of  
+ * F1^{E1-1} * F2^E2 * ... * FM^EM, ..., F1^E1 * F2^E2 * ... * FM^{EM-1}
+ */
+def gen_fctr_decexp(F)
+{
+	L = fctrvect(F);
+	FctrV = L[0];
+	ExpV = L[1];
+	N = size(FctrV)[0];
+
+	GenL = [];
+	for (I = 0; I < N; I++) {
+		S = 1;
+		for (J = 0; J < N; J++) {
+			if (I == J) {
+				if (ExpV[J] > 0)
+					S *= FctrV[J]^(ExpV[J] - 1);
+			} else {
+				S *= FctrV[J]^ExpV[J]; 	
+			} 
+		}
+		GenL = cons(S, GenL);
+	} 
+	return GenL;
+}
+
+def gcdlist(L)
+{
+	N = length(L);
+	if (N == 1) 
+		return L[0];
+	for (I = 2, G = gcd(L[0], L[1]); I < N; I++) {
+		G = gcd(G, L[I]);	
+	} 
+	return G;
+}
+
+def lcmlist(L)
+{
+	N = length(L);
+	if (N == 1) 
+		return L[0];
+	for (I = 2, G = lcm(L[0], L[1]); I < N; I++) {
+		G = lcm(G, L[I]);	
+	} 
+	return G;
+}
+
+/************************************************************
+ *
+ * utility                                
+ *
+ ************************************************************/
+
+static SortVL$
+
+def hm(F, VL, Ord)
+{
+	if (F == 0) 
+		return 0;
+
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	NM = nm(F);
+	DN = dn(F);
+	DF = dp_ptod(NM, VL);
+	Head = dp_hm(DF);
+	dp_ord(Tmp);	
+	return red(dp_dtop(Head, VL) / DN);
+}
+
+def ht(F, VL, Ord)
+{
+	if (F == 0) 
+		return 0;
+	
+	/* F が数なら */
+	if (type(F) == 1) {
+		return 1;
+	}	
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	NM = nm(F);
+	DN = dn(F);
+	DF = dp_ptod(NM, VL);
+	Head = dp_ht(DF);
+	dp_ord(Tmp);	
+	return red(dp_dtop(Head, VL) / DN);
+}
+
+def hc(F, VL, Ord)
+{
+	if (F == 0) 
+		return 0;
+
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DF = dp_ptod(F, VL);
+	HC = dp_hc(DF);
+	dp_ord(Tmp);	
+	return HC;
+}
+
+def rest(F, VL, Ord)
+{
+	if (F == 0)
+		return 0;
+
+	return red(F - hm(F, VL, Ord));
+}
+
+def print_dp_dtop(DP, VL)
+{
+	Count = 0;
+	if (DP == 0) {
+		print("0", 2);
+		return;
+	}
+	while (DP != 0) {
+		T = dp_hm(DP);
+		C = dp_hc(DP);
+		DP = dp_rest(DP);
+		if (C >= 0) {
+			print("+", 2);
+		} 
+		print(dp_dtop(T, VL), 2);
+		Count++;
+	}
+	/* print(" (" + rtostr(Count) + ")", 2); */
+}
+
+def print_poly(P, VL, Ord)
+{
+	/* option : no 改行のあるなし*/
+	No = getopt(no);	
+	Notype = type(No);
+
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	NM = nm(P);
+	DN = dn(P);
+	if (DN != 1) {
+		Flag = 1;
+		print("1/(" + rtostr(DN) + ")*(", 2);
+	}
+	DP = dp_ptod(NM, VL);
+	print_dp_dtop(DP, VL);
+	if (Flag == 1) {
+		print(")", 2);
+	} else {
+		print("", 2);
+	}
+	if (Notype == -1) {
+		print("");
+	} 
+	dp_ord(Tmp);
+	0; /* dummy */
+}
+
+def poly_cmp(P, Q, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	DQ = dp_ptod(Q, VL);
+	HP = dp_ht(DP);
+	HQ = dp_ht(DQ);
+
+	/* when Ord is matrix */
+	if (type(Ord) == 6) {
+		M = size(Ord)[0];
+		N = size(Ord)[1];
+		WP = ord_weight(HP, Ord, M);	
+		WQ = ord_weight(HQ, Ord, M);	
+	}
+#if 0
+	print("HP :" + rtostr(HP));
+	print(WP);
+	print("HQ :" + rtostr(HQ));
+	print(WQ);
+#endif
+
+	if (HP > HQ) {
+		Cmp = 1;
+	} else if (HP == HQ) {
+		Cmp = 0;
+	} else {
+		Cmp = -1;
+	}
+	dp_ord(Tmp);
+	return Cmp;
+}
+
+def poly_cmp_sort(P, Q)
+{
+	DP = dp_ptod(P, SortVL);
+	DQ = dp_ptod(Q, SortVL);
+	HP = dp_ht(DP);
+	HQ = dp_ht(DQ);
+
+	if (HP > HQ) {
+		Cmp = 1;
+	} else if (HP == HQ) {
+		Cmp = 0;
+	} else {
+		Cmp = -1;
+	}
+	return Cmp;
+}
+
+def poly_weight(P, VL, A)
+{
+	Tmp = dp_ord();	
+	dp_ord(Ord);
+	M = size(A)[0];
+	N = size(A)[1];
+	DP = dp_ptod(P, VL);
+	L = ord_weight(DP, A, M);	
+	dp_ord(Tmp);	
+	return L;
+}
+
+def ord_weight(DP, A, M)
+{
+	N = size(A)[1];
+	L = [];
+	V = dp_etov(DP);
+	for (I = 0; I < M; I++) {
+		W = 0;
+		for (J = 0; J < N; J++)	
+			W += A[I][J] * V[J];
+		L = cons(W, L);
+	}
+	return reverse(L);	
+}
+
+def ord_show_poly1(P, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+
+	W = [];
+	VL1 = [x,t,h,s,dx,dt,dh,ds];
+	while (P != 0) {
+		T = hm(P, VL1, Ord);	
+		TT = [T, poly_weight(T, VL1, Ord)];
+		W = cons(TT, W);
+		P = rest(P, VL1, Ord);
+	}
+	dp_ord(Tmp);
+	
+	V = newvect(length(W), W);
+	qsort(V, mysort);
+	vectshow(V);
+	return V;
+}
+
+def ord_show_all1(N, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+
+	W = [];
+	VL1 = [x,t,h,s,dx,dt,dh,ds];
+	Sum = 0;
+	for (I1 = 0; I1 <= N; I1++)
+	 for (I2 = 0; I2 <= N; I2++)
+	  for (I3 = 0; I3 <= N; I3++)
+	   for (I4 = 0; I4 <= N; I4++)
+	    for (I5 = 0; I5 <= N; I5++) 
+	     for (I6 = 0; I6 <= N; I6++) {
+	      T = <<I1,I2,I3,I4,I5,I6,0,0>>;
+	      TT = [T, ord_weight(T, Ord, 8)];
+	      W = cons(TT, W);     
+	      Sum += T;
+	     }
+	     
+	dp_ord(Tmp);
+	
+	V = newvect(length(W), W);
+	qsort(V, mysort);
+	vectshow(V);
+	return [Sum, V];
+}
+
+def exp_sort(E1, E2)
+{
+	N = length(E1);
+	for (I = 0; I < N; I++)
+		if (E1[I] > E2[I])
+			return 1;
+		else if (E1[I] < E2[I])
+			return -1;	
+	return 0;
+}
+
+def mysort(L1, L2)
+{
+	return exp_sort(L1[1], L2[1]);
+}
+
+def listshow(L)
+{
+	N = length(L);
+	for (I = 0; I < N; I++)
+		print(L[I]);
+}
+
+def vectshow(V)
+{
+	N = size(V)[0];
+	for (I = 0; I < N; I++)
+		print(V[I]);
+}
+
+/*
+ * VL=[x1, ..., xN, h, s, dx1, ..., dxN, dh, ds] 
+ */
+def check_order(Ord, VL)
+{
+	Len = length(VL);
+	N = Len / 2 - 2;
+	/* xI dxI > h か check */
+	for (I = 0; I < N; I++) {
+		P = VL[I] * VL[I + Len / 2];
+		Q = h;
+		if (poly_cmp(P, Q, VL, Ord) == 0) {
+			print(rtostr(P) + " == h");
+		} else if (poly_cmp(P, Q, VL, Ord) == -1) {
+			print(rtostr(P) + " < h");
+		}
+	}
+}
+
+def sort_polylist(L, VL, Ord)
+{
+	SortVL = VL;
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	Vect = newvect(length(L), L);
+	qsort(Vect, poly_cmp_sort);
+	dp_ord(Tmp);
+	return vtol(Vect);
+}
+
+def divisibleterms(F, G, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	HF = dp_ptod(F, VL);
+	HG = map(dp_ptod, G, VL);
+	N = length(HG);
+	Result = [];
+	while (HF != 0) {
+		for (I = 0; I < N; I++)
+			if (dp_redble(HF, HG[I])) {
+				Result = cons(dp_hm(HF), Result);
+				break;
+			}
+		HF = dp_rest(HF);
+	}
+	Result = reverse(Result);
+	Result = map(dp_dtop, Result, VL);
+	dp_ord(Tmp);
+	return Result;
+}
+
+def terms(P, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	L = [];
+	while (P != 0) {
+		L = cons(ht(P, VL, Ord), L);
+		P = rest(P, VL, Ord);
+	}	
+	L = reverse(L);
+	dp_ord(Tmp);
+	return L;
+}
+
+def l_sum(L)
+{
+	N = length(L);
+	for (I = 0, Sum = 0; I < N; I++)
+		Sum += L[I];	
+	return Sum;
+}
+
+/* P から T 以上の項を取りだす */
+def pick_term_bigger(P, T, VL, Ord)
+{
+	Sum = 0;
+	while (poly_cmp(P, T, VL, Ord) >= 0) {
+		Sum += hm(P, VL, Ord);
+		P = rest(P, VL, Ord);	
+	}
+	return Sum;
+}
+
+/* P から項のリスト L と一致する項を取りだす */
+def pick_term(P, L, VL, Ord)
+{
+	Sum = 0;
+	N = length(L);
+	H = hm(P, VL, Ord);	
+	R = rest(P, VL, Ord);
+	while (H != 0) {
+		for (I = 0; I < N; I++) {
+			T = ht(H, VL, Ord);
+			if (T == L[I]) {
+				Sum += H;
+				break;
+			}
+		}
+		H = hm(R, VL, Ord);	
+		R = rest(R, VL, Ord);
+	}
+	return Sum;
+}
+
+def sublist(L,IndexL)
+{
+	N = length(IndexL);
+	LL = [];
+	for (I = 0; I < N; I++)
+		LL = cons(L[IndexL[I]], LL);
+	return reverse(LL);
+}
+
+/* S <= E */
+def numlist(S, E)
+{
+	L = [];
+	for (I = S; I <= E; I++)
+		L = cons(I, L);
+	return reverse(L);	
+}
+
+def tail(P, VL, Ord)
+{
+	H = hm(P, VL, Ord);
+	P = rest(P, VL, Ord);
+	while (P != 0) {
+		H = hm(P, VL, Ord);
+		P = rest(P, VL, Ord);
+	}
+	return H;	
+}
+
+/* [x1, ... , xn, dx1, ... , dxn] -> [[x1, ..., xn], [dx1, ..., dxn]] */
+def pick_d(L)
+{
+	LL = [];
+	Other = [];
+	while (L != []) {
+		T = car(L);
+		L = cdr(L);
+		Str = rtostr(T);
+		if (str_len(Str) > 1 && sub_str(Str, 0, 0) == "d") 
+			LL = cons(T, LL);
+		else
+			Other = cons(T, Other);
+	}
+	LL = reverse(LL);
+	Other = reverse(Other);
+	return [LL, Other];
+}
+
+/* VL = [x1, ..., xn, dx1, ... , dxn] 
+ * VLL = [x1, ..., xn, L[0], ... , L[N - 1], 
+ *        dx1, ... ,dxn, d L[0], ... d L[N-1]]
+ */
+def make_varlist(VL, L)
+{
+	LL = pick_d(VL);
+	for (DL = [], I = 0; I < length(L); I++)
+		DL = cons(strtov("d" + rtostr(L[I])), DL);
+	DL = reverse(DL);
+	VLL = append(LL[1], L);
+	VLL = append(VLL, LL[0]);
+	VLL = append(VLL, DL);
+	return VLL;
+}
+
+/* 
+ * [x1, ..., xn, t, s, dx1, ..., dxn, dt, dt] 
+ * -> [x1, ... , xn, dx1, ..., dxn]
+ */
+def cut_var(VL)
+{
+	N = length(VL);
+	VLL = [];
+	for (I = 0; I < N / 2 - 2; I++) 
+		VLL = cons(VL[I], VLL);
+	for (I = N / 2; I < N - 2; I++)
+		VLL = cons(VL[I], VLL);
+	return reverse(VLL);
+}
+
+/* 
+ * [x1, ..., xn, t, h, s, dx1, ..., dxn, dt, dh, ds] 
+ * -> [x1, ... , xn, dx1, ..., dxn]
+ */
+def h_cut_var(VL)
+{
+	N = length(VL);
+	VLL = [];
+	for (I = 0; I < N / 2 - 3; I++) 
+		VLL = cons(VL[I], VLL);
+	for (I = N / 2; I < N - 3; I++)
+		VLL = cons(VL[I], VLL);
+	return reverse(VLL);
+}
+
+def myunion(L)
+{
+	N = length(L);
+	V = newvect(N);
+	for (I = 0; I < N; I++) 
+		for (J = I + 1; J < N; J++) 
+			if (V[J] == 0) 
+				if (L[I] == L[J])
+					V[J] = 1;
+			
+	for (LL = [], I = 0; I < N; I++)
+		if (V[I] == 0)
+			LL = cons(L[I], LL);  
+	return LL;
+}
+
+def flat(L)
+{
+	N = length(L);
+	for (LL = [], I = 0; I < N; I++)
+		LL = append(LL, L[I]);
+	return LL;
+}
+
+/* return L1 \minus L2 */
+def cut_set(L1, L2)
+{
+	L = [];
+	M = length(L1);
+	N = length(L2);
+	for (I = 0; I < M; I++) {
+		for (J = 0; J < N; J++) 
+			if (L1[I] == L2[J]) 
+				break;
+		if (J == N)
+			L = cons(L1[I], L);
+	}
+	return reverse(L);
+}
+
+def count_term(DP)
+{
+	Count = 0;
+	while (DP != 0) {
+		DP = dp_rest(DP);
+		Count++;
+	}
+	return Count;
+}
+
+/* "E \in L" true or false ? */
+def is_element(E, L)
+{
+	Len = length(L);
+	for (I = 0; I < Len; I++) {
+		if (E == L[I])
+			return 1;
+	}
+	return 0;
+}
+
+/* "L \subset VL" true or false ? */
+def is_subset(L, VL)
+{
+	Len = length(L);
+	Vlen = length(VL);
+	for (I = 0; I < Len; I++) {
+		for (J = 0; J < Vlen; J++) {
+			if (L[I] == VL[J])
+				break;
+		}
+		if (J == Vlen)
+			return 0;
+	}
+	return 1;
+}
+
+/* L の元で変数リストが VL に入るものを返す */
+def pick_term_vars(L, VL)
+{
+	LL = [];
+	Rest = [];
+	while (L != []) {
+		T = car(L);
+		L = cdr(L);
+		if (is_subset(vars(T), VL))
+			LL = cons(T, LL);
+		else
+			Rest = cons(T, Rest);
+	}
+	return [reverse(LL), reverse(Rest)];
+}
+
+def gen_index(L)
+{
+	N = length(L);
+	V = newvect(N);
+	for (I = 0; I < N; I++)
+		V[I] = I;
+	return vtol(V);
+}
+
+def weyl_mul(P, Q, VL)
+{
+	DP = dp_ptod(P, VL);
+	DQ = dp_ptod(Q, VL);
+	return dp_dtop(dp_weyl_mul(DP, DQ), VL);
+}
+
+def td_ht(P, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DP = dp_ptod(P, VL);
+	TD = dp_td(DP);
+	dp_ord(Tmp);
+	return TD;
+}
+endmodule$
+end$
