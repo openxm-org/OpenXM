@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.4 2007/09/29 07:29:29 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.5 2009/02/22 02:34:40 ohara Exp $
 
 # targets:
 # all
@@ -15,6 +15,7 @@ configure:
 install :
 	-(cd testing ; ${MAKE} link-to-src)
 	(cd packages/src ; ${MAKE} install)
+	-(cd plugin ; ${MAKE} install)
 
 clean :
 	-${RM} -r .*done packages/src/.*done config.log config.status autom4te.cache
