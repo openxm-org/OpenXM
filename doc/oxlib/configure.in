@@ -1,0 +1,18 @@
+dnl  $OpenXM$
+dnl  If you change this file, do not forget to run autoconf and rm .configure_done
+
+
+AC_INIT(test.c)
+AC_PROG_CC
+AC_PROG_RANLIB
+
+dnl check if it is MacOS X by heuristic. If so, use static link.
+AC_PATH_PROG(MDUTIL,mdutil,none)
+if test x"$MDUTIL" = x"none"; then
+MYCC='gcc'
+else
+MYCC='gcc -D__DARWIN__'
+fi
+AC_SUBST(MYCC,[$MYCC])
+
+AC_OUTPUT(Makefile)

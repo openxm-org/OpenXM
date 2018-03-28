@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/doc/oxlib/test3.c,v 1.3 2000/03/16 08:25:35 noro Exp $ */
+/* $OpenXM: OpenXM/doc/oxlib/test3.c,v 1.4 2003/03/08 10:47:46 ohara Exp $ */
 #include <stdio.h>
+#include "hhh.h"
 #include <asir/ca.h>
 #include <asir/ox.h>
 #include <signal.h>
