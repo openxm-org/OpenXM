@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.22 2017/03/28 03:47:36 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.23 2017/09/07 05:56:32 takayama Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -130,6 +130,14 @@ ox_pari を利用するときはこのフラグを1にしておくことが望ましい.
 @item plot_by_bigfloat
 N のとき, 10進数での精度を N 桁として, bigfloat を用いて plot を行う.
 (デフォルトでは double を用いて plot を行う.)
+@item evalef
+0 の時 eval の引数が評価されたときそれ以上評価できなくなった場合, 不定元リストに
+登録される. たとえば eval(sin(0.1)) と実行すると sin(0.1) がそれ以上評価できないため
+不定元リストに登録される.
+1 の時は, 登録されない.
+初等関数の数値評価を繰り返し行う時はこのオプションを使用すべきである.
+(デフォルト値は 0.)
+@xref{ord}
 @end table
 \E
 \BEG
@@ -226,6 +234,15 @@ When you use ox_pari, it is recommended to set this flag 1.
 @item plot_by_bigfloat
 If its value N is not equal to zero, then plotting is done by bigfloat.
 (The double numbers are used as the default.)
+@item evalef
+When it is set to 0, the arguments of eval are registered to the list of
+indeterminants when arguments are no longer to be simplified.
+For example, when this flag is 0, sin(0.1) is registered to the list of 
+indeterminants when eval(sin(0.1)) is evaluated.
+When it is set to 1, arguments are numerically evaluated.
+It is recommended to turn on this option, when you repeat to evaluate elementary functions numerically.
+(The default value is 0.)
+@xref{ord}
 @end table
 \E
 @end itemize

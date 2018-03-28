@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.54 2017/08/31 01:24:33 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.55 2018/03/27 02:58:46 takayama Exp $
 \input texinfo-ja
 @iftex
 @catcode`@#=6
@@ -38,13 +38,13 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2014 年 12 月
+@subtitle 2018 年 3 月
 
 @author  by Risa/Asir committers
 @page
 @vskip 0pt plus 1filll
 Copyright @copyright{} Risa/Asir committers
-2004--2010. All rights reserved.
+2004--2018. All rights reserved.
 @end titlepage
 
 @comment --- おまじない ---
@@ -96,6 +96,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * f_res::
 * fj_simp.simplify::
 * flatten_quote::
+* function::
 * get_struct_name get_element_names get_element_at put_element_at::
 * getpid::
 * initialize_static_variable::
@@ -518,7 +519,7 @@ ChangeLog
 @item
  2004-6-26 の計算代数セミナーにおいて, 中川さんが simplifier についていろいろ問題提起
 をした (計算代数セミナービデオ参照).
-@item parse/quote.c の {\tt strcut fid_spec fid_spec_tab[] }
+@item parse/quote.c の strcut fid_spec fid_spec_tab[]
 の部分に書いてある形式に @code{funargs_to_quote} は変換する.
 @end itemize
 
@@ -2592,6 +2593,46 @@ ChangeLog
 
 @comment ****************************************************************
 
+@node function,,, 言語
+@subsection @code{function}
+@findex function
+
+@table @t
+@item function 宣言することにより函数形式の不定元を生成できる.
+@end table
+
+@comment --- 説明 ---
+@table @t
+@item function 宣言することにより函数形式の不定元を生成できる.
+@item 微分函数 diff はこの函数形式の不定元の微分をやはり函数形式の不定元として生成する.
+たとえば f@{1,2@}(x,y) は f を x について一階偏微分, y について 2階偏微分したもの.
+@item diff は合成関数としての処理も行う.
+@end table
+
+
+@example
+[1915] function f(x,y);
+[1916] F=f(f(x,y),y)$
+[1917] diff(F,y);
+f@{1,0@}(f(x,y),y)*f@{0,1@}(x,y)+f@{0,1@}(f(x,y),y)
+[1918] vtype(f(p,q));
+2
+[1919] deg(diff(F,y),f@{0,1@}(x,y));
+1
+@end example
+
+@xref{vtype}
+@xref{diff}
+
+@comment --- ChangeLog
+@noindent
+ChangeLog
+@itemize @bullet
+@item  いつの commit で導入されたか不明.
+@end itemize
+
+@comment ****************************************************************
+
 @node 数論・代数,,, 実験的仕様の関数
 @section 数論・代数
 
@@ -3127,7 +3168,7 @@ $J$
 を計算し, Gauss の超幾何微分方程式を導出した例である. ([SST, Chap 1.3])
 @end iftex
 @ifinfo
-t^{b-1} (1-t)^{c-b-1} (1-xt)^{-a}
+t^@{b-1@} (1-t)^@{c-b-1@} (1-xt)^@{-a@}
 の annihilator
 I = D . @{ x(1-x)dx^2+((1-t)dt-(a+b+1)x+c-1)dx-ab,
  (1-t)x dx+t(1-t)dt+(2-c)t+b-1, (xt-1)dx+at @}
@@ -3144,7 +3185,7 @@ I = D . @{ x(1-x)dx^2+((1-t)dt-(a+b+1)x+c-1)dx-ab,
 -- generic_bfct_and_gr :0.008001sec(0.006181sec)
 generic bfct : [[-1,1],[s,1],[s-a+c-1,1]]
 S0 : 0
-B_{S0} length : 1
+B_@{S0@} length : 1
 -- fctr(BF) + base :0sec(0.003848sec)
 -- integration_ideal_internal :0sec(0.07707sec)
 [[(x^2-x)*dx^2+((a+b+1)*x-c)*dx+b*a],[[[[dt,(-t+1)*dx]],1]]]
@@ -3264,7 +3305,7 @@ I = < dt +(3t^2-1)x, dx+t^3-t >
 -- generic_bfct_and_gr :0.012sec(0.0129sec)
 generic bfct : [[1,1],[s,1],[s-2,1]]
 S0 : 2
-B_{S0} length : 3
+B_@{S0@} length : 3
 -- fctr(BF) + base :0.008sec(0.007395sec)
 -- integration_ideal_internal :0.012sec + gc : 0.016sec(0.04311sec)
 [-27*x^3*dx^3-54*x^2*dx^2+(4*x^3+3*x)*dx+4*x^2-3,27*x^2*dx^4+135*x*dx^3+(-4*x^2+105)*dx^2-16*x*dx-8]
@@ -3319,7 +3360,7 @@ $ I = \langle (n-k+1)E_n-(n+1), (k+1)E_k-(n-k) \rangle $
 であるから, これを入力として次のように計算を行う.
 @end iftex
 @ifinfo
-\sum_{k=a}^b n_C_k
+\sum_@{k=a@}^b n_C_k
 の非和関数の満たすホロノミックイデアルは
 I = < (n-k+1)E_n-(n+1), (k+1)E_k-(n-k) >
 であるから, これを入力として次のように計算を行う.
@@ -3335,7 +3376,7 @@ I = < (n-k+1)E_n-(n+1), (k+1)E_k-(n-k) >
 -- generic_bfct_and_gr :0.01sec(0.007085sec)
 generic bfct : [[1,1],[s,1]]
 S0 : 0
-B_{S0} length : 1
+B_@{S0@} length : 1
 -- fctr(BF) + base :0.003333sec(0.001785sec)
 -- restriction_ideal_internal :0sec(0.002336sec)
 [[(en-2)*n+en-2],[[[[ek-1,[(-en+1)*n-en+1,1]]],1]]]
@@ -3598,7 +3639,7 @@ y の値が外側ループ, x の値が内側ループの形式で増える.
 [1590] tk_pfn.testgraph1();
 
 ここで testgraph1() は以下のとおり. 
-def testgraph1() {
+def testgraph1() @{
   /* tk_bess2.bess2pf(1/2); */
   Pf=  [[[ 0, (1)/(x), 0 ],
          [ -x, (2*x^2+1)/(x), -2*x ],
@@ -3611,7 +3652,7 @@ def testgraph1() {
   Dom=[[0.5,1.5],[1.5,9]];
   Step = 0.5;
   return tk_pfn.graph(Pf,Dom,Iv,Step | fit=1);  
-}
+@}
 
 
 @end example
@@ -3666,11 +3707,11 @@ ChangeLog
 ここで test4() は以下のとおり. 振動の方程式, y0'=y1, y1'=-y0 (y0''+y0=0). 答は y0=cos(x)
 taka_plot_auto は下方向で y が正.
 
-def test4() {
+def test4() @{
   A=runge_kutta_4([y1,-y0],x,[y0,y1],0,[1,0],3.14*2,0.1);
   taka_plot_auto(A);
   return(A);
-}
+@}
 
 @end example
 
