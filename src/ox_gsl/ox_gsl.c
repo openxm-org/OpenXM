@@ -1,8 +1,10 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.1 2018/03/29 05:47:11 takayama Exp $
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <setjmp.h>
+#include <string.h>
 #include "ox_toolkit.h"
 
 OXFILE *fd_rw;
@@ -16,11 +18,11 @@ static cmo **stack = NULL;
 
 int Debug=1;
 
-int show_stack_top() {
+void show_stack_top() {
   cmo *data;
   if (stack_pointer > 0) {
     data=stack[stack_pointer-1];
-    printf("tag=%d\n",data->tag);
+    print_cmo(data); printf("\n");
   }else {
     printf("The stack is empty.\n");
   }
@@ -31,14 +33,14 @@ void init_gc()
   GC_INIT();
 }
 
-int initialize_stack()
+void initialize_stack()
 {
     stack_pointer = 0;
     stack_size = INIT_S_SIZE;
     stack = malloc(stack_size*sizeof(cmo*));
 }
 
-static int extend_stack()
+static void extend_stack()
 {
     int size2 = stack_size + EXT_S_SIZE;
     cmo **stack2 = malloc(size2*sizeof(cmo*));
@@ -48,7 +50,7 @@ static int extend_stack()
     stack_size = size2;
 }
 
-int push(cmo* m)
+void push(cmo* m)
 {
     stack[stack_pointer] = m;
     stack_pointer++;
@@ -79,8 +81,44 @@ void pops(int n)
 
 int sm_mathcap()
 {
-    mathcap_init(OX_GSL_VERSION, ID_STRING, "ox_gsl", NULL, NULL);
-    push(oxf_cmo_mathcap(fd_rw));
+  int available_cmo[]={
+    CMO_NULL,
+    CMO_INT32,
+//    CMO_DATUM,
+    CMO_STRING,
+    CMO_MATHCAP,
+    CMO_LIST,
+//    CMO_MONOMIAL32,
+    CMO_ZZ,
+//    CMO_QQ,
+    CMO_BIGFLOAT32,
+    CMO_COMPLEX,
+    CMO_IEEE_DOUBLE_FLOAT,
+    CMO_ZERO,
+//    CMO_DMS_GENERIC,
+//    CMO_RING_BY_NAME,
+//    CMO_INDETERMINATE,
+//    CMO_DISTRIBUTED_POLYNOMIAL,
+//    CMO_RECURSIVE_POLYNOMIAL,
+//    CMO_POLYNOMIAL_IN_ONE_VARIABLE,
+    CMO_ERROR2,
+    0};
+  int available_sm_command[]={
+    SM_popCMO,
+    SM_popString,
+    SM_mathcap,
+    SM_pops,
+//    SM_executeStringByLocalParser,
+    SM_executeFunction,
+    SM_setMathCap,
+    SM_shutdown,
+    SM_control_kill,
+    SM_control_reset_connection,
+    SM_control_spawn_server,
+    SM_control_terminate_server,
+    0};
+    mathcap_init(OX_GSL_VERSION, ID_STRING, "ox_gsl", available_cmo,available_sm_command);
+    push((cmo *)oxf_cmo_mathcap(fd_rw));
     return 0;
 }
 
@@ -95,9 +133,10 @@ int sm_popCMO()
     return SM_popCMO;
 }
 
-cmo_error2 *make_error2(int code)
+cmo *make_error2(int code)
 {
-    return new_cmo_int32(-1);
+    fprintf(stderr,"make_error2: not implemented.\n");
+    return ((cmo *)new_cmo_int32(-1));
 }
 
 int get_i()
@@ -107,25 +146,115 @@ int get_i()
         return ((cmo_int32 *)c)->i;
     }else if (c->tag == CMO_ZZ) {
         return mpz_get_si(((cmo_zz *)c)->mpz);
+    }else if (c->tag == CMO_NULL) {
+        return(0);
+    }else if (c->tag == CMO_ZERO) {
+        return(0);
     }
     make_error2(-1);
     return 0;
 }
 
-int get_xy(int *x, int *y)
+void get_xy(int *x, int *y)
 {
     pop();
     *x = get_i();
     *y = get_i();
 }
 
-int my_add_int32()
+void my_add_int32()
 {
     int x, y;
     get_xy(&x, &y);
-    push(new_cmo_int32(x+y));
+    push((cmo *)new_cmo_int32(x+y));
 }
 
+double get_double()
+{
+    cmo *c = pop();
+    if (c->tag == CMO_INT32) {
+        return( (double) (((cmo_int32 *)c)->i) );
+    }else if (c->tag == CMO_IEEE_DOUBLE_FLOAT) {
+        return ((cmo_double *)c)->d;  // see ox_toolkit.h
+    }else if (c->tag == CMO_ZZ) {
+        return( (double) mpz_get_si(((cmo_zz *)c)->mpz));
+    }else if (c->tag == CMO_NULL) {
+        return(0);
+    }else if (c->tag == CMO_ZERO) {
+        return(0);
+    }
+    make_error2(-1);
+    return 0;
+}
+
+void my_add_double() {
+  double x,y;
+  pop();
+  y = get_double();
+  x = get_double();
+  push((cmo *)new_cmo_double(x+y));
+}
+
+double *get_double_list(int *length) {
+  cmo *c;
+  cmo *entry;
+  cell *cellp;
+  double *d;
+  int n,i;
+  c = pop();
+  if (c->tag != CMO_LIST) {
+    make_error2(-1);
+    *length=-1; return(0);
+  }
+  n = *length = list_length((cmo_list *)c);
+  d = (double *) GC_malloc(sizeof(double)*(*length+1));
+  cellp = list_first((cmo_list *)c);
+  entry = cellp->cmo;
+  for (i=0; i<n; i++) {
+    if (Debug) {
+      printf("entry[%d]=",i); print_cmo(entry); printf("\n");
+    }
+    if (entry->tag == CMO_INT32) {
+      d[i]=( (double) (((cmo_int32 *)entry)->i) );
+    }else if (entry->tag == CMO_IEEE_DOUBLE_FLOAT) {
+      d[i]=((cmo_double *)entry)->d;  
+    }else if (entry->tag == CMO_ZZ) {
+      d[i]=( (double) mpz_get_si(((cmo_zz *)entry)->mpz));
+    }else if (entry->tag == CMO_NULL) {
+      d[i]= 0;
+    }else {
+      fprintf(stderr,"entries of the list should be int32 or zz or double\n");
+      make_error2(-1);
+      *length = -1;
+      return(NULL);
+    }
+    cellp = list_next(cellp);
+    entry = cellp->cmo;
+  }
+  return(d);
+}
+void show_double_list() {
+  int n;
+  double *d;
+  int i;
+  pop(); // pop argument number;
+  d = get_double_list(&n);
+  printf("show_double_list: length=%d\n",n);
+  for (i=0; i<n; i++) {
+    printf("%lg, ",d[i]);
+  }
+  printf("\n");
+}
+
+char *get_string() {
+  cmo *c;
+  c = pop();
+  if (c->tag == CMO_STRING) {
+    return (((cmo_string *)c)->s);
+  }
+  make_error2(-1);
+  return(NULL);
+}
 
 int sm_executeFunction()
 {
@@ -134,12 +263,21 @@ int sm_executeFunction()
         push(make_error2(0));
         return -1;
     }
+    // Test functions
     if (strcmp(func->s, "add_int32") == 0) {
         my_add_int32();
+    }else if (strcmp(func->s,"add_double")==0) {
+        my_add_double();
+    }else if (strcmp(func->s,"show_double_list")==0) {
+        show_double_list();
+    // The following functions are defined in call_gsl.c
+    }else if (strcmp(func->s,"gsl_sf_lngamma_complex_e")==0) {
+        call_gsl_sf_lngamma_complex_e();
     }else {
         push(make_error2(0));
         return -1;
-    }
+    } 
+    return(0);
 }
 
 
@@ -162,6 +300,7 @@ int receive_and_execute_sm_command()
     default:
                 ;
     }
+    return(0);
 }
 
 int receive()
@@ -184,16 +323,31 @@ int receive()
     return 0;
 }
 
+jmp_buf Ox_env;
+
+void usr1_handler(int sig)
+{
+  longjmp(Ox_env,1);
+}
+
 int main()
 {
+  if ( setjmp(Ox_env) ) {
+    fprintf(stderr,"resetting libgsl and sending OX_SYNC_BALL...");
+    initialize_stack();
+    send_ox_tag(fd_rw,OX_SYNC_BALL);
+    fprintf(stderr,"done\n");
+  }else{
     ox_stderr_init(stderr);
     initialize_stack();
     init_gc();
-
     fd_rw = oxf_open(3);
     oxf_determine_byteorder_server(fd_rw);
-
-    while(1) {
-        receive();
-    }
+  }
+  signal(SIGUSR1,usr1_handler);
+  
+  while(1) {
+    receive();
+  }
+  return(0);
 }
