@@ -19,6 +19,17 @@ GEN cmo_int32_to_GEN(cmo_int32 *c)
   return z;
 }
 
+GEN cmo_string_to_GEN(cmo_string *c)
+{
+  GEN z;
+  int l;
+
+  l = strlen(c->s);
+  z = cgetg(l+1,t_STR);
+  strcpy(GSTR(z),c->s);
+  return z;
+}
+
 GEN cmo_zz_to_GEN(cmo_zz *c)
 {
   mpz_ptr mpz;
@@ -140,6 +151,14 @@ GEN cmo_rp_to_GEN(cmo_recursive_polynomial *c)
   default:
     return 0;
   }
+}
+
+cmo_zz *GEN_to_cmo_string(GEN z)
+{
+  cmo_string *c;
+
+  c = new_cmo_string(GSTR(z));
+  return c;
 }
 
 cmo_zz *GEN_to_cmo_zz(GEN z)
@@ -266,6 +285,8 @@ GEN cmo_to_GEN(cmo *c)
     return cmo_rp_to_GEN((cmo_recursive_polynomial *)c);
   case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
     return cmo_up_to_GEN((cmo_polynomial_in_one_variable *)c);
+  case CMO_STRING:
+    return cmo_string_to_GEN((cmo_string *)c);
   default:
     return 0;
   }
@@ -292,6 +313,8 @@ cmo *GEN_to_cmo(GEN z)
     return (cmo *)GEN_to_cmo_list(z);
   case t_MAT: /* matrix */
     return (cmo *)GEN_to_cmo_list(shallowtrans(z));
+  case t_STR: /* string */
+    return (cmo *)GEN_to_cmo_string(z);
   default:
     sprintf(buf,"GEN_to_cmo : unsupported type=%d",(int)typ(z));
     return (cmo *)make_error2(buf);
