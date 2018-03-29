@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.23 2017/09/07 05:56:32 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.24 2018/03/28 07:44:06 takayama Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -38,6 +38,12 @@
 @item ctrl("@var{switch}"[,@var{obj}])
 \JP :: 環境設定
 \EG :: Sets the value of @var{switch}.
+@item ctrl()
+\JP :: 環境の表示
+\EG :: Show the values of @var{switch}'s.
+@item ctrl(|desc=1)
+JP :: 環境およびその短い説明の表示
+\EG :: Show the values of @var{swtich}'s and short descriptions
 @end table
 
 @table @var
@@ -247,6 +253,17 @@ It is recommended to turn on this option, when you repeat to evaluate elementary
 \E
 @end itemize
 
+@example
+[1917] ctrl();
+[[oxpari_start,0],[oxpari_id,-1],... snip ....,[plot_by_bigfloat,0],[debug_plot,0]]
+[1918] map(print,ctrl(|desc=1));
+[oxpari_start,0,oxpari starting function.]
+[oxpari_id,-1,Id of ox_pari.]
+... snip ...
+[plot_by_bigfloat,0,If set to 1, computation is done by using MPFR bigfloat functions in ox_plot.]
+[debug_plot,0,If set to 1, ox_plot is executed with the message window.]
+@end example
+
 @table @t
 \JP @item 参照
 \EG @item References
@@ -257,6 +274,7 @@ It is recommended to turn on this option, when you repeat to evaluate elementary
 @noindent
 ChangeLog
 @itemize @bullet
+@item @xref{ChangeLog}
 \BEG
 @item plot_by_bigfloat switch is added on 2017.09.04. The following files are changed.
 \E
