@@ -1,6 +1,9 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.1 2018/03/29 11:52:18 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.2 2018/03/30 04:43:17 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "ox_toolkit.h"
@@ -36,3 +39,8 @@ char *get_string();
 
 cmo *pop();
 cmo *make_error2(const char *reason,const char *fname,int line,int code);
+
+int myfopen_w(char *fname);
+int myfputs(int fd,const char *s);
+int myfclose(int fd);
+

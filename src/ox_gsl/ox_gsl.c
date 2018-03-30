@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.2 2018/03/29 11:52:18 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.3 2018/03/30 04:43:16 takayama Exp $
 */
 
 #include <stdio.h>
@@ -154,11 +154,11 @@ cmo *make_error2(const char *reason,const char *fname,int line,int code)
     n = 5;
     argv = (cmo **) GC_malloc(sizeof(cmo *)*n);
     ms = (cmo *)new_cmo_string("Error"); argv[0] = ms; 
-    if (reason != NULL) s = (char *)GC_malloc(strlen(reason)+1);
-    else strcpy(s,"");
+    if (reason != NULL) {s = (char *)GC_malloc(strlen(reason)+1); strcpy(s,reason);
+    }else strcpy(s,"");
     ms = (cmo *) new_cmo_string(s); argv[1] = ms;
-    if (reason != NULL) s = (char *)GC_malloc(strlen(fname)+1);
-    else strcpy(s,"");
+    if (fname != NULL) {s = (char *)GC_malloc(strlen(fname)+1); strcpy(s,fname);
+    }else strcpy(s,"");
     ms = (cmo *) new_cmo_string(s); argv[2] = ms;
     err = (cmo *)new_cmo_int32(line); argv[3] = err;
     err = (cmo *)new_cmo_int32(code); argv[4] = err;
@@ -179,7 +179,7 @@ int get_i()
     }else if (c->tag == CMO_ZERO) {
         return(0);
     }
-    myhandler("get_i, not an integer",NULL,0,-1);
+    myhandler("get_i: not an integer",NULL,0,-1);
     return 0;
 }
 
@@ -208,7 +208,7 @@ double get_double()
     }else if (c->tag == CMO_ZZ) {
        if ((mpz_cmp_si(mympz(c),(long int) 0x7fffffff)>0) ||
            (mpz_cmp_si(mympz(c),(long int) -0x7fffffff)<0)) {
-	 myhandler("get_double, out of int32",NULL,0,-1);
+	 myhandler("get_double: out of int32",NULL,0,-1);
          return(NAN);
        }
        return( (double) mpz_get_si(((cmo_zz *)c)->mpz));
@@ -217,7 +217,7 @@ double get_double()
     }else if (c->tag == CMO_ZERO) {
         return(0);
     }
-    myhandler("get_double, not a double",NULL,0,-1);
+    myhandler("get_double: not a double",NULL,0,-1);
     return(NAN);
 }
 
@@ -382,13 +382,12 @@ void myhandler(const char *reason,const char *file,int line, int gsl_errno) {
   fprintf(fp,"%d\n",line);
   if (file != NULL) fprintf(fp,"%s\n",file); else fprintf(fp,"file?\n");
   if (reason != NULL) fprintf(fp,"%s\n",reason); else fprintf(fp,"reason?\n");
-  fflush(NULL); fclose(fp);  // BUG. the contents are deleted after it is closed.
+  fflush(NULL); fclose(fp); 
   // m = make_error2(reason,file,line,gsl_errno);
   //  send_ox_cmo(fd_rw, m);  ox_flush(fd_rw); 
   // send error packet even it is not asked. Todo, OK? --> no
   restart();
 }
-
 void push_error_from_file() {
   FILE *fp;
 #define BUF_SIZE 1024
@@ -400,12 +399,15 @@ void push_error_from_file() {
   cmo *m;
   fprintf(stderr,"push_error_from_file()\n");
   sprintf(logname,"/tmp/ox_gsl-%d.txt",(int) getpid());
-  fp = fopen(logname,"w");
-  if (fp == NULL) return;
+  fp = fopen(logname,"r");
+  if (fp == NULL) {
+    fprintf(stderr,"open %s is failed\n",logname); return;
+  }
   fgets(cmd,BUF_SIZE-2,fp); sscanf(cmd,"%d",&gsl_errno);
   fgets(cmd,BUF_SIZE-2,fp); sscanf(cmd,"%d",&line);
-  fgets(file,BUF_SIZE-2,fp);
-  fgets(reason,BUF_SIZE-2,fp);
+#define remove_newline(s) {char *tmp_pos; if ((tmp_pos=strchr(s,'\n')) != NULL) *tmp_pos = '\0';}
+  fgets(file,BUF_SIZE-2,fp);  remove_newline(file);
+  fgets(reason,BUF_SIZE-2,fp); remove_newline(reason);
   fclose(fp);
   m = make_error2(reason,file,line,gsl_errno);
   push(m);
