@@ -1,11 +1,14 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.1 2018/03/29 05:47:11 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.2 2018/03/29 11:52:18 takayama Exp $
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
 #include <string.h>
-#include "ox_toolkit.h"
+#include <unistd.h>
+#include <math.h>
+#include "ox_gsl.h"
+#include "call_gsl.h" // need only when you bind call_gsl functions.
 
 OXFILE *fd_rw;
 
@@ -28,16 +31,22 @@ void show_stack_top() {
   }
 }
 
+void *gc_realloc(void *p,size_t osize,size_t nsize)
+{ return (void *)GC_realloc(p,nsize);}
+
+void gc_free(void *p,size_t size)
+{ GC_free(p);}
+
 void init_gc()
-{
-  GC_INIT();
+{ GC_INIT();
+  mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
 }
 
 void initialize_stack()
 {
     stack_pointer = 0;
     stack_size = INIT_S_SIZE;
-    stack = malloc(stack_size*sizeof(cmo*));
+    stack = GC_malloc(stack_size*sizeof(cmo*));
 }
 
 static void extend_stack()
@@ -133,10 +142,29 @@ int sm_popCMO()
     return SM_popCMO;
 }
 
-cmo *make_error2(int code)
+cmo *make_error2(const char *reason,const char *fname,int line,int code)
 {
-    fprintf(stderr,"make_error2: not implemented.\n");
-    return ((cmo *)new_cmo_int32(-1));
+// gsl_error_handler_t void handler(const char *reason,const char *file,int line, int gsl_errno)
+    cmo *ms;
+    cmo *err;
+    cmo *m;
+    cmo **argv;
+    int n;
+    char *s;
+    n = 5;
+    argv = (cmo **) GC_malloc(sizeof(cmo *)*n);
+    ms = (cmo *)new_cmo_string("Error"); argv[0] = ms; 
+    if (reason != NULL) s = (char *)GC_malloc(strlen(reason)+1);
+    else strcpy(s,"");
+    ms = (cmo *) new_cmo_string(s); argv[1] = ms;
+    if (reason != NULL) s = (char *)GC_malloc(strlen(fname)+1);
+    else strcpy(s,"");
+    ms = (cmo *) new_cmo_string(s); argv[2] = ms;
+    err = (cmo *)new_cmo_int32(line); argv[3] = err;
+    err = (cmo *)new_cmo_int32(code); argv[4] = err;
+
+    m = (cmo *)new_cmo_list_array((void *)argv,n);
+    return (m);
 }
 
 int get_i()
@@ -151,7 +179,7 @@ int get_i()
     }else if (c->tag == CMO_ZERO) {
         return(0);
     }
-    make_error2(-1);
+    myhandler("get_i, not an integer",NULL,0,-1);
     return 0;
 }
 
@@ -171,20 +199,26 @@ void my_add_int32()
 
 double get_double()
 {
+#define mympz(c) (((cmo_zz *)c)->mpz)
     cmo *c = pop();
     if (c->tag == CMO_INT32) {
         return( (double) (((cmo_int32 *)c)->i) );
     }else if (c->tag == CMO_IEEE_DOUBLE_FLOAT) {
-        return ((cmo_double *)c)->d;  // see ox_toolkit.h
+        return (((cmo_double *)c)->d);  // see ox_toolkit.h
     }else if (c->tag == CMO_ZZ) {
-        return( (double) mpz_get_si(((cmo_zz *)c)->mpz));
+       if ((mpz_cmp_si(mympz(c),(long int) 0x7fffffff)>0) ||
+           (mpz_cmp_si(mympz(c),(long int) -0x7fffffff)<0)) {
+	 myhandler("get_double, out of int32",NULL,0,-1);
+         return(NAN);
+       }
+       return( (double) mpz_get_si(((cmo_zz *)c)->mpz));
     }else if (c->tag == CMO_NULL) {
         return(0);
     }else if (c->tag == CMO_ZERO) {
         return(0);
     }
-    make_error2(-1);
-    return 0;
+    myhandler("get_double, not a double",NULL,0,-1);
+    return(NAN);
 }
 
 void my_add_double() {
@@ -203,7 +237,7 @@ double *get_double_list(int *length) {
   int n,i;
   c = pop();
   if (c->tag != CMO_LIST) {
-    make_error2(-1);
+//    make_error2("get_double_list",NULL,0,-1);
     *length=-1; return(0);
   }
   n = *length = list_length((cmo_list *)c);
@@ -224,8 +258,8 @@ double *get_double_list(int *length) {
       d[i]= 0;
     }else {
       fprintf(stderr,"entries of the list should be int32 or zz or double\n");
-      make_error2(-1);
       *length = -1;
+      myhandler("get_double_list",NULL,0,-1);
       return(NULL);
     }
     cellp = list_next(cellp);
@@ -239,6 +273,7 @@ void show_double_list() {
   int i;
   pop(); // pop argument number;
   d = get_double_list(&n);
+  if (n < 0) fprintf(stderr,"Error in the double list\n");
   printf("show_double_list: length=%d\n",n);
   for (i=0; i<n; i++) {
     printf("%lg, ",d[i]);
@@ -252,7 +287,7 @@ char *get_string() {
   if (c->tag == CMO_STRING) {
     return (((cmo_string *)c)->s);
   }
-  make_error2(-1);
+  // make_error2(-1);
   return(NULL);
 }
 
@@ -260,7 +295,7 @@ int sm_executeFunction()
 {
     cmo_string *func = (cmo_string *)pop();
     if (func->tag != CMO_STRING) {
-        push(make_error2(0));
+        push(make_error2("sm_executeFunction, not CMO_STRING",NULL,0,-1));
         return -1;
     }
     // Test functions
@@ -270,11 +305,13 @@ int sm_executeFunction()
         my_add_double();
     }else if (strcmp(func->s,"show_double_list")==0) {
         show_double_list();
+    }else if (strcmp(func->s,"restart")==0) {
+        pop(); restart();
     // The following functions are defined in call_gsl.c
     }else if (strcmp(func->s,"gsl_sf_lngamma_complex_e")==0) {
         call_gsl_sf_lngamma_complex_e();
     }else {
-        push(make_error2(0));
+        push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
     } 
     return(0);
@@ -324,19 +361,69 @@ int receive()
 }
 
 jmp_buf Ox_env;
-
+int Ox_intr_usr1=0;
 void usr1_handler(int sig)
 {
+  Ox_intr_usr1=1;
+  longjmp(Ox_env,1);
+}
+void restart() {
+  Ox_intr_usr1=0;
   longjmp(Ox_env,1);
 }
 
+void myhandler(const char *reason,const char *file,int line, int gsl_errno) {
+  cmo *m;
+  FILE *fp;
+  char logname[1024];
+  sprintf(logname,"/tmp/ox_gsl-%d.txt",(int) getpid());
+  fp = fopen(logname,"w");
+  fprintf(fp,"%d\n",gsl_errno);
+  fprintf(fp,"%d\n",line);
+  if (file != NULL) fprintf(fp,"%s\n",file); else fprintf(fp,"file?\n");
+  if (reason != NULL) fprintf(fp,"%s\n",reason); else fprintf(fp,"reason?\n");
+  fflush(NULL); fclose(fp);  // BUG. the contents are deleted after it is closed.
+  // m = make_error2(reason,file,line,gsl_errno);
+  //  send_ox_cmo(fd_rw, m);  ox_flush(fd_rw); 
+  // send error packet even it is not asked. Todo, OK? --> no
+  restart();
+}
+
+void push_error_from_file() {
+  FILE *fp;
+#define BUF_SIZE 1024
+  char logname[BUF_SIZE];
+  char cmd[BUF_SIZE];
+  char file[BUF_SIZE];
+  char reason[BUF_SIZE];
+  int gsl_errno, line;
+  cmo *m;
+  fprintf(stderr,"push_error_from_file()\n");
+  sprintf(logname,"/tmp/ox_gsl-%d.txt",(int) getpid());
+  fp = fopen(logname,"w");
+  if (fp == NULL) return;
+  fgets(cmd,BUF_SIZE-2,fp); sscanf(cmd,"%d",&gsl_errno);
+  fgets(cmd,BUF_SIZE-2,fp); sscanf(cmd,"%d",&line);
+  fgets(file,BUF_SIZE-2,fp);
+  fgets(reason,BUF_SIZE-2,fp);
+  fclose(fp);
+  m = make_error2(reason,file,line,gsl_errno);
+  push(m);
+  sprintf(cmd,"rm -f %s",logname);
+  system(cmd);
+}
 int main()
 {
   if ( setjmp(Ox_env) ) {
-    fprintf(stderr,"resetting libgsl and sending OX_SYNC_BALL...");
+    fprintf(stderr,"resetting libgsl ..."); 
     initialize_stack();
-    send_ox_tag(fd_rw,OX_SYNC_BALL);
+    if (Ox_intr_usr1) {
+      fprintf(stderr,"and sending OX_SYNC_BALL...");
+      send_ox_tag(fd_rw,OX_SYNC_BALL);
+    }
     fprintf(stderr,"done\n");
+    Ox_intr_usr1=0;
+    push_error_from_file();
   }else{
     ox_stderr_init(stderr);
     initialize_stack();

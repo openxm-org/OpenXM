@@ -1,6 +1,8 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.1 2018/03/29 11:52:18 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
+#include "gmp.h"
+#include "gmp-impl.h"
 #include "ox_toolkit.h"
 
 int sm_mathcap();
@@ -15,6 +17,8 @@ double get_double();
 double *get_double_list(int *length);
 
 void init_gc();
+void *gc_realloc(void *p,size_t osize,size_t nsize);
+void gc_free(void *p,size_t size);
 void pops(int n);
 void show_double_list();
 void usr1_handler(int sig);
@@ -24,6 +28,11 @@ void push(cmo* m);
 void get_xy(int *x, int *y);
 void my_add_int32();
 void my_add_double();
+void restart();
+void push_error_from_file();
+void myhandler(const char *reason,const char *file,int line, int gsl_errno);
 
 char *get_string();
+
 cmo *pop();
+cmo *make_error2(const char *reason,const char *fname,int line,int code);
