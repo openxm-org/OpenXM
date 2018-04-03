@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.42 2016/07/14 08:16:19 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.43 2016/08/23 02:24:19 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
@@ -232,6 +232,7 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic*   new_cmo_dms_generic();
 cmo_ring_by_name*  new_cmo_ring_by_name(cmo* ob);
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
+cmo_indeterminate* new_cmo_indeterminate_set_name(char *s);
 cmo_polynomial_in_one_variable* new_cmo_polynomial_in_one_variable(int var);
 cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo_list* ringdef, cmo* coef);
 cmo_tree*          new_cmo_tree(cmo_string* name, cmo_list *attributes, cmo_list *leaves);
@@ -287,6 +288,7 @@ cmo_list*          list_appendl(cmo_list*, ...);
 int                list_length(cmo_list* );
 cmo*               list_nth(cmo_list* , int n);
 cmo*               list_first_cmo(cmo_list *);
+char*              cmo_indeterminate_get_name(cmo_indeterminate *);
 
 int                cmolen_cmo(cmo* m);
 void               dump_buffer_init(char *s);

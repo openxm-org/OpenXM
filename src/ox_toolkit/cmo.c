@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.26 2016/06/29 05:07:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.27 2016/06/30 01:14:00 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -107,6 +107,12 @@ cmo *list_nth(cmo_list* this, int n)
         return el->cmo;
     }
     return NULL;
+}
+
+char *cmo_indeterminate_get_name(cmo_indeterminate *this)
+{
+    cmo_string *ob = (cmo_string *)this->ob;
+    return ob->s;
 }
 
 /* for GNU mpz */
@@ -336,6 +342,11 @@ cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
     return c;
 }
 
+cmo_indeterminate* new_cmo_indeterminate_set_name(char *variable)
+{
+	return new_cmo_indeterminate(new_cmo_string(variable));
+}
+
 cmo_distributed_polynomial* new_cmo_distributed_polynomial()
 {
     cmo_distributed_polynomial* c = MALLOC(sizeof(cmo_distributed_polynomial));
@@ -482,7 +493,7 @@ char *new_string_set_cmo(cmo *m)
 
 int cmo_to_int(cmo *n)
 {
-  switch(n->tag) {
+    switch(n->tag) {
     case CMO_ZERO:
       return 0;
     case CMO_INT32:
@@ -491,5 +502,5 @@ int cmo_to_int(cmo *n)
       return mpz_get_si(((cmo_zz *)n)->mpz);
     default:
       return 0;
-  }
+    }
 }
