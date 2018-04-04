@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.4 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.5 2003/02/03 23:13:23 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -15,6 +15,9 @@ static void print_cmo_int32(cmo_int32* c);
 static void print_cmo_list(cmo_list* li);
 static void print_cmo_mathcap(cmo_mathcap* c);
 static void print_cmo_string(cmo_string* c);
+static void print_cmo_double(cmo_double* c);
+static void print_cmo_bf(cmo_bf* c);
+static void print_cmo_tree(cmo_tree* c);
 
 void print_cmo(cmo* c)
 {
@@ -46,6 +49,16 @@ void print_cmo(cmo* c)
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
         ox_printf(")");
+        break;
+    case CMO_BIGFLOAT:
+        print_cmo_bf((cmo_bf *)c);
+        break;
+    case CMO_IEEE_DOUBLE_FLOAT:
+    case CMO_64BIT_MACHINE_DOUBLE:
+        print_cmo_double((cmo_double *)c);
+        break;
+    case CMO_TREE:
+        print_cmo_tree((cmo_tree *)c);
         break;
     default:
         ox_printf("\nprint_cmo() does not know how to print cmo of type %d.\n", tag);
@@ -79,5 +92,28 @@ static void print_cmo_mathcap(cmo_mathcap* c)
 static void print_cmo_string(cmo_string* c)
 {
     ox_printf(", \"%s\")", c->s);
+}
+
+static void print_cmo_double(cmo_double* c)
+{
+    ox_printf(", %.14f)", c->d);
+}
+
+static void print_cmo_bf(cmo_bf* c)
+{
+	char buf[4096];
+    mpfr_sprintf(buf, ", %.12f)", c->mpfr);
+    ox_printf("%s", buf);
+}
+
+static void print_cmo_tree(cmo_tree* c)
+{
+    ox_printf(", ");
+    print_cmo(c->name);
+    ox_printf(", ");
+    print_cmo(c->attributes);
+    ox_printf(", ");
+    print_cmo(c->leaves);
+    ox_printf(")");
 }
 
