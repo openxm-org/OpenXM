@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.3 2018/03/30 04:43:16 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.4 2018/03/30 08:48:23 takayama Exp $
 */
 
 #include <stdio.h>
@@ -40,6 +40,7 @@ void gc_free(void *p,size_t size)
 void init_gc()
 { GC_INIT();
   mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
+  init_dic();  // initialize ox_eval.c
 }
 
 void initialize_stack()
@@ -110,6 +111,7 @@ int sm_mathcap()
 //    CMO_DISTRIBUTED_POLYNOMIAL,
 //    CMO_RECURSIVE_POLYNOMIAL,
 //    CMO_POLYNOMIAL_IN_ONE_VARIABLE,
+    CMO_TREE,
     CMO_ERROR2,
     0};
   int available_sm_command[]={
@@ -291,6 +293,36 @@ char *get_string() {
   return(NULL);
 }
 
+cmo_tree *get_tree() {
+  cmo *c;
+  c = pop();
+  if (c->tag == CMO_TREE) {
+    return ((cmo_tree *)c);
+  }
+  make_error2("cmo_tree is expected",NULL,0,-1);
+  return(NULL);
+}
+void print_tree(cmo_tree *c) {
+  if (c->tag != CMO_TREE) {
+    printf("Error: argument is not CMO_TREE\n");
+    return;
+  }
+  ox_printf("(name="); print_cmo((cmo *)(c->name)); ox_printf(",");
+  ox_printf("leaves="); print_cmo((cmo *)(c->leaves)); ox_printf(")");
+}  
+void test_ox_eval() {
+  cmo_tree *c;
+  double d=0;
+  pop();
+  c = get_tree();
+  if (Debug) {
+    ox_printf("cmo_tree *c="); print_tree(c); ox_printf("\n");
+  }
+  register_entry("x",1.25);
+  if (eval_cmo(c,&d) == 0) make_error2("eval_cmo failed",NULL,0,-1);
+  push((cmo *)new_cmo_double(d));
+}
+
 int sm_executeFunction()
 {
     cmo_string *func = (cmo_string *)pop();
@@ -307,6 +339,8 @@ int sm_executeFunction()
         show_double_list();
     }else if (strcmp(func->s,"restart")==0) {
         pop(); restart();
+    }else if (strcmp(func->s,"test_ox_eval")==0) {
+        test_ox_eval();
     // The following functions are defined in call_gsl.c
     }else if (strcmp(func->s,"gsl_sf_lngamma_complex_e")==0) {
         call_gsl_sf_lngamma_complex_e();

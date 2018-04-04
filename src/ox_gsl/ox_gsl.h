@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.2 2018/03/30 04:43:17 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.3 2018/03/30 08:48:23 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "ox_toolkit.h"
@@ -44,3 +45,6 @@ int myfopen_w(char *fname);
 int myfputs(int fd,const char *s);
 int myfclose(int fd);
 
+void test_ox_eval();
+cmo_tree *get_tree();
+void print_tree(cmo_tree *c);
