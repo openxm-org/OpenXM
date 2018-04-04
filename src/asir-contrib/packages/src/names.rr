@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.142 2017/03/31 03:08:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.143 2017/09/23 23:52:36 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
-load("oxrfc100.rr")$
+import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
@@ -30,33 +30,32 @@ def asir_contrib_revision() {
 }
 
 /* Include data type declaration. */
-load("datatype.rr")$
+import("datatype.rr")$
 #include "tags.h"
 /* Include a standard library. It should be included
    in a different place in a future. */
-load("sm1.rr")$
-load("gnuplot.rr")$
-load("tigers.rr")$
-load("phc.rr")$
-load("quote.rr")$  
-load("misc.rr")$ 
-load("tex_symbols.rr")$
-load("xml_basic_symbols.rr")$
-load("taka_print_cmo100.rr")$
-load("taka_util.rr")$
-load("taka_pfp.rr")$
-load("taka_weyl.rr")$
-load("plucker.rr")$
-load("oxshell.rr")$
-load("taka_ahg.rr")$
-load("mt_graph.rr")$
-load("oh_number.rr")$
+import("sm1.rr")$
+import("gnuplot.rr")$
+import("tigers.rr")$
+import("phc.rr")$
+import("quote.rr")$  
+import("tk_misc.rr")$ 
+import("tex_symbols.rr")$
+import("xml_basic_symbols.rr")$
+import("taka_print_cmo100.rr")$
+import("taka_util.rr")$
+import("taka_pfp.rr")$
+import("taka_weyl.rr")$
+import("plucker.rr")$
+import("oxshell.rr")$
+import("taka_ahg.rr")$
+import("mt_graph.rr")$
+import("oh_number.rr")$
 import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
 import("tk_asir_contrib_update.rr")$
-
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
 }else{;}
@@ -71,7 +70,7 @@ def ox_loadfile(Tag,FileName) {
   if (Result == 0) error("File "+FileName+" was not found.");
   return(1);
 }
-#define ox_loadfile_(A,B) load(B)
+#define ox_loadfile_(A,B) import(B)
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_noro_print,"noro_print.rr")$
 ox_loadfile_(Loaded_noro_print_default,"noro_print_default.rr")$
