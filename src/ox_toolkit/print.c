@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.5 2003/02/03 23:13:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.6 2018/04/04 09:44:09 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -17,6 +17,8 @@ static void print_cmo_mathcap(cmo_mathcap* c);
 static void print_cmo_string(cmo_string* c);
 static void print_cmo_double(cmo_double* c);
 static void print_cmo_bf(cmo_bf* c);
+static void print_cmo_zz(cmo_zz* c);
+static void print_cmo_qq(cmo_qq* c);
 static void print_cmo_tree(cmo_tree* c);
 
 void print_cmo(cmo* c)
@@ -49,6 +51,12 @@ void print_cmo(cmo* c)
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
         ox_printf(")");
+        break;
+    case CMO_ZZ:
+        print_cmo_zz((cmo_zz *)c);
+        break;
+    case CMO_QQ:
+        print_cmo_qq((cmo_qq *)c);
         break;
     case CMO_BIGFLOAT:
         print_cmo_bf((cmo_bf *)c);
@@ -97,6 +105,20 @@ static void print_cmo_string(cmo_string* c)
 static void print_cmo_double(cmo_double* c)
 {
     ox_printf(", %.14f)", c->d);
+}
+
+static void print_cmo_zz(cmo_zz* c)
+{
+	char buf[4096];
+    gmp_sprintf(buf, ", %Zd)", c->mpz);
+    ox_printf("%s", buf);
+}
+
+static void print_cmo_qq(cmo_qq* c)
+{
+	char buf[4096];
+    gmp_sprintf(buf, ", %Qd)", c->mpq);
+    ox_printf("%s", buf);
 }
 
 static void print_cmo_bf(cmo_bf* c)
