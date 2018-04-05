@@ -1,7 +1,8 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.1 2018/04/03 12:09:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.2 2018/04/05 05:53:52 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 #include "ox_toolkit.h"
@@ -10,9 +11,7 @@
 Usage:
 
 double d;
-init_dic();
-register_entry("x",1.25);
-register_entry("y",2.1);
+replace(3,"x",1.25,"y",-2.0, "z", 2.1);
 if(eval_cmo(your_cmo_tree,&d)==0) goto_error();
 */
 
@@ -22,6 +21,8 @@ if(eval_cmo(your_cmo_tree,&d)==0) goto_error();
 #define FAILED  0
 #define SUCCEED 1
 
+void replace(int n, ...);
+void replace2(int n, char *s[], double v[]);
 int eval_cmo(cmo *c, double *retval);
 
 static double op_add(double x,double y)
@@ -106,6 +107,29 @@ void init_dic()
     }
     local_dic_counter=0;
     memset(local_dic, 0, sizeof(entry)*LOCAL_DIC_SIZE);
+}
+
+void replace(int n, ...) 
+{
+    char *s;
+    double d;
+    va_list ap;
+    va_start(ap,n);
+    for(init_dic(); n>0; n--) {
+        s = va_arg(ap, char *);
+        d = va_arg(ap, double);
+        register_entry(s,d);
+    }
+    va_end(ap);
+}
+
+void replace2(int n, char *s[], double v[]) 
+{
+    int i;
+    init_dic();
+    for(i=0; i<n; i++) {
+        register_entry(s[i],v[i]);
+    }
 }
 
 static entry *find_entry(cmo *node, entry *dic)
