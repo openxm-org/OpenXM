@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.16 2005/07/20 17:48:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.17 2015/08/27 03:03:34 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -647,10 +647,13 @@ static struct symbol symbol_list[] = {
     MK_KEY_CMO(CMO_MONOMIAL32),
     MK_KEY_CMO(CMO_ZZ),
     MK_KEY_CMO(CMO_ZERO), 
+    MK_KEY_CMO(CMO_TREE),
     MK_KEY_CMO(CMO_DMS_GENERIC),
     MK_KEY_CMO(CMO_RING_BY_NAME),
     MK_KEY_CMO(CMO_INDETERMINATE),
     MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
+    MK_KEY_CMO(CMO_POLYNOMIAL_IN_ONE_VARIABLE),
+    MK_KEY_CMO(CMO_RECURSIVE_POLYNOMIAL),
     MK_KEY_CMO(CMO_ERROR2),
     MK_KEY_SM(SM_popCMO),   
     MK_KEY_SM(SM_popString), 
