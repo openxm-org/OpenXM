@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.27 2016/06/30 01:14:00 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.28 2018/04/03 09:58:30 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -105,6 +105,19 @@ cmo *list_nth(cmo_list* this, int n)
             el = list_next(el);
         }
         return el->cmo;
+    }
+    return NULL;
+}
+
+cell *list_nth_cell(cmo_list* this, int n)
+{
+    cell* el;
+    if(list_length(this) > n) {
+        el = list_first(this);
+        while(n-- > 0) {
+            el = list_next(el);
+        }
+        return el;
     }
     return NULL;
 }
