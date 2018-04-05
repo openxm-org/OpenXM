@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.4 2018/03/30 08:48:23 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.5 2018/04/04 01:03:59 takayama Exp $
 */
 
 #include <stdio.h>
@@ -307,8 +307,11 @@ void print_tree(cmo_tree *c) {
     printf("Error: argument is not CMO_TREE\n");
     return;
   }
+  print_cmo((cmo *)c);
+/*
   ox_printf("(name="); print_cmo((cmo *)(c->name)); ox_printf(",");
   ox_printf("leaves="); print_cmo((cmo *)(c->leaves)); ox_printf(")");
+*/
 }  
 void test_ox_eval() {
   cmo_tree *c;
@@ -318,6 +321,7 @@ void test_ox_eval() {
   if (Debug) {
     ox_printf("cmo_tree *c="); print_tree(c); ox_printf("\n");
   }
+  init_dic();
   register_entry("x",1.25);
   if (eval_cmo(c,&d) == 0) make_error2("eval_cmo failed",NULL,0,-1);
   push((cmo *)new_cmo_double(d));
