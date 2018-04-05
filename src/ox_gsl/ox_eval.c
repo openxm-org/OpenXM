@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.1 2018/04/03 12:09:46 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +18,9 @@ if(eval_cmo(your_cmo_tree,&d)==0) goto_error();
 
 #define FUNCTION_P(e)      (((e)!=NULL) && ((e)->f != NULL))
 #define VALUE_P(e)         (((e)!=NULL) && ((e)->f == NULL))
+
+#define FAILED  0
+#define SUCCEED 1
 
 int eval_cmo(cmo *c, double *retval);
 
@@ -198,6 +201,83 @@ static int eval_cmo_indeterminate(cmo_indeterminate *c, double *retval)
     return 0;
 }
 
+static double mypow(double x, int n)
+{
+    int i,k,f=0;
+    double s,t;
+    if (n==0) {
+        return 1;
+    }else if (n<0) {
+        n=-n;
+        f=1;
+    }
+    /* t=x^(2^i) */
+    s=1;
+    t=x;
+    for(k=n; k!=0; k=k>>1) {
+        if(k&1) {
+            s*=t;
+        }
+        t=t*t;
+    }
+    if (f>0) {
+        s = 1/s;
+    }
+    return s;
+}
+
+static int eval_cmo_polynomial_in_one_variable(cmo_polynomial_in_one_variable* c, double vars[], int n, double *retval)
+{
+    int i;
+    cell *cc;
+    double r,s=0;
+    double x = vars[c->var];
+    double *d=(double *)calloc(c->length, sizeof(double));
+    for(i=0; i<c->length; i++) {
+        cc = list_nth_cell((cmo_list *)c, i);
+        if (cc->cmo->tag == CMO_POLYNOMIAL_IN_ONE_VARIABLE) {
+            if(eval_cmo_polynomial_in_one_variable((cmo_polynomial_in_one_variable*)cc->cmo,vars,n,&r)==0) {
+                return 0;
+            }
+        }else {
+            if(eval_cmo(cc->cmo,&r)==0) {
+                return 0;
+            }
+        }
+        s += mypow(x,cc->exp)*r;
+    }
+    *retval = s;
+    return 1;
+}
+
+static int eval_cmo_recursive_polynomial(cmo_recursive_polynomial* c, double *retval)
+{
+	int i,n;
+	double *vars;
+	entry *e;
+	switch(c->coef->tag) {
+	case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+		n=list_length(c->ringdef);
+		if(local_dic_counter<n) {
+			return 0; /* 自由変数が残る */
+		}
+		vars=(double *)calloc(n,sizeof(double));
+		for(i=0; i<n; i++) {
+			e = find_entry(list_nth(c->ringdef,i),local_dic);
+			if(e == NULL) {
+				free(vars);
+				return 0; /* failed */
+			}
+			entry_value(e, &vars[i]);
+		}
+		return eval_cmo_polynomial_in_one_variable((cmo_polynomial_in_one_variable*)c->coef,vars,n,retval);
+	case CMO_DISTRIBUTED_POLYNOMIAL:
+		return 0; /* failed */
+	default: /* cmo_zz, cmo_qq, cmo_double, ... */
+		return eval_cmo(c->coef,retval);
+	}
+}
+
 int eval_cmo(cmo *c, double *retval)
 {
     int tag = c->tag;
@@ -226,6 +306,9 @@ int eval_cmo(cmo *c, double *retval)
         break;
 	case CMO_INDETERMINATE:
         return eval_cmo_indeterminate((cmo_indeterminate *)c,retval);
+        break;
+	case CMO_RECURSIVE_POLYNOMIAL:
+        return eval_cmo_recursive_polynomial((cmo_recursive_polynomial *)c,retval);
         break;
     default:
         /* 変換できない型 */
