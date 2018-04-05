@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.6 2018/04/04 09:44:09 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.7 2018/04/04 09:52:03 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -20,6 +20,8 @@ static void print_cmo_bf(cmo_bf* c);
 static void print_cmo_zz(cmo_zz* c);
 static void print_cmo_qq(cmo_qq* c);
 static void print_cmo_tree(cmo_tree* c);
+static void print_cmo_polynomial_in_one_variable(cmo_polynomial_in_one_variable* c);
+static void print_cmo_recursive_polynomial(cmo_recursive_polynomial* c);
 
 void print_cmo(cmo* c)
 {
@@ -67,6 +69,12 @@ void print_cmo(cmo* c)
         break;
     case CMO_TREE:
         print_cmo_tree((cmo_tree *)c);
+        break;
+    case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+        print_cmo_polynomial_in_one_variable((cmo_polynomial_in_one_variable *)c);
+        break;
+    case CMO_RECURSIVE_POLYNOMIAL:
+        print_cmo_recursive_polynomial((cmo_recursive_polynomial *)c);
         break;
     default:
         ox_printf("\nprint_cmo() does not know how to print cmo of type %d.\n", tag);
@@ -136,6 +144,29 @@ static void print_cmo_tree(cmo_tree* c)
     print_cmo(c->attributes);
     ox_printf(", ");
     print_cmo(c->leaves);
+    ox_printf(")");
+}
+
+
+static void print_cmo_polynomial_in_one_variable(cmo_polynomial_in_one_variable* c)
+{
+    int i;
+    cell *cc;
+    ox_printf(", %d", c->var);
+    for(i=0; i<c->length; i++) {
+        cc = list_nth_cell((cmo_list *)c, i);
+		ox_printf(", %d, ", cc->exp);
+		print_cmo(cc->cmo);
+    }
+    ox_printf(")");
+}
+
+static void print_cmo_recursive_polynomial(cmo_recursive_polynomial* c)
+{
+    ox_printf(", ");
+	print_cmo((cmo *)c->ringdef);
+	ox_printf(", ");
+	print_cmo(c->coef);
     ox_printf(")");
 }
 
