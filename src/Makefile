@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.176 2016/09/26 05:41:30 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.177 2017/03/31 00:43:02 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -63,7 +63,7 @@ all-oxmath: configure-oxmath install-oxtoolkit install-gc
 	fi
 
 all-pari: configure-pari
-	(cd pari; ${MAKE} all)
+	(cd pari; ${MAKE} PERL_USE_UNSAFE_INC=1 all)
 
 all-phc:
 	(cd phc; ${MAKE} all)
