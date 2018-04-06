@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.2 2018/04/05 05:53:52 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.3 2018/04/05 13:02:39 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,16 +67,38 @@ typedef struct {
 entry global_dic[512] = {
     {"sin",0,sin,1},
     {"cos",0,cos,1},
+    {"tan",0,tan,1},
+    {"sinh",0,sinh,1},
+    {"cosh",0,cosh,1},
+    {"tanh",0,tanh,1},
+    {"asin",0,asin,1},
+    {"acos",0,acos,1},
+    {"asinh",0,asinh,1},
+    {"acosh",0,acosh,1},
+    {"erf",0,erf,1},
     {"exp",0,exp,1},
+    {"exp2",0,exp2,1},
     {"log",0,log,1},
-    {"negative",0,op_negative,1},
+    {"log2",0,log2,1},
+    {"log10",0,log10,1},
+    {"gamma",0,gamma,1},
+    {"lgamma",0,lgamma,1},
+    {"sqrt",0,sqrt,1},
+    {"cbrt",0,cbrt,1},
+    {"fabs",0,fabs,1},
+    {"j0",0,j0,1},
+    {"j1",0,j1,1},
+    {"y0",0,y0,1},
+    {"y1",0,y1,1},
+    {"-",  0,op_negative,1},
     {"+",  0,op_add,2},
     {"-",  0,op_sub,2},
     {"*",  0,op_mul,2},
     {"/",  0,op_div,2},
     {"^",  0,pow,2},
-    {"e",  M_E, NULL,0},
-    {"pi", M_PI,NULL,0},
+    {"pow",  0,pow,2},
+    {"@e",  M_E, NULL,0},
+    {"@pi", M_PI,NULL,0},
     {NULL,0,NULL,0}
 };
 
@@ -132,7 +154,7 @@ void replace2(int n, char *s[], double v[])
     }
 }
 
-static entry *find_entry(cmo *node, entry *dic)
+static entry *find_entry(cmo *node, int len, entry *dic)
 {
     char *s;
     entry *e;
@@ -144,7 +166,7 @@ static entry *find_entry(cmo *node, entry *dic)
         return NULL;
     }
     for(e=dic; e->name != NULL; e++) {
-        if(strcmp(e->name,s)==0) {
+        if(strcmp(e->name,s)==0 && (len<0 || len==e->n_args)) {
             return e;
         }
     }
@@ -207,18 +229,18 @@ int entry_value(entry *e, double *retval)
 */
 static int eval_cmo_tree(cmo_tree* t, double *retval)
 {
-    entry *e = find_entry((cmo *)t->name,global_dic);
-	if (FUNCTION_P(e)) {
-		return entry_function(e,t->leaves,retval);
-	}else if (VALUE_P(e)) {
-		return entry_value(e, retval);
-	}
+    entry *e = find_entry((cmo *)t->name,list_length(t->leaves),global_dic);
+    if (FUNCTION_P(e)) {
+        return entry_function(e,t->leaves,retval);
+    }else if (VALUE_P(e)) {
+        return entry_value(e, retval);
+    }
     return 0;
 }
 
 static int eval_cmo_indeterminate(cmo_indeterminate *c, double *retval)
 {
-    entry *e = find_entry((cmo *)c,local_dic);
+    entry *e = find_entry((cmo *)c,-1,local_dic);
     if (VALUE_P(e)) {
         return entry_value(e,retval);
     }
@@ -287,7 +309,7 @@ static int eval_cmo_recursive_polynomial(cmo_recursive_polynomial* c, double *re
 		}
 		vars=(double *)calloc(n,sizeof(double));
 		for(i=0; i<n; i++) {
-			e = find_entry(list_nth(c->ringdef,i),local_dic);
+			e = find_entry(list_nth(c->ringdef,i),-1,local_dic);
 			if(e == NULL) {
 				free(vars);
 				return 0; /* failed */
