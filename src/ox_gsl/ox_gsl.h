@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.3 2018/03/30 08:48:23 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.4 2018/04/04 01:03:59 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
@@ -46,5 +46,7 @@ int myfputs(int fd,const char *s);
 int myfclose(int fd);
 
 void test_ox_eval();
-cmo_tree *get_tree();
-void print_tree(cmo_tree *c);
+int eval_cmo(cmo *c,double *retval);
+int register_entry(char *s,double v);
+void init_dic();
+

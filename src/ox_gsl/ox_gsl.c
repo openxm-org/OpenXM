@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.5 2018/04/04 01:03:59 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.6 2018/04/05 10:50:17 ohara Exp $
 */
 
 #include <stdio.h>
@@ -293,37 +293,17 @@ char *get_string() {
   return(NULL);
 }
 
-cmo_tree *get_tree() {
-  cmo *c;
-  c = pop();
-  if (c->tag == CMO_TREE) {
-    return ((cmo_tree *)c);
-  }
-  make_error2("cmo_tree is expected",NULL,0,-1);
-  return(NULL);
-}
-void print_tree(cmo_tree *c) {
-  if (c->tag != CMO_TREE) {
-    printf("Error: argument is not CMO_TREE\n");
-    return;
-  }
-  print_cmo((cmo *)c);
-/*
-  ox_printf("(name="); print_cmo((cmo *)(c->name)); ox_printf(",");
-  ox_printf("leaves="); print_cmo((cmo *)(c->leaves)); ox_printf(")");
-*/
-}  
 void test_ox_eval() {
-  cmo_tree *c;
+  cmo *c;
   double d=0;
   pop();
-  c = get_tree();
+  c=pop();
   if (Debug) {
-    ox_printf("cmo_tree *c="); print_tree(c); ox_printf("\n");
+    ox_printf("cmo *c="); print_cmo(c); ox_printf("\n");
   }
   init_dic();
   register_entry("x",1.25);
-  if (eval_cmo(c,&d) == 0) make_error2("eval_cmo failed",NULL,0,-1);
+  if (eval_cmo(c,&d) == 0) myhandler("eval_cmo failed",NULL,0,-1);
   push((cmo *)new_cmo_double(d));
 }
 
