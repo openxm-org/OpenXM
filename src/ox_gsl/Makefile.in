@@ -1,0 +1,21 @@
+prefix = @prefix@
+CFLAGS = @CFLAGS@ -I /usr/local/include
+LIBS = @LIBS@
+LN_S = @LN_S@
+TARGET = @TARGET@
+CC = @CC@
+
+all: ${TARGET}
+
+ox_gsl: ox_gsl.o call_gsl.o ox_eval.o
+	${CC} ${CFLAGS} -o ox_gsl ox_gsl.o call_gsl.o ox_eval.o ${LIBS}
+
+.c.o: ox_gsl.h
+	${CC} ${CFLAGS} -c -g $<
+
+clean:
+	rm -f *.o *~ ox_gsl  
+distclean: clean
+	rm -f .configure_done
+
+# $OpenXM$

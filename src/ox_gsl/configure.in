@@ -1,0 +1,27 @@
+dnl $OpenXM$
+
+AC_INIT
+AC_PREREQ(2.61)
+AC_CANONICAL_TARGET
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PATH_XTRA
+
+TARGET=ox_gsl
+case "${host}" in
+*-apple-darwin*)
+    LIBS="-L../../lib -L/usr/local/lib -lgsl  -lox  -lmpfr -lgmp -lgc"
+    CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
+    ;;
+*)
+    CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
+    LIBS="-L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49  -lox  -lmpfr -lgmp -lgc"
+    ;;
+esac
+
+AC_SUBST([TARGET])
+AC_SUBST([LIBS])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
