@@ -1,4 +1,4 @@
-dnl $OpenXM$
+dnl $OpenXM: OpenXM/src/ox_gsl/configure.in,v 1.1 2018/04/07 03:30:50 takayama Exp $
 
 AC_INIT
 AC_PREREQ(2.61)
@@ -16,8 +16,8 @@ case "${host}" in
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
     ;;
 *)
+    LIBS="-L../../lib -L/usr/local/lib -L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49  -lgsl -lcblas -lblas -lm -lox  -lmpfr -lgmp -lgc"
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
-    LIBS="-L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49  -lox  -lmpfr -lgmp -lgc"
     ;;
 esac
 

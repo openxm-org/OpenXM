@@ -3777,8 +3777,8 @@ case "${host}" in
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
     ;;
 *)
+    LIBS="-L../../lib -L/usr/local/lib -L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49  -lgsl -lcblas -lblas -lm -lox  -lmpfr -lgmp -lgc"
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
-    LIBS="-L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49  -lox  -lmpfr -lgmp -lgc"
     ;;
 esac
 
