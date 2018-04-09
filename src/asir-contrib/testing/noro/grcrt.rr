@@ -1,6 +1,6 @@
 module noro_grcrt$
 
-localf f4_chr, gr_chr_d, f4_chr_d, store_history, read_history, store_bv,
+localf f4_chr, f4_chr_d, store_history, read_history, store_bv,
 store_bvn, store_bvn3, nd_f4_p2, nd_gr_recompute_trace_p,
 nd_gr_gentrace_p, comp_by_ht, intdpltoratdpl2, intdptoratdp,
 dp_mulmod, dp_chrem2, monic_gb, dp_monic_mod,
@@ -8,10 +8,14 @@ calcb, sp_sqrt, init_pprocs, nd_gbcheck, gbcheck_p, elimination$
 localf iso_eq_mod, iso_eq_gentrace, iso_eq_mod, elim_top,
 iso_eq_d2, iso_c1eq_mod, iso_c1eq_d2, iso_eq_gentrace2,
 iso_eq_mod2, iso_eq_d2new, iso_sat_gentrace, iso_sat_mod, iso_sat_d2$
+localf large_factor,largefactor_res,intptoratp,p_chrem2,p_checkcrt,store_minipoly$
+localf iso_sat_d3,minipoly_chr$
+localf nd_gr_p2$
 
 static GB_History,GB_B,GB_V,GB_N,GB_H$
 static GB_N1,GB_N2,GB_N3$
 static GB_NZ$
+static MiniPoly$
 
 def f4_chr(B,V,O)
 {
@@ -28,18 +32,27 @@ def f4_chr(B,V,O)
 	if ( type(Weight) == -1 ) Weight = 0;
 	OldWeight = dp_set_weight();
 	dp_set_weight(Weight);
+#if 1
 	if ( type(NZ) == -1 )
-	  NZ = nd_f4(B,V,lprime(0),O|gentrace=1);
+	  NZ = nd_f4(B,V,lprime(0),O|gentrace=1,homo=Homo);
+#endif
 	if ( type(Proc) != -1 ) {
+#if 1
 	 	G = f4_chr_d(B,V,O,Proc,NZ,Prev,Homo,Elim,Weight);
+#else
+	 	G = f4_chr_d(B,V,O,Proc,0,Prev,Homo,Elim,Weight);
+#endif
 	    dp_set_weight(OldWeight);
 	    return G;
 	}
 	B = map(ptozp,B);
-	Remain = 1; /* XXX */
-	for ( I = 0, N = 0, Mod = 1; Remain; I++ ) {
+	for ( I = 0, N = 0, Mod = 1; ; I++ ) {
 		P = lprime(I);
-		GM = nd_f4(B,V,P,O|dp=1,trace=NZ);
+#if 1
+		GM = nd_f4(B,V,P,O|dp=1,trace=NZ,homo=Homo);
+#else
+		GM = nd_f4(B,V,P,O|dp=1,homo=Homo);
+#endif
 		if ( !GM ) continue;
 		if ( Elim >= 0 ) GM = elimination(GM,Elim);
 		if ( !N ) {
@@ -52,12 +65,14 @@ T0 = time();
 		dp_chrem2(G,Mod,GM,P,Stat);
 T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 		Mod *= P;
-		if ( !(I%3) ) {
+		if ( !(I%1) ) {
 T0 = time();
-			New = intdpltoratdpl2(G,Mod,Stat);
+			intdpltoratdpl2(G,Mod,Stat);
 T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
-			Remain -= New;
 		}
+        for ( J = 0; J < N; J++ )
+          if ( Stat[J] < 3 ) break;
+        if ( J == N ) break;
 	}
 	print(["CRT",CRTime,"IR",IRTime,"#P",I]);
 	G = vtol(map(dp_dtop,G,V));
@@ -76,84 +91,88 @@ def f4_chr_d(B,V,O,Proc,NZ,Prev,Homo,Elim,Weight)
 	/* gentrace */
 	map(ox_rpc,Proc,"dp_set_weight",Weight);
 	map(ox_pop_local,Proc);
-	map(ox_rpc,Proc,"noro_grcrt.store_bvn",B,V,NZ,Homo);
-	map(ox_pop_local,Proc);
-	if ( Prev ) {
-		G = Prev[0];
-		N = length(N);
-		Stat = Prev[1];
-		for ( J = 0, Remain = 0; J < N; J++ )
-			if ( Stat[J] != 2 ) Remain++;
-		I = Prev[2];
-		Mod = Prev[3];
-	} else {
-		I = 0;
-		N = 0;
-		Remain = 1; /* dummy */
-		Mod = 1;
-	}
-	for ( T = Proc; T != []; T = cdr(T), I++ )
-		ox_rpc(car(T),"noro_grcrt.nd_f4_p2",lprime(I),O);
-	while ( Remain ) {
-		for ( T = Proc; T != []; T = cdr(T), I++ ) {
-			print(["from",car(T)],2);
-			L = ox_pop_local(car(T)); GM = L[0]; P = L[1];
-			if ( Elim >= 0 ) GM = elimination(GM,Elim);
-			print(" done");
-			ox_rpc(car(T),"noro_grcrt.nd_f4_p2",lprime(I),O);
-			if ( GM ) {
-				L = monic_gb(GM,V,O,P); GM = L[0];
-				if ( !N ) {
-					Remain = N = length(GM);
-					Stat = vector(N);
-					G = vector(N);
-				}
-T0 = time();
-				Fail = dp_chrem2(G,Mod,GM,P,Stat);
-				Remain += Fail;
-T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
-				Mod *= P;
-			}
-		}
-T0 = time();
-		New = intdpltoratdpl2(G,Mod,Stat);
-T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
-		Remain -= New;
-		print((N-Remain)/N*100.0,0); print("% done");
-	}
-	map(ox_reset,Proc);
-	print(["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I]);
-	return vtol(map(dp_dtop,G,V));
+        map(ox_rpc,Proc,"noro_grcrt.store_bvn",B,V,NZ,Homo);
+        map(ox_pop_local,Proc);
+        if ( Prev ) {
+            G = Prev[0];
+            N = length(N);
+            Stat = Prev[1];
+            for ( J = 0, Remain = 0; J < N; J++ )
+                if ( Stat[J] != 2 ) Remain++;
+            I = Prev[2];
+            Mod = Prev[3];
+        } else {
+            I = 0;
+            N = 0;
+            Remain = 1; /* dummy */
+            Mod = 1;
+        }
+        for ( T = Proc; T != []; T = cdr(T), I++ )
+            ox_rpc(car(T),"noro_grcrt.nd_f4_p2",lprime(I),O);
+        map(ox_push_cmd,Proc,258);
+        while ( 1 ) {
+            Ready = ox_select(Proc);
+            for ( T = Ready; T != []; T = cdr(T), I++ ) {
+                print(["from",car(T)],2);
+                L = ox_get(car(T)); GM = L[0]; P = L[1];
+                if ( Elim >= 0 ) GM = elimination(GM,Elim);
+                print(" done ",2); print(L[2]);
+                ox_rpc(car(T),"noro_grcrt.nd_f4_p2",lprime(I),O);
+                ox_push_cmd(car(T),258);
+                if ( GM ) {
+                    L = monic_gb(GM,V,O,P); GM = L[0];
+                    if ( !N ) {
+                        N = length(GM);
+                        Stat = vector(N);
+                        G = vector(N);
+                    }
+    T0 = time();
+                    dp_chrem2(G,Mod,GM,P,Stat);
+    T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+                    Mod *= P;
+                }
+            }
+    T0 = time();
+            intdpltoratdpl2(G,Mod,Stat);
+    T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+            for ( J = Remain = 0; J < N; J++ )
+              if ( Stat[J] < 3 ) Remain++;
+            print((N-Remain)/N*100.0,0); print("% done");
+            if ( !Remain ) break;
+    }
+    map(ox_reset,Proc);
+    print(["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I]);
+    return vtol(map(dp_dtop,G,V));
 }
 
 def store_history(D)
 {
-	GB_History=D;
-	return 1;
+    GB_History=D;
+    return 1;
 }
 
 def read_history(Dname)
 {
-	GB_History=bload(Dname);
-	return 1;
+    GB_History=bload(Dname);
+    return 1;
 }
 
 
 def store_bvn(B,V,N,H)
 {
-	GB_B=B;
-	GB_V=V;
-	if ( type(N) == 7 )
-		GB_N = bload(N);
-	else
-		GB_N=N;
-	GB_H=H;
+    GB_B=B;
+    GB_V=V;
+    if ( type(N) == 7 )
+        GB_N = bload(N);
+    else
+        GB_N=N;
+    GB_H=H;
 }
 
 def store_bvn3(B,V,N1,N2,N3)
 {
-	GB_B=B;
-	GB_V=V;
+    GB_B=B;
+    GB_V=V;
     GB_N1 = N1;
     GB_N2 = N2;
     GB_N3 = N3;
@@ -162,251 +181,307 @@ def store_bvn3(B,V,N1,N2,N3)
 
 def nd_f4_p2(P,O)
 {
-	if ( GB_H )
-		return [nd_f4(GB_B,GB_V,P,O|dp=1,trace=GB_N,nora=1),P];
-	else
-		return [nd_f4(GB_B,GB_V,P,O|dp=1,trace=GB_N),P];
+    T0 = time()[3];
+#if 0
+    if ( GB_H )
+        return [nd_f4(GB_B,GB_V,P,O|dp=1,homo=GB_H,trace=GB_N,nora=1),P,time()[3]-T0];
+    else
+#endif
+        return [nd_f4(GB_B,GB_V,P,O|dp=1,homo=GB_H,trace=GB_N),P,time()[3]-T0];
 }
 
+def nd_gr_p2(P,O)
+{
+    T0 = time()[3];
+    return [nd_gr_recompute_trace(GB_B,GB_V,P,O,GB_H|dp=1,trace=GB_N),P,time()[3]-T0];
+}
 
 def nd_gr_recompute_trace_p(B,V,P,O)
 {
-	T0 = time();
-	R = nd_gr_recompute_trace(B,V,P,O,GB_History);
-	T1 = time();
-	Time = (T1[0]-T0[0])+(T1[1]-T0[1]);
-	return [nd_gr_recompute_trace(B,V,P,O,GB_History),P,Time];
+    T0 = time();
+    R = nd_gr_recompute_trace(B,V,P,O,GB_History);
+    T1 = time();
+    Time = (T1[0]-T0[0])+(T1[1]-T0[1]);
+    return [nd_gr_recompute_trace(B,V,P,O,GB_History),P,Time];
 }
 
 def nd_gr_gentrace_p(B,V,P,O)
 {
-	return [nd_gr(B,V,P,O|gentrace=1),P];
+    return [nd_gr(B,V,P,O|gentrace=1),P];
 }
 
 def comp_by_ht(A,B)
 {
-	HA = dp_ht(A); HB = dp_ht(B);
-	if ( HA > HB )
-		return 1;
-	else if ( HA < HB )
-		return -1;
-	else
-		return 0;
+    HA = dp_ht(A); HB = dp_ht(B);
+    if ( HA > HB )
+        return 1;
+    else if ( HA < HB )
+        return -1;
+    else
+        return 0;
 }
 
 def intdpltoratdpl2(G,Mod,Stat)
 {
-	N = size(G)[0];
-	M = calcb(Mod);
-	New = 0;
-	Den = 1;
-	for ( I = 0; I < N; I++ ) {
-		if ( Stat[I] == 2 ) continue;
-		if ( !I || dp_td(G[I]) != dp_td(G[I-1]) )
-			Den = 1;
-		T = intdptoratdp(G[I]*Den,Mod,M);
-		if ( T ) {
-			print([I],2);
-			T = dp_ptozp(T); 
-			Den = ilcm(Den,dp_hc(T));
-			G[I] = T; Stat[I] = 2; New++;
-		} else {
-			print("("+rtostr(I)+")",2);
-		}
-	}
-	print("");
-	return New;
+    N = size(G)[0];
+    M = calcb(Mod);
+    New = 0;
+    Den = 1;
+    for ( I = 0; I < N; I++ ) {
+        if ( Stat[I] >= 2 ) continue;
+        if ( !I || dp_td(G[I]) != dp_td(G[I-1]) )
+            Den = 1;
+        T = intdptoratdp(G[I]*Den,Mod,M);
+        if ( T ) {
+            print([I],2);
+            T = dp_ptozp(T); 
+            Den = ilcm(Den,dp_hc(T));
+            G[I] = T; Stat[I] = 2;
+        } else {
+            print("("+rtostr(I)+")",2);
+        }
+        if ( Stat[I] >= 3 ) New++;
+    }
+    print("");
+    return New;
 }
 
 def intdptoratdp(F,Mod,M)
 {
-	for ( T = F, N = 0; T; T = dp_rest(T), N++ );
-	C = newvect(N);
-	for ( I = 0, T = F; I < N; T = dp_rest(T), I++ ) {
-		L = inttorat(dp_hc(T)%Mod,Mod,M);
-		if ( !L )
-			return 0;
-		else
-			C[I] = (L[0]/L[1])*dp_ht(T);
-	}
-	for ( R = 0, I = N-1; I >= 0; I-- )
-		R += C[I];
-	return R;
+    for ( T = F, N = 0; T; T = dp_rest(T), N++ );
+    C = newvect(N);
+    for ( I = 0, T = F; I < N; T = dp_rest(T), I++ ) {
+        L = inttorat(dp_hc(T)%Mod,Mod,M);
+        if ( !L )
+            return 0;
+        else
+            C[I] = (L[0]/L[1])*dp_ht(T);
+    }
+    for ( R = 0, I = N-1; I >= 0; I-- )
+        R += C[I];
+    return R;
+}
+
+def intptoratp(P,M,B) {
+    if ( type(P) == 1 ) {
+        L = inttorat(P%M,M,B);
+        if ( L == 0 )
+            return 0;
+        else
+            return L[0]/L[1];	
+    } else {
+        V = var(P);
+        S = 0;
+        while ( P ) {
+            D = deg(P,V);
+            C = coef(P,D,V);
+            T = intptoratp(C,M,B);
+            if ( T == 0 )
+                return 0;
+            S += T*V^D;
+            P -= C*V^D;
+        }
+        return S;
+    }
 }
 
 def dp_mulmod(C,F,M)
 {
-	L = [];
-	for ( T = F; T; T = dp_rest(T) ) {
-		A = (dp_hc(T)*C)%M;
-		L = cons(A*dp_ht(T),L);
-	}
-	for ( R = 0; L != []; L = cdr(L) )
-		R += car(L);
-	return R;
+    L = [];
+    for ( T = F; T; T = dp_rest(T) ) {
+        A = (dp_hc(T)*C)%M;
+        L = cons(A*dp_ht(T),L);
+    }
+    for ( R = 0; L != []; L = cdr(L) )
+        R += car(L);
+    return R;
 }
 
 def dp_chrem2(G,Mod,GM,P,Stat)
 {
-	N = size(G)[0];
-	setmod(P);
-	M1 = ptomp(inv(Mod,P),P);
-	Fail = 0;
-	for ( I = 0; I < N; I++ ) {
-		if ( Stat[I] == 2 ) {
-			T = dp_mod(G[I],P,[]); T = dp_rat(T/dp_hc(T));
-			if ( GM[I] != T ) {
-				C = inv(dp_hc(G[I]),Mod);
-				G[I] = dp_mulmod(C,G[I],Mod);
-				if ( dp_hc(G[I]) != 1 )
-					error("");
-				Stat[I] = 0;
-				Fail++;
-			} else continue;
-		}
-		T = (dp_mod(GM[I],P,[])-dp_mod(G[I],P,[]))*M1;
-		G[I] = G[I]+dp_rat(T)*Mod;
-		Stat[I] = 1;
+    N = size(G)[0];
+    setmod(P);
+    M1 = ptomp(inv(Mod,P),P);
+    Fail = 0;
+    for ( I = 0; I < N; I++ ) {
+        if ( Stat[I] >= 2 ) {
+            T = dp_mod(G[I],P,[]); T = dp_rat(T/dp_hc(T));
+            if ( GM[I] != T ) {
+                C = inv(dp_hc(G[I]),Mod);
+                G[I] = dp_mulmod(C,G[I],Mod);
+                if ( dp_hc(G[I]) != 1 )
+                    error("");
+                Stat[I] = 0;
+                Fail++;
+            } else {
+              Stat[I]++;
+              continue;
+            }
+        }
+        T = (dp_mod(GM[I],P,[])-dp_mod(G[I],P,[]))*M1;
+        G[I] = G[I]+dp_rat(T)*Mod;
+        Stat[I] = 1;
 #if 0
-		print("|"+rtostr(I),2);
+        print("|"+rtostr(I),2);
 #endif
-	}
-	return Fail;
+    }
+    return Fail;
 #if 0
-	print("");
+    print("");
 #endif
+}
+
+def p_checkcrt(G,G0,P)
+{
+    setmod(P);
+    GM = mptop(ptomp(G));
+    if ( GM == G0 ) return 1;
+    else return 0;
+}
+
+def p_chrem2(G,Mod,GM,P)
+{
+    M1 = inv(Mod,P);
+    G += (GM-G)*(M1*Mod);
+    Mod1 = Mod*P;
+    G %= Mod1;
+    return G;
 }
 
 def monic_gb(D,V,O,P)
 {
-	dp_ord(O); setmod(P);
+    dp_ord(O); setmod(P);
 /*	D = map(dp_ptod,G,V); */
-	D = map(dp_monic_mod,D,P);
+    D = map(dp_monic_mod,D,P);
 /*	D = vtol(qsort(newvect(length(D),D),comp_by_ht)); */
-	return [D,map(dp_ht,D)];
+    return [D,map(dp_ht,D)];
 }
 
 def dp_monic_mod(F,P)
 {
-	FP = dp_mod(F,P,[]);
-	return dp_rat(FP/dp_hc(FP));
+    FP = dp_mod(F,P,[]);
+    return dp_rat(FP/dp_hc(FP));
 }
 
 def calcb(M) {
-	N = 2*M;
-	T = sp_sqrt(N);
-	if ( T^2 <= N && N < (T+1)^2 )
-		return idiv(T,2);
-	else
-		error("afo");
+    N = 2*M;
+    T = sp_sqrt(N);
+    if ( T^2 <= N && N < (T+1)^2 )
+        return idiv(T,2);
+    else
+        error("afo");
 }
 
 def sp_sqrt(A) {
-	for ( J = 0, T = A; T >= 2^27; J++ ) {
-		T = idiv(T,2^27)+1;
-	}
-	for ( I = 0; T >= 2; I++ ) {
-		S = idiv(T,2);
-		if ( T = S+S )
-			T = S;
-		else
-			T = S+1;
-	}
-	X = (2^27)^idiv(J,2)*2^idiv(I,2);
-	while ( 1 ) {
-		if ( (Y=X^2) < A )
-			X += X;
-		else if ( Y == A )
-			return X;
-		else
-			break;
-	}
-	while ( 1 )
-		if ( (Y = X^2) <= A )
-			return X;
-		else
-			X = idiv(A + Y,2*X);
+    for ( J = 0, T = A; T >= 2^27; J++ ) {
+        T = idiv(T,2^27)+1;
+    }
+    for ( I = 0; T >= 2; I++ ) {
+        S = idiv(T,2);
+        if ( T = S+S )
+            T = S;
+        else
+            T = S+1;
+    }
+    X = (2^27)^idiv(J,2)*2^idiv(I,2);
+    while ( 1 ) {
+        if ( (Y=X^2) < A )
+            X += X;
+        else if ( Y == A )
+            return X;
+        else
+            break;
+    }
+    while ( 1 )
+        if ( (Y = X^2) <= A )
+            return X;
+        else
+            X = idiv(A + Y,2*X);
 }
 
 def init_pprocs(L)
 {
-	R = [];
+    R = [];
     if ( type(NoX=getopt(nox)) == -1 ) NoX = 0;
-	for ( T = L; T != []; T = cdr(T) ) {
-		Host = car(T)[0]; N = car(T)[1];
-		if ( !Host ) {
-			for ( I = 0; I < N; I++ ) {
-				P = NoX ? ox_launch_nox() : ox_launch();
-				R = cons(P,R);
-			}
-		} else {
-			Lib = get_rootdir();
-			Client = "ox_asir";
-			for ( I = 0; I < N; I++ ) {
-				P = NoX ? ox_launch_nox(Host,Lib,Client)
-					: ox_launch(Host,Lib,Client);
-				R = cons(P,R);
-			}
-		}
-	}
-	return reverse(R);
+    for ( T = L; T != []; T = cdr(T) ) {
+        Host = car(T)[0]; N = car(T)[1];
+        if ( !Host ) {
+            for ( I = 0; I < N; I++ ) {
+                P = NoX ? ox_launch_nox() : ox_launch();
+                R = cons(P,R);
+            }
+        } else {
+            Lib = get_rootdir();
+            Client = "ox_asir";
+            for ( I = 0; I < N; I++ ) {
+                P = NoX ? ox_launch_nox(Host,Lib,Client)
+                    : ox_launch(Host,Lib,Client);
+                R = cons(P,R);
+            }
+        }
+    }
+    return reverse(R);
 }
 
 def nd_gbcheck(G,V,P,O)
 {
-	Proc = getopt(proc);
-	if ( type(Proc) == -1 ) Proc = 0;
-	F4 = getopt(f4);
-	if ( type(F4) == -1 ) F4 = 0;
-	/* XXX */
-	S = getopt(splist);
-	if ( type(S) == -1 ) {
-		if ( type(G) == 7 )
-			S = nd_gr(bload(G),V,lprime(0),O|splist=1);
-		else
-			S = nd_gr(G,V,lprime(0),O|splist=1);
-	}
-	if ( Proc ) {
-		N = length(Proc);
-		L = vector(N);
-		for ( I = 0; I < N; I++ ) L[I] = [];
-		for ( I = 0, T = S; T != []; T = cdr(T), I = (I+1)%N )
-			L[I] = cons(car(T),L[I]);
-		for ( I = 0; I < N; I++ )
-			ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4);
-		for ( I = 0; I < N; I++ )
-			if ( !ox_pop_local(Proc[I]) ) return 0;
-		return 1;
-	} else {
-		if ( F4 )
-			R = nd_f4(G,V,P,O|check_splist=S);
-		else 
-			R = nd_gr(G,V,P,O|check_splist=S);
-		return R;
-	}
+    Proc = getopt(proc);
+    if ( type(Proc) == -1 ) Proc = 0;
+    F4 = getopt(f4);
+    if ( type(F4) == -1 ) F4 = 0;
+    /* XXX */
+    S = getopt(splist);
+    if ( type(S) == -1 ) {
+        if ( type(G) == 7 )
+            S = nd_gr(bload(G),V,lprime(0),O|splist=1);
+        else
+            S = nd_gr(G,V,lprime(0),O|splist=1);
+    }
+    if ( Proc ) {
+        N = length(Proc);
+        L = vector(N);
+        for ( I = 0; I < N; I++ ) L[I] = [];
+        for ( I = 0, T = S; T != []; T = cdr(T), I = (I+1)%N )
+            L[I] = cons(car(T),L[I]);
+        for ( I = 0; I < N; I++ )
+            ox_rpc(Proc[I],"noro_grcrt.gbcheck_p",G,V,P,O,reverse(L[I]),F4);
+        for ( I = 0; I < N; I++ )
+            if ( !ox_pop_local(Proc[I]) ) return 0;
+        return 1;
+    } else {
+        if ( F4 )
+            R = nd_f4(G,V,P,O|check_splist=S);
+        else 
+            R = nd_gr(G,V,P,O|check_splist=S);
+        return R;
+    }
 }
 
 def gbcheck_p(G,V,P,O,S,F4)
 {
-	if ( type(G) == 7 )
-		G = bload(G);
-	if ( F4 )
-		return nd_f4(G,V,P,O|check_splist=S);
-	else
-		return nd_gr(G,V,P,O|check_splist=S);
+    if ( type(G) == 7 )
+        G = bload(G);
+    if ( F4 )
+        return nd_f4(G,V,P,O|check_splist=S);
+    else
+        return nd_gr(G,V,P,O|check_splist=S);
 }
 
 def elimination(L,Elim)
 {
+  if ( !Elim ) return L;
   if ( type(Elim) <= 1 ) {
-  	for ( R = []; L != []; L = cdr(L) ) {
-    	H = dp_etov(dp_ht(car(L)));
-		for ( I = 0; I <= Pos && !H[I]; I++ );
-		if ( I > Pos ) R = cons(car(L),R);
-  	}
+    for ( R = []; L != []; L = cdr(L) ) {
+        H = dp_etov(dp_ht(car(L)));
+        for ( I = 0; I <= Elim && !H[I]; I++ );
+        if ( I > Elim ) {
+          print(H);
+          R = cons(car(L),R);
+        }
+    }
   } else {
-  	for ( R = []; L != []; L = cdr(L) )
-		if ( dp_ht(car(L)) <= Elim ) R = cons(car(L),R);
+    for ( R = []; L != []; L = cdr(L) )
+        if ( dp_ht(car(L)) < Elim ) R = cons(car(L),R);
   }
   return reverse(R);
 }
@@ -501,11 +576,14 @@ def iso_eq_mod(Mod)
 def elim_top(G,H)
 {
   N = length(dp_etov(dp_ht(G[0])));
+  W = dp_set_weight();
   Ord = dp_ord();
+  dp_set_weight(0);
   dp_ord([[0,1],[0,N-1]]);
   for ( T = []; G != []; G = cdr(G) )
     if ( dp_ht(car(G)) < H ) T = cons(car(G),T);
   dp_ord(Ord);
+  dp_set_weight(W);
   return reverse(T);
 }
 #endif
@@ -779,33 +857,43 @@ T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 	return [vtol(map(dp_dtop,G,V1)),Proc];
 }
 
-def iso_sat_gentrace(B,V,Mod)
+def iso_sat_gentrace(B,V,Mod,Wt,Wt2,Ord)
 {
-  Wt = [1,1,3,2,3,2,1];
   Vt = cons(t,V);
   dp_set_weight(Wt);
+  dp_gr_flags(["Reverse",1]);
   D = res(x,x^3+a*x+b,3*x^2+a);
-  N1 = nd_f4(cons(t*D-1,B),Vt,Mod,[[0,1],[0,5]]|dp=1,nora=1,gentrace=1);
+  N1 = nd_f4(cons(t*D-1,B),Vt,Mod,Ord|dp=1,gentrace=1,sugarweight=Wt2);
+  dp_gr_flags(["Reverse",0]);
+  dp_set_weight(0);
   return N1;
 }
 
-def iso_sat_mod(Mod)
+def iso_sat_mod(Mod,V,Wt,Wt2,Ord)
 {
-  V = [c1,bb,aa,b,a];
+T0 = time();
   Vt = cons(t,V);
-  Wt = [1,1,3,2,3,2,1];
-  dp_set_weight(Wt);
   D = res(x,x^3+a*x+b,3*x^2+a);
-  if ( GB_N1 )
-    G1 = nd_f4(cons(t*D-1,GB_B),Vt,Mod,[[0,1],[0,5]]|dp=1,nora=1,trace=GB_N1);
-  else
-    G1 = nd_f4(cons(t*D-1,GB_B),Vt,Mod,[[0,1],[0,5]]|dp=1,nora=1);
+  dp_set_weight(Wt);
+  dp_gr_flags(["Reverse",1]);
+  if ( GB_N1 ) {
+    print("doing computation with history");
+    G1 = nd_f4(cons(t*D-1,GB_B),Vt,Mod,Ord|dp=1,trace=GB_N1, sugarweight=Wt2);
+  } else {
+    print("doing computation without history");
+    G1 = nd_f4(cons(t*D-1,GB_B),Vt,Mod,Ord|dp=1,sugarweight=Wt2);
+  }
+  dp_set_weight(0);
+  dp_gr_flags(["Reverse",0]);
   G1 = elim_top(G1,<<1,0,0,0,0,0>>);
-  return [G1,Mod];
+T1 = time();
+print(["iso_sat_mod",T1[3]-T0[3]]);
+  return [G1,Mod,T1[3]-T0[3]];
 }
 
 def iso_sat_d2(L)
 {
+Tall0=time();
     Proc = getopt(proc);
     Sys = getopt(sys);
     if ( type(Proc) == -1 ) {
@@ -829,29 +917,37 @@ def iso_sat_d2(L)
 	B = map(ptozp,B);
 	NProc = length(Proc);
 	CRTime = 0; IRTime = 0;
-	/* gentrace */
-	NZ = iso_sat_gentrace(B,V,lprime(0));
+	/* gentrace Wt,Ord */
+	Wt = [1,3,2,1,3,2,1];
+	Wt2 = [-6,3,2,1,3,2,1];
+    Ord = [[0,1],[0,5]];
+	V = [bb,aa,c1,b,a];
+	Vt = cons(t,V);
+	dp_ord(Ord);
+#if 0
+	NZ = iso_sat_gentrace(B,V,lprime(0),Wt,Wt2,Ord);
 	map(ox_rpc,Proc,"noro_grcrt.store_bvn3",B,V,NZ,0,0);
+#else
+	map(ox_rpc,Proc,"noro_grcrt.store_bvn3",B,V,0,0,0);
+#endif
 	map(ox_pop_local,Proc);
 	I = 0;
 	N = 0;
 	Remain = 1; /* dummy */
 	Mod = 1;
-	Vt = [t,c1,bb,aa,b,a];
-	Wt = [1,1,3,2,3,2,1];
-	O = [[0,1],[0,5]];
-	dp_ord(O);
-	dp_set_weight(Wt);
+    dp_set_weight(cdr(Wt));
+    Ord0 = 0;
 	for ( T = Proc; T != []; T = cdr(T), I++ )
-		ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I));
+		ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I),V,Wt,Wt2,Ord);
 	while ( Remain ) {
 		for ( T = Proc; T != []; T = cdr(T), I++ ) {
 			print(["from",car(T)],2);
 			L = ox_pop_local(car(T)); GM = L[0]; P = L[1];
-			print(" done");
-			ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I));
+			print(" done ",2); print(L[2]);
+			ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I),V,Wt,Wt2,Ord);
 			if ( GM ) {
-				L = monic_gb(GM,Vt,O,P); GM = L[0];
+/*                bsave(GM,"gm4/"+rtostr(P)); */
+				L = monic_gb(GM,Vt,Ord0,P); GM = L[0];
 				if ( !N ) {
 					Remain = N = length(GM);
 					Stat = vector(N);
@@ -872,7 +968,221 @@ T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 	}
 	map(ox_reset,Proc);
 	print(["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I]);
-	return [vtol(map(dp_dtop,G,Vt)),Proc];
+Tall1 = time();
+Tcpu = Tall1[0]-Tall0[0];
+Tgc = Tall1[1]-Tall0[1];
+Treal = Tall1[3]-Tall0[3];
+	return [vtol(map(dp_dtop,G,Vt)),Proc,["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I,"cpu",Tcpu,"gc",Tgc,"real",Treal]];
+}
+
+def iso_sat_d3(L)
+{
+Tall0=time();
+    Proc = getopt(proc);
+    Sys = getopt(sys);
+    if ( type(Proc) == -1 ) {
+      Proc = [];
+      for ( I = 0; I < 10; I++ ) Proc = cons(ox_launch_nox(),Proc);
+    } else if ( type(Proc) == 1 ) {
+	  M = Proc;
+      Proc = [];
+      for ( I = 0; I < M; I++ ) Proc = cons(ox_launch_nox(),Proc);
+	}
+	if ( type(Sys) == -1 ) {
+      F = generateF(L);
+       A = polysys(F);
+       A = simpsys(A);
+       C = A[0]; B = A[1]; V = A[2]; W = A[3];
+	} else {
+       C = Sys[0]; B = Sys[1]; V = Sys[2]; W = Sys[3];
+	}
+
+	map(ox_reset,Proc);
+	B = map(ptozp,B);
+	NProc = length(Proc);
+	CRTime = 0; IRTime = 0;
+	/* gentrace Wt,Ord */
+	Wt = [1,3,2,1,3,2,1];
+	Wt2 = [-6,3,2,1,3,2,1];
+    Ord = [[0,1],[0,5]];
+	V = [bb,aa,c1,b,a];
+	Vt = cons(t,V);
+	dp_ord(Ord);
+#if 0
+	NZ = iso_sat_gentrace(B,V,lprime(0),Wt,Wt2,Ord);
+	map(ox_rpc,Proc,"noro_grcrt.store_bvn3",B,V,NZ,0,0);
+#else
+	map(ox_rpc,Proc,"noro_grcrt.store_bvn3",B,V,0,0,0);
+#endif
+	map(ox_pop_local,Proc);
+	I = 0;
+	N = 0;
+	Remain = 1; /* dummy */
+	Mod = 1;
+    dp_set_weight(cdr(Wt));
+    Ord0 = 0;
+	for ( T = Proc; T != []; T = cdr(T), I++ ) {
+		ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I),V,Wt,Wt2,Ord);
+    }
+    map(ox_push_cmd,Proc,258);
+	while ( Remain ) {
+        Ready = ox_select(Proc);
+		for ( T = Ready; T != []; T = cdr(T), I++ ) {
+			print(["from",car(T)],2);
+			L = ox_get(car(T)); GM = L[0]; P = L[1];
+			print(" done ",2); print(L[2]);
+			ox_rpc(car(T),"noro_grcrt.iso_sat_mod",lprime(I),V,Wt,Wt2,Ord);
+            ox_push_cmd(car(T),258);
+			if ( GM ) {
+/*                bsave(GM,"gm4/"+rtostr(P)); */
+				L = monic_gb(GM,Vt,Ord0,P); GM = L[0];
+				if ( !N ) {
+					Remain = N = length(GM);
+					Stat = vector(N);
+					G = vector(N);
+				}
+T0 = time();
+				Fail = dp_chrem2(G,Mod,GM,P,Stat);
+				Remain += Fail;
+T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+				Mod *= P;
+			}
+		}
+T0 = time();
+		New = intdpltoratdpl2(G,Mod,Stat);
+T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+		Remain -= New;
+		print((N-Remain)/N*100.0,0); print("% done");
+	}
+	map(ox_reset,Proc);
+	print(["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I]);
+Tall1 = time();
+Tcpu = Tall1[0]-Tall0[0];
+Tgc = Tall1[1]-Tall0[1];
+Treal = Tall1[3]-Tall0[3];
+	return [vtol(map(dp_dtop,G,Vt)),Proc,["Template",TTime,"CRT",CRTime,"IR",IRTime,"#P",I,"cpu",Tcpu,"gc",Tgc,"real",Treal]];
+}
+
+def store_minipoly(Mp)
+{
+	MiniPoly=Mp;
+}
+
+#if 0
+def large_factor(Mod)  
+{
+  A = nd_res(c1,MiniPoly,diff(MiniPoly,c1),Mod);
+  D = 4*a^3+27*b^2;
+  while ( Q = tdiv(A,D,Mod) ) A = Q;
+  while ( Q = tdiv(A,a,Mod) ) A = Q;
+  while ( Q = tdiv(A,b,Mod) ) A = Q;
+  setmod(Mod);
+  A = ptomp(A,Mod);
+  H = coef(A,deg(A,b),b);
+  H = coef(H,deg(H,a),a);
+  A /= H;
+
+  N=deg(A,b)/2;
+  M=deg(coef(A,2*N,b),a)/2;
+  CS=[];
+  for (I=0;I<=N;I++) {
+    CA="d"+rtostr(I);
+    CB=strtov(CA);
+    Y=Y+CB*b^I;
+    CS=cons(CB,CS);
+  }
+  PB=A-ptomp(1)*Y^2;
+  PS=[];
+  for (I=0;I<=2*N;I++) {
+    CC=coef(PB,I,b);
+    PS=cons(CC,PS);
+  }
+
+  LC = ptomp(1)*a^M;
+  ANS=[LC];
+  BNS=ANS[0]*b^N;
+  for (I=1;I<=N;I++) {
+    print(".",2);
+    C0X=coef(PS[I],0,CS[I]);
+    for (J=0;J<I;J++) {
+      C0X=subst(C0X,CS[J],ANS[J]);
+    }
+    AX=sdiv(C0X,2*LC);
+    ANS=append(ANS,[AX]);
+    BNS=BNS+ANS[I]*b^(N-I);
+  }
+  return [mptop(BNS),Mod];
+}
+#else
+def large_factor(Mod)  
+{
+  A = nd_res(c1,MiniPoly,diff(MiniPoly,c1),Mod);
+  D = 4+27*b^2;
+  while ( Q = tdiv(A,D,Mod) ) A = Q;
+  while ( Q = tdiv(A,b,Mod) ) A = Q;
+  L = modsqfr(A,Mod);
+  setmod(Mod);
+  GM = ptomp(L[1][0]);
+  GM /= coef(GM,deg(GM,b));
+  return [mptop(GM),Mod];
+}
+#endif
+
+extern TrueG$
+localf compare_trueg$
+
+def compare_trueg(GM,P)
+{
+  setmod(P);
+  T = ptomp(TrueG);
+  D = deg(T,b);
+  H = coef(T,D,b);
+  H = coef(H,deg(H,a),a);
+  T = mptop(T/H);
+  if ( T==GM ) print("ok");
+  else print("ng");
+}
+
+def largefactor_res(Mp)
+{
+    Proc = getopt(proc);
+    if ( type(Proc) == -1 ) {
+      Proc = [];
+      for ( I = 0; I < 10; I++ ) Proc = cons(ox_launch_nox(),Proc);
+    } else if ( type(Proc) == 1 ) {
+	  M = Proc;
+      Proc = [];
+      for ( I = 0; I < M; I++ ) Proc = cons(ox_launch_nox(),Proc);
+	}
+    MiniPoly = Mp;
+    
+	map(ox_reset,Proc);
+	map(ox_rpc,Proc,"noro_grcrt.store_minipoly",Mp);
+	map(ox_pop_local,Proc);
+    P0 = lprime(0); GM0 = large_factor(P0)[0]; 
+	for ( I = 1, Mod = 1, T = Proc; T != []; T = cdr(T), I++ )
+		ox_rpc(car(T),"noro_grcrt.large_factor",lprime(I));
+    G = 0;
+	while ( 1 ) {
+		for ( T = Proc; T != []; T = cdr(T), I++ ) {
+			print(["from",car(T)],2);
+			L = ox_pop_local(car(T)); GM = L[0]; P = L[1];
+			print(" done");
+			ox_rpc(car(T),"noro_grcrt.large_factor",lprime(I));
+T0 = time();
+			G = p_chrem2(G,Mod,GM,P);
+T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+			Mod *= P;
+		}
+T0 = time();
+        Bound = calcb(Mod);
+        Gr = intptoratp(G,Mod,Bound);
+        if ( Gr && p_checkcrt(Gr,GM0,P0) ) break;
+T1 = time(); IRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
+	}
+	map(ox_reset,Proc);
+	print(["CRT",CRTime,"IR",IRTime,"#P",I]);
+	return [ptozp(Gr),Proc];
 }
 
 endmodule$
@@ -1090,7 +1400,7 @@ def f4_chrem_d(B,V,O,Proc)
 	CRTime = 0; IRTime = 0;
 	/* gentrace */
 	I = 0;
-	map(ox_rpc,Proc,"noro_grcrt.store_bv",B,V);
+	map(ox_rpc,Proc,"noro_grcrt.store_minipoly",Mp);
 	map(ox_pop_local,Proc);
 T0 = time();
 	while ( 1 ) {
@@ -1154,5 +1464,3 @@ def store_bv(B,V)
 	GB_B=B;
 	GB_V=V;
 }
-
-
