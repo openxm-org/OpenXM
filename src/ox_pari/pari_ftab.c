@@ -52,6 +52,7 @@ struct parif parif_tab[] = {
   /* poly/array */
   {"galois",galois,1},
   {"roots",roots,1},
+  {"factpol",factpol,1},
 
   /* mat/mat */
   {"adj",adj,1},
