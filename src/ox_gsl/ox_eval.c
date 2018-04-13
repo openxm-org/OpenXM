@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.3 2018/04/05 13:02:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.4 2018/04/06 10:44:51 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -328,6 +328,7 @@ int eval_cmo(cmo *c, double *retval)
 {
     int tag = c->tag;
     switch(c->tag) {
+    case CMO_NULL:
     case CMO_ZERO:
         *retval = 0;
         break;
