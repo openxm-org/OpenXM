@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.4 2018/04/06 10:44:51 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.5 2018/04/13 16:51:42 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +50,11 @@ static double op_negative(double x)
     return -x;
 }
 
+static double op_parentheses(double x) 
+{
+    return x;
+}
+
 /* 定数は引数なしの関数として実現する。*/
 typedef struct {
     char *name;
@@ -90,6 +95,7 @@ entry global_dic[512] = {
     {"j1",0,j1,1},
     {"y0",0,y0,1},
     {"y1",0,y1,1},
+    {"()", 0,op_parentheses,1},
     {"-",  0,op_negative,1},
     {"+",  0,op_add,2},
     {"-",  0,op_sub,2},
