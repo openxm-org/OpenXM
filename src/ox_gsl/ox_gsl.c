@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.6 2018/04/05 10:50:17 ohara Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.7 2018/04/06 01:56:49 takayama Exp $
 */
 
 #include <stdio.h>
@@ -328,6 +328,8 @@ int sm_executeFunction()
     // The following functions are defined in call_gsl.c
     }else if (strcmp(func->s,"gsl_sf_lngamma_complex_e")==0) {
         call_gsl_sf_lngamma_complex_e();
+    }else if (strcmp(func->s,"gsl_integration_qags")==0) {
+        call_gsl_integration_qags();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
