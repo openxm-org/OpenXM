@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.5 2018/04/13 16:51:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_gsl/ox_eval.c,v 1.6 2018/04/17 02:50:07 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -118,9 +118,10 @@ int register_entry(char *s, double v)
 {
     entry *e = &local_dic[local_dic_counter];
     if(local_dic_counter<LOCAL_DIC_SIZE-1) {
-        e->name = s;
+        e->name = (char *)malloc(strlen(s)+1);
+        strcpy(e->name, s);
         e->v = v;
-		e->f = NULL;
+        e->f = NULL;
         local_dic_counter++;
         return 1;
     }
