@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.7 2018/04/06 01:56:49 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.8 2018/04/17 00:56:38 takayama Exp $
 */
 
 #include <stdio.h>
@@ -314,6 +314,7 @@ int sm_executeFunction()
         push(make_error2("sm_executeFunction, not CMO_STRING",NULL,0,-1));
         return -1;
     }
+    init_dic();
     // Test functions
     if (strcmp(func->s, "add_int32") == 0) {
         my_add_int32();

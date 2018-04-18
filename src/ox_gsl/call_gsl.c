@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.2 2018/03/30 04:43:16 takayama Exp $ 
+/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.3 2018/04/17 00:56:38 takayama Exp $ 
 */
 //#include <gsl/gsl_types.h>
 //#include <gsl/gsl_sys.h>
@@ -42,8 +42,11 @@ void  call_gsl_sf_lngamma_complex_e() {
 cmo *Func_x=NULL;
 double f_x(double x,void *params) {
   double d;
+  if (Debug) ox_printf("f_x\n");
   replace(1,"x",x);
+  if (Debug) ox_printf("f_x after replace x=%lg\n",x);
   if (eval_cmo(Func_x,&d)==0) GSL_ERROR("eval_cmo fails in f_x",GSL_ETOL);
+  if (Debug) ox_printf("f_x(%lg) -> d=%lg\n",x,d);
   return(d);
 }
 void  call_gsl_integration_qags() {
@@ -74,11 +77,12 @@ void  call_gsl_integration_qags() {
   b = get_double();
 
   F.function = &f_x;
+  F.params=NULL;
 
   status=gsl_integration_qags (&F, a, b, epsabs, epsrel, limit,
                                w, &result, &error); 
 
-//  printf ("result          = % .18f\n", result);
+  if (Debug) ox_printf ("result          = % .18f\n", result);
 //  printf ("estimated error = % .18f\n", error);
 //  printf ("intervals       = %zu\n", w->size);
 
