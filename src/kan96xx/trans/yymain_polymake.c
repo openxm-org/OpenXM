@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.3 2004/04/08 01:49:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.4 2004/07/15 07:50:40 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
@@ -30,7 +30,7 @@ main_t() {
 
 main() {
   int c,type;
-  
+  GC_INIT();  
   pmPutstr(-1);
   while ((c=getchar()) != EOF) {
 	pmPutstr(c);
@@ -50,7 +50,7 @@ main() {
   PMparse();
 }
 
-sGC_malloc(int n) {
+void *sGC_malloc(int n) {
   return GC_malloc(n);
 }
 
