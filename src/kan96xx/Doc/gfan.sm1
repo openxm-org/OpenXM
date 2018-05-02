@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.18 2009/12/11 02:09:09 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.19 2013/10/11 01:08:35 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -15,8 +15,26 @@
  (with polymake 2.0.  /@@@polymake.web 1 def is set by default in gfan.sm1.)
  (See changelog-ja.tex as to details on the difference between 2.0 and later versions.)
  (  )
- ( cone.Wt cone.Lpt {vertices in the output} are weights on the rays of the Grobner cone.)
- ( cone.L gives a basis of the linearity space.) 
+ (*cone.sample ; is an example. See the source code. The state polytope is the hexagon.)
+ (  )
+ (*cone.Wt cone.Lpt {vertices in the output} are weights on the rays of the Grobner cone.)
+ (*cone.L gives a basis of the linearity space.) 
+ (*cone.Lp gives a basis of the pointed cone. cone.Lpt is the transpose of cone.Lp.)
+ $*When v is a row vector in an ouput cone, (v cone.Lp cone.W) gives $
+ (  the corresponding weight vector in the full variable space in D)
+ (*cone.incidence is a list of [[cone num1,facet num1], [cone num2,facet num2]])
+ (  which means that cone num1 and cone num2 are adjacent and shares )
+ (  the facet num1 and the facet num2)
+ (*/cone.withGblist 1 def saves the Grobner basis standing for each cone.)
+ (  )
+ (*Cone descriptions: cone.fan)
+ (**A facet is given by its normal vector n of a cone. It gives facet num of the cone.)
+ (**A cone is defined by facet normal vectors n1, n2, ... as n1.x>=0 and n2.x >=0 and ...)
+ (**facetsv is a list of facets expressed by generators.)
+ (**nextcid is a list of the adjacent cone numbers.)
+ (**nextfid is a list of the shared facet numbers.)
+ (**vertices is the generators of a cone.)
+ (**inequalities are not necessarily unique.)
 ]
 ] putUsages
 
@@ -107,6 +125,9 @@ def
 cone.comment message
 (cone.input = ) message
 cone.input message
+%%% Step 0.  If you want to output Grobner basis standing for each cone, then uncomment
+% /cone.withGblist 1 def 
+
 %%%% Step 1.  Enumerating the Grobner Cones in a global ring.
 %%%%   The result is stored in cone.fan
 getGrobnerFan
@@ -115,7 +136,7 @@ getGrobnerFan
 printGrobnerFan 
 
 %%%% If you want to save the data to the file sm1out.txt, then uncomment.
-% /cone.withGblist 1 def saveGrobnerFan /ff set ff output 
+%saveGrobnerFan /ff set ff output 
 
 %%%% Step 2. Dehomogenize the Grobner Cones 
 %%%%  by the equivalence relation in a local ring (uncomment).
@@ -2780,6 +2801,7 @@ def
 /printGrobnerFan {
   [/i] pushVariables
   [
+  $(gfan) usage to find explanations on variables.$  message
   (==========  Grobner Fan ====================) message
    [
       (cone.comment)

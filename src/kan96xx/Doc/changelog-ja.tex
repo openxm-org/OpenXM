@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.34 2013/09/26 05:33:06 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.35 2015/10/12 11:29:48 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -129,6 +129,7 @@
 \section{2004-09-05, グレブナfanの計算}
 \begin{enumerate}
 \item polymake が必要.  9/1, 9/2, 9/3, 9/4 のノートも参照.
+@s/2004/08/21-note.pdf に変数等の説明あり.
 \item OpenXM の cvs への commit は大きい区切りで. 
       細かい変更は {\tt eventail/cone.sm1} で.
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
@@ -905,5 +906,8 @@ void *sGC_malloc(int n);
 \end{verbatim}
 } %% end tiny
 
+\noindent
+解決: OpenXM/src/util/mysig.c に sigaction を用いた signal emulation を加えた.
+これにより上記のようなトラブルは解消.
 \end{document}
 
