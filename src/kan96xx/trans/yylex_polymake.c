@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.4 2004/08/21 00:39:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.5 2009/09/04 02:25:30 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -164,7 +164,7 @@ static char *putstr2s(char *s) {
   return ss;
 }
 
-pmPreprocess() {
+int pmPreprocess() {
   int newp,oldp;
   int state;
   int i,j;
@@ -343,7 +343,7 @@ pmObjectp pmAddChild(pmObjectp c,pmObjectp a) {
   return a;
 }
 
-warning_yylex_polymake(char *s) {
+void warning_yylex_polymake(char *s) {
   fprintf(stderr,"Warning: %s",s);
 }
 

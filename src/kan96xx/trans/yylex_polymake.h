@@ -1,4 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.h,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.h,v 1.2 2018/05/02 21:25:38 takayama Exp $ */
+#include <stdlib.h>
+#include <string.h>
 #include "gc.h"
 struct pmObject {
   int tag;
@@ -43,4 +45,13 @@ void pmPrintObject(FILE *fp,pmObjectp a);
 char *pmObjectToStr(pmObjectp p);
 char *pmObjectToStr_aux(pmObjectp p);
 void *sGC_malloc(int n);
+
+int PMlex();
+int PMlex_aux();
+int pmPreprocess();
+void warning_yylex_polymake(char *s);
+void PMerror();
+
+
+
 

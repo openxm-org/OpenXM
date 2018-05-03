@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.4 2004/07/15 07:50:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.5 2018/05/02 21:25:38 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
@@ -54,6 +54,6 @@ void *sGC_malloc(int n) {
   return GC_malloc(n);
 }
 
-PMerror() {
+void PMerror() {
   fprintf(stderr,"Parse error. cf. yylex_polymake.c: PM_debug=1;\n");
 }
