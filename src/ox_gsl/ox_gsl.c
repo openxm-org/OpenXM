@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.8 2018/04/17 00:56:38 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.9 2018/04/18 02:20:51 takayama Exp $
 */
 
 #include <stdio.h>
@@ -6,6 +6,7 @@
 #include <setjmp.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <math.h>
 #include "ox_gsl.h"
 #include "call_gsl.h" // need only when you bind call_gsl functions.
@@ -454,7 +455,12 @@ int main()
     fd_rw = oxf_open(3);
     oxf_determine_byteorder_server(fd_rw);
   }
+#if defined(__CYGWIN__)
+  void *mysignal(int sig,void (*handler)(int m));
+  mysignal(SIGUSR1,usr1_handler);
+#else
   signal(SIGUSR1,usr1_handler);
+#endif
   
   while(1) {
     receive();

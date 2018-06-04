@@ -1,5 +1,6 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.15 2016/09/23 07:03:29 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.16 2018/03/27 07:05:17 noro Exp $  */
 
+#include <signal.h>
 #include "ox_pari.h"
 
 OXFILE *fd_rw;
@@ -321,7 +322,13 @@ int main()
     fd_rw = oxf_open(3);
     oxf_determine_byteorder_server(fd_rw);
   }
+
+#if defined(__CYGWIN__)
+  void *mysignal(int sig,void (*handler)(int m));
+  mysignal(SIGUSR1,usr1_handler);
+#else
   signal(SIGUSR1,usr1_handler);
+#endif
 
   while(1){
     receive();
