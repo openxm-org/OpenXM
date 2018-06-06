@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.4 2018/04/18 02:20:51 takayama Exp $ 
+/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.5 2018/06/06 07:40:32 takayama Exp $ 
 */
 //#include <gsl/gsl_types.h>
 //#include <gsl/gsl_sys.h>
@@ -107,12 +107,15 @@ double f_n(double x[],size_t dim,void *params) {
                 "x20","x21","x22","x23","x24","x25","x26","x27","x28","x29"
                };
   if (dim > 30) GSL_ERROR("f_n supports functions with args <= 30",GSL_ETOL);
-  if (Debug) ox_printf("f_n\n");
+  init_dic();
+  if (Debug) ox_printf("f_n, dim=%d\n",dim);
   for (i=0; i<dim; i++) {
-    replace(1,xx[i],x[i]);
+    if (Debug) ox_printf("x%d=%lg, ",i,x[i]);
+    register_entry(xx[i],x[i]);
   }
+  if (Debug) { ox_printf("\n"); fflush(NULL); }
   if (eval_cmo(Func_x,&d)==0) GSL_ERROR("eval_cmo fails in f_n",GSL_ETOL);
-  if (Debug) ox_printf("f_x(...) -> d=%lg\n",d);
+  if (Debug) ox_printf("\nf_x(...) -> d=%lg\n",d);
   return(d);
 }
 void  call_gsl_monte_plain_integrate() {
@@ -128,7 +131,8 @@ void  call_gsl_monte_plain_integrate() {
   double res, err;
   const gsl_rng_type *T;
   gsl_rng *r;
-  size_t calls = 500000;
+  //  size_t calls = 500000;
+  size_t calls = 500; // for test
   gsl_rng_env_setup ();
   T = gsl_rng_default;
   r = gsl_rng_alloc (T);
@@ -148,6 +152,7 @@ void  call_gsl_monte_plain_integrate() {
     push(make_error2("gsl_monte_plain: dim of interval differs.",NULL,0,-1));
     return;
   }
+  G.dim=dim;
   gsl_monte_plain_state *s = gsl_monte_plain_alloc (dim);
   gsl_monte_plain_integrate (&G, xl, xu, dim, calls, r, s, 
                              &res, &err);
