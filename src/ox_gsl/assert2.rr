@@ -1,0 +1,13 @@
+/* $OpenXM$ */
+#define myfail(s) printf("%a fails, Ans0=%a, Ans=%a\n",s,Ans0,Ans)
+#define dcmp(a,b) (deval(abs(1-a/b))<1e-10?1:0)
+Pid=ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
+// Try 1.
+//ox_cmo_rpc(Pid,"gsl_monte_plain_integrate",quote(1/(3.14^3*(1-cos(x0)*cos(x1)*cos(x2)))),[0.0,0.0,0.0],[3.14,3.14,3.14]); 
+//ox_cmo_rpc(Pid,"gsl_monte_plain_integrate",quote(1/(3.14^3*(1-cos(x0)*cos(x1)*cos(x2)))),[0.01,0.01,0.01],[3.14,3.14,3.14]); 
+ox_cmo_rpc(Pid,"gsl_monte_plain_integrate",quote(x0*x1*x2),[0.01,0.01,0.01],[3.14,3.14,3.14]); 
+Ans=ox_pop_cmo(Pid);
+end$
+Ans0=[1.05129e+06,-2.1069,0]$
+if (dcmp(Ans[0],Ans0[0])) myfail("Try1 real"); else ;
+if (dcmp(Ans[1],Ans0[1])) myfail("Try1 im"); else ;

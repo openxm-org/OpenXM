@@ -15,4 +15,7 @@ ox_cmo_rpc(Pid,"gsl_sf_lngamma_complex_e",deval(10^10),2); Ans=ox_pop_cmo(Pid);
 Ans0=[2.20259e+11,2.0694,0]$
 if (dcmp(Ans[0],Ans0[0])) myfail("Try4 real"); else ;
 if (dcmp(Ans[1],Ans0[1])) myfail("Try4 im"); else ;
+// Try 5.
+ox_cmo_rpc(Pid,"gsl_integration_qags",quote(log(x)/x^(1/2)),0.01,1);
+Ans=ox_pop_cmo(Pid);
 end$
