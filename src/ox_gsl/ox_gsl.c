@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.10 2018/06/04 06:39:26 ohara Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.11 2018/06/06 07:40:32 takayama Exp $
 */
 
 #include <stdio.h>
@@ -333,7 +333,11 @@ int sm_executeFunction()
     }else if (strcmp(func->s,"gsl_integration_qags")==0) {
         call_gsl_integration_qags();
     }else if (strcmp(func->s,"gsl_monte_plain_integrate")==0) {
-        call_gsl_monte_plain_integrate();
+        call_gsl_monte_plain_miser_vegas_integrate(0);
+    }else if (strcmp(func->s,"gsl_monte_miser_integrate")==0) {
+        call_gsl_monte_plain_miser_vegas_integrate(1);
+    }else if (strcmp(func->s,"gsl_monte_vegas_integrate")==0) {
+        call_gsl_monte_plain_miser_vegas_integrate(2);
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
