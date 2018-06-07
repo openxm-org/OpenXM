@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.11 2018/06/06 07:40:32 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.12 2018/06/07 01:53:33 takayama Exp $
 */
 
 #include <stdio.h>
@@ -472,4 +472,35 @@ int main()
     receive();
   }
   return(0);
+}
+
+cmo *element_of_at(cmo *list,int k) {
+  int length;
+  static cmo * saved_list = NULL;
+  static cmo **dic;
+  int i;
+  cell *cellp;
+  if (list == NULL) {
+    ox_printf("element_of_at: list is NULL.\n");
+    return( (cmo *)NULL);
+  }
+  if (list->tag != CMO_LIST) {
+    ox_printf("element_of_at: list is not list.\n");
+    return((cmo *)NULL);
+  }
+  length = list_length((cmo_list *)list);
+  if ((k < 0) || (k >= length)) {
+    ox_printf("element_of_at: out of bound length=%d, k=%d.\n",length,k);
+    return((cmo *)NULL);
+  }
+  if (list == saved_list) return(dic[k]);
+  saved_list = list;
+  dic = (cmo **)GC_malloc(sizeof(cmo *)*(length+1));
+  if (dic == NULL) return((cmo *)NULL); // no more memory.
+  cellp = list_first((cmo_list *)list);
+  for (i=0; i<length; i++) {
+    dic[i] = cellp->cmo;
+    cellp = list_next(cellp);
+  }
+  return(dic[k]);  
 }

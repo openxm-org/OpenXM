@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.4 2018/04/04 01:03:59 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.5 2018/04/06 01:56:49 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
@@ -49,4 +49,6 @@ void test_ox_eval();
 int eval_cmo(cmo *c,double *retval);
 int register_entry(char *s,double v);
 void init_dic();
+
+cmo *element_of_at(cmo *list,int k);
 
