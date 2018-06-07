@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.12 2018/06/07 01:53:33 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.13 2018/06/07 11:13:05 takayama Exp $
 */
 
 #include <stdio.h>
@@ -223,6 +223,30 @@ double get_double()
     myhandler("get_double: not a double",NULL,0,-1);
     return(NAN);
 }
+/* get_double() will be obsolted and will be replaced by cmo2double(c) */
+double cmo2double(cmo *c)
+{
+#define mympz(c) (((cmo_zz *)c)->mpz)
+  if (c == NULL) c = pop();
+    if (c->tag == CMO_INT32) {
+        return( (double) (((cmo_int32 *)c)->i) );
+    }else if (c->tag == CMO_IEEE_DOUBLE_FLOAT) {
+        return (((cmo_double *)c)->d);  // see ox_toolkit.h
+    }else if (c->tag == CMO_ZZ) {
+       if ((mpz_cmp_si(mympz(c),(long int) 0x7fffffff)>0) ||
+           (mpz_cmp_si(mympz(c),(long int) -0x7fffffff)<0)) {
+	 myhandler("get_double: out of int32",NULL,0,-1);
+         return(NAN);
+       }
+       return( (double) mpz_get_si(((cmo_zz *)c)->mpz));
+    }else if (c->tag == CMO_NULL) {
+        return(0);
+    }else if (c->tag == CMO_ZERO) {
+        return(0);
+    }
+    myhandler("cmo2double: not a double",NULL,0,-1);
+    return(NAN);
+}
 
 void my_add_double() {
   double x,y;
@@ -239,6 +263,44 @@ double *get_double_list(int *length) {
   double *d;
   int n,i;
   c = pop();
+  if (c->tag != CMO_LIST) {
+//    make_error2("get_double_list",NULL,0,-1);
+    *length=-1; return(0);
+  }
+  n = *length = list_length((cmo_list *)c);
+  d = (double *) GC_malloc(sizeof(double)*(*length+1));
+  cellp = list_first((cmo_list *)c);
+  entry = cellp->cmo;
+  for (i=0; i<n; i++) {
+    if (Debug) {
+      printf("entry[%d]=",i); print_cmo(entry); printf("\n");
+    }
+    if (entry->tag == CMO_INT32) {
+      d[i]=( (double) (((cmo_int32 *)entry)->i) );
+    }else if (entry->tag == CMO_IEEE_DOUBLE_FLOAT) {
+      d[i]=((cmo_double *)entry)->d;  
+    }else if (entry->tag == CMO_ZZ) {
+      d[i]=( (double) mpz_get_si(((cmo_zz *)entry)->mpz));
+    }else if (entry->tag == CMO_NULL) {
+      d[i]= 0;
+    }else {
+      fprintf(stderr,"entries of the list should be int32 or zz or double\n");
+      *length = -1;
+      myhandler("get_double_list",NULL,0,-1);
+      return(NULL);
+    }
+    cellp = list_next(cellp);
+    entry = cellp->cmo;
+  }
+  return(d);
+}
+/* get_double_list will be obsolted and will be replaced by cmo2double_list() */
+double *cmo2double_list(int *length,cmo *c) {
+  cmo *entry;
+  cell *cellp;
+  double *d;
+  int n,i;
+  if (c == NULL) c = pop();
   if (c->tag != CMO_LIST) {
 //    make_error2("get_double_list",NULL,0,-1);
     *length=-1; return(0);

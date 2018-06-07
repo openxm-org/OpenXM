@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.5 2018/04/06 01:56:49 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.6 2018/06/07 11:13:05 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
@@ -19,6 +19,9 @@ int main();
 
 double get_double();
 double *get_double_list(int *length);
+// They will be replaced by the following functions.
+double cmo2double(cmo *c);
+double *cmo2double_list(int *length,cmo *c);
 
 void init_gc();
 void *gc_realloc(void *p,size_t osize,size_t nsize);
