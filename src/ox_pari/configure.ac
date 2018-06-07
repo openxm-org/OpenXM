@@ -1,4 +1,4 @@
-dnl $OpenXM: OpenXM/src/ox_pari/configure.ac,v 1.2 2016/09/22 17:12:51 ohara Exp $
+dnl $OpenXM: OpenXM/src/ox_pari/configure.ac,v 1.3 2016/09/26 13:05:17 ohara Exp $
 
 AC_INIT(ox_pari,1.15)
 AC_CONFIG_SRCDIR([ox_pari.c])
@@ -25,7 +25,7 @@ if test "${enable_shared}" = no ; then
 fi
 AC_SUBST([OXLIBS])
 
-AC_DEFINE([_POSIX_C_SOURCE])
+dnl AC_DEFINE([_POSIX_C_SOURCE])
 
 AC_CHECK_FUNCS(sigaction)
 dnl dnl for Solaris 2.x
