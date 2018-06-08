@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.6 2018/06/06 10:46:00 takayama Exp $ 
+/* $OpenXM: OpenXM/src/ox_gsl/call_gsl.c,v 1.7 2018/06/07 01:53:33 takayama Exp $ 
 */
 //#include <gsl/gsl_types.h>
 //#include <gsl/gsl_sys.h>
@@ -100,16 +100,17 @@ void  call_gsl_integration_qags() {
   push(ans);
 }  
 
+#define VEC_MAX 30
 double f_n(double x[],size_t dim,void *params) {
   int debug_f_n=0;
   double d;
   int i;
-  char *xx[30]={"x0","x1","x2","x3","x4","x5","x6","x7","x8","x9",
+  char *xx[VEC_MAX]={"x0","x1","x2","x3","x4","x5","x6","x7","x8","x9",
                 "x10","x11","x12","x13","x14","x15","x16","x17","x18","x19",
                 "x20","x21","x22","x23","x24","x25","x26","x27","x28","x29"
                };
 //  debug_f_n = Debug;
-  if (dim > 30) GSL_ERROR("f_n supports functions with args <= 30",GSL_ETOL);
+  if (dim > VEC_MAX) GSL_ERROR("f_n supports functions with args <= VEC_MAX",GSL_ETOL);
   init_dic();
   if (debug_f_n) ox_printf("f_n, dim=%d\n",dim);
   for (i=0; i<dim; i++) {

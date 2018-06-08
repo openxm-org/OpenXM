@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.13 2018/06/07 11:13:05 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.14 2018/06/07 11:49:51 takayama Exp $
 */
 
 #include <stdio.h>
@@ -400,6 +400,8 @@ int sm_executeFunction()
         call_gsl_monte_plain_miser_vegas_integrate(1);
     }else if (strcmp(func->s,"gsl_monte_vegas_integrate")==0) {
         call_gsl_monte_plain_miser_vegas_integrate(2);
+    }else if (strcmp(func->s,"gsl_odeiv_step_rk4")==0) {
+        call_gsl_odeiv_step("rk4");
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
@@ -565,4 +567,11 @@ cmo *element_of_at(cmo *list,int k) {
     cellp = list_next(cellp);
   }
   return(dic[k]);  
+}
+
+int get_length(cmo *c) {
+  if (c->tag != CMO_LIST) {
+    return(-1);
+  }
+  return(list_length((cmo_list *)c));
 }
