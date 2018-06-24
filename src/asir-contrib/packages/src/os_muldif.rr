@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.30 2018/06/04 05:53:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.31 2018/06/13 02:09:12 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -463,7 +463,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00180609"$
+Muldif.rr="00180622"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -15431,16 +15431,27 @@ def ptcopy(L,V)
 
 def	average(L)
 {
-	L=os_md.m2l(L|flat=1);
-	M0=M1=car(L);
-	for(I=SS=0, LT=L; LT!=[]; LT=cdr(LT), I++){
-		S+=(V=car(LT));
-		SS+=V^2;
-		if(V<M0)		M0=V;
-		else if(V>M1)	M1=V; 
+	if(getopt(opt)=="co"){
+		S0=average(L[0]);V0=car(S0);
+		S1=average(L[1]);V1=car(S1);
+		L0=os_md.m2l(L[0]|flat=1);
+		L1=os_md.m2l(L[1]|flat=1);
+		for(S=0;L0!=[];L0=cdr(L0),L1=cdr(L1))
+			S+=(car(L0)-V0)*(car(L1)-V1);
+		S/=S0[1]*S1[1]*S0[2];
+		S=[S,S0,S1];
+	}else{
+		L=os_md.m2l(L|flat=1);
+		M0=M1=car(L);
+		for(I=SS=0, LT=L; LT!=[]; LT=cdr(LT), I++){
+			S+=(V=car(LT));
+			SS+=V^2;
+			if(V<M0)		M0=V;
+			else if(V>M1)	M1=V; 
+		}
+		SS=dsqrt(SS/I-S^2/I^2);
+		S=[deval(S/I),SS,I,M0,M1];
 	}
-	SS=dsqrt(SS/I-S^2/I^2);
-	S=[deval(S/I),SS,I,M0,M1];
 	if(isint(N=getopt(sint))) S=sint(S,N);
 	return S;
 }
