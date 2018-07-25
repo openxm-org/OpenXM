@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.7 2015/03/05 05:57:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.8 2015/03/05 06:03:34 ohara Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -38,6 +38,7 @@ localf optip$
 localf testip1$
 localf testip2$
 localf expectation$
+localf gmvector$
 localf test_exp1$
 localf toric_in$
 localf lfac$
@@ -316,9 +317,14 @@ def  testip2() {
   Expectation E[RandomVarible] at  X=Pt for A-HG distribution for (A,B).
   If fd=1, A is assumed to be FD.
 */
-def  expectation(A,B,Pt,RandomVariable) {
+def  expectation(A,B,Pt,RandomVariable) 
+"expectation(A,B,Pt,RandomVariable)\
+Ex. expectation([[1,1,1],[0,1,2]],[5,6],[1,1,1/3],[x_1,x_2,x_3,x_1*x_2]);"
+{
   FD = getopt(fd);
   if (type(FD)<0) FD=0; 
+  GM = getopt(gm);
+  if (type(GM)<0) GM=0;
   N = length(A[0]);
   V=[]; DV=[];
   for (I=1; I<=N; I++) {
@@ -340,10 +346,24 @@ def  expectation(A,B,Pt,RandomVariable) {
   }
   /* print(Z); */
   if (type(RandomVariable)!=4) RandomVariable=[RandomVariable];
-  L = map(taka_dr1.euler2diff,RandomVariable,V,V,DV);
+  if (!GM) {
+    L = map(taka_dr1.euler2diff,RandomVariable,V,V,DV);
+  }else {
+    L=RandomVariable;
+  }
   E = map(odiff_act,L,Z,V);
   E = newvect(length(E),base_replace(E,Rule));
-  return(vtol(E/base_replace(Z,Rule)));
+  if (!GM) {
+    return(vtol(E/base_replace(Z,Rule)));
+  }else {
+    return(vtol(E));
+  }
+}
+def gmvector(A,B,P,Diff) 
+"gmvector(A,B,P,Diff)\
+Ex. gmvector([[1,1,1],[0,1,2]],[5,6],[1,1,1/3],[1,dx_3,dx_1,dx_2]);" 
+{
+   return expectation(A,B,P,Diff | gm=1);
 }
 def test_exp1() {
   X=[[1,1/2,1/3],[1,1,1]];
