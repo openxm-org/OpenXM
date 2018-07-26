@@ -1,0 +1,669 @@
+/*
+$OpenXM$
+gtt_ds.rr  gtt_ekn for Direct Sampler  2018.07.09
+*/
+import("gtt_ekn.rr")$
+#define USE_MODULE 1
+
+#ifdef USE_MODULE
+module gtt_ds;
+localf eeii$
+localf vvb$
+localf init_load$
+localf set_debug$
+localf init$
+localf alpha_move_to_contiguity$
+localf gmvector_cached$
+localf update_gm$
+localf normalize_p$
+localf matrix_is_zero$
+localf init_p$
+localf map_to_expectation_r1r2$
+localf update_DS_b_p$
+localf init_update_DS_b_p$
+localf check1$
+localf vector_sum$
+localf direct_sampler$
+localf tk_poly_lcm$
+localf tk_poly_denom$
+localf get_denom_list$
+localf show_globals$
+localf check2$
+localf expectation_of_shape_one$
+localf check3$
+localf check4$
+localf check5$
+localf new_hash$
+localf get_from_hash$
+localf put_in_hash$
+localf gmvector_hashed$
+localf check6$
+
+static DS_k$  // k of [GM]
+static DS_n$  // n of [GM]  (k+1) x (n+1) contingency table.
+static DS_b_move$  // b: marginal sum, possible moves.
+static DS_alpha_move$
+static DS_a0$  // a0 replace rule.
+static DS_contiguity$
+static DS_contiguity_denom$  // denominator of the contiguity.
+
+static DS_b_prev$   // b
+static DS_gm_prev$  // gm vector
+static DS_nn_prev$  // nn total
+static DS_fast_count$
+static DS_slow_count$
+
+// 2018.07.11
+static DS_p$   // prob P
+static DS_b$   // maginal b
+static DS_row$  // map for the case b contains 0
+static DS_col$
+static DS_r1$  // original size of contingency table.
+static DS_r2$
+
+static DS_debug$
+static DS_rule_tmp$  // for debug.
+
+static DS_p_orig$
+// 2018.07.13  Cache
+static DS_CACHE_SIZE$
+static DS_b_move_cache$
+static DS_contiguity_cache$
+static DS_contiguity_denom_cache$
+// 2018.07.13 hash table of GM
+static DS_HASH_SIZE$
+static DS_gm_hash$
+
+#else
+
+extern DS_k$  // k of [GM]
+extern DS_n$  // n of [GM]  (k+1) x (n+1) contingency table.
+extern DS_b_move$  // b: marginal sum, possible moves.
+extern DS_alpha_move$
+extern DS_a0$  // a0 replace rule.
+extern DS_contiguity$
+extern DS_contiguity_denom$  // denominator of the contiguity.
+
+extern DS_b_prev$   // b
+extern DS_gm_prev$  // gm vector
+extern DS_nn_prev$  // nn total
+extern DS_fast_count$
+extern DS_slow_count$
+
+// 2018.07.11
+extern DS_p$   // prob P
+extern DS_b$   // maginal b
+extern DS_row$  // map for the case b contains 0
+extern DS_col$
+extern DS_r1$  // original size of contingency table.
+extern DS_r2$
+
+extern DS_debug$
+extern DS_rule_tmp$  // for debug.
+
+extern DS_p_orig$
+// 2018.07.13  Cache
+extern DS_CACHE_SIZE$
+extern DS_b_move_cache$
+extern DS_contiguity_cache$
+extern DS_contiguity_denom_cache$
+// 2018.07.13 hash table of GM
+extern DS_HASH_SIZE$
+extern DS_gm_hash$
+
+#endif
+
+def eeii(I,Size) {
+  V=newvect(Size);
+  V[I]=-1;
+  return(V);
+}
+def vvb(B) {
+  // build a vector of vectors.
+  NewB=newvect(2);
+  NewB[0] = matrix_list_to_matrix(B[0]);
+  NewB[1] = matrix_list_to_matrix(B[1]);
+  return(NewB);
+}
+/* It is called when this file is loaded. */
+def init_load() 
+"Initialize all caches and global variables."
+{
+  DS_k=0;
+  DS_n=0;
+
+  DS_b=0;
+  DS_p=0;
+  DS_debug=0;
+  
+  DS_CACHE_SIZE=10;
+  DS_b_move_cache= newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
+  DS_contiguity_cache = newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
+  DS_contiguity_denom_cache = newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
+
+  DS_HASH_SIZE=100;
+  DS_gm_hash=newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
+
+  return(0);
+}
+def set_debug(L) 
+"set_debug(L): set the debug message mode to L."
+{
+  DS_debug=L;
+}
+def init(B) {
+  DS_b_prev=0;
+  DS_gm_prev=0;
+  DS_nn_prev=0;
+  DS_fast_count=0;
+  DS_slow_count=0;
+
+  DS_k=length(B[0])-1;
+  DS_n=length(B[1])-1;
+  if (DS_b_move_cache[DS_k+1][DS_n+1] == 0) {
+   DS_b_move=newmat(DS_k+1,DS_n+1);
+   // DS_b_move is a vector of vectors.
+   for (I=0; I<DS_k+1; I++) {
+    for (J=0; J<DS_n+1; J++) {
+      DS_b_move[I][J] = vvb([eeii(I,DS_k+1),eeii(J,DS_n+1)]);
+    }
+   }
+   DS_b_move_cache[DS_k+1][DS_n+1] = matrix_clone(DS_b_move);
+  }else{
+   DS_b_move=matrix_clone(DS_b_move_cache[DS_k+1][DS_n+1]);
+  }
+
+  if (DS_contiguity_cache[DS_k+1][DS_n+1] == 0) {
+   DS_alpha_move=newmat(DS_k+1,DS_n+1);
+   for (I=0; I<DS_k; I++) {
+    // case J==0
+    DS_alpha_move[I][0] = [u,I+1,d,(DS_k+DS_n+1)];
+    // case J > 0
+    for (J=1; J<DS_n+1; J++) {
+      DS_alpha_move[I][J] = [u,I+1,d,(DS_k+J)];
+    }
+   }
+   I=DS_k;
+   DS_alpha_move[I][0] = [d,(DS_k+DS_n+1)];
+   for (J=1; J<DS_n+1; J++) {
+    DS_alpha_move[I][J] = [d,(DS_k+J)];
+   }
+  }
+
+  // Todo, DS_a0 should also be cached.
+  DS_a0=0;
+  for (I=1; I<=DS_k+DS_n+1; I++) DS_a0 += util_v(a,[I]);
+  DS_a0 = - DS_a0;
+
+  if ((DS_k == 0) || (DS_n == 0)) {
+    DS_contiguity=0; DS_contiguity_denon=0; return(0);
+  }
+
+  if (DS_contiguity_cache[DS_k+1][DS_n+1] == 0) {
+   DS_contiguity=newmat(DS_k+1,DS_n+1);
+   for (I=0; I<DS_k+1; I++) {
+    for (J=0; J<DS_n+1; J++) {
+      DS_contiguity[I][J] = alpha_move_to_contiguity(DS_alpha_move[I][J]);
+    }
+   }
+   DS_contiguity_cache[DS_k+1][DS_n+1] = DS_contiguity;
+   DS_contiguity_denom=newmat(DS_k+1,DS_n+1);
+   for (I=0; I<DS_k+1; I++) {
+    for (J=0; J<DS_n+1; J++) {
+      DS_contiguity_denom[I][J] = get_denom_list(DS_contiguity[I][J]);
+    }
+   }
+   DS_contiguity_denom_cache[DS_k+1][DS_n+1] = DS_contiguity_denom;
+  }else{
+   DS_contiguity=DS_contiguity_cache[DS_k+1][DS_n+1];
+   DS_contiguity_denom=DS_contiguity_denom_cache[DS_k+1][DS_n+1];
+  }
+  return(0);
+}
+
+/*
+  When the return value is [L1,L2],
+  L1*L2*GM gives the NewGM.
+  a_i in Li should be replaced by these values for GM (not for NewGM).
+  cf. gmvector_cached
+*/
+def alpha_move_to_contiguity(Alpha_move) {
+  if (length(Alpha_move)==4) {
+    if (Alpha_move[0] == u) {
+      C=gtt_ekn.upAlpha(Alpha_move[1],DS_k,DS_n);
+      C=base_replace(C,[[a_0,DS_a0]]);
+      A1=util_v(a,[Alpha_move[1]]);
+      Rule=[[A1,A1+1]];
+    } else debug("Not implemented.");
+    if (Alpha_move[2] == d) {
+      C2=gtt_ekn.downAlpha(Alpha_move[3],DS_k,DS_n);
+      C2=base_replace(C2,[[a_0,DS_a0]]);
+      C2=base_replace(C2,Rule);
+    } else debug("Not implemented.");    
+    return([C2,C]);
+  }
+  if (length(Alpha_move)==2) {
+    if (Alpha_move[0] == d) {
+      C2=gtt_ekn.downAlpha(Alpha_move[1],DS_k,DS_n);
+      C2=base_replace(C2,[[a_0,DS_a0]]);
+    } else debug("Not implemented.");    
+    return([C2]);
+  }
+  debug("Not implemented");
+}
+
+/*
+  init([[0,0],[0,0,0]]);
+  alpha_move_to_contiguity(DS_alpha_move[0][0]);
+*/
+
+// P must be the normal form.
+// If ( | forced=1 ), then gtt_ekn.gmvector is called.
+def gmvector_cached(B,P) {
+  ShapeOne=0;
+  if (type(getopt(forced)) > 0) Forced=1;
+  else Forced=0;
+  if ((length(B[0]) != DS_k+1) || (length(B[1]) != DS_n+1)) {
+    init(B); init_p(P);
+  }
+    if (type(B) == 4) B=vvb(B);
+    for (NN=0,I=0; I<DS_k+1; I++) NN += B[0][I];
+    if ((DS_k == 0) || (DS_n==0)) Forced=ShapeOne=1;
+    // ShapeOne is the case that the contingency table is of the form
+    // 1 x r2  or  r1 x 1
+
+    if ((NN == DS_nn_prev-1) && (!Forced)) {
+      DS_fast_count++;
+      DS_nn_prev=NN;  
+      for (I=0; I<DS_k+1; I++) {
+        for (J=0; J<DS_n+1; J++) {
+          if (B == DS_b_prev+DS_b_move[I][J]) {
+            GM=update_gm(I,J,DS_b_prev,P,DS_gm_prev);
+            // contiguity の分母=0 となる時は 0 を戻す.
+            if (GM==0) return gmvector_cached(B,P|forced=1);
+            DS_b_prev=matrix_clone(B);
+            DS_gm_prev=GM;
+            return(GM);
+          }
+	}
+      }
+      printf("Fail to find a move in B_move.\n");
+      DS_fast_count--;
+    }
+
+    DS_slow_count++;
+    DS_nn_prev=NN;
+    DS_b_prev=matrix_clone(B);
+    if (ShapeOne) {
+      DS_gm_prev=0;
+    }else{
+//      DS_gm_prev=gtt_ekn.gmvector(B,P);
+      DS_gm_prev=gmvector_hashed(B,P,NN,DS_k,DS_n); // It will be faster.
+    }
+    return(DS_gm_prev);
+}
+
+/* 
+  P is assumed to be the normal form with 1 of the L shape.
+  ex. [[1,x_1_1,x_1_2],
+       [1,1,    1]]
+*/
+def update_gm(II,JJ,B,P,GM) {
+  Rule=[];
+  for (I=1; I<=DS_k; I++) {
+    Rule=cons([util_v(a,[I]),-B[0][I-1]],Rule);
+  }
+  for (I=DS_k+1; I<=DS_k+DS_n; I++) {
+    Rule=cons([util_v(a,[I]),B[1][I-DS_k]],Rule);
+  }
+  Rule=cons([util_v(a,[DS_k+DS_n+1]),B[1][0]],Rule);
+
+  for (I=1; I<=DS_k; I++) {
+    for (J=1; J<=DS_n; J++) {
+      Rule=cons([util_v(x,[I,J]),P[I-1][J]],Rule);
+    }
+  }
+  DS_rule_tmp=Rule;
+  
+  L=DS_contiguity[II][JJ];
+  Dd = DS_contiguity_denom[II][JJ];
+  for (I=length(L)-1; I>=0; I--) {
+    if (base_replace_n(Dd[I],Rule)==0) return(0);
+    GM=base_replace_n(L[I],Rule)*GM;
+  }
+  return(GM);
+}
+
+/*
+init([[0,0],[0,0]]);
+gmvector_cached([[4,3],[5,2]],[[1,1/2],[1,1]]);
+gmvector_cached([[3,3],[4,2]],[[1,1/2],[1,1]]);
+gtt_ekn.gmvector([[3,3],[4,2]],[[1,1/2],[1,1]]);
+gmvector_cached([[2,3],[4,1]],[[1,1/2],[1,1]]);
+ */
+
+/* 2018.07.10
+  The normal form of P with L's of 1.
+*/
+def normalize_p(P) {
+  if (type(P) != 6) P=matrix_list_to_matrix(P);
+  Size=size(P);
+  D=Size[0]; N=Size[1];
+  NP = matrix_clone(P);
+  for (I=0; I<D; I++) NP[I][0]=1;
+  for (J=0; J<N; J++) NP[D-1][J] = 1;
+  if ((D==1) || (N==1)) return(NP);
+  for (I=0; I<D-1; I++) {
+    for (J=1; J<N; J++) {
+      NP[I][J] = util_v(x,[I+1,J]);
+    }
+  }
+  Rule=gtt_ekn.xRule_num(P,D-1,N-1);
+  NP = base_replace_n(NP,Rule);
+  return(NP);
+}
+
+def matrix_is_zero(A) {
+  if (type(A) == 6) {
+    D=size(A)[0]; N=size(A)[1];
+  }else{
+    D=length(A); N=length(A[0]);
+  }
+  for (I=0; I<D; I++) {
+    for (J=0; J<N; J++) {
+      if (A[I][J] != 0) return(0);
+    }
+  }
+  return(1);
+}
+def init_p(P) {
+  if (type(P) != 6) P=matrix_list_to_matrix(P);
+  NP=normalize_p(P);
+  DS_p=NP;
+  if (!matrix_is_zero(P-NP)) error("P is not the normal form. Call normalize_p(P) in advance.");
+}
+
+// 2018.07.11
+// It is not used.
+def map_to_expectation_r1r2(E,Row,Col,R1,R2) {
+  OE=newmat(R1,R2);
+  for (I=0; I<length(Row); I++) {
+    for (J=0; J<length(Col); J++) {
+      OE[Row[I]][Col[J]] = E[I][J];
+    }
+  }
+  return(OE);
+}
+
+/*
+  the following global variables are updated.
+  DS_p   // normal form. 
+  DS_b
+  DS_row // map
+  DS_col
+
+  DS_p and DS_b are arguments.
+  init_update_DS_b_p(B,P) sets DS_b and DS_p
+*/
+def update_DS_b_p() {
+  if (type(getopt(force)) < 0) {
+    if (!((base_position(0,DS_b[0])>=0) || (base_position(0,DS_b[1])>=0))) {
+       return(0);
+    }
+  }
+  if (matrix_is_zero(DS_b)) {
+    printf("Note: no more update is possible in update_DS_b_p()\n");
+    return(0);
+  }
+  Row=[]; New_b_row=[];
+  for (I=0; I<length(DS_b[0]); I++) {
+    if (DS_b[0][I] != 0) {
+      if (DS_row==0) {
+        Row=cons(I,Row);
+      }else{
+        Row=cons(DS_row[I],Row);
+      }
+      New_b_row=cons(DS_b[0][I],New_b_row);
+    }
+  }
+  DS_row = matrix_list_to_matrix(reverse(Row));
+  New_b_row = reverse(New_b_row);
+
+  Col=[]; New_b_col=[];
+  for (J=0; J<length(DS_b[1]); J++) {
+    if (DS_b[1][J] != 0) {
+      if (DS_col==0) {
+        Col=cons(J,Col);
+      }else{
+        Col=cons(DS_col[J],Col);
+      }
+      New_b_col=cons(DS_b[1][J],New_b_col);
+    }
+  }
+  DS_col = matrix_list_to_matrix(reverse(Col));
+  New_b_col = reverse(New_b_col);
+
+  // update B
+  DS_b = vvb([New_b_row,New_b_col]);
+
+  // update P
+  NewP = newmat(length(DS_row),length(DS_col));
+  for (I=0; I<length(DS_row); I++) {
+    for (J=0; J<length(DS_col); J++) {
+       NewP[I][J] = DS_p_orig[DS_row[I]][DS_col[J]];
+    }
+  }
+  if (DS_debug) printf("NewP=\n%a\n",NewP);
+  DS_p = normalize_p(NewP);
+  init(DS_b);
+  return(1);
+}
+def init_update_DS_b_p(B,P) {
+  B=vvb(B);
+  P=matrix_list_to_matrix(P);
+  DS_b=matrix_clone(B);
+  DS_p=matrix_clone(P);
+  DS_r1=length(B[0]);
+  DS_r2=length(B[1]);
+  DS_p_orig=matrix_clone(P);
+  DS_row=0;
+  DS_col=0;
+}
+
+def check1() {
+//  DS_b=vvb([[0,10,11],[5,16,0]]);
+  DS_b=vvb([[0,10,11],[0,5,16]]);
+  DS_p=matrix_list_to_matrix([[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+  printf("DS_p=\n%a\nDS_b=\n%a\n==>\n",DS_p,DS_b);
+  update_DS_b_p();
+  printf("DS_row=%a, DS_col=%a\n",DS_row,DS_col);
+  printf("DS_p=\n%a\nDS_b=\n%a\n\n",DS_p,DS_b);
+  map_to_expectation_r1r2([[1,2],[3,4]],DS_row,DS_col,3,3);
+}
+
+def vector_sum(V) {
+  S=0; N=length(V);
+  for (I=0; I<N; I++) S+=V[I];
+  return(S);
+}
+def direct_sampler(B,P) 
+"direct_sampler(B,P): B is a marginal sum of two way contingency table and\
+P is the cell probability. sum(B[0]) must be equal to sum(B[1]).\
+Example: (2 x 3 table) B=[[5,6],[3,3,5]];P=[[1,1/2,1/3],[1,1,1]];\
+for (I=0; I<10; I++) print(gtt_ds.direct_sampler(B,P));"
+{
+  init_update_DS_b_p(B,P);
+  C = newmat(length(B[0]),length(B[1]));
+  update_DS_b_p(|force=1);
+  NN=vector_sum(B[0]);
+  for (II=0; II<NN; II++) {
+
+    update_DS_b_p();
+    GM=gmvector_cached(DS_b,DS_p);
+    if (GM) E=gtt_ekn.cBasistoE(GM,DS_b,DS_p);
+    else E=expectation_of_shape_one(DS_b);
+    if (DS_debug) {
+      show_globals();
+      printf("E=\n%a\n",E);
+    }
+    
+    R=deval((random() % 0x100000000)/0x100000000);
+    SumE=0; Done=0;
+    L0=length(DS_b[0]); L1=length(DS_b[1]);
+    for (I=0; I<L0; I++) {
+      if (DS_nn_prev <= 0) break;
+      for (J=0; J<L1; J++) {
+        SumE += E[I][J]/DS_nn_prev;
+	if ((R < SumE) || ((I==L0-1) && (J==L1-1))) {
+	  C[DS_row[I]][DS_col[J]]++;
+	  DS_b = DS_b+DS_b_move[I][J];
+          if (DS_debug) printf("move[%a][%a]=%a, %a\n",I,J,DS_b_move[I][J][0],DS_b_move[I][J][1]);
+          Done=1; break;
+	}
+      }
+      if (Done) break;
+    }
+  }
+  return(C);
+}
+
+def tk_poly_lcm(L) {
+  if (type(L)<4) return(L);
+  if (length(L) == 1) return L[0];
+  if (length(L) == 0) return 1;
+  F=car(L); G=tk_poly_lcm(cdr(L));
+  return red(F*G/gcd(F,G));
+}
+def tk_poly_denom(M) {
+  if (type(M)<4) return(dn(M));
+  DL=map(dn,M);
+  DL=base_flatten(DL);
+  return tk_poly_lcm(DL);
+}
+def get_denom_list(L) {
+  D=[];
+  for (I=0; I<length(L); I++) {
+    D = cons(tk_poly_denom(L[I]),D);
+  }
+  return reverse(D);
+}
+
+def show_globals() {
+  printf("=============================\n");
+  printf("DS_b=\n%a, %a\n",DS_b[0],DS_b[1]);
+  printf("DS_p=\n%a\n",DS_p); 
+  printf("DS_row=%a, DS_col=%a\n",DS_row, DS_col);
+  printf("DS_b_prev=%a, %a\n",DS_b_prev[0],DS_b_prev[1]);
+  printf("DS_gm_prev=\n%a\n",DS_gm_prev); 
+  printf("DS_nn_prev=%a\n",DS_nn_prev);
+}
+
+def check2() {
+  DS_debug=1;
+  direct_sampler([[4,5],[3,6]],[[1,1/2],[1,1]]);
+}
+
+// 2018.07.12
+def expectation_of_shape_one(B) {
+  if (length(B[0]) == 1) {
+     return(matrix_list_to_matrix([vtol(B[1])]));
+  }
+  if (length(B[1]) == 1) {
+     return(matrix_transpose(matrix_list_to_matrix([vtol(B[0])])));
+  }
+  error("B is not ShapeOne");
+}
+
+def check3() {
+  DS_debug=0;
+  C=direct_sampler([[72,87],[109,50]],[[1,9/10],[1,1]]);
+  print(C);
+}
+
+def check4() {
+  DS_debug=0;
+  C=direct_sampler([[1,6,12],[5,5,9]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+  print(C);
+}
+def check5() {
+  DS_debug=0; 
+  // acetaminophen ,,,
+  C=direct_sampler([[13,43],[36,12,8]],[[1,9/10,9/11],[1,1,1]]);
+  print(C);
+}
+
+// 2018.07.13  
+def new_hash(NBPGM) {
+// NBPGM = [Nall,B,P,GM];  Nall is row sum (=col sum).
+  L=newvect(DS_HASH_SIZE);
+  Nall=NBPGM[0];
+  L[Nall % DS_HASH_SIZE] = [NBPGM];
+  return(L);
+}
+def get_from_hash(NBP,KN) {
+// NBP = [Nall,B,P];
+  L=DS_gm_hash[KN[0]][KN[1]];
+  if (L == 0) return(0);
+  NN=NBP[0];
+  if ((S=L[NN % DS_HASH_SIZE]) != 0) {
+    while (S != []) {
+      D=car(S);
+      if (D[0] == NN) {
+        if ((D[1] == NBP[1]) && (D[2] == NBP[2])) {
+           return(D[3]);
+        }
+      }
+      S = cdr(S);
+    }
+  }
+  return(0);
+}
+def put_in_hash(NBP,KN) {
+  L=DS_gm_hash[KN[0]][KN[1]];
+  if (L == 0) {
+    L=DS_gm_hash[KN[0]][KN[1]]=new_hash(NBP);
+    return(1);
+  }
+  NN=NBP[0];
+  if ((S=L[NN % DS_HASH_SIZE]) == 0) {
+    L[NN % DS_HASH_SIZE] = [NBP];
+    return(1);
+  }
+  L[NN % DS_HASH_SIZE] = cons(NBP,S);
+  return(1);
+}
+// KK=DS_k, NN=DS_n
+// B must be a vector of vectors, P must be a matrix.
+// dsamp3.rr takes 660s (about 100s faster).
+// Todo, bug of dsamp3.rr: mean should be replaced by cmle.
+def gmvector_hashed(B,P,Nall,KK,NN) {
+  if ((GM=get_from_hash([Nall,B,P],[KK,NN])) == 0) {
+     GM=gtt_ekn.gmvector(B,P);
+     put_in_hash([Nall,B,P,GM],[KK,NN]);
+     return(GM);
+   }else{
+     return(GM);
+   }
+}
+
+// 2018.07.14
+def check6() {
+  // report180324.pdf
+  U=[[53,19],[56,31]];
+  Cmle=gtt_ekn.cmle(U);
+//  R=number_float_to_rational(Cmle);
+  return Cmle;
+}
+/*Note: file={@s/2018/07/20170725-tk_ds-gtt_ds-note.pdf} 
+  list of programs, hand written comments
+Note: file={@s/2018/07/20170725-my-note.pdf}
+*/
+
+#ifdef USE_MODULE
+endmodule;
+gtt_ds.init_load()$
+#else
+init_load()$
+#endif
+
+end$

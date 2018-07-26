@@ -1,0 +1,652 @@
+/*
+  $OpenXM$
+  2018.07.17,  tk_ds_ahg.rr
+*/
+import("names.rr")$
+import("yang.rr")$
+import("ot_hgm_ahg.rr")$
+import("tk_hgpoly.rr")$
+#define USE_MODULE 1
+#ifdef USE_MODULE
+module tk_ds_ahg;
+localf init_load$
+localf gkz_with_b$
+localf tt_add_d$
+localf build_contiguity_0$
+localf a2avec$
+localf init$
+localf init_contiguity$
+localf show_globals$
+localf gmvector_cached$
+localf gmvector_init_by_globals$
+localf update_gm$
+localf check1$
+localf is_there_negative_elem$
+localf build_A$
+localf is_there_impossible_move$
+localf update_A_b$
+localf vector_sum$
+localf gmtoE$
+localf direct_sampler$
+localf check2$
+localf hgm_ahg_evaluation_contiguity_by_hgpoly$
+localf act_d_mon$
+localf solve_lin$
+localf check3$
+localf set_debug$
+
+static DS2_use_ot$  // call the ot_hgm_ahg or call the slow tk_hgpoly
+static DS2_debug$
+static DS2_gm_base$
+static DS2_gm_prev$
+static DS2_b$
+static DS2_b_prev$
+static DS2_nn$  // |b|
+static DS2_nn_prev$  // |b|
+static DS2_col$
+static DS2_b_move$
+static DS2_n_orig$
+
+static DS2_A_list$
+static DS2_At_matrix$   // transpose of A.
+static DS2_contiguity$
+static DS2_p$  // cell probability
+
+static DS2_contiguity_x$ // contiguity_x = contiguity /. {x->DS2_p}
+static DS2_A_matrix$
+static DS2_n$  // n of A.
+static DS2_d$  // d of A.
+static DS2_x_vars$
+static DS2_d_vars$
+static DS2_b_vars$
+static DS2_base$ // base of the Pfaffian
+
+static DS2_CACHE_SIZE$  // size of the cach of contiguity, ...
+// Cache variables
+static DS2_contiguity_x_cache$ // contiguity_x = contiguity /. {x->DS2_p}
+static DS2_A_matrix_cache$
+static DS2_n_cache$  // n of A.
+static DS2_d_cache$  // d of A.
+static DS2_x_vars_cache$
+static DS2_d_vars_cache$
+static DS2_b_vars_cache$
+static DS2_p_cache$  // cell probability
+
+#else
+extern DS2_use_ot$  // call the ot_hgm_ahg or call the slow tk_hgpoly
+extern DS2_debug$
+extern DS2_gm_base$
+extern DS2_gm_prev$
+extern DS2_b$
+extern DS2_b_prev$
+extern DS2_nn$  // |b|
+extern DS2_nn_prev$  // |b|
+extern DS2_col$
+extern DS2_b_move$
+extern DS2_n_orig$
+
+extern DS2_A_list$
+extern DS2_At_matrix$   // transpose of A.
+extern DS2_contiguity$
+extern DS2_p$  // cell probability
+
+extern DS2_contiguity_x$ // contiguity_x = contiguity /. {x->DS2_p}
+extern DS2_A_matrix$
+extern DS2_n$  // n of A.
+extern DS2_d$  // d of A.
+extern DS2_x_vars$
+extern DS2_d_vars$
+extern DS2_b_vars$
+extern DS2_base$ // base of the Pfaffian
+
+extern DS2_CACHE_SIZE$  // size of the cach of contiguity, ...
+// Cache variables
+extern DS2_contiguity_x_cache$ // contiguity_x = contiguity /. {x->DS2_p}
+extern DS2_A_matrix_cache$
+extern DS2_n_cache$  // n of A.
+extern DS2_d_cache$  // d of A.
+extern DS2_x_vars_cache$
+extern DS2_d_vars_cache$
+extern DS2_b_vars_cache$
+extern DS2_p_cache$  // cell probability
+#endif
+
+
+def init_load() {
+  DS2_use_ot=0;
+  DS2_debug=1;
+  DS2_n=0;
+  DS2_d=0;
+  DS2_gm_prev=0;
+  DS2_contiguity=0;
+  DS2_gm_base=0;
+  DS2_x_vars=0;
+  DS2_col=0;
+  DS2_CACHE_SIZE=20;
+  DS2_contiguity_cache=newvect(DS2_CACHE_SIZE)$
+  DS2_contiguity_x_cache=newvect(DS2_CACHE_SIZE)$ 
+  DS2_A_matrix_cache=newvect(DS2_CACHE_SIZE)$
+  DS2_n_cache=newvect(DS2_CACHE_SIZE)$  
+  DS2_d_cache=newvect(DS2_CACHE_SIZE)$  
+  DS2_x_vars_cache=newvect(DS2_CACHE_SIZE)$
+  DS2_d_vars_cache=newvect(DS2_CACHE_SIZE)$
+  DS2_b_vars_cache=newvect(DS2_CACHE_SIZE)$
+  DS2_p_cache=newvect(DS2_CACHE_SIZE)$  
+  DS2_base_cache=newvect(DS2_CACHE_SIZE)$ 
+
+}
+def gkz_with_b(A) 
+"GKZ with the b parameter (indeterminate)"
+{
+  /* A-hg (GKZ) */
+  A=matrix_matrix_to_list(A);
+  N=length(A[0]);
+  D=length(A);
+  B=newvect(D);
+  E=sm1.gkz([A,matrix_matrix_to_list(B)]);
+  V=E[1];
+  E=E[0];
+  Eb=[];
+  for (I=0; I<D; I++) {
+    B[I] = util_v(b,[I]);
+    Eb=cons(car(E)-B[I],Eb);
+    E=cdr(E);
+  }
+  Eb = append(reverse(Eb),E);
+  B = matrix_matrix_to_list(B);
+  return [Eb,V,B];
+}
+
+def tt_add_d(X) {
+  if (type(X) > 3) return(map(tt_add_d,X));
+  return eval_str("d"+rtostr(X));
+}
+def build_contiguity_0(A) 
+"build_contiguity_0(A) : [Base,Contiguity,V,DV]. Contiguity[0] for a_0 direction, .... Option: base. Example: build_contiguity([[1,1,1],[0,1,2]] | base=[dx1,dx2]);"
+{
+  Base_p=0;
+  if (type(getopt(base)) > 0) Base_p=getopt(base);
+  E=gkz_with_b(A);
+  B=E[2]; V=E[1]; Eq=E[0];
+  DV = tt_add_d(V); 
+  yang.define_ring(["partial",V]);
+  yang.verbose();
+  G=yang.buchberger(map(dp_ptod,Eq,DV));   /* does it OK? double check. */
+  if (Base_p == 0) Base_p=reverse(yang.stdmon(G));
+  //  Base_p=[dx1,dx2];   it works.
+  //  Base_p=[dx1,1];     it works.
+  Base=map(dp_ptod,Base_p,DV);
+  if (DS2_debug) printf("Base=%a\n",Base);
+  Pf=yang.pfaffian(Base,G);
+  return [Base_p,Pf,V,DV,B];
+}
+def a2avec(A) 
+"a2avec(A) returns [a_0, a_1, ...] of A. Example: a2avec([[1,1,1],[0,1,2]]);"
+{
+  if (type(getopt(sign)) > 0) Sign=getopt(sign);
+  else Sign=1;
+  At=matrix_transpose(A);
+  As=[];
+  for (I=size(At)[0]-1; I>=0; I--) {
+    As = cons(Sign*At[I],As);
+  }
+  return(As);
+}
+
+/* 2018.07.18
+Example: gm vector
+hgm_ahg_evaluation_contiguity([[1,1,1],[0,1,2]],[10,11],[1/2,1/3,1/5]|base=1);
+[3131843/178564176000000,[ 3131843/178564176000000 330889/1020366720000 ],[1,dx3]]
+  option msize=n specifies the size of the Macaulay type matrix. 
+
+Example: gm to expectation
+hgm_ahg_expected_values_contiguity(A,B,X,RandomVars);
+  translates gm vector by the function above into expected values.
+
+ test_fc3();
+ test_f9_series();
+*/
+
+def init(A,B) {
+  DS2_b_prev=0;
+  DS2_gm_prev=0;
+  A=matrix_list_to_matrix(A); B=matrix_list_to_matrix(B);
+  At=matrix_transpose(A);
+  DS2_A_matrix=A;
+  DS2_A_list=matrix_matrix_to_list(A);
+  DS2_At_matrix=At;
+  DS2_b=B;
+  DS2_d=size(A)[0];
+  DS2_n=size(A)[1];
+  DS2_b_move=newvect(DS2_n,a2avec(A|sign=-1));
+  DS2_nn_prev=0;
+}
+def init_contiguity(A,P) {
+  A=matrix_list_to_matrix(A);
+  if (DS2_p==0) DS2_p = matrix_matrix_to_list(P);
+  if (!DS2_b) error("Call init before calling init_contiguity");
+
+  /* set globals by cache */
+  D=size(A)[0]; N = size(A)[1]; Cache_top=0;
+  for (I=0; I<DS2_CASHE_SIZE; I++) {
+    if (DS2_n_cache[I] == 0) {Cache_top=I; break;}
+    if ((DS2_n_cache[I] == N) && (DS2_d_cache[I] == D) && (DS2_A_matrix_cache[I] == A)) {
+      DS2_gm_base=0; // Starting gmvector should be reevaluated.
+      DS2_contiguity_x=DS2_contiguity_x_cache[I];
+      DS2_x_vars=DS2_x_vars_cache[I];
+      DS2_d_vars=DS2_d_vars_cache[I];
+      DS2_b_vars=DS2_b_vars_cache[I];
+      Rule=assoc(DS2_x_vars,DS2_p);
+      DS2_contiguity=base_replace_n(DS2_contiguity_x,Rule);
+      return(1);
+    }
+  } 
+
+  gmvector_cached(DS2_b); // obtain DS2_base by calling ot_hgm_ahg.evalution*
+  C=build_contiguity_0(A|base=DS2_base);
+  DS2_gm_base=C[0];
+  DS2_contiguity_x=C[1];
+  DS2_x_vars=C[2];
+  DS2_d_vars=C[3];
+  DS2_b_vars=C[4];
+  Rule=assoc(DS2_x_vars,DS2_p);
+  DS2_contiguity=base_replace_n(C[1],Rule);
+
+  // Store data in the Cache_top.
+  DS2_contiguity_x_cache[Cache_top]=DS2_contiguity_x;
+  DS2_x_vars_cache[Cache_top]=DS2_x_vars;
+  DS2_d_vars_cache[Cache_top]=DS2_d_vars;
+  DS2_b_vars_cache[Cache_top]=DS2_b_vars;
+
+  DS2_d_cache[Cache_top]=D;
+  DS2_n_cache[Cache_top]=N;
+  DS2_A_matrix_cache[Cache_top]=A;
+  // DS2_P_cache[Cache_top]=P;  P cache will not be used.
+  return(0);
+}
+
+def show_globals() {
+  printf("=============================\n");
+  printf("DS2_b=\n%a\n",DS2_b);
+  printf("DS2_b_prev=%a\n",DS2_b_prev);
+  printf("DS2_gm_prev=\n%a\n",DS2_gm_prev); 
+  printf("DS2_A_matrix=\n%a\n",DS2_A_matrix);
+  printf("DS2_At_matrix=\n%a\n",DS2_At_matrix);
+  printf("DS2_d=%a (d of A)\n",DS2_d);
+  printf("DS2_n=%a (n of A)\n",DS2_n);
+  printf("DS2_nn_prev=%a\n",DS2_nn_prev);
+  printf("DS2_b_move=\n%a\n",DS2_b_move);
+  printf("DS2_col=%a\n",DS2_col);
+  printf("----- by init_contiguity.\n");
+  printf("DS2_gm_base=%a\n",DS2_gm_base);
+  printf("DS2_x_vars=%a\n",DS2_x_vars);
+  printf("DS2_d_vars=%a\n",DS2_d_vars);
+  printf("DS2_b_vars=%a\n",DS2_b_vars);
+}
+
+def gmvector_cached(B) {
+  ShapeOne=0;
+  if (type(getopt(forced)) > 0) Forced=1;
+  else Forced=0;
+  if (length(B) != DS2_d) {
+    print("Not implented for new A and B.");
+    debug();
+  }
+  if (type(B) == 4) B=matrix_list_to_matrix(B);
+  if (B == DS2_b_prev) return(DS2_gm_prev);
+  for (NN=0,I=0; I<DS2_d; I++) NN += B[I];
+  if ((DS2_d <= 1) && (DS2_n <= 1)) Forced=ShapeOne=1;
+  // ShapeOne is the case that the table is of the form of one row.
+
+  if ((NN == DS2_nn_prev-1) && (!Forced)) {
+    DS2_fast_count++;
+    DS2_nn_prev=NN;  
+    for (I=0; I<DS2_n; I++) {
+      if(DS2_debug) printf("Try %a\n",DS2_b_prev+DS2_b_move[I]);
+      if (B == DS2_b_prev+DS2_b_move[I]) {
+        GM=update_gm(I,DS2_b_prev,DS2_gm_prev);
+        // if (GM==0) return gmvector_cached(B,P|forced=1);
+        DS2_b_prev=matrix_clone(B);
+        DS2_gm_prev=GM;
+        return(GM);
+      }
+    }
+  }
+  if (!Forced) printf("Fail to find a move in B_move for B=%a.\n",B);
+  DS2_fast_count--;
+  
+
+  DS2_slow_count++;
+  DS2_nn_prev=NN;
+  DS2_b_prev=matrix_clone(B);
+  if (ShapeOne) {
+    DS2_gm_prev=0;
+  }else{
+    if (DS2_use_ot) {
+     GM_by_ot=hgm_ahg_evaluation_contiguity(DS2_A_list,matrix_matrix_to_list(B),DS2_p|option_list=cons(["base",1],getopt()));
+    //  msize option is passed.  msize is the size of the Macaulay type matrix.
+    }else {
+     GM_by_ot=hgm_ahg_evaluation_contiguity_by_hgpoly(DS2_A_list,matrix_matrix_to_list(B),DS2_p|base=1);
+    }
+    DS2_gm_prev=GM_by_ot[1];
+    DS2_base=GM_by_ot[2];  // base of Pfaffian.
+    //DS2_gm_prev=gmvector_hashed(B,P,NN,DS2_d,DS2_n); // It will be faster.
+  }
+  return(DS2_gm_prev);
+}
+def gmvector_init_by_globals(GM) {
+  B=DS2_b;
+  for (NN=0,I=0; I<DS2_d; I++) NN += B[I];
+  DS2_nn_prev=NN;
+  DS2_b_prev=matrix_clone(B);
+  DS2_gm_prev=GM;
+  DS2_gm_base=GM; // init_contiguity does not set it.
+  return(DS2_gm_prev);
+}
+
+def update_gm(II,B,GM) {
+  Rule=[];
+  for (I=0; I<DS2_d; I++) {
+    Rule=cons([DS2_b_vars[I],B[I]],Rule);
+  }
+  
+  L=DS2_contiguity[II];
+  GM=base_replace_n(L,Rule)*GM;
+  return(GM);
+}
+
+def check1() {
+  A=[[1,1,1],[0,1,2]];
+  B=[20,30];
+  P=[1/2,1/3,1/5];
+  init(A,B); init_contiguity(A,P);
+  print(gmvector_cached(B));
+  print(gmvector_cached([19,30]));
+  print(gmvector_cached([19,30]|forced=1));
+}
+
+// 2018.07.22 --> 2018.07.24 bug fix.
+def is_there_negative_elem(B) {
+  N=length(B);
+  for (I=0; I<N; I++) {
+    if (B[I] < 0) return(1);
+  }
+  return(0);
+}
+def build_A(A,B) 
+"build_A(A,B) derives new A with removing zero rows and cols.\
+ [A_new,B_new,Col] Col is a substition map of cols (use DS2_col)\
+Example: build_A([[1,1,0,0],[1,0,1,0],[0,1,0,1]],[1,0,2]);"
+{
+  A_orig=A=matrix_list_to_matrix(A);
+  At=matrix_transpose(A);
+  B_orig=B=matrix_list_to_matrix(B);
+  D_orig=length(B); N_orig=size(A)[1];
+  if (DS2_col==0) {
+    DS2_col=newvect(N_orig);
+    for (J=0; J<N_orig; J++) DS2_col[J]=J;
+  }
+  Col = matrix_clone(DS2_col);
+  A_new=[]; Col_new=[];
+  for (I=0; I<N_orig; I++) {
+    if (!is_there_negative_elem(B-At[I])) {
+       A_new=cons(At[I],A_new);
+       Col_new = cons(Col[I],Col_new);
+    }
+  }
+  if (length(Col_new)==length(Col)) return [A,B,Col,0]; // no rebuild of A, B, col
+  if (length(Col_new)==0) return(0);  // no new A.
+  At=matrix_list_to_matrix(map(matrix_matrix_to_list,reverse(A_new)));
+  A=matrix_transpose(At);
+  Col=matrix_list_to_matrix(reverse(Col_new));
+
+  Zero=newvect(size(A)[1]); A_new=[]; B_new=[];
+  for (I=0; I<size(A)[0]; I++) {
+    if (A[I] != Zero) {
+      A_new=cons(vtol(A[I]),A_new);
+      B_new=cons(B[I],B_new);
+    }else{
+      if (B[I] != 0) debug("i-th row in A is zero, but B[i] is not 0");
+    }
+  }
+  if (length(A_new)==0) return(0);
+  A=matrix_list_to_matrix(reverse(A_new));
+  B=matrix_list_to_matrix(reverse(B_new));
+  if (DS2_debug) {
+    printf("build_A: A_orig=\n%a\n",A_orig);
+    printf("build_A: B_orig=%a\n",B_orig);
+    printf("build_A: A_new=\n%a\n",A);
+    printf("build_A: B_new=%a\n",B);
+  }
+  if (size(A)[0] > size(A)[1]) return [A,B,Col,2]; // unique move.
+  if ((size(A)[0] == size(A)[1]) && (matrix_det(A) != 0)) return [A,B,Col,3];  // unique move. 
+  return [A,B,Col,1];
+}
+
+// 2018.07.24,  Todo, write a faster version.
+def is_there_impossible_move(Move,B) 
+{
+  N=size(Move)[0];
+  for (I=0; I<N; I++) {
+    if (is_there_negative_elem(B+Move[I])) {
+      return(1);
+    }
+  }
+  return(0);
+}
+
+// 2018.07.23
+def update_A_b() {
+  if (DS2_b == 0) error("Call initializations (init, init_contiguity)");
+  if (!is_there_impossible_move(DS2_b_move,DS2_b)) return([0]);
+  A=DS2_A_matrix; B=DS2_b;
+  C=build_A(A,B);
+  if (C==0) return([-1]);  // no more samples.
+  A=C[0]; B=C[1]; DS2_col=C[2];
+  if (C[3] >= 2) {
+    Sol=solve_lin(A,B);
+    if (length(vars(Sol[0])) > 0) debug("more than 1 solution");
+    if (length(Sol[1]) == 0) debug("No solution.");
+    C=newvect(DS2_n_orig);
+    for (I=0; I<length(Sol[0]); I++) {
+      C[DS2_col[I]] = Sol[0][I];
+    }
+    return [-2,C];
+  }
+  N_new=size(A)[1];
+
+  /* update P */
+  P = newvect(N_new);
+  for (I=0; I<N_new; I++) P[I] = DS2_p[DS2_col[I]];
+  init(A,B);
+  init_contiguity(A,P);
+  return [0];
+}
+
+def vector_sum(V) {
+  S=0; N=length(V);
+  for (I=0; I<N; I++) S+=V[I];
+  return(S);
+}
+def gmtoE(GM)
+"Gauss Manin vector for Base to expectation of X. Globals DS2_* are used."
+{
+  NC=GM[0];
+  E=newvect(DS2_n_orig);
+  if (DS2_col==0) {
+    DS2_col=newvect(DS2_n_orig);
+    for (I=0; I<DS2_n_orig; I++) DS2_col[I]=I;
+  }
+  Rule=assoc(vtol(DS2_b_vars),vtol(DS2_b));
+  for (I=0; I<DS2_n; I++) {
+    E[DS2_col[I]] = DS2_p[I]*(base_replace(DS2_contiguity[I],Rule)*GM)[0];
+  }
+  return(E/NC);
+}
+
+def direct_sampler(A,B,P) 
+"direct_sampler(A,B,P);  \
+direct_sampler(A,B,P|gm=GM);\
+Todo: If the option gm is given, gmvector_init_by_globals() is called. \
+and gm vector and contiguity relations are not evaluated from the scratch.\
+Caches must be properly set. \
+Example:   A=[[1,1,0,0],[1,0,1,0],[0,1,0,1]]; B=[4,5,6]; P=[1,1,1,9/10];\
+for (I=0; I<10; I++) print(tk_ds_ahg.direct_sampler(A,B,P));"  
+{
+  if (type(getopt(gm))>0) GM=getopt(gm);
+  else GM=0;
+  A=matrix_list_to_matrix(A);
+  B=matrix_list_to_matrix(B);
+  P=matrix_list_to_matrix(P);
+  init(A,B); 
+  DS2_n_orig=DS2_n; DS2_col=0;  // initialize at the beginning of ds.
+  init_contiguity(A,P);
+  C = newvect(DS2_n_orig);
+  NN=vector_sum(B);
+  for (II=0; II<NN; II++) {
+    RR = update_A_b();
+    if (RR[0] < 0) {
+      if (RR[0] < -1) {
+        C += RR[1];
+      }
+      if (DS2_debug) {
+        printf("--break by the unique solution condition for Ax=B\n");
+        printf("RR=%a\n",RR);
+        show_globals();
+      }
+      break;
+    }
+    if ((II>0) || (GM == 0)) GM=gmvector_cached(DS2_b);
+    else gmvector_init_by_globals(GM);  // Set only globals. Trust GM value.
+    if (GM) E=gmtoE(GM);
+    R=deval((random() % 0x100000000)/0x100000000);
+    if (DS2_debug) {
+      show_globals();
+      printf("E=%a=%a\n",E,number_eval(E));
+      printf("R=%a\n",R);
+    }
+    SumAllE=vector_sum(E);
+    SumE=0; Done=0;
+    L0=length(DS2_b_move);
+    for (I=0; I<L0; I++) {
+      if (SumAllE <= 0) break;
+      SumE += E[I]/SumAllE;
+      if ((R < SumE) || (I==L0-1)) {
+        C[DS2_col[I]]++;
+        DS2_b = DS2_b+DS2_b_move[I];
+        if (DS2_debug) printf("move[%a]=%a, ++ at %a, C=%a\n",I,DS2_b_move[I],DS2_col[I],C);
+        Done=1; break;
+      }
+    }
+  }
+  return(C);
+}
+
+def check2() {
+  A=[[1,1,0,0],[1,0,1,0],[0,1,0,1]];
+  B=[2,3,4];
+  P=[1,1,1,9/10];
+  DS2_debug=1;
+  C=direct_sampler(A,B,P);
+  printf("A,B,C=%a,%a,%a\n",A,B,C);
+  // GM=DS_gm_vector;
+  C=direct_sampler(A,B,P);
+  printf("A,B,C=%a,%a,%a\n",A,B,C);
+}
+
+/* 
+hgm_ahg_evaluation_contiguity_by_hgpoly([[1,1,1],[0,1,2]],[10,11],[1/2,1/3,1/5]|base=1);
+[3131843/178564176000000,[ 3131843/178564176000000 330889/1020366720000 ],[1,dx3]]
+hgm_ahg_evaluation_contiguity([[1,1,0],[0,1,1]],[2,4],[1,1,9/10]) fails.
+Todo, find the bug. 2018.07.23
+*/
+def hgm_ahg_evaluation_contiguity_by_hgpoly(A,B,P) 
+{
+  if (type(getopt(base)) > 0) Long_out=1;
+  else Long_out=0;
+  A_list=matrix_matrix_to_list(A);
+  B_list=matrix_matrix_to_list(B);
+  P_list=matrix_matrix_to_list(P);
+  D=length(A_list); N=length(A_list[0]);
+
+  X_vars=[];
+  D_vars0=[];
+  D_vars=[];
+  for (I=0; I<N; I++) {
+    X_vars=cons(util_v(x,[I+1]),X_vars);
+    D_vars0=cons(eval_str("dx"+rtostr(I+1)),D_vars0);
+    D_vars=cons(util_v(dx,[I+1]),D_vars);
+  }
+  X_vars=reverse(X_vars); D_vars0=reverse(D_vars0); D_vars=reverse(D_vars);
+
+  Base=cbase(A_list);
+  Base_p=Base=reverse(Base);
+  Base=base_replace(Base,assoc(D_vars0,D_vars));
+  if (Base[0] != 1) error("This case is not implemented.");
+
+  Rule=assoc(X_vars,P_list);
+  F=tk_hgpoly.hgpoly(A,B);
+  Z=F[0];
+  NC=base_replace_n(Z,Rule);
+  GM=map(act_d_mon,Base,Z,X_vars,D_vars);
+  GM=matrix_list_to_matrix(base_replace_n(GM,Rule));
+  if (Long_out) return [NC,GM,Base_p];
+  else return NC;
+}
+
+// 2018.07.24
+def act_d_mon(L,F,X_vars,D_vars)
+"act_d_mon(L,F,X_vars,D_vars): L should be a monomial in dx_i"
+{
+  // L should be a monomial.
+  if (L==0) return(0);
+  DN=dn(L); L=nm(L);
+  DL=dp_ptod(L,D_vars);
+  Ep=dp_etov(DL); C=dp_hc(DL);  
+  for (I=0; I<length(Ep); I++) {
+    for (J=0; J<Ep[I]; J++) {
+      F=diff(F,X_vars[I]);
+    }
+  }
+  return(C*F/DN);
+}
+/*
+  act_d_mon(dx_1*dx_2,x_1^2*x_2^3,[x_1,x_2],[dx_1,dx_2]);
+*/
+
+def solve_lin(A,B) {
+  A=matrix_list_to_matrix(A); B=matrix_list_to_matrix(B);
+  D=size(A)[0]; N=size(A)[1];
+  X_var=[];
+  for (I=0; I<N; I++) X_var=cons(util_v(x,[I]),X_var);
+  X_var=reverse(X_var);
+  Eq=base_flatten(A*matrix_list_to_matrix(X_var)-B);
+  Rule=poly_solve_linear(Eq,X_var);
+  return [base_replace(X_var,Rule),Rule,X_var];
+}
+/*Note: file={@s/2018/07/20170725-tk_ds-gtt_ds-note.pdf} 
+  list of programs, hand written comments
+Note: file={@s/2018/07/20170725-my-note.pdf}
+*/
+// 2018.07.25
+def check3() {
+  A=[[1,1,0,0],[1,0,1,0],[0,1,0,1]];
+  B=[2,1,4];  // --> Todo, [2,0,4] will lead to smaller A, but it does not happen. Why.
+  // Todo, A=[[1,1,0],[0,1,1]], B=[2,4] fails in hgm_ahg_evaluation_contiguity() Why?
+  P=[1,1,10,1];
+  DS2_debug=1;
+  C=direct_sampler(A,B,P);
+  printf("A,B,C=%a,%a,%a\n",A,B,C);
+}
+def set_debug(Mode) 
+"Example: set_debug(1) for outputting  debug message and set_debug(0) for quiet mode"
+{
+  DS2_debug=Mode;
+}
+#ifdef USE_MODULE
+endmodule;
+tk_ds_ahg.init_load()$
+#else
+init_load()$
+#endif
+end$
