@@ -1,5 +1,97 @@
 /* fj_simplify.rr Version 0.6 */
+/* $OpenXM$ */
+#define USE_MODULE 1
+#ifdef USE_MODULE
+module fj_simplify$
+localf init_module$
+localf ex_euclid$
+localf powmod$
+localf encode$
+localf decode$
+localf concat$
+localf expandff$
+localf china$
+localf simplify_rational_number$
+localf f2q$
+localf qt_is_internal_frac$
+localf kind$
+localf full_kind$
+localf eval_sum$
+localf eval_diff$
+localf eval_prod$
+localf eval_quotient$
+localf eval_power$
+localf simplify_rne_rec$
+localf simplify_rne$
+localf add_paren$
+localf rm_paren$
+localf base$
+localf exponent$
+localf term$
+localf const$
+localf min$
+localf compare$
+localf member$
+localf member2$
+localf member3$
+localf del_element$
+localf del_element2$
+localf asae$
+localf simplify_power$
+localf simplify_int_power$
+localf simplify_product$
+localf simplify_product_rec$
+localf merge_products$
+localf simplify_sum$
+localf simplify_sum_rec$
+localf merge_sums$
+localf simplify_quotient$
+localf simplify_diff$
+localf simplify_function$
+localf automatic_simplify$
+localf lex$
+localf rational$
+localf sort$
+localf simplify$
+localf absolute$
+localf eval_abs$
+localf eval_factorial$
+localf radical$
+localf nestrad$
+localf collect_rad$
+localf collect_radicand$
+localf basis_rad$
+localf qt_pow_mono$
+localf qt_pow$
+localf powtrans$
+localf gen_newvars$
+localf radtrans$
+localf rad_convert$
+localf simplify_newvars$
+localf simplify_newvar$
+localf convert_newvar$
+localf return_orgvars$
+localf radcan$
 
+
+static Pow$
+static Prod$
+static Frac$
+static Sum$
+static Diff$
+static VarsOrder$
+static Napier$
+
+def init_module() {
+  Pow = quote_to_funargs(quote(1^1))[1]$
+  Prod = quote_to_funargs(quote(1*1))[1]$
+  Frac = quote_to_funargs(quote(1/1))[1]$
+  Sum = quote_to_funargs(quote(1+1))[1]$
+  Diff = quote_to_funargs(quote(1-1))[1]$
+  VarsOrder = ord()$
+  Napier = quote_to_funargs(quote(exp(x)))[1]$
+}
+#else
 /* quote operators */
 extern Pow$
 Pow = quote_to_funargs(quote(1^1))[1]$
@@ -15,6 +107,8 @@ extern VarsOrder$
 VarsOrder = ord()$
 extern Napier$
 Napier = quote_to_funargs(quote(exp(x)))[1]$
+#endif
+
 
 /* Extended Euclid
  * ex_euclid(A,B)->[M,N,gcd(A,B)]
@@ -135,13 +229,13 @@ def china(M,X){
 	}
 	return S%N;
 }
-/* simplify_rational_number(U):Uは分数か整数(quote)
-   →Uのrational number in standard form(quote) */
+/* simplify_rational_number(U):Uは分数か整数(quote)
+   →Uのrational number in standard form(quote) */
 def simplify_rational_number(U){
-	if(full_kind(U)==0){/* 整数 */
+	if(full_kind(U)==0){/* 整数 */
 		return(U);
 	}
-	else if(full_kind(U)==1){/* 分数 */
+	else if(full_kind(U)==1){/* 分数 */
 		L=quote_to_funargs(U);
 		N=eval_quote(L[2]);
 		D=eval_quote(L[3]);
@@ -179,7 +273,7 @@ def qt_is_internal_frac(U){
 }
 
 /* kind(U):quote U
- *  →0:整数or不定元(x,-y), "^", "/", "*", "+", "-",
+ *  →0:整数or不定元(x,-y), "^", "/", "*", "+", "-",
  *    "()", "minus", "function" */
 def kind(U){
 	L=quote_to_funargs(U);
@@ -196,11 +290,11 @@ def kind(U){
 	return 0;
 }
 /* full_kind(U):quote U
- *  →0:整数, 1:分数, 2:不定元, "^", "/", "*", "+", "-",
- *    "()", "minus", 及び 函数子
- *  kindの結果の0(整数or不定元)、"/"(分数か有理式)、"function"をより詳細に判定
- *  函数子は@e,@piと引数一個(sin,logなど)で、functionで定義されたものも可(sqrtなど)
- *  -xは不定元ではなく、"minus"と判定する(Oct-28, 2009)
+ *  →0:整数, 1:分数, 2:不定元, "^", "/", "*", "+", "-",
+ *    "()", "minus", 及び 函数子
+ *  kindの結果の0(整数or不定元)、"/"(分数か有理式)、"function"をより詳細に判定
+ *  函数子は@e,@piと引数一個(sin,logなど)で、functionで定義されたものも可(sqrtなど)
+ *  -xは不定元ではなく、"minus"と判定する(Oct-28, 2009)
  */
 def full_kind(U){
 	T=kind(U);
@@ -222,87 +316,87 @@ def full_kind(U){
 	else return T;
 }
 
-/* eval_sum(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
-   →quote ((V1*W2+V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
+/* eval_sum(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+   →quote ((V1*W2+V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
 def eval_sum(V,W){
 	if(kind(V)==0) V=funargs_to_quote(
 		[0,Frac,V,objtoquote(1)]);
 	if(kind(W)==0) W=funargs_to_quote(
 		[0,Frac,W,objtoquote(1)]);
 	WL=quote_to_funargs(W);
-	W1=eval_quote(WL[2]);/* Wの分子 */
-	W2=eval_quote(WL[3]);/* Wの分母 */
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
 	VL=quote_to_funargs(V);
-	V1=eval_quote(VL[2]);/* Vの分子 */
-	V2=eval_quote(VL[3]);/* Vの分母 */
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
 	return funargs_to_quote([0,Frac,
 		objtoquote((V1*W2+V2*W1)/igcd(V2,W2)),
 		objtoquote(V2*W2/igcd(V2,W2))]);
 }
-/* eval_diff(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
-   →quote ((V1*W2-V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
+/* eval_diff(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+   →quote ((V1*W2-V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
 def eval_diff(V,W){
 	if(kind(V)==0) V=funargs_to_quote(
 		[0,Frac,V,objtoquote(1)]);
 	if(kind(W)==0) W=funargs_to_quote(
 		[0,Frac,W,objtoquote(1)]);
 	WL=quote_to_funargs(W);
-	W1=eval_quote(WL[2]);/* Wの分子 */
-	W2=eval_quote(WL[3]);/* Wの分母 */
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
 	VL=quote_to_funargs(V);
-	V1=eval_quote(VL[2]);/* Vの分子 */
-	V2=eval_quote(VL[3]);/* Vの分母 */
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
 	return funargs_to_quote([0,Frac,
 		objtoquote((V1*W2-V2*W1)/igcd(V2,W2)),
 		objtoquote(V2*W2/igcd(V2,W2))]);
 }
-/* eval_prod(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+/* eval_prod(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
    V2,W2!=0
-   →quote (V1*W1)/(V2*W2) */
+   →quote (V1*W1)/(V2*W2) */
 def eval_prod(V,W){
 	if(kind(V)==0) V=funargs_to_quote(
 		[0,Frac,V,objtoquote(1)]);
 	if(kind(W)==0) W=funargs_to_quote(
 		[0,Frac,W,objtoquote(1)]);
 	WL=quote_to_funargs(W);
-	W1=eval_quote(WL[2]);/* Wの分子 */
-	W2=eval_quote(WL[3]);/* Wの分母 */
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
 	VL=quote_to_funargs(V);
-	V1=eval_quote(VL[2]);/* Vの分子 */
-	V2=eval_quote(VL[3]);/* Vの分母 */
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
 	return funargs_to_quote(
 		[0,Frac,objtoquote(V1*W1),objtoquote(V2*W2)]);
 }
-/* eval_quotient(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+/* eval_quotient(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
 
    V2,W2!=0
-   →quote (V1*W2)/(V2*W1) */
+   →quote (V1*W2)/(V2*W1) */
 def eval_quotient(V,W){
 	if(kind(V)==0) V=funargs_to_quote(
 		[0,Frac,V,objtoquote(1)]);
 	if(kind(W)==0) W=funargs_to_quote(
 		[0,Frac,W,objtoquote(1)]);
 	WL=quote_to_funargs(W);
-	W1=eval_quote(WL[2]);/* Wの分子 */
+	W1=eval_quote(WL[2]);/* Wの分子 */
 	if(W1==0) return "undefined";
 	else{
-		W2=eval_quote(WL[3]);/* Wの分母 */
+		W2=eval_quote(WL[3]);/* Wの分母 */
 		VL=quote_to_funargs(V);
-		V1=eval_quote(VL[2]);/* Vの分子 */
-		V2=eval_quote(VL[3]);/* Vの分母 */
+		V1=eval_quote(VL[2]);/* Vの分子 */
+		V2=eval_quote(VL[3]);/* Vの分母 */
 		return funargs_to_quote(
 		[0,Frac,objtoquote(V1*W2),objtoquote(V2*W1)]);
 	}
 }
-/* eval_power(V,N):Vは整数or分数V1/V2(quote),Nは整数
+/* eval_power(V,N):Vは整数or分数V1/V2(quote),Nは整数
    V2!=0
-   →quote V^N */
+   →quote V^N */
 def eval_power(V,N){
 	if(kind(V)==0) V=funargs_to_quote(
 		[0,Frac,V,objtoquote(1)]);
 	VL=quote_to_funargs(V);
-	V1=eval_quote(VL[2]);/* Vの分子 */
-	V2=eval_quote(VL[3]);/* Vの分母 */
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
 	if(V1!=0){
 		if(N>0) return eval_prod(eval_power(V,N-1),V);
 		else if(N==0) return objtoquote(1);
@@ -316,13 +410,13 @@ def eval_power(V,N){
 		else return "undefined";
 	}
 }
-/* simplify_rne_rec(U):UはRNE(quote)*/
+/* simplify_rne_rec(U):UはRNE(quote)*/
 def simplify_rne_rec(U){
 	if(full_kind(U)==0) return U;
 	else if(full_kind(U)==1){
 		UL=quote_to_funargs(U);
-		U1=eval_quote(UL[2]);/* Uの分子 */
-		U2=eval_quote(UL[3]);/* Uの分母 */
+		U1=eval_quote(UL[2]);/* Uの分子 */
+		U2=eval_quote(UL[3]);/* Uの分母 */
 		if(U2==0) return "undefined";
 		else return U;
 	}
@@ -367,21 +461,21 @@ def simplify_rne(U){
 	else return simplify_rational_number(V);
 }
 
-/* add_paren(U):quote Uの一番外側に括弧を追加
+/* add_paren(U):quote Uの一番外側に括弧を追加
  * add_paren(`-2)->`(-2)
  */
 def add_paren(U){
 	if(kind(U)!="()") return funargs_to_quote([34,U]);
 	else return U;
 }
-/* rm_paren(U):quote Uの一番外側の余分な括弧を除く
+/* rm_paren(U):quote Uの一番外側の余分な括弧を除く
  * rm_paren(`(x+1))->`x+1
  */
 def rm_paren(U){
 	if(kind(U)=="()") return quote_to_funargs(U)[1];
 	else return U;
 }
-/* base(U):quote U=a^b のベースa */
+/* base(U):quote U=a^b のベースa */
 /*
 [1] base(`(x+1)^2);
 [b_op,+,[internal,x],[internal,1]]
@@ -395,7 +489,7 @@ def base(U){
 		return U;
 	else return "undefined";
 }
-/* exponent(U):quote U=a^b の指数部b */
+/* exponent(U):quote U=a^b の指数部b */
 /*
 [1] exponent(`3^(1/2));
 [b_op,/,[internal,1],[internal,2]]
@@ -409,7 +503,7 @@ def exponent(U){
 		return objtoquote(1);
 	else return "undefined";
 }
-/* term(U):quote U=2*x*y の項*x*y */
+/* term(U):quote U=2*x*y の項*x*y */
 def term(U){
 	L=quote_to_funargs(U);
 	if(full_kind(U)==2||kind(U)=="+"||kind(U)=="^"||kind(U)=="function")
@@ -423,8 +517,8 @@ def term(U){
 	}
 	else return "undefined";
 }
-/* const(U):quote U=(-2)*x*y の係数-2 
- * この関数の引数に -x のような入力は認めない(x-yの-は演算子)
+/* const(U):quote U=(-2)*x*y の係数-2 
+ * この関数の引数に -x のような入力は認めない(x-yの-は演算子)
  */
 def const(U){
 	L=quote_to_funargs(U);
@@ -446,8 +540,8 @@ def min(A,B){
 	else return B;
 }
 /* compare(U,V): quote U,V
- * true→1, false→0
- * compare(U,V|prn=1): 経由した規則を表示
+ * true→1, false→0
+ * compare(U,V|prn=1): 経由した規則を表示
 	[100] compare(`a*x^2,`x^3|prn=1);
 	O-8
 	O-3
@@ -530,9 +624,9 @@ if(Prn==1) print("O-9");
 			return compare(U,funargs_to_quote([0,Pow,V,objtoquote(1)])|prn=Prn);
 	}
 	/* O-10 */
-	/* 注意:compare(`1+x,`y)の場合、qt_normalizeにより、`x+1となるため
-	 *      テキストと若干異なる結果となる。並べ替えなしのqt_normalizeが必要かも
-	 *    →qt_to_naryというコマンドを発見し、解決(2009.1.27)
+	/* 注意:compare(`1+x,`y)の場合、qt_normalizeにより、`x+1となるため
+	 *      テキストと若干異なる結果となる。並べ替えなしのqt_normalizeが必要かも
+	 *    →qt_to_naryというコマンドを発見し、解決(2009.1.27)
 	 */
 	else if(kind(U)=="+"){
 if(Prn==1) print("O-10");
@@ -557,7 +651,7 @@ if(Prn==1) print("O-13");
 	}
 }
 
-/* member(A,L):AがリストLのメンバーかどうかチェック */
+/* member(A,L):AがリストLのメンバーかどうかチェック */
 def member(A,L){
 	while(L!=[]){
 		if(A==car(L)) return 1;
@@ -565,8 +659,8 @@ def member(A,L){
 	}
 	return 0;
 }
-/* member2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーかどうかチェック
-   もしメンバーであれば、[A,..]を返す */
+/* member2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーかどうかチェック
+   もしメンバーであれば、[A,..]を返す */
 def member2(A,L){
 	while(L!=[]){
 		if(A==car(L[0])) return car(L);
@@ -574,8 +668,8 @@ def member2(A,L){
 	}
 	return 0;
 }
-/* member3(A,L):AがリストL=[[...,C],[...,A],...]のメンバーかどうかチェック
-   もしメンバーであれば、[...,A]を返す */
+/* member3(A,L):AがリストL=[[...,C],[...,A],...]のメンバーかどうかチェック
+   もしメンバーであれば、[...,A]を返す */
 def member3(A,L){
 	while(L!=[]){
 		if(A==car(reverse(L[0]))) return car(L);
@@ -583,7 +677,7 @@ def member3(A,L){
 	}
 	return 0;
 }
-/* del_element(A,L):AがリストLのメンバーであれば削除する */
+/* del_element(A,L):AがリストLのメンバーであれば削除する */
 def del_element(A,L){
 	R=[];
 	while(L!=[]){
@@ -592,7 +686,7 @@ def del_element(A,L){
 	}
 	return reverse(R);
 }
-/* del_element2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーであれば[A,...]を削除する */
+/* del_element2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーであれば[A,...]を削除する */
 def del_element2(A,L){
 	R=[];
 	while(L!=[]){
@@ -602,8 +696,8 @@ def del_element2(A,L){
 	return reverse(R);
 }
 
-/* asae(U):quote表現で与えられた bae U が asae かどうかチェック
- * true→1, false→0
+/* asae(U):quote表現で与えられた bae U が asae かどうかチェック
+ * true→1, false→0
  */
 def asae(U){
 	/* ASAE-1 */
@@ -774,6 +868,59 @@ def simplify_product(U){
 				WL=quote_to_funargs(qt_to_nary(W0));
 				T=WL[2];M=length(T);R=[];
 				for(J=0;J<M;J++) R=cons(funargs_to_quote([0,Prod,W1,T[J]]),R);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 				R=reverse(R);
 				return funargs_to_quote([36,Sum,R]);
 #endif
@@ -789,7 +936,7 @@ def simplify_product(U){
  *  ex. simplify_product_rec([`a^-1,`b,`a]);-->[[internal,b]]
  */
 #if 0
-/* rm_parenを使用していないバージョン(括弧がある場合はおかしくなる) */
+/* rm_parenを使用していないバージョン(括弧がある場合はおかしくなる) */
 def simplify_product_rec(L){
 	if(length(L)==2){
 		/* SPRDREC-1 */
@@ -910,7 +1057,7 @@ def simplify_product_rec(L){
 	}
 }
 
-/* merge_products(P,Q): P,Q:リスト */
+/* merge_products(P,Q): P,Q:リスト */
 def merge_products(P,Q){
 	if(Q==[]) return P;
 	else if(P==[]) return Q;
@@ -1019,7 +1166,7 @@ def simplify_sum_rec(L){
 	}
 }
 
-/* merge_sums(P,Q): P,Q:リスト */
+/* merge_sums(P,Q): P,Q:リスト */
 def merge_sums(P,Q){
 	if(Q==[]) return P;
 	else if(P==[]) return Q;
@@ -1121,7 +1268,7 @@ def automatic_simplify(U){
 	}
 }
 
-/* sort(L):リストLの要素を辞書順序でソート
+/* sort(L):リストLの要素を辞書順序でソート
  * sort([4,5,2])->[2,4,5]
  * sort([g,a,c,b])->[a,b,c,g]
  */
@@ -1132,7 +1279,7 @@ def lex(A,B){
 	else if(A>B) return 1;
 	else return 0;
 }
-/* 分数べきのオブジェクトのソートのための補助関数 */
+/* 分数べきのオブジェクトのソートのための補助関数 */
 def rational(A,B){
 	QA=objtoquote(A);
 	QB=objtoquote(B);
@@ -1160,14 +1307,14 @@ def simplify(F){
 	R=eval_quote(radcan(R|no_auto_simpl=1));
 	return R;
 }
-/* absolute(N): asir object Nの絶対値を求める */
+/* absolute(N): asir object Nの絶対値を求める */
 def absolute(N){
 	if(N>=0) return N;
 	else return -1*N;
 }
 
 #if 0
-/* eval_abs(U): 絶対値の関数
+/* eval_abs(U): 絶対値の関数
  eval_abs(-3)-->3, eval_abs(3/5)-->3/5, eval_abs(`abs(-2))-->`2
  eval_abs(`abs(x))-->`abs(x), eval_abs(`sin(2))-->`sin(2)
  */
@@ -1186,7 +1333,7 @@ def eval_abs(U){
 		else return U;
 	}
 }
-/* eval_factorial(U): 階乗の関数
+/* eval_factorial(U): 階乗の関数
  eval_factorial(3)-->6, eval_factorial(`factorial(3))-->`6
  eval_factorial(`factorial(x))-->`factorial(x), eval_factorial(`sin(2))-->`sin(2)
  */
@@ -1206,10 +1353,10 @@ def eval_factorial(U){
 #endif
 
 /*************************************************************
-2009.11.30 Cohen book の実装完了
+2009.11.30 Cohen book の実装完了
 ***************************************************************/
 
-/* U=V^W, Vが整数(または分数)の分数べきV=B^Eの場合、U=V^(E*W) を求める */
+/* U=V^W, Vが整数(または分数)の分数べきV=B^Eの場合、U=V^(E*W) を求める */
 /*
 def num_ratexp_simplify(U){
 	K=kind(U);
@@ -1221,11 +1368,11 @@ def num_ratexp_simplify(U){
 		else num_ratexp_simlify(
 
 	}else return U;
-まだ途中
-	rad_convertを参考にするか
+まだ途中
+	rad_convertを参考にするか
 */
 
-/* radical(U): ASAE quote Uにradicalが含まれていれば1,そうでなければ0 */
+/* radical(U): ASAE quote Uにradicalが含まれていれば1,そうでなければ0 */
 def radical(U){
 	if(kind(U)=="^"){
 		if(kind(exponent(U))=="/") return 1;
@@ -1239,7 +1386,7 @@ def radical(U){
 		return 0;
 	}else return 0;
 }
-/* nestrad(U): ASAE quote Uがneseted radicalなら1,そうでなければ0 */
+/* nestrad(U): ASAE quote Uがneseted radicalなら1,そうでなければ0 */
 def nestrad(U){
 	if(kind(U)=="^"){
 		if(kind(exponent(U))=="/"){
@@ -1290,7 +1437,7 @@ def collect_radicand(R){
 
 #if 0
 /* basis_rad(P): compute basis in a list P for radicands
- 入力も出力もasir objectsのリスト */
+ 入力も出力もasir objectsのリスト */
 def basis_rad(P){
 	B=[];
 	while(P!=[]){
@@ -1609,9 +1756,9 @@ def qt_pow(U,N){
 		return funargs_to_quote([36,Prod,map(qt_pow_mono,L[2],N)]);
 	}else return 0;
 }
-/* powtrans(P,B1): quoteによる単純べき表現Pをbasis情報B1(gen_newvarsで生成されたもの)
-  を元に新変数で表現
-  注意：この関数は、radtransのための補助関数
+/* powtrans(P,B1): quoteによる単純べき表現Pをbasis情報B1(gen_newvarsで生成されたもの)
+  を元に新変数で表現
+  注意：この関数は、radtransのための補助関数
   ex) powtrans(automatic_simplify(`2^(-3/4)),[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]])
       -->Y^(-9)
   ex) powtrans(automatic_simplify(`2^(-7/3)),[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]])
@@ -1623,9 +1770,9 @@ def powtrans(P,B1){
 	E=exponent(P);
 	if(full_kind(E)==1){
 		T=member2(eval_quote(base(P)),B1);
-		D=T[1];/* Pのbaseのdegreeを取得 */
-		Y=T[2];/* Pのbaseに関する新変数を取得 */
-		L=quote_to_funargs(E);Nm=L[2];Dn=L[3];/* 指数の分子と分母 */
+		D=T[1];/* Pのbaseのdegreeを取得 */
+		Y=T[2];/* Pのbaseに関する新変数を取得 */
+		L=quote_to_funargs(E);Nm=L[2];Dn=L[3];/* 指数の分子と分母 */
 		Q=idiv(eval_quote(Nm),eval_quote(Dn));
 		R=irem(eval_quote(Nm),eval_quote(Dn));
 		if(Q==0){
@@ -1640,9 +1787,9 @@ def powtrans(P,B1){
 		return P;
 	}
 }
-/* basis B=[[x+1,4],[3,4],[2,12],[x^2+x+1,3]] に関連した新変数を生成
+/* basis B=[[x+1,4],[3,4],[2,12],[x^2+x+1,3]] に関連した新変数を生成
   -->[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]]
-  このように、各リストの最後に新変数を格納する
+  このように、各リストの最後に新変数を格納する
 */
 def gen_newvars(B){
 	B1=[];
@@ -1653,13 +1800,13 @@ def gen_newvars(B){
 	return reverse(B1);
 }
 /* radtrans(S,E,B1): Caviness-Fateman's algorithm (Step 1.7--1.9) 
-   S: a radicand(分解済み) obtained by basis_rad, (quote)
+   S: a radicand(分解済み) obtained by basis_rad, (quote)
    E: exponent of S, (quote)
    B1: basis info(basis and its degree) obtained by basis_rad of total expression U
    --> an expression of S^E by basis and new variables
 */
 def radtrans(S,E,B1){
-	U=qt_pow(S,E);/* Sの各要素をE乗した表現を求める */
+	U=qt_pow(S,E);/* Sの各要素をE乗した表現を求める */
 	K=kind(U);
 	if(K=="^"){/* U is a pow (x+1)^2 */
 		return powtrans(U,B1);
@@ -1672,7 +1819,7 @@ def radtrans(S,E,B1){
 		return funargs_to_quote([36,Prod,map(powtrans,L[2],B1)]);
 	}else return 0;
 }
-/* ASAE表現Uにおけるradicals list RをTに置き換える
+/* ASAE表現Uにおけるradicals list RをTに置き換える
  ex) 
 V=`2^(1/2)+1/(1+(x+1)^(3/5));
 V=automatic_simplify(V);
@@ -1709,24 +1856,24 @@ def rad_convert(U,R,T){
 	}return U;
 }
 #if 0
-/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
-/* このsimplify_newvarsも問題なく動くが、何度もautomatic_simplifyを呼ぶ */
+/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
+/* このsimplify_newvarsも問題なく動くが、何度もautomatic_simplifyを呼ぶ */
 def simplify_newvars(U,B1){
-	/* simplify_newvar(U,B1) を利用 */
+	/* simplify_newvar(U,B1) を利用 */
 	while(B1!=[]){
 		U=automatic_simplify(simplify_newvar(U,car(B1)));
 		B1=cdr(B1);
 	}
 	return U;
 }
-/* １変数のみの簡約(UはASAE表現&unnested)
- ex) 使用のイメージ simplify_newvar(`_0^5,[x+1,4,_0])-->_0*(x+1)
- 実際には
+/* １変数のみの簡約(UはASAE表現&unnested)
+ ex) 使用のイメージ simplify_newvar(`_0^5,[x+1,4,_0])-->_0*(x+1)
+ 実際には
  simplify_newvar(`y^5,[x+1,4,y])-->y*(x+1)
  simplify_newvar(`4*y1^13*y2*y3,[2,12,y1])-->4*(2*y1)*y2*y3
 */
 def simplify_newvar(U,B1){
-	/*rad_convertを参考にする*/
+	/*rad_convertを参考にする*/
 	if(kind(U)=="^"){
 		Base=eval_quote(base(U));Exponent=eval_quote(exponent(U));
 		if(Base==B1[2] && absolute(Exponent)>=B1[1]){
@@ -1755,18 +1902,18 @@ def simplify_newvar(U,B1){
 	}return U;
 }
 #endif
-/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
-/* このsimplify_newvarsは一度もautomatic_simplifyを呼ばない
-   最後の結果もsimplifyされてないので、結果を利用する際にautomatic_simplifyが必要 */
+/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
+/* このsimplify_newvarsは一度もautomatic_simplifyを呼ばない
+   最後の結果もsimplifyされてないので、結果を利用する際にautomatic_simplifyが必要 */
 /*
- ex) 使用のイメージ simplify_newvars(`_0^5,[[x+1,4,_0],[2,12,_1]])-->_0*(x+1)
- 実際には
+ ex) 使用のイメージ simplify_newvars(`_0^5,[[x+1,4,_0],[2,12,_1]])-->_0*(x+1)
+ 実際には
  simplify_newvars(`y^5,[[x+1,4,y],[2,12,_1]])-->y*(x+1)
  simplify_newvars(`4*y1^13*y2*y3,[[2,12,y1],[2,12,_1]])-->4*(2*y1)*y2*y3
  simplify_newvars(automatic_simplify(`(y^5+1)^(-1)),[[x+1,4,y],[2,12,_1]])-->(y*(x+1)+1)^(-1)
 */
 def simplify_newvars(U,B1){
-	/*rad_convertを参考にした*/
+	/*rad_convertを参考にした*/
 	if(kind(U)=="^"){
 		Base=eval_quote(base(U));Exponent=eval_quote(exponent(U));
 		if((B=member3(Base,B1))!=0) return convert_newvar(U,Exponent,B);
@@ -1789,8 +1936,8 @@ def simplify_newvars(U,B1){
 		return funargs_to_quote([36,Sum,reverse(P)]);
 	}return U;
 }
-/* 指数Eのquote Uを新変数V(B=[変換後のasirobj,変換に必要な指数,変数V])で簡約
-(UはASAE表現&unnested) これはsimplify_newvarsのための補助関数 */
+/* 指数Eのquote Uを新変数V(B=[変換後のasirobj,変換に必要な指数,変数V])で簡約
+(UはASAE表現&unnested) これはsimplify_newvarsのための補助関数 */
 def convert_newvar(U,E,B){
 		if(absolute(E)>=B[1]){
 			Q=idiv(E,B[1]);
@@ -1803,9 +1950,9 @@ def convert_newvar(U,E,B){
 				funargs_to_quote([0,Pow,objtoquote(B[2]),objtoquote(R)])]);
 		}else return U;
 }
-/* 新変数から元の変数に戻す */
+/* 新変数から元の変数に戻す */
 def return_orgvars(U,B1){
-	/*rad_convertを参考にする*/
+	/*rad_convertを参考にする*/
 	if(full_kind(U)==2){
 		if((B=member3(eval_quote(U),B1))!=0)
 			return funargs_to_quote([0,Pow,objtoquote(B[0]),
@@ -1838,7 +1985,7 @@ def return_orgvars(U,B1){
 /* radcan(U): if quote U is an unnested radical, return the canonical form of U,
  otherwise return U. 
  ex) radcan(`(((2*x-2)/(x^3-1))^(-7/3)+(2/(x+1))^(1/2))/(24*x+24)^(1/4))
- radcan(U|no_auto_simpl=1):このオプションが指定されると、最初にautomatic_simplifyをやならい
+ radcan(U|no_auto_simpl=1):このオプションが指定されると、最初にautomatic_simplifyをやならい
  */
 def radcan(U){
 	Opt=getopt(no_auto_simpl);
@@ -1851,31 +1998,37 @@ def radcan(U){
 		RedP=map(red,map(eval_quote,P));/* rationally simplifying */
 		T=basis_rad(RedP,R);
 		B=reverse(sort(T[0]));S=T[1];
-		B1=gen_newvars(B);/* basis Bに関連した新変数を生成 */
-		/* 変換前の準備 */
+		B1=gen_newvars(B);/* basis Bに関連した新変数を生成 */
+		/* 変換前の準備 */
 		Trans=[];
 		while(Exponent!=[]){
 			Trans=cons(radtrans(car(S),car(Exponent),B1),Trans);
 			S=cdr(S);Exponent=cdr(Exponent);
 		}
-		/* 表現Uにおけるradicals RをTransに置き換える */
+		/* 表現Uにおけるradicals RをTransに置き換える */
 		S=rad_convert(U,R,reverse(Trans));
 		/*S=automatic_simplify(objtoquote(red(eval_quote(S))));*/
 		/*S=automatic_simplify(S);*/
-		S=automatic_simplify(objtoquote(eval_quote(S)));/* 式を展開するために必要 */
-		/* ここまでで上の例は次のようになる
+		S=automatic_simplify(objtoquote(eval_quote(S)));/* 式を展開するために必要 */
+		/* ここまでで上の例は次のようになる
 		(1/4*y2^2*y0*x^4+1/2*y2^2*y0*x^3+3/4*y2^2*y0*x^2+1/2*y2^2*y0*x+1/4*y2^2*y0+y1^10)/(y^3*y2^3*y1^13) */
-		/* 新変数で簡約 */
+		/* 新変数で簡約 */
 		S=automatic_simplify(simplify_newvars(S,B1));
-		/* 新変数から元の変数に戻す */
+		/* 新変数から元の変数に戻す */
 		return automatic_simplify(objtoquote(red(eval_quote(return_orgvars(S,B1)))));
-		/* 最後のautomatic_simplifyは、変数順序が異なる場合があるので必要 */
+		/* 最後のautomatic_simplifyは、変数順序が異なる場合があるので必要 */
 	}
 }
 
 
 
 /****************************************************************
-2009.12.23 Caviness-Fateman1976によるRADCANアルゴリズムの実装完了
+2009.12.23 Caviness-Fateman1976によるRADCANアルゴリズムの実装完了
 *****************************************************************/
+
+#ifdef USE_MODULE
+endmodule$
+fj_simplify.init_module()$
+#endif
+
 end$
