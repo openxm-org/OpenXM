@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.28 2012/02/28 23:25:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.29 2014/05/02 07:08:35 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -65,7 +65,7 @@ def taka_poly_solve_linear(Z,X) {
     return Sol;
   }
 
-  G = gr(F, reverse(X), 2);
+  G = nd_gr(F, reverse(X),0, 2);
 
   if (G[0] == 1 || G[0] == -1) {
     return [];
@@ -329,7 +329,7 @@ def taka_poly_elimination_ideal_bare(I,V,VV,Gb) {
      V2 = base_set_minus(V,VV);
      V2 = append(V2,VV);
      /* Computing a lexicographic GB. */
-     I = gr(I,V2,2);
+     I = nd_gr(I,V2,0,2);
   }
 
   S = map(taka_poly_elimination_poly,I,V,VV);

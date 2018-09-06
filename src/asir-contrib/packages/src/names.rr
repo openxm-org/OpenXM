@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.143 2017/09/23 23:52:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.144 2018/04/04 02:56:13 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -515,7 +515,7 @@ def poly_in_w_(F) {
  It returns the initial term or the initial ideal in_w(F)
  for the weight vector given by order.
  F is s single polynomial or a list of polynomials. 
- example: poly_in_w([x^2+y^2-1,x*y-x] | v=[x,y],weight=[1,0]);
+ example: poly_in_w([x^2+y^2-1,x*y-x] , [x,y], [1,0]);
  ref: poly_weight_to_omatrix(W,V), poly_grobner_basis, poly_gr_w, poly_in_w_
 end: */
 def poly_in_w(F,V,W) { 
