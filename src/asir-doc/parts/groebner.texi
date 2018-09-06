@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.19 2016/08/29 04:56:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.20 2017/08/31 04:54:36 takayama Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1569,6 +1569,8 @@ Computation of the global b function is implemented as an application.
 @item
 標準ライブラリの @samp{gr} で定義されている. 
 @item
+gr を名前に含む関数は現在メンテされていない. @code{nd_gr}系の関数を代わりに利用すべきである(@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
+@item
 いずれも, 多項式リスト @var{plist} の, 変数順序 @var{vlist}, 項順序型
 @var{order} に関するグレブナ基底を求める. @code{gr()}, @code{hgr()}
 は 有理数係数, @code{gr_mod()} は GF(@var{p}) 係数として計算する. 
@@ -1600,6 +1602,9 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @item 
 These functions are defined in @samp{gr} in the standard library
 directory.
+@item
+Functions of which names contains gr are obsolted. 
+Functions of @code{nd_gr} families should be used (@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
 @item 
 They compute a Groebner basis of a polynomial list @var{plist} with
 respect to the variable order @var{vlist} and the order type @var{order}.
