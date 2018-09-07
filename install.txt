@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.31 2008/06/03 00:24:49 takayama Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.32 2008/09/13 01:50:31 takayama Exp $    
 
 The OpenXM package is a package of mathematical software systems.
 They are integrated with the OpenXM protocols.
@@ -22,14 +22,13 @@ that we understand that once an user starts our system, he/she agrees
 with our licence.
 
 If you are interested in using and do not like to build from the source
-code, we recommend you to use Knoppix/Math DVD or the VMware/Knoppix/Math.
-The OpenXM packagea is preinstalled in these systems.
+code, we recommend you to use MathLibre DVD.
+The OpenXM package is preinstalled in these systems.
+A Debian network is also distributed at http://www.openxm.org
 
 -------- An instruction for a quick installation from the source code ---
 During the installation, some library souces are automatically  downloaded
-by the wget command.  If you are in a firewall and cannot use even the passive
-ftp, the environmental variable ftp_proxy may help you.
-See the document of wget.  All necessary library sources are downloaded in
+by the wget or the curl command.  All necessary library sources are downloaded in
 OpenXM_dist at the same level of OpenXM. If you are offline, please put
 all library sources necessary in this directory by hand.
 
@@ -67,16 +66,12 @@ OpenXM/doc directory and http://www.openxm.org
 
 --------------
 gc and gmp will be automatically downloaded from 
-   ftp.math.kobe-u.ac.jp/pub/OpenXM/misc
-and stored in OpenXM_dist (OpenXM/../OpenXM_dist) by wget.
+   http://www.math.kobe-u.ac.jp/pub/OpenXM/misc
+and stored in OpenXM_dist (OpenXM/../OpenXM_dist) by wget or curl.
 If you cannot connect to the ftp server directory,
-please download the files at ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/gc*
-and ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/gmp*
+please download the files at www.math.kobe-u.ac.jp/pub/OpenXM/misc/gc*
+and www.math.kobe-u.ac.jp/pub/OpenXM/misc/gmp*
 under OpenXM_dist by hand before make.
-If you can connect to the ftp server via a proxy server,
-specify your ftp proxy server  in ~/.wgetrc as
-  ftp_proxy = http://proxy.yoyodyne.com:18023/
-See the manual of wget for details.
 
 
 

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.51 2008/06/03 00:24:49 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.52 2009/02/22 17:30:02 ohara Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -26,7 +26,7 @@ OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
 たとえば openxm asir と入力して, asir がスタートすればインストール
 はうまくいっていると思われます.
 
-なお一部のソースは ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc より
+なお一部のソースは http://www.math.kobe-u.ac.jp/pub/OpenXM/misc より
 OpenXM_dist に make 中に wget コマンドでダウンロードされます.  
 したがって, make するときは
 インターネットに接続されている必要があります.
@@ -61,7 +61,7 @@ Please try
 If asir starts, then your installation seems to be successful.
 
 
-Some sources are downloaded from ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc
+Some sources are downloaded from http://www.math.kobe-u.ac.jp/pub/OpenXM/misc
 to OpenXM_dist during the make by the wget command. 
 So, your machine must be accessible to the internet. 
 
@@ -478,4 +478,25 @@ A.
    /usr/ccs/bin/make, /usr/ucb/install
 */
 
+/*&jp
 
+Q. MacOS で build するには何が事前に必要ですか?
+A.
+   1. App store から xcode と XQuartz を入手.
+   2. https://brew.sh より Homebrew をインストールする. 
+   3. brew で必要なツールを下記のようにインストールする.
+        brew install emacs nkf autoconf automake curl w3m readline
+   4. Document の生成も行いたい場合は MacTeX をインストールして tex 関連のコマンドを path へ加えておく.
+   5. build 中に command line tool が必要とメッセージが出たらメッセージに従う.
+  (上記、まっさらの Mac でまだ試していません. 多分要修正.)
+*/
+
+/*&jp
+
+Q. Debian で build するのに必要なパッケージは?
+A. OpenXM/misc/packages/Linux/Debian2/debian/control を参照してください.
+  以下のパッケージとそれに依存する package が必要です.
+  bash, gnuplot, w3m, curl, emacs,
+  nkf, wget, texinfo, java-common, openjdk-7-jdk, gnupg, latex2html, evince, dpkg-dev, debhelper, fakeroot, texi2html, dvipdfmx, dvipsk-ja, ptex-bin, gcc, freeglut3, freeglut3-dev, make, libxaw7, libxaw7-dev, bison, libtinfo-dev
+
+*/
