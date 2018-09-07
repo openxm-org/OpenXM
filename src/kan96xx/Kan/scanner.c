@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.8 2005/07/03 11:08:54 ohara Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.9 2005/07/18 10:55:16 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -93,7 +93,7 @@ static mygetchar()
   }
  if (EchoInScanner) {
    if (c==EOF) {
-     printf("\n%% EOF of file %x\n",(int) Cfp);
+     printf("\n%% EOF of file %p\n",Cfp);
    }else{
      printf("%c",c);
    }

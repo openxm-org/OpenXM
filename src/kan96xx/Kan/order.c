@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.14 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.15 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
@@ -174,8 +174,8 @@ void showRing(level,ringp)
   }else {
     mtype = "unknown";
   }
-  fprintf(fp,"Multiplication function --%s(%xH).\n",
-          mtype,(unsigned int) ringp->multiplication);
+  fprintf(fp,"Multiplication function --%s(%p).\n",
+          mtype, ringp->multiplication);
   if (ringp->schreyer) {
     fprintf(fp,"schreyer=1, gbListTower=");
     printObjectList((struct object *)(ringp->gbListTower));

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.23 2016/03/31 03:22:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.24 2016/03/31 05:27:34 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -281,7 +281,7 @@ void printObject(ob,nl,fp)
     printObjectList(&ob);
     break;
   case Sfile:
-    fprintf(fp,"Name=%s, FILE *=%x ",ob.lc.str,(int) ob.rc.file);
+    fprintf(fp,"Name=%s, FILE *=%p ",ob.lc.str,ob.rc.file);
     break;
   case Sring:
     fprintf(fp,"Ring."); KshowRing(KopRingp(ob));

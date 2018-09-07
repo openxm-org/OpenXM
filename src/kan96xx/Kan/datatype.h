@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.13 2010/01/27 15:10:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.14 2015/09/29 01:52:14 takayama Exp $ */
 #include "gmp.h"
 #include "gc.h"
 
@@ -17,6 +17,7 @@ int KSset(char *name);
 int KSpushBinary(int size,char *data);
 char *KSpopBinary(int *size);
 void KSstart();
+void KSstart_quiet();
 void KSstop();
 
 /*********** You may modify these system constants below **********************/

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.41 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.42 2016/03/31 06:34:29 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1315,6 +1315,11 @@ KSdefineMacros() {
 
 }
 
+void KSstart_quiet() {
+  extern int Quiet;
+  Quiet=1;
+  KSstart();
+}
 void KSstart() {
   struct tokens token;
   int tmp;
