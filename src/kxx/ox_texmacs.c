@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.40 2016/08/24 22:38:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.41 2018/09/07 00:28:53 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,37 +29,43 @@
 #define  V_TEXMACS    1
 #define  V_CFEP       2
 #define  V_QFEP       3
+#define  V_SAGE       4
 int View       = V_TEXMACS ;
 
 char *Data_begin_v[] = {
   "<S type=verbatim>",
   "\002verbatim:",
   "\002",
+  "",
   ""
 };
 char *Data_begin_l[] = {
   "<S type=latex>",
   "\002latex:",
   "\002latex:",
+  "",
   ""
 };
 char *Data_begin_p[] = {
   "<S type=prompt>",
   "\002prompt:",
   "\002prompt:",
+  "",
   ""
 };
 char *Data_begin_ps[] = {
   "<S type=postscript>",
   "\002ps:",
   "\002ps:",
+  "",
   ""
 };
 char *Data_end[] = {
   "</S>",
   "\005",
   "\n\005",    /* \n is not a part of the protocol. */
-  ""
+  "",
+  ""           /* SAGE */
 };
 
 /* todo:  start_of_input */
@@ -68,8 +74,18 @@ char End_of_input[] = {
   0x5,              /* Use ^E and Return to end the input. */
   '\n',  /* TEXMACS_END_OF_INPUT. 0xd should be used for multiple lines. */
   0x5,    /* CFEP_END_OF_INPUT    */
-  0x5
+  0x5,
+  '\n'   /* SAGE cf. __init__ */
 };
+
+char *Prompt[]={
+  "generic>", /* generic */
+  "", /* texmacs */
+  "",    /* cfep */
+  "",   /* qfep */
+  "\nasir>"    /* SAGE */
+};
+
 
 /* Table for the engine type. */
 #define ASIR          1
@@ -114,6 +130,7 @@ static int startEngine(int type,char *msg);
 static int isPS(char *s);
 static int end_of_input(int c);
 static void setDefaultParameterForCfep();
+static void setDefaultParameterForSage();
 
 static void myEncoder(int c);
 static void myEncoderS(unsigned char *s);
@@ -174,6 +191,8 @@ main(int argc,char *argv[]) {
         View = V_CFEP; setDefaultParameterForCfep();
       }else if (strcmp(argv[i],"qfep")==0) {
 	View = V_QFEP; setDefaultParameterForCfep();
+      }else if (strcmp(argv[i],"sage")==0) {
+	View = V_SAGE; setDefaultParameterForSage();
       }else{
         View = GENERIC;
         /* printv("Unknown view type.\n"); */
@@ -258,11 +277,12 @@ main(int argc,char *argv[]) {
       continue;
     } else {  }
     if (!irt) {
-      printf("%s",Data_end[View]); fflush(stdout);
+      if (View != V_SAGE) printf("%s",Data_end[View]); fflush(stdout);
     }
     irt = 0;
 
     /* Reading the input. */
+    printf("%s",Prompt[View]); fflush(stdout);
     if (TM_Engine == K0) {
       s=readString(stdin, " ", " "); /* see test data */
     }else if (TM_Engine == SM1) {
@@ -535,6 +555,9 @@ static int end_of_input(int c) {
 static void setDefaultParameterForCfep() {
   Format = 0;
 }
+static void setDefaultParameterForSage() {
+  Format = 0;
+}
 
 static void printv(char *s) {
   int i;
@@ -573,14 +596,14 @@ static void printp(char *s) {
   fflush(NULL);
 }
 static void printCopyright(char *s) {
-  printf("%s",Data_begin_v[View]);
   if (! NoCopyright) {
+    printf("%s",Data_begin_v[View]);
     printf("OpenXM engine (ox engine) interface with TeXmacs protocol.\n2004 (C) openxm.org");
     printf(" under the BSD license.  !asir; !sm1; !k0; !verbatim; !quit;\n");
     printf("Type in      !reset;     when the engine gets confused. ");
     printf("%s",s);
+    printf("%s",Data_end[View]);
   }
-  printf("%s",Data_end[View]);
   fflush(NULL);
 }
 
@@ -589,7 +612,7 @@ static void flushSm1() {
 }
 static int startEngine(int type,char *msg) {
   struct object ob = OINIT;
-  printf("%s",Data_begin_v[View]);
+  if (!TM_quiet) printf("%s",Data_begin_v[View]);
   if (type == SM1) {
     if (!TM_sm1Started) KSexecuteString(" sm1connectr ");
     KSexecuteString(" /ox.engine oxsm1.ccc def ");
@@ -645,7 +668,7 @@ static int startEngine(int type,char *msg) {
        not work. */
     KSexecuteString(" oxasir.ccc (print(\"----------- Messages from asir ------------------------------\")$ ) oxsubmit oxasir.ccc oxpopcmo ");
   }
-  printf("%s",Data_end[View]);
+  if (!TM_quiet) printf("%s",Data_end[View]);
   fflush(NULL);
 }
 
