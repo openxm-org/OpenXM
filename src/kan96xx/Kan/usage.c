@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.49 2011/10/05 05:46:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.50 2013/09/22 01:26:07 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -167,6 +167,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(or_attrs) atr ] extension result-obj \n");
     fppp(fp,"  [(outputObjectToFile) path obj] extension null \n");
     fppp(fp,"  [(ostype)] extension list \n");
+    fppp(fp,"  [(quiet) flag] extension int \n");
     fppp(fp,"  [(setAttribute) obj key value] extension new-attributed-obj \n");
     fppp(fp,"  [(setAttributeList) obj attrList] extension new-attributed-obj \n");
     fppp(fp,"  [(stringToArgv) sobj] extension decomposed_str  cf. to_records \n");

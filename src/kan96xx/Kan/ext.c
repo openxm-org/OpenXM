@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.47 2016/03/31 03:22:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.48 2016/03/31 05:27:34 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -524,6 +524,11 @@ struct object Kextension(struct object obj)
     obj1 = getoa(obj,1);
     if (obj1.tag != Sdollar) errorKan1("%s\n","unlink, the first argument should be a string (filename).");
     rob = KpoInteger(oxDeleteFile(KopString(obj1)));
+  }else if (strcmp(key,"quiet")==0) {
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","quiet, the first argument should be an integer.");
+    Quiet = KopInteger(obj1);
+    rob = obj1;
   }
 #include "plugin.hh"
 #include "Kclass/tree.hh"
