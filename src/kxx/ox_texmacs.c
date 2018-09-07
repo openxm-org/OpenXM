@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.39 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.40 2016/08/24 22:38:12 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +98,7 @@ int EngineLogToStdout = 0;   /* Do not run the ox engine inside xterm. */
 char *AsirInitFile = NULL;
 
 char *LanguageResource = NULL;
+int TM_quiet = 0;
 
 void ctrlC();
 struct object KpoString(char *s);
@@ -149,10 +150,19 @@ main(int argc,char *argv[]) {
 #ifdef DEBUG2
   Dfp = fopen("/tmp/debug-texmacs.txt","w");
 #endif
-  
-  /* Initialize kanlib (gc is also initialized) */
-  KSstart();
 
+  TM_quiet=0;
+  for (i=1; i<argc; i++) {
+    if (strcmp(argv[i],"--quiet")==0) {
+      TM_quiet=1;
+    }
+  }
+  /* Initialize kanlib (gc is also initialized) */
+  if (TM_quiet) {
+    KSstart_quiet();
+  }else{
+    KSstart();
+  }
   /* Set consts */
   Quiet = 1;
   for (i=1; i<argc; i++) {
@@ -194,6 +204,8 @@ main(int argc,char *argv[]) {
       i++;
       AsirInitFile = (char *)sGC_malloc(strlen(argv[i])+80);
       sprintf(AsirInitFile,"%s",argv[i]);
+    }else if (strcmp(argv[i],"--quiet") == 0) {
+      /* it is already set. Ignore. */
     }else{
       /* printv("Unknown option\n"); */
     }
