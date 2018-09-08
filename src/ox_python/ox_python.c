@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.1 2018/09/08 00:16:19 takayama Exp $
 */
 
 #include <stdio.h>
@@ -371,6 +371,10 @@ int sm_executeFunction()
         show_double_list();
     }else if (strcmp(func->s,"restart")==0) {
         pop(); restart();
+    }else if (strcmp(func->s,"PyRun_String")==0) {
+        my_PyRun_String();
+    }else if (strcmp(func->s,"eval")==0) {
+        my_eval();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
@@ -390,6 +394,9 @@ int sm_executeStringByLocalParser()
 //     push(make_error2("sm_executeStringByLocalParser",NULL,0,-1));
     push((cmo *)new_cmo_int32(status));
     return(0);
+/* Todo, set the flag by Py_InspectFlag to avoid exit after exception.
+   See PyRun_SimpleStringFlags, https://docs.python.jp/2.7/c-api/veryhigh.html
+*/
 }
 
 
@@ -454,7 +461,7 @@ void myhandler(const char *reason,const char *file,int line, int gsl_errno) {
   cmo *m;
   FILE *fp;
   char logname[1024];
-  sprintf(logname,"/tmp/ox_gsl-%d.txt",(int) getpid());
+  sprintf(logname,"/tmp/ox_python-%d.txt",(int) getpid());
   fp = fopen(logname,"w");
   fprintf(fp,"%d\n",gsl_errno);
   fprintf(fp,"%d\n",line);
@@ -476,7 +483,7 @@ void push_error_from_file() {
   int gsl_errno, line;
   cmo *m;
   fprintf(stderr,"push_error_from_file()\n");
-  sprintf(logname,"/tmp/ox_gsl-%d.txt",(int) getpid());
+  sprintf(logname,"/tmp/ox_python-%d.txt",(int) getpid());
   fp = fopen(logname,"r");
   if (fp == NULL) {
     fprintf(stderr,"open %s is failed\n",logname); return;
@@ -518,10 +525,9 @@ int main(int argc,char *argv[])
   signal(SIGUSR1,usr1_handler);
 #endif
 
-    /* try python */
+    /* Initialize python */
     Py_SetProgramName(argv[0]);  /* optional but recommended */
     Py_Initialize();
-    /* end of try pythong */
 
   
   while(1) {
@@ -567,4 +573,97 @@ int get_length(cmo *c) {
     return(-1);
   }
   return(list_length((cmo_list *)c));
+}
+
+int my_PyRun_String() {
+  static PyObject *py_main=NULL;
+  static PyObject *py_dict=NULL;
+  PyObject *pyRes;
+  char *cmd;
+  pop();   // pop argc
+  cmd = get_string();
+  if (cmd == NULL) {
+    push(make_error2("my_PyRun_Sring: argument is not a string",NULL,0,-1));
+    return(-1);
+  }
+  printf("cmd=%s\n",cmd);
+  if (py_main == NULL) py_main = PyImport_AddModule("__main__");
+  if (py_dict == NULL) py_dict = PyModule_GetDict(py_main);
+  pyRes = PyRun_String(cmd,Py_single_input,py_dict,py_dict);
+  if (pyRes==NULL) {
+    push(make_error2("PyRun_String: exception",NULL,0,-1));
+    PyRun_SimpleString("\n");
+  /* https://stackoverflow.com/questions/12518435/pyrun-string-stop-sending-result-to-stdout-after-any-error 
+  */
+    return(-1);
+  }
+  return push_python_result(pyRes);
+}
+
+int push_python_result(PyObject *pyRes) {
+  if (PyString_Check(pyRes)) {
+    push((cmo *)new_cmo_string(PyString_AsString(pyRes)));
+    return(0);
+  }else if (PyInt_Check(pyRes)) {
+    push((cmo *)new_cmo_int32((int) PyInt_AS_LONG(pyRes)));
+    return(0);
+  }else {
+    push((cmo *)new_cmo_string(PyString_AsString(PyObject_Str(pyRes))));
+    return(0);
+//    push(make_error2("PyRun_String returns an object which as not been implemented.",NULL,0,-1));
+//    return(-1);
+  }
+}
+
+
+int my_eval() {
+  static PyObject *pName=NULL;
+  static PyObject *pModule=NULL;
+  static PyObject *pDict=NULL;
+  static PyObject *pFunc=NULL;
+  PyObject *pArgs, *pValue;
+  char *cmd;
+  int i;
+  pop();   // pop argc
+  cmd = get_string();
+  if (cmd == NULL) {
+    push(make_error2("my_PyRun_Sring: argument is not a string",NULL,0,-1));
+    return(-1);
+  }
+  printf("my_eval cmd=%s\n",cmd);
+
+  // code from https://docs.python.jp/2.7/extending/embedding.html
+  if (pName==NULL) pName = PyString_FromString("__builtin__"); 
+  if (pModule==NULL) pModule = PyImport_Import(pName);
+
+  if (pModule != NULL) {
+    if (pFunc==NULL) pFunc = PyObject_GetAttrString(pModule, "eval");
+    if (pFunc && PyCallable_Check(pFunc)) {
+      pArgs = PyTuple_New(1);
+      PyTuple_SetItem(pArgs,0,PyString_FromString(cmd));
+      pValue = PyObject_CallObject(pFunc, pArgs);
+      Py_DECREF(pArgs);
+      if (pValue != NULL) {
+        push_python_result(pValue);
+        //              Py_DECREF(pValue);
+        return(0);
+      }
+      else {
+        PyErr_Print();
+        push(make_error2("Fail to call PyObjedct_CallObject(eval,...)",NULL,0,-1));
+        return(-1);
+      }
+    }
+    else {
+      if (PyErr_Occurred())
+        PyErr_Print();
+      fprintf(stderr, "Cannot find function eval\n");
+    }
+    return(-1);
+  }
+  else {
+    PyErr_Print();
+    fprintf(stderr, "Failed to load __builtin__\n");
+    return -1;
+  }
 }
