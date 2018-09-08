@@ -1,0 +1,5 @@
+Pid=ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_python/ox_python")$
+Pid=ox_execute_string(Pid,"from time import time,ctime\nprint 'Today is',ctime(time())\n")$  // It is executed by PyRun_SimpleString()
+ox_pop_cmo(Pid);
+end$
+

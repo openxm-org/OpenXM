@@ -1,0 +1,29 @@
+dnl $OpenXM$
+
+AC_INIT
+AC_PREREQ(2.61)
+AC_CANONICAL_TARGET
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PATH_XTRA
+
+TARGET=ox_python
+case "${host}" in
+*-apple-darwin*)
+    LIBS="-L../../lib -L/usr/local/lib  -lox -lmpfr -lgmp -lgc"
+    CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
+    ;;
+*)
+    LIBS_GCC="-L/usr/local/lib -L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49"
+    LIBS_OX="-L../../lib -lox -lmpfr -lgmp -lgc"
+    LIBS="${LIBS_GCC} ${LIBS_OX}"
+    CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include "
+    ;;
+esac
+
+AC_SUBST([TARGET])
+AC_SUBST([LIBS])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
