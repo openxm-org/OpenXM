@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.1 2018/09/08 00:16:19 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.2 2018/09/08 03:05:19 takayama Exp $
 */
 
 #include <stdio.h>
@@ -374,7 +374,7 @@ int sm_executeFunction()
     }else if (strcmp(func->s,"PyRun_String")==0) {
         my_PyRun_String();
     }else if (strcmp(func->s,"eval")==0) {
-        my_eval();
+        my_eval2b();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;
@@ -589,6 +589,7 @@ int my_PyRun_String() {
   printf("cmd=%s\n",cmd);
   if (py_main == NULL) py_main = PyImport_AddModule("__main__");
   if (py_dict == NULL) py_dict = PyModule_GetDict(py_main);
+//  pyRes = PyRun_String(cmd,Py_single_input,py_dict,py_dict);
   pyRes = PyRun_String(cmd,Py_single_input,py_dict,py_dict);
   if (pyRes==NULL) {
     push(make_error2("PyRun_String: exception",NULL,0,-1));
@@ -627,7 +628,7 @@ int my_eval() {
   pop();   // pop argc
   cmd = get_string();
   if (cmd == NULL) {
-    push(make_error2("my_PyRun_Sring: argument is not a string",NULL,0,-1));
+    push(make_error2("my_eval: argument is not a string",NULL,0,-1));
     return(-1);
   }
   printf("my_eval cmd=%s\n",cmd);
@@ -639,8 +640,10 @@ int my_eval() {
   if (pModule != NULL) {
     if (pFunc==NULL) pFunc = PyObject_GetAttrString(pModule, "eval");
     if (pFunc && PyCallable_Check(pFunc)) {
-      pArgs = PyTuple_New(1);
+      pArgs = PyTuple_New(3);
       PyTuple_SetItem(pArgs,0,PyString_FromString(cmd));
+      PyTuple_SetItem(pArgs,1,PyEval_GetGlobals());
+      PyTuple_SetItem(pArgs,2,PyEval_GetLocals());
       pValue = PyObject_CallObject(pFunc, pArgs);
       Py_DECREF(pArgs);
       if (pValue != NULL) {
@@ -658,6 +661,60 @@ int my_eval() {
       if (PyErr_Occurred())
         PyErr_Print();
       fprintf(stderr, "Cannot find function eval\n");
+    }
+    return(-1);
+  }
+  else {
+    PyErr_Print();
+    fprintf(stderr, "Failed to load __builtin__\n");
+    return -1;
+  }
+}
+
+int my_eval2() {
+  static PyObject *pName=NULL;
+  static PyObject *pModule=NULL;
+  static PyObject *pDict=NULL;
+  static PyObject *pFunc=NULL;
+  PyObject *pArgs, *pValue;
+  char *cmd;
+  int i;
+  char *cmd2;
+  pop();   // pop argc
+  cmd = get_string();
+  if (cmd == NULL) {
+    push(make_error2("my_eval2: argument is not a string",NULL,0,-1));
+    return(-1);
+  }
+  printf("my_eval2 cmd=%s\n",cmd);
+
+  // code from https://stackoverflow.com/questions/48432577/extracting-value-from-python-after-its-embedded-in-c
+  cmd2=(char *)GC_malloc(strlen(cmd)+256);
+  sprintf(cmd2,"f = lambda x: eval(x)");
+  PyRun_SimpleString(cmd2);
+  pModule = PyImport_ImportModule("__main__");
+  pFunc= PyObject_GetAttrString(pModule,"f");
+
+  if (pModule != NULL) {
+    if (pFunc && PyCallable_Check(pFunc)) {
+      pArgs = PyTuple_New(1);
+      PyTuple_SetItem(pArgs,0,PyString_FromString(cmd));
+      pValue = PyObject_CallObject(pFunc, pArgs);
+      Py_DECREF(pArgs);
+      if (pValue != NULL) {
+        push_python_result(pValue);
+        //              Py_DECREF(pValue);
+        return(0);
+      }
+      else {
+        PyErr_Print();
+        push(make_error2("Fail to call PyObjedct_CallObject(eval,...)",NULL,0,-1));
+        return(-1);
+      }
+    }else {
+      if (PyErr_Occurred())
+        PyErr_Print();
+      fprintf(stderr, "Cannot find function f\n");
     }
     return(-1);
   }
