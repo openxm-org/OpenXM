@@ -1,0 +1,26 @@
+# $OpenXM$
+
+ASIR = ../../../OpenXM_contrib2/asir2018
+PARI = ../pari
+
+all: configure
+	@echo "Skipping the compilation of asir2018."
+
+install: all
+	@echo "Skipping the installation of asir2018."
+
+install-lib-small: all
+	@echo "Skipping the install-lib-small of asir2018."
+
+clean:
+
+distclean: clean
+
+configure: install-pari
+	@echo "Skipping the configuration of asir2018."
+
+install-pari:
+	@if [ ! -f ./.install-pari_done ]; then \
+		(cd $(PARI) ; make install) \
+	fi
+	@touch ./.install-pari_done
