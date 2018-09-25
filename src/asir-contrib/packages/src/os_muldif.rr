@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.32 2018/06/24 04:36:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.33 2018/08/30 00:52:44 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -348,6 +348,7 @@ localf getbygrs$
 localf mcop$
 localf shiftop$
 localf conf1sp$
+localf confexp$
 localf pgen$
 localf diagm$
 localf mgen$
@@ -464,7 +465,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00180815"$
+Muldif.rr="00180921"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -17220,6 +17221,25 @@ def conf1sp(M)
 		VS =cdr(VS);
 	}
 	return P;
+}
+
+def confexp(S)
+{
+	V=x;E=[];
+	for(P=0,Q=[],ST=S;ST!=[];ST=cdr(ST)){
+		Q=cons(car(ST)[0],Q);
+		P+=car(ST)[1]/(V-car(ST)[0]);
+		P=red(P);
+	}
+	P=red(P*polbyroot(Q,V));
+	Q=cdr(reverse(Q));
+	for(I=(length(W=Q));I>=0;I--){
+		C=mycoef(P,I,V);
+		P-=C*polbyroot(W,V);
+		W=cdr(W);
+		E=cons(red(C),E);
+	}
+	return reverse(E);
 }
 
 def pgen(L,VV)
