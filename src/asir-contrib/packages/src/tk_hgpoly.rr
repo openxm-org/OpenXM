@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.8 2015/03/05 06:03:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_hgpoly.rr,v 1.9 2018/07/25 01:03:13 takayama Exp $ */
 /* Developed in h-mle/A-hg2/Prog */
 
 #define USE_MODULE 1
@@ -198,9 +198,19 @@ def cprune(A) {
   Rank = matrix_rank(A);
   if(Verbose) printf("Rank=%a\n",Rank);
   while (Rank < D) {
-    A = reverse(cdr(reverse(matrix_matrix_to_list(A))));
-    D--;
-    A=matrix_list_to_matrix(A);
+    Set = newvect(D);
+    for (I=0; I<D; I++) Set[I]=I;
+    Done=0;
+    for (I=0; I<D; I++) {
+      TrySet = base_set_minus(vtol(Set),[I]);
+      A2 = matrix_submatrix(A,TrySet);
+      if (matrix_rank(A2) == Rank) {    
+        A=A2;
+        Done=1; D--;
+        break; 
+      }
+    }
+    if (!Done) error("cprune failed.");
   }
   return(A);
 }
