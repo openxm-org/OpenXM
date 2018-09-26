@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.33 2018/08/30 00:52:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.34 2018/09/25 00:13:52 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Jun. 2018)
+ *          Toshio Oshima (Nov. 2007 - Sep. 2018)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -465,7 +465,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00180921"$
+Muldif.rr="00180925"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -6177,20 +6177,6 @@ def taylorODE(D){
 			DD=Lim[1];Lim=Lim[0];
 		}else Lim=0;
 		for(R=I=0;I<=D;I++){
-#if 0
-			if(I) H0*=H[0];
-			else  H0=1;
-			if(Lim) H0=os_md.polcut(H0,DD,Lim);
-			if(type(F)!=7) G=I?mydiff(G,x):F;
-			for(J=0;J<=D-I;J++){
-				if(J) H1*=H[1];
-				else H1=H0;
-				if(Lim) H1=os_md.polcut(H1,DD,Lim);
-				if(type(F)==7) G=makev([F,I,J]);
-				else if(J) G=mydiff(G,y);
-				if(Lim) H1=os_md.polcut(H1,DD,Lim);
-				R+=G*H1/fac(I)/fac(J);
-#else
 			if(I){
 				if(Lim) H0=mulpolyMod(H0,H[0],Lim,DD);
 				else H0*=H[0];
@@ -6204,7 +6190,6 @@ def taylorODE(D){
 				if(type(F)==7) G=makev([F,I,J]);
 				else if(J) G=mydiff(G,y);
 				R+=G*H1/fac(I)/fac(J);
-#endif
 			}
 		}
 		if(Lim) R=os_md.polcut(R,DD,Lim);
@@ -6236,11 +6221,14 @@ def taylorODE(D){
 			R=y+R*H^(D+1)/fac(D+1);
 			for(DD=D;DD>0;PP=cdr(PP),DD--) R+=car(PP)*H^(DD)/fac(DD);
 			if(T){
-				TT=(T<0)?-T:T;
+				if(T<0){
+					Dif=0;TT=-T;
+				}else TT=T;
 				K=newvect(TT);K[0]=Dif?f:f_00;
+				if(getopt(c1)==1) K[0]=taylorODE(D|taylor=[c_1*H,0]);
 				for(I=1;I<TT;I++){
 					for(S=J=0;J<I;J++) S+=makev(["a_",I+1,J+1])*K[J];
-					K[I]=taylorODE(D|taylor=[makev(["c_",I+1])*H,S*H],lim=[H,TT-1]);
+					K[I]=taylorODE(D|taylor=[makev(["c_",I+1])*H,S*H],lim=[H,D]);
 				}
 				for(S=I=0;I<TT;I++) S+=makev(["b_",I+1])*K[I];
 				S=S*H+y;
@@ -17225,6 +17213,11 @@ def conf1sp(M)
 
 def confexp(S)
 {
+	if(type(S[0])==4){
+		for(E=[];S!=[];S=cdr(S))
+			E=cons(confexp(car(S),E));
+		return reverse(E);
+	}
 	V=x;E=[];
 	for(P=0,Q=[],ST=S;ST!=[];ST=cdr(ST)){
 		Q=cons(car(ST)[0],Q);
