@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.34 2018/09/25 00:13:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.35 2018/09/26 04:49:44 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -349,6 +349,7 @@ localf mcop$
 localf shiftop$
 localf conf1sp$
 localf confexp$
+localf confspt$
 localf pgen$
 localf diagm$
 localf mgen$
@@ -8533,13 +8534,13 @@ def mcgrs(G, R)
 {
 	NP = length(G);
 	Mat = (getopt(mat)==1)?0:1;
-	if(Mat==1 && type(SM=getopt(slm))==4){
+	if(Mat==0 && type(SM=getopt(slm))==4){
 		SM0=SM[0];SM1=anal2sp(SM[1],["*",-1]);
 		if(findin(0,SM0)>=0){
 			for(SM=[],I=length(G)-1;I>0;I--)
 				if(findin(I,SM0)<0) SM=cons(I,SM);
 			SM=[SM,SM1];
-			G=mcgrs(G,R|slm=SM);
+			G=mcgrs(G,R|mat=1,slm=SM);
 			return [G[0],anal2sp(G[1],["*",-1])];
 		}
 	}else SM0=0;
@@ -8582,6 +8583,7 @@ def mcgrs(G, R)
 					OD += car(GT)[0];
 				if(car(GT)[1] == RTT && car(GT)[0] > M){
 					S += car(GT)[0]-M;
+					M=car(GT)[0];
 					VP[I] = J;
 				}
 			}
@@ -8590,7 +8592,7 @@ def mcgrs(G, R)
 		for(GN = []; L >= 0; L--){
 			GT = GV[L];
 			RTT = (L==0)?(-RT):RT;
-			GTN = [(VP[L] >= 0 || S == 0)?[]:[-S,(L==0)?(Mat-RT):0]];
+			GTN = [(VP[L]>=0 || S == 0)?[]:[-S,(L==0)?(Mat-RT):0]];
 			for(J = 0; GT != []; GT = cdr(GT), J++){
 				if(J != VP[L]){
 					GTN = cons([car(GT)[0],car(GT)[1]+RTT], GTN);
@@ -8601,29 +8603,39 @@ def mcgrs(G, R)
 					print("Not realizable");
 					return;
 				}
-				GTN = cons([K,(L==0)?(Mat-RT):0], GTN);
+				if(K>0) GTN = cons([K,(L==0)?(Mat-RT):0], GTN); 
 			}
-			if(VP[L]<0) GTN=cons([-S,(L==0)?(Mat-RT):0],GTN);
 			GN = cons(reverse(GTN), GN);
 		}
-		if(SM0){
-			for(M=0,L=length(G)-1;L>0;L--)
-				if(findin(L,SM0)>=0&&VP[L]>=0) M+=GV[L][VP[L]][0];
-			Mx=sp2anal(SM1,["max",1,0]);
-			for(SM2=[],J=0;SM1!=[];J++,SM1=cdr(SM1)){
-				if(J!=Mx[0]) SM2=cons([car(SM1)[0],car(SM1)[1]+RT],SM2);
-				else if((V=car(SM1)[0]-M)!=0) SM2=cons([V,RT],SM2);
+		if(SM0&&RT!=0){
+			for(M0=M1=-OD,L=length(G)-1;L>=0;L--){
+				if(findin(L,SM0)>=0){
+					M0+=OD;
+					if(VP[L]>=0) M0-=GV[L][VP[L]][0];
+				}else{
+					 M1+=OD;
+					if(VP[L]>=0) M1-=GV[L][VP[L]][0];
+				}
 			}
-			Mx=sp2anal(SM1,["max",1,0]);
-			for(J=0;SM2!=[];J++,SM2=cdr(SM2)){
-				if(J!=Mx[0]) SM1=cons(car(SM2),SM1);
-				else if((V=car(SM1)[0]-S+M)!=0) SM1=cons([V,0],SM2);
+			SM2=[];
+			if((Mx1=anal2sp(SM1,["max",1,-RT])[0])<0){
+				if(M1>0) SM2=cons([M1,0],SM2);
+			}else M1+=car(SM1[Mx1[0]]);
+			if((Mx0=anal2sp(SM1,["max",1,0])[0])<0){
+				if(M0>0) SM2=cons([M0,RT],SM2);
+			}else M0+=car(SM1[Mx0[0]]);
+			for(J=0;SM1!=[];J++,SM1=cdr(SM1)){
+				if(J==Mx0){
+					if(M0>0) SM2=cons([M0,-RT],SM2);
+				}else if(J==Mx1){
+					if(M1>0) SM2=cons([M1,0],SM2);
+				}else SM2=cons([car(SM1)[0],car(SM1)[1]+RT],SM2);
 			}
-			if(Mx[0]<0) SM1=cons([-S,0],SM1);
+			SM1=reverse(SM2);
 		}
 		G = cutgrs(GN);
 	}
-	return SM0?[G[0],SM1]:G;
+	return SM0?[G,SM1]:G;
 }
 
 /*
@@ -17210,6 +17222,65 @@ def conf1sp(M)
 	}
 	return P;
 }
+
+#if 0
+def partspt(S,T)
+{
+	for(U=CU=[],V=0;T!=[];T=cdr(T)){
+		if(V!=car(T)){
+			if(V) U=cons([V,CU],U);
+			CU=1;
+			V=car(T);
+			continue;
+		}else CU++;
+	}
+	if(CU&&V) U=cons([V,CU],U);
+	U=ltov(reverse(U));
+	RC=newvect(L=length(U));
+	RC[0]=idiv(S,U[0])+1;CP=0;
+	X=(lenghth(S)==3)?S[2]:length(T);
+	M=(lenghth(S)>1)?S[1]:1;
+	S0=S[0];
+	for(R=[];RC[CP]!=0;){
+		RC[CP]--;
+		for(CS=CC=I=0;I<=CP;I++){
+			CC+=RC[I];CS+=RC[I]*U[I][0];
+		}
+		while(I<L){
+			if(CC>X){
+				while(CP>0&&RC[CP]==0) CP--;
+				continue;
+			}
+			if(CS==S0){
+
+			}
+		}
+	}
+}
+
+def confspt(S,T)
+{
+	R=[];
+	LS=length(S);LT=length(T);
+	if(LS<LT)  return R;
+	if(LS==LT){
+		return(S==T)? return [[S,T]]:R;
+	}
+	R=[];
+	for(ST=S,S0=T0=[],TT=T;ST!=[];ST=cdr(ST),TT=cdr(TT)){
+		if(car(ST)>car(TT)) return R;
+		if(car(ST)==car(TT){
+			S0=cons(car(ST));T0=cons(car(TT));
+			LS--;LT--;continue;
+		}
+		V=car(TT);D=LS-LT;
+		for(P=[ST],DD=D;DD>0;){
+			VD=V-car(car(ST));
+		}
+	}
+}
+#endif
+
 
 def confexp(S)
 {
