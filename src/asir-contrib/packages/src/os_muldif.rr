@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.35 2018/09/26 04:49:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.36 2018/10/05 01:52:28 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -466,7 +466,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00180925"$
+Muldif.rr="00181005"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -8549,14 +8549,15 @@ def mcgrs(G, R)
 		L = length(G)-1;
 		RT = car(R);
 		if(type(RT) == 4){
-			if(length(RT)==L&&RT[0]!=0){
-				R=cons(cdr(RT),R);
+			if(length(RT)==L+1&&RT[0]!=0){
+				R=cons(cdr(RT),cdr(R));
 				R=cons(RT[0],R);
+				R=cons(0,R);
 				continue;
 			}		/* addition */
 			RT = reverse(RT); S = ADS = 0;
-			for(G = reverse(G); G != []; G = cdr(G), L--){
-				AD = car(RT); RT = cdr(RT);
+			for(G = reverse(G); G != []; G = cdr(G), L--, RT=cdr(RT)){
+				AD = car(RT);
 				if(L > 0){
 					S += AD;
 					if(SM && findin(L,SM0)>=0) ADS+=AD;
