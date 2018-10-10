@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.36 2018/10/05 01:52:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.37 2018/10/06 05:13:07 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -302,6 +302,7 @@ localf cutgrs$
 localf mcgrs$
 localf mc2grs$
 localf mcmgrs$
+localf spslm$
 localf anal2sp$
 localf delopt$
 localf str_char$
@@ -350,6 +351,7 @@ localf shiftop$
 localf conf1sp$
 localf confexp$
 localf confspt$
+localf partspt$
 localf pgen$
 localf diagm$
 localf mgen$
@@ -466,7 +468,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00181005"$
+Muldif.rr="00181008"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -8593,7 +8595,7 @@ def mcgrs(G, R)
 		for(GN = []; L >= 0; L--){
 			GT = GV[L];
 			RTT = (L==0)?(-RT):RT;
-			GTN = [(VP[L]>=0 || S == 0)?[]:[-S,(L==0)?(Mat-RT):0]];
+			GTN = (VP[L]>=0 || S == 0)?[]:[[-S,(L==0)?(Mat-RT):0]];
 			for(J = 0; GT != []; GT = cdr(GT), J++){
 				if(J != VP[L]){
 					GTN = cons([car(GT)[0],car(GT)[1]+RTT], GTN);
@@ -8604,7 +8606,7 @@ def mcgrs(G, R)
 					print("Not realizable");
 					return;
 				}
-				if(K>0) GTN = cons([K,(L==0)?(Mat-RT):0], GTN); 
+				if(K>0) GTN = cons([K,(L==0)?(Mat-RT):0], GTN);
 			}
 			GN = cons(reverse(GTN), GN);
 		}
@@ -8621,10 +8623,10 @@ def mcgrs(G, R)
 			SM2=[];
 			if((Mx1=anal2sp(SM1,["max",1,-RT])[0])<0){
 				if(M1>0) SM2=cons([M1,0],SM2);
-			}else M1+=car(SM1[Mx1[0]]);
+			}else M1+=car(SM1[Mx1]);
 			if((Mx0=anal2sp(SM1,["max",1,0])[0])<0){
 				if(M0>0) SM2=cons([M0,RT],SM2);
-			}else M0+=car(SM1[Mx0[0]]);
+			}else M0+=car(SM1[Mx0]);
 			for(J=0;SM1!=[];J++,SM1=cdr(SM1)){
 				if(J==Mx0){
 					if(M0>0) SM2=cons([M0,-RT],SM2);
@@ -8637,6 +8639,35 @@ def mcgrs(G, R)
 		G = cutgrs(GN);
 	}
 	return SM0?[G,SM1]:G;
+}
+
+def spslm(M,TT)
+{
+	R=getbygrs(M,1|mat=1);
+	if(type(R)!=4||type(R[0])!=4||type(S=R[0][1])!=4){
+		errno(0);return0;
+	}
+	if(S[1]!=[[1,0]]){
+		print("Not rigid!");return0;
+	}
+	if((F=S[0][0][1])!=0){
+		for(V=vars(F);V!=[];V=cdr(V)){
+			if(mydeg(F,car(V))==1){
+				T=lsol(F,car(V));
+				break;
+			}
+		}
+		if(V==[]){
+			print("Violate Fuchs condition!");
+			return0;
+		}
+	}
+	for(P=[];R!=[];R=cdr(R))
+		P=cons(car(R)[0],P);
+	if(F!=0){
+		S=mysubst(S,[car(V),T]);P=mysubst(P,[car(V),T]);
+	}
+	return mcgrs(S,P|mat=1,slm=[TT,[[1,0]]]);
 }
 
 /*
@@ -17224,41 +17255,66 @@ def conf1sp(M)
 	return P;
 }
 
-#if 0
 def partspt(S,T)
 {
-	for(U=CU=[],V=0;T!=[];T=cdr(T)){
-		if(V!=car(T)){
-			if(V) U=cons([V,CU],U);
-			CU=1;
-			V=car(T);
-			continue;
-		}else CU++;
-	}
-	if(CU&&V) U=cons([V,CU],U);
-	U=ltov(reverse(U));
-	RC=newvect(L=length(U));
-	RC[0]=idiv(S,U[0])+1;CP=0;
-	X=(lenghth(S)==3)?S[2]:length(T);
-	M=(lenghth(S)>1)?S[1]:1;
-	S0=S[0];
-	for(R=[];RC[CP]!=0;){
-		RC[CP]--;
-		for(CS=CC=I=0;I<=CP;I++){
-			CC+=RC[I];CS+=RC[I]*U[I][0];
-		}
-		while(I<L){
-			if(CC>X){
-				while(CP>0&&RC[CP]==0) CP--;
-				continue;
+	if(type(Op=getopt(opt))!=1) Op=0;
+	if(length(S)>length(T)) return [];
+	if(length(S)==length(T)){
+		if(qsort(S)==qsort(T)) R=S;
+		else return [];
+	}else{
+	  VS=ltov(S);
+	  L=length(S)-1;
+	  VT=ltov(qsort(T));
+	  for(R=[];;){
+		for(I=J=P=0;I<L;I++){
+			P=VS[I];
+			X=100000;
+			while((P-=(Y=VT[J++]))>0){
+				if(X<Y) break;
+				X=Y;
 			}
-			if(CS==S0){
-
+			if(X<Y||P<0) break;
+		}
+		if(!P&&X>=Y) R=cons(vtol(VT),R);
+		if(!vnext(VT)) break;
+	  }
+	}
+	if(Op){
+		for(W=[];R!=[];R=cdr(R)){
+			for(I=0,S=VS[0],K=U=[],TR=car(R);TR!=[];TR=cdr(TR)){
+				K=cons(car(TR),K);
+				if(!(S-=car(K))){
+					U=cons([VS[I],reverse(K)],U);
+					K=[];
+					S=VS[++I];
+					if(I==L){
+						U=cons([S,cdr(TR)],U);
+						break;
+					}
+				}
 			}
+			W=cons(reverse(U),W);
+		}
+		R=W;
+		if(iand(Op,1)){
+			for(W=R,R=[];W!=[];W=cdr(W))
+				R=cons(reverse(qsort(car(W))),R);
+			R=lsort(R,[],1);
+		}
+		if(Op==3){
+			for(W=[];R!=[];R=cdr(R)){
+				for(S=[],TR=car(R);TR!=[];TR=cdr(TR))
+					S=append(S,car(TR)[1]);
+				W=cons(S,W);
+			}
+			R=reverse(W);
 		}
 	}
+	return R;
 }
 
+#if 0
 def confspt(S,T)
 {
 	R=[];
