@@ -1,5 +1,5 @@
 /* fj_simplify.rr Version 0.6 */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/fj_simplify.rr,v 1.2 2018/09/06 03:05:29 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module fj_simplify$
@@ -1296,7 +1296,7 @@ def rational(A,B){
 	}
 }
 def sort(L){
-	return qsort(L,rational);
+	return qsort(L,fj_simplify.rational);
 }
 
 /* simplify(F): compute the simplification of asir object F
