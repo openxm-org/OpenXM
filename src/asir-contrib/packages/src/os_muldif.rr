@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.37 2018/10/06 05:13:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.38 2018/10/10 07:02:22 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -1832,7 +1832,7 @@ def mtoupper(MM, F)
 						}
 						if(length(T)>1) continue;
 						if(mydeg(MIK,T[0])<Jv){
-							J0=I;Jv=mydeg(MIK);Var=T;	/* search minimal degree */
+							J0=I;Jv=mydeg(MIK,T[0]);Var=T;	/* search minimal degree */
 						}
 					}
 					if(length(Var)==1){
