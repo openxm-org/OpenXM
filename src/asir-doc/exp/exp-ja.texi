@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.55 2018/03/27 02:58:46 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.56 2018/03/28 07:44:06 takayama Exp $
 \input texinfo-ja
 @iftex
 @catcode`@#=6
@@ -94,7 +94,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * dp_weyl_gr_main::
 * eval_quote::
 * f_res::
-* fj_simp.simplify::
+* fj_simplify.simplify::
 * flatten_quote::
 * function::
 * get_struct_name get_element_names get_element_at put_element_at::
@@ -3777,14 +3777,14 @@ ChangeLog
 
 
 
-@node fj_simp.simplify,,, 実験的仕様の関数
-@subsection @code{fj_simp.simplify}
-@findex fj_simp.simplify
+@node fj_simplify.simplify,,, 実験的仕様の関数
+@subsection @code{fj_simplify.simplify}
+@findex fj_simplify.simplify
 
 @comment --- 関数の簡単な説明 ---
 @comment --- @itemx は複数に対して説明を一つつける場合に使う ---
 @table @t
-@item fj_simp.simplify(@var{arg1})
+@item fj_simplify.simplify(@var{arg1})
 :: arg1 を簡単化する.
 @end table
 
@@ -3796,8 +3796,6 @@ ChangeLog
 @end table
 
 @itemize @bullet
-@item 
-現在のバージョンでは fj_simp.simplify でなく, 単に simplify とよぶ.
 @item
 この関数は
 Joel S. Cohen, Computer Algebra and Symbolic Computation,
@@ -3811,14 +3809,14 @@ B.F.Caviness, R.J.Fateman, Simplification of Radical Expressions (1976)
 @end itemize
 
 @example
-load("fj_simplify.rr");
-[1434] simplify((x^(1/2))^3);
+import("fj_simplify.rr");
+[1434] fj_simplify.simplify((x^(1/2))^3);
 ((x)^(3/2))
-[1435] simplify((2^(1/2))^2);
+[1435] fj_simplify.simplify((2^(1/2))^2);
 2
-[1436] simplify((2+2^(1/2))^3);
+[1436] fj_simplify.simplify((2+2^(1/2))^3);
 14*((2)^(1/2))+20
-[1437] simplify(exp(x)*exp(-x+y));
+[1437] fj_simplify.simplify(exp(x)*exp(-x+y));
 ((@@e)^(y))
 @end example
 
@@ -3830,9 +3828,6 @@ load("fj_simplify.rr");
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
-将来的には module 化して fj_simp module に含める予定. 
-poly_simplify から fj_simp.simplify を呼ぶ.
 @item 
 Todo: exp 以外の特殊関数についてのsimplification の機能.
 @item 
