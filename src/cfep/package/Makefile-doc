@@ -1,7 +1,8 @@
 usage:
 	@echo "************************  Preparation ****************************"
-	@echo "  export PATH=/sw/bin:/sw/sbin:$PATH  "
-	@echo "     to use ptex, dvipdfm(x), dvips, texi2html, (latex2html) "
+	@echo "  export PATH=/Library/TeX/texbin:$PATH  "
+	@echo "     to use xetex, ptex, dvipdfm(x), dvips, texi2html, (latex2html) "
+	@echo "  brew install texi2html may help."
 	@echo "          (latex, dvips, pstoimg --- for print_png_form)"
 	@echo "  export LC_ALL=\"C\" "
 	@echo "     to avoid strange behavior of the translation of argv (see misc/argtest)"
@@ -27,8 +28,8 @@ gendoc: gendoc.c
 	gcc -o gendoc gendoc.c
 
 build-utf8-asir: gendoc build-documents install-html-en-to-cfep
-	./gendoc ${OpenXM_HOME}/doc/asir2000/html-ja
-	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja
+	./gendoc ${OpenXM_HOME}/doc/asir2000/html-ja/man
+	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja/exp-ja
 # copy png files if necessary.
 	@echo "--------------------------------------------------------------------------"
 	@echo "utf8 documents are generated under ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8"
@@ -41,7 +42,7 @@ install-html-en-to-cfep:
 
 install-pdf-to-cfep:  install-pdf-to-cfep2
 	cp ../Doc/Intro/next2.pdf ${OpenXM_HOME}/doc/cfep/pdf
-	-cp ${OpenXM_HOME}/doc/asir-contrib/ja/*.pdf ${OpenXM_HOME}/doc/cfep/pdf
+	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/asir-contrib/ja/*.pdf ${OpenXM_HOME}/doc/cfep/pdf
 #########  Collect pdf document from the nextwork.  Update this before distribution.
 	-scp taka@lemon.math.kobe-u.ac.jp:this11/asir-book/main.pdf ${OpenXM_HOME}/doc/cfep/pdf/asir-book.pdf
 

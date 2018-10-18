@@ -1,6 +1,7 @@
 # Moved from misc-2005/12/xcode/Makefile.
 OpenXM_HOME=${HOME}/OX4/OpenXM
-BUILD=${OpenXM_HOME}/src/cfep/build
+#BUILD=${OpenXM_HOME}/src/cfep/build
+BUILD=${HOME}/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products
 usage:
 	@echo ${BUILD}
 	@echo "setup-cfep (developer), clean, "
