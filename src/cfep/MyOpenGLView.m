@@ -196,7 +196,7 @@
   ii = [gc getI4];
   x = v[0]; y = v[1]; z = v[2]; c = v[3];
   p = ii[0]; q=ii[1]; r=ii[2];  s=ii[3];
-  // NSLog(@"opCode=%d, (x,y,z,c)=(%f,%f,%f,%f), (p,q,r,s)=(%d,%d,%d,%d)\n",op,x,y,z,c,p,q,r,s);
+//  NSLog(@"opCode=%d, (x,y,z,c)=(%f,%f,%f,%f), (p,q,r,s)=(%d,%d,%d,%d)\n",op,x,y,z,c,p,q,r,s);
   switch(op) {
   case CFEPglBegin:
     glBegin(p);

@@ -1,38 +1,38 @@
-X11, Xcode$B$,I,MW(B.  nkf, wget $B$,(B $B%Q%9$NCf$KI,MW(B. (fink $B$OI,?\$G$J$$(B)
-ptex$B4D6-(B: /usr/local/bin/ $B$K(B Mac $BMQ$N(B ptex_package_2005v2.1.dmg $B$G(BOK.
+X11, Xcodeが必要.  nkf, wget が パスの中に必要. (fink は必須でない)
+ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dmg でOK.
 
-$B3+H/(B debug $B4D6-(B.
-   0. OpenXM $B$O(B ${HOME}/OX4 $B$N2<$K$"$k$H2>Dj$7$F$$$k(B. cf. Makefile
-   1. OpenXM/src $B$G(B make install (debug install $B$G$b(B OK).
+開発 debug 環境.
+   0. OpenXM は ${HOME}/OX4 の下にあると仮定している. cf. Makefile
+   1. OpenXM/src で make install (debug install でも OK).
    2. make setup-cfep
-     ( OpenXM home $B$,(B build/debug $BEy$N2<$X(B link $B$5$l$k$h$&$K(B)
-   2'. 10.9 $B$G$O(B ~/Library $B$N2<$N?<$$$H$3$m$K(B build/debug $B$,$G$-$k$h$&$J$N$G(B,
-     ox_textmacs  $B$,L5$$$H%(%i!<$,=P$?$i(B, 
+     ( OpenXM home が build/debug 等の下へ link されるように)
+   2'. 10.9 では ~/Library の下の深いところに build/debug ができるようなので,
+     ox_textmacs  が無いとエラーが出たら, 
      make link-for-debug
-     $B$G(B, link $B$r:n@.(B or Makefile $B$r$_$F<jF0(B.  2016.09.30
+     で, link を作成 or Makefile をみて手動.  2016.09.30
    3. make install
-      ( cfep $BMQ%D!<%k$r(B OpenXM $B0J2<(B $B$X%$%s%9%H!<%k(B.)
+      ( cfep 用ツールを OpenXM 以下 へインストール.)
 
-$BG[I[HG:n@.<j=g(B.
-($B;29M(B, Xcode $B$NMxMQK!(B, video $B$N5-O?(B. 2006$BG/(B2$B7n:"(B)
+配布版作成手順.
+(参考, Xcode の利用法, video の記録. 2006年2月頃)
 
-   0. OpenXM/src $B$G(B make configure-static  
-      (static $B$,I,MW(B. cf. otool  2016.09.23)
-   1. OpenXM/src $B$G(B make install (debug install $B$G$b(B OK).
-   2. make -f Makefile-doc  usage $B$K=>$$(B, tex $B4D6-Ey$r@_Dj(B.
-       (/usr/local/bin/ $B$K(B Mac $BMQ$N(B ptex_package_2005v2.1.dmg $B$G(BOK)
+   0. OpenXM/src で make configure-static  
+      (static が必要. cf. otool  2016.09.23)
+   1. OpenXM/src で make install (debug install でも OK).
+   2. make -f Makefile-doc  usage に従い, tex 環境等を設定.
+       (/usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dmg でOK)
    3. make -f Makefile-doc clean
       make -f Makefile-doc build-utf8-asir
-      ( OpenXM/doc/cfep $B$K(B utf8 $B$G(B html document $B$r@8@.(B.
-        OpenXM/src/asir-contrib/packages/doc $B$G(B make install-html-doc 
-        $B$r$b$&0lEY$d$C$F$*$/$H$$$$$+$b(B.
+      ( OpenXM/doc/cfep に utf8 で html document を生成.
+        OpenXM/src/asir-contrib/packages/doc で make install-html-doc 
+        をもう一度やっておくといいかも.
        )
-     [ install-pdf-to-cfep $B%?!<%2%C%H$rJT=8(B, cfep/Doc/Intro $B$G(B next2.pdf $B$r@8@.(B. ]
+     [ install-pdf-to-cfep ターゲットを編集, cfep/Doc/Intro で next2.pdf を生成. ]
       make -f Makefile-doc install-pdf-to-cfep
    4. make install
-      ( cfep $BMQ%D!<%k$r(B OpenXM $B0J2<(B $B$X%$%s%9%H!<%k(B.)
-   5. xcode $B$G(B target $B$r(B release $B$K$7$F(B build.
+      ( cfep 用ツールを OpenXM 以下 へインストール.)
+   5. xcode で target を release にして build.
       (Product->Scheme->Edit scheme,  release)
    6. make dist-cfep
-      (work $B$N2<$K(B $BG[I[HG(B cfep.app $B$r:n$k(B)   
-    Todo. $B$^$@JQ(B. 10.9 $BBP1~$G$J$$(B. ~/Library/Developer $B$N2<$N(B cfep $B$r(B tar $B$7$F$$$J$$(B.
+      (work の下に 配布版 cfep.app を作る)   
+    Todo. まだ変. 10.9 対応でない. ~/Library/Developer の下の cfep を tar していない.

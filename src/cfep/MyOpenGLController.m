@@ -9,8 +9,8 @@
 #import "MyOpenGLController.h"
 
 // MyOpenGL window id (gid) is an indeger.  
-static MyOpenGLController *oglWindow[GID_MAX];  // gid --> MyOpenGLController instance.
-static MyDocument *oglParent[GID_MAX];           // gid --> parent MyDocument.
+static MyOpenGLController *oglWindow[MY_GID_MAX];  // gid --> MyOpenGLController instance.
+static MyDocument *oglParent[MY_GID_MAX];           // gid --> parent MyDocument.
 static int MyOpenGLControllerInitialized = 0;
 static int Gid=0;
 
@@ -19,7 +19,7 @@ static int Gid=0;
 +(void) initMyOpenGLController {
   int i;
   if (MyOpenGLControllerInitialized) return;
-  for (i=0; i<GID_MAX; i++) { oglWindow[i] = nil; oglParent[i] = nil; }
+  for (i=0; i<MY_GID_MAX; i++) { oglWindow[i] = nil; oglParent[i] = nil; }
   MyOpenGLControllerInitialized = 1;
 }
 +(MyOpenGLController *)getOglWindow: (int) tid {
@@ -31,7 +31,7 @@ static int Gid=0;
 
 +(int) myOpenGLControllerOwnedBy: (MyDocument *) owner with: (int) tid {
    MyOpenGLController *ogl;
-   if ((tid >= 0) && (tid <GID_MAX)) {
+   if ((tid >= 0) && (tid <MY_GID_MAX)) {
      if (oglWindow[tid]) return tid; 
 	 else {
 		ogl = [[MyOpenGLController allocWithZone:[MyOpenGLController zone]] init];
@@ -50,7 +50,7 @@ static int Gid=0;
 
    [MyOpenGLController initMyOpenGLController];
    tid = Gid; 
-   if (tid < GID_MAX) {
+   if (tid < MY_GID_MAX) {
     Gid++;
 	return [MyOpenGLController myOpenGLControllerOwnedBy: owner with: tid];
    }else{
@@ -60,7 +60,7 @@ static int Gid=0;
 +(void) removeMyOpenGLControllerOwnedBy: (MyDocument *) owner {
   int i;
   [MyOpenGLController initMyOpenGLController];
-  for (i=0; i<GID_MAX; i++) {
+  for (i=0; i<MY_GID_MAX; i++) {
     if (oglParent[i] == owner) {
 	   [MyOpenGLController removeMyOpenGLControllerWithGid: i];
 	}
@@ -84,7 +84,7 @@ static int Gid=0;
 */
 
 +(void) addOglComm:     (NSString *)comm to: (int) tid from: (MyDocument *) owner {
-  if ((0<=tid) && (tid<GID_MAX)) {
+  if ((0<=tid) && (tid<MY_GID_MAX)) {
 	if (oglWindow[tid] == nil) {
 	  tid = [MyOpenGLController myOpenGLControllerOwnedBy: owner with: tid];
 	}
@@ -92,7 +92,7 @@ static int Gid=0;
   }else ;
 }
 +(void) addOglInitComm: (NSString *)comm to: (int) tid from: (MyDocument *) owner {
-  if ((0<=tid) && (tid<GID_MAX)) {
+  if ((0<=tid) && (tid<MY_GID_MAX)) {
 	if (oglWindow[tid] == nil) {
 	  tid = [MyOpenGLController myOpenGLControllerOwnedBy: owner with: tid];
 	}

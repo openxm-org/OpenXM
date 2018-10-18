@@ -10,7 +10,7 @@
 #import "MyOpenGLCommand.h"
 #import "MyOpenGLView.h"
 @class MyDocument;
-#define GID_MAX 1024
+#define MY_GID_MAX 1024
 
 @interface MyOpenGLController : NSWindowController {
   IBOutlet NSWindow *window;

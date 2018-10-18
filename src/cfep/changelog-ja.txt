@@ -4,152 +4,152 @@
 <pre>
 
 -------  Note
-$B%Q%C%1!<%8$N(B build $B$K$O(B package/readme-ja.txt $B$rFI$`$3$H(B.
-misc-2006/05/cfep-i $B$+$i(B OpenXM/src/cfep $B$X0\9T(B. ($B$?$@$7(B tests $B$N2<$N%U%!%$%k$OA4It0\$7$F$$$J$$(B. $B$3$l$O$^$@M-1W$J$b$N$,$"$j(B.)
-note-ja.txt $B$J$I$J$$%U%!%$%k$O$3$A$i$r;2>H(B. 
+パッケージの build には package/readme-ja.txt を読むこと.
+misc-2006/05/cfep-i から OpenXM/src/cfep へ移行. (ただし tests の下のファイルは全部移していない. これはまだ有益なものがあり.)
+note-ja.txt などないファイルはこちらを参照. 
 -------  Todo
  2006-01-23 19:26:53.568 cfep[340] oxEvalluateString Caught NSFileHandleOperationException: *** -[NSConcreteFileHandle writeData:]: Broken pipe
- child $B$,(B sig segv $B$rH/?.$7$?$H$-$NBP:v(B.
- NSBrokenPipeNotification $B$J$s$F$"$k$N(B?
+ child が sig segv を発信したときの対策.
+ NSBrokenPipeNotification なんてあるの?
 -------  Done
 2008-11-24
-  $BL\I8(B: mouse $B$K$h$k%b%G%k$N2sE>(B.
-  Framework $B$r1&%/%j%C%/(B. $BDI2C(B, $B4{B8$N%U%l!<%`%o!<%/$G(B /Developer/SDKs/MacOSX10.4u.sdk/System/Library/FrameWorks/GLUT.frameworks
-  $B$rDI2C(B.  GLUT/glut.h $B$r%$%s%]!<%H(B. MyOpenGLView.m   CoCoA frame $B$G$O(B glutMouseFunc $B$G$O%^%&%9$NF0$-$r$H$i$l$i$l$J$$(B.
-  GLUT $BC1FH$NNc$O(B, Examples/OpenGL/GLUT/Decal
-  cf. Examples/OpenGL/CoCoA/UnderlaySurface $B$NNc$,%^%&%9$NF0$-$r$H$i$($k(B, sample. GLView.mm
-  mouseDown:  mouseDragged:  mouseUp:   theEvent $B$K:BI8$J$I$,F~$k$N$@$m$&(B.
+  目標: mouse によるモデルの回転.
+  Framework を右クリック. 追加, 既存のフレームワークで /Developer/SDKs/MacOSX10.4u.sdk/System/Library/FrameWorks/GLUT.frameworks
+  を追加.  GLUT/glut.h をインポート. MyOpenGLView.m   CoCoA frame では glutMouseFunc ではマウスの動きをとられられない.
+  GLUT 単独の例は, Examples/OpenGL/GLUT/Decal
+  cf. Examples/OpenGL/CoCoA/UnderlaySurface の例がマウスの動きをとらえる, sample. GLView.mm
+  mouseDown:  mouseDragged:  mouseUp:   theEvent に座標などが入るのだろう.
 ;;
 2008-01-12
-  Leopard $B$G(B kxx $B0J2<$N(B universal binary $B$N%3%s%Q%$%k$,$&$^$/$$$+$J$$(B.
-  universal binary $BBP1~$rGQ;_(B.
-  cfep/asir $B$O(B ppc $BMQ$N(B binary, intel $BMQ$N(B binary $B$rJL!9$KG[I[$9$kM=Dj(B.
+  Leopard で kxx 以下の universal binary のコンパイルがうまくいかない.
+  universal binary 対応を廃止.
+  cfep/asir は ppc 用の binary, intel 用の binary を別々に配布する予定.
 ;;
 2007-10-09.
-  /usr/X11R6/bin/X, /usr/bin/gcc $B$,%$%s%9%H!<%k$5$l$F$$$J$$;~$O7Y9p$9$k$h$&$K$7$?(B.
+  /usr/X11R6/bin/X, /usr/bin/gcc がインストールされていない時は警告するようにした.
 ;;
-2007-09-30.  cfep/html-en, cfep/html-exp-ja $B$,(B Makefile $B$G%3%T!<$5$l$F$$$J$$$N$r=$@5(B.  Sample $B$K%U%!%$%k$rDI2C(B.
+2007-09-30.  cfep/html-en, cfep/html-exp-ja が Makefile でコピーされていないのを修正.  Sample にファイルを追加.
 ;;
-2007-09-29.  misc-2006/05/cfep-i $B$r$d$a$F(B, OpenXM/src/cfep $B$X%a%s%F$r0\9T(B.
+2007-09-29.  misc-2006/05/cfep-i をやめて, OpenXM/src/cfep へメンテを移行.
 ;;
 2006-11-12.
-    cfep.png_form(Obj) $B$r2C$($k(B.   cfep-inint.rr (cf. OpenXM/src/asir-contrib)
+    cfep.png_form(Obj) を加える.   cfep-inint.rr (cf. OpenXM/src/asir-contrib)
     import("names.rr");
     for (I=4; I<10; I++) {
       cfep.png_form(poly_factor(x^I-1));
       print("--------------");
     } 
-    HTML help $B$K2C$($k(B.
+    HTML help に加える.
 ;;
-2006-11-05.  cfep-init.rr  glib_send $B$N(B print(C) $B$r(B print(C,0) $B$XJQ99(B.
-  $B$3$NJQ99$,$J$$$H(B output window $B$KL50UL#$K(B newline $B$,$?$/$5$s=PNO$5$l$k(B.
-     $BG[I[HG$NJQ99$^$@(B. cfep-init.rr $B$O(B OpenXM/lib/asir, lib/asir-contrib
-     $BN>J}$K$"$k$+$b$7$l$J$$$N$GMWCm0U(B.
+2006-11-05.  cfep-init.rr  glib_send の print(C) を print(C,0) へ変更.
+  この変更がないと output window に無意味に newline がたくさん出力される.
+     配布版の変更まだ. cfep-init.rr は OpenXM/lib/asir, lib/asir-contrib
+     両方にあるかもしれないので要注意.
      ---> Done.  cfep-20061105.dmg.gz
 2006-10-09.  OpenXM/src/kxx/configure.in ( universal binary ox). OpenXM/doc/OpenXM-FAQ.oxweave.
-2006-06-05.  cfep20060605.dmg.gz $B1Q8lHG(B.  cf. misc-2006/06/06-d.txt
-  cfep.app/OpenXM/doc/cfep $B$X(B asir2000/html-en $B$r%3%T!<$7$F$*$/(B.
-  intro-ja.html $B$@$1$G$J$/(B intro-en.html $B$b$*$/(B. 
-  $B7k6I(B ox $B$O(B universal $B$K$7$J$$$H$&$^$/F0$+$:(B on intelmac. test by interrupting sm1.deRham-march ppc -march i386 $B$r(B
-  src/kxx/Makefile $B$H(B src/kan96xx/plugin/Makefile $B$N(B CFLAGS $B$K2C$($k(B. 
+2006-06-05.  cfep20060605.dmg.gz 英語版.  cf. misc-2006/06/06-d.txt
+  cfep.app/OpenXM/doc/cfep へ asir2000/html-en をコピーしておく.
+  intro-ja.html だけでなく intro-en.html もおく. 
+  結局 ox は universal にしないとうまく動かず on intelmac. test by interrupting sm1.deRham-march ppc -march i386 を
+  src/kxx/Makefile と src/kan96xx/plugin/Makefile の CFLAGS に加える. 
 2006-05-04.   cf. misc-2006/05/05-d.txt.
-  3. cfep/changelog-ja.txt $B$X(B cfep.app $B$NJQ99E@$r$^$H$a$k(B. ($B$^$@%3%T!<$7$F$J$$(B.)
-         (a) OpenXM/lib/sm1/bin $B$N%j%s%/$rD>$9(B.
-         (b) OpenXM/lib/k097 $B$r%3%T!<(B.
+  3. cfep/changelog-ja.txt へ cfep.app の変更点をまとめる. (まだコピーしてない.)
+         (a) OpenXM/lib/sm1/bin のリンクを直す.
+         (b) OpenXM/lib/k097 をコピー.
          (c) OpenXM/bin/k0, d0, oxc
          (d) misc-2005/A1/cfep/Doc/intro-ja.html  -> OpenXM/doc/cfep/intro-ja.html ->Done
-       cfep-20060504.dmg $B$r:n@.(B.
-         cfep/tests   $B$h$j(B *circle-dda.rr, circle-func.rr, ccurve.rr, lorentz.rr
-         $B$r(B Sample $B$X%3%T!<$9$k(B.
+       cfep-20060504.dmg を作成.
+         cfep/tests   より *circle-dda.rr, circle-func.rr, ccurve.rr, lorentz.rr
+         を Sample へコピーする.
 
-2006-03-23 07:53. dvipng  $B$,$D$+$($J$$Lu$O(B ox_texmacs  $B$H(B noro_print.rr $B$K$"$j(B. message, help $B$rJQ99(B. 1.1.2 $B$N(B dmg$B$O:rF|$J$s$A$c$C$FJQ99(B/test$B$:$_(B.
+2006-03-23 07:53. dvipng  がつかえない訳は ox_texmacs  と noro_print.rr にあり. message, help を変更. 1.1.2 の dmgは昨日なんちゃって変更/testずみ.
 2006-03-21 17:58. Release 1.1.2.
-2006-03-18 17:08. dvipng $B$r;H$&(B. imgtex $B$r;29M$K(B.
-2006-03-12 14:53. bug fix of pngActionFor: png $B$NA^F~(B.  <oxcommit> for the cfep release 1.1.
-2006-03-12 11:18. onlySelected. outputBorderLine: [NSColor mangentaColor]. $BF~NO$bI=<((B.
+2006-03-18 17:08. dvipng を使う. imgtex を参考に.
+2006-03-12 14:53. bug fix of pngActionFor: png の挿入.  <oxcommit> for the cfep release 1.1.
+2006-03-12 11:18. onlySelected. outputBorderLine: [NSColor mangentaColor]. 入力も表示.
 2006-03-11 21:55. <oxcommit>
-2006-03-11 21:00.  glVertex2f$B$r2C$($?(B.  Set to cfep version 1.1
+2006-03-11 21:00.  glVertex2fを加えた.  Set to cfep version 1.1
 2006-03-10 20:50. <oxcommit>
-2006-03-10 20:44. OpenGL error message $B$N2~NI(B.
-2006-03-10  8:04. checkX. X11$B$,F0$$$F$$$J$$$H$-$O(B modal alert $B$G$J$/(B outputCounterField $B$X%a%C%;!<%8$r=PNO(B.
-2006-03-10  6:51. outputBorderLine. onlySelected $B$N;~$K=PNO$r6h@Z$C$?J}$,$_$d$9$$!%(B.
-2006-03-08 17:22. $BJ8;zNs$NIA2h$O:C@^(B. cf. note-ja.txt. glDisable, glEnable, glLineStipple, glLineWidth, glNormal3f $B$rDI2C(B. 2006-03-08-glib $B$r;2>H(B.
+2006-03-10 20:44. OpenGL error message の改良.
+2006-03-10  8:04. checkX. X11が動いていないときは modal alert でなく outputCounterField へメッセージを出力.
+2006-03-10  6:51. outputBorderLine. onlySelected の時に出力を区切った方がみやすい．.
+2006-03-08 17:22. 文字列の描画は挫折. cf. note-ja.txt. glDisable, glEnable, glLineStipple, glLineWidth, glNormal3f を追加. 2006-03-08-glib を参照.
 2006-03-08 13:59. <oxcommit>
-2006-03-08 13:58. flush$B7O$N4X?t$G$O(B initGL $B$rI,$:@_Dj(B.  glib, cfep-init.rr $B$r99?7$7$F(B, glib_clear(), glib_remove_last(), glib_set_pixel_size() $B$rF3F~(B. tests/2006-03-08-glib $B$,%5%s%W%k%W%m%0%i%`(B. 
-2006-03-08 10:44. $B%(%s%8%s$r<+F05/F0$7$J$$(B (NoEngine) $B$r2C$($k(B. $B<B83E*(B.
+2006-03-08 13:58. flush系の関数では initGL を必ず設定.  glib, cfep-init.rr を更新して, glib_clear(), glib_remove_last(), glib_set_pixel_size() を導入. tests/2006-03-08-glib がサンプルプログラム. 
+2006-03-08 10:44. エンジンを自動起動しない (NoEngine) を加える. 実験的.
 2006-03-08 9:31.  Bug fix of meta_removeAllInit and meta_removeLast.
 2006-03-07 20:16. <oxcommit>
-2006-03-07 20:06. glClear, glFlush, glPointSize, glClearColor, glClearDepth $B$r<BAu(B.
-2006-03-07 17:31. tests/2006-03-07-glib $B$K$"$k$h$&$K(B OpenGL $B$N%3%^%s%I%j%9%H$NDs<((B, removeLast, removeAll $B$,2DG=$K(B. meta_ $B$h$j;O$^$k%3%^%s%I$rAw$k(B.
-2006-03-07 11:47. intro-ja.html $B$N2~A1(B. 2006-03-*.rtfd $B$K(Bcfep$B$NMxMQ@bL@$r(BQ&A$B7A<0$G(B. $B<!$N%(%i!<9T(B. tex$B%b!<%I$G(B input_form $B$O(B blue $B$K(B.
-                  focus $B$,JQ99$5$l$?$i(B main menu $B$N=PNO$r(B tex $B$G(B $B$J$I$N(B check $B$N>uBV$b$+$o$kI,MW$,$"$k$,$d$jJ}$o$+$i$:(B. grep BUG setState:
+2006-03-07 20:06. glClear, glFlush, glPointSize, glClearColor, glClearDepth を実装.
+2006-03-07 17:31. tests/2006-03-07-glib にあるように OpenGL のコマンドリストの提示, removeLast, removeAll が可能に. meta_ より始まるコマンドを送る.
+2006-03-07 11:47. intro-ja.html の改善. 2006-03-*.rtfd にcfepの利用説明をQ&A形式で. 次のエラー行. texモードで input_form は blue に.
+                  focus が変更されたら main menu の出力を tex で などの check の状態もかわる必要があるがやり方わからず. grep BUG setState:
 2006-03-06 17:50. <oxcommit>
-2006-03-06 17:49. setPrettyPrint $B$G(B tex $B$G%?%$%W%;%C%H$,2DG=$K(B. PATH,HOME $B$J$I$r@_Dj(B.
-2006-03-06 15:14. [MyUtil attributedStringWithPath: path] $B$r(B insertText $B$9$k$H(B png graphics $B$r$O$j$3$a$k(B. ox_texmacs $BB&$NBP1~$O$^$@(B. !cfep_png;
-2006-03-06 10:52. $B?7$7$$(Bmenu. Load library (asir/sm1 $B$GJQ2=$7$J$$$N$O(Bbug). Typeset the output by TeX ($B$^$@%"%/%7%g%s$ODj5A$7$F$J$$(B).
-2006-03-05 12:39. package/gendoc.c utf8$B$GE}0l(B. spotlight $B$b(B utf8 $B$O(B OK. LC_ALL=ja_JPeuc.JP $B$@$H(B argv $B$,JQ(B. package/misc/argvtest* $B$r8+$h(B.
-2006-03-04 18:13. toggleContinuousSpellChecking:  (ox oxgreph), MSMedatdataQuery$B$ND4::(B. package/gendoc (sjis $B$X$NJQ49(B)
+2006-03-06 17:49. setPrettyPrint で tex でタイプセットが可能に. PATH,HOME などを設定.
+2006-03-06 15:14. [MyUtil attributedStringWithPath: path] を insertText すると png graphics をはりこめる. ox_texmacs 側の対応はまだ. !cfep_png;
+2006-03-06 10:52. 新しいmenu. Load library (asir/sm1 で変化しないのはbug). Typeset the output by TeX (まだアクションは定義してない).
+2006-03-05 12:39. package/gendoc.c utf8で統一. spotlight も utf8 は OK. LC_ALL=ja_JPeuc.JP だと argv が変. package/misc/argvtest* を見よ.
+2006-03-04 18:13. toggleContinuousSpellChecking:  (ox oxgreph), MSMedatdataQueryの調査. package/gendoc (sjis への変換)
 2006-03-04  8:??. <oxcommit> imports to OpenXM/src/cfep. Some tests files and note-ja.txt are not imported.
-2006-03-03 20:20. [myDocument setDebugMyTunnel sender], [MyUtil setDebugMyUtil], $B<B9T%a%K%e!<$+$i(B tunnel debub data $B$N=PNO$N(B on, off.  glib $B2~D{$G(Btests/ccurve.rr$B$,<B9T2DG=$K!#(B
-2006-03-03  9:28. gotoNextError, gotoLine, clearLines, addLine, nextLine, asir$B$N%(%i!<=hM}$KBP1~(B. ox.sm1 $B$b(B.
-2006-03-02 21:28. notebookMode $B$G(B illegal character $B$,@5$7$/F0$/$h$&$K$9$k(B.
-2006-03-02 20:27. notebookMode. $B$9$3$71x$$<BAu$@$,$H$j$"$($:F0$/(B. getOutOfOutputCell, insertInputCell, getContentsOfInputCell, prepareOutputCell, doInsertInputCell, notebookMode.
-2006-03-02 11:59. mainMenu $B$K<B9T$r2C$($k(B. menuExec.
-2006-02-27 21:02. notebookMode =1; $B$N<B83(B.
+2006-03-03 20:20. [myDocument setDebugMyTunnel sender], [MyUtil setDebugMyUtil], 実行メニューから tunnel debub data の出力の on, off.  glib 改訂でtests/ccurve.rrが実行可能に。
+2006-03-03  9:28. gotoNextError, gotoLine, clearLines, addLine, nextLine, asirのエラー処理に対応. ox.sm1 も.
+2006-03-02 21:28. notebookMode で illegal character が正しく動くようにする.
+2006-03-02 20:27. notebookMode. すこし汚い実装だがとりあえず動く. getOutOfOutputCell, insertInputCell, getContentsOfInputCell, prepareOutputCell, doInsertInputCell, notebookMode.
+2006-03-02 11:59. mainMenu に実行を加える. menuExec.
+2006-02-27 21:02. notebookMode =1; の実験.
 2006-02-25.  The first release.
-2006-02-24 21:46. $B?7$7$$%3%^%s%I(B. glBegin, glEnd, glVertex3f, glib3_bounding_box. X11 $B$G(B X11 $B$G$N%F%9%H2DG=$K(B. 
+2006-02-24 21:46. 新しいコマンド. glBegin, glEnd, glVertex3f, glib3_bounding_box. X11 で X11 でのテスト可能に. 
 2006-02-24 14:31. glib3_ray (demo) is installed. glib3_std_scene0, glib3_icosahedron.
-2006-02-24 13:49. resizing. setFrameSize.  depth buffer $B$rM-8z$K(B. cf. glut3/note-ja.txt.
-2006-02-22 14:02. OpenGL $B$N=i4|2=$b(B asir $B$+$i$G$-$k$h$&$K$J$C$?(B.
-2006-02-22 11:53. OpenGL interpreter is now works. Try gtest1.rr. OpenGL $B$N%3%^%s%IDI2C$O8a8e$d$m$&!#(B
-2006-02-22 10:58. [MyUtil arrayOfStringFrom: ...] $B$,(B [NSString,MyFloat,MyFloat, ...] $B$_$?$$$J(B NSArray $B$rLa$9$h$&$KJQ99(B.
-2006-02-21 20:58. [MyUtil arrayOfStringFrom: @"[glColor4f,1.0,1.0,0.5,1.0]"] $B$_$?$$$KJQ99(B.
-2006-02-20 21:47. MyUtil arrayOfStringFrom (list $B$N%Q!<%9(B). MyFloat, MyInt. OpenGL $B4X?t$N0z?t$r(Bbyte compile$B$9$k=`Hw(B. 
-2006-02-19 17:43. +myOpenGLControllerOwnedBy: with: , +addOglComm: to: from: $B$J$I(B MyOpenGL$B$N4IM}4X?t$r:n$k(B. $B$^$@(Bgtest1.rr $B$+$i(B window $B$r@8@.$9$k4X?t$O:n@.$7$F$$$J$$(B.
-2006-02-19 16:42. tests/gtest1.rr, channel 1 $B$X%G!<%?$rAw$k(B glib_send $B4X?t$r:n@.(B.
-2006-02-19 11:14. initGL, drawOglComm $B$HIA2h$rJ,N%(B. MyOpenGL.nib, mymessage$BDI2C(B. size. window delegate outlet $B@\B3(B.
-2006-02-18 20:39. MyOpenGLCommand $B$X(B compile $B$r2C$($k(B. oglComm[i] $B$r=gHV$K<B9T(B.
-2006-02-18 17:24. openxm-1.2.3-6.deb $B$N$?$a$NCfCG$*$o$j(B. MyOpenGL* $B$rDI2C(B.  $B%N!<%H$b;2>H(B. WindowController $B$r2C$($kJ}K!$O(B $BK\$N(B p.298. MyOpenGLController $B$r(B files Owner $B$N%+%9%?%`%/%i%9$K(B. CutomView $B$O(B MyOpenGLView $B$N%+%9%?%`%/%i%9$K(B.
-2006-02-06 16:06. bash$B$N5/F0$N%P%0$r=$@5(B. Engine is not responding. $B$rI=<((B.
-2006-02-05 15:25. selected area $B$,$J$$$H$-$O9T$rA4ItA*Br$9$k$h$&$KJQ99(B. outputWindow $B$K(Bprint$B$r$D$1$k(B.  bash $B$N5/F0$,$&$^$/$$$+$J$$$,(B, $B860x$O$"$H$G9M$($h$&(B.->$B2r7h(B.
-2006-02-04 15:48. ox_texmacs --languageResource asir-ja_JP.UTF8.sm1 $B$NMxMQ(B.
-2006-02-02 19:51. errorActionFor: $B$N2~A1(B. tests/error1.sm1.rr, rEncode.rtfd $B$r%G%P%C%0MQ$KMQ$$$k(B. ox.sm1  $B$bJQ99(B. Begin, End $B$G0O$`(B.
-2006-02-02 17:33. errorActionFor: $B$N<BAu(B. tEncode.rtfd $B$r%G%P%C%0MQ$K;H$&(B. !sm1 1 shell $B$b(B.  findAndSelect $B$H(B gotoLine $B$O(B onlySelected $B$N;~GSB>E*$G$J$$$H$$$1$J$$(B. $B$3$NLdBj$O$^$?$"$H$G(B. 
-2006-01-29 17:02. myDecoder $B$N:G=i$N<BAu(B. tests/tEncode.rtfd $B$G%G!<%?$,Aw$l$k$+%F%9%H(B. $B>C5n%\%?%s$r$D$1$k(B. 
-2006-01-28 17:34. checkSelectedArea $B%"%/%7%g%s$rDI2C(B. $B3g8L$NBP1~$H$+A43QJ8;z$J$I$r8!=P$G$-$k(B.
-2006-01-28 15:46. selectIllegalCharacter ($BA43Q$NIT@5$JJ8;z$N8!=P(B)
-2006-01-28 10:33.  UTF8 $B$NJ8;zNs$N<u?.(B.
-2006-01-26 19:32.  --engineLogToStdout $BBP1~(B. cf. OpenXM/src/kan96xx/Doc/changelog-ja.tex
-2006-01-26 16:05.  peerEndEvaluateMark $B$r(B \005\n --> 005 $B$X(B. ox_texmacs $BB&$OJQ99$$$i$J$$(B.
-2006-01-26  8:06.  MyOutputWindowController $B$,$[$\0BDjF0:n(B. $B$$$^$+$i;H$C$F$_$FIT6q9g$rC5$9(B.
-2006-01-25 17:27.  MyOutputWindowController $B$r:n@.(B. $B0[>oF0:n$N>l9g$O(B 12:18 $B$K(B undo $B$9$k$3$H(B.
-2006-01-25 12:18.  rr, txt, rtf, rtfd (pinfo $B$N<h$j07$$$r$-$A$s$H$7$?(B.)
-2006-01-24 21:30.  File type $B$r(B rtfd (rtf with graphics), txt, rr $B$K8BDj(B.
-2006-01-24 14:07.  NSProgressIndicator $B$N<BAu(B.
-2006-01-24 11:24.  XAUTHORITY $B$N@_Dj(B. X11$B$,F0$$$F$J$$$H$-$N%a%C%;!<%8(B.
-2006-01-23 21:32.  restart $B$r2DG=$K$9$k$?$a$K(B, $B9=B$$rBgI}$KJQ99(B. openMyModel, closeMyModel. $B$7$P$i$/%F%9%H$NI,MW$"$j(B.
-2006-01-23 19:57.  MyEnvironment $B$K(B initFor: $B$rF3F~(B.
-2006-01-23 19:28.  Broken pipe $B$N$"$H$N=hM}(B.
-2006-01-23 17:04.  terminateProcess $B$N%3!<%I$r2C$($k(B. tests/dyld.rr-rtf $B$K(B ox_asir $B$N%P%0$H(B cfep $B$X$N1F6A$N5-;v(B.
+2006-02-24 13:49. resizing. setFrameSize.  depth buffer を有効に. cf. glut3/note-ja.txt.
+2006-02-22 14:02. OpenGL の初期化も asir からできるようになった.
+2006-02-22 11:53. OpenGL interpreter is now works. Try gtest1.rr. OpenGL のコマンド追加は午後やろう。
+2006-02-22 10:58. [MyUtil arrayOfStringFrom: ...] が [NSString,MyFloat,MyFloat, ...] みたいな NSArray を戻すように変更.
+2006-02-21 20:58. [MyUtil arrayOfStringFrom: @"[glColor4f,1.0,1.0,0.5,1.0]"] みたいに変更.
+2006-02-20 21:47. MyUtil arrayOfStringFrom (list のパース). MyFloat, MyInt. OpenGL 関数の引数をbyte compileする準備. 
+2006-02-19 17:43. +myOpenGLControllerOwnedBy: with: , +addOglComm: to: from: など MyOpenGLの管理関数を作る. まだgtest1.rr から window を生成する関数は作成していない.
+2006-02-19 16:42. tests/gtest1.rr, channel 1 へデータを送る glib_send 関数を作成.
+2006-02-19 11:14. initGL, drawOglComm と描画を分離. MyOpenGL.nib, mymessage追加. size. window delegate outlet 接続.
+2006-02-18 20:39. MyOpenGLCommand へ compile を加える. oglComm[i] を順番に実行.
+2006-02-18 17:24. openxm-1.2.3-6.deb のための中断おわり. MyOpenGL* を追加.  ノートも参照. WindowController を加える方法は 本の p.298. MyOpenGLController を files Owner のカスタムクラスに. CutomView は MyOpenGLView のカスタムクラスに.
+2006-02-06 16:06. bashの起動のバグを修正. Engine is not responding. を表示.
+2006-02-05 15:25. selected area がないときは行を全部選択するように変更. outputWindow にprintをつける.  bash の起動がうまくいかないが, 原因はあとで考えよう.->解決.
+2006-02-04 15:48. ox_texmacs --languageResource asir-ja_JP.UTF8.sm1 の利用.
+2006-02-02 19:51. errorActionFor: の改善. tests/error1.sm1.rr, rEncode.rtfd をデバッグ用に用いる. ox.sm1  も変更. Begin, End で囲む.
+2006-02-02 17:33. errorActionFor: の実装. tEncode.rtfd をデバッグ用に使う. !sm1 1 shell も.  findAndSelect と gotoLine は onlySelected の時排他的でないといけない. この問題はまたあとで. 
+2006-01-29 17:02. myDecoder の最初の実装. tests/tEncode.rtfd でデータが送れるかテスト. 消去ボタンをつける. 
+2006-01-28 17:34. checkSelectedArea アクションを追加. 括弧の対応とか全角文字などを検出できる.
+2006-01-28 15:46. selectIllegalCharacter (全角の不正な文字の検出)
+2006-01-28 10:33.  UTF8 の文字列の受信.
+2006-01-26 19:32.  --engineLogToStdout 対応. cf. OpenXM/src/kan96xx/Doc/changelog-ja.tex
+2006-01-26 16:05.  peerEndEvaluateMark を \005\n --> 005 へ. ox_texmacs 側は変更いらない.
+2006-01-26  8:06.  MyOutputWindowController がほぼ安定動作. いまから使ってみて不具合を探す.
+2006-01-25 17:27.  MyOutputWindowController を作成. 異常動作の場合は 12:18 に undo すること.
+2006-01-25 12:18.  rr, txt, rtf, rtfd (pinfo の取り扱いをきちんとした.)
+2006-01-24 21:30.  File type を rtfd (rtf with graphics), txt, rr に限定.
+2006-01-24 14:07.  NSProgressIndicator の実装.
+2006-01-24 11:24.  XAUTHORITY の設定. X11が動いてないときのメッセージ.
+2006-01-23 21:32.  restart を可能にするために, 構造を大幅に変更. openMyModel, closeMyModel. しばらくテストの必要あり.
+2006-01-23 19:57.  MyEnvironment に initFor: を導入.
+2006-01-23 19:28.  Broken pipe のあとの処理.
+2006-01-23 17:04.  terminateProcess のコードを加える. tests/dyld.rr-rtf に ox_asir のバグと cfep への影響の記事.
 2006-01-22 19:33.  Added signal(SIGPIPE,SIG_IGN); (BUG. non a way of cocoa).
-2006-01-22 18:50.  MyEnvironment.m $B$r2C$($k(B. instance $B$r@8@.$9$k$b(B, $BMxMQ$O$7$J$$(B. dealloc, release  $B$G$N(Bcrash$B$N860x$rC5$k$?$a$H$j$"$($:(Bcommit.
-2006-01-21 19:47.  $BF|K\8lHG$r$^$::n$k(B. cf. note-ja.txt
-2006-01-21 15:24.  NSLocalizedString $B$rMxMQ(B. $B1Q8l$N(B resource $B$KF|K\8l$N%a%C%;!<%8$r$H$j$"$($:$$$l$k(B. $B8e$G%3%T!<$7$h$&(B.
-2006-01-21 14:26.  input window $B$OB@$i$J$$(B, output window $B$,B@$k$h$&$KJQ99(B.
+2006-01-22 18:50.  MyEnvironment.m を加える. instance を生成するも, 利用はしない. dealloc, release  でのcrashの原因を探るためとりあえずcommit.
+2006-01-21 19:47.  日本語版をまず作る. cf. note-ja.txt
+2006-01-21 15:24.  NSLocalizedString を利用. 英語の resource に日本語のメッセージをとりあえずいれる. 後でコピーしよう.
+2006-01-21 14:26.  input window は太らない, output window が太るように変更.
 2006-01-21 11:36.  appending to the textViewOut.  
 2006-01-21 10:31.
-   Q.NSLog, EXC_BAD_ACCESS, CFStringAppendFormatAndArgumentsAux $B$G%/%i%C%7%e$7$^$9(B.
-   A. NSLog $B$O(B % $B$r4^$`$H0z?t$r$5$i$KC5$7$^$9(B.
-     $B$7$?$,$C$F(B NSLog[@"%@", string]; $B$HMxMQ$9$k$N$,0BA4$G$9(B.  $B>\$7$/$O(B note-ja.txt
-2006-01-21 10:01. oxEvalute, oxEvaluteString, oxEvaluteRegisteredString, peerEndEvaluateMark $B$J$I$r2C$($k(B. cfep-test1, test-hexdump.rr-rtf $B$G%F%9%H(B.
-2006-01-19 21:22. ox_texmacs --view cfep $B$r:n@.(B. cfep-test1 $B$G%F%9%H(B.
-2006-01-19 17:21. /Users/nobuki/OX4/OpenXM/openxm ox_asir $B$G$b%F%9%H(B.
-2006-01-19 16:45. nib $B$+$i$D$/$j$J$*$7(B, cfepOnSimpleRTFEdit $B$N(B .m, .h $B$r$b$C$F$/$k(B. $B$-$A$s$HF0$/(B.
-2006-01-19 14:03. cfepOnSimpleRTFEdit $B$H$[$\F1MM$KJQ99$7$?$K$b$+$+$o$i$:(B, segfault $B$9$k(B. nib $B%U%!%$%k$N@8@.$G<:GT(B?
-2006-01-19 7:53.  $BAjJQ$o$i$:(B /usr/bin/hexcump -C /Users/nobuki/Wu-thesis-new.pdf \n $B$r2?EY$+$d$k$H(B seg fault.
-                  NSTextField $B$N(B drawrect $B$"$?$j(B.  Cocoa $BF~Lg$NK\$N%5%s%W%k%3!<%I$KKd$a9~$s$G$?$a$9(B.
-2006-01-18 19:44. setStandardInput: NSFileHandle * $B$r@_Dj$7$F$bL[$C$FF0:n(B.  NSPipe * $B$r@_Dj$7$J$$$H$$$1$J$$(B.
-                  SIGPIPE $B$N=hM}$r$^$@=q$$$F$$$J$$(B.
+   Q.NSLog, EXC_BAD_ACCESS, CFStringAppendFormatAndArgumentsAux でクラッシュします.
+   A. NSLog は % を含むと引数をさらに探します.
+     したがって NSLog[@"%@", string]; と利用するのが安全です.  詳しくは note-ja.txt
+2006-01-21 10:01. oxEvalute, oxEvaluteString, oxEvaluteRegisteredString, peerEndEvaluateMark などを加える. cfep-test1, test-hexdump.rr-rtf でテスト.
+2006-01-19 21:22. ox_texmacs --view cfep を作成. cfep-test1 でテスト.
+2006-01-19 17:21. /Users/nobuki/OX4/OpenXM/openxm ox_asir でもテスト.
+2006-01-19 16:45. nib からつくりなおし, cfepOnSimpleRTFEdit の .m, .h をもってくる. きちんと動く.
+2006-01-19 14:03. cfepOnSimpleRTFEdit とほぼ同様に変更したにもかかわらず, segfault する. nib ファイルの生成で失敗?
+2006-01-19 7:53.  相変わらず /usr/bin/hexcump -C /Users/nobuki/Wu-thesis-new.pdf \n を何度かやると seg fault.
+                  NSTextField の drawrect あたり.  Cocoa 入門の本のサンプルコードに埋め込んでためす.
+2006-01-18 19:44. setStandardInput: NSFileHandle * を設定しても黙って動作.  NSPipe * を設定しないといけない.
+                  SIGPIPE の処理をまだ書いていない.
 2006-01-18 Initial based on SimpleOX.
 
 
