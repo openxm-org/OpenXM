@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.11 2017/08/31 01:24:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.12 2017/08/31 21:48:00 takayama Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -160,12 +160,12 @@ help-en: tmp-en man-en.dvi
 html-ja: tmp-html-ja
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ../texi2html -menu -split_node ../tmp-html-ja/man.texi)
+	-(cd $@; ln -s ../texi2html.perl . ; ../texi2html -menu -split_node ../tmp-html-ja/man.texi)
 
 html-en: tmp-html-en
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ../texi2html -menu -split_node ../tmp-html-en/man.texi)
+	-(cd $@; ln -s ../texi2html.perl . ;../texi2html -menu -split_node ../tmp-html-en/man.texi)
 
 html-win: html-ja gen_hh
 	-rm -rf $@
@@ -182,13 +182,13 @@ html-win-en: html-en gen_hh
 html-internal-ja: tmp-html-internal-ja
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ${TEXI2HTML} ../tmp-html-internal-ja/internal.texi)
+	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} ../tmp-html-internal-ja/internal.texi)
 
 html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
 	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
-	-(cd $@; ${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
+	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.dvi: tmp-html-internal-ja
 	-(cd tmp-html-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
