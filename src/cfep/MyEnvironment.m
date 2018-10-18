@@ -135,7 +135,7 @@
     if ([s compare: @"PATH"] == NSOrderedSame) { 
       char *path;
 	  NSString *defaultPath;
-	  defaultPath=@"/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/sw/bin:/sw/sbin:/usr/local/bin";
+        defaultPath=@"/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/TeX/texbin:/opt/local/bin:/opt/local/sbin:/opt/bin:/opt/sbin:/usr/local/bin";
 	  path = getenv("PATH");
 	  if (!path) {
 	    s = [NSString stringWithCString: path length: strlen(path)];
