@@ -1,5 +1,5 @@
 <html>
-<META http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <body>
 <pre>
 
@@ -7,6 +7,14 @@
 パッケージの build には package/readme-ja.txt を読むこと.
 misc-2006/05/cfep-i から OpenXM/src/cfep へ移行. (ただし tests の下のファイルは全部移していない. これはまだ有益なものがあり.)
 note-ja.txt などないファイルはこちらを参照. 
+--------
+2018.10.22
+otool -L asir ox_asir ox_texmacs ox_pari ox など static link してるか調べる.
+make configure-static の前に asir2000 では rm .*done, ox_pari でも rm .*done をしておくこと.
+Base.lproj が cvs で変なので一旦削除.
+時々 X11 plot がうごかず. ps でみると asir (ox_asir) は起動している.
+エラーの原因は不明.  通信でハングしてる感じ.
+;;
 -------  Todo
  2006-01-23 19:26:53.568 cfep[340] oxEvalluateString Caught NSFileHandleOperationException: *** -[NSConcreteFileHandle writeData:]: Broken pipe
  child が sig segv を発信したときの対策.
