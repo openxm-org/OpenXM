@@ -1,9 +1,13 @@
 # Moved from misc-2005/12/xcode/Makefile.
 OpenXM_HOME=${HOME}/OX4/OpenXM
 #BUILD=${OpenXM_HOME}/src/cfep/build
-BUILD=${HOME}/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products
+BUILD=${HOME}/Library/Developer/Xcode/DerivedData/cfep-bhkasofxogbpccejyarjutuhwgvp/Build/Products
+BUILD_BASE=${HOME}/Library/Developer/Xcode/DerivedData
 usage:
-	@echo ${BUILD}
+	@echo "---- Set BUILD directory properly by editing Makefile"
+	@echo "BUILD value =${BUILD}"
+	@ls ${BUILD_BASE}
+	@echo "-----------------------"
 	@echo "setup-cfep (developer), clean, "
 	@echo "dist-cfep (build a distribution under work), install, gentar," 
 	@echo "copy-intro-ja : Copy intro-ja.html and images to /home/web/HOME/taka/2005/cfep/index-ja.html" 
@@ -22,14 +26,15 @@ setup-cfep:
 	(cd ${BUILD}/Default/cfep.app ; ln -s ~/OX4/OpenXM .)
 	make setup-cfep-fix
 # To debug html intro at ../doc
-	(cd ../doc ; ln -s ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8 .)
+	-(cd ../doc ; ln -s ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8 .)
 	-cp `which nkf` ~/OX4/OpenXM/bin
+	ln -s ${BUILD} .
 setup-cfep-fix:
 	(rm -f ~/OX4/OpenXM/lib/asir/cfep-init.rr ; cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
 
 link-for-debug:
-	echo $(HOME)/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products/Debug/cfep.app 
-	(cd $(HOME)/Library/Developer/Xcode/DerivedData/cfep-*/Build/Products/Debug/cfep.app ; ln -s ~/OX4/OpenXM .)
+	echo ${BUILD}/Debug/cfep.app 
+	(cd ${BUILD}/Debug/cfep.app ; ln -s ~/OX4/OpenXM .)
 
 install:  cfep-grep
 	mkdir -p ${OpenXM_HOME}/doc/cfep
