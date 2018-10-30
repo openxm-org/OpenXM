@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.9 2013/01/22 02:34:35 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.10 2016/08/28 02:43:14 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -1085,6 +1085,7 @@ Hello
 def gkz(S) {
   SM1L_FIND_PROC(P);
   A = S[0];
+  if (matrix_rank(A) != length(A)) error("Rank of A must be equal to the row numbers.\n");
   B = S[1];
   AA = [ ];
   BB = [ ];
