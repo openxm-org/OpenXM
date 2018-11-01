@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.10 2016/08/28 02:43:14 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.11 2018/10/30 06:29:53 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -119,6 +119,8 @@ localf gb_dehomo $
 localf ecartd_syz $
 localf init_Sm1_proc $
 localf laplace $
+localf add_d$
+localf regular_triangulation$
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
 def init_Sm1_proc() {
@@ -1916,6 +1918,50 @@ def laplace(L,V,VL) {
   sm1(P," laplace0 ");
   Ans = pop(P);
   return Ans;
+}
+
+/*&usage begin sm1.add_d(V)
+  It adds d to V.
+  example: sm1.add_d([x1,x2,x3]);
+end: */
+def add_d(V) {
+  if (type(V) >= 4) return map(add_d,V);
+  return(eval_str("d"+rtostr(V)));
+}
+
+/*&usage begin sm1.regular_triangulation(AW)
+  It returns the regular triangulation for the point configuration {AW[0]}
+  with respect to the weight {AW[1]}.
+  Ans[0] is the list of simpleces. Ans[1] is the initial ideal. If it is
+  not a monomial ideal, it is not a regular triangulation.
+  cf. sm1.gkz
+  example: sm1.regular_triangulation([ [[1,1,1,1],[0,0,1,1],[1,0,1,0]], [1,0,0,1]]);
+   sm1.regular_triangulation([ [[1,1,1,1,1,1],[0,0,0,1,1,1],[1,0,0,1,0,0],[0,1,0,0,1,0]], [2,0,0,1,0,5]]);
+   sm1.regular_triangulation([ [[1,1,1,1,1],[3,2,2,2,1],[0,1,-1,0,0]], [1,1,1,0,1]]);
+
+end: */
+def regular_triangulation(AW) {
+  A=AW[0];
+  W=AW[1];
+  Beta=vtol(newvect(length(A)));
+  F=sm1.gkz([A,Beta]);
+  T=F[0]; V=F[1];
+  for (I=0; I<length(A); I++) T=cdr(T);
+  DV=add_d(V);
+  Wvec=newvect(2*length(DV));
+  for (I=0; I<length(DV); I++) {
+    Wvec[2*I]=DV[I]; Wvec[2*I+1]=W[I];
+  }
+  Wvec=vtol(Wvec);
+  print([T,[Wvec]]);
+  G=gb([T,DV,[Wvec]]);
+  P=primadec(G[1],DV);
+  Ans=[];
+  for (I=0; I<length(P); I++) {
+    Q=P[I][1];
+    Ans=cons(base_set_minus(DV,Q),Ans);
+  }
+  return [Ans,G[1],G[0],DV];
 }
 
 endmodule;
