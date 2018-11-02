@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.18 2013/11/06 06:23:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.19 2016/04/02 08:20:09 ohara Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1089,7 +1089,10 @@ void loadFileWithCpp(objectp op)
   }
   /* printf("%s\n",outfile); */
   if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
-#if defined(__clang__)
+#if defined(__clang__) || defined(__FreeBSD__)
+/* cpp of the FreeBSD is the cpp of the clang, but gcc is selected by configure.
+   echo | gcc -dM -E -
+*/
     sprintf(tmpName,"cpp -E -P %s | sed -e 's/^#.*//g' >%s",sfile,outfile);
 #else
 	argv[0] = cpp;
@@ -1106,7 +1109,7 @@ void loadFileWithCpp(objectp op)
 	argv[3] = cygwinPathToWinPath(outfile);
 	argv[4] = NULL;
   }
-#if defined(__clang__)
+#if defined(__clang__) || defined(__FreeBSD__)
   system(tmpName);
 #else
   n=oxForkExecBlocked(argv);
