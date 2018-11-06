@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.1 2017/03/12 07:51:24 takayama Exp $
   original source were at misc-2016/A3/rk-k/Prog
   2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
   2017.01.14  runge-kutta by matrix factorial
@@ -36,6 +36,9 @@ localf foo2$
 localf rk4_mfac$
 localf test3$
 localf test4$
+localf test2c$
+localf mul_each_abs$
+localf rk4_adaptive_step$
 
 static Tk_rk_a$
 static Tk_rk_b$
@@ -366,6 +369,112 @@ def test4(NN) {
 //  R=gtt_ekn.g_mat_fac_itor(F,Mnm,0,NN,1,x,Tk_rk_plist,Tk_rk_idl); // start with 0 case out of range.
   R=gtt_ekn.g_mat_fac_itor(F,Mnm,1,NN,1,x,Tk_rk_plist,Tk_rk_idl);
 }
+
+// endmodule$ tk_rk.init_const()$ end$
+// 2018.11.06  Adaptive methods.
+def test2c(Xmax) {
+  if (type(getopt(mode))>=0) Mode=getopt(mode);
+  else Mode=2; // double arithmetic
+  P=newmat(2,2,[[0,1],[-1,0]])
+    +newmat(2,2,[[-2*x,0],[0,-2*x]]);
+  N=100;
+  H=1/N;
+  RK_mat=rk4_mat(P,x,x,h); 
+  F0=newvect(2,[1,0]); // value at x=0, exp(-x^2)*[cos(x),-sin(x)]
+  Y0=F0;  
+  X=0;
+  while (X < Xmax) {
+    Val=rk4_adaptive_step(RK_mat,Y0,x,X,h,H | option_list=cons([mode,Mode],getopt()));
+    H=Val[1];
+    X=Val[0][0];
+    Y0=Val[0][1];
+    if (Mode==0) ;
+    else if (Mode==1) Y0=number_eval(Y0);
+    else if (Mode==2) Y0=map(deval,Y0);
+    printf("x=%a, H=%a, val=%a, exact=%a\n",X,H,eval(Y0[0]*exp(0)),eval(exp(-(X)^2)*cos(X)));
+  }
+  return(Val);
+}
+/*
+  y''+y=0. G=exp(-x^2)*[y,y']
+  Solving G'=[[0,1],[-1,0]] G + [[-2x,0],[0,-2x]]G
+  Answer is G=exp(-x^2)*[cos(x),sin(x)]
+*/
+def mul_each_abs(V1,V2) {
+  N=length(V1);
+  Ans=newvect(N);
+  for (I=0; I<N; I++) {
+    M=V1[I]*V2[I];
+    if (M<0) M=-M;
+    Ans[I]=M;
+  }
+  return Ans;
+}
+def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1) 
+"RK_mat for X and H. Y0 is the value at X=X0. Returns [[NewX0,NewY0],NewH]"
+{
+  N=length(Y0);
+  if (type(getopt(mode))>=0) Mode=getopt(mode);
+  else {
+    /* default number evaluation mode */
+    Mode=2;
+  }
+  if (type(getopt(step_limit))>=0) Step_limit=getopt(step_limit);
+  else {
+    Step_limit=10; /* if error is 0, next H is bounded by Step_limit */
+  }
+  if (type(getopt(abs_err))>=0) Abs_err=getopt(abs_err);
+  else {
+    /* default error control */
+    Abs_err=newvect(N);
+  }
+  if (type(getopt(rel_err))>=0) Rel_err=getopt(rel_err);
+  else {
+    /* default error control */
+    Rel_err=newvect(N); for (I=0; I<N; I++) Rel_err[I]=1;
+    Rel_err=Rel_err*10^(-5);
+  }
+
+  Y1=base_replace_n(RK_mat,[[X,X0],[H,2*H1]])*Y0;
+  Y2=base_replace_n(RK_mat,[[X,X0+H1],[H,H1]])*
+     base_replace_n(RK_mat,[[X,X0],[H,H1]])*Y0;
+  Del1=Y2-Y1;
+  Del0=Abs_err+mul_each_abs(Rel_err,Y0);
+
+  /* Step size control */
+  M=0;
+  for (I=0; I<N; I++) {
+    if (Del1[I] < 0) {Del1[I] = - Del1[I];}
+    if (Del0[I] < 0) {Del0[I] = - Del0[I];}
+    if (Del1[I] == 0) Del1[I] = 1/Step_limit;
+  }
+  for (I=0; I<N; I++) {
+    R = Del0[I]/Del1[I];
+    if (M==0) M=R;
+    else if ((R > 0) && (R < M)) M=R;
+  } 
+  if (M==0) M=1;
+  M = number_eval(M^(1/5));
+  if (Mode == 0) {
+    M = number_float_to_rational(M | prec=setprec());
+  }else if (Mode == 1) {
+    ;
+  }else {
+    M = deval(M);
+  }
+  /* Heuristic */
+  if (Heu1) {
+    if ((M >=1) && (M <= 2)) M=1;
+  }
+  H_new=M*H1;
+
+  if (H_new >= H1) {
+    return [[X0+2*H1,Y2],H_new];
+  }else{
+    return rk4_adaptive_step(RK_mat,Y0,X,X0,H,H_new | option_list=getopt());
+  }
+}
+
 #ifdef USE_MODULE
 endmodule$
 tk_rk.init_const()$
