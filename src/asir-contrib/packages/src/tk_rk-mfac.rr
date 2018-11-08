@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.2 2018/11/06 01:52:39 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.3 2018/11/08 02:53:34 takayama Exp $
   original source were at misc-2016/A3/rk-k/Prog
   2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
   2017.01.14  runge-kutta by matrix factorial
@@ -404,7 +404,7 @@ def mul_each_abs(V1,V2) {
   return Ans;
 }
 def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1) 
-"RK_mat for X and H. Y0 is the value at X=X0. Returns [[NewX0,NewY0],NewH]. Options: mode=0(rational), mode=1(bigfloat), mode=2(double, default). Example: P=newmat(2,2,[[-2*x,1],[-1,-2*x]]); M=tk_rk.rk4_mat(P,x,x,h); tk_rk.rk4_adaptive_step(M,newvect(2,[1,0]),x,0,h,1/100);"
+"RK_mat for X and H. Y0 is the value at X=X0. Returns [[NewX0,NewY0],NewH]. Options: mode=0(rational), mode=1(bigfloat), mode=2(double, default). Example: P=newmat(2,2,[[-2*x,1],[-1,-2*x]]); M=tk_rk.rk4_mat(P,x,x,h); tk_rk.rk4_adaptive_step(M,newvect(2,[1,0]),x,0,h,1/100); See test2c()"
 {
   N=length(Y0);
   if (type(getopt(mode))>=0) Mode=getopt(mode);
@@ -415,6 +415,11 @@ def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1)
   if (type(getopt(step_limit))>=0) Step_limit=getopt(step_limit);
   else {
     Step_limit=10; /* if error is 0, next H is bounded by Step_limit */
+  }
+  if (type(getopt(h_rel_err))>=0) H_rel_err=getopt(h_rel_err);
+  else {
+    /* for a truncation of the step size H when Mode==0 */
+    H_rel_err=10^(-3);
   }
   if (type(getopt(abs_err))>=0) Abs_err=getopt(abs_err);
   else {
@@ -462,6 +467,13 @@ def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1)
   H_new=M*H1;
 
   if (H_new >= H1) {
+    if (Mode == 0) {
+      /* truncate the rationals Y2 to abs err and rel err. Todo. */
+      for (I=0; I<N; I++) {
+        Y2[I] = tk_approx_r.cont_frac(Y2[I],-1,Rel_err[I]);
+      }
+      H_new = tk_approx_r.cont_frac(H_new,-1,H_rel_err);
+    }
     return [[X0+2*H1,Y2],H_new];
   }else{
     return rk4_adaptive_step(RK_mat,Y0,X,X0,H,H_new | option_list=getopt());
