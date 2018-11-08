@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.1 2017/03/12 07:51:24 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.2 2018/11/06 01:52:39 takayama Exp $
   original source were at misc-2016/A3/rk-k/Prog
   2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
   2017.01.14  runge-kutta by matrix factorial
@@ -86,8 +86,7 @@ def init_const() {
 
 /*  y'=P(x)y, P is matrix. */
 def rk4_mat(P,X,X0,H) 
-"It returns a matrix by the 4th order Runge-Kutta method for matrix factorial\
-evaluation. See the source of tk_rk.test1(X0) as to an example."
+"It returns a matrix by the 4th order Runge-Kutta method for matrix factorial evaluation. See the source of tk_rk.test1(X0) as to an example."
 {
   if (type(getopt(replace_n)) > 0) {
     Replace=base_replace_n;
@@ -286,13 +285,7 @@ def foo2() { return foo1(|option_list=append(getopt(),[["opt",1],["opt",2]])); }
 
 // 2017.01.29  generic rk4 solver for real X.  cf. bess.rr
 def rk4_mfac(P,Y0,X,Start,End,H) 
-"It approximately solves Y'=P(X)Y in Start<=X<=End,  Y(Start)=Y0 \
-with H is the step size by the 4th order Runge-Kutta method.\
-Rational arithmetic is used and rational numbers are truncated\
-when trunc >0 or trunc_rel >0.\
- Options: (for gtt_ekn.setup) nps(number of ps), nprm(number of primes), minp(minimal prime), fgp(file to save primes),\
- Options: step(step no to use matrix factorial)[10],ratval(output by rational)[1],\
-trunc[1/10^10,global],trunc_rel[1/10^10,global];"
+"It approximately solves Y'=P(X)Y in Start<=X<=End,  Y(Start)=Y0 with H is the step size by the 4th order Runge-Kutta method. Rational arithmetic is used and rational numbers are truncated when trunc >0 or trunc_rel >0.  Options: (for gtt_ekn.setup) nps(number of ps), nprm(number of primes), minp(minimal prime), fgp(file to save primes), Options: step(step no to use matrix factorial)[10],ratval(output by rational)[1], trunc[1/10^10,global],trunc_rel[1/10^10,global];"
 {
   T0=time();
   gtt_ekn_set_debug(0);
@@ -411,7 +404,7 @@ def mul_each_abs(V1,V2) {
   return Ans;
 }
 def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1) 
-"RK_mat for X and H. Y0 is the value at X=X0. Returns [[NewX0,NewY0],NewH]"
+"RK_mat for X and H. Y0 is the value at X=X0. Returns [[NewX0,NewY0],NewH]. Options: mode=0(rational), mode=1(bigfloat), mode=2(double, default). Example: P=newmat(2,2,[[-2*x,1],[-1,-2*x]]); M=tk_rk.rk4_mat(P,x,x,h); tk_rk.rk4_adaptive_step(M,newvect(2,[1,0]),x,0,h,1/100);"
 {
   N=length(Y0);
   if (type(getopt(mode))>=0) Mode=getopt(mode);

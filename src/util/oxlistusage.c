@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxlistusage.c,v 1.1 2017/03/10 01:32:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxlistusage.c,v 1.2 2017/03/19 12:39:52 takayama Exp $ */
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -647,6 +647,11 @@ int outUsage(char *inFname,int oxg) {
   return(0);
 }
 
+int show_help() {
+  printf("oxlistusage [--oxgentexi --help] filename1 ...\n");
+  printf("  See also oxgentexi, keys:  Example:\n");
+}
+
 int main(int argc,char *argv[]) {
   int i;
   int oxg=0;
@@ -654,6 +659,9 @@ int main(int argc,char *argv[]) {
   for (i=1; i<argc; i++) {
     if (argv[i][0] == '-') {
       if (strcmp(argv[i],"--oxgentexi")==0) oxg=1;
+      else if (strcmp(argv[i],"--help")==0) {
+	show_help(); return(0);
+      }
     }else {
       Inop = fopen(argv[i],"r");
       if (Inop == NULL) {
