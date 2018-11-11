@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.4 2018/11/08 10:25:19 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.5 2018/11/10 23:49:14 takayama Exp $
   original source were at misc-2016/A3/rk-k/Prog
   2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
   2017.01.14  runge-kutta by matrix factorial
@@ -466,6 +466,7 @@ def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1)
     if ((M >=1) && (M <= 2)) M=1;
   }
   H_new=M*H1;
+  if (Mode == 0) { H_new = round_h(H_new,H_round_size); }
 
   if (H_new >= H1) {
     T_new=X0+2*H1;
@@ -474,7 +475,6 @@ def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1)
       for (I=0; I<N; I++) {
         Y2[I] = tk_approx_r.cont_frac(Y2[I],-1,Rel_err[I]);
       }
-      H_new = round_h(H_new,H_round_size);
     }
     return [[T_new,Y2],H_new];
   }else{
