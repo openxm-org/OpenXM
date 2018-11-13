@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.5 2018/11/10 23:49:14 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_rk-mfac.rr,v 1.6 2018/11/11 01:20:22 takayama Exp $
   original source were at misc-2016/A3/rk-k/Prog
   2017.02.27  rk-mfac.rr --> tk_rk-mfac.rr
   2017.01.14  runge-kutta by matrix factorial
@@ -466,7 +466,13 @@ def rk4_adaptive_step(RK_mat,Y0,X,X0,H,H1)
     if ((M >=1) && (M <= 2)) M=1;
   }
   H_new=M*H1;
-  if (Mode == 0) { H_new = round_h(H_new,H_round_size); }
+  if (Mode == 0) { 
+    H_tmp = round_h(H_new,H_round_size); 
+    if (H_tmp[1] != H_round_size) {
+      printf("Warning: h_round_size (minimal_step_size) is decreased to %a\n",H_tmp[1]);
+    }
+    H_new=H_tmp[0]; H_round_size=H_tmp[1];
+  }
 
   if (H_new >= H1) {
     T_new=X0+2*H1;
@@ -486,7 +492,8 @@ def  round_h(H_new,H_round_size)
 {
   M=1/H_round_size;
   H=number_floor(H_new*M);
-  return (H/M);
+  if (H == 0) return round_h(H_new,1/(10*H_round_size));
+  return ([H/M,H_round_size]);
 }
 
 #ifdef USE_MODULE
