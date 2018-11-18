@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.34 2014/09/05 11:55:19 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.35 2015/01/08 21:04:03 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -92,7 +92,7 @@ localf compare_algorithm2;
 localf pattern, pattern_full, pattern_weight, all_integers;
 localf order_by_weight, terms_of_given_order;
 localf head_sum;
-
+localf const_part, action, commutator, weyl_adjoint, coefs;
 localf bin_to_pair, coef_deriv, determine_term, gkz_series, make_terms; 
 localf make_tree, s2poly, search_parent, series_to_sym, terms_to_series;
 localf toric_list;
@@ -2530,6 +2530,41 @@ def s2poly(S) {
         T+=Term[0]*Term[1];
     }
     return H*T;
+}
+
+def const_part(F) {
+    return base_replace(F,assoc(Ring->op,[0]));
+}
+
+def action(G,Func) {
+    return const_part(mul(G,Func));
+}
+
+def commutator(P,Q) {
+    return mul(P,Q)-mul(Q,P);
+}
+
+def weyl_adjoint(F) {
+    Dn=dn(F); F=nm(F);
+    DF=op(F);
+    for(Ad=0; DF!=0; DF=dp_rest(DF)) {
+        Sign=irem(dp_td(DF),2)==0? 1: -1;
+        Ad+=Sign*yang.multi(dp_ht(DF),dp_hc(DF));
+    }
+    return red(mul(opr(Ad),1/Dn));
+}
+
+def coefs(F) {
+    Dn=1;
+    F=yang.op(F);
+    if(type(F)==type([])) {
+        Dn=F[1];
+        F=F[0];
+    }
+    for(L=[]; F!=0; F=dp_rest(F)) {
+        L=cons(red(dp_hc(F)/Dn),L);
+    }
+    return reverse(L);
 }
 
 endmodule;
