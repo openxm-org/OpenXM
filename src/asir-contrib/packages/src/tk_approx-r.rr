@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_approx-r.rr,v 1.3 2017/03/12 00:39:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_approx-r.rr,v 1.4 2018/11/08 02:53:34 takayama Exp $ */
 /* Maintained in ekn/Prog */
 // approximate ratinoal.  
 // 2017.02.19, Imported from rk-k/Prog/rk-mfac.rr
@@ -63,6 +63,7 @@ Note:
  tk_approx_r.cont_frac(1/10^3,-1,10^(-2)) returns 1/10^3, because of our algorithm.
 */
 {
+  if (type(R)>=4) return map(cont_frac,R,Err,Rel_err);
   if (R < 0) {Sign=-1; R=-R;} else Sign=1;
   if (R==0) return(0);
   Num=nm(R); Den=dn(R);
