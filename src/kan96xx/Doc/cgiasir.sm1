@@ -1,5 +1,5 @@
 %$Id$
-%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.4 2005/02/27 08:22:56 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.5 2013/02/15 05:39:45 takayama Exp $
 [(parse) (ox.sm1) pushfile] extension
 [(parse) (cgi.sm1) pushfile] extension
 
@@ -118,7 +118,7 @@ def
 /cgiAsir.errorMessage 
   [ (Content-Type: text/html) nl
     nl
-    (<html><body>) nl
+    (<html><meta http-equiv="Content-Type" name="viewport" content="text/html; charset=UTF-8; width=device-width"><body>) nl
     (Input <br> asir-command <br>  without semicolon. <br> <br>) nl
     (<pre> Example) nl
     $primadec([x^3-1],[x])$ nl
