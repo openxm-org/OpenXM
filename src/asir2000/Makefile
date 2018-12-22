@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.34 2016/09/23 03:04:22 takayama Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.35 2017/03/31 06:11:01 fujimoto Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -59,6 +59,13 @@ configure-static: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
             ./configure --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+	fi
+	@touch ./.configure_done
+
+configure-interval: fetch
+	@if [ ! -f ./.configure_done ]; then \
+		(cd $(ASIR) ; \
+            ./configure --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_done
 
