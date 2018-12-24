@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_pd.rr,v 1.6 2017/03/09 07:49:39 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_pd.rr,v 1.7 2018/06/08 07:26:55 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBF4,GBTrace,GBCheck,Chrem,Procs,IntGB,UsualInt,ContAlg,Competitive$
@@ -1706,13 +1706,13 @@ def ideal_intersection(A,B,V,Ord)
       cons(T,V),1,GBCheck,[[0,1],[Ord,length(V)]]];
     G = competitive_exec("ideal_intersection",Procs,[Arg0,Arg1]);
   } else {
-#if 0
-    G = nd_f4_trace(append(vtol(ltov(A)*T),vtol(ltov(B)*(1-T))),
-      cons(T,V),1,1,[[0,1],[Ord,length(V)]]|gbblock=Block);
-#else
-    G = nd_gr(append(vtol(ltov(A)*T),vtol(ltov(B)*(1-T))),
-      cons(T,V),0,[[0,1],[Ord,length(V)]]|gbblock=Block);
-#endif
+    if ( GBF4 ) {
+      G = nd_f4_trace(append(vtol(ltov(A)*T),vtol(ltov(B)*(1-T))),
+        cons(T,V),1,1,[[0,1],[Ord,length(V)]]|gbblock=Block);
+    } else {
+      G = nd_gr(append(vtol(ltov(A)*T),vtol(ltov(B)*(1-T))),
+        cons(T,V),0,[[0,1],[Ord,length(V)]]|gbblock=Block);
+    }
   }
   G0 = elimination(G,V);
   return G0;
