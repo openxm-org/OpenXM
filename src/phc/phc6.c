@@ -1,5 +1,5 @@
 /*  phc6.c ,  yama:1999/sm1-prog/phc6.c */
-/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.5 2002/05/02 11:54:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.6 2019/01/01 07:17:52 takayama Exp $ */
 /* This is a simple C interface to the black-box solver of phc.
 ** Requirements:
 **  1) executable version of phc will be searched in the following order:
@@ -280,7 +280,7 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
       if (fnd==1)
         {
 	  fgets(buf,BUFSIZE-1,fp);
-          sscanf(buf,"%le",&res);
+          sscanf(buf,"%lg",&res);
 	  if (phc_verbose) {
 	    fprintf(stderr,"res in string: %s\n",buf);
 	    fprintf(stderr," residual = "); fprintf(stderr,"%le\n",res);
@@ -302,7 +302,7 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
             {
               fnd = phc_scan_for_string(fp,":");
 	      fgets(buf,BUFSIZE-1,fp);
-	      sscanf(buf,"%le %le",&realpart,&imagpart);
+	      sscanf(buf,"%lf %lf",&realpart,&imagpart);
 	      if (phc_verbose) fprintf(stderr,"sols in string: %s\n",buf);
               /*fscanf(fp,"%le",&realpart);
 		fscanf(fp,"%le",&imagpart);*/
@@ -455,7 +455,7 @@ void phc_printObject(FILE *fp,struct phc_object ob)
   }else if (ob.tag == SlongdoubleComplex) {
     /* Try your favorite way to print complex numbers. */
     /*fprintf(fp,"(%20.14le)+I*(%20.14le)",ob.lc.longdouble,ob.rc.longdouble);*/
-    fprintf(fp,"[%lf , %lf]",ob.lc.longdouble,ob.rc.longdouble);
+    fprintf(fp,"[%.16lg , %.16lg]",ob.lc.longdouble,ob.rc.longdouble);
   }else{
     fprintf(stderr,"Unknown phc_object tag %d",ob.tag);
   }
