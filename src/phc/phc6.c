@@ -1,5 +1,5 @@
 /*  phc6.c ,  yama:1999/sm1-prog/phc6.c */
-/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.4 2002/05/02 02:51:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.5 2002/05/02 11:54:33 takayama Exp $ */
 /* This is a simple C interface to the black-box solver of phc.
 ** Requirements:
 **  1) executable version of phc will be searched in the following order:
@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include  "gc.h"
 
 /* Definition of class identifiers. */
 #define Snull             0
@@ -37,7 +39,8 @@ struct phc_object{
 /* Memory allocation function.  
    Use your favorite memory allocation function.
    I recommend not to use malloc and to use gc4.14 for large applications. */
-#define sGC_malloc(n)   malloc(n)
+//#define sGC_malloc(n)   malloc(n)
+#define sGC_malloc(n)   GC_malloc(n)
 
 /********** macros to use Sarray **************/
 /* put to Object Array */
@@ -61,15 +64,17 @@ struct phc_object phc_complexTo(double r, double i);
 
 int phc_scan_for_string(FILE *fp, char str[]);
 struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim );
-struct phc_object phc_scan_output_of_phc(char *fname);
+struct phc_object phc_scan_output_of_phc(FILE *fp);
 struct phc_object phc_call_phc(char *sys); 
 
 int phc_verbose = 0;
 int phc_overwrite = 1;  /* Always use tmp.input.0 and tmp.output.0
                            for work files. */
 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   struct phc_object ob;
+  struct phc_object ob2;
+  int n2;
   int n,i,dim;
 #define INPUTSIZE 4096
   char input[INPUTSIZE];
@@ -77,6 +82,7 @@ main(int argc, char *argv[]) {
 #define A_SIZE 1024
   char a[A_SIZE];
   int message = 0;
+  FILE *fp;
   for (i=1; i<argc; i++) {
     if (strcmp(argv[i],"-v") == 0) {
       phc_verbose = 1; message=1;
@@ -86,15 +92,27 @@ main(int argc, char *argv[]) {
       /* For debugging. */
       i++;
       strncpy(fname,argv[i],INPUTSIZE-1);
-      ob = phc_scan_output_of_phc(fname);
+      fp = fopen(fname,"r");
+      if (fp == NULL) {
+	fprintf(stderr,"File %s is not found.\n",fname);
+        return(-1);
+      }
+      ob = phc_scan_output_of_phc(fp);  /* stable mixed vol,  out of torus */
       n = phc_getoaSize(ob);
+      ob2 = phc_scan_output_of_phc(fp); /* in torus */
+      n2 = phc_getoaSize(ob2);
+      if (phc_verbose) fprintf(stderr,"n=%d, n2=%d\n",n,n2);
       printf("[\n");
       for (i=0; i<n; i++) {
         phc_printObject(stdout,phc_getoa(ob,i));
-        if (i != n-1) printf(" ,\n"); else printf(" \n");
+        if ((i != n-1) || (n2 > 0)) printf(" ,\n"); else printf(" \n");
+      }
+      for (i=0; i<n2; i++) {
+        phc_printObject(stdout,phc_getoa(ob2,i));
+        if (i != n2-1) printf(" ,\n"); else printf(" \n");
       }
       printf("]\n");
-      exit(0);
+      return(0);
     }else if (strcmp(argv[i],"-i") == 0) {
       ob = phc_call_phc(argv[i+1]);
       n = phc_getoaSize(ob);
@@ -142,6 +160,7 @@ main(int argc, char *argv[]) {
     }
     printf("]\n");
   }
+  return(0);
 }
 
 int phc_scan_for_string(FILE *fp, char s[])
@@ -164,7 +183,7 @@ int phc_scan_for_string(FILE *fp, char s[])
 	buf[i] = fgetc(fp); buf[i+1]='\0';
 	if (buf[i] == EOF) return 0;
   }
-  if (strcmp(s,buf) == 0) return 0;
+  if (strcmp(s,buf) == 0) return 1;
   while ((c=fgetc(fp)) != EOF) {
 	for (i=0; i<n; i++) {
 	  buf[i] = buf[i+1];
@@ -249,21 +268,25 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
   double imagparts[npaths][dim]; */
   double *realparts;
   double *imagparts;
+  double *res_list;
   char buf[BUFSIZE];
   nsols = 0;
   realparts = (double *)sGC_malloc(sizeof(double)*(npaths*dim+1));
   imagparts = (double *)sGC_malloc(sizeof(double)*(npaths*dim+1));
+  res_list = (double *)sGC_malloc(sizeof(double)*npaths+1);
   while ((ch = fgetc(fp)) != EOF) 
     {
       fnd = phc_scan_for_string(fp,"start residual :");
       if (fnd==1)
         {
-		  fgets(buf,BUFSIZE-1,fp);
+	  fgets(buf,BUFSIZE-1,fp);
           sscanf(buf,"%le",&res);
-		  if (phc_verbose) {
-             fprintf(stderr,"res in string: %s\n",buf);
-             fprintf(stderr," residual = "); fprintf(stderr,"%le\n",res);
-		  }
+	  if (phc_verbose) {
+	    fprintf(stderr,"res in string: %s\n",buf);
+	    fprintf(stderr," residual = "); fprintf(stderr,"%le\n",res);
+	  }
+          nsols++;
+          /*
           if (res < 1.0E-12) {
             nsols = nsols+1;
             if (nsols > npaths) {
@@ -272,25 +295,26 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
               exit(-1);
             }
           }
+          */
           fnd = phc_scan_for_string(fp,"the solution for t :");
+          res_list[nsols-1] = res;
           for (i=0;i<dim;i++)
             {
               fnd = phc_scan_for_string(fp,":");
-			  fgets(buf,BUFSIZE-1,fp);
-			  sscanf(buf,"%le %le",&realpart,&imagpart);
-			  if (phc_verbose) fprintf(stderr,"sols in string: %s\n",buf);
+	      fgets(buf,BUFSIZE-1,fp);
+	      sscanf(buf,"%le %le",&realpart,&imagpart);
+	      if (phc_verbose) fprintf(stderr,"sols in string: %s\n",buf);
               /*fscanf(fp,"%le",&realpart);
-              fscanf(fp,"%le",&imagpart);*/
-              if (res < 1.0E-12)
-                {
-                  /*realparts[nsols-1][i] = realpart;
-                  imagparts[nsols-1][i] = imagpart;*/
-                  realparts[(nsols-1)*dim+i] = realpart;
-                  imagparts[(nsols-1)*dim+i] = imagpart;
-                }
+		fscanf(fp,"%le",&imagpart);*/
+              realparts[(nsols-1)*dim+i] = realpart;
+              imagparts[(nsols-1)*dim+i] = imagpart;
             }
+	  if (nsols >= npaths) break;
         }
     }
+  if (nsols < npaths) {
+    fprintf(stderr,"Warning: nsols < npaths. Check tmp.output.*\n");
+  }
   if(phc_verbose) fprintf(stderr,"  number of solutions = %i\n",nsols); 
   rob = phc_newObjectArray(nsols);
   for (i=0;i<nsols;i++)
@@ -314,9 +338,10 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
         }
       phc_putoa(rob,i,sob);
     }
+  /* Todo, res_list[] is not returned. */
   return(rob);
 }
-struct phc_object phc_scan_output_of_phc(char *fname)
+struct phc_object phc_scan_output_of_phc(FILE *fp)
      /*
   **  Scans the file "output" of phc in two stages to get
   **   1) the number of paths and the dimension;
@@ -326,13 +351,18 @@ struct phc_object phc_scan_output_of_phc(char *fname)
   FILE *otp;
   char ch;
   int fnd,npaths,dim,i,nsols;
-  otp = fopen(fname,"r");
+  struct phc_object rob;
+  otp = fp;
   if (otp == NULL) {
-    fprintf(stderr,"The file %d is not found.\n",fname);
+    fprintf(stderr,"Error: the file is not found.\n");
     exit(0);
   }
-  if (phc_verbose) fprintf(stderr,"Scanning the %s of phc.\n",fname);
   fnd = phc_scan_for_string(otp,"THE SOLUTIONS :");
+  if (fnd < 1) {
+    if (phc_verbose) fprintf(stderr,"No more THE SOLUTIONS\n");
+    rob = phc_newObjectArray(0);
+    return(rob);
+  }
   fscanf(otp,"%i",&npaths);
   if (phc_verbose) fprintf(stderr,"  number of paths traced = %i\n",npaths);
   fscanf(otp,"%i",&dim);
@@ -347,6 +377,11 @@ struct phc_object phc_call_phc(char *sys)  /* call phc, system as string */
   char *w;
   struct phc_object phc_NullObject ;
   struct stat statbuf;
+  FILE *fp;
+  struct phc_object ob;
+  struct phc_object ob2;
+  struct phc_object ob_all;
+  int i,n,n2;
 
   phc_NullObject.tag = Snull;
   f = phc_generateUniqueFileName("tmp.input");
@@ -357,7 +392,7 @@ struct phc_object phc_call_phc(char *sys)  /* call phc, system as string */
     system(cmd);
   }
   inp = fopen(f,"w");
-  fprintf(inp,sys);
+  fprintf(inp,"%s",sys);
   fclose(inp);
   if ((w = phc_which("phc")) != NULL) {
     sprintf(cmd,"%s -b %s %s",w,f,outf);
@@ -371,7 +406,16 @@ struct phc_object phc_call_phc(char *sys)  /* call phc, system as string */
     return(phc_NullObject);
   }else{
     if (phc_verbose) fprintf(stderr,"See the file %s for results.\n",outf);
-    return(phc_scan_output_of_phc(outf));
+    fp = fopen(outf,"r");
+    ob=phc_scan_output_of_phc(fp);
+    n = phc_getoaSize(ob);
+    ob2=phc_scan_output_of_phc(fp);
+    n2 = phc_getoaSize(ob2);
+    ob_all=phc_newObjectArray(n+n2);
+    if (phc_verbose) fprintf(stderr,"n=%d, n2=%d\n",n,n2);
+    for (i=0; i<n; i++) phc_putoa(ob_all,i,phc_getoa(ob,i));
+    for (i=0; i<n2; i++) phc_putoa(ob_all,n+i,phc_getoa(ob2,i));
+    return(ob_all);
   }
 }
 
