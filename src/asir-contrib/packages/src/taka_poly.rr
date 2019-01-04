@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.29 2014/05/02 07:08:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.30 2018/09/06 05:56:47 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -24,6 +24,12 @@ def taka_poly_solve_poly1(F,V) {
     if (deg(G,V) != 0) {
       return quote(root_of(F));
     }
+  }
+  if (type(getopt(num))>0) {
+    F=base_replace(F,[[V,x]]);
+    Ans=pari(roots,F);
+    if (Ans==0) return([0]);
+    else return(vtol(Ans));
   }
   Ans = [ ] ;
   G = nm(F);

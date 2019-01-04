@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.144 2018/04/04 02:56:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.145 2018/09/06 05:56:47 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -830,11 +830,12 @@ def matrix_kernel(M) {
 
 /*&usage begin: matrix_eigenavalues(M)
  It returns the eigenvalues of the matrix {M}.
+ if the option num=1, it returns the numerical approximate eigenvalues.
  example: matrix_eigenvalues([[x,1],[0,y]]);
 end: */
 def matrix_eigenvalues(M) { 
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
-  return omatrix_eigenvalues(M);
+  return omatrix_eigenvalues(M|option_list=getopt());
 }
 def matrix_eigenvectors(M) { NOT_YET; }
 

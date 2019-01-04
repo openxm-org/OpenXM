@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.4 2017/09/23 23:52:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.5 2018/09/25 01:35:23 takayama Exp $ */
 /* Old: Matrix */
 
 /*-------------------------------*/
@@ -556,7 +556,7 @@ def omatrix_eigenvalues(M) {
   M2 = omatrix_diag(L);
   M2 = M-M2;
   L = omatrix_det(M2);
-  return taka_poly_solve_poly1(L,omatrix_v);
+  return taka_poly_solve_poly1(L,omatrix_v|option_list=getopt());
 }
 
 def omatrix_rank(M) {
