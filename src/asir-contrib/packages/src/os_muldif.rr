@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.41 2018/12/29 11:06:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.42 2019/01/04 01:48:31 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Sep. 2018)
+ *          Toshio Oshima (Nov. 2007 - Jan. 2019)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -468,7 +468,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00181225"$
+Muldif.rr="00190101"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1688,6 +1688,7 @@ def mtoupper(MM, F)
 	if(type(St = getopt(step))!=1) St=0;
 	Opt = getopt(opt);
 	if(type(Opt)!=1) Opt=0;
+	if(type(Main=getopt(main))!=1) Main=0;
 	TeX=getopt(dviout);
 	if(type(Tab=getopt(tab))!=1 && Tab!=0) Tab=2;
 	Line="\\text{line}";
@@ -1718,6 +1719,13 @@ def mtoupper(MM, F)
 			Top+=(TeX)?"\\ ":" ";
 	}
 	PC=IF=1;
+	if(Opt>3){
+		for(P=[1],K=0;K<Size[1]-F;K++){
+			for(J=0;J<Size[0];J++)
+				if(type(dn(M[J][K]))==2) P=cons(dn(M[J][K]),P);
+		}
+		PC=llcm(P|poly=1);
+	}
 	for(K = JJ = 0; K < Size[1] - F; K++){
 		for(J = JJ; J < Size[0]; J++){
 			if(M[J][K] != 0){		/* search simpler element */
@@ -1798,7 +1806,7 @@ def mtoupper(MM, F)
 								KRC=-KRC;Sgn=1;
 							}else
 								Sgn=0;
-							if(St){
+							if(St&&!Main){
 								if(TeX){
 									if(KRC==1)
 										Lout=cons([Top+"\\xrightarrow{", Line,KJ0+1,TeXs[Sgn],
@@ -1823,6 +1831,7 @@ def mtoupper(MM, F)
 				}
 			/* a parameter Var */
 				Var=0;
+/* mycat(["start",J,K]); */
 				if(St && Opt>4 && length(Var=vars(nm(M[J][K])))==1){
 					J0=J;Jv=mydeg(nm(M[J0][K]),car(Var));
 					for(I=JJ;I<Size[0]; I++){
@@ -1838,6 +1847,8 @@ def mtoupper(MM, F)
 					if(length(Var)==1){
 						Var=car(Var);
 						Q=nm(M[J0][K]);
+/* mycat(["min",Q,M[J0][K],"J0=",J0,"J=",J,"JJ=",JJ,K,M]); */
+J=J0;
 						for(I=JJ; I<Size[0]; I++){
 							if(I==J0 || mydeg(nm(M[I][K]),Var)<0) continue;
 							T=rpdiv(nm(M[I][K]),Q,Var);
@@ -1848,6 +1859,7 @@ def mtoupper(MM, F)
 				if(type(Var)==2){ /* 1 variable */
 					if(I==Size[0]){
 						for(QF=0,Q0=1,QR=getroot(Q,Var|mult=1);QR!=[];QR=cdr(QR)){
+/* mycat(["root",Q,QR,PC]); */
 							if(deg(T=QR[0][1],Var)>0){
 								QF=1;Q0*=T; continue;
 							}
@@ -1858,10 +1870,10 @@ def mtoupper(MM, F)
 								if(TeX){
 									Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
 										Var,"=",T,","] ,Lout);
-									Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),Lout);
+									Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab,main=Main),Lout);
 								}else{
 									mycat([str_times(" ",St-1)+"If",Var,"=",T,","]);
-									mtoupper(M0,F|step=St+1,opt=Opt);
+									mtoupper(M0,F|step=St+1,opt=Opt,main=Main);
 								}
 							}
 						}
@@ -1878,11 +1890,13 @@ def mtoupper(MM, F)
 						KRC=-red((T[2]*dn(M[J0][K]))/(T[1]*dn(M[I][K])));
 						for(II=K;II<Size[1];II++)
 							M[I][II]=radd(M[I][II],rmul(M[J0][II],KRC));
-						if(TeX)
-							Lout=cons([Top+"\\xrightarrow{", Line,I+1,"\\ +=\\ ",Line,
-								J0+1,"\\times\\left(",KRC,"\\right)}",dupmat(M)],Lout);
-						else
-							mycat([Top+"line",I+1,"+=",Line,J0+1," * (",KRC,")\n",M,"\n"]);
+						if(!Main){
+							if(TeX)
+								Lout=cons([Top+"\\xrightarrow{", Line,I+1,"\\ +=\\ ",Line,
+									J0+1,"\\times\\left(",KRC,"\\right)}",dupmat(M)],Lout);
+							else
+								mycat([Top+"line",I+1,"+=",Line,J0+1," * (",KRC,")\n",M,"\n"]);
+						}
 						J=JJ-1;
 						continue;
 					}
@@ -1917,11 +1931,11 @@ def mtoupper(MM, F)
 									if(TeX){
 										Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
 											X,"=",T,","] ,Lout);
-										Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),
+										Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab,main=Main),
 											Lout);
 									}else{
 										mycat([str_times(" ",St-1)+"If",X,"=",T,","]);
-										mtoupper(M0,F|step=St+1,opt=Opt);
+										mtoupper(M0,F|step=St+1,opt=Opt,main=Main);
 									}
 									break;
 								}
@@ -1948,11 +1962,11 @@ def mtoupper(MM, F)
 											if(TeX){
 												Lout=cons(["\\hspace{",Tab*(St-3)-1,"mm}\\text{If }",
 													X0,"=",T0,","] ,Lout);
-												Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab),
+												Lout=append(mtoupper(M0,F|step=St+1,opt=Opt,dviout=-2,tab=Tab,main=Main),
 													Lout);
 											}else{
 												mycat([str_times(" ",St-1)+"If",X0,"=",T0,","]);
-												mtoupper(M0,F|step=St+1,opt=Opt);
+												mtoupper(M0,F|step=St+1,opt=Opt,main=Main);
 											}
 										}
 										
@@ -1996,7 +2010,7 @@ def mtoupper(MM, F)
 						for(I = K+1; I < Size[1]; I++)
 							M[J][I] = radd(M[J][I],rmul(M[JJ][I],Mul));
 						M[J][K] = 0;
-						if(St){
+						if(St&&!Main){
 							if(Mul<0){
 								Mul=-Mul;Sgn=0;
 							}else	Sgn=1;
@@ -9000,7 +9014,7 @@ def mc2grs(G,P)
 				L=cons(TL,L);
 			}
 			if(Dvi){
-				if(Dvi!=-1) dviout(S|eq=0,keep=Keep);
+				if(Dvi!=-1) dviout(S|eq=0);
 				return S;
 			}
 			return reverse(L);
@@ -9640,7 +9654,7 @@ def mcmgrs(G,P)
 				L=cons(TL,L);
 			}
 			if(Dvi){
-				if(Dvi!=-1) dviout(S|eq=0);
+				if(Dvi!=-1) dviout(S|eq=0,keep=Keep);
 				return S;
 			}
 			return reverse(L);
