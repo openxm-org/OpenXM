@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.42 2019/01/04 01:48:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.43 2019/01/07 22:49:50 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -116,6 +116,7 @@ localf lchange$
 localf llsize$
 localf llbase$
 localf lsort$
+localf rsort$
 localf lpair$
 localf lmax$
 localf lmin$
@@ -351,6 +352,7 @@ localf shiftop$
 localf conf1sp$
 localf confexp$
 localf confspt$
+localf s2csp$
 localf partspt$
 localf pgen$
 localf diagm$
@@ -468,7 +470,7 @@ extern LQS$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190101"$
+Muldif.rr="00190114"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3348,6 +3350,16 @@ def llbase(VV,L)
 	}
 	return V;
 }
+
+def rsort(L,T,K)
+{
+	for(R=[];L!=[];L=cdr(L))
+		R=cons((type(car(L))==4)?rsort(car(L),T-1,K):car(L),R);
+	if(T>0||iand(T,iand(K,2)/2)) return reverse(R);
+	R=qsort(R);
+	return (iand(K,1))? reverse(R):R;
+}
+
 
 def lsort(L1,L2,T)
 {
@@ -17268,6 +17280,85 @@ def conf1sp(M)
 	}
 	return P;
 }
+
+/* ((1)(1)) ((1))   111|11|21  [[ [2,[ [1,[1]],[1,[1]] ]], [1,[[1,[1]]]] ]]  */
+/* (11)(1),111  111|21,111 [[[2,[1,1]],[1,[1]]],[1,1,1]]  */
+def s2csp(S)
+{
+	if(type(S)!=7){
+		U="";
+		if(type(N=getopt(n))>0){
+			for(D=0,S=reverse(S);S!=[];S=cdr(S),D++){
+				if(D) U=","+U;
+				T=str_subst(rtostr(car(S)),","," ");
+				U=str_cut(T,1,str_len(T)-2)+U;
+			}
+			V=strtoascii(U);
+			for(R=[];V!=[];V=cdr(V)){
+				if((CC=car(V))==91){ 	/* [ */
+					if(length(V)>1 && V[1]==91) V=cdr(V);
+					for(I=1;(CC=V[I])!=91&&CC!=93;I++);
+					if(CC==91){
+						R=cons(40,R);	/* ( */
+						while(I--) V=cdr(V);
+					}else{
+						V=cdr(V);
+						while(--I) R=cons(car(V),R);
+					}
+				}else if(CC==93){		/* ] */
+					R=cons(41,R);
+					if(length(V)>1 && V[1]==93) V=cdr(V);
+				}else R=cons(CC,R);
+			}
+			return asciitostr(reverse(R));
+		}
+		for(;S!=[];S=cdr(S)){
+			if(U!="") U=U+",";
+			for(D=0,TU="",T=car(S);T!=[];D++){
+				if(type(car(T))==4){
+					R=lpair(T,0);
+					T=R[0];R1=m2l(R[1]|flat=1);
+				}else R1=[];
+				if(D) TU="|"+TU;
+				TU=s2sp([T])+TU;
+				T=R1;
+			}
+				U=U+TU;
+		}
+		return U;
+	}
+	S=strtoascii(S);
+	for(P=TS=[],I=D=0; S!=[]; S=cdr(S)){
+		if((C=car(S))==44){			/* , */
+			P=cons(D,P);D=0;
+		}else if(C==124){	/* | */
+			D++;C=44;
+		}
+		TS=cons(C,TS);
+	}
+	S=reverse(TS);
+	P=reverse(cons(D,P));
+	U=s2sp(asciitostr(S));
+
+	for(R=[];P!=[];P=cdr(P),U=cdr(U)){
+		D=car(P);R0=car(U);
+		while(D--){
+			U=cdr(U);
+			for(U0=car(U),R2=[];U0!=[];U0=cdr(U0)){
+				for(R1=[],N=car(U0);N>0;R0=cdr(R0)){
+					R1=cons(car(R0),R1);
+					if(type(car(R0))==4) N-=car(R0)[0];
+					else N-=car(R0);
+				}
+				R2=cons([car(U0),reverse(R1)],R2);
+			}
+			R0=reverse(R2);
+		}
+		R=cons(R0,R);
+	}
+	return reverse(R);
+}
+
 
 def partspt(S,T)
 {
