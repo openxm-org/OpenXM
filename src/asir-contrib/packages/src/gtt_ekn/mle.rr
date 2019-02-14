@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.7 2018/03/19 01:12:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/mle.rr,v 1.8 2018/03/19 05:55:57 takayama Exp $ */
 // 2017.02.19 from tatibana version.
 import("names.rr")$
-// import("gtt_ekn.rr")$
+//import("gtt_ekn.rr")$
 // demo: gtt_ekn.cmle_test2();  (math.kobe wake up/bed time)
 import("tk_approx-r.rr")$
 module gtt_ekn$
@@ -26,6 +26,9 @@ localf cmle_test2b$
 localf cmle_test2c$
 localf cmle_test3$
 localf cmle_test1c$
+localf normalize$
+localf denormalize$
+localf denormalize2$
 
 localf test111$
 localf test222$
@@ -286,6 +289,9 @@ def cmle_3(U)
   if (type(getopt(cmle_auto)) < 0) Fine_max=5; 
   else { Fine_max=getopt(cmle_auto); }
 
+  U = matrix_list_to_matrix(U);
+    TTT = normalize(U);
+    U=TTT[0]; Col=TTT[1]; Row=TTT[2]; U=matrix_matrix_to_list(U);
     Data = dataset(U);
     UM = Data[0];
     Beta = Data[1];
@@ -347,7 +353,7 @@ def cmle_3(U)
         }else {P = P+Step;}
     }
     printf("P might not be correct.\n");
-    return([UM,Beta,P]);
+    return([denormalize(UM,Col,Row),denormalize2(Beta,Col,Row),denormalize(P,Col,Row)]);
 }
 def has_negative_elem(P) {  
    P = matrix_list_to_matrix(P);
@@ -624,7 +630,43 @@ def swap_col(Mat,P,Q) {
   return(New);
 }
 
+def normalize(Mat) {
+  S=size(Mat);
+  M=S[0]; N=S[1];
+  Col=-1;
+  for (I=0; I<M; I++) {
+    if (Mat[I][0] == 0) {
+      Col=1;
+      Mat=swap_col(Mat,0,Col); 
+      break;
+    }
+  }
+  Row=-1;
+  for (J=0; J<N; J++) {
+    if (Mat[M-1][J] == 0) {
+        Row=0;
+	Mat=swap_row(Mat,M-1,Row);
+        break;
+    }
+  }
+  printf("[Mat,Col,Row]=\n%a\n",[Mat,Col,Row]);
+  return([Mat,Col,Row]);
+} 
+def denormalize(Mat,Col,Row) {
+  if (Row>=0) Mat=swap_row(Mat,M-1,Row);
+  if (Col>=0) Mat=swap_col(Mat,0,Col);
+  return(Mat);
+}
+def denormalize2(Beta,Col,Row) {
+  Beta_col=matrix_list_to_matrix(Beta[0]);
+  Beta_row=matrix_list_to_matrix(Beta[0]);
+  if (Row>=0) {T=Beta_row[M-1]; Beta_row[M-1]=Beta_row[Row]; Beta_row[Row]=T;}
+  if (Col>=0) {T=Beta_col[0]; Beta_col[0]=Beta_col[Col]; Beta_col[Col]=T;}
+  return([matrix_matrix_to_list(Beta_col),matrix_matrix_to_list(Beta_row)]);
+}
+
 endmodule$
 gtt_ekn.mle_init()$
+
 
 end$

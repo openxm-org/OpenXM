@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.2 2016/03/26 05:25:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.3 2016/06/05 04:13:03 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -30,6 +30,7 @@ localf cBasistoE$
 localf cBasistoEdiff$
 localf g_mat_fac_test$
 localf g_mat_fac_test_plain$
+localf check_failure$
 #endif
 /*
   eulerZ evaluates the euler derivatives w.r.t Idx of the normalizing constant (A-hg poly) at X
@@ -271,15 +272,29 @@ def cBasistoEdiff(S,Beta,X){
    H[0][0];
  */
 
-
+/* check if F contains "failure" */
+def check_failure(F) {
+  if (type(F)>6) return(1);
+  if (type(F)<4) return(0);
+  F=base_flatten(map(type,F)); N=length(F);
+  for (I=0; I<N; I++) {
+    if (F[I] == 7) return(1);
+  }
+  return(0);
+}
 
 def g_mat_fac_test(F,M,S,E,Inc,Var) {
+  if (iand(Ekn_debug,0x4)) {
+    printf("level&0x4: g_mat_fac_test(%a,%a,%a,%a,%a,%a)\n",F,M,S,E,Inc,Var);
+  }
   if (type(getopt(crt)) > 0) CRT=1; else CRT=0;
   if ((Ekn_plist == 0) || (Ekn_IDL == 0) || (CRT==0)) {
+    if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_plain(slow, rational) is called.\n");
     if (Ekn_mesg == 1) {printf("Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.\n"); Ekn_mesg=0; }
     return g_mat_fac_test_plain(F,M,S,E,Inc,Var);
   }
   F0 = F;
+  if (check_failure(F)) error("Error: crt failure. Use bigger number of primes or bigger prime. See gtt_ekn.setup");
   F = matrix_matrix_to_list(F); F=base_flatten(F); F=newvect(length(F),F);
   M = matrix_clone(M);  // do not need it ? 2015.11.13
   if (iand(Ekn_debug,0x2)) {
@@ -291,6 +306,7 @@ def g_mat_fac_test(F,M,S,E,Inc,Var) {
     Ans0 = g_mat_fac_test_plain(F0,M,S,E,Inc,Var);
     printf("Ekn_debug: evaluating by g_mat_fac_itor\n");
   }
+  if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_itor is called.\n");
   Ans=g_mat_fac_itor(F,M,S,E,Inc,Var,Ekn_plist,Ekn_IDL);
   Ans = vtol(Ans); Ans=matrix_list_to_matrix([Ans]); Ans=matrix_transpose(Ans);
   // Goto program and Tatibana program has a different format.

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.6 2017/03/30 06:16:36 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.7 2017/08/31 06:31:45 takayama Exp $
 %% xetex gtt_ekn.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -40,8 +40,8 @@
 @comment --- タイトル, バージョン, 著者名, 著作権表示 ---
 @title 2元分割表HGM関数
 @subtitle Risa/Asir 2元分割表HGM関数説明書
-@subtitle 1.1 版
-@subtitle 2017 年 3 月 3 日
+@subtitle 1.2 版
+@subtitle 2019 年 2 月 14 日
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
@@ -78,7 +78,17 @@ Copyright @copyright{} Risa/Asir committers
 HGM(holonomic gradient method) を用いた2元分割表の関数について説明する.
 ChangeLog の項目は www.openxm.org の cvsweb で
 ソースコードを読む時の助けになる情報が書かれている.
-
+このパッケージは下記のようにロードする.
+@example
+load("gtt_ekn.rr");
+@end example
+@noindent
+最新版の asir-contrib package を取得するには, 下記のように更新関数を呼び出す.
+@example
+import("names.rr");
+asir_contrib_update(|update=1);
+@end example
+@noindent
 本文中で引用している文献を列挙する.
 @itemize @bullet
 @item [GM2016] 
@@ -88,7 +98,11 @@ Y.Tachibana, 差分ホロノミック勾配法のモジュラーメソッドに�
 2016, 神戸大学修士論文.
 @item [GTT2016]
 Y.Goto, Y.Tachibana, N.Takayama, 2元分割表に対する差分ホロノミック勾配法の実装,
-数理研講究録(掲載予定).
+数理研講究録.
+@item [TGKT]
+Y.Tachibana, Y.Goto, T.Koyama, N.Takayama,
+Holonomic Gradient Method for Two Way Contingency Tables,
+arxiv:1803.04170
 @item [TKT2015]
 N.Takayama, S.Kuriki, A.Takemura, 
          $A$-hypergeometric distributions and Newton polytopes.
@@ -113,6 +127,7 @@ gtt_ekn/test-t1.rr
 * gtt_ekn.setup::
 * gtt_ekn.upAlpha::
 * gtt_ekn.cmle::
+* gtt_ekn.set_debug_level::
 @end menu
 
 @node 超幾何関数E(k,n),,, 2元分割表HGMの関数
@@ -184,7 +199,7 @@ b[2][i] は i 列目の列和である.
 @verbatim
 S=F_D(-b[1,1], [-b[2,2],...,-b[2,n+1]], b[2,1]-b[1,1]+1 ; y)/C,
 @end verbatim
-C=b[1,1]! b[2,2]! ... b[2][n+1]! (b[2,1]-b[1,1])!
+C=b[1,1]! b[2,2]! ... b[2,n+1]! (b[2,1]-b[1,1])!
 とおく. 
 1/C は L 字型の分割表 
 @verbatim
@@ -220,6 +235,20 @@ gtt_ekn.setup で行なう.
 [3001] ekn_gtt.gmvector([[5,1],[3,3]],[[1/2,1/3],[1/7,1/5]])
 [775/27783]
 [200/9261]
+@end example
+
+例: N を2以上の自然数とする時, Gauss の超幾何関数(この場合は多項式となる) 
+F(-36N,-11N,2N,(1-1/N)/56) の値は T3 に代入される ( [TGKT] ).
+@comment ekn/Prog2/2x2.rr
+@example
+N=2; 
+T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],[[1,(1-1/N)/56],[1,1]])[0][0];
+D=fac(36*N)*fac(11*N)*fac(2*N-1); 
+T3=T2*D;
+@end example
+ちなみに同じ値を Mathematica に計算させるには
+@example
+n=2; Hypergeometric2F1[-36*n,-11*n,2*n,(1-1/n)/56]
 @end example
 
 参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
@@ -659,13 +688,20 @@ ChangeLog
 @item 上記のoption を指定しなかった場合次のデフォルト値が用いられる. nps=1. nprm=10. fgp=0.
 @item option report=1を与えると現在の環境の報告のみを行う. setup(|report=1)の別名としてreport関数を使用することもできる.
 @item option subprogs=[file1,file2,...] により分散計算の子供プロセスにロードすべきファイル file1, file2, ... を指定する. default は subprogs=["gtt_ekn/childprocess.rr"] である.
-@item gtt_ekn.set_debug_mode(Mode) で Ekn_debug の値を設定する.
+@item gtt_ekn.set_debug_level(Mode) で Ekn_debug の値を設定する.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
 例: 素数のリストを生成してファイル p.txt へ書き出す.
 @example
 gtt_ekn.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
+@end example
+
+例: chinese remainder theorem (crt) を使って gmvector を計算.
+@example
+[2867] gtt_ekn.setup(|nprm=20,minp=10^20);
+[2868] N=2; T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                                [[1,(1-1/N)/56],[1,1]] | crt=1)$
 @end example
 
 
@@ -823,6 +859,64 @@ ChangeLog
 @item  gtt_ekn.rr の cmle 関数は wrapper. 
 @end itemize
 @comment end cmle.
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn.set_debug_level,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.set_debug_level}
+@comment --- 索引用キーワード
+@findex gtt_ekn.set_debug_level
+
+@table @t
+@item gtt_ekn.set_debug_level(@var{m}) debug メッセージのレベルを設定.
+:: 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item  m  レベル.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item (@var{m} & 0x1) == 0x1 の時 g_mat_fac_test_plain と g_mat_fac_itor の両方を呼び出し値を比較する (gtt_ekn.setup した状態で).
+@item (@var{m} & 0x2) == 0x2 の時 g_mat_fac_itor への引数を tmp-input.ab として保存.
+@item (@var{m} & 0x4) == 0x4 の時 matrix factorial の計算の呼び出し引数を表示.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[2846] gtt_ekn.set_debug_level(0x4);
+[2847] N=2; T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                                [[1,(1-1/N)/56],[1,1]])$
+[2848] level&0x4: g_mat_fac_test([ 113/112 ]
+[ 1/112 ],[ (t+225/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ]
+[ (1/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ],0,20,1,t)
+Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.
+level&0x4: g_mat_fac_test([ 67/62944040755546030080000 ]
+[ 1/125888081511092060160000 ],[ (t+24)/(t^2+25*t+46) (2442)/(t^2+25*t+46) ]
+[ (1)/(t^2+25*t+46) (-111*t-111)/(t^2+25*t+46) ],0,73,1,t)
+level&0x4: g_mat_fac_test ------  snip
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn.nc}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item  gtt_ekn/ekn_eval.rr で matrix factorial の計算の呼び出し引数を表示する.
+@item grep 'iand(Ekn_debug,0x1)' *.rr でソースコードの該当の位置をさがす.
+@end itemize
+@comment end set_debug_level
 
 
 

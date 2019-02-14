@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_restriction_2.rr,v 1.3 2017/03/19 23:41:52 takayama Exp $ */
 #define USE_MODULE
 load("gtt_ekn/ekn_eval.rr")$
 load("gtt_ekn/mle.rr")$
@@ -530,9 +530,13 @@ def pfaffian_basis_g_1(F,K,N){
       if (base_memberq(J,B[I])){C2=cons(J,C2);}
     } 
     SS[I][0]=SS[0][0];
-    CA=avoid_var(C1,C2,VanList,K,N);
-    for (J=0; J<length(C1); J++){
-      SS[I][0]=diff(SS[I][0],xij(CA[J][0],CA[J][1]))/alpha(CA[J][1]+K);
+    if (length(C1)==1){
+      SS[I][0]=diff(SS[I][0],xij(C1[0],C2[0]-K))/alpha(C2[0]);
+    }else{
+      CA=avoid_var(C1,C2,VanList,K,N);
+      for (J=0; J<length(C1); J++){
+	SS[I][0]=diff(SS[I][0],xij(CA[J][0],CA[J][1]))/alpha(CA[J][1]+K);
+      }
     }
     SS[I][0]=SS[I][0]*matrix_det(xJ(B[I],N));
   }
@@ -542,6 +546,12 @@ def pfaffian_basis_g_1(F,K,N){
   function f(x_1_1,x_1_2,x_2_1,x_2_2);
   pfaffian_basis_g_1(f(x_1_1,x_1_2,x_2_1,x_2_2),2,2|deg=[[0,2,3]]);
   pfaffian_basis_g_1(f(x_1_1,x_1_2,x_2_1,x_2_2),2,2);
+  function f2(x_1_1,x_1_2,x_1_3,x_1_4);
+  pfaffian_basis_g_1(f2(x_1_1,x_1_2,x_1_3,x_1_4),1,4|deg=[[0,2]]);
+  pfaffian_basis_g_1(f2(x_1_1,x_1_2,x_1_3,x_1_4),1,4);
+  function f3(x_1_1,x_2_1,x_3_1,x_4_1);
+  pfaffian_basis_g_1(f3(x_1_1,x_2_1,x_3_1,x_4_1),4,1|deg=[[0,2,3,4,5]]);
+  pfaffian_basis_g_1(f3(x_1_1,x_2_1,x_3_1,x_4_1),4,1);
 */
 
 /* for Strategy 2 */
@@ -553,7 +563,7 @@ def contiguity_mat_list_g_1(A,K,N){
 
   if (type(getopt(deg))>=0){
     Deg=getopt(deg);
-    Van=vanish_var(Deg,2,2);
+    Van=vanish_var(Deg,K,N);
   }else{ return(contiguity_mat_list_2(A,K,N));} 
 
   if (XRule != 0){ XR=XRule; }else{ XR=[]; }
@@ -610,6 +620,7 @@ def contiguity_mat_list_g_1(A,K,N){
    CL[2];
 */
 /* for Strategy 2 -- ver.2 -- using the option "arep"*/
+/* modify: 2018.3 */
 def contiguity_mat_list_g_2(A,K,N){
 #ifdef USE_MODULE
 #else
@@ -618,11 +629,11 @@ def contiguity_mat_list_g_2(A,K,N){
 
   if (type(getopt(deg))>=0){
     Deg=getopt(deg);
-    Van=vanish_var(Deg,2,2);
+    Van=vanish_var(Deg,K,N);
   }else{ return(contiguity_mat_list_2(A,K,N));} 
 
   if (XRule != 0){ XR=XRule; }else{ XR=[]; }
-  Al=initialAlpha(K,N);
+  if (K==1 && N==1){ Al=[-2,-1,1,2]; }else{ Al=initialAlpha(K,N); }
   Alv=ltov(Al);
   Av=ltov(A);
   Step=Av-Alv;
@@ -944,6 +955,7 @@ def find_zero(X){
   find_zero([[1,2],[3,4]]);
 */
 
+/* modify:2018.3 */
 def ekn_cBasis_g_1(Beta, X){
 #ifdef USE_MODULE
 #else
@@ -964,27 +976,49 @@ def ekn_cBasis_g_1(Beta, X){
       VI=cons([Z1[0]+1,Z1[1]],VI);
       printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
     }
-    Deg=vanish_vartoform(VI,2,2);
+    Deg=vanish_vartoform(VI,K,N);
     V=vanish_var(Deg,K,N);
 
     XRule=xRule_num(X,K,N);  // <- global
-    AR=alphaRule_num(initialAlpha(K,N),K,N);
-    Start=base_replace(initialPoly(P,Q),V);
-    S=base_replace(pfaffian_basis_g_1(Start,K,N|deg=Deg),append(AR,XRule));
-    
     AlphaE = marginaltoAlpha_list(Beta);
-    CL=contiguity_mat_list_g_2(AlphaE,K,N|deg=Deg);
-    Var=car(CL);
+
+    AlphaVan=0;
+    for (Jvan=Deg[0];Jvan!=[];Jvan=cdr(Jvan)){ AlphaVan += AlphaE[car(Jvan)]; }
+    if (AlphaVan != 0){
+      if (K==1 && N==1){ 
+	AR=alphaRule_num([-2,-1,1,2],1,1);
+	Start=1;
+	S=base_replace(pfaffian_basis_g_1(Start,K,N|deg=Deg),append(AR,XRule));
+      }else{
+	AR=alphaRule_num(initialAlpha(K,N),K,N);
+	Start=base_replace(initialPoly(P,Q),V);
+	S=base_replace(pfaffian_basis_g_1(Start,K,N|deg=Deg),append(AR,XRule));
+      }
+
+      CL=contiguity_mat_list_g_2(AlphaE,K,N|deg=Deg);
+      Var=car(CL);
     
-    for (C=cdr(CL); C!=[]; C=cdr(C)){
-      B=car(C);
-      Mat=B[0]; 
-      Step=B[1];
-      if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var); }
-      else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var); }
-      // printf("%a %a %a\n",Step, Mat[0],S[0][0]);
+      for (C=cdr(CL); C!=[]; C=cdr(C)){
+	B=car(C);
+	Mat=B[0]; 
+	Step=B[1];
+	if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var); }
+	else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var); }
+	// printf("%a %a %a\n",Step, Mat[0],S[0][0]);
+      }
+      return(S); 
+    }else{ /* AlphaVan=0 --> monomial */
+      Po=1;
+      for (I=1;I<K+1;I++){
+	if (I!=VI[0][0]){ Po *= xij(I,VI[0][1])^(Beta[0][I-1])/factorial(Beta[0][I-1]); }else{}
+      }
+      for (J=1;J<N+1;J++){
+	if (J!=VI[0][1]){ Po *= xij(VI[0][0],J)^(Beta[1][J])/factorial(Beta[1][J]); }else{}
+      }
+      Po *= 1/(Beta[0][K]*Beta[1][0]);
+      AR=alphaRule_num(AlphaE,K,N);
+      return(base_replace(pfaffian_basis_g_1(Po,K,N|deg=Deg),append(AR,XRule)));
     }
-    return(S); 
 
   }else{ return(ekn_cBasis_2(Beta, X)); } 
 }
@@ -1018,7 +1052,7 @@ def cBasistoE_g_1(S,Beta,X){
       VI=cons([Z1[0]+1,Z1[1]],VI);
       printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
     }
-    Deg=vanish_vartoform(VI,2,2);
+    Deg=vanish_vartoform(VI,P-1,Q-1);
     VI=vanish_var_ind(Deg,P-1,Q-1);
 
     XRule=xRule_num(X,P-1,Q-1);  // <- global
@@ -1065,7 +1099,7 @@ def cBasistoEdiff_g_1(S,Beta,X){
       VI=cons([Z1[0]+1,Z1[1]],VI);
       printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
     }
-    Deg=vanish_vartoform(VI,2,2);
+    Deg=vanish_vartoform(VI,P-1,Q-1);
     VI=vanish_var_ind(Deg,P-1,Q-1);
 
     XRule=xRule_num(X,P-1,Q-1);  // <- global
