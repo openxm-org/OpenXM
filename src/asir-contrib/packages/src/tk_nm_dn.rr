@@ -1,7 +1,10 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_nm_dn.rr,v 1.1 2019/02/14 02:22:09 takayama Exp $ */
 import("names.rr")$
 
+#define USE_MODULE 1
+
 #ifdef USE_MODULE
+module tk_nm_dn$
 static Tk_nm_dn_assert$
 #else
 extern Tk_nm_dn_assert$
@@ -153,5 +156,10 @@ def nm_dn_assert(F,Ans) {
     return(-1);
   }
 }
+
+#ifdef USE_MODULE
+endmodule$
+#endif
+
 
 end$

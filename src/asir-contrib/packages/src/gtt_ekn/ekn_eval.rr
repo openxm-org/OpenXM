@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.3 2016/06/05 04:13:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_eval.rr,v 1.4 2019/02/14 00:18:40 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -30,6 +30,7 @@ localf cBasistoE$
 localf cBasistoEdiff$
 localf g_mat_fac_test$
 localf g_mat_fac_test_plain$
+localf g_mat_fac_test_int$
 localf check_failure$
 #endif
 /*
@@ -289,9 +290,14 @@ def g_mat_fac_test(F,M,S,E,Inc,Var) {
   }
   if (type(getopt(crt)) > 0) CRT=1; else CRT=0;
   if ((Ekn_plist == 0) || (Ekn_IDL == 0) || (CRT==0)) {
-    if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_plain(slow, rational) is called.\n");
     if (Ekn_mesg == 1) {printf("Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.\n"); Ekn_mesg=0; }
-    return g_mat_fac_test_plain(F,M,S,E,Inc,Var);
+    if (type(getopt(plain))>0) {
+      if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_plain(slow, rational) is called.\n");
+      return g_mat_fac_test_plain(F,M,S,E,Inc,Var);
+    }else {
+      if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_int is called.\n");
+      return g_mat_fac_test_int(F,M,S,E,Inc,Var);
+    }
   }
   F0 = F;
   if (check_failure(F)) error("Error: crt failure. Use bigger number of primes or bigger prime. See gtt_ekn.setup");
@@ -340,6 +346,29 @@ F1=g_mat_fac_test(F,M,S,E,Inc,t);
 S=-1$ E=-3$ Inc=-1$
 F2=g_mat_fac_test(F,M,S,E,Inc,t);
 */
+
+def g_mat_fac_test_int(F,M_rat,S,E,Inc,Var){
+  FF0=tk_nm_dn.nm_dn(F);
+  FF=FF0[0];
+  DD=FF0[1];
+  MM=tk_nm_dn.nm_dn(M_rat);
+  M=MM[0]; D=MM[1];
+  if (Inc>0){
+    for (I=S;I<=E; I+=Inc){
+      FF=base_replace_n(M,[[Var,I]])*FF; 
+      DD=substr2np(D,[[Var,I]])*DD;
+    }
+  }
+  else if (Inc<0){
+    for (I=S;I>=E; I+=Inc){
+      FF=base_replace_n(M,[[Var,I]])*FF;
+      DD=substr2np(D,[[Var,I]])*DD;
+    }
+  }else{
+    return(F);
+  }
+  return(FF/DD);
+}
 
 #ifdef USE_MODULE
 endmodule;

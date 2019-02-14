@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.7 2017/03/10 05:19:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.8 2017/03/12 12:01:39 takayama Exp $ */
 import("names.rr")$
+load("tk_nm_dn.rr")$
 #define USE_MODULE
 //#define FOR_DEVELOPE
 load("gtt_ekn/g_mat_fac.rr")$
@@ -20,6 +21,8 @@ localf setup$
 localf report$
 localf cmle$
 localf set_debug_level$
+localf assert1$
+localf assert2$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
@@ -192,6 +195,45 @@ def set_debug_level(Mode) {
   Ekn_debug=Mode;
 }
 
+def assert1(N) {
+  if (N<2) return("N should be more than 1.");
+  if (length(getopt()) == 0) printf("Try g_mat_fac_test_int: ");
+  else printf("Try %a\n",getopt());
+  T0=time();
+  V1=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                       [[1,(1-1/N)/56],[1,1]]|option_list=getopt());
+  T1=time();
+  printf("Timing =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
+  printf("\nTry g_mat_fac_test_plain: ");
+  T0=time();
+  V0=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                       [[1,(1-1/N)/56],[1,1]]|plain=1);
+  T1=time();
+  printf("Timing =%a (CPU) + %a (GC) = %a (total)\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1);
+  printf("diff of both method = \n");
+  return(V0-V1);
+}
+
+def assert2(N) {
+  if (N<1) return("N should be more than 0.");
+  if (N>1) printf("The second method will take time, e.g., N=2 ==> 1 min.\n");
+  Marginal = [[130*N,170*N,353*N],[90*N,119*N,444*N]];
+  P=[[17/100,1,10],[14/100,1,33/10],[1,1,1]];
+  printf("Marginal=%a\nP=%a\n",Marginal,P);
+  if (length(getopt()) == 0) printf("Try g_mat_fac_test_int: ");
+  else printf("Try %a\n",getopt());
+  T0=time();
+  V1=gtt_ekn.expectation(Marginal,P|option_list=getopt())$
+  T1=time();
+  printf("Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
+  printf("\nTry g_mat_fac_test_plain: ");
+  T0=time();
+  V0=E=gtt_ekn.expectation(Marginal,P | plain=1);
+  T1=time();
+  printf("Timing (rational) =%a (CPU) + %a (GC) = %a (total)\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1);
+  printf("diff of both method = \n");
+  return(V0-V1);
+}
 #ifdef USE_MODULE
 endmodule$
 #else
