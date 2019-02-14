@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_pfaffian_8.rr,v 1.1 2016/03/15 06:30:36 takayama Exp $ */
 /* memo
 load("ekn_pfaffian_8.rr");
  */
@@ -14,6 +14,7 @@ ARule = 0$
 static Verbose$
 Verbose=1$
 static Ekn_Rq$
+static Ekn_CList$
 #else
 /* ************************************************* */
 /* global variables */
@@ -21,6 +22,7 @@ extern XRule;
 XRule = 0$
 extern ARule;
 ARule = 0$
+extern Ekn_CList$
 /*
 To substitute numbers for alpha's and x's, 
 Rule = [[xij(1,1),],[xij(1,2),],...,[xij(K,N),] ]$
@@ -121,6 +123,7 @@ localf prime_prob$
 localf s36$
 localf m_alpha$
 localf check_relation$
+localf show_path$
 #endif
 /*
 (K,N) --> E(K+1, K+N+2)
@@ -1229,7 +1232,7 @@ def contiguity_mat_list_1(A,K,N){
   Av=ltov(A);
   Step=Av-Alv;
 
-  CList=[];
+  CList=[]; Ekn_CList=[];
   // printf("%a\n",Alv);
   /* J=K+1,...,K+N */
   for (J=K+1; J<K+N+1; J++){
@@ -1237,6 +1240,7 @@ def contiguity_mat_list_1(A,K,N){
       Amove=moveAlpha(J,vtol(Alv),K,N); 
       C=base_replace(upAlpha(J,K,N),alphaRule_num(Amove,K,N));
       CList=cons([C,Step[J]],CList);
+      Ekn_CList=cons([C,Step[J],J],Ekn_CList);
       Alv[0]=Alv[0]-Step[J];
       Alv[J]=Av[J];
     }else{}
@@ -1247,6 +1251,7 @@ def contiguity_mat_list_1(A,K,N){
     Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
     C=base_replace(upAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
     CList=cons([C,Step[K+N+1]],CList);
+    Ekn_CList=cons([C,Step[K+N+1],K+N+1],Ekn_CList);
     Alv[0]=Alv[0]-Step[K+N+1];
     Alv[K+N+1]=Av[K+N+1];
   }else{}
@@ -1257,6 +1262,7 @@ def contiguity_mat_list_1(A,K,N){
       Amove=moveAlpha(J,vtol(Alv),K,N); 
       C=base_replace(downAlpha(J,K,N),alphaRule_num(Amove,K,N));
       CList=cons([C,Step[J]],CList);
+      Ekn_CList=cons([C,Step[J],J],Ekn_CList);
       Alv[0]=Alv[0]-Step[J];
       Alv[J]=Av[J];
     }else{}
@@ -1297,7 +1303,7 @@ def contiguity_mat_list_2(A,K,N){
   Av=ltov(A);
   Step=Av-Alv;
 
-  CList=[];
+  CList=[]; Ekn_CList=[];
   // printf("%a\n",Alv);
   /* J=K+1,...,K+N */
   for (J=K+1; J<K+N+1; J++){
@@ -1305,6 +1311,7 @@ def contiguity_mat_list_2(A,K,N){
       Amove=moveAlpha(J,vtol(Alv),K,N); 
       C=base_replace(upAlpha(J,K,N),alphaRule_num(Amove,K,N));
       CList=cons([C,Step[J]],CList);
+      Ekn_CList=cons([C,Step[J],J],Ekn_CList);
       Alv[0]=Alv[0]-Step[J];
       Alv[J]=Av[J];
     }else{}
@@ -1315,6 +1322,7 @@ def contiguity_mat_list_2(A,K,N){
     Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
     C=base_replace(upAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
     CList=cons([C,Step[K+N+1]],CList);
+    Ekn_CList=cons([C,Step[K+N+1],K+N+1],Ekn_CList);
     Alv[0]=Alv[0]-Step[K+N+1];
     Alv[K+N+1]=Av[K+N+1];
   }
@@ -1322,6 +1330,7 @@ def contiguity_mat_list_2(A,K,N){
     Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
     C=base_replace(downAlpha(K+N+1,K,N),alphaRule_num(Amove,K,N));
     CList=cons([C,Step[K+N+1]],CList);
+    Ekn_CList=cons([C,Step[K+N+1],K+N+1],Ekn_CList);
     Alv[0]=Alv[0]-Step[K+N+1];
     Alv[K+N+1]=Av[K+N+1];
   }else{}
@@ -1332,6 +1341,7 @@ def contiguity_mat_list_2(A,K,N){
       Amove=moveAlpha(J,vtol(Alv),K,N); 
       C=base_replace(downAlpha(J,K,N),alphaRule_num(Amove,K,N));
       CList=cons([C,Step[J]],CList);
+      Ekn_CList=cons([C,Step[J],J],Ekn_CList);
       Alv[0]=Alv[0]-Step[J];
       Alv[J]=Av[J];
     }else{}
@@ -2080,6 +2090,10 @@ def check_relation(I,K,N){
    check_relation(4,1,4);
    check_relation(6,3,2);
  */
+
+def show_path() {
+  return Ekn_CList;
+}
 
 #ifdef USE_MODULE
 endmodule;

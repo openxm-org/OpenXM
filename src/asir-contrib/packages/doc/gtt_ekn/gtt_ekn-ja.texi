@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.7 2017/08/31 06:31:45 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.8 2019/02/14 00:18:40 takayama Exp $
 %% xetex gtt_ekn.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -128,6 +128,7 @@ gtt_ekn/test-t1.rr
 * gtt_ekn.upAlpha::
 * gtt_ekn.cmle::
 * gtt_ekn.set_debug_level::
+* gtt_ekn.show_path::
 @end menu
 
 @node 超幾何関数E(k,n),,, 2元分割表HGMの関数
@@ -865,12 +866,15 @@ ChangeLog
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
 @node gtt_ekn.set_debug_level,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.set_debug_level}
+@node gtt_ekn.show_path,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.set_debug_level}, @code{gtt_ekn.show_path} 
 @comment --- 索引用キーワード
 @findex gtt_ekn.set_debug_level
+@findex gtt_ekn.show_path
 
 @table @t
 @item gtt_ekn.set_debug_level(@var{m}) debug メッセージのレベルを設定.
+@item gtt_ekn.show_path()  どのように contiguity を適用したかの情報.
 :: 
 @end table
 
@@ -902,6 +906,15 @@ level&0x4: g_mat_fac_test([ 67/62944040755546030080000 ]
 [ (1)/(t^2+25*t+46) (-111*t-111)/(t^2+25*t+46) ],0,73,1,t)
 level&0x4: g_mat_fac_test ------  snip
 @end example
+
+@example
+[2659] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]])$
+[2660] L=matrix_transpose(gtt_ekn.show_path())$
+[2661] L[2];
+[1 4 3 2]
+@end example
+[1 4 3 2] の index をもつパラメーターの方向の contigity を求めそれを掛けて
+計算したことがわかる.  L[0] は用いた contiguity の行列.
 
 @comment --- 参照(リンク)を書く ---
 @table @t
