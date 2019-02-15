@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.8 2017/03/12 12:01:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.9 2019/02/14 05:46:51 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 #define USE_MODULE
@@ -23,6 +23,7 @@ localf cmle$
 localf set_debug_level$
 localf assert1$
 localf assert2$
+localf prob1$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
@@ -234,6 +235,40 @@ def assert2(N) {
   printf("diff of both method = \n");
   return(V0-V1);
 }
+
+/* bench mark test. */
+def prob1(R1,R2,Size) {
+  if (R1 > R2) return("Should be R1<=R2.");
+  if (type(getopt(factor))>0) Factor=getopt(factor);
+  else Factor=1;
+  if (type(getopt(factor_row))>0) Factor_row=getopt(factor_row);
+  else Factor_row=1;
+  Col=newvect(R1);
+  Row=newvect(R2);
+  Sum2=0;
+  for (I=0; I<R2; I++) {
+    Row[I] = number_floor(Size*Factor_row*(I+1));
+    Sum2 += Row[I];
+  }
+  Sum=0;
+  for (I=0; I<R1-1; I++) {
+    Col[I] = Size*Factor*(I+1);
+    Sum += Col[I];
+  }
+  Col[R1-1] = Sum2-Sum;
+  if (Row[R2-1] <= 0) printf("Error: negative marginal sum.\n");
+  P=newmat(R1,R2);
+  for (I=0; I<R1; I++) P[I][0] = 1;
+  for (J=1; J<R2; J++) P[R1-1][J] =1;
+  Q=2;
+  for (I=0; I<R1-1; I++) {
+    for (J=1; J<R2; J++) {
+       P[I][J] = 1/(Q=pari(nextprime,Q)); Q++;
+    }
+  }
+  return [[vtol(Col),vtol(Row)],matrix_matrix_to_list(P)];
+}
+
 #ifdef USE_MODULE
 endmodule$
 #else
