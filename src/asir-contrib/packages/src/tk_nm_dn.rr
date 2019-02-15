@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_nm_dn.rr,v 1.1 2019/02/14 02:22:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_nm_dn.rr,v 1.2 2019/02/14 05:46:51 takayama Exp $ */
 import("names.rr")$
 
 #define USE_MODULE 1
@@ -20,6 +20,7 @@ localf poly_nm_dn_list$
 localf poly_nm_dn$
 localf set_assert$
 localf nm_dn$
+localf rdeg$
 localf nm_dn_assert$
 #else
 #endif
@@ -155,6 +156,12 @@ def nm_dn_assert(F,Ans) {
     print("Assert fails:"); debug();
     return(-1);
   }
+}
+
+def rdeg(F,V) {
+  if (type(F) <3) return(deg(F,V));
+  if (type(F)==3) return([deg(nm(F),V),deg(dn(F),V)]);
+  if (type(F)>=4) return(map(rdeg,F,V));
 }
 
 #ifdef USE_MODULE
