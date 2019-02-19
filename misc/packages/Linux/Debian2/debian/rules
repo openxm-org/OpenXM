@@ -6,11 +6,13 @@
 # architecture-dependant package, as well as an architecture-independent
 # package.
 
+PACKAGE=$(shell dh_listpackages)
+
 # Uncomment this to turn on verbose mode. 
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=1
+#export DH_COMPAT=1
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
@@ -32,18 +34,22 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp 
-	dh_clean
+	dh_clean -d
 
 install: DH_OPTIONS=
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+#	dh_clean -k
+	dh_prep
 	dh_installdirs
 	mkdir -p ${INST_PREFIX}
+	mkdir -p ${INST_PREFIX}/bin
 	tar cf - --exclude CVS OpenXM | (cd ${INST_PREFIX} ; tar xf -)
 	install OpenXM/bin/oxfetch.sh ${INST_PREFIX}/bin
 # copying icons for KDE.
+	mkdir -p ${INST_PREFIX}/../../usr/lib/menu
+	mkdir -p ${INST_PREFIX}/../../usr/share/pixmaps
 	cp ${OpenXM_HOME}/rc/kde/openxm-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm
 	cp ${OpenXM_HOME}/doc/OpenXM-web/hopo_std_color.xpm ${OpenXM_HOME}/doc/OpenXM-web/logo-openxm2-color.xpm  ${INST_PREFIX}/../../usr/share/pixmaps
 	#dh_movefiles
@@ -59,28 +65,16 @@ binary-arch: build install
 #	dh_testversion 1.1.17
 	dh_testdir
 	dh_testroot
-#	dh_installdebconf
+	dh_installdirs
 	dh_installdocs
-	dh_installexamples
-	dh_installmenu
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installinit
-	dh_installcron
-#	dh_installmanpages
-	dh_installinfo
-#	dh_undocumented
 	dh_installchangelogs 
-	dh_strip
-	dh_link
-	dh_compress
-	dh_fixperms
-	# You may want to make some executables suid here.
-	dh_suidregister
+
+# Copy the packages's files.
+	cp -a debian/tmp/usr debian/${PACKAGE}
+
+	dh_makeshlibs
 	dh_installdeb
-#	dh_makeshlibs
-#	dh_perl
-	dh_shlibdeps
+	-dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

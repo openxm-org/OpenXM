@@ -251,7 +251,19 @@ A. rm /var/cache/apt/archives/xxx.deb
    apt-cache showpg openxm
    など.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.30 2016/06/02 01:00:30 takayama Exp $
+Q. *.deb の生成の debug  2019.02.19
+A. 今回は *.deb に全部のファイルが含まれないトラブルが.  fakeroot make -f Makefile-alien binary-arch を用いて解決策を探した.
+
+   結局 cp で debian/tmp/usr を強引に debian/openxm へコピー.
+   fakeroot make -f debian/rules binary-arch 
+   で作成テスト.
+   dpkg -c ../*.deb  で中身があるか確認.
+
+   gnupg の 秘密鍵は, どうやら一番目のものを決め打ちで使うので, /private/taka/.gnupg には
+   debian@math.kobe-u.ac.jp
+   の鍵しかおかないことにした. 
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.31 2017/06/08 01:17:47 takayama Exp $
 
 
    

@@ -1,0 +1,124 @@
+MY_PROJECT=openxm
+##OpenXM_HOME=/usr/local/OpenXM
+KM_INSTALL=${HOME}/tmp/km-install2
+KM_TESTING=${HOME}/tmp/km-testing2
+KM_DIST=${HOME}/tmp/km-dist2
+FE_KNOPPIX_MATH=nobuki@fe.math.kobe-u.ac.jp:/usr/local/www/data/MathLibre
+FE_KNOPPIX_MATH64=nobuki@fe.math.kobe-u.ac.jp:/usr/local/www/data/MathLibre-amd64
+FE_KNOPPIX_MATH_SRC=nobuki@fe.math.kobe-u.ac.jp:/usr/local/www/data/MathLibre-src
+DISTDIR=${KM_DIST}/${MY_PROJECT}
+FETCH=${OpenXM_HOME}/bin/oxfetch.sh
+RM = /bin/rm
+
+SUDO=sudo
+## visudo
+## If you need to make install-build-depends by yourself, add
+## your_user_name *=NOPASSWD:/usr/bin/apt-get, /usr/bin/patch
+## by visudo.
+
+PKG_NAME=${MY_PROJECT}.tar.gz
+
+MASTER_SITE1=http://fe.math.kobe-u.ac.jp/MathLibre-src
+DISTNAME=openxm
+NEWDISTNAME=openxm-1.3.2-5
+DISTFILES1=
+DISTFILES2=
+LEMON_USER=taka
+
+BUILD_DEPENDS=fakeroot alien 
+
+usage:
+	@echo "Before using this Makefile, build the package by Makefile"
+	@echo "If dpkg -c ../openxm*.deb does not contain all files,"
+	@echo "use this Makefile to generate deb package from debian/tmp/usr/*"
+	@echo "Target: build-deb"
+
+# make install-build-depends by hand before everything.
+all : build 
+
+show-const:
+	@echo "----- show constants --------------------"
+	@echo "OpenXM_HOME=${OpenXM_HOME}"
+	@echo "DISTDIR=${DISTDIR}"
+	@echo "-----------------------------------------"
+fetch:  show-const
+	mkdir -p ${KM_INSTALL}
+	mkdir -p ${KM_TESTING}
+	mkdir -p ${KM_DIST}
+	mkdir -p work
+	mkdir -p work/${NEWDISTNAME}
+	mkdir -p work/usr/bin
+	@touch work/.fetch_done
+
+extract: fetch
+	@touch work/.extract_done
+
+install-build-depends:
+	@touch work/.install-build-depends_done
+
+apply-patch: 
+	@touch work/.apply-patch_done
+
+configure: extract apply-patch  
+	@touch work/.configure_done
+
+build : configure
+	@touch work/.build_done
+
+install: build
+	@if [ ! -f work/.install_done ]; then \
+		(cd debian/tmp ; tar cf - usr ) | (cd work ;  tar xvf -) ; \
+	fi
+	@touch work/.install_done
+install-doc: install
+	@touch work/.install-doc_done
+
+build-tar-fakeroot: install install-doc
+	mkdir -p ${KM_INSTALL}
+	@if [ ! -f work/.build-tar-fakeroot_done ]; then \
+		(cd work; chown -R root usr ;  tar czvf ${KM_INSTALL}/${PKG_NAME} usr ) ; \
+	echo "Tar is at ${KM_INSTALL}/${PKG_NAME}" ; \
+	fi
+	@touch work/.build-tar-fakeroot_done
+
+build-tar: build-tar-fakeroot
+	mkdir -p ${KM_INSTALL}
+	@if [ ! -f work/.build-tar_done ]; then \
+	  fakeroot make -f Makefile-alien build-tar-fakeroot ; \
+	fi
+	@touch work/.build-tar_done
+
+# -X is used to avoid compressing pdf files, ... 
+build-deb: build-tar
+	@if [ ! -f work/.build-deb_done ]; then \
+		(cd ${KM_INSTALL} ; rm -rf ${MY_PROJECT}*.deb ${MY_PROJECT}-1) ; \
+		(cd ${KM_INSTALL} ; fakeroot alien -g ${PKG_NAME} ) ; \
+		(cp patch/control ${KM_INSTALL}/${MY_PROJECT}-1/debian ) ; \
+		(cp patch/copyright ${KM_INSTALL}/${MY_PROJECT}-1/debian ) ; \
+		(cp patch/changelog ${KM_INSTALL}/${MY_PROJECT}-1/debian ) ; \
+		(cd ${KM_INSTALL}/${MY_PROJECT}-1/debian ; mv rules rules.orig ; sed -e 's/dh_compress/dh_compress -X.pdf -X.c -X.ine -X.ext -X.html -XMakefile/g' rules.orig >rules ; chmod +x rules ) ; \
+		(cd ${KM_INSTALL}/${MY_PROJECT}-1 ; fakeroot make -f debian/rules binary ) ; \
+		(cd ${KM_INSTALL} ; dpkg-deb --contents ${MY_PROJECT}*.deb ; dpkg-deb --info ${MY_PROJECT}*.deb ) ; \
+	fi
+	@touch work/.build-deb_done
+	@echo "deb is under ${KM_INSTALL}"
+
+copy-deb-fe: build-deb
+	@if [ ! -f work/.copy-deb-fe_done ]; then \
+	if [ $$HOSTTYPE = "x86_64" ]; then \
+		echo "64" ; \
+		(cd ${KM_INSTALL} ; scp ${MY_PROJECT}*deb ${FE_KNOPPIX_MATH64} ); \
+        else \
+		echo "32" ; \
+		(cd ${KM_INSTALL} ; scp ${MY_PROJECT}*deb ${FE_KNOPPIX_MATH} ); \
+	fi ; \
+		echo "(Move old deb to ~/tmp/KnoppixMath-Attic in ~/tmp/DVD3 and ) Do Update-package.sh" ; \
+	fi
+	@touch work/.copy-deb-fe_done
+
+
+clean:
+	-$(RM) -rf work ${KM_INSTALL}/${MY_PROJECT}* ${KM_TESTING}/${MY_PROJECT}*
+
+
+
