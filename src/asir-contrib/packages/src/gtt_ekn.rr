@@ -1,6 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.9 2019/02/14 05:46:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.10 2019/02/15 05:27:38 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
+if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
+ igcdcntl(3)$ printf("igcdcntl is set to 3.\n")$
+}else {;}
 #define USE_MODULE
 //#define FOR_DEVELOPE
 load("gtt_ekn/g_mat_fac.rr")$
