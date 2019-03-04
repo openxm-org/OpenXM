@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.44 2019/01/16 05:30:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.45 2019/02/28 06:56:49 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -244,6 +244,7 @@ localf seriesHG$
 localf seriesMc$
 localf seriesTaylor$
 localf mulpolyMod$
+localf solveEq$
 localf baseODE$
 localf taylorODE$
 localf evalred$
@@ -473,7 +474,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190225"$
+Muldif.rr="00190301"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -632,6 +633,7 @@ def mycat(L)
 		Do = 1;
 	}
 	if(CR) print("");
+	else print("",2);
 }
 
 def fcat(S,X)
@@ -670,6 +672,7 @@ def mycat0(L,T)
 		Do = 1;
 	}
 	if(T) print("");
+	else print("",2);
 }
 
 def findin(M,L)
@@ -897,6 +900,7 @@ def mulsubst(F,L)
 	if(N == 0)
 		return F;
 	if(type(L[0])!=4)	L=[L];
+	if(getopt(lpair)==1||(type(L[0])==4&&length(L[0])>2)) L=lpair(L[0],L[1]);
 	if(getopt(inv)==1){
 		for(R=[];L!=[];L=cdr(L)) R=cons([car(L)[1],car(L)[0]],R);
 		L=reverse(R);
@@ -6198,12 +6202,42 @@ def mulpolyMod(P,Q,X,N)
 	return R;
 }
 
+def solveEq(L,V)
+{
+	Inv=0;K=length(V);
+	H=(getopt(h)==1)?1:0;
+	if(getopt(inv)==1){
+		if(K!=length(L)) return -5;
+		Inv=1;
+		VN=makenewv(vars(L)|num=K);
+		for(TL=[],I=K-1;I>=0;I--) TL=cons(VN[I]-L[I],TL);
+		S=solveEq(TL,V|h=H);
+		if(type(S)!=4) return S;
+		return mysubst(S,[VN,V]|lpair=1);
+	}
+	for(TL=[];L!=[];L=cdr(L)) TL=cons(nm(red(car(L))),TL);
+	S=gr(TL,reverse(V),2);
+	if(length(S)!=K) return -1;
+	for(R=[],I=F=0;I<K;I++){
+		TS=S[I];
+		VI=lsort(vars(TS),V,2);
+		if(length(VI)!=1) return -2;
+		if((VI=car(VI))!=V[I]) return -3;
+		if(mydeg(TS,VI)!=1){
+			F=1;R=cons([VI,TS],R);
+		}else R=cons(-red(mycoef(TS,0,VI)/mycoef(TS,1,VI)),R);
+	}
+	R=reverse(R);
+	if(!F||H==1) return R;
+	return -4;
+}
+
 /* Opt: f, var, ord, to, in, TeX */
 def baseODE(L)
 {
 	if(type(TeX=getopt(TeX))!=1) TeX=0;
 	if(type(F=getopt(f))!=1) F=0;
-	In=(getopt(in)==1)?1:0;
+	if(isint(In=getopt(in))!=1) In=0;
 	if(type(Ord=getopt(ord))!=1&&Ord!=0) Ord=2;
 	Hgr=0;
 	if(Ord>3){
@@ -20307,7 +20341,7 @@ def distpoint(L)
 
 def keyin(S)
 {
-	print(S,2);
+	mycat0(S,0);
 	purge_stdin();
 	S=get_line();
 	L=length(S=strtoascii(S));
