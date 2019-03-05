@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.45 2019/02/28 06:56:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.46 2019/03/04 02:02:04 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -5547,7 +5547,8 @@ def texbegin(T,S)
 {
 	if(type(Opt=getopt(opt))==7) Opt="["+Opt+"]\n";
 	else Opt="\n";
-	return "\\begin{"+T+"}"+Opt+S+"%\n\\end{"+T+"}\n";
+	U=(str_chr(S,str_len(S)-1,"\n")<0)?"%\n":"";
+	return "\\begin{"+T+"}"+Opt+S+U+"\\end{"+T+"}\n";
 }
 
 def mygcd(P,Q,L)
@@ -6235,35 +6236,70 @@ def solveEq(L,V)
 /* Opt: f, var, ord, to, in, TeX */
 def baseODE(L)
 {
+	SV=SVORG;
 	if(type(TeX=getopt(TeX))!=1) TeX=0;
 	if(type(F=getopt(f))!=1) F=0;
 	if(isint(In=getopt(in))!=1) In=0;
 	if(type(Ord=getopt(ord))!=1&&Ord!=0) Ord=2;
-	Hgr=0;
 	if(Ord>3){
 		Ord-=4; Hgr=1;
-	}
+	}else Hgr=0;
 	if(type(car(L))==4&&type(L[1])==7){
 		Tt=L[1];L=car(L);
 	}
-	M=N=length(L);
-	SV=SVORG;
-	if(type(Var=getopt(var))==4&&(In==1||length(Var)==N)){
+	M=N=length(L);	SV=SVORG;
+	if(type(Var=getopt(var))==4&&(In>0||length(Var)==N)){
 		SV=Var;
 		M=length(SV);
 		if(type(car(SV))==2){
 			for(R=[];SV!=[];SV=cdr(SV)) R=cons(rtostr(car(SV)),R);
 			SV=reverse(R);
 		}
-	}else if(N>10){
-		R=[];
-		for(K=N-1;K>9;K++) R=cons(SV[floor(K/10)-1]+SV[K%10],R);
-		SV=append(SV,R);
+	}else{
+		if(N>10){
+			R=[];
+			for(K=M-1;K>9;K++) R=cons(SV[floor(K/10)-1]+SV[K%10],R);
+			SV=append(SV,R);
+		}
+		for(Var=[],I=M-1;I>=0;I--) Var=cons(makev([SV[I]]),Var);
 	}
-	for(I=0;I<M;I++) L=subst(L,makev([SV[I]]), makev([SV[I],0]));
+	if(type(To=getopt(to))<2||type(To)>4) To=0;
+	else if(!isvar(To)){
+		if(type(To)!=4) To=cons(red(To),cdr(Var));
+		if(type(To)==4){
+			if(type(car(To))==4){
+				R=1;To=car(To);
+			}else R=0;
+			if(type(IL=solveEq(To,Var|inv=1))!=4) return -7;
+			if(R==1){
+				R=To;To=IL;IL=R;
+			}
+			L=mulsubst(L,[Var,IL]|lpair=1);
+			if(!In){   /* X_i'=\sum_j(\p_{x_j}X_i)*x_j' */
+				for(TL=[],I=M-1;I>=0;I--){
+					P=To[I];Q=mydiff(P,t);
+					for(J=0;J<M;J++) Q=red(Q+mydiff(P,Var[J])*L[J]);
+					TL=cons(Q,TL);
+				}
+				L=TL;
+			}else{	/* x_i'=\sum_j(\p_{X_j}x_i)*X_j' */
+				for(I=M-1;I>=0;I--){
+					P=IL[I];Q=mydiff(P,t);
+					for(J=0;J<M;J++){
+						V=makev([SV[J],1]);
+						Q=red(Q+mydiff(P,V)*V);
+					}
+					L=mysubst(L,[makev([SV[I],1]),TL[I]]);
+				}
+				for(TL=L,L=[],I=M-1;I>=0;I--) L=cons(num(TL[I]),L);
+			}
+		}
+	}
+	if(F==-3) return [Var,L];
+	for(I=0;I<M;I++) L=subst(L,Var[I], makev([SV[I],0]));
 	if(TeX){
 		for(TL=L,I=0;I<M;I++) 
-			TL=subst(TL,makev([SV[I],0]),makev([SV[I]]));
+			TL=subst(TL,makev([SV[I],0]),Var[I]);
 		for(I=0;I<N;I++){
 			if(I) S0+=",\\\\\n";
 			if(In) S0+=" "+my_tex_form(TL[I])+"=0";
@@ -6273,20 +6309,18 @@ def baseODE(L)
 		S0=texbegin("cases", S0);
 		S0=texbegin("align",S0);
 		if(type(Tt)==7) S0=Tt+"\n"+S0;
-		if(F==-1){
+		if(F<0){
 			if(TeX==2) dviout(S0);
 			return S0;
 		}
 	}
-	if(In) TL=L;
-	else{
-		for(I=0,TL=[];L!=[];L=cdr(L),I++){
-			T=makev([SV[I],1])-car(L);
-			TL=cons(nm(red(T)),TL);
-		}
+	for(I=0,TL=[];L!=[];L=cdr(L),I++){
+		T=car(L);
+		if(!In) T=makev([SV[I],1])-T;
+		TL=cons(nm(red(T)),TL);
 	}
-	if(type(T=getopt(to))>0){
-		if(type(car(SV))==7) T=rtostr(T);
+	if(isvar(To)){
+		T=rtostr(T);
 		IT=findin(T,SV);
 		if(IT>=0 && IT<M){
 			R=[SV[IT]];
@@ -6305,11 +6339,11 @@ def baseODE(L)
 		TL=reverse(TL);
 		for(RL=[];TL!=[];TL=cdr(TL)){
 			if(In==0&&S==N-1&&length(TL)!=N-IT) continue;
-			T=car(TL);R=diff(V,t);
+			T=car(TL);R=mydiff(V,t);
 			for(I=0;I<M;I++){
 				for(J=0;J<=S;J++){
 					V=makev([SV[I],J]|num=1);
-					if((DR=diff(T,V))!=0) R+=DR*makev([SV[I],J+1]|num=1);
+					if((DR=mydiff(T,V))!=0) R+=DR*makev([SV[I],J+1]|num=1);
 				}
 			}
 			RL=cons(R,RL);
@@ -6317,7 +6351,7 @@ def baseODE(L)
 		TL=RL;
 	}
 	L=append(TL,L);
-	for(I=0;I<M;I++) L=subst(L,makev([SV[I],0]),makev([SV[I]]));
+	for(I=0;I<M;I++) L=subst(L,Var[I],makev([SV[I]]));
 	for(V=VV=[],I=0;I<M;I++){
 		for(J=0;J<M;J++) V=cons(J?makev([SV[I],J]):makev([SV[I]]),V);
 		if(!I||In) V=cons(makev([SV[0],M]),V);
@@ -6348,7 +6382,7 @@ def baseODE(L)
 	if(TeX){
 		for(V0=[makev([car(SV)])],I=1;I<=M;I++) V0=cons(makev([car(SV),I]),V0);
 		T="&\\!\\!\\!"+fctrtos(P|var=VV,dic=1,TeX=3);
-		S=((TeX==3)?(Tt+"\n"):S0)+texbegin("align*",texbegin("split",T));
+		S=((F==1)?(Tt+"\n"):S0)+texbegin("align*",texbegin("split",T));
 		if(TeX==2) dviout(S);
 		return S;
 	}
