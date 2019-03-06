@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.46 2019/03/04 02:02:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.47 2019/03/05 01:52:51 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -474,7 +474,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190301"$
+Muldif.rr="00190304"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -6270,7 +6270,7 @@ def baseODE(L)
 			if(type(car(To))==4){
 				R=1;To=car(To);
 			}else R=0;
-			if(type(IL=solveEq(To,Var|inv=1))!=4) return -7;
+			if(type(IL=solveEq(To,Var|inv=1))!=4) return IL;
 			if(R==1){
 				R=To;To=IL;IL=R;
 			}
@@ -6296,7 +6296,7 @@ def baseODE(L)
 		}
 	}
 	if(F==-3) return [Var,L];
-	for(I=0;I<M;I++) L=subst(L,Var[I], makev([SV[I],0]));
+	for(I=0;I<M;I++) L=subst(L,Var[I],makev([SV[I],0]));
 	if(TeX){
 		for(TL=L,I=0;I<M;I++) 
 			TL=subst(TL,makev([SV[I],0]),Var[I]);
@@ -6320,7 +6320,7 @@ def baseODE(L)
 		TL=cons(nm(red(T)),TL);
 	}
 	if(isvar(To)){
-		T=rtostr(T);
+		T=rtostr(To);
 		IT=findin(T,SV);
 		if(IT>=0 && IT<M){
 			R=[SV[IT]];
@@ -6351,7 +6351,7 @@ def baseODE(L)
 		TL=RL;
 	}
 	L=append(TL,L);
-	for(I=0;I<M;I++) L=subst(L,Var[I],makev([SV[I]]));
+	for(I=0;I<M;I++) L=subst(L,makev([SV[I],0]),Var[I]);
 	for(V=VV=[],I=0;I<M;I++){
 		for(J=0;J<M;J++) V=cons(J?makev([SV[I],J]):makev([SV[I]]),V);
 		if(!I||In) V=cons(makev([SV[0],M]),V);
