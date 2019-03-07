@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.10 2019/02/15 05:27:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.11 2019/02/28 22:53:35 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
@@ -27,6 +27,8 @@ localf set_debug_level$
 localf assert1$
 localf assert2$
 localf prob1$
+localf set_ARule$
+localf set_XRule$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
@@ -271,6 +273,9 @@ def prob1(R1,R2,Size) {
   }
   return [[vtol(Col),vtol(Row)],matrix_matrix_to_list(P)];
 }
+
+def set_ARule(Rule) { return(ARule=Rule); }
+def set_XRule(Rule) { return(XRule=Rule); }
 
 #ifdef USE_MODULE
 endmodule$

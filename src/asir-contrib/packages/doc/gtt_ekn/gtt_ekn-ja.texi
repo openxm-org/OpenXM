@@ -1,5 +1,5 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.10 2019/02/14 05:46:51 takayama Exp $
-%% xetex gtt_ekn.texi   (.texi までつける. ) 
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.11 2019/02/15 05:27:38 takayama Exp $
+%% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
 @iftex
@@ -129,6 +129,7 @@ gtt_ekn/test-t1.rr
 * gtt_ekn.cmle::
 * gtt_ekn.set_debug_level::
 * gtt_ekn.show_path::
+* gtt_ekn.get_svalue::
 * gtt_ekn.assert1::
 * gtt_ekn.assert2::
 * gtt_ekn.prob2::
@@ -732,18 +733,21 @@ ChangeLog
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
 @node gtt_ekn.upAlpha,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.upAlpha}
+@node gtt_ekn.downAlpha,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn.upAlpha}, @code{gtt_ekn.downAlpha}
 @comment --- 索引用キーワード
 @findex gtt_ekn.upAlpha
+@findex gtt_ekn.downAlpha
 
 @table @t
 @item gtt_ekn.upAlpha(@var{i},@var{k},@var{n})
+@item gtt_ekn.downAlpha(@var{i},@var{k},@var{n})
 :: 
 @end table
 
 @comment --- 引数の簡単な説明 ---  以下まだ書いてない.
 @table @var
-@item i  a_i を a_i+1 と変化させる contiguity relation.
+@item i  a_i を a_i+1 (a_i を a_i-1) と変化させる contiguity relation.
 @item k  E(k+1,n+k+2)型の超幾何関数の k. 分割表では (k+1)×(n+1). 
 @item n  E(k+1,n+k+2)型の超幾何関数の n. 分割表では (k+1)×(n+1). 
 @item return  contiguity relation の pfaffian_basis についての行列表現を戻す. [GM2016] の Cor 6.3.
@@ -760,6 +764,7 @@ ChangeLog
 @item a_i と分割表の周辺和を見るには, 関数 marginaltoAlpha([行和,列和]) を用いる.
 @item
    pfaffian_basis は [GM2016] の４章のベクトル F に対応する偏微分を戻す.
+@item optional 引数 arule, xrule で a_i や x_i_j を数にしたものをより効率的に求めることができる. 変化をうけるパラメータを数にしてしまっても特にエラー表示はしない. a_0 で和の条件を調整しているので注意(Todo, double check).
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -782,6 +787,14 @@ f() redefined.
 [ f(x_1_1,x_1_2) ]
 [ (f{1,0}(x_1_1,x_1_2)*x_1_1)/(a_2) ]
 [ (f{0,1}(x_1_1,x_1_2)*x_1_2)/(a_3) ]
+
+[2235]   RuleA=[[a_2,1/3],[a_3,1/2]]$ RuleX=[[x_1_1,1/5]]$
+  base_replace(gtt_ekn.upAlpha(1,1,1),append(RuleA,RuleX))
+ -gtt_ekn.upAlpha(1,1,1 | arule=RuleA, xrule=RuleX);
+
+[ 0 0 ]
+[ 0 0 ]
+
 @end example
 
 
@@ -870,13 +883,15 @@ ChangeLog
 @comment --- section 名を正確に ---
 @node gtt_ekn.set_debug_level,,, 超幾何関数E(k,n)
 @node gtt_ekn.show_path,,, 超幾何関数E(k,n)
+@node gtt_ekn.get_svalue,,, 超幾何関数E(k,n)
 @node gtt_ekn.assert1,,, 超幾何関数E(k,n)
 @node gtt_ekn.assert2,,, 超幾何関数E(k,n)
 @node gtt_ekn.prob1,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.set_debug_level}, @code{gtt_ekn.show_path}, @code{gtt_ekn.assert1}, @code{gtt_ekn.assert2}, @code{gtt_ekn.prob1}
+@subsection @code{gtt_ekn.set_debug_level}, @code{gtt_ekn.show_path}, @code{gtt_ekn.get_svalue}, @code{gtt_ekn.assert1}, @code{gtt_ekn.assert2}, @code{gtt_ekn.prob1}
 @comment --- 索引用キーワード
 @findex gtt_ekn.set_debug_level
 @findex gtt_ekn.show_path
+@findex gtt_ekn.get_svalue
 @findex gtt_ekn.assert1
 @findex gtt_ekn.assert2
 @findex gtt_ekn.prob1
@@ -884,6 +899,7 @@ ChangeLog
 @table @t
 @item gtt_ekn.set_debug_level(@var{m}) debug メッセージのレベルを設定.
 @item gtt_ekn.show_path()  どのように contiguity を適用したかの情報.
+@item gtt_ekn.get_svalue()  static 変数の値を得る.
 @item gtt_ekn.assert1(@var{N})  2x2 分割表で動作チェック.
 @item gtt_ekn.assert2(@var{N})  3x3 分割表で動作チェック.
 @item gtt_ekn.prob1(@var{R1},@var{R2},@var{Size})  R1 x R2 分割表用のテストデータを作る.
@@ -903,6 +919,7 @@ ChangeLog
 @item (@var{m} & 0x2) == 0x2 の時 g_mat_fac_test への引数を tmp-input-数.ab として保存.
 @item (@var{m} & 0x4) == 0x4 の時 matrix factorial の計算の呼び出し引数を表示.
 @item @var{N} は問題の周辺和のサイズ.
+@item @code{get_svalue} の戻り値は @code{[Ekn_plist,Ekn_IDL,Ekn_debug,Ekn_mesg,XRule,ARule,Verbose,Ekn_Rq]} の値.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
