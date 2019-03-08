@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_pfaffian_8.rr,v 1.2 2019/02/14 02:22:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn/ekn_pfaffian_8.rr,v 1.3 2019/03/07 00:43:51 takayama Exp $ */
 /* memo
 load("ekn_pfaffian_8.rr");
  */
@@ -126,6 +126,14 @@ localf s36$
 localf m_alpha$
 localf check_relation$
 localf show_path$
+localf xJ_rule2$
+localf cInts2$
+localf intMatrix2$
+localf invintMatrix_k2$
+localf repMatrix2$
+localf invrepMatrix2$
+localf upAlpha3$
+localf downAlpha3$
 #endif
 /*
 (K,N) --> E(K+1, K+N+2)
@@ -1128,6 +1136,188 @@ def pfaffianCoef(II,JJ,K,N){
 /* ---------
 contiguity 
 ----------- */
+
+/******* modify  *******/
+def xJ_rule2(JJ,N){
+  XJ = xJ(JJ,N);
+  Rule=[];
+  if (type(getopt(xrule))>0) {
+    XJ=base_replace(XJ,getopt(xrule));
+  }
+  return(XJ);
+}
+
+def cInts2(As,Bs){
+  if (type(getopt(arule))>0) {
+    Rule=getopt(arule);
+    Cs=pm(As,Bs);
+    if (Cs[0]==0){return(0); } 
+    else if (Cs[0]==2){
+      In=0; Id=1;
+      N=length(Cs[1]);
+      for (J=0; J<N; J++){
+	In+=base_replace(alpha(Cs[1][J]),Rule);
+	Id*=base_replace(alpha(Cs[1][J]),Rule);
+      }
+      return(As[0][0]*Bs[0][0]*In/Id);
+    }else{
+      Id=1;
+      N=length(Cs[1]);
+      for (J=0; J<N; J++){
+	Id*=base_replace(alpha(Cs[1][J]),Rule);
+      }
+      return(Cs[0]/Id);
+    }
+  }else{return(cInts(As,Bs));}
+}
+
+def intMatrix2(PQ1,PQ2,K,N){
+  if (type(getopt(arule))>0) {
+    Rule=getopt(arule);
+    RBR=mBasis_replace(PQ1[0],PQ1[1],K,N);
+    RBC=mBasis_replace(PQ2[0],PQ2[1],K,N);
+    Rank=length(RBR);
+    M=matrix(Rank,Rank);
+    PhiR =newvect(Rank);
+    PhiC =newvect(Rank);
+    for (I=0; I<Rank; I++){
+      PhiR[I]=ltov([ ltov([1,0]), ltov(RBR[I]) ]);
+      PhiC[I]=ltov([ ltov([1,0]), ltov(RBC[I]) ]);
+    }
+    for (I=0; I<Rank; I++){
+      for (J=0; J<Rank; J++){
+	M[I][J]=cInts2(PhiR[I],PhiC[J]|arule=Rule);
+      }
+    }
+    return(M); 
+  }else{return(intMatrix(PQ1,PQ2,K,N));}
+}
+def invintMatrix_k2(PQ1,PQ2,K,N){
+  if (type(getopt(arule))>0) {
+    Rule=getopt(arule);
+    RBR=mBasis_replace(PQ1[0],PQ1[1],K,N);
+    RBC=mBasis_replace(PQ2[0],PQ2[1],K,N);
+    Rank=length(RBR);
+    D1inv=matrix(Rank,Rank);
+    D2inv=matrix(Rank,Rank);
+    for (I=0; I<Rank ;I++){
+      D1inv[I][I]=1;
+      D2inv[I][I]=1;
+      for (J=1; J<K+1; J++){
+	D1inv[I][I]*=base_replace(alpha(RBR[I][J]),Rule);
+	D2inv[I][I]*=base_replace(alpha(RBC[I][J]),Rule);
+      }
+    }
+  
+    PhiR=newvect(Rank);
+    PhiC=newvect(Rank);
+    II=0;
+    for (B=RBR; B != []; B=cdr(B)){
+      J=car(B);
+      if ( base_memberq(PQ1[0],J) ){
+	JJ=jj(base_position(PQ1[0],J), J, PQ1[1]);
+      }else{
+	JJ=J;
+      }
+      PhiR[II]=ltov([ ltov([1,0]), ltov(JJ) ]);
+      II++;
+    }
+    II=0;
+    for (B=RBC; B != []; B=cdr(B)){
+      J=car(B);
+      if ( base_memberq(PQ2[0],J) ){
+	JJ=jj(base_position(PQ2[0],J), J, PQ2[1]);
+      }else{
+	JJ=J;
+      }
+      PhiC[II]=ltov([ ltov([1,0]), ltov(JJ) ]);
+      II++;
+    }
+
+    M=matrix(Rank,Rank);
+    for (I=0; I<Rank; I++){
+      for(J=0; J<Rank; J++){
+	M[I][J]=cInts2(PhiC[I],PhiR[J]|arule=Rule);
+      }
+    }
+  
+    return(D2inv*M*D1inv);
+  }else{return(invintMatrix_k(PQ1,PQ2,K,N));}
+}
+
+def repMatrix2(II,K,N){
+  if (type(getopt(xrule))>0) {
+    Rule=getopt(xrule);
+    Ji0=mBasis_replace(0,II,K,N);
+    J0i=mBasis_replace(II,0,K,N);
+    Rank=length(Ji0);
+    Rep = matrix(Rank,Rank);
+    for (P=0; P<Rank; P++){
+      Rep[P][P]=matrix_det(xJ_rule2(J0i[P],N|xrule=Rule))/matrix_det(xJ_rule2(Ji0[P],N|xrule=Rule));
+    }
+    return(Rep);
+  }else{ return(repMatrix(II,K,N)); }
+}
+def invrepMatrix2(II,K,N){
+  if (type(getopt(xrule))>0) {
+    Rule=getopt(xrule);
+    Ji0=mBasis_replace(0,II,K,N);
+    J0i=mBasis_replace(II,0,K,N);
+    Rank=length(Ji0);
+    Rep = matrix(Rank,Rank);
+    for (P=0; P<Rank; P++){
+      Rep[P][P]=matrix_det(xJ_rule2(Ji0[P],N|xrule=Rule))/matrix_det(xJ_rule2(J0i[P],N|xrule=Rule));
+    }
+    return(Rep);
+  }else{ return(invrepMatrix(II,K,N)); }
+}
+
+def upAlpha3(II,K,N){
+  RuleA=[]; RuleA1=[]; RuleX=[];
+  if (type(getopt(arule))>0) {
+    RuleA=append(RuleA,getopt(arule));
+    for (RR=RuleA; RR!=[]; RR=cdr(RR)){
+      A=car(RR);
+      if(A[0]==alpha(0)){RuleA1=cons([alpha(0),A[1]-1],RuleA1);}
+      else if(A[0]==alpha(II)){RuleA1=cons([alpha(II),A[1]+1],RuleA1);}
+      else{RuleA1=cons(A,RuleA1);}
+    }
+  }else{RuleA1=[[alpha(0),alpha(0)-1],[alpha(II),alpha(II)+1]];}
+  if (type(getopt(xrule))>0) {
+    RuleX=append(RuleX,getopt(xrule));
+  }
+  Rep=repMatrix2(II,K,N|xrule=RuleX);
+  Pinv=intMatrix2([0,K+N+1],[0,K+N+1],K,N|arule=RuleA1)
+    *invintMatrix_k2([II,0],[0,K+N+1],K,N|arule=RuleA1);
+  Q=intMatrix2([0,II],[0,K+N+1],K,N|arule=RuleA)
+    *invintMatrix_k2([0,K+N+1],[0,K+N+1],K,N|arule=RuleA); 
+  return(base_replace(coef_upAlpha(II,K,N),RuleA)*Pinv*Rep*Q);
+}
+def downAlpha3(II,K,N){
+  RuleA=[]; RuleA1=[]; RuleX=[];
+  if (type(getopt(arule))>0) {
+    RuleA=append(RuleA,getopt(arule));
+    for (RR=RuleA; RR!=[]; RR=cdr(RR)){
+      A=car(RR);
+      if(A[0]==alpha(0)){RuleA1=cons([alpha(0),A[1]+1],RuleA1);}
+      else if(A[0]==alpha(II)){RuleA1=cons([alpha(II),A[1]-1],RuleA1);}
+      else{RuleA1=cons(A,RuleA1);}
+    }
+  }else{RuleA1=[[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]];}
+  if (type(getopt(xrule))>0) {
+    RuleX=append(RuleX,getopt(xrule));
+  }
+  Rep=invrepMatrix2(II,K,N|xrule=RuleX);
+  Qinv=intMatrix2([0,K+N+1],[0,K+N+1],K,N|arule=RuleA1)
+    *invintMatrix_k2([0,II],[0,K+N+1],K,N|arule=RuleA1);
+  P=intMatrix2([II,0],[0,K+N+1],K,N|arule=RuleA)
+   *invintMatrix_k2([0,K+N+1],[0,K+N+1],K,N|arule=RuleA); 
+  Coef=base_replace(coef_upAlpha(II,K,N),RuleA1);
+  return((1/Coef)*Qinv*Rep*P);
+}
+
+
+/******* modify end ****/
 
 /*
 representation matrix
