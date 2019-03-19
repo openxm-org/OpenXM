@@ -1,0 +1,104 @@
+/* $OpenXM$
+*/
+/* g_mat_fac_test(F,M,S,E,Inc,Var | bs=1) */
+module gtt_ekn3;
+static XRule$
+static ARule$
+static Opt_bsplit$
+static Debug_bsplit$
+
+static T_list$
+static M_ans$
+
+localf init_bsplit$
+localf get_T_list$
+localf g_mat_fac_test_bs$
+localf sum_time$
+localf test_nxn$
+
+def init_bsplit() {
+  Opt_bsplit=getopt();
+  T_list=[];
+  Debug_bsplit=0; // 
+}
+//time_test5d(0 | minsize=16, levelmax=1, upto=40000)$  //  分散計算なし.
+
+def sum_time() {
+  T_cpu=0; T_real=0;
+  for (I=0; I<length(T_list); I++) {
+    T_cpu += T_list[I][0]; T_real += T_list[I][1];
+  }
+  return [T_cpu,T_real];
+}
+
+def get_T_list() {
+  return T_list;
+}
+
+def g_mat_fac_test_bs(F,M,S,E,Inc,Var) {
+  if (Debug_bsplit) {
+    printf("Have you initialized by, e.g., gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$\n");
+    printf("dm_bsplit version of g_mat_fac_test, Opt_bsplit=%a\n",Opt_bsplit);
+  }
+  MM=tk_nm_dn.nm_dn(M);
+  Mnm = matrix_list_to_matrix(MM[0]); Mdn=MM[1];
+  Opt=[[minsize,16],[levelmax,1]];
+  T0=time();
+  Ans=dg_mat_fac_mm(Mnm,Mdn,S,E,Inc,Var | option_list=Opt_bsplit);
+  TT=tk_nm_dn.nm_dn(F);
+  Ans0=Ans[0]*TT[0];
+  Ans1=Ans[1]*TT[1];
+  Ans = Ans0/Ans1;
+  T1=time();
+  T_list=cons([T1[0]-T0[0],T1[3]-T0[3]],T_list);
+  return Ans;
+}
+
+
+def test_nxn(N) {
+  if (type(getopt(table_size))>0) Table_size=getopt(table_size);
+  else Table_size=2;
+  printf("Table_size=%a\n",Table_size);
+  Msum0=newvect(Table_size);
+  for (I=0; I<Table_size; I++) Msum0[I]=(Table_size-1)*N;
+  Msum1=newvect(Table_size); SS=0;
+  for (I=0; I<Table_size-1; I++) {Msum1[I]=(1+I)*N; SS += Msum1[I];}
+  Msum1[Table_size-1] = (Table_size-1)*Table_size*N-SS;
+  Msum=[vtol(Msum0),vtol(Msum1)];
+  printf("Msum=%a\n",Msum);
+  // A=marginaltoAlpha_list(Msum)$
+  // L=contiguity_mat_list_2(A,4,4)$
+  PP=[1/2,1/3,1/5,1/7,1/11,1/13,1/17,1/19,
+        1/23,1/29,1/31,1/37,1/37,1/41,1/43,1/47,1/53,1/59,1/61,1/67,1/71,
+        1/73,1/79,1/83,1/97];
+  X=newmat(Table_size,Table_size);
+  for (I=0; I<Table_size; I++) X[I][0]=1;
+  for (J=0; J<Table_size; J++) X[Table_size-1][J]=1;
+  K=0;
+  for (I=0; I<Table_size-1; I++) for (J=1; J<Table_size; J++) {
+    X[I][J] = PP[K++];
+    if (KK >=length(PP)) KK=0;
+  }
+  X=matrix_matrix_to_list(X);
+  print(X);
+
+  T0=time();
+  Ans=gmvector(Msum,X)$
+  T1=time();
+  M_ans=Ans;
+
+  T=sum_time();
+  T_cont_cpu=T1[0]-T0[0]-T[0];
+  T_cont_real=T1[3]-T0[3]-T[1];
+  return append(T,[T_cont_cpu,T_cont_real]);
+  // [g_mat_fac(CPU), g_mat_fac(real), other(contiguity, ..., cpu), other(real)]
+}
+endmodule$
+gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$
+
+/*
+gtt_ekn3.setup_dm_bsplit(0)$  // single process
+*/
+
+
+end$

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.1 2019/03/19 02:14:48 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
@@ -11,6 +11,8 @@ load("gtt_ekn3/ekn_eval.rr")$
 load("gtt_ekn3/mle.rr")$
 load("gtt_ekn3/ekn_hgm_0.rr")$
 load("gtt_ekn3/ekn_restriction_2.rr")$
+load("gtt_ekn3/dm_bsplit.rr")$
+load("gtt_ekn3/mfac_bs.rr")$
 
 #ifdef USE_MODULE
 module gtt_ekn3$
@@ -235,13 +237,13 @@ def assert2(N) {
   if (length(getopt()) == 0) printf("Try g_mat_fac_test_int: ");
   else printf("Try %a\n",getopt());
   T0=time();
-  V1=gtt_ekn.expectation(Marginal,P|option_list=getopt())$
-  T1=time();
-  printf("gtt_ekn: Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
-  T0=time();
   V1_3=gtt_ekn3.expectation(Marginal,P|option_list=getopt())$
   T1=time();
   printf("gtt_ekn3: Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
+  T0=time();
+  V1=gtt_ekn.expectation(Marginal,P|option_list=getopt())$
+  T1=time();
+  printf("gtt_ekn: Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
   printf("\nTry g_mat_fac_test_plain: ");
   T0=time();
   V0=E=gtt_ekn.expectation(Marginal,P | plain=1);

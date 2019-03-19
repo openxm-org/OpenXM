@@ -1,0 +1,141 @@
+/* $OpenXM$ */
+/* 2019.02.19  
+  Distributed, matrix factorial, binary split version.
+*/
+
+module gtt_ekn3;
+#define LEVELMAX 5
+
+static Proc1$
+static NoX$
+static M_bsplit_reduce$
+static M_bsplit_max$
+static M_bsplit_debug$
+static M_bsplit_count$
+
+localf init_dm_bsplit$
+localf setup_dm_bsplit$
+localf dg_mat_fac_mm$
+localf dg_mat_fac_mm0$
+localf log_cont$
+
+def init_dm_bsplit() {
+  Proc1=-1$
+  NoX=0$
+  //NoX=1$
+  //M_bsplit_reduce=1$
+  M_bsplit_reduce=0$
+  M_bsplit_max = 10000$  
+  M_bsplit_debug=0$
+}
+
+def setup_dm_bsplit(C) 
+"Launch C subprocesses."
+{
+  return dg_mat_fac_mm(0,0,0,0,0,0 | setup=C);
+}
+
+def dg_mat_fac_mm(Mnm,Mdn,S,E,Inc,Var) {
+  if (type(getopt(minsize))>0) MinSize=getopt(minsize);
+  else MinSize=8;
+  if (type(getopt(levelmax))>0) LevelMax=getopt(levelmax);
+  else LevelMax=LEVELMAX;
+  if (M_bsplit_debug) {
+    printf("dg_mat_fac_mm(Mnm,Mdn,S=%a,E=%a,Inc=%a,Var=%a,MinSize=%a,LevelMax=%a)\n",S,E,Inc,Var,MinSize,LevelMax,LevelMax);
+    printf("M_bsplit_reduce=%a (if it does intermediate reduction)\n",M_bsplit_reduce);
+    if (M_bsplit_reduce) printf("  M_bsplit_max=%a(max digits)\n",M_bsplit_max);
+  }
+  if (type(getopt(setup)) > 0) {
+    if (M_bsplit_debug) printf("setup: C=%a\n",C);
+    C=getopt(setup)+1;  /* number of processes */
+    S=0; E=2^C;
+    return dg_mat_fac_mm0(0,0,S,E,0,0,1,2,C+1);
+  }else{
+    return dg_mat_fac_mm0(Mnm,Mdn,S,E,Inc,Var,1,MinSize,LevelMax);
+  }
+}
+/*
+  Mnm/Mdn is the transformation matrix.
+*/
+def dg_mat_fac_mm0(Mnm,Mdn,S,E,Inc,Var,Level,MinSize,LevelMax) {
+  M_bsplit_count++;
+  if (M_bsplit_debug) {
+    printf("dg_mat_fac_mm(Mnm,Mdn,S=%a,E=%a,Inc=%a,Var=%a,level=%a), int (not plain)\n",S,E,Inc,Var,Level);
+  }
+
+  Size=number_abs(E-S)+1;
+  if (M_bsplit_debug) printf("  Size=%a\n",Size);
+  if (number_abs(Inc) > 1) {
+    printf("Error: |Inc| > 1 case has not been implemented.\n");
+    debug(); return(-1);
+  }
+  M=Mnm; D=Mdn;
+  if (Size <= MinSize) {
+    if (Inc==0) return [0,0];
+    DD=1;
+    FF=matrix_identity_matrix(size(Mnm)[0]);
+    if (Inc>0){
+      for (I=S;I<=E; I+=Inc){
+	FF=base_replace_n(M,[[Var,I]])*FF; 
+	DD=substr2np(D,[[Var,I]])*DD;
+      }
+    }
+    else if (Inc<0){
+      for (I=S;I>=E; I+=Inc){
+	FF=base_replace_n(M,[[Var,I]])*FF;
+	DD=substr2np(D,[[Var,I]])*DD;
+      }
+    }
+    return ([FF,DD]);
+  }else{
+    Half_size=number_floor(Size/2);
+    if (Inc >=0 ) { E1=S+Half_size-1; S1=S+Half_size;}
+    //     F(-5)= M(E=-5) M(-4) M(-3)M(S=-2) F(-1)
+    if (Inc <0 ) { E1=S-Half_size+1; S1=S-Half_size;}
+    if (Level >= LevelMax) {
+      M1=dg_mat_fac_mm0(Mnm,Mdn,S,E1,Inc,Var,Level,MinSize,LevelMax);
+      M2=dg_mat_fac_mm0(Mnm,Mdn,S1,E,Inc,Var,Level,MinSize,LevelMax);
+    }else{
+      if (Proc1 < 0) {
+        if (NoX) {
+          Proc1=ox_launch_nox(0,"ox_asir");
+        }else{
+          Proc1=ox_launch(0,"ox_asir");
+        }
+	ox_execute_string(Proc1,"load(\"dm_bsplit.rr\");");
+      }
+      ox_rpc(Proc1,"dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);
+      M2=dg_mat_fac_mm0(Mnm,Mdn,S1,E,Inc,Var,Level,MinSize,LevelMax);
+      M1=ox_pop_local(Proc1);
+    }
+// M_bsplit_reduce=1
+    if (M_bsplit_reduce) {
+      L=log_cont(M2[1]);  // sample
+      if (type(L)>3) L=L[0]; // only numerator
+// M_bsplit_max = 10000;  reduce する最大桁数
+      if (L > M_bsplit_rmax){
+         /* do reduce */
+         M_red=tk_nm_dn.nm_dn(M2[0]*M1[0]/(M2[1]*M1[1]));
+         return [M_red[0],M_red[1]];
+      }else{
+         return ([M2[0]*M1[0],M2[1]*M1[1]]);
+      }
+    }
+    return ([M2[0]*M1[0],M2[1]*M1[1]]);
+  }
+}
+
+def log_cont(L) {
+  if (L==0) return(0);
+  if ((type(L)==1) && (L<0)) L=-L;
+//  if ((type(L)==1) && (dn(L)==1)) return number_eval(log(cont(nm(L))));
+  if ((type(L)==1) && (dn(L)==1)) return number_eval(log(cont(nm(L))));
+  if ((type(L)==1) && (dn(L)!=1)) return log_cont([nm(L),dn(L)]);
+  if (type(L) >= 4) return map(log_cont,L);
+  error("Unknown type");
+}
+
+endmodule$
+gtt_ekn3.init_dm_bsplit()$
+
+end$
