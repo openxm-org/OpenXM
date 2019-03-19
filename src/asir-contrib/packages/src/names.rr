@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.145 2018/09/06 05:56:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.146 2019/01/04 05:36:26 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20170210), Copyright 2000-2014, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20190319), Copyright 2000-2019, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -292,6 +292,17 @@ def base_var_list(Name,B,T) {
   return taka_base_var_list(Name,B,T | option_list=getopt());
 }
 
+/*&usage begin: base_is_asir2018()
+  returns 1 if the system is asir2018.
+end: */
+def base_is_asir2018() {
+  V=version(0);
+  if (type(V)==4) {
+    if ((length(V)>=3) && (V[2])) return(1);
+  }
+  return(0);
+}
+
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 /*&usage begin: number_abs(X) example: number_abs(-3); end: */
 def number_abs(X)  { 
@@ -391,10 +402,12 @@ def poly_grobner_basis(I) {
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
   return taka_poly_grobner_basis(I|option_list=Opt);
 }
-/*&usage begin: poly_hilbert_polynomial(I|s,v)
- It returns the Hilbert polynomial of the ideal I.
+/*&usage begin: poly_hilbert_polynomial(I|s,v,sm1)
+ It returns the Hilbert polynomial of the poly_init(I).
  description:
- The optional variable v is a list of variables.
+ The optional variable v is a list of variables. sm1=1 forces to call sm1.
+ [sum(H(k),{k,0,h}), H(h)] where H(h) is the number of degree h monomials when h>>0.
+ On asir2018, it returns [sum(H(k),{k,0,h}), H(h),[H[0],H[1],...],F,d] where F/(1-h)^d is the Poincare series.
  example: poly_hilbert_polynomial([x1*y1,x1*y2,x2*y1,x2*y2]|s=k,v=[x1,x2,y1,y2]);
 end: */
 def poly_hilbert_polynomial(I)  { 
