@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.31 2019/01/04 05:36:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.32 2019/03/19 00:51:47 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -529,7 +529,7 @@ def taka_poly_hilbert_polynomial(I) {
     return [H,subst(F,h,S)];
   }
   A = dp_monomial_hilbert_poincare(C,V);
-  return base_replace([not_implemeted_yet,A[3],A[2],A[0],A[1]],[[t,S]]);
+  return base_replace([not_implemeted_yet,A[3],A[2],A[0],A[1]],[[t,S],[n,S]]);
 }
 
 def taka_poly_initial_aux(I) {
