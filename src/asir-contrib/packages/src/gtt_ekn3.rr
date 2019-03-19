@@ -1,18 +1,20 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.1 2019/03/19 02:14:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.2 2019/03/19 03:07:51 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
+import("gtt_ekn.rr")$  // for assert?
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
  igcdcntl(3)$ printf("igcdcntl is set to 3.\n")$
 }else {;}
+
 #define USE_MODULE
 //#define FOR_DEVELOPE
 load("gtt_ekn3/g_mat_fac.rr")$
+load("gtt_ekn3/dm_bsplit.rr")$
+load("gtt_ekn3/mfac_bs.rr")$
 load("gtt_ekn3/ekn_eval.rr")$
 load("gtt_ekn3/mle.rr")$
 load("gtt_ekn3/ekn_hgm_0.rr")$
 load("gtt_ekn3/ekn_restriction_2.rr")$
-load("gtt_ekn3/dm_bsplit.rr")$
-load("gtt_ekn3/mfac_bs.rr")$
 
 #ifdef USE_MODULE
 module gtt_ekn3$
@@ -204,7 +206,6 @@ def set_debug_level(Mode) {
 }
 
 def assert1(N) {
-  printf("Have you done import(\"gtt_ekn.rr\")$?\n");
   if (N<2) return("N should be more than 1.");
   if (length(getopt()) == 0) printf("Try g_mat_fac_test_int: ");
   else printf("Try %a\n",getopt());
@@ -228,7 +229,6 @@ def assert1(N) {
 }
 
 def assert2(N) {
-  printf("Have you done import(\"gtt_ekn.rr\")$?\n");
   if (N<1) return("N should be more than 0.");
   if (N>1) printf("The second method will take time, e.g., N=2 ==> 1 min.\n");
   Marginal = [[130*N,170*N,353*N],[90*N,119*N,444*N]];
@@ -295,6 +295,8 @@ def set_XRule(Rule) { return(XRule=Rule); }
 
 #ifdef USE_MODULE
 endmodule$
+gtt_ekn3.init_dm_bsplit()$
+gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$
 #else
 #endif
 

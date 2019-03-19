@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/dm_bsplit.rr,v 1.1 2019/03/19 03:07:51 takayama Exp $ */
 /* 2019.02.19  
   Distributed, matrix factorial, binary split version.
 */
@@ -21,10 +21,9 @@ localf log_cont$
 
 def init_dm_bsplit() {
   Proc1=-1$
-  NoX=0$
-  //NoX=1$
+  if (type(getopt(bsplit_x))>0) NoX=0; else NoX=1;
   //M_bsplit_reduce=1$
-  M_bsplit_reduce=0$
+  if (type(getopt(bsplit_reduce))>0) M_bsplit_reduce=1; else M_bsplit_reduce=0$
   M_bsplit_max = 10000$  
   M_bsplit_debug=0$
 }
@@ -102,9 +101,10 @@ def dg_mat_fac_mm0(Mnm,Mdn,S,E,Inc,Var,Level,MinSize,LevelMax) {
         }else{
           Proc1=ox_launch(0,"ox_asir");
         }
-	ox_execute_string(Proc1,"load(\"dm_bsplit.rr\");");
+	ox_execute_string(Proc1,"load(\"gtt_ekn3.rr\");");
       }
-      ox_rpc(Proc1,"dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);
+      ox_rpc(Proc1,"gtt_ekn3.dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);
+      //ox_rpc(Proc1,"dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);
       M2=dg_mat_fac_mm0(Mnm,Mdn,S1,E,Inc,Var,Level,MinSize,LevelMax);
       M1=ox_pop_local(Proc1);
     }
@@ -136,6 +136,5 @@ def log_cont(L) {
 }
 
 endmodule$
-gtt_ekn3.init_dm_bsplit()$
 
 end$

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_hgm_0.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $ */
 // 2017.03.10  Added dummy parameter GM.
 /*  misc-2016/A3/rk-k/Prog/tk_exterpolate.rr  was the original. 
     ---> moved to ekn/Prog/ekn_hgm_0.rr (current original)
@@ -59,7 +59,7 @@ Options: randinit(random coef for 0-cell), ptb(perturbation for 0-cell),\
 deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
 Example: gmvector_0([[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-  if (type(getopt(by_g))>0) return gtt_ekn.gmvector_g_1(Beta,P);
+  if (type(getopt(by_g))>0) return gtt_ekn3.gmvector_g_1(Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
@@ -80,14 +80,14 @@ Example: gmvector_0([[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit
      }}}
      // Probability perTaBation
    }
-   if (NoZero) return(gtt_ekn.gmvector(Beta,P | option_list=getopt()));
+   if (NoZero) return(gtt_ekn3.gmvector(Beta,P | option_list=getopt()));
    P2 = newmat(M1,M2);
    Gmvectors = newvect(Deg);
    Xlist=newvect(Deg);
    for (I=1; I<=Deg; I++) {
      P2 = P + base_replace(Ptb,[[x,I]]);   
      Xlist[I-1] = I;
-     Gmvectors[I-1] = gtt_ekn.gmvector(Beta,P2| option_list=getopt());
+     Gmvectors[I-1] = gtt_ekn3.gmvector(Beta,P2| option_list=getopt());
    }
    Xlist = vtol(Xlist);
    // do polynomial exterpolation at x=0.
@@ -143,7 +143,7 @@ deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
 by_g (use _g_1 functions --- restriction method.)\
 Example: cBasistoEdiff_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoEdiff_g_1(GM,Beta,P);
+  if (type(getopt(by_g))>0) return gtt_ekn3.cBasistoEdiff_g_1(GM,Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
@@ -165,8 +165,8 @@ Example: cBasistoEdiff_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | r
      // Probability perTaBation
    }
    if (NoZero) {
-     if (GM==0) GM=gtt_ekn.gmvector(Beta,P | option_list=getopt());
-     return gtt_ekn.cBasistoEdiff(GM,Beta,P|option_list=getopt());
+     if (GM==0) GM=gtt_ekn3.gmvector(Beta,P | option_list=getopt());
+     return gtt_ekn3.cBasistoEdiff(GM,Beta,P|option_list=getopt());
    }
    P2 = newmat(M1,M2);
    Gmvectors = newvect(Deg);
@@ -174,8 +174,8 @@ Example: cBasistoEdiff_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | r
    for (I=1; I<=Deg; I++) {
      P2 = P + base_replace(Ptb,[[x,I]]);   
      Xlist[I-1] = I;
-     GM=gtt_ekn.gmvector(Beta,P2| option_list=getopt());
-     Gmvectors[I-1] = gtt_ekn.cBasistoEdiff(GM,Beta,P2|option_list=getopt());
+     GM=gtt_ekn3.gmvector(Beta,P2| option_list=getopt());
+     Gmvectors[I-1] = gtt_ekn3.cBasistoEdiff(GM,Beta,P2|option_list=getopt());
    }
    Xlist = vtol(Xlist);
    // do polynomial exterpolation at x=0.
@@ -263,7 +263,7 @@ GM is ignoted if there is a 0-cell.\
 Options: see cBasistoEdiff.\
 Example: cBasistoE_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
 {
-  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoE_g_1(GM,Beta,P);
+  if (type(getopt(by_g))>0) return gtt_ekn3.cBasistoE_g_1(GM,Beta,P);
   NoZero=1;
    M1 = length(Beta[0]);
    M2 = length(Beta[1]);
@@ -285,8 +285,8 @@ Example: cBasistoE_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randi
      // Probability perTaBation
    }
    if (NoZero) {
-     if (GM==0) GM=gtt_ekn.gmvector(Beta,P | option_list=getopt());
-     return gtt_ekn.cBasistoE(GM,Beta,P|option_list=getopt());
+     if (GM==0) GM=gtt_ekn3.gmvector(Beta,P | option_list=getopt());
+     return gtt_ekn3.cBasistoE(GM,Beta,P|option_list=getopt());
    }
    P2 = newmat(M1,M2);
    Gmvectors = newvect(Deg);
@@ -294,8 +294,8 @@ Example: cBasistoE_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randi
    for (I=1; I<=Deg; I++) {
      P2 = P + base_replace(Ptb,[[x,I]]);   
      Xlist[I-1] = I;
-     GM=gtt_ekn.gmvector(Beta,P2| option_list=getopt());
-     Gmvectors[I-1] = gtt_ekn.cBasistoE(GM,Beta,P2|option_list=getopt());
+     GM=gtt_ekn3.gmvector(Beta,P2| option_list=getopt());
+     Gmvectors[I-1] = gtt_ekn3.cBasistoE(GM,Beta,P2|option_list=getopt());
    }
    Xlist = vtol(Xlist);
    // do polynomial exterpolation at x=0.

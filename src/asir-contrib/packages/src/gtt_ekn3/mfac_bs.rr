@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/mfac_bs.rr,v 1.1 2019/03/19 03:07:51 takayama Exp $
 */
 /* g_mat_fac_test(F,M,S,E,Inc,Var | bs=1) */
 module gtt_ekn3;
@@ -19,7 +19,7 @@ localf test_nxn$
 def init_bsplit() {
   Opt_bsplit=getopt();
   T_list=[];
-  Debug_bsplit=0; // 
+  if (type(getopt(debug))>0) Debug_bsplit=1; else Debug_bsplit=0; // 
 }
 //time_test5d(0 | minsize=16, levelmax=1, upto=40000)$  //  分散計算なし.
 

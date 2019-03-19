@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.12 2019/03/07 00:43:51 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.13 2019/03/19 03:07:51 takayama Exp $
 %% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -1120,6 +1120,95 @@ ChangeLog
  関連ファイルは 
  gtt_ekn/g_mat_fac.rr
  gtt_ekn/childprocess.rr
+@end itemize
+
+@node binary splitting,,, 2元分割表HGMの関数
+@chapter binary splitting
+
+@menu
+* gtt_ekn3.init_dm_bsplit::
+* gtt_ekn3.setup_dm_bsplit::
+* gtt_ekn3.init_bsplit::
+@end menu
+
+@node matrix factorial,,, binary splitting
+@section matrix factorial
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.init_bsplit,,,
+@node gtt_ekn3.init_dm_bsplit,,, 
+@node gtt_ekn3.setup_dm_bsplit,,,
+@subsection @code{gtt_ekn3.init_bsplit, gtt_ekn3.init_dm_bsplit, gtt_ekn3.setup_dm_bsplit}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.init_dm_bsplit matrix factorial
+@findex gtt_ekn3.setup_dm_bsplit matrix factorial
+@findex gtt_ekn3.init_bsplit matrix factorial
+
+@table @t
+@item gtt_ekn3.init_bsplit(|minsize=16,levelmax=1);
+:: binary split の実行のためのパラメータを設定する. 
+@item gtt_ekn3.init_dm_bsplit(|bsplit_x=0, bsplit_reduce=0)
+:: binary split の分散実行のためのパラメータを設定する.
+@item gtt_ekn3.setup_dm_bsplit(C)
+:: binary split の分散実行のために C 個のプロセスを立ち上げる.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item C  C はlevelmax-1 に設定する. 特に levalmax=1 のときは分散計算を行わない.
+@item bsplit_x bsplit_x=1 のとき, 各プロセスを xterm で表示.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item expectation などの関数に bs=1 オプションを与えると matrix factorial を binary
+splitting method で計算する.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: bs=1 と無い場合.
+@example
+[4618] cputime(1)$
+[4619] gtt_ekn3.expectation(Marginal=[[1950,2550,5295],[1350,1785,6660]],
+                          P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]|bs=1)$
+4.912sec(4.914sec)
+[4621] V2=gtt_ekn3.expectation(Marginal=[[1950,2550,5295],[1350,1785,6660]],
+                          P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]])$
+6.752sec(6.756sec)
+@end example
+
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 分散計算する場合. debug 用の xterm も開く.
+@example
+[3669] C=3$ gtt_ekn3.init_bsplit(|minsize=16,levelmax=C+1)$ gtt_ekn3.init_dm_bsplit(|bsplit_x=1)$
+[3670] [3671] [3672] gtt_ekn3.setup_dm_bsplit(C);
+[0,0]
+[3673] gtt_ekn3.assert2(10|bs=1)$
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn3.gmvector}
+@ref{gtt_ekn3.expectation}
+@ref{gtt_ekn3.assert1}
+@ref{gtt_ekn3.assert2}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 関連ファイルは 
+ gtt_ekn3/mfac_bs.rr
+ gtt_ekn3/dm_bsplit.rr
 @end itemize
 
 
