@@ -1,0 +1,1592 @@
+/* $OpenXM$ */
+#define USE_MODULE
+load("gtt_ekn3/ekn_eval.rr")$
+load("gtt_ekn3/mle.rr")$
+
+#ifdef USE_MODULE
+module gtt_ekn3;
+#else
+#endif
+
+#ifdef USE_MODULE
+localf ekn_restr_1$
+localf ekn_restr_factor_1$
+localf print_restr_factor_1$
+localf cInt_g_1$
+localf mBasis_replace_g_1$
+localf intMatrix_g_1$
+localf invintMatrix_g_l00l$
+localf invintMatrix_g_1$
+localf e36_deg_test_invintMatrix$
+localf vanish_var$
+localf vanish_var_list$
+localf vanish_vartoform$
+localf repMatrix_g_1$
+localf invrepMatrix_g_1$
+localf upAlpha_g_1$
+localf downAlpha_g_1$
+localf upAlpha_g_2$
+localf downAlpha_g_2$
+localf avoid_var$
+localf pfaffian_basis_g_1$
+localf contiguity_mat_list_g_1$
+localf contiguity_mat_list_g_2$
+localf vanish_dvar$
+localf dlogxJ_g_1$
+localf pfaffianCoef_g_1$
+localf submatrix$
+localf pf_basis_zero$
+localf first_diff$
+localf basistoS1_g_1$
+localf basistodS_g_1$
+localf find_zero$
+localf ekn_cBasis_g_1$
+localf cBasistoE_g_1$
+localf cBasistoEdiff_g_1$
+localf vanish_var_ind$
+localf e36_deg_test$
+localf s36$
+localf e36_deg_contig_test$
+localf e36_deg_contig_test_2$
+localf e36_deg_contig_test_3$
+localf e36_deg_timing_test$
+localf e48_deg_contig_test$
+localf e36_deg_contig_test_k$
+localf e36_deg_contig_test_k2$
+#endif
+
+def ekn_restr_1(K,N){
+  MBasis=mBasisList(K,N);
+  R=length(MBasis);
+  CalJ=calJ0(K,N);
+
+  for (CJ=CalJ; CJ!=[]; CJ=cdr(CJ)){
+    J=car(CJ);
+    X=matrix_det(xJ(J,N));
+    X0=base_replace(X,[[xij(1,N),0]]);
+    printf("--------%a--------\n",J); 
+    print(X);
+    print(X0);
+    print(fctr(X0));
+  }
+}
+/* test
+   ekn_restr_1(2,2)$
+ */
+
+
+/* omit multiplicity  */
+def ekn_restr_factor_1(K,N){
+  MBasis=mBasisList(K,N);
+  R=length(MBasis);
+  CalJ=calJ0(K,N); Jlen=length(CalJ);
+  Const=[];
+  Irr=newvect(Jlen); Ind=0;
+
+  for (CJ=CalJ; CJ!=[]; CJ=cdr(CJ)){
+    J=car(CJ);
+    X=matrix_det(xJ(J,N));
+    X0=base_replace(X,[[xij(1,N),0]]);
+    FctrX=fctr(X0);
+    if (length(FctrX)==1){
+      Const=cons([X0,J],Const);
+    }else{
+      for (FF=cdr(FctrX); FF!=[]; FF=cdr(FF)){
+	Y=FF[0][0];
+	Dummy=0; 
+	for(I=0; I<Ind; I++){
+	  if (Y==Irr[I][0]){Irr[I][1]=cons(J,Irr[I][1]); Dummy=1;}
+	}
+	if (Dummy==0){Irr[Ind]=newvect(2,[Y,[J]]); Ind+=1;}
+      }
+    }
+  }
+  IrrList=[];
+  for(I=0; I<Ind; I++){IrrList=cons(vtol(Irr[I]),IrrList);}
+  return([Const,IrrList]);
+}
+def print_restr_factor_1(List){
+  C=List[0]; I=List[1];
+  for(A=C; A!=[]; A=cdr(A)){
+    print(A[0][1]); print(A[0][0]);
+  }
+  for(A=I; A!=[]; A=cdr(A)){
+    print(A[0][1]); print(A[0][0]);
+  }
+}
+/* test
+   K=2$ N=2$
+   ekn_restr_factor_1(K,N);
+   print_restr_factor_1(ekn_restr_factor_1(K,N))$
+ */
+
+
+/* option: deg=[[0,2,3]] 
+   current situation: we allow only one degenerated index. 
+ */
+def cInt_g_1(A,B){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    Van=Deg[0];
+    return(red(cInt(A,B)-(cInt(A,Van)*cInt(Van,B))/(cInt(Van,Van))));
+  }else{
+    return(cInt(A,B));
+  }
+}
+/* test E(3,5) 
+   V=[0,2,3]$
+   A012=[0,1,2]$ A013=[0,1,3]$ A014=[0,1,4]$ A045=[0,4,5]$ A234=[2,3,4]$
+   cInt(A014,V); cInt(A045,V);
+   cInt_g_1(A014,A045);
+   cInt_g_1(A014,A045|deg=[V]);
+   cInt_g_1(A012,A234|deg=[V]);
+   cInt_g_1(A012,A234|deg=[V])-1/(a_2*(a_0+a_2+a_3));
+   cInt_g_1(A012,A012|deg=[V]);
+   cInt_g_1(A012,A012|deg=[V])-(1/(a_1*a_2)+1/(a_0*a_1)+1/(a_2*(a_0+a_2+a_3))+1/(a_0*(a_0+a_2+a_3)));
+ */
+
+
+/* option: deg=[[0,2,3]] 
+   generalization of mBasis_replace
+ */
+def mBasis_replace_g_1(P,Q,K,N){
+  RBasis=mBasis_replace(P,Q,K,N);
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    Basis=mBasisList(K,N);
+    return(base_prune(RBasis[base_position(Deg[0],Basis)],RBasis));
+  }else{ return(RBasis); } 
+}
+/* test E(3,6) 
+   V=[0,2,3]$
+   P=0$ Q=5$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=0$ Q=3$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=5$ Q=0$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=2$ Q=0$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=2$ Q=4$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=2$ Q=5$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+   P=5$ Q=4$ mBasis_replace_g_1(P,Q,2,2); mBasis_replace_g_1(P,Q,2,2|deg=[V]);
+*/
+
+
+/* option: deg=[[0,2,3]] 
+   generalization of intMatrix
+   we don't use cInts(<- fast)
+ */
+def intMatrix_g_1(PQ1,PQ2,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+
+    RBR=mBasis_replace_g_1(PQ1[0],PQ1[1],K,N|deg=Deg);
+    RBC=mBasis_replace_g_1(PQ2[0],PQ2[1],K,N|deg=Deg);
+    Rank=length(RBR);
+    M=matrix(Rank,Rank);
+    for (I=0; I<Rank; I++){
+      for (J=0; J<Rank; J++){
+	M[I][J]=cInt_g_1(RBR[I],RBC[J]|deg=Deg);
+      }
+    }
+    return(M); 
+  }else{ return(intMatrix(PQ1,PQ2,K,N)); } 
+}
+/* test E(3,6) 
+   V=[0,2,3]$
+   PQ1=[0,5]$ PQ2=[5,0]$ intMatrix_g_1(PQ1,PQ2,2,2|deg=[V]);
+   PQ1=[0,1]$ PQ2=[1,0]$ intMatrix_g_1(PQ1,PQ2,2,2|deg=[V]);
+   PQ1=[0,2]$ PQ2=[2,0]$ intMatrix_g_1(PQ1,PQ2,2,2|deg=[V]);
+   PQ1=[0,3]$ PQ2=[3,0]$ intMatrix_g_1(PQ1,PQ2,2,2|deg=[V]);
+*/
+
+/* option: deg=[[0,2,3]] 
+   generalization of invintMatrix
+   current situation: we can calculate invese of only C_{(0,l)(0,k+n+1)} and C_{(l,0)(0,k+n+1)}
+ */
+def invintMatrix_g_l00l(L,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+
+    RBR=mBasis_replace_g_1(L,0,K,N|deg=Deg);
+    RBC=mBasis_replace_g_1(0,L,K,N|deg=Deg);
+    Rank=length(RBR);
+    M=matrix(Rank,Rank);
+    Deg0=base_set_minus(Deg[0],[0,L]);
+    A=1;
+    for(DD=Deg0; DD!=[]; DD=cdr(DD)){A*=alpha(car(DD));}
+
+    for (I=0; I<Rank; I++){
+      J1=RBR[I];
+      C1=cInt(J1,Deg[0]);
+      for (J=0; J<Rank; J++){
+	J2=RBC[J];
+	C2=cInt(Deg[0],J2);
+	if(C1==0 || C2==0){  
+	  if(I==J){M[I][J]=1/cInt(J1,J2); }
+	  else{ M[I][J]=0; }
+	}else{
+	  E1=C1*A*alpha(0); E2=C2*A*alpha(L);
+	  R1=base_set_minus(J1,Deg[0]); R2=base_set_minus(J2,Deg[0]); 
+	  M[I][J]=-E1*E2*alpha(R1[0])*alpha(R2[0])/alpha(K+N+1);
+	  if(I==J){M[I][J]+=alpha(R1[0]); }else{}
+	  M[I][J]=A*M[I][J];
+	}
+      }
+    }
+    return(M); 
+  }else{ return(invintMatrix_k([L,0],[0,L],K,N)); } 
+}
+/* test E(3,6) 
+   V=[0,2,3]$
+   PQ1=[5,0]; PQ2=[0,5]$ C=intMatrix_g_1(PQ1,PQ2,2,2|deg=[V])$
+   Cinv=invintMatrix_g_l00l(PQ1[0],2,2|deg=[V]);
+   map(red,C*Cinv);
+   PQ1=[1,0]; PQ2=[0,1]$ C=intMatrix_g_1(PQ1,PQ2,2,2|deg=[V])$
+   Cinv=invintMatrix_g_l00l(PQ1[0],2,2|deg=[V]);
+   map(red,C*Cinv);
+   PQ1=[2,0]; PQ2=[0,2]$ C=intMatrix_g_1(PQ1,PQ2,2,2|deg=[V])$
+   Cinv=invintMatrix_g_l00l(PQ1[0],2,2|deg=[V]);
+   map(red,base_replace(C*Cinv,alphaRule(2,2)));
+   PQ1=[3,0]; PQ2=[0,3]$ C=intMatrix_g_1(PQ1,PQ2,2,2|deg=[V])$
+   Cinv=invintMatrix_g_l00l(PQ1[0],2,2|deg=[V]);
+   map(red,base_replace(C*Cinv,alphaRule(2,2)));
+*/
+
+def invintMatrix_g_1(PQ1,PQ2,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    if( (PQ1[0]!=0 && PQ1[1]!=0) || PQ2!=[0,K+N+1] ){ error("Sorry.");}
+    else{
+      if(PQ1[0]==0){
+	M=invintMatrix_g_l00l(K+N+1,K,N|deg=Deg)
+	  *intMatrix_g_1([PQ2[1],PQ2[0]],[PQ1[1],PQ1[0]],K,N|deg=Deg)
+	  *invintMatrix_g_l00l(PQ1[1],K,N|deg=Deg);
+      }else{
+	M=invintMatrix_g_l00l(K+N+1,K,N|deg=Deg)
+	  *intMatrix_g_1([PQ2[1],PQ2[0]],[PQ1[1],PQ1[0]],K,N|deg=Deg)
+	  *invintMatrix_g_l00l(PQ1[0],K,N|deg=Deg);
+      }
+      return(map(red,M));
+    } 
+  }else{ return(invintMatrix_k(PQ1,PQ2,K,N)); }   
+}
+/* test for E(3,6) */
+def e36_deg_test_invintMatrix(PQ){
+  V=[0,2,3]; PQ2=[0,5];
+  C=intMatrix_g_1(PQ,PQ2,2,2|deg=[V]);
+  Cinv=invintMatrix_g_1(PQ,PQ2,2,2|deg=[V]);
+  print(Cinv); 
+  CCinv=map(red,base_replace(C*Cinv,alphaRule(2,2)));
+  print(CCinv);
+}
+/*
+  PQ=[4,0];
+  e36_deg_test_invintMatrix(PQ);
+*/
+
+def vanish_var(Deg,K,N){
+  Z=[];
+  for(C=Deg;C!=[];C=cdr(C)){
+    C0=car(C);
+    for(I=1;I<=K;I++){
+      if(base_memberq(I,C0)==0){J1=I; break; }else{}
+    }
+    for(I=1;I<=N;I++){
+      if(base_memberq(K+I,C0)==1){J2=I; break; }else{}
+    }
+    Z=cons([xij(J1,J2),0],Z);
+  }
+  return(Z);
+}
+/* E(3,6) 
+   vanish_var([[0,2,3]],2,2);
+   vanish_var([[0,2,4]],2,2);
+   vanish_var([[0,1,3],[0,2,3]],2,2);
+   vanish_var([[0,2]],1,1);
+*/
+def vanish_var_list(Deg,K,N){
+  Z=[];
+  for(C=Deg;C!=[];C=cdr(C)){
+    C0=car(C);
+    for(I=1;I<=K;I++){
+      if(base_memberq(I,C0)==0){J1=I; break; }else{}
+    }
+    for(I=1;I<=N;I++){
+      if(base_memberq(K+I,C0)==1){J2=I; break; }else{}
+    }
+    Z=cons(xij(J1,J2),Z);
+  }
+  return(Z);
+}
+/* E(3,6) 
+   vanish_var_list([[0,2,3]],2,2);
+   vanish_var_list([[0,2,4]],2,2);
+   vanish_var_list([[0,1,3],[0,2,3]],2,2);
+   vanish_var_list([[0,2]],1,1);
+*/
+/* [i,j](i.e. x_i_j) -> vanishing form */
+def vanish_vartoform(IJ,K,N){
+  Deg=[];
+  for(C=IJ;C!=[];C=cdr(C)){
+    C0=car(C);
+    J=[K+C0[1]];
+    for(I=K;I>=0;I--){
+      if(I!=C0[0]){ J=cons(I,J); }else{}
+    }
+    Deg=cons(J,Deg);
+  }
+  return(Deg);
+}
+/*
+  vanish_vartoform([[1,1]],2,2);  // x_{11}->0
+  vanish_vartoform([[1,1],[2,3]],3,3);  // x_{11},x_{23}->0
+*/
+
+
+
+/**** contiguity ****/
+/*
+representation matrix
+alpha_i --> alpha_i +1
+*/
+def repMatrix_g_1(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    
+    Ji0=mBasis_replace_g_1(0,II,K,N|deg=Deg);
+    J0i=mBasis_replace_g_1(II,0,K,N|deg=Deg);
+    Rank=length(Ji0);
+    Rep = matrix(Rank,Rank);
+    for (P=0; P<Rank; P++){
+      Rep[P][P]=matrix_det(xJ_rule(J0i[P],N))/matrix_det(xJ_rule(Ji0[P],N));
+    }
+    return(base_replace(Rep,vanish_var(Deg,K,N)));
+  }else{ return(repMatrix(II,K,N)); }   
+}
+/* test 
+   repMatrix_g_1(2,1,2|deg=[[0,2]]);  
+   repMatrix_g_1(2,2,2|deg=[[0,2,3]]);  
+   repMatrix_g_1(2,3,3|deg=[[0,2,3,4]]);  
+*/
+
+/* its inverse */
+def invrepMatrix_g_1(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    
+    Ji0=mBasis_replace_g_1(0,II,K,N|deg=Deg);
+    J0i=mBasis_replace_g_1(II,0,K,N|deg=Deg);
+    Rank=length(Ji0);
+    Rep = matrix(Rank,Rank);
+    for (P=0; P<Rank; P++){
+      Rep[P][P]=matrix_det(xJ_rule(Ji0[P],N))/matrix_det(xJ_rule(J0i[P],N));
+    }
+    return(base_replace(Rep,vanish_var(Deg,K,N)));
+  }else{ return(invrepMatrix(II,K,N)); }   
+}
+
+
+/*
+contiguity : alpha_i --> alpha_i +1
+*/
+def upAlpha_g_1(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    
+    Rep=repMatrix_g_1(II,K,N|deg=Deg);
+    Pinv=base_replace(intMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg)
+		      *invintMatrix_g_1([II,0],[0,K+N+1],K,N|deg=Deg), 
+		      [[alpha(0),alpha(0)-1],[alpha(II),alpha(II)+1]]);
+    Q=intMatrix_g_1([0,II],[0,K+N+1],K,N|deg=Deg)
+      *invintMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg); 
+    mat_red(Pinv); mat_red(Q);
+    return(map(red,coef_upAlpha(II,K,N)*Pinv*Rep*Q));
+  }else{ return(upAlpha(II,K,N)); }   
+}
+/* test 
+// E(2,5)
+red(upAlpha_g_1(2,1,2|deg=[[0,2]])[0][0]);  
+// E(3,6)
+red(upAlpha_g_1(3,2,2|deg=[[0,2,3]])[4][3]);  
+*/
+
+def downAlpha_g_1(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    
+    Rep=invrepMatrix_g_1(II,K,N|deg=Deg);
+    Qinv=base_replace(intMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg)
+		      *invintMatrix_g_1([0,II],[0,K+N+1],K,N|deg=Deg), 
+		      [[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+    P=intMatrix_g_1([II,0],[0,K+N+1],K,N|deg=Deg)
+      *invintMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg); 
+    Coef=base_replace(coef_upAlpha(II,K,N),[[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+    mat_red(Qinv); mat_red(P);
+    return(map(red,(1/Coef)*Qinv*Rep*P));
+  }else{ return(downAlpha(II,K,N)); }   
+}
+/*
+Deg=[[0,2,3]]$ I=3$ 
+C1=upAlpha_g_1(I,2,2|deg=Deg)$ 
+C2=base_replace(downAlpha_g_1(I,2,2|deg=Deg),[[alpha(0),alpha(0)-1],[alpha(I),alpha(I)+1]])$ 
+mat_red(C1)$  mat_red(C2)$ 
+AR=[[alpha(0),-7],[alpha(1),-6],[alpha(2),-4],[alpha(3),3],[alpha(4),10],[alpha(5),4]]$
+C1=base_replace(C1,AR)$ C2=base_replace(C2,AR)$
+C3=C2*C1$  mat_red(C3)$ C3;
+*/
+/* ver.2 -- option: arep */
+def upAlpha_g_2(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    if (type(getopt(arep))>=0){
+      Arep=getopt(arep);
+    }else{ return(upAlpha_g_1(II,K,N|deg=Deg));} 
+    
+    Rep=repMatrix_g_1(II,K,N|deg=Deg);
+    Pinv=base_replace(intMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg)
+		      *invintMatrix_g_1([II,0],[0,K+N+1],K,N|deg=Deg), 
+		      [[alpha(0),alpha(0)-1],[alpha(II),alpha(II)+1]]);
+    Q=intMatrix_g_1([0,II],[0,K+N+1],K,N|deg=Deg)
+      *invintMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg); 
+    Pinv=base_replace(Pinv,Arep);
+    Q=base_replace(Q,Arep);
+    Coef=base_replace(coef_upAlpha(II,K,N),Arep);
+    mat_red(Pinv); mat_red(Q);
+    return(map(red,Coef*Pinv*Rep*Q));
+  }else{ return(upAlpha(II,K,N)); }   
+}
+def downAlpha_g_2(II,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    if (type(getopt(arep))>=0){
+      Arep=getopt(arep);
+    }else{ return(downAlpha_g_1(II,K,N|deg=Deg));} 
+    
+    Rep=invrepMatrix_g_1(II,K,N|deg=Deg);
+    Qinv=base_replace(intMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg)
+		      *invintMatrix_g_1([0,II],[0,K+N+1],K,N|deg=Deg), 
+		      [[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+    P=intMatrix_g_1([II,0],[0,K+N+1],K,N|deg=Deg)
+      *invintMatrix_g_1([0,K+N+1],[0,K+N+1],K,N|deg=Deg); 
+    Coef=base_replace(coef_upAlpha(II,K,N),[[alpha(0),alpha(0)+1],[alpha(II),alpha(II)-1]]);
+    Qinv=base_replace(Qinv,Arep);
+    P=base_replace(P,Arep);
+    Coef=base_replace(Coef,Arep);
+    mat_red(Qinv); mat_red(P);
+    return(map(red,(1/Coef)*Qinv*Rep*P));
+  }else{ return(downAlpha(II,K,N)); }   
+}
+
+/* Var=[x_1_1,x_1_2,...] */
+def avoid_var(C1,C2,Var,K,N){
+  Counter=0; Finish=length(C2);
+  B2=C2; Miss=0;
+  while(Miss==0){
+    B3=B2; IJ=[]; 
+    if(Counter>Finish){ Miss=1; }
+    else{
+      for(B1=C1;B1!=[];B1=cdr(B1)){
+	I=car(B1); J=car(B2);
+	if(base_memberq(xij(I,J-K),Var)){ break; }
+	else{ IJ=cons([I,J-K],IJ); }
+	B2=cdr(B2);
+      }
+      if(length(IJ)==Finish){ return(IJ); }
+      else{
+	Counter+=1;
+	B2=cons(B3[Finish-1],base_prune(B3[Finish-1],B3));
+      }
+    }
+  }
+  return([]);
+}
+/*
+  avoid_var([1,2],[3,4],[x_1_1],2,2);
+  avoid_var([1,2],[3,4],[x_1_1,x_2_2],2,2);
+  avoid_var([1,2],[3,4],[],2,2);
+*/
+
+/*
+  function F
+  -> vector [F, diff(F,x_11), ...] <- column vector Rx1-matrix
+*/
+def pfaffian_basis_g_1(F,K,N){
+  B=mBasisList(K,N);
+
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    B=base_set_minus(B,Deg);
+    Van=vanish_var(Deg,K,N);
+    VanList=vanish_var_list(Deg,K,N);
+  }else{ Van=[]; VanList=[];} 
+
+  Rank=length(B);
+  SS=matrix(Rank,1);
+  SS[0][0]=F;
+  for (I=1; I<Rank; I++){
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if (!base_memberq(J,B[I])){C1=cons(J,C1);}
+    }
+    for (J=K+1; J<K+N+1; J++){
+      if (base_memberq(J,B[I])){C2=cons(J,C2);}
+    } 
+    SS[I][0]=SS[0][0];
+    if (length(C1)==1){
+      SS[I][0]=diff(SS[I][0],xij(C1[0],C2[0]-K))/alpha(C2[0]);
+    }else{
+      CA=avoid_var(C1,C2,VanList,K,N);
+      for (J=0; J<length(C1); J++){
+	SS[I][0]=diff(SS[I][0],xij(CA[J][0],CA[J][1]))/alpha(CA[J][1]+K);
+      }
+    }
+    SS[I][0]=SS[I][0]*matrix_det(xJ(B[I],N));
+  }
+  return(base_replace(SS,Van));
+}
+/*
+  function f(x_1_1,x_1_2,x_2_1,x_2_2);
+  pfaffian_basis_g_1(f(x_1_1,x_1_2,x_2_1,x_2_2),2,2|deg=[[0,2,3]]);
+  pfaffian_basis_g_1(f(x_1_1,x_1_2,x_2_1,x_2_2),2,2);
+  function f2(x_1_1,x_1_2,x_1_3,x_1_4);
+  pfaffian_basis_g_1(f2(x_1_1,x_1_2,x_1_3,x_1_4),1,4|deg=[[0,2]]);
+  pfaffian_basis_g_1(f2(x_1_1,x_1_2,x_1_3,x_1_4),1,4);
+  function f3(x_1_1,x_2_1,x_3_1,x_4_1);
+  pfaffian_basis_g_1(f3(x_1_1,x_2_1,x_3_1,x_4_1),4,1|deg=[[0,2,3,4,5]]);
+  pfaffian_basis_g_1(f3(x_1_1,x_2_1,x_3_1,x_4_1),4,1);
+*/
+
+/* for Strategy 2 */
+def contiguity_mat_list_g_1(A,K,N){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    Van=vanish_var(Deg,K,N);
+  }else{ return(contiguity_mat_list_2(A,K,N));} 
+
+  if (XRule != 0){ XR=XRule; }else{ XR=[]; }
+  Al=initialAlpha(K,N);
+  Alv=ltov(Al);
+  Av=ltov(A);
+  Step=Av-Alv;
+
+  CList=[];
+  /* J=K+1,...,K+N */
+  for (J=K+1; J<K+N+1; J++){
+    if (Step[J]>0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(upAlpha_g_1(J,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+  }
+  /* J=K+N+1 */
+  if (Step[K+N+1]>0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=base_replace(upAlpha_g_1(K+N+1,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }
+  else if (Step[K+N+1]<0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=base_replace(downAlpha_g_1(K+N+1,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }else{}
+  /* J=1,...,K */
+  for (J=1; J<K+1; J++){
+    if (Step[J]<0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=base_replace(downAlpha_g_1(J,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+  }
+  return(cons(t,reverse(CList)));
+}
+/* test 
+   K=2$ N=2$ Deg=[[0,2,3]]; 
+   Beta = [[10,11,12],[8,9,16]];
+   X = [[1,0,1/5],[1,1/2,1/3],[1,1,1]];
+   A=marginaltoAlpha_list(Beta);
+   XRule=xRule_num(X,2,2)$
+   CL=contiguity_mat_list_g_1(A,2,2|deg=Deg)$
+   CL[2];
+*/
+/* for Strategy 2 -- ver.2 -- using the option "arep"*/
+/* modify: 2018.3 */
+def contiguity_mat_list_g_2(A,K,N){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    Van=vanish_var(Deg,K,N);
+  }else{ return(contiguity_mat_list_2(A,K,N));} 
+
+  if (XRule != 0){ XR=XRule; }else{ XR=[]; }
+  if (K==1 && N==1){ Al=[-2,-1,1,2]; }else{ Al=initialAlpha(K,N); }
+  Alv=ltov(Al);
+  Av=ltov(A);
+  Step=Av-Alv;
+
+  CList=[];
+  /* J=K+1,...,K+N */
+  for (J=K+1; J<K+N+1; J++){
+    if (Step[J]>0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=upAlpha_g_2(J,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+  }
+  /* J=K+N+1 */
+  if (Step[K+N+1]>0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=upAlpha_g_2(K+N+1,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }
+  else if (Step[K+N+1]<0){
+    Amove=moveAlpha(K+N+1,vtol(Alv),K,N); 
+    C=downAlpha_g_2(K+N+1,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+    CList=cons([C,Step[K+N+1]],CList);
+    Alv[0]=Alv[0]-Step[K+N+1];
+    Alv[K+N+1]=Av[K+N+1];
+  }else{}
+  /* J=1,...,K */
+  for (J=1; J<K+1; J++){
+    if (Step[J]<0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      C=downAlpha_g_2(J,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+      CList=cons([C,Step[J]],CList);
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+  }
+  return(cons(t,reverse(CList)));
+}
+/*
+  K=2$ N=2$ Deg=[[0,2,3]]; 
+  Beta = [[10,11,12],[8,9,16]];
+  X = [[1,0,1/5],[1,1/2,1/3],[1,1,1]];
+  A=marginaltoAlpha_list(Beta);
+  XRule=xRule_num(X,2,2)$
+  C1=contiguity_mat_list_g_1(A,K,N|deg=Deg)$
+  C2=contiguity_mat_list_g_2(A,K,N|deg=Deg)$
+  for(I=1;I<6;I++){print(map(red,C1[I][0]-C2[I][0])); }
+*/ 
+
+
+
+
+/**** Pfaffian ****/
+def vanish_dvar(Deg,K,N){
+  Z=[];
+  for(C=Deg;C!=[];C=cdr(C)){
+    C0=car(C);
+    for(I=1;I<=K;I++){
+      if(base_memberq(I,C0)==0){J1=I; break; }else{}
+    }
+    for(I=1;I<=N;I++){
+      if(base_memberq(K+I,C0)==1){J2=I; break; }else{}
+    }
+    Z=cons([dxij(J1,J2),0],Z);
+  }
+  return(Z);
+}
+/* E(3,6) 
+   vanish_dvar([[0,2,3]],2,2);
+   vanish_dvar([[0,2,4]],2,2);
+   vanish_dvar([[0,1,3],[0,2,3]],2,2);
+   vanish_dvar([[0,2]],1,1);
+*/
+/*
+dlog|x<J>|
+*/
+def dlogxJ_g_1(JJ,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    CalJ0=calJ0(K,N);
+    if(base_memberq(JJ,CalJ0) && !base_memberq(JJ,Deg) ){
+      Dlog=0;
+      F=matrix_det(xJ_rule(JJ,N));
+      for (P=0; P<length(JJ); P++){
+	if ( (JJ[P]<K+1) || (JJ[P]==K+N+1) ){
+	}else{
+	  for (I=1; I<K+1; I++){
+	    Dlog+=matrix_det(xJ_rule(jj(P,JJ,I),N))*dxij(I,JJ[P]-K);
+	  }
+	}
+      }
+      Dlog=base_replace(Dlog/F,vanish_var(Deg,K,N));
+      Dlog=base_replace(Dlog,vanish_dvar(Deg,K,N));
+      return(red(Dlog));
+    }else{
+      return(0);
+    }
+  }else{ return(dlogxJ(JJ,K,N)); } 
+}
+/* test 
+   E(3,6)
+   dlogxJ_g_1([3,4,5],2,2);
+   dlogxJ_g_1([3,4,5],2,2|deg=[[0,2,3]]);
+   dlogxJ_g_1([0,2,3],2,2|deg=[[0,2,3]]);
+   dlogxJ_g_1([2,3,5],2,2|deg=[[0,2,3]]);
+*/
+
+def pfaffianCoef_g_1(II,JJ,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    if(base_memberq(xij(II,JJ),vanish_var_list(Deg,K,N))){return(0);}
+    
+    B=mBasisList(K,N);
+    Rank=length(B);
+    Ld=[];
+    for(C=Deg;C!=[];C=cdr(C)){
+      Ld=cons(base_position(car(C),B),Ld);
+    }
+    // L=base_set_minus(base_makelist(k,k,0,Rank-1),Ld);
+
+    CalJ0=calJ0(K,N);
+    MIJ=matrix(Rank,Rank);
+    for (C=CalJ0; C != []; C=cdr(C)){
+      T=car(C); 
+      if(base_memberq(JJ+K,T) ){
+	MIJ+=poly_coefficient(dlogxJ_g_1(T,K,N|deg=Deg),1,dxij(II,JJ))*pfaffianMJ(T,K,N);
+      }
+    }
+    for(C=Ld; C != []; C=cdr(C)){
+      Pos=car(C);
+      for(I=0;I<Rank;I++){
+	MIJ[I][Pos]=0;
+	MIJ[Pos][I]=0;
+      }
+    }
+    return(MIJ);
+    // return(submatrix(MIJ,[L,L]));
+  }else{ return(pfaffianCoef(II,JJ,K,N)); } 
+}
+/* test 
+   E(3,6)
+   X = [[1,x_1_1,1/5],[1,x_2_1,1/3],[1,1,1]];
+   XRule=xRule_num(X,2,2)$
+   pfaffianCoef_g_1(1,2,2,2); 
+   pfaffianCoef_g_1(1,2,2,2|deg=[[0,2,3]]); 
+   pfaffianCoef_g_1(1,1,2,2|deg=[[0,2,3]]); 
+//   pfaffianCoef_g_1(1,2,2,2|deg=[[0,2,3],[0,1,3]]);   // not good
+*/
+
+/* L=[[row ind],[column ind]] */
+def submatrix(A,L){
+  return(matrix_transpose(matrix_submatrix(matrix_transpose(matrix_submatrix(A,L[0])),L[1])));
+}
+/* test
+   A=newmat(3,4,[[1,2,3,4],[5,6,7,8],[9,a,b,c]]);
+   submatrix(A,[[0,1],[0,1]]);
+   submatrix(A,[[0,1],[0,1,2]]);
+   submatrix(A,[[1,2],[0,1,3]]);
+*/
+
+/* pfaffian_basis -> insert 0 at Deg */
+def pf_basis_zero(S,K,N,Deg){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  Ld=[];
+  for(C=Deg;C!=[];C=cdr(C)){
+    Ld=cons(base_position(car(C),B),Ld);
+  }
+  NewV=newmat(Rank,1);
+  J=0;
+  for(I=0;I<Rank;I++){
+    if(base_memberq(I,Ld)){NewV[I][0]=0;}
+    else{NewV[I][0]=S[J][0]; J++;}
+  }
+  return(NewV);
+}
+/* test
+  S=newmat(5,1,[[1],[2],[3],[4],[5]]);
+  pf_basis_zero(S,2,2,[[0,2,3]]);
+  S2=newmat(4,1,[[1],[2],[3],[4]]);
+  pf_basis_zero(S2,2,2,[[0,2,3],[0,2,4]]);
+*/
+
+/* list of indices corrsp. to 1-st diff. */
+def first_diff(K,N){
+  B=mBasisList(K,N);
+  Rank=length(B);
+  L=[];
+  for(I=0;I<Rank;I++){
+    B1=car(B);
+    C1=[]; C2=[];
+    for (J=1; J<K+1; J++){
+      if(!base_memberq(J,B1)){C1=cons(J,C1);} 
+    }
+    if(length(C1)==1){ 
+      for (J=K+1; J<K+N+1; J++){
+	if (base_memberq(J,B1)){C2=cons(J,C2);}
+      }
+      L=cons([I,[C1[0],C2[0]-K]],L);
+    }
+    B=cdr(B);
+  }
+  return(L);
+}
+/*
+  first_diff(2,2);
+  first_diff(2,3);
+*/
+
+def basistoS1_g_1(S,K,N){
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    SS=pf_basis_zero(S,K,N,Deg);
+
+    B=mBasisList(K,N);
+    Rank=length(B); 
+    FdList=first_diff(K,N);
+    Fdiff=matrix(K,N);
+
+    for(C=FdList;C!=[];C=cdr(C)){
+      C1=car(C);
+      if(base_memberq(B[C1[0]],Deg)){Fdiff[C1[1][0]-1][C1[1][1]-1]=0;}
+      else{Fdiff[C1[1][0]-1][C1[1][1]-1]=SS[C1[0]][0]*xij_rule(C1[1][0],C1[1][1])/matrix_det(xJ_rule(B[C1[0]],N));}
+    }
+    return(Fdiff);  
+  }else{ return(basistoS1(S,K,N)); }
+}
+/* test 
+XRule=0$
+Deg=[[0,2,3]]$
+F=b11*xij(1,1)+b12*xij(1,2)+b13*xij(1,3)+b14*xij(1,4)
+  +b21*xij(2,1)+b22*xij(2,2)+b23*xij(2,3)+b24*xij(2,4)
+  +b31*xij(3,1)+b32*xij(3,2)+b33*xij(3,3)+b34*xij(3,4)+b*xij(1,1)*xij(2,2)*xij(3,3)$
+S=pfaffian_basis(F,3,4)$
+S1=basistoS1(S,3,4|deg=Deg)$ mat_red(S1)$ 
+for (I=0; I<3; I++){
+for (J=0; J<4; J++){
+  print(base_replace(red(S1[I][J]),[[x_1_1,0]]));
+}} 
+*/
+
+def basistodS_g_1(S,K,N){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  if (type(getopt(deg))>=0){
+    Deg=getopt(deg);
+    SS=pf_basis_zero(S,K,N,Deg);
+
+    B=mBasisList(K,N);
+    Rank=length(B);
+    FdList=first_diff(K,N);
+    Hessian=matrix(K,N);
+
+    for(C=FdList;C!=[];C=cdr(C)){
+      C1=car(C);
+      DS=pfaffianCoef_g_1(C1[1][0],C1[1][1],K,N|deg=Deg)*SS;
+      if(ARule != 0){DS=base_replace(DS,ARule);}
+      Hessian[C1[1][0]-1][C1[1][1]-1]=matrix(K,N);
+      for(CC=FdList;CC!=[];CC=cdr(CC)){
+	C2=car(CC);
+	Hessian[C1[1][0]-1][C1[1][1]-1][C2[1][0]-1][C2[1][1]-1]=DS[C2[0]][0];
+      }
+    }
+    
+    if(XRule != 0){ return(base_replace(Hessian,XRule)); }
+    else{ return(Hessian); }
+
+  }else{ return(basistodS(S,K,N)); }
+}
+/* test [012][013]x21[014]x22[023]x11->0 [024]x12[034]x11x22
+   Deg=[[0,2,3]]$
+   ARule=[[a_0,-2],[a_1,-1],[a_2,-1],[a_3,1],[a_4,1],[a_5,2]]$
+   XRule=[[x_1_1,0]]$
+   Sp=initialPoly(3,3)$
+   S=pfaffian_basis(Sp,2,2)$
+   S=submatrix(base_replace(S,[[x_1_1,0]]),[[0,1,2,4,5],[0]])$
+   H=basistodS_g_1(S,2,2|deg=Deg)$ 
+   HS=matrix(2,2)$
+   SS=pf_basis_zero(S,2,2,Deg)$
+   for(I1=0; I1<2; I1++){
+     for (J1=0; J1<2; J1++){
+       print(H[I1][J1]);
+       HS[0][0]=diff(SS[3][0],xij(I1+1,J1+1));
+       HS[0][1]=diff(SS[4][0],xij(I1+1,J1+1));
+       HS[1][0]=diff(SS[1][0],xij(I1+1,J1+1));
+       HS[1][1]=diff(SS[2][0],xij(I1+1,J1+1));
+       SA=H[I1][J1]-base_replace(HS,ARule)$
+       mat_red(SA)$
+       print("--------");
+       print(SA);
+       print("----------------");
+     }
+   }
+*/
+
+def find_zero(X){
+  if(type(X)==4){return(find_zero(matrix_list_to_matrix(X)));}
+  else{
+    RC=size(X);
+    L=[];
+    for(I=0;I<RC[0];I++){
+      for(J=0;J<RC[1];J++){
+	if(X[I][J]==0){L=cons([I,J],L);}
+      }
+    }
+    return(L);
+  }
+}
+/*
+  find_zero([[0,1,2],[3,0,1],[5,4,3]]);
+  find_zero(newmat(2,3,[[1,0,0],[2,3,4]]));
+  find_zero([[1,2],[3,4]]);
+*/
+
+/* modify:2018.3 */
+def ekn_cBasis_g_1(Beta, X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  P=length(Beta[0]); // K=P-1
+  Q=length(Beta[1]); // N=Q-1
+  K=P-1;
+  N=Q-1;
+
+  Z=find_zero(X);
+  VI=[];
+  if (Z!=[]){
+    for(ZZ=Z;ZZ!=[];ZZ=cdr(ZZ)){
+      Z1=car(ZZ);
+      if((Z1[0]==P-1)||(Z1[1]==0)){error("Sorry. Please exchange rows or columns.");}
+      VI=cons([Z1[0]+1,Z1[1]],VI);
+      printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
+    }
+    Deg=vanish_vartoform(VI,K,N);
+    V=vanish_var(Deg,K,N);
+
+    XRule=xRule_num(X,K,N);  // <- global
+    AlphaE = marginaltoAlpha_list(Beta);
+
+    AlphaVan=0;
+    for (Jvan=Deg[0];Jvan!=[];Jvan=cdr(Jvan)){ AlphaVan += AlphaE[car(Jvan)]; }
+    if (AlphaVan != 0){
+      if (K==1 && N==1){ 
+	AR=alphaRule_num([-2,-1,1,2],1,1);
+	Start=1;
+	S=base_replace(pfaffian_basis_g_1(Start,K,N|deg=Deg),append(AR,XRule));
+      }else{
+	AR=alphaRule_num(initialAlpha(K,N),K,N);
+	Start=base_replace(initialPoly(P,Q),V);
+	S=base_replace(pfaffian_basis_g_1(Start,K,N|deg=Deg),append(AR,XRule));
+      }
+
+      CL=contiguity_mat_list_g_2(AlphaE,K,N|deg=Deg);
+      Var=car(CL);
+    
+      for (C=cdr(CL); C!=[]; C=cdr(C)){
+	B=car(C);
+	Mat=B[0]; 
+	Step=B[1];
+	if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var); }
+	else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var); }
+	// printf("%a %a %a\n",Step, Mat[0],S[0][0]);
+      }
+      return(S); 
+    }else{ /* AlphaVan=0 --> monomial */
+      Po=1;
+      for (I=1;I<K+1;I++){
+	if (I!=VI[0][0]){ Po *= xij(I,VI[0][1])^(Beta[0][I-1])/factorial(Beta[0][I-1]); }else{}
+      }
+      for (J=1;J<N+1;J++){
+	if (J!=VI[0][1]){ Po *= xij(VI[0][0],J)^(Beta[1][J])/factorial(Beta[1][J]); }else{}
+      }
+      Po *= 1/(Beta[0][K]*Beta[1][0]);
+      AR=alphaRule_num(AlphaE,K,N);
+      return(base_replace(pfaffian_basis_g_1(Po,K,N|deg=Deg),append(AR,XRule)));
+    }
+
+  }else{ return(ekn_cBasis_2(Beta, X)); } 
+}
+/*
+  Beta=[[2,3,4],[3,3,3]]$
+  ekn_cBasis_g_1(Beta,[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+  S=ekn_cBasis_g_1(Beta,[[1,0,1/3],[1,1/5,1/7],[1,1,1]]);
+  pf_basis_zero(S,2,2,[[0,2,3]]);
+  S=ekn_cBasis_g_1(Beta,[[1,1/2,1/3],[1,0,1/7],[1,1,1]]);
+  pf_basis_zero(S,2,2,[[0,1,3]]);
+  ekn_cBasis_g_1(Beta,[[1,0,1/3],[1,1/5,0],[1,1,1]]);  // not good yet
+  ekn_cBasis_g_1(Beta,[[1,1/2,1/3],[1,1/5,1/7],[1,0,1]]);
+  ekn_cBasis_g_1(Beta,[[1,1/2,1/3],[0,1/5,1/7],[1,1,1]]);
+*/
+
+def cBasistoE_g_1(S,Beta,X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  P=length(Beta[0]); // K=P-1
+  Q=length(Beta[1]); // N=Q-1
+  
+  Z=find_zero(X);
+  VI=[];
+  if (Z!=[]){
+    for(ZZ=Z;ZZ!=[];ZZ=cdr(ZZ)){
+      Z1=car(ZZ);
+      if((Z1[0]==P-1)||(Z1[1]==0)){error("Sorry. Please exchange rows or columns.");}
+      VI=cons([Z1[0]+1,Z1[1]],VI);
+      printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
+    }
+    Deg=vanish_vartoform(VI,P-1,Q-1);
+    VI=vanish_var_ind(Deg,P-1,Q-1);
+
+    XRule=xRule_num(X,P-1,Q-1);  // <- global
+    Alpha=marginaltoAlpha_list(Beta);
+    S1=base_replace(basistoS1_g_1(S,P-1,Q-1|deg=Deg),marginaltoAlpha(Beta));
+    Expect=newmat(P,Q);
+    U0_1p=0;
+    for (I=0; I<P; I++){
+      U0_1p+=Alpha[I+1];
+    for (J=0; J<Q; J++){
+      if(base_memberq([I+1,J],VI)){Expect[I][J]=0;}
+      else{
+	for(A=0;A<P-1;A++){
+	for(B=0;B<Q-1;B++){
+	  Expect[I][J]+=S1[A][B]*Alpha[P+B]*eulerxij([I+1,J+1],[A+1,B+1],P);
+	}}
+	Expect[I][J]=Expect[I][J]/S[0][0];
+	if((I==P-1) && (J==0)){Expect[I][J]+=U0_1p-Alpha[P] + Alpha[P+Q-1]; }
+	else if(J==0){Expect[I][J]+=-Alpha[I+1];}
+	else if(I==P-1){Expect[I][J]+=Alpha[P-1+J];}
+      }
+    }}
+    return(Expect);
+
+  }else{ return(cBasistoE(S,Beta,X)); } 
+}
+
+
+def cBasistoEdiff_g_1(S,Beta,X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+  
+  P=length(Beta[0]); // K=P-1
+  Q=length(Beta[1]); // N=Q-1
+
+  Z=find_zero(X);
+  VI=[];
+  if (Z!=[]){
+    for(ZZ=Z;ZZ!=[];ZZ=cdr(ZZ)){
+      Z1=car(ZZ);
+      if((Z1[0]==P-1)||(Z1[1]==0)){error("Sorry. Please exchange rows or columns.");}
+      VI=cons([Z1[0]+1,Z1[1]],VI);
+      printf("Note: %a is zero.\n",xij(Z1[0]+1,Z1[1]));
+    }
+    Deg=vanish_vartoform(VI,P-1,Q-1);
+    VI=vanish_var_ind(Deg,P-1,Q-1);
+
+    XRule=xRule_num(X,P-1,Q-1);  // <- global
+    Alpha=marginaltoAlpha_list(Beta);
+    S1=base_replace(basistoS1_g_1(S,P-1,Q-1|deg=Deg),marginaltoAlpha(Beta));
+    S2=base_replace(basistodS_g_1(S,P-1,Q-1|deg=Deg),marginaltoAlpha(Beta));
+    Ediff=newmat(P,Q);
+    for (I=0; I<P; I++){
+    for (J=0; J<Q; J++){
+      Ediff[I][J]=newmat(P-1,Q-1);
+      if(!base_memberq([I+1,J],VI)){
+	for (II=0; II<P-1; II++){
+	for (JJ=0; JJ<Q-1; JJ++){
+	  if(!base_memberq([II+1,JJ+1],VI)){
+	    for (A=0; A<P-1; A++){
+	    for (B=0; B<Q-1; B++){
+	      Ediff[I][J][II][JJ]+=eulerxij([I+1,J+1],[A+1,B+1],P)*Alpha[P+B]*
+		((-1)^(P-A)*S[0][0]*S2[II][JJ][A][B]-(Alpha[P+JJ]/xij_rule(II+1,JJ+1))*S1[A][B]*S1[II][JJ]);
+	    }
+	    }
+	  }else{}
+	}
+	}  
+      }else{}
+    }
+    }  
+    return(base_replace((1/S[0][0]^2)*Ediff,XRule));
+
+  }else{ return(cBasistoEdiff(S,Beta,X)); } 
+}
+
+
+
+def vanish_var_ind(Deg,K,N){
+  Z=[];
+  for(C=Deg;C!=[];C=cdr(C)){
+    C0=car(C);
+    for(I=1;I<=K;I++){
+      if(base_memberq(I,C0)==0){J1=I; break; }else{}
+    }
+    for(I=1;I<=N;I++){
+      if(base_memberq(K+I,C0)==1){J2=I; break; }else{}
+    }
+    Z=cons([J1,J2],Z);
+  }
+  return(Z);
+}
+/*
+  vanish_var_ind([[0,2,3]],2,2);
+  vanish_var_ind([[0,2,3],[0,2,4]],2,2);
+*/
+
+
+
+
+/**************** test only *************************/
+/* test for E(3,6) with x11=0 */
+def e36_deg_test(){
+  Deg=[[0,2,3]];
+  CJ=newmat(6,6);  // CJ[q][p]=qJp
+  for (P=0;P<6;P++){
+    for (Q=0;Q<6;Q++){
+      CJ[Q][P]=mBasis_replace(P,Q,2,2);
+    }
+  }
+  BB=[];
+  for (L=5;L>0;L--){
+    CJ1=CJ[0][L]; CJ2=CJ[L][0];
+    B1=[]; B2=[];
+    if (L==2||L==3){ 
+      for (P=0;P<6;P++){
+	CJ10=car(CJ1); CJ20=car(CJ2); 
+	if (base_memberq(CJ10,[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]])==0){ 
+	  B1=cons(CJ10,B1);
+	  B2=cons(CJ20,B2);
+	}
+	CJ1=cdr(CJ1); CJ2=cdr(CJ2);
+      }  
+    }else{
+      for (P=0;P<6;P++){
+	CJ10=car(CJ1); CJ20=car(CJ2); 
+	if (base_memberq(CJ20,[[0,2,3],[2,0,3],[2,3,0]])==0){ 
+	  B1=cons(CJ10,B1);
+	  B2=cons(CJ20,B2);
+	}
+	CJ1=cdr(CJ1); CJ2=cdr(CJ2);
+      }        
+    }
+    BB=cons([B1,B2],BB);
+  }
+  BB=cons(dummy,BB);
+  print(BB[1]); print(BB[2]); print(BB[3]); print(BB[4]); print(BB[5]); 
+
+  Int=newmat(5,5); Intdeg=newmat(5,5); 
+  In=[]; Id=[]; Is=[]; Det=[];
+  for (L=5;L>0;L--){
+    Int=newmat(5,5); Intdeg=newmat(5,5); 
+    Base1=BB[L][0]; Base2=BB[L][1]; 
+    for (P=0;P<5;P++){
+      for (Q=0;Q<5;Q++){
+	Int[P][Q]=cInt_g_1(Base1[P],Base2[Q]);
+	Intdeg[P][Q]=cInt_g_1(Base1[P],Base2[Q]|deg=Deg);
+      }
+    }
+    In=cons(Int,In); Id=cons(Intdeg,Id); Is=cons(map(red,Int-Intdeg),Is);
+    Det=cons(map(red,[matrix_det(Int),matrix_det(Intdeg)]),Det);
+  }
+  return([Id,Det]);
+}
+
+def s36(A,X){ 
+  M=max([-A[1],-A[2],A[3],A[4]])+2;
+  S=0;
+  for (N11=0; N11<M; N11++){
+  for (N12=0; N12<M; N12++){
+  for (N21=0; N21<M; N21++){
+  for (N22=0; N22<M; N22++){
+    if (-A[1]-N11-N12+1 > 0){
+    if (-A[2]-N21-N22+1 > 0){
+    if (A[1]+A[2]+A[5]+N1+N12+N21+N22+1 > 0){
+    if (A[3]-N11-N21+1>0){
+    if (A[4]-N12-N22+1>0){
+      S+=X[0][0]^N11 *X[0][1]^N12 *X[1][0]^N21 *X[1][1]^N22 /
+	(factorial(-A[1]-N11-N12)*factorial(-A[2]-N21-N22)
+	 *factorial(A[1]+A[2]+A[5]+N11+N12+N21+N22)
+	 *factorial(A[3]-N11-N21)*factorial(A[4]-N12-N22)
+	 *factorial(N11)*factorial(N12)*factorial(N21)*factorial(N22));
+    }}}}}
+  }}}}
+  return(S);
+}
+
+def e36_deg_contig_test(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  L=3;
+  A=[-3,-3,-3,3,3,3]; Arep=alphaRule_num(A,2,2);
+  A2=shift(L,A); A2rep=alphaRule_num(A2,2,2);
+  A3=shift_m(L,A); A3rep=alphaRule_num(A3,2,2);
+  print(A); print(A2); print(A3);
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  XRule=[[xij(1,1),0],[xij(1,2),1/2],[xij(2,1),1/3],[xij(2,2),1/5]];Xrule=[];
+  
+  S=s36(A,Allvar);
+  S=base_replace(S,Van);
+  F=base_replace(pfaffian_basis_g_1(S,2,2|deg=Deg),Arep);
+  Fn=base_replace(F,XRule);
+
+  S2=s36(A2,Allvar);
+  S2=base_replace(S2,Van);
+  F2=base_replace(pfaffian_basis_g_1(S2,2,2|deg=Deg),append(XRule,A2rep));
+  print(F2);
+  UP=base_replace(upAlpha_g_1(L,2,2|deg=Deg),Arep);print(UP);
+  FC2=base_replace(UP*Fn,Xrule);
+  print(FC2);
+
+  S3=s36(A3,Allvar);
+  S3=base_replace(S3,Van);
+  F3=base_replace(pfaffian_basis_g_1(S3,2,2|deg=Deg),append(XRule,A3rep));
+  print(F3);
+  DOWN=base_replace(downAlpha_g_1(L,2,2|deg=Deg),Arep);
+  FC3=base_replace(DOWN*Fn,Xrule);
+  print(FC3);
+
+  return([FC2-F2,FC3-F3]);
+}
+
+def e36_deg_contig_test_2(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  
+  Beta = [[20,22,24],[16,18,32]];
+  X = [[1,0,1/2],[1,1/3,1/5],[1,1,1]]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,2,2);
+
+  T0=time();
+  CL=contiguity_mat_list_g_1(A,2,2|deg=Deg); T=car(CL);
+
+  T1=time();
+  S=initialPoly(3,3);
+  S=base_replace(S,Van);
+  Fx=base_replace(pfaffian_basis_g_1(S,2,2|deg=Deg),alphaRule_num(initialAlpha(2,2),2,2));
+  F=base_replace(Fx,XRule);
+
+  T2=time();
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){F = g_mat_fac_test(F,Mat,0,Step-1,1,T); }
+    else{F = g_mat_fac_test(F,Mat,0,Step+1,-1,T); }
+  }
+  print("by contiguity:");
+  print(F);
+
+  T3=time();
+  Ss=s36(A,Allvar);
+  Ss=base_replace(Ss,Van);
+  Fs=base_replace(pfaffian_basis_g_1(Ss,2,2|deg=Deg),Arep);
+  Fs=base_replace(Fs,XRule);
+  print("by definition:");
+  print(Fs);
+
+  T4=time();
+  print("-------------");
+  print("timing:  1.matrices  2.initial poly  3.factorial  4.definition");
+  print([T1[0]-T0[0],T2[0]-T1[0],T3[0]-T2[0],T4[0]-T3[0]]);
+  print("-------------");
+  return(F-Fs);
+}
+
+/* using ver.2 */
+def e36_deg_contig_test_3(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  
+  Beta = [[40,44,48],[32,36,64]];
+  X = [[1,0,1/2],[1,1/3,1/5],[1,1,1]]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,2,2);
+
+  T0=time();
+  CL=contiguity_mat_list_g_2(A,2,2|deg=Deg); T=car(CL);
+
+  T1=time();
+  S=initialPoly(3,3);
+  S=base_replace(S,Van);
+  Fx=base_replace(pfaffian_basis_g_1(S,2,2|deg=Deg),alphaRule_num(initialAlpha(2,2),2,2));
+  F=base_replace(Fx,XRule);
+
+  T2=time();
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){F = g_mat_fac_test(F,Mat,0,Step-1,1,T); }
+    else{F = g_mat_fac_test(F,Mat,0,Step+1,-1,T); }
+  }
+  print("by contiguity:");
+  print(F);
+
+  T3=time();
+  Ss=s36(A,Allvar);
+  Ss=base_replace(Ss,Van);
+  Fs=base_replace(pfaffian_basis_g_1(Ss,2,2|deg=Deg),Arep);
+  Fs=base_replace(Fs,XRule);
+  print("by definition:");
+  print(Fs);
+
+  T4=time();
+  print("-------------");
+  print("timing:  1.matrices  2.initial poly  3.factorial  4.definition");
+  print([T1[0]-T0[0],T2[0]-T1[0],T3[0]-T2[0],T4[0]-T3[0]]);
+  print("-------------");
+  return(F-Fs);
+}
+
+def e36_deg_timing_test(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  K=2; N=2;
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  
+  Beta = [[20,22,24],[16,18,32]];
+  X = [[1,0,1/2],[1,1/3,1/5],[1,1,1]]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,2,2);
+
+  print("alpha_J : up & down (ver.1); up & down (ver.2)");
+
+  for(J=1;J<6;J++){
+    Amove=moveAlpha(J,A,K,N); 
+    T0=time();
+    base_replace(upAlpha_g_1(J,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+    T1=time();
+    base_replace(downAlpha_g_1(J,K,N|deg=Deg),alphaRule_num(Amove,K,N));
+    T2=time();    
+    upAlpha_g_2(J,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+    T3=time();
+    downAlpha_g_2(J,K,N|deg=Deg,arep=alphaRule_num(Amove,K,N));
+    T4=time();    
+    print([J,T1[0]-T0[0],T2[0]-T1[0],T3[0]-T2[0],T4[0]-T3[0]]);
+  }
+}
+
+
+def e48_deg_contig_test(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  K=3; N=3;
+  Deg=vanish_vartoform([[1,1]],K,N);
+  Van=[[xij(1,1),0]];
+  
+  Beta = [[11,13,15,17],[10,12,14,20]];
+  X = [[1,0,1/2,1/3],[1,1/5,1/7,1/11],[1,1/13,1/17,1/19,1/23],[1,1,1,1]]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,K,N);
+
+  T0=time();
+  CL=contiguity_mat_list_g_2(A,K,N|deg=Deg); T=car(CL);
+
+  T1=time();
+  S=initialPoly(K+1,N+1);
+  S=base_replace(S,Van);
+  Fx=base_replace(pfaffian_basis_g_1(S,K,N|deg=Deg),alphaRule_num(initialAlpha(K,N),K,N));
+  F=base_replace(Fx,XRule);
+
+  T2=time();
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){F = g_mat_fac_test(F,Mat,0,Step-1,1,T); }
+    else{F = g_mat_fac_test(F,Mat,0,Step+1,-1,T); }
+  }
+
+  T3=time();
+  print("-------------");
+  print("timing:  1.matrices  2.initial poly  3.factorial");
+  print([T1[0]-T0[0],T2[0]-T1[0],T3[0]-T2[0]]);
+  print("-------------");
+  return(F);
+}
+
+
+/* 2017.02.19 */
+/*
+  0 2 5    2 0 5
+  3 1 4 -> 1 3 4
+  1 3 3    3 1 3
+*/
+def e36_deg_contig_test_k(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  
+  U=[[2,0,5],[1,3,4],[3,1,3]];
+  Data=dataset(U);
+  Beta = Data[1];
+  X = Data[2]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,2,2);
+
+  T0=time();
+  CL=contiguity_mat_list_g_2(A,2,2|deg=Deg); T=car(CL);
+
+  T1=time();
+  S=initialPoly(3,3);
+  S=base_replace(S,Van);
+  Fx=base_replace(pfaffian_basis_g_1(S,2,2|deg=Deg),alphaRule_num(initialAlpha(2,2),2,2));
+  F=base_replace(Fx,XRule);
+
+  T2=time();
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){F = g_mat_fac_test(F,Mat,0,Step-1,1,T); }
+    else{F = g_mat_fac_test(F,Mat,0,Step+1,-1,T); }
+  }
+  print("by contiguity:");
+  print(F);
+
+  T3=time();
+  Ss=s36(A,Allvar);
+  Ss=base_replace(Ss,Van);
+  Fs=base_replace(pfaffian_basis_g_1(Ss,2,2|deg=Deg),Arep);
+  Fs=base_replace(Fs,XRule);
+  print("by definition:");
+  print(Fs);
+
+  print("difference:");
+  print(F-Fs);
+
+  T4=time();
+  print("-------------");
+  print("timing:  1.matrices  2.initial poly  3.factorial  4.definition");
+  print([T1[0]-T0[0],T2[0]-T1[0],T3[0]-T2[0],T4[0]-T3[0]]);
+  print("-------------");
+
+  Expect=newmat(3,3);
+  Fdiff=newmat(2,2,[[0,F[3][0]*A[4]/matrix_det(xJ_rule([0,2,4],2))],
+		    [F[1][0]*A[3]/matrix_det(xJ_rule([0,1,3],2)),F[2][0]*A[4]/matrix_det(xJ_rule([0,1,4],2))]]);
+  Poly=ltop(F[0][0],Beta,X,2,2);
+  for (I=0; I<3; I++){
+    for (J=0; J<3; J++){
+      Expect[I][J]=red(eulerZ([I,J],Beta,X,F[0][0],Fdiff))/Poly;
+    }
+  }  
+
+  return(map(deval,Expect));
+}
+
+
+
+def e36_deg_contig_test_k2(){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  Allvar=[[xij(1,1),xij(1,2)],[xij(2,1),xij(2,2)]];
+  Deg=[[0,2,3]]; Van=[[xij(1,1),0]];
+  
+  U=[[2,0,5],[1,3,4],[3,1,3]];
+  Data=dataset(U);
+  Beta = Data[1];
+  X = Data[2]; // x_{11} -> 0
+  A=marginaltoAlpha_list(Beta); Arep=marginaltoAlpha(Beta);
+  XRule=xRule_num(X,2,2);
+
+  CL=contiguity_mat_list_g_2(A,2,2|deg=Deg); T=car(CL);
+  S=initialPoly(3,3);
+  S=base_replace(S,Van);
+  Fx=base_replace(pfaffian_basis_g_1(S,2,2|deg=Deg),alphaRule_num(initialAlpha(2,2),2,2));
+  F=base_replace(Fx,XRule);
+
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){F = g_mat_fac_test(F,Mat,0,Step-1,1,T); }
+    else{F = g_mat_fac_test(F,Mat,0,Step+1,-1,T); }
+  }
+  print("gm-vector:");
+  print(F);
+
+  GM=ekn_cBasis_g_1(Beta, X);
+  print("by ekn_cBasis_g_1");
+  print(GM);
+  print("Their difference is");
+  print(GM-F);
+
+  Expect=newmat(3,3);
+  Fdiff=newmat(2,2,[[0,F[3][0]*A[4]/matrix_det(xJ_rule([0,2,4],2))],
+		    [F[1][0]*A[3]/matrix_det(xJ_rule([0,1,3],2)),F[2][0]*A[4]/matrix_det(xJ_rule([0,1,4],2))]]);
+  Poly=ltop(F[0][0],Beta,X,2,2);
+  for (I=0; I<3; I++){
+    for (J=0; J<3; J++){
+      Expect[I][J]=red(eulerZ([I,J],Beta,X,F[0][0],Fdiff))/Poly;
+    }
+  }  
+  print("expectation:");
+  print(map(deval,Expect));
+  print("-------");
+  Expect2=cBasistoE_g_1(F,Beta,X);
+  print(map(deval,Expect2));
+
+  print("part of Ediff:");
+  Ediff=cBasistoEdiff_g_1(F,Beta,X);
+  print(map(deval,Ediff[0][0]));
+  print(map(deval,Ediff[0][1]));
+  print(map(deval,Ediff[0][2]));
+  // print(map(deval,Ediff[1][0]));
+  // print(map(deval,Ediff[1][1]));
+  // print(map(deval,Ediff[1][2]));
+  // print(map(deval,Ediff[2][0]));
+  // print(map(deval,Ediff[2][1]));
+  // print(map(deval,Ediff[2][2]));
+  return(0);
+}
+
+
+end$

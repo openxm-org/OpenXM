@@ -1,0 +1,410 @@
+/* $OpenXM$ */
+/* memo
+load("ekn_eval.rr");
+ */
+#define USE_MODULE
+
+load("gtt_ekn3/ekn_pfaffian_8.rr")$
+#define USE_MODULE
+
+#ifdef USE_MODULE
+module gtt_ekn3;
+static Ekn_plist$  // for g_mat_fac_itor
+static Ekn_IDL$    // for g_mat_fac_itor
+static Ekn_debug$
+static Ekn_mesg$
+Ekn_mesg=1$
+#else
+extern Ekn_plist$  // for g_mat_fac_itor
+extern Ekn_IDL$    // for g_mat_fac_itor
+extern Ekn_debug$
+extern Ekn_mesg$
+Ekn_mesg=1;
+#endif
+
+#ifdef USE_MODULE
+localf eulerZ$
+localf ekn_cBasis_1$
+localf ekn_cBasis_2$
+localf cBasistoE$
+localf cBasistoEdiff$
+localf g_mat_fac_test$
+localf g_mat_fac_test_plain$
+localf g_mat_fac_test_int$
+localf check_failure$
+localf ekn_cBasis_3$
+#endif
+/*
+  eulerZ evaluates the euler derivatives w.r.t Idx of the normalizing constant (A-hg poly) at X
+  from the value of F (E(k,n)-poly) and its derivatives.
+  The derivatives of F is given by Fdiff, which may be a matrix of numerical values.
+*/
+/* This function is in "ekn_util.rr".  */
+def eulerZ(Idx,Beta,X,F,Fdiff) {
+  if (type(X)==6) X=matrix_matrix_to_list(X);
+  if (type(Beta)==6) Beta = matrix_matrix_to_list(Beta);
+  P = length(X); Q = length(X[0]);
+  if ((length(Beta[0]) != P) || (length(Beta[1]) != Q)) error("sizes of X, Y, Beta do not match.");
+  if (base_sum(Beta[0],0,0,P-1) != base_sum(Beta[1],0,0,Q-1)) error("The sums of Beta[0] and Beta[1] must be equal.");
+
+  /* note YY[I][0] is a padding. */
+  XX = newmat(P,Q); for (I=0; I<P; I++) for (J=0; J<Q; J++) XX[I][J] = util_v(x,[I,J]);
+  XX = matrix_matrix_to_list(XX);
+  YY = newmat(P-1,Q);
+  for (I=0; I<P-1; I++) {
+    for (J=1; J<Q; J++) {
+       YY[I][J] = XX[I][J]*XX[P-1][0]/(XX[I][0]*XX[P-1][J]);
+    }
+  }
+
+  U = 1;
+  for (I=0; I<P-1; I++) {
+    U = U*(XX[I][0]^Beta[0][I]);
+  }
+  for (J=1; J<Q; J++) {
+    U = U*(XX[P-1][J]^Beta[1][J]);
+  }
+  U = U*(XX[P-1][0]^(Beta[0][P-1]-base_sum(Beta[1],0,1,Q-1)));
+  RuleX = assoc(base_flatten(XX),base_flatten(X));
+  ValU = base_replace(U,RuleX);
+
+  EulerU = red(util_v(x,Idx)*diff(U,util_v(x,Idx)));
+  ValEulerU = base_replace(EulerU,RuleX);
+
+
+  /* double check 2015.07.16   More efficient, but it is not used.
+  I = Idx[0]; J = Idx[1];
+  if (!((I==P-1) || (J==0)) EulerU=0;
+  eles if ((I==P-1) && (J==0)) EulerU=U*(Beta[0][P-1]-base_sum(Beta[1],0,1,Q-1));
+  else if (I==P-1) EulerU=U*Beta[1][J];
+  else if (J==0) EulerU=U*Beta[0][I];
+  */
+
+  /* 2015.07.16 note */
+  Val = ValEulerU*F;
+  for (I=0; I<P-1; I++) {
+   for (J=1; J<Q; J++) {
+     YX=red(util_v(x,Idx)*diff(YY[I][J],util_v(x,Idx)));
+     YX =base_replace(YX,RuleX);  
+     Val += ValU*YX*Fdiff[I][J-1];
+   }
+  }
+  return(Val);
+}
+/***************************/
+
+
+
+/*
+  Please input data as
+  Beta = [[400,410,1011],[910,411,500]];
+  X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]];
+*/
+/* By Strategy 1 */
+def ekn_cBasis_1(Beta, X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+  P=length(Beta[0]); 
+  Q=length(Beta[1]);
+  K=P-1;
+  N=Q-1;
+
+  if (K == 0){return(matrix(1,1,[[1/factorial_prod(Beta[1])]])); }
+  if (N == 0){return(matrix(1,1,[[1/factorial_prod(Beta[0])]])); }
+  
+  XRuleTemp=XRule;
+  XRule=xRule_num(X,K,N);  // <- global
+  S=matrix(length(mBasisList(K,N)),1);
+  S[0][0]=1;
+  
+  AlphaE = marginaltoAlpha_list(Beta);
+  CL=contiguity_mat_list_1(AlphaE,K,N);
+  Var=car(CL);
+
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var); }
+    else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var); }
+    // printf("%a %a %a\n",Step, Mat[0],S[0][0]);
+  }
+  XRule=XRuleTemp;
+  return(S); 
+}
+/* test 
+   Beta = [[1,1,2],[2,1,1]];
+   X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]];
+   S1=ekn_cBasis_1(Beta,X);
+   Al=marginaltoAlpha(Beta)$
+   S2=base_replace(pfaffian_basis(initialPoly(3,3),2,2),append(Al,XRule));
+   S1-S2;
+ */
+/* By Strategy 2 */
+def ekn_cBasis_2(Beta, X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+  Ekn_mesg=1;
+  P=length(Beta[0]); 
+  Q=length(Beta[1]);
+  K=P-1;
+  N=Q-1;
+  
+  if (K == 0){return(matrix(1,1,[[1/factorial_prod(Beta[1])]])); }
+  if (N == 0){return(matrix(1,1,[[1/factorial_prod(Beta[0])]])); }
+  
+  XRuleTemp=XRule;
+  XRule=xRule_num(X,K,N);  // <- global
+  AR=alphaRule_num(initialAlpha(K,N),K,N);
+  Start=initialPoly(P,Q);
+  S=base_replace(pfaffian_basis(Start,K,N),append(AR,XRule));
+
+  AlphaE = marginaltoAlpha_list(Beta);
+  CL=contiguity_mat_list_2(AlphaE,K,N);
+  Var=car(CL);
+
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    if (Step > 0){S = g_mat_fac_test(S,Mat,0,Step-1,1,Var|option_list=getopt()); }
+    else{S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|option_list=getopt()); }
+    // printf("%a %a %a\n",Step, Mat[0],S[0][0]);
+  }
+  XRule=XRuleTemp;
+  return(S); 
+}
+/* test
+   Beta = [[5,3,5],[1,7,5]]$
+   X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]]$
+   S1=ekn_cBasis_1(Beta,X);
+   S2=ekn_cBasis_2(Beta,X);
+   S1-S2;
+ */
+/* 1x2 & 3x1
+  S12=ekn_cBasis_2([[5],[2,3]],[[1/2,1/3]]);
+  ltop(S12[0][0],[[5],[2,3]],[[p1,p2]],0,1);
+  S31=ekn_cBasis_2([[3,3,2],[8]],[[1/2],[1/3],[1/5]]);
+  ltop(S31[0][0],[[3,3,2],[8]],[[q1],[q2],[q3]],2,0);
+ */
+
+/*********** modify  ********************************/
+/* By Strategy 3 */
+def ekn_cBasis_3(Beta, X){
+  Ekn_mesg=1;
+  P=length(Beta[0]); 
+  Q=length(Beta[1]);
+  K=P-1;
+  N=Q-1;
+  
+  if (K == 0){return(matrix(1,1,[[1/factorial_prod(Beta[1])]])); }
+  if (N == 0){return(matrix(1,1,[[1/factorial_prod(Beta[0])]])); }
+  
+  XR=xRule_num(X,K,N); 
+  AlphaE = marginaltoAlpha_list(Beta);
+  SA=initialAlpha_3(AlphaE,K,N);
+  AR=alphaRule_num(SA,K,N);
+  Start=initialPoly_3(Beta);
+  S=base_replace(pfaffian_basis(Start,K,N),append(AR,XR));
+
+  CL=contiguity_mat_list_3(AlphaE,K,N|xrule=XR);
+  Var=car(CL);
+
+  for (C=cdr(CL); C!=[]; C=cdr(C)){
+    B=car(C);
+    Mat=B[0]; 
+    Step=B[1];
+    S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|option_list=getopt()); 
+  }
+  return(S); 
+}
+/************ modify end *******************************/
+
+
+/* S -> expectations */
+def cBasistoE(S,Beta,X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  P=length(Beta[0]); 
+  Q=length(Beta[1]);
+
+  XRuleTemp=XRule;
+  XRule=xRule_num(X,P-1,Q-1);  // <- global
+
+  Poly=ltop(S[0][0],Beta,X,P-1,Q-1);
+  Fdiff=base_replace(basistoFdiff(S,P-1,Q-1),marginaltoAlpha(Beta));
+  Expect=newmat(P,Q);
+  for (I=0; I<P; I++){
+    for (J=0; J<Q; J++){
+      Expect[I][J]=red(eulerZ([I,J],Beta,X,S[0][0],Fdiff))/Poly;
+    }
+  }  
+  XRule=XRuleTemp;
+  return(Expect);
+}
+/* test
+   Beta = [[5,3,5],[1,7,5]]$
+   X = [[1,1/7,1/5],[1,1/2,1/3],[1,1,1]]$
+   S1=ekn_cBasis_1(Beta,X)$
+   S2=ekn_cBasis_2(Beta,X)$
+   E1=cBasistoE(S1,Beta,X)$
+   E2=cBasistoE(S2,Beta,X)$   
+*/
+/*
+  load("check_10.rr")$
+  S2=ekn_cBasis_2(Beta,X)$
+  E2=cBasistoE(S2,Beta,X)$
+  E2-Expect1;
+*/
+
+
+/* S -> derivatives of expectations */
+def cBasistoEdiff(S,Beta,X){
+#ifdef USE_MODULE
+#else
+  extern XRule;
+#endif
+
+  P=length(Beta[0]); // K=P-1
+  Q=length(Beta[1]); // N=Q-1
+  XRuleTemp=XRule;
+  XRule=xRule_num(X,P-1,Q-1);  // <- global
+  Alpha=marginaltoAlpha_list(Beta);
+  S1=base_replace(basistoS1(S,P-1,Q-1),marginaltoAlpha(Beta));
+  S2=base_replace(basistodS(S,P-1,Q-1),marginaltoAlpha(Beta));
+  Ediff=newmat(P,Q);
+  for (I=0; I<P; I++){
+  for (J=0; J<Q; J++){
+    Ediff[I][J]=newmat(P-1,Q-1);
+    for (II=0; II<P-1; II++){
+    for (JJ=0; JJ<Q-1; JJ++){
+      for (A=0; A<P-1; A++){
+      for (B=0; B<Q-1; B++){
+	Ediff[I][J][II][JJ]+=eulerxij([I+1,J+1],[A+1,B+1],P)*Alpha[P+B]*
+	  ((-1)^(P-A)*S[0][0]*S2[II][JJ][A][B]-(Alpha[P+JJ]/xij_rule(II+1,JJ+1))*S1[A][B]*S1[II][JJ]);
+      }
+      }
+    }
+    }  
+  }
+  }
+  XRuleTemp2=XRule;
+  XRule=XRuleTemp;
+  return(base_replace((1/S[0][0]^2)*Ediff,XRuleTemp2));
+}
+/* test 
+   Beta=[[3,3],[2,2,2]];
+   X=[[1,1/2,1/3],[1,1,1]];
+   S=ekn_cBasis_1(Beta,X)$
+   H=cBasistoEdiff(S,Beta,X)$
+   H[0][0];
+ */
+
+/* check if F contains "failure" */
+def check_failure(F) {
+  if (type(F)>6) return(1);
+  if (type(F)<4) return(0);
+  F=base_flatten(map(type,F)); N=length(F);
+  for (I=0; I<N; I++) {
+    if (F[I] == 7) return(1);
+  }
+  return(0);
+}
+
+def g_mat_fac_test(F,M,S,E,Inc,Var) {
+  if (iand(Ekn_debug,0x4)) {
+    printf("level&0x4: g_mat_fac_test(%a,%a,%a,%a,%a,%a)\n",F,M,S,E,Inc,Var);
+  }
+  if (type(getopt(crt)) > 0) CRT=1; else CRT=0;
+  if ((Ekn_plist == 0) || (Ekn_IDL == 0) || (CRT==0)) {
+    if (Ekn_mesg == 1) {printf("Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.\n"); Ekn_mesg=0; }
+    if (type(getopt(plain))>0) {
+      if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_plain(slow, rational) is called.\n");
+      return g_mat_fac_test_plain(F,M,S,E,Inc,Var);
+    }else {
+      if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_int is called.\n");
+      return g_mat_fac_test_int(F,M,S,E,Inc,Var);
+    }
+  }
+  F0 = F;
+  if (check_failure(F)) error("Error: crt failure. Use bigger number of primes or bigger prime. See gtt_ekn.setup");
+  F = matrix_matrix_to_list(F); F=base_flatten(F); F=newvect(length(F),F);
+  M = matrix_clone(M);  // do not need it ? 2015.11.13
+  if (iand(Ekn_debug,0x2)) {
+    printf("tmp-input.ab is the input for g_mat_fac_itor. See gen_input.rr and test2.rr to generate a debug file.\n");
+    bsave([F,M,S,E,Inc,Var],"tmp-input.ab"); // save the input for g_mat_fac
+  }
+  if (iand(Ekn_debug,0x1)) {
+    printf("Ekn_debug: evaluating by g_mat_fac_test_plain\n");
+    Ans0 = g_mat_fac_test_plain(F0,M,S,E,Inc,Var);
+    printf("Ekn_debug: evaluating by g_mat_fac_itor\n");
+  }
+  if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_itor is called.\n");
+  Ans=g_mat_fac_itor(F,M,S,E,Inc,Var,Ekn_plist,Ekn_IDL);
+  Ans = vtol(Ans); Ans=matrix_list_to_matrix([Ans]); Ans=matrix_transpose(Ans);
+  // Goto program and Tatibana program has a different format.
+  if (iand(Ekn_debug,0x1)) {
+    printf("Ekn_debug: Ans - Ans0 = %a (Is it equal to 0?)\n", Ans-Ans0);
+  }
+  return(Ans);
+}
+
+def g_mat_fac_test_plain(F,M,S,E,Inc,Var){
+  FF=F;
+  if (Inc>0){
+    for (I=S;I<=E; I+=Inc){
+      FF=base_replace(M,[[Var,I]])*FF; 
+    }
+  }
+  else if (Inc<0){
+    for (I=S;I>=E; I+=Inc){
+      FF=base_replace(M,[[Var,I]])*FF;
+    }
+  }else{
+    return(F);
+  }
+  return(FF);
+}
+/*
+F=matrix(2,1,[[1],[1]]);
+M=matrix(2,2,[[1,t],[0,1]]);
+S=1$ E=3$ Inc=1$
+F1=g_mat_fac_test(F,M,S,E,Inc,t);
+S=-1$ E=-3$ Inc=-1$
+F2=g_mat_fac_test(F,M,S,E,Inc,t);
+*/
+
+def g_mat_fac_test_int(F,M_rat,S,E,Inc,Var){
+  FF0=tk_nm_dn.nm_dn(F);
+  FF=FF0[0];
+  DD=FF0[1];
+  MM=tk_nm_dn.nm_dn(M_rat);
+  M=MM[0]; D=MM[1];
+  if (Inc>0){
+    for (I=S;I<=E; I+=Inc){
+      FF=base_replace_n(M,[[Var,I]])*FF; 
+      DD=substr2np(D,[[Var,I]])*DD;
+    }
+  }
+  else if (Inc<0){
+    for (I=S;I>=E; I+=Inc){
+      FF=base_replace_n(M,[[Var,I]])*FF;
+      DD=substr2np(D,[[Var,I]])*DD;
+    }
+  }else{
+    return(F);
+  }
+  return(FF/DD);
+}
+
+#ifdef USE_MODULE
+endmodule;
+#endif
+end$

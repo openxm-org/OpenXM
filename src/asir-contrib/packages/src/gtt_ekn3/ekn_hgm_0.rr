@@ -1,0 +1,324 @@
+/* $OpenXM$ */
+// 2017.03.10  Added dummy parameter GM.
+/*  misc-2016/A3/rk-k/Prog/tk_exterpolate.rr  was the original. 
+    ---> moved to ekn/Prog/ekn_hgm_0.rr (current original)
+       for hgm for contingency table with 0 cells by interpolation methods.
+*/
+// 2017.03.04   The following functions should be moved to gtt_ekn.rr
+import("names.rr")$
+// 2017.03.04
+// import("gtt_ekn3.rr")$  //It is for testing 0-cell functions, which should be moved to gtt_ekn.rr
+import("tk_exterpolate.rr")$
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module gtt_ekn3$
+static Myrand_mod$
+#else
+extern Myrand_mod$
+#endif
+
+#ifdef USE_MODULE
+localf init_myrand$
+localf myrand$
+localf is_no_zero_cell$
+localf gmvector_0$
+localf gm_test1$
+localf gm_test1b$
+localf gm_test2$
+localf cBasistoEdiff_0$
+localf gm_test3a$
+localf gm_test3b$
+localf gm_test3c$
+localf gm_test3$
+localf cBasistoE_0$
+localf gm_test4$
+#endif
+
+def init_myrand() {
+  Myrand_mod=2^32-1$
+}
+def myrand() {
+  if (type(getopt(randinit)) >= 0) {
+     Myrand_mod=getopt(randinit);
+     // random(Seed) if you need.
+     return(Myrand_mod);
+  }
+  if (Myrand_mod == 0) return(0);
+  if (Myrand_mod <= 1) {
+    R=(random()/(2^32-1))*Myrand_mod;
+  }else{
+    R=random() % Myrand_mod;
+  }
+  return(R);
+}
+
+def gmvector_0(Beta,P) 
+"It evaluates Gauss-Manin vector for Beta and P.\
+Options: randinit(random coef for 0-cell), ptb(perturbation for 0-cell),\
+deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
+Example: gmvector_0([[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
+{
+  if (type(getopt(by_g))>0) return gtt_ekn.gmvector_g_1(Beta,P);
+  NoZero=1;
+   M1 = length(Beta[0]);
+   M2 = length(Beta[1]);
+   P = matrix_list_to_matrix(P);
+   if (type(getopt(deg)) > 0) Deg = getopt(deg);
+   else Deg = base_sum(Beta[0],0,0,M1-1)+1; 
+   if (type(getopt(randinit)) > 0) Randinit=getopt(randinit);
+   else Randinit=0;
+   myrand(|randinit=Randinit);
+   if (type(getopt(ptb)) > 0) Ptb = matrix_list_to_matrix(getopt(ptb)); 
+   else {
+     Ptb=newmat(M1,M2);
+     for (I=0; I<M1; I++) {
+       for (J=0; J<M2; J++) {
+          if (P[I][J] == 0) {
+	    NoZero=0;
+             Ptb[I][J] = x*(2+myrand());
+     }}}
+     // Probability perTaBation
+   }
+   if (NoZero) return(gtt_ekn.gmvector(Beta,P | option_list=getopt()));
+   P2 = newmat(M1,M2);
+   Gmvectors = newvect(Deg);
+   Xlist=newvect(Deg);
+   for (I=1; I<=Deg; I++) {
+     P2 = P + base_replace(Ptb,[[x,I]]);   
+     Xlist[I-1] = I;
+     Gmvectors[I-1] = gtt_ekn.gmvector(Beta,P2| option_list=getopt());
+   }
+   Xlist = vtol(Xlist);
+   // do polynomial exterpolation at x=0.
+   N=size(Gmvectors[0])[0];
+   /*
+   Gm=newmat(1,N);
+   Yvect=newvect(Deg);
+   for (I=0; I<N; I++) {
+     for (J=0; J<Deg; J++) {
+       Yvect[J] = Gmvectors[J][I][0];
+     }
+     Gm[0][I] = tk_exterpolate.poly_extpl(Xlist,Yvect,0);
+   }
+   return(matrix_transpose(Gm));
+   */
+   Gm=tk_exterpolate.poly_extpl(Xlist,Gmvectors,0);
+   return matrix_list_to_matrix(Gm);
+}
+def gm_test1() {
+/*
+  1 2 0
+  1 1 2
+  1 1 1
+*/
+  Beta=[[3,4,3],[3,4,3]];
+  P=[[1,1/2,0],[1,1/3,1/4],[1,1,1]];
+  return gmvector_0(Beta,P);
+}
+def gm_test1b() {
+  Beta=[[3,4,3],[3,4,3]];
+  P=[[1,1/2,0],[1,1/3,1/4],[1,1,1]];
+  return gmvector_0(Beta,P|randinit=20);
+}
+
+// 2017.03.06  goto bed, time of sleep
+def gm_test2() {
+/*
+  0 2 4
+  3 1 4
+  1 3 3
+*/
+  Beta=[[6,8,7],[4,6,11]];
+  P=[[0,1,1/2],[1,1/3,1/4],[1,1,1]];
+  return gmvector_0(Beta,P|randinit=30);  // without randinit, we have the division by 0 error.
+}
+
+def cBasistoEdiff_0(GM,Beta,P) 
+"It evaluates gradients of the expectation matrix for Beta and P.\
+If GM==0 (value by gmvector), then GM is evaluted in this function.\
+GM is ignoted if there is a 0-cell.\
+Options: randinit(random coef for 0-cell), ptb(perturbation for 0-cell),\
+deg(degree of approximation), options for gmvector() and cBasistoEdiff.\
+by_g (use _g_1 functions --- restriction method.)\
+Example: cBasistoEdiff_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
+{
+  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoEdiff_g_1(GM,Beta,P);
+  NoZero=1;
+   M1 = length(Beta[0]);
+   M2 = length(Beta[1]);
+   P = matrix_list_to_matrix(P);
+   if (type(getopt(deg)) > 0) Deg = getopt(deg);
+   else Deg = (2*base_sum(Beta[0],0,0,M1-1)+1)*2-1; // d E/dx is a rational function.
+   if (type(getopt(randinit)) > 0) Randinit=getopt(randinit);
+   else Randinit=0;
+   myrand(|randinit=Randinit);
+   if (type(getopt(ptb)) > 0) Ptb = matrix_list_to_matrix(getopt(ptb)); 
+   else {
+     Ptb=newmat(M1,M2);
+     for (I=0; I<M1; I++) {
+       for (J=0; J<M2; J++) {
+          if (P[I][J] == 0) {
+	    NoZero=0;
+             Ptb[I][J] = x*(2+myrand());
+     }}}
+     // Probability perTaBation
+   }
+   if (NoZero) {
+     if (GM==0) GM=gtt_ekn.gmvector(Beta,P | option_list=getopt());
+     return gtt_ekn.cBasistoEdiff(GM,Beta,P|option_list=getopt());
+   }
+   P2 = newmat(M1,M2);
+   Gmvectors = newvect(Deg);
+   Xlist=newvect(Deg);
+   for (I=1; I<=Deg; I++) {
+     P2 = P + base_replace(Ptb,[[x,I]]);   
+     Xlist[I-1] = I;
+     GM=gtt_ekn.gmvector(Beta,P2| option_list=getopt());
+     Gmvectors[I-1] = gtt_ekn.cBasistoEdiff(GM,Beta,P2|option_list=getopt());
+   }
+   Xlist = vtol(Xlist);
+   // do polynomial exterpolation at x=0.
+   Gm=tk_exterpolate.rat_extpl(Xlist,Gmvectors,0);
+   Gm=matrix_list_to_matrix(Gm);
+   Gm=map(matrix_list_to_matrix,Gm);
+   return Gm;
+}
+
+/* // it is moved to omatrix.rr for matrix_matrix_to_list().
+def my_matrix_to_list(Y) {
+  if (type(Y) < 4) return(Y);
+  if (type(Y) == 4) return(map(my_matrix_to_list,Y));
+  if (type(Y) == 5) {
+    Ans = newvect(length(Y));
+    for (I=0; I<length(Y); I++) Ans[I]=my_matrix_to_list(Y[I]);
+    return(vtol(Ans));
+  }
+  if (type(Y) == 6) {
+    V = newvect(size(Y)[1]);
+    Ans=[];
+    for (I=0; I<size(Y)[0]; I++) {
+      for (J=0; J<size(Y)[1]; J++) {
+        V[J] = my_matrix_to_list(Y[I][J]);
+      }
+      V2 = vtol(V);
+      Ans=cons(V2,Ans);
+    }
+    return(reverse(Ans));
+  }
+  error("Unknown type for my_matrix_to_list");
+}
+*/
+
+def gm_test3a() {
+/*
+  1 2 0
+  1 1 2
+  1 1 1
+*/
+  Beta=[[3,4,3],[3,4,3]];
+  P=[[1,1/2,0],[1,1/3,1/4],[1,1,1]];
+  return cBasistoEdiff_0(0,Beta,P|randinit=30); 
+}
+def gm_test3b() {
+  F1=(1-x)/(10-x);
+  F2=(1-x)/(20-x);
+  X=[1,2,3];  
+  Y=[[base_replace(F1,[[x,X[0]]]),base_replace(F2,[[x,X[0]]])],
+     [base_replace(F1,[[x,X[1]]]),base_replace(F2,[[x,X[1]]])],
+     [base_replace(F1,[[x,X[2]]]),base_replace(F2,[[x,X[2]]])]
+    ];
+  Y = matrix_list_to_matrix(Y);
+  printf("Y=%a\n",Y);
+  return tk_exterpolate.rat_extpl(X,Y,x);
+}
+def gm_test3c() {
+  F1=(1-x)/(10-x);
+  F2=1/(20-x);
+  X=[1,2,3]; 
+  Y0=newmat(2,2,[[F1,1],[0,F2] ]);
+  Y1=newmat(2,2,[[F2,0],[1,F1] ]);
+  // Y2=Y0;  // it works!
+  Y2=newmat(2,2,[[Y0,Y1],[Y1,Y0]]);
+  Y=[base_replace(Y2,[[x,X[0]]]),base_replace(Y2,[[x,X[1]]]),base_replace(Y2,[[x,X[2]]])];
+  printf("Y=%a\n",matrix__matrix_to_list(Y));
+  return tk_exterpolate.rat_extpl(X,Y,x);
+}
+def gm_test3() {
+/*
+  0 2 4
+  3 1 4
+  1 3 3
+*/
+  Beta=[[6,8,7],[4,6,11]];
+  P=[[0,1,1/2],[1,1/3,1/4],[1,1,1]];
+  return cBasistoEdiff_0(0,Beta,P|randinit=30);  // without randinit, we have the division by 0 error.
+}
+
+/* 2017.03.09 */
+def cBasistoE_0(GM,Beta,P) 
+"It evaluates the expectation matrix for Beta and P.\
+If GM==0 (value by gmvector), then GM is evaluted in this function.\
+GM is ignoted if there is a 0-cell.\
+Options: see cBasistoEdiff.\
+Example: cBasistoE_0(0,[[3,4,3],[3,4,3]],[[1,1/2,0],[1,1/3,1/4],[1,1,1]] | randinit=20);"
+{
+  if (type(getopt(by_g))>0) return gtt_ekn.cBasistoE_g_1(GM,Beta,P);
+  NoZero=1;
+   M1 = length(Beta[0]);
+   M2 = length(Beta[1]);
+   P = matrix_list_to_matrix(P);
+   if (type(getopt(deg)) > 0) Deg = getopt(deg);
+   else Deg = (base_sum(Beta[0],0,0,M1-1)+1)*2-1; // E is a rational function.
+   if (type(getopt(randinit)) > 0) Randinit=getopt(randinit);
+   else Randinit=0;
+   myrand(|randinit=Randinit);
+   if (type(getopt(ptb)) > 0) Ptb = matrix_list_to_matrix(getopt(ptb)); 
+   else {
+     Ptb=newmat(M1,M2);
+     for (I=0; I<M1; I++) {
+       for (J=0; J<M2; J++) {
+          if (P[I][J] == 0) {
+	    NoZero=0;
+             Ptb[I][J] = x*(2+myrand());
+     }}}
+     // Probability perTaBation
+   }
+   if (NoZero) {
+     if (GM==0) GM=gtt_ekn.gmvector(Beta,P | option_list=getopt());
+     return gtt_ekn.cBasistoE(GM,Beta,P|option_list=getopt());
+   }
+   P2 = newmat(M1,M2);
+   Gmvectors = newvect(Deg);
+   Xlist=newvect(Deg);
+   for (I=1; I<=Deg; I++) {
+     P2 = P + base_replace(Ptb,[[x,I]]);   
+     Xlist[I-1] = I;
+     GM=gtt_ekn.gmvector(Beta,P2| option_list=getopt());
+     Gmvectors[I-1] = gtt_ekn.cBasistoE(GM,Beta,P2|option_list=getopt());
+   }
+   Xlist = vtol(Xlist);
+   // do polynomial exterpolation at x=0.
+   Gm=tk_exterpolate.rat_extpl(Xlist,Gmvectors,0);
+   return matrix_list_to_matrix(Gm);
+}
+def gm_test4() {
+/*
+  1 2 0
+  1 1 2
+  1 1 1
+*/
+  Beta=[[3,4,3],[3,4,3]];
+  P=[[1,1/2,0],[1,1/3,1/4],[1,1,1]];  // Replace 0 by 1/10^3 and compare values --> fine.
+  return cBasistoE_0(0,Beta,P|randinit=20);
+}
+
+
+#ifdef USE_MODULE
+endmodule$
+gtt_ekn3.init_myrand()$
+#else
+init_myrand()$
+#endif
+
+end$
