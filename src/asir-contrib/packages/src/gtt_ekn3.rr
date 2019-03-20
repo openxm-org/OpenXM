@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.2 2019/03/19 03:07:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.3 2019/03/19 07:36:21 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 import("gtt_ekn.rr")$  // for assert?
@@ -7,37 +7,299 @@ if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
 }else {;}
 
 #define USE_MODULE
-//#define FOR_DEVELOPE
-load("gtt_ekn3/g_mat_fac.rr")$
-load("gtt_ekn3/dm_bsplit.rr")$
-load("gtt_ekn3/mfac_bs.rr")$
-load("gtt_ekn3/ekn_eval.rr")$
-load("gtt_ekn3/mle.rr")$
-load("gtt_ekn3/ekn_hgm_0.rr")$
-load("gtt_ekn3/ekn_restriction_2.rr")$
 
 #ifdef USE_MODULE
 module gtt_ekn3$
-localf get_svalue$
-localf gmvector$
-localf gmvector_g_1$
-localf nc$
-localf lognc$
-localf expectation$
-localf setup$
-localf report$
-localf cmle$
-localf set_debug_level$
-localf assert1$
-localf assert2$
-localf prob1$
-localf set_ARule$
-localf set_XRule$
+/* prototype declaration of all functions */
+localf abs_max$ 
+localf alpha$ 
+localf alphaProd$ 
+localf alphaRule_num$ 
+localf alphaRule$ 
+localf antiDiag$ 
+localf append_comp_v$ 
+localf assert1$ 
+localf assert2$ 
+localf avoid_var$ 
+localf basistodS_g_1$ 
+localf basistodS$ 
+localf basistoFdiff$ 
+localf basistoHessian$ 
+localf basistoS1_g_1$ 
+localf basistoS1$ 
+localf calJ$ 
+localf calJ0_slow$ 
+localf calJ0$ 
+localf calJqp$ 
+localf cBasistoE_0$ 
+localf cBasistoE_g_1$ 
+localf cBasistoE$ 
+localf cBasistoEdiff_0$ 
+localf cBasistoEdiff_g_1$ 
+localf cBasistoEdiff$ 
+localf check_failure$ 
+localf check_relation$ 
+localf chinese_itor$ 
+localf cInt_g_1$ 
+localf cInt$ 
+localf cInts$ 
+localf cInts2$ 
+localf cmle_1$ 
+localf cmle_2$ 
+localf cmle_3_v1$ 
+localf cmle_3$ 
+localf cmle_options$ 
+localf cmle_test1$ 
+localf cmle_test1c$ 
+localf cmle_test2$ 
+localf cmle_test2b$ 
+localf cmle_test2c$ 
+localf cmle_test3$ 
+localf cmle_test4$ 
+localf cmle_test5_ans$ 
+localf cmle_test5_female$ 
+localf cmle_test5_male$ 
+localf cmle_test5$ 
+localf cmle_test5b$ 
+localf cmle$ 
+localf coef_upAlpha$ 
+localf coefPsi$ 
+localf contiguity_mat_list_1$ 
+localf contiguity_mat_list_2$ 
+localf contiguity_mat_list_3$ 
+localf contiguity_mat_list_g_1$ 
+localf contiguity_mat_list_g_2$ 
+localf dataset$ 
+localf denormalize$ 
+localf denormalize2$ 
+localf dg_mat_fac_mm$ 
+localf dg_mat_fac_mm0$ 
+localf dlogxJ_g_1$ 
+localf dlogxJ$ 
+localf dnlcm$ 
+localf do_itor$ 
+localf downAlpha_g_1$ 
+localf downAlpha_g_2$ 
+localf downAlpha$ 
+localf downAlpha2$ 
+localf downAlpha3$ 
+localf dxij$ 
+localf e36_deg_contig_test_2$ 
+localf e36_deg_contig_test_3$ 
+localf e36_deg_contig_test_k$ 
+localf e36_deg_contig_test_k2$ 
+localf e36_deg_contig_test$ 
+localf e36_deg_test_invintMatrix$ 
+localf e36_deg_test$ 
+localf e36_deg_timing_test$ 
+localf e48_deg_contig_test$ 
+localf ekn_cBasis_1$ 
+localf ekn_cBasis_2$ 
+localf ekn_cBasis_3$ 
+localf ekn_cBasis_g_1$ 
+localf ekn_restr_1$ 
+localf ekn_restr_factor_1$ 
+localf ell$ 
+localf ellAll$ 
+localf ellRule$ 
+localf eulerxij$ 
+localf eulerZ$ 
+localf expectation$ 
+localf factorial_prod$ 
+localf factorial$ 
+localf find_zero$ 
+localf first_diff$ 
+localf g_mat_fac_int$ 
+localf g_mat_fac_itor$ 
+localf g_mat_fac_test_bs$ 
+localf g_mat_fac_test_int$ 
+localf g_mat_fac_test_plain$ 
+localf g_mat_fac_test$ 
+localf generate_p_set_$ 
+localf generate_p_set$ 
+localf get_dm_bsplit_global$ 
+localf get_mfac_bs_global$ 
+localf get_mfac_bs_global$ 
+localf get_svalue$ 
+localf get_T_list$ 
+localf gm_test1$ 
+localf gm_test1b$ 
+localf gm_test2$ 
+localf gm_test3$ 
+localf gm_test3a$ 
+localf gm_test3b$ 
+localf gm_test3c$ 
+localf gm_test4$ 
+localf gmvector_0$ 
+localf gmvector_g_1$ 
+localf gmvector$ 
+localf go_next$ 
+localf has_negative_elem$ 
+localf hpq$ 
+localf ijphiJ$ 
+localf init_bsplit$ 
+localf init_dm_bsplit$ 
+localf init_myrand$ 
+localf initial_row$ 
+localf initialAlpha_1$ 
+localf initialAlpha_3$ 
+localf initialAlpha$ 
+localf initialBeta_1$ 
+localf initialBeta_3$ 
+localf initialBeta$ 
+localf initialPoly_3$ 
+localf initialPoly_table_3$ 
+localf initialPoly_table$ 
+localf initialPoly$ 
+localf intMatrix_g_1$ 
+localf intMatrix$ 
+localf intMatrix2$ 
+localf intMatrixH$ 
+localf invintMatrix_g_1$ 
+localf invintMatrix_g_l00l$ 
+localf invintMatrix_k$ 
+localf invintMatrix_k2$ 
+localf invintMatrix_n$ 
+localf invrepMatrix_g_1$ 
+localf invrepMatrix$ 
+localf invrepMatrix2$ 
+localf is_no_zero_cell$ 
+localf isConst$ 
+localf jinv_orig$ 
+localf jinv_v2$ 
+localf jinv$ 
+localf jj$ 
+localf load_prime$ 
+localf log_cont$ 
+localf lognc$ 
+localf ltop$ 
+localf ltopoly$ 
+localf lvec$ 
+localf m_alpha$ 
+localf marginaltoAlpha_list$ 
+localf marginaltoAlpha$ 
+localf mat_red$ 
+localf max$ 
+localf mBasis_replace_g_1$ 
+localf mBasis_replace$ 
+localf mBasis$ 
+localf mBasisList$ 
+localf mlcm$ 
+localf mle_init$ 
+localf modp_itor$ 
+localf move$ 
+localf moveAlpha_n$ 
+localf moveAlpha$ 
+localf mul_list$ 
+localf myabs$ 
+localf myrand$ 
+localf nablaij$ 
+localf nc$ 
+localf next_2$ 
+localf next$ 
+localf nextData_itor$ 
+localf nextP_itor$ 
+localf nm_dn_assert$ 
+localf nm_dn$ 
+localf normalize$ 
+localf number_nm_dn_0$ 
+localf number_nm_dn_list$ 
+localf number_nm_dn$ 
+localf oddsvect$ 
+localf pf_basis_zero$ 
+localf pfaffian_basis_g_1$ 
+localf pfaffian_basis$ 
+localf pfaffianCoef_g_1$ 
+localf pfaffianCoef$ 
+localf pfaffianMJ$ 
+localf pfaffianPsi_2$ 
+localf pfaffianPsi_time$ 
+localf pfaffianPsi_time2$ 
+localf pfaffianPsi$ 
+localf phiJ$ 
+localf phitov$ 
+localf pm$ 
+localf pochhammer$ 
+localf poly_nm_dn_list$ 
+localf poly_nm_dn$ 
+localf preparation_F$ 
+localf preparation_Mat$ 
+localf preparation$ 
+localf prime_prob$ 
+localf prime_XRule$ 
+localf print_restr_factor_1$ 
+localf prob1$ 
+localf process$ 
+localf rdeg$ 
+localf repMatrix_g_1$ 
+localf repMatrix$ 
+localf repMatrix2$ 
+localf report$ 
+localf rm_list$ 
+localf s36$ 
+localf s36$ 
+localf save_prime$ 
+localf set_ARule$ 
+localf set_assert$ 
+localf set_debug_level$ 
+localf set_XRule$ 
+localf setup_dm_bsplit$ 
+localf setup_x$ 
+localf setup$ 
+localf shift_m$ 
+localf shift$ 
+localf show_path$ 
+localf shutdown$ 
+localf sortSgn$ 
+localf submatrix$ 
+localf sum_time$ 
+localf swap_col$ 
+localf swap_row$ 
+localf test_bs_dist$ 
+localf test5x5$
+localf test_nxn$ 
+localf test111$ 
+localf test222$ 
+localf ti$ 
+localf to_vect$ 
+localf tt$ 
+localf tvec$ 
+localf txmat$ 
+localf upAlpha_g_1$ 
+localf upAlpha_g_2$ 
+localf upAlpha$ 
+localf upAlpha2$ 
+localf upAlpha3$ 
+localf ux$ 
+localf vanish_dvar$ 
+localf vanish_var_ind$ 
+localf vanish_var_list$ 
+localf vanish_var$ 
+localf vanish_vartoform$ 
+localf xij_rule$ 
+localf xij$ 
+localf xJ_rule$ 
+localf xJ_rule2$ 
+localf xJ$ 
+localf xmat$ 
+localf xRule_num$
+endmodule$
 #else
 extern Ekn_plist$
 extern Ekn_IDL$
 #endif
+Gtt_ekn3="gtt_ekn3/"$
+load(Gtt_ekn3+"g_mat_fac.rr")$
+load(Gtt_ekn3+"dm_bsplit.rr")$
+load(Gtt_ekn3+"mfac_bs.rr")$
+load(Gtt_ekn3+"ekn_eval.rr")$
+load(Gtt_ekn3+"mle.rr")$
+load(Gtt_ekn3+"ekn_hgm_0.rr")$
+load(Gtt_ekn3+"ekn_restriction_2.rr")$
 
+#ifdef USE_MODULE
+module gtt_ekn3;
+#endif
 def get_svalue() {  // get values of static or extern variables.
   return([Ekn_plist,Ekn_IDL,Ekn_debug,Ekn_mesg,XRule,ARule,Verbose,Ekn_Rq]);
 }

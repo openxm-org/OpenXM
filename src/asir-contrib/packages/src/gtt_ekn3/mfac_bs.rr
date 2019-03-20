@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/mfac_bs.rr,v 1.1 2019/03/19 03:07:51 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/mfac_bs.rr,v 1.2 2019/03/19 07:36:21 takayama Exp $
 */
-/* g_mat_fac_test(F,M,S,E,Inc,Var | bs=1) */
+/*  binary splitting method.
+g_mat_fac_test(F,M,S,E,Inc,Var | bs=1) */
 module gtt_ekn3;
 static XRule$
 static ARule$
@@ -10,18 +11,15 @@ static Debug_bsplit$
 static T_list$
 static M_ans$
 
-localf init_bsplit$
-localf get_T_list$
-localf g_mat_fac_test_bs$
-localf sum_time$
-localf test_nxn$
-
 def init_bsplit() {
   Opt_bsplit=getopt();
   T_list=[];
-  if (type(getopt(debug))>0) Debug_bsplit=1; else Debug_bsplit=0; // 
+  if (type(getopt(bsdebug))>0) Debug_bsplit=1; else Debug_bsplit=0; // 
 }
 //time_test5d(0 | minsize=16, levelmax=1, upto=40000)$  //  分散計算なし.
+def get_mfac_bs_global() {
+  return cons([bsdebug,Debug_bsplit],Opt_bsplit);
+}
 
 def sum_time() {
   T_cpu=0; T_real=0;
@@ -54,8 +52,45 @@ def g_mat_fac_test_bs(F,M,S,E,Inc,Var) {
   return Ans;
 }
 
+def test5x5(N) {
+  if (type(getopt(bs)) < 0) printf("Should be called with bs=1 option.\n");
+  Debug=0; // if you want to test 2x2 case, set to 1.
+  if (Debug) {
+    Msum=[[4*N,4*N],[2*N,6*N]]; X=[[1,1/2],[1,1]];
+  }else{
+    Msum=[[4*N,4*N,4*N,4*N,4*N],[2*N,3*N,5*N,5*N,5*N]];
+    // A=gtt_ekn.marginaltoAlpha_list(Msum)$
+    // L=gtt_ekn.contiguity_mat_list_2(A,4,4)$
+    PP=[1/2,1/3,1/5,1/7,1/11,1/13,1/17,1/19,
+        1/23,1/29,1/31,1/37,1/37,1/41,1/43,1/47,1/53,1/59,1/61,1/67,1/71,
+        1/73,1/79,1/83,1/97];
+    X=newmat(5,5);
+    for (I=0; I<5; I++) X[I][0]=1;
+    for (J=0; J<5; J++) X[4][J]=1;
+    K=0;
+    for (I=0; I<4; I++) for (J=1; J<5; J++) X[I][J] = PP[K++];
+    X=matrix_matrix_to_list(X);
+    print(X);
+  }
+  T_list=[];
+  T0=time();
+  if (type(getopt(expect))>0) {
+    Ans=expectation(Msum,X | option_list=getopt())$
+  }else{
+    Ans=gmvector(Msum,X | option_list=getopt())$
+  }
+  T1=time();
+  M_ans=Ans;
+
+  T=sum_time();
+  T_cont_cpu=T1[0]-T0[0]-T[0];
+  T_cont_real=T1[3]-T0[3]-T[1];
+  return append(T,[T_cont_cpu,T_cont_real]);
+  // [g_mat_fac(CPU), g_mat_fac(real), other(contiguity, ..., cpu), other(real)]
+}
 
 def test_nxn(N) {
+  if (type(getopt(bs)) < 0) printf("Should be called with bs=1 option.\n");
   if (type(getopt(table_size))>0) Table_size=getopt(table_size);
   else Table_size=2;
   printf("Table_size=%a\n",Table_size);
@@ -81,9 +116,9 @@ def test_nxn(N) {
   }
   X=matrix_matrix_to_list(X);
   print(X);
-
+  T_list=[];  // init_bsplit() may be safer.
   T0=time();
-  Ans=gmvector(Msum,X)$
+  Ans=gmvector(Msum,X | option_list=getopt())$
   T1=time();
   M_ans=Ans;
 
@@ -93,11 +128,26 @@ def test_nxn(N) {
   return append(T,[T_cont_cpu,T_cont_real]);
   // [g_mat_fac(CPU), g_mat_fac(real), other(contiguity, ..., cpu), other(real)]
 }
+
+def test_bs_dist() {
+  if (type(getopt(procs))>0) {
+    C=getopt(procs);
+  }else{
+    C=4;
+  }
+  printf("Setup %a process (use procs option to change it)\n",C);
+  printf("Executing\nC=%a;",C);
+  printf("init_bsplit(|minsize=16,levelmax=C+1)$ init_dm_bsplit(|bsplit_x=1)$ setup_dm_bsplit(C)$\n");
+  init_bsplit(|minsize=16,levelmax=C+1); 
+  init_dm_bsplit(|bsplit_x=1);
+  setup_dm_bsplit(C);
+  gtt_ekn3.assert2(10 | bs=1);
+}
 endmodule$
-gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$
 
 /*
-gtt_ekn3.setup_dm_bsplit(0)$  // single process
+// gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$
+// gtt_ekn3.setup_dm_bsplit(0)$  // single process
 */
 
 

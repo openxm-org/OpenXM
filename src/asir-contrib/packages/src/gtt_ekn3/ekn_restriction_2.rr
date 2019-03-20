@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_restriction_2.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $ */
 #define USE_MODULE
 load("gtt_ekn3/ekn_eval.rr")$
 load("gtt_ekn3/mle.rr")$
@@ -8,52 +8,6 @@ module gtt_ekn3;
 #else
 #endif
 
-#ifdef USE_MODULE
-localf ekn_restr_1$
-localf ekn_restr_factor_1$
-localf print_restr_factor_1$
-localf cInt_g_1$
-localf mBasis_replace_g_1$
-localf intMatrix_g_1$
-localf invintMatrix_g_l00l$
-localf invintMatrix_g_1$
-localf e36_deg_test_invintMatrix$
-localf vanish_var$
-localf vanish_var_list$
-localf vanish_vartoform$
-localf repMatrix_g_1$
-localf invrepMatrix_g_1$
-localf upAlpha_g_1$
-localf downAlpha_g_1$
-localf upAlpha_g_2$
-localf downAlpha_g_2$
-localf avoid_var$
-localf pfaffian_basis_g_1$
-localf contiguity_mat_list_g_1$
-localf contiguity_mat_list_g_2$
-localf vanish_dvar$
-localf dlogxJ_g_1$
-localf pfaffianCoef_g_1$
-localf submatrix$
-localf pf_basis_zero$
-localf first_diff$
-localf basistoS1_g_1$
-localf basistodS_g_1$
-localf find_zero$
-localf ekn_cBasis_g_1$
-localf cBasistoE_g_1$
-localf cBasistoEdiff_g_1$
-localf vanish_var_ind$
-localf e36_deg_test$
-localf s36$
-localf e36_deg_contig_test$
-localf e36_deg_contig_test_2$
-localf e36_deg_contig_test_3$
-localf e36_deg_timing_test$
-localf e48_deg_contig_test$
-localf e36_deg_contig_test_k$
-localf e36_deg_contig_test_k2$
-#endif
 
 def ekn_restr_1(K,N){
   MBasis=mBasisList(K,N);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/dm_bsplit.rr,v 1.1 2019/03/19 03:07:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/dm_bsplit.rr,v 1.2 2019/03/19 07:36:21 takayama Exp $ */
 /* 2019.02.19  
   Distributed, matrix factorial, binary split version.
 */
@@ -13,19 +13,24 @@ static M_bsplit_max$
 static M_bsplit_debug$
 static M_bsplit_count$
 
-localf init_dm_bsplit$
-localf setup_dm_bsplit$
-localf dg_mat_fac_mm$
-localf dg_mat_fac_mm0$
-localf log_cont$
 
 def init_dm_bsplit() {
   Proc1=-1$
+  ////printf("init_dm_bsplit opt=%a\n",getopt());
   if (type(getopt(bsplit_x))>0) NoX=0; else NoX=1;
+  /* workaround of the bug of the line above */
+  L=base_flatten(getopt());
+  Pos = base_position(bsplit_x,L);
+  if (Pos>=0) NoX = !L[Pos+1];  
+
+  ////printf("NoX=%a\n",NoX);
   //M_bsplit_reduce=1$
   if (type(getopt(bsplit_reduce))>0) M_bsplit_reduce=1; else M_bsplit_reduce=0$
   M_bsplit_max = 10000$  
   M_bsplit_debug=0$
+}
+def get_dm_bsplit_global() {
+  return [[bsplit_x,!NoX],[bsplit_reduce,!M_bsplit_reduce]];
 }
 
 def setup_dm_bsplit(C) 
@@ -96,12 +101,17 @@ def dg_mat_fac_mm0(Mnm,Mdn,S,E,Inc,Var,Level,MinSize,LevelMax) {
       M2=dg_mat_fac_mm0(Mnm,Mdn,S1,E,Inc,Var,Level,MinSize,LevelMax);
     }else{
       if (Proc1 < 0) {
+        printf("NoX=%a\n",NoX);
         if (NoX) {
           Proc1=ox_launch_nox(0,"ox_asir");
         }else{
           Proc1=ox_launch(0,"ox_asir");
         }
 	ox_execute_string(Proc1,"load(\"gtt_ekn3.rr\");");
+	ox_execute_string(Proc1,S_tmp=sprintf("gtt_ekn3.init_bsplit(|option_list=%a);",get_mfac_bs_global()));
+	printf("execute_string to child proc %a: %a\n",Proc1,S_tmp);
+	ox_execute_string(Proc1,S_tmp=sprintf("gtt_ekn3.init_dm_bsplit(|option_list=%a);",get_dm_bsplit_global()));
+	printf("execute_string to child proc %a: %a\n",Proc1,S_tmp);
       }
       ox_rpc(Proc1,"gtt_ekn3.dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);
       //ox_rpc(Proc1,"dg_mat_fac_mm0",Mnm,Mdn,S,E1,Inc,Var,Level+1,MinSize,LevelMax);

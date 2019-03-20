@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.13 2019/03/19 03:07:51 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.14 2019/03/19 07:36:21 takayama Exp $
 %% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -41,7 +41,7 @@
 @title 2元分割表HGM関数
 @subtitle Risa/Asir 2元分割表HGM関数説明書
 @subtitle 1.2 版
-@subtitle 2019 年 3 月 19 日
+@subtitle 2019 年 3 月 20 日
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
@@ -130,6 +130,7 @@ gtt_ekn/test-t1.rr
 * gtt_ekn.upAlpha::
 * gtt_ekn.cmle::
 * gtt_ekn.set_debug_level::
+* gtt_ekn.contiguity_mat_list_2::
 * gtt_ekn.show_path::
 * gtt_ekn.get_svalue::
 * gtt_ekn.assert1::
@@ -884,6 +885,7 @@ ChangeLog
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
 @node gtt_ekn.set_debug_level,,, 超幾何関数E(k,n)
+@node gtt_ekn.contiguity_mat_list_2,,, 超幾何関数E(k,n)
 @node gtt_ekn.show_path,,, 超幾何関数E(k,n)
 @node gtt_ekn.get_svalue,,, 超幾何関数E(k,n)
 @node gtt_ekn.assert1,,, 超幾何関数E(k,n)
@@ -892,6 +894,7 @@ ChangeLog
 @subsection @code{gtt_ekn.set_debug_level}, @code{gtt_ekn.show_path}, @code{gtt_ekn.get_svalue}, @code{gtt_ekn.assert1}, @code{gtt_ekn.assert2}, @code{gtt_ekn.prob1}
 @comment --- 索引用キーワード
 @findex gtt_ekn.set_debug_level
+@findex gtt_ekn.contiguity_mat_list_2
 @findex gtt_ekn.show_path
 @findex gtt_ekn.get_svalue
 @findex gtt_ekn.assert1
@@ -900,6 +903,7 @@ ChangeLog
 
 @table @t
 @item gtt_ekn.set_debug_level(@var{m}) debug メッセージのレベルを設定.
+@item gtt_ekn.contiguity_mat_list_2  使用する contiguity を構成.
 @item gtt_ekn.show_path()  どのように contiguity を適用したかの情報.
 @item gtt_ekn.get_svalue()  static 変数の値を得る.
 @item gtt_ekn.assert1(@var{N})  2x2 分割表で動作チェック.
@@ -958,6 +962,15 @@ A=gtt_ekn.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
 [2667] L=matrix_transpose(gtt_ekn.show_path())$
 [2668] L[2];
 [ 2 1 5 4 3 ]
+@end example
+
+例. 値を計算せずに path のみ求めたい場合.
+gtt_ekn3 による新しいアルゴリズムによる path の表示.
+@example
+A=gtt_ekn3.marginaltoAlpha_list([[10,20],[15,15]])$
+[2666] gtt_ekn3.contiguity_mat_list_3(A,1,1 | xrule=[[x_1_1,1/2]])$
+[t,[[ (-t-43/2)/(t-2) (-15/2)/(t-2) ]
+[ 1/2 -1/2 ],-9]]
 @end example
 
 例. 0 が戻れば g_mat_fac_plain と指定した計算方法の結果が一致したことがわかる.
@@ -1158,8 +1171,8 @@ ChangeLog
 
 @comment --- 引数の簡単な説明 ---  以下まだ書いてない.
 @table @var
-@item C  C はlevelmax-1 に設定する. 特に levalmax=1 のときは分散計算を行わない.
-@item bsplit_x bsplit_x=1 のとき, 各プロセスを xterm で表示.
+@item C はlevelmax-1 に設定する. 特に levalmax=1 のときは分散計算を行わない.
+@item bsplit_x=1 のとき, debug 用に各プロセスを xterm で表示.
 @end table
 
 @comment --- ここで関数の詳しい説明 ---
@@ -1171,7 +1184,7 @@ splitting method で計算する.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
-例: bs=1 と無い場合.
+例: bs=1 と無い場合の比較.
 @example
 [4618] cputime(1)$
 [4619] gtt_ekn3.expectation(Marginal=[[1950,2550,5295],[1350,1785,6660]],
@@ -1184,9 +1197,13 @@ splitting method で計算する.
 
 
 @comment --- @example〜@end example は実行例の表示 ---
-例: 分散計算する場合. debug 用の xterm も開く.
+例: 分散計算する場合.
+分散計算はかえって遅くなる場合が多いので注意. 
+下記の例での bsplit_x=1 option は
+debug windows を開くのでさらに遅くなる.
+gtt_ekn3.test_bs_dist(); でもテストできる.
 @example
-[3669] C=3$ gtt_ekn3.init_bsplit(|minsize=16,levelmax=C+1)$ gtt_ekn3.init_dm_bsplit(|bsplit_x=1)$
+[3669] C=4$ gtt_ekn3.init_bsplit(|minsize=16,levelmax=C+1)$ gtt_ekn3.init_dm_bsplit(|bsplit_x=1)$
 [3670] [3671] [3672] gtt_ekn3.setup_dm_bsplit(C);
 [0,0]
 [3673] gtt_ekn3.assert2(10|bs=1)$
