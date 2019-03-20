@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.1 2018/07/26 00:47:04 takayama Exp $
 gtt_ds.rr  gtt_ekn for Direct Sampler  2018.07.09
 */
 import("gtt_ekn.rr")$
@@ -73,6 +73,7 @@ static DS_contiguity_denom_cache$
 // 2018.07.13 hash table of GM
 static DS_HASH_SIZE$
 static DS_gm_hash$
+static DS_bigfloat$
 
 #else
 
@@ -110,6 +111,7 @@ extern DS_contiguity_denom_cache$
 // 2018.07.13 hash table of GM
 extern DS_HASH_SIZE$
 extern DS_gm_hash$
+extern DS_bigfloat$
 
 #endif
 
@@ -127,8 +129,9 @@ def vvb(B) {
 }
 /* It is called when this file is loaded. */
 def init_load() 
-"Initialize all caches and global variables."
+"Initialize all caches and global variables. Options: bigfloat=0"
 {
+  if (type(getopt(bigfloat))>0) DS_bigfloat=1; else DS_bigfloat=0;
   DS_k=0;
   DS_n=0;
 
@@ -143,7 +146,6 @@ def init_load()
 
   DS_HASH_SIZE=100;
   DS_gm_hash=newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
-
   return(0);
 }
 def set_debug(L) 
@@ -329,7 +331,9 @@ def update_gm(II,JJ,B,P,GM) {
   Dd = DS_contiguity_denom[II][JJ];
   for (I=length(L)-1; I>=0; I--) {
     if (base_replace_n(Dd[I],Rule)==0) return(0);
-    GM=base_replace_n(L[I],Rule)*GM;
+    TF=base_replace_n(L[I],Rule);
+    if (DS_bigfloat) TF=number_eval(TF);
+    GM=TF*GM;
   }
   return(GM);
 }
