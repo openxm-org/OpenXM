@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.14 2019/03/19 07:36:21 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.15 2019/03/20 02:08:55 takayama Exp $
 %% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -229,10 +229,20 @@ gmvector は
 @item 
 周辺和 @var{beta}の時の正規化定数のセル確率 @var{p} に対する値は 多項式に退化した E(k,n) の値で表現できる. 文献 [TKT2015], [GM2016] 参照.
 @item 
+以下の option は expectation でも同じ.
+@item 
 option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう
 [T2016]. 
 分散計算用の各種パラメータの設定は
 gtt_ekn.setup で行なう.
+@item
+option bs=1.  binary splitting method で matrix factorial を計算.
+一般に 3x3 では効果あり(assert2(15|bs=1)), 5x5 (test5x5(20|bs=1))では遅くなる.
+デフォールトは bs=0.
+@item
+option path. contiguity を適用する path をきめるアルゴリズムを指定.
+path=2 (後藤, 松本の論文の path). path=3 (論文 tgkt の path).
+デフォールトは path=3.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
