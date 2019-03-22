@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.2 2018/09/08 03:05:19 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.3 2018/09/08 05:04:34 takayama Exp $
 */
 
 #include <stdio.h>
@@ -374,7 +374,7 @@ int sm_executeFunction()
     }else if (strcmp(func->s,"PyRun_String")==0) {
         my_PyRun_String();
     }else if (strcmp(func->s,"eval")==0) {
-        my_eval2b();
+        my_eval2();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;

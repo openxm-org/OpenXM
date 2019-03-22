@@ -1,0 +1,28 @@
+## Makefile for MacOS with home brew.
+## python-config outputs both -arch x86_64 and -arch i386
+## Remove -arch i386 by hand.
+prefix = /usr/local
+CFLAGS =  -Wno-attributes -I../../include -I /usr/local/include
+LIBS = -L../../lib -L/usr/local/lib  -lox -lmpfr -lgmp -lgc
+LN_S = ln -s
+TARGET = ox_python
+CC = gcc
+# output of python-config --cflags
+PYTHON_CONFIG = -I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -fno-strict-aliasing -fno-common -dynamic -arch x86_64 -g -Os -pipe -fno-common -fno-strict-aliasing -fwrapv -DENABLE_DTRACE -DMACOSX -DNDEBUG -Wall -Wstrict-prototypes -Wshorten-64-to-32 -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE
+# output of python-config --ldflags
+MY_LD = -L/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/config -lpython2.7 -ldl -framework CoreFoundation
+
+all: ${TARGET}
+
+ox_python: ox_python.o mysig.o
+	${CC} ${CFLAGS} ${PYTHON_CONFIG} -o ox_python ox_python.o mysig.o ${MY_LD} ${LIBS}
+
+.c.o: ox_python.h mysig.h
+	${CC} ${CFLAGS} ${PYTHON_CONFIG} -c -g $<
+
+clean:
+	rm -f *.o *~ ox_python  
+distclean: clean
+	rm -f .configure_done
+
+# $OpenXM$
