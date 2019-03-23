@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.177 2017/03/31 00:43:02 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.178 2018/04/05 08:25:00 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -32,6 +32,9 @@ all-oxc: configure-oxc install-oxtoolkit
 	-(cd oxc; ${MAKE} all)
 
 all-asir: configure-asir install-pari install-gmp install-mpfr install-mpc
+	(cd asir2018; ${MAKE} all)
+
+all-asir2000: configure-asir2000 install-pari install-gmp install-mpfr install-mpc
 	(cd asir2000; ${MAKE} all)
 
 all-gnuplot: configure-gnuplot
@@ -142,6 +145,9 @@ install-mpc: all-mpc
 	(cd mpc; ${MAKE} install)
 
 install-asir: all-asir
+	-(cd asir2018; ${MAKE} install)
+
+install-asir2000: all-asir2000
 	-(cd asir2000; ${MAKE} install)
 
 install-gnuplot: all-gnuplot
@@ -273,9 +279,13 @@ configure-mpc: install-util install-gmp install-mpfr
 	(cd mpc; ${MAKE} configure)
 
 configure-asir: install-util 
+	(cd asir2018; ${MAKE} configure) 
+
+configure-asir2000: install-util 
 	(cd asir2000; ${MAKE} configure) 
+
 configure-asir-static: install-util 
-	(cd asir2000; rm -f .configure_done; ${MAKE} configure-static) 
+	(cd asir2018; rm -f .configure_done; ${MAKE} configure-static) 
 
 configure-asir-contrib: 
 	-(cd asir-contrib; ./make-configure) 

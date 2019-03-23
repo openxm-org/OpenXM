@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.35 2017/03/31 06:11:01 fujimoto Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.36 2018/12/22 01:54:58 kondoh Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -25,6 +25,7 @@ all-nox: configure-nox install-pari
 
 install: all
 	(cd ${ASIR} ; ${MAKE} install-openxm)
+	cp -p asir2000 ${PREFIX}/bin/
 
 clean:
 	(cd ${ASIR} ; ${MAKE} clean)
