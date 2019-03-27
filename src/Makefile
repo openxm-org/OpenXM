@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.179 2019/03/23 12:22:09 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.180 2019/03/27 05:02:31 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -9,7 +9,7 @@ RCDIR=../rc
 SHAREDIR=../share
 COPYRIGHTDIR=../Copyright
 
-all: all-util all-gc all-gmp all-mpfr all-mpc all-asir all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-gmp all-mpfr all-mpc all-asir all-asir2000 all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
 
