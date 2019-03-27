@@ -1,38 +1,31 @@
-# $OpenXM: OpenXM/rc/bashrc,v 1.17 2014/05/12 10:39:50 takayama Exp $
-OpenXM_HOME=$HOME/OpenXM
-export OpenXM_HOME
-PATH=$OpenXM_HOME/bin:$PATH
-ASIR_LIBDIR=$OpenXM_HOME/lib/asir
-export ASIR_LIBDIR
-ASIR_CONFIG=$OpenXM_HOME/rc/asirrc
-export ASIR_CONFIG
-if [ "$ASIR_RSH" = "" ]; then
-ASIR_RSH='ssh -f -X -A '
-export ASIR_RSH
+# $OpenXM: OpenXM/rc/bashrc,v 1.18 2018/03/22 00:39:09 takayama Exp $
+OpenXM_HOME="${HOME}"/OpenXM
+PATH="${OpenXM_HOME}"/bin:$PATH
+ASIR_LIBDIR="${OpenXM_HOME}"/lib/asir
+ASIR_LIBDIR_2000="${OpenXM_HOME}"/lib/asir2000
+ASIR_BINARY_2000="${OpenXM_HOME}"/lib/asir2000/asir
+ASIR_CONFIG="${OpenXM_HOME}"/rc/asirrc
+if [ -z "$ASIR_RSH" ]; then
+  ASIR_RSH='ssh -f -X -A '
+  export ASIR_RSH
 fi
-LOAD_SM1_PATH=$OpenXM_HOME/lib/sm1
-export LOAD_SM1_PATH
-LOAD_K_PATH=$OpenXM_HOME/lib/k097
-export LOAD_K_PATH
+LOAD_SM1_PATH="${OpenXM_HOME}"/lib/sm1
+LOAD_K_PATH="${OpenXM_HOME}"/lib/k097
 OX_XTERM_SCROLL=2000
-export OX_XTERM_SCROLL
-if test $LD_LIBRARY_PATH ; then
-  LD_LIBRARY_PATH=$OpenXM_HOME/lib:$LD_LIBRARY_PATH  ;
+if [ "$LD_LIBRARY_PATH" ]; then
+  LD_LIBRARY_PATH="${OpenXM_HOME}"/lib:"$LD_LIBRARY_PATH"
 else
-  LD_LIBRARY_PATH=$OpenXM_HOME/lib ;
+  LD_LIBRARY_PATH="${OpenXM_HOME}"/lib
 fi
-export LD_LIBRARY_PATH
-OpenXM_tmp=$HOME/.OpenXM_tmp
-export OpenXM_tmp
-mkdir -p $OpenXM_tmp 
-ASIRLOADPATH=.:$OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-contrib/packages/sample:$OpenXM_tmp/OpenXM/lib/asir-contrib:$OpenXM_HOME/lib/asir-contrib
-export ASIRLOADPATH
+OpenXM_tmp="${HOME}"/.OpenXM_tmp
+mkdir -p "$OpenXM_tmp"
+ASIRLOADPATH=.:"${OpenXM_HOME}"/src/asir-contrib/packages/src:"${OpenXM_HOME}"/src/asir-contrib/packages/sample:"${OpenXM_tmp}"/OpenXM/lib/asir-contrib:"${OpenXM_HOME}"/lib/asir-contrib
 # for MacOS
-if test $DYLD_LIBRARY_PATH ; then
-  DYLD_LIBRARY_PATH=$OpenXM_HOME/lib:$DYLD_LIBRARY_PATH  ;
+if [ "$DYLD_LIBRARY_PATH" ]; then
+  DYLD_LIBRARY_PATH="${OpenXM_HOME}"/lib:"$DYLD_LIBRARY_PATH"
 else
-  DYLD_LIBRARY_PATH=$OpenXM_HOME/lib ;
+  DYLD_LIBRARY_PATH="${OpenXM_HOME}"/lib
 fi
-export DYLD_LIBRARY_PATH
-
-
+export OpenXM_HOME ASIR_LIBDIR ASIR_LIBDIR_2000 ASIR_BINARY_2000 ASIR_CONFIG
+export LOAD_SM1_PATH LOAD_K_PATH OX_XTERM_SCROLL OpenXM_tmp ASIRLOADPATH
+export LD_LIBRARY_PATH DYLD_LIBRARY_PATH
