@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.178 2018/04/05 08:25:00 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.179 2019/03/23 12:22:09 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -112,7 +112,7 @@ all-pcc: configure-pcc
 all-document-asir-contrib: configure-document-asir-contrib
 	(cd asir-contrib/packages/doc; ${MAKE} all)
 
-install: install-oxtags install-util install-asir install-gnuplot \
+install: install-oxtags install-util install-asir install-asir2000 install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
