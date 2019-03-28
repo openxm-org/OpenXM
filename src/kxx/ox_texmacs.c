@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.41 2018/09/07 00:28:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.42 2018/09/07 01:21:31 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,9 @@
 /*
 #define DEBUG 
 */
-/* #define DEBUG2 */
+/*
+#define DEBUG2
+*/
 
 /* Type of View part (user interface engine) */
 #define  GENERIC      0   /* DEBUG, xml */
@@ -30,12 +32,14 @@
 #define  V_CFEP       2
 #define  V_QFEP       3
 #define  V_SAGE       4
+#define  V_JUPYTER       5
 int View       = V_TEXMACS ;
 
 char *Data_begin_v[] = {
   "<S type=verbatim>",
   "\002verbatim:",
   "\002",
+  "",
   "",
   ""
 };
@@ -44,12 +48,14 @@ char *Data_begin_l[] = {
   "\002latex:",
   "\002latex:",
   "",
+  "",
   ""
 };
 char *Data_begin_p[] = {
   "<S type=prompt>",
   "\002prompt:",
   "\002prompt:",
+  "",
   "",
   ""
 };
@@ -58,6 +64,7 @@ char *Data_begin_ps[] = {
   "\002ps:",
   "\002ps:",
   "",
+  "",
   ""
 };
 char *Data_end[] = {
@@ -65,7 +72,8 @@ char *Data_end[] = {
   "\005",
   "\n\005",    /* \n is not a part of the protocol. */
   "",
-  ""           /* SAGE */
+  "",          /* SAGE */
+  "\n"
 };
 
 /* todo:  start_of_input */
@@ -75,15 +83,20 @@ char End_of_input[] = {
   '\n',  /* TEXMACS_END_OF_INPUT. 0xd should be used for multiple lines. */
   0x5,    /* CFEP_END_OF_INPUT    */
   0x5,
-  '\n'   /* SAGE cf. __init__ */
+  '\n',   /* SAGE cf. __init__ */
+  '\n'
 };
 
-char *Prompt[]={
+/* Note! if you give more than 10 Views, increase the number 10  below. 
+   See the option --prompt which should be given after --view is set.
+*/
+char *Prompt[10]={
   "generic>", /* generic */
   "", /* texmacs */
   "",    /* cfep */
   "",   /* qfep */
-  "\nasir>"    /* SAGE */
+  "\nasir>",    /* SAGE */
+  "\nPEXPECT_PROMPT>"
 };
 
 
@@ -131,6 +144,7 @@ static int isPS(char *s);
 static int end_of_input(int c);
 static void setDefaultParameterForCfep();
 static void setDefaultParameterForSage();
+static void setDefaultParameterForJupyter();
 
 static void myEncoder(int c);
 static void myEncoderS(unsigned char *s);
@@ -193,6 +207,8 @@ main(int argc,char *argv[]) {
 	View = V_QFEP; setDefaultParameterForCfep();
       }else if (strcmp(argv[i],"sage")==0) {
 	View = V_SAGE; setDefaultParameterForSage();
+      }else if (strcmp(argv[i],"jupyter")==0) {
+	View = V_JUPYTER; setDefaultParameterForJupyter();
       }else{
         View = GENERIC;
         /* printv("Unknown view type.\n"); */
@@ -225,6 +241,10 @@ main(int argc,char *argv[]) {
       sprintf(AsirInitFile,"%s",argv[i]);
     }else if (strcmp(argv[i],"--quiet") == 0) {
       /* it is already set. Ignore. */
+    }else if (strcmp(argv[i],"--prompt")==0) {
+      i++;
+      Prompt[View] = (char *)sGC_malloc(strlen(argv[i])+2);
+      strcpy(Prompt[View],argv[i]);
     }else{
       /* printv("Unknown option\n"); */
     }
@@ -282,7 +302,12 @@ main(int argc,char *argv[]) {
     irt = 0;
 
     /* Reading the input. */
-    printf("%s",Prompt[View]); fflush(stdout);
+    if ((View == V_SAGE) || (View == V_JUPYTER)) {
+      if (s != NULL) {printf("%s",Prompt[View]); fflush(stdout);}
+      else {printf("%s",&(Prompt[View][1])); fflush(stdout);}
+    }else{
+      printf("%s",Prompt[View]); fflush(stdout);
+    }
     if (TM_Engine == K0) {
       s=readString(stdin, " ", " "); /* see test data */
     }else if (TM_Engine == SM1) {
@@ -430,6 +455,9 @@ static char *pngGetResult(void) {
       strcpy(s,tmp); \
     } 
 /*   */
+static char *Sss=NULL;
+static int Sss_size=10240;
+
 static char *readString(FILE *fp, char *prolog, char *epilog) {
   int n = 0;
   static int limit = 0;
@@ -456,17 +484,22 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   start = n;
   while ((c = fgetc(fp)) != EOF) {
 #ifdef DEBUG2
-    fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
+    fprintf(Dfp,"[%x]%c ",c,c); fflush(Dfp); 
 #endif
     if (end_of_input(c)) {
       /* If there remains data in the stream,
          read the remaining data. (for debug) */
-	  /*
-      if (oxSocketSelect0(0,1)) {
-        if (c == '\n') c=' ';
-        s[n++] = c; s[n] = 0;  m++;
-        INC_BUF ;
-        continue;
+      /*
+      if ((View == V_JUPYTER) || (View == V_SAGE)) {
+        if (oxSocketSelect0(0,1)) {
+#ifdef DEBUG2
+          fprintf(Dfp,"<%x>%c ",c,c); fflush(Dfp); 
+#endif
+          if (c == '\n') c=' ';
+          s[n++] = c; s[n] = 0;  m++;
+          INC_BUF ;
+          continue;
+        }
       }
       */
       break;
@@ -475,10 +508,21 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
+  if ((c == EOF) && (start == n)) exit(0); 
   /* Check the escape sequence */
   if (strcmp(&(s[start]),"!quit;") == 0) {
     printv("Terminated the process ox_texmacs.\n"); 
     exit(0);
+  }
+  if (((View == V_JUPYTER) || (View == V_SAGE)) && 
+      ((strcmp(&(s[start]),"quit")==0) || (strcmp(&(s[start]),"quit()")==0))) {
+    printv("Terminated the process ox_texmacs.\n"); 
+    exit(0);
+  }
+  if ((View == V_JUPYTER) && 
+      (strcmp(&(s[start]),"version")==0)) {
+    s[n=strlen(s)]='('; s[++n]=0; INC_BUF;
+    s[n++]=')'; s[n]=0; INC_BUF;
   }
   /* Check the escape sequence to change the global env. */
   if (strcmp(&(s[start]),"!verbatim;") == 0) {
@@ -531,7 +575,44 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
         s[i-3] = s[i-2] = s[i-1] = s[i] = ' '; break;
       }
     }
+
+    /* 2019.03.28 for jupyter */
+    if ((strncmp(&(s[start]),"base_prompt",strlen("base_prompt")) != 0)
+        &&(strncmp(&(s[start]),"version()",strlen("version()")) != 0)) {
+      if (Sss == NULL) {
+          Sss = (char *)sGC_malloc(Sss_size);
+          Sss[0] = 0;
+      }
+      if (Sss_size < strlen(Sss)+strlen(s)+strlen(epilog)-10) {
+        Sss_size = 2*Sss_size;
+        if (Sss_size < 0) { fprintf(stderr,"Fatal error: too big string\n"); exit(-1); }	
+        char *sss_tmp = (char *)sGC_malloc(Sss_size);
+	strcpy(sss_tmp,Sss);
+        Sss=sss_tmp;
+      }
+      strcpy(&(Sss[strlen(Sss)]),&(s[start]));
+      for (i=strlen(Sss); i>=0; i--) {
+	if (Sss[i] < 0x20) continue;
+        if (Sss[i] == '#') {
+          /* construct s and return s */
+          Sss[i] = ' ';
+          s = (char *) sGC_malloc(strlen(Sss)+strlen(prolog)+strlen(epilog)+10);
+          sprintf(s,"%s%s%s",prolog,Sss,epilog);
+          Sss[0]=0;
+#ifdef DEBUG2
+          fprintf(Dfp,"#By Sss: %s#\n",s); fflush(Dfp);
+#endif
+          return s;
+        }else break;
+      }
+      return NULL;
+    }
+  }else{
+#ifdef DEBUG2
+    fprintf(Dfp,"#base_prompt or version()#\n",s); fflush(Dfp);
+#endif
   }
+  /* end 2019.03.28 for jupyter. */
 
   /* Set TM_do_no_print */
   if (s[n-1] == '$' && TM_Engine == ASIR) {
@@ -556,6 +637,9 @@ static void setDefaultParameterForCfep() {
   Format = 0;
 }
 static void setDefaultParameterForSage() {
+  Format = 0;
+}
+static void setDefaultParameterForJupyter() {
   Format = 0;
 }
 
