@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.42 2018/09/07 01:21:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.43 2019/03/28 09:21:40 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -593,7 +593,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
       strcpy(&(Sss[strlen(Sss)]),&(s[start]));
       for (i=strlen(Sss); i>=0; i--) {
 	if (Sss[i] < 0x20) continue;
-        if (Sss[i] == '#') {
+        if ((Sss[i] == ';') && (Sss[i-1] == ';')) {
           /* construct s and return s */
           Sss[i] = ' ';
           s = (char *) sGC_malloc(strlen(Sss)+strlen(prolog)+strlen(epilog)+10);
