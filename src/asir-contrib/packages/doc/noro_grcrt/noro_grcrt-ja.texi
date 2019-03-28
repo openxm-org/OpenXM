@@ -1,0 +1,313 @@
+%comment $OpenXM$
+%comment --- おまじない ---
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage ja
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-noro_grcrt
+
+@comment --- タイトル ---
+@settitle noro_grcrt
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title noro_grcrt
+@subtitle noro_grcrt User's Manual
+@subtitle Edition 1.0
+@subtitle Feb 2019
+
+@author  by Masayuki Noro
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Masayuki Noro
+2019. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@menu
+* 準素分解パッケージ noro_grcrt.rr::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に ---
+@node CRTパッケージ noro_grcrt.rr,,, Top
+@chapter CRTパッケージ noro_grcrt.rr
+
+@comment --- section 名を正確に並べる ---
+@menu
+* CRTによるグレブナー基底計算::
+* CRTに関する関数::
+@end menu
+
+このマニュアルでは, asir-contrib パッケージに収録されている,
+CRTパッケージ @samp{noro_grcrt.rr} について解説する.
+このパッケージを使うには, まず @samp{noro_grcrt.rr} をロードする.
+@example
+[1831] load("noro_grcrt.rr");
+@end example
+このパッケージの函数を呼び出すには, 全て @code{noro_grcrt.} を先頭につける.
+このマニュアルでは, 関連する組み込み関数についても解説する.
+@example
+
+@end example
+
+@comment --- section の開始 ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node CRTによるグレブナー基底計算,,, CRTパッケージ noro_grcrt.rr
+
+@section CRTによるグレブナー基底計算
+
+@menu
+* f4_chr::
+* init_pprocs::
+@end menu
+
+@node f4_chr,,, CRTによるグレブナー基底計算
+
+@subsection @code{f4_chr}
+@findex noro_grcrt.f4_chr
+
+@table @t
+@item noro_grcrt.f4_chr_dec(@var{b},@var{v},@var{ord}[|@var{options}])
+CRT によりグレブナー基底候補を求める.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item b
+多項式リスト
+@item v
+変数リスト
+@item ord
+項順序型
+@item options
+下の説明参照.
+@end table
+
+@itemize @bullet
+@item
+有限体上のグレブナー基底を @code{nd_f4} で計算し, それらを CRT で貼り合わせることで, 有理数体上のグレブナー基底候補を求める.
+@item
+正当性のチェックは全く行わない.
+@item
+オプション @var{homo=1} を指定すると, 有限体上のグレブナー基底計算を⻫次化付きて計算する.
+@item
+オプション @var{weight} を指定すると, weight 付きて計算する.
+@item
+オプション @var{proc} を指定すると, 有限体上のグレブナー基底計算を並列行う.
+@var{proc} て指定するのは
+@code{ox_asir} のストリーム番号のリストで, @code{ noro_grcrt.init_pproc} により生成する.
+@end itemize
+
+@example
+[2465] P=noro_grcrt.init_pprocs([[0,4]]|nox=1)$
+[2466] B=cyclic(8)$
+[2467] V=[c0,c1,c2,c3,c4,c5,c6,c7]$
+[2468] G=noro_grcrt.f4_chr(B,V,0|proc=P)$
+...
+[Template,0,CRT,5.812,IR,11.388,#P,56]
+28.74sec(55.12sec)
+@end example
+
+@node init_pprocs,,,CRTによるグレブナー基底計算
+
+@subsection @code{noro_grcrt.init_pprocs}
+@findex noro_grcrt.init_pprocs
+
+@table @t
+@item noro_grcrt.init_pprocs(@var{list}[|@var{nox}=0|1])
+並列計算用サーバを起動する.
+@end table
+
+@table @var
+@item return
+ストリーム番号のリスト
+@item list
+リスト
+@end table
+
+@itemize @bullet
+@item
+@code{ox_asir} をまとめて起動する.
+@item
+引数 @var{list}は @var{[[host1,n1],[host2,n2],...]}の形のリストで, @var{hosti} に @var{ni} 個の
+@code{ox_asir} を起動することを意味する. ここで @var{hosti=0} の場合, \code{asir}が実行されている
+マシンを意味する.
+@item
+オプション @var{nox=1} が指定された場合, サーバ用のメッセージウィンドウは表示されない. デバッグ中は
+このオプションを指定しない方が安全である.
+@end itemize
+
+@example
+[2465] P=noro_grcrt.init_pprocs([[0,2],["shinohara",2]]|nox=1);
+[0,1,2,3]
+@end example
+
+
+@section CRTに関する関数
+
+@menu
+* dp_chrem2::
+* intdptoratdp::
+@end menu
+
+@node dp_chrem2,,, CRTに関する関数
+
+@subsection @code{noro_grcrt.dp_chrem2}
+@findex noro_grcrt.dp_chrem2
+
+@table @t
+@item noro_grcrt.dp_chrem2(@var{g},@var{M},@var{gp},@var{p},@var{stat})
+CRTによる貼り合わせを実行する.
+@end table
+
+@table @var
+@item return
+チェックに失敗した個数
+
+@item g
+分散多項式の配列
+@item M
+正整数
+@item gp
+分散多項式の配列
+@item p
+正整数
+@item stat
+配列
+@end table
+
+@itemize @bullet
+@item
+@var{g} mod @var{M}, @var{gp} mod @var{p} を CRT で貼り合わせた @var{g1} を求め, @var{g} に上書きする.
+@var{g1} は @var{g1} = @var{g} mod @var{M}, @var{g1} = @var{gp} mod @var{gp} を満たす.
+
+@item
+@var{p} は小さい整数(31bit 未満) でなければなrない.
+
+@item
+@var{g[i]}, @var{gp[i]} は, サポートが一致した分散多項式でなければならない.
+@var{gp[i]}, および @var{stat[i]}=0,1 の場合の@var{g[i]} はモニックでなければならない.
+
+@item
+@var{stat}は長さが@var{g}の長さが等しい整数配列である.
+置き換えられ, その後 CRT か実行される. CRT 後 @var{stat[i]}=1 となる. 
+@var{stat[i]}=0,1 のとき, 単に CRT が行される. 
+@var{stat[i]}=2 のとき, @var{g[i]} mod @var{p} をモニック化したものと
+@var{gp[i]} が比較され, 等しくない場合に,@var{ g[i]} は, 有理数変換前の @var{g} mod @var{M} に
+戻され, その後CRTが実行される. 
+@item
+外部関数において, 整数-有理数変換が成功した場合に@var{stat[i]}=2とすることで,
+@code{dp_chrem2} を実行したあとに, 不適切な有理数への変換を検出することができる.
+返される値は, @var{stat[i]}=2 の場合に不適切な有理数変換を検出した個数である.
+@end itemize
+
+@example
+[2465] G=ltov([<<1,2>>+3*<<0,1>>,<<3,4>>+2*<<1,0>>])$
+[2466] GM=ltov([<<1,2>>+5*<<0,1>>,<<3,4>>+7*<<1,0>>])$
+[2467] Stat=vector(2)$
+[2468] Mod=17$
+[2469] P=19$
+[2470] noro_grcrt.dp_chrem2(G,Mod,GM,P,Stat);
+0
+[2471] G;
+[ (1)*<<1,2>>+(309)*<<0,1>> (1)*<<3,4>>+(121)*<<1,0>> ] 
+[2472] Stat;
+[ 1 1 ]
+@end example
+
+@node noro_grcrt.intdptoratdp,,, CRTに関する関数
+
+@subsection @code{noro_grcrt.intdptoratdp}
+@findex noro_grcrt.intdptoratdp
+
+@table @t
+@item noro_grcrt.intdptoratdp(@var{f},@var{M},@var{B})
+整数-有理数変換を行う.
+@end table
+
+@table @var
+@item return
+多項式
+
+@item f
+分散多項式
+@item M
+@itemx B
+正整数
+@end table
+
+@itemize @bullet
+@item
+@var{f}を法@var{M}で整数-有理数変換を行った結果を返す. 一つでも変換できなかった係数がある場合には
+0を返す.
+@item
+@var{B} は @var{M/2}の平方根を超えない最大の整数で, @code{noro_grcrt.calcb} で計算できる.
+複数の多項式の係数を同一の @var{M}, @var{B}で変換するので, この値をあらかじめ与えるようにしてある.
+@end itemize
+
+@example
+[2495] P=62884891$
+[2496] A=<<1,2>>+(25632978)*<<0,1>>$
+[2497] B=noro_grcrt.calcb(P);
+5607
+[2498] noro_grcrt.intdptoratdp(A,P,B);
+(1)*<<1,2>>+(-5321/1234)*<<0,1>>
+@end example
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
