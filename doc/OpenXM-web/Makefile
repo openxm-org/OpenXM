@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.54 2017/03/31 03:55:47 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.55 2019/03/28 23:03:04 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -72,6 +72,8 @@ all-current-index: configure-dir
 	cp index-doc-asir-contrib2-en.html ${CURRENT_DOC}/asir-contrib
 	cp index-license.html ${CURRENT_DOC}/index-license.html
 	cp index-doc-asir-ja.html ${CURRENT_DOC}/index-doc-asir-ja.html
+	cp index-doc-asir-en.html ${CURRENT_DOC}/index-doc-asir-en.html
+	cp index-doc-asir-en.html ${CURRENT_DOC}/index-doc-asir.html
 	cp video.html ${CURRENT}/video.html
 	cp video-ja.html ${CURRENT}/video-ja.html
 all-current: all-current-index configure-dir
