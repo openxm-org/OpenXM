@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.20 2017/08/31 04:54:36 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.21 2018/09/06 05:42:43 takayama Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1503,6 +1503,7 @@ Computation of the global b function is implemented as an application.
 * dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main::
 * dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main::
 * nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace::
+* nd_gr_postproc nd_weyl_gr_postproc::
 * dp_gr_flags dp_gr_print::
 * dp_ord::
 * dp_set_weight dp_set_top_weight dp_weyl_set_weight::
@@ -2493,6 +2494,67 @@ ndv_alloc=1477188
 \JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
+
+\JP @node nd_gr_postproc nd_weyl_gr_postproc,,, グレブナ基底に関する函数
+\EG @node nd_gr_postproc nd_weyl_gr_postproc,,, Functions for Groebner basis computation
+@subsection @code{nd_gr_postproc}, @code{nd_weyl_gr_postproc}
+@findex nd_gr_postproc
+@findex nd_weyl_gr_postproc
+
+@table @t
+@item nd_gr_postproc(@var{plist},@var{vlist},@var{p},@var{order},@var{check})
+@itemx nd_weyl_gr_postproc(@var{plist},@var{vlist},@var{p},@var{order},@var{check})
+\JP :: グレブナ基底候補のチェックおよび相互簡約
+\EG :: Check of Groebner basis candidate and inter-reduction
+@end table
+
+@table @var
+@item return
+\JP リスト または 0
+\EG list or 0
+@item plist  vlist
+\JP リスト
+\EG list
+@item p
+\JP 素数または 0
+\EG prime or 0
+@item order
+\JP 数, リストまたは行列
+\EG number, list or matrix
+@item check
+\JP 0 または 1
+\EG 0 or 1
+@end table
+
+@itemize @bullet
+\BJP
+@item
+グレブナ基底(候補)の相互簡約を行う.
+@item
+@code{nd_weyl_gr_postproc} は Weyl 代数用である.
+@item
+@var{check=1} の場合, @var{plist} が, @var{vlist}, @var{p}, @var{order} で指定される多項式環, 項順序でグレブナー基底になっているか
+のチェックも行う.
+@item
+斉次化して計算したグレブナー基底を非斉次化したものを相互簡約を行う, CRT で計算したグレブナー基底候補のチェックを行うなどの場合に用いる.
+\E
+\BEG
+@item
+Perform the inter-reduction for a Groebner basis (candidate).
+@item
+@code{nd_weyl_gr_postproc} is for Weyl algebra.
+@item
+If @var{check=1} then the check whether @var{plist} is a Groebner basis with respect to a term order in a polynomial ring 
+or Weyl algebra specified by @var{vlist}, @var{p} and @var{order}.
+@item
+This function is used for inter-reduction of a non-reduced Groebner basis that is obtained by dehomogenizing a Groebner basis
+computed via homogenization, or Groebner basis check of a Groebner basis candidate computed by CRT.
+\E
+@end itemize
+
+@example
+afo
+@end example
 
 \JP @node dp_gr_flags dp_gr_print,,, グレブナ基底に関する函数
 \EG @node dp_gr_flags dp_gr_print,,, Functions for Groebner basis computation
