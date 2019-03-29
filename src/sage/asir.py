@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/sage/asir.py,v 1.1 2018/09/08 05:35:35 takayama Exp $
+# $OpenXM: OpenXM/src/sage/asir.py,v 1.2 2019/03/06 02:38:33 takayama Exp $
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -16,7 +16,7 @@ class Asir(Expect):
 
     EXAMPLES::
 
-        sage: asir.eval("F=fctr(x^10-1)")    # optional - asir
+        sage: asir.evall("F=fctr(x^10-1)")    # optional - asir
     """
 
     def __init__(self, maxread=None, script_subdirectory=None, logfile=None,
@@ -99,7 +99,14 @@ class Asir(Expect):
                 http://www.openxm.org
         The command openxm must be in the search path.
         """
-
+    def evall(self,cmd):
+        """
+        evalutes the argument immediately. The argument of eval is buffered 
+        and ; should be added.
+        EXAMPLES::
+          sage: asir.eval('1+2;'); asir.evall('3+3')
+        """
+        return self.eval(cmd+';;')
     def _eval_line(self, line, reformat=True, allow_use_file=False,
                    wait_for_prompt=True, restart_if_needed=False):
         """
@@ -229,8 +236,8 @@ class Asir(Expect):
             sage: asir.get('X') # optional - asir
             ' 2'
         """
-        cmd = '%s=%s;'%(var,value)
-        out = self.eval(cmd)
+        cmd = '%s=%s'%(var,value)
+        out = self.evall(cmd)
         if out.find("error") != -1 or out.find("Error") != -1:
             raise TypeError("Error executing code in Asir\nCODE:\n\t%s\nAsir ERROR:\n\t%s"%(cmd, out))
 
@@ -244,7 +251,7 @@ class Asir(Expect):
             sage: asir.get('X') # optional - asir
             ' 2'
         """
-        s = self.eval('%s;'%var)
+        s = self.evall('%s;'%var)
         i = s.find('=')
         return s[i+1:]
 
