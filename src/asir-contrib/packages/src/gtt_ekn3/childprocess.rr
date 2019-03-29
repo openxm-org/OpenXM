@@ -1,24 +1,5 @@
-/* $OpenXM$ */
-def euclid(X,Y){
-    A = 0;
-    B = 1;
-    OA = 1;
-    OB = 0;
-
-    while(Y!=0){
-	Q = idiv(X,Y);
-	T = X;
-	X = Y;
-	Y = T % Y;
-	T = OA;
-	OA = A;
-	A = T - A*Q;
-	T = OB;
-	OB = B;
-	B = T - B*Q;
-    }
-    return(OA);
-}
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/childprocess.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $ */
+def euclid(X,Y){ return inv(X,Y); }
 
 def chinese(Data1,Data2){
     N = euclid(Data1[1],Data2[1]);
@@ -48,28 +29,8 @@ def g_mat_fac_modp_itor(F,DF,Mat,DNMat,E,P){
 }
 
 def itor(Y,Q,Q2,C){
-    Y = Y%Q;
-    if(Y < Q2)  return([Y,C]);
-
-    R1 = Q;
-    R2 = Y;
-    X1 = 0;
-    X2 = 1;
-    while(1){
-	if(R1 < Q2){
-	      if(X1 < Q2){
-	      	    return([R1/X1,C]);
-	      }else{
-	            return(["failure",C]);
-	      }
-	}
-	T = idiv(R1,R2);
-	R3 = R1 - T*R2;
-	X3 = X1 - T*X2;
-	R1 = R2;
-	R2 = R3;
-	X1 = X2;
-	X2 = X3;
-    }
+    L=inttorat(Y,Q,Q2);
+    if (L==0) return ["failure",C];
+    return([L[0]/L[1],C]);
 }
 end$
