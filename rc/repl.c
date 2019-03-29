@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.16 2004/06/14 11:10:40 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.17 2004/06/20 04:55:32 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +59,12 @@ main(int argc,char *argv[]) {
 	  printf("OpenXM_HOME=%s\n",cwd);
 	}else if (strcmp(s,"setenv OpenXM_HOME $HOME/OpenXM\n") == 0) {
 	  printf("setenv OpenXM_HOME %s\n",cwd);
+	}else if (strcmp(s,"OpenXM_HOME=$(HOME)/OpenXM\n") == 0) {
+	  printf("OpenXM_HOME=%s\n",cwd);
+	}else if (strcmp(s,"setenv OpenXM_HOME \"$(HOME)\"/OpenXM\n") == 0) {
+	  printf("setenv OpenXM_HOME %s\n",cwd);
+	}else if (strcmp(s,"OpenXM_HOME=\"${HOME}\"/OpenXM\n") == 0) {
+	  printf("OpenXM_HOME=%s\n",cwd);
 	}else{
 	  printf("%s",s);
 	}
