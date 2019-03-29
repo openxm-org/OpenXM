@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.11 2016/03/22 07:25:14 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.12 2016/08/29 04:56:58 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -27,6 +27,7 @@
 * lrandom::
 * ntoint32 int32ton::
 * setround::
+* inttorat::
 @end menu
 
 \JP @node idiv irem,,, 数の演算
@@ -1343,4 +1344,67 @@ integer. These functions are used in such a case.
 \EG @item References
 \JP @fref{分散計算}, @fref{数の型}.
 \EG @fref{Distributed computation}, @fref{Types of numbers}.
+@end table
+
+\JP @node inttorat,,, 数の演算
+\EG @node inttorat,,, Numbers
+@subsection @code{inttorat}
+@findex inttorat
+
+@table @t
+@item inttorat(@var{a},@var{m},@var{b})
+\JP :: 整数-有理数変換を行う.
+\EG :: Perform the rational reconstruction.
+@end table
+
+@table @var
+@item return
+\JP リストまたは 0
+\EG list or 0
+@item a
+@itemx m
+@itemx b
+\JP 整数
+\EG integer
+@end table
+
+@itemize @bullet
+\BJP
+@item
+整数 @var{a} に対し, @var{xa=y} mod @var{m} を満たす正整数 @var{x}, 整数 @var{y}
+(@var{x}, @var{|y|} < @var{b}, @var{GCD(x,y)=1}) を求める.
+@item
+このような @var{x}, @var{y} が存在するなら @var{[y,x]} を返し, 存在しない場合には 0 を返す.
+@item
+@var{b} を @var{floor(sqrt(m/2))} と取れば, @var{x}, @var{y} は存在すれば一意である.
+@var{floor(sqrt(m/2))} は @code{isqrt(floor(m/2))} で計算できる.
+@end itemize
+\E
+\BEG
+@item
+For an integer @var{a}, find a positive integer @var{x} and an intger @var{y} satisfying
+@var{xa=y} mod @var{m}, @var{x}, @var{|y|} < @var{b} and @var{GCD(x,y)=1}.
+@item
+If such @var{x}, @var{y} exist then a list @var{[y,x]} is returned. Otherwise 0 is returned.
+@item
+If @var{b} is set to @var{floor(sqrt(M/2))}, then @var{x} and @var{y} are unique if they
+exist. @var{floor(sqrt(M/2))} can be computed by @code{floor} and @code{isqrt}.
+@end itemize
+\E
+
+@example
+[2121] M=lprime(0)*lprime(1);
+9996359931312779
+[2122] B=isqrt(floor(M/2));
+70697807
+[2123] A=234234829304;
+234234829304
+[2124] inttorat(A,M,B);
+[-20335178,86975031]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{floor}, @fref{isqrt}.
 @end table

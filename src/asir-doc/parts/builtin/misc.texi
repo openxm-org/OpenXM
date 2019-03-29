@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.25 2018/03/29 02:48:36 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.26 2018/09/06 05:42:43 takayama Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -67,75 +67,52 @@
 @item
 スイッチは文字列として入力する. すなわちダブルクォートで囲む. 
 @item
-スイッチは次の通り. 以下で, on は 1, off は 0 を意味する. 
+スイッチは次の通り. 
+
 @table @code
-@item cputime
-on の時 CPU time および GC time を表示, off の時 表示しない. @code{cputime()}
-を参照. 
-@code{ctrl("cputime",@var{onoff})} は @code{cputime(@var{onoff})} と同じである. 
-@item nez
-EZGCD のアルゴリズムの切替え. デフォルトで 1 であり, とくに切替える必要
-はない. 
-@item echo
-on の時は標準入力を繰り返して出力し, off の時は標準入力を繰り返さない.
-@code{output} コマンドを用いる際に有効である.
-@item bigfloat
-on の時, 入力された浮動小数は @b{bigfloat} に変換され, 浮動小数演算は
-@b{PARI} (@ref{pari}) により行われる. デフォルトの有効桁数は 9 桁である. 
-有効桁数を増やしたい時には @code{setprec()} を用いる. 
-off の時, 入力された浮動小数は, 倍精度浮動小数に変換される. 
-@cindex PARI
 @item adj
 ガーベッジコレクションの頻度の変更. 1 以上の有理数が指定できる. 
 デフォルト値は 3. 1 に近い程, ガーベッジコレクションせずにヒープを
 大きくとるようになる. 整数値はコマンドラインで指定できる.
 @xref{コマンドラインオプション}.
-@item verbose
-on の時, 函数の再定義時にメッセージを表示する. 
-@item quiet_mode
-1 のとき, 起動時に著作権表示を行わない. 
-@xref{コマンドラインオプション}.
-@item prompt
-0 のときプロンプトを表示しない. 1 のとき標準プロンプトを表示.
-C スタイルのフォマット文字列をもちいるとユーザ定義のプロンプト.
-例(asirgui では不可): 
-@code{ ctrl("prompt","\033[32m[%d]:= \033[0m")}
-@item hex
-1 のとき, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
-間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
-@item real_digit
-倍精度浮動小数の表示の桁数を指定する.
-@item double_output
-1 のとき, 倍精度浮動小数はつねに ddd.ddd の形で表示される.
-@item fortran_output
-1 のとき, 多項式の表示が FORTRAN スタイルになる. すなわち冪が
-@samp{^} の代わりに @samp{**} で表される. 
-(デフォルト値は 0.)
-@item ox_batch
-1 のとき, 送信バッファがいっぱいになった時のみ自動的に flush.
-0 のとき, データ, コマンド送信毎に flush. (デフォルト値は 0.)
-@xref{分散計算}.
-@item ox_check
-1 のとき, 送信データを相手プロセスが受け取れるかどうかチェックする. 
-0 のときしない. (デフォルト値は 1.)
-@xref{分散計算}.
-@item ox_exchange_mathcap
-1 のとき, OX server との接続開始時に, 自動的に mathcap の交換を行う. 
-(デフォルト値は 1.)
-@xref{分散計算}.
+
+@item allow_laurent
+1 の時, 単項式の指数に負の整数を許す.
+
+@item bigfloat
+1 の時, 入力された浮動小数は @b{bigfloat} に変換され, 浮動小数演算は
+@b{PARI} (@ref{pari}) により行われる. デフォルトの有効桁数は 9 桁である. 
+有効桁数を増やしたい時には @code{setprec()} を用いる. 
+0 の時, 入力された浮動小数は, 倍精度浮動小数に変換される. 
+@cindex PARI
+
+@item cputime
+1 の時 CPU time および GC time を表示, 0 の時表示しない. @code{cputime()}
+を参照. 
+@code{ctrl("cputime",@var{onoff})} は @code{cputime(@var{onoff})} と同じである. 
+
+@item debug_plot
+1 の時, @code{ox_plot} がメッセージウィンドウつきで起動される.
+
+@item debug_up
+1の時, 1変数専用多項式環関数(@code{umul()}など)実行時にメッセージを表示する.
+
 @item debug_window
 1 の時 debug_window がポップアップして開く.
 (デフォルト値は 0.)
-@item fake_ox_reset
-1 のとき, ox_reset を実装してないサーバーには代わりに ox_shutdown を送信する.
-ox_reset の実装の有無は mathcap の optional argument (第四引数)
-に文字列 no_ox_reset が設定されているかどうかで判断する.
-ox_pari を利用するときはこのフラグを1にしておくことが望ましい.
-(デフォルト値は 0.)
-@xref{分散計算}.
-@item plot_by_bigfloat
-N のとき, 10進数での精度を N 桁として, bigfloat を用いて plot を行う.
-(デフォルトでは double を用いて plot を行う.)
+
+@item diag_period
+@code{nd_gr()}, @code{nd_gr_trace()} を斉次イデアルに対して実行する際, 途中で実行される中間基底間の相互簡約
+の頻度を指定する. 値が @code{n} なら, 新しく基底が @code{n}個生成されるたびに相互簡約が
+実行される.
+
+@item double_output
+1 の時, 倍精度浮動小数はつねに ddd.ddd の形で表示される.
+
+@item echo
+1 の時は標準入力を繰り返して出力し, 0 の時は標準入力を繰り返さない.
+@code{output} コマンドを用いる際に有効である.
+
 @item evalef
 0 の時 eval の引数が評価されたときそれ以上評価できなくなった場合, 不定元リストに
 登録される. たとえば eval(sin(0.1)) と実行すると sin(0.1) がそれ以上評価できないため
@@ -144,6 +121,115 @@ N のとき, 10進数での精度を N 桁として, bigfloat を用いて
 初等関数の数値評価を繰り返し行う時はこのオプションを使用すべきである.
 (デフォルト値は 0.)
 @xref{ord}
+
+@item error_in_timer
+1 の時, タイマー終了時に通常のエラー処理が実行される.
+
+@item f4_nocheck
+1の時, @code{nd_f4}, @code{nd_f4_trace} における行列の簡約をCRTで行う際に, 結果の
+チェックを行わない.
+
+@item fake_ox_reset
+@itemx no_ox_reset
+1 のとき, ox_reset を実装してないサーバーには代わりに ox_shutdown を送信する.
+ox_reset の実装の有無は mathcap の optional argument (第四引数)
+に文字列 no_ox_reset が設定されているかどうかで判断する.
+ox_pari を利用するときはこのフラグを1にしておくことが望ましい.
+(デフォルト値は 0.)
+@xref{分散計算}.
+
+@item fortran_output
+1 の時, 多項式の表示が FORTRAN スタイルになる. すなわち冪が
+@samp{^} の代わりに @samp{**} で表される. 
+(デフォルト値は 0.)
+
+@item hex
+1 の時, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
+間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
+
+@item hideargs
+1の時, 関数呼び出しを表示する際に引数が表示されない.
+
+@item loadpath
+@code{ASIRLOADPATH} を上書きする.
+
+@item message
+1 の時, @code{ox_asir}, @code{ox_plot} 実行時に開始メッセージを表示する.
+
+@item new_hensel
+1 の時, 有理数体上の1変数多項式の因数分解において, 関数 @code{hensel2()} が用いられる.
+
+@item nez
+EZGCD のアルゴリズムの切替え. デフォルトで 1 であり, とくに切替える必要
+はない. 
+
+@item no_debug_on_error
+1 の時, エラー時にデバッグモードに入らない.
+
+@item no_prompt
+1の時, プロンプトが表示されない.
+
+@item outputstyle
+1 の時, 行列, ベクトルが @code{mat(...)}, @code{vect(...)} の形で表示される.
+
+@item ox_batch
+1 のとき, 送信バッファがいっぱいになった時のみ自動的に flush.
+0 のとき, データ, コマンド送信毎に flush. (デフォルト値は 0.)
+@xref{分散計算}.
+
+@item ox_check
+1 のとき, 送信データを相手プロセスが受け取れるかどうかチェックする. 
+0 のときしない. (デフォルト値は 1.)
+@xref{分散計算}.
+
+@item ox_exchange_mathcap
+1 のとき, OX server との接続開始時に, 自動的に mathcap の交換を行う. 
+(デフォルト値は 1.)
+@xref{分散計算}.
+
+@item plot_by_bigfloat
+N のとき, 10進数での精度を N 桁として, bigfloat を用いて plot を行う.
+(デフォルトでは double を用いて plot を行う.)
+
+@item print_quote
+quote データの表示方法を指定する.
+0 の時, quote データは単に @code{<...quoted...>}と表示される. 1 の時, リスト形式で表示される.
+2 の時, 自然な数式の形で表示される.
+
+@item prompt
+0 のときプロンプトを表示しない. 1 のとき標準プロンプトを表示.
+C スタイルのフォマット文字列をもちいるとユーザ定義のプロンプト.
+例(asirgui では不可): 
+@code{ ctrl("prompt","\033[32m[%d]:= \033[0m")}
+
+@item quiet_mode
+1 のとき, 起動時に著作権表示を行わない. 
+@xref{コマンドラインオプション}.
+
+@item real_binary
+1の時, 倍精度浮動小数を2進表示する.
+
+@item real_digit
+倍精度浮動小数の表示の桁数を指定する.
+
+@item show_crossref
+1 の時, 関数定義を読み込む際に, クロスリファレンスが表示される.
+
+@item show_orderspec
+1 の時, dp 系関数によるグレブナー基底計算関数に対する複合的な項順序の指定時に
+その詳細を表示する.
+
+@item StrassenSize
+Strassen-Winograd による行列の高速乗算アルゴリズム実行におけるパラメタの値を設定する.
+
+@item terse
+1 の時, ユーザ定義 callback 実行時にメッセージを表示しない.
+
+@item weight_check
+1 の時, nd 系関数によるグレブナー基底において, 指定された weight を用いたweight のoverflow チェックを行う.
+@item verbose
+1 の時, 函数の再定義時にメッセージを表示する. 
+
 @end table
 \E
 \BEG
@@ -279,6 +365,7 @@ ChangeLog
 @item plot_by_bigfloat switch is added on 2017.09.04. The following files are changed.
 \E
 \BJP
+@item 欠けていたスイッチの説明を追加した (2018.3.29).
 @item plot_by_bigfloat スイッチは 2017.09.04 に加えられた. 変更を受けたファイルは下記のとおり.
 \E
 @item 1.54 ctrl.c,

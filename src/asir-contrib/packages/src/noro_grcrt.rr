@@ -49,7 +49,8 @@ def f4_chr(B,V,O)
 		}
 		L = monic_gb(GM,V,O,P); GM = L[0];
 T0 = time();
-		dp_chrem2(G,Mod,GM,P,Stat);
+		Fail = dp_chrem2(G,Mod,GM,P,Stat);
+		Remain += Fail;
 T1 = time(); CRTime += (T1[0]-T0[0])+(T1[1]-T0[1]);
 		Mod *= P;
 		if ( !(I%3) ) {
@@ -192,6 +193,63 @@ def comp_by_ht(A,B)
 		return -1;
 	else
 		return 0;
+}
+
+localf crv,intvtoratv,intvtoratv2$
+
+/* CRT for vector */
+def crv(V,M,VP,P)
+{
+  N = length(V);
+  M1 = inv(M,P);
+  for ( I = 0; I < N; I++ )
+    V[I] += (VP[I]-V[I])*M*M1;
+}
+
+/* 
+ *  int vector -> rat vector
+ */
+
+def intvtoratv(V,Mod)
+{
+  N = length(V);
+  R = vector(N);
+  M = calcb(Mod);
+  for ( I = 0; I < N; I++ ) {
+    T = inttorat(V[I],Mod,M);
+    if ( T )
+      R[I] = T[0]/T[1];
+    else
+      return 0;
+  }
+  return R;
+}
+
+/* 
+ * int vector -> rat vector
+ * This may be efficient if the LCM of denominators is not so larger
+ * than the denominators.
+ */
+
+def intvtoratv2(V,Mod)
+{
+  N = length(V);
+  R = vector(N);
+  M = calcb(Mod);
+  Den = 1;
+  for ( I = 0; I < N; I++ ) {
+    T = inttorat(V[I]*Den,Mod,M);
+    if ( T ) {
+      Nm = T[0]; Dn = T[1];
+      if ( Dn != 1 ) {
+        for ( J = 0; J < I; J++ ) R[J] *= Dn;
+        Den *= Dn;
+      }
+      R[I] = Nm;
+    } else
+      return 0;
+  }
+  return R/Den;
 }
 
 def intdpltoratdpl2(G,Mod,Stat)

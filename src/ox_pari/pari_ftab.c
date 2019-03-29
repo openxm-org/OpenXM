@@ -25,7 +25,6 @@ struct parif parif_tab[] = {
   {"lngamma",glngamma,1},
   {"logagm",glogagm,1},
   {"classno",classno,1},
-  {"classno2",classno2,1},
   {"dilog",dilog,1},
   {"disc",discsr,1},
   {"discf",discf,1},
