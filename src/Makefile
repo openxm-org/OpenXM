@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.180 2019/03/27 05:02:31 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.181 2019/03/27 05:06:51 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -240,7 +240,7 @@ install-asir-mode:
 
 clean:
 	-rm ./.configure-links-done
-	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
+	-@for i in OpenMath asir-contrib asir-doc asir2000 asir2018 gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
                oxmgraph pcc mpfr \
 	           util ${OpenXM_contrib2}/fep ; do \
@@ -248,7 +248,7 @@ clean:
 	done
 
 distclean: clean
-	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
+	-@for i in OpenMath asir2000 asir2018 gc gmp gnuplot kan96xx kxx ox_math \
 	           ox_toolkit oxc pari phc phcpack tigers oxmgraph pcc \
                    asir-doc k097 ox_cdd util; do \
 		(cd $$i; ${MAKE} distclean); \
