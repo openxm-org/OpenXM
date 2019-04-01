@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval-timing.rr,v 1.1 2019/03/27 00:06:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval-timing.rr,v 1.2 2019/04/01 01:31:53 takayama Exp $ */
 /* ekn_eval.rr to take the timing data 
 Example:
  import("gtt_ekn3.rr")$
@@ -150,7 +150,12 @@ def ekn_cBasis_3(Beta, X){
     B=car(C);
     Mat=B[0]; 
     Step=B[1];
-    S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|option_list=getopt()); 
+    if (length(C) > 1) {
+      S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|option_list=getopt()); 
+    }else {
+      S = g_mat_fac_test(S,Mat,0,Step+1,-1,Var|
+            option_list=base_rebuild_opt(append(getopt(),[["itor",1]]))); ///
+    }  
   }
   T1=time(); Ekn_time_g_mat_fac=mytiming(T0,T1);
   printf("g_mat_fac of path=3: %a [CPU(s),0,*,real(s)]\n",Ekn_time_g_mat_fac);

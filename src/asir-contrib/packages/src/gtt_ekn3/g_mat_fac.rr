@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.4 2019/03/29 07:00:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.5 2019/04/01 01:31:53 takayama Exp $ */
 #define USEMODULE
 #ifdef USEMODULE
 module gtt_ekn3$
@@ -289,6 +289,7 @@ def g_mat_fac_itor(F,Mat,S,E,Inc,Var,P,IDList){
     Data = modp_itor(NMF,DNF,NMMat,DNMat,E,P,IDList | option_list=getopt());
     Data = chinese_itor(Data,IDList);
 
+    if (type(getopt(itor))<=0) return Data[0];
     L = length(F);
     Ret = do_itor(Data,L,IDList);
     for(I=0;I<L;I++){
