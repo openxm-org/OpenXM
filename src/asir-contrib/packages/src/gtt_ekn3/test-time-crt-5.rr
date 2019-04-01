@@ -1,0 +1,156 @@
+/*
+  $OpenXM$
+*/
+/*
+   2019.03.29
+   cf. test-time-crt-5.rr <-- Prog2/time-crt-5.rr
+ */
+import("gtt_ekn3.rr")$
+load("ekn_eval-timing.rr")$
+load("g_mat_fac-debug.rr")$
+//load("../Prog2/gen-r.rr")$
+def gen_r() {printf("Warning. gen_r() has not yet commited.\n");}
+extern Time_setup_done$
+Time_setup_done=0$
+
+extern M_crt_5_param$
+extern M_crt_5_time$
+extern M_crt_5_time_long$
+extern M_crt_5matfac_param$
+extern M_crt_5matfac_time$
+M_crt_5_param=[]$
+M_crt_5_time=[]$
+M_crt_5_time_long=[]$
+M_crt_5matfac_param=[]$
+M_crt_5matfac_time=[]$
+
+def time_crt_5(C) {
+  if (type(getopt(crt)) <= 0) {
+     printf("Warning. crt=1 option is not given.\n");
+  }
+  if (type(getopt(upto))>=0) Upto=getopt(upto);
+  else Upto=20;
+  if (!Time_setup_done) {
+    if (type(getopt(pfile))>0) Pfile=getopt(pfile);
+    else Pfile=0;
+    if (Pfile == 0) {
+      gtt_ekn3.setup(|nps=C, nprm="p300.txt");
+    }else{
+      gtt_ekn3.setup(|nps=C, nprm=Pfile);  // 200 までの timing よう.  orange3m でのデータ. 2019.03.27 log-time-crt-5.txt
+    }
+    Time_setup_done=1;
+  }
+  if (Upto <= 0) { printf("Setup is completed.\n"); return 0;}
+  for (N=10; N<=Upto; N += 5) {
+    M_crt_5_param=cons([-N],M_crt_5_param);
+    M_crt_5matfac_param=cons([-N],M_crt_5matfac_param);
+    if (type(getopt(test))>0) {T=test3x3(N | option_list=getopt());
+    }else {T=test5x5(N | option_list=getopt());}
+    printf("N=%a, Time of [total,mat_fac,contiguity]=%a\n",N,T);
+    M_crt_5_time=cons(T[0],M_crt_5_time);
+    M_crt_5_time_long=cons(T,M_crt_5_time_long);
+    M_crt_5matfac_time=cons(T[1],M_crt_5matfac_time);
+  }
+  if (Upto <=0 ) return 0;
+  bsave(M_crt_5_param,"tmp-crt_5-gtt_ekn3_param.ab")$
+  bsave(M_crt_5_time,"tmp-crt_5-gtt_ekn3_time.ab")$
+  bsave(M_crt_5_time_long,"tmp-crt_5-gtt_ekn3_time_long.ab")$
+  bsave(M_crt_5matfac_param,"tmp-crt_5matfac-gtt_ekn3_param.ab")$
+  bsave(M_crt_5matfac_time,"tmp-crt_5matfac-gtt_ekn3_time.ab")$
+  return [gen_r(|prefix=["tmp-crt_5-gtt_ekn3"]),
+          gen_r(|prefix=["tmp-crt_5matfac-gtt_ekn3"])];
+}
+
+def try0() {
+  gtt_ekn3.set_debug_level(1);  // show X window.   Ekn_debug=1w
+  if (!Time_setup_done) {
+     gtt_ekn3.setup(|nps=2, nprm="p300.txt");
+     Time_setup_done=1;
+  }
+}
+def try0_20() {
+  gtt_ekn3.set_debug_level(1);  // show X window.   Ekn_debug=1w
+  if (!Time_setup_done) {
+     gtt_ekn3.setup(|nps=2, nprm="p10.txt");
+     Time_setup_done=1;
+  }
+}
+def gen_time_data() {
+  Ti=gtt_ekn3.get_time_initial_poly()[0];
+  Tc=gtt_ekn3.get_time_contiguity()[0];
+  Tmfac = gtt_ekn3.get_time_g_mat_fac()[3];
+  return [Tmfac+Ti+Tc,Tmfac,Ti+Tc];
+}
+def test3x3(N) {
+  Margin=[[4*N,4*N,4*N],[2*N,5*N,5*N]]$
+  P=[[1,1/2,1/3],[1,1/11,1/13],[1,1,1]]$
+  T0=time()$ gtt_ekn3.gmvector(Margin,P | option_list=getopt())$ T1=time()$  // 2 steps
+  printf("Time gtt_ekn3=%a\n",T=matrix_list_to_matrix(T1)-matrix_list_to_matrix(T0))$
+  return(gen_time_data());
+}
+
+def test5x5(N) {
+  Margin=[[4*N,4*N,4*N,4*N,4*N],[2*N,3*N,5*N,5*N,5*N]]$
+  P=[[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1/23,1/29,1/31,1/37],[1,1/37,1/41,1/43,1/47],[1,1,1,1,1]]$
+  T0=time()$ gtt_ekn3.gmvector(Margin,P |option_list=getopt())$ T1=time()$ 
+  printf("Time gtt_ekn3=%a\n",matrix_list_to_matrix(T1)-matrix_list_to_matrix(T0))$
+  return(gen_time_data());
+}
+
+/* test 用 
+try0()$
+time_crt_5(2 | upto=20, test=1, crt=1);  //  分散計算
+*/
+// time_crt_5(16 | upto=200,crt=1);  //  分散計算 5x5 16.  155 で fail  p300.txt を使う. 150 で 219s.
+//time_crt_5(16 |upto=200,pfile="p600.txt",crt=1); // orange3m でのデータ. 2019.03.27 log-time-crt-5.txt
+
+//time_crt_5(4 | upto=20,crt=1); // 2019.03.29 childprocess などを新しくするため.
+/*
+  MacBook 2017(core i5, 2 cores), p300.txt で
+  N  total   g_mat_fac
+  10   86      58        (古い childprocess.rr では (total, g_mat_fac)=(99, 68)
+  20  143     107
+*/
+
+//time_crt_5(4 |upto=20, pfile="p50.txt",crt=1); 
+
+//time_crt_5(2 | upto=20,crt=1); // 2019.03.29 
+/* N=10 で (101,68)  2 cores しかないのに
+*/
+
+//time_crt_5(6 | upto=20,crt=1); // 2019.03.29 
+/* N=10 で (94,60)  
+*/
+//time_crt_5(3 | upto=20,crt=1); // 2019.03.29 
+/* N=10 で (99,65)
+*/
+
+/*
+time_crt_5(16|upto=0,pfile="p300.txt",crt=1);
+print(test5x5crt(100));
+*/
+/* log は orange3m:Prog3/log-test-time-crt-5.txt, 2019.03.29 15:45 ごろ 
+   N=100 (total,g_mat_fac)=(147,108).
+   graph-test6d-gtt_ekn3-nobs.r, tt[19] によれば
+   (107,51) なので g_mat_fac が 2倍程度遅い.
+*/
+
+//gtt_ekn3.crt_debug(1);
+//time_crt_5(3 | upto=10, test=1, pfile="p10.txt",crt=1);  //  分散計算
+
+/* 2019.03.30, modp_interval=m の動作確認. */
+
+try0_20()$
+gtt_ekn3.crt_time_reset()$
+time_crt_5(3 | upto=10, test=1, pfile="p10.txt",crt=1,modp_interval=5);  //  分散計算
+printf("crt timing=%a\n          =[modp_itor, details]\n",gtt_ekn3.crt_time_get())$
+
+/*
+gtt_ekn3.crt_time_reset()$
+time_crt_5(3 | upto=0, pfile="p50.txt")$
+test5x5(10 |crt=1, modp_interval=1)$  // modp_interval = 1 (default) が一番早い.
+printf("crt timing=%a\n          =[modp_itor, details]\n",gtt_ekn3.crt_time_get())$
+*/
+
+end$
+

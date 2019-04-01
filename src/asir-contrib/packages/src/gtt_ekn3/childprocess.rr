@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/childprocess.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/childprocess.rr,v 1.2 2019/03/29 07:00:10 takayama Exp $ */
+
 def euclid(X,Y){ return inv(X,Y); }
 
 def chinese(Data1,Data2){
@@ -9,15 +10,16 @@ def chinese(Data1,Data2){
     return([Vect,M]);
 }
 
-def g_mat_fac_modp_itor(F,DF,Mat,DNMat,E,P){
+def g_mat_fac_modp_itor(F,DF,Mat,DNMat,E,P,Modp_interval){
     L = length(F);
     NewF = F;
     NewDF = DF;
 
     for(I=0;I<=E;I++){
-	NewDF = NewDF * subst(DNMat,a,I) % P;
+	NewDF = NewDF * subst(DNMat,a,I);
+        if (I % Modp_interval == 0) NewDF %= P;
 	NewF = subst(Mat,a,I)*NewF;
-	for(J=0;J<L;J++)  NewF[J] %= P;
+	for(J=0;J<L;J++)  if (I % Modp_interval == 0) NewF[J] %= P;
     }
     Inv = inv(NewDF,P);
     NewF = NewF*Inv;

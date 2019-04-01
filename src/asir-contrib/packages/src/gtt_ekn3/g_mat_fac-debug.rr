@@ -1,15 +1,41 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.4 2019/03/29 07:00:10 takayama Exp $ */
+/*
+  $OpenXM$
+*/
+/*  g_mat_fac-debug.rr  
+  based on gtt_ekn3/g_mat_fac.rr,v 1.4 2019/03/29 07:00:10 takayama Exp  */
 #define USEMODULE
 #ifdef USEMODULE
 module gtt_ekn3$
+localf mytiming$ // defined in ekn_eval-timing.rr
+localf crt_debug$
+localf crt_time_reset$
+localf crt_time_get$
 static Ekn_debug$
+static CRT_msg$
+static CRT_time_modp_itor$
+static CRT_time_chinese_itor$
+static CRT_time_do_itor$
+static CRT_time_long$
+static CRT_time$
+CRT_msg=0$
+CRT_time_long=[]$
+CRT_time=0$
 #else
 extern Ekn_debug$
+extern CRT_msg$
+CRT_msg=0$
+extern CRT_time_modp_itor$
+extern CRT_time_chinese_itor$
+extern CRT_time_do_itor$
+extern CRT_time_long$
+extern CRT_time$
+CRT_time_long=[]$
+CRT_time=0$
 #endif
 
-def crt_debug(L){printf("Warning. mytiming is defined in g_mat_fac-debug.rr\n");}
-def crt_time_reset(){printf("Warning. mytiming is defined in g_mat_fac-debug.rr\n");}
-def crt_time_get(){printf("Warning. mytiming is defined in g_mat_fac-debug.rr\n");return [0,0];}
+def crt_debug(L) { CRT_msg=L; }
+def crt_time_reset() { CRT_time_long=[]; CRT_time=0;}  // debug by test-time-crt-5.rr
+def crt_time_get() { return [CRT_time,CRT_time_long]; } 
 
 def process(N){
   if (type(getopt(sub_progs))>0) {
@@ -155,6 +181,7 @@ def preparation(F,Mat,S,E,Inc,Var){
 def nextP_itor(ID,F,DF,Mat,DNMat,P,E){
     Modp_interval=1;
     if (type(getopt(modp_interval))>0) Modp_interval=getopt(modp_interval);
+    // printf("nextP_itor, Modp_interval=%a\n",Modp_interval);
     ox_rpc(ID,"g_mat_fac_modp_itor",F,DF,Mat,DNMat,E,car(P),Modp_interval);
     ox_push_cmd(ID,258);
     return(cdr(P));
@@ -171,6 +198,7 @@ def rm_list(List,N){
 }
 
 def nextData_itor(Data,ID){
+    if (CRT_msg) printf("ID=%a, chinese(%a,%a)\n",ID,number_eval(Data[0]),number_eval(Data[1]));
     ox_rpc(ID,"chinese",Data[0],Data[1]);
     ox_push_cmd(ID,258);
     return(cdr(cdr(Data)));
@@ -183,6 +211,7 @@ def to_vect(L) {
     return [Data0,L[1]];
 }
 
+/* これは分散計算してる */
 def chinese_itor(Data,IDList){
     Data=map(to_vect,Data);
     List = [];
@@ -191,7 +220,10 @@ def chinese_itor(Data,IDList){
 
     if(length(Data) == 1) return(Data[0]);
     for(I=0;I<L&&length(Data)>1;I++){
-	Data = nextData_itor(Data,IDList[I]);
+	Data = nextData_itor(Data,IDList[I]); // chinese を子供で実行.
+         /* chinese([V1,M1],[V2,M2]) --> [V,M]  M=M1*M2, V mod M1=V1, V mod M2=V2
+             ただし gcd(M1,M2)=1 だと思われる.
+         */
 	List = cons(IDList[I],List);
     }
 
@@ -200,7 +232,8 @@ def chinese_itor(Data,IDList){
     while(List != []){
     	E = ox_select(List);
 	while(E != []){
-	    Ret = cons(ox_get(car(E)),Ret);
+	    Ret = cons(ox_get(car(E)),Ret); // chinese の結果をもらう.
+            if (CRT_msg) printf("Ret=[vec,M]=...\n"); 
 	    LR++;
 	    if(LD+LR > 1){
 	        if(LD <= 1){
@@ -226,7 +259,7 @@ def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
     List = [];
     Data = [];
     for(I=0;I<length(IDList) && P!=[];I++){
-	P = nextP_itor(IDList[I],F,DF,Mat,DNMat,P,E | option_list=getopt());
+	P = nextP_itor(IDList[I],F,DF,Mat,DNMat,P,E|option_list=getopt());
 	List = cons(IDList[I],List);
     }
 
@@ -237,7 +270,7 @@ def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
 	      T = ox_get(ID);
 	      if(T != 0)  Data = cons(T,Data);
 	      if(P != []){
-	          P = nextP_itor(ID,F,DF,Mat,DNMat,P,E | option_list=getopt());
+	          P = nextP_itor(ID,F,DF,Mat,DNMat,P,E|option_list=getopt());
 	      }else{
 	          List = rm_list(List,ID);
 	      }
@@ -247,7 +280,10 @@ def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
     return(Data);
 }
 
+/* これも分散計算 */
 def do_itor(Data,L,IDList){
+    if (CRT_msg) printf("do_itor(length(Data)=%a,L=%a,length(IDList)=%a\n",
+           length(Data),L,length(IDList));
     Ret = newvect(L);
     Q = Data[1];
     Q2 = isqrt(ishift(Q,1)+1);
@@ -286,11 +322,20 @@ def g_mat_fac_itor(F,Mat,S,E,Inc,Var,P,IDList){
     DNF = TMP[1];
     NMF = TMP[0];
 
-    Data = modp_itor(NMF,DNF,NMMat,DNMat,E,P,IDList | option_list=getopt());
-    Data = chinese_itor(Data,IDList);
+    if (CRT_msg) printf("length(P)=%a\n",length(P));
+    printf("modp_interval=%a\n",getopt(modp_interval));
+
+    T0=time(); Data = modp_itor(NMF,DNF,NMMat,DNMat,E,P,IDList|option_list=getopt()); T1=time();
+    CRT_time_modp_itor=mytiming(T0,T1); printf("modp_itor=%a\n",CRT_time_modp_itor);
+
+    T0=time(); Data = chinese_itor(Data,IDList); T1=time();
+    CRT_time_chinese_itor=mytiming(T0,T1); printf("chinese_itor=%a\n",CRT_time_chinese_itor);
 
     L = length(F);
-    Ret = do_itor(Data,L,IDList);
+    T0=time(); Ret = do_itor(Data,L,IDList); T1=time();
+    CRT_time_do_itor=mytiming(T0,T1); printf("do_itor=%a\n",CRT_time_do_itor);
+    CRT_time_long=cons([CRT_time_modp_itor,CRT_time_chinese_itor,CRT_time_do_itor],CRT_time_long);
+    CRT_time += CRT_time_modp_itor[3];
     for(I=0;I<L;I++){
         if(F[I] == "failure")  printf("Use bigger number of primes or bigger prime\n");
     }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.4 2019/03/20 02:08:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.5 2019/03/21 00:33:46 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 import("gtt_ekn.rr")$  // for assert?
@@ -194,6 +194,7 @@ localf moveAlpha$
 localf mul_list$ 
 localf myabs$ 
 localf myrand$ 
+localf mytiming$
 localf nablaij$ 
 localf nc$ 
 localf next_2$ 
@@ -284,6 +285,13 @@ localf xJ_rule2$
 localf xJ$ 
 localf xmat$ 
 localf xRule_num$
+
+localf get_time_initial_poly$ // define in ekn_eval-timing.rr
+localf get_time_contiguity$ 
+localf get_time_g_mat_fac$ 
+localf crt_debug$ // defined in g_mat_fac-debug.rr
+localf crt_time_reset$
+localf crt_time_get$
 endmodule$
 #else
 extern Ekn_plist$

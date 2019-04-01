@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval-timing.rr,v 1.1 2019/03/27 00:06:42 takayama Exp $ */
 /* ekn_eval.rr to take the timing data 
 Example:
  import("gtt_ekn3.rr")$
@@ -20,25 +20,36 @@ load("gtt_ekn3/ekn_pfaffian_8.rr")$
 #ifdef USE_MODULE
 module gtt_ekn3;
 static Ekn_debug$
+
 static Ekn_time_g_mat_fac$
 static Ekn_time_initial_poly$
 static Ekn_time_contiguity$
+static Ekn_use_cache$
+Ekn_use_cache=0$
 
 localf get_time_g_mat_fac$
 localf get_time_initial_poly$
 localf get_time_contiguity$
 localf mytiming$
+localf ekn_use_cache$
 #else
 extern Ekn_debug$
+
 extern Ekn_time_g_mat_fac$
 extern Ekn_time_initial_poly$
 extern Ekn_time_contiguity$
+static Ekn_use_cache$
+Ekn_use_cache=0$
 #endif
 
 def get_time_g_mat_fac() { return Ekn_time_g_mat_fac; }
 def get_time_initial_poly() { return Ekn_time_initial_poly; }
 def get_time_contiguity() { return Ekn_time_contiguity; }
-def mytiming(T0,T1) { return matrix_list_to_matrix(T1)-matrix_list_to_matrix(T0); }
+//def mytiming(T0,T1) { return matrix_list_to_matrix(T1)-matrix_list_to_matrix(T0); }
+def ekn_use_cache(L) { 
+  if (L==0) shell("rm -f tmp/tmp-conti.ab");
+  return Ekn_use_cache=L; 
+}
 
 /* By Strategy 2 */
 def ekn_cBasis_2(Beta, X){
@@ -122,10 +133,16 @@ def ekn_cBasis_3(Beta, X){
 
   S=base_replace(pfaffian_basis(Start,K,N),append(AR,XR));
 
-  T0=time();
-  CL=contiguity_mat_list_3(AlphaE,K,N|xrule=XR);
-  T1=time();  Ekn_time_contiguity=mytiming(T0,T1);
-  printf("contiguity_mat_list_3 of path=3: %a [CPU(s),0,*,real(s)]\n",Ekn_time_contiguity);
+  if (access("tmp/tmp-conti.ab") && Ekn_use_cache) {
+    CL=bload("tmp/tmp-conti.ab");
+    printf("contiguity_mat_list_3 : cached data tmp/tmp-conti.ab is used.\n");
+  }else {
+    T0=time();
+    CL=contiguity_mat_list_3(AlphaE,K,N|xrule=XR);
+    if (EKn_use_cache) bsave(CL,"tmp/tmp-conti.ab"); 
+    T1=time();  Ekn_time_contiguity=mytiming(T0,T1);
+    printf("contiguity_mat_list_3 of path=3: %a [CPU(s),0,*,real(s)]\n",Ekn_time_contiguity);
+  }
 
   Var=car(CL);
   T0=time();
