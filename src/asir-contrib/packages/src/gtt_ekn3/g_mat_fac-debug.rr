@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac-debug.rr,v 1.1 2019/04/01 01:31:53 takayama Exp $
+  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac-debug.rr,v 1.2 2019/04/01 03:15:32 takayama Exp $
 */
 /*  g_mat_fac-debug.rr  
   based on gtt_ekn3/g_mat_fac.rr,v 1.4 2019/03/29 07:00:10 takayama Exp  */
@@ -332,7 +332,11 @@ def g_mat_fac_itor(F,Mat,S,E,Inc,Var,P,IDList){
     T0=time(); Data = chinese_itor(Data,IDList); T1=time();
     CRT_time_chinese_itor=mytiming(T0,T1); printf("chinese_itor=%a\n",CRT_time_chinese_itor);
 
-    if (type(getopt(itor))<=0) return Data[0]; ///
+    if (type(getopt(itor))<=0) {
+      CRT_time_long=cons([CRT_time_modp_itor,CRT_time_chinese_itor,0],CRT_time_long);
+      CRT_time += CRT_time_modp_itor[3];
+      return Data[0]; ///
+    }
     L = length(F);
     T0=time(); Ret = do_itor(Data,L,IDList); T1=time();
     CRT_time_do_itor=mytiming(T0,T1); printf("do_itor=%a\n",CRT_time_do_itor);
