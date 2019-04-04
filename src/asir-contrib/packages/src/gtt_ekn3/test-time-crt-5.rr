@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/test-time-crt-5.rr,v 1.1 2019/04/01 01:31:53 takayama Exp $
+  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/test-time-crt-5.rr,v 1.2 2019/04/01 03:15:32 takayama Exp $
 */
 /*
    2019.03.29
@@ -156,6 +156,12 @@ time_crt_5(3 | upto=0, pfile="p50.txt")$
 test5x5(10 |crt=1, modp_interval=1)$  // modp_interval = 1 (default) が一番早い.
 printf("crt timing=%a\n          =[modp_itor, details]\n",gtt_ekn3.crt_time_get())$
 */
+
+// 2019.04.04
+printf("interval=1: ")$ test5x5(200|interval=1);
+end$
+printf("no interval: ")$ test5x5(200);    // 256s(308)
+printf("interval=100: ")$ test5x5(200 | interval=100); // 101s(156s)
 
 // 2019.04.01  no_itor  itor を最小限にする.  itor=1 だと毎回.
 try0_20()$

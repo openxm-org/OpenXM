@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.15 2019/03/20 02:08:55 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.16 2019/03/21 00:33:45 takayama Exp $
 %% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -229,7 +229,7 @@ gmvector は
 @item 
 周辺和 @var{beta}の時の正規化定数のセル確率 @var{p} に対する値は 多項式に退化した E(k,n) の値で表現できる. 文献 [TKT2015], [GM2016] 参照.
 @item 
-以下の option は expectation でも同じ.
+以下の option は expectation その他でも使える.
 @item 
 option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう
 [T2016]. 
@@ -241,8 +241,13 @@ option bs=1.  binary splitting method で matrix factorial を計算.
 デフォールトは bs=0.
 @item
 option path. contiguity を適用する path をきめるアルゴリズムを指定.
-path=2 (後藤, 松本の論文の path). path=3 (論文 tgkt の path).
+path=2 (後藤, 松本の論文 [GM2016] の path). path=3 (論文 [TGKT] の path).
 デフォールトは path=3.
+@item
+option interval. 通常の matrix factorial の計算では, 分母と分子をそれぞれ整数計算で計算し最後に約分をする. しかしながら数の中間膨張が一般的に発生しその中間膨張を解消するため
+約分を一定間隔で行うと計算効率がよくなる.
+interval に整数値を設定することにより行列による一次変換を interval 回するたびに約分を行う.
+interval の最適値は問題毎に異なるためシステムがデフォールト値を設定することはない.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -267,6 +272,18 @@ T3=T2*D;
 ちなみに同じ値を Mathematica に計算させるには
 @example
 n=2; Hypergeometric2F1[-36*n,-11*n,2*n,(1-1/n)/56]
+@end example
+
+例: interval option
+@example
+[4009] P=gtt_ekn3.prob1(5,5,100);
+[[[100,200,300,400,500],[100,200,300,400,500]],[[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1/23,1/29,1/31,1/37],[1,1/41,1/43,1/47,1/53],[1,1,1,1,1]]]
+
+[4010] util_timing(quote(gtt_ekn3.gmvector([[100,200,300,400,500],[100,200,300,400,500]], [[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1/23,1/29,1/31,1/37],[1,1/41,1/43,1/47,1/53],[1,1,1,1,1]])))[1]; 
+[cpu,72.852,gc,0,memory,4462742364,real,72.856]
+
+[4011] util_timing(quote(gtt_ekn3.gmvector([[100,200,300,400,500],[100,200,300,400,500]], [[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1/23,1/29,1/31,1/37],[1,1/41,1/43,1/47,1/53],[1,1,1,1,1]]|interval=100)))[1];
+[cpu,67.484,gc,0,memory,3535280544,real,67.4844]
 @end example
 
 参考: 2 x m 分割表(Lauricella FD)についてはパッケージ tk_fd でも下記のように同等な
@@ -336,10 +353,14 @@ ChangeLog
 @item
  この関数は 
 [GM2016] のアルゴリズムおよび 
-[T2016] による modular method を用いた高速化を実装したものである.  
+[T2016] による modular method を用いた高速化,
+[TGKT] の高速化を実装したものである.  
 @item
  変更を受けたファイルは 
  OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr 1.1, gtt_ekn/ekn_pfaffian_8.rr
+@item
+ interval option について変更を受けたファイルは 
+ OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval.rr 1.6
 @end itemize
 
 
@@ -384,6 +405,7 @@ nc は gmvector の値を元に, [GM2016] の Prop
 option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
 分散計算用の各種パラメータの設定は
 gtt_ekn.setup で行なう.
+その他の option は gmvector を参照.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -530,12 +552,13 @@ ChangeLog
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item
-[GM2016] の Algorithm 7.8 の実装.
+[GM2016] の Algorithm 7.8 の実装. [TGKT] による高速化版 (path=3) がデフォールト.
 @item option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
 分散計算用の各種パラメータの設定は
 gtt_ekn.setup で行なう.
 @item option index を与えると, 指定された成分の期待値のみ計算する.
 たとえば 2 x 2 分割表で index=[[0,0],[1,1]] と指定すると, 1 のある成分の期待値のみ計算する.
+@item その他の option は gmvector を参照.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -1015,6 +1038,9 @@ Try [[crt,1]]
 
 例.
 @example
+3x5 分割表. 周辺和は 10 に比例する一定の数(factor option も関係. ソースを参照). 
+cell 確率は1/素数で生成される.
+@comment grep testnxn ekn/Prog2/*.rr ; grep test_nxn ekn/Prog2/*.rr も見よ.
 [9054] L=gtt_ekn.prob1(3,5,10 | factor=1, factor_row=3); 
 [[[10,20,420],[30,60,90,120,150]],[[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1,1,1,1]]]
 [9055] number_eval(gtt_ekn.expectation(L[0],L[1]));
