@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.183 2019/03/29 08:07:32 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.184 2019/03/29 08:10:17 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -356,7 +356,7 @@ install-for-debug:
 	(cd kan96xx; ${MAKE} install-for-debug)
 	(cd kxx; ${MAKE} install-for-debug)
 	(cd k097; ${MAKE} install-for-debug)
-	(cd ${BINDIR}; rm -f asir; ln -s ../../OpenXM_contrib2/asir2000/asir .)
+	(cd ${BINDIR}; rm -f asir; ln -s ../../OpenXM_contrib2/asir2018/asir .)
 	(cd ${BINDIR}; rm -f ox_pari; ln -s ../../OpenXM/src/ox_pari/ox_pari .)
 
 fetch:
