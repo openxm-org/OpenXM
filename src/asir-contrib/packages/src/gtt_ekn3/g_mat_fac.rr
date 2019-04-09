@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.5 2019/04/01 01:31:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.6 2019/04/01 03:15:32 takayama Exp $ */
 #define USEMODULE
 #ifdef USEMODULE
 module gtt_ekn3$
@@ -18,7 +18,7 @@ def process(N){
 
     Ret = newvect(N);
     for(I=0;I<N;I++){
-       if (Ekn_debug) Ret[I] = ox_launch();
+       if (Ekn_debug || (type(getopt(x))>0)) Ret[I] = ox_launch();
        else Ret[I] = ox_launch_nox();
        for (J=0; J<length(Sub_progs); J++) {
          ox_rpc(Ret[I],"load",Sub_progs[J]);

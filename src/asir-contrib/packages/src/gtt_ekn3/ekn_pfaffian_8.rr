@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_pfaffian_8.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $
 */
 /* memo
 load("ekn_pfaffian_8.rr");
@@ -2454,6 +2454,11 @@ def initialPoly_3(Beta){
 def contiguity_mat_list_3(A,K,N){
   // if (XRule != 0){ XR=XRule; }
   // else{ XR=[]; }
+  Idl = get_ekn_IDL();
+  //printf("Ekn_IDL=%a\n",Idl);
+  if (Idl != 0) return contiguity_mat_list_3_dist(A,K,N|option_list=getopt());
+  // if (XRule != 0){ XR=XRule; }
+  // else{ XR=[]; }
   if (type(getopt(xrule))>0) {
     XR=getopt(xrule);
   }else{XR=[];}
@@ -2479,6 +2484,70 @@ def contiguity_mat_list_3(A,K,N){
   return(cons(t,reverse(CList)));
 }
 /****** Strategy 3 end ***************/
+def downAlpha3_ax(J,K,N,AArule,XXrule) {
+  return [downAlpha3(J,K,N | arule=AArule, xrule=XXrule),J];
+}
+def contiguity_mat_list_3_dist(A,K,N){
+  Idl = get_ekn_IDL();
+  // if (XRule != 0){ XR=XRule; }
+  // else{ XR=[]; }
+  if (Idl == 0) error("Error. Start subprocesses by setup(N| ...prog=...");
+  IDList=Idl;
+  if (type(getopt(xrule))>0) {
+    XR=getopt(xrule);
+  }else{XR=[];}
+  Al=initialAlpha_3(A,K,N);
+  Alv=ltov(Al);
+  Av=ltov(A);
+  Step=Av-Alv;
+
+  CList=newvect(K+1); Ekn_CList=newvect(K+1);
+  /* J=1,...,K */
+  List=[]; /* process numbers */
+  for (J=1,II=0; J<K+1 && II<length(IDList); J++,II++){
+    if (Step[J]<0){
+      Amove=moveAlpha(J,vtol(Alv),K,N); 
+      // C=base_replace(downAlpha(J,K,N),alphaRule_num(Amove,K,N));
+      ox_rpc(IDList[II],"gtt_ekn3.downAlpha3_ax",J,K,N,alphaRule_num(Amove,K,N),XR);
+      ox_push_cmd(IDList[II],258);
+      List = cons(IDList[II],List);
+      CList[J]=[C,Step[J]];  /* C has not been obtained */
+      Ekn_CList[J]=[C,Step[J],J];
+      Alv[0]=Alv[0]-Step[J];
+      Alv[J]=Av[J];
+    }else{}
+    // printf("%a\n",Alv);
+  }
+
+  while(List != []){
+    E = ox_select(List);
+    while(E != []){
+      T = ox_get(car(E));
+      C=T[0]; HH=CList[T[1]]; CList[T[1]]=[C,HH[1]];
+      HH=Ekn_CList[T[1]]; Ekn_CList[T[1]]=[C,HH[1],HH[2]];
+      if(J < K+1){
+       if (Step[J]<0) { 
+        Amove=moveAlpha(J,vtol(Alv),K,N); 
+        ox_rpc(car(E),"gtt_ekn3.downAlpha3_ax",J,K,N,alphaRule_num(Amove,K,N),XR);
+        II=base_position(car(E),IDList); 
+        List = cons(IDList[II],List);
+        CList[J]=[C,Step[J]];  /* C has not been obtained */
+        Ekn_CList[J]=[C,Step[J],J];
+        Alv[0]=Alv[0]-Step[J];
+        Alv[J]=Av[J];
+        ox_push_cmd(car(E),258);
+        J++;
+       }else { ; }
+      }else{
+        List = rm_list(List,car(E));
+      }
+      E = cdr(E);
+    }
+  }
+  Ekn_CList = reverse(cdr(vtol(Ekn_CList)));
+  return(cons(t,cdr(vtol(CList))));
+}
+
 
 #ifdef USE_MODULE
 endmodule;

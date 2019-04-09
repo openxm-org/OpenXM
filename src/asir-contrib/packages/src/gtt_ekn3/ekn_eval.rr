@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval.rr,v 1.5 2019/04/01 03:15:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval.rr,v 1.6 2019/04/04 22:49:40 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -22,6 +22,7 @@ extern Ekn_mesg$
 Ekn_mesg=1;
 #endif
 
+def get_ekn_IDL() { return Ekn_IDL; }
 def get_time_initial_poly(){printf("Warning: get_time_initial_poly is defined in ekn_eval-timing.rr.\n"); return newvect(4);}
 def get_time_contiguity(){printf("Warning: get_time_initial_poly is defined in ekn_eval-timing.rr.\n"); return newvect(4);}
 def get_time_g_mat_fac(){printf("Warning: get_time_initial_poly is defined in ekn_eval-timing.rr.\n"); return newvect(4);}

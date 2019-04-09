@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.6 2019/04/01 01:31:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.7 2019/04/04 22:49:40 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 import("gtt_ekn.rr")$  // for assert?
@@ -20,6 +20,7 @@ localf antiDiag$
 localf append_comp_v$ 
 localf assert1$ 
 localf assert2$ 
+localf assert3$ 
 localf avoid_var$ 
 localf basistodS_g_1$ 
 localf basistodS$ 
@@ -67,6 +68,7 @@ localf coefPsi$
 localf contiguity_mat_list_1$ 
 localf contiguity_mat_list_2$ 
 localf contiguity_mat_list_3$ 
+localf contiguity_mat_list_3_dist;
 localf contiguity_mat_list_g_1$ 
 localf contiguity_mat_list_g_2$ 
 localf dataset$ 
@@ -83,6 +85,7 @@ localf downAlpha_g_2$
 localf downAlpha$ 
 localf downAlpha2$ 
 localf downAlpha3$ 
+localf downAlpha3_ax;
 localf dxij$ 
 localf e36_deg_contig_test_2$ 
 localf e36_deg_contig_test_3$ 
@@ -119,6 +122,7 @@ localf g_mat_fac_test$
 localf generate_p_set_$ 
 localf generate_p_set$ 
 localf get_dm_bsplit_global$ 
+localf get_ekn_IDL$
 localf get_M_ans$
 localf get_mfac_bs_global$ 
 localf get_mfac_bs_global$ 
@@ -532,6 +536,33 @@ def assert2(N) {
   printf("Timing (rational) =%a (CPU) + %a (GC) = %a (total)\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1);
   printf("diff of both method, gtt_ekn and gtt_ekn3 = \n");
   return([V0-V1,V1-V1_3,V0-V0_3]);
+}
+
+def assert3(R1,R2,Size) 
+"assert3(R1,R2,Size | x=0, nps=3, crt=0); x=1 --> show windows of subprocesses. Example: gtt_ekn3.assert3(5,5,100 | x=1); inverval=m --> reduce every m steps of lin. trans."
+{
+  printf("Examples: assert3(R1=3,R2=5,Size=100|x=1); example3(5,5,100 | nps=32, crt=1);\n");
+  printf("Note: load gtt_ekn3/ekn_eval-timing.rr to show timing data.\n");
+  WorkDir="tmp-gtt_ekn3";
+  printf("mkdir a temporary work directory %a\n",WorkDir);
+  shell("mkdir -p "+WorkDir);
+  P=prob1(R1,R2,Size);
+  printf("Prob=%a\n",P);
+  printf("Sequential method: ");
+  G=gmvector(P[0],P[1] | option_list=getopt())$
+  bsave(G,WorkDir+"/1.ab");
+  printf("Done. Saved in 1.ab\n");
+
+  printf("Parallel method: ");
+  Nproc=3; if (type(getopt(nps))>0) Nproc=getopt(nps);
+  if (type(getopt(x))>0) X=1; else X=0;
+  printf("Number of process=%a, ",Nproc);
+  gtt_ekn3.setup(|nps=Nproc,sub_progs=["gtt_ekn3.rr","childprocess.rr"],x=X,
+    fgp=WorkDir+"/p300.txt",nprm=300,minp=10^100);
+  G2=gmvector(P[0],P[1] | option_list=getopt())$
+  bsave(G,WorkDir+"/2.ab");
+  printf("Done. Saved in 2.ab\n");
+  printf("Diff (should be 0)=%a\n",base_flatten(number_eval(G-G2)));
 }
 
 /* bench mark test. */
