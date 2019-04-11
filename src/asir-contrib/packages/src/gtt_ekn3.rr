@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.7 2019/04/04 22:49:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.8 2019/04/09 00:48:15 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 import("gtt_ekn.rr")$  // for assert?
@@ -557,7 +557,7 @@ def assert3(R1,R2,Size)
   Nproc=3; if (type(getopt(nps))>0) Nproc=getopt(nps);
   if (type(getopt(x))>0) X=1; else X=0;
   printf("Number of process=%a, ",Nproc);
-  gtt_ekn3.setup(|nps=Nproc,sub_progs=["gtt_ekn3.rr","childprocess.rr"],x=X,
+  gtt_ekn3.setup(|nps=Nproc,sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"],x=X,
     fgp=WorkDir+"/p300.txt",nprm=300,minp=10^100);
   G2=gmvector(P[0],P[1] | option_list=getopt())$
   bsave(G,WorkDir+"/2.ab");
