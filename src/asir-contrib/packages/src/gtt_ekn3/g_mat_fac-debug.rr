@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac-debug.rr,v 1.2 2019/04/01 03:15:32 takayama Exp $
+  $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac-debug.rr,v 1.3 2019/04/03 00:45:05 takayama Exp $
 */
 /*  g_mat_fac-debug.rr  
   based on gtt_ekn3/g_mat_fac.rr,v 1.4 2019/03/29 07:00:10 takayama Exp  */
@@ -40,11 +40,11 @@ def crt_time_get() { return [CRT_time,CRT_time_long]; }
 def process(N){
   if (type(getopt(sub_progs))>0) {
     Sub_progs=getopt(sub_progs);
-  }else Sub_progs=["gtt_ekn3/childprocess.rr"];
+  }else Sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"];
 
     Ret = newvect(N);
     for(I=0;I<N;I++){
-       if (Ekn_debug) Ret[I] = ox_launch();
+       if (Ekn_debug || (type(getopt(x))>0)) Ret[I] = ox_launch();
        else Ret[I] = ox_launch_nox();
        for (J=0; J<length(Sub_progs); J++) {
          ox_rpc(Ret[I],"load",Sub_progs[J]);
@@ -58,7 +58,7 @@ def process(N){
 def setup_x(N){
   if (type(getopt(sub_progs))>0) {
     Sub_progs=getopt(sub_progs);
-  }else Sub_progs=["gtt_ekn3/childprocess.rr"];
+  }else Sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"];
     Ret = newvect(N);
     for(I=0;I<N;I++){
        Ret[I] = ox_launch();
@@ -259,7 +259,7 @@ def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
     List = [];
     Data = [];
     for(I=0;I<length(IDList) && P!=[];I++){
-	P = nextP_itor(IDList[I],F,DF,Mat,DNMat,P,E|option_list=getopt());
+	P = nextP_itor(IDList[I],F,DF,Mat,DNMat,P,E | option_list=getopt());
 	List = cons(IDList[I],List);
     }
 
@@ -270,7 +270,7 @@ def modp_itor(F,DF,Mat,DNMat,E,P,IDList){
 	      T = ox_get(ID);
 	      if(T != 0)  Data = cons(T,Data);
 	      if(P != []){
-	          P = nextP_itor(ID,F,DF,Mat,DNMat,P,E|option_list=getopt());
+	          P = nextP_itor(ID,F,DF,Mat,DNMat,P,E | option_list=getopt());
 	      }else{
 	          List = rm_list(List,ID);
 	      }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.6 2019/04/01 03:15:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/g_mat_fac.rr,v 1.7 2019/04/09 00:48:15 takayama Exp $ */
 #define USEMODULE
 #ifdef USEMODULE
 module gtt_ekn3$
@@ -14,7 +14,7 @@ def crt_time_get(){printf("Warning. mytiming is defined in g_mat_fac-debug.rr\n"
 def process(N){
   if (type(getopt(sub_progs))>0) {
     Sub_progs=getopt(sub_progs);
-  }else Sub_progs=["gtt_ekn3/childprocess.rr"];
+  }else Sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"];
 
     Ret = newvect(N);
     for(I=0;I<N;I++){
@@ -32,7 +32,7 @@ def process(N){
 def setup_x(N){
   if (type(getopt(sub_progs))>0) {
     Sub_progs=getopt(sub_progs);
-  }else Sub_progs=["gtt_ekn3/childprocess.rr"];
+  }else Sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"];
     Ret = newvect(N);
     for(I=0;I<N;I++){
        Ret[I] = ox_launch();
