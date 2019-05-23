@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.47 2019/03/05 01:52:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.48 2019/03/06 02:41:30 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -474,7 +474,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190304"$
+Muldif.rr="00190520"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -5452,6 +5452,12 @@ def mulpdo(P,Q,L);
 
 def transpdosub(P,LL,K)
 {
+	if(type(P)>3) return 
+#ifdef	USEMODULE
+		mtransbys(os_md.transpdosub,P,[LL,K]);
+#else
+		mtransbys(transpdosub,P,[LL,K]);
+#endif
 	Len = length(K)-1;
 	if(Len < 0 || P == 0)
 		return P;
@@ -5477,12 +5483,11 @@ def transpdosub(P,LL,K)
 
 def transpdo(P,LL,K)
 { 
-	if(type(K[0]) < 4)
-		K = [K];
 	Len = length(K)-1;
 	K1=K2=[];
 	if(type(LL)!=4) LL=[LL];
 	if(type(LL[0])!=4) LL=[LL];
+	if(type(car(K)) < 4 && length(LL)!=length(K)) K = [K];
 	if(getopt(ex)==1){
 		for(LT=LL, KT=K; KT!=[]; LT=cdr(LT), KT=cdr(KT)){
 			L = vweyl(LL[J]);
@@ -5491,10 +5496,25 @@ def transpdo(P,LL,K)
 		}
 		K2=append(K1,K2);
 	}else{
+		if(length(LL)==length(K) && type(car(K))!=4){
+			for(DV=V=TL=[],J=length(LL)-1;J>=0;J--){
+				TL=cons(vweyl(LL[J]),TL);
+				V=cons(car(TL)[0],V);
+				DV=cons(car(TL)[1],DV);
+			}
+			LL=TL;
+			if(type(RK=solveEq(K,V|inv=1))!=4) return TK;
+			if(!isint(Inv=getopt(inv))) Inv=0;
+			if(iand(Inv,1)){J=K;K=RK;RK=J;} 
+			M=jacobian(RK,V|mat=1);
+			M=mulsubst(M,[V,K]|lpair=1);
+			RK=vtol(M*ltov(DV));
+			if(Inv>1) return RK;
+			K=lpair(K,RK);
+		}
 		for(J = length(K)-1; J >= 0; J--){
 			L = vweyl(LL[J]);
-			if(L[0] != K[J][0])
-				K1 = cons([L[0],K[J][0]],K1);
+			if(L[0]!= K[J][0]) K1=cons([L[0],K[J][0]],K1);
 			K2 = cons(K[J][1],K2);
 		}
 		P = mulsubst(P, K1);
@@ -6265,7 +6285,18 @@ def baseODE(L)
 	}
 	if(type(To=getopt(to))<2||type(To)>4) To=0;
 	else if(!isvar(To)){
-		if(type(To)!=4) To=cons(red(To),cdr(Var));
+		if(type(To)!=4){
+			To=red(To);
+			for(K=0;K<length(Var);K++){
+				I=mydeg(nm(To),Var[K]);J=mydeg(dn(To),Var[K]);
+				if(I+J>0&&I<2&&J<2) break;
+			}
+			if(K==length(Var)) return -9;
+			J=To;
+			for(To=[],I=length(Var)-1;I>=0;I--)
+				if(I!=K) To=cons(Var[I],To);
+			To=cons(J,To);
+		}
 		if(type(To)==4){
 			if(type(car(To))==4){
 				R=1;To=car(To);
@@ -6947,6 +6978,10 @@ def expat(F,L,V)
 
 def polbyroot(P,X)
 {
+	if(isvar(V=getopt(var))&&length(P)>1&&isint(car(P))){
+		for(Q=[],I=car(P);I<=P[1];I++) Q=cons(makev([V,I]),Q);
+		P=Q;
+	}
 	R = 1;
 	while(length(P)){
 		R *= X-car(P);
