@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.146 2019/01/04 05:36:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.147 2019/03/19 00:51:47 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -184,6 +184,11 @@ end: */
 def base_product(Obj,K,B,T) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_product(Obj,K,B,T | option_list=getopt());
+}
+
+/* change prompt. Not implemetned. */
+def base_prompt(P) {
+  return(0);
 }
 
 /*&usage begin: base_prune(A,S)
