@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.43 2019/03/28 09:21:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.44 2019/03/28 21:19:49 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -158,6 +158,10 @@ static void pngNotAvailable(void);
 static char *pngGetResult();
 
 static void flushSm1();
+static int is_substr_of(char a[],char s[]);
+static void hexout(FILE *fp,char s[]);
+static int mystrncmp(char a[],char s[]);
+
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -502,6 +506,10 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
         }
       }
       */
+      if (View == V_JUPYTER) {
+        s[n++] = c; s[n] = 0;  m++;
+        INC_BUF ;
+      }
       break;
     }
     if ( c == '\v') c=' ';
@@ -510,17 +518,18 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   }
   if ((c == EOF) && (start == n)) exit(0); 
   /* Check the escape sequence */
-  if (strcmp(&(s[start]),"!quit;") == 0) {
+  if (mystrncmp(&(s[start]),"!quit;") == 0) {
     printv("Terminated the process ox_texmacs.\n"); 
     exit(0);
   }
   if (((View == V_JUPYTER) || (View == V_SAGE)) && 
-      ((strcmp(&(s[start]),"quit")==0) || (strcmp(&(s[start]),"quit()")==0))) {
+      ((mystrncmp(&(s[start]),"quit")==0) || (mystrncmp(&(s[start]),"quit()")==0))) {
     printv("Terminated the process ox_texmacs.\n"); 
     exit(0);
   }
   if ((View == V_JUPYTER) && 
-      (strcmp(&(s[start]),"version")==0)) {
+      (mystrncmp(&(s[start]),"version")==0)) {
+    strcpy(&(s[start]),"version");
     s[n=strlen(s)]='('; s[++n]=0; INC_BUF;
     s[n++]=')'; s[n]=0; INC_BUF;
   }
@@ -577,8 +586,8 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     }
 
     /* 2019.03.28 for jupyter */
-    if ((strncmp(&(s[start]),"base_prompt",strlen("base_prompt")) != 0)
-        &&(strncmp(&(s[start]),"version()",strlen("version()")) != 0)) {
+    if ((mystrncmp(&(s[start]),"base_prompt") != 0)
+        &&(mystrncmp(&(s[start]),"version()") != 0)) {
       if (Sss == NULL) {
           Sss = (char *)sGC_malloc(Sss_size);
           Sss[0] = 0;
@@ -625,6 +634,9 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     s[n++] = epilog[i];  s[n] = 0;
     INC_BUF ;
   }
+#ifdef DEBUG2
+  fprintf(Dfp,"#By normal readString:%s\n",s); hexout(Dfp,s); fprintf(Dfp,"\n"); fflush(Dfp);
+#endif
   return s;
 }
 
@@ -649,7 +661,7 @@ static void printv(char *s) {
   printf("%s",s);
   printf("%s",Data_end[View]);
 #ifdef DEBUG2
-  fprintf(Dfp,"<%s>",s); fflush(Dfp);
+  fprintf(Dfp,"printv:<%s>",s); fflush(Dfp);
 #endif
   fflush(NULL);
 }
@@ -836,3 +848,30 @@ static void pngNotAvailable(void) {
   fflush(NULL);
 }
   
+/* Check if a is a substring of s */
+static int is_substr_of(char a[],char s[]) {
+  int n,m,i,j;
+  n = strlen(s);
+  m = strlen(a);
+  for (i=0; i<n-m; i++) {
+        for (j=0; j<m; j++) {
+          if (s[i+j] != a[j]) break;
+          if (j == m-1) return 1;
+        }
+  }
+  return 0;
+}
+
+static void hexout(FILE *fp,char s[]) {
+  int i;
+  for (i=0; i<strlen(s); i++) fprintf(fp,"%2x ",(unsigned char)s[i]);
+}
+static int mystrncmp(char a[],char s[]) {
+  int r;
+  r=strncmp(a,s,strlen(s));
+#ifdef DEBUG2
+  fprintf(Dfp,"mystrncmp(%s,%s)=%d\n",a,s,r); fflush(Dfp); 
+#endif
+  return r;
+}
+      
