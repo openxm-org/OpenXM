@@ -1,5 +1,5 @@
 # coding: utf-8
-# $OpenXM: OpenXM/src/jupyter/kernel.py,v 1.1 2019/05/27 07:07:43 takayama Exp $
+# $OpenXM: OpenXM/src/jupyter/kernel.py,v 1.2 2019/05/27 07:15:46 takayama Exp $
 from __future__ import print_function
 
 import codecs
@@ -49,21 +49,21 @@ def get_kernel_json():
     return data
 
 
-class OctaveKernel(ProcessMetaKernel):
+class AsirKernel(ProcessMetaKernel):
     implementation = 'Asir Kernel'
     implementation_version = __version__,
     language = 'asir'
     help_links = HELP_LINKS
     kernel_json = get_kernel_json()
 
-    _octave_engine = None
+    _asir_engine = None
     _language_version = None
 
     @property
     def language_version(self):
         if self._language_version:
             return self._language_version
-        ver = self.octave_engine.eval('version', silent=True)
+        ver = self.asir_engine.eval('version', silent=True)
         ver = self._language_version = ver.split()[-1]
         return ver
 
@@ -81,37 +81,37 @@ class OctaveKernel(ProcessMetaKernel):
         return msg % (__version__, self.language_version)
 
     @property
-    def octave_engine(self):
-        if self._octave_engine:
-            return self._octave_engine
-        self._octave_engine = OctaveEngine(plot_settings=self.plot_settings,
+    def asir_engine(self):
+        if self._asir_engine:
+            return self._asir_engine
+        self._asir_engine = AsirEngine(plot_settings=self.plot_settings,
                                            error_handler=self.Error,
                                            stdin_handler=self.raw_input,
                                            stream_handler=self.Print,
                                            logger=self.log)
-        return self._octave_engine
+        return self._asir_engine
 
     def makeWrapper(self):
-        """Start an Octave process and return a :class:`REPLWrapper` object.
+        """Start an Asir process and return a :class:`REPLWrapper` object.
         """
-        return self.octave_engine.repl
+        return self.asir_engine.repl
 
     def do_execute_direct(self, code, silent=False):
         if code.strip() in ['quit', 'quit()', 'exit', 'exit()']:
-            self._octave_engine = None
+            self._asir_engine = None
             self.do_shutdown(True)
             return
 #        f = open('tmptmp.txt','a');f.write(str(code));f.close()  #####
-#        self._octave_engine.logger.debug(str(code))  #####
+#        self._asir_engine.logger.debug(str(code))  #####
         val = ProcessMetaKernel.do_execute_direct(self, code+';;', silent=silent)
         if not silent:
             try:
-                plot_dir = self.octave_engine.make_figures()
+                plot_dir = self.asir_engine.make_figures()
             except Exception as e:
                 self.Error(e)
                 return val
             if plot_dir:
-                for image in self.octave_engine.extract_figures(plot_dir, True):
+                for image in self.asir_engine.extract_figures(plot_dir, True):
                     self.Display(image)
         return val
 
@@ -122,7 +122,7 @@ class OctaveKernel(ProcessMetaKernel):
                 return None
             else:
                 return ""
-        return self.octave_engine.eval('help %s' % obj, silent=True)
+        return self.asir_engine.eval('help %s' % obj, silent=True)
 
     def Print(self, *args, **kwargs):
         # Ignore standalone input hook displays.
@@ -133,27 +133,27 @@ class OctaveKernel(ProcessMetaKernel):
             if arg.strip().startswith(STDIN_PROMPT):
                 arg = arg.replace(STDIN_PROMPT, '')
             out.append(arg)
-        super(OctaveKernel, self).Print(*out, **kwargs)
+        super(AsirKernel, self).Print(*out, **kwargs)
 
     def raw_input(self, text):
         # Remove the stdin prompt to restore the original prompt.
         text = text.replace(STDIN_PROMPT, '')
-        return super(OctaveKernel, self).raw_input(text)
+        return super(AsirKernel, self).raw_input(text)
 
     def get_completions(self, info):
         """
         Get completions from kernel based on info dict.
         """
         cmd = 'completion_matches("%s")' % info['obj']
-        val = self.octave_engine.eval(cmd, silent=True)
+        val = self.asir_engine.eval(cmd, silent=True)
         return val and val.splitlines() or []
 
     def handle_plot_settings(self):
         """Handle the current plot settings"""
-        self.octave_engine.plot_settings = self.plot_settings
+        self.asir_engine.plot_settings = self.plot_settings
 
 
-class OctaveEngine(object):
+class AsirEngine(object):
 
     def __init__(self, error_handler=None, stream_handler=None,
                  stdin_handler=None, plot_settings=None,
@@ -355,11 +355,11 @@ class OctaveEngine(object):
             if 'version 4' in version:
                 cmd += ' --no-gui'
         # Interactive mode prevents crashing on Windows on syntax errors.
-        # Delay sourcing the "~/.octaverc" file in case it displays a pager.
+        # Delay sourcing the "~/.asirrc" file in case it displays a pager.
         cmd += ' --interactive --quiet --no-init-file '
 
         # Add cli options provided by the user.
-        cmd += os.environ.get('OCTAVE_CLI_OPTIONS', '')
+        cmd += os.environ.get('ASIR_CLI_OPTIONS', '')
 
         orig_prompt = u('PEXPECT_PROMPT>')
         change_prompt = u("base_prompt('{0}')")
@@ -375,7 +375,7 @@ class OctaveEngine(object):
 
     def _interrupt(self, silent=False):
         if (os.name == 'nt'):
-            msg = '** Warning: Cannot interrupt Octave on Windows'
+            msg = '** Warning: Cannot interrupt Asir on Windows'
             if self.stream_handler:
                 self.stream_handler(msg)
             elif self.logger:
@@ -419,7 +419,7 @@ class OctaveEngine(object):
         return '\n'.join(lines)
 
     def _get_executable(self):
-        """Find the best octave executable.
+        """Find the best asir executable.
         """
         executable = os.environ.get('ASIR_EXECUTABLE', None)
         if not executable or not which(executable):

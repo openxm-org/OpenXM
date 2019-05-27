@@ -1,7 +1,7 @@
 
-from .kernel import OctaveKernel
+from .kernel import AsirKernel
 
 if __name__ == '__main__':
-    OctaveKernel.run_as_main()
+    AsirKernel.run_as_main()
 
-# $OpenXM$
+# $OpenXM: OpenXM/src/jupyter/__main__.py,v 1.1 2019/05/27 07:07:43 takayama Exp $
