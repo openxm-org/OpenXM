@@ -1,5 +1,5 @@
 # coding: utf-8
-# $OpenXM$
+# $OpenXM: OpenXM/src/jupyter/kernel.py,v 1.1 2019/05/27 07:07:43 takayama Exp $
 from __future__ import print_function
 
 import codecs
@@ -103,7 +103,7 @@ class OctaveKernel(ProcessMetaKernel):
             return
 #        f = open('tmptmp.txt','a');f.write(str(code));f.close()  #####
 #        self._octave_engine.logger.debug(str(code))  #####
-        val = ProcessMetaKernel.do_execute_direct(self, code, silent=silent)
+        val = ProcessMetaKernel.do_execute_direct(self, code+';;', silent=silent)
         if not silent:
             try:
                 plot_dir = self.octave_engine.make_figures()

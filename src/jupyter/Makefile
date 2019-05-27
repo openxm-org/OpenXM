@@ -24,7 +24,7 @@ OX_DIR=${OpenXM_HOME}/src/jupyter
 ASIR_KERNEL_FILES=kernel.py kernel.json __init__.py __main__.py
 put-to-ox-dir:
 	-mkdir -p ${OX_DIR}
-	-rsync -avzu  ${ASIR_KERNEL_FILES} ${OX_DIR}
+	-for i in ${ASIR_KERNEL_FILES}; do rsync -avzu $$i ${OX_DIR} ; done
 	-rsync -avzu  Makefile ${OX_DIR}
 	@echo "pushd ${OX_DIR} and commit; and  popd and make get-from-ox-dir and commit to change tags."
 get-from-ox-dir:
