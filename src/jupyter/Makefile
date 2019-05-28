@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/jupyter/Makefile,v 1.2 2019/05/27 07:15:46 takayama Exp $
 usage:
 	@echo "install-debian-for-debug clean-debian"
 	@echo "install-mac-anaconda2-for-debug"
@@ -21,7 +21,7 @@ clean-debian:
 	rm -rf ${Debian_ASIR_KERNEL_DIR} ${Debian_ASIR_KERNEL_INFO} ${HOME}/bin/asir-cli
 
 OX_DIR=${OpenXM_HOME}/src/jupyter
-ASIR_KERNEL_FILES=kernel.py kernel.json __init__.py __main__.py
+ASIR_KERNEL_FILES=kernel.py kernel.json __init__.py __main__.py asir-cli
 put-to-ox-dir:
 	-mkdir -p ${OX_DIR}
 	-for i in ${ASIR_KERNEL_FILES}; do rsync -avzu $$i ${OX_DIR} ; done
