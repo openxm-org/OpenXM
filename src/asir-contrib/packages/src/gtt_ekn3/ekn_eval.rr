@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval.rr,v 1.6 2019/04/04 22:49:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_eval.rr,v 1.7 2019/04/09 00:48:15 takayama Exp $ */
 /* memo
 load("ekn_eval.rr");
  */
@@ -322,7 +322,10 @@ def g_mat_fac_test(F,M,S,E,Inc,Var) {
   }
   if (type(getopt(crt)) > 0) CRT=1; else CRT=0;
   if ((Ekn_plist == 0) || (Ekn_IDL == 0) || (CRT==0)) {
-    if (Ekn_mesg == 1) {printf("Note: interval option will lead faster evaluation. We do not use g_mat_fac_itor (crt). Call gtt_ekn3.setup(); to use the crt option.\n"); Ekn_mesg=0; }
+    if ((Ekn_mesg == 1) && (type(getopt(interval))<0)) {
+       printf("Note: interval option will lead faster evaluation, e.g. interval=20\n");
+    }
+    if (Ekn_mesg == 1) {printf("Note: We do not use g_mat_fac_itor (crt). Call gtt_ekn3.setup(); to use the crt option.\n"); Ekn_mesg=0; }
     if (type(getopt(bs))>0) {
       if (iand(Ekn_debug,0x4)) printf("   g_mat_fac_test_bs(binary splitting) is called.\n");
       return g_mat_fac_test_bs(F,M,S,E,Inc,Var | option_list=getopt());

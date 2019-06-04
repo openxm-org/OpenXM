@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.8 2019/04/09 00:48:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.9 2019/04/11 04:49:27 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 import("gtt_ekn.rr")$  // for assert?
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
  igcdcntl(3)$ printf("igcdcntl is set to 3.\n")$
+ printf("Warning: it is strongly recommended to run this package on asir-2018.\n")$
 }else {;}
 
 #define USE_MODULE
@@ -518,19 +519,23 @@ def assert2(N) {
   if (length(getopt()) == 0) printf("Try g_mat_fac_test_int: ");
   else printf("Try %a\n",getopt());
   T0=time();
+  printf("Do V1_3=gtt_ekn3.expectation(Marginal=%a,P=%a|option_list=%a)\n",Marginal,P,getopt());
   V1_3=gtt_ekn3.expectation(Marginal,P|option_list=getopt())$
   T1=time();
   printf("gtt_ekn3: Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
   T0=time();
+  printf("Do V1=gtt_ekn.expectation(Marginal=%a,P=%a|option_list=%a)\n",Marginal,P,getopt());
   V1=gtt_ekn.expectation(Marginal,P|option_list=getopt())$
   T1=time();
   printf("gtt_ekn: Timing (int) =%a (CPU) + %a (GC) = %a (total), real time=%a\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1,T1[3]-T0[3]);
   printf("\nTry g_mat_fac_test_plain: ");
   T0=time();
+  printf("Do V0=gtt_ekn.expectation(Marginal=%a,P=%a|plain=1)\n",Marginal,P);
   V0=E=gtt_ekn.expectation(Marginal,P | plain=1);
   T1=time();
   printf("Timing (rational) =%a (CPU) + %a (GC) = %a (total)\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1);
   T0=time();
+  printf("Do V0_3=gtt_ekn3.expectation(Marginal=%a,P=%a|plain=1)\n",Marginal,P);
   V0_3=E=gtt_ekn3.expectation(Marginal,P | plain=1);
   T1=time();
   printf("Timing (rational) =%a (CPU) + %a (GC) = %a (total)\n",TT0=T1[0]-T0[0],TT1=T1[1]-T0[1],TT0+TT1);
