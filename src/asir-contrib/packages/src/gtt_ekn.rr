@@ -1,10 +1,12 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.12 2019/03/07 00:43:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn.rr,v 1.13 2019/06/04 00:25:56 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
  igcdcntl(3)$ printf("igcdcntl is set to 3.\n")$
 }else {;}
-printf("This package gtt_ekn.rr is obsoleted. Please use the new package gtt_ekn3.rr\n")$
+if (!module_definedp("gtt_ekn3")) {
+printf("This package gtt_ekn.rr is obsoleted. Please use the new package gtt_ekn3.rr\n");
+}else{;}$
 #define USE_MODULE
 //#define FOR_DEVELOPE
 load("gtt_ekn/g_mat_fac.rr")$
