@@ -1,7 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.9 2019/04/11 04:49:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3.rr,v 1.10 2019/06/04 00:25:56 takayama Exp $ */
 import("names.rr")$
 load("tk_nm_dn.rr")$
-import("gtt_ekn.rr")$  // for assert?
 if ((type(version(2018)) == 4) && (length(version(2018)) < 3)) {
  igcdcntl(3)$ printf("igcdcntl is set to 3.\n")$
  printf("Warning: it is strongly recommended to run this package on asir-2018.\n")$
@@ -613,5 +612,6 @@ gtt_ekn3.init_bsplit(|minsize=16, levelmax=1)$
 #else
 #endif
 
+import("gtt_ekn.rr")$  // for assert
 
 end$
