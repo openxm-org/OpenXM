@@ -43,6 +43,8 @@ def initStatic() {
 initStatic()$
 def setup() {
   ctrl("debug_window",0);
+  ctrl("no_debug_on_error",1)$
+
 } 
 
 def getGlib_canvas() {
@@ -225,7 +227,7 @@ def radian(D) {
 /* Add a path for asir_contrib_update library. */
 ctrl("loadpath",cons(getenv("HOME")+"/.OpenXM_tmp/OpenXM/lib/asir-contrib",ctrl("loadpath")))$
 
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.7 2014/05/29 11:19:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.8 2018/10/22 07:05:55 takayama Exp $ */
 
 
 end$
