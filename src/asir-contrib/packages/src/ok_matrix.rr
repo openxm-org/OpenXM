@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.5 2018/09/25 01:35:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.6 2019/01/04 05:36:26 takayama Exp $ */
 /* Old: Matrix */
 
 /*-------------------------------*/
@@ -61,7 +61,7 @@ def omatrix_mtol(M) {
 }
 
 def omatrix_matrix_to_list(Y) {
-  if (type(Y) < 4) return(Y);
+  if ((type(Y) < 4) || (type(Y)>6)) return(Y);
   if (type(Y) == 4) return(map(omatrix_matrix_to_list,Y));
   if (type(Y) == 5) {
     Ans = newvect(length(Y));
