@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-en.texi,v 1.2 2019/06/12 05:53:29 takayama Exp $
 %% xetex gtt_ekn-en.texi   (.texi までつける. ) 
 %% 英語版, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -41,7 +41,7 @@
 @title HGM functions for two way contingency tables.
 @subtitle HGM functions for two way contingency tables on Risa/Asir 
 @subtitle Version 3.0
-@subtitle June 11, 2019
+@subtitle June 12, 2019
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
@@ -106,7 +106,7 @@ RIMS kokyuroku (in Japanese).
 @item [TGKT]
 Y.Tachibana, Y.Goto, T.Koyama, N.Takayama,
 Holonomic Gradient Method for Two Way Contingency Tables,
-@uref{https://arxiv.org/abs/1803.04170, arxiv:1803.04170 (the 2nd version)}
+@uref{https://arxiv.org/abs/1803.04170, arxiv:1803.04170 (the 3rd version)}
 @item [TKT2015]
 N.Takayama, S.Kuriki, A.Takemura, 
          A-hypergeometric distributions and Newton polytopes.
@@ -127,6 +127,7 @@ The changelogs are described only in the Japanese version of this document.
 * gtt_ekn3.expectation::
 * gtt_ekn3.setup::
 * gtt_ekn3.upAlpha::
+* gtt_ekn3.downAlpha::
 * gtt_ekn3.cmle::
 * gtt_ekn3.set_debug_level::
 * gtt_ekn3.contiguity_mat_list_2::
@@ -689,7 +690,7 @@ level&0x4: g_mat_fac_test([ 67/62944040755546030080000 ]
 level&0x4: g_mat_fac_test ------  snip
 @end example
 
-Example.
+Example:
 @example
 [2659] gtt_ekn3.nc([[4,5,6],[2,4,9]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]])$
 [2660] L=matrix_transpose(gtt_ekn3.show_path())$
@@ -700,7 +701,7 @@ This means that the contiguity relations for the directions [2 1] (a_2, a_1) are
 L[0] is the contiguity matrix, 
 L[1] is a list of the steps to apply for corresponding relations.
 
-Example. Finding a path without evaluations of gmvectors.
+Example: Finding a path without evaluations of gmvectors.
 @example
 A=gtt_ekn3.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
 [2666] gtt_ekn3.contiguity_mat_list_2(A,2,2)$
@@ -713,7 +714,7 @@ A=gtt_ekn3.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
 [2 1]  // shorter
 @end example
 
-Example. When assert2() returns 0 matrices, then the results of g_mat_fac_plain and g_mat_fac_int
+Example: When assert2() returns 0 matrices, then the results of g_mat_fac_plain and g_mat_fac_int
 agree.  In other words, the system is OK.
 @example
 [8859] gtt_ekn3.assert2(1);
@@ -742,7 +743,7 @@ Try [[crt,1]]
 ----  snip
 @end example
 
-Example.
+Example:
 3x5 contingency table.
 The parameter p (cell probability) is a list of 1/(prime number) 's.
 @example
@@ -753,7 +754,7 @@ The parameter p (cell probability) is a list of 1/(prime number) 's.
 [ 1.65224223218613 ... snip ]
 @end example
 
-Example.
+Example:
 @example
 [5779] import("gtt_ekn3.rr"); load("gtt_ekn3/ekn_eval-timing.rr");
 [5780] gtt_ekn3.assert3(5,5,100 | nps=32, interval=100);
