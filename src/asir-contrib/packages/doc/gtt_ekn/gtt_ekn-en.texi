@@ -1,88 +1,935 @@
-\input texinfo
-@def@colon{:}
-
+%% $OpenXM$
+%% xetex gtt_ekn-en.texi   (.texi までつける. ) 
+%% 英語版, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
 @iftex
 @catcode`@#=6
-@def@b#1{{@bf@gt #1}}
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
 @catcode`@#=@other
 @end iftex
 @overfullrule=0pt
-@setfilename asir-contrib-gtt_ekn
-@settitle gtt_ekn Manual
+@documentlanguage en
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename xyzman
+
+@comment --- タイトル ---
+@settitle HGM for two way contingency table 
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
 @titlepage
-@title gtt_ekn Manual
-@subtitle Edition : 2016.03.28
-@author Y.Goto, Y.Tachibana, N.Takayama
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title HGM functions for two way contingency tables.
+@subtitle HGM functions for two way contingency tables on Risa/Asir 
+@subtitle Version 3.0
+@subtitle June 11, 2019
+
+@author  by Y.Goto, Y.Tachibana, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2019. All rights reserved.
 @end titlepage
 
+@comment --- おまじない ---
 @synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
 @node Top,, (dir), (dir)
 
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する関数がある.
 @menu
-* Function Manual::
+* About this document::
+* Functions of HGM for two way contingency tables::
+* Modular method
+* Binary splitting
 * Index::
 @end menu
 
-@node Function Manual,,, Top
-@chapter Function Manual
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
 
-@menu
-* Outline::
-* Notation::
-* Functions::
-@end menu
-
-@node Outline,,, Function Manual
-@section Outline
-
-
-
-@node Notation,,,Function Manual
-@section Notation
-
-@node Functions,,, Function Manual
-@section Functions
-
-@menu
-* gtt_ekn.nc::
-@end menu
-
-@node intersect,,, Functions
-
-@node gtt_ekn.nc,,, Functions
-@subsection @code{gtt_ekn.nc}
-@findex gtt_ekn.nc
-
-@table @t
-@item gtt_ekn.nc(@var{beta},@var{p})
-:: It returns the value of the normalizing contant and its derivatives
-of the conditional hypergeometric distribution of two way contingecy tables
-with fixed marginals
-@end table
-
-@table @var
-@item return
-[Z,[[d_11 Z, d_12 Z, ...], ..., [d_m1 Z, d_m2 Z, ...., d_mn Z]]]
-@item @var{beta}
-List of row sums and column sums. All entries must be positive integer.
-@item @var{p}
-The probabilities of the cells of the table.
-@end table
-
+This document explains Risa/Asir functions for two way contingency
+tables by 
+HGM(holonomic gradient method).
+Loading the package:
+@example
+import("gtt_ekn3.rr");
+@end example
+The package gtt_ekn3.rr is a major version up of gtt_ekn.rr.
+@noindent
+In order to download the latest asir-contrib package,
+please use the asir_contrib_update() as follows.
+@example
+import("names.rr");
+asir_contrib_update(|update=1);
+@end example
+@noindent
+References cited in this document.
 @itemize @bullet
-@item  Details have not been written. See Japanse documents.
+@item [GM2016] 
+Y.Goto, K.Matsumoto, Pfaffian equations and contiguity relations of the hypergeometric function of type (k+1,k+n+2) and their applications, 
+@uref{http://arxiv.org/abs/1602.01637,arxiv:1602.01637 (version 1)}
+@item [T2016] 
+Y.Tachibana, difference holonomic gradient method by the modular method.
+2016, master thesis of Kobe University (in Japanese).
+@item [GTT2016]
+Y.Goto, Y.Tachibana, N.Takayama, 
+implementation of difference holonomic gradient method for two way contingency tables.
+RIMS kokyuroku (in Japanese).
+@item [TGKT]
+Y.Tachibana, Y.Goto, T.Koyama, N.Takayama,
+Holonomic Gradient Method for Two Way Contingency Tables,
+@uref{https://arxiv.org/abs/1803.04170, arxiv:1803.04170 (the 2nd version)}
+@item [TKT2015]
+N.Takayama, S.Kuriki, A.Takemura, 
+         A-hypergeometric distributions and Newton polytopes.
+         @uref{http://arxiv.org/abs/1510.02269,arxiv:1510.02269}
 @end itemize
 
-2x3 contingency table with the row sum [4,5] and the column sum [2,4,3].
+The changelogs are described only in the Japanese version of this document.
+
+@node Functions of HGM for two way contingency tables,,, Top
+@chapter Functions of HGM for two way contingency tables
+
+@comment --- section ``実験的関数'' の subsection xyz_abc
+@comment --- subsection xyz_pqr xyz_stu がある.
+@menu
+* gtt_ekn3.gmvector::
+* gtt_ekn3.nc::
+* gtt_ekn3.lognc::
+* gtt_ekn3.expectation::
+* gtt_ekn3.setup::
+* gtt_ekn3.upAlpha::
+* gtt_ekn3.cmle::
+* gtt_ekn3.set_debug_level::
+* gtt_ekn3.contiguity_mat_list_2::
+* gtt_ekn3.show_path::
+* gtt_ekn3.get_svalue::
+* gtt_ekn3.assert1::
+* gtt_ekn3.assert2::
+* gtt_ekn3.assert3::
+* gtt_ekn3.prob1::
+@end menu
+
+@node Hypergeometric function E(k,n),,, Functions of HGM for two way contingency tables
+@section Hypergeometric function E(k,n)
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.gmvector,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.gmvector}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.gmvector
+
+@table @t
+@item gtt_ekn3.gmvector(@var{beta},@var{p})
+:: It returns the value of the hypergeometric function E(k,n) and its derivatives associated to the two way contingency table with the marginal sum @var{beta}, parameter @var{p} (cell probability).
+@item 
+It is an alias of gtt_ekn3.ekn_cBasis_2(@var{beta},@var{p}) 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+vector, see below.
+@item beta
+a list of the row sum and the colum sum.
+@item p
+the parameter.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The name gmvector is an abreviation of the Gauss-Manin vector defined in [GM2016].
+@item 
+The return value is the vector S in the page 23 (the section 6) of 
+[GM2016].
+This is a constant multiple of the vector F in the section 4 of [GM2016]
+and the constant is determined so that the first element of the vector
+is equal to the value of the series S in the section 6 of [GM2016].
+@item 
+ Consider an r1 x r2 contingency table.
+ Put m+1=r1, n+1=r2.
+ The normalizing constant Z is the sum of p^u/u!
+ where u is an (m+1) x (n+1) matrix (contingency table) with non-negative integer entries.
+ The sum is taken over u such that the row sum and the column sum of u
+ are equal to @var{beta}, see [TKT2015], [GM2016], [TGKT].
+ The first element of S (polynomial in this case) is equal to this polynomial Z 
+ with a normalized p =
+@verbatim
+  [[1,y11,...,y1n],
+   [1,y21,...,y2n],...,
+   [1,ym1, ...,ymn],
+   [1,1, ..., 1]]
+@end verbatim
+@comment ekn/Talks/2015-12-3-goto.tex
+@item 
+The following options are also accepted by several functions, e.g., gmvector, expectation, nc.
+@item 
+A distributed computation is turned on by the
+option crt=1 (crt = Chinese remainder theorem)
+[T2016]. 
+The default is crt=0.
+Parameters for the distributed computation are set by
+gtt_ekn3.setup.
+@item
+Option bs=1.  The matrix factorial, which is a product of contiguity relation matrices
+with different parameters, is evaluated by the binary splitting method.
+Examples: gtt_ekn3.assert2(15|bs=1)) (3x3 matrix), gtt_ekn3.test5x5(20|bs=1))(5x5 matrix).
+The default is bs=0.
+@item
+Option path. A choice of algorithms to apply contiguity relations.
+path=2 (the algorithm given in [GM2016]). path=3 (the algorithm given in [TGKT]
+(revised version)).
+The default is  path=3.
+@item
+Option interval. The period of the intermediate reduction of numerators
+and denominators.
+A relevant value of ``interval'' will lead to an efficient evaluation,
+but no optimal value of it is known. See [TGKT] as to details.
+The default is no intermediate reduction.
+@item
+Option x=1. It opens a window for each process.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: A 2 x 2 contingency table. The row sum is [5,1] and column sum is [3,3].
+The parameter (cell probability) is
+[[1/2,1/3],[1/7,1/5]].
 @example
-[2237] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[3000] import("gtt_ekn3.rr");
+[3001] gtt_ekn3.gmvector([[5,1],[3,3]],[[1/2,1/3],[1/7,1/5]])
+[775/27783]
+[200/9261]
+@end example
+
+
+Example: Interval option.
+@example
+[4009] P=gtt_ekn3.prob1(5,5,100);
+[[[100,200,300,400,500],[100,200,300,400,500]],
+ [[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],
+  [1,1/23,1/29,1/31,1/37],[1,1/41,1/43,1/47,1/53],[1,1,1,1,1]]]
+
+[4010] util_timing(quote(gtt_ekn3.gmvector(P[0],P[1])[1];
+[cpu,72.852,gc,0,memory,4462742364,real,72.856]
+
+[4011] util_timing(quote(gtt_ekn3.gmvector(P[0],P[1]|interval=100)))[1];
+[cpu,67.484,gc,0,memory,3535280544,real,67.4844]
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.pfaffian_basis}
+@end table
+
+
+@comment **********************************************************
+@node gtt_ekn3.nc,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.nc}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.nc
+
+@table @t
+@item gtt_ekn3.nc(@var{beta},@var{p})
+:: It returns the normalizing constant Z and its derivatives for the two way contingency tables
+with the marginal sum @var{beta} and the parameter (cell probability) @var{p}.
+See, e.g., [TKT2015], [TGKT] as to the definition of $Z$.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+A list [Z,[[d_11 Z, d_12 Z, ...], ..., [d_m1 Z, d_m2 Z, ...., d_mn Z]]]
+where d_ij Z denotes the partial derivative of Z with respect to the parameter
+p_ij.
+@item beta
+The row sum and the column sum.
+@item p
+The parameter (cell probability).
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+The function nc obtains Z from the value of gmvector by Prop 7.1 of [GM2016].
+@item 
+See options for gmvector.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: A 2x3 contingency table.
+@example
+[2237] gtt_ekn3.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
 [4483/124416,[ 353/7776 1961/15552 185/1728 ]
 [ 553/20736 1261/15552 1001/13824 ]]
 @end example
 
-English translation for other functions has not yet been written.
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.lognc}
+@end table
 
 
+
+@comment **********************************************************
+@node gtt_ekn3.lognc,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.lognc}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.lognc
+
+@table @t
+@item gtt_ekn3.lognc(@var{beta},@var{p})
+:: It returns the logarithm of Z.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+A list [log(Z), [[d_11 log(Z), d_12 log(Z), ...], [d_21 log(Z),...], ... ]
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+This function is used to solve the conditional maximal likelihood estimation [TKT2015].
+@item 
+See options of gmvector.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: A 2x3 contingency table. The first element is an approximate value of log(Z).
+The rests are exact values when the arguments of lognc are rational numbers.
+@example
+[2238] gtt_ekn3.lognc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[-3.32333832422461674630,[ 5648/4483 15688/4483 13320/4483 ]
+[ 3318/4483 10088/4483 9009/4483 ]]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.nc}
+@end table
+
+
+@comment **********************************************************
+@node gtt_ekn3.expectation,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.expectation}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.expectation
+
+@table @t
+@item gtt_ekn3.expectation(@var{beta},@var{p})
+:: It returns the expectation of the hypergeometric distribution with the mariginal sum  @var{beta} and the parameter @var{p}.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+The expectation of each cell.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+It is an implementation of Algorithm 7.8 of [GM2016]. A faster algorithm in [TGKT]
+is chosen with the default option path=3.
+@item 
+By the option ``index'', it returns only the expections standing for the ``index''.
+For example, index=[[0,0],[1,1]] in the case of a 2 x 2  contingency table,
+it returns the expectations for the (2,1) and (2.2) elements
+(0 stands for no evaluation and 1 stands for doing the evaluation).
+@item 
+See also options of gmvector.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+
+Examples of the evaluation of expectations for 2 x 2 and 3 x 3 contingency tables.
+@example
+[2235] gtt_ekn3.expectation([[1,4],[2,3]],[[1,1/3],[1,1]]);
+[ 2/3 1/3 ]
+[ 4/3 8/3 ]
+[2236] gtt_ekn3.expectation([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[ 5648/4483 7844/4483 4440/4483 ]
+[ 3318/4483 10088/4483 9009/4483 ]
+
+[2442] gtt_ekn3.expectation([[4,14,9],[11,6,10]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+[ 207017568232262040/147000422096729819 163140751505489940/147000422096729819 
+                                        217843368649167296/147000422096729819 ]
+[ 1185482401011137878/147000422096729819 358095302885438604/147000422096729819 
+                                         514428205457640984/147000422096729819 ]
+[ 224504673820628091/147000422096729819 360766478189450370/147000422096729819 
+                                        737732646860489910/147000422096729819 ]
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.nc}
+@end table
+
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.setup,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.setup}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.setup
+
+@table @t
+@item gtt_ekn3.setup()
+:: It sets parameters for a distributed computation or report the current values of the parameters. 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+0
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item It shows the number of processes, the number of primes, the minimal prime which is used. 
+@item Option nps : the number of processes.
+@item Option nprm : the number of the primes used. When the argument of this option is a string, a list of primes are supposed to be given in the file by the name given by the string.
+@item Option minp : the minimal prime. It is used with the option nprm. It generates nprm primes more than or equal to minp. When the option fgp is given, the generated primes are stored in the file of the name fgp.
+@item The default values of nps, nprm, and fgp are nps=1. nprm=10. fgp=0 (no saving).
+@item The option report=1 shows the current parameters.
+@item Option subprogs=[file1,file2,...]. These files are loaded to the child processes. The default value is subprogs=["gtt_ekn3/childprocess.rr"].
+@item The function gtt_ekn3.set_debug_level(Mode) is used to set a debug message level ( Ekn_debug )
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: Generating a list of primes and outputing them to the file p.txt.
+@example
+gtt_ekn3.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
+@end example
+
+Example: Evaluating the gmvector by the Chinese remainder theorem (crt).
+@example
+[2867] gtt_ekn3.setup(|nprm=20,minp=10^20);
+[2868] N=2; T2=gtt_ekn3.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                                [[1,(1-1/N)/56],[1,1]] | crt=1)$
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
+@end table
+
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.upAlpha,,, hypergeometric function E(k,n)
+@node gtt_ekn3.downAlpha,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.upAlpha}, @code{gtt_ekn3.downAlpha}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.upAlpha
+@findex gtt_ekn3.downAlpha
+
+@table @t
+@item gtt_ekn3.upAlpha(@var{i},@var{k},@var{n})
+@item gtt_ekn3.downAlpha(@var{i},@var{k},@var{n})
+:: 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item i  
+It indicates the direction of the contiguity relation to get. In other words, the contiguity relation from a_i to  a_i+1 (from a_i to a_i-1, the downAlpha case) is obtained.
+@item k, n  
+The contiguity relation for the hypergeometric function E(k+1,n+k+2) standing for the (k+1)×(n+1) contingency table is obtained. 
+@item return  
+The matrix representation of the contiguity relation with respect to the pfaffian_basis
+(see gtt_ekn3.pfaffian_basis). See also Cor 6.3 of [GM2016]. 
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+ The function upAlpha returns the matrix U_i of Cor 6.3 in [GM2016].
+@item  
+ The function downAlpha is for the contiguity relation from a_i to a_i-1 .
+@item 
+ The function marginaltoAlpha([row sum,column sum]) translates the marginal sum to values of a_i's.
+@item  
+ The function pfaffian_basis returns F in section 4 of [GM2016]. See the example below.
+@item 
+ The variables a_i and x_i_j can be specialized to numbers by the optional arguments arule and xrule. See the example below.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 2x2 contingency table (E(2,4)), 2x3 contingency table (E(2,5)).
+Outputs of [2221] --- [2225] are left out.
+@example
+[2221] gtt_ekn3.marginaltoAlpha([[1,4],[2,3]]);
+[[a_0,-4],[a_1,-1],[a_2,3],[a_3,2]]
+[2222] gtt_ekn3.upAlpha(1,1,1);  // contiguity relation of E(2,4) 
+                                //    for the a_1 direction
+[2223] gtt_ekn3.upAlpha(2,1,1);  // E(2,4),  a_2 direction
+[2224] gtt_ekn3.upAlpha(3,1,1);  // E(2,4),  a_3 direction
+[2225] function f(x_1_1);
+[2232] gtt_ekn3.pfaffian_basis(f(x_1_1),1,1);
+[ f(x_1_1) ]
+[ (f{1}(x_1_1)*x_1_1)/(a_2) ]
+[2233] function f(x_1_1,x_1_2);
+f() redefined.
+[2234] gtt_ekn3.pfaffian_basis(f(x_1_1,x_1_2),1,2); // E(2,5), 2*3 contingency table
+[ f(x_1_1,x_1_2) ]
+[ (f{1,0}(x_1_1,x_1_2)*x_1_1)/(a_2) ]
+[ (f{0,1}(x_1_1,x_1_2)*x_1_2)/(a_3) ]
+
+[2235]   RuleA=[[a_2,1/3],[a_3,1/2]]$ RuleX=[[x_1_1,1/5]]$
+  base_replace(gtt_ekn3.upAlpha(1,1,1),append(RuleA,RuleX))
+ -gtt_ekn3.upAlpha(1,1,1 | arule=RuleA, xrule=RuleX);
+
+[ 0 0 ]
+[ 0 0 ]
+
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
+@end table
+
+
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.cmle,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.cmle}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.cmle
+
+@table @t
+@item gtt_ekn3.cmle(@var{u}) 
+:: It finds a parameter p (cell probability) which maximizes P(U=u | row sum, column sum = these of U) for given observed data u. The value of p is an approximate value.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item u  
+The observed data.
+@item return  
+An estimated parameter p
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item Todo, 
+optional parameter to set the step size of the gradient descent.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 2x4 contingency table.
+@example
+U=[[1,1,2,3],[1,3,1,1]];
+gtt_ekn3.cmle(U);
+ [[ 1 1 2 3 ]
+  [ 1 3 1 1 ],[[7,6],[2,4,3,4]],   // Data, row sum, column sum
+ [ 1 67147/183792 120403/64148 48801/17869 ]  // p obtained.
+ [ 1 1 1 1 ]]
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.expectation}
+@end table
+
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.set_debug_level,,, hypergeometric function E(k,n)
+@node gtt_ekn3.contiguity_mat_list_2,,, hypergeometric function E(k,n)
+@node gtt_ekn3.show_path,,, hypergeometric function E(k,n)
+@node gtt_ekn3.get_svalue,,, hypergeometric function E(k,n)
+@node gtt_ekn3.assert1,,, hypergeometric function E(k,n)
+@node gtt_ekn3.assert2,,, hypergeometric function E(k,n)
+@node gtt_ekn3.assert3,,, hypergeometric function E(k,n)
+@node gtt_ekn3.prob1,,, hypergeometric function E(k,n)
+@subsection @code{gtt_ekn3.set_debug_level}, @code{gtt_ekn3.show_path}, @code{gtt_ekn3.get_svalue}, @code{gtt_ekn3.assert1}, @code{gtt_ekn3.assert2}, @code{gtt_ekn3.assert3}, @code{gtt_ekn3.prob1}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.set_debug_level
+@findex gtt_ekn3.contiguity_mat_list_2
+@findex gtt_ekn3.show_path
+@findex gtt_ekn3.get_svalue
+@findex gtt_ekn3.assert1
+@findex gtt_ekn3.assert2
+@findex gtt_ekn3.assert3
+@findex gtt_ekn3.prob1
+
+@table @t
+@item gtt_ekn3.set_debug_level(@var{m}) 
+:: It sets the level of debug messages.
+@item gtt_ekn3.contiguity_mat_list_2  
+:: It returns a list of contiguity directions to be used.
+@item gtt_ekn3.show_path()  
+:: It returns the path to apply contiguity relations. See [TGKT].
+@item gtt_ekn3.get_svalue()  
+:: It returns the values of the static variables.
+@item gtt_ekn3.assert1(@var{N})  
+:: It checks the system by 2x2 contingency tables. @var{N} is proportional to the marginal sum.
+@item gtt_ekn3.assert2(@var{N})  
+:: It checks the system by 3x3 contingency tables.
+@item gtt_ekn3.assert3(@var{R1}, @var{R2}, @var{Size})  
+:: It checks the distributed computation system by R1 x R2 contingency tables.
+@item gtt_ekn3.prob1(@var{R1},@var{R2},@var{Size})  
+:: It returns a test data for R1 x R2 contingency tables in the format 
+[marginal sum, parameter p]. 
+The marginal sum is proportional to @var{Size}.  See benchmark tests in [TGKT].
+@end table
+
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+Let @var{m} be the debug level. When (@var{m} & 0x1) == 0x1, the values by g_mat_fac_test_plain and g_mat_fac_itor (distributed method is used) are compated.
+Note that gtt_ekn3.setup() is properly executed before doing these evaluations.
+@item 
+When (@var{m} & 0x2) == 0x2, the arguments of g_mat_fac_test are stored in the file tmp-input-[number].ab.
+@item 
+When (@var{m} & 0x4) == 0x4, the arguments for the matrix factorial computation are printed.
+@item 
+The function @code{get_svalue} returns the list of the values of @code{[Ekn_plist,Ekn_IDL,Ekn_debug,Ekn_mesg,XRule,ARule,Verbose,Ekn_Rq]}.
+@item 
+Options of assert3:  ``x=1'' shows the window attached to every subprocess. 
+With ``nps=m'', m processes are used to obtain contiguity relations.  
+The options crt, interval, ... of gmvector are also accepted.  
+In order to display the timing data, do load("gtt_ekn3/ekn_eval-timing.rr"); before starting this function.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[2846] gtt_ekn3.set_debug_level(0x4);
+[2847] N=2; T2=gtt_ekn3.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+                                [[1,(1-1/N)/56],[1,1]])$
+[2848] 
+level&0x4: g_mat_fac_test([ 113/112 ]
+[ 1/112 ],[ (t+225/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ]
+[ (1/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ],0,20,1,t)
+Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
+level&0x4: g_mat_fac_test([ 67/62944040755546030080000 ]
+[ 1/125888081511092060160000 ],[ (t+24)/(t^2+25*t+46) (2442)/(t^2+25*t+46) ]
+[ (1)/(t^2+25*t+46) (-111*t-111)/(t^2+25*t+46) ],0,73,1,t)
+level&0x4: g_mat_fac_test ------  snip
+@end example
+
+Example.
+@example
+[2659] gtt_ekn3.nc([[4,5,6],[2,4,9]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]])$
+[2660] L=matrix_transpose(gtt_ekn3.show_path())$
+[2661] L[2];
+[2 1]
+@end example
+This means that the contiguity relations for the directions [2 1] (a_2, a_1) are used to evaluate the normalizing constant Z.
+L[0] is the contiguity matrix, 
+L[1] is a list of the steps to apply for corresponding relations.
+
+Example. Finding a path without evaluations of gmvectors.
+@example
+A=gtt_ekn3.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
+[2666] gtt_ekn3.contiguity_mat_list_2(A,2,2)$
+[2667] L=matrix_transpose(gtt_ekn3.show_path())$
+[2668] L[2];
+[ 2 1 5 4 3 ]
+[2669] gtt_ekn3.contiguity_mat_list_3(A,2,2)$ // new alg in [TGKT]
+[2670] L=matrix_transpose(gtt_ekn3.show_path())$
+[2671] L[2];
+[2 1]  // shorter
+@end example
+
+Example. When assert2() returns 0 matrices, then the results of g_mat_fac_plain and g_mat_fac_int
+agree.  In other words, the system is OK.
+@example
+[8859] gtt_ekn3.assert2(1);
+Marginal=[[130,170,353],[90,119,444]]
+P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]
+Try g_mat_fac_test_int: Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
+Timing (int) =0.413916 (CPU) + 0.590723 (GC) = 1.00464 (total), real time=0.990672
+
+Try g_mat_fac_test_plain: Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
+Timing (rational) =4.51349 (CPU) + 6.32174 (GC) = 10.8352 (total)
+diff of both method = 
+[ 0 0 0 ]
+[ 0 0 0 ]
+[ 0 0 0 ]
+[8860] 
+
+[8863] gtt_ekn3.setup(|nprm=100,minp=10^50);
+Number of processes = 1.
+Number of primes = 100.
+Min of plist = 100000000000000000000000000000000000000000000000151.
+0
+[8864] gtt_ekn3.assert2(1 | crt=1);
+Marginal=[[130,170,353],[90,119,444]]
+P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]
+Try [[crt,1]]
+----  snip
+@end example
+
+Example.
+3x5 contingency table.
+The parameter p (cell probability) is a list of 1/(prime number) 's.
+@example
+@comment grep testnxn ekn/Prog2/*.rr ; grep test_nxn ekn/Prog2/*.rr も見よ.
+[9054] L=gtt_ekn3.prob1(3,5,10 | factor=1, factor_row=3); 
+[[[10,20,420],[30,60,90,120,150]],[[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1,1,1,1]]]
+[9055] number_eval(gtt_ekn3.expectation(L[0],L[1]));
+[ 1.65224223218613 ... snip ]
+@end example
+
+Example.
+@example
+[5779] import("gtt_ekn3.rr"); load("gtt_ekn3/ekn_eval-timing.rr");
+[5780] gtt_ekn3.assert3(5,5,100 | nps=32, interval=100);
+ -- snip
+Parallel method: Number of process=32, File name tmp-gtt_ekn3/p300.txt is written.
+Number of processes = 32.
+  -- snip
+initialPoly of path=3: [ 2.184 0 124341044 2.1831 ] [CPU(s),0,*,real(s)]
+contiguity_mat_list_3 of path=3: [ 0.04 0 630644 9.6774 ] [CPU(s),0,*,real(s)]
+Note: interval option will lead faster evaluation. We do not use g_mat_fac_itor (crt). Call gtt_ekn3.setup(); to use the crt option.
+g_mat_fac of path=3: [ 21.644 0 1863290168 21.6457 ] [CPU(s),0,*,real(s)]
+Done. Saved in 2.ab
+Diff (should be 0)=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,..., 0,0,0]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.nc}
+@end table
+
+
+
+@node Modular method,,, Top
+@chapter Modular method
+
+@menu
+* gtt_ekn3.chinese_itor::
+@end menu
+
+@node Chinese remainder theorem and itor,,, Modular method
+@section Chinese remainder theorem and itor
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.chinese_itor,,, 
+@subsection @code{gtt_ekn3.chinese_itor}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.chinese_itor Chinese remainder theorem and itor
+
+@table @t
+@item gtt_ekn3.chinese_itor(@var{data},@var{idlist})
+:: It performs a rational reconstruction by the Chinese remainder theorem (itor = integer to rational).
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return  
+[val, n],  the vector val is the value by the rational reconstruction. n = n1*n2*...
+@item data   
+[[val1,n1],[val2,n2], ...],  val1, val2 are values evaluated in mod n1, mod n2, ... respectively.  The relations val mod n1 = val1, val mod n2 = val2,.. are satisfied.
+@item idlist  
+The list of server id's for itor.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item When it cannot find val, it returns failure.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: [3!, 5^3*3!]=[6,750] is the return value.
+The relations 6 mod 109 =6, 750 mod 109=96 stand for [[6,96],109], ...
+@example
+gtt_ekn3.setup(|nps=2,nprm=3,minp=101,fgp="p_small.txt");
+SS=gtt_ekn3.get_svalue();
+SS[0];
+  [103,107,109]   // list of primes
+SS[1];
+  [0,2]           // list of server ID's
+gtt_ekn3.chinese_itor([[[ 6,96 ],109],[[ 6,29 ],103],[[ 6,1 ],107]],SS[1]);
+  [[ 6 750 ],1201289]
+
+// The argument may be a scalar.
+gtt_ekn3.chinese_itor([[96,109],[29,103]],SS[1]);
+  [[ 750 ],11227]
+@end example
+
+
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.setup}
+@end table
+
+
+@node Binary splitting,,, Top
+@chapter Binary splitting
+
+@menu
+* gtt_ekn3.init_dm_bsplit::
+* gtt_ekn3.setup_dm_bsplit::
+* gtt_ekn3.init_bsplit::
+@end menu
+
+@node Matrix factorial,,, Binary splitting
+@section Matrix factorial
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.init_bsplit,,,
+@node gtt_ekn3.init_dm_bsplit,,, 
+@node gtt_ekn3.setup_dm_bsplit,,,
+@subsection @code{gtt_ekn3.init_bsplit, gtt_ekn3.init_dm_bsplit, gtt_ekn3.setup_dm_bsplit}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.init_dm_bsplit matrix factorial
+@findex gtt_ekn3.setup_dm_bsplit matrix factorial
+@findex gtt_ekn3.init_bsplit matrix factorial
+
+@table @t
+@item gtt_ekn3.init_bsplit(|minsize=16,levelmax=1);
+:: It sets parameters for the binary splitting to evaluate the matrix factorial M(1) M(2) ... M(n) where M(k) is a matrix with a parameter k.
+@item gtt_ekn3.init_dm_bsplit(|bsplit_x=0, bsplit_reduce=0)
+:: It sets parameters for the binary splitting by a distributed computation.
+@item gtt_ekn3.setup_dm_bsplit(C)
+:: It starts C processes for the binary splitting.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item Option minsize. 
+When the size of the matrix factorial is less than the minsize, the binary splitting is not used and sequential multiplication is used instead.
+@item Option levelmax. 
+The maximum of recursions of the recursive binary splitting in the distributed computation. See gtt_ekn3/dm_bsplit.rr
+C should be set to levelmax-1. When levalmax=1, the distributed computation is not performed.
+@item Option bsplit_x.
+When bsplit_x=1, a window attached to every process is opened.
+@end table
+
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: A comparison of bs=1 and no bs.
+@example
+[4618] cputime(1)$
+[4619] gtt_ekn3.expectation(Marginal=[[1950,2550,5295],[1350,1785,6660]],
+                          P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]|bs=1)$
+4.912sec(4.914sec)
+[4621] V2=gtt_ekn3.expectation(Marginal,P)$
+6.752sec(6.756sec)
+@end example
+
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 
+Note that distributed computations are often slower than computations on a single process
+in our implementation of the binary splitting.
+The option bsplit_x=1 opens 
+a debug windows, it makes things slower.
+The function gtt_ekn3.test_bs_dist() is a test function of the binary splitting by a distributed computation.
+@example
+[3669] C=4$ gtt_ekn3.init_bsplit(|minsize=16,levelmax=C+1)$ 
+gtt_ekn3.init_dm_bsplit(|bsplit_x=1)$
+[3670] [3671] [3672] gtt_ekn3.setup_dm_bsplit(C);
+[0,0]
+[3673] gtt_ekn3.assert2(10|bs=1)$
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ekn3.gmvector}
+@ref{gtt_ekn3.expectation}
+@ref{gtt_ekn3.assert1}
+@ref{gtt_ekn3.assert2}
+@end table
+
+
+@comment --- おまじない ---
 @node Index,,, Top
 @unnumbered Index
 @printindex fn
@@ -92,5 +939,6 @@ English translation for other functions has not yet been written.
 @end iftex
 @summarycontents
 @contents
-
 @bye
+@comment --- おまじない終り ---
+

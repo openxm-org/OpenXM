@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.17 2019/04/04 22:49:40 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/gtt_ekn/gtt_ekn-ja.texi,v 1.18 2019/04/09 00:48:14 takayama Exp $
 %% xetex gtt_ekn-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -40,14 +40,14 @@
 @comment --- タイトル, バージョン, 著者名, 著作権表示 ---
 @title 2元分割表HGM関数
 @subtitle Risa/Asir 2元分割表HGM関数説明書
-@subtitle 1.2 版
-@subtitle 2019 年 3 月 20 日
+@subtitle 3.0 版
+@subtitle 2019 年 6 月 7 日
 
 @author  by Y.Goto, Y.Tachibana, N.Takayama
 @page
 @vskip 0pt plus 1filll
 Copyright @copyright{} Risa/Asir committers
-2004--2010. All rights reserved.
+2004--2019. All rights reserved.
 @end titlepage
 
 @comment --- おまじない ---
@@ -66,6 +66,7 @@ Copyright @copyright{} Risa/Asir committers
 * 2元分割表HGMの関数説明書について::
 * 2元分割表HGMの関数::
 * modular計算
+* Binary splitting
 * Index::
 @end menu
 
@@ -83,7 +84,6 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 load("gtt_ekn3.rr");
 @end example
 gtt_ekn3.rr は gtt_ekn.rr を置き換える大きく改良されたパッケージである.
-以下のモジュール名 gtt_ekn はすべて gtt_ekn3 と読み替えてほしい.
 @noindent
 最新版の asir-contrib package を取得するには, 下記のように更新関数を呼び出す.
 @example
@@ -94,7 +94,8 @@ asir_contrib_update(|update=1);
 本文中で引用している文献を列挙する.
 @itemize @bullet
 @item [GM2016] 
-Y.Goto, K.Matsumoto, Pfaffian equations and contiguity relations of the hypergeometric function of type (k+1,k+n+2) and their applications, arxiv:1602.01637 (version 1)
+Y.Goto, K.Matsumoto, Pfaffian equations and contiguity relations of the hypergeometric function of type (k+1,k+n+2) and their applications, 
+@uref{http://arxiv.org/abs/1602.01637,arxiv:1602.01637 (version 1)}
 @item [T2016] 
 Y.Tachibana, 差分ホロノミック勾配法のモジュラーメソッドによる計算の高速化,
 2016, 神戸大学修士論文.
@@ -104,15 +105,15 @@ Y.Goto, Y.Tachibana, N.Takayama, 2元分割表に対する差分ホロノミッ�
 @item [TGKT]
 Y.Tachibana, Y.Goto, T.Koyama, N.Takayama,
 Holonomic Gradient Method for Two Way Contingency Tables,
-arxiv:1803.04170
+@uref{https://arxiv.org/abs/1803.04170, arxiv:1803.04170 (the 2nd version)}
 @item [TKT2015]
 N.Takayama, S.Kuriki, A.Takemura, 
          $A$-hypergeometric distributions and Newton polytopes.
-         arxiv:1510.02269
+         @uref{http://arxiv.org/abs/1510.02269,arxiv:1510.02269}
 @end itemize
 
 このマニュアルで説明する関数を用いたプログラム例は
-gtt_ekn/test-t1.rr 
+gtt_ekn3/test-t1.rr 
 など.
 
 
@@ -122,21 +123,21 @@ gtt_ekn/test-t1.rr
 @comment --- section ``実験的関数'' の subsection xyz_abc
 @comment --- subsection xyz_pqr xyz_stu がある.
 @menu
-* gtt_ekn.gmvector::
-* gtt_ekn.nc::
-* gtt_ekn.lognc::
-* gtt_ekn.expectation::
-* gtt_ekn.setup::
-* gtt_ekn.upAlpha::
-* gtt_ekn.cmle::
-* gtt_ekn.set_debug_level::
-* gtt_ekn.contiguity_mat_list_2::
-* gtt_ekn.show_path::
-* gtt_ekn.get_svalue::
-* gtt_ekn.assert1::
-* gtt_ekn.assert2::
-* gtt_ekn.assert3::
-* gtt_ekn.prob1::
+* gtt_ekn3.gmvector::
+* gtt_ekn3.nc::
+* gtt_ekn3.lognc::
+* gtt_ekn3.expectation::
+* gtt_ekn3.setup::
+* gtt_ekn3.upAlpha::
+* gtt_ekn3.cmle::
+* gtt_ekn3.set_debug_level::
+* gtt_ekn3.contiguity_mat_list_2::
+* gtt_ekn3.show_path::
+* gtt_ekn3.get_svalue::
+* gtt_ekn3.assert1::
+* gtt_ekn3.assert2::
+* gtt_ekn3.assert3::
+* gtt_ekn3.prob1::
 @end menu
 
 @node 超幾何関数E(k,n),,, 2元分割表HGMの関数
@@ -146,16 +147,16 @@ gtt_ekn/test-t1.rr
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.gmvector,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.gmvector}
+@node gtt_ekn3.gmvector,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.gmvector}
 @comment --- 索引用キーワード
-@findex gtt_ekn.gmvector
+@findex gtt_ekn3.gmvector
 
 @table @t
-@item gtt_ekn.gmvector(@var{beta},@var{p})
+@item gtt_ekn3.gmvector(@var{beta},@var{p})
 :: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表に付随する超幾何関数
 E(k,n) の値およびその微分の値を戻す.
-@item gtt_ekn.ekn_cBasis_2(@var{beta},@var{p}) 
+@item gtt_ekn3.ekn_cBasis_2(@var{beta},@var{p}) 
 の別名である.
 @end table
 
@@ -235,7 +236,7 @@ gmvector は
 option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう
 [T2016]. 
 分散計算用の各種パラメータの設定は
-gtt_ekn.setup で行なう.
+gtt_ekn3.setup で行なう.
 @item
 option bs=1.  binary splitting method で matrix factorial を計算.
 一般に 3x3 では効果あり(assert2(15|bs=1)), 5x5 (test5x5(20|bs=1))では遅くなる.
@@ -257,8 +258,8 @@ option x=1. subprocess 毎に window を開く.
 例: 次は2 x 2 分割表で行和が [5,1],  列和が [3,3], 各セルの確率が
 [[1/2,1/3],[1/7,1/5]] の場合の gmvector の値である.  
 @example
-[3000] load("gtt_ekn.rr");
-[3001] ekn_gtt.gmvector([[5,1],[3,3]],[[1/2,1/3],[1/7,1/5]])
+[3000] load("gtt_ekn3.rr");
+[3001] gtt_ekn3.gmvector([[5,1],[3,3]],[[1/2,1/3],[1/7,1/5]])
 [775/27783]
 [200/9261]
 @end example
@@ -268,7 +269,7 @@ F(-36N,-11N,2N,(1-1/N)/56) の値は T3 に代入される ( [TGKT] ).
 @comment ekn/Prog2/2x2.rr
 @example
 N=2; 
-T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],[[1,(1-1/N)/56],[1,1]])[0][0];
+T2=gtt_ekn3.gmvector([[36*N,13*N-1],[38*N-1,11*N]],[[1,(1-1/N)/56],[1,1]])[0][0];
 D=fac(36*N)*fac(11*N)*fac(2*N-1); 
 T3=T2*D;
 @end example
@@ -345,8 +346,8 @@ def  htest4() @{
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.setup}
-@ref{gtt_ekn.pfaffian_basis}
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.pfaffian_basis}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -368,13 +369,13 @@ ChangeLog
 
 
 @comment **********************************************************
-@node gtt_ekn.nc,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.nc}
+@node gtt_ekn3.nc,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.nc}
 @comment --- 索引用キーワード
-@findex gtt_ekn.nc
+@findex gtt_ekn3.nc
 
 @table @t
-@item gtt_ekn.nc(@var{beta},@var{p})
+@item gtt_ekn3.nc(@var{beta},@var{p})
 :: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の条件付き確率の正規化定数 Z
 およびその微分の値を戻す.
 @end table
@@ -407,14 +408,14 @@ nc は gmvector の値を元に, [GM2016] の Prop
 @item 
 option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
 分散計算用の各種パラメータの設定は
-gtt_ekn.setup で行なう.
+gtt_ekn3.setup で行なう.
 その他の option は gmvector を参照.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
 例: 2x3 分割表での Z とその微分の計算.
 @example
-[2237] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[2237] gtt_ekn3.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
 [4483/124416,[ 353/7776 1961/15552 185/1728 ]
 [ 553/20736 1261/15552 1001/13824 ]]
 @end example
@@ -439,8 +440,8 @@ Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.setup}
-@ref{gtt_ekn.lognc}
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.lognc}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -454,13 +455,13 @@ ChangeLog
 
 
 @comment **********************************************************
-@node gtt_ekn.lognc,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.lognc}
+@node gtt_ekn3.lognc,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.lognc}
 @comment --- 索引用キーワード
-@findex gtt_ekn.lognc
+@findex gtt_ekn3.lognc
 
 @table @t
-@item gtt_ekn.lognc(@var{beta},@var{p})
+@item gtt_ekn3.lognc(@var{beta},@var{p})
 :: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の条件付き確率の正規化定数 Z
 の log の近似値およびその微分の近似値を戻す.
 @end table
@@ -483,13 +484,13 @@ ChangeLog
 条件付き最尤推定に利用する [TKT2015].
 @item option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
 分散計算用の各種パラメータの設定は
-gtt_ekn.setup で行なう.
+gtt_ekn3.setup で行なう.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
 例: 2 × 3 分割表での例. 第一成分のみ近似値.
 @example
-[2238] gtt_ekn.lognc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[2238] gtt_ekn3.lognc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
 [-3.32333832422461674630,[ 5648/4483 15688/4483 13320/4483 ]
 [ 3318/4483 10088/4483 9009/4483 ]]
 @end example
@@ -516,8 +517,8 @@ Computing Dmat(ca) for parameters B=[-4,-3],X=[ 1/2 1/3 ]
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.setup}
-@ref{gtt_ekn.nc}
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.nc}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -530,13 +531,13 @@ ChangeLog
 @end itemize
 
 @comment **********************************************************
-@node gtt_ekn.expectation,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.expectation}
+@node gtt_ekn3.expectation,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.expectation}
 @comment --- 索引用キーワード
-@findex gtt_ekn.expectation
+@findex gtt_ekn3.expectation
 
 @table @t
-@item gtt_ekn.expectation(@var{beta},@var{p})
+@item gtt_ekn3.expectation(@var{beta},@var{p})
 :: 周辺和 @var{beta}, セルの確率 @var{p} の二元分割表の期待値を計算する.
 @end table
 
@@ -558,7 +559,7 @@ ChangeLog
 [GM2016] の Algorithm 7.8 の実装. [TGKT] による高速化版 (path=3) がデフォールト.
 @item option crt=1 (crt = Chinese remainder theorem) を与えると, 分散計算をおこなう. 
 分散計算用の各種パラメータの設定は
-gtt_ekn.setup で行なう.
+gtt_ekn3.setup で行なう.
 @item option index を与えると, 指定された成分の期待値のみ計算する.
 たとえば 2 x 2 分割表で index=[[0,0],[1,1]] と指定すると, 1 のある成分の期待値のみ計算する.
 @item その他の option は gmvector を参照.
@@ -568,14 +569,14 @@ gtt_ekn.setup で行なう.
 
 2×2, 3×3 の分割表の期待値計算例. 
 @example
-[2235] gtt_ekn.expectation([[1,4],[2,3]],[[1,1/3],[1,1]]);
+[2235] gtt_ekn3.expectation([[1,4],[2,3]],[[1,1/3],[1,1]]);
 [ 2/3 1/3 ]
 [ 4/3 8/3 ]
-[2236] gtt_ekn.expectation([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
+[2236] gtt_ekn3.expectation([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]]);
 [ 5648/4483 7844/4483 4440/4483 ]
 [ 3318/4483 10088/4483 9009/4483 ]
 
-[2442] gtt_ekn.expectation([[4,14,9],[11,6,10]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
+[2442] gtt_ekn3.expectation([[4,14,9],[11,6,10]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]]);
 [ 207017568232262040/147000422096729819 163140751505489940/147000422096729819 
                                         217843368649167296/147000422096729819 ]
 [ 1185482401011137878/147000422096729819 358095302885438604/147000422096729819 
@@ -687,8 +688,8 @@ hgm_ahg_expected_values_contiguity(A,B,[1,1/2,1/3,1,1/5,1/7,1,1,1],
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.setup}
-@ref{gtt_ekn.nc}
+@ref{gtt_ekn3.setup}
+@ref{gtt_ekn3.nc}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -705,13 +706,13 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.setup,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.setup}
+@node gtt_ekn3.setup,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.setup}
 @comment --- 索引用キーワード
-@findex gtt_ekn.setup
+@findex gtt_ekn3.setup
 
 @table @t
-@item gtt_ekn.setup()
+@item gtt_ekn3.setup()
 :: 分散計算用の環境設定をおこなう. 現在の環境を報告する.
 @end table
 
@@ -731,20 +732,20 @@ ChangeLog
 @item option nprm (または number_of_primes)を与えるとnprmが文字列の場合指定された素数リストのファイルを読み込む. nprmが自然数の場合さらにoption minp (minp =MINimum Prime)を与えるとminpより大きな素数をnprm個生成する. その際option fgp (または file_of_generated_primes)を与えると生成した素数リストをファイル名をfgpとして保存する.
 @item 上記のoption を指定しなかった場合次のデフォルト値が用いられる. nps=1. nprm=10. fgp=0.
 @item option report=1を与えると現在の環境の報告のみを行う. setup(|report=1)の別名としてreport関数を使用することもできる.
-@item option subprogs=[file1,file2,...] により分散計算の子供プロセスにロードすべきファイル file1, file2, ... を指定する. default は subprogs=["gtt_ekn/childprocess.rr"] である.
-@item gtt_ekn.set_debug_level(Mode) で Ekn_debug の値を設定する.
+@item option subprogs=[file1,file2,...] により分散計算の子供プロセスにロードすべきファイル file1, file2, ... を指定する. default は subprogs=["gtt_ekn3/childprocess.rr"] である.
+@item gtt_ekn3.set_debug_level(Mode) で Ekn_debug の値を設定する.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
 例: 素数のリストを生成してファイル p.txt へ書き出す.
 @example
-gtt_ekn.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
+gtt_ekn3.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
 @end example
 
 例: chinese remainder theorem (crt) を使って gmvector を計算.
 @example
-[2867] gtt_ekn.setup(|nprm=20,minp=10^20);
-[2868] N=2; T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+[2867] gtt_ekn3.setup(|nprm=20,minp=10^20);
+[2868] N=2; T2=gtt_ekn3.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
                                 [[1,(1-1/N)/56],[1,1]] | crt=1)$
 @end example
 
@@ -752,8 +753,8 @@ gtt_ekn.setup(|nps=2,nprm=20,minp=10^10,fgp="p.txt")$
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.nc}
-@ref{gtt_ekn.gmvector}
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -771,16 +772,16 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.upAlpha,,, 超幾何関数E(k,n)
-@node gtt_ekn.downAlpha,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.upAlpha}, @code{gtt_ekn.downAlpha}
+@node gtt_ekn3.upAlpha,,, 超幾何関数E(k,n)
+@node gtt_ekn3.downAlpha,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.upAlpha}, @code{gtt_ekn3.downAlpha}
 @comment --- 索引用キーワード
-@findex gtt_ekn.upAlpha
-@findex gtt_ekn.downAlpha
+@findex gtt_ekn3.upAlpha
+@findex gtt_ekn3.downAlpha
 
 @table @t
-@item gtt_ekn.upAlpha(@var{i},@var{k},@var{n})
-@item gtt_ekn.downAlpha(@var{i},@var{k},@var{n})
+@item gtt_ekn3.upAlpha(@var{i},@var{k},@var{n})
+@item gtt_ekn3.downAlpha(@var{i},@var{k},@var{n})
 :: 
 @end table
 
@@ -810,26 +811,26 @@ ChangeLog
 例: 以下の例は 2×2分割表(E(2,4)), 2×3分割表(E(2,5))の場合である.
 [2225] までは出力を略している.
 @example
-[2221] gtt_ekn.marginaltoAlpha([[1,4],[2,3]]);
+[2221] gtt_ekn3.marginaltoAlpha([[1,4],[2,3]]);
 [[a_0,-4],[a_1,-1],[a_2,3],[a_3,2]]
-[2222] gtt_ekn.upAlpha(1,1,1);  // E(2,4) の a_1 方向の 
+[2222] gtt_ekn3.upAlpha(1,1,1);  // E(2,4) の a_1 方向の 
                                 //     contiguity を表現する行列
-[2223] gtt_ekn.upAlpha(2,1,1);  // E(2,4) の a_2 方向
-[2224] gtt_ekn.upAlpha(3,1,1);  // E(2,4) の a_3 方向
+[2223] gtt_ekn3.upAlpha(2,1,1);  // E(2,4) の a_2 方向
+[2224] gtt_ekn3.upAlpha(3,1,1);  // E(2,4) の a_3 方向
 [2225] function f(x_1_1);
-[2232] gtt_ekn.pfaffian_basis(f(x_1_1),1,1);
+[2232] gtt_ekn3.pfaffian_basis(f(x_1_1),1,1);
 [ f(x_1_1) ]
 [ (f{1}(x_1_1)*x_1_1)/(a_2) ]
 [2233] function f(x_1_1,x_1_2);
 f() redefined.
-[2234] gtt_ekn.pfaffian_basis(f(x_1_1,x_1_2),1,2); // E(2,5), 2*3 分割表
+[2234] gtt_ekn3.pfaffian_basis(f(x_1_1,x_1_2),1,2); // E(2,5), 2*3 分割表
 [ f(x_1_1,x_1_2) ]
 [ (f{1,0}(x_1_1,x_1_2)*x_1_1)/(a_2) ]
 [ (f{0,1}(x_1_1,x_1_2)*x_1_2)/(a_3) ]
 
 [2235]   RuleA=[[a_2,1/3],[a_3,1/2]]$ RuleX=[[x_1_1,1/5]]$
-  base_replace(gtt_ekn.upAlpha(1,1,1),append(RuleA,RuleX))
- -gtt_ekn.upAlpha(1,1,1 | arule=RuleA, xrule=RuleX);
+  base_replace(gtt_ekn3.upAlpha(1,1,1),append(RuleA,RuleX))
+ -gtt_ekn3.upAlpha(1,1,1 | arule=RuleA, xrule=RuleX);
 
 [ 0 0 ]
 [ 0 0 ]
@@ -840,8 +841,8 @@ f() redefined.
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.nc}
-@ref{gtt_ekn.gmvector}
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -861,13 +862,13 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.cmle,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.cmle}
+@node gtt_ekn3.cmle,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.cmle}
 @comment --- 索引用キーワード
-@findex gtt_ekn.cmle
+@findex gtt_ekn3.cmle
 
 @table @t
-@item gtt_ekn.cmle(@var{u}) u を観測データとするとき, P(U=u | row sum, column sum = these of U) を最大化する, 各セルの確率の近似値を求める.
+@item gtt_ekn3.cmle(@var{u}) u を観測データとするとき, P(U=u | row sum, column sum = these of U) を最大化する, 各セルの確率の近似値を求める.
 :: 
 @end table
 
@@ -889,7 +890,7 @@ ChangeLog
 例: 2 x 4 分割表.
 @example
 U=[[1,1,2,3],[1,3,1,1]];
-gtt_ekn.cmle(U);
+gtt_ekn3.cmle(U);
  [[ 1 1 2 3 ]
   [ 1 3 1 1 ],[[7,6],[2,4,3,4]],   // Data, row sum, column sum
  [ 1 67147/183792 120403/64148 48801/17869 ]  // probability obtained.
@@ -898,21 +899,21 @@ gtt_ekn.cmle(U);
 
 例: 上の例は次の関数に.
 @example
-gtt_ekn.cmle_test3();
+gtt_ekn3.cmle_test3();
 @end example
 
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.expectation}
+@ref{gtt_ekn3.expectation}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
 @noindent
 ChangeLog
 @itemize @bullet
-@item  gtt_ekn/mle.rr に本体がある.
-@item  gtt_ekn.rr の cmle 関数は wrapper. 
+@item  gtt_ekn3/mle.rr に本体がある.
+@item  gtt_ekn3.rr の cmle 関数は wrapper. 
 @end itemize
 @comment end cmle.
 
@@ -920,34 +921,34 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.set_debug_level,,, 超幾何関数E(k,n)
-@node gtt_ekn.contiguity_mat_list_2,,, 超幾何関数E(k,n)
-@node gtt_ekn.show_path,,, 超幾何関数E(k,n)
-@node gtt_ekn.get_svalue,,, 超幾何関数E(k,n)
-@node gtt_ekn.assert1,,, 超幾何関数E(k,n)
-@node gtt_ekn.assert2,,, 超幾何関数E(k,n)
-@node gtt_ekn.assert3,,, 超幾何関数E(k,n)
-@node gtt_ekn.prob1,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.set_debug_level}, @code{gtt_ekn.show_path}, @code{gtt_ekn.get_svalue}, @code{gtt_ekn.assert1}, @code{gtt_ekn.assert2}, @code{gtt_ekn.assert3}, @code{gtt_ekn.prob1}
+@node gtt_ekn3.set_debug_level,,, 超幾何関数E(k,n)
+@node gtt_ekn3.contiguity_mat_list_2,,, 超幾何関数E(k,n)
+@node gtt_ekn3.show_path,,, 超幾何関数E(k,n)
+@node gtt_ekn3.get_svalue,,, 超幾何関数E(k,n)
+@node gtt_ekn3.assert1,,, 超幾何関数E(k,n)
+@node gtt_ekn3.assert2,,, 超幾何関数E(k,n)
+@node gtt_ekn3.assert3,,, 超幾何関数E(k,n)
+@node gtt_ekn3.prob1,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.set_debug_level}, @code{gtt_ekn3.show_path}, @code{gtt_ekn3.get_svalue}, @code{gtt_ekn3.assert1}, @code{gtt_ekn3.assert2}, @code{gtt_ekn3.assert3}, @code{gtt_ekn3.prob1}
 @comment --- 索引用キーワード
-@findex gtt_ekn.set_debug_level
-@findex gtt_ekn.contiguity_mat_list_2
-@findex gtt_ekn.show_path
-@findex gtt_ekn.get_svalue
-@findex gtt_ekn.assert1
-@findex gtt_ekn.assert2
-@findex gtt_ekn.assert3
-@findex gtt_ekn.prob1
+@findex gtt_ekn3.set_debug_level
+@findex gtt_ekn3.contiguity_mat_list_2
+@findex gtt_ekn3.show_path
+@findex gtt_ekn3.get_svalue
+@findex gtt_ekn3.assert1
+@findex gtt_ekn3.assert2
+@findex gtt_ekn3.assert3
+@findex gtt_ekn3.prob1
 
 @table @t
-@item gtt_ekn.set_debug_level(@var{m}) debug メッセージのレベルを設定.
-@item gtt_ekn.contiguity_mat_list_2  使用する contiguity を構成.
-@item gtt_ekn.show_path()  どのように contiguity を適用したかの情報.
-@item gtt_ekn.get_svalue()  static 変数の値を得る.
-@item gtt_ekn.assert1(@var{N})  2x2 分割表で動作チェック.
-@item gtt_ekn.assert2(@var{N})  3x3 分割表で動作チェック.
-@item gtt_ekn.assert3(@var{R1}, @var{R2}, @var{Size})  R1 x R2 分割表で並列動作の動作チェック.
-@item gtt_ekn.prob1(@var{R1},@var{R2},@var{Size})  R1 x R2 分割表用のテストデータを作る.
+@item gtt_ekn3.set_debug_level(@var{m}) debug メッセージのレベルを設定.
+@item gtt_ekn3.contiguity_mat_list_2  使用する contiguity を構成.
+@item gtt_ekn3.show_path()  どのように contiguity を適用したかの情報.
+@item gtt_ekn3.get_svalue()  static 変数の値を得る.
+@item gtt_ekn3.assert1(@var{N})  2x2 分割表で動作チェック.
+@item gtt_ekn3.assert2(@var{N})  3x3 分割表で動作チェック.
+@item gtt_ekn3.assert3(@var{R1}, @var{R2}, @var{Size})  R1 x R2 分割表で並列動作の動作チェック.
+@item gtt_ekn3.prob1(@var{R1},@var{R2},@var{Size})  R1 x R2 分割表用のテストデータを作る.
 :: 
 @end table
 
@@ -960,7 +961,7 @@ ChangeLog
 @comment --- @itemize〜@end itemize は箇条書き ---
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
-@item (@var{m} & 0x1) == 0x1 の時 g_mat_fac_test_plain と g_mat_fac_itor の両方を呼び出し値を比較する (gtt_ekn.setup した状態で).
+@item (@var{m} & 0x1) == 0x1 の時 g_mat_fac_test_plain と g_mat_fac_itor の両方を呼び出し値を比較する (gtt_ekn3.setup した状態で).
 @item (@var{m} & 0x2) == 0x2 の時 g_mat_fac_test への引数を tmp-input-数.ab として保存.
 @item (@var{m} & 0x4) == 0x4 の時 matrix factorial の計算の呼び出し引数を表示.
 @item @var{N} は問題の周辺和のサイズ.
@@ -972,13 +973,13 @@ option.  timing data を表示するには load("gtt_ekn3/ekn_eval-timing.rr"); 
 @comment --- @example〜@end example は実行例の表示 ---
 例.
 @example
-[2846] gtt_ekn.set_debug_level(0x4);
-[2847] N=2; T2=gtt_ekn.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
+[2846] gtt_ekn3.set_debug_level(0x4);
+[2847] N=2; T2=gtt_ekn3.gmvector([[36*N,13*N-1],[38*N-1,11*N]],
                                 [[1,(1-1/N)/56],[1,1]])$
 [2848] level&0x4: g_mat_fac_test([ 113/112 ]
 [ 1/112 ],[ (t+225/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ]
 [ (1/112)/(t^2+4*t+4) (111/112*t+111/112)/(t^2+4*t+4) ],0,20,1,t)
-Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.
+Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
 level&0x4: g_mat_fac_test([ 67/62944040755546030080000 ]
 [ 1/125888081511092060160000 ],[ (t+24)/(t^2+25*t+46) (2442)/(t^2+25*t+46) ]
 [ (1)/(t^2+25*t+46) (-111*t-111)/(t^2+25*t+46) ],0,73,1,t)
@@ -987,22 +988,26 @@ level&0x4: g_mat_fac_test ------  snip
 
 例.
 @example
-[2659] gtt_ekn.nc([[4,5],[2,4,3]],[[1,1/2,1/3],[1,1,1]])$
-[2660] L=matrix_transpose(gtt_ekn.show_path())$
+[2659] gtt_ekn3.nc([[4,5,6],[2,4,9]],[[1,1/2,1/3],[1,1/5,1/7],[1,1,1]])$
+[2660] L=matrix_transpose(gtt_ekn3.show_path())$
 [2661] L[2];
-[1 4 3 2]
+[2 1]
 @end example
-[1 4 3 2] の index をもつパラメーター alpha の方向の contigity を求めそれを掛けて
+[2 1] の index をもつパラメーター alpha の方向の contigity を求めそれを掛けて
 計算したことがわかる.  L[0] は用いた contiguity の行列.
 L[1] はcontiguity を適用する step 数.
 
 例. 値を計算せずに path のみ求めたい場合.
 @example
-A=gtt_ekn.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
-[2666] gtt_ekn.contiguity_mat_list_2(A,2,2)$
-[2667] L=matrix_transpose(gtt_ekn.show_path())$
+A=gtt_ekn3.marginaltoAlpha_list([[400,410,1011],[910,411,500]])$
+[2666] gtt_ekn3.contiguity_mat_list_2(A,2,2)$
+[2667] L=matrix_transpose(gtt_ekn3.show_path())$
 [2668] L[2];
 [ 2 1 5 4 3 ]
+[2669] gtt_ekn3.contiguity_mat_list_3(A,2,2)$ // new alg in [TGKT]
+[2670] L=matrix_transpose(gtt_ekn3.show_path())$
+[2671] L[2];
+[2 1]  // shorter
 @end example
 
 例. 値を計算せずに path のみ求めたい場合.
@@ -1017,13 +1022,13 @@ A=gtt_ekn3.marginaltoAlpha_list([[10,20],[15,15]])$
 例. 0 が戻れば g_mat_fac_plain と指定した計算方法の結果が一致したことがわかる.
 option を書かないと g_mat_fac_int との比較となる.
 @example
-[8859] gtt_ekn.assert2(1);
+[8859] gtt_ekn3.assert2(1);
 Marginal=[[130,170,353],[90,119,444]]
 P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]
-Try g_mat_fac_test_int: Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.
+Try g_mat_fac_test_int: Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
 Timing (int) =0.413916 (CPU) + 0.590723 (GC) = 1.00464 (total), real time=0.990672
 
-Try g_mat_fac_test_plain: Note: we do not use g_mat_fac_itor. Call gtt_ekn.setup(); to use the crt option.
+Try g_mat_fac_test_plain: Note: we do not use g_mat_fac_itor. Call gtt_ekn3.setup(); to use the crt option.
 Timing (rational) =4.51349 (CPU) + 6.32174 (GC) = 10.8352 (total)
 diff of both method = 
 [ 0 0 0 ]
@@ -1031,12 +1036,12 @@ diff of both method =
 [ 0 0 0 ]
 [8860] 
 
-[8863] gtt_ekn.setup(|nprm=100,minp=10^50);
+[8863] gtt_ekn3.setup(|nprm=100,minp=10^50);
 Number of processes = 1.
 Number of primes = 100.
 Min of plist = 100000000000000000000000000000000000000000000000151.
 0
-[8864] gtt_ekn.assert2(1 | crt=1);
+[8864] gtt_ekn3.assert2(1 | crt=1);
 Marginal=[[130,170,353],[90,119,444]]
 P=[[17/100,1,10],[7/50,1,33/10],[1,1,1]]
 Try [[crt,1]]
@@ -1049,10 +1054,10 @@ Try [[crt,1]]
 3x5 分割表. 周辺和は 10 に比例する一定の数(factor option も関係. ソースを参照). 
 cell 確率は1/素数で生成される.
 @comment grep testnxn ekn/Prog2/*.rr ; grep test_nxn ekn/Prog2/*.rr も見よ.
-[9054] L=gtt_ekn.prob1(3,5,10 | factor=1, factor_row=3); 
+[9054] L=gtt_ekn3.prob1(3,5,10 | factor=1, factor_row=3); 
 [[[10,20,420],[30,60,90,120,150]],[[1,1/2,1/3,1/5,1/7],[1,1/11,1/13,1/17,1/19],[1,1,1,1,1]]]
-[9055] number_eval(gtt_ekn.expectation(L[0],L[1]));
-[ 0.434161208918863  ... snip ]
+[9055] number_eval(gtt_ekn3.expectation(L[0],L[1]));
+[ 1.65224223218613 ... snip ]
 @end example
 
 例:
@@ -1074,25 +1079,25 @@ Diff (should be 0)=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,..., 0,0,0]
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.nc}
+@ref{gtt_ekn3.nc}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
 @noindent
 ChangeLog
 @itemize @bullet
-@item  gtt_ekn/ekn_eval.rr で matrix factorial の計算の呼び出し引数を表示する.
+@item  gtt_ekn3/ekn_eval.rr で matrix factorial の計算の呼び出し引数を表示する.
 @item grep 'iand(Ekn_debug,0x1)' *.rr でソースコードの該当の位置をさがす.
 @end itemize
 @comment end set_debug_level
 
 
 
-@node modular計算,,, 2元分割表HGMの関数
+@node modular計算,,, Top
 @chapter modular計算
 
 @menu
-* gtt_ekn.chinese_itor::
+* gtt_ekn3.chinese_itor::
 @end menu
 
 @node 中国剰余定理とitor,,, modular計算
@@ -1102,13 +1107,13 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.chinese_itor,,, 
-@subsection @code{gtt_ekn.chinese_itor}
+@node gtt_ekn3.chinese_itor,,, 
+@subsection @code{gtt_ekn3.chinese_itor}
 @comment --- 索引用キーワード
-@findex gtt_ekn.chinese_itor 中国剰余定理とitor
+@findex gtt_ekn3.chinese_itor 中国剰余定理とitor
 
 @table @t
-@item gtt_ekn.chinese_itor(@var{data},@var{idlist})
+@item gtt_ekn3.chinese_itor(@var{data},@var{idlist})
 :: mod p で計算した結果(ベクトル)から chinese remainder theorem, itor(integer to rational) で有理数ベクトルを得る.
 @end table
 
@@ -1131,25 +1136,25 @@ ChangeLog
 例: [3!, 5^3*3!]=[6,750] が戻り値.
 6 mod 109 =6, 750 mod 109=96 が最初の引数の [[6,96],109]. 以下同様.
 @example
-gtt_ekn.setup(|nps=2,nprm=3,minp=101,fgp="p_small.txt");
-SS=gtt_ekn.get_svalue();
+gtt_ekn3.setup(|nps=2,nprm=3,minp=101,fgp="p_small.txt");
+SS=gtt_ekn3.get_svalue();
 SS[0];
   [103,107,109]   // list of primes
 SS[1];
   [0,2]           // list of server ID's
-gtt_ekn.chinese_itor([[[ 6,96 ],109],[[ 6,29 ],103],[[ 6,1 ],107]],SS[1]);
+gtt_ekn3.chinese_itor([[[ 6,96 ],109],[[ 6,29 ],103],[[ 6,1 ],107]],SS[1]);
   [[ 6 750 ],1201289]
 
 // 引数はスカラーでもよい.
-gtt_ekn.chinese_itor([[96,109],[29,103]],SS[1]);
+gtt_ekn3.chinese_itor([[96,109],[29,103]],SS[1]);
   [[ 750 ],11227]
 @end example
 
 
 @comment --- @example〜@end example は実行例の表示 ---
-例: gtt_ekn/childprocess.rr (server で実行される) の関数 chinese (chinese remainder theorem) と euclid.
+例: gtt_ekn3/childprocess.rr (server で実行される) の関数 chinese (chinese remainder theorem) と euclid.
 @example
-load("gtt_ekn/childprocess.rr");
+load("gtt_ekn3/childprocess.rr");
 chinese([newvect(2,[6,29]),103],[newvect(2,[6,750]),107*109]);
   // mod 103 で [6,29], mod (107*109) で [6,750] となる数を mod 103*(107*109)
   // で求めると,
@@ -1161,10 +1166,10 @@ euclid(3,103);  // mod 103 での 3 の逆数. つまり 1/3
 @end example
 
 @comment --- @example〜@end example は実行例の表示 ---
-例: gtt_ekn/childprocess.rr (server で実行される) の関数 itor (integer to rational) の例.
+例: gtt_ekn3/childprocess.rr (server で実行される) の関数 itor (integer to rational) の例.
 itor(Y,Q,Q2,Idx) では Y < Q2 なら Y がそのまま戻る.  Idx は 内部用の index で好きな数でよい. 戻り値の第２成分となる.
 @example
-load("gtt_ekn/childprocess.rr");
+load("gtt_ekn3/childprocess.rr");
 for (I=1;I<11; I++) print([I,itor(I,11,3,0)]);
 [1,[1,0]]
 [2,[2,0]]
@@ -1182,7 +1187,7 @@ for (I=1;I<11; I++) print([I,itor(I,11,3,0)]);
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.setup}
+@ref{gtt_ekn3.setup}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -1191,12 +1196,12 @@ ChangeLog
 @itemize @bullet
 @item
  関連ファイルは 
- gtt_ekn/g_mat_fac.rr
- gtt_ekn/childprocess.rr
+ gtt_ekn3/g_mat_fac.rr
+ gtt_ekn3/childprocess.rr
 @end itemize
 
-@node binary splitting,,, 2元分割表HGMの関数
-@chapter binary splitting
+@node Binary splitting,,, Top
+@chapter Binary splitting
 
 @menu
 * gtt_ekn3.init_dm_bsplit::
@@ -1204,7 +1209,7 @@ ChangeLog
 * gtt_ekn3.init_bsplit::
 @end menu
 
-@node matrix factorial,,, binary splitting
+@node matrix factorial,,, Binary splitting
 @section matrix factorial
 
 @comment **********************************************************
@@ -1309,13 +1314,13 @@ ChangeLog
 @comment --- ◯◯◯◯  の説明 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node gtt_ekn.hoge,,, 超幾何関数E(k,n)
-@subsection @code{gtt_ekn.hoge}
+@node gtt_ekn3.hoge,,, 超幾何関数E(k,n)
+@subsection @code{gtt_ekn3.hoge}
 @comment --- 索引用キーワード
-@findex gtt_ekn.hoge
+@findex gtt_ekn3.hoge
 
 @table @t
-@item gtt_ekn.hoge(@var{i})
+@item gtt_ekn3.hoge(@var{i})
 :: 
 @end table
 
@@ -1335,15 +1340,15 @@ ChangeLog
 @comment --- @example〜@end example は実行例の表示 ---
 例: 
 @example
-[2221] gtt_ekn.hoge([[1,4],[2,3]]);
+[2221] gtt_ekn3.hoge([[1,4],[2,3]]);
 @end example
 
 
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{gtt_ekn.nc}
-@ref{gtt_ekn.gmvector}
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
