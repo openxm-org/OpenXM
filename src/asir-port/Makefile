@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.40 2019/02/18 04:08:41 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.41 2019/06/12 06:42:04 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix.
 #### Do not add extra spaces after the VERSION.
@@ -37,9 +37,9 @@ install-for-knoppix:
 # Recover files under FLL.
 uninstall-for-knoppix:
 	rm -f ../../bin/asir
-	(cd ../../bin ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
+	(cd ../../bin ; ln -s ../../OpenXM_contrib2/asir2018/asir .)
 	for i in ${LIBS} ; do \
-		(cd ${OpenXM_HOME}/lib/asir ; rm -f $$i ; cp ../../../OpenXM_contrib2/asir2000/lib/$$i .) ; \
+		(cd ${OpenXM_HOME}/lib/asir ; rm -f $$i ; cp ../../../OpenXM_contrib2/asir2018/lib/$$i .) ; \
 	done
 
 # Generating asir-Linux-...
@@ -48,10 +48,10 @@ uninstall-for-knoppix:
 gentar-for-knoppix:
 	-mkdir work
 	(cd work ; rm -rf *)
-	(cd work ; cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2000/asir . )
+	(cd work ; cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2018/asir . )
 	(cd work ; strip asir ; gzip asir )
 	(cd work ; for i in ${LIBS} ; do \
-		cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2000/lib/$$i . ; \
+		cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2018/lib/$$i . ; \
 	done )
 	(cd work ; mv asir.gz "asir-${OS}-${VERSION}.gz")
 	(cd work ; ${MD5} "asir-${OS}-${VERSION}.gz" | awk '{print $$1}' >distinfo-asir.md5)
