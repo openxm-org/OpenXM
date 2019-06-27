@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.48 2019/03/06 02:41:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.49 2019/05/23 01:47:53 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -355,6 +355,7 @@ localf shiftop$
 localf conf1sp$
 localf confexp$
 localf confspt$
+localf mcvm$
 localf s2csp$
 localf partspt$
 localf pgen$
@@ -474,7 +475,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190520"$
+Muldif.rr="00190620"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2249,8 +2250,12 @@ def vgen(V,W,S)
 def mmc(M,X)
 {
 	Mt=getopt(mult);
-	if(type(M)==7) M=os_md.s2sp(M);
-	if(type(M)!=4||type(M[0])!=6) return 0;
+	if(type(M)==7) M=s2sp(M);
+	if(type(M)!=4) return 0;
+	if(type(M[0])<=3){
+		for(RR=[];M!=[];M=cdr(M)) RR=cons(mat([car(M)]),RR);
+		M=reverse(RR);
+	}
 	if(type(M[0])!=6){			/* spectre type -> GRS */
 		G=s2sp(M|std=1);
 		L=length(G);
@@ -17715,6 +17720,63 @@ def confspt(S,T)
 }
 #endif
 
+def mcvm(N)
+{
+  X=getopt(var);
+  if((Z=getopt(z))!=1) Z=0;
+  if(type(N)==4){
+    if((K=length(N))==1&&isvar(X)) X=[X];
+    if(type(X)!=4){
+      for(X=[],I=0;I<K;I++) X=cons(asciitostr([97+I]),X);
+      X=reverse(X);
+    }
+	if(getopt(e)==1){
+	  if(length(N)==4){
+		N=ltov(N);
+		if(N[1]<N[3]){
+			I=N[1];N[1]=N[3];N[3]=I;
+		}
+		if(N[2]<N[3]||N[2]>=N[1]+N[3]) return 0;
+		X=X[0];
+		for(R=[],I=1;I<N[3];I++) R=cons(makev([X[0],I]),R);
+		for(L=[],I=N[1];I<=N[2];I++) L=cons(makev([X[0],I]),L);
+		for(S=0,I=N[1];I<=N[2];I++){
+		  V=makev([X[0],I]);
+          S+=polbyroot(R,V)/polbyroot(lsort(L,V,1),V);
+		  S=red(S);
+		}
+		return S;
+      }
+	}
+	for(M=[],I=S=0;I<K;Z=0,I++){
+		M=cons(mcvm(N[I]|var=X[I],z=Z),M);
+		S+=N[I];
+	}
+	M=newbmat(K,K,reverse(M));
+	N=S;
+  }else{
+	if(type(X)==7) X=strtov(X);
+	if(!isvar(X)) X=a;
+    M=newmat(N,N);
+    for(I=0;I<N;I++){
+      V=makev([X,I+1]);
+      for(J=0;J<=I;J++){
+        R=polbyroot([1,J],V|var=X);
+        if(Z==1) R*=V;
+        M[I][J]=R;
+      }
+    }
+  }
+  if(getopt(get)==1){
+    for(R=[],I=0;I<N;I++){
+      U=newmat(N,N);
+      for(J=0;J<N;J++) U[J][J]=M[J][I];
+      R=cons(map(red,myinv(M)*U*M),R);
+    }
+    return reverse(R);
+  }
+  return M;
+}
 
 def confexp(S)
 {
@@ -17860,6 +17922,13 @@ def newbmat(M,N,R)
 	S  = newvect(M);
 	T  = newvect(N);
 	IM = length(R);
+	if(type(car(R))!=4 && M==N && M==IM){
+		for(RR=TR=[],I=0;I<M;I++){
+			for(TR=[R[I]],J=0;J<I;J++) TR=cons(0,TR);
+			RR=cons(TR,RR);
+		}
+		R=reverse(RR);
+	}
 	for(I = 0; I < IM; I++){
 		RI = R[I];
 		JM = length(RI);
