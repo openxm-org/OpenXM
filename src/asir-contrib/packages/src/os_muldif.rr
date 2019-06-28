@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.49 2019/05/23 01:47:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.50 2019/06/27 02:53:26 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -17774,12 +17774,36 @@ def mcvm(N)
       R=cons(map(red,myinv(M)*U*M),R);
     }
     return reverse(R);
+  }else if(getopt(get)==2){
+	for(V=[],I=N;I>0;I--) V=cons(makev(["a0",I]),V);
+    MI=myinv(M);
+	V=ltov(V)*MI;
+	for(R=[],I=0;I<N;I++){
+      for(J=I+1;J<N;J++){
+        K=newmat(N,N);
+        K[I][I]=V[J];K[I][J]=-V[J];K[J][J]=V[I];K[J][I]=-V[I];
+          R=cons(map(red,MI*K*M),R);
+       }
+	}
+    return reverse(R);
   }
   return M;
 }
 
 def confexp(S)
 {
+	if((Sym=getopt(sym))==1||Sym==2){
+		D=polbyroot(S[1],x);
+		for(R=[],T=S[0];T!=[];T=cdr(T)) R=cons(red(car(T)*D),R);
+		R=reverse(R);
+		if(Sym==2) return R;
+		M=length(R);N=length(S[1]);
+		E=newmat(M,N);
+		for(I=0;I<M;I++){
+			for(J=0;J<N;J++) E[I][J]=mycoef(R[I],N-J-1,x);
+		}
+		return E;
+	}
 	if(type(S[0])==4){
 		for(E=[];S!=[];S=cdr(S))
 			E=cons(confexp(car(S),E));
