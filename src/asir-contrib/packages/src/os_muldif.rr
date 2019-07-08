@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.50 2019/06/27 02:53:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.51 2019/06/28 01:54:31 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Feb. 2019)
+ *          Toshio Oshima (Nov. 2007 - Jul. 2019)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -475,7 +475,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190620"$
+Muldif.rr="00190706"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -10816,6 +10816,7 @@ def my_tex_form(S)
 		}
 		SS = cons(S[I], SS);
 	}
+	SS=str_subst(SS,"\n\\\\\n\\end{pmatrix}","\n\\end{pmatrix}"|raw=1); 
 	SS=str_subst(SS,"\\\\\n\\end{pmatrix}","\n\\end{pmatrix}"|raw=1); 
 	Subst=getopt(subst);
 	Sub0=["{asin}","{acos}","{atan}"];
@@ -17753,6 +17754,7 @@ def mcvm(N)
 		S+=N[I];
 	}
 	M=newbmat(K,K,reverse(M));
+    NR=N;
 	N=S;
   }else{
 	if(type(X)==7) X=strtov(X);
@@ -17767,14 +17769,14 @@ def mcvm(N)
       }
     }
   }
-  if(getopt(get)==1){
+  if((Get=getopt(get))==1){
     for(R=[],I=0;I<N;I++){
       U=newmat(N,N);
       for(J=0;J<N;J++) U[J][J]=M[J][I];
       R=cons(map(red,myinv(M)*U*M),R);
     }
     return reverse(R);
-  }else if(getopt(get)==2){
+  }else if(Get==2||Get==3||Get==4){
 	for(V=[],I=N;I>0;I--) V=cons(makev(["a0",I]),V);
     MI=myinv(M);
 	V=ltov(V)*MI;
@@ -17785,16 +17787,39 @@ def mcvm(N)
           R=cons(map(red,MI*K*M),R);
        }
 	}
-    return reverse(R);
+    R=reverse(R);
+	if(Get==2||length(NR)!=2||Z==1) return R;
+    for(V1=[],I=NR[0];I>0;I--) V1=cons(os_md.makev([X[0],I]),V1);
+    for(V2=[],I=NR[1];I>0;I--) V2=cons(os_md.makev([X[1],I]),V2);
+    R=subst(R,car(V1),0,car(V2),0);
+    V1=subst(V1,car(V1),0);
+    V2=subst(V2,car(V2),0);
+    for(V=[],S=V1;S!=[];S=cdr(S)) for(T=V2;T!=[];T=cdr(T)) V=cons(car(T)-car(S),V);
+    V=reverse(V);
+    Mx=length(V);
+    for(A0=[],I=J=NR[0]-1;J>=0;I+=--J) for(K=0;K<NR[1];K++,I++) A0=cons(R[I],A0);
+    A0=reverse(A0);
+    for(F0=[],T=1,I=Mx-1;I>=0;I--) F0=cons(1/(x-V[I]), F0);
+    MV=confexp([F0,V]|sym=3);
+    RR=newvect(Mx);
+    for(K=0;K<Mx;K++) for(RR[K]=0,I=0;I<Mx;I++) RR[K]=map(red,RR[K]+MV[I][K]*A0[I]);
+    RR0=mysubst(RR,[append(cdr(V1),cdr(V2)),vtol(newvect(Mx-2))]|lpair=1);
+    RR0=vtol(RR0);
+    return (Get==3)?[RR,RR0]:RR0;
   }
   return M;
 }
 
 def confexp(S)
 {
-	if((Sym=getopt(sym))==1||Sym==2){
+	if((Sym=getopt(sym))==1||Sym==2||Sym==3){
 		D=polbyroot(S[1],x);
-		for(R=[],T=S[0];T!=[];T=cdr(T)) R=cons(red(car(T)*D),R);
+		for(R=[],T=S[0];T!=[];T=cdr(T)){
+			M=D*car(T);
+			if(type(M)>3) M=map(red,M);
+			else M=red(M);
+			R=cons(M,R);
+		}
 		R=reverse(R);
 		if(Sym==2) return R;
 		M=length(R);N=length(S[1]);
@@ -17802,11 +17827,15 @@ def confexp(S)
 		for(I=0;I<M;I++){
 			for(J=0;J<N;J++) E[I][J]=mycoef(R[I],N-J-1,x);
 		}
+		if(Sym==3){
+			for(R=[],P=1,T=S[1];T!=[];T=cdr(T)) R=cons(P/=(x-car(T)),R);
+			R=confexp([reverse(R),S[1]]|sym=1);
+			return E*myinv(R);
+		}
 		return E;
 	}
 	if(type(S[0])==4){
-		for(E=[];S!=[];S=cdr(S))
-			E=cons(confexp(car(S),E));
+		for(E=[];S!=[];S=cdr(S)) E=cons(confexp(car(S),E));
 		return reverse(E);
 	}
 	V=x;E=[];
