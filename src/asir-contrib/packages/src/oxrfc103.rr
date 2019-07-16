@@ -1,7 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.5 2003/01/06 05:56:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.6 2016/09/26 00:17:49 takayama Exp $ */
 
-/* BUG: If you load glib, then you have to reset "register_handler"
-*/
 
 extern Xm_rfc103_reset$
 extern Xm_rfc103_shared$
@@ -22,7 +20,7 @@ def ox103_is_supported(L) {
 def ox103_reset_is_supported(L) {
   Name = ox103_get_server_type(L);
   print(Name);
-  if ((Name == "ox_asir") || (Name == "ox_sm1") || (Name == "ox_plot") ||
+  if ((Name == "ox_asir") || (Name == "ox_sm1") ||
       (Name == "Ox_system=ox_sm1_ox_sm1_forAsir") || (Name == "ox_pari")) return 1;
   else return 0;
 }
@@ -39,7 +37,10 @@ def ox103_reset() {
     L = ox_get_serverinfo();
     for (I=0; I<length(L); I++) {
       if (ox103_reset_is_supported(L[I])) {
+	printf("sending ox_reset to %a\n",L[I][1][0]);
         ox_reset(L[I][0]);
+      }else{
+	printf("do not send ox_reset to %a\n",L[I][1][0]);
       }
     }
     for (I=0; I<length(L); I++) {
