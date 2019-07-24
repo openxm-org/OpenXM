@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_intde-1.rr,v 1.1 2013/12/14 05:56:58 takayama Exp $ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_intde-1.rr,v 1.2 2017/06/23 23:50:31 takayama Exp $ 
   original: h-mle/Prog/intde1.rr
 */
 
@@ -8,6 +8,7 @@ module tk_intde_1;
 localf ueval$
 localf intde$
 localf intde_fp$
+localf intde_c$
 localf int2de$
 localf intde0$
 localf int3de_orig$
@@ -152,6 +153,77 @@ def intde_fp(F, A, B, Eps)
             Errd = 1 + 2 * Errh;
         } else {
             Errd = H * (number_abs(I - 2 * Iback) + 4 * number_abs(Ir - 2 * Irback));
+        }
+        H *= 0.5;
+        M *= 2;
+    } while ((Errd > Errh) && (M < Mmax));
+    I *= H;
+    if (Errd > Errh) {
+        Err = -Errd * M;
+    } else {
+        Err = Errh * Epsh * M / (2 * Efs);
+    }
+    return [I,Err];
+}
+
+/* intde for complex number valued function */
+def intde_c(F, A, B, Eps)
+"Ex. tk_intde_1.intde_c(exp(-x^4)*(exp(-exp(2*@pi*@i/4)*x^2/2+@i*@pi/4)+exp(-x^2/2)),0,100,10^(-15));"
+{   I=0; Err=0; /* return value */
+    /* ---- adjustable parameter ---- */
+    Mmax = 256;
+    Efs = 0.1; Hoff = 8.5;
+    if (type(getopt(v)) >= 0) X=getopt(v);
+    else X = x;
+    /* int m,
+    double pi2, epsln, epsh, h0, ehp, ehm, epst, ba, ir, h, iback, 
+        irback, t, ep, em, xw, xa, wg, fa, fb, errt, errh, errd;
+    */
+    A = eval(A*exp(0)); B=eval(B*exp(0)); Eps = eval(Eps*exp(0));    
+    Pi2 = eval(@pi/2);
+    Epsln = 1 - eval(log(Efs * Eps));
+    Epsh = eval((Efs * Eps)^(1/2));
+    H0 = Hoff / Epsln;
+    Ehp = eval(exp(H0));
+    Ehm = 1 / Ehp;
+    Epst = eval(exp(-Ehm * Epsln));
+    Ba = B - A;
+    Ir = ueval(F,X,((A + B) * 0.5)) * (Ba * 0.25);
+    I = Ir * (2 * Pi2);
+    Err = number_eval(number_abs(I))* Epst;
+    H = 2 * H0;
+    M = 1;
+    do {
+        Iback = I;
+        Irback = Ir;
+        T = H * 0.5;
+        do {
+            Em = eval(exp(T));
+            Ep = Pi2 * Em;
+            Em = Pi2 / Em;
+            do {
+                Xw = 1 / (1 + eval(exp(Ep - Em)));
+                Xa = Ba * Xw;
+                Wg = Xa * (1 - Xw);
+                Fa = ueval(F,X,(A + Xa)) * Wg;
+                Fb = ueval(F,X,(B - Xa)) * Wg;
+                Ir += Fa + Fb;
+                I += (Fa + Fb) * (Ep + Em);
+                Errt = (number_abs(Fa) + number_abs(Fb)) * (Ep + Em);
+		Errt = number_eval(Errt);
+                if (M == 1) Err += Errt * Epst;
+                Ep *= Ehp;
+                Em *= Ehm;
+/* debug_v(1);  */
+            } while ((Errt > Err) || (Xw > Epsh));
+            T += H;
+        } while (T < H0);
+        if (M == 1) {
+            Errh = (Err / Epst) * Epsh * H0;
+            Errd = 1 + 2 * Errh;
+        } else {
+            Errd = H * (number_abs(I - 2 * Iback) + 4 * number_abs(Ir - 2 * Irback));
+	    Errd = number_eval(Errd);
         }
         H *= 0.5;
         M *= 2;
