@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.52 2019/07/08 05:23:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.53 2019/08/08 02:33:29 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8433,13 +8433,13 @@ def spbasic(Idx,D)
   (-2,0)                                    13ŒÂ (9+3+?)
   (-4,0)                                    37ŒÂ (25+9+?) 
   (-6,0) :  8.5sec  ?sec          0.05sec   69ŒÂ (46+17+?)
-  (-8,0) : 97  sec  1sec          0.16sec  113ŒÂ (73+29+?)   <- (-2,0)
-  (-10,0):          4sec          0.38sec  198ŒÂ (127+50+?)
-@(-12,0)          28sec   4.2sec 0.95sec  291ŒÂ (182+76+?)
-  (-14,0)          27sec  10.2sec 1.84sec  415ŒÂ (249+115+?)
-  (-16,0)                 34.0sec 3.73sec  647ŒÂ (395+172+?) <- (-4,0)
-  (-18,0)                         7.28sec  883ŒÂ (521+243+?) <- (-2,0)
-  (-20,0)                        12.83sec 1186ŒÂ (680+345+?)
+  (-8,0) : 97  sec  1sec          0.13sec  113ŒÂ (73+29+?)   <- (-2,0)
+  (-10,0):          4sec          0.27sec  198ŒÂ (127+50+?)
+@(-12,0)          28sec   4.2sec 0.64sec  291ŒÂ (182+76+?)
+  (-14,0)          27sec  10.2sec 1.31sec  415ŒÂ (249+115+?)
+  (-16,0)                 34.0sec 2.47sec  647ŒÂ (395+172+?) <- (-4,0)
+  (-18,0)                         4.42sec  883ŒÂ (521+243+?) <- (-2,0)
+  (-20,0)                         8.17sec 1186ŒÂ (680+345+?)
 */
 	Idx=-Idx;
 	if((Str=getopt(str))!=1) Str=0;
@@ -8465,7 +8465,7 @@ def spbasic(Idx,D)
 		}
 		if(iand(D,1)&&(D-3)/2>Idx) return [];
 	}else L=Idx/2+4;
-	V=newvect(L);SV=newvect(L);SI=newvect(L);
+	V=newvect(L);SV=newvect(L);
 	for(S1=[],I=0;I<D;I++) S1=cons(1,S1);
 	for(T=D-1;T>1;T--){
 		K=D%T;
@@ -8475,11 +8475,10 @@ def spbasic(Idx,D)
 	TV=K?[K]:[];
 	for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
 	for(I=0;I<L;I++){
-		SV[I]=Idx-(I+1)*J;
-		SI[I]=2*D^2-(I+1)*(D^2-J)-Idx;
+		SV[I]=2*D^2-(I+1)*(D^2-J)-Idx;
 		V[I]=TV;
 	}
-	if(SI[2]>0) return [];
+	if(SV[2]>0) return [];
 	if(D>Idx+2 && V[0][0]+V[1][0]>=D && V[1][0]>1){
 		T=V[1][0]-1;K=D%T;TV=K?[K]:[];
 		for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
@@ -8487,13 +8486,12 @@ def spbasic(Idx,D)
 	}
 	for(R=[];;){
 		if(D>Idx+2){
-			if(V[0][0]+V[1][0]>=D && (T=V[1][0]-1)>0){
+		 	if(3*V[0][0]<D) break;
+			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0){
 				K=D%T;TV=K?[K]:[];
 				for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
 				V[1]=V[2]=TV;
-				continue;
 			}
-		 	if(3*V[0][0]<D||V[0][0]==1) break;
  			S2=V[0][0]+V[1][0]+V[2][0]-D;
 			if(V[0][0]+2*V[1][0]<D ||(S2<0&&V[1][0]==1) ){
 				V[0]=V[1]=V[2]=nextpart(V[0]);
@@ -8504,7 +8502,7 @@ def spbasic(Idx,D)
 					V[2]=S1;
 				}else if(T>0){
 					J=D%T;
-					K=(J?[J]:[]);
+					K=J?[J]:[];
 					for(J=(D-J)/T;J>0;J--) K=cons(T,K);
 					V[2]=K;
 				}
@@ -8518,15 +8516,13 @@ def spbasic(Idx,D)
 				K=J?[J]:[];
 				for(J=(D-J)/T;J>0;J--) K=cons(T,K);
 				V[2]=K;
-				continue;
 			}
 		}
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
 			if(S>=0) break;
 		}
-		I=IL;
-		if(IL==L){  /* reducible i.e. IL=L && S<0 */
+		if((I=IL)==L){  /* reducible i.e. IL=L && S<0 */
 			for(LL=L-1;LL>=0;LL--){
 				if((K=car(V[LL]))+S>0){
 					K+=S;
@@ -8562,37 +8558,21 @@ def spbasic(Idx,D)
 		for(K=SS=0;K<L&&SS<=Idx;K++){
 			ST=car(V[K]);
 			for(S0=0,TV=cdr(V[K]);TV!=[];TV=cdr(TV)) S0+=(ST-car(TV))*car(TV);
-			SS+=(SV[K]=S0);
+			SS+=S0;
 		}
-		if(SS>Idx && K<=IL && K!=L && (U=length(V[K]))!=D){
-			if(K>0){
-				SS0=Idx-SS+S0;
-				for(TV=car(V[K]);TV>1;TV--){
-					U=D%TV;
-					if((D-U)*U<=SS0) break;
-				}
-				if(TV==car(V[K])){
-					U=length(V[K])-1;
-					J=V[K][U];
-					for(;U>=0;U--) if(V[K][U]>J+1) break;
-					if(U<0){
-						K=K-1;V[K]=nextpart(V[K]);
-					}else{
-						for(TV=[],J=SS0=0;J<U;J++){
-							SS0+=V[K][J];
-							TV=cons(V[K][J],TV);
-						}
-						SS0=D-SS0;J=V[K][U]-1;
-						for(;SS0>=J;SS0-=J) TV=cons(J,TV);
-						if(SS0>0) TV=cons(SS0,TV);
-						V[K]=reverse(TV);
-					}
-				}else{
-					V[K]=U?[U]:[];
-					for(J=D-U;J>0;J-=TV) V[K]=cons(TV,V[K]);
-				}
-			}else
-			V[K]=nextpart(V[K]);   /* to be improved */
+		if(SS>Idx && K<=IL && K!=L){
+			SS0=Idx-SS+S0;
+			for(TV=car(V[K]);TV>1;TV--){
+				U=D%TV;
+				if((D-U)*U<=SS0) break;
+			}
+			if(TV==car(V[K])){
+				K=K-1;
+				V[K]=nextpart(V[K]); /* to be improves */
+			}else{
+				V[K]=U?[U]:[];  /* to be improved */
+				for(J=D-U;J>0;J-=TV) V[K]=cons(TV,V[K]);
+			}
 			for(J=K+1;J<L;J++) V[J]=V[K];
 			continue;
 		}
