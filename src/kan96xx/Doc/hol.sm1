@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.27 2012/09/16 01:53:08 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.28 2012/10/12 01:20:29 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -302,6 +302,7 @@ message-quiet
   [/in-gb /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
    /degreeShift  /env2 /groebnerOptions
+   /ggall
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -419,13 +420,13 @@ message-quiet
     gb.verbose { (groebnerOptions = ) messagen groebnerOptions message } { } ifelse
     termorder {
       f { {___ dehomogenize} map } map /f set
-      [f groebnerOptions] groebner_sugar 0 get /gg set
+      [f groebnerOptions] groebner_sugar /ggall set ggall 0 get /gg set
     }{
       f { {___ dehomogenize} map} map /f set
       gb.autoHomogenize {
         f fromVectors { homogenize } map /f set
       } {  } ifelse
-      [f groebnerOptions] groebner 0 get /gg set
+      [f groebnerOptions] groebner /ggall set ggall 0 get /gg set
     }ifelse
     wv isInteger {
       /ans [gg gg {init} map] def
@@ -441,7 +442,9 @@ message-quiet
     ifelse
     ans getRing (oxRingStructure) dc /gb.oxRingStructure set
     %% gg getAttributeList message
-    ans gg getAttributeList setAttributeList /ans set
+    ans 
+      gg getAttributeList , [(all) ggall] join
+    setAttributeList /ans set
     %% 
     env1 restoreOptions  %% degreeShift changes "grade"
 
