@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.21 2018/09/06 05:42:43 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.22 2019/03/29 04:54:25 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -19,6 +19,7 @@
 * 有理式を係数とするグレブナ基底計算::
 * 基底変換::
 * Weyl 代数::
+* 多項式環上の加群::
 * グレブナ基底に関する函数::
 \E
 \BEG
@@ -31,6 +32,7 @@
 * Groebner basis computation with rational function coefficients::
 * Change of ordering::
 * Weyl algebra::
+* Module over a polynomial ring::
 * Functions for Groebner basis computation::
 \E
 @end menu
@@ -1486,6 +1488,57 @@ Computation of the global b function is implemented as an application.
 \E
 
 \BJP
+@node 多項式環上の加群,,, グレブナ基底の計算
+@section 多項式環上の加群
+\E
+\BEG
+@node Module over a polynomial ring,,, Groebner basis computation
+@section Module over a polynomial ring
+\E
+
+@noindent
+
+\BJP
+多項式環上の自由加群の元は, 加群単項式 te_i の線型和として内部表現される.
+ここで t は多項式環の単項式, e_i は自由加群の標準基底である. 加群単項式は, 多項式環の単項式
+に位置 i を追加した @code{<<a,b,...,c:i>>} で表す. 加群多項式, すなわち加群単項式の線型和は,
+設定されている加群項順序にしたがって降順に整列される. 加群項順序には以下の3種類がある.
+
+@table @code
+@item TOP 順序
+
+これは, te_i > se_j となるのは t>s または (t=s かつ i<j) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う. 
+この型の順序は, @code{dp_ord([0,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
+
+@item POT 順序
+
+これは, te_i > se_j となるのは i<j または (i=j かつ t>s) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う.
+この型の順序は, @code{dp_ord([1,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
+
+@item Schreyer 型順序
+
+各標準基底 e_i に対し, 別の自由加群の加群単項式 T_i が与えられていて, te_i > se_j となるのは
+tT_i > sT_j または (tT_i=sT_j かつ i<j) となるような項順序である. ここで tT_i, sT_j の
+比較は, これらが所属する自由加群に設定されている順序で行う.
+この型の順序は, 通常再帰的に設定される. すなわち, T_i が所属する自由加群の順序も Schreyer 型
+であるか, またはボトムとなる TOP, POT などの項順序となる. 
+この型の順序は @code{dpm_set_schreyer([H_1,H_2,...])} により指定する. ここで,
+@code{H_i=[T_1,T_2,...]} は加群単項式のリストで, @code{[H_2,...]} で定義される Schreyer 型項順序を
+@code{tT_i} らに適用するという意味である. 
+@end table
+
+加群多項式を入力する方法としては, @code{<<a,b,...:i>>} なる形式で直接入力する他に,
+多項式リストを作り, @code{dpm_ltod()} により変換する方法もある.
+\E
+\BEG
+not yet
+\E
+
+\BJP
 @node グレブナ基底に関する函数,,, グレブナ基底の計算
 @section グレブナ基底に関する函数
 \E
@@ -1514,6 +1567,7 @@ Computation of the global b function is implemented as an application.
 * dp_ptozp dp_prim::
 * dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod::
 * dp_hm dp_ht dp_hc dp_rest::
+* dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest::
 * dp_td dp_sugar::
 * dp_lcm::
 * dp_redble::
@@ -2360,12 +2414,12 @@ except for lack of the argument for controlling homogenization.
 @findex nd_weyl_gr_trace
 
 @table @t
-@item nd_gr(@var{plist},@var{vlist},@var{p},@var{order})
-@itemx nd_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
-@itemx nd_f4(@var{plist},@var{vlist},@var{modular},@var{order})
-@itemx nd_f4_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
-@itemx nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order})
-@itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
+@item nd_gr(@var{plist},@var{vlist},@var{p},@var{order}[|@var{option=value,...}])
+@itemx nd_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order}[|@var{option=value,...}])
+@itemx nd_f4(@var{plist},@var{vlist},@var{modular},@var{order}[|@var{option=value,...}])
+@itemx nd_f4_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order}[|@var{option=value,...}])
+@itemx nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order}[|@var{option=value,...}])
+@itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order}[|@var{option=value,...}])
 \JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
 @end table
@@ -2424,6 +2478,16 @@ Buchberger アルゴリズムを実行する.
 @item
 一般に @code{dp_gr_main}, @code{dp_gr_mod_main} より高速であるが,
 特に有限体上の場合顕著である.
+@item
+以下のオプションが指定できる.
+@table @code
+@item homo
+1 のとき, 斉次化を経由して計算する. (@code{nd_gr}, @code{nd_f4} のみ)
+@item dp
+1 のとき, 分散表現多項式 (加群の場合には加群多項式) を結果として返す.
+@item nora
+1 のとき, 結果の相互簡約を行わない.
+@end table
 @end itemize
 \E
 
@@ -2467,6 +2531,17 @@ Functions except for F4 related ones can handle rational coeffient cases.
 @item
 In general these functions are more efficient than 
 @code{dp_gr_main}, @code{dp_gr_mod_main}, especially over finite fields.
+@item
+The fallowing options can be specified.
+@table @code
+@item homo
+If set to 1, the computation is done via homogenization. (only for @code{nd_gr} and @code{nd_f4})
+@item dp
+If set to 1, the functions return a list of distributed polynomials (a list of
+module polynomials when the input is a sub-module).
+@item nora
+If set to 1, the inter-reduction is not performed.
+@end table
 @end itemize
 \E
 
@@ -2686,6 +2761,12 @@ uses the value as a flag for showing intermediate informations.
 @item
 トップレベル函数以外の函数を直接呼び出す場合には, この函数により
 変数順序型を正しく設定しなければならない. 
+
+@item
+引数がリストの場合, 自由加群における項順序型を設定する. 引数が@code{[0,Ord]} の場合,
+多項式環上で @code{Ord} で指定される項順序に基づく TOP 順序, 引数が @code{[1,Ord]} の場合
+OPT 順序を設定する.
+
 \E
 \BEG
 @item
@@ -2713,6 +2794,12 @@ that such polynomials were generated under the same ordering type.
 @item
 Type of term ordering must be correctly set by this function
 when functions other than top level functions are called directly.
+
+@item
+If the argument is a list, then an ordering type in a free module is set.
+If the argument is @code{[0,Ord]} then a TOP ordering based on the ordering type specified
+by @code{Ord} is set. 
+If the argument is @code{[1,Ord]} then a POT ordering is set.
 \E
 @end itemize
 
@@ -2861,6 +2948,171 @@ the coefficient field.
 \JP @item 参照
 \EG @item References
 @fref{dp_dtop},
+@fref{dp_ord}.
+@end table
+
+\JP @node dpm_dptodpm,,, グレブナ基底に関する函数
+\EG @node dpm_dptodpm,,, Functions for Groebner basis computation
+@subsection @code{dpm_dptodpm}
+@findex dpm_dptodpm
+
+@table @t
+@item dpm_dptodpm(@var{dpoly},@var{pos})
+\JP :: 分散表現多項式を加群多項式に変換する. 
+\EG :: Converts a distributed polynomial into a module polynomial.
+@end table
+
+@table @var
+@item return
+\JP 加群多項式
+\EG module polynomial
+@item dpoly
+\JP 分散表現多項式
+\EG distributed polynomial
+@item pos
+\JP 正整数
+\EG positive integer
+@end table
+
+@itemize @bullet
+\BJP
+@item
+分散表現多項式を加群多項式に変換する.
+@item
+出力は加群多項式 @code{dpoly e_pos} である.
+\E
+\BEG
+@item
+This function converts a distributed polynomial into a module polynomial.
+@item
+The output is @code{dpoly e_pos}.
+\E
+@end itemize
+
+@example
+[50] dp_ord([0,0])$
+[51] D=dp_ptod((x+y+z)^2,[x,y,z]);
+(1)*<<2,0,0>>+(2)*<<1,1,0>>+(1)*<<0,2,0>>+(2)*<<1,0,1>>+(2)*<<0,1,1>>
++(1)*<<0,0,2>>
+[52] dp_dptodpm(D,2);
+(1)*<<2,0,0:2>>+(2)*<<1,1,0:2>>+(1)*<<0,2,0:2>>+(2)*<<1,0,1:2>>
++(2)*<<0,1,1:2>>+(1)*<<0,0,2:2>>
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{dp_ptod},
+@fref{dp_ord}.
+@end table
+
+\JP @node dpm_ltod,,, グレブナ基底に関する函数
+\EG @node dpm_ltod,,, Functions for Groebner basis computation
+@subsection @code{dpm_ltod}
+@findex dpm_ltod
+
+@table @t
+@item dpm_dptodpm(@var{plist},@var{vlist})
+\JP :: 多項式リストを加群多項式に変換する. 
+\EG :: Converts a list of polynomials into a module polynomial.
+@end table
+
+@table @var
+@item return
+\JP 加群多項式
+\EG module polynomial
+@item plist
+\JP 多項式リスト
+\EG list of polynomials
+@item vlist
+\JP 変数リスト
+\EG list of variables
+@end table
+
+@itemize @bullet
+\BJP
+@item
+多項式リストを加群多項式に変換する.
+@item
+@code{[p1,...,pm]} は @code{p1 e1+...+pm em} に変換される.
+\E
+\BEG
+@item
+This function converts a list of polynomials into a module polynomial.
+@item
+@code{[p1,...,pm]} is converted into @code{p1 e1+...+pm em}.
+\E
+@end itemize
+
+@example
+[2126] dp_ord([0,0])$
+[2127] dpm_ltod([x^2+y^2,x,y-z],[x,y,z]);
+(1)*<<2,0,0:1>>+(1)*<<0,2,0:1>>+(1)*<<1,0,0:2>>+(1)*<<0,1,0:3>>
++(-1)*<<0,0,1:3>>
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{dpm_dtol},
+@fref{dp_ord}.
+@end table
+
+\JP @node dpm_dtol,,, グレブナ基底に関する函数
+\EG @node dpm_dtol,,, Functions for Groebner basis computation
+@subsection @code{dpm_dtol}
+@findex dpm_dtol
+
+@table @t
+@item dpm_dptodpm(@var{poly},@var{vlist})
+\JP :: 加群多項式を多項式リストに変換する. 
+\EG :: Converts a module polynomial into a list of polynomials.
+@end table
+
+@table @var
+@item return
+\JP 多項式リスト
+\EG list of polynomials
+@item poly
+\JP 加群多項式
+\EG module polynomial
+@item vlist
+\JP 変数リスト
+\EG list of variables
+@end table
+
+@itemize @bullet
+\BJP
+@item
+加群多項式を多項式リストに変換する.
+@item
+@code{p1 e1+...+pm em} は @code{[p1,...,pm]} に変換される.
+@item
+出力リストの長さは, @code{poly} に含まれる標準基底の最大インデックスとなる.
+\E
+\BEG
+@item
+This function converts a module polynomial into a list of polynomials.
+@item
+@code{p1 e1+...+pm em} is converted into @code{[p1,...,pm]}.
+@item
+The length of the output list is equal to the largest index among those of the standard bases
+containd in @code{poly}.
+\E
+@end itemize
+
+@example
+[2126] dp_ord([0,0])$
+[2127] D=(1)*<<2,0,0:1>>+(1)*<<0,2,0:1>>+(1)*<<1,0,0:2>>+(1)*<<0,1,0:3>>
++(-1)*<<0,0,1:3>>$
+[2128] dpm_dtol(D,[x,y,z]);
+[x^2+y^2,x,y-z]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{dpm_ltod},
 @fref{dp_ord}.
 @end table
 
@@ -3294,6 +3546,126 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
 @fref{p_nf p_nf_mod p_true_nf p_true_nf_mod}.
 @end table
 
+\JP @node dpm_nf dpm_nf_and_quotient,,, グレブナ基底に関する函数
+\EG @node dpm_nf dpm_nf_and_quotient,,, Functions for Groebner basis computation
+@subsection @code{dpm_nf}, @code{dpm_nf_and_quotient}
+@findex dpm_nf
+@findex dpm_nf_and_quotient
+
+@table @t
+@item dpm_nf([@var{indexlist},]@var{dpoly},@var{dpolyarray},@var{fullreduce})
+\JP :: 加群多項式の正規形を求める. (結果は定数倍されている可能性あり)
+
+\BEG
+:: Computes the normal form of a module polynomial.
+(The result may be multiplied by a constant in the ground field.)
+\E
+@item dpm_nf_and_quotient([@var{indexlist},]@var{dpoly},@var{dpolyarray})
+\JP :: 加群多項式の正規形と商を求める.
+\BEG
+:: Computes the normal form of a module polynomial and the quotient.
+\E
+@end table
+
+@table @var
+@item return
+\JP @code{dpm_nf()} : 加群多項式, @code{dpm_nf_and_quotient()} : リスト
+\EG @code{dpm_nf()} : module polynomial, @code{dpm_nf_and_quotient()} : list
+@item indexlist
+\JP リスト
+\EG list
+@item dpoly
+\JP 加群多項式
+\EG module polynomial
+@item dpolyarray
+\JP 配列
+\EG array of module polynomial
+@end table
+
+@itemize @bullet
+\BJP
+@item
+加群多項式 @var{dpoly} の正規形を求める. 
+@item
+結果に有理数, 有理式が含まれるのを避けるため, @code{dpm_nf()} は
+真の値の定数倍の値を返す. 
+@item
+@var{dpolyarray} は加群多項式を要素とするベクトル, 
+@var{indexlist} は正規化計算に用いる @var{dpolyarray} の要素のインデックス
+@item
+@var{indexlist} が与えられている場合, @var{dpolyarray} の中で, @var{indexlist} で指定されたもののみが, 前の方から優先的に使われる. 
+@var{indexlist} が与えられていない場合には, @var{dpolyarray} の中の全ての多項式が前の方から優先的に使われる.
+@item
+@code{dpm_nf_and_quotient()} は, 
+@code{[@var{nm},@var{dn},@var{quo}]} なる形のリストを返す. 
+ただし, @var{nm} は係数に分数を含まない加群多項式, @var{dn} は
+数または多項式で @var{nm}/@var{dn} が真の値となる. 
+@var{quo} は除算の商を表す配列で, @var{dn}@var{dpoly}=@var{nm}+@var{quo[0]dpolyarray[0]+...} が成り立つ.
+のリスト. 
+@item
+@var{fullreduce} が 0 でないとき全ての項に対して簡約を行う. @var{fullreduce}
+が 0 のとき頭項のみに対して簡約を行う. 
+\E
+\BEG
+@item
+Computes the normal form of a module polynomial.
+@item
+The result of @code{dpm_nf()} may be multiplied by a constant in the
+ground field in order to make the result integral.
+@item
+@var{dpolyarray} is a vector whose components are module polynomials
+and @var{indexlist} is a list of indices which is used for the normal form
+computation.
+@item
+If @var{indexlist} is given, only the polynomials in @var{dpolyarray} specified in @var{indexlist}
+is used in the division. An index placed at the preceding position has priority to be selected.
+If @var{indexlist} is not given, all the polynomials in @var{dpolyarray} are used.
+@item
+@code{dpm_nf_and_quotient()} returns
+such a list as @code{[@var{nm},@var{dn},@var{quo}]}.
+Here @var{nm} is a module polynomial whose coefficients are integral
+in the ground field, @var{dn} is an integral element in the ground
+field and @var{nm}/@var{dn} is the true normal form.
+@var{quo} is an array containing the quotients of the division satisfying
+@var{dn}@var{dpoly}=@var{nm}+@var{quo[0]dpolyarray[0]+...}.
+@item
+When argument @var{fullreduce} has non-zero value,
+all terms are reduced. When it has value 0,
+only the head term is reduced.
+\E
+@end itemize
+
+@example
+[2126] dp_ord([1,0])$
+[2127] S=ltov([(1)*<<0,0,2,0:1>>+(1)*<<0,0,1,1:1>>+(1)*<<0,0,0,2:1>>
++(-1)*<<3,0,0,0:2>>+(-1)*<<0,0,2,1:2>>+(-1)*<<0,0,1,2:2>>
++(1)*<<3,0,1,0:3>>+(1)*<<3,0,0,1:3>>+(1)*<<0,0,2,2:3>>,
+(-1)*<<0,1,0,0:1>>+(-1)*<<0,0,1,0:1>>+(-1)*<<0,0,0,1:1>>
++(-1)*<<3,0,0,0:3>>+(1)*<<0,1,1,1:3>>,(1)*<<0,1,0,0:2>>
++(1)*<<0,0,1,0:2>>+(1)*<<0,0,0,1:2>>+(-1)*<<0,1,1,0:3>>
++(-1)*<<0,1,0,1:3>>+(-1)*<<0,0,1,1:3>>])$
+[2128] U=dpm_sp(S[0],S[1]);
+(1)*<<0,0,3,0:1>>+(-1)*<<0,1,1,1:1>>+(1)*<<0,0,2,1:1>>
++(-1)*<<0,1,0,2:1>>+(1)*<<3,1,0,0:2>>+(1)*<<0,1,2,1:2>>
++(1)*<<0,1,1,2:2>>+(-1)*<<3,1,1,0:3>>+(1)*<<3,0,2,0:3>>
++(-1)*<<3,1,0,1:3>>+(-1)*<<0,1,3,1:3>>+(-1)*<<0,1,2,2:3>>
+[2129] dpm_nf(U,S,1);
+0
+[2130] L=dpm_nf_and_quotient(U,S)$
+[2131] Q=L[2]$
+[2132] D=L[1]$
+[2133] D*U-(Q[1]*S[1]+Q[2]*S[2]);
+0
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{dpm_sp},
+@fref{dp_ord}.
+@end table
+
+
 \JP @node dp_hm dp_ht dp_hc dp_rest,,, グレブナ基底に関する函数
 \EG @node dp_hm dp_ht dp_hc dp_rest,,, Functions for Groebner basis computation
 @subsection @code{dp_hm}, @code{dp_ht}, @code{dp_hc}, @code{dp_rest}
@@ -3367,6 +3739,88 @@ The next equations hold for a distributed polynomial @var{p}.
 (1512)*<<4,0,1>>+(315)*<<4,0,0>>+(-4000)*<<0,0,2>>+(-2800)*<<0,0,1>>
 +(-490)*<<0,0,0>>
 @end example
+
+\JP @node dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest,,, グレブナ基底に関する函数
+\EG @node dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest,,, Functions for Groebner basis computation
+@subsection @code{dpm_hm}, @code{dpm_ht}, @code{dpm_hc}, @code{dpm_hp}, @code{dpm_rest}
+@findex dpm_hm
+@findex dpm_ht
+@findex dpm_hc
+@findex dpm_hp
+@findex dpm_rest
+
+@table @t
+@item dpm_hm(@var{dpoly})
+\JP :: 加群多項式の頭単項式を取り出す. 
+\EG :: Gets the head monomial of a module polynomial.
+@item dpm_ht(@var{dpoly})
+\JP :: 加群多項式の頭項を取り出す. 
+\EG :: Gets the head term of a module polynomial.
+@item dpm_hc(@var{dpoly})
+\JP :: 加群多項式の頭係数を取り出す. 
+\EG :: Gets the head coefficient of a module polynomial.
+@item dpm_hp(@var{dpoly})
+\JP :: 加群多項式の頭位置を取り出す. 
+\EG :: Gets the head position of a module polynomial.
+@item dpm_rest(@var{dpoly})
+\JP :: 加群多項式の頭単項式を取り除いた残りを返す. 
+\EG :: Gets the remainder of a module polynomial where the head monomial is removed.
+@end table
+
+@table @var
+\BJP
+@item return
+@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : 加群多項式,
+@code{dp_hc()} : 数または多項式
+@item dpoly
+加群多項式
+\E
+\BEG
+@item return
+@code{dpm_hm()}, @code{dpm_ht()}, @code{dpm_rest()} : module polynomial
+@code{dpm_hc()} : monomial
+@item dpoly
+distributed polynomial
+\E
+@end table
+
+@itemize @bullet
+\BJP
+@item
+これらは, 加群多項式の各部分を取り出すための函数である. 
+@item
+@code{dpm_hc()} は, @code{dpm_hm()} の, 標準基底に関する係数である単項式を返す.
+スカラー係数を取り出すには, さらに @code{dp_hc()} を実行する.
+@item
+@code{dpm_hp()} は, 頭加群単項式に含まれる標準基底のインデックスを返す.
+\E
+\BEG
+@item
+These are used to get various parts of a module polynomial.
+@item
+@code{dpm_hc()} returns the monomial that is the coefficient of @code{dpm_hm()} with respect to the
+standard base.
+For getting its scalar coefficient apply @code{dp_hc()}.
+@item
+@code{dpm_hp()} returns the index of the standard base conteind in the head module monomial.
+\E
+@end itemize
+
+@example
+[2126] dp_ord([1,0]); 
+[1,0]
+[2127] F=2*<<1,2,0:2>>-3*<<1,0,2:3>>+<<2,1,0:2>>;
+(1)*<<2,1,0:2>>+(2)*<<1,2,0:2>>+(-3)*<<1,0,2:3>>
+[2128] M=dpm_hm(F);
+(1)*<<2,1,0:2>>
+[2129] C=dpm_hc(F);
+(1)*<<2,1,0>>
+[2130] R=dpm_rest(F);
+(2)*<<1,2,0:2>>+(-3)*<<1,0,2:3>>
+[2131] dpm_hp(F);
+2
+@end example
+
 
 \JP @node dp_td dp_sugar,,, グレブナ基底に関する函数
 \EG @node dp_td dp_sugar,,, Functions for Groebner basis computation
@@ -3528,6 +3982,43 @@ Used for finding candidate terms at reduction of polynomials.
 \EG @item References
 @fref{dp_red dp_red_mod}.
 @end table
+
+\JP @node dpm_redble,,, グレブナ基底に関する函数
+\EG @node dpm_redble,,, Functions for Groebner basis computation
+@subsection @code{dpm_redble}
+@findex dpm_redble
+
+@table @t
+@item dpm_redble(@var{dpoly1},@var{dpoly2})
+\JP :: 頭項どうしが整除可能かどうか調べる. 
+\EG :: Checks whether one head term is divisible by the other head term.
+@end table
+
+@table @var
+@item return
+\JP 整数
+\EG integer
+@item dpoly1  dpoly2
+\JP 加群多項式
+\EG module polynomial
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@var{dpoly1} の頭項が @var{dpoly2} の頭項で割り切れれば 1, 割り切れなければ
+0 を返す. 
+@item
+多項式の簡約を行う際, どの項を簡約できるかを探すのに用いる. 
+\E
+\BEG
+@item
+Returns 1 if the head term of @var{dpoly2} divides the head term of
+@var{dpoly1}; otherwise 0.
+@item
+Used for finding candidate terms at reduction of polynomials.
+\E
+@end itemize
 
 \JP @node dp_subd,,, グレブナ基底に関する函数
 \EG @node dp_subd,,, Functions for Groebner basis computation
@@ -3896,6 +4387,46 @@ make the result integral.
 \EG @item References
 @fref{dp_mod dp_rat}.
 @end table
+
+\JP @node dpm_sp,,, グレブナ基底に関する函数
+\EG @node dmp_sp,,, Functions for Groebner basis computation
+@subsection @code{dpm_sp}
+@findex dpm_sp
+
+@table @t
+@item dpm_sp(@var{dpoly1},@var{dpoly2}[|coef=1])
+\JP :: S-多項式の計算
+\EG :: Computation of an S-polynomial
+@end table
+
+@table @var
+@item return
+\JP 加群多項式またはリスト
+\EG module polynomial or list
+@item dpoly1  dpoly2
+\JP 加群多項式
+\EG module polynomial
+\JP 分散表現多項式
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@var{dpoly1}, @var{dpoly2} の S-多項式を計算する. 
+@item
+オプション @var{coef=1} が指定されている場合, @code{[S,t1,t2]} なるリストを返す.
+ここで, @code{t1}, @code{t2} はS-多項式を作る際の係数単項式で @code{S=t1 dpoly1-t2 dpoly2}
+を満たす.
+\E
+\BEG
+@item
+This function computes the S-polynomial of @var{dpoly1} and @var{dpoly2}.
+@item
+If an option @var{coef=1} is specified, it returns a list @code{[S,t1,t2]}, 
+where @code{S} is the S-polynmial and @code{t1}, @code{t2} are monomials satisfying @code{S=t1 dpoly1-t2 dpoly2}.
+\E
+@end itemize
+
 \JP @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, グレブナ基底に関する函数
 \EG @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, Functions for Groebner basis computation
 @subsection @code{p_nf}, @code{p_nf_mod}, @code{p_true_nf}, @code{p_true_nf_mod}
