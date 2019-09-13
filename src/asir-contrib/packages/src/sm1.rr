@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.13 2019/08/31 06:36:28 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.14 2019/09/09 23:39:52 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -121,6 +121,7 @@ localf init_Sm1_proc $
 localf laplace $
 localf add_d$
 localf regular_triangulation$
+localf mod_reduction$
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
 def init_Sm1_proc() {
@@ -774,6 +775,7 @@ def reduction(A) {
   if (type(A) != 4) {
    error("sm1. reduction(A|proc=p): A must be a list.");
   }
+  if (length(A) == 2) return mod_reduction(A | option_list=getopt());
   AA = [rtostr(A[0])];
   AA = append(AA,[ map(rtostr,A[1]) ]);
   AA = append(AA, cdr(cdr(A)));
@@ -1977,6 +1979,31 @@ def regular_triangulation(AW) {
     Ans=cons(base_set_minus(DV,Q),Ans);
   }
   return [Ans,G[1],G[0],DV];
+}
+
+def mod_reduction(A) {
+  SM1L_FIND_PROC(P);
+  A=map(matrix_matrix_to_list,A);
+  /* check the arguments */
+  if (type(A) != 4) {
+   error("sm1.reduction_mod(A|ringvar=p): A must be a list.");
+  }
+//  auto_reduce(1);
+//  sm1(P," [(parse) [(getenv) (HOME)] extension (/this19/misc-2019/09/hgs/sred.sm1) 2 cat_n pushfile] extension ");
+
+  if (type(getopt(ring_var)) > 0) {
+     Ring_var = rtostr(getopt(ring_var));
+  }else{
+     Ring_var = "ring_var_for_asir";
+  }
+  sm1(P," [(CurrentRingp)] pushEnv /env_for_asir set ");
+  sm1(P,sprintf(" %a ring_def ",Ring_var));
+  push_int0(P,A);
+  sm1(P," mod_reduction* ");
+  ox_check_errors2(P);
+  Ans = pop(P);  /* Throw away Ans[3] */
+  sm1(P," env_for_asir popEnv ");
+  return([Ans[0],Ans[1],Ans[2],A[1]]);
 }
 
 endmodule;

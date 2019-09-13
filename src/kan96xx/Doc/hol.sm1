@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.28 2012/10/12 01:20:29 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.29 2019/08/31 06:36:28 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -2003,6 +2003,215 @@ message-quiet
   $   (x,y) [[(Dx) 1 (Dy) 1]]] /ggg set $
   $ ((1-x-y)^2*Dx*Dy) ggg gb.reduction_noh :: $
 ]] putUsages
+
+%% 2019.09
+/toe_ {
+  /arg1 set
+  [/L /ans] pushVariables
+  [
+     arg1 /L set
+     L length 0 eq {
+       /ans [ ] def
+     }{
+       L 0 get tag 6 eq {
+         L toe_.for_vec_of_vec /ans set
+       }{
+         /ans [(toe_) L] gbext def
+       } ifelse
+     } ifelse
+     ans /arg1 set
+  ] pop
+  arg1
+} def
+[(toe_)
+ [(vector toe_ <<sparse form of the vector>>)
+  (<<list of vectors>> toe_ <<sparse form of the vectors>>)
+  (Example: [[[(x*y+1) (x*y)] , [(1) (x)]] (x,y)] gb /gg set , gg 0 get toe_ reducedBase { 2 tovec.with_size } map ::)
+  (cf. tovec.with_size, toVectors)
+ ]
+] putUsages
+
+/toe_.for_vec_of_vec {
+  /arg1 set
+  [/i /L] pushVariables
+  [
+     arg1 /L set
+     [ 1 1 L length {
+        /i set
+        [(toe_) L i 1 sub get] gbext
+       } for
+     ] /arg1 set 
+  ]pop
+  popVariables
+  arg1
+} def
+
+/tovec.with_size {
+  /arg2 set
+  /arg1 set
+  [/L /nn /ans /L2 ] pushVariables
+  [
+     arg1 /L set
+     arg2 /nn set
+     L tag 6 eq {
+       L {nn tovec.with_size} map /ans set
+     } {
+       L nn tovec.with_size.single /ans set
+     } ifelse
+     ans /arg1 set
+   ] pop
+  popVariables
+  arg1
+} def
+
+[(tovec.with_size)
+ [ (<<sparse vector>> size tovec.with_size vector)
+   (<<vector of sparse vectors>> size tovec.with_size <<vector of vectors>>)
+   (cf. toe_)
+ ]
+] putUsages
+
+/tovec.with_size.single {
+  /arg2 set
+  /arg1 set
+  [/L /nn /ans /L2 /myenv] pushVariables
+  [
+    arg1 /L set
+    arg2 /nn set
+%    [ (CurrentRingp) ] pushEnv /myenv set   L getRing ring_def 
+    L toVectors /L set
+    L length nn lt {
+      L [L length 1 nn 1 sub {pop (0).} for] join /L2 set
+    } { /L2 L def } ifelse
+%    myenv popEnv
+  ] pop
+  L2 /arg1 set
+  popVariables
+  arg1
+} def
+
+/mod_reduction {
+  /arg2 set
+  /arg1 set
+  [/hh /gg /nn /gge /hhe /rr] pushVariables
+  [
+    arg1 /hh set
+    arg2 /gg set
+    [hh gg] message %%%for debug
+    [hh {tag} map gg { {tag} map } map] message %%% for debug
+    hh length /nn set
+    gg toe_ /gge set
+    [(toe_) hh] gbext /hhe set
+    [hhe gge] message
+    hhe gge reduction /rr set
+
+    [rr 0 get nn tovec.with_size ,
+     rr 1 get ,
+     rr 2 get {nn tovec.with_size} map ,
+     rr 3 get {nn tovec.with_size} map 
+    ] 
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% test input.
+%[ [[(x^2) (y)] [(0) (y^2)]] (x,y)] gb /ff set ff getRing ring_def [(x^2+1). (y^2+1).] /hh set hh ff 0 get mod_reduction /ans set
+
+[(mod_reduction)
+ [(vector <<gb of submodules>> mod_reduction [r c0 s reducers] )
+  $r = c0 <<vector>> + <<inner product of s and reducers>>$
+  $vector and gb must be given by the non-sparse form (without e_)$
+  (String input is not accepted.)
+  (Example: [(AutoReduce) 1] system_variable [ [[(x^2) (y)] [(0) (y^2)]] (x,y)] gb /ff set ff getRing ring_def [(x^2+1). (y^2+1).] /hh set hh ff 0 get mod_reduction /ans set)
+  (cf. toe_)
+ ]
+] putUsages
+
+%% 2019.09.08   transform string to poly recursively. cf. misc-2019/09/hgs/sred.sm1
+/to_poly {
+  /arg1 set
+  [/L /ans] pushVariables
+  [
+    arg1 /L set
+    L tag 5 eq {  % string
+       L . /ans set
+    } {
+      L tag 6 eq { % list
+        L { to_poly } map /ans set
+      }{
+        L tag 1 eq , L tag 15 eq , or { % int32 or univInt
+          L toString to_poly /ans set
+        }{
+          L /ans set
+        } ifelse
+      }ifelse
+    } ifelse
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+% 
+/mod_reduction* {
+  /arg1 set
+  [/in-mod_reduction* /aa /ans  /vv
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+
+    /aa arg1 def
+    aa isArray { } { ( << array >> mod_reduction*) error } ifelse
+    aa length 2 lt {
+      (<< array whose length >= 2 >> mod_reduction*) error
+    } { } ifelse
+    aa 0 get isArray { }
+    {
+       /mod_reduction*.LLL2 goto
+    } ifelse
+    aa length 2 eq {
+      aa mod_reduction*.two.args  /ans set
+      /mod_reduction*.LLL goto
+    } { } ifelse
+
+    /mod_reduction*.LLL2
+    aa 2 get /vv set
+    aa 2 get tag , StringP eq {
+     aa 2 , [vv to_records pop],  put
+    } { } ifelse
+    aa reduction* /ans set 
+
+    /mod_reduction*.LLL
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1  
+} def 
+
+
+[(mod_reduction*)
+[([f base] mod_reduction* [h c0 syz input])
+ ([f base v] mod_reduction* [h c0 syz input])
+ ([f base v weight] mod_reduction* [h c0 syz input])
+ (mod_reduction* is an user interface for mod_reduction.)
+ (cf. reduction*)
+ (Example 1. [ [(x) (y+1)] [ [(x) (0)] [(0) (y)]] (x,y)] mod_reduction* ::)
+ (Example 2. [ [[(x^2) (y)] [(0) (y^2)]] (x,y)] gb /ff set ff getRing ring_def [(x^2+1). (y^2+1).] /hh set, [hh, ff 0 get] mod_reduction* /ans set)
+]] putUsages
+
+/mod_reduction*.two.args {
+  /arg1 set
+  [/L ] pushVariables
+  [
+    arg1 /L set
+    L 0 get to_poly , L 1 get to_poly , mod_reduction 
+    /arg1 set
+  ] popVariables
+  arg1
+} def
 
 ( ) message-quiet ;
 
