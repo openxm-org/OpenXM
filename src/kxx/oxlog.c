@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.9 2001/05/06 07:53:00 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.10 2003/11/20 07:18:41 takayama Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -99,6 +99,14 @@ int main(int argc, char *argv[])
 	  fprintf(stderr,"\n");
 	}
     */
+   /* dirty workaround of the bug of xterm -iconic on XQuartz */
+    for (i=2; i<argc; i++) {
+      if (getenv("OX_XTERM_GEOMETRY")!=NULL) {
+	if ((strcmp(argv[i],"-icon")==0) || (strcmp(argv[i],"-iconic")==0)) {
+	  argv[i] = "-rv";
+	}
+      }
+     }
 
     execve(oxname, argv+1,environ);
 
