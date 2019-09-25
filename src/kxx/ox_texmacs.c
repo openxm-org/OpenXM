@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.44 2019/03/28 21:19:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.45 2019/05/24 02:25:12 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,9 +22,9 @@
 /*
 #define DEBUG 
 */
-/*
+
 #define DEBUG2
-*/
+
 
 /* Type of View part (user interface engine) */
 #define  GENERIC      0   /* DEBUG, xml */
@@ -586,7 +586,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     }
 
     /* 2019.03.28 for jupyter */
-    if ((mystrncmp(&(s[start]),"base_prompt") != 0)
+    if ((View == V_JUPYTER) && (mystrncmp(&(s[start]),"base_prompt") != 0)
         &&(mystrncmp(&(s[start]),"version()") != 0)) {
       if (Sss == NULL) {
           Sss = (char *)sGC_malloc(Sss_size);
