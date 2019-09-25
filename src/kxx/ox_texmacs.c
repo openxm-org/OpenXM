@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.45 2019/05/24 02:25:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.46 2019/09/25 06:29:10 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,9 +22,9 @@
 /*
 #define DEBUG 
 */
-
+/*
 #define DEBUG2
-
+*/
 
 /* Type of View part (user interface engine) */
 #define  GENERIC      0   /* DEBUG, xml */
