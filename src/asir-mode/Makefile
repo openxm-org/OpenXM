@@ -1,3 +1,4 @@
+# $OpenXM$
 BINDIR=../../bin
 SHAREDIR=../../share
 OpenXM_contrib2=../../../OpenXM_contrib2
