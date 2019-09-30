@@ -11,6 +11,10 @@ emacs/asir for MacOS X.
 3. Login again and start emacs. Open a file with .rr extension, e.g., emacs test.rr &
    Your emacs will have a menu "asir".
 
+Note:
+If you do not want to load names.rr (the standard library) automatically,
+do as follows after 2
+   make norc-fix
 
 ---------
 0. GUI版の emacs を持っていない場合は homebrew などで install する 
@@ -23,7 +27,11 @@ emacs/asir for MacOS X.
 
 3. 再度 login して, emacs で  .rr を拡張子に持つファイルを開くと emacs のメニューに "asir" メニューが出ているはずです.
 
-
+Note:
+asir に names.rr (標準ライブラリ) を自動ロードしない場合は,
+2. の最後に 
+    make norc-fix
+     
 -------- trouble shoot.
 
 
@@ -35,4 +43,4 @@ pushd ../rc ; make  ; source ./dot.bashrc ; popd
 cd asir-mode
 make build-for-mac
 
-$OpenXM: OpenXM/src/asir-mode/install.txt,v 1.1 2019/09/30 03:06:09 takayama Exp $
+$OpenXM: OpenXM/src/asir-mode/install.txt,v 1.2 2019/09/30 04:31:27 takayama Exp $

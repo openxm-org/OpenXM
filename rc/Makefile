@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.28 2019/03/27 05:00:19 noro Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.29 2019/09/30 02:42:57 takayama Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
@@ -104,5 +104,9 @@ install-emacs-asir-on-mac: all-scripts
 		echo "export PATH=~/bin:$$PATH" >>~/.bash_profile ; \
 		echo "~/bin is added to the path."; \
 	fi
-	~/bin/openxm use-asir-mode.sh
+	~/bin/openxm use-asir-mode.sh --local-yes
 	@echo "Installation completed. Login again or do source ./dot.bashrc to start emacs/asir"
+
+norc-fix:
+	pushd ../bin ; mv openxm openxm.orig ; sed -e 's/ASIR_CONFIG/#ASIR_CONFIG/g' openxm.orig >openxm ; chmod +x openxm ; popd
+

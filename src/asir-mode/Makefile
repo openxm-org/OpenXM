@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-mode/Makefile,v 1.3 2019/09/30 03:06:09 takayama Exp $
+# $OpenXM: OpenXM/src/asir-mode/Makefile,v 1.4 2019/09/30 04:31:27 takayama Exp $
 BINDIR=../../bin
 SHAREDIR=../../share
 OpenXM_contrib2=../../../OpenXM_contrib2
@@ -20,7 +20,7 @@ build-for-mac:
 		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* OpenXM/rc \
 		    OpenXM/bin \
 			OpenXM/lib/cfep OpenXM/lib/sm1/bin \
-			OpenXM/src/jupyter )  | tar xvf -)
+			OpenXM/src/jupyter OpenXM/src/cfep/Samples OpenXM/share)  | tar xvf -)
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
 		  tar cf - OpenXM/lib/asir  )  | tar xvf -)
 	(cd work/OpenXM/rc ; make clean)
@@ -42,8 +42,12 @@ build-for-mac:
 	(cp ${OpenXM_HOME}/bin/ox_cpp work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox_pari work/OpenXM/bin)
 	(mkdir -p work/OpenXM/lib/sm1 ; cp -r ${OpenXM_HOME}/lib/sm1/*.sm1 work/OpenXM/lib/sm1)
+	mkdir -p work/Samples
+	(cp ${OpenXM_HOME}/src/cfep/Samples/circle*.rr work/Samples)
+	@echo "  "
+	@echo "  "
 	@echo "Generate diskimage by hand. Name should be emacs-asir.dmg.gz"
-	@echo "Copy work/OpenXM to the image."	
+	@echo "Copy work/OpenXM work/Samples to the image."	
 
 clean:
 	rm -rf work
