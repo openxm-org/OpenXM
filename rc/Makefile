@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.29 2019/09/30 02:42:57 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.30 2019/09/30 06:11:05 takayama Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
@@ -109,4 +109,6 @@ install-emacs-asir-on-mac: all-scripts
 
 norc-fix:
 	pushd ../bin ; mv openxm openxm.orig ; sed -e 's/ASIR_CONFIG/#ASIR_CONFIG/g' openxm.orig >openxm ; chmod +x openxm ; popd
+	cp ../bin/openxm ~/bin
+
 
