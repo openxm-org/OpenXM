@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-mode/Makefile,v 1.3 2019/09/30 03:06:09 takayama Exp $
 BINDIR=../../bin
 SHAREDIR=../../share
 OpenXM_contrib2=../../../OpenXM_contrib2
@@ -20,7 +20,7 @@ build-for-mac:
 		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* OpenXM/rc \
 		    OpenXM/bin \
 			OpenXM/lib/cfep OpenXM/lib/sm1/bin \
-			OpenXM/doc/cfep )  | tar xvf -)
+			OpenXM/src/jupyter )  | tar xvf -)
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
 		  tar cf - OpenXM/lib/asir  )  | tar xvf -)
 	(cd work/OpenXM/rc ; make clean)
@@ -36,7 +36,7 @@ build-for-mac:
 	(cp ${OpenXM_HOME}/bin/ox100start work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/oxlog work/OpenXM/bin)
-	(cp ${OpenXM_HOME}/bin/nkf work/OpenXM/bin)
+	-(cp ${OpenXM_HOME}/bin/nkf work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/sm1 work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox_k0 work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox_cpp work/OpenXM/bin)
