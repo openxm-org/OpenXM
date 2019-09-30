@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-mode/use-asir-mode.sh,v 1.2 2016/02/12 02:43:33 takayama Exp $
+# $OpenXM: OpenXM/src/asir-mode/use-asir-mode.sh,v 1.3 2019/06/12 06:14:20 takayama Exp $
 
 _ok_local() {
 	echo "------------------------------------------------------------------"
@@ -18,7 +18,7 @@ _ok_local() {
 
 _install_local() {
 	mkdir -p $HOME/.emacs.d/OpenXM
-	cp $OpenXM_HOME/share/emacs/asir-mode.el $HOME/.emacs.d/OpenXM
+	sed -e 's/(insert "asir")/(insert "openxm asir")/g' $OpenXM_HOME/share/emacs/asir-mode.el >$HOME/.emacs.d/OpenXM/asir-mode.el
 	cat $OpenXM_HOME/share/emacs/use-asir-mode-local.txt >>$HOME/.emacs.d/init.el
 }
 

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.27 2007/11/27 22:26:29 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.28 2019/03/27 05:00:19 noro Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
@@ -95,3 +95,14 @@ copy-non-free: all-global-shell-scripts
 	-mkdir ${prefix}
 	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/junk-list `cat OpenXM/rc/non-free-list`) | (cd ${prefix} ; tar xvzf -)
 
+install-emacs-asir-on-mac: all-scripts
+	-mkdir -p ~/bin
+	cp ../bin/openxm ~/bin
+	if type "openxm" >/dev/null 2>&1; then \
+		echo "openxm is already in the path."; \
+	else \
+		echo "export PATH=~/bin:$$PATH" >>~/.bash_profile ; \
+		echo "~/bin is added to the path."; \
+	fi
+	~/bin/openxm use-asir-mode.sh
+	@echo "Installation completed. Login again or do source ./dot.bashrc to start emacs/asir"
