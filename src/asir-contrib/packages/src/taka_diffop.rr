@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.4 2004/08/02 05:35:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.5 2004/08/03 02:32:34 takayama Exp $ */
 #define DEBUG
 
 #define ANK_SIZE 20
@@ -12,6 +12,7 @@ module taka_dr1;
 localf diff2 $
 localf mult$
 localf in$
+localf in_coef$
 localf division$
 localf gcd$
 localf act$
@@ -62,11 +63,20 @@ def in(F) {
   C = coef(F,D,dx);
   return( red(C*dx^D/Dn) );
 }
+def in_coef(F) {
+  Dn = dn(F); F=nm(F);
+  D = deg(F,dx);
+  C = coef(F,D,dx);
+  return( red(C/Dn) );
+}
 
 def division(F,G) {
    Q = 0; R = F;
-   while ((R != 0) && (deg(nm(R),dx) >= deg(nm(G),dx))) {
-      D = red(in(R)/in(G));
+   DegG = deg(nm(G),dx);
+   while ((R != 0) && (deg(nm(R),dx) >= DegG)) {
+      /* D = red(in(R)/in(G));  It does not work for complex coef */
+      DegR = deg(nm(R),dx);
+      D = red(in_coef(R)/in_coef(G))*dx^(DegR-DegG);
       Q = red(Q+D);
       R = red(R-mult(D,G));
    }
