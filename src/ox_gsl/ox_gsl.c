@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.14 2018/06/07 11:49:51 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.15 2018/06/08 00:03:43 takayama Exp $
 */
 
 #include <stdio.h>
@@ -10,6 +10,7 @@
 #include <math.h>
 #include "ox_gsl.h"
 #include "call_gsl.h" // need only when you bind call_gsl functions.
+#include "call_gsl_sf.h"
 
 OXFILE *fd_rw;
 
@@ -402,6 +403,8 @@ int sm_executeFunction()
         call_gsl_monte_plain_miser_vegas_integrate(2);
     }else if (strcmp(func->s,"gsl_odeiv_step_rk4")==0) {
         call_gsl_odeiv_step("rk4");
+    }else if (strcmp(func->s,"gsl_sf_gamma_inc")==0) {
+        call_gsl_sf_gamma_inc();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;

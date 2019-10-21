@@ -5,14 +5,15 @@ LN_S = @LN_S@
 TARGET = @TARGET@
 CC = @CC@
 
-CALL_GSL=call_gsl.o call_gsl_ode.o
+CALL_GSL=call_gsl.o call_gsl_ode.o call_gsl_sf.o
+CALL_GSL_H=call_gsl.h call_gsl_sf.h
 
 all: ${TARGET}
 
 ox_gsl: ox_gsl.o ${CALL_GSL} ox_eval.o mysig.o
 	${CC} ${CFLAGS} -o ox_gsl ox_gsl.o ${CALL_GSL} ox_eval.o mysig.o ${LIBS}
 
-.c.o: ox_gsl.h mysig.h
+.c.o: ox_gsl.h mysig.h ${CALL_GSL_H}
 	${CC} ${CFLAGS} -c -g $<
 
 clean:
@@ -20,4 +21,4 @@ clean:
 distclean: clean
 	rm -f .configure_done
 
-# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.3 2018/06/04 06:39:26 ohara Exp $
+# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.4 2018/06/08 00:03:43 takayama Exp $
