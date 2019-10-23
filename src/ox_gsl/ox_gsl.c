@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.15 2018/06/08 00:03:43 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.16 2019/10/21 05:37:20 takayama Exp $
 */
 
 #include <stdio.h>
@@ -405,6 +405,8 @@ int sm_executeFunction()
         call_gsl_odeiv_step("rk4");
     }else if (strcmp(func->s,"gsl_sf_gamma_inc")==0) {
         call_gsl_sf_gamma_inc();
+    }else if (strcmp(func->s,"gsl_eigen_nonsymmv")==0) {
+        call_gsl_eigen_nonsymmv();
     }else {
         push(make_error2("sm_executeFunction, unknown function",NULL,0,-1));
         return -1;

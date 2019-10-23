@@ -1,0 +1,132 @@
+/*$OpenXM$ */
+
+module gsl;
+
+/* ------------ list of local functions ---------- */
+localf init_gsl_proc$
+localf which_ox_gsl$
+localf get_gsl_proc$
+localf set_gsl_proc$
+localf find_proc$
+localf start$
+localf start_unix$
+localf start_windows$
+
+localf integration_qags$
+localf test1$
+localf eigen_nonsymmv$
+localf test2$
+localf list_to_complex$
+/*  ------------ static variables ---------------- */
+static GSL_proc$
+def init_gsl_proc() {
+  GSL_proc = -1$
+}
+
+/* Functions to get and set static variables out of the module */
+def get_gsl_proc() {
+  return GSL_proc;
+}
+
+def set_gsl_proc(A) {
+  GSL_proc = A;
+}
+
+#define    GSL_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = find_proc();\
+                          }
+
+def which_ox_gsl() {
+  L = ox_get_serverinfo();
+  for (I=0; I<length(L); I++) {  
+    if (base_position("ox_gsl",L[I][1][0])>0) return L[I][0];
+  }
+  return -1;
+}
+
+def find_proc() {
+  /*! extern GSL_proc; */
+  if (GSL_proc == -1) {
+     GSL_proc = which_ox_gsl();
+     if (GSL_proc < 0) GSL_proc = start();
+  }
+  return(GSL_proc);
+}
+/* Search : oxPrintMessage, see cmoDebugCMO, too. */
+/************** end of configure *******************************/
+
+def start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return start_windows(0);
+  else
+    return start_unix();
+}
+
+def start_unix() {
+ extern Xm_noX;
+ /*! extern Sm1_proc; */
+ if (Xm_noX) {
+   P = ox_launch_nox(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
+ }else{
+   P = ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
+ }
+ if (Xm_noX) {
+   sm1(P," oxNoX ");
+ }
+ ox_check_errors(P);
+ GSL_proc = P;
+ return(P);
+}
+
+def start_windows(U) {
+  error("Not implemeted.");
+}
+
+def integration_qags(F,Low,Top) {
+  GSL_FIND_PROC(Pid);
+  ox_cmo_rpc(Pid,"gsl_integration_qags",F,deval(Low*1.0),deval(Top*1.0));
+  Ans=ox_pop_cmo(Pid);
+  return Ans;
+}
+def test1() {
+  integration_qags(quote(log(x)/x^(1/2)),0.01,1);
+}
+
+def list_to_complex(L,Level) {
+  if (type(L)<4) return L;
+  if (Level == 0) return L[0]+@i*L[1];
+  if (Level >= 1) return map(list_to_complex,L,Level-1);
+}
+def eigen_nonsymmv(Mat) {
+  GSL_FIND_PROC(Pid);
+  Mat_double = matrix_list_to_matrix(Mat);
+  M=size(Mat_double)[0]; N=size(Mat_double)[1];
+  if (M != N) error("eigen_nonsymmv accepts only square matrix.");
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Mat_double[I][J] = deval(1.0*Mat_double[I][J]);
+    }
+  }
+  ox_cmo_rpc(Pid,"gsl_eigen_nonsymmv",base_flatten(Mat_double));
+  Ans2=ox_pop_cmo(Pid);
+  Ans1=ox_pop_cmo(Pid);
+  return [list_to_complex(Ans1,1),list_to_complex(Ans2,2)];
+}
+def test2() {
+  Ans=eigen_nonsymmv(M=matrix_list_to_matrix([[1,0],[3,4]]));
+  N = size(M)[0];
+  printf("eigenvalues=%a\neigenvectors=%a\n",Ans[0],Ans[1]);
+  for (I=0; I<N; I++) {
+    printf("Is it zero? %a\n",(M-Ans[0][I]*matrix_identity_matrix(N))*matrix_list_to_matrix(Ans[1][I]));
+  }
+  return Ans;
+}
+
+endmodule;
+
+gsl.init_gsl_proc()$
+
+end$
+

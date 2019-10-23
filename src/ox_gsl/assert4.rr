@@ -1,0 +1,10 @@
+/* $OpenXM$ */
+#define myfail(s) printf("%a fails, Ans0=%a, Ans=%a\n",s,Ans0,Ans)
+#define dcmp2(a,b,e) (deval(abs(1-a/b))>e?1:0)
+Pid=ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
+// Try 1.
+ox_cmo_rpc(Pid,"gsl_eigen_nonsymmv",[1.0, 2.0, 3.0, 4.0]);
+Ans2=ox_pop_cmo(Pid);
+Ans1=ox_pop_cmo(Pid);
+end$
+

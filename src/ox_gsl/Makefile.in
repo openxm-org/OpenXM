@@ -5,7 +5,7 @@ LN_S = @LN_S@
 TARGET = @TARGET@
 CC = @CC@
 
-CALL_GSL=call_gsl.o call_gsl_ode.o call_gsl_sf.o
+CALL_GSL=call_gsl.o call_gsl_ode.o call_gsl_sf.o call_gsl_eigen.o
 CALL_GSL_H=call_gsl.h call_gsl_sf.h
 
 all: ${TARGET}
@@ -21,4 +21,7 @@ clean:
 distclean: clean
 	rm -f .configure_done
 
-# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.4 2018/06/08 00:03:43 takayama Exp $
+link:
+	ln -s ../asir-contrib/packages/src/gsl.rr .
+
+# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.5 2019/10/21 05:37:20 takayama Exp $
