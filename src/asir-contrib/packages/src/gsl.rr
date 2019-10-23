@@ -1,4 +1,4 @@
-/*$OpenXM$ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/gsl.rr,v 1.1 2019/10/23 07:00:43 takayama Exp $ */
 
 module gsl;
 
@@ -14,6 +14,7 @@ localf start_windows$
 
 localf integration_qags$
 localf test1$
+localf to_double$
 localf eigen_nonsymmv$
 localf test2$
 localf list_to_complex$
@@ -66,16 +67,12 @@ def start() {
 
 def start_unix() {
  extern Xm_noX;
- /*! extern Sm1_proc; */
  if (Xm_noX) {
    P = ox_launch_nox(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
  }else{
    P = ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_gsl/ox_gsl");
  }
- if (Xm_noX) {
-   sm1(P," oxNoX ");
- }
- ox_check_errors(P);
+// ox_check_errors(P);  //workaround to avoid mathcap error.
  GSL_proc = P;
  return(P);
 }
@@ -99,23 +96,28 @@ def list_to_complex(L,Level) {
   if (Level == 0) return L[0]+@i*L[1];
   if (Level >= 1) return map(list_to_complex,L,Level-1);
 }
+def to_double(L) {
+  if (L==0) return(0.0);
+  if (type(L)<4) return(deval(1.0*L));
+  return map(to_double,L);
+}
 def eigen_nonsymmv(Mat) {
   GSL_FIND_PROC(Pid);
   Mat_double = matrix_list_to_matrix(Mat);
   M=size(Mat_double)[0]; N=size(Mat_double)[1];
   if (M != N) error("eigen_nonsymmv accepts only square matrix.");
-  for (I=0; I<M; I++) {
-    for (J=0; J<N; J++) {
-      Mat_double[I][J] = deval(1.0*Mat_double[I][J]);
-    }
-  }
+  Mat_double=to_double(Mat_double);
+  print(Mat_double);
   ox_cmo_rpc(Pid,"gsl_eigen_nonsymmv",base_flatten(Mat_double));
   Ans2=ox_pop_cmo(Pid);
   Ans1=ox_pop_cmo(Pid);
   return [list_to_complex(Ans1,1),list_to_complex(Ans2,2)];
 }
 def test2() {
-  Ans=eigen_nonsymmv(M=matrix_list_to_matrix([[1,0],[3,4]]));
+  M=[[6.79502,-43.2617,20.7214,0,0,0],[12.7671,-67.4408,21.0846,0,0,0],[45.5035,-358.137,226.992,0,0,0],[0,0,0,6.79502,-43.2617,20.7214],[0,0,0,12.7671,-67.4408,21.0846],[0,0,0,45.5035,-358.137,226.992]];
+  // M=[[1,0],[2,3]];
+  M = matrix_list_to_matrix(M);
+  Ans=eigen_nonsymmv(M);
   N = size(M)[0];
   printf("eigenvalues=%a\neigenvectors=%a\n",Ans[0],Ans[1]);
   for (I=0; I<N; I++) {
