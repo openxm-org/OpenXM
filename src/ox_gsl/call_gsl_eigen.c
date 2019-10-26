@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_gsl/call_gsl_eigen.c,v 1.1 2019/10/23 07:00:43 takayama Exp $ */
 #include <stdio.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
@@ -115,11 +115,11 @@ void call_gsl_eigen_nonsymmv() {
       }
   }
 
-  gsl_vector_complex_free(eval);
-  gsl_matrix_complex_free(evec);
-
   push(gsl_vector_complex_to_cmo_array(eval,n));
   push(gsl_matrix_complex_to_cmo_array_transposed(evec,n,n));
+
+  gsl_vector_complex_free(eval);
+  gsl_matrix_complex_free(evec);
 
   return;
 }

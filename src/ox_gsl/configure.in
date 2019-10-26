@@ -1,4 +1,4 @@
-dnl $OpenXM: OpenXM/src/ox_gsl/configure.in,v 1.2 2018/04/07 03:39:45 takayama Exp $
+dnl $OpenXM: OpenXM/src/ox_gsl/configure.in,v 1.3 2018/04/07 04:39:20 ohara Exp $
 
 AC_INIT
 AC_PREREQ(2.61)
@@ -12,7 +12,7 @@ AC_PATH_XTRA
 TARGET=ox_gsl
 case "${host}" in
 *-apple-darwin*)
-    LIBS="-L../../lib -L/usr/local/lib -lgsl  -lox  -lmpfr -lgmp -lgc"
+    LIBS="-L../../lib -L/usr/local/lib -lgsl  -lcblas -lox  -lmpfr -lgmp -lgc"
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
     ;;
 *)
