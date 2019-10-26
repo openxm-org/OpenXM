@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.147 2019/03/19 00:51:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.148 2019/05/24 02:27:57 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -334,7 +334,8 @@ def number_float_to_rational(X) {
   return oh_number.rats(X | option_list=getopt());
 }
 /*&usage begin: number_floor(X) example: number_floor(1.5); end: */
-def number_floor(X) { return(pari(floor,X)); }
+def number_floor(X) { if ((type(X) <= 1) && (ntype(X) < 4)) return(pari(floor,X)); else {printf("Warning: number_floor(%a[invalid argument]) returns 0\n",X); return 0;}}
+
 /*&usage begin: number_imaginary_part(X) example: number_imaginary_part(1+2*@@i); end: */
 def number_imaginary_part(X) { return(taka_base_imaginary_part(X)); }
 /*&usage begin: number_is_integer(X) example: number_is_integer(2/3); end: */
