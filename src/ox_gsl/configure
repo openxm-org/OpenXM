@@ -3773,7 +3773,7 @@ fi
 TARGET=ox_gsl
 case "${host}" in
 *-apple-darwin*)
-    LIBS="-L../../lib -L/usr/local/lib -lgsl  -lox  -lmpfr -lgmp -lgc"
+    LIBS="-L../../lib -L/usr/local/lib -lgsl  -lcblas -lox  -lmpfr -lgmp -lgc"
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
     ;;
 *)
