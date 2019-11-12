@@ -1109,7 +1109,7 @@ def dnc(C)
   for ( T = C; T != []; T = cdr(T) ) {
     T0 = car(T); N = T0[0];
     M = sdiv(ptozp(N),N);
-    D = ilcm(D,M);
+    D = ilcm(D,nm(M));
   }
   return D;
 }
@@ -1497,7 +1497,7 @@ def distinct_diag(S)
  */
 
 def prob_by_hgm(M,N,PL,SL,X)
-"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...]|options),
+"usage : n_wishartd.prob_by_hgm(M,N,[P1,P2,...],[S1,S2,...],X|options),
    where M is the number of variables, N is the degrees of freedom, 
    Pi is the size of i-th block and Si is the value of i-th (repeated) 
    eigenvalue of Sigma.  
