@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.7 2015/03/24 04:59:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/hgm/so3/src/so3_nc.c,v 1.8 2015/04/02 05:45:41 takayama Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -28,8 +28,10 @@ int so3_usage(void);
 
 #define SO3_QUIET_DEFAULT 0
 #define SO3_Deg_DEFAULT 10
+#define SO3_Log_DEFAULT 0
 int SO3_Quiet = SO3_QUIET_DEFAULT;
 int SO3_Deg = SO3_Deg_DEFAULT;
+int SO3_Log = SO3_Log_DEFAULT;
 #ifdef STANDALONE
 int main(int argc,char *argv[]) {
   double a[3];
@@ -43,6 +45,8 @@ int main(int argc,char *argv[]) {
 	if (strcmp(argv[i],"--quiet")==0) SO3_Quiet = 1;
 	else if (strcmp(argv[i],"--t0")==0) {
 	  i++; sscanf(argv[i],"%lg",&t0);
+	} else if (strcmp(argv[i],"--log")==0) {
+	  SO3_Log = 1;
 	}else if (strcmp(argv[i],"--deg")==0) {
 	  i++; sscanf(argv[i],"%d",&SO3_Deg);
 	  if ((SO3_Deg > MDEG-2) || (SO3_Deg < 0)) {
@@ -56,21 +60,25 @@ int main(int argc,char *argv[]) {
   }
   so3_nc(a,t0,y);
 // oxprintf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
+  if (SO3_Log) oxprintf("log of nc : ");
   oxprintf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
 }
 #else
-void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *deg,double *out) {
+void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *deg,int *log,double *out) {
   double a[3];
   double y[4];
   double t0;
+  int i;
 
   SO3_Quiet = SO3_QUIET_DEFAULT;
   SO3_Deg = SO3_Deg_DEFAULT;
+  SO3_Log = SO3_Log_DEFAULT;
   if (*quiet) SO3_Quiet = 1;
   if (*deg) {
     SO3_Deg = *deg;
     if (!SO3_Quiet) oxprintfe("deg is set to %d\n",SO3_Deg);
   }
+  if (*log) SO3_Log=1;
   t0 = 0.0001;  /* Small enough number seems to be good (Hueristics) */ 
   if (*t0p > 0.0) {
     t0 = *t0p;
@@ -85,8 +93,10 @@ void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *de
   //  oxprintfe("DEBUG: %lf,%lf,%lf,%lf\n",t0,a[0],a[1],a[2]);
   so3_nc(a,t0,y);
 // oxprintf("%lg, %lg, %lg, %lg\n",y[0],y[1],y[2],y[3]);
+  if ((!SO3_Quiet) && SO3_Log) oxprintf("log of nc : ");
   if (!SO3_Quiet) oxprintf("%.15e, %.15e, %.15e, %.15e\n",y[0],y[1],y[2],y[3]);
-  *out = y[0];
+  for (i=0; i<4; i++) out[i] = y[i];
+  return;
 }
 #endif
 
@@ -95,8 +105,8 @@ int so3_usage(void) {
   oxprintfe("   where nc is the normalization constant\n" );
   oxprintfe("   of the Fisher distribution on SO(3) for the diagonal matrix diag(a,b,c).\n");
   oxprintfe("   See http://arxiv.org/abs/1110.0721\n");
-  oxprintfe("Options:  --quiet  --t0 T0 --deg DEG\n");
-  oxprintfe("   Series is evaluated at T0*(a,b,c) and the value is extended to (a,b,c) by diff. eq.\n");
+  oxprintfe("Options:  --quiet  --t0 T0 --deg DEG --log\n");
+  oxprintfe("   Series is evaluated at T0*(a,b,c) and the value is extended to (a,b,c) by diff. eq. With --log, log(nc(a,b,c)) is returned.\n");
   return(0);
 }
 
@@ -171,9 +181,19 @@ void so3_nc(double a[3],double t0,double y[4]) {
     if (status != GSL_SUCCESS) break;
   }
   if (!SO3_Quiet) oxprintfe("t and V   : t=%.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
-  for (i=0; i<4; i++) y[i]=y[i]*exp(SO3_R*t);
-  if (!SO3_Quiet) oxprintfe("V*exp(SO3_R*1): t= %.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
-  if (!SO3_Quiet) oxprintfe("Returned value is V=[so3_nc(a,b,c),  c_a, c_b, c_c]\n");
+
+  if (!SO3_Log) {
+    for (i=0; i<4; i++) y[i]=y[i]*exp(SO3_R*t);
+    if (!SO3_Quiet) oxprintfe("V*exp(SO3_R*1): t= %.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
+    if (!SO3_Quiet) oxprintfe("Returned value is V=[so3_nc(a,b,c),  c_a, c_b, c_c]\n");
+  }else{
+    for (i=0; i<4; i++) y[i]=log(y[i]) + SO3_R*t;
+    if (!SO3_Quiet) oxprintfe("log(V*exp(SO3_R*1)): t= %.5e %.5e %.5e, %.5e %.5e\n", t, y[0], y[1],y[2],y[3]);
+    if (!SO3_Quiet) oxprintfe("Returned value is V=[log(so3_nc(a,b,c)),  log(c_a), log(c_b), log(c_c)]\n");
+    /* test input: ./hgm_so3_nc --t0 0.001 --deg 18 --log 1000 500 50 
+       2019.11.16  when we change the argument number, change also mh-r.c (interface module.
+    */
+  }
 
   gsl_odeiv_evolve_free(e);
   gsl_odeiv_control_free(c);

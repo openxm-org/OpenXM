@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.10 2016/05/30 00:38:18 takayama Exp $
+/* $OpenXM: OpenXM/src/hgm/mh/src/mh-r.c,v 1.11 2017/04/01 12:01:25 takayama Exp $
  R interface module
 */
 
@@ -85,15 +85,15 @@ int Rmh_pFq_gen(int *mp,
   return(0);
 }
 
-void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *deg,double *out);
+void so3_main(double *in1,double *in2,double *in3,double *t0p,int *quiet,int *deg,int *log,double *out);
 void hgm_ko_orthant(int *, double *, double *, double *retv);
 static const R_CMethodDef CallEntries[] = {
   {"Rmh_cwishart_gen", (DL_FUNC) &Rmh_cwishart_gen, 14},
   {"Rmh_set_strategy", (DL_FUNC) &Rmh_set_strategy, 3},
   {"Rmh_pFq_gen", (DL_FUNC) &Rmh_pFq_gen,18},
-  {"so3_main", (DL_FUNC) &so3_main,7},
+  {"so3_main", (DL_FUNC) &so3_main,8},
   {"hgm_ko_orthant", (DL_FUNC) &hgm_ko_orthant,4},
-  NULL
+  {NULL}
 };
   /* Sample.
   {"ggdmc_getAccumulatorMatrix", (DL_FUNC) &ggdmc_getAccumulatorMatrix, 4},
