@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.5 2015/03/22 00:27:51 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.6 2015/03/27 02:36:30 takayama Exp $
 \name{hgm.ncso3}
 \alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -11,7 +11,7 @@
   distribution on SO(3).
 }
 \usage{
-hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0)
+hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0,log=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,6 +35,9 @@ hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0)
      of the normalization constant near the origin.
      If it is 0, a default value is used.
   }
+  \item{log}{
+     If it is 1, then the function returns the log of the normalizing constant.
+  }
 }
 \details{
   The normalization constant c(Theta) 
@@ -48,7 +51,7 @@ hgm.ncso3(a,b,c,t0=0.0,q=1,deg=0)
 %  \code{\link[RCurl]{postForm}}.
 }
 \value{
-The output is c(Theta).
+The output is an array of c(Theta) and its derivatives with respect to Theta_{11},Theta_{22},Theta_{33}. It is the vector C of the reference below. When log=1, the output is an array of log of them.
 }
 \references{
 Tomonari Sei, Hiroki Shibata, Akimichi Takemura, Katsuyoshi Ohara, Nobuki Takayama,
@@ -72,12 +75,12 @@ Nobuki Takayama
 ## =====================================================
 ## Example 1. Computing normalization constant of the Fisher distribution on SO(3)
 ## =====================================================
-hgm.ncso3(1,2,3)
+hgm.ncso3(1,2,3)[1]
 
 ## =====================================================
 ## Example 2. Asteroid data in the paper
 ## =====================================================
-hgm.ncso3(19.6,0.831,-0.671)
+hgm.ncso3(19.6,0.831,-0.671)[1]
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
