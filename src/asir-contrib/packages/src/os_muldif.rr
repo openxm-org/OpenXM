@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.53 2019/08/08 02:33:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.54 2019/08/28 05:10:36 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Aug. 2019)
+ *          Toshio Oshima (Nov. 2007 - Dec. 2019)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -338,6 +338,7 @@ localf divmattex$
 localf dviout0$
 localf myhelp$
 localf isMs$
+localf getline$
 localf showbyshell$
 localf readcsv$
 localf tocsv$
@@ -476,7 +477,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00190807"$
+Muldif.rr="00191201"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -11283,7 +11284,7 @@ def tocsv(L)
 		if(type(LT)==5) LT=vtol(LT);
 		if(type(LT)<4) LT=[LT];
 		for(N=0; LT!=[]; LT=cdr(LT),N++){
-			if(N) str_tb(", ",Tb);
+			if(N) str_tb(",",Tb);
 			if((T=car(LT))==Null) continue;
 			if(type(T)==7){
 				K=str_len(T);
@@ -11371,6 +11372,22 @@ def readcsv(F)
 	if(T) L=m2l(L|flat=1);
 	L=reverse(L);
 	return L;
+}
+
+def getline(ID)
+{
+	if(isint(Maxlen=getopt(Max))>0) Maxlen=1024;
+	if(type(CR=getopt(CR))!=4) CR=[13];
+	if(type(LF=getopt(LF))!=4) LF=[10];
+	S=[];
+	for(I=0; I<1023; I++){
+		C=get_byte(ID);
+		if(C<0) return 0;
+		if(findin(C,CR)>=0) continue;
+		if(findin(C,LF)>=0) break;
+		S=cons(C,S);
+	}
+	return asciitostr(reverse(S));
 }
 
 def showbyshell(S)
