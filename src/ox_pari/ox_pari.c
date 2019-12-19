@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.17 2018/06/04 06:39:26 ohara Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.18 2019/07/25 05:59:15 noro Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -296,16 +296,28 @@ int receive()
   return 0;
 }
 
+#if defined(ANDROID)
+jmp_buf ox_env;
+#else
 sigjmp_buf ox_env;
+#endif
 
 void usr1_handler(int sig)
 {
+#if defined(ANDROID)
+  _longjmp(ox_env,1);
+#else
   siglongjmp(ox_env,1);
+#endif
 }
 
 int main()
 {
+#if defined(ANDROID)
+  if ( _setjmp(ox_env) ) {
+#else
   if ( sigsetjmp(ox_env,~0) ) {
+#endif
     fprintf(stderr,"resetting libpari and sending OX_SYNC_BALL...");
     initialize_stack();
     init_pari();
