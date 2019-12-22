@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.148 2019/05/24 02:27:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.149 2019/10/26 08:12:03 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -1019,6 +1019,18 @@ end: */
 def print_xdvi_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return(taka_xdvi_form(F));
+}
+
+/*&usage begin: print_pdf_form(S)
+ It transforms {S} to a pdf file and previews the file.
+ option:  nopreview=1 does not preview the PDF file. 
+ example: print_pdf_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ example: print_pdf_form(poly_factor(x^10-1));
+ ref: print_tex_form, print_xdvi_form
+end: */
+def print_pdf_form(F) { 
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
+  return(taka_pdf_form(F | option_list=getopt()));
 }
 
 /*&usage begin: print_xv_form(S|input,format)

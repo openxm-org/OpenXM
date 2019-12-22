@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.19 2010/01/22 05:26:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.20 2010/08/03 10:32:43 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -361,6 +361,22 @@ def taka_xv_form(S,Argv) {
   }
   shell(" xv "+F[1]+"."+Format+" &");
   return F;
+}
+
+def taka_pdf_form(S) {
+  F=taka_dvi_form(S,[]);
+  shell(" dvipdfmx "+" -o "+F[1]+".pdf "+F[1]); // +" >>/dev/null & ");
+  if (type(getopt(nopreview))>0) NoPreview=1;
+  else NoPreview=0; 
+  if (NoPreview) return append(F,[F[1]+".pdf"]);
+  if (sysinfo()[0] == "macosx") {
+    shell("open "+F[1]+".pdf");
+  }else if (sysinfo()[0] == "windows") {
+    shell(F[1]+".pdf");
+  }else {
+    shell("xdg-open "+F[1]+".pdf");
+  }
+  return append(F,[F[1]+".pdf"]);
 }
 
 def taka_input_form(S) {

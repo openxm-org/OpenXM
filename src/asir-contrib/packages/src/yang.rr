@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.35 2015/01/08 21:04:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.36 2018/11/18 03:39:31 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -1417,7 +1417,7 @@ def gr(F) {
     }
     R=buchberger_s(map(op,F)|option_list=OPTS);
     G=map(opr,R[0]); 
-    Syzygy=mapat('map',1,opr,R[1]);
+    Syzygy=mapat('map',1,yang.opr,R[1]);
     return [G,Syzygy];
 }
 
