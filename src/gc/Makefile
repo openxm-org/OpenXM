@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.25 2015/09/27 10:50:23 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.26 2015/09/28 05:52:13 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -11,8 +11,7 @@ ATOMIC=libatomic_ops-7.4.0
 DISTFILES=${DISTNAME}.tar.gz ${ATOMIC}.tar.gz
 WRKSRC=work/${DISTNAME}
 # WRKSRC=work/gc-20150803-git/bdwgc
-#PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc-7.diff
-PATCHFILES = gc-cygwin64.diff
+PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2018/gc-7.diff gc-cygwin64.diff
 
 all : build
 
@@ -34,7 +33,7 @@ extract: fetch
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
         for i in ${PATCHFILES} ; do \
-	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+	        cat $$i | (cd ${WRKSRC}; patch -p1) ; \
         done ; \
 	fi
 	@touch work/.patch_done
