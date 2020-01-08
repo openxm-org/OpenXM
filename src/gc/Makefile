@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.26 2015/09/28 05:52:13 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.27 2020/01/04 15:57:37 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -11,7 +11,7 @@ ATOMIC=libatomic_ops-7.4.0
 DISTFILES=${DISTNAME}.tar.gz ${ATOMIC}.tar.gz
 WRKSRC=work/${DISTNAME}
 # WRKSRC=work/gc-20150803-git/bdwgc
-PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2018/gc-7.diff gc-cygwin64.diff
+PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir-gc/gc-7.diff gc-cygwin64.diff
 
 all : build
 
