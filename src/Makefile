@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.185 2019/04/05 12:05:56 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.186 2019/11/12 11:00:04 kondoh Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -9,12 +9,15 @@ RCDIR=../rc
 SHAREDIR=../share
 COPYRIGHTDIR=../Copyright
 
-all: all-util all-gc all-gmp all-mpfr all-mpc all-mpfi all-asir all-asir2000 all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-asir2000 all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
+
+all-asirgc: install-util 
+	(cd asir-gc; ${MAKE} all)
 
 all-gmp: configure-gmp
 	(cd gmp; ${MAKE} all)
@@ -34,7 +37,7 @@ all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-
 all-oxc: configure-oxc install-oxtoolkit 
 	-(cd oxc; ${MAKE} all)
 
-all-asir: configure-asir install-pari install-gmp install-mpfr install-mpc install-mpfi
+all-asir: configure-asir install-pari install-asirgc install-gmp install-mpfr install-mpc install-mpfi
 	(cd asir2018; ${MAKE} all)
 
 all-asir2000: configure-asir2000 install-pari install-gmp install-mpfr install-mpc install-mpfi
@@ -137,6 +140,8 @@ install-util: install-util-bin install-util-lib
 install-gc: all-gc
 	(cd gc; ${MAKE} install)
 
+install-asirgc: all-asirgc
+	(cd asir-gc; ${MAKE} install)
 
 install-gmp: all-gmp
 	(cd gmp; ${MAKE} install)
@@ -246,7 +251,7 @@ install-asir-mode:
 
 clean:
 	-rm ./.configure-links-done
-	-@for i in OpenMath asir-contrib asir-doc asir2000 asir2018 gc gmp gnuplot \
+	-@for i in OpenMath asir-contrib asir-doc asir2000 asir2018 asir-gc gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
                oxmgraph pcc mpfr mpfi ox_cdd ox_pari \
 	           util ${OpenXM_contrib2}/fep ; do \
@@ -254,7 +259,7 @@ clean:
 	done
 
 distclean: clean
-	-@for i in OpenMath asir2000 asir2018 gc gmp gnuplot kan96xx kxx ox_math \
+	-@for i in OpenMath asir2000 asir2018 asir-gc gc gmp gnuplot kan96xx kxx ox_math \
 	           ox_toolkit oxc pari phc phcpack tigers oxmgraph pcc \
                    asir-doc k097 ox_cdd util mpc mpfr mpfi ox_pari ; do \
 		(cd $$i; ${MAKE} distclean); \
