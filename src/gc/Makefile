@@ -1,17 +1,16 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.27 2020/01/04 15:57:37 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.28 2020/01/08 16:07:09 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-# Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
-#DISTNAME=gc-20150803-git
-DISTNAME=gc-7.4.2
-ATOMIC=libatomic_ops-7.4.0
+# Original. https://www.hboehm.info/gc/gc_source/
+DISTNAME=gc-7.6.12
+ATOMIC=libatomic_ops-7.6.10
 DISTFILES=${DISTNAME}.tar.gz ${ATOMIC}.tar.gz
 WRKSRC=work/${DISTNAME}
-# WRKSRC=work/gc-20150803-git/bdwgc
-PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir-gc/gc-7.diff gc-cygwin64.diff
+#PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir-gc/gc-7.diff gc-cygwin64.diff
+PATCHFILES = 
 
 all : build
 
