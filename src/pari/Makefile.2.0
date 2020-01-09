@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.7 2017/03/31 02:50:47 takayama Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.8 2017/03/31 03:17:59 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -42,7 +42,7 @@ configure: patch
 
 build: configure
 	@if [ ! -f work/.build_done ]; then \
-		(cd work/${PARI} ; ${MAKE} lib-sta) ; \
+		(cd work/${PARI} ; env PERL_USE_UNSAFE_INC=1 ${MAKE} lib-sta) ; \
 	fi
 	@touch work/.build_done
 
