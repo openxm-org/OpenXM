@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.24 2017/03/31 02:18:33 takayama Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.25 2017/03/31 03:17:59 takayama Exp $
 
 # Choose one of pari version.
 # Example.
@@ -21,7 +21,7 @@ all: build
 
 fetch extract patch configure build build-doc install install-doc clean distclean:
 	@if [ "${PARI_VER}" = 2.3 ]; then \
-		${MAKE} -f Makefile.2.0 PARI=${PARI_23_VER} DIST_SUFFIX=${PARI_23_SUFFIX} PATCH_FILE=${PARI_DEVEL_VER}.diff $@ ; \
+		${MAKE} -f Makefile.2.0 PARI=${PARI_23_VER} DIST_SUFFIX=${PARI_23_SUFFIX} $@ ; \
 	elif [ "${PARI_VER}" = 2.2 ]; then \
 		${MAKE} -f Makefile.2.0 PARI=${PARI_DEVEL_VER} DIST_SUFFIX=${PARI_DEVEL_SUFFIX} $@ ; \
 	else \
