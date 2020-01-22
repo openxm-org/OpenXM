@@ -1,7 +1,11 @@
 module newsyz;
 
-localf module_syz, module_fres, module_minres;
-localf simplify_syz, icont, mod, remove_cont;
+localf module_syz;
+localf simplify_syz, icont, mod, remove_cont,ordcheck;
+localf complsb, complsb_sd, sortlsb, find_pos, find_pos, reduce, lres_setup, dpm_sort1, comp_pos;
+localf fres,minres,sres,minsres,lres, create_base_ord, simplify_k, simplify_by_k, remove_k, remove_k1, extract_nonzero;
+localf nonzero, phi, syz_check, renumber_pos, compress, compress_h;
+localf syz_check0,phi0,todpmlist,dpmlisttollist;
 
 /* F : a list of (lists or polynomials), 
    V : a variable list, H >1=> over GF(H), H=0,1=> over Q 
@@ -10,137 +14,646 @@ localf simplify_syz, icont, mod, remove_cont;
    GS : a GB of syz(F) wrt [1,O] (POT), G: a GB of F wrt [1,O]
 */
 
-def module_syz(F,V,H,O)
+// return [dpmlist F,rank N]
+def todpmlist(F,V)
 {
-	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
-	K = length(F);
-	if ( type(F[0]) <= 2 ) {
-		for ( T = [], S = F; S != []; S = cdr(S) )
-			T = cons([car(S)],T);
-		F = reverse(T);
-	}
-	N = length(F[0]);
-	B = [];
-	for ( I = 0; I < K; I++ ) {
-		E = vector(N+K);
-		for ( J = 0; J < N; J++ ) E[J] = F[I][J];
-		E[N+I] = 1;
-		B = cons(vtol(E),B);
-	}
-	B = reverse(B);
-	if ( H >= 2 ) {
-		if ( Weyl )
-			G = nd_weyl_gr(B,V,H,[1,O]);
-		else
-			G = nd_gr(B,V,H,[1,O]);
-	} else {
-		if ( Weyl )
-			G = nd_weyl_gr_trace(B,V,H,-1,[1,O]);
-		else
-			G = nd_gr_trace(B,V,H,-1,[1,O]);
-	}
-	G0 = []; S0 = []; Gen0 = [];
-	for ( T = G; T != []; T = cdr(T) ) {
-		H = car(T);
-		for ( J = 0; J < N; J++ ) if ( H[J] ) break;
-		if ( J == N ) {
-			H1 = vector(K);
-			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
-			S0 = cons(vtol(H1),S0);
-		} else {
-			H1 = vector(N);
-			for ( J = 0; J < N; J++ ) H1[J] = H[J];
-			G0 = cons(vtol(H1),G0);
-			H1 = vector(K);
-			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
-			Gen0 = cons(vtol(H1),Gen0);
-		}
-	}
-	return [S0,G0,Gen0];
+  K = length(F);
+  for ( I = 0; I < K; I++ ) if ( F[I] ) break;
+  if ( I == K ) return [];
+  if ( type(F[I]) <= 2 ) {
+    // F is a polynimial list
+    F = map(dp_ptod,F,V);
+    F = map(dpm_dptodpm,F,1);
+    N = 1;
+  } else if ( type(F[I]) == 9 ) {
+    // F is a dpoly list
+    F = map(dpm_dptodpm,F,1);
+    N = 1;
+  } else if ( type(F[I]) == 4 ) {
+    // F is a list of poly lists
+    N = length(F[0]);
+    F = map(dpm_ltod,F,V);
+  } else if ( type(F[I]) == 26 ) {
+    // F is a DPM list
+    for ( N = 0, T = F; T != []; T = cdr(T) ) {
+      for ( A = car(T); A; A = dpm_rest(A) ) {
+        N1 = dpm_hp(A);
+        if ( N1 > N ) N = N1;
+      }
+    } 
+  } else {
+    error("todpmlist: arugument type is invalid.");
+  }
+  return [F,N];
 }
 
-def module_fres(F,V,H,O)
+def module_syz(F,V,H,Ord)
 {
-	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
-	R = [F];
-	while ( 1 ) {
-		if ( Weyl )
-			L = module_syz(car(R),V,H,O|weyl=1);
-		else
-			L = module_syz(car(R),V,H,O);
-		if ( L[0] == [] ) return R;
-		else R = cons(L[0],R);
+  if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
+  if ( type(F4=getopt(f4)) == -1 ) F4 = 0;
+  dp_ord(Ord);
+  K = length(F);
+  for ( I = 0; I < K; I++ ) if ( F[I] ) break;
+  if ( I == K ) return [[],[],[]];
+  L = todpmlist(F,V);
+  F = L[0]; N = L[1];
+  dp_ord([1,Ord]);
+  B = [];
+  for ( I = 0; I < K; I++ ) {
+    B = cons(F[I]+dpm_dptodpm(dp_ptod(1,V),N+I+1),B);
+  }
+  B = reverse(B);
+  if ( Weyl )
+    G = nd_weyl_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+  else if ( F4 ) {
+//    G = nd_f4(B,V,0,[1,Ord]|dp=1,homo=H,nora=1);
+    Ind = 0;
+    while ( 1 ) {
+      G = nd_f4_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
+      if ( G ) break;
+      else Ind++;
+    }
+  } else
+    G = nd_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+  G0 = []; S0 = []; Gen0 = [];
+  for ( T = G; T != []; T = cdr(T) ) {
+    H = car(T);
+    if ( dpm_hp(H) > N ) {
+      S0 = cons(dpm_shift(H,N),S0);
+    } else {
+      L = dpm_split(H,N);
+      G0 = cons(L[0],G0);
+      Gen0 = cons(dpm_shift(L[1],N),Gen0);
 	}
+  }
+#if 0
+  S0 = reverse(S0); G0 = reverse(G0); Gen0 = reverse(Gen0);
+#endif
+  if ( !DP ) {
+    S0 = map(dpm_dtol,S0,V); G0 = map(dpm_dtol,G0,V); Gen0 = map(dpm_dtol,Gen0,V);
+  }
+  return [S0,G0,Gen0];
 }
 
-def module_minres(F,V,H,O)
+def fres(F,V,H,O)
 {
-	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
-	R = [F];
-	while ( 1 ) {
-		if ( Weyl )
-			L = module_syz(car(R),V,H,O|weyl=1);
-		else
-			L = module_syz(car(R),V,H,O);
-		if ( L[0] == [] ) return R;
-		S = simplify_syz(L[0],R[0],H);
-		if ( S == [[],[]] ) return cdr(R);
-		R = append(S,cdr(R));	
-		if ( R[0] == [] ) return cdr(R);
-	}
+  if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
+  if ( type(F4=getopt(f4)) == -1 ) F4 = 0;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
+  L = todpmlist(F,V); F = L[0];
+  R = [F];
+  while ( 1 ) {
+    if ( Weyl )
+      L = module_syz(car(R),V,H,O|weyl=1,dp=1,f4=F4);
+    else
+      L = module_syz(car(R),V,H,O|dp=1,f4=F4);
+    L = L[0];
+    L = ordcheck(L,V);
+    if ( L == [] ) {
+      if ( DP ) return R;
+      else return map(dpmlisttollist,R,V);
+    }
+    R = cons(L,R);	
+  }
 }
 
-/* M1 = syz(M2)
-   return [M1',M2'] (simplified ones)
-*/
-def simplify_syz(M1,M2,Mod)
+def minres(F,V,H,O)
 {
-	while ( 1 ) {
-		for ( T = M1, I = 0; T != []; T = cdr(T), I++ ) {
-			for ( S = car(T), J = 0; S != []; S = cdr(S), J++ )
-				if ( type(car(S))==1 ) break;
-			if ( S != [] ) break;
-		}
-		if ( T == [] ) return [M1,M2];
-		M1i = ltov(car(T)); H = M1i[J];
-		N = length(M1i);
-		for ( T = M1, K = 0, R1 = []; T != []; T = cdr(T), K++ ) {
-			if ( K != I ) {
-				M1k = ltov(car(T));
-				if ( M1k[J] )
-					M1k = remove_cont(H*M1k-M1k[J]*M1i,Mod);
-				for ( S = [], L = N-1; L >= 0; L-- )
-					if ( L != J ) S = cons(M1k[L],S);
-				R1 = cons(S,R1);
-			}
-		}
-		M1 = reverse(R1);
-		for ( R2 = [], T = M2, K = 0; T != []; T = cdr(T), K++ )
-			if ( K != J ) R2 = cons(car(T),R2);
-		M2 = reverse(R2);
-	}
+  if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
+  if ( type(F4=getopt(f4)) == -1 ) F4 = 0;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
+  L = todpmlist(F,V); F = L[0];
+  R = [F];
+  while ( 1 ) {
+    if ( Weyl )
+      L = module_syz(car(R),V,H,O|weyl=1,dp=1,f4=F4);
+    else
+      L = module_syz(car(R),V,H,O|dp=1,f4=F4);
+    L = L[0];
+    L = ordcheck(L,V);
+    if ( L == [] ) break;
+    S = dpm_simplify_syz(L,R[0]);
+    if ( S[0] == [] && S[1] == [] ) {
+      R = cdr(R); break;
+    }
+    R = append([S[0],S[1]],cdr(R));	
+    if ( R[0] == [] ) {
+      R = cdr(R); break;
+    }
+  }
+  if ( DP ) return R;
+  else return map(dpmlisttollist,R,V);
 }
 
-def icont(P)
+def dpmlisttollist(F,V)
 {
-	P1 = ptozp(P);
-	return sdiv(P,P1);
+  return map(dpm_dtol,F,V);
 }
 
-def mod(F,Mod)
+def sres(F,V,H,Ord)
 {
-	return F%Mod;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
+  dpm_set_schreyer(0);
+  dp_ord(Ord);
+  K = length(F);
+  K = length(F);
+  for ( I = 0; I < K; I++ ) if ( F[I] ) break;
+  if ( I == K ) return [[],[],[]];
+  L = todpmlist(F,V);
+  F = L[0]; N = L[1];
+  G = nd_gr(F,V,H,[0,Ord]|dp=1);
+  G = reverse(G);
+  R = [G];
+  dp_ord([0,Ord]);
+  while ( 1 ) {
+    S = dpm_schreyer_base(R[0]);
+    print(["length",length(S)]);
+    if ( S == [] ) break;
+    else R = cons(S,R);
+  }
+  dp_ord([0,0]);
+  if ( DP ) return R;
+  else return map(dpmlisttollist,R,V);
 }
 
-def remove_cont(V,Mod)
+def minsres(F,V,H,Ord)
 {
-	if ( Mod >= 2 ) return map(mod,V,Mod);
-	N = length(V);
-	for ( I = 0; I < N; I++ ) if ( V[I] ) break;
-	if ( I == N ) return V;
-	for ( C = icont(V[I]), I = 1; I < N; I++ )
-		if ( V[I] ) C = igcd(icont(V[I]),C);
-	return V/C;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
+  R = sres(F,V,H,Ord|dp=1);
+  R = ltov(R);
+  M = length(R);
+  for ( I = 0; I < M; I++ ) R[I] = map(dpm_sort,R[I]);
+  R = vtol(R);
+  for ( T = R, U = []; length(T) >= 2; ) {
+    Z = dpm_simplify_syz(T[0],T[1]);
+    U = cons(Z[0],U);
+    T = cons(Z[1],cdr(cdr(T)));
+  }
+  U = cons(T[0],U);
+  if ( DP ) return U;
+  else return map(dpmlisttollist,U,V);
 }
-endmodule;
+
+def ordcheck(D,V)
+{
+  B=map(dpm_dtol,D,V);
+  dp_ord([1,0]);
+  D = map(dpm_sort,D);
+  D1 = map(dpm_ltod,B,V);
+  if ( D != D1 ) 
+    print("afo");
+  return D1;
+}
+
+def complsb(A,B)
+{
+  AL = A[3]; AD = A[4];
+  BL = B[3]; BD = B[4];
+  if ( AD > BD ) return 1;
+  else if ( AD < BD ) return -1;
+  else if ( AL < BL ) return 1;
+  else if ( AL > BL ) return -1;
+  else return 0;
+}
+
+def complsb_sd(A,B)
+{
+  AL = A[3]; AD = A[4];
+  BL = B[3]; BD = B[4];
+  if ( AD-AL > BD-BL ) return 1;
+  else if ( AD-AL < BD-BL ) return -1;
+  else if ( AL > BL ) return 1;
+  else if ( AL < BL ) return -1;
+  else return 0;
+}
+
+def sortlsb(A)
+{
+  S = [];
+  N = length(A);
+  for ( I = 0; I < N; I++ ) S = append(cdr(vtol(A[I])),S);
+//  S = qsort(S,newsyz.complsb_sd);
+  S = qsort(S,newsyz.complsb);
+  return S;
+}
+/* D=[in,sum,deg,lev,ind] */
+/* B=[0 B1 B2 ...] */
+/* C=[0 C1 C2 ...] */
+/* H=[0 H1 H2 ...] */
+/* Z=[0 Z1 Z2 ...] */
+/* Zi=[0 L1 L2 ...] */
+/* Lj=[I1,I2,...] */
+/* One=<<0,...,0>> */
+
+extern Rtime,Stime,Ptime$
+
+// B is sorted wrt positon
+def find_pos(HF,B)
+{
+  Len = length(B);
+  Pos = dpm_hp(HF);
+  First = 0; Last = Len-1;
+  if ( B[First][0] == HF ) return B[First][2];
+  if ( B[Last][0] == HF ) return B[Last][2];
+  while ( 1 ) {
+    Mid = idiv(First+Last,2); 
+    PosM = dpm_hp(B[Mid][0]);
+    if ( PosM == Pos ) break;
+    else if ( PosM < Pos )
+      First = Mid;
+    else
+      Last = Mid;
+  }
+  for ( I = Mid; I < Len && dpm_hp(B[I][0]) == Pos; I++ )
+    if ( HF == B[I][0] ) return B[I][2];
+  for ( I = Mid-1; I >= 1 && dpm_hp(B[I][0]) == Pos; I-- )
+    if ( HF == B[I][0] ) return B[I][2];
+  error("find_pos : cannot happen");
+}
+
+def reduce(D,B,Bpos,C,H,Z,K,Kind,G,One,Top)
+{
+  M = D[0]; Ind = D[2]; I = D[3];
+  if ( I == 1 ) {
+    C[I][Ind] = G[Ind];
+    dpm_insert_to_zlist(Z[1],dpm_hp(G[Ind]),Ind);
+    H[I][Ind] = G[Ind];
+  } else {
+    /* M is in F(I-1) => phi(M) is in F(I-2) */
+    /* reduction in F(I-2) */
+    T0 = time()[0];
+    dpm_set_schreyer_level(I-2);
+    CI = C[I-1]; ZI = Z[I-1]; BI = B[I-1]; BposI = Bpos[I-1];
+    Len = size(CI);
+    T=dpm_hc(M); EM=dpm_hp(M);
+    XiM = T*dpm_ht(CI[EM]);
+    EXiM = dpm_hp(XiM);
+    ZIE = ZI[EXiM];
+    for ( ZIE = ZI[EXiM]; ZIE != []; ZIE = cdr(ZIE) ) {
+      J = car(ZIE);
+      if ( J > EM && dpm_redble(XiM,dpm_ht(CI[J])) ) break;
+    }
+    Ptime += time()[0]-T0;
+    T0 = time()[0];
+    QR = dpm_sp_nf(CI,ZI,EM,J|top=Top);
+    Rtime += time()[0]-T0;
+    G = QR[0]; F = QR[1];
+    if ( F ) {
+      HF = dpm_ht(F); EF = dpm_hp(HF);
+      /* find HF in B[I-1] */
+    T0 = time()[0];
+    J = find_pos(HF,BposI);
+    Stime += time()[0]-T0;
+      /* F=Ret[0]*Ret[1] */
+      Ret = dpm_remove_cont(F);
+      CI[J] = Ret[1];
+      Kind[I-1][J] = 2;
+      dpm_insert_to_zlist(ZI,EF,J);
+      dpm_set_schreyer_level(I-1);
+      Tail = -Ret[0]*dpm_dptodpm(One,J);
+      G += Tail;
+      dpm_set_schreyer_level(0);
+      Ret = dpm_remove_cont(G); G = Ret[1];
+      C[I][Ind] = G;
+      Kind[I][Ind] = 1;
+      K[I] = cons([G,Tail],K[I]);
+      dpm_insert_to_zlist(Z[I],EM,Ind);
+      /* level <- 0 */
+      BI[J][3] = 0;
+    } else {
+      Kind[I][Ind] = 0;
+      Ret = dpm_remove_cont(G); G = Ret[1];
+      H[I][Ind] = G;
+      C[I][Ind] = G;
+      dpm_insert_to_zlist(Z[I],EM,Ind);
+    }
+  }
+}
+
+def lres_setup(F,V,H,Ord)
+{
+  dpm_set_schreyer(0);
+  dp_ord(Ord);
+  K = length(F);
+  if ( type(F[0]) <= 2 ) {
+    // F is a polynimial list
+    F = map(dp_ptod,F,V);
+    F = map(dpm_dptodpm,F,1);
+    N = 1;
+  } else if ( type(F[0]) == 9 ) {
+    // F is a dpoly list
+    F = map(dpm_dptodpm,F,1);
+    N = 1;
+  } else if ( type(F[0]) == 4 ) {
+    // F is a list of poly lists
+    N = length(F[0]);
+    F = map(dpm_ltod,F,V);
+  } else if ( type(F[0]) == 26 ) {
+    // F is a DPM list
+    for ( N = 0, T = F; T != []; T = cdr(T) ) {
+      for ( A = car(T); A; A = dpm_rest(A) ) {
+        N1 = dpm_hp(A);
+        if ( N1 > N ) N = N1;
+      }
+    } 
+  } else {
+    error("lres_setup: arugument type is invalid.");
+  }
+  G = nd_gr(F,V,H,[0,Ord]|dp=1);
+  G = reverse(G);
+  dp_ord([0,Ord]);
+  One = dp_ptod(1,V);
+  return [G,One];
+}
+
+def dpm_sort1(L)
+{
+  return [dpm_sort(L[0]),L[1]];
+}
+
+def comp_pos(A,B)
+{
+  PA = dpm_hp(A[0]); PB = dpm_hp(B[0]);
+  if ( PA > PB ) return 1;
+  else if ( PA < PB ) return -1;
+  else return 0;
+}
+
+def lres(F,V,H,Ord)
+{
+  T0 = time();
+  if ( type(Top=getopt(top)) == -1 ) Top = 0;
+  if ( type(NoSimpK=getopt(nosimpk)) == -1 ) NoSimpK = 0;
+  if ( type(NoPreProj=getopt(nopreproj)) == -1 ) NoPreProj = 0;
+  Rtime = Stime = Ptime = 0;
+  L = lres_setup(F,V,H,Ord);
+  G = L[0];
+  One = L[1];
+  F = dpm_schreyer_frame(G);
+  G = ltov(cons(0,L[0]));
+  F = reverse(F);
+  F = ltov(F);
+  N = length(F);
+  for ( I = 0; I < N; I++ ) {
+    FI = F[I]; FI[0] = []; 
+    FI = map(ltov,FI);
+    F[I] = FI;
+  }
+  R = sortlsb(F);
+  B = vector(N+1);
+  Bpos = vector(N+1);
+  C = vector(N+1);
+  H = vector(N+1);
+  Z = vector(N+1);
+  K = vector(N+1);
+  L = vector(N+1);
+  K = vector(N+1);
+  D = vector(N+1);
+  Kind = vector(N+1);
+
+  for ( I = 1; I <= N; I++ ) {
+    FI = F[I-1]; Len = length(FI);
+    B[I] = FI;
+    T = vector(Len-1);
+    for ( J = 1; J < Len; J++ ) T[J-1] = FI[J];
+    Bpos[I] = qsort(T,newsyz.comp_pos);
+    C[I] = vector(Len);
+    H[I] = vector(Len);
+    Kind[I] = vector(Len);
+    K[I] = [];
+    Max = 0;
+    for ( J = 1; J < Len; J++ )
+      if ( (Pos = dpm_hp(FI[J][0])) > Max ) Max = Pos;
+    Z[I] = ZI = vector(Max+1);
+    for ( J = 1; J <= Max; J++ ) ZI[J] = [];
+  }
+  T1 = time(); Ftime = T1[0]-T0[0];
+  R = ltov(R); Len = length(R);
+  print(["Len",Len]);
+  for ( I = 0, NF = 0; I < Len; I++ ) {
+    if ( !((I+1)%100) ) print(".",2);
+    if ( !((I+1)%10000) ) print(I+1);
+    if ( !R[I][3] ) continue;
+    NF++;
+    reduce(R[I],B,Bpos,C,H,Z,K,Kind,G,One,Top);
+  }
+  print("");
+  print(["NF",NF]);
+  T0 = time();
+  dpm_set_schreyer_level(0);
+  D[1] = map(dpm_sort,H[1]);
+  for ( I = 2; I <= N; I++ ) {
+    // HTT = [Head,Tab,TailTop]
+    HTT = create_base_ord(K[I],length(Kind[I-1]));
+    Head = HTT[0]; Tab = HTT[1]; TailTopPos = HTT[2];
+    if ( !NoPreProj )
+      Tab = map(remove_k,map(dpm_sort,Tab),Kind[I-1]);
+    else
+      Tab = map(dpm_sort,Tab);
+    TailTop = dpm_dptodpm(One,TailTopPos);
+    if ( !NoSimpK ) {
+      print("simplify_k "+rtostr(I)+"...",2);
+      simplify_k(Head,Tab,TailTop,One);
+      print("done");
+    }   
+    HI = map(remove_k,map(dpm_sort,H[I]),Kind[I-1]);
+    Len = length(HI);
+    print("simplify_by_k "+rtostr(I)+"...",2);
+    D[I] = vector(Len);
+    for ( J = 0; J < Len; J++ ) {
+      D[I][J] = simplify_by_k(HI[J],Tab,TailTop,One);
+      if ( NoPreProj )
+        D[I][J] = remove_k(D[I][J],Kind[I-1]);
+    }
+    print("done");
+  }
+  dp_ord([1,0]);
+  T1 = time();
+  print(["Frame",Ftime,"Prep",Ptime,"Reduce",Rtime,"Search",Stime,"Minimalize",T1[0]-T0[0]]);
+//  return [C,H,K,Kind,D];
+  D = compress_h(D);
+  return D;
+}
+
+def create_base_ord(K,N)
+{
+  Tab = vector(N);
+  Ks = [];
+  for ( T = K; T != []; T = cdr(T) ) {
+    Ks = cons(I=dpm_hp(car(T)[1]),Ks);
+    Tab[I] = car(T)[0];
+  }
+  Others = [];
+  for ( I = N-1; I >= 1; I-- )
+    if ( !Tab[I] ) Others = cons(I,Others);
+  Ks = reverse(Ks);
+  dp_ord([4,append(Ks,Others),0]);
+  return [ltov(Ks),Tab,car(Others)];
+}
+
+/* Head = [i1,i2,...], Tab[i1] = K[0], Tab[i2] = K[1],... */
+
+def simplify_k(Head,Tab,TailTop,One)
+{
+  N = length(Tab);
+  Len = length(Head);
+  for ( I = Len-1; I >= 0; I-- ) {
+    M = 1;
+    R = Tab[Head[I]];
+    H = dpm_hm(R); R = dpm_rest(R);
+    while ( R && dpm_dptodpm(One,dpm_hp(R)) > TailTop ) {
+      Pos = dpm_hp(R); Red = Tab[Pos];
+      CRed = dp_hc(dpm_hc(Red));
+      CR = dpm_extract(R,Pos);
+      L = dpm_remove_cont(CRed*R-CR*Red);
+      R = L[1]; M *= CRed/L[0];
+    }
+    Tab[Head[I]] = M*H+R;
+  }
+}
+
+def simplify_by_k(F,Tab,TailTop,One)
+{
+  R = F;
+  M = 1;
+  while ( R && dpm_dptodpm(One,dpm_hp(R)) > TailTop ) {
+    Pos = dpm_hp(R); Red = Tab[Pos];
+    CRed = dp_hc(dpm_hc(Red));
+    CR = dpm_extract(R,Pos);
+    L = dpm_remove_cont(CRed*R-CR*Red);
+    R = L[1]; M *= CRed/L[0];
+  }
+  return (1/M)*R;
+}
+
+/* Kind[I]=0 => phi(ei)\in H, Kind[I]=1 => phi(ei)\in K */
+def remove_k(F,Kind)
+{
+  R = [];
+  for ( T = F; T; T = dpm_rest(T) )
+    if ( Kind[dpm_hp(T)] != 1 ) R = cons(dpm_hm(T),R);
+  for ( S = 0; R != []; R = cdr(R) )
+    S += car(R);
+  return S;
+}
+
+def remove_k1(F,Kind)
+{
+  return [remove_k(F[0],Kind),F[1]];
+}
+
+def extract_nonzero(A)
+{
+  N = length(A);
+  R = [];
+  for ( C = I = 0; I < N; I++ )
+    if ( A[I] ) R=cons(A[I],R);
+  return reverse(R);;
+}
+
+def nonzero(A)
+{
+  N = length(A);
+  for ( C = I = 0; I < N; I++ )
+    if ( A[I] ) C++;
+  return C;
+}
+
+def phi(C,F)
+{
+  R = 0;
+  for ( T = F; T; T = dpm_rest(T) ) {
+    Coef = dpm_hc(T); Pos = dpm_hp(T);
+    R += Coef*C[Pos];
+  }
+  return R;
+}
+
+def syz_check(H,I)
+{
+  HI = H[I];
+//  dpm_set_schreyer_level(I-1);
+  HI1 = H[I+1];
+  Len = size(HI1)[0];
+  for ( J = 1; J < Len; J++ ) {
+    F = HI1[J];
+    R = phi(HI,F);
+    if ( R ) print([J,"NG"]);
+  }
+}
+
+// for compressed C
+def phi0(C,F)
+{
+  R = 0;
+  for ( T = F; T; T = dpm_rest(T) ) {
+    Coef = dpm_hc(T); Pos = dpm_hp(T);
+    R += Coef*C[Pos-1];
+  }
+  return R;
+}
+
+// for compressed H
+def syz_check0(H,I)
+{
+  HI = H[I];
+//  dpm_set_schreyer_level(I-1);
+  HI1 = H[I+1];
+  Len = length(HI1);
+  for ( J = 0; J < Len; J++ ) {
+    F = HI1[J];
+    R = phi0(HI,F);
+    if ( R ) print([J,"NG"]);
+  }
+}
+
+// renumber position
+def renumber_pos(F,Tab)
+{
+  L = [];
+  for ( T = F; T; T = dpm_rest(T) )
+    L = cons(dpm_hm(T),L);
+  R = 0;
+  for ( T = L; T != []; T = cdr(T) )
+    R += dpm_dptodpm(dpm_hc(car(T)),Tab[dpm_hp(car(T))]);
+  return R;
+}
+
+// compress H1 and renumber H
+def compress(H,H1)
+{
+  // create index table for H1
+  L1 = length(H1);
+  Tmp = vector(L1);
+  Tab = vector(L1);
+  for ( I = 1, J = 1; I < L1; I++ )
+    if ( H1[I] ) {
+      Tab[I] = J;
+      Tmp[J++] = H1[I];
+    }
+  NH1 = vector(J);
+  for ( I = 1; I < J; I++ )
+    NH1[I] = Tmp[I];
+  if ( H )
+    H = map(renumber_pos,H,Tab);
+  return [H,NH1];
+}
+
+def compress_h(H)
+{
+  // H = [0,H[1],...,H[L-1]]
+  L = length(H);
+  NH = vector(L-1);
+  H1 = H[1];
+  for ( I = 2; I < L; I++ ) {
+    R = compress(H[I],H1);
+    H1 = R[0];
+    NH[I-2] = cdr(vtol(R[1]));
+  }
+  R = compress(0,H1);
+  NH[L-2] = cdr(vtol(R[1]));
+  return NH;
+}
+endmodule$
 end$
