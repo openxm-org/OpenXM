@@ -1,6 +1,6 @@
 module newsyz;
 
-localf module_syz;
+localf module_syz, module_syz_old;
 localf simplify_syz, icont, mod, remove_cont,ordcheck;
 localf complsb, complsb_sd, sortlsb, find_pos, find_pos, reduce, lres_setup, dpm_sort1, comp_pos;
 localf fres,minres,sres,minsres,lres, create_base_ord, simplify_k, simplify_by_k, remove_k, remove_k1, extract_nonzero;
@@ -64,18 +64,27 @@ def module_syz(F,V,H,Ord)
     B = cons(F[I]+dpm_dptodpm(dp_ptod(1,V),N+I+1),B);
   }
   B = reverse(B);
-  if ( Weyl )
-    G = nd_weyl_gr(B,V,0,[1,Ord]|dp=1,homo=H);
-  else if ( F4 ) {
-//    G = nd_f4(B,V,0,[1,Ord]|dp=1,homo=H,nora=1);
-    Ind = 0;
-    while ( 1 ) {
-      G = nd_f4_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
-      if ( G ) break;
-      else Ind++;
-    }
-  } else
-    G = nd_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+  if ( H >= 2 ) {
+    // finite field
+    if ( Weyl )
+      G = nd_weyl_gr(B,V,H,[1,Ord]|dp=1);
+    else if ( F4 )
+      G = nd_f4(B,V,H,[1,Ord]|dp=1);
+    else
+      G = nd_gr(B,V,H,[1,Ord]|dp=1);
+  } else {
+    if ( Weyl )
+      G = nd_weyl_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+    else if ( F4 ) {
+      Ind = 0;
+      while ( 1 ) {
+        G = nd_f4_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
+        if ( G ) break;
+        else Ind++;
+      }
+    } else
+      G = nd_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+  }
   G0 = []; S0 = []; Gen0 = [];
   for ( T = G; T != []; T = cdr(T) ) {
     H = car(T);
@@ -94,6 +103,55 @@ def module_syz(F,V,H,Ord)
     S0 = map(dpm_dtol,S0,V); G0 = map(dpm_dtol,G0,V); Gen0 = map(dpm_dtol,Gen0,V);
   }
   return [S0,G0,Gen0];
+}
+
+def module_syz_old(F,V,H,O)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	K = length(F);
+	if ( type(F[0]) <= 2 ) {
+		for ( T = [], S = F; S != []; S = cdr(S) )
+			T = cons([car(S)],T);
+		F = reverse(T);
+	}
+	N = length(F[0]);
+	B = [];
+	for ( I = 0; I < K; I++ ) {
+		E = vector(N+K);
+		for ( J = 0; J < N; J++ ) E[J] = F[I][J];
+		E[N+I] = 1;
+		B = cons(vtol(E),B);
+	}
+	B = reverse(B);
+	if ( H >= 2 ) {
+		if ( Weyl )
+			G = nd_weyl_gr(B,V,H,[1,O]);
+		else
+			G = nd_gr(B,V,H,[1,O]);
+	} else {
+		if ( Weyl )
+			G = nd_weyl_gr_trace(B,V,H,-1,[1,O]);
+		else
+			G = nd_gr_trace(B,V,H,-1,[1,O]);
+	}
+	G0 = []; S0 = []; Gen0 = [];
+	for ( T = G; T != []; T = cdr(T) ) {
+		H = car(T);
+		for ( J = 0; J < N; J++ ) if ( H[J] ) break;
+		if ( J == N ) {
+			H1 = vector(K);
+			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
+			S0 = cons(vtol(H1),S0);
+		} else {
+			H1 = vector(N);
+			for ( J = 0; J < N; J++ ) H1[J] = H[J];
+			G0 = cons(vtol(H1),G0);
+			H1 = vector(K);
+			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
+			Gen0 = cons(vtol(H1),Gen0);
+		}
+	}
+	return [S0,G0,Gen0];
 }
 
 def fres(F,V,H,O)
