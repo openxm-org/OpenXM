@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.20 2010/05/23 01:52:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.21 2014/09/22 06:23:40 ohara Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -162,18 +162,17 @@ def taka_quote_sort(F) {
 
 def quote_terminal_form(S) {
   if (type(S) != QUOTE) return rtostr(S);
-  S = quotetolist(S);
-  return quote_input_form_quote_list(S);
+  T = quotetolist(S);
+  return quote_input_form_quote_list(T);
 }
 
 def quote_input_form(S) {
   if (type(S) != QUOTE) return rtostr(S);
-  S = quotetolist(S);
-  return ("quote("+quote_input_form_quote_list(S)+")");  
+  T = quotetolist(S);
+  return ("quote("+quote_input_form_quote_list(T)+")");  
 }
 
 def quote_input_form_quote_list(S) {
-  A = "";
   if (S[0] == "u_op") {
      return quote_input_form_quote_list_u_op(cdr(S));
   }else if (S[0] == "b_op") {
@@ -200,6 +199,7 @@ def quote_input_form_quote_list(S) {
 }
 
 def quote_input_form_quote_list_u_op(S) {
+  A="";
   if (S[0] == "()") {
     A += "(";
     A += quote_input_form_quote_list(S[1]);
@@ -218,6 +218,7 @@ def quote_is_internal_zero(S) {
   else return 0;
 }
 def quote_input_form_quote_list_b_op(S) {
+  A="";
   if (S[0] == "-") {
     T = cdr(S);
     N = length(T);
@@ -284,6 +285,7 @@ def quote_input_form_quote_list_list(S) {
 
 
 def quote_input_form_quote_list_function(S) {
+    A = "";
     A += S[0];
     A += "(";
     T = cdr(S);
