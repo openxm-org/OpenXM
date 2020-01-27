@@ -169,6 +169,7 @@ def fres(F,V,H,O)
     L = L[0];
     L = ordcheck(L,V);
     if ( L == [] ) {
+      R = reverse(R);
       if ( DP ) return R;
       else return map(dpmlisttollist,R,V);
     }
@@ -200,6 +201,7 @@ def minres(F,V,H,O)
       R = cdr(R); break;
     }
   }
+  R = reverse(R);
   if ( DP ) return R;
   else return map(dpmlisttollist,R,V);
 }
@@ -231,6 +233,7 @@ def sres(F,V,H,Ord)
     else R = cons(S,R);
   }
   dp_ord([0,0]);
+  R = reverse(R);
   if ( DP ) return R;
   else return map(dpmlisttollist,R,V);
 }
@@ -239,7 +242,7 @@ def minsres(F,V,H,Ord)
 {
   if ( type(DP=getopt(dp)) == -1 ) DP = 0;
   R = sres(F,V,H,Ord|dp=1);
-  R = ltov(R);
+  R = ltov(reverse(R));
   M = length(R);
   for ( I = 0; I < M; I++ ) R[I] = map(dpm_sort,R[I]);
   R = vtol(R);
@@ -442,6 +445,7 @@ def lres(F,V,H,Ord)
 {
   T0 = time();
   if ( type(Top=getopt(top)) == -1 ) Top = 0;
+  if ( type(DP=getopt(dp)) == -1 ) DP = 0;
   if ( type(NoSimpK=getopt(nosimpk)) == -1 ) NoSimpK = 0;
   if ( type(NoPreProj=getopt(nopreproj)) == -1 ) NoPreProj = 0;
   Rtime = Stime = Ptime = 0;
@@ -531,7 +535,8 @@ def lres(F,V,H,Ord)
   print(["Frame",Ftime,"Prep",Ptime,"Reduce",Rtime,"Search",Stime,"Minimalize",T1[0]-T0[0]]);
 //  return [C,H,K,Kind,D];
   D = compress_h(D);
-  return D;
+  if ( DP ) return D;
+  else return vtol(map(dpmlisttollist,D,V));
 }
 
 def create_base_ord(K,N)
