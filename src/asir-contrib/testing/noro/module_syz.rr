@@ -83,7 +83,7 @@ def module_syz(F,V,H,Ord)
         else Ind++;
       }
     } else
-      G = nd_gr(B,V,0,[1,Ord]|dp=1,homo=H);
+      G = nd_gr_trace(B,V,H,1,[1,Ord]|dp=1);
   }
   G0 = []; S0 = []; Gen0 = [];
   for ( T = G; T != []; T = cdr(T) ) {
@@ -222,7 +222,11 @@ def sres(F,V,H,Ord)
   if ( I == K ) return [[],[],[]];
   L = todpmlist(F,V);
   F = L[0]; N = L[1];
+#if 0
   G = nd_gr(F,V,H,[0,Ord]|dp=1);
+#else
+  G = nd_gr_trace(F,V,H,1,[0,Ord]|dp=1);
+#endif
   G = reverse(G);
   R = [G];
   dp_ord([0,Ord]);
@@ -421,7 +425,13 @@ def lres_setup(F,V,H,Ord)
   } else {
     error("lres_setup: arugument type is invalid.");
   }
+  dp_ord([0,Ord]);
+  F = map(dpm_sort,F);
+#if 0
   G = nd_gr(F,V,H,[0,Ord]|dp=1);
+#else
+  G = nd_gr_trace(F,V,H,1,[0,Ord]|dp=1);
+#endif
   G = reverse(G);
   dp_ord([0,Ord]);
   One = dp_ptod(1,V);
@@ -628,7 +638,7 @@ def phi(C,F)
   R = 0;
   for ( T = F; T; T = dpm_rest(T) ) {
     Coef = dpm_hc(T); Pos = dpm_hp(T);
-    R += Coef*C[Pos];
+    R += Coef*C[Pos-1];
   }
   return R;
 }
