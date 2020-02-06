@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.10 2016/03/01 07:29:18 takayama Exp $
+# $OpenXM: OpenXM/src/R/r-packages/hgm/R/hgm.cwishart.R,v 1.11 2017/03/22 00:42:57 takayama Exp $
 "hgm.tk.pwishart" <-
 function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=-1,q=10,
          mode=c(1,1,0),method="a-rk4",err=c(-1.0,-1.0),
@@ -25,7 +25,7 @@ function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=-1,q=10,
   if (mode[3] > 0) rsize <- rsize+mode[3]; 
   if (approxdeg < 0) approxdeg <- 6;
 ##argchecks
-  if (class(beta) != "numeric") stop("beta must be a vector.");
+  if (class(beta)[1] != "numeric") stop("beta must be a vector.");
   if (length(beta) != m) stop("The length beta must be equal to m.");
   for (i in 1:m) {
     if (beta[i] <= 0) stop("beta[i] must be positive.");
@@ -37,7 +37,7 @@ function(m=3,n=5,beta=c(1,2,3),q0=0.2,approxdeg=-1,h=0.01,dp=-1,q=10,
     }
    } 
   }
-  if (class(mode) != "numeric") stop("mode must be a vector of length 3.");
+  if (class(mode)[1] != "numeric") stop("mode must be a vector of length 3.");
   if (length(mode) != 3) stop("mode must be a vector of length 3.");
 ##end of argchecks
   ans<-
