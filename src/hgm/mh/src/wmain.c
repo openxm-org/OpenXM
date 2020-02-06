@@ -1,5 +1,5 @@
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.35 2016/06/04 07:52:14 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/wmain.c,v 1.36 2016/06/06 04:49:11 takayama Exp $
   License: LGPL
 */
 #include <stdio.h>
@@ -286,7 +286,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
 }
 
 static int setParam(char *fname) {
-  int rank;
+  int rank=2;
   char s[SMAX];
   struct SFILE *fp;
   int i;

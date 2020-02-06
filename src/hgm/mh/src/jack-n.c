@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.53 2016/10/30 01:10:18 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.54 2020/02/06 05:18:12 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1049,7 +1049,7 @@ static int genDarray2(int M,int N) {
       continue;
     }
     for (i=0; i<M_n; i++) Kone[i] = 0;
-    for(J=0; J<Ksize; J++) Kone[J]=K[J]; Kone[Ksize] = 1;
+    for(J=0; J<Ksize; J++) {Kone[J]=K[J];} Kone[Ksize] = 1;
     for (J=0; J<Pmn; J++) {
       if (myeq(L[J],Kone)) Darray[I] = J; /* J is the next of I */
     }
@@ -1780,7 +1780,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
   return(0);
 }
 static int setParam(char *fname) {
-  int rank;
+  int rank=2;
   char s[SMAX];
   struct SFILE *fp;
   int i;
