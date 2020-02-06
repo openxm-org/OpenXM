@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.14 2015/03/26 06:51:27 takayama Exp $
+%% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm-package.Rd,v 1.15 2016/02/13 06:47:50 takayama Exp $
 \name{hgm-package}
 \alias{hgm-package}
 \alias{HGM}
@@ -38,12 +38,12 @@ partial differential equations.
 }
 \references{
 \itemize{
-\item  [N3OST2]  Hiromasa Nakayama, Kenta Nishiyama, Masayuki Noro, Katsuyoshi Ohara,
+\item  (N3OST2)  Hiromasa Nakayama, Kenta Nishiyama, Masayuki Noro, Katsuyoshi Ohara,
 Tomonari Sei, Nobuki Takayama, Akimichi Takemura,
 Holonomic Gradient Descent  and its Application to Fisher-Bingham Integral,
 Advances in Applied Mathematics 47 (2011), 639--658, 
 \url{http://dx.doi.org/10.1016/j.aam.2011.03.001}
-\item [dojo] Edited by T.Hibi,  Groebner Bases: Statistics and Software Systems, Springer, 2013,
+\item (dojo) Edited by T.Hibi,  Groebner Bases: Statistics and Software Systems, Springer, 2013,
 \url{http://dx.doi.org/10.1007/978-4-431-54574-3}
 \item  \url{http://www.openxm.org}
 }

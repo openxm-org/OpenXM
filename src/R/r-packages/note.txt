@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.9 2017/03/22 00:42:56 takayama Exp $
+$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.10 2019/11/16 11:03:43 takayama Exp $
 
 See also OpenXM/src/hgm/note.txt
 
@@ -109,4 +109,21 @@ http://kbroman.org/pkg_primer/pages/cran.html
 
 R CMD check hgm --as-cran
 
+
+;;
+2020.02.06  Installing r-devel
+ apt-get install subversion ccache
+ apt-get install xorg-dev
+ apt-get install libcurl4-openssl-dev
+ pushd ~/this19/R  (for example)
+ svn co https://svn.r-project.org/R/trunk r-devel/R
+ cd r-devel/R   and follow the INSTALL
+ ./configure --without-recommended-packages  --prefix ~/this19/R
+ make
+ export PATH=~/this19/R/r-devel/R/bin:$PATH
+
+
+Valgrid can be used by
+   valgrind ./a.out
+A sample:  main() { int n;  if (n>0) n=0; }
 
