@@ -7,7 +7,7 @@
 
 #define VSTRING "%!version2.0"
 /*
-  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.52 2016/06/06 04:39:30 takayama Exp $
+  $OpenXM: OpenXM/src/hgm/mh/src/jack-n.c,v 1.53 2016/10/30 01:10:18 takayama Exp $
   Ref: copied from this11/misc-2011/A1/wishart/Prog
   jack-n.c, translated from mh.rr or tk_jack.rr in the asir-contrib. License: LGPL
   Koev-Edelman for higher order derivatives.
@@ -1602,7 +1602,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   struct MH_RESULT *ans=NULL;
   struct SFILE *ofp = NULL;
   int idata=0;
-  JK_byFile = 1;
+  JK_byFile = 1; for (i=0; i<1024; i++) swork[i]=0;
   jk_initializeWorkArea();
   UseTable = 1;
   Mapprox=6;
@@ -1788,7 +1788,7 @@ static int setParam(char *fname) {
   int version;
   if (fname == NULL) return(setParamDefault());
 
-  Sample = 0;
+  Sample = 0; for (i=0; i<SMAX; i++) s[i]=0;
   if ((fp=mh_fopen(fname,"r",JK_byFile)) == NULL) {
     if (JK_byFile) oxprintfe("File %s is not found.\n",fname);
     mh_exit(-1);
