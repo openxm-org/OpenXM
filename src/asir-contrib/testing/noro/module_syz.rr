@@ -75,15 +75,17 @@ def module_syz(F,V,H,Ord)
   } else {
     if ( Weyl )
       G = nd_weyl_gr(B,V,0,[1,Ord]|dp=1,homo=H);
-    else if ( F4 ) {
+    else {
       Ind = 0;
       while ( 1 ) {
-        G = nd_f4_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
+        if ( F4 ) 
+          G = nd_f4_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
+        else
+          G = nd_gr_trace(B,V,H,-lprime(Ind),[1,Ord]|dp=1);
         if ( G ) break;
         else Ind++;
       }
-    } else
-      G = nd_gr_trace(B,V,H,1,[1,Ord]|dp=1);
+    }
   }
   G0 = []; S0 = []; Gen0 = [];
   for ( T = G; T != []; T = cdr(T) ) {
@@ -232,7 +234,7 @@ def sres(F,V,H,Ord)
   dp_ord([0,Ord]);
   while ( 1 ) {
     S = dpm_schreyer_base(R[0]);
-    print(["length",length(S)]);
+    if ( dp_gr_print() ) print(["length",length(S)]);
     if ( S == [] ) break;
     else R = cons(S,R);
   }
@@ -502,16 +504,20 @@ def lres(F,V,H,Ord)
   }
   T1 = time(); Ftime = T1[0]-T0[0];
   R = ltov(R); Len = length(R);
-  print(["Len",Len]);
+  if ( dp_gr_print() ) print(["Len",Len]);
   for ( I = 0, NF = 0; I < Len; I++ ) {
-    if ( !((I+1)%100) ) print(".",2);
-    if ( !((I+1)%10000) ) print(I+1);
+    if ( dp_gr_print() ) {
+      if ( !((I+1)%100) ) print(".",2);
+      if ( !((I+1)%10000) ) print(I+1);
+    }
     if ( !R[I][3] ) continue;
     NF++;
     reduce(R[I],B,Bpos,C,H,Z,K,Kind,G,One,Top);
   }
-  print("");
-  print(["NF",NF]);
+  if ( dp_gr_print() ) {
+    print("");
+    print(["NF",NF]);
+  }
   T0 = time();
   dpm_set_schreyer_level(0);
   D[1] = map(dpm_sort,H[1]);
@@ -525,24 +531,24 @@ def lres(F,V,H,Ord)
       Tab = map(dpm_sort,Tab);
     TailTop = dpm_dptodpm(One,TailTopPos);
     if ( !NoSimpK ) {
-      print("simplify_k "+rtostr(I)+"...",2);
+      if ( dp_gr_print() ) print("simplify_k "+rtostr(I)+"...",2);
       simplify_k(Head,Tab,TailTop,One);
-      print("done");
+      if ( dp_gr_print() ) print("done");
     }   
     HI = map(remove_k,map(dpm_sort,H[I]),Kind[I-1]);
     Len = length(HI);
-    print("simplify_by_k "+rtostr(I)+"...",2);
+    if ( dp_gr_print() ) print("simplify_by_k "+rtostr(I)+"...",2);
     D[I] = vector(Len);
     for ( J = 0; J < Len; J++ ) {
       D[I][J] = simplify_by_k(HI[J],Tab,TailTop,One);
       if ( NoPreProj )
         D[I][J] = remove_k(D[I][J],Kind[I-1]);
     }
-    print("done");
+    if ( dp_gr_print() ) print("done");
   }
   dp_ord([1,0]);
   T1 = time();
-  print(["Frame",Ftime,"Prep",Ptime,"Reduce",Rtime,"Search",Stime,"Minimalize",T1[0]-T0[0]]);
+  if ( dp_gr_print() ) print(["Frame",Ftime,"Prep",Ptime,"Reduce",Rtime,"Search",Stime,"Minimalize",T1[0]-T0[0]]);
 //  return [C,H,K,Kind,D];
   D = compress_h(D);
   if ( DP ) return D;
