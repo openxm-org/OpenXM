@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.54 2019/08/28 05:10:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.55 2019/12/02 06:20:25 takayama Exp $ */
 /* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -59,6 +59,8 @@ localf countin$
 localf mycoef$
 localf mydiff$
 localf myediff$
+localf mypdiff$
+localf pTaylor$
 localf m2l$
 localf m2ll$
 localf mydeg$
@@ -354,6 +356,7 @@ localf texsp$
 localf getbygrs$
 localf mcop$
 localf shiftop$
+localf shiftPfaff;
 localf conf1sp$
 localf confexp$
 localf confspt$
@@ -477,7 +480,7 @@ extern 	SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00191201"$
+Muldif.rr="00200207"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -785,6 +788,61 @@ def myediff(P,X)
 	return red(X*diff(P,X));
 }
 
+def mypdiff(P,L)
+{
+	if(type(P)>3) return map(os_md.mypdiff,P,L);
+	for(Q=0;L!=[];L=cdr(L)){
+		Q+=mydiff(P,car(L))*L[1];
+		L=cdr(L);
+	}
+	return red(Q);
+}
+
+
+def pTaylor(L,N)
+{
+	if(findin(t,varargs(L|all=2))>=0){
+		L=append([z_z,1],subst(L,t,z_z));T=1;
+	}else T=0;
+	LS=length(L)/2;
+	F=(getopt(raw)==1)?1:0;
+	if(!F) R=newvect(LS);
+	else R=R1=[];
+	for(S=[],I=0,TL=L;TL!=[];I++,TL=cdr(TL)){
+		if(!F) R[I]=car(TL)+TL[1]*t;
+		else{
+			R=cons(car(TL),R);R1=cons(TL[1],R1);
+		}
+		TL=cdr(TL);
+		S=cons(car(TL),S);
+	}
+	S=reverse(S);
+	if(F) R=[reverse(R1),reverse(R)];
+	for(K=M=1;N>1;N--){
+		S=mypdiff(S,L);
+		K*=++M;
+		for(TS=S,I=0,R1=[];TS!=[];TS=cdr(TS),I++){
+			if(!F) R[I]+=car(TS)*t^M/K;
+			else R1=cons(car(TS)/K,R1);
+		}
+		if(F) R=cons(reverse(R1),R);
+	}
+	if(T){
+		if(!F){
+			S=newvect(LS-1);
+			for(I=1;I<LS;I++) S[I-1]=R[I];
+		}else{
+			for(S=[];R!=[];R=cdr(R)){
+				S=cons(cdr(car(R)),S);
+			}
+			R=S;
+		}
+		R=subst(S,z_z,0);
+	}
+	return (F&&!T)?reverse(R):R;
+}
+
+
 def m2l(M)
 {
 	if(type(M) < 4)
@@ -807,15 +865,15 @@ def m2l(M)
 
 def mydeg(P,X)
 {
-	if(type(P) < 3)
+	if(type(P) < 3 && type(X)==2)
 		return deg(P,X);
-	II = -1;
+	II=(type(X)==4)?-100000:-1;
 	Opt = getopt(opt);
 	if(type(P) >= 4){
 		S=(type(P) == 6)?size(P)[0]:0;
 		P = m2l(P);
-		for(I = 0, Deg = -3; P != []; P = cdr(P), I++){
-			if( (DT = mydeg(car(P),X)) == -2)
+		for(I = 0, Deg = -100000; P != []; P = cdr(P), I++){
+			if( (DT = mydeg(car(P),X)) == -2&&type(X)!=4)
 				return -2;
 			if(DT > Deg){
 				Deg = DT;
@@ -825,8 +883,19 @@ def mydeg(P,X)
 		return (Opt==1)?([Deg,(S==0)?II:[idiv(II,S),irem(II,S)]]):Deg;
 	}
 	P = red(P);
-	if(deg(dn(P),X) == 0)
-		return deg(nm(P),X);
+	if(type(X)==2){
+		if(deg(dn(P),X) == 0)
+			return deg(nm(P),X);
+	}else{
+		P=nm(red(P));
+		for(D=-100000,I=deg(P,X[1]);I>=0;I--){
+			if(TP=mycoef(P,I,X[1])){
+				TD=mydeg(TP,X[0])-I;
+				if(D<TD) D=TD;
+			}
+		}
+		return D;
+	}
 	return -2;
 }
 
@@ -3778,8 +3847,11 @@ def lgcd(L)
 	return [];
 }
 
+#if0
 def llcm(L)
 {
+	if(type(L)==5||type(L)==6) L=m2l(L);
+	if(type(L)<4) L=[L];
 	if(type(L)==4){
 		F=getopt(poly);
 		V=car(L);
@@ -3793,10 +3865,54 @@ def llcm(L)
 		if(F!=1&&V<0) V=-V;
 		return V;
 	}
-	else if(type(L)==5||type(L)==6)
-		return llcm(m2l(L)|option_list=getopt());
 	return [];
 }
+#else
+def llcm(R)
+{
+	if(type(R)==4||type(R)==5) R=m2l(R);
+	if(type(R)<4) R=[R];
+	if(type(R)!=4) return 0;
+	V=getopt(poly);
+	if(type(V)<1){
+		for(L=R;L!=[];L=cdr(L)){
+			if(type(car(L))>1){
+				V=1; break;
+			}
+		}
+	}
+	if(getopt(dn)!=1){
+		for(L=[];R!=[];R=cdr(R)) if(R!=0) L=cons(1/car(R),L);
+		R=L;
+	}
+	P=1;
+	if(type(V)<1){
+		for(;R!=[];R=cdr(R)){
+			if(!(TL=car(R))) continue;
+			else P=ilcm(P,dn(TL));
+		}
+		return P;
+	}
+	for(;R!=[];R=cdr(R)){
+		if(!car(R)) continue;
+		D=dn(red(car(R)));
+		N=red(P/D);
+		if(type(V)<2){
+			if(type(N)!=3) continue;
+			P*=dn(N);
+			continue;
+		}
+		if(ptype(N,V)>2){
+			L=fctr(dn(N));
+			for(;L!=[];L=cdr(L)){
+				if(ptype(car(L)[0],V)<2) continue;
+				P*=car(L)[0]^car(L)[1];
+			}
+		}
+	}
+	return P;
+}
+#fi
 
 def ldev(L,S)
 {
@@ -5112,6 +5228,15 @@ def mmulbys(FN,P,F,L)
 
 def appldo(P,F,L)
 {
+	if(getopt(Pfaff)==1){
+		L = vweyl(L);
+		X = L[0]; DX = L[1];
+		for(I=mydeg(P,DX);I>0;I--){
+			if(!(TP=mycoef(P,D,DX))) continue;
+			P=red(P+TP*(muldo(D^(I-1),F,L)-D^I));
+		}
+		return P;
+	}
 	if(type(F) <= 3){
 		if(type(L) == 4 && type(L[0]) == 4)
 			return applpdo(P,F,L);
@@ -5276,13 +5401,13 @@ def mce(P,L,V,R)
 {
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
-	P = sftexp(laplace1(P,L),L,V,R);
+	P = sftexp(laplace1(P,L),L,V,R|option_list=getopt());
 	return laplace(P,L);
 }
 
 def mc(P,L,R)
 {
-	return mce(P,L,0,R);
+	return mce(P,L,0,R|option_list=getopt());
 }
 
 def rede(P,L)
@@ -6523,27 +6648,20 @@ def toeul(F,L,V)
 	L = vweyl(L); 
 	X = L[0]; DX = L[1];
 	I = mydeg(F,DX);
-	if(V == "infty"){
+	if(getopt(raw)!=1){
 		for(II=I; II>=0; II--){
-			J = mydeg(P=mycoef(F,I,DX),X);
+			J = mydeg(P=mycoef(F,II,DX),X);
 			if(II==I) S=II-J;
 			else if(P!=0 && II-J>S) S=II-J;
 		}
 		F *= X^S;
-		R = 0;
-		for( ; I >= 0; I--)
+	}
+	if(V == "infty"){
+		for(R=0; I >= 0; I--)
 			 R += red((mysubst(mycoef(F,I,DX),[X,1/X])*(x*DX)^I));
 		return(subst(pol2sft(R,DX),DX,-DX));
 	}
-	F = subst(F,X,X+V);
-	for(II=I; II>=0; II--){
-		J = mymindeg(P=mycoef(F,II,DX),X);
-		if(II==I) S=II-J;
-		else if(P!=0 && II-J>S) S=II-J;
-	}
-	F *= X^S;
-	R = 0;
-	for( ; I >= 0; I--)
+	for(R=0; I >= 0; I--)
 		R += (red(mycoef(F,I,DX)/X^I))*DX^I;
 	return pol2sft(R,DX);
 }
@@ -6579,8 +6697,10 @@ def fromeul(P,L,V)
 		S = DX*(S*X + mydiff(S,DX));
 		R += mycoef(P,J,DX)*S;
 	}
-	while(mycoef(R,0,X) == 0)
-		R = tdiv(R,X);
+	if(getopt(raw)!=1){
+		while(mycoef(R,0,X) == 0)
+			R = tdiv(R,X);
+	}
 	if(V != "infty" && V != 0)
 		R = mysubst(R,[X,X-V]);
 	return R;
@@ -6589,8 +6709,8 @@ def fromeul(P,L,V)
 def sftexp(P,L,V,N)
 {
 	L = vweyl(L); DX = L[1];
-	P = mysubst(toeul(P,L,V),[DX,DX+N]);
-	return fromeul(P,L,V);
+	P = mysubst(toeul(P,L,V|opt_list=getpt()),[DX,DX+N]);
+	return fromeul(P,L,V|opt_list=getopt());
 }
 
 
@@ -10365,8 +10485,10 @@ def str_str(S,T)
 		}else if(type(S)==4){
 			for(; J<=LE; S=cdr(S),J++){
 				if(car(S) != LP){
-					if(SJIS && (V=S[J])>128){
-						if(V<160 || (V>223 && V<240)) J++;
+					if(SJIS && (V=car(S))>128){
+						if((V<160 || (V>223 && V<240))&&S!=[]) {
+							J++;S=cdr(S);
+						}
 					}
 					continue;
 				}
@@ -17497,6 +17619,39 @@ def shiftop(M,S)
 	return [QQ,P,RS];
 }
 
+
+def shiftPfaff(A,B,G,X,M)
+{
+	if(type(G)==4){
+		G0=G[1];G1=G[0];
+	}
+	if(type(G)==6){
+		G=map(red,G);
+		G0=llcm(G);G1=map(red,G0*G);
+	}
+	if(type(G)==3){
+		G=red(G);G0=dn(G);G1=nm(G);
+	}
+	if(type(M)==4){
+		M0=M[0];M1=M[1];
+	}else{
+		M0=M;M1=0;
+	}
+	X=vweyl(X);
+	D0=mydeg(G0,X[0]);D1=mydeg(G1,X[0]);
+	if(M1>=0){
+		D=(D1-M1>D0)?D1-M1:D0;
+		G0=muldo(X[1]^D,G0,X);G1=muldo(X[1]^(D+M1),G1,X);
+	}else{
+		D=(D0+M1>D1)?D0+M1:D1;
+		G0=muldo(X[1]^(D-M1),G0,X);G1==muldo(X[1]^D,G1,X);
+	}
+	G0=map(mc,G0,X,M0);G1=map(mc,G1,X,M0+M1);
+	G0=appldo(G0,A,X|Pfaff=1);
+	G1=sppldo(G1,B,X|Pfaff=1);
+	return rmul(myinv(G0),G1);
+}
+
 def conf1sp(M)
 {
 	if(type(M)==7) M=s2sp(M);
@@ -17842,7 +17997,7 @@ def mcvm(N)
     for(R=[],I=0;I<N;I++){
       U=newmat(N,N);
       for(J=0;J<N;J++) U[J][J]=M[J][I];
-      R=cons(map(red,myinv(M)*U*M),R);
+      R=cons(rmul(rmul(myinv(M),U),M),R);
     }
     return reverse(R);
   }else if(Get==2||Get==3||Get==4){
@@ -17853,7 +18008,7 @@ def mcvm(N)
       for(J=I+1;J<N;J++){
         K=newmat(N,N);
         K[I][I]=V[J];K[I][J]=-V[J];K[J][J]=V[I];K[J][I]=-V[I];
-          R=cons(map(red,MI*K*M),R);
+           R=cons(rmul(rmul(MI,K),M),R);
        }
 	}
     R=reverse(R);
