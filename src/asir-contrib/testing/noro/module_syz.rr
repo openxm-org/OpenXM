@@ -5,7 +5,7 @@ localf simplify_syz, icont, mod, remove_cont,ordcheck;
 localf complsb, complsb_sd, sortlsb, find_pos, find_pos, reduce, lres_setup, dpm_sort1, comp_pos;
 localf fres,minres,sres,minsres,lres, create_base_ord, simplify_k, simplify_by_k, remove_k, remove_k1, extract_nonzero;
 localf nonzero, phi, syz_check, renumber_pos, compress, compress_h;
-localf syz_check0,phi0,todpmlist,dpmlisttollist;
+localf syz_check0,phi0,todpmlist,dpmlisttollist,comp_lex;
 
 /* F : a list of (lists or polynomials), 
    V : a variable list, H >1=> over GF(H), H=0,1=> over Q 
@@ -398,8 +398,17 @@ def reduce(D,B,Bpos,C,H,Z,K,Kind,G,One,Top)
   }
 }
 
+def comp_lex(A,B)
+{
+  HA = dpm_hc(A); HB = dpm_hc(B);
+  if ( HA > HB ) return 1;
+  else if ( HA < HB ) return -1;
+  else return 0;
+}
+
 def lres_setup(F,V,H,Ord)
 {
+  if ( type(Lex=getopt(lex)) == -1 ) Lex = 0;
   dpm_set_schreyer(0);
   dp_ord(Ord);
   K = length(F);
@@ -434,6 +443,10 @@ def lres_setup(F,V,H,Ord)
 #else
   G = nd_gr_trace(F,V,H,1,[0,Ord]|dp=1);
 #endif
+  if ( Lex ) {
+    dp_ord(2);
+    G = qsort(G,newsyz.comp_lex);
+  }
   G = reverse(G);
   dp_ord([0,Ord]);
   One = dp_ptod(1,V);
@@ -460,11 +473,12 @@ def lres(F,V,H,Ord)
   if ( type(DP=getopt(dp)) == -1 ) DP = 0;
   if ( type(NoSimpK=getopt(nosimpk)) == -1 ) NoSimpK = 0;
   if ( type(NoPreProj=getopt(nopreproj)) == -1 ) NoPreProj = 0;
+  if ( type(Lex=getopt(lex)) == -1 ) Lex = 0;
   Rtime = Stime = Ptime = 0;
   L = lres_setup(F,V,H,Ord);
   G = L[0];
   One = L[1];
-  F = dpm_schreyer_frame(G);
+  F = dpm_schreyer_frame(G|lex=Lex);
   G = ltov(cons(0,L[0]));
   F = reverse(F);
   F = ltov(F);
