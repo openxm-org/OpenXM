@@ -18,12 +18,12 @@ TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
 	fakeroot debian/rules build
 	fakeroot debian/rules install
-	fakeroot dpkg-buildpackage
+	fakeroot dpkg-buildpackage -kdebian@math.kobe-u.ac.jp
 
 build-deb:
 	fakeroot debian/rules build
 	fakeroot debian/rules install
-	fakeroot dpkg-buildpackage
+	fakeroot dpkg-buildpackage -kdebian@math.kobe-u.ac.jp
 
 fetch:
 	if [ ! -f .fetch_done ]; then \
