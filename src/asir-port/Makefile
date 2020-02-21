@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.42 2019/06/12 23:59:24 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.43 2020/02/19 00:05:36 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix.
 #### Do not add extra spaces after the VERSION.
@@ -48,7 +48,7 @@ uninstall-for-knoppix:
 gentar-for-knoppix:
 	-mkdir work
 	(cd work ; rm -rf *)
-	(cd work ; cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2018/asir . )
+	(cd work ; cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2018/.libs/asir . )
 	(cd work ; strip asir ; gzip asir )
 	(cd work ; for i in ${LIBS} ; do \
 		cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2018/lib/$$i . ; \
