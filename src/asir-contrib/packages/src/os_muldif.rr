@@ -1,5 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.55 2019/12/02 06:20:25 takayama Exp $ */
-/* The latest version will be at ftp://akagi.ms.u-tokyo.ac.jp/pub/math/muldif
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.56 2020/02/09 23:49:14 takayama Exp $ */
+/* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
 #define USEMODULE 1
@@ -61,6 +61,7 @@ localf mydiff$
 localf myediff$
 localf mypdiff$
 localf pTaylor$
+localf pwTaylor$
 localf m2l$
 localf m2ll$
 localf mydeg$
@@ -173,6 +174,7 @@ localf myasin$
 localf myacos$
 localf myatan$
 localf mylog$
+localf nlog$
 localf mypow$
 localf scale$
 localf arg$
@@ -420,6 +422,7 @@ localf periodicf$
 localf cmpf$
 localf areabezier$
 localf saveproc$
+localf xyplot$
 localf xygraph$
 localf xy2graph$
 localf addIL$
@@ -475,12 +478,12 @@ extern Canvas$
 extern ID_PLOT$
 extern Rand$
 extern LQS$
-extern 	SV=SVORG$
+extern SV=SVORG$
 #endif
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00200207"$
+Muldif.rr="00200218"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -798,37 +801,38 @@ def mypdiff(P,L)
 	return red(Q);
 }
 
-
-def pTaylor(L,N)
+def pTaylor(S,X,N)
 {
-	if(findin(t,varargs(L|all=2))>=0){
-		L=append([z_z,1],subst(L,t,z_z));T=1;
-	}else T=0;
-	LS=length(L)/2;
-	F=(getopt(raw)==1)?1:0;
-	if(!F) R=newvect(LS);
+	if(!isvar(T=getopt(time))) T=t;
+	if(type(S)<4) S=[S];
+	if(type(X)<4) X=[X];
+	if(findin(T,varargs(S|all=2))>=0){
+		S=cons(z_z,S);X=cons(z_z,X);FT=1;
+	}else FT=0;
+	LS=length(S);
+	FR=(getopt(raw)==1)?1:0;
+	if(!FR) R=newvect(LS);
 	else R=R1=[];
-	for(S=[],I=0,TL=L;TL!=[];I++,TL=cdr(TL)){
-		if(!F) R[I]=car(TL)+TL[1]*t;
+	for(L=[],I=0,TS=S,TX=X;I<LS;I++,TS=cdr(TS),TX=cdr(TX)){
+		if(!FR) R[I]=car(TX)+car(TS)*T;
 		else{
-			R=cons(car(TL),R);R1=cons(TL[1],R1);
+			R=cons(car(TX),R);R1=cons(car(TS),R1);
 		}
-		TL=cdr(TL);
-		S=cons(car(TL),S);
+		L=cons(car(TS),cons(car(TX),L));
 	}
-	S=reverse(S);
-	if(F) R=[reverse(R1),reverse(R)];
+	L=reverse(L);
+	if(FR) R=[reverse(R1),reverse(R)];
 	for(K=M=1;N>1;N--){
 		S=mypdiff(S,L);
 		K*=++M;
 		for(TS=S,I=0,R1=[];TS!=[];TS=cdr(TS),I++){
-			if(!F) R[I]+=car(TS)*t^M/K;
+			if(!FR) R[I]+=car(TS)*t^M/K;
 			else R1=cons(car(TS)/K,R1);
 		}
-		if(F) R=cons(reverse(R1),R);
+		if(FR) R=cons(reverse(R1),R);
 	}
-	if(T){
-		if(!F){
+	if(FT){
+		if(!FR){
 			S=newvect(LS-1);
 			for(I=1;I<LS;I++) S[I-1]=R[I];
 		}else{
@@ -839,9 +843,8 @@ def pTaylor(L,N)
 		}
 		R=subst(S,z_z,0);
 	}
-	return (F&&!T)?reverse(R):R;
+	return (FR&&!FT)?reverse(R):R;
 }
-
 
 def m2l(M)
 {
@@ -4980,6 +4983,12 @@ def execdraw(L,P)
 						LOut=cons(T[2],Out);
 					}
 				}
+			}else if(T[0]==6){	/* plot */
+				F++;
+				if((T1=findin(T[1],LCOPT))>-1) T1=COLOPT(T1);
+				else if(type(T1)!=1 && T1!=0) T1=0xffffff;
+				for(T2=ptaffine(M,T[2]|option_list=Org);T2!=[];T2=cdr(T2))
+					draw_obj(Id,Ind,[rint(car(T2)[0]),rint(car(T2)[1])],T1);
 			}else if(Proc==1&&type(T[0])==2){
 				if(length(T)<3) call(T[0],T[1]);
 				else call(T[0],T[1]|option_list=T[2]);
@@ -5059,9 +5068,15 @@ def execdraw(L,P)
 					if(P[0]==2)	dviout(T[2]|option_list=T[1]);
 					else LOut=cons(T[2],Out);
 				}
+			}else if(T[0]==6){	/* plot */
+				F++;
+				if(type(T[1])==7) T1=[T[1],"."];
+				else T1=".";
+				for(T2=ptaffine(M,T[2]|option_list=Org);T2!=[];T2=cdr(T2))
+					str_tb(xypos([car(T2)[0],car(T2)[1],T1]),Out);
 			}else if(T[0]==-2)
 				str_tb(["%",T[1],"\n"],Out);
-			else if(Proc==1&&type(T[0])==2){
+			 else if(Proc==1&&type(T[0])==2){
 				if(length(T)<3) call(T[0],T[1]);
 				else call(T[0],T[1]|option_list=T[2]);
 			}
@@ -12630,7 +12645,7 @@ def rungeKutta(F,N,Lx,Y,IY)
 	}else{
 		One=1;Pr=0;
 	}
-	if((FL=getopt(last))!=1) FL=0;
+	if(!isint(FL=getopt(mul))||!FL) FL=1;
 	if(length(Lx)>2){
 		V=car(Lx);Lx=cdr(Lx);
 	}else V=x;
@@ -12649,13 +12664,14 @@ def rungeKutta(F,N,Lx,Y,IY)
 	}
 	if(getopt(val)==1) V1=1;
 	else V1=0;
+	if(FL>0) N*=FL;
 	H=(Lx[1]-Lx[0])/N;H2=H/2;
 	FV=findin(V,vars(F));
 	K=newvect(4);
 	if(L==1){
 		R=[[T=Lx[0],S=IY]];
 		if(!H) return R;
-		for(;;){
+		for(C=0;C<N;C++){
 			for(I=0;I<4;I++){
 				if(I==0)      W=[[V,T],[Y,S]];
 				else if(I==3) W=[[V,T+H],[Y,S+H*K[2]]];
@@ -12664,15 +12680,14 @@ def rungeKutta(F,N,Lx,Y,IY)
 				K[I]=Pr?myfeval(F,W)*One:myfdeval(F,W);
 			}
 			S+=(K[0]+2*K[1]+2*K[2]+K[3])*H/6;T+=H;
-			if(!FL) R=cons([deval(T),S],R);
-			if((T+H-Lx[1])*H>0) break;
+			if(FL>0&&!((C+1)%FL)) R=cons([deval(T),S],R);
 		}
 	}else{
 		T=Lx[0];
 		R=[cons(T,V1?[car(IY)]:IY)];
 		S=ltov(IY);
 		if(!H) return R;
-		for(;;){
+		for(C=0;C<N;C++){
 			for(I=0;I<4;I++){
 				if(I==0)      W=cons([V,T   ],lpair(Y,vtol(S)));
 				else if(I==3) W=cons([V,T+H ],lpair(Y,vtol(S+H*K[2])));
@@ -12685,12 +12700,51 @@ def rungeKutta(F,N,Lx,Y,IY)
 			}
 			S+=(K[0]+2*K[1]+2*K[2]+K[3])*H/6;T+=H;
 			TS=vtol(S);
+			if((C+1)%FL) continue;
 			if(V1) TS=[car(TS)];
-			if(!FL) R=cons(cons(deval(T),TS),R);
-			if((T+H-Lx[1])*H>0) break;
+			if(FL>0) R=cons(cons(deval(T),TS),R);
 		}
 	}
-	return FL?(V1?S[0]:S):reverse(R);
+	return (FL<0)?(V1?S[0]:S):reverse(R);
+}
+
+def pwTaylor(F,N,Lx,Y,Ly,M)
+{
+	if(!isvar(T=getopt(var))) V=t;
+	if((Pr=getopt(prec))==1){
+		One=eval(exp(0));
+	}else{
+		One=1;Pr=0;
+	}
+	if(!isint(FL=getopt(mul))||!FL) FL=1;
+	if(length(Lx)>2){
+		V=car(Lx);Lx=cdr(Lx);
+	}else V=t;
+	if(Pr==0) Lx=[deval(Lx[0]),deval(Lx[1])];
+	else Lx=[eval(Lx[0]),eval(Lx[1])];
+	if(type(Y)==4){
+		if(type(F)!=4)  F=cons(F,cdr(Y));
+	}else Y=[Y];
+	if(getopt(val)==1) V1=1;
+	else V1=0;
+	if(type(Ly)!=4) Ly=[Ly];
+	if(FL>0) N*=FL;
+	H=(Lx[1]-Lx[0])/N*One;
+	S=vtol(pTaylor(F,Y,M|time=V));
+	R=[cons(T=Lx[0],Ly)];
+	for(C=0,T+=H;C<N;T+=H,C++){
+		if(!C) SS=subst(S,V,H);
+		for(Dy=SS,TY=Y,TL=Ly;TY!=[];TY=cdr(TY),TL=cdr(TL))
+			Dy=subst(Dy,car(TY),One*car(TL));
+/*		Ly=subst(Dy,V,H); */
+		Ly=Dy;
+		if((C+1)%FL) continue;
+		if(FL>0){
+			TR=cons(deval(T),(V1)?[car(Ly)]:Ly);
+			R=cons(TR,R);
+		}
+	}
+	return (FL<0)?((V1)?car(Ly):Ly):reverse(R);
 }
 
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
@@ -13276,8 +13330,13 @@ def mytan(Z)
 def mylog(Z)
 {
 	if(type(Z=eval(Z))>1) return todf(os_md.mylog,[Z]);
-	if((Im=imag(Z))==0) return dlog(Z);
+	if(imag(Z)==0&&Z>0) return dlog(Z);
 	return dlog(dabs(Z))+@i*myarg(Z);
+}
+
+def nlog(X)
+{
+	return mylog(X)/dlog(10);
 }
 
 def mypow(Z,R)
@@ -14046,6 +14105,25 @@ def fcont(F,LX)
 	return reverse(L);
 }
 
+def xyplot(L,LX,LY)
+{
+	LX=map(deval,LX);LY=map(deval,LY);
+	Opt=getopt();Opt0=delopt(Opt,["dviout","proc"]);
+	for(S="",L0=[],TL=L;TL!=[];TL=cdr(TL)){
+		TTL=map(deval,car(TL));
+		if(TTL[0]<LX[0]||TTL[0]>LX[1]||TTL[1]<LY[0]||TTL[1]>LY[1]){
+			S+=xylines(reverse(L0)|option_list=Opt0);
+			L0=[];
+		}else{
+			L0=cons(TTL,L0);
+		}
+	}
+	if(length(L0)>1) S+=xylines(reverse(L0)|option_list=Opt0);
+	if(type(AX=getopt(ax))==4) S+=xygraph([0,0],0,LX,LX,LY|option_list=delopt(Opt0,"opt"));
+	if(getopt(dviout)!=1) return S;
+	xyproc(S|dviout=1);
+}
+
 def xygraph(F,N,LT,LX,LY)
 {
 	if((Proc=getopt(proc))!=1&&Proc!=2&&Proc!=3) Proc=0;
@@ -14358,7 +14436,7 @@ def xygraph(F,N,LT,LX,LY)
 			if(length(Ax)>3){
 				D=Ax[3];
 				if(type(D)==1 && D>0){
-					I0=ceil((LY[0]-Ax[1])/D); I1=floor((LY[1]-Ax[0])/D);
+					I0=ceil((LY[0]-Ax[1])/D); I1=floor((LY[1]-Ax[1])/D);
 					for(DD=[],I=I0; I<=I1; I++){
 						if(length(Ax)<5) DD=cons(I*D,DD);
 						else if(I!=0){
