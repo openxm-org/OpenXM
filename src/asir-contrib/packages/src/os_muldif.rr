@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.56 2020/02/09 23:49:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.57 2020/02/21 05:36:17 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Dec. 2019)
+ *          Toshio Oshima (Nov. 2007 - Feb. 2020)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -150,6 +150,7 @@ localf getel$
 localf ptol$
 localf rmul$
 localf mtransbys$
+localf trcolor$
 localf drawopt$
 localf execdraw$
 localf execproc$
@@ -264,6 +265,7 @@ localf expat$
 localf polbyroot$
 localf polbyvalue$
 localf pcoef$
+localf pmaj$
 localf prehombf$
 localf prehombfold$
 localf sub3e$
@@ -398,10 +400,12 @@ localf primroot$
 localf varargs$
 localf ptype$
 localf pfargs$
+localf regress$
 localf average$
 localf tobig$
 localf sint$
 localf frac2n$
+localf openGlib$
 localf xyproc$
 localf xypos$
 localf xyput$
@@ -483,7 +487,10 @@ extern SV=SVORG$
 static S_Fc,S_Dc,S_Ic,S_Ec,S_EC,S_Lc$
 static S_FDot$
 extern AMSTeX$
-Muldif.rr="00200218"$
+extern Glib_math_coordinate$
+extern Glib_canvas_x$
+extern Glib_canvas_y$
+Muldif.rr="00200223"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1292,15 +1299,25 @@ def vprod(V1,V2)
 def dnorm(V)
 {
 	if(type(V)<2) return dabs(V);
+	if((M=getopt(max))==1||M==2){
+		if(type(V)==5) V=vtol(V);
+		for(S=0;V!=[];V=cdr(V)){
+			if(M==2) S+=dabs(car(V));
+			else{
+				if((T=dabs(car(V)))>S) S=T;
+			}
+		}
+		return S;
+	}
 	R=0;
 	if(type(V)!=4)
-		for (I = length(V)-1; I >= 0; I--) R+= V[I]^2;
+		for (I = length(V)-1; I >= 0; I--) R+= real(V[I])^2+imag(V[I])^2;
 	else{
 		if(type(V[0])>3){
 			V=ltov(V[0])-ltov(V[1]);
 			return dnorm(V);
 		}
-		for(;V!=[]; V=cdr(V))	R+=car(V)^2;
+		for(;V!=[]; V=cdr(V))	R+=real(car(V))^2+imag(car(V))^2;
 	}
 	return dsqrt(R);
 }
@@ -3991,6 +4008,9 @@ def lnsol(VV,L)
 
 def ladd(X,Y,M)
 {
+	if(Y==0){
+		Y=X[1];X=X[0];
+	}
 	if(type(Y)==4) Y=ltov(Y);
 	if(type(X)==4) X=ltov(X);
 	return vtol(X+M*Y);
@@ -4700,6 +4720,12 @@ def mtransbys(FN,F,LL)
 	return call(FN, cons(F,LL)|option_list=Opt);
 }
 
+def trcolor(S)
+{
+	if(type(S)!=7) return S;
+	return ((I=findin(S,LCOPT))>=0)?COLOPT[I]:0;
+}
+
 def drawopt(S,T)
 {
 	if(type(S)!=7) return -1;
@@ -4729,6 +4755,24 @@ def drawopt(S,T)
 		return (V==0)?-1:V;
 	}
 	return -1;
+}
+
+def openGlib(W)
+{
+	extern Glib_canvas_x;
+	extern Glib_canvas_y;
+	extern Glib_math_coordinate;
+
+	if(W==0){
+		glib_clear();
+		return;
+	}
+	if(type(W)==4&&length(W)==2){
+		Glib_canvas_x=W[0];
+		Glib_canvax_y=W[1];
+	}
+	Glib_math_coordinate=1;
+	if(getopt(null)!=1) return glib_open();
 }
 
 def execdraw(L,P)
@@ -7310,6 +7354,27 @@ def pcoef(P,L,Q)
 	 I=0;
 	}
 	return Coef;
+}
+
+def pmaj(P)
+{
+	if(type(P)==4){
+		Opt=delopt(getopt(),"var"|inv=1);
+		P=mtransbys(os_md.pmaj,P,[]|optilon_list=Opt);
+		if(Opt==[]) return P;
+		X=Opt[0][1];
+		D=mydeg(P,X);
+		for(S=0;D>=0;D--) S+=lmax(mycoef(P,D,X))*X^D;
+		return S;
+	}
+	V=vars(P);
+	if(!(K=length(V))) return abs(P);
+	for(R=0,D=deg(P,X=V[0]);D>=0;D--){
+		Q=coef(P,D,X);
+		if(Q!=0) R+=((type(Q)>1)?pmaj(Q):abs(Q))*X^D;
+	}
+	if(isvar(Y=getopt(var))) for(;V!=[];V=cdr(V)) R=subst(R,car(V),Y);
+	return R;
 }
 
 def prehombf(P,Q)
@@ -12643,14 +12708,14 @@ def rungeKutta(F,N,Lx,Y,IY)
 	if((Pr=getopt(prec))==1){
 		One=eval(exp(0));
 	}else{
-		One=1;Pr=0;
+		One=deval(exp(0));Pr=0;
 	}
 	if(!isint(FL=getopt(mul))||!FL) FL=1;
 	if(length(Lx)>2){
 		V=car(Lx);Lx=cdr(Lx);
 	}else V=x;
-	if(Pr==0) Lx=[deval(Lx[0]),deval(Lx[1])];
-	else Lx=[eval(Lx[0]),eval(Lx[1])];
+	if(Pr==1) Lx=[eval(Lx[0]),eval(Lx[1])];
+	else Lx=[deval(Lx[0]),deval(Lx[1])];
 	if(type(Y)==4){
 		if((Sing=getopt(single))==1||type(F)!=4)
 			F=append(cdr(Y),[F]);
@@ -12665,7 +12730,7 @@ def rungeKutta(F,N,Lx,Y,IY)
 	if(getopt(val)==1) V1=1;
 	else V1=0;
 	if(FL>0) N*=FL;
-	H=(Lx[1]-Lx[0])/N;H2=H/2;
+	H=(Lx[1]-Lx[0])/N*One;H2=H/2;
 	FV=findin(V,vars(F));
 	K=newvect(4);
 	if(L==1){
@@ -12700,37 +12765,66 @@ def rungeKutta(F,N,Lx,Y,IY)
 			}
 			S+=(K[0]+2*K[1]+2*K[2]+K[3])*H/6;T+=H;
 			TS=vtol(S);
-			if((C+1)%FL) continue;
+			if(FL<0||(C+1)%FL) continue;
 			if(V1) TS=[car(TS)];
-			if(FL>0) R=cons(cons(deval(T),TS),R);
+			R=cons(cons(deval(T),TS),R);
 		}
 	}
-	return (FL<0)?(V1?S[0]:S):reverse(R);
+	L=(FL<0)?(V1?S[0]:S):reverse(R);
+	return L;
 }
 
 def pwTaylor(F,N,Lx,Y,Ly,M)
 {
+	if(!isint(FL=getopt(mul))||!FL) FL=1;
+	if(getopt(val)==1) V1=1;
+	else V1=0;
+	if(isint(Er=getopt(er))&&Er>0){
+		Opt=delopt(getopt(),["er","mul"]);
+		L0=pwTaylor(F,N,Lx,Y,Ly,M|option_list=cons(["mul",FL*(Er+1)],Opt));
+	}else Er=0;
+	if(length(Lx)>2){
+		V=car(Lx);Lx=cdr(Lx);
+	}else V=t;
 	if(!isvar(T=getopt(var))) V=t;
 	if((Pr=getopt(prec))==1){
 		One=eval(exp(0));
 	}else{
-		One=1;Pr=0;
+		One=deval(exp(0));Pr=0;
 	}
-	if(!isint(FL=getopt(mul))||!FL) FL=1;
-	if(length(Lx)>2){
-		V=car(Lx);Lx=cdr(Lx);
-	}else V=t;
-	if(Pr==0) Lx=[deval(Lx[0]),deval(Lx[1])];
-	else Lx=[eval(Lx[0]),eval(Lx[1])];
+	if(Pr==1) Lx=[eval(Lx[0]),eval(Lx[1])];
+	else Lx=[deval(Lx[0]),deval(Lx[1])];
 	if(type(Y)==4){
-		if(type(F)!=4)  F=cons(F,cdr(Y));
+		if(type(F)!=4)  F=append(cdr(Y),[F]);
 	}else Y=[Y];
-	if(getopt(val)==1) V1=1;
-	else V1=0;
 	if(type(Ly)!=4) Ly=[Ly];
 	if(FL>0) N*=FL;
 	H=(Lx[1]-Lx[0])/N*One;
 	S=vtol(pTaylor(F,Y,M|time=V));
+	LS=length(S);
+	if(type(Vw=getopt(view))==4){
+		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
+		if(length(Vw)>1 && (C=trcolor(Vw[1]))!=0) Opt=[["color",C]];
+		else Opt=[];
+		if(length(Vw)>2){
+			Mt=Vw[2];
+			if(LS==1){
+				if(type(Mt)>1) Mt=0; 
+			}else{
+				if(type(Mt)!=6||size(Mt)!=[]) Mt=0;
+			}
+		}else Mt=0;
+		if(!Mt){
+			if(LS>1){
+				Mt=newmat(2,LS);Mt[0][0]=Mt[1][1]=1;
+			}else Mt=1;
+			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|option_list=Opt);
+			else{
+				YT=ptaffine(Mt,Ly);
+				glib_putpixel(YT[0],YT[1]|option_list=Opt); 
+			}
+		}
+	}else Vw=0;
 	R=[cons(T=Lx[0],Ly)];
 	for(C=0,T+=H;C<N;T+=H,C++){
 		if(!C) SS=subst(S,V,H);
@@ -12738,13 +12832,30 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			Dy=subst(Dy,car(TY),One*car(TL));
 /*		Ly=subst(Dy,V,H); */
 		Ly=Dy;
-		if((C+1)%FL) continue;
-		if(FL>0){
-			TR=cons(deval(T),(V1)?[car(Ly)]:Ly);
-			R=cons(TR,R);
+		if(FL<0||(C+1)%FL) continue;
+		if(Vw){
+			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|option_list=Opt);
+			else{
+ 				YT=ptaffine(Mt,Ly);
+				glib_putpixel(YT[0],YT[1]|option_list=Opt);
+			}
+			continue;
 		}
+		TR=cons(deval(T),(V1)?[car(Ly)]:Ly);
+		R=cons(TR,R);
 	}
-	return (FL<0)?((V1)?car(Ly):Ly):reverse(R);
+	if(Vw) return 1;
+	L=(FL<0)?((V1)?car(Ly):Ly):reverse(R);
+	if(Er){
+		if(FL>0){
+			for(S=L,T=L0,D=[];S!=[];S=cdr(S),T=cdr(T)) D=cons(os_md.ladd(car(S),car(T),-1),D);
+			E=map(os_md.dnorm,reverse(D));F=map(os_md.nlog,E);
+		}else if(V1){
+			D=ladd(L,L0,-1);F=nlog(dnorm(D));
+		}else F=nlog(abs(L-L0));
+		return [L,F];
+	}
+	return L;
 }
 
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
@@ -13330,7 +13441,7 @@ def mytan(Z)
 def mylog(Z)
 {
 	if(type(Z=eval(Z))>1) return todf(os_md.mylog,[Z]);
-	if(imag(Z)==0&&Z>0) return dlog(Z);
+	if(imag(Z)==0&&Z>=0) return dlog(Z);
 	return dlog(dabs(Z))+@i*myarg(Z);
 }
 
@@ -16025,6 +16136,27 @@ def ptcopy(L,V)
 		F++;
 		LL=append(LL,ptaffine(1,L|shift=car(V)));
 	}
+}
+
+def regress(L)
+{
+	E=deval(exp(0));
+	for(S0=T0=0,S=L;S!=[];S=cdr(S)){
+		S0+=car(S)[0]*E;T0+=car(S)[1]*E;
+	}
+	K=length(L);S0/=K;T0/=K;
+	for(SS=TT=0,S=L;S!=[];S=cdr(S)){
+		SS+=(car(S)[0]-S0)^2*E;TT+=(car(S)[1]-T0)^2*E;
+		ST+=(car(S)[0]-S0)*(car(S)[1]-T0)*E;
+	}
+	if(!SS||!TT) return [];
+	A=ST/SS;
+	L=[A,A*S0-T0,ST/dsqrt(SS*TT),S0,dsqrt(SS/K),T0,dsqrt(TT/K)];
+	if(isint(N=getopt(sint))){
+		R=reverse(L);
+		for(L=[];R!=[];R=cdr(R)) L=cons(sint(car(R),N|str=0),L);
+	}
+	return L;
 }
 
 def	average(L)
