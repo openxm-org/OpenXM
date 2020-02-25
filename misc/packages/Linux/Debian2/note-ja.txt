@@ -58,6 +58,9 @@ A.  orange (32bit, etch),  orange3m (64bit) $B$G:n6H(B. (orange3c $B$G$O(B a
        http://fe.math.kobe-u.ac.jp/KnoppixMath $B$N8E$$(B deb $B$r(B Attic $B$X(B.
        KnoppixMath $B$G(B Update-apt.sh (http://fe.math.kobe-u.ac.jp/KnoppixMath)
    )
+
+   8. www.math.kobe-u.ac.jp/deb2 debian repository$B$X$N(B upload $BJ}K!$O(B misc-2019/A2/debian/inst-dinstall.txt
+     $B$r;2>H(B.
 R. make $B$N:G8e$G(B,  Debian2 $B$,JQ99$5$l$?$H$+$$$C$F%(%i!<$,$G$?$i(B, $B$b$&0lEY(B
    make $B$9$l$PNI$$(B.
    (or  ./deb package  ../deb package $B$r(B rm $B$7$F:FEY(B make.)
@@ -76,6 +79,12 @@ R. make $B$N:G8e$G(B,  Debian2 $B$,JQ99$5$l$?$H$+$$$C$F%(%i!<$,$G$?$i(B, $B
   
   cd .. ; debsign -k debian@math.kobe-u.ac.jp openxm*.changes
   $B$G(B signature $B$r2C$($k(B.
+ or [2020.02.25]
+  1.3.3-3 $B$N@8@.Cf$K(B 1.3.3-2 $B$N(B buildinfo $B$rMW5a$5$l$?$H$-$O(B, $B$3$l$r(B .. $B$K$*$$$F$*$/(B.
+  dpkg-genchanges  >../openxm_1.3.3-3_amd64.changes
+dpkg-genchanges: error: cannot fstat file ../openxm_1.3.3-2_amd64.buildinfo: No such file or directory
+dpkg-buildpackage: error: dpkg-genchanges subprocess returned exit status 255
+
 
 Q. signfile openxm_1.3.3-2.dsc  $B$G(B sign $B$,$G$-$J$$$H%(%i!<(B 2020.02.19
 A. export LC_ALL=C $B$H$7$F$*$/$H2?8N$+(B OK.
@@ -147,7 +156,7 @@ A.
    openxm asir-port.sh
 
   $B:o=|(B.
-   sudo dpkg --remove openxm
+   sudo dpkg --purge openxm
 
 
  $B$J$*(B package $B$N%$%s%9%H!<%k$G;O$a$N<ALd$K(B no $B$HEz$($?>l9g(B,
@@ -280,7 +289,7 @@ A. $B:#2s$O(B *.deb $B$KA4It$N%U%!%$%k$,4^$^$l$J$$%H%i%V%k$,(B.  fakeroot ma
    debian@math.kobe-u.ac.jp
    $B$N80$7$+$*$+$J$$$3$H$K$7$?(B. 
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.33 2020/02/19 00:56:08 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.34 2020/02/19 04:12:55 takayama Exp $
 
 
    
