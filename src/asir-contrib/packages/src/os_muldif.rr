@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.58 2020/02/25 02:47:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.59 2020/03/03 01:57:03 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -119,6 +119,7 @@ localf ladd$
 localf lchange$
 localf llsize$
 localf llbase$
+localf llget$
 localf lsort$
 localf rsort$
 localf lpair$
@@ -490,7 +491,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200302"$
+Muldif.rr="00200303"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3464,6 +3465,43 @@ def rsort(L,T,K)
 	return (iand(K,1))? reverse(R):R;
 }
 
+def llget(L,LL,LC)
+{
+	if(type(LL)==4){
+		LM=length(L);
+		for(R=[];LL!=[];LL=cdr(LL)){
+			if(isint(TL=car(LL))) R=cons(TL,R);
+			else{
+				IM=(length(TL)==1)?(LM-1):TL[1];
+				for(I=car(TL);I<=IM;I++) R=cons(I,R);
+			}
+		}
+		LL=reverse(R);
+		if(LC==-1){
+			LL=lsort(LL,[],1);
+			return lsort(L,"num",["sub"]|c1=LL);
+		}
+		L=lsort(L,"num",["get"]|c1=LL);
+	}
+	if(type(LC)==4){
+		LM=length(L[0]);
+		for(R=[];LC!=[];LC=cdr(LC)){
+			if(isint(TL=car(LC))) R=cons(TL,R);
+			else{
+				IM=(length(TL)==1)?(LM-1):TL[1];
+				for(I>=car(TL);I<=IM;I++) R=cons(I,R);
+			}
+		}
+		LC=reverse(R);
+		if(LL==-1){
+			LC=lsort(LC,[],1);
+			return lsort(L,"col",["setminus"]|c1=LC);
+		}
+		L=lsort(L,"col",["put"]|c1=LC);
+	}
+	return L;
+}
+
 
 def lsort(L1,L2,T)
 {
@@ -3866,30 +3904,9 @@ def lgcd(L)
 	return [];
 }
 
-#if0
-def llcm(L)
-{
-	if(type(L)==5||type(L)==6) L=m2l(L);
-	if(type(L)<4) L=[L];
-	if(type(L)==4){
-		F=getopt(poly);
-		V=car(L);
-		while((L=cdr(L))!=[]){
-			if(V!=0){
-				if((V0=car(L))!=0)
-			 		V=(F==1)?red(V*V0/gcd(V,V0)):ilcm(V,V0);
-			}
-			else V=car(L);
-		}
-		if(F!=1&&V<0) V=-V;
-		return V;
-	}
-	return [];
-}
-#else
 def llcm(R)
 {
-	if(type(R)==4||type(R)==5) R=m2l(R);
+	if(type(R)==5||type(R)==6) R=m2l(R);
 	if(type(R)<4) R=[R];
 	if(type(R)!=4) return 0;
 	V=getopt(poly);
@@ -3931,7 +3948,6 @@ def llcm(R)
 	}
 	return P;
 }
-#fi
 
 def ldev(L,S)
 {
@@ -12773,7 +12789,6 @@ def rungeKutta(F,N,Lx,Y,IY)
 	return L;
 }
 
-#if 1
 def pwTaylor(F,N,Lx,Y,Ly,M)
 {
 	if(!isint(FL=getopt(mul))||!FL) FL=1;
@@ -12799,15 +12814,12 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		if(type(F)!=4)  F=append(cdr(Y),[F]);
 	}else Y=[Y];
 	if(type(Ly)!=4) Ly=[Ly];
+	ErF=0;
 	if(type(Er=getopt(err))==4){
-		Er=car(Er);ErE=1;		/* Šî€‰ð‚ð•Ô‚· */
-	}else ErE=0;
-	if(isint(Er)){
-		LyE=Ly;
-		if(Er<0){				/* Œë·‚Ìƒmƒ‹ƒ€ */
-			Er=-Er;ErR=1;
-		}else ErR=0;			/* Œë·‚Ìƒmƒ‹ƒ€‚Ì‘Î” */
-	}else Er=0;
+		Er=car(Er);
+		if(length(Er)==2) ErF=Er[1];	/* ErF&1 : Raw,  ErF&2: relative ErF&4, add Sol */
+	};
+	if(!isint(Er)||Er<0) Er=0;	/* Šî€‰ð‚ð•Ô‚· */
 	if(FL>0) N*=FL;
 	S=vtol(pTaylor(F,Y,M|time=V));
 	FM=pmaj(F|var=x);
@@ -12846,10 +12858,12 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		if(length(Inf)>2) MM=Inf[2];
 		if(!isint(Mt)||MM<1) MM=2;
 		if(length(Inf)>3) C1=Inf[3];
-		if(!isint(C1)||C1<0) C1=0;
+		if(type(C1)!=1||C1<0) C1=1;
+		if(length(Inf)>4) CM=Inf[4];
 	}else if(Inf==1||Ck<5){
-		Ck=100;Ckm=4;MM=2;C1=0;
+		Ck=100;Ckm=4;MM=2;C1=1;
 	}else Inf=0;
+	Ckm*=Ck;
 	SS=subst(S,V,H);
 	if(Er>0){
 		HE=H/(Er+1);SSE=subst(S,V,HE);
@@ -12861,9 +12875,12 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			for(Dy=F,TY=Y,TL=Ly;TY!=[];TY=cdr(TY),TL=cdr(TL))
 				Dy=subst(Dy,car(TY),One*car(TL));
 			D1=dnorm(Dy|max=1);D2=subst(FM,x,2*D0+C1);D3=D1+D2;
-			HH=2*(D0+C1)/Ck/Ckm;
+			HH=2*(D0+C1)/Ckm;
 			if(HH<H*D3){
-				H=HH/D3;
+				HH/=D3;
+				while(H>HH) H/=2;
+				if(H*7/5<HH) H*=7/5;
+				if(H*6/5<HH) H*=6/5;
 				SS=subst(S,V,H);
 				if(Er){
 					HE=H/(Er+1);
@@ -12881,7 +12898,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		Ly=Dy;
 
 		if(Er>0){		/* estimate error */
-			for(CE=-1;CE<Er;CE++){
+			for(CE=0;CE<=Er;CE++){
 				for(Dy=SSE,TY=Y,TL=LyE;TY!=[];TY=cdr(TY),TL=cdr(TL))
 					Dy=subst(Dy,car(TY),One*car(TL));
 				LyE=Dy;
@@ -12911,137 +12928,39 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		if(FL>0){
 			for(S=L,T=LE,D=[];S!=[];S=cdr(S),T=cdr(T)) D=cons(os_md.ladd(car(S),car(T),-1),D);
 			F=map(os_md.dnorm,reverse(D));
-			if(!ErR) F=map(os_md.nlog,F);
-			if(ErE) return [L,F,LE];
+			if(iand(ErF,2)){			/* relative error */
+				G=llget(F,-1,[0]);G=map(os_md.dnorm,reverse(D));
+				for(R=[];G!=[];G=cdr(G),F=cdr(F)){
+					if(car(G)) R=cons(car(F)/car(G),R);
+					else R=cons(0,R);
+				}
+				F=reverse(R);
+			}
+			if(!iand(ErF,1)) F=map(os_md.nlog,F);
+			if(!iand(ErF,8)) F=map(deval,F);
 		}else if(V1){
 			D=ladd(L,LE,-1);F=dnorm(D);
-			if(!ErR) F=nlog(dnorm(D));
+			if(iand(ErF,2)){
+				G=dnorm(cdr(L));
+				if(!G) D/=G;
+				else D=1;
+			}
+			F=(!iand(ErF,1))?nlog(D):D;
+			if(!iand(ErF,8)) F=deval(F);
 		}else{
-			 D=abs(L-LE);
-			if(!ErR) F=nlog(D);
+			D=abs(L-LE);
+			if(iand(ErF,2)){
+				G=abs(L);
+				if(!G) D/=G;
+				else D=1;
+			}
+			F=(!iand(ErF,1))?nlog(D):D;
+			if(!iand(ErF,8)) F=deval(F);
 		}
-		return [L,F];
+		return iand(F,4)?[L,F,LE]:[L,F];
 	}
 	return L;
 }
-
-#else
-def pwTaylor(F,N,Lx,Y,Ly,M)
-{
-	if(!isint(FL=getopt(mul))||!FL) FL=1;
-	if(getopt(val)==1) V1=1;
-	else V1=0;
-	if(isint(Er=getopt(er))&&Er>0&&type(getopt(Inf))<0){
-		Opt=delopt(getopt(),["er","mul","Inf"]);
-		L0=pwTaylor(F,N,Lx,Y,Ly,M|option_list=cons(["mul",FL*(Er+1)],Opt));
-	}else Er=0;
-	if(length(Lx)>2){
-		V=car(Lx);Lx=cdr(Lx);
-	}else V=t;
-	if(!isvar(T=getopt(var))) V=t;
-	if((Pr=getopt(prec))==1){
-		One=eval(exp(0));
-	}else{
-		One=deval(exp(0));Pr=0;
-	}
-	if(Pr==1) Lx=[eval(Lx[0]),eval(Lx[1])];
-	else Lx=[deval(Lx[0]),deval(Lx[1])];
-	if(type(Y)==4){
-		if(type(F)!=4)  F=append(cdr(Y),[F]);
-	}else Y=[Y];
-	if(type(Ly)!=4) Ly=[Ly];
-	if(FL>0) N*=FL;
-	S=vtol(pTaylor(F,Y,M|time=V));
-	FM=pmaj(F|var=x);
-	LS=length(S);
-
-	if(type(Vw=getopt(view))==4){	/* Dislay on Canvas */
-		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
-		if(length(Vw)>1 && (C=trcolor(Vw[1]))!=0) Opt=[["color",C]];
-		else Opt=[];
-		if(length(Vw)>2){
-			Mt=Vw[2];
-			if(LS==1){
-				if(type(Mt)>1) Mt=0; 
-			}else{
-				if(type(Mt)!=6||size(Mt)!=[]) Mt=0;
-			}
-		}else Mt=0;
-		if(!Mt){
-			if(LS>1){
-				Mt=newmat(2,LS);Mt[0][0]=Mt[1][1]=1;
-			}else Mt=1;
-			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|option_list=Opt);
-			else{
-				YT=ptaffine(Mt,Ly);
-				glib_putpixel(YT[0],YT[1]|option_list=Opt); 
-			}
-		}
-	}else Vw=0;
-
-	R=[cons(T=Lx[0],Ly)];
-	H=(Lx[1]-Lx[0])/N*One;
-	Ck=N+1;
-	if(type(Inf=getopt(Inf))==4&&length(Inf)>1){	/* explosion */
-		Ck=Inf[0];Ckm=Inf[1];
-		MM=2;
-		if(length(Inf)>2) MM=Inf[2];
-		if(!isint(Mt)||MM<1) MM=2;
-		if(length(Inf)>3) C1=Inf[3];
-		if(!isint(C1)||C1<0) C1=0;
-	}else if(Inf==1||Ck<5){
-		Ck=100;Ckm=4;MM=2;C1=0;
-	}else Inf=0;
-	for(C=CC=0;C<N;C++,CC++){
-		if(CC>=Ck){
-			CC=0;
-			D0=dnorm(Ly|max=1);
-			for(Dy=F,TY=Y,TL=Ly;TY!=[];TY=cdr(TY),TL=cdr(TL))
-				Dy=subst(Dy,car(TY),One*car(TL));
-			D1=dnorm(Dy|max=1);D2=subst(FM,x,2*D0+C1);D3=D1+D2;
-			HH=2*(D0+C1)/Ck/Ckm;
-			if(HH<H*D3){
-				H=HH/D3;
-				SS=subst(S,V,H);
-				if(MM>1) N*=MM;
-				MM=0;
-			}
-			CC=0;
-		}
-		if(!C){
-			SS=subst(S,V,H);
-		}
-		T+=H;
-		for(Dy=SS,TY=Y,TL=Ly;TY!=[];TY=cdr(TY),TL=cdr(TL))
-			Dy=subst(Dy,car(TY),One*car(TL));
-/*		Ly=subst(Dy,V,H); */
-		Ly=Dy;
-		if(FL<0||(C+1)%FL) continue;
-		if(Vw){
-			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|option_list=Opt);
-			else{
- 				YT=ptaffine(Mt,Ly);
-				glib_putpixel(YT[0],YT[1]|option_list=Opt);
-			}
-			continue;
-		}
-		TR=cons((Inf)?eval(T):deval(T),(V1)?[car(Ly)]:Ly);
-		R=cons(TR,R);
-	}
-	if(Vw) return 1;
-	L=(FL<0)?((V1)?car(Ly):Ly):reverse(R);
-	if(Er){
-		if(FL>0){
-			for(S=L,T=L0,D=[];S!=[];S=cdr(S),T=cdr(T)) D=cons(os_md.ladd(car(S),car(T),-1),D);
-			E=map(os_md.dnorm,reverse(D));F=map(os_md.nlog,E);
-		}else if(V1){
-			D=ladd(L,L0,-1);F=nlog(dnorm(D));
-		}else F=nlog(abs(L-L0));
-		return [L,F];
-	}
-	return L;
-}
-#endif
 
 def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 {
