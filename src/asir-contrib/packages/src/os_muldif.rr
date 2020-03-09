@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.59 2020/03/03 01:57:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.60 2020/03/04 01:50:00 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -152,6 +152,7 @@ localf ptol$
 localf rmul$
 localf mtransbys$
 localf trcolor$
+localf mcolor$
 localf drawopt$
 localf execdraw$
 localf execproc$
@@ -491,7 +492,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200303"$
+Muldif.rr="00200308"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1299,13 +1300,13 @@ def vprod(V1,V2)
 
 def dnorm(V)
 {
-	if(type(V)<2) return dabs(V);
+	if(type(V)<2) return ctrl("bigfloat")?abs(V):dabs(V);
 	if((M=getopt(max))==1||M==2){
 		if(type(V)==5) V=vtol(V);
 		for(S=0;V!=[];V=cdr(V)){
-			if(M==2) S+=dabs(car(V));
+			if(M==2) S+=ctrl("bigfloat")?abs(car(V)):dabs(car(V));
 			else{
-				if((T=dabs(car(V)))>S) S=T;
+				if((T=ctrl("bigfloat")?abs(car(V)):dabs(car(V)))>S) S=T;
 			}
 		}
 		return S;
@@ -1320,7 +1321,7 @@ def dnorm(V)
 		}
 		for(;V!=[]; V=cdr(V))	R+=real(car(V))^2+imag(car(V))^2;
 	}
-	return dsqrt(R);
+	return ctrl("bigfloat")?pari(sqrt,R):dsqrt(R);
 }
 
 def dvprod(V1,V2)
@@ -4739,6 +4740,29 @@ def trcolor(S)
 {
 	if(type(S)!=7) return S;
 	return ((I=findin(S,LCOPT))>=0)?COLOPT[I]:0;
+}
+
+def mcolor(L,P)
+{
+	if(type(L)!=4) return L;
+	if(!P||(S=length(L))==1){
+		if(type(V=car(L))!=7) return V;
+		return trcolor(V);
+	}
+	P-=ceil(P)-1;
+	if(P==1){
+		if(type(V=L[S-1])!=7) return V;
+		return trcolor(V);
+	}
+	for(S=P*(S-1);S>1;S--,L=cdr(L));
+	if(getopt(disc)==1) S=0;
+	if(type(L0=L[0])==7) L0=trcolor(L0);
+	if(type(L1=L[1])==7) L1=trcolor(L1);
+	T=rint(iand(L0,0xff)*(1-S)+iand(L1,0xff)*S);
+	TT=iand(L0,0xff00)*(1-S)+iand(L1,0xff00)*S;
+	T+=rint(TT/0x100)*0x100;
+	TT=iand(L0,0xff0000)*(1-S)+iand(L1,0xff0000)*S;
+	return T+rint(TT/0x10000)*0x10000;
 }
 
 def drawopt(S,T)
@@ -12816,8 +12840,8 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	if(type(Ly)!=4) Ly=[Ly];
 	ErF=0;
 	if(type(Er=getopt(err))==4){
+		if(length(Er)==2) ErF=Er[1];	/* ErF&1: Raw,  ErF&2: relative,  ErF&4: add Sol */
 		Er=car(Er);
-		if(length(Er)==2) ErF=Er[1];	/* ErF&1 : Raw,  ErF&2: relative ErF&4, add Sol */
 	};
 	if(!isint(Er)||Er<0) Er=0;	/* Šî€‰ð‚ð•Ô‚· */
 	if(FL>0) N*=FL;
@@ -12826,6 +12850,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	LS=length(S);
 
 	if(type(Vw=getopt(view))==4){	/* Dislay on Canvas */
+		Glib_math_coordinate=1;
 		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
 		if(length(Vw)>1 && (C=trcolor(Vw[1]))!=0) Opt=[["color",C]];
 		else Opt=[];
@@ -12861,12 +12886,12 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		if(type(C1)!=1||C1<0) C1=1;
 		if(length(Inf)>4) CM=Inf[4];
 	}else if(Inf==1||Ck<5){
-		Ck=100;Ckm=4;MM=2;C1=1;
+		Ck=100;Ckm=2;MM=2;C1=1;
 	}else Inf=0;
 	Ckm*=Ck;
 	SS=subst(S,V,H);
 	if(Er>0){
-		HE=H/(Er+1);SSE=subst(S,V,HE);
+		HE=H/(Er+1);SSE=subst(S,V,HE);LyE=Ly;
 	}
 	for(C=CC=0;C<N;C++,CC++){
 		if(CC>=Ck){					/* check explosion */
@@ -12904,7 +12929,6 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 				LyE=Dy;
 			}
 		}
-
 		if(FL<0||(C+1)%FL) continue;
 		if(Vw){
 			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|option_list=Opt);
@@ -12929,7 +12953,8 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			for(S=L,T=LE,D=[];S!=[];S=cdr(S),T=cdr(T)) D=cons(os_md.ladd(car(S),car(T),-1),D);
 			F=map(os_md.dnorm,reverse(D));
 			if(iand(ErF,2)){			/* relative error */
-				G=llget(F,-1,[0]);G=map(os_md.dnorm,reverse(D));
+				G=llget(LE,-1,[0]);
+				G=map(os_md.dnorm,G);
 				for(R=[];G!=[];G=cdr(G),F=cdr(F)){
 					if(car(G)) R=cons(car(F)/car(G),R);
 					else R=cons(0,R);
@@ -12957,7 +12982,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			F=(!iand(ErF,1))?nlog(D):D;
 			if(!iand(ErF,8)) F=deval(F);
 		}
-		return iand(F,4)?[L,F,LE]:[L,F];
+		return iand(ErF,4)?[L,F,LE]:[L,F];
 	}
 	return L;
 }
