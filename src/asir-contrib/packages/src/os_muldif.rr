@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.60 2020/03/04 01:50:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.61 2020/03/09 06:52:34 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -492,7 +492,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200308"$
+Muldif.rr="00200309"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -12859,7 +12859,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			if(LS==1){
 				if(type(Mt)>1) Mt=0; 
 			}else{
-				if(type(Mt)!=6||size(Mt)!=[]) Mt=0;
+				if(type(Mt)!=6||size(Mt)!=[2,LS]) Mt=0;
 			}
 		}else Mt=0;
 		if(!Mt){
