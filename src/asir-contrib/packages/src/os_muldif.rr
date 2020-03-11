@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.61 2020/03/09 06:52:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.62 2020/03/10 02:19:52 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -429,6 +429,7 @@ localf cmpf$
 localf areabezier$
 localf saveproc$
 localf xyplot$
+localf xyaxis$
 localf xygraph$
 localf xy2graph$
 localf addIL$
@@ -492,7 +493,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200309"$
+Muldif.rr="00200310"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3500,6 +3501,7 @@ def llget(L,LL,LC)
 		}
 		L=lsort(L,"col",["put"]|c1=LC);
 	}
+	if(getopt(flat)==1) L=m2l(L|flat=1);
 	return L;
 }
 
@@ -14347,7 +14349,36 @@ def fcont(F,LX)
 
 def xyplot(L,LX,LY)
 {
-	LX=map(deval,LX);LY=map(deval,LY);
+	Vw=getopt(view);
+	if(type(Vw)!=1 && type(Vw)!=7 && Vw!=0) Vw=-1;
+	if(!LX){
+		L0=llget(L,1,[0]|flat=1);
+		LX=[lmin(L0),lmax(L0)];
+		S=LX[1]-LX[0];
+		if(S>0){
+			if(Vw) LX=[LX[0]-S/32,LX[1]+S/32];
+		}else LX=[LX[0]-1,LX[0]+1];
+	}else LX=map(deval,LX);
+	if(!LY){
+		L0=llget(L,1,[1]|flat=1);
+		LY=[lmin(L0),lmax(L0)];
+		S=LY[1]-LY[0];
+		if(S>0){
+ 			if(Vw) LY=[LY[0]-S/32,LY[1]+S/32];
+		}else LY=[LY[0]-1,LY[0]+1];
+	}else LY=map(deval,LY);
+	if(getopt(raw)==1) mycat([LX,LY]);
+	if(Vw!=-1){
+		if(Vw!=1){
+			if(type(Vw)==7) Vw=trcolor(Vw);
+			Opt=[["color",Vw]];
+		}else Opt=[];
+		Glib_math_coordinate=1;
+		glib_window(LX[0],LY[0],LX[1],LY[1]);
+		for(; L!=[];L=cdr(L))
+			glib_putpixel(car(L)[0],car(L)[1]|option_list=Opt);
+		return [LX,LY];
+	}
 	Opt=getopt();Opt0=delopt(Opt,["dviout","proc"]);
 	for(S="",L0=[],TL=L;TL!=[];TL=cdr(TL)){
 		TTL=map(deval,car(TL));
@@ -14362,6 +14393,42 @@ def xyplot(L,LX,LY)
 	if(type(AX=getopt(ax))==4) S+=xygraph([0,0],0,LX,LX,LY|option_list=delopt(Opt0,"opt"));
 	if(getopt(dviout)!=1) return S;
 	xyproc(S|dviout=1);
+}
+
+def xyaxis(A,X,Y)
+{
+	if(isint(Vw=getopt(view))&&Vw!=0){
+		CL=getopt(opt);
+		if(type(CL)==7) CL=trcolor(CL);
+		if(type(CL)!=0) CL=0;
+		if(CL) Opt=[[color,CL]];
+		else Opt=[];
+		Glib_math_coordinate=1;
+		UX=(X[1]-X[0])/50;UY=(Y[1]-Y[0])/50;
+		glib_window(X[0],Y[0],X[1],Y[1]);
+		glib_line(A[0],Y[0],A[0],Y[1]|option_list=Opt);
+		glib_line(X[0],A[1],X[1],A[1]|otpion_list=Opt);
+		if(length(A)>2&&A[2]){
+			I0=-floor((A[0]-X[0])/A[2]);I1=floor((X[1]-A[0])/A[2]);
+			for(I=I0;I<=I1;I++){
+				IX=A[0]+A[2]*I;
+				if(iand(Vw,2)) glib_print(IX-UX,A[1]-UY/2,rtostr(IX));
+				glib_line(IX,A[1],IX,A[1]+UY);
+			}
+		}
+		if(length(A)>3&&A[3]){
+			I0=-floor((A[1]-Y[0])/A[3]);I1=floor((Y[1]-A[1])/A[3]);
+			for(I=I0;I<=I1;I++){
+				IY=A[1]+A[3]*I;
+				if(iand(Vw,4)) glib_print(A[0]-UX*2,IY+UY,rtostr(IY));
+				glib_line(A[0],IY,A[0]+UX,IY);
+			}
+		}
+		return;
+	}
+	Opt=getopt();
+	Opt=cons(["ax",A],Opt);
+	return xygraph([0,0],0,[0,1],X,Y|option_list=Opt);
 }
 
 def xygraph(F,N,LT,LX,LY)
