@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.16 2013/09/25 07:30:52 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.17 2013/10/11 01:08:35 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -236,7 +236,7 @@ def
 %/cgiQueryPolymake { cgiQueryPolymake.native } def
 /cgiQueryPolymake.curl {
   /arg2 set /arg1 set
-  [/saction /sfile /ff /ff1 /sss2 /goo /pp /pp2 /key /body /fd] pushVariables
+  [/saction /sfile /ff /ff1 /sss2 /goo /pp /pp2 /key /body /fd /pid] pushVariables
   [
     /saction arg1 def /sfile arg2 def
 % step1. Generate query in URL encoding.
@@ -251,16 +251,25 @@ def
 
      ff 0 get 0 get /key set
      ff 0 get 1 get /body set
+
+     /pid [(getpid)] extension toString def
+
 % step 2. Call the server and get the response in pp  
      /cgi.verbose 1 def
-     (/tmp/sm1-q-cgi.txt) (w) file /fd set
+     [(/tmp/sm1-q-cgi.txt) pid] cat (w) file /fd set
      fd body writestring
      fd closefile
+
 %     [(curl) (--form) [key (=@/tmp/sm1-q-cgi.txt)] cat  ff1] /ff set
 %     ff  addStdoutStderr oxshell  @@@stdout /pp set
-     [(curl  --form ) [key (=@/tmp/sm1-q-cgi.txt )] cat  ff1 (>/tmp/sm1-q-cgi-out.txt)] cat /ff set
+     [(curl  --form ) [key (=@/tmp/sm1-q-cgi.txt) pid ( )] cat  ff1 (>/tmp/sm1-q-cgi-out.txt) pid] cat /ff set
      ff system 
-     [nl (/tmp/sm1-q-cgi-out.txt) pushfile] cat /pp set
+     [nl [(/tmp/sm1-q-cgi-out.txt) pid] cat pushfile] cat /pp set
+
+%% Store workfiles under OpenXM_tmp
+     [(mkdir -p ) [(getenv) (OpenXM_tmp)] extension] cat system
+     [(mv /tmp/sm1-q-cgi.txt) pid ( ) [(getenv) (OpenXM_tmp)] extension] cat system
+     [(mv /tmp/sm1-q-cgi-out.txt) pid ( ) [(getenv) (OpenXM_tmp)] extension] cat system
 
      cgi.verbose { pp message } {  } ifelse
      [(cgiHttpToKeyValuePair) pp] extension /pp2 set

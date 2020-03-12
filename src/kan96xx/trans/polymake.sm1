@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.7 2013/09/22 05:17:17 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/trans/polymake.sm1,v 1.8 2013/09/25 07:30:52 takayama Exp $
 % It is a polymake interface
 
 /@@@polymake.ask.which 1 def
@@ -43,6 +43,7 @@
  (See also usePolymake.local, usePolymake.OoHG.native and usePolymake.OoHG.curl in cgi.sm1)
  (Example:)
 % ( [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell )
+ $ usePolymake.OoHG.curl polymake.start ; $
  $ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))]$
  (         doPolymake /rr set )
  ( Keys---properties are FACETS, CONE_DIM, LINEARITY_DIM, FEASIBLE, AFFINE_FULL, ... )
