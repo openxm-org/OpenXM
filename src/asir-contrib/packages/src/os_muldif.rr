@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.62 2020/03/10 02:19:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.63 2020/03/11 03:18:22 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -493,7 +493,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200310"$
+Muldif.rr="00200311"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -14358,7 +14358,8 @@ def xyplot(L,LX,LY)
 		if(S>0){
 			if(Vw) LX=[LX[0]-S/32,LX[1]+S/32];
 		}else LX=[LX[0]-1,LX[0]+1];
-	}else LX=map(deval,LX);
+	}
+	LX=map(deval,LX);
 	if(!LY){
 		L0=llget(L,1,[1]|flat=1);
 		LY=[lmin(L0),lmax(L0)];
@@ -14366,7 +14367,8 @@ def xyplot(L,LX,LY)
 		if(S>0){
  			if(Vw) LY=[LY[0]-S/32,LY[1]+S/32];
 		}else LY=[LY[0]-1,LY[0]+1];
-	}else LY=map(deval,LY);
+	}
+	LY=map(deval,LY);
 	if(getopt(raw)==1) mycat([LX,LY]);
 	if(Vw!=-1){
 		if(Vw!=1){
@@ -14380,7 +14382,17 @@ def xyplot(L,LX,LY)
 		return [LX,LY];
 	}
 	Opt=getopt();Opt0=delopt(Opt,["dviout","proc"]);
-	for(S="",L0=[],TL=L;TL!=[];TL=cdr(TL)){
+	if(type(R=getopt(to))!=4) To=[12,8];
+	R=[To[0]/(LX[1]-LX[0]),RY=To[1]/(LY[1]-LY[0])];
+	R=[sint(R[0],4|str=0),sint(R[1],4|str=0)];
+	S="% ";
+	if(type(C=getopt(scale))!=1&&type(C)!=4){
+		Opt0=cons(["scale",R],Opt0);
+		S+="scale="+rtostr(R)+", ";
+	}
+	S+=rtostr([sint(LX[0],4|str=0),sint(LX[1],4|str=1)])+", "
+	+rtostr([sint(LY[0],4|str=0),sint(LY[1],4|str=1)])+"\n";
+	for(L0=[],TL=L;TL!=[];TL=cdr(TL)){
 		TTL=map(deval,car(TL));
 		if(TTL[0]<LX[0]||TTL[0]>LX[1]||TTL[1]<LY[0]||TTL[1]>LY[1]){
 			S+=xylines(reverse(L0)|option_list=Opt0);
@@ -14390,9 +14402,13 @@ def xyplot(L,LX,LY)
 		}
 	}
 	if(length(L0)>1) S+=xylines(reverse(L0)|option_list=Opt0);
-	if(type(AX=getopt(ax))==4) S+=xygraph([0,0],0,LX,LX,LY|option_list=delopt(Opt0,"opt"));
+	AX=getopt(ax);Opt=delopt(Opt0,"opt");
+	if(type(AX)==4) S+=xygraph([0,0],0,LX,LX,LY|option_list=Opt);
+	else if((LX[0]<=0&&LX[1]>=0)||(LY[0]<=0&&LY[1]>=0))
+		S+=xygraph([0,0],0,LX,LX,LY|option_list=cons(["ax",[0,0]],Opt));
 	if(getopt(dviout)!=1) return S;
 	xyproc(S|dviout=1);
+	return [LX,LY];
 }
 
 def xyaxis(A,X,Y)
