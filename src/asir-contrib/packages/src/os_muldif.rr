@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.63 2020/03/11 03:18:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.64 2020/03/12 06:28:46 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -12878,27 +12878,33 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 
 	RE=R=[cons(T=Lx[0],Ly)];
 	H=(Lx[1]-Lx[0])/N*One;
-	Ck=N+1;
-	if(type(Inf=getopt(Inf))==4&&length(Inf)>1){	/* explosion */
+
+	Ck=N+1;CB=10;Ckm=2;MM=2;C1=1;
+	if(Ck<5) Ck=100;
+	if(type(Inf=getopt(Inf))==4&&length(Inf)>1&&Inf[0]>4){	/* explosion */
 		Ck=Inf[0];Ckm=Inf[1];
-		MM=2;
 		if(length(Inf)>2) MM=Inf[2];
 		if(!isint(Mt)||MM<1) MM=2;
 		if(length(Inf)>3) C1=Inf[3];
 		if(type(C1)!=1||C1<0) C1=1;
-		if(length(Inf)>4) CM=Inf[4];
-	}else if(Inf==1||Ck<5){
-		Ck=100;Ckm=2;MM=2;C1=1;
+		if(length(Inf)>4) CB=Inf[4];
+	}else if(isint(Inf)&&Inf>0&&Inf<100){
+		MM=Inf+1;Ck=100;
 	}else Inf=0;
 	Ckm*=Ck;
+
 	SS=subst(S,V,H);
 	if(Er>0){
 		HE=H/(Er+1);SSE=subst(S,V,HE);LyE=Ly;
 	}
-	for(C=CC=0;C<N;C++,CC++){
+	for(C=CC=CF=0;C<N;C++,CC++){
 		if(CC>=Ck){					/* check explosion */
 			CC=0;
 			D0=dnorm(Ly|max=1);
+			if(Er&&CF){
+				DE=dnorm(ladd(LyE,Ly,-1)|max=1);
+				if(CB*DE>D0) break;
+			}
 			for(Dy=F,TY=Y,TL=Ly;TY!=[];TY=cdr(TY),TL=cdr(TL))
 				Dy=subst(Dy,car(TY),One*car(TL));
 			D1=dnorm(Dy|max=1);D2=subst(FM,x,2*D0+C1);D3=D1+D2;
@@ -12910,6 +12916,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 				if(H*6/5<HH) H*=6/5;
 				SS=subst(S,V,H);
 				if(Er){
+					CF++;
 					HE=H/(Er+1);
 					SSE=subst(S,V,HE);
 				}
@@ -14390,8 +14397,7 @@ def xyplot(L,LX,LY)
 		Opt0=cons(["scale",R],Opt0);
 		S+="scale="+rtostr(R)+", ";
 	}
-	S+=rtostr([sint(LX[0],4|str=0),sint(LX[1],4|str=1)])+", "
-	+rtostr([sint(LY[0],4|str=0),sint(LY[1],4|str=1)])+"\n";
+	S+=rtostr(LX)+", "+rtostr(LY)+"\n";
 	for(L0=[],TL=L;TL!=[];TL=cdr(TL)){
 		TTL=map(deval,car(TL));
 		if(TTL[0]<LX[0]||TTL[0]>LX[1]||TTL[1]<LY[0]||TTL[1]>LY[1]){
@@ -14403,9 +14409,9 @@ def xyplot(L,LX,LY)
 	}
 	if(length(L0)>1) S+=xylines(reverse(L0)|option_list=Opt0);
 	AX=getopt(ax);Opt=delopt(Opt0,"opt");
-	if(type(AX)==4) S+=xygraph([0,0],0,LX,LX,LY|option_list=Opt);
+	if(type(AX)==4) S+="% axis\n"+xygraph([0,0],0,LX,LX,LY|option_list=Opt);
 	else if((LX[0]<=0&&LX[1]>=0)||(LY[0]<=0&&LY[1]>=0))
-		S+=xygraph([0,0],0,LX,LX,LY|option_list=cons(["ax",[0,0]],Opt));
+		S+="% axis\n"+xygraph([0,0],0,LX,LX,LY|option_list=cons(["ax",[0,0]],Opt));
 	if(getopt(dviout)!=1) return S;
 	xyproc(S|dviout=1);
 	return [LX,LY];
