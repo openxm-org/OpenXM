@@ -1,8 +1,9 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.35 2015/10/12 11:29:48 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.36 2018/05/02 02:28:13 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
 \date{}
+\usepackage{url}
 \begin{document}
 \maketitle
 
@@ -909,5 +910,73 @@ void *sGC_malloc(int n);
 \noindent
 解決: OpenXM/src/util/mysig.c に sigaction を用いた signal emulation を加えた.
 これにより上記のようなトラブルは解消.
+
+\section{doPolymake の構造メモ (2020.03.12)}
+doPolymake に起因する bug を fix. その時に doPolymake の流れを読み直した.
+
+テスト用の入力(polymake は サーバーを利用).
+{\tiny
+\begin{verbatim}
+export OX_XTERM_GEOMETRY=80x20+0+0
+sm1
+(cgi.sm1) run ;
+usePolymake.OoHG.curl polymake.start ;
+[(FACETS) (polymake.data(polymake.POINTS([[1,0],[1,1]])))]
+doPolymake /rr set ;
+rr ::
+\end{verbatim}
+}
+{\tt rr} には sm1 の class.tree データが格納される.
+{\tt OX\_XTERM\_GEOMETRY} を設定することで ox server が iconic にならない.
+polymake へ OOHG で問い合わせている本体は,
+{\tt cgi.sm1} の {\tt cgiQueryPolymake.curl}.
+これを読むと仕組みがわかる.
+polymake http server 側では次のコード(cgi-polymake.sh)で post message を受取り, polymake で計算して, 結果を戻す.
+{\tiny
+\begin{verbatim}
+#!/bin/bash
+# $OpenXM: OpenXM/src/polymake/cgi/cgi-polymake.sh,v 1.1 2004/09/27 01:20:46 takayama Exp $ 
+PATH=/usr/local/polymake/bin:$PATH
+export TMP=/tmp
+source /home/taka/OpenXM/rc/dot.bashrc
+WFILE=/tmp/tmp-post-$$.txt
+tee /tmp/t.txt | oxdecode_post >${WFILE}
+env CONTENT_LENGTH=`wc -m ${WFILE} | awk '{print $1}'` sm1 -q -s "[(parse) (cgi.sm1) pushfile] extension cgiPolymake quit " <${WFILE}
+rm -f ${WFILE}
+exit 0
+: rm -f ${WFILE}
+\end{verbatim}
+}
+送信側の {\tt cgiQueryPolymake.curl} は curl の form option を用いて
+post message をする.
+キーは {\tt oxMessageBody} である.
+送る form は {\tt /tmp/sm1-q-cgi.txt???} に生成される.
+ここで ??? は pid である.
+結果を受け取ったらこの一時ファイルは {\tt OpenXM\_tmp} 環境変数で指定される
+folder へ移動される.
+{\rm /tmp/sm1-q-cgi*} は動作エラー等により残ることがあるので定期的に削除することが
+望ましい.
+{\tt cgiQueryPolymake.curl} は polymake version 2 形式の出力を文字列の list として戻す.
+
+これを tree 形式等に変換しているのは {\tt kan96xx/trans} 内のソースである.
+このフォルダはデータ形式の変換等のテストケースとして作成された.
+考え方としては,
+\begin{center}
+\fbox{tree 形式のデータ} $\Leftrightarrow$
+\fbox{tfb 形式のデータ} $\Leftrightarrow$ \fbox{polymake 形式} 
+$\Leftrightarrow$ \fbox{polymake web server}
+\end{center}
+{\tt polymake2tfb} は polymake version 2 のファイルを入力とすると
+tfb 形式のデータを出力する.
+{\tiny
+\begin{verbatim}
+polymake2tfb < ~/.OpenXM_tmp/sm1-q-cgi-out.txt37402
+polymake.data(polymake.POINTS([[1,0],[1,1]]),polymake.FACETS([[1,-1],[0,1]]),polymake.AFFINE_HULL())
+\end{verbatim}
+}
+tfb 形式のデータは {\tt ox\_k0} が parse して, それを tree 形式に変換している.
+逆変換も {\tt ox\_k0} が行う
+(ソース {\tt polymake.sm1}, 関数 {\tt tfbToTree} を参照).
+
 \end{document}
 
