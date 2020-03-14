@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.55 2019/03/28 23:03:04 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.56 2019/03/29 03:01:45 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -24,7 +24,7 @@ CURRENT_FILES=index.html index-ja.html index-spec.html index-spec-ja.html \
               cmotag.h oxMessageTag.h smCommand.h \
               anonymous.html ERRATA.html
 
-OXWEAVE_FILES_in_doc=install-en.txt install-ja.txt OpenXM-FAQ-en.txt OpenXM-FAQ-ja.txt
+OXWEAVE_FILES_in_doc=install-en.txt install-ja.txt OpenXM-FAQ-en.txt OpenXM-FAQ-ja.txt OpenXM-FAQ-ja.txt.html
 
 LOGOS=logo-openxm2.jpg logo-openxm5.jpg logo-openxm_simple0.jpg
 
