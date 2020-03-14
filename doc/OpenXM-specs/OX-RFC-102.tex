@@ -3,61 +3,61 @@
 \IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
 \IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \title{OpenXM-RFC102 (Draft)}
-\author{$BLnO$(B $B@59T(B \\ ($B?@8MBgM}(B)}
+\author{野呂 正行 \\ (神戸大理)}
 \date{}
 \begin{document}
 \maketitle
-\def\gr{Gr\"obner $B4pDl(B}
+\def\gr{Gr\"obner 基底}
 \def\st{\, s.t. \,}
 \def\noi{\noindent} 
 \def\ve{\vfill\eject} 
 
-\section{server $B4VDL?.$NF3F~(B}
+\section{server 間通信の導入}
 
-OpenXM-RFC-100, OpenXM-RFC-101 ($B0J2<(B RFC-100,RFC-101) $B$G$O(B, $B7W;;$O(B
-client (master) $B$H(B server $B4V$N(B RPC (remote procedure call) $B$H$7$F9T$o$l$k(B. 
-$B$3$N7ABV$G9T$&$3$H$,$G$-$kJ,;6JBNs7W;;$H$7$F$O(B
+OpenXM-RFC-100, OpenXM-RFC-101 (以下 RFC-100,RFC-101) では, 計算は
+client (master) と server 間の RPC (remote procedure call) として行われる. 
+この形態で行うことができる分散並列計算としては
 
 \begin{itemize}
-\item master $B$,;E;v$rJ,3d$7$F!"3F(B server $B$K0MMj$9$k(B.
-\item $B0l$D$N7W;;$K$$$/$D$+J}K!$,$"$k>l9g$K(B, $B$=$l$>$l$NJ}K!$r(B
-$BJL!9$N(B server $B$K0MMj$9$k(B.
+\item master が仕事を分割して、各 server に依頼する.
+\item 一つの計算にいくつか方法がある場合に, それぞれの方法を
+別々の server に依頼する.
 \end{itemize}
 
-$B$J$I$,9M$($i$l(B, $B<B:]$KM-8z$G$"$k$3$H$r<B>Z$7$?(B \cite{OpenXM}.
-$B$7$+$7(B, $B$5$i$KJ#;($JJ,;6JBNs7W;;%"%k%4%j%:%`$G$O(B,
-server $B4V$NDL?.$,I,MW$K$J$k>l9g$,$"$k(B. $B8=>u$N(B RFC-100,101 $B$G$b(B,
-server $B$,(B tree $B>u$K7k9g$7$FJ,;67W;;$r9T$&$3$H$O$G$-$k$,(B,
-$B$3$N>l9g$"$/$^$G0lJ}$,(B client, $BB>J}$,(B server $B$H$7$FF0:n$7$F$$$k(B.
-$BNc$($P(B, ScaLAPACK $B$N$h$&$K(B, $B3F(B process $B$,9TNs$N(B
-$B0lIt$rJ];}$7$F(B, $BF10l$N%W%m%0%i%`$r<B9T$7$J$,$i(B LU $BJ,2r$r$7$F(B
-$B$$$/(B, $B$H$$$C$?JBNs%"%k%4%j%:%`$r<BAu$9$k$N$OFq$7$$(B.
-$B$3$N>l9g(B, pivot $BA*Br$N$?$a$K(B, $BJ#?t(B process $B4V$GJ];}$5$l$F$$$k(B
-$BCM$N:GBgCM$r7hDj$7$?$j(B, $B9T$NF~$l49$($r9T$C$?$j$9$k$?$a$K(B,
-process $B4V$G$N%G!<%?$N$d$j$H$j$,I,MW$H$J$k(B. 
+などが考えられ, 実際に有効であることを実証した \cite{OpenXM}.
+しかし, さらに複雑な分散並列計算アルゴリズムでは,
+server 間の通信が必要になる場合がある. 現状の RFC-100,101 でも,
+server が tree 状に結合して分散計算を行うことはできるが,
+この場合あくまで一方が client, 他方が server として動作している.
+例えば, ScaLAPACK のように, 各 process が行列の
+一部を保持して, 同一のプログラムを実行しながら LU 分解をして
+いく, といった並列アルゴリズムを実装するのは難しい.
+この場合, pivot 選択のために, 複数 process 間で保持されている
+値の最大値を決定したり, 行の入れ換えを行ったりするために,
+process 間でのデータのやりとりが必要となる. 
 
-$B$5$i$KC1=c$JNc$H$7$F$O(B broadcast $B$,$"$k(B. $BNc$($P(B, $B$"$kB?9`<0=89g(B $G$
-$B$,%0%l%V%J!<4pDl$+$I$&$+%A%'%C%/$9$k$K$O(B, $G$ $B$+$i:n$i$l$kA4$F$N(B S-$BB?9`<0$,(B
-$G$ $B$K$h$j(B 0 $B$K4JLs$5$l$k$3$H$r<($;$P$h$$!#8D!9$N4JLsA`:n$OFHN)$J$N$G(B,
-$BE,Ev$KJ,3d$7$FJBNs7W;;$G$-$k$,(B, $B$^$:(B $G$ $B$r3F(B server $B$KAw$kI,MW$,$"$k(B.
-$B$3$l$O(B, RFC-100 $B$N$b$H$G$O(B master $B$,3F(B server $B$K=g$KAw$k$N$G(B, server $B$N(B
-$B?t(B $N$ $B$KHfNc$7$?<j4V$,$+$+$k$,(B, server $B4VDL?.$,;H$($l$P(B, $\log N$ $B$K(B
-$BHfNc$7$?<j4V$GAw$k$3$H$b$G$-$k(B.
+さらに単純な例としては broadcast がある. 例えば, ある多項式集合 $G$
+がグレブナー基底かどうかチェックするには, $G$ から作られる全ての S-多項式が
+$G$ により 0 に簡約されることを示せばよい。個々の簡約操作は独立なので,
+適当に分割して並列計算できるが, まず $G$ を各 server に送る必要がある.
+これは, RFC-100 のもとでは master が各 server に順に送るので, server の
+数 $N$ に比例した手間がかかるが, server 間通信が使えれば, $\log N$ に
+比例した手間で送ることもできる.
 
-$B$3$l$i$O$4$/8B$i$l$?Nc$G$"$k$,(B, $B=EMW$J$3$H$O(B, 
-$B$h$j9bEY$JJ,;6JBNs7W;;$,<B83$G$-$k$h$&$J5!G=$rDs0F$7(B, $B<BAu$9$k$3$H$G$"$k(B.
-$B0J2<$G$O(B MPI-2 \cite{MPI2} $B$GDj5A$5$l$?F0E*%W%m%;%9@8@.(B, $B%W%m%;%9%0%k!<%W4V$G$N(B
-broadcast $B$N;EMM$r;29M$K(B, OpenXM $B$K$*$1$k(B server $B4VDL?.$K$D$$$F(B
-$B=R$Y$k(B.
+これらはごく限られた例であるが, 重要なことは, 
+より高度な分散並列計算が実験できるような機能を提案し, 実装することである.
+以下では MPI-2 \cite{MPI2} で定義された動的プロセス生成, プロセスグループ間での
+broadcast の仕様を参考に, OpenXM における server 間通信について
+述べる.
 
-\section{server $B$N5/F0$H(B server $B4VDL?.O)$N3+@_(B}
+\section{server の起動と server 間通信路の開設}
 
-server $B$O(B RFC-100, 101 $B$K$h$j5/F0$5$l$k$H$9$k(B. server $B$O5/F0$5$l$?(B
-$B;~E@$G$O(B master $B$H$NDL?.O)$N$_$r;}$D(B. server-server $B4V$NDL?.O)$O(B,
-master $B$+$i(B SM $B%3%^%s%I$K$h$j3+@_$5$l$k(B. RFC-100, 101 $B$G$O(B,
-master-server $B4V$NDL?.O)$O(B, server $B$,5/F0$7$?;~E@$G$9$G$KB8:_$7$F(B
-$B$$$?$,(B, RFC-102 $B$KBP1~$9$k$?$a$K$O(B server $B$,B>$N%W%m%;%9$N(B
-$BDL?.O)$r3+@_$9$k$?$a$N;EAH$_$r<BAu$7$F$$$kI,MW$,$"$k(B.
+server は RFC-100, 101 により起動されるとする. server は起動された
+時点では master との通信路のみを持つ. server-server 間の通信路は,
+master から SM コマンドにより開設される. RFC-100, 101 では,
+master-server 間の通信路は, server が起動した時点ですでに存在して
+いたが, RFC-102 に対応するためには server が他のプロセスの
+通信路を開設するための仕組みを実装している必要がある.
 
 \begin{enumerate}
 \item
@@ -65,11 +65,11 @@ master-server $B4V$NDL?.O)$O(B, server $B$,5/F0$7$?;~E@$G$9$G$KB8:_$7$F(B
 SM_set_rank_102
 \end{verbatim}
 
-server $B4V$N(B broadcast $B$O(B, $B$$$/$D$+$N(B server $B$r%0%k!<%W2=$7$F9T$&$N$,(B
-$B<+A3$G$"$k(B. $B4JC1$N$?$a(B, $B3F(B server $B$O(B, $B$?$@0l$D$N%0%k!<%W$KB0$9$k$H$9$k(B.
-master $B$O(B, $B3F(B server $B$K(B, $B$=$N(B server $B$,B0$9$k%0%k!<%W$N%a%s%P!<$NAm?t(B
-$nserver$ $B$H(B, $B$=$N%0%k!<%WFb$G$N<1JL;R(B $rank$ ($0\le rank \le nserver-1$)
-$B$rDLCN$9$k(B.
+server 間の broadcast は, いくつかの server をグループ化して行うのが
+自然である. 簡単のため, 各 server は, ただ一つのグループに属するとする.
+master は, 各 server に, その server が属するグループのメンバーの総数
+$nserver$ と, そのグループ内での識別子 $rank$ ($0\le rank \le nserver-1$)
+を通知する.
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -100,13 +100,13 @@ Stack after the request:
 
 Output: none.
 
-$B<!9`$N(B {\tt SM\_tcp\_connect\_102} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server 
-$B$N4V$N(B TCP/IP $B$K$h$kDL?.O)$r3+@_$9$k(B. $port$ $B$O(B, master $B$,(B ($B%i%s%@%`$K(B) $BA*$s$@(B
-TCP $B$N%]!<%HHV9f$G$"$k(B. $B$3$N%j%/%(%9%H$r<u$1<h$k$H(B, server $B$O(B, 
-bind, listen, accept $BF0:n$r<B9T$7(B, connect $BBT$A>uBV$KF~$k(B. $B$$$:$l$+$NF0:n(B
-$B$K$*$$$F%(%i!<$r@8$8$?>l9g$K$O(B $status$ $B$H$7$F(B $-1$, $B@.8y$7$?>l9g$K$O(B
-$0$ $B$r%9%?%C%/$KCV$/(B. $peer$ $B$O(B, $BAj<j$N(B server $B$N%0%k!<%WFb$G$N<1JL;R(B
-$B$G$"$k(B.
+次項の {\tt SM\_tcp\_connect\_102} とペアで, 既に存在している 2 つの server 
+の間の TCP/IP による通信路を開設する. $port$ は, master が (ランダムに) 選んだ
+TCP のポート番号である. このリクエストを受け取ると, server は, 
+bind, listen, accept 動作を実行し, connect 待ち状態に入る. いずれかの動作
+においてエラーを生じた場合には $status$ として $-1$, 成功した場合には
+$0$ をスタックに置く. $peer$ は, 相手の server のグループ内での識別子
+である.
 
 \item
 \begin{verbatim}
@@ -129,63 +129,63 @@ Stack after the request:
 
 Output: none.
 
-$BA09`$N(B {\tt SM\_tcp\_accept\_102} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server
-$B$N4V$N(B TCP/IP $B$K$h$kDL?.O)$r3+@_$9$k(B. $host$ $B$OAj<j$N(B server $B$,F0:n$7$F(B
-$B$$$k%[%9%HL>$G$"$k(B. $host$ $B>e(B, $B%]!<%HHV9f(B $port$ $B$G(B accept $B$7$F$$$k(B server $B$KBP$7(B,
-connect $B$9$k(B. 
-$B%(%i!<$r@8$8$?>l9g$K$O(B $status$ $B$H$7$F(B $-1$, $B@.8y$7$?>l9g$K$O(B
-$0$ $B$r%9%?%C%/$KCV$/(B. $peer$ $B$O(B, $BAj<j$N(B server $B$N%0%k!<%WFb$G$N<1JL;R$G$"$k(B.
+前項の {\tt SM\_tcp\_accept\_102} とペアで, 既に存在している 2 つの server
+の間の TCP/IP による通信路を開設する. $host$ は相手の server が動作して
+いるホスト名である. $host$ 上, ポート番号 $port$ で accept している server に対し,
+connect する. 
+エラーを生じた場合には $status$ として $-1$, 成功した場合には
+$0$ をスタックに置く. $peer$ は, 相手の server のグループ内での識別子である.
 
 \end{enumerate}
 
-\section{server $B4V$NDL?.(B, broadcast $B$*$h$S(B reduction}
+\section{server 間の通信, broadcast および reduction}
 
-RFC-102 $B2<$G$N%W%m%0%i%_%s%0%9%?%$%k$O(B, $B4pK\E*$K$O(B RFC-100,101 $B$HJQ$o$i$J$$(B.
-$B$9$J$o$A(B, master $B$G$"$k%W%m%0%i%`$,<B9T$5$l(B, $BI,MW$K1~$8$F(B server $B$K(B
-$B;E;v$,0MMj$5$l(B, master $B$O$=$N7k2L$r;H$C$F<+$i$N;E;v$rB39T$9$k(B.
-$B$3$l$K2C$($F(B, RFC-102 $B$G$O(B, server $B$I$&$7$,!V<+N'E*!W$K%G!<%?$NAw<u?.(B
-$B$r9T$&$3$H$,$G$-$k(B. $B$3$N$?$a(B, server $B$O(B, server $B4VDL?.O)$K(B OX $B%G!<%?$r(B
-$BAw?.$9$k5!G=(B, $B$^$?!"(Bserver $B4VDL?.O)$+$i(B OX $B%G!<%?$r<u?.$9$k5!G=$r(B
-$BDs6!$7$J$1$l$P$J$i$J$$(B. 
+RFC-102 下でのプログラミングスタイルは, 基本的には RFC-100,101 と変わらない.
+すなわち, master であるプログラムが実行され, 必要に応じて server に
+仕事が依頼され, master はその結果を使って自らの仕事を続行する.
+これに加えて, RFC-102 では, server どうしが「自律的」にデータの送受信
+を行うことができる. このため, server は, server 間通信路に OX データを
+送信する機能, また、server 間通信路から OX データを受信する機能を
+提供しなければならない. 
 
-server $B4VDL?.$rMxMQ$9$k:G$bE57?E*$JNc$H$7$F(B broadcast $B$,$"$k(B.
+server 間通信を利用する最も典型的な例として broadcast がある.
 
 \begin{enumerate}
-\item $B%0%k!<%WFb(B broadcast
+\item グループ内 broadcast
 
-$B%0%k!<%WFb$N(B broadcast $B$O(B, $B$$$o$f$k(B collective operation $B$H$7$F<B9T$5(B
-$B$l$k(B. $B$9$J$o$A(B, $B%0%k!<%WFb$N3F(B server $B$G$=$l$>$lFHN)$K<B9T$5$l$F$$$k%W(B
-$B%m%0%i%`$K$*$$$F(B, $B0l@F$K$"$k4X?t$r8F$S=P$9$3$H$K$h$j(B, $B$=$N4X?t$+$iI|5"(B
-$B$7$?$H$-$K(B, broadcast $B$5$l$?%G!<%?$,JV$5$l$k(B, $B$H$$$&7A$r$H$k(B. $B$3$N>l9g(B
-$B$K%G!<%?$NH/?.85(B (root)$B$N<1JL;R$O3F(B server $B$,$"$i$+$8$aCN$C$F$*$/I,MW$,$"$k(B.
+グループ内の broadcast は, いわゆる collective operation として実行さ
+れる. すなわち, グループ内の各 server でそれぞれ独立に実行されているプ
+ログラムにおいて, 一斉にある関数を呼び出すことにより, その関数から復帰
+したときに, broadcast されたデータが返される, という形をとる. この場合
+にデータの発信元 (root)の識別子は各 server があらかじめ知っておく必要がある.
 
-\item master $B$+$i(B server $B%0%k!<%W$X$N(B broadcast
+\item master から server グループへの broadcast
 
-master $B$+$i(B server $B%0%k!<%W$X$N(B broadcast $B$O(B, $B%0%k!<%WFb$N(B
-server $B$,%9%?%C%/%3%^%s%IBT$A>uBV$K9T$&$3$H$,$G$-$k$H$9$k(B.
-$B$3$N>l9g(B, master $B$O$"$k0l$D$N(B server $B$K(B data $B$r(B push $B$9$k(B.
-$B$3$N(B server $B$N<1JL;R$r(B $root$ $B$H$9$k(B.
-$B$=$N8e(B, $B%0%k!<%WFb$NA4(B server $B$K(B, $root$ $B$rH/?.85$H$9$k(B
-broadcast $B$r<B9T$5$;$k$?$a$N%3%^%s%I$rC`<!Aw?.$9$k(B.
+master から server グループへの broadcast は, グループ内の
+server がスタックコマンド待ち状態に行うことができるとする.
+この場合, master はある一つの server に data を push する.
+この server の識別子を $root$ とする.
+その後, グループ内の全 server に, $root$ を発信元とする
+broadcast を実行させるためのコマンドを逐次送信する.
 \end{enumerate}
 
-$B0J2<$G$O(B, $B%0%k!<%WFb$G(B broadcast $B$r9T$&<jB3$-$r(B, MPI $B$G$N<BAu$K(B
-$B$7$?$,$C$F@bL@$9$k(B. $B4JC1$N$?$a(B $root$ $B$,(B $0$ $B$G$"$k$H$7$F(B,
-$B<1JL;R$,(B $b2^k$ ($b$ $B$O4q?t(B) $B$G$"$k(B server $B$NF0:n$r@bL@$9$k(B.
+以下では, グループ内で broadcast を行う手続きを, MPI での実装に
+したがって説明する. 簡単のため $root$ が $0$ であるとして,
+識別子が $b2^k$ ($b$ は奇数) である server の動作を説明する.
 
 \begin{enumerate}
-\item $B<1JL;R$,(B $(b-1)2^k$ $B$G$"$k(B server $B$+$i%G!<%?$r<u?.$9$k(B.
-\item $B<1JL;R$,(B $b2^k+2^i$ $(i=k-1,\ldots,0)$ $B$N(B server $B$K%G!<%?$rAw?.$9$k(B.
+\item 識別子が $(b-1)2^k$ である server からデータを受信する.
+\item 識別子が $b2^k+2^i$ $(i=k-1,\ldots,0)$ の server にデータを送信する.
 \end{enumerate}
 
-$B$3$NJ}K!$K$h$l$P(B, 
-$B2<0L$K$h$jD9$/O"B3$7$F(B 0 $B$,8=$o$l$k<1JL;R$r;}$D(B server $B$[$I(B
-$B@h$K%G!<%?$rAw?.$7;O$a$k$?$a(B, $B%G%C%I%m%C%/$K$O$J$i$J$$(B. $B$^$?(B,
-$BFHN)$J%Z%"$I$&$7$NDL?.$,F1;~$K9T$($k$H$9$l$P(B, $B%0%k!<%WFb$N(B
-server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nserver\rceil$
-$B%9%F%C%W8e$K$OA4$F$N(B server $B$K%G!<%?$,9T$-EO$k(B.
+この方法によれば, 
+下位により長く連続して 0 が現われる識別子を持つ server ほど
+先にデータを送信し始めるため, デッドロックにはならない. また,
+独立なペアどうしの通信が同時に行えるとすれば, グループ内の
+server の総数を $nserver$ とするとき, 高々 $\lceil \log_2 nserver\rceil$
+ステップ後には全ての server にデータが行き渡る.
 
-$B0J2<$K(B, {\tt ox\_asir} $B$K$*$1$k<BAu$r<($9(B.
+以下に, {\tt ox\_asir} における実装を示す.
 
 \begin{verbatim}
 void ox_bcast_102(int root)
@@ -214,22 +214,22 @@ void ox_bcast_102(int root)
 }
 \end{verbatim}
 
-$BF1MM$N<jB3$-$K(B reduction $B$,$"$k(B. $B$3$l$O(B, $B3F(B server $B$K$"$k%G!<%?$r(B, 2 
-$B9`1i;;$K$h$j=hM}$7$F$$$-(B, $B:G8e$K(B $root$ $B$K1i;;7k2L$,=8$a$i$l$k<jB3$-$G(B
-$B$"$k(B.  $B$3$N>l9g$b(B, $B4JC1$N$?$a(B $root$ $B$,(B $0$ $B$G$"$k$H$7$F(B, $B<1JL;R$,(B 
-$B<1JL;R$,(B $b$ $B$N(B server $B$G$O(B, $b$ $B$r2<0L%S%C%H$+$i=g$K8+$F(B,
+同様の手続きに reduction がある. これは, 各 server にあるデータを, 2 
+項演算により処理していき, 最後に $root$ に演算結果が集められる手続きで
+ある.  この場合も, 簡単のため $root$ が $0$ であるとして, 識別子が 
+識別子が $b$ の server では, $b$ を下位ビットから順に見て,
 
 \begin{enumerate}
-\item $B$=$N%S%C%H$,(B 1 $B$J$i(B, $B$=$N%S%C%H$r(B 0 $B$K$7$?<1JL;R$r$b$D(B server 
-($B$=$l$OI,$:B8:_$9$k(B) $B$K%G!<%?$rAw?.$7$F=*N;(B.
-\item $B$=$N%S%C%H$,(B 0 $B$G(B, $B$=$N%S%C%H$r(B 1 $B$K$7$?CM$,(B $nserver-1$ $B0J2<(B
-$B$J$i(B, $B$=$3$+$i%G!<%?$r<u?.$9$k(B. $B$=$N%G!<%?$H<j;}$A$N%G!<%?(B
-$B$N(B 2 $B9`1i;;7k2L$G<j;}$A%G!<%?$r99?7$9$k(B.
+\item そのビットが 1 なら, そのビットを 0 にした識別子をもつ server 
+(それは必ず存在する) にデータを送信して終了.
+\item そのビットが 0 で, そのビットを 1 にした値が $nserver-1$ 以下
+なら, そこからデータを受信する. そのデータと手持ちのデータ
+の 2 項演算結果で手持ちデータを更新する.
 \end{enumerate}
 
-$B$3$NJ}K!$K$h$l$P(B, $B:G=*7k2L$O(B $root$ $B$K%G!<%?$,=8$a$i$l$k(B. $B$3$N>l9g$K$b(B,
-server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nserver\rceil$
-$B%9%F%C%W8e$K$O<jB3$-$,=*N;$9$k(B.
+この方法によれば, 最終結果は $root$ にデータが集められる. この場合にも,
+server の総数を $nserver$ とするとき, 高々 $\lceil \log_2 nserver\rceil$
+ステップ後には手続きが終了する.
 
 \begin{verbatim}
 void ox_reduce_102(int root,void (*func)())
@@ -259,7 +259,7 @@ void ox_reduce_102(int root,void (*func)())
 }
 \end{verbatim}
 
-$BBP1~$9$k(B SM $B%3%^%s%I$O0J2<$NDL$j$G$"$k(B.
+対応する SM コマンドは以下の通りである.
 
 \begin{enumerate}
 \item
@@ -298,29 +298,29 @@ Stack after the request:
 Output: none.
 \end{enumerate}
 
-\section{$B%(%i!<=hM}(B}
+\section{エラー処理}
 
-server $B$O(B RFC-100,101 $B$N(B $B%j%;%C%H%W%m%H%3%k$r<BAu$7$F$$$l$P(B,
-master $B$+$i(B server $B$r%j%;%C%H$7(B, master-server $B4V$NDL?.O)$r(B
-$B%j%;%C%H$9$k$3$H$O$G$-$k(B. $B$3$l$K2C$($F(B,$B%0%k!<%WFb$N(B server $B4VDL?.O)(B
-$B$r%j%;%C%H$9$kI,MW$,$"$k(B. $B<1JL;R$,(B $i$ ($0\le i \le nserver$) 
-$B$N(B server $B$NF0:n$O<!$N$h$&$K$J$k(B.
+server は RFC-100,101 の リセットプロトコルを実装していれば,
+master から server をリセットし, master-server 間の通信路を
+リセットすることはできる. これに加えて,グループ内の server 間通信路
+をリセットする必要がある. 識別子が $i$ ($0\le i \le nserver$) 
+の server の動作は次のようになる.
 
 \begin{tabbing}
-\underline{$B<1JL;R$,(B $i$ ($0\le i \le nserver$) $B$N(B server $B$NF0:n(B}\\
+\underline{識別子が $i$ ($0\le i \le nserver$) の server の動作}\\
 for \= $j = 0$ \= to $i-1$ do\\
     \> do\\
-    \>         \>$data$ $\leftarrow$ $B<1JL;R(B $j$ $B$N(B server $B$+$i$N(B OX $B%G!<%?(B\\
+    \>         \>$data$ $\leftarrow$ 識別子 $j$ の server からの OX データ\\
     \> while $data \neq$ {\tt OX\_SYNC\_BALL}\\
 end for\\
 for $j = i+1$ to $nserver-1$ do\\
-    \> {\tt OX\_SYNC\_BALL} $B$r(B $B<1JL;R(B $j$ $B$N(B server $B$KAw?.(B\\
+    \> {\tt OX\_SYNC\_BALL} を 識別子 $j$ の server に送信\\
 end for
 \end{tabbing}
-$B$3$N<j=g$K$h$j(B, $B%G%C%I%m%C%/$J$7$KA4$F$NDL?.O)$r6u$K$9$k$3$H$,$G$-$k(B.
-$B$3$NA`:n$O(B, master-server $BDL?.O)$N%j%;%C%H8e$K9T$o$l$k$?$a(B, $B3F(B server
-$B$O(B master $B$+$i$N%G!<%?BT$A>uBV$K$"$k(B. $B$h$C$F(B, $B<!$N(B SM $B%3%^%s%I$r(B
-$B3F(B server $B$K0l@F$KAw$k$3$H$K$h$j9T$&(B.
+この手順により, デッドロックなしに全ての通信路を空にすることができる.
+この操作は, master-server 通信路のリセット後に行われるため, 各 server
+は master からのデータ待ち状態にある. よって, 次の SM コマンドを
+各 server に一斉に送ることにより行う.
 
 \begin{verbatim}
 SM_reset_102
@@ -335,67 +335,67 @@ Output: none.
 
 \section{API}
 
-$B0J2<(B, asir $B$K$*$1$k(B RFC-102 $B4XO"$N(B API $B$r>R2p$9$k(B.
+以下, asir における RFC-102 関連の API を紹介する.
 
-\subsection{server $B4VDL?.O)3+@_(B}
+\subsection{server 間通信路開設}
 
-$B0J2<$N4X?t$O(B, master $BMQ$KMQ0U$5$l$?$b$N$G(B, SM $B%3%^%s%IAw?.MQ$N(B
-wrapper $B$G$"$k(B.
+以下の関数は, master 用に用意されたもので, SM コマンド送信用の
+wrapper である.
 
 \begin{itemize}
 \item {\tt ox\_set\_rank\_102($Server$,$Nserver$,$Rank$)}
 
-$Server$ $B$,B0$9$k%0%k!<%W$KB0$9$k(B server $B$NAm?t(B $Nserver$ $B$H(B,
-$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B. 
+$Server$ が属するグループに属する server の総数 $Nserver$ と,
+その server のグループ内識別子 $Rank$ を通知する. 
 
 \item {\tt ox\_tcp\_accept\_102($Server$,$Port$,$Rank$)}
 
-$Server$ $B$KBP$7(B, $B%]!<%HHV9f(B $Port$ $B$G(B, 
-$B<1JL;R(B $Rank$ $B$N(B server $B$+$i$N(B connect $BBT$A>uBV$KF~$k$h$&;X<($9$k(B.
-$BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, 
-$BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
+$Server$ に対し, ポート番号 $Port$ で, 
+識別子 $Rank$ の server からの connect 待ち状態に入るよう指示する.
+通信が成立したら, 送受信バッファのセットアップ, 
+相手先テーブルへの登録などを行う.
 
 \item {\tt ox\_tcp\_connect\_102($Server$,$Host$,$Port$,$Rank$)}
 
-$Server$ $B$KBP$7(B, $B%[%9%HL>(B $Host$ $B$N%]!<%HHV9f(B $Port$ $B$N(B TCP $B%]!<%H$KBP$7$F(B 
-connect $B$9$k$h$&;X<($9$k(B.
-$BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, $BAj<j$r(B $Rank$ $B$H$7$F(B
-$BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
+$Server$ に対し, ホスト名 $Host$ のポート番号 $Port$ の TCP ポートに対して 
+connect するよう指示する.
+通信が成立したら, 送受信バッファのセットアップ, 相手を $Rank$ として
+相手先テーブルへの登録などを行う.
 
 \item {\tt ox\_reset\_102($Server$)}
 
-$Server$ $B$KBP$7DL?.O)%j%;%C%HF0:n$r;X<($9$k(B. $B$3$NA`:n$O(B, $B%0%k!<%WFbA4$F$N(B server 
-$B$G9T$o$l$J$1$l$P$J$i$J$$(B.
+$Server$ に対し通信路リセット動作を指示する. この操作は, グループ内全ての server 
+で行われなければならない.
 \end{itemize}
 
-\subsection{server $B4VDL?.(B}
+\subsection{server 間通信}
 
 \begin{itemize}
 \item {\tt ox\_send\_102($Rank$,$Data$)}
 
-$B<1JL;R(B $Rank$ $B$N(B server $B$K(B $Data$ $B$r(B OX $B%G!<%?$H$7$FAw?.$9$k(B.
-$B<1JL;R(B $Rank$ $B$N(B server $B$OBP1~$9$k<u?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+識別子 $Rank$ の server に $Data$ を OX データとして送信する.
+識別子 $Rank$ の server は対応する受信を開始しなければならない.
 
 \item {\tt ox\_recv\_102($Rank$)}
 
-$B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B OX $B%G!<%?$r<u?.$9$k(B.
-$B<1JL;R(B $Rank$ $B$N(B server $B$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+識別子 $Rank$ の server から OX データを受信する.
+識別子 $Rank$ の server は対応する送信を開始しなければならない.
 
 \item {\tt ox\_bcast\_102($Root$[,$Data$])}
 
-$B<1JL;R(B $Root$ $B$N(B server $B$r(B root $B$H$7$F(B, $B%0%k!<%WFb$G(B broadcast $B$9$k(B.
-$Data$ $B$,;XDj$5$l$?>l9g(B, $B%9%?%C%/$K%W%C%7%e$5$l$k(B.
-$B$r;XDj$9$kI,MW$,$"$k(B. $B<1JL;R$,(B $Root$ $B$KEy$7$$(B server $B$G(B, $B%9%?%C%/(B
-$B$+$i%G!<%?$,%]%C%W$5$l(B, $B$=$N%G!<%?$,(B, $B3F8F$S=P$7$NLa$jCM$H$J$k(B.
+識別子 $Root$ の server を root として, グループ内で broadcast する.
+$Data$ が指定された場合, スタックにプッシュされる.
+を指定する必要がある. 識別子が $Root$ に等しい server で, スタック
+からデータがポップされ, そのデータが, 各呼び出しの戻り値となる.
 
 \item {\tt ox\_reduce\_102($Root$,$Operation$[,$Data$])}
 
-$B%0%k!<%WFb$N3F(B server $B$N%9%?%C%/$+$i%]%C%W$7$?%G!<%?$KBP$7(B
-$Operation$ $B$G;XDj$5$l$kFs9`1i;;$r9T$$(B,
-$B7k2L$r(B $Root$ $B$G;XDj$5$l$k(B server $B$G$N4X?t8F$S=P$7$NLa$jCM$H$7$F(B
-$BJV$9(B.
-$Data$ $B$,;XDj$5$l$?>l9g(B, $B%9%?%C%/$K%W%C%7%e$7$F$+$i>e5-$NA`:n$r(B
-$B<B9T$9$k(B. $Root$ $B0J30$N(B server $B$G$NLa$jCM$O(B 0 $B$G$"$k(B.
+グループ内の各 server のスタックからポップしたデータに対し
+$Operation$ で指定される二項演算を行い,
+結果を $Root$ で指定される server での関数呼び出しの戻り値として
+返す.
+$Data$ が指定された場合, スタックにプッシュしてから上記の操作を
+実行する. $Root$ 以外の server での戻り値は 0 である.
 
 \end{itemize}
 

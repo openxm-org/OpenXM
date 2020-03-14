@@ -1,13 +1,13 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.5 2000/09/08 18:57:49 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.6 2002/01/20 09:26:22 takayama Exp $
 /*&jp
-\section{ OX ¥µ¡¼¥Ğ¤ËÂĞ¤¹¤ë C ¥é¥¤¥Ö¥é¥ê¥¤¥ó¥¿¥Õ¥§¡¼¥¹ }
+\section{ OX ã‚µãƒ¼ãƒã«å¯¾ã™ã‚‹ C ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ }
 
-°ìÉô¤ÎOX ¥µ¡¼¥Ğ¤Ç¤Ï C ¤Î¥é¥¤¥Ö¥é¥ê¤È¤·¤Æ¥ê¥ó¥¯¤·¤Æ»ÈÍÑ¤¹¤ë¤â¤Ç¤­¤ë.
-¥é¥¤¥Ö¥é¥ê¤È¤·¤Æ»ÈÍÑ¤¹¤ë¤¿¤á¤Î C ¤Î´Ø¿ô¤Ï
-Asir ¤Î OX ¥µ¡¼¥ĞÍÑ¥¯¥é¥¤¥¢¥ó¥È´Ø¿ô¤Ë»÷¤¿¥¤¥ó¥¿¥Õ¥§¡¼¥¹¤ò»ı¤Ä.
+ä¸€éƒ¨ã®OX ã‚µãƒ¼ãƒã§ã¯ C ã®ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã¨ã—ã¦ãƒªãƒ³ã‚¯ã—ã¦ä½¿ç”¨ã™ã‚‹ã‚‚ã§ãã‚‹.
+ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã¨ã—ã¦ä½¿ç”¨ã™ã‚‹ãŸã‚ã® C ã®é–¢æ•°ã¯
+Asir ã® OX ã‚µãƒ¼ãƒç”¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆé–¢æ•°ã«ä¼¼ãŸã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã‚’æŒã¤.
 
-¥é¥¤¥Ö¥é¥ê´Ø¿ô¤Ë¤Ï, CMO ¤ò binary encoding ¤·¤ÆÅÏ¤¹.
-¥é¥¤¥Ö¥é¥ê´Ø¿ô¤«¤é¤Ï, CMO ¤¬ binary encoded form ¤ÇÌá¤ë.
+ãƒ©ã‚¤ãƒ–ãƒ©ãƒªé–¢æ•°ã«ã¯, CMO ã‚’ binary encoding ã—ã¦æ¸¡ã™.
+ãƒ©ã‚¤ãƒ–ãƒ©ãƒªé–¢æ•°ã‹ã‚‰ã¯, CMO ãŒ binary encoded form ã§æˆ»ã‚‹.
 
 */
 /*&eg
@@ -35,11 +35,11 @@ CMO should be converted into the binary encoded form to call these functions.
   In case of error, -1 will be returned.
 */
 /*&jp
-  ¤³¤Î´Ø¿ô¤Ï¥é¥¤¥Ö¥é¥ê¥¤¥ó¥¿¥Õ¥§¡¼¥¹¤Î½é´ü²½¤ò¹Ô¤¦. 
-  OX ¥µ¡¼¥Ğ xxx ¤Ø int32 ¤òÁ÷¤ë¤¿¤á¤Î byte order ¤ò type ¤Ç»ØÄê¤¹¤ë.
-  type = 0 ¤Î¾ì¹ç native byte order ¤¬ÀßÄê¤µ¤ì¤ë. 
-  type = 1 ¤Î¾ì¹ç network byte order ¤¬ÀßÄê¤µ¤ì¤ë. 
-  ¼ºÇÔ¤·¤¿¾ì¹ç, -1 ¤òÌá¤¹.
+  ã“ã®é–¢æ•°ã¯ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã®åˆæœŸåŒ–ã‚’è¡Œã†. 
+  OX ã‚µãƒ¼ãƒ xxx ã¸ int32 ã‚’é€ã‚‹ãŸã‚ã® byte order ã‚’ type ã§æŒ‡å®šã™ã‚‹.
+  type = 0 ã®å ´åˆ native byte order ãŒè¨­å®šã•ã‚Œã‚‹. 
+  type = 1 ã®å ´åˆ network byte order ãŒè¨­å®šã•ã‚Œã‚‹. 
+  å¤±æ•—ã—ãŸå ´åˆ, -1 ã‚’æˆ»ã™.
 */
 
 /*&C
@@ -53,8 +53,8 @@ CMO should be converted into the binary encoded form to call these functions.
 Push the binary encoded CMO {\tt cmo} onto the stack of the OX server xxx.
 */
 /*&jp
-Binary encoded ¤µ¤ì¤¿ CMO ¤ò, OX ¥µ¡¼¥Ğ xxx
-¤Î stack ¤Ë push ¤¹¤ë. 
+Binary encoded ã•ã‚ŒãŸ CMO ã‚’, OX ã‚µãƒ¼ãƒ xxx
+ã® stack ã« push ã™ã‚‹. 
 */
 /*&C
 
@@ -72,12 +72,12 @@ If the size exceeds the {\tt limit}, -1 will be returned
 and the CMO is not popped and will not be written to {\tt cmo}.
 */
 /*&jp
-Binary encoded ¤µ¤ì¤¿ CMO (¥µ¥¤¥º¤Ï size) ¤ò,  OX ¥µ¡¼¥Ğ¤è¤ê
-pop ¤·¤Æ, cmo ¤Ë½ñ¤­¹ş¤à.
-Ìá¤êÃÍ¤Ï CMO ¤Î¥µ¥¤¥º¤ò byte ¤ÇÌá¤¹.
-Stack underflow ¤Î¾ì¹ç¤ÎÌá¤êÃÍ¤Ï 0 ¤Ç¤¢¤ë.
-¤¿¤À¤·, limit ¤è¤êÂç¤­¤¤¥µ¥¤¥º¤Î CMO ¤Ï½ñ¤­¹ş¤Ş¤ì¤Ê¤¤.
-¤³¤Î¾ì¹ç, Ìá¤êÃÍ¤Ï -1 ¤È¤Ê¤ë.
+Binary encoded ã•ã‚ŒãŸ CMO (ã‚µã‚¤ã‚ºã¯ size) ã‚’,  OX ã‚µãƒ¼ãƒã‚ˆã‚Š
+pop ã—ã¦, cmo ã«æ›¸ãè¾¼ã‚€.
+æˆ»ã‚Šå€¤ã¯ CMO ã®ã‚µã‚¤ã‚ºã‚’ byte ã§æˆ»ã™.
+Stack underflow ã®å ´åˆã®æˆ»ã‚Šå€¤ã¯ 0 ã§ã‚ã‚‹.
+ãŸã ã—, limit ã‚ˆã‚Šå¤§ãã„ã‚µã‚¤ã‚ºã® CMO ã¯æ›¸ãè¾¼ã¾ã‚Œãªã„.
+ã“ã®å ´åˆ, æˆ»ã‚Šå€¤ã¯ -1 ã¨ãªã‚‹.
 */
 
 /*&C
@@ -91,7 +91,7 @@ Stack underflow ¤Î¾ì¹ç¤ÎÌá¤êÃÍ¤Ï 0 ¤Ç¤¢¤ë.
 Return the size of the CMO at the top of the stack.
 */
 /*&jp
-stack ¤Î°ìÈÖ¾å¤Ë¤¢¤ë CMO ¤Î¥µ¥¤¥º¤ò byte ¤ÇÌá¤¹.
+stack ã®ä¸€ç•ªä¸Šã«ã‚ã‚‹ CMO ã®ã‚µã‚¤ã‚ºã‚’ byte ã§æˆ»ã™.
 */
 
 \smallbreak
@@ -103,7 +103,7 @@ This function sends a stack machine command
 ({\tt OX\_COMMAND},int32 cmd) to a server.
 */
 /*&jp
-({\tt OX\_COMMAND},int32 cmd) ¤ò¥µ¡¼¥Ğ¤ËÁ÷¤ë. 
+({\tt OX\_COMMAND},int32 cmd) ã‚’ã‚µãƒ¼ãƒã«é€ã‚‹. 
 */
 
 \begin{verbatim}
@@ -115,15 +115,15 @@ a string {\tt s}.
 {\tt s} should be acceptable by the parser of the server.
 */
 /*&jp
-Ê¸»úÎó {\tt s} ¤ò¥µ¡¼¥Ğ¤Ë¼Â¹Ô¤µ¤»¤ë. {\tt s} ¤Ï¥µ¡¼¥Ğ¤Î¥Ñ¡¼¥¶
-¤¬¼õÍı²ÄÇ½¤Ê¤â¤Î¤Ç¤Ê¤±¤ì¤Ğ¤Ê¤é¤Ê¤¤. 
+æ–‡å­—åˆ— {\tt s} ã‚’ã‚µãƒ¼ãƒã«å®Ÿè¡Œã•ã›ã‚‹. {\tt s} ã¯ã‚µãƒ¼ãƒã®ãƒ‘ãƒ¼ã‚¶
+ãŒå—ç†å¯èƒ½ãªã‚‚ã®ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„. 
 */
 
 //&C
 
 /*&jp
-¥é¥¤¥Ö¥é¥ê¥â¡¼¥É¤Î¥µ¥ó¥×¥ë¥½¡¼¥¹¤Ï {\tt OpenXM/doc/oxlib}
-¤Ë¤¢¤ë.
+ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ¢ãƒ¼ãƒ‰ã®ã‚µãƒ³ãƒ—ãƒ«ã‚½ãƒ¼ã‚¹ã¯ {\tt OpenXM/doc/oxlib}
+ã«ã‚ã‚‹.
 */
 
 /*&eg

@@ -1,26 +1,38 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.36 2016/09/26 00:17:45 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.37 2019/01/28 05:05:02 takayama Exp $
+
+//&C March 14, 2020
+//&ja Q. Icon ã«ãªã£ã¦ã‚‹ ox server window ã‚’ Mac ã§é–‹ãã“ã¨ãŒã§ãã¾ã›ã‚“.
+//&en Q. OX server windows of icon form cannot be opened on Mac.
+
+//&ja A. XQuartz X11 server ã®ä¸å…·åˆã®ã‚ˆã†ã§ã™. 
+//&en A. It seems to be a bug of XQuartz X11 server.
+//&C     export OX_XTERM_GEOMETRY=80x20+0+0
+//&ja    ã“ã®ç’°å¢ƒå¤‰æ•°ã«ã‚ˆã‚Š ox server window ã¯ icon åŒ–ã•ã‚Œãšã«ç”»é¢ã®å·¦ã«é–‹ãã¾ã™. 
+//&en    OX server window will not be iconized with this environmental variable.
+//&C    cf. OpenXM/src/util/ox_pathfinder.c
+//&C
 
 //&C Jan 28, 2019
-//&ja Q. recompile with -fPIC  ¥¨¥é¡¼¤Ç¥³¥ó¥Ñ¥¤¥ë¤¬»ß¤Ş¤ê¤Ş¤¹ (Debian/stretch) 
+//&ja Q. recompile with -fPIC  ã‚¨ãƒ©ãƒ¼ã§ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ãŒæ­¢ã¾ã‚Šã¾ã™ (Debian/stretch) 
 //&en Q. Compiling stops with the error "recompile with -fPIC on Debian/stretch
 
-//&ja A. --enable-shared ¥ª¥×¥·¥ç¥ó¤ò²Ã¤¨¤Ş¤·¤¿. Â¾¤Î¥·¥¹¥Æ¥à¤Ç¤Ï warning ¤¬½Ğ¤Ş¤¹¤¬³²¤Ï¤Ê¤¤¤è¤¦¤Ç¤¹.
+//&ja A. --enable-shared ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’åŠ ãˆã¾ã—ãŸ. ä»–ã®ã‚·ã‚¹ãƒ†ãƒ ã§ã¯ warning ãŒå‡ºã¾ã™ãŒå®³ã¯ãªã„ã‚ˆã†ã§ã™.
 //&en A. Fixed with --enable-shared option. It generates the warning unrecognized option on other systems.
 
 //&C Sep 26, 2016.
-//&ja Q. Mac OS 10.11 ElCapitan ¤Ç cfep/asir ¤¬Æ°¤­¤Ş¤»¤ó.
+//&ja Q. Mac OS 10.11 ElCapitan ã§ cfep/asir ãŒå‹•ãã¾ã›ã‚“.
 //&en Q. cfep/asir does not run on Mac OS 10.11 ElCapitan.  
 
-/*&ja A. ElCapitan °Ê¹ß LD_LIBRARY_PATH ¤¬Ìµ»ë¤µ¤ì¤ë¤è¤¦¤Ë¤Ê¤Ã¤¿¤¿¤á, ElCapitan ÍÑ¤Î static link ÈÇ¤ò¥À¥¦¥ó¥í¡¼¥É¤·¤ÆÍøÍÑ¤·¤Æ²¼¤µ¤¤. 
+/*&ja A. ElCapitan ä»¥é™ LD_LIBRARY_PATH ãŒç„¡è¦–ã•ã‚Œã‚‹ã‚ˆã†ã«ãªã£ãŸãŸã‚, ElCapitan ç”¨ã® static link ç‰ˆã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¦åˆ©ç”¨ã—ã¦ä¸‹ã•ã„. 
 */
 /*&en A. Mac OS ElCapitan ignores LD_LIBRARY_PATH. Please download the binary for ElCapitan static link version. 
 */
 
 //&C Sep 26, 2016.
-//&ja Q. ctrl("fake_ox_reset",1); (asir) ¤È¤Ï²¿¤Ç¤¹¤«?
+//&ja Q. ctrl("fake_ox_reset",1); (asir) ã¨ã¯ä½•ã§ã™ã‹?
 //&en Q. What is ctrl("fake_ox_reset",1); (asir)?
 
-/*&ja A. ox server ¤Ç¤Î ox_reset ¥×¥í¥È¥³¥ë¤Î¼ÂÁõ¤ÏÆñ¤·¤¤¤¿¤á, Âå¤ê¤Ë ox_shutdown ¤ò¹Ô¤Ê¤¦ÊıË¡¤¬ OX RFC 100 ¤ËÄÉ²Ã¤µ¤ì¤Ş¤·¤¿. mathcap ¤Ë¤è¤ê ox_reset ¤ò¼õ¤±ÉÕ¤±¤Ê¤¤¥µ¡¼¥Ğ¤ËÂĞ¤·¤Æ¤Ï, ox_reset ¤òÁ÷¤ê¤Ş¤»¤ó¤¬, fake_ox_reset ¤¬ 1 ¤Î¾ì¹ç, ox_reset ¥³¥Ş¥ó¥É¤Ï ox_shutdown ¥³¥Ş¥ó¥É¤òÂå¤ê¤ËÁ÷¤ê¤Ş¤¹. cf. oxrfc103.rr
+/*&ja A. ox server ã§ã® ox_reset ãƒ—ãƒ­ãƒˆã‚³ãƒ«ã®å®Ÿè£…ã¯é›£ã—ã„ãŸã‚, ä»£ã‚Šã« ox_shutdown ã‚’è¡Œãªã†æ–¹æ³•ãŒ OX RFC 100 ã«è¿½åŠ ã•ã‚Œã¾ã—ãŸ. mathcap ã«ã‚ˆã‚Š ox_reset ã‚’å—ã‘ä»˜ã‘ãªã„ã‚µãƒ¼ãƒã«å¯¾ã—ã¦ã¯, ox_reset ã‚’é€ã‚Šã¾ã›ã‚“ãŒ, fake_ox_reset ãŒ 1 ã®å ´åˆ, ox_reset ã‚³ãƒãƒ³ãƒ‰ã¯ ox_shutdown ã‚³ãƒãƒ³ãƒ‰ã‚’ä»£ã‚Šã«é€ã‚Šã¾ã™. cf. oxrfc103.rr
 */
 /*&en A. A protocol to send ox_shutdown instead of ox_reset is added to OX RFC 100, because the implementation 
 of ox_reset is not easy.  
@@ -28,11 +40,11 @@ Sending ox_reset is blocked by mathcap for servers which do not support ox_reset
 */
 
 //&C Feb 14, 2016.
-//&ja Q. asir ¤Î sysinfo()  ¤¬ segfault ¤·¤Ş¤¹.
+//&ja Q. asir ã® sysinfo()  ãŒ segfault ã—ã¾ã™.
 //&en Q. The sysinfo() command Risa/Asir makes the segmentation fault.
 
-/*&ja A. LC_ALL, LC_CTYPE, ... ¤Ê¤É¤Î locale ÊÑ¿ô¤¬ÉÔÀµ¤ÊÃÍ¤Î²ÄÇ½À­¤¬¤¢¤ê¤Ş¤¹.
-¤¿¤È¤¨¤Ğ LC_CTYPE ¤Ë hoge ¤¬ÀßÄê¤µ¤ì¤Æ¤¤¤ë¤È segfault ¤·¤Ş¤¹.
+/*&ja A. LC_ALL, LC_CTYPE, ... ãªã©ã® locale å¤‰æ•°ãŒä¸æ­£ãªå€¤ã®å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™.
+ãŸã¨ãˆã° LC_CTYPE ã« hoge ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã¨ segfault ã—ã¾ã™.
 */
 /*&en A. Locale variables LC_ALL, LC_CTYPE, ... may contains an invalid
 value. For example, if you set foo to LC_CTYPE, sysinfo() makes the segmentation
@@ -40,14 +52,14 @@ fault.
 */
 
 //&C Sep 29, 2015.
-//&ja Q. Debian etch Åù¤Î¸Å¤¤ OS ¤Ç asir ¤Î ox_launch(0); ¤¬Æ°¤­¤Ş¤»¤ó.
+//&ja Q. Debian etch ç­‰ã®å¤ã„ OS ã§ asir ã® ox_launch(0); ãŒå‹•ãã¾ã›ã‚“.
 //&en Q. The ox_launch(0) of asir does not work on legacy linux like Debian etch.
 
-/*&ja A. LD_LIBRARY_PATH ¤ò xterm ¤¬¼õ¤±·Ñ¤¤¤Ç¤¤¤Ê¤¤¤Î¤¬¸¶°ø¤Ç¤¹.
-         xxxyyy ¤ò OpenXM_HOME ¤Î directory ¤È¤¹¤ë¤È¤­, root ¤Ë¤Ê¤Ã¤Æ,
-         /etc/ld.so.conf ¤Ë xxxyyy/lib ¤ò²Ã¤¨, 
+/*&ja A. LD_LIBRARY_PATH ã‚’ xterm ãŒå—ã‘ç¶™ã„ã§ã„ãªã„ã®ãŒåŸå› ã§ã™.
+         xxxyyy ã‚’ OpenXM_HOME ã® directory ã¨ã™ã‚‹ã¨ã, root ã«ãªã£ã¦,
+         /etc/ld.so.conf ã« xxxyyy/lib ã‚’åŠ ãˆ, 
          ldconfig
-         ¤·¤Æ²¼¤µ¤¤.
+         ã—ã¦ä¸‹ã•ã„.
 */
 /*&en A. The xterm does not pass the environment variable LD_LIBRARY_PATH to its program executed with the -e option.
          Suppose that xxxyyy is the OpenXM_HOME. Become the super user,
@@ -57,14 +69,14 @@ fault.
 //&C   See also the FAQ on Dec 17, 2000.
 
 //&C Nov 8, 2013.
-//&ja Q. OpenXM/rc/dot.bashrc ¤ò source ¤ÇÆÉ¤ó¤Ç¤â´Ä¶­ÊÑ¿ô¤¬ÀßÄê¤µ¤ì¤Ş¤»¤ó (MacOS Mountain Lion)
+//&ja Q. OpenXM/rc/dot.bashrc ã‚’ source ã§èª­ã‚“ã§ã‚‚ç’°å¢ƒå¤‰æ•°ãŒè¨­å®šã•ã‚Œã¾ã›ã‚“ (MacOS Mountain Lion)
 //&en Q. Environmental variables are not set by loading it with source OpenXM/rc/dot.bashrc (MacOS Mountain Lion)
 
 //&C  cd OpenXM/rc ; source ./dot.bashrc      (./ is necessary)
 
 /*&ja
-shell ¤Î¥¹¥¿¥Ã¥¯¥µ¥¤¥º(stack size)¤òÁı¤ä¤·¤Æ²¼¤µ¤¤.
-¸½ºß¤Î¥µ¥¤¥º¤Ï ulimit -a ¤ÇÃÎ¤ë¤³¤È¤¬¤Ç¤­¤Ş¤¹.
+shell ã®ã‚¹ã‚¿ãƒƒã‚¯ã‚µã‚¤ã‚º(stack size)ã‚’å¢—ã‚„ã—ã¦ä¸‹ã•ã„.
+ç¾åœ¨ã®ã‚µã‚¤ã‚ºã¯ ulimit -a ã§çŸ¥ã‚‹ã“ã¨ãŒã§ãã¾ã™.
 */
 /*&en
 Please increase the stack size of the shell.
@@ -73,12 +85,12 @@ The current size is reported by the command
 */
 
 //&C Sep 7, 2010. 
-//&ja Q. TeXmacs interface ÍÑ¤Î startup code ¤Ï¤É¤Î¤è¤¦¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤·¤Ş¤¹¤«?
+//&ja Q. TeXmacs interface ç”¨ã® startup code ã¯ã©ã®ã‚ˆã†ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™ã‹?
 //&en Q. How to install the startup codes for the TeXmacs interface?
 
 /*&ja
- Debian package openxm-skel ¤ò http://fe.math.kobe-u.ac.jp/KnoppixMath ¤«¤é¥¤¥ó¥¹¥È¡¼¥ë¤·¤Æ²¼¤µ¤¤.
- ¤³¤ì¤Ç¤À¤á¤Ê¤È¤­(insert->session->OpenXM ¤¬½Ğ¤Ê¤¤¤È¤­)¤Ï¥¤¥ó¥¹¥È¡¼¥ë¤Î¤¢¤È, ¼¡¤Î¥³¥Ş¥ó¥É¤ò¼Â¹Ô¤·¤Æ²¼¤µ¤¤.
+ Debian package openxm-skel ã‚’ http://fe.math.kobe-u.ac.jp/KnoppixMath ã‹ã‚‰ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ä¸‹ã•ã„.
+ ã“ã‚Œã§ã ã‚ãªã¨ã(insert->session->OpenXM ãŒå‡ºãªã„ã¨ã)ã¯ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã®ã‚ã¨, æ¬¡ã®ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ã¦ä¸‹ã•ã„.
 */
 /*&en
  Please install the Debian package openxm-skel from http://fe.math.kobe-u.ac.jp/KnoppixMath
@@ -88,15 +100,15 @@ The current size is reported by the command
 
 
 //&C Dec 3, 2009/Aug 29, 2010. Mac OS Snow Leopard,  CPU=intel core2
-//&ja Q. gmp ¤Î¥ê¥ó¥¯¤Ë¼ºÇÔ¤·¤Ş¤¹.
+//&ja Q. gmp ã®ãƒªãƒ³ã‚¯ã«å¤±æ•—ã—ã¾ã™.
 //&en Q. The link with the gmp fails.
 
-/*&ja Now Leopard (10.6) ÍÑ¤ÎÊÑ¹¹¤Ï¤Ş¤À¥½¡¼¥¹¤ËÈ¿±Ç¤µ¤»¤Æ¤¤¤Ş¤»¤ó.
- ¥½¡¼¥¹¥³¡¼¥É¤Î¹¹¿·¤ò¤ªÂÔ¤Á²¼¤µ¤¤.
- Todo: gc, gmp ¤ÏºÇ¿·¤Î¤â¤Î¤ËÊÑ¹¹¤¹¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹.
- src/mcpp/work/mcpp-2.7.2/src/internal.H ¤ÎºÇ¸å¤Î3¹Ô¤òºï½ü¤·¤Ş¤¹.
- sm1 ¤Ï gmp ¤ÎÆâÉô¹½Â¤¤Ë¥¢¥¯¥»¥¹¤·¤Æ¤¤¤Ş¤¹¤¬, ¤½¤Î¤ä¤êÊı¤òÊÑ¹¹¤·¤Ş¤¹. 
- ¤³¤ì¤Ç¤â¤¦¤Ş¤¯¤¤¤«¤Ê¤¤»ş¤Ï¼¡¤Î¤è¤¦¤Ë¤ä¤ë¤È¤¦¤Ş¤¯¤¤¤¯¤«¤â¤·¤ì¤Ş¤»¤ó.
+/*&ja Now Leopard (10.6) ç”¨ã®å¤‰æ›´ã¯ã¾ã ã‚½ãƒ¼ã‚¹ã«åæ˜ ã•ã›ã¦ã„ã¾ã›ã‚“.
+ ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰ã®æ›´æ–°ã‚’ãŠå¾…ã¡ä¸‹ã•ã„.
+ Todo: gc, gmp ã¯æœ€æ–°ã®ã‚‚ã®ã«å¤‰æ›´ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™.
+ src/mcpp/work/mcpp-2.7.2/src/internal.H ã®æœ€å¾Œã®3è¡Œã‚’å‰Šé™¤ã—ã¾ã™.
+ sm1 ã¯ gmp ã®å†…éƒ¨æ§‹é€ ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ã„ã¾ã™ãŒ, ãã®ã‚„ã‚Šæ–¹ã‚’å¤‰æ›´ã—ã¾ã™. 
+ ã“ã‚Œã§ã‚‚ã†ã¾ãã„ã‹ãªã„æ™‚ã¯æ¬¡ã®ã‚ˆã†ã«ã‚„ã‚‹ã¨ã†ã¾ãã„ãã‹ã‚‚ã—ã‚Œã¾ã›ã‚“.
 */
 /*&en We have not changed source codes for Mac OS 10.6 (Snow Leopard).
  Please wait our updates of the source code.
@@ -112,7 +124,7 @@ The current size is reported by the command
 */
 
 //&C Nov 21, 2009. Mac OS Snow Leopard (10.6)
-//&ja Mac OS Snow Leopard ¤Ç OpenXM/src/ox_toolkit ¤Î¥³¥ó¥Ñ¥¤¥ë¤Ë¼ºÇÔ¤·¤Ş¤¹.
+//&ja Mac OS Snow Leopard ã§ OpenXM/src/ox_toolkit ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã«å¤±æ•—ã—ã¾ã™.
 //&en Compilation fails for OpenXM/src/ox_toolkit on Mac OS Snow Leopard.
 /*&C
 
@@ -122,17 +134,17 @@ The current size is reported by the command
 */
 
 //&C Sep 13, 2009. Installing openxm*.deb on Ubuntu 9.04
-//&ja Q. Ubuntu 9.04 ¤Ç openxm deb ¥Ñ¥Ã¥±¡¼¥¸¤Î¥¤¥ó¥¹¥È¡¼¥ë¤Ë¼ºÇÔ¤·¤Ş¤¹.
+//&ja Q. Ubuntu 9.04 ã§ openxm deb ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã«å¤±æ•—ã—ã¾ã™.
 //&en Q. I got an error on Ubuntu 9.04 when I tried to install the openxm debian package.
 //&C 47  Illegal option -e , [: 47 :=: unexpected op.
 
 /*&ja
-  ¤Ş¤º ctrl-C ¤Ç install script ¤òÄä»ß¤·¤Æ²¼¤µ¤¤.
+  ã¾ãš ctrl-C ã§ install script ã‚’åœæ­¢ã—ã¦ä¸‹ã•ã„.
 
-   /usr/local/OpenXM/bin/asir-install.sh and /usr/local/OpenXM/bin/asir-port.sh ¤Ï /bin/bash ¤Î¾å¤Ç¤¦¤´¤­¤Ş¤¹.
-  #!/bin/bash ¤È¥¹¥¯¥ê¥×¥È¤ÎÀèÆ¬¤Ë½ñ¤¤¤Æ¤¢¤ê¤Ş¤¹¤¬, Ubuntu 9.04 ¤Ç¤Ï¤Ê¤¼¤« /bin/sh ¤Ç¤³¤Î script ¤¬¼Â¹Ô¤µ¤ì¤ë¤è¤¦¤Ç¤¹
-  (ÍıÍ³Ä´ººÃæ).
-  ²¼¤Î¤è¤¦¤Ë¥¤¥ó¥¹¥È¡¼¥ëÃæ¤À¤± /bin/sh ¤ò /bin/bash ¤ËÊÑ¹¹¤·¤Æ¤ª¤±¤ĞÂç¾æÉ×¤Ç¤¹.
+   /usr/local/OpenXM/bin/asir-install.sh and /usr/local/OpenXM/bin/asir-port.sh ã¯ /bin/bash ã®ä¸Šã§ã†ã”ãã¾ã™.
+  #!/bin/bash ã¨ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®å…ˆé ­ã«æ›¸ã„ã¦ã‚ã‚Šã¾ã™ãŒ, Ubuntu 9.04 ã§ã¯ãªãœã‹ /bin/sh ã§ã“ã® script ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã‚ˆã†ã§ã™
+  (ç†ç”±èª¿æŸ»ä¸­).
+  ä¸‹ã®ã‚ˆã†ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ä¸­ã ã‘ /bin/sh ã‚’ /bin/bash ã«å¤‰æ›´ã—ã¦ãŠã‘ã°å¤§ä¸ˆå¤«ã§ã™.
 */
 /*&en
   Please stop the install script by ctrl-C.
@@ -168,9 +180,9 @@ The current size is reported by the command
 
 /*&ja
   Reference: http://macwiki.sourceforge.jp/cgi-bin/wiki.cgi?UniversalBinary
-  PPC ¤Ç¤Ï -arch i386 -arch ppc ¤ÎÂ¾¤Ë -isysroot /Developer/SDKs/MacOSX10.4u.sdk
-  option ¤¬É¬Í×. Xcode ¤Î Package ¤ÎÃæ¤Î, Cross-Developement.mpkg ¤òËº¤ì¤Ê¤¤.
-  ÊÌ¡¹¤Î architecture ¤ÇÀ¸À®¤·¤Æ, lipo ¤Ç¤¯¤Ã¤Ä¤±¤ëÊıË¡¤ÎÊı¤¬¿ä¾©¤é¤·¤¤.
+  PPC ã§ã¯ -arch i386 -arch ppc ã®ä»–ã« -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+  option ãŒå¿…è¦. Xcode ã® Package ã®ä¸­ã®, Cross-Developement.mpkg ã‚’å¿˜ã‚Œãªã„.
+  åˆ¥ã€…ã® architecture ã§ç”Ÿæˆã—ã¦, lipo ã§ãã£ã¤ã‘ã‚‹æ–¹æ³•ã®æ–¹ãŒæ¨å¥¨ã‚‰ã—ã„.
   cf. 
 */
 /*&C
@@ -184,44 +196,44 @@ The current size is reported by the command
  
 
 //&C Sep 2, 2004, Update for tigers (10.4) June 23, 2005.
-//&ja Q. MacOS X (10.3, panther)¤Ç OpenXM package ¤ò make ¤¹¤ë¤Ë¤Ï¤É¤¦¤·¤Ş¤¹¤«?
+//&ja Q. MacOS X (10.3, panther)ã§ OpenXM package ã‚’ make ã™ã‚‹ã«ã¯ã©ã†ã—ã¾ã™ã‹?
 //&en Q. How to make OpenXM package on MacOS X (10.3, panther)?
 
 /*&ja
-[1] fink ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤·¤Æ¤Ê¤±¤ì¤Ğ¥¤¥ó¥¹¥È¡¼¥ë¤·¤Ş¤¹.
-    fink ¤Ï Unix ¤Î Open Source software ¤ò Mac OS X ¤Ç¥Ñ¥Ã¥±¡¼¥¸¤È¤·¤Æ
-    °·¤¦¤¿¤á¤Î´ğÁÃ¥·¥¹¥Æ¥à¤Ç¤¹.  fink ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë¤È, Debian linux ¤ä
-    Fedora, wine Åù¤Ç¤ª¤Ê¤¸¤ß¤Î¥Ñ¥Ã¥±¡¼¥¸´ÉÍı¥³¥Ş¥ó¥É apt-get ¤¬
-    »È¤¨¤ë¤è¤¦¤Ë¤Ê¤ê¤Ş¤¹. 
+[1] fink ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãªã‘ã‚Œã°ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™.
+    fink ã¯ Unix ã® Open Source software ã‚’ Mac OS X ã§ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã¨ã—ã¦
+    æ‰±ã†ãŸã‚ã®åŸºç¤ã‚·ã‚¹ãƒ†ãƒ ã§ã™.  fink ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹ã¨, Debian linux ã‚„
+    Fedora, wine ç­‰ã§ãŠãªã˜ã¿ã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ç®¡ç†ã‚³ãƒãƒ³ãƒ‰ apt-get ãŒ
+    ä½¿ãˆã‚‹ã‚ˆã†ã«ãªã‚Šã¾ã™. 
     http://fink.sourceforge.net/index.php?phpLang=ja
-    ¤è¤ê¥À¥¦¥ó¥í¡¼¥É.
-[2] xterm ¤ò³«¤­,  wget ¤ò apt-get ¤Ç¥¤¥ó¥¹¥È¡¼¥ë¤·¤Ş¤¹.
+    ã‚ˆã‚Šãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰.
+[2] xterm ã‚’é–‹ã,  wget ã‚’ apt-get ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™.
       apt-get install wget
-    ¤Ê¤ª¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤ë¥½¥Õ¥È¤Î°ìÍ÷¤Ï 
+    ãªãŠã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã‚‹ã‚½ãƒ•ãƒˆã®ä¸€è¦§ã¯ 
       dpkg --list 
-    ¤Ç¤ß¤ì¤Ş¤¹.
-    fink ¤Ç¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤¿¥³¥Ş¥ó¥É¤Ï /sw/bin ¤Î²¼¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Ş¤¹.
-[3] OpenXM ¤Î¥½¡¼¥¹¤ò¥À¥¦¥ó¥í¡¼¥É¤·¤ÆÂ¾¤Î unix ¤ÈÆ±ÍÍ¤ÊÊıË¡¤Ç make ¤·¤Ş¤¹.
-    ¤Ê¤ª wget ¤Ï gc, gmp ¤Î¥½¡¼¥¹¤ò ftp ¤Ç¥Í¥Ã¥È¥ï¡¼¥¯¥À¥¦¥ó¥í¡¼¥É¤¹¤ë¤Î¤Ë
-    ÍøÍÑ¤µ¤ì¤Ş¤¹.
-    ¥Ş¥Ë¥å¥¢¥ëÅù¤òÀµ¤·¤¯½èÍı¤¹¤ë¤Ë¤Ï, tex, ptex, nkf Åù¤Î¥¤¥ó¥¹¥È¡¼¥ë
-    ¤âÉ¬Í×¤Ç¤¹.  ¤È¤ê¤¢¤¨¤º¼Â¹Ô·Á¼°¤òÆÀ¤ë¤¿¤á¤Ë¤ÏÉÔÍ×.
+    ã§ã¿ã‚Œã¾ã™.
+    fink ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã¯ /sw/bin ã®ä¸‹ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¾ã™.
+[3] OpenXM ã®ã‚½ãƒ¼ã‚¹ã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¦ä»–ã® unix ã¨åŒæ§˜ãªæ–¹æ³•ã§ make ã—ã¾ã™.
+    ãªãŠ wget ã¯ gc, gmp ã®ã‚½ãƒ¼ã‚¹ã‚’ ftp ã§ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã™ã‚‹ã®ã«
+    åˆ©ç”¨ã•ã‚Œã¾ã™.
+    ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ç­‰ã‚’æ­£ã—ãå‡¦ç†ã™ã‚‹ã«ã¯, tex, ptex, nkf ç­‰ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«
+    ã‚‚å¿…è¦ã§ã™.  ã¨ã‚Šã‚ãˆãšå®Ÿè¡Œå½¢å¼ã‚’å¾—ã‚‹ãŸã‚ã«ã¯ä¸è¦.
 
-Mac OS X 10.4 (tiger) ¤Î¤¿¤á¤Î¥Î¡¼¥È.
+Mac OS X 10.4 (tiger) ã®ãŸã‚ã®ãƒãƒ¼ãƒˆ.
 [A] 
-   XcodeTools 2.1 ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë¤È, gcc version 4.0 ¤¬É¸½à¤Ç¥¤¥ó¥¹¥È¡¼¥ë
-   ¤µ¤ì¤ë.  ¸½ºß¤Î¤È¤³¤ígcc-4.0 ¤Î¤â¤È¤Ç¤Ï¤¤¤í¤¤¤í¤ÈÌäÂê¤¬À¸¤¸¤ë.
-   ¤·¤¿¤¬¤Ã¤Æ gcc-4.0 ¤ÎÂå¤ï¤ê¤Ë gcc-3.3 ¤ò»È¤¦.
-      (¤¿¤È¤¨¤Ğ
+   XcodeTools 2.1 ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹ã¨, gcc version 4.0 ãŒæ¨™æº–ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«
+   ã•ã‚Œã‚‹.  ç¾åœ¨ã®ã¨ã“ã‚gcc-4.0 ã®ã‚‚ã¨ã§ã¯ã„ã‚ã„ã‚ã¨å•é¡ŒãŒç”Ÿã˜ã‚‹.
+   ã—ãŸãŒã£ã¦ gcc-4.0 ã®ä»£ã‚ã‚Šã« gcc-3.3 ã‚’ä½¿ã†.
+      (ãŸã¨ãˆã°
            sudo gcc_select 3.3
-       ¤È¤¹¤ì¤Ğ¤è¤¤)
+       ã¨ã™ã‚Œã°ã‚ˆã„)
 
-<note-1> GC ¤ÎÈÇ (OpenXM/src/gc) ¤Ï 6.5 (or later).
-<note-2> wget ¤¬¤Ê¤¤¾ì¹ç¤Ï¼¡¤®¤Î¤è¤¦¤Ë¤¹¤ë.
+<note-1> GC ã®ç‰ˆ (OpenXM/src/gc) ã¯ 6.5 (or later).
+<note-2> wget ãŒãªã„å ´åˆã¯æ¬¡ãã®ã‚ˆã†ã«ã™ã‚‹.
           cd OpenXM ; mkdir ../OpenXM_dist ; cd ../OpenXM_dist
-          ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/ ¤ÎÁ´¤Æ¤Î¥Õ¥¡¥¤¥ë¤ò
-          OpenXM_dist ¤Ø make ¤ÎÁ°¤Ë¥³¥Ô¡¼¤·¤Æ¤ª¤¯.
-<note-3> DYLD_LIBRARY_PATH ´Ä¶­ÊÑ¿ô¤Ï»ÈÍÑ¤·¤Ê¤¤. cf. OpenXM/rc/dot.bashrc
+          ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/ ã®å…¨ã¦ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’
+          OpenXM_dist ã¸ make ã®å‰ã«ã‚³ãƒ”ãƒ¼ã—ã¦ãŠã.
+<note-3> DYLD_LIBRARY_PATH ç’°å¢ƒå¤‰æ•°ã¯ä½¿ç”¨ã—ãªã„. cf. OpenXM/rc/dot.bashrc
 
 */
 /*&en
@@ -256,18 +268,18 @@ Note for Mac OS X 10.4 (tiger)
 */
 
 //&C Feb 7, 2004 
-//&ja Q. Solaris 5.5.1 ¤Ç make ¤¹¤ë¤È kan96xx ¤Î make ¤Ç __register_frame_info ¤¬¤Ê¤¤¤È¤¤¤Ã¤Æ¥³¥ó¥Ñ¥¤¥ë¤¬¤È¤Ş¤ë.
+//&ja Q. Solaris 5.5.1 ã§ make ã™ã‚‹ã¨ kan96xx ã® make ã§ __register_frame_info ãŒãªã„ã¨ã„ã£ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ãŒã¨ã¾ã‚‹.
 //&en Q. On Solaris 5.5.1, the make of kan96xx stops with the error undefined symbol __register_frame_info
 
 /*&ja
 
-A. OpenXM_contrib/gmp (version 4.1.2) ¤ò¤Ä¤®¤Î¤è¤¦¤Ë¤·¤Æ version 3.1.1 ¤ËÃÖ¤­´¹¤¨¤ë¤È¤¦¤Ş¤¯¤¤¤­¤Ş¤¹.
+A. OpenXM_contrib/gmp (version 4.1.2) ã‚’ã¤ãã®ã‚ˆã†ã«ã—ã¦ version 3.1.1 ã«ç½®ãæ›ãˆã‚‹ã¨ã†ã¾ãã„ãã¾ã™.
 rm -rf OpenXM_contrib/gmp
 cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvsroot/openxm checkout -D '2002-01-01 0:00' OpenXM_contrib/gmp
 
-Æ¿Ì¾ cvs ¤Ë¤Ä¤¤¤Æ¤Ï
+åŒ¿å cvs ã«ã¤ã„ã¦ã¯
 http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
-¤ò¸æÍ÷¤¯¤À¤µ¤¤.
+ã‚’å¾¡è¦§ãã ã•ã„.
 
 */
 
@@ -286,16 +298,16 @@ http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
 
 
 //&C Nov 15, 2003 (For developpers)
-//&ja Q. Cvs ¤Ç commit ¤¹¤ë¤È¤­ -m option ¤¬¤¦¤Ş¤¯Æ°¤­¤Ş¤»¤ó.
+//&ja Q. Cvs ã§ commit ã™ã‚‹ã¨ã -m option ãŒã†ã¾ãå‹•ãã¾ã›ã‚“.
 //&en Q. The -m option for cvs commit does not work well.
 
 /*&ja
-  ¼¡¤Î¤è¤¦¤Ê shell ¥Õ¥¡¥¤¥ë¤Ç cvs ¤ò¸Æ¤Ó½Ğ¤·¤Æ¤¤¤ë¤È¤·¤¿¤é,
+  æ¬¡ã®ã‚ˆã†ãª shell ãƒ•ã‚¡ã‚¤ãƒ«ã§ cvs ã‚’å‘¼ã³å‡ºã—ã¦ã„ã‚‹ã¨ã—ãŸã‚‰,
    cvs -d abc.openxm.org:/usr/cvs $*
-  ¼¡¤Î¤è¤¦¤Ë¤«¤¨¤Ş¤¹.
+  æ¬¡ã®ã‚ˆã†ã«ã‹ãˆã¾ã™.
    cvs -d abc.openxm.org:/usr/cvs "$@"
  
-  »²¹ÍÊ¸¸¥: º½¸¶¤Û¤«, ¡Ö¥×¥í¥Õ¥§¥Ã¥·¥ç¥Ê¥ë¥·¥§¥ë¥×¥í¥°¥é¥ß¥ó¥°¡×, ¥¢¥¹¥­¡¼½ĞÈÇ¶É
+  å‚è€ƒæ–‡çŒ®: ç ‚åŸã»ã‹, ã€Œãƒ—ãƒ­ãƒ•ã‚§ãƒƒã‚·ãƒ§ãƒŠãƒ«ã‚·ã‚§ãƒ«ãƒ—ãƒ­ã‚°ãƒ©ãƒŸãƒ³ã‚°ã€, ã‚¢ã‚¹ã‚­ãƒ¼å‡ºç‰ˆå±€
 
 */
 
@@ -308,16 +320,16 @@ http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
 
 
 //&C Nov 11, 2003
-//&ja Q. RedHat 8.0 ¤Ç¥³¥ó¥Ñ¥¤¥ë¤Ç¤­¤Ş¤»¤ó.
+//&ja Q. RedHat 8.0 ã§ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã§ãã¾ã›ã‚“.
 //&en Q. I fail the compilation on RedHat 8.0
 
 /*&ja
 
-  ¥½¡¼¥¹¤ò checkout ¤·¤Æ¤¹¤°¤Ë,
+  ã‚½ãƒ¼ã‚¹ã‚’ checkout ã—ã¦ã™ãã«,
   " touch OpenXM/src/gc/.use_ports "
-  ¤ò¤·¤Æ¤«¤é make install ¤·¤Æ²¼¤µ¤¤.
-  make ¤·¤Æ¤¤¤ë´Ö¤Ë gc6.2 ¤Î¥½¡¼¥¹¥³¡¼¥É¤ò¥À¥¦¥ó¥í¡¼¥É¤·¤Ş¤¹¤Î¤Ç internet ¤Ë
-  ¤Ä¤Ê¤¤¤Ç¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹.
+  ã‚’ã—ã¦ã‹ã‚‰ make install ã—ã¦ä¸‹ã•ã„.
+  make ã—ã¦ã„ã‚‹é–“ã« gc6.2 ã®ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰ã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¾ã™ã®ã§ internet ã«
+  ã¤ãªã„ã§ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™.
 
 */
 /*&en
@@ -332,13 +344,13 @@ http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
 */
 
 //&C May 9, 2003
-//&ja Q. Debian GNU/Linux ¤Ç asir ¤¬ make ¤Ç¤­¤Ê¤¤.
+//&ja Q. Debian GNU/Linux ã§ asir ãŒ make ã§ããªã„.
 //&en Q. Asir cannot be built on Debian GNU/Linux.
 
 /*&ja
 
-A. libxaw7-dev ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤·¤Æ²¼¤µ¤¤. ¤Á¤Ê¤ß¤Ë OpenXM_contrib2/fep 
-¤ò make ¤¹¤ë¤Ë¤Ï libncurses5-dev ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹.
+A. libxaw7-dev ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ä¸‹ã•ã„. ã¡ãªã¿ã« OpenXM_contrib2/fep 
+ã‚’ make ã™ã‚‹ã«ã¯ libncurses5-dev ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™.
 
 */
 /*&en
@@ -349,19 +361,19 @@ A. Install 'libxaw7-dev'. Note that you have to install
 */
 
 //&C April 23, 2003
-//&ja Q. OpenXM ¥µ¡¼¥Ğ¤¬Î©¤Á¾å¤¬¤é¤Ê¤¤. (¥¦¥£¥ó¥É¥¦¤¬°ì½Ö¸½¤ì¤Æ¾Ã¤¨¤ë.)
+//&ja Q. OpenXM ã‚µãƒ¼ãƒãŒç«‹ã¡ä¸ŠãŒã‚‰ãªã„. (ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒä¸€ç¬ç¾ã‚Œã¦æ¶ˆãˆã‚‹.)
 //&en Q. OpenXM servers cannot be invoked. (An window appears but vanishes immediately.)
 
 /*&ja
 
-A. XFree86 4.3.0 ¤Î xterm ¤Î¹ñºİ²½ÂĞ±ş¤¬ÉÔ´°Á´¤Ê¤»¤¤¤Ç¤¹. °Ê²¼¤Î¤¤¤º¤ì¤«
-¤ò»î¤·¤Æ¤ß¤Æ²¼¤µ¤¤.
+A. XFree86 4.3.0 ã® xterm ã®å›½éš›åŒ–å¯¾å¿œãŒä¸å®Œå…¨ãªã›ã„ã§ã™. ä»¥ä¸‹ã®ã„ãšã‚Œã‹
+ã‚’è©¦ã—ã¦ã¿ã¦ä¸‹ã•ã„.
 
-1. .Xdefaults, .Xresources ¤Ê¤É¤Ë¼¡¤Î¹Ô¤òÄÉ²Ã¤¹¤ë.
+1. .Xdefaults, .Xresources ãªã©ã«æ¬¡ã®è¡Œã‚’è¿½åŠ ã™ã‚‹.
 
 XTerm*locale:false
 
-2. LANG, LC_CTYPE, LC_ALL ¤Ê¤É¤Î´Ä¶­ÊÑ¿ô¤ò¾Ã¤¹.
+2. LANG, LC_CTYPE, LC_ALL ãªã©ã®ç’°å¢ƒå¤‰æ•°ã‚’æ¶ˆã™.
 
 
 */
@@ -379,12 +391,12 @@ XTerm*locale:false
 */
 
 //&C March 7, 2003 (for developers)
-//&ja Q. asir2000 ÍÑ¤Î configure ¤¬¿·¤·¤¤ OS ¤ËÂĞ±ş¤·¤Æ¤¤¤Ê¤¤.
+//&ja Q. asir2000 ç”¨ã® configure ãŒæ–°ã—ã„ OS ã«å¯¾å¿œã—ã¦ã„ãªã„.
 //&en Q. The "configure" for asir2000 does not support a new operating system.
 
 /*&ja
 
-A.  OpenXM/doc/HOWTO/asir2000-autoconf-note-ja  ¤ò¸æÍ÷²¼¤µ¤¤.
+A.  OpenXM/doc/HOWTO/asir2000-autoconf-note-ja  ã‚’å¾¡è¦§ä¸‹ã•ã„.
 
 */
 /*&en
@@ -394,19 +406,19 @@ A.  See OpenXM/doc/HOWTO/asir2000-autoconf-note-ja (in Japanese).
 */
 
 //&C October 23, 2002 (for developer)
-//&ja Q.  commit ¥á¥Ã¥»¡¼¥¸¤Î¤ß²Ã¤¨¤¿¤¤.
+//&ja Q.  commit ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã¿åŠ ãˆãŸã„.
 //&en Q. I want to add only a commit message to the CVS repository.
 
 /*&ja 
 
 A.
-Àµ¤·¤¤¥í¥°¤ò½ñ¤¤¤Æ¥Õ¥¡¥¤¥ë¤ËÊİÂ¸¤·¤Æ¤ª¤­¡¢
+æ­£ã—ã„ãƒ­ã‚°ã‚’æ›¸ã„ã¦ãƒ•ã‚¡ã‚¤ãƒ«ã«ä¿å­˜ã—ã¦ãŠãã€
 
 cvs commit -f -F <log file> <target file>
 
-¤È¤¹¤ì¤Ğ¡¢ÆâÍÆ¤òÊÑ¹¹¤»¤º¤Ë¥í¥°¤À¤±¤ò¹¹¿·¤¹¤ë¤³¤È¤¬¤Ç¤­¤Ş¤¹¤¬¡¢
-revision ¤Ï¤Ò¤È¤Ä¿Ê¤ß¤Ş¤¹¡£³²¤Ï¤Ê¤¤¤Ç¤¹¡£
-¡Ê¤½¤Î¥í¥°¤Ë¤Ï (null commit) ¤È¤«¤¤¤ì¤Æ¤ª¤¯¤È¤½¤ì¤é¤·¤¯¤Ê¤ê¤Ş¤¹¡Ë (by ¤Ş¤¨¤«¤ï)
+ã¨ã™ã‚Œã°ã€å†…å®¹ã‚’å¤‰æ›´ã›ãšã«ãƒ­ã‚°ã ã‘ã‚’æ›´æ–°ã™ã‚‹ã“ã¨ãŒã§ãã¾ã™ãŒã€
+revision ã¯ã²ã¨ã¤é€²ã¿ã¾ã™ã€‚å®³ã¯ãªã„ã§ã™ã€‚
+ï¼ˆãã®ãƒ­ã‚°ã«ã¯ (null commit) ã¨ã‹ã„ã‚Œã¦ãŠãã¨ãã‚Œã‚‰ã—ããªã‚Šã¾ã™ï¼‰ (by ã¾ãˆã‹ã‚)
 
 
 */
@@ -422,13 +434,13 @@ The revision number will be increased by 1.
 
 
 //&C March 16, 2002 (for developer)
-//&ja Q. asir ¤ò cygwin ¤Ç make ¤·¤¿¤¤.
+//&ja Q. asir ã‚’ cygwin ã§ make ã—ãŸã„.
 //&en Q. I want to make "asir" on cygwin
 
 
 /*&ja
-  asir ¤Î cygwin ¾å¤Ç¤Î make ¤Ë¤Ï, XFree86 for cygwin ¤¬É¬Í×¤Ç¤¹. 
-  ¤³¤ì¤Ï, cygwin ¤Î¥Û¡¼¥à¥Ú¡¼¥¸¤«¤é¥À¥¦¥ó¥í¡¼¥É¤Ç¤­¤Ş¤¹.
+  asir ã® cygwin ä¸Šã§ã® make ã«ã¯, XFree86 for cygwin ãŒå¿…è¦ã§ã™. 
+  ã“ã‚Œã¯, cygwin ã®ãƒ›ãƒ¼ãƒ ãƒšãƒ¼ã‚¸ã‹ã‚‰ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã§ãã¾ã™.
 */
 /*&en
   We need XFree86 for cygwin to build asir on cygwin.
@@ -443,19 +455,19 @@ The revision number will be increased by 1.
 */
 
 //&C March 7, 2002 (for developer)
-//&ja Q. HEAD ¤Ë¥¿¥°¤ò¤Ä¤±¤ë¤Ë¤Ï?
+//&ja Q. HEAD ã«ã‚¿ã‚°ã‚’ã¤ã‘ã‚‹ã«ã¯?
 //&en Q. How to attach a tag to the head branch
 
 //&C cvs rtag -r HEAD RELEASE_1_2_1 OpenXM OpenXM_contrib OpenXM_contrib2
 
 //&C December 27, 2001 (Windows)
-//&ja Q. asirgui ¤Ç engine.exe ¤Î°ÌÃÖ¤¬ registry ¤ËÅĞÏ¿¤µ¤ì¤Æ¤¤¤Ş¤¹. ¤³¤ì¤ò¾Ã¤¹¤Ë¤Ï?
+//&ja Q. asirgui ã§ engine.exe ã®ä½ç½®ãŒ registry ã«ç™»éŒ²ã•ã‚Œã¦ã„ã¾ã™. ã“ã‚Œã‚’æ¶ˆã™ã«ã¯?
 //&en Q.  The path for engine.exe is written in the registry. How to remove the data from the registry?
 
 /*&ja
-   MSDOS ¥³¥Ş¥ó¥É¥×¥í¥ó¥×¥È¤è¤ê regedit ¤òÎ©¤Á¾å¤²¤Æ,
+   MSDOS ã‚³ãƒãƒ³ãƒ‰ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚ˆã‚Š regedit ã‚’ç«‹ã¡ä¸Šã’ã¦,
    HKEY_LOCAL_MACHINE->SOFTWARE->FUJITSU 
-   ¤Î¤Ê¤«¤Î ASIR ¤òÁ´¤Æ¾Ã¤¹.
+   ã®ãªã‹ã® ASIR ã‚’å…¨ã¦æ¶ˆã™.
 */
 
 /*&en
@@ -464,18 +476,18 @@ The revision number will be increased by 1.
 */
 
 //&C December 24, 2001  (Windows)
-//&ja Q. OpenXM/misc/packages/Windows/asirgui2.bat ¤òµ¯Æ°¤·¤è¤¦¤È¤¹¤ë¤È, "´Ä¶­ÊÑ¿ôÎÎ°è¤¬¤¿¤ê¤Ş¤»¤ó¤È¥¨¥é¡¼¤¬¤Ç¤Ş¤¹.
+//&ja Q. OpenXM/misc/packages/Windows/asirgui2.bat ã‚’èµ·å‹•ã—ã‚ˆã†ã¨ã™ã‚‹ã¨, "ç’°å¢ƒå¤‰æ•°é ˜åŸŸãŒãŸã‚Šã¾ã›ã‚“ã¨ã‚¨ãƒ©ãƒ¼ãŒã§ã¾ã™.
 //&en Q. OpenXM/misc/packages/Windows/asirgui2.bat stops with an error "Not enough area for environmental variables".
 
 /*&ja
- Windows 95/98/ME ¤Ç¤³¤ÎÌäÂê¤¬¤ª¤­¤Ş¤¹.
- ´Ä¶­ÊÑ¿ôÎÎ°è¤òÁı¤ä¤·¤Ş¤¹.
+ Windows 95/98/ME ã§ã“ã®å•é¡ŒãŒãŠãã¾ã™.
+ ç’°å¢ƒå¤‰æ•°é ˜åŸŸã‚’å¢—ã‚„ã—ã¾ã™.
  command /e:5000
- ¤Ç command.com ¤òÎ©¤Á¾å¤²¤ë¤Î¤Ï°ìÈÖ´ÊÃ±¤ÊÊıË¡.
- msconfig (win98/ME)  ¤Ş¤¿¤Ï sysedit (win95) ¤òÍÑ¤¤¤Æ, 
-   ´Ä¶­ÊÑ¿ô  shell
-   ÃÍ        c:\windows\command.com /p /e:5000
- ¤È¤¹¤ë.
+ ã§ command.com ã‚’ç«‹ã¡ä¸Šã’ã‚‹ã®ã¯ä¸€ç•ªç°¡å˜ãªæ–¹æ³•.
+ msconfig (win98/ME)  ã¾ãŸã¯ sysedit (win95) ã‚’ç”¨ã„ã¦, 
+   ç’°å¢ƒå¤‰æ•°  shell
+   å€¤        c:\windows\command.com /p /e:5000
+ ã¨ã™ã‚‹.
 */
 
 /*&en
@@ -492,13 +504,13 @@ The revision number will be increased by 1.
 */
 
 //&C August 10, 2001 (Windows, developer)
-//&ja Q. cygwin ´Ä¶­¤Ç : ¤«¤é»Ï¤Ş¤ë sh ¥Õ¥¡¥¤¥ë¤¬Æ°¤«¤Ê¤¤¤³¤È¤¬¤¢¤ê¤Ş¤¹.(³«È¯¼Ô¸ş¤±)
+//&ja Q. cygwin ç’°å¢ƒã§ : ã‹ã‚‰å§‹ã¾ã‚‹ sh ãƒ•ã‚¡ã‚¤ãƒ«ãŒå‹•ã‹ãªã„ã“ã¨ãŒã‚ã‚Šã¾ã™.(é–‹ç™ºè€…å‘ã‘)
 //&en Q. Shell scripts which start with ":" does not sometimes work on cygwin (for developers).
 
 /*&ja
- Login  shell ¤¬ csh ·Ï¤Î¾ì¹ç¤³¤Î¸½¾İ¤¬¤ª¤­¤ë¤è¤¦¤Ç¤¹.
+ Login  shell ãŒ csh ç³»ã®å ´åˆã“ã®ç¾è±¡ãŒãŠãã‚‹ã‚ˆã†ã§ã™.
  OpenXM/src/kan96xx/Kan/cat0,  OpenXM/src/kan96xx/Kan/ar-decomp
- ¤Î : ¤ò #!/bin/sh ¤ËÃÖ¤­´¹¤¨¤Æ¤¯¤À¤µ¤¤.
+ ã® : ã‚’ #!/bin/sh ã«ç½®ãæ›ãˆã¦ãã ã•ã„.
 */
 
 /*&en
@@ -509,7 +521,7 @@ The revision number will be increased by 1.
 */
 
 //&C May 6, 2001 (developer)
-//&ja Q. tab ¤ò¥¹¥Ú¡¼¥¹¤ÇÃÖ¤­´¹¤¨¤¿¤¤.    (³«È¯¼Ô¸ş¤±)
+//&ja Q. tab ã‚’ã‚¹ãƒšãƒ¼ã‚¹ã§ç½®ãæ›ãˆãŸã„.    (é–‹ç™ºè€…å‘ã‘)
 //&en Q. I want to replace tabs by spaces. (for developers)
 
 /*&C  A. (For emacs).
@@ -519,12 +531,12 @@ The revision number will be increased by 1.
 */
 
 //&C May 6, 2001 (developer)
-/*&ja Q. gcc ¤¬ÄêµÁ¤¹¤ë¥·¥ó¥Ü¥ëÌ¾¤òÃÎ¤ê¤¿¤¤. (³«È¯¼Ô¸ş¤±)
+/*&ja Q. gcc ãŒå®šç¾©ã™ã‚‹ã‚·ãƒ³ãƒœãƒ«åã‚’çŸ¥ã‚ŠãŸã„. (é–‹ç™ºè€…å‘ã‘)
 */
 /*&en Q. I want to know symbol names that gcc defines. (for developers)
 */
 
-/*&ja A. ¥À¥ß¡¼¤Î¥Õ¥¡¥¤¥ë foo.c ¤òºîÀ®¤·¤Æ,
+/*&ja A. ãƒ€ãƒŸãƒ¼ã®ãƒ•ã‚¡ã‚¤ãƒ« foo.c ã‚’ä½œæˆã—ã¦,
           gcc -v -c  foo.c
 */
 /*&en A. Generate a dummy file foo.c and type in
@@ -532,8 +544,8 @@ The revision number will be increased by 1.
 */
 
 //&C Jan 18, 2001 (user, developer)
-/*&ja Q. Debian potato ¤Ç OpenXM/src/ox_math (Mathematica ¤Î OpenXM ¥µ¥İ¡¼¥È)	¤Î¥½¡¼¥¹¤¬¥³¥ó¥Ñ¥¤¥ë, ¼Â¹Ô
- ¤Ç¤­¤Ş¤»¤ó.
+/*&ja Q. Debian potato ã§ OpenXM/src/ox_math (Mathematica ã® OpenXM ã‚µãƒãƒ¼ãƒˆ)	ã®ã‚½ãƒ¼ã‚¹ãŒã‚³ãƒ³ãƒ‘ã‚¤ãƒ«, å®Ÿè¡Œ
+ ã§ãã¾ã›ã‚“.
 */
 /*&en Q. I cannot compile and execute OpenXM/src/ox_math (OpenXM support of
 Mathematica) on Debian potato.
@@ -541,12 +553,12 @@ Mathematica) on Debian potato.
 
 /*&ja  
 A (by Ohara).
-1. Mathlink ¤Ï glibc2.1 ¤Ç¤ÏÀµ¤·¤¯Æ°ºî¤·¤Ş¤»¤ó.
+1. Mathlink ã¯ glibc2.1 ã§ã¯æ­£ã—ãå‹•ä½œã—ã¾ã›ã‚“.
 http://www.wolfram.com/solutions/mathlink/devkits.html
-¤«¤é Linux x86 ÈÇ¤Î C/C++ MathLink SDK ¤òÆş¼ê¤·, libML.a ¤ò¼è¤ê´¹¤¨¤Ş¤¹.
-MathLink SDK ¤Ë¤ÏÆó¼ïÎà¤Î libML.a ¤¬´Ş¤Ş¤ì¤Æ¤¤¤ë¤Î¤ÇÃí°Õ¤¹¤ë¤³¤È.
+ã‹ã‚‰ Linux x86 ç‰ˆã® C/C++ MathLink SDK ã‚’å…¥æ‰‹ã—, libML.a ã‚’å–ã‚Šæ›ãˆã¾ã™.
+MathLink SDK ã«ã¯äºŒç¨®é¡ã® libML.a ãŒå«ã¾ã‚Œã¦ã„ã‚‹ã®ã§æ³¨æ„ã™ã‚‹ã“ã¨.
 2. apt-get install libc5
-¤Ç libc5 ¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë.
+ã§ libc5 ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹.
 */
 
 /*&en  
@@ -559,23 +571,23 @@ and replace libML.a
 */
 
 //&C Dec 17, 2000 (user)
-//&ja Q. Debian potato ¤Ç OpenXM server ÍÑ¤Î xterm ¤¬¤Ò¤é¤«¤º, OpenXM server ¤¬µ¯Æ°¤Ç¤­¤Ş¤»¤ó.
+//&ja Q. Debian potato ã§ OpenXM server ç”¨ã® xterm ãŒã²ã‚‰ã‹ãš, OpenXM server ãŒèµ·å‹•ã§ãã¾ã›ã‚“.
 //&en Q. I cannot start xterm for some OpenXM servers on Debian potato.
 
 /*&ja  
 A (by Ohara).
-(¸¶°ø) Debian 2.2 ¤Ç xterm -e a.out ¤Ç¥×¥í¥»¥¹¤òµ¯Æ°¤·¤¿¾ì¹ç¡¢
-a.out ¤Ë¤Ï´Ä¶­ÊÑ¿ô LD_LIBRARY_PATH ¤¬ÅÁÃ£¤µ¤ì¤Ş¤»¤ó!!
+(åŸå› ) Debian 2.2 ã§ xterm -e a.out ã§ãƒ—ãƒ­ã‚»ã‚¹ã‚’èµ·å‹•ã—ãŸå ´åˆã€
+a.out ã«ã¯ç’°å¢ƒå¤‰æ•° LD_LIBRARY_PATH ãŒä¼é”ã•ã‚Œã¾ã›ã‚“!!
 
-(·ë²Ì) oxc ¤Ï $OpenXM_HOME/lib/libgmp.so ¤È¥ê¥ó¥¯¤·¤Æ¤¤¤ë¤Î¤Ç¡¢¥ê¥ó¥«
-¤¬¥À¥¤¥Ê¥ß¥Ã¥¯¥ê¥ó¥¯¤ò²ò·è¤Ç¤­¤º¤Ë¡¢µ¯Æ°¤¹¤é¤Ç¤­¤Ê¤«¤Ã¤¿¤ï¤±¤Ç¤¹¡£
+(çµæœ) oxc ã¯ $OpenXM_HOME/lib/libgmp.so ã¨ãƒªãƒ³ã‚¯ã—ã¦ã„ã‚‹ã®ã§ã€ãƒªãƒ³ã‚«
+ãŒãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯ãƒªãƒ³ã‚¯ã‚’è§£æ±ºã§ããšã«ã€èµ·å‹•ã™ã‚‰ã§ããªã‹ã£ãŸã‚ã‘ã§ã™ã€‚
 
-(²ò·è) /lib ¤Ë libgmp.so ¤Ë¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤ò¤Ä¤¯¤ë¡£
-Îã:  root ¤Ë¤Ê¤Ã¤Æ
+(è§£æ±º) /lib ã« libgmp.so ã«ã‚·ãƒ³ãƒœãƒªãƒƒã‚¯ãƒªãƒ³ã‚¯ã‚’ã¤ãã‚‹ã€‚
+ä¾‹:  root ã«ãªã£ã¦
      cd /lib
      ln -s $OpenXM_HOME/lib/libgmp.so .
      ln -s $OpenXM_HOME/lib/libpari.so .
-   ¤Ê¤É¤ò¼Â¹Ô.
+   ãªã©ã‚’å®Ÿè¡Œ.
 
 */
 /*&en  
@@ -595,21 +607,21 @@ A solution: Generate a symbolic link from libgmp.so  to /lib
 */
 
 //&C Nov 30, 2000 (user)
-//&ja Q. Redhat Linux ¤òÍøÍÑ¤·¤Æ¤¤¤Ş¤¹. libgd ¤¬¤Ê¤¤¤Î¤Ç RPM ¥Ñ¥Ã¥±¡¼¥¸¤Î¥¤¥ó¥¹¥È¡¼¥ë¤¬¼ºÇÔ¤·¤Ş¤¹.
+//&ja Q. Redhat Linux ã‚’åˆ©ç”¨ã—ã¦ã„ã¾ã™. libgd ãŒãªã„ã®ã§ RPM ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ãŒå¤±æ•—ã—ã¾ã™.
 //&en Q. I'm using Redhat Linux. Installation of the RPM package of openxm fails because libgd does not exists.
 
 /*&ja
- (A)  http://www.redhat.com/downloads ¤è¤ê,  libgd ¤ò¥µ¡¼¥Á¤·¤Ş¤¹.
- (B)  libgd 1.3 ¤ò download ¤·¤Æ, rpm ¤Ç¥¤¥ó¥¹¥È¡¼¥ë¤·¤Ş¤¹.
+ (A)  http://www.redhat.com/downloads ã‚ˆã‚Š,  libgd ã‚’ã‚µãƒ¼ãƒã—ã¾ã™.
+ (B)  libgd 1.3 ã‚’ download ã—ã¦, rpm ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™.
 
-  www.redhat.com ¤Ç¤Ï, ºÇ¿·ÈÇ¤Î Redhat ÍÑ¤Î libgd ¤·¤«¤ß¤Ä¤«¤é¤Ê¤¤¤«¤â
-  ¤·¤ì¤Ş¤»¤ó.  ¤½¤Î¾ì¹ç¤Ï http://rpmfind.net ¤ÇÃµ¤·¤Æ²¼¤µ¤¤.
-  ¤¿¤È¤¨¤Ğ Redhat 6.2 ÍÑ¤Î libgd ¤Ï 
+  www.redhat.com ã§ã¯, æœ€æ–°ç‰ˆã® Redhat ç”¨ã® libgd ã—ã‹ã¿ã¤ã‹ã‚‰ãªã„ã‹ã‚‚
+  ã—ã‚Œã¾ã›ã‚“.  ãã®å ´åˆã¯ http://rpmfind.net ã§æ¢ã—ã¦ä¸‹ã•ã„.
+  ãŸã¨ãˆã° Redhat 6.2 ç”¨ã® libgd ã¯ 
   http://rpmfind.net/linux/RPM/redhat/6.2/i386////gd-1.3-6.i386.html
-  ¤Ë¤¢¤ê¤Ş¤¹.
-  ¥Í¥Ã¥È¥¹¥±¡¼¥×¤Î¾ì¹ç¤Ê¤é¤³¤³¤Ë¥¢¥¯¥»¥¹¤·, 
+  ã«ã‚ã‚Šã¾ã™.
+  ãƒãƒƒãƒˆã‚¹ã‚±ãƒ¼ãƒ—ã®å ´åˆãªã‚‰ã“ã“ã«ã‚¢ã‚¯ã‚»ã‚¹ã—, 
            gd-1.3-6 RPM for i386
-  ¤ò shift+click ¤·¤Æ gd-1.3-6.i386.rpm ¤ò¥À¥¦¥ó¥í¡¼¥É¤·¤Ş¤¹.
+  ã‚’ shift+click ã—ã¦ gd-1.3-6.i386.rpm ã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¾ã™.
 */
 /*&en
  (A) Search libgd at http://www.redhat.com/downloads
@@ -626,32 +638,32 @@ A solution: Generate a symbolic link from libgmp.so  to /lib
 */
 
 //&C Sep 28, 2000  (user)
-//&ja Q. asir ¤è¤ê ssh ¤òÍÑ¤¤¤Æ remote ¤Î ox ¥µ¡¼¥Ğ¤òµ¯Æ°¤Ç¤­¤Ş¤»¤ó.
+//&ja Q. asir ã‚ˆã‚Š ssh ã‚’ç”¨ã„ã¦ remote ã® ox ã‚µãƒ¼ãƒã‚’èµ·å‹•ã§ãã¾ã›ã‚“.
 //&en Q. I cannot start remote ox servers with ssh.
 
 /*&ja
 A.
-  (A) ssh ¤¬¤¿¤À¤·¤¯Æ°ºî¤·¤Æ¤¤¤ë¤«¤Ş¤º¤·¤é¤Ù¤Ş¤¹.
+  (A) ssh ãŒãŸã ã—ãå‹•ä½œã—ã¦ã„ã‚‹ã‹ã¾ãšã—ã‚‰ã¹ã¾ã™.
         ssh -f -X -A remote-machine-name  xterm
-      ¤Ç xterm ¤¬µ¯Æ°¤·¤Ş¤¹¤«¡©
-      ssh ¤Î version ¤Ë¤è¤Ã¤Æ¤Ï -X -A ¤Ê¤É¤Î option ¤ò¤¦¤±¤Ä¤±¤Ş¤»¤ó.
-      ¥·¥§¥ë¥¹¥¯¥ê¥×¥È /usr/local/bin/asir ¤Î ASIR_RSH ¤òÊÑ¹¹¤·¤Æ²¼¤µ¤¤.
-      command not found ¤Î»ş¤Ï, .cshrc,  .bashrc ¤Ë xterm ¤òµ¯Æ°¤Ç¤­¤ë¤è¤¦¤Ë
-      ¥Ñ¥¹¤ò²Ã¤¨¤Ş¤¹.
-      Îã:
+      ã§ xterm ãŒèµ·å‹•ã—ã¾ã™ã‹ï¼Ÿ
+      ssh ã® version ã«ã‚ˆã£ã¦ã¯ -X -A ãªã©ã® option ã‚’ã†ã‘ã¤ã‘ã¾ã›ã‚“.
+      ã‚·ã‚§ãƒ«ã‚¹ã‚¯ãƒªãƒ—ãƒˆ /usr/local/bin/asir ã® ASIR_RSH ã‚’å¤‰æ›´ã—ã¦ä¸‹ã•ã„.
+      command not found ã®æ™‚ã¯, .cshrc,  .bashrc ã« xterm ã‚’èµ·å‹•ã§ãã‚‹ã‚ˆã†ã«
+      ãƒ‘ã‚¹ã‚’åŠ ãˆã¾ã™.
+      ä¾‹:
         set path=(/usr/X11R6/bin $path)      (.cshrc)
         export PATH=/usr/X11R6/bin:$PATH     (.bashrc)
 
-   (B) 1.1.3 ¤Ç¤Ï, remote machine ¤Î login shell ¤¬ bash, sh ¤Î»ş¤Ï
-       remote server ¤òµ¯Æ°¤Ç¤­¤Ş¤»¤ó. ¤³¤Î bug ¤Ï, ¼¡¤Î version ¤ÇÊÑ¹¹¤µ¤ì¤Ş¤¹.
+   (B) 1.1.3 ã§ã¯, remote machine ã® login shell ãŒ bash, sh ã®æ™‚ã¯
+       remote server ã‚’èµ·å‹•ã§ãã¾ã›ã‚“. ã“ã® bug ã¯, æ¬¡ã® version ã§å¤‰æ›´ã•ã‚Œã¾ã™.
 
-   (C) asir ¤è¤ê, 
+   (C) asir ã‚ˆã‚Š, 
          ox_launch(remote-host-name,"/usr/local/OpenXM/lib/asir","ox_asir");
-       ¤Ç ox_asir server ¤òµ¯Æ°¤Ç¤­¤ë¤«»î¤·¤Æ²¼¤µ¤¤.
-       µ¯Æ°¤Ç¤­¤Ê¤¤¤È¤­¤Ï,
-         ASIR_RSH ¤Ë -v option ¤ò²Ã¤¨¤Æ
-       (Îã: ASIR_RSH='ssh -v -f -X -A ' )
-       ssh ¤ò debug mode ¤Çµ¯Æ°¤·, ¸¶°ø¤òÃµ¤·¤Ş¤¹.
+       ã§ ox_asir server ã‚’èµ·å‹•ã§ãã‚‹ã‹è©¦ã—ã¦ä¸‹ã•ã„.
+       èµ·å‹•ã§ããªã„ã¨ãã¯,
+         ASIR_RSH ã« -v option ã‚’åŠ ãˆã¦
+       (ä¾‹: ASIR_RSH='ssh -v -f -X -A ' )
+       ssh ã‚’ debug mode ã§èµ·å‹•ã—, åŸå› ã‚’æ¢ã—ã¾ã™.
 
 */
 
@@ -686,10 +698,10 @@ A.
 //&C
 
 //&C April 12, 2000. (user)
-//&ja Q. openxm*.rpm ¤òÍøÍÑ¤·¤Æ¤¤¤ë¤Î¤Ç¤¹¤¬, asir ¤ÈÆşÎÏ¤¹¤ë¤È,
+//&ja Q. openxm*.rpm ã‚’åˆ©ç”¨ã—ã¦ã„ã‚‹ã®ã§ã™ãŒ, asir ã¨å…¥åŠ›ã™ã‚‹ã¨,
 //&en Q. I installed OpenXM package by RPM (openxm*.rpm). Asir command returns
 //&C   /var/tmp/openxm-root/OpenXM/bin/asir  is not found
-//&ja ¤È¥¨¥é¡¼¤¬¤Ç¤Æµ¯Æ°¤Ç¤­¤Ş¤»¤ó.
+//&ja ã¨ã‚¨ãƒ©ãƒ¼ãŒã§ã¦èµ·å‹•ã§ãã¾ã›ã‚“.
 //&en and I cannot start asir.
 
 /*&C A.
@@ -709,40 +721,40 @@ A.
 
 /*&ja
 Q.  1999, 11/10: 
-    " (file) run  " ¤ò ox_sm1 ¤ËÁ÷¤Ã¤Æ executeStringByLocalParser ¤·¤Æ¤â
-    ¥Õ¥¡¥¤¥ë¤ò¥í¡¼¥É¤·¤Æ¤¯¤ì¤Ş¤»¤ó.  
+    " (file) run  " ã‚’ ox_sm1 ã«é€ã£ã¦ executeStringByLocalParser ã—ã¦ã‚‚
+    ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰ã—ã¦ãã‚Œã¾ã›ã‚“.  
 
-A.  "[(parse) (file) pushfile] extension " ¤ÇÆÉ¤ß¹ş¤ó¤Ç¤¯¤À¤µ¤¤.
-    ox_asir ¤â load("file") ¤ò executeStringByLocalParser ¤·¤Æ¤â
-    ¤À¤á¤Ç¤¹.  "file", 1, "load" ¤ò¥¹¥¿¥Ã¥¯¤ØÀÑ¤ó¤Ç¤«¤é execute ¤·¤Ş¤¹.
-    ox_math ¤â "<< file"  executeStringByLocalParser ¤·¤Æ¤â
-    ¤À¤á¤Ç¤¹.
-
-Q. 1999, 11/10: 
-    OX ¥µ¡¼¥Ğ¤òµ¯Æ°¤·¤è¤¦¤È¤·¤Æ¤âµ¯Æ°¤·¤Ş¤»¤ó.
-    asir ¤òµ¯Æ°¤·¤¿¤¢¤È, ox_launch ¤·¤¿¤é, segmentation fault ¤·¤¿.
-
-A. OpenXM ¤Ï home directory ¤ÎÄ¾²¼¤Ë¤¢¤ê, ¤Ş¤¿ OpenXM/rc/bashrc ¤Ç´Ä¶­
-   ÊÑ¿ô¤òÀµ¤·¤¯ÀßÄê¤·¤Ş¤·¤¿¤«¡©
+A.  "[(parse) (file) pushfile] extension " ã§èª­ã¿è¾¼ã‚“ã§ãã ã•ã„.
+    ox_asir ã‚‚ load("file") ã‚’ executeStringByLocalParser ã—ã¦ã‚‚
+    ã ã‚ã§ã™.  "file", 1, "load" ã‚’ã‚¹ã‚¿ãƒƒã‚¯ã¸ç©ã‚“ã§ã‹ã‚‰ execute ã—ã¾ã™.
+    ox_math ã‚‚ "<< file"  executeStringByLocalParser ã—ã¦ã‚‚
+    ã ã‚ã§ã™.
 
 Q. 1999, 11/10: 
-   sm1 ¤Ï * ¤ò¤Ä¤«¤¨¤Ê¤¤¤Î¤Ç¤¹¤«¡©  
+    OX ã‚µãƒ¼ãƒã‚’èµ·å‹•ã—ã‚ˆã†ã¨ã—ã¦ã‚‚èµ·å‹•ã—ã¾ã›ã‚“.
+    asir ã‚’èµ·å‹•ã—ãŸã‚ã¨, ox_launch ã—ãŸã‚‰, segmentation fault ã—ãŸ.
 
-A. *¤â¤Ä¤«¤¨¤Ş¤¹.  x*y ¤â x y ¤âÆ±¤¸¤¤¤ß¤Ç¤¹.
+A. OpenXM ã¯ home directory ã®ç›´ä¸‹ã«ã‚ã‚Š, ã¾ãŸ OpenXM/rc/bashrc ã§ç’°å¢ƒ
+   å¤‰æ•°ã‚’æ­£ã—ãè¨­å®šã—ã¾ã—ãŸã‹ï¼Ÿ
+
+Q. 1999, 11/10: 
+   sm1 ã¯ * ã‚’ã¤ã‹ãˆãªã„ã®ã§ã™ã‹ï¼Ÿ  
+
+A. *ã‚‚ã¤ã‹ãˆã¾ã™.  x*y ã‚‚ x y ã‚‚åŒã˜ã„ã¿ã§ã™.
 
 
 Q. 1999, 11/12:
-   sm1 ¤Ï Í­Íı¿ô¤ò·¸¿ô¤È¤¹¤ëÂ¿¹à¼°¤ò°·¤¨¤Ê¤¤¤Î¤Ç¤¹¤«¡©
+   sm1 ã¯ æœ‰ç†æ•°ã‚’ä¿‚æ•°ã¨ã™ã‚‹å¤šé …å¼ã‚’æ‰±ãˆãªã„ã®ã§ã™ã‹ï¼Ÿ
 
-A. ¤¤¤Ş¤Î¤È¤³¤í°·¤¨¤Ş¤»¤ó.
-   OpenXM/lib/asir/xm ¤Î ´Ø¿ô sm1_rat_to_p() ¤ÏÍ­Íı¿ô·¸¿ô¤ÎÂ¿¹à¼°¤ò
-   sm1 ¤¬°·¤¤¤ä¤¹¤¤¤è¤¦¤Ê À°¿ô·¸¿ô¤ÎÂ¿¹à¼°¤ËÊÑ´¹¤·¤Æ¤¯¤ì¤Ş¤¹.
+A. ã„ã¾ã®ã¨ã“ã‚æ‰±ãˆã¾ã›ã‚“.
+   OpenXM/lib/asir/xm ã® é–¢æ•° sm1_rat_to_p() ã¯æœ‰ç†æ•°ä¿‚æ•°ã®å¤šé …å¼ã‚’
+   sm1 ãŒæ‰±ã„ã‚„ã™ã„ã‚ˆã†ãª æ•´æ•°ä¿‚æ•°ã®å¤šé …å¼ã«å¤‰æ›ã—ã¦ãã‚Œã¾ã™.
 
 Q. 1999, 11/12:
-   Solaris 2.5.1 ¤Ç pari ¤Î¥³¥ó¥Ñ¥¤¥ë¤¬¤¦¤Ş¤¯¤Ç¤­¤Ş¤»¤ó.
+   Solaris 2.5.1 ã§ pari ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ãŒã†ã¾ãã§ãã¾ã›ã‚“.
 
 A.
-| Solaris 2.5.1 ¤Ç¤¹¤¬, ¤¤¤­¤Ê¤ê pari ¤Î make ¤Ç¤³¤±¤Ş¤¹¤Í.
+| Solaris 2.5.1 ã§ã™ãŒ, ã„ããªã‚Š pari ã® make ã§ã“ã‘ã¾ã™ã­.
 | 
 | /usr/local/bin/as  -o kernel.o kernel1.s
 | kernel1.s: Assembler messages:
@@ -752,23 +764,23 @@ A.
 | cv9'
 | make[1]: *** [install] Error 2
 
-¤³¤ì¤Ï»ä¤â°ÊÁ°¤Ï¤Ş¤ê¤Ş¤·¤¿. Osolaris-sparcv?/Makefile ¤Ç
+ã“ã‚Œã¯ç§ã‚‚ä»¥å‰ã¯ã¾ã‚Šã¾ã—ãŸ. Osolaris-sparcv?/Makefile ã§
 
 AS=/usr/local/bin/as
 
-¤È¤Ê¤Ã¤Æ¤¤¤ë¤»¤¤¤Ç¤¹. ¤³¤ì¤Ï
+ã¨ãªã£ã¦ã„ã‚‹ã›ã„ã§ã™. ã“ã‚Œã¯
 
 AS=/usr/ccs/bin/as
 
-¤Ç¤Ê¤±¤ì¤Ğ make ¤Ë¼ºÇÔ¤·¤Ş¤¹. Solaris ¤Î¾ì¹ç¤Ë¤Ï /usr/ccs/bin ¤¬ 
-/usr/local/bin¤è¤êÀè¤Ë¥µ¡¼¥Á¤µ¤ì¤ë¤è¤¦¤Ë path ¤òÀßÄê¤¹¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹.
+ã§ãªã‘ã‚Œã° make ã«å¤±æ•—ã—ã¾ã™. Solaris ã®å ´åˆã«ã¯ /usr/ccs/bin ãŒ 
+/usr/local/binã‚ˆã‚Šå…ˆã«ã‚µãƒ¼ãƒã•ã‚Œã‚‹ã‚ˆã†ã« path ã‚’è¨­å®šã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™.
 
-¤³¤Î¤è¤¦¤ËÀßÄê¤·¤Æ¤ª¤¯¤È configure ¤Î»ş¼«Æ°Åª¤ËAS=/usr/ccs/bin/as
-¤È¤·¤Æ¤¯¤ì¤ë.
+ã“ã®ã‚ˆã†ã«è¨­å®šã—ã¦ãŠãã¨ configure ã®æ™‚è‡ªå‹•çš„ã«AS=/usr/ccs/bin/as
+ã¨ã—ã¦ãã‚Œã‚‹.
 
 */
 
-//&ja Q. pari ¤Ç, LLL algorithm ¤ò¤Ä¤«¤¦¤Î¤Ë¤Ï¤É¤¦¤·¤Ş¤¹¤«?
+//&ja Q. pari ã§, LLL algorithm ã‚’ã¤ã‹ã†ã®ã«ã¯ã©ã†ã—ã¾ã™ã‹?
 //&en Q. How to use functions for LLL algorithm in pari?
 /*&C
 
@@ -780,7 +792,7 @@ A. gp                         (Starting pari)
 
 //&C   
 
-//&ja Q. Asir ¤è¤ê pari ¤ò¤è¤Ó¤À¤·¤Æ, LLL algorithm ¤ò¤Ä¤«¤¦¤Î¤Ë¤Ï¤É¤¦¤·¤Ş¤¹¤«?
+//&ja Q. Asir ã‚ˆã‚Š pari ã‚’ã‚ˆã³ã ã—ã¦, LLL algorithm ã‚’ã¤ã‹ã†ã®ã«ã¯ã©ã†ã—ã¾ã™ã‹?
 //&en Q. How to use functions for LLL algorithm in asir by calling pari?
 /*&C
 

@@ -1,24 +1,24 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.3 2000/09/09 21:59:13 takayama Exp $
-//&jp \section{�Ϥ����}
+%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.4 2002/01/20 09:26:22 takayama Exp $
+//&jp \section{はじめに}
 //&eg \section{Introduction}
 
 /*&jp
-OpenXM ��, ���ʤ������פޤ��ϰۤʤ륿���פο��إץ������֤�
-��å������Τ��Ȥ�ε���Ǥ���.
-��ȯ��ư����, ����(�ޤ��ϸ���Ū��)���إ��եȤ���߾������μ¸�
-�����ʬ���׻��μ�����
-���Ǥ��ä���, ���������إ��եȴ֤����Ǥʤ�, ��ץ����եȤ�,
-���󥿥饯�ƥ��֤ʿ�����,
-����ˤϿ��إǥ�������ʪ���ѤΥ��եȤ����ε���˽���, 
-���إ��եȤ�ƤӽФ����Ȥʤɤˤ����ѤǤ���.
-���̤���ɸ�� OpenXM ���إ��եȥѥå��������뤳�ȤǤ���.
-����Ϥ��ޤ��ޤʿ��إ��եȤ��ĤΥѥå������Ȥ���
-��ñ�˹����ʸ�����Ȥ���褦�ˤ���ץ��������ȤǤ���.
-���� OpenXM.tar.gz �ˤ�,
-asir, sm1, phc, gnuplot, tigers �����äƤ���.
-OpenXM ���إ��եȥѥå������ץ��������Ȥ�
-���äǤ���褦�� CMO ��
-������ĥ���Ƥ�������ε���������ΤȤ���.
+OpenXM は, おなじタイプまたは異なるタイプの数学プロセス間の
+メッセージのやりとりの規約である.
+開発の動機は, 手作り(または研究的な)数学ソフトの相互乗り入れの実現
+および分散計算の実装が
+第一であったが, もちろん数学ソフト間だけでなく, ワープロソフトや,
+インタラクティブな数学本,
+さらには数学デジタル博物館用のソフトがこの規約に従い, 
+数学ソフトを呼び出すことなどにも利用できる.
+当面の目標は OpenXM 数学ソフトパッケージを作ることである.
+これはさまざまな数学ソフトを一つのパッケージとして
+簡単に好きな言語より使えるようにするプロジェクトである.
+現在 OpenXM.tar.gz には,
+asir, sm1, phc, gnuplot, tigers が入っている.
+OpenXM 数学ソフトパッケージプロジェクトに
+参加できるように CMO の
+規約を拡張していくための規約も定めるものとする.
 */
 /*&eg
 OpenXM is a free, or Open Source, infrastructure for mathematical
@@ -35,26 +35,26 @@ It is currently a collection of software systems
 */
 
 /*&jp
-��������Ū�ʿ��إ��եȤ�¿����ȯ
-����Ƥ��뤬, ������ο��إ��եȤ�¾�Υ��եȤ�ꥵ�֥롼����Ȥ���
-�ƤӽФ��뵡ǽ���Ĥ٤��Ǥ���.
-���Τ褦�˶�Ĵ��ǽ�ˤ����줿�ץ�������񤯤�����߷פ�
-�����ɥ饤��, �ץ�������ˡ�Τ褦�ʤ�Τ���Ƥ���Τ�, 
-���Υץ��������Ȥ���Ū�Ǥ���.
-���Τ褦�ʥ����ɥ饤��ˤ��äƥץ�����ह�뤳�Ȥˤ��,
-���إ��르�ꥺ�༫�Τ˽���Ǥ���Ķ����¸��Ǥ��뤳�Ȥ�
-���Ԥ��Ƥ���.
+現在専門的な数学ソフトが多数開発
+されているが, 次世代の数学ソフトは他のソフトよりサブルーチンとして
+呼び出せる機能をもつべきである.
+このように協調機能にすぐれたプログラムを書くための設計の
+ガイドライン, プログラム作法のようなものを提案するのも, 
+このプロジェクトの目的である.
+このようなガイドラインにそってプログラムすることにより,
+数学アルゴリズム自体に集中できる環境が実現できることを
+期待している.
 
-�߷פ����ˤȤ���, (1) ñ�� (2) ��ĥ�� (3) �����δ��ؤ� (4) ������(5) 
-�⿮����(robustness),�˽Ť��򤪤��Ƥ���.  
+設計の方針として, (1) 単純 (2) 拡張性 (3) 実装の簡便さ (4) 実用性(5) 
+高信頼性(robustness),に重きをおいている.  
 
-OpenXM �Ϥʤˤ�ͤ����˴�ñ����³�Ǥ��륷���ƥ������,�Ȥ����ޤ��
-Ū�ǤϤʤ�.  ����Ū�� object �ϰ����ǤϤ����ʤ���, ���������쵬�ʤ�
-�Ĥ���Ȥ����Τϵ����󤯤ʤ�Ż��Ǥ���. ���Τ����, ����ꤹ����������
-�����ä��ǡ����򴹤�ʬ�������ƥ๽�ۤλŻ���ڤˤ������Ȥ����Τ�������
-������1��ɸ�Ǥ���.  �ޤ�, Mathematica �� Maple �Ȥ��ä���������祽��
-�Ȥ�, Free Mathematical Software �Ȥ��Ƥ���켫�Ȥμ�ǤĤ��äƤ���
-����δ��äǤ⤢��.
+OpenXM はなにも考えずに簡単に接続できるシステムを作ろう,というまで野心
+的ではない.  数学的な object は一筋縄ではいかないし, 完全な統一規格を
+つくるというのは気が遠くなる仕事である. そのかわり, 今よりすこしだけこ
+ういったデータ交換や分散システム構築の仕事を楽にしたいというのがささや
+かな第1目標である.  また, Mathematica や Maple といった巨大な統合ソフ
+トを, Free Mathematical Software としてわれわれ自身の手でつくっていく
+ための基礎でもある.
 */
 
 /*&eg
@@ -86,12 +86,12 @@ We want to see how far we can go with this approach.
 */
 
 /*&jp
-����Ū�� Object ��ɤΤ褦��ɽ������Τ�, �ɤ�������Τ���ͤ��뤳�Ȥ�
-�褷�ƤĤޤ�ʤ�����ǤϤʤ�.
-���Τ褦�������, ���������ص������¤��������Ȼ��Ƥ��뤫�⤷��ʤ�.
-�桹��, ������ $0$ ��ޤ��10�ʿ���ɽ����,
-��ʬ�� $dx$ �Ƚ�, ������ $ \longrightarrow $ �Ǥ���魯.
-�����ε���ˡ����ɤ����¿�������פ����Ƥ��뤫, �פ���Ϥ����ߤ���.
+数学的な Object をどのように表現するのか, どう伝えるのかを考えることは
+決してつまらない問題ではない.
+このような問題は, 新しい数学記号を創造する問題と似ているかもしれない.
+我々は, 数字を $0$ を含んだ10進数で表記し,
+微分を $dx$ と書き, 写像を $ \longrightarrow $ であらわす.
+これらの記号法からどれだけ多くの利益を得ているか, 思いをはせて欲しい.
 */
 /*&eg
 It is not an obvious problem to consider how mathematical objects
@@ -102,21 +102,21 @@ to represent a differential, and $ \longrightarrow $ to represent
 a mapping. One should imagine how we are benefited from these notations.
 */
 
-%% �ѿ�̾��ɤ����뤫Ǻ��Τˤ���Ƥ�.
+%% 変数名をどうするか悩むのにも似てる.
 
 /*&jp
-OpenXM ������Ū�ˤ�
-OX ��, SM ��, CMO �ؤˤ狼���.
-OX Object ��, �ǡ���, ���ޥ�ɤ����̤Ǥ���.
-�ǡ����Ϥ��Υץ��������ȤΥ��ꥸ�ʥ�Υǡ�������
-�Ǥ��� CMO (Common Mathematical Object Format) ��
-���Ф��Ƥ�褤��, MP �� Open MATH �ʤɤη������Ѥ��Ƥ�褤.
-SM �ؤ� (�����å��ޥ���)�����Ф����椹�뤿���̿���
-���Ĥޤ�Ǥ���, �����Ф���Ʊ��Ū��ư����뤳�Ȥ���ǽ�Ǥ���.
-���������⤤�Τ�, IMC �ʤɤΥ�⡼�ȥץ��������㥳����Ϥ�
-�ץ��ȥ���⥨�ߥ�졼�ȤǤ���.
-OX ��å������� DTD ���Ѥ��������ǽ�Ǥ���, XML ���Ѥ���
-���ҤǤ���.
+OpenXM は論理的には
+OX 層, SM 層, CMO 層にわかれる.
+OX Object は, データ, コマンドに大別できる.
+データはこのプロジェクトのオリジナルのデータ形式
+である CMO (Common Mathematical Object Format) で
+送出してもよいし, MP や Open MATH などの形式を用いてもよい.
+SM 層は (スタックマシン)サーバを制御するための命令の
+あつまりであり, サーバは非同期的に動作させることが可能である.
+柔軟性が高いので, IMC などのリモートプロシージャコール系の
+プロトコルもエミュレートできる.
+OX メッセージは DTD を用いて定義可能であり, XML を用いて
+記述できる.
 */
 /*&eg 
 In OpenXM, communication is an exchange of messages. 
@@ -145,9 +145,9 @@ OX messages can be defined by DTD and can be expressed by XML.
 We call it OpenXM/XML.
 */
 /*&jp
-OpenXM �˽�򤷤������ƥ� xxx ��, open xxx �Ȥ��.
-���Ȥ���, OpenXM �б��� asir �� open asir �Ǥ���,
-OpenXM �б��� kan/sm1 �� open sm1 �Ǥ���.
+OpenXM に準拠したシステム xxx を, open xxx とよぶ.
+たとえば, OpenXM 対応の asir は open asir であり,
+OpenXM 対応の kan/sm1 は open sm1 である.
 */
 /*&eg
 A system xxx complient to the OpenXM protocol is called open xxx.
@@ -156,26 +156,26 @@ kan/sm1 complient to the OpenXM protocol is called open sm1.
 */
 
 /*&jp
-OpenXM ��, �ǡ������򤭤�Ƥ�����ʬ��,
-���̥����å���������Ƥ�����ʬ�ˤ狼���.
-�褤���Ȥ����ɤ����������ʤ���,
-OpenXM ����������Ȥ�, unicode �������Ȥ˻��Ƥ�����ʬ�⤢��.
-���Ȥ���, �������쥢�����Ƕ��̤˻��Ѥ���Ƥ��뤬, �������ñ�̤�
-�����������Ťİ㤦��Τ�����.
-unicode �Ǥ�, ����������Ʊ�� code �ˤ��������.
-OpenXM �Ǥ�, �����ƥ���ˤ��Ȥʤ뤬���Ƥ���ǡ�������
-Ʊ�����Ȥ��Ƥ��Ĥ���.
-���Ȥ���, ``ʬ��¿�༰'' �ΰ�̣��, asir �� kan/sm1 �ǰۤʤ뤬,
-OpenXM �Ǥ�, Ʊ�����Ȥ��Ƥ��Ĥ�����.
-����������Ǥ��Խ�ʬ�ʾ�礬����Τ�,�����ƥ��ͭ�Υǡ������ⰷ����
-�褦�ʻ��Ȥߤ��Ѱդ��Ƥ���.
-(���ä��Τ��Ȥ��Ǥ�, �������, unicode �Ǥʤ�, ISO ��ʸ�����Ϥ��б����뤫.)
-���̥����å������, ���������ζ��̥��ޥ�ɤ�Τ���
-����Ū�˥����ƥ���˸�ͭ�δؿ��ˤ��¹Ԥ����.
-����ˤ��, open xxx �Υ����Фμ�������ӥޥ˥奢��ε��Ҥ�
-�������뤷����ñ�ˤʤ�.
-�����ƥ���˸�ͭ�δؿ����̤δؿ�̾�ˤ���ץ��������Ȥ�
-�ͤ��Ƥ��뤬, ���̤δؿ�̾�� OpenMath �Τ�Τ����Ѥ���ͽ��Ǥ���.
+OpenXM は, データ型をきめている部分と,
+共通スタック言語を定めている部分にわかれる.
+よいたとえかどうか自信がないが,
+OpenXM を定義する作業は, unicode を定める作業に似ている部分もある.
+たとえば, 漢字は東アジアで共通に使用されているが, 国や地方単位で
+形がすこしづつ違うものがある.
+unicode では, 似た漢字を同じ code におしこんだ.
+OpenXM でも, システム毎にことなるが似ているデータ型を
+同じ型としてあつかう.
+たとえば, ``分散多項式'' の意味は, asir と kan/sm1 で異なるが,
+OpenXM では, 同じ型としてあつかわれる.
+ただしこれでは不十分な場合があるので,システム固有のデータ型も扱える
+ような仕組みも用意している.
+(さっきのたとえでは, こちらは, unicode でなく, ISO の文字符号系に対応するか.)
+共通スタック言語は, ごく小数の共通コマンドをのぞき
+基本的にシステム毎に固有の関数により実行される.
+これにより, open xxx のサーバの実装およびマニュアルの記述は
+いちじるしく簡単になる.
+システム毎に固有の関数を共通の関数名にするプロジェクトも
+考えているが, 共通の関数名は OpenMath のものを利用する予定である.
 */
 /*&eg
 % not translated yet.

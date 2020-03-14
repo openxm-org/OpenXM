@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.20 2004/09/19 12:17:40 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.21 2016/08/22 08:36:49 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -6,7 +6,7 @@ JFIX=${OpenXM_HOME}/src/util/sample1.sh
 DVIPS=dvips -f
 RSYNC=rsync -Cavz
 CURRENT=/home/web/OpenXM/Current
-NKF=nkf -e
+NKF=nkf -w
 
 OXWEAVE=../../bin/oxweave
 OXWEAVE_C=../../src/util/oxweave.c

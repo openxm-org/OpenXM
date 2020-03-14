@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/doc/OpenXM-specs/ox-rfc-104.oxw,v 1.2 2004/09/19 12:17:40 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-specs/ox-rfc-104.oxw,v 1.3 2004/10/14 07:05:21 takayama Exp $
 /*&C
 
 OX-RFC: 104                                    Nobuki Takayama
@@ -7,7 +7,7 @@ OX-RFC: 104                                    Nobuki Takayama
 */
 
 //&en  OX-RFC100  over HTTP protocol
-//&ja  HTTP protocol $B$GJq$`$3$H$K$h$k(B OX-RFC 100 $B7A<0$NDL?.J}K!(B
+//&ja  HTTP protocol で包むことによる OX-RFC 100 形式の通信方法
 
 /*&C 
 
@@ -21,141 +21,141 @@ Copyright Notice
 
 */
 
-//&ja @@$BMWLs(B
+//&ja @@要約
 //&en @@Abstract
 /*&ja
 
-  OpenXM 100 $B7A<0$NDL?.$r(B HTTP GET ($B$^$?$O(B POST) $B$G(B wrap $B$9$kJ}K!$rDj5A(B
-  $B$9$k(B.  $B$3$N(B wrapping $B$K$h$j(B, $B<!$N$3$H$r<B8=$9$k$3$H$rL\I8$H$9$k(B.
-  1. OpenXM 100 $BBP1~$N%5!<%P$rMF0W$K(B CGI $B%5!<%S%92=$9$k(B.
-  2. OpenXM $B$N%5!<%S%9$r(B http $B$r4pK\$K%0%j%C%I2=$9$k(B.
+  OpenXM 100 形式の通信を HTTP GET (または POST) で wrap する方法を定義
+  する.  この wrapping により, 次のことを実現することを目標とする.
+  1. OpenXM 100 対応のサーバを容易に CGI サービス化する.
+  2. OpenXM のサービスを http を基本にグリッド化する.
 
-  OpenXM 100 $B$G$O%5!<%P$rN)$A>e$2$k$K$O(B "login" $B$9$k$3$H$,0lHL$KI,MW$G$"$k(B.
-  OpenXM-100 over HTTP GET  ($B0J2<(B OoHG  $B$HN,5-(B) $B$O<!$N$h$&$K(B login$BITMW(B,
-  login$BI,MW$NFs$D$NF0:n%b!<%I$r$b$D(B.
-  1. $BITFCDj?M$,0lEY$N$_$N7W;;MxMQ$r$9$k$h$&$J>l9g$K(B login $BITMW$GF0:n$9$k(B.
-  2. OpenXM 100 $B$HF1MM$K(B login $B$7$F(B session $B$r0];}$9$k$3$H$b2DG=$G$"$k(B.
+  OpenXM 100 ではサーバを立ち上げるには "login" することが一般に必要である.
+  OpenXM-100 over HTTP GET  (以下 OoHG  と略記) は次のように login不要,
+  login必要の二つの動作モードをもつ.
+  1. 不特定人が一度のみの計算利用をするような場合に login 不要で動作する.
+  2. OpenXM 100 と同様に login して session を維持することも可能である.
 
-  $B$3$N%a%b$G$O(B HTTP GET (POST) $B$H(B HTTPS $B$7$+4{B85;=Q$OMxMQ$7$F$$$J$$(B.
-  Web $B5;=Q$K4X$7$F8=:_8&5fCf$d<BMQ2==i4|CJ3,$N$5$^$6$^$J%W%m%H%3%k$r3hMQ$7$F(B
-  $B$3$N%a%b$HF1Ey$+$=$l0J>e$N$3$H$r<B8=$9$k$3$H$O2DG=$G$"$m$&(B.
-  $B2f!9$OC1=c$GI,MW==J,$J;EMM$rM?$($?$$$H;W$C$F$$$k(B.
-  $B$=$N>r7o$K9gCW$9$k8B$j(B Web $B5;=Q$K4X$7$F8=:_8&5fCf$d<BMQ2==i4|CJ3,$N(B
-  $B$5$^$6$^$J%W%m%H%3%k$r3hMQ$9$k$3$H$rH]Dj$9$k$b$N$G$O$J$$(B.
-  $BJL$N%"%W%m!<%A$b;n$_$h$j$h$$%W%m%H%3%k$r:n$C$F$$$-$?$$(B.
+  このメモでは HTTP GET (POST) と HTTPS しか既存技術は利用していない.
+  Web 技術に関して現在研究中や実用化初期段階のさまざまなプロトコルを活用して
+  このメモと同等かそれ以上のことを実現することは可能であろう.
+  我々は単純で必要十分な仕様を与えたいと思っている.
+  その条件に合致する限り Web 技術に関して現在研究中や実用化初期段階の
+  さまざまなプロトコルを活用することを否定するものではない.
+  別のアプローチも試みよりよいプロトコルを作っていきたい.
 
 */
 
 
-//&ja @@OX-RFC-100 (OpenXM 100) $B7A<0$NDL?.$NI|=,(B
+//&ja @@OX-RFC-100 (OpenXM 100) 形式の通信の復習
 //&en @@Review of OX-RFC-100 for this memo.
 /*&ja
 
-OpenXM 100 $B$*$h$S$=$NGI@87A<0$NDL?.$O0J2<$N$h$&$J;EAH$_$G9T$o$l$k(B.
+OpenXM 100 およびその派生形式の通信は以下のような仕組みで行われる.
 
  client                                            server
 
      ---------------- step 1 ----------------------->
-     ssh $B$K$h$k(B server $B$X$N(B login.
-     localhost $B$G$O(B ox100start/ox $B$J$I$N(B launcher $B$,D>@\5/F0$5$l$k(B.
-     controle server, engine server $B$H$N@\B3$r3NN)$9$k$?$a$N(B
-     $B%]!<%HHV9f$*$h$S(B      -control= ... , -data=...
-     $BG'>ZJ}K!$*$h$S(B        -authtype=NONE | <<oneTimePassword>>
-     $BG'>Z%Q%9%o!<%I(B        -passControl=... , -passData=...
-     $B$bAw?.$5$l$k(B.
-     $BG'>Z%Q%9%o!<%I$N0E9f(B  -authEncoding=<<NONE>> | file | RSA
-     $B2=J}K!$N;XDj(B.
-     << >> $B$O(B src/kxx/ox $B$NI8=`CM(B
+     ssh による server への login.
+     localhost では ox100start/ox などの launcher が直接起動される.
+     controle server, engine server との接続を確立するための
+     ポート番号および      -control= ... , -data=...
+     認証方法および        -authtype=NONE | <<oneTimePassword>>
+     認証パスワード        -passControl=... , -passData=...
+     も送信される.
+     認証パスワードの暗号  -authEncoding=<<NONE>> | file | RSA
+     化方法の指定.
+     << >> は src/kxx/ox の標準値
 
 
     <----------------  step 2 -------------------------->
-       -reverse $B$N>l9g$O(B <--- $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
-       $B$=$&$G$J$$$H$-$O(B ---> $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
 
     <----------------  step 3 -------------------------->
-       -authtype=oneTimePassword $B$N;~(B.
-       connect $B$7$?B&$,(B accept $B$7$?B&$X(B oneTimePassword $B$rAw$k(B.
+       -authtype=oneTimePassword の時.
+       connect した側が accept した側へ oneTimePassword を送る.
 
-    $B0J2<(B launcher $B$N;E;v$O=*N;$7$F(B, engine $B$H(B control $B$K@)8f$,0\$k(B.
+    以下 launcher の仕事は終了して, engine と control に制御が移る.
     <----------------  step 4 -------------------------->
-       engine $B$N(B byte order $B$r@_Dj(B.
+       engine の byte order を設定.
 
     <---------------------------------------------------->
-       OpenXM $B$N%Q%1%C%H8r49(B
+       OpenXM のパケット交換
 
-    $B>\$7$/$O(B OX-RFC-100, OX-RFC 103 (OX-RFC 100 $BJd0d(B) $B$r8+$h(B.   
+    詳しくは OX-RFC-100, OX-RFC 103 (OX-RFC 100 補遺) を見よ.   
     
 */
 
 //&en @@Data structure of OoHG
-//&ja @@OoHG $B$N%G!<%?7A<0(B.
+//&ja @@OoHG のデータ形式.
 
 /*&ja
 
-OoHG $B$G$NDL?.$OAw?.(B, $B<u?.$GHsBP>N$G$"$k(B.
-GET $B$rMxMQ$9$k$?$a%G!<%?$N7A<0$O(B RFC 2396 $B$G;XDj$5$l$F$$$k(B
-$B$$$o$f$k(B URL $B%(%s%3!<%G%#%s%0J}K!$rMQ$$$k(B.
-GET $B$NMxMQ$NBe$o$j$K(B POST method $B$rMxMQ$7$F$b$h$$(B.
-$BAw?.%G!<%?$O(B 
-    $B%-!<%o!<%I(B = $BCM(B
-$B$r(B & $B$G6h@Z$C$?$b$N$G$"$k(B. $B%-!<%o!<%I$O1Q?t;z$H(B _ $B$r$b$A$$$k$b$N$H$9$k(B.
-$B%-!<%o!<%I$HCM$NAH$OF~$l;R9=B$$H$J$C$F$b$h$$(B.
+OoHG での通信は送信, 受信で非対称である.
+GET を利用するためデータの形式は RFC 2396 で指定されている
+いわゆる URL エンコーディング方法を用いる.
+GET の利用の代わりに POST method を利用してもよい.
+送信データは 
+    キーワード = 値
+を & で区切ったものである. キーワードは英数字と _ をもちいるものとする.
+キーワードと値の組は入れ子構造となってもよい.
 
-$B<u?.%G!<%?$O<!$N7A<0$GAw?.$9$k(B.
+受信データは次の形式で送信する.
 
- OX100-OVER-HTTP-GET0-$B$K2<$N%-!<%o!<%I$r$D$J$$$@$b$N(B : URL $B%(%s%3!<%I$5$l$?CM(B
+ OX100-OVER-HTTP-GET0-に下のキーワードをつないだもの : URL エンコードされた値
 
-$B0J2<%-!<%o!<%I$rNs5s$9$k(B.
+以下キーワードを列挙する.
 
-oxMessageBody:       OpenXM $B$N%Q%1%C%H(B. $BJ#?t$N(B OX $B%Q%1%C%H$r0lEY$KAw$C$F$h$$(B.
+oxMessageBody:       OpenXM のパケット. 複数の OX パケットを一度に送ってよい.
 
-oxMessageEncoding:   OpenXM $B$N%Q%1%C%H$N(B encoding $BJ}K!$N;XDj(B.
-                    <<text_executeString_popString>> $B$,>JN,;~$NCM(B.
-                     $BJ}K!$O0J2<$N$H$*$j(B.
-                     1. xml_ox100  (OX-RFC100 $B$KDj5A$5$l$?(B XML $BI=8=(B)
-                     2. lisplike_ox100 (OX-RFC100 $B$KDj5A$5$l$?(B Lisp$BIwI=8=(B)
-                     3. binary_ox100 (OX-RFC100 $B$KDj5A$5$l$?(B binary $BI=8=(B)
+oxMessageEncoding:   OpenXM のパケットの encoding 方法の指定.
+                    <<text_executeString_popString>> が省略時の値.
+                     方法は以下のとおり.
+                     1. xml_ox100  (OX-RFC100 に定義された XML 表現)
+                     2. lisplike_ox100 (OX-RFC100 に定義された Lisp風表現)
+                     3. binary_ox100 (OX-RFC100 に定義された binary 表現)
                      4. text_executeString_popString
-                          $B$3$l$O0lEY$N$_$N<B9T$rA[Dj$7$F$$$k(B.
-                          executeString $B$KM?$($k0z?t$r(B text $B7A<0$GM?$($k(B.
-                     $BJd=uE*$JCM$H$7$F<!$N$b$N$,$"$k(B.
-                     a. 3DES   Body $B$r(B 3DES $B$G0E9f2=$9$k(B.
-                     b. RSA    Body $B$r(B RSA $B$G0E9f2=$9$k(B.
-                     $B$J$*(B oxMessageEncoding $B%-!<%o!<%I$NCM$OFs$D0J>eB8:_$7$F(B
-                     $B$h$$(B.  $B$3$N>l9g(B and $B$H$7$F07$o$l$k(B. $B$?$H$($P(B
+                          これは一度のみの実行を想定している.
+                          executeString に与える引数を text 形式で与える.
+                     補助的な値として次のものがある.
+                     a. 3DES   Body を 3DES で暗号化する.
+                     b. RSA    Body を RSA で暗号化する.
+                     なお oxMessageEncoding キーワードの値は二つ以上存在して
+                     よい.  この場合 and として扱われる. たとえば
                      oxMessageEncoding=xml_ox100,3DES
-                     $B$N>l9g(B xml_ox100 $B7A<0$N>pJs$,(B 3DES $B$G0E9f2=$5$l$F(B
-                     $BAw$i$l$k(B. ("," $B$O(B URL encoding $B$5$l$k(B.)
+                     の場合 xml_ox100 形式の情報が 3DES で暗号化されて
+                     送られる. ("," は URL encoding される.)
 
-dataChannelId:      data $B%]!<%H$NHV9f$KAjEv(B.
-controlChannelId:   control $B%]!<%H$NHV9f$KAjEv(B.
-sessionKeyFor3Des:  64 bit x 3  3Des $BMQ$N(B Des Key.  $B%5!<%PB&$,@8@.$7(B,
-                    RSA $B$G0E9f2=$5$l%5!<%P$h$jAw?.$5$l$k(B.
-channelKey:         $B%5!<%P$h$j0l$DA0$N(B HTTP $B%H%i%s%:%"%/%7%g%s$GM?$($i$l$k(B
-                    $B%-!<(B. $BBh#3<T$,(B session $B$K3d$j9~$`$N$r6X;_$9$k$?$a(B.
-                    10 $B7e0J>e$N?t;z$GM?$($k(B.
-                    $B%5!<%P$,M?$($k%-!<$O(B nextChannelKey (Cookie $B$KAjEv(B).
-                  ($B%M%C%H%o!<%/$,EpD0$5$l$F$$$k$H$-$O(B, $B$3$NJ}K!$OL5NO$G$"$k(B.
-                   https $B$+(B $B<!$N(B channelKeyIn3Des, nextChannelKeyIn3Des
-                   $B$rMQ$$$k$Y$-$G$"$k(B.)
+dataChannelId:      data ポートの番号に相当.
+controlChannelId:   control ポートの番号に相当.
+sessionKeyFor3Des:  64 bit x 3  3Des 用の Des Key.  サーバ側が生成し,
+                    RSA で暗号化されサーバより送信される.
+channelKey:         サーバより一つ前の HTTP トランズアクションで与えられる
+                    キー. 第３者が session に割り込むのを禁止するため.
+                    10 桁以上の数字で与える.
+                    サーバが与えるキーは nextChannelKey (Cookie に相当).
+                  (ネットワークが盗聴されているときは, この方法は無力である.
+                   https か 次の channelKeyIn3Des, nextChannelKeyIn3Des
+                   を用いるべきである.)
 
-channelKeyIn3Des:     3Des $B$G0E9f2=$5$l$?(B channelKey.
-nextChannelKeyIn3Des: 3Des $B$G0E9f2=$5$l$?(B nextChannelKey.
+channelKeyIn3Des:     3Des で暗号化された channelKey.
+nextChannelKeyIn3Des: 3Des で暗号化された nextChannelKey.
 
-responseEncoding:   $B%5!<%P$NJVEz$N(B encoding $BJ}K!(B.
-                    $B>JN,;~$K$O(B oxMessageEncoding $B$KBP1~$7$?J}K!$G(B
-                    $BK\BNItJ,$OAw$i$l$k(B.
-                    nextChannelKey $BEy$N>pJs$OFC$K;XDj$7$J$$>l9g(B
-                    OX100-OVER-HTTP-GET-nextChannelKey: $B$K$h$k(B 
-                    header $B$rMQ$$$?JVEz$r9T$&(B.
-                    text_execute_popString $B$N;~$O(B text $B7A<0$GAw?.$5$l$k(B.
-                    $B>\:Y8e=R(B.
-                    $B$=$NB>(B.
+responseEncoding:   サーバの返答の encoding 方法.
+                    省略時には oxMessageEncoding に対応した方法で
+                    本体部分は送られる.
+                    nextChannelKey 等の情報は特に指定しない場合
+                    OX100-OVER-HTTP-GET-nextChannelKey: による 
+                    header を用いた返答を行う.
+                    text_execute_popString の時は text 形式で送信される.
+                    詳細後述.
+                    その他.
                     1. presentation_html
 
-loginRSA:           RSA $BG'>Z$K$h$k(B login. challenge , challenge-response $B$O(B
-                    $B$*8_$$$N(B public key $B$rMQ$$$FAw?.$5$l$k(B. $B2<$NNc;2>H(B.
-                    RSA $B$K$D$$$F$O(B OX-RFC-103 $B$r8+$h(B.                    
+loginRSA:           RSA 認証による login. challenge , challenge-response は
+                    お互いの public key を用いて送信される. 下の例参照.
+                    RSA については OX-RFC-103 を見よ.                    
 logout:             logout
 
 
@@ -166,7 +166,7 @@ nextControlChannelKey:
 challenge:
 challenge-response:
 
-$B0J2<$N%-!<%o!<%I$K$D$$$F$O8e=R(B.
+以下のキーワードについては後述.
 doSignature:
 response-doSignature:
 getMathCap2:
@@ -175,30 +175,30 @@ sendPublicKey:
 
 */
 
-//&ja @@$B;O$a$F$NNc(B
+//&ja @@始めての例
 //&en @@The first example
 /*&ja
 
-$BNc(B1.
-fctr(x^2-1); $B$r(B fctr.cgi $B$XAw?.$9$k(B.
+例1.
+fctr(x^2-1); を fctr.cgi へ送信する.
 */
 
 //&C     http://fctr.openxm.org/fctr.cgi?oxMessageBody=fctr(x%5E2-1)%3B
 
 /*&ja
-oxMessageBody $B0J30$NA4$F$N%-!<%o!<%I$,>JN,$5$l$F$$$k$N$G(B,
-anonymous, 1 $B2s$N$_$N<B9T(B, executeString & popString, $BJVEz$O(B text $B7A<0(B
-$B$H$J$j(B
+oxMessageBody 以外の全てのキーワードが省略されているので,
+anonymous, 1 回のみの実行, executeString & popString, 返答は text 形式
+となり
 */
 //&C    [[1,1],[x-1],[x+2]]
 /*&ja
-$B$,La$k(B.
+が戻る.
 */
 
 /*&ja
-$BNc(B2.
-$BF1$8LdBj$r(B session $B$r3NN)$7$F$+$i<B9T$9$k(B. URL encoding $BItJ,$O(B " ... " $B$G5-=R(B.
-RSA $B0E9f2=$5$l$F$kItJ,$O(B ' ... '$B$G5-=R(B.
+例2.
+同じ問題を session を確立してから実行する. URL encoding 部分は " ... " で記述.
+RSA 暗号化されてる部分は ' ... 'で記述.
 */
 /*&C
    --->
@@ -232,55 +232,55 @@ RSA $B0E9f2=$5$l$F$kItJ,$O(B ' ... '$B$G5-=R(B.
 */
 
 
-//&ja @@$B%(%i!<%3!<%I0lMw(B.
+//&ja @@エラーコード一覧.
 
 /*&ja 
 
-HTTP $B=`5r$N%(%i!<$NB>(B, CMO $B%(%i!<(B object $B$r(B responseEncoding $B$K=>$$(B
-$BAw$k(B.
+HTTP 準拠のエラーの他, CMO エラー object を responseEncoding に従い
+送る.
 
-<< $B0J2<$^$@8!F$$7$F$J$$(B >>
-
-*/
-
-//&ja @@$B%3%s%H%m!<%k%W%m%;%9$H$NDL?.(B
-
-/*&ja
-
-$B@\B3Cf$N(B connection $B$,@ZCG$5$l$?>l9g(B, $B%(%s%8%s(B, $B%3%s%H%m!<%k%5!<%P$H$b$K(B
-$B=*N;$9$k(B.
-$B%3%s%H%m!<%k%5!<%P$KCfCG%a%C%;!<%8$rAw$C$?>l9g(B, OX-RFC-103 $B$NCfCGF0:n(B
-$B$r$*$3$J$&(B.
-<< $B0J2<$^$@=q$$$F$J$$(B >>
+<< 以下まだ検討してない >>
 
 */
 
-//&ja @@$B%[%9%H$N$J$j$9$^$7$NKI;_(B
+//&ja @@コントロールプロセスとの通信
 
 /*&ja
- https $B$rMxMQ$9$k>l9g$O%5!<%P$,56J*$G$J$$$3$H$N>ZL@$O(B https $B$N5!G=$rMQ$$$F(B
- $B<B8=$5$l$k(B.  http $B$N>l9g$K$O(B RSA public $B%-!<$rMQ$$$F%5!<%P$,56J*$G$J$$(B
- $B$3$H$r>ZL@$9$k$3$H$,2DG=$G$"$k(B.  $B$3$N$?$a$N%-!<%o!<%I$,(B doSignature
- $B$G$"$k(B.
+
+接続中の connection が切断された場合, エンジン, コントロールサーバともに
+終了する.
+コントロールサーバに中断メッセージを送った場合, OX-RFC-103 の中断動作
+をおこなう.
+<< 以下まだ書いてない >>
+
+*/
+
+//&ja @@ホストのなりすましの防止
+
+/*&ja
+ https を利用する場合はサーバが偽物でないことの証明は https の機能を用いて
+ 実現される.  http の場合には RSA public キーを用いてサーバが偽物でない
+ ことを証明することが可能である.  このためのキーワードが doSignature
+ である.
 */
 //&C doSignature=anonymous@fctr.openxm.org,'challenge words encrypted'
 
 /*&ja
- 'challenge words encrypted' $B$O(B anonymous@fctr.openxm.org $B$N(B public key
- $B$rMQ$$$F(B RSA  $B0E9f2=$5$l$k(B. $B%5!<%P$O(B response-DoSignature 
- $B%-!<%o!<%I$rMQ$$$FAw$i$l$?(B words $B$r%/%i%$%"%s%H$KLa$9(B.
+ 'challenge words encrypted' は anonymous@fctr.openxm.org の public key
+ を用いて RSA  暗号化される. サーバは response-DoSignature 
+ キーワードを用いて送られた words をクライアントに戻す.
 
 */
 
-//&ja @@OpenXM grid $B$N%5!<%S%90lMwDs6!J}K!(B.
+//&ja @@OpenXM grid のサービス一覧提供方法.
 //&en @@Directory service for OpenXM grid.
 
 //&C @@@mathCap2
 
 /*&ja
-  mathCap2 $B$O(B 
-      $B%-!<%o!<%I(B = $BCM(B 
-  $B7A<0$GI=8=$5$l$?(B mathCap $B$G$"$k(B.  $B%-!<%o!<%I$O0J2<$N$H$*$j(B.
+  mathCap2 は 
+      キーワード = 値 
+  形式で表現された mathCap である.  キーワードは以下のとおり.
 
   systemName
   systemVersion
@@ -289,118 +289,118 @@ HTTP $B=`5r$N%(%i!<$NB>(B, CMO $B%(%i!<(B object $B$r(B responseEncoding 
   acceptCMOtags
 
   exportedCommands
-     $B<B9T2DG=$J4X?tL>(B
+     実行可能な関数名
 
-     $BCM$O(B
-     [$BL>A0(B,$B0z?t$N?t(B,$B0z?t(B1$B$N%G!<%?7?(B, $B0z?t(B2$B$N%G!<%?7?(B, ...] $B7A<0$N%j%9%H$G$"$k(B. 
-     $B0z?t$N?t$,(B -1 $B$N>l9g0z?t$OITDj(B.
-     $B0z?t$N%G!<%?7?$O>JN,$7$F$b$h$$(B.
+     値は
+     [名前,引数の数,引数1のデータ型, 引数2のデータ型, ...] 形式のリストである. 
+     引数の数が -1 の場合引数は不定.
+     引数のデータ型は省略してもよい.
 
-     $B%G!<%?7?$NI=8=J}K!$O(B XML name space $B$NI=5-J}K!$rMQ$$(B, $BJ8;zNs7?$GLa$9(B.
-     $B$J$*(BPolymorphic $B$J4X?t$N>l9g$OF1$84X?tL>$GI=5-$7$F$+$^$o$J$$(B.
-     $BNc(B:
+     データ型の表現方法は XML name space の表記方法を用い, 文字列型で戻す.
+     なおPolymorphic な関数の場合は同じ関数名で表記してかまわない.
+     例:
       ["gcd", 2, 
        "<cmo:cmo_int32 xmlns:cmo="http://www.openxm.org/ox-rfc-100.xml">",
        "<cmo:cmo_int32 xmlns:cmo="http://www.openxm.org/ox-rfc-100.xml">" ]
      
 
   resourceLimit
-     [time,$BCM(B], [memory,$BCM(B] $BEy$N(B $B%j%9%H(B
+     [time,値], [memory,値] 等の リスト
 
-  $BCm0U(B: systemName, systemVersion,   acceptOXtags, acceptSMtags, acceptCMOtags
-   $B$O8=:_$N(B MathCap $B$NLa$9>pJs$K$[$+$J$i$J$$(B.
+  注意: systemName, systemVersion,   acceptOXtags, acceptSMtags, acceptCMOtags
+   は現在の MathCap の戻す情報にほかならない.
 
-  $BCm0U(B:   $B$"$k0lDj$N%5!<%P$G$OJQ?t$K3JG<$5$l$?%G!<%?$b4X?t$H$7$F<h$j=P$9(B
+  注意:   ある一定のサーバでは変数に格納されたデータも関数として取り出す
 
-  systemName $B$O(B Java $B$N(B package $B$NL?L>J}K!$N??;w$r$9$k(B.
-   $BNc(B:  org.openxm.ox_sm1
+  systemName は Java の package の命名方法の真似をする.
+   例:  org.openxm.ox_sm1
         org.openxm.ox_polymake_2
 
 */
 
 //&C @@@SM_getMathCap2
 /*&ja
-SM_printMathCap2 $B$O$=$N%5!<%P$N(B mathCap2 $B$r(B CMO $B%G!<%?$H$7$FLa$9(B
-$B?7$7$$%9%?%C%/%^%7%s%3%^%s%I$G$"$k(B.
-$B2?$i$+$N%5!<%S%9$rDs6!$9$k%5!<%P$O(B 
+SM_printMathCap2 はそのサーバの mathCap2 を CMO データとして戻す
+新しいスタックマシンコマンドである.
+何らかのサービスを提供するサーバは 
 */
 //&C (OX_COMMAND,(SM_getMathCap2)) (OX_COMMAND,(SM_popCMO))
 /*&ja
-$B$,<B9T2DG=$G$"$k$Y$-$G$"$k(B.   $B$3$N%3%^%s%I$O(B anonymous $B$K<B9T$r5v$9>l9g(B
-$B$b$"$k$N$G(B,  (OX_COMMAND,(SM_getMathCap2)) (OX_COMMAND,(SM_popCMO))
-$B$N>JN,7A<0$,(B OoHG $B$N%-!<%o!<%I(B   
+が実行可能であるべきである.   このコマンドは anonymous に実行を許す場合
+もあるので,  (OX_COMMAND,(SM_getMathCap2)) (OX_COMMAND,(SM_popCMO))
+の省略形式が OoHG のキーワード   
              getMathCap2=1  
-$B$H$7$FMQ0U$5$l$F$$$k(B.
+として用意されている.
 */
 
 //&C Example: http://fctr.openxm.org/fctr.cgi?getMathCap2=1
 
-//&C @@@$B%G%#%l%/%H%j%5!<%S%9(B
+//&C @@@ディレクトリサービス
 /*&ja
-OpenXM grid $B$N%G%#%l%/%H%j%5!<%S%9$O3F%5!<%P$N(B mathCap2 $B$N>pJs$r$b$H$K(B
-$B$7$F$$$k(B.  $B?.MQ$N$*$1$k%G%#%l%/%H%j%5!<%S%9$r<B8=$9$k$?$a$K$O(B 
-$B%5!<%P$N(B RSA public key $B$,I,?\$G$"$k(B.  $B$3$N%-!<$,$"$k$H(B doSignature
-$B$r$b$H$K%G%#%8%?%k=pL>$5$l$?(B mathCap2 $B>pJs$rF@$k$3$H$,2DG=$H$J$k(B.
+OpenXM grid のディレクトリサービスは各サーバの mathCap2 の情報をもとに
+している.  信用のおけるディレクトリサービスを実現するためには 
+サーバの RSA public key が必須である.  このキーがあると doSignature
+をもとにディジタル署名された mathCap2 情報を得ることが可能となる.
 
-OpenXM grid $B$N%G%#%l%/%H%j>pJs$O(B
-     $B%-!<%o!<%I(B=$BCM(B  
-$B$N=89gBN$G$"$k(B.  
-$B$3$N>pJs$O<!$N$$$:$l$+$NJ}K!$rMQ$$$FI=8=$9$k(B.
-1. $B%-!<%o!<%I$rMWAG$H$9$k(B XML $B$H$7$FI=8=(B. 
-   XML $B$N:,MWAG$O(B OpenXMnode.  OpenXMnode $B$N=8$^$j$O(B OpenXMnodes.
-2. CMO $B$N%j%9%H$H$7$F(B $B%-!<%o!<%I(B, $BCM(B $B$N%Z%"$H$7$FI=8=$9$k(B.
+OpenXM grid のディレクトリ情報は
+     キーワード=値  
+の集合体である.  
+この情報は次のいずれかの方法を用いて表現する.
+1. キーワードを要素とする XML として表現. 
+   XML の根要素は OpenXMnode.  OpenXMnode の集まりは OpenXMnodes.
+2. CMO のリストとして キーワード, 値 のペアとして表現する.
 
-$BI,?\$N%-!<%o!<%I(B
+必須のキーワード
    OpenXMnodeURL,  mathCap2,  listOfAnonymousPublicKeys 
 
-OpenXM directory $B%5!<%P$O$3$l$i$N>pJs$r8!:w$7$FJVEz$9$k(B. 
-Directory $B%5!<%P$b$^$?(B OpenXM $B%(%s%8%s$G$"$k(B.
-$B$?$H$($P(B factor $B$r%-!<%o!<%I$H$9$k(B
-grep $B8!:w$O0J2<$N$H$*$j(B.
+OpenXM directory サーバはこれらの情報を検索して返答する. 
+Directory サーバもまた OpenXM エンジンである.
+たとえば factor をキーワードとする
+grep 検索は以下のとおり.
    (OX_DATA,(CMO_STRING,"factor")) 
    (OX_DATA,(CMO_INT32,1))
    (OX_DATA,(CMO_STRING,"ox104_grepDirectoryInfo"))
    (OX_COMMAND,(SM_execute))
    (XO_COMMAND,(SM_popCMO))
-$BF1Ey$J5!G=$r<B8=$9$k(B OoHG $BMQ$N%-!<%o!<%I$H$7$F(B
+同等な機能を実現する OoHG 用のキーワードとして
      grepDirectoryInfo
-$B$,$"$k(B.
-$BNc(B:     grepDirectoryInfo="factor"
+がある.
+例:     grepDirectoryInfo="factor"
 
 */
 
 //&en @@@OX-104 Directory service
-//&ja @@@OX-104 Directory $B%5!<%S%9(B
+//&ja @@@OX-104 Directory サービス
 /*&ja
 
-Directory $B%5!<%P$O$$$o$f$k(B agent $B$N0l<o$G$"$k(B.
-Directory $B%5!<%P$O8D?M$N%m!<%+%k%^%7%s$GF0:n$5$;$F$h$$$,(B,
-ox-rfc-104 $B$G$O(B anonymous $B$J7W;;%5!<%S%9$N8!:w$N$?$a(B,
-$B$$$o$f$k:,$H$J$k$Y$-(B directory server $B$r0J2<$N$h$&$KDj5A$9$k(B.
-URL$B$O0J2<$N$H$*$j(B.
+Directory サーバはいわゆる agent の一種である.
+Directory サーバは個人のローカルマシンで動作させてよいが,
+ox-rfc-104 では anonymous な計算サービスの検索のため,
+いわゆる根となるべき directory server を以下のように定義する.
+URLは以下のとおり.
    http://ox104_directory.openxm.org/cgi-bin/ox104_directory.sh
    http://ox104_directory.math.kobe-u.ac.jp/cgi-bin/ox104_directory.sh
    http://ox104_directory.math.kyushu-u.ac.jp/cgi-bin/ox104_directory.sh
    http://ox104_directory.s.kanazawa-u.ac.jp/cgi-bin/ox104_directory.sh
 
-OX-server ox104_directory $B$O<!$N4X?t$r$b$D(B.
+OX-server ox104_directory は次の関数をもつ.
   1. ox104_findSystem(String systemName)
 
-      ox $B%5!<%P$r8!:w$7$FLa$9(B. $B8+IU$1$?$b$N$r(B (cmo) $B%j%9%H$H$9$k(B.
-      $BNc(B:
+      ox サーバを検索して戻す. 見付けたものを (cmo) リストとする.
+      例:
         ox104_findSystem("org.openxm.ox_polymake_2");
        [server=
         [url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh",
          protocol="org.openxm.ox-rfc-104",
-         description="CGI $BHG$N(B polymake $B%5!<%P(B. Version 2 $B%Y!<%9(B",
+         description="CGI 版の polymake サーバ. Version 2 ベース",
          version="??",
          loadAverage=0,
          cpuType=, memory=, anonymous=]]
 
-      $B$J$*(B directoryServer=[...] $B$H$7$F>pJs$,La$k>l9g$O(B,
-      $B$"$i$?$a$F$=$N%5!<%P$KJ9$/I,MW$,$"$k(B.
+      なお directoryServer=[...] として情報が戻る場合は,
+      あらためてそのサーバに聞く必要がある.
 
-      $BNc(B:
+      例:
         ox104_findSystem("org.openxm.ox_sm1");
        [localServer=
         [path="/usr/local/OpenXM/bin/ox_sm1",
@@ -408,15 +408,15 @@ OX-server ox104_directory $B$O<!$N4X?t$r$b$D(B.
         ]]
         
   2. ox104_grepDirectoryInfo(String key)
-       $B>pJs$r(B grep $B$7$F3:Ev$9$k%5!<%P$rLa$9(B.
+       情報を grep して該当するサーバを戻す.
 
-OX-server ox104_directory $B$O(B cash $B5!G=$r;}$D$Y$-$G$"$k(B.
-$B%5!<%P$O5!G=$N@)8B$r$7$F$$$k>l9g$,$"$k(B.
-$B$=$N>l9g%5!<%P$K(B mathcap2 $B$rLd$$9g$o$;$kI,MW$,$"$k(B.
+OX-server ox104_directory は cash 機能を持つべきである.
+サーバは機能の制限をしている場合がある.
+その場合サーバに mathcap2 を問い合わせる必要がある.
 */
 
 //&en @@@list of system names
-//&ja @@@$B%7%9%F%`L>$N%j%9%H(B
+//&ja @@@システム名のリスト
 
 /*&C
     org.openxm.ox_polymake_2
@@ -425,27 +425,27 @@ OX-server ox104_directory $B$O(B cash $B5!G=$r;}$D$Y$-$G$"$k(B.
     << It has not yet been completed. >>
 */
 
-//&ja @@@anonymous@host $B$N(B RSA public key $B$NF~<jJ}K!(B
+//&ja @@@anonymous@host の RSA public key の入手方法
 
 /*&ja
-  anonymous@host $B$N(B RSA public key $B$OJL$N?.Mj$G$-$k>pJs8;$+$iF~<j$9$k$+(B,
-  "host" $B$K$?$$$7$F(B  
+  anonymous@host の RSA public key は別の信頼できる情報源から入手するか,
+  "host" にたいして  
       sendPublicKey="anonymous@host"
-  $BMW5a$r=P$9$3$H$K$h$jF~<j$9$k(B.
+  要求を出すことにより入手する.
 */
 
 /*&ja
 
-<< $B0J2<(B, $B$^$@8!F$$7$F$J$$(B >>
+<< 以下, まだ検討してない >>
 
 */
 
-//&ja @@$B6&DL4X?tL>(B
+//&ja @@共通関数名
 //&en @@Common name of functions
 
 /*&ja
 
-$BL>A0(B                $B0z?t$N?t(B
+名前                引数の数
 ox104_equal          2
 ox104_add            2
 ox104_sub            2
@@ -458,7 +458,7 @@ ox104_translate      2
 */
 
 
-//&ja @@$B4XO"$9$k5;=Q(B
+//&ja @@関連する技術
 //&en @@Related technologies
 
 /*&ja
@@ -467,15 +467,15 @@ ox104_translate      2
   
 */
 
-//&ja @@$B9W8%<T$*$h$S;n83<BAu(B
+//&ja @@貢献者および試験実装
 //&en @@Contributors and sample implementations
 
 
 /*&ja
-$B$^$@%5%s%W%k<BAu$O$J$$(B.
+まだサンプル実装はない.
 */
 
-//&ja @@$B;29MJ88%(B
+//&ja @@参考文献
 //&en @@Bibliography
 
 /*&C

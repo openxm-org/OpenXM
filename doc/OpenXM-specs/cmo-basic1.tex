@@ -1,5 +1,5 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.14 2015/08/18 02:54:05 noro Exp $
-//&jp \section{ ¿ô, Â¿¹à¼° ¤Î  CMO É½¸½ }
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.15 2016/08/22 05:38:27 takayama Exp $
+//&jp \section{ æ•°, å¤šé …å¼ ã®  CMO è¡¨ç¾ }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
 /*&C
@@ -26,14 +26,14 @@
 */
 
 /*&jp
-°Ê²¼, ¥°¥ë¡¼¥× CMObject/Basic, CMObject/Tree 
-¤ª¤è¤Ó CMObject/DistributedPolynomial
-¤ËÂ°¤¹¤ë CMObject ¤Î·Á¼°¤òÀâÌÀ¤¹¤ë.
+ä»¥ä¸‹, ã‚°ãƒ«ãƒ¼ãƒ— CMObject/Basic, CMObject/Tree 
+ãŠã‚ˆã³ CMObject/DistributedPolynomial
+ã«å±ã™ã‚‹ CMObject ã®å½¢å¼ã‚’èª¬æ˜ã™ã‚‹.
 
 \noindent
-{\tt OpenXM/src/ox\_toolkit} ¤Ë¤¢¤ë {\tt bconv} ¤ò¤â¤Á¤¤¤ë¤È
-CMO expression ¤ò binary format ¤ËÊÑ´¹¤Ç¤­¤ë¤Î¤Ç,
-¤³¤ì¤ò»²¹Í¤Ë¤¹¤ë¤È¤¤¤¤.
+{\tt OpenXM/src/ox\_toolkit} ã«ã‚ã‚‹ {\tt bconv} ã‚’ã‚‚ã¡ã„ã‚‹ã¨
+CMO expression ã‚’ binary format ã«å¤‰æ›ã§ãã‚‹ã®ã§,
+ã“ã‚Œã‚’å‚è€ƒã«ã™ã‚‹ã¨ã„ã„.
 */
 /*&eg
 In the sequel, we will explain on the groups
@@ -64,24 +64,24 @@ Group CMObject/Basic requires CMObject/Primitive. \\
 ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
-& & \mbox{ --- ¥æ¥Ë¥Ğ¡¼¥µ¥ë¤Ê ¥¼¥í¤òÉ½¤¹. } \\
+& & \mbox{ --- ãƒ¦ãƒ‹ãƒãƒ¼ã‚µãƒ«ãª ã‚¼ãƒ­ã‚’è¡¨ã™. } \\
 \mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots , 
 {\sl byte}\, \mbox{a[$|$f$|$]} ) \\
-&:& \mbox{ --- bignum ¤ò¤¢¤é¤ï¤¹. a[i] ¤Ë¤Ä¤¤¤Æ¤Ï¤¢¤È¤ÇÀâÌÀ}\\
+&:& \mbox{ --- bignum ã‚’ã‚ã‚‰ã‚ã™. a[i] ã«ã¤ã„ã¦ã¯ã‚ã¨ã§èª¬æ˜}\\
 \mbox{QQ}        &:& ({\tt CMO\_QQ}, 
                       {\sl int32}\, {\rm m}, {\sl byte}\, \mbox{a[1]}, \ldots, {\sl byte}\, \mbox{a[$|$m$|$]},
                       {\sl int32}\, {\rm n}, {\sl byte}\, \mbox{b[1]}, \ldots, {\sl byte}\, \mbox{b[$|$n$|$]})\\
-& & \mbox{ --- Í­Íı¿ô $a/b$ ¤òÉ½¤¹. } \\
+& & \mbox{ --- æœ‰ç†æ•° $a/b$ ã‚’è¡¨ã™. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
-& & \mbox{ ---  $a/b$ ¤òÉ½¤¹. } \\
+& & \mbox{ ---  $a/b$ ã‚’è¡¨ã™. } \\
 \mbox{Bigfloat32}         &:& ({\tt CMO\_BIGFLOAT32},
 {\sl int32}\, {\rm prec}, {\sl int32}\, {\rm sign}, {\sl int32}\, {\rm exp}, 
 {\sl int32}\, \mbox{a[1]}, \ldots , {\sl int32}\, \mbox{a[k]} ) \\
-&:& \mbox{ --- bigfloat ¤ò¤¢¤é¤ï¤¹. a[i], k ¤Ë¤Ä¤¤¤Æ¤Ï¤¢¤È¤ÇÀâÌÀ}\\
+&:& \mbox{ --- bigfloat ã‚’ã‚ã‚‰ã‚ã™. a[i], k ã«ã¤ã„ã¦ã¯ã‚ã¨ã§èª¬æ˜}\\
 \mbox{Complex}        &:& ({\tt CMO\_COMPLEX}, {\sl CMObject}\, {\rm re}, {\sl CMObject}\, {\rm im}) \\
-& & \mbox{ ---  $a+b\sqrt{-1}$ ¤òÉ½¤¹. } \\
+& & \mbox{ ---  $a+b\sqrt{-1}$ ã‚’è¡¨ã™. } \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
-& & \mbox{ --- ÊÑ¿ôÌ¾ $v$ . } \\
+& & \mbox{ --- å¤‰æ•°å $v$ . } \\
 \end{eqnarray*}
 */
 
@@ -122,15 +122,15 @@ ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 */
 
 /*&jp
-Indeterminate ¤ÏÊÑ¿ôÌ¾¤ò¤¢¤é¤ï¤¹.
-v ¤Ï¥Ğ¥¤¥ÈÎó¤Ç¤¢¤ì¤Ğ¤Ê¤Ë¤òÍÑ¤¤¤Æ¤â¤è¤¤¤¬,
-¥·¥¹¥Æ¥àËè¤ËÊÑ¿ôÌ¾¤È¤·¤ÆÍÑ¤¤¤é¤ì¤ë¥Ğ¥¤¥ÈÎó¤ÏÀ©¸Â¤¬¤¢¤ë.
-³Æ¥·¥¹¥Æ¥à xxx ¤ÏÇ¤°Õ¤ÎÊ¸»úÎó¤ò³Æ¥·¥¹¥Æ¥à¸ÇÍ­¤ÎÊÑ¿ôÌ¾¤Ø1ÂĞ1¤ËÊÑ´¹¤Ç¤­¤ë¤è¤¦¤Ë
-¼ÂÁõ¤·¤Ê¤¤¤È¤¤¤±¤Ê¤¤.
-(¤³¤ì¤ò
-{\tt Dx} ¤Ï {\tt \#dx} ¤ÈÊÑ´¹¤¹¤ë¤Ê¤É¤Î
-escape sequence ¤òÍÑ¤¤¤Æ¼Â¸½¤¹¤ë¤Î¤Ï, ÌµÍı¤¬¤¢¤ë¤è¤¦¤Ç¤¢¤ë.
-¥Æ¡¼¥Ö¥ë¤òºîÀ®¤¹¤ëÉ¬Í×¤¬¤¢¤ë¤Ç¤¢¤í¤¦.)
+Indeterminate ã¯å¤‰æ•°åã‚’ã‚ã‚‰ã‚ã™.
+v ã¯ãƒã‚¤ãƒˆåˆ—ã§ã‚ã‚Œã°ãªã«ã‚’ç”¨ã„ã¦ã‚‚ã‚ˆã„ãŒ,
+ã‚·ã‚¹ãƒ†ãƒ æ¯ã«å¤‰æ•°åã¨ã—ã¦ç”¨ã„ã‚‰ã‚Œã‚‹ãƒã‚¤ãƒˆåˆ—ã¯åˆ¶é™ãŒã‚ã‚‹.
+å„ã‚·ã‚¹ãƒ†ãƒ  xxx ã¯ä»»æ„ã®æ–‡å­—åˆ—ã‚’å„ã‚·ã‚¹ãƒ†ãƒ å›ºæœ‰ã®å¤‰æ•°åã¸1å¯¾1ã«å¤‰æ›ã§ãã‚‹ã‚ˆã†ã«
+å®Ÿè£…ã—ãªã„ã¨ã„ã‘ãªã„.
+(ã“ã‚Œã‚’
+{\tt Dx} ã¯ {\tt \#dx} ã¨å¤‰æ›ã™ã‚‹ãªã©ã®
+escape sequence ã‚’ç”¨ã„ã¦å®Ÿç¾ã™ã‚‹ã®ã¯, ç„¡ç†ãŒã‚ã‚‹ã‚ˆã†ã§ã‚ã‚‹.
+ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’ä½œæˆã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã§ã‚ã‚ã†.)
 */
 /*&eg
 The name of a variable should be expressed by using Indeterminate.
@@ -142,7 +142,7 @@ in one-to-one correspondence.
 
 
 /*&jp 
-\subsection{Indeterminate ¤ª¤è¤Ó Tree}
+\subsection{Indeterminate ãŠã‚ˆã³ Tree}
 
 \noindent
 Group CMObject/Tree requires CMObject/Basic. \\
@@ -150,12 +150,12 @@ Tree, Lambda $\in$ CMObject/Tree. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
  {\sl List}\, {\rm attributes}, {\sl List}\, {\rm leaves}) \\
-& & \mbox{ --- Ì¾Á° name ¤ÎÄê¿ô¤Ş¤¿¤Ï´Ø¿ô. ´Ø¿ô¤ÎÉ¾²Á¤Ï¤ª¤³¤Ê¤ï¤Ê¤¤. } \\
-& & \mbox{ --- attributes ¤Ï¶õ¥ê¥¹¥È¤Ç¤Ê¤±¤ì¤Ğ name ¤ÎÂ°À­¤òÊİ»ı¤·¤Æ¤¤¤ë. }\\
-& & \mbox{ --- Â°À­¥ê¥¹¥È¤Ï, key ¤È ÃÍ¤Î¥Ú¥¢¤Ç¤¢¤ë. }\\
+& & \mbox{ --- åå‰ name ã®å®šæ•°ã¾ãŸã¯é–¢æ•°. é–¢æ•°ã®è©•ä¾¡ã¯ãŠã“ãªã‚ãªã„. } \\
+& & \mbox{ --- attributes ã¯ç©ºãƒªã‚¹ãƒˆã§ãªã‘ã‚Œã° name ã®å±æ€§ã‚’ä¿æŒã—ã¦ã„ã‚‹. }\\
+& & \mbox{ --- å±æ€§ãƒªã‚¹ãƒˆã¯, key ã¨ å€¤ã®ãƒšã‚¢ã§ã‚ã‚‹. }\\
 \mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
                           {\sl Tree} {\rm body}) \\                          
-& & \mbox{ --- body ¤ò args ¤ò°ú¿ô¤È¤¹¤ë´Ø¿ô¤È¤¹¤ë. } \\
+& & \mbox{ --- body ã‚’ args ã‚’å¼•æ•°ã¨ã™ã‚‹é–¢æ•°ã¨ã™ã‚‹. } \\
 \end{eqnarray*}
 */
 /*&eg 
@@ -177,23 +177,23 @@ Tree, Lambda $\in$ CMObject/Tree. \\
 */
 
 /*&jp
-¿ô¼°¤ò½èÍı¤¹¤ë¥·¥¹¥Æ¥à¤Ç¤Ï, Tree ¹½Â¤¤¬°ìÈÌ¤Ë¤â¤Á¤¤¤é¤ì¤ë.
-¤¿¤È¤¨¤Ğ, $\sin(x+e)$ ¤Ï,
+æ•°å¼ã‚’å‡¦ç†ã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ ã§ã¯, Tree æ§‹é€ ãŒä¸€èˆ¬ã«ã‚‚ã¡ã„ã‚‰ã‚Œã‚‹.
+ãŸã¨ãˆã°, $\sin(x+e)$ ã¯,
 {\tt (sin, (plus, x, e))}
-¤Ê¤ë Tree ¤Ç¤¢¤é¤ï¤¹¤Î¤¬°ìÈÌÅª¤Ç¤¢¤ë.
-Tree ¤ÎÉ½¸½¤ò ¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¤Î¥ì¥Ù¥ë¤Ç¤ª¤³¤Ê¤¦¤È¤¹¤ë¤È,
-{\tt ox\_BEGIN\_BLOCK}, {\tt ox\_END\_BLOCK} ¤ÇÉ¾²Á¤òÍŞÀ©¤¹¤ë¤Î¤¬
-°ì¤Ä¤ÎÊıË¡¤Ç¤¢¤ë (cf. Postscript ¤Î {\tt \{ }, {\tt \} }).
-¤¿¤È¤¨¤Ğ¾å¤ÎÊıË¡¤Ç¤Ï 
-{\tt x, e, plus, sin } ¤ò begin block, end block ¤Ç¤«¤³¤á¤Ğ¤è¤í¤·¤¤.
-¤ï¤ì¤ï¤ì¤Ï¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¤Î¼ÂÁõ¤ò¤Ê¤ë¤Ù¤¯´ÊÃ±¤Ë¤¹¤ë¤È¤¤¤¦Î©¾ì¤ò¤È¤ê¤¿¤¤,
-¤Ş¤¿¿ô³Ø¥ª¥Ö¥¸¥§¥¯¥È¤ò OX ¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¤È CMObject ¤òº®ºß¤·¤ÆÉ½¸½¤·¤¿¤¯
-¤Ê¤¤.
-¤·¤¿¤¬¤Ã¤Æ,
-Tree ¹½Â¤¤Ï Open Math É÷¤ÎÉ½¸½¤ò¤â¤Á¤¤¤¿ CMO ¤òÆ³Æş¤¹¤ë¤³¤È¤Ë¤·¤¿.
-¤Ş¤¿¤³¤Î¤Û¤¦¤¬, ¤ï¤ì¤ï¤ì¤ÎÁÛÄê¤¹¤ë¥·¥¹¥Æ¥à xxx ¤Ë¤ª¤¤¤Æ, Open XM ÂĞ±ş¤¬
-¤Ï¤ë¤«¤ËÍÆ°×¤Ç¤¢¤ë.
-¤Ê¤ª, Tree ¤Ï, Open Math ¤Ç¤Ï, Symbol, Application ¤Î¥á¥«¥Ë¥º¥à¤ËÁêÅö¤¹¤ë.
+ãªã‚‹ Tree ã§ã‚ã‚‰ã‚ã™ã®ãŒä¸€èˆ¬çš„ã§ã‚ã‚‹.
+Tree ã®è¡¨ç¾ã‚’ ã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³ã®ãƒ¬ãƒ™ãƒ«ã§ãŠã“ãªã†ã¨ã™ã‚‹ã¨,
+{\tt ox\_BEGIN\_BLOCK}, {\tt ox\_END\_BLOCK} ã§è©•ä¾¡ã‚’æŠ‘åˆ¶ã™ã‚‹ã®ãŒ
+ä¸€ã¤ã®æ–¹æ³•ã§ã‚ã‚‹ (cf. Postscript ã® {\tt \{ }, {\tt \} }).
+ãŸã¨ãˆã°ä¸Šã®æ–¹æ³•ã§ã¯ 
+{\tt x, e, plus, sin } ã‚’ begin block, end block ã§ã‹ã“ã‚ã°ã‚ˆã‚ã—ã„.
+ã‚ã‚Œã‚ã‚Œã¯ã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³ã®å®Ÿè£…ã‚’ãªã‚‹ã¹ãç°¡å˜ã«ã™ã‚‹ã¨ã„ã†ç«‹å ´ã‚’ã¨ã‚ŠãŸã„,
+ã¾ãŸæ•°å­¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ OX ã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³ã¨ CMObject ã‚’æ··åœ¨ã—ã¦è¡¨ç¾ã—ãŸã
+ãªã„.
+ã—ãŸãŒã£ã¦,
+Tree æ§‹é€ ã¯ Open Math é¢¨ã®è¡¨ç¾ã‚’ã‚‚ã¡ã„ãŸ CMO ã‚’å°å…¥ã™ã‚‹ã“ã¨ã«ã—ãŸ.
+ã¾ãŸã“ã®ã»ã†ãŒ, ã‚ã‚Œã‚ã‚Œã®æƒ³å®šã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ  xxx ã«ãŠã„ã¦, Open XM å¯¾å¿œãŒ
+ã¯ã‚‹ã‹ã«å®¹æ˜“ã§ã‚ã‚‹.
+ãªãŠ, Tree ã¯, Open Math ã§ã¯, Symbol, Application ã®ãƒ¡ã‚«ãƒ‹ã‚ºãƒ ã«ç›¸å½“ã™ã‚‹.
 */
 /*&eg
 In many computer algebra systems, mathematical expressions are usually
@@ -220,8 +220,8 @@ Note that CMO Tree corresponds to Symbol and Application in OpenMath.
 
 */
 /*&jp
-Lambda ¤Ï´Ø¿ô¤òÄêµÁ¤¹¤ë¤¿¤á¤Î´Ø¿ô¤Ç¤¢¤ë.
-Lisp ¤Î Lambda É½¸½¤ÈÆ±¤¸.
+Lambda ã¯é–¢æ•°ã‚’å®šç¾©ã™ã‚‹ãŸã‚ã®é–¢æ•°ã§ã‚ã‚‹.
+Lisp ã® Lambda è¡¨ç¾ã¨åŒã˜.
 */
 /*&eg
 Lambda is used to define functions.
@@ -229,7 +229,7 @@ The notion ``lambda'' is borrowed from the language Lisp.
 */
 
 \noindent
-//&jp Îã: $sin(x+e)$ ¤ÎÉ½¸½.
+//&jp ä¾‹: $sin(x+e)$ ã®è¡¨ç¾.
 //&eg Example: the expression of $sin(x+e)$.
 \begin{verbatim}
 (CMO_TREE, (CMO_STRING, "sin"), 
@@ -238,7 +238,7 @@ The notion ``lambda'' is borrowed from the language Lisp.
     (CMO_LIST,[size=]1, 
         (CMO_TREE, (CMO_STRING, "plus"), (CMO_STRING, "basic"),
             (CMO_LIST,[size=]2, (CMO_INDETERMINATE,"x"),
-//&jp                  (CMO_TREE,(CMO_STRING, "e"),  ¼«Á³ÂĞ¿ô¤ÎÄì
+//&jp                  (CMO_TREE,(CMO_STRING, "e"),  è‡ªç„¶å¯¾æ•°ã®åº•
 //&eg                  (CMO_TREE,(CMO_STRING, "e"),  the base of natural logarithms
     (CMO_LIST,[size=]1,(CMO_LIST,[size=]2,(CMO_STRING, "cdname"),
                                           (CMO_STRING,"basic")))
@@ -246,7 +246,7 @@ The notion ``lambda'' is borrowed from the language Lisp.
     )
 )
 \end{verbatim}
-//&jp  Leave ¤ÎÀ®Ê¬¤Ë¤Ï, Â¿¹à¼°¤ò´Ş¤àÇ¤°Õ¤Î¥ª¥Ö¥¸¥§¥¯¥È¤¬¤­¤Æ¤è¤¤.
+//&jp  Leave ã®æˆåˆ†ã«ã¯, å¤šé …å¼ã‚’å«ã‚€ä»»æ„ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒãã¦ã‚ˆã„.
 //&eg  Elements of the leave may be any objects including polynomials.
 
 \noindent
@@ -280,7 +280,7 @@ asir
 
 
 \bigbreak
-//&jp ¼¡¤Ë, Ê¬»¶É½¸½Â¿¹à¼°¤Ë´Ø·¸¤¹¤ë¥°¥ë¡¼¥×¤òÄêµÁ¤·¤è¤¦.
+//&jp æ¬¡ã«, åˆ†æ•£è¡¨ç¾å¤šé …å¼ã«é–¢ä¿‚ã™ã‚‹ã‚°ãƒ«ãƒ¼ãƒ—ã‚’å®šç¾©ã—ã‚ˆã†.
 /*&eg
 Let us define a group for distributed polynomials. In the following,
 DMS stands for Distributed Monomial System.
@@ -300,9 +300,9 @@ CMObject/DistributedPolynomials. \\
 {\sl int32}\, \mbox{e[1]}, \ldots,
 {\sl int32}\, \mbox{e[n]}, \\
 & & \ \mbox{Coefficient}) \\
-& & \mbox{ --- e[i] ¤Ç, $n$ ÊÑ¿ô monomial 
-$x^e = x_1^{e_1} \cdots x_n^{e_n}$ ¤Î³Æ»Ø¿ô $e_i$
-¤ò¤¢¤é¤ï¤¹.} \\
+& & \mbox{ --- e[i] ã§, $n$ å¤‰æ•° monomial 
+$x^e = x_1^{e_1} \cdots x_n^{e_n}$ ã®å„æŒ‡æ•° $e_i$
+ã‚’ã‚ã‚‰ã‚ã™.} \\
 \mbox{Coefficient}&:& \mbox{ZZ} | \mbox{Integer32} \\
 \mbox{Dpolynomial}&:& \mbox{Zero} \\
 & & |\ ({\tt CMO\_DISTRIBUTED\_POLYNOMIAL},{\sl int32}\, m, \\
@@ -310,16 +310,16 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ ¤Î³Æ»Ø¿ô $e_i$
 [\mbox{Monomial32}|\mbox{Zero}], \\
 & &\ \ 
 \{\mbox{Monomial32}\}) \\
-& &\mbox{--- m ¤Ï¥â¥Î¥ß¥¢¥ë¤Î¸Ä¿ô¤Ç¤¢¤ë.}\\
+& &\mbox{--- m ã¯ãƒ¢ãƒãƒŸã‚¢ãƒ«ã®å€‹æ•°ã§ã‚ã‚‹.}\\
 \mbox{DringDefinition}
 &:& \mbox{DMS of N variables} \\
 & & |\ \mbox{RingByName} \\
 & & |\ \mbox{Generic DMS ring} \\
-& & \mbox{ --- Ê¬»¶É½¸½Â¿¹à¼°´Ä¤ÎÄêµÁ. } \\
+& & \mbox{ --- åˆ†æ•£è¡¨ç¾å¤šé …å¼ç’°ã®å®šç¾©. } \\
 \mbox{Generic DMS ring}
-&:& \mbox{({\tt CMO\_DMS\_GENERIC}) --- ¿·ÈÇ¤Ï¤³¤Á¤é}\\
+&:& \mbox{({\tt CMO\_DMS\_GENERIC}) --- æ–°ç‰ˆã¯ã“ã¡ã‚‰}\\
 \mbox{RingByName}&:& ({\tt CMO\_RING\_BY\_NAME}, {\sl Cstring}\  {\rm s}) \\
-& & \mbox{ --- Ì¾Á° s ¤Ç, ³ÊÇ¼¤µ¤ì¤¿ ring ÄêµÁ.} \\
+& & \mbox{ --- åå‰ s ã§, æ ¼ç´ã•ã‚ŒãŸ ring å®šç¾©.} \\
 \mbox{DMS of N variables}
 &:& ({\tt CMO\_DMS\_OF\_N\_VARIABLES}, \\
 & & \ ({\tt CMO\_LIST}, {\sl int32}\, \mbox{m},
@@ -327,13 +327,13 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ ¤Î³Æ»Ø¿ô $e_i$
 & & \ \ [,{\sl object}\,\mbox{s}, {\sl Cstring}\,\mbox{c}, 
           {\sl List}\, \mbox{vlist},
 {\sl List}\, \mbox{wvec}, {\sl List}\, \mbox{outord}]) \\
-& & \mbox{ --- m ¤Ï¤¢¤È¤ËÂ³¤¯Í×ÁÇ¤Î¿ô} \\
-& & \mbox{ --- n ¤ÏÊÑ¿ô¤Î¿ô, p ¤Ï É¸¿ô} \\
-& & \mbox{ --- s ¤Ï ring ¤ÎÌ¾Á°} \\
-& & \mbox{ --- c ¤Ï·¸¿ô´Ä, QQ, ZZ ¤Î¾ì¹ç¤ÏÊ¸»úÎó¤Ç QQ, ZZ ¤È½ñ¤¯.} \\
-& & \mbox{ --- vlist ¤Ï Indeterminate ¤Î¥ê¥¹¥È(¿·ÈÇ). Â¿¹à¼°´Ä¤ÎÊÑ¿ô¥ê¥¹¥È} \\
-& & \mbox{ --- wvec ¤Ï order ¤ò¤­¤á¤ë weight vector,} \\
-& & \mbox{ --- outord ¤Ï½ĞÎÏ¤¹¤ë¤È¤­¤ÎÊÑ¿ô½ç½ø.} \\
+& & \mbox{ --- m ã¯ã‚ã¨ã«ç¶šãè¦ç´ ã®æ•°} \\
+& & \mbox{ --- n ã¯å¤‰æ•°ã®æ•°, p ã¯ æ¨™æ•°} \\
+& & \mbox{ --- s ã¯ ring ã®åå‰} \\
+& & \mbox{ --- c ã¯ä¿‚æ•°ç’°, QQ, ZZ ã®å ´åˆã¯æ–‡å­—åˆ—ã§ QQ, ZZ ã¨æ›¸ã.} \\
+& & \mbox{ --- vlist ã¯ Indeterminate ã®ãƒªã‚¹ãƒˆ(æ–°ç‰ˆ). å¤šé …å¼ç’°ã®å¤‰æ•°ãƒªã‚¹ãƒˆ} \\
+& & \mbox{ --- wvec ã¯ order ã‚’ãã‚ã‚‹ weight vector,} \\
+& & \mbox{ --- outord ã¯å‡ºåŠ›ã™ã‚‹ã¨ãã®å¤‰æ•°é †åº.} \\
 \end{eqnarray*}
 */
 /*&eg
@@ -376,12 +376,12 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ ¤Î³Æ»Ø¿ô $e_i$
 */
 
 /*&jp
-RingByName ¤ä DMS of N variables ¤Ï¤Ê¤¯¤Æ¤â, DMS ¤òÄêµÁ¤Ç¤­¤ë.
-¤·¤¿¤¬¤Ã¤Æ, ¤³¤ì¤é¤ò¼ÂÁõ¤·¤Æ¤Ê¤¤¥·¥¹¥Æ¥à¤Ç DMS ¤ò°·¤¦¤â¤Î¤¬
-¤¢¤Ã¤Æ¤â¤«¤Ş¤ï¤Ê¤¤.
+RingByName ã‚„ DMS of N variables ã¯ãªãã¦ã‚‚, DMS ã‚’å®šç¾©ã§ãã‚‹.
+ã—ãŸãŒã£ã¦, ã“ã‚Œã‚‰ã‚’å®Ÿè£…ã—ã¦ãªã„ã‚·ã‚¹ãƒ†ãƒ ã§ DMS ã‚’æ‰±ã†ã‚‚ã®ãŒ
+ã‚ã£ã¦ã‚‚ã‹ã¾ã‚ãªã„.
 
-°Ê²¼, °Ê¾å¤Î CMObject  ¤Ë¤¿¤¤¤¹¤ë,
-xxx = asir, kan ¤Î¿¶Éñ¤¤¤òµ­½Ò¤¹¤ë.
+ä»¥ä¸‹, ä»¥ä¸Šã® CMObject  ã«ãŸã„ã™ã‚‹,
+xxx = asir, kan ã®æŒ¯èˆã„ã‚’è¨˜è¿°ã™ã‚‹.
 */
 /*&eg
 Note that it is possible to define DMS without RingByName and 
@@ -393,16 +393,16 @@ are implemented on Asir and Kan.
 
 \subsection{ Zero}
 /*&jp
-CMO ¤Ç¤Ï ¥¼¥í¤ÎÉ½¸½Ë¡¤¬¤Ê¤ó¤È¤ª¤ê¤â¤¢¤ë¤³¤È¤ËÃí°Õ.
-%% ¤É¤Î¤è¤¦¤Ê¥¼¥í¤ò¤¦¤±¤È¤Ã¤Æ¤â,
-%% ¥·¥¹¥Æ¥à¤Î¥¼¥í¤ËÊÑ´¹¤Ç¤­¤ë¤Ù¤­¤Ç¤¢¤ë.
+CMO ã§ã¯ ã‚¼ãƒ­ã®è¡¨ç¾æ³•ãŒãªã‚“ã¨ãŠã‚Šã‚‚ã‚ã‚‹ã“ã¨ã«æ³¨æ„.
+%% ã©ã®ã‚ˆã†ãªã‚¼ãƒ­ã‚’ã†ã‘ã¨ã£ã¦ã‚‚,
+%% ã‚·ã‚¹ãƒ†ãƒ ã®ã‚¼ãƒ­ã«å¤‰æ›ã§ãã‚‹ã¹ãã§ã‚ã‚‹.
 */
 /*&eg
 Note that CMO has various representations of zero.
 */
 
 
-//&jp \subsection{ À°¿ô ZZ }
+//&jp \subsection{ æ•´æ•° ZZ }
 //&eg \subsection{ Integer ZZ }
 
 \begin{verbatim}
@@ -410,11 +410,11 @@ Note that CMO has various representations of zero.
 \end{verbatim}
 
 /*&jp
-¤³¤ÎÀá¤Ç¤ÏOpen xxx µ¬Ìó¤Ë¤ª¤±¤ëÇ¤°Õ¤ÎÂç¤­¤µ¤ÎÀ°¿ô(bignum)¤Î°·¤¤¤Ë¤Ä¤¤
-¤ÆÀâÌÀ¤¹¤ë.  Open XM µ¬Ìó¤Ë¤ª¤±¤ëÂ¿½ÅÀºÅÙÀ°¿ô¤òÉ½¤¹¥Ç¡¼¥¿·¿ CMO\_ZZ ¤Ï 
-GNU MP¥é¥¤¥Ö¥é¥ê¤Ê¤É¤ò»²¹Í¤Ë¤·¤ÆÀß·×¤µ¤ì¤Æ¤¤¤Æ, Éä¹æÉÕ¤­ÀäÂĞÃÍÉ½¸½¤òÍÑ
-¤¤¤Æ¤¤¤ë.  (cf. {\tt kan/sm1} ¤ÎÇÛÉÛ¥Ç¥£¥ì¥¯¥È¥ê¤Î¤Ê¤«¤Î {\tt
-plugin/cmo-gmp.c}) CMO\_ZZ ¤Ï¼¡¤Î·Á¼°¤ò¤È¤ë.
+ã“ã®ç¯€ã§ã¯Open xxx è¦ç´„ã«ãŠã‘ã‚‹ä»»æ„ã®å¤§ãã•ã®æ•´æ•°(bignum)ã®æ‰±ã„ã«ã¤ã„
+ã¦èª¬æ˜ã™ã‚‹.  Open XM è¦ç´„ã«ãŠã‘ã‚‹å¤šé‡ç²¾åº¦æ•´æ•°ã‚’è¡¨ã™ãƒ‡ãƒ¼ã‚¿å‹ CMO\_ZZ ã¯ 
+GNU MPãƒ©ã‚¤ãƒ–ãƒ©ãƒªãªã©ã‚’å‚è€ƒã«ã—ã¦è¨­è¨ˆã•ã‚Œã¦ã„ã¦, ç¬¦å·ä»˜ãçµ¶å¯¾å€¤è¡¨ç¾ã‚’ç”¨
+ã„ã¦ã„ã‚‹.  (cf. {\tt kan/sm1} ã®é…å¸ƒãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ãªã‹ã® {\tt
+plugin/cmo-gmp.c}) CMO\_ZZ ã¯æ¬¡ã®å½¢å¼ã‚’ã¨ã‚‹.
 */
 /*&eg
 We describe the bignum (multi-precision integer) representation 
@@ -432,11 +432,11 @@ distribution). CMO\_ZZ is defined as follows.
 \end{tabular}
 
 /*&jp
-$f$ ¤Ï32bitÀ°¿ô¤Ç¤¢¤ë.  $b_0, \ldots, b_n$ ¤Ï unsigned int32 ¤Ç¤¢¤ë.
-$|f|$ ¤Ï $n+1$ ¤Ç¤¢¤ë.  ¤³¤Î CMO ¤ÎÉä¹æ¤Ï $f$ ¤ÎÉä¹æ¤ÇÄê¤á¤ë.  Á°½Ò¤·
-¤¿¤è¤¦¤Ë, 32bitÀ°¿ô¤ÎÉé¿ô¤Ï 2 ¤ÎÊä¿ôÉ½¸½¤ÇÉ½¤µ¤ì¤ë.
+$f$ ã¯32bitæ•´æ•°ã§ã‚ã‚‹.  $b_0, \ldots, b_n$ ã¯ unsigned int32 ã§ã‚ã‚‹.
+$|f|$ ã¯ $n+1$ ã§ã‚ã‚‹.  ã“ã® CMO ã®ç¬¦å·ã¯ $f$ ã®ç¬¦å·ã§å®šã‚ã‚‹.  å‰è¿°ã—
+ãŸã‚ˆã†ã«, 32bitæ•´æ•°ã®è² æ•°ã¯ 2 ã®è£œæ•°è¡¨ç¾ã§è¡¨ã•ã‚Œã‚‹.
 
-Open xxx µ¬Ìó¤Ç¤Ï¾å¤Î CMO ¤Ï°Ê²¼¤ÎÀ°¿ô¤ò°ÕÌ£¤¹¤ë. ($R = 2^{32}$)
+Open xxx è¦ç´„ã§ã¯ä¸Šã® CMO ã¯ä»¥ä¸‹ã®æ•´æ•°ã‚’æ„å‘³ã™ã‚‹. ($R = 2^{32}$)
 */
 /*&eg
 $f$ is a 32bit integer. $b_0, \ldots, b_n$ are unsigned 32bit integers.
@@ -454,9 +454,9 @@ In OpenXM the above CMO represents the following integer. ($R = 2^{32}$.)
 \]
 
 /*&jp
-\noindent  Îã: 
-{\tt int32} ¤ò network byte order ¤ÇÉ½¸½
-¤·¤Æ¤¤¤ë¤È¤¹¤ë¤È,Îã¤¨¤Ğ, À°¿ô $14$ ¤Ï CMO\_ZZ ¤ÇÉ½¤ï¤¹¤È,
+\noindent  ä¾‹: 
+{\tt int32} ã‚’ network byte order ã§è¡¨ç¾
+ã—ã¦ã„ã‚‹ã¨ã™ã‚‹ã¨,ä¾‹ãˆã°, æ•´æ•° $14$ ã¯ CMO\_ZZ ã§è¡¨ã‚ã™ã¨,
 */
 /*&eg
 \noindent Example:
@@ -466,50 +466,50 @@ a CMO\_ZZ $14$ is expressed by
 \[
 \mbox{(CMO\_ZZ, 1, 0, 0, 0, e)},
 \]
-//&jp ¤ÈÉ½¤ï¤¹. ¤³¤ì¤Ï¥Ğ¥¤¥ÈÎó¤Ç¤Ï
+//&jp ã¨è¡¨ã‚ã™. ã“ã‚Œã¯ãƒã‚¤ãƒˆåˆ—ã§ã¯
 //&eg The corresponding byte sequence is
 \[
 \mbox{\tt 00 00 00 14 00 00 00 01 00 00 00 0e}
 \]
-//&jp ¤È¤Ê¤ë.
+//&jp ã¨ãªã‚‹.
 
 
-//&jp ¤Ê¤ª ZZ ¤Î 0 ( (ZZ) 0 ¤È½ñ¤¯ ) ¤Ï, {\tt (CMO\_ZZ, 00,00,00,00)} ¤ÈÉ½¸½¤¹¤ë.
+//&jp ãªãŠ ZZ ã® 0 ( (ZZ) 0 ã¨æ›¸ã ) ã¯, {\tt (CMO\_ZZ, 00,00,00,00)} ã¨è¡¨ç¾ã™ã‚‹.
 //&eg Note that CMO\_ZZ 0 is expressed by {\tt (CMO\_ZZ, 00,00,00,00)}.
 
 
-//&jp \subsection{ Ê¬»¶É½¸½Â¿¹à¼° Dpolynomial }
+//&jp \subsection{ åˆ†æ•£è¡¨ç¾å¤šé …å¼ Dpolynomial }
 //&eg \subsection{ Distributed polynomial Dpolynomial }
 
 /*&jp
-´Ä¤È¤½¤ì¤ËÂ°¤¹¤ëÂ¿¹à¼°¤Ï¼¡¤Î¤è¤¦¤Ê¹Í¤¨¤«¤¿¤Ç¤¢¤Ä¤«¤¦.
+ç’°ã¨ãã‚Œã«å±ã™ã‚‹å¤šé …å¼ã¯æ¬¡ã®ã‚ˆã†ãªè€ƒãˆã‹ãŸã§ã‚ã¤ã‹ã†.
 
-Generic DMS ring ¤ËÂ°¤¹¤ë¸µ¤Ï,
-ÊÑ¿ô¤ò $n$ ¸Ä»ı¤Ä Å¬Åö¤Ê·¸¿ô½¸¹ç $K$ ¤ò»ı¤ÄÂ¿¹à¼°´Ä $K[x_1, \ldots, x_n]$ 
-¤Î¸µ¤Ç¤¢¤ë.
-·¸¿ô½¸¹ç $K$ ¤¬¤Ê¤Ë¤«¤Ï, ¼Âºİ¥Ç¡¼¥¿¤òÆÉ¤ß¹ş¤ß, Coefficient ¤ò¸«¤¿ÃÊ³¬¤Ç
-¤ï¤«¤ë.
-¤³¤Î´Ä¤ËÂ°¤¹¤ëÂ¿¹à¼°¤ò CMO ·Á¼°¤Ç¤¦¤±¤È¤Ã¤¿¾ì¹ç, ³Æ¥µ¡¼¥Ğ¤Ï¤½¤Î
-¥µ¡¼¥Ğ¤ÎÂĞ±ş¤¹¤ë Object  ¤ËÊÑ´¹¤·¤Ê¤¤¤È¤¤¤±¤Ê¤¤. 
-¤³¤ÎÊÑ´¹¤Î»ÅÊı¤Ï, ³Æ¥µ¡¼¥ĞËè¤Ë¤­¤á¤ë.
+Generic DMS ring ã«å±ã™ã‚‹å…ƒã¯,
+å¤‰æ•°ã‚’ $n$ å€‹æŒã¤ é©å½“ãªä¿‚æ•°é›†åˆ $K$ ã‚’æŒã¤å¤šé …å¼ç’° $K[x_1, \ldots, x_n]$ 
+ã®å…ƒã§ã‚ã‚‹.
+ä¿‚æ•°é›†åˆ $K$ ãŒãªã«ã‹ã¯, å®Ÿéš›ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿, Coefficient ã‚’è¦‹ãŸæ®µéšã§
+ã‚ã‹ã‚‹.
+ã“ã®ç’°ã«å±ã™ã‚‹å¤šé …å¼ã‚’ CMO å½¢å¼ã§ã†ã‘ã¨ã£ãŸå ´åˆ, å„ã‚µãƒ¼ãƒã¯ãã®
+ã‚µãƒ¼ãƒã®å¯¾å¿œã™ã‚‹ Object  ã«å¤‰æ›ã—ãªã„ã¨ã„ã‘ãªã„. 
+ã“ã®å¤‰æ›ã®ä»•æ–¹ã¯, å„ã‚µãƒ¼ãƒæ¯ã«ãã‚ã‚‹.
 
-Asir ¤Î¾ì¹ç¤Ï, $K[x_1, \ldots, x_n]$ ¤Î¸µ¤ÏÊ¬»¶É½¸½Â¿¹à¼°¤ËÊÑ´¹¤µ¤ì¤ë.
-\noroa{ ¤Ç¤â, order ¤Ï¤É¤¦¤Ê¤ë¤Î? }
+Asir ã®å ´åˆã¯, $K[x_1, \ldots, x_n]$ ã®å…ƒã¯åˆ†æ•£è¡¨ç¾å¤šé …å¼ã«å¤‰æ›ã•ã‚Œã‚‹.
+\noroa{ ã§ã‚‚, order ã¯ã©ã†ãªã‚‹ã®? }
 
-{\tt kan/sm1} ¤Î¾ì¹ç¤Ï»ö¾ğ¤ÏÊ£»¨¤Ç¤¢¤ë.
-{\tt kan/sm1} ¤Ï, Generic DMS ring ¤Ë¤¢¤¿¤ë ¥¯¥é¥¹¤ò¤â¤¿¤Ê¤¤.
-¤Ä¤Ş¤ê, Default ¤ÇÂ¸ºß¤¹¤ë, $n$ ÊÑ¿ô¤ÎÊ¬»¶É½¸½Â¿¹à¼°´Ä¤ÏÂ¸ºß¤·¤Ê¤¤¤ï¤±¤Ç¤¢¤ë.
-¤·¤¿¤¬¤Ã¤Æ, {\tt kan/sm1} ¤Ç¤Ï, DMS of N variables ¤¬Íè¤¿¾ì¹ç,
-¤³¤ì¤ò CurrentRing ¤Î¸µ¤È¤·¤ÆÆÉ¤ß¹ş¤à.  CurrentRing ¤ÎÊÑ¿ô¤Î¿ô¤¬ $n'$
-¤Ç, $n' < n$ ¤À¤È¿·¤·¤¤Â¿¹à¼°´Ä¤òÀ¸À®¤·¤Æ¥Ç¡¼¥¿¤òÆÉ¤ß¹ş¤à.
-Order ¤½¤ÎÂ¾¤Î optional ¾ğÊó¤Ï¤¹¤Ù¤ÆÌµ»ë¤¹¤ë.
+{\tt kan/sm1} ã®å ´åˆã¯äº‹æƒ…ã¯è¤‡é›‘ã§ã‚ã‚‹.
+{\tt kan/sm1} ã¯, Generic DMS ring ã«ã‚ãŸã‚‹ ã‚¯ãƒ©ã‚¹ã‚’ã‚‚ãŸãªã„.
+ã¤ã¾ã‚Š, Default ã§å­˜åœ¨ã™ã‚‹, $n$ å¤‰æ•°ã®åˆ†æ•£è¡¨ç¾å¤šé …å¼ç’°ã¯å­˜åœ¨ã—ãªã„ã‚ã‘ã§ã‚ã‚‹.
+ã—ãŸãŒã£ã¦, {\tt kan/sm1} ã§ã¯, DMS of N variables ãŒæ¥ãŸå ´åˆ,
+ã“ã‚Œã‚’ CurrentRing ã®å…ƒã¨ã—ã¦èª­ã¿è¾¼ã‚€.  CurrentRing ã®å¤‰æ•°ã®æ•°ãŒ $n'$
+ã§, $n' < n$ ã ã¨æ–°ã—ã„å¤šé …å¼ç’°ã‚’ç”Ÿæˆã—ã¦ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€.
+Order ãã®ä»–ã® optional æƒ…å ±ã¯ã™ã¹ã¦ç„¡è¦–ã™ã‚‹.
 
-DMS ¤Î 2 ÈÖÌÜ¤Î¥Õ¥£¡¼¥ë¥É¤Ç,
-Ring by Name ¤òÍÑ¤¤¤¿¾ì¹ç, ¸½ºß¤ÎÌ¾Á°¶õ´Ö¤ÇÊÑ¿ô yyy ¤Ë³ÊÇ¼¤µ¤ì¤¿ ring object
-¤Î¸µ¤È¤·¤Æ, ¤³¤ÎÂ¿¹à¼°¤òÊÑ´¹¤·¤Ê¤µ¤¤¤È¤¤¤¦°ÕÌ£¤Ë¤Ê¤ë.
-{\tt kan/sm1} ¤Î¾ì¹ç, ´Ä¤ÎÄêµÁ¤Ï ring object ¤È¤·¤Æ³ÊÇ¼¤µ¤ì¤Æ¤ª¤ê,
-¤³¤Î ring object ¤ò ÊÑ¿ô yyy ¤Ç»²¾È¤¹¤ë¤³¤È¤Ë¤è¤ê CMO ¤È¤·¤Æ¤¦¤±¤È¤Ã¤¿
-Â¿¹à¼°¤ò¤³¤Î ring ¤Î¸µ¤È¤·¤Æ³ÊÇ¼¤Ç¤­¤ë.
+DMS ã® 2 ç•ªç›®ã®ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã§,
+Ring by Name ã‚’ç”¨ã„ãŸå ´åˆ, ç¾åœ¨ã®åå‰ç©ºé–“ã§å¤‰æ•° yyy ã«æ ¼ç´ã•ã‚ŒãŸ ring object
+ã®å…ƒã¨ã—ã¦, ã“ã®å¤šé …å¼ã‚’å¤‰æ›ã—ãªã•ã„ã¨ã„ã†æ„å‘³ã«ãªã‚‹.
+{\tt kan/sm1} ã®å ´åˆ, ç’°ã®å®šç¾©ã¯ ring object ã¨ã—ã¦æ ¼ç´ã•ã‚Œã¦ãŠã‚Š,
+ã“ã® ring object ã‚’ å¤‰æ•° yyy ã§å‚ç…§ã™ã‚‹ã“ã¨ã«ã‚ˆã‚Š CMO ã¨ã—ã¦ã†ã‘ã¨ã£ãŸ
+å¤šé …å¼ã‚’ã“ã® ring ã®å…ƒã¨ã—ã¦æ ¼ç´ã§ãã‚‹.
 */
 
 /*&eg
@@ -537,7 +537,7 @@ as the destination ring for the translation.
 */
 
 \medbreak \noindent
-//&jp {\bf Example}: (¤¹¤Ù¤Æ¤Î¿ô¤ÎÉ½µ­¤Ï 16 ¿ÊÉ½µ­)
+//&jp {\bf Example}: (ã™ã¹ã¦ã®æ•°ã®è¡¨è¨˜ã¯ 16 é€²è¡¨è¨˜)
 //&eg {\bf Example}: (all numbers are represented in hexadecimal notation)
 {\footnotesize \begin{verbatim}
 Z/11Z [6 variables]
@@ -558,14 +558,14 @@ ff omc ::
   (CMO_MONOMIAL32[13],3*x^2*y),),
 \end{verbatim} }
 /*&jp
-$ 3 x^2 y$ ¤Ï 6 ÊÑ¿ô¤ÎÂ¿¹à¼°´Ä¤Î ¸µ¤È¤·¤Æ¤ß¤Ê¤µ¤ì¤Æ¤¤¤ë.
+$ 3 x^2 y$ ã¯ 6 å¤‰æ•°ã®å¤šé …å¼ç’°ã® å…ƒã¨ã—ã¦ã¿ãªã•ã‚Œã¦ã„ã‚‹.
 */
 /*&eg
 $3 x^2 y$ is regarded as an element of a six-variate polynomial ring.
 */
 
 
-//&jp \subsection{ºÆµ¢É½¸½Â¿¹à¼°¤ÎÄêµÁ} 
+//&jp \subsection{å†å¸°è¡¨ç¾å¤šé …å¼ã®å®šç¾©} 
 //&eg \subsection{Recursive polynomials} 
 
 \begin{verbatim}
@@ -584,17 +584,17 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{({\tt CMO\_POLYNOMIAL\_IN\_ONE\_VARIABLE},\, {\sl int32}\, m, } \\
 & & \quad \mbox{ Name of the main variable }, \\
 & & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} ) \\
-& & \mbox{ --- m ¤Ï¥â¥Î¥ß¥¢¥ë¤Î¸Ä¿ô. } \\
-& & \mbox{ --- e, Coefficieint ¤Ï¥â¥Î¥ß¥¢¥ë¤òÉ½¸½¤·¤Æ¤¤¤ë. } \\
-& & \mbox{ --- ½ç½ø¤Î¹â¤¤½ç¤Ë¤Ê¤é¤Ù¤ë. ÉáÄÌ¤Ï¶Ò¤Î¹â¤¤½ç.} \\
-& & \mbox{ ---  e ¤Ï 1ÊÑ¿ôÂ¿¹à¼°¤Î¶Ò¤ò¤¢¤é¤ï¤¹. } \\
+& & \mbox{ --- m ã¯ãƒ¢ãƒãƒŸã‚¢ãƒ«ã®å€‹æ•°. } \\
+& & \mbox{ --- e, Coefficieint ã¯ãƒ¢ãƒãƒŸã‚¢ãƒ«ã‚’è¡¨ç¾ã—ã¦ã„ã‚‹. } \\
+& & \mbox{ --- é †åºã®é«˜ã„é †ã«ãªã‚‰ã¹ã‚‹. æ™®é€šã¯å·¾ã®é«˜ã„é †.} \\
+& & \mbox{ ---  e ã¯ 1å¤‰æ•°å¤šé …å¼ã®å·¾ã‚’ã‚ã‚‰ã‚ã™. } \\
 \mbox{Coefficient} &:& \mbox{ ZZ} \,|\, \mbox{ QQ } \,|\, 
 \mbox{ integer32  } \,|\,
 \mbox{ Polynomial in 1 variable } \\
 & & \quad \,|\, \mbox{Tree} \,|\, \mbox{Zero} \,|\,\mbox{Dpolynomial}\\
 \mbox{Name of the main variable } &:& 
 \mbox{ {\sl int32} v }   \\
-& & \mbox{ --- v ¤Ï ÊÑ¿ôÈÖ¹æ (0 ¤«¤é¤Ï¤¸¤Ş¤ë) ¤òÉ½¤¹. } \\
+& & \mbox{ --- v ã¯ å¤‰æ•°ç•ªå· (0 ã‹ã‚‰ã¯ã˜ã¾ã‚‹) ã‚’è¡¨ã™. } \\
 \mbox{Recursive Polynomial} &:& 
 \mbox{ ( {\tt CMO\_RECURSIVE\_POLYNOMIAL}, } \\
 & & \quad \mbox{ RringDefinition, } \\
@@ -602,8 +602,8 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient} )  \\
 \mbox{RringDefinition} 
 & : &  \mbox{ {\sl List} v } \\
-& & \quad \mbox{ --- v ¤Ï, ÊÑ¿ôÌ¾(indeterminate) ¤Ş¤¿¤Ï Tree ¤Î¥ê¥¹¥È. } \\
-& & \quad \mbox{ --- ½ç½ø¤Î¹â¤¤½ç. } \\
+& & \quad \mbox{ --- v ã¯, å¤‰æ•°å(indeterminate) ã¾ãŸã¯ Tree ã®ãƒªã‚¹ãƒˆ. } \\
+& & \quad \mbox{ --- é †åºã®é«˜ã„é †. } \\
 \end{eqnarray*}
 */
 /*&eg
@@ -649,13 +649,13 @@ Example:
        10, 1,
        5, 31)))
 \end{verbatim}
-//&jp ¤³¤ì¤Ï,
+//&jp ã“ã‚Œã¯,
 //&eg This represents
 $$   x^3 (1234 y^5 + 17 ) +  x^1 (y^{10} + 31 y^5)  $$
 /*&jp
-¤ò¤¢¤é¤ï¤¹.
-%%Èó²Ä´¹Â¿¹à¼°¤â¤³¤Î·Á¼°¤Ç¤¢¤é¤ï¤·¤¿¤¤¤Î¤Ç, ÀÑ¤Î½ç½ø¤ò¾å¤Î¤è¤¦¤Ë
-%%¤¹¤ë¤³¤È. ¤Ä¤Ş¤ê, ¼çÊÑ¿ô¤«¤±¤ë·¸¿ô¤Î½çÈÖ.
+ã‚’ã‚ã‚‰ã‚ã™.
+%%éå¯æ›å¤šé …å¼ã‚‚ã“ã®å½¢å¼ã§ã‚ã‚‰ã‚ã—ãŸã„ã®ã§, ç©ã®é †åºã‚’ä¸Šã®ã‚ˆã†ã«
+%%ã™ã‚‹ã“ã¨. ã¤ã¾ã‚Š, ä¸»å¤‰æ•°ã‹ã‘ã‚‹ä¿‚æ•°ã®é †ç•ª.
 */
 /*&eg
 %%We intend to represent non-commutative polynomials with the
@@ -672,7 +672,7 @@ sm1>ff ::
 Class.recursivePolynomial h * ((-1)) + (x^2  * (1))
 \end{verbatim}
 
-//&jp \subsection{CPU°ÍÂ¸¤Î double } 
+//&jp \subsection{CPUä¾å­˜ã® double } 
 //&eg \subsection{CPU dependent double} 
 
 \begin{verbatim}
@@ -693,27 +693,27 @@ $\in$ CMObject/MachineDouble \\
 \mbox{64bit machine double} &:& 
 \mbox{({\tt CMO\_64BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
-& & \mbox{ --- s1, $\ldots$, s8 ¤Ï {\tt double} (64bit). } \\
-& & \mbox{ --- ¤³¤ÎÉ½¸½¤ÏCPU°ÍÂ¸¤Ç¤¢¤ë.}\\
-&&  \mbox{\quad\quad byte order negotiation ¤òÍÑ¤¤¤ë.} \\
+& & \mbox{ --- s1, $\ldots$, s8 ã¯ {\tt double} (64bit). } \\
+& & \mbox{ --- ã“ã®è¡¨ç¾ã¯CPUä¾å­˜ã§ã‚ã‚‹.}\\
+&&  \mbox{\quad\quad byte order negotiation ã‚’ç”¨ã„ã‚‹.} \\
 \mbox{Array of 64bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_64BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}}\, s8[1], \ldots , {\sl byte}\, s8[m])\\
-& & \mbox{ --- s*[1], $\ldots$ s*[m] ¤Ï m ¸Ä¤Î double (64bit) ¤Ç¤¢¤ë. } \\
-& & \mbox{ --- ¤³¤ÎÉ½¸½¤ÏCPU°ÍÂ¸¤Ç¤¢¤ë.}\\
-& & \mbox{ \quad\quad byte order negotiation ¤òÍÑ¤¤¤ë.} \\
+& & \mbox{ --- s*[1], $\ldots$ s*[m] ã¯ m å€‹ã® double (64bit) ã§ã‚ã‚‹. } \\
+& & \mbox{ --- ã“ã®è¡¨ç¾ã¯CPUä¾å­˜ã§ã‚ã‚‹.}\\
+& & \mbox{ \quad\quad byte order negotiation ã‚’ç”¨ã„ã‚‹.} \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
-& & \mbox{ --- s1, $\ldots$, s16 ¤Ï {\tt long double} (128bit). } \\
-& & \mbox{ --- ¤³¤ÎÉ½¸½¤ÏCPU°ÍÂ¸¤Ç¤¢¤ë.}\\
-&&  \mbox{\quad\quad byte order negotiation ¤òÍÑ¤¤¤ë.} \\
+& & \mbox{ --- s1, $\ldots$, s16 ã¯ {\tt long double} (128bit). } \\
+& & \mbox{ --- ã“ã®è¡¨ç¾ã¯CPUä¾å­˜ã§ã‚ã‚‹.}\\
+&&  \mbox{\quad\quad byte order negotiation ã‚’ç”¨ã„ã‚‹.} \\
 \mbox{Array of 128bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_128BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte} s16[1], \ldots , {\sl byte} s16[m]})\\
-& & \mbox{ --- s*[1], $\ldots$ s*[m] ¤Ï m ¸Ä¤Î long double (128bit) ¤Ç¤¢¤ë. } \\
-& & \mbox{ --- ¤³¤ÎÉ½¸½¤ÏCPU°ÍÂ¸¤Ç¤¢¤ë.}\\
-& & \mbox{ \quad\quad byte order negotiation ¤òÍÑ¤¤¤ë.} 
+& & \mbox{ --- s*[1], $\ldots$ s*[m] ã¯ m å€‹ã® long double (128bit) ã§ã‚ã‚‹. } \\
+& & \mbox{ --- ã“ã®è¡¨ç¾ã¯CPUä¾å­˜ã§ã‚ã‚‹.}\\
+& & \mbox{ \quad\quad byte order negotiation ã‚’ç”¨ã„ã‚‹.} 
 \end{eqnarray*}
 */
 /*&eg
@@ -721,7 +721,7 @@ $\in$ CMObject/MachineDouble \\
 \mbox{64bit machine double} &:& 
 \mbox{({\tt CMO\_64BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
-& & \mbox{ --- s1, $\ldots$, s8 ¤Ï {\tt double} (64bit). } \\
+& & \mbox{ --- s1, $\ldots$, s8 ã¯ {\tt double} (64bit). } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
 &&  \mbox{\quad\quad Need the byte order negotiation.} \\
 \mbox{Array of 64bit machine double} &:& 
@@ -733,7 +733,7 @@ $\in$ CMObject/MachineDouble \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
-& & \mbox{ --- s1, $\ldots$, s16 ¤Ï {\tt long double} (128bit). } \\
+& & \mbox{ --- s1, $\ldots$, s16 ã¯ {\tt long double} (128bit). } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
 & & \mbox{\quad\quad Need the byte order negotiation.} \\
 \mbox{Array of 128bit machine double} &:& 
@@ -752,15 +752,15 @@ $\in$ CMObject/MachineDouble \\
 \end{verbatim}
 
 /*&jp
-IEEE ½àµò¤Î float ¤Ë¤Ä¤¤¤Æ¤Ï, IEEE 754 double precision floating-point
-format (64 bit) ¤ÎÄêµÁ¤ò¸«¤è.
+IEEE æº–æ‹ ã® float ã«ã¤ã„ã¦ã¯, IEEE 754 double precision floating-point
+format (64 bit) ã®å®šç¾©ã‚’è¦‹ã‚ˆ.
 
-256.100006 ¤Î Intel Pentium ¤Î double64 ¤Ç¤ÎÆâÉôÉ½¸½¤Ï
+256.100006 ã® Intel Pentium ã® double64 ã§ã®å†…éƒ¨è¡¨ç¾ã¯
 {\tt cd 0c 80 43 } \\
-256.100006 ¤Î PowerPC (Mac) ¤Î double64 ¤Ç¤ÎÆâÉôÉ½¸½¤Ï
+256.100006 ã® PowerPC (Mac) ã® double64 ã§ã®å†…éƒ¨è¡¨ç¾ã¯
 {\tt 43 80 0c cd }.
-¤³¤ÎÎã¤Ç¤ß¤ë¤è¤¦¤Ë byte ¤Î½ç½ø¤¬µÕ¤Ç¤¢¤ë.
-¥¨¥ó¥¸¥ó¥¹¥¿¡¼¥È¤Î»ş¤Î byte order negotiation ¤Ç byte ¤Î½ç½ø¤ò»ØÄê¤¹¤ë.
+ã“ã®ä¾‹ã§ã¿ã‚‹ã‚ˆã†ã« byte ã®é †åºãŒé€†ã§ã‚ã‚‹.
+ã‚¨ãƒ³ã‚¸ãƒ³ã‚¹ã‚¿ãƒ¼ãƒˆã®æ™‚ã® byte order negotiation ã§ byte ã®é †åºã‚’æŒ‡å®šã™ã‚‹.
 
 
 */
@@ -781,8 +781,8 @@ when the engine starts.
 
 \subsection{Bigfloat32}
 /*&jp
-int32 ¤ò´ğËÜ¤È¤·¤¿ bigfloat ¤ÎÉ½¸½ÊıË¡¤Ë¤Ä¤¤¤Æ½Ò¤Ù¤ë.
-¤³¤Î·Á¼°¤Ï mpfr ¤ò 32bit CPU ¤Ç»ÈÍÑ¤·¤¿»ş¤ÎÆâÉôÉ½¸½¤È¶¦ÄÌ¤Ç¤¢¤ë.
+int32 ã‚’åŸºæœ¬ã¨ã—ãŸ bigfloat ã®è¡¨ç¾æ–¹æ³•ã«ã¤ã„ã¦è¿°ã¹ã‚‹.
+ã“ã®å½¢å¼ã¯ mpfr ã‚’ 32bit CPU ã§ä½¿ç”¨ã—ãŸæ™‚ã®å†…éƒ¨è¡¨ç¾ã¨å…±é€šã§ã‚ã‚‹.
 */
 /*&eg
 This subsection describes our format for bigfloat in terms of the int32.
@@ -796,7 +796,7 @@ Ref: {\tt OpenXM/src/mpfr/bfsize/bfsize.c}
 
 
 /*&jp
-Bigfloat32 ¤Ï¼¡¤Î·Á¼°¤Î int32 ¤ÎÇÛÎó¤Ç¤¢¤ë.
+Bigfloat32 ã¯æ¬¡ã®å½¢å¼ã® int32 ã®é…åˆ—ã§ã‚ã‚‹.
 */
 /*&eg
 The bigfloat32 is an array of int32 numbers of the following format.
@@ -808,13 +808,13 @@ The bigfloat32 is an array of int32 numbers of the following format.
 \end{center}
 
 /*&jp
-p=prec ¤ÏÀºÅÙ, s=sign ¤ÏÉä¹æ(1 ¤¬Àµ¤Î¿ô,  -1 (2¤ÎÊä¿ôÉ½¸½)¤¬Éé¤Î¿ô) ,
-E=exp ¤Ï»Ø¿ôÉô¤Ç, ¾å¤Î¥Ç¡¼¥¿¤Ï¿ô
+p=prec ã¯ç²¾åº¦, s=sign ã¯ç¬¦å·(1 ãŒæ­£ã®æ•°,  -1 (2ã®è£œæ•°è¡¨ç¾)ãŒè² ã®æ•°) ,
+E=exp ã¯æŒ‡æ•°éƒ¨ã§, ä¸Šã®ãƒ‡ãƒ¼ã‚¿ã¯æ•°
 $$ s (a[k]/B + a[k-1]/B^2 + ... + a[1]/B^k) 2^E  $$
-¤òÉ½¤¹.
-¤³¤³¤Ç $B=2^{32}$,
+ã‚’è¡¨ã™.
+ã“ã“ã§ $B=2^{32}$,
 $k = \lceil p/32 \rceil$
-¤Ç¤¢¤ë.
+ã§ã‚ã‚‹.
 */
 /*&eg
 p=prec is the precision, s=sign is the sign(1 means positive,  -1 (expressed by two's complement) is nevative),

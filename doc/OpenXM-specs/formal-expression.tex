@@ -1,15 +1,15 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.6 2000/09/09 16:32:26 takayama Exp $
-//&jp \section{ CMO ¤Î·Á¼°ÅªÉ½¸½ÊıË¡ }
+%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.7 2000/09/09 21:59:13 takayama Exp $
+//&jp \section{ CMO ã®å½¢å¼çš„è¡¨ç¾æ–¹æ³• }
 //&eg \section{ A formal expression of CMO }
 
 /*&jp
-Á°¤ÎÀá¤Ç CMO ¤ÎÉ½¸½ÊıË¡¤ò·Á¼°Åª¤ËÄêµÁ¤»¤º, 
-CMO ¤ÎPrimitive ¤ÎÉ½¸½Ë¡¤òÀâÌÀ¤·¤¿¤¬,
-¤³¤³¤Ç¤Ï, CMO ¤Î Lisp É÷É½¸½ (Lisp-like expression)
-¤Ç¤¢¤ë
+å‰ã®ç¯€ã§ CMO ã®è¡¨ç¾æ–¹æ³•ã‚’å½¢å¼çš„ã«å®šç¾©ã›ãš, 
+CMO ã®Primitive ã®è¡¨ç¾æ³•ã‚’èª¬æ˜ã—ãŸãŒ,
+ã“ã“ã§ã¯, CMO ã® Lisp é¢¨è¡¨ç¾ (Lisp-like expression)
+ã§ã‚ã‚‹
 CMOexpression
-¤ª¤è¤ÓÁ°Àá¤ÇÀâÌÀ¤·¤¿ CMO ¤ÎÉ¸½à encoding Ë¡¤ò¤â¤¦°ìÅÙÀâÌÀ¤¹¤ë.
-% (¥¿¥°¤Î¾ÊÎ¬µ­Ë¡¤¬¤Û¤·¤¤.)
+ãŠã‚ˆã³å‰ç¯€ã§èª¬æ˜ã—ãŸ CMO ã®æ¨™æº– encoding æ³•ã‚’ã‚‚ã†ä¸€åº¦èª¬æ˜ã™ã‚‹.
+% (ã‚¿ã‚°ã®çœç•¥è¨˜æ³•ãŒã»ã—ã„.)
 */
 /*&eg
 In the previous section, we have explained the format of CMO's in the
@@ -23,12 +23,12 @@ the explanation is more formal.
 
 /*&jp
 
-¤Ş¤º, CMOexpression ¤ò·Á¼°Åª¤Ë ³ÈÄ¥ BNF µ­Ë¡¤òÍÑ¤¤¤ÆÄêµÁ¤·¤è¤¦.
-¥¿¥¤¥×¥é¥¤¥¿¥Õ¥©¥ó¥È¤Ç¤«¤«¤ì¤¿µ­¹æ¤Ï½ªÃ¼µ­¹æ¤ò°ÕÌ£¤¹¤ë.
-``:'' ¤ÏÄêµÁ¤ò°ÕÌ£¤¹¤ë. ``$|$'' ¤Ï''¤Ş¤¿¤Ï''¤ò°ÕÌ£¤¹¤ë.
-\{ X \} ¤Ï X ¤Î 0 ²ó°Ê¾å¤Î·«¤êÊÖ¤·¤òÉ½¤¹.
-[ x ] ¤Ï X ¤¬ 0 ²ó¤Ş¤¿¤Ï 1 ²ó½Ğ¸½¤¹¤ë¤³¤È¤òÉ½¤¹.
-¤³¤Îµ­Ë¡¤òÍÑ¤¤¤ë¤È CMOexpression ¤Ï¼¡¤Î¤è¤¦¤ËÄêµÁ¤Ç¤­¤ë.
+ã¾ãš, CMOexpression ã‚’å½¢å¼çš„ã« æ‹¡å¼µ BNF è¨˜æ³•ã‚’ç”¨ã„ã¦å®šç¾©ã—ã‚ˆã†.
+ã‚¿ã‚¤ãƒ—ãƒ©ã‚¤ã‚¿ãƒ•ã‚©ãƒ³ãƒˆã§ã‹ã‹ã‚ŒãŸè¨˜å·ã¯çµ‚ç«¯è¨˜å·ã‚’æ„å‘³ã™ã‚‹.
+``:'' ã¯å®šç¾©ã‚’æ„å‘³ã™ã‚‹. ``$|$'' ã¯''ã¾ãŸã¯''ã‚’æ„å‘³ã™ã‚‹.
+\{ X \} ã¯ X ã® 0 å›ä»¥ä¸Šã®ç¹°ã‚Šè¿”ã—ã‚’è¡¨ã™.
+[ x ] ã¯ X ãŒ 0 å›ã¾ãŸã¯ 1 å›å‡ºç¾ã™ã‚‹ã“ã¨ã‚’è¡¨ã™.
+ã“ã®è¨˜æ³•ã‚’ç”¨ã„ã‚‹ã¨ CMOexpression ã¯æ¬¡ã®ã‚ˆã†ã«å®šç¾©ã§ãã‚‹.
 
 */
 /*&eg
@@ -57,10 +57,10 @@ By using this notation, CMOexpression is defined as follows.
 \end{eqnarray*}
 */
 /*&jp
-½ªÃ¼µ­¹æ {\tt int32} ¤Ï, 32 bit integer ¤òÉ½¤¹, 10 ¿Ê¤Ş¤¿¤Ï 16 ¿Ê¤Î¿ô»ú¤Î
-Îó¤Ç¤¢¤ë.
-½ªÃ¼µ­¹æ {\tt string} ¤Ï''Ê¸»ú''¤ÎÎó¤Ç¤¢¤ë.
-½ªÃ¼µ­¹æ {\tt byte} ¤Ï 8 bit ¥Ç¡¼¥¿¤òÉ½¤¹, 10 ¿Ê¤Ş¤¿¤Ï 16 ¿Ê¤Î¿ô»ú¤ÎÎó¤Ç¤¢¤ë.
+çµ‚ç«¯è¨˜å· {\tt int32} ã¯, 32 bit integer ã‚’è¡¨ã™, 10 é€²ã¾ãŸã¯ 16 é€²ã®æ•°å­—ã®
+åˆ—ã§ã‚ã‚‹.
+çµ‚ç«¯è¨˜å· {\tt string} ã¯''æ–‡å­—''ã®åˆ—ã§ã‚ã‚‹.
+çµ‚ç«¯è¨˜å· {\tt byte} ã¯ 8 bit ãƒ‡ãƒ¼ã‚¿ã‚’è¡¨ã™, 10 é€²ã¾ãŸã¯ 16 é€²ã®æ•°å­—ã®åˆ—ã§ã‚ã‚‹.
 */
 /*&eg
 Terminal {\tt int32} is signed 32 bit integer. 
@@ -69,9 +69,9 @@ Terminal {\tt byte} is 8 bit data.
 */
 
 /*&jp
-CMOexpression ¤Ë¤¢¤é¤ï¤ì¤ë³ÆÍ×ÁÇ¤ò¶èÀÚ¤ë¤¿¤á¤Ë {\tt ,} (¥³¥ó¥Ş) ¤òÍÑ¤¤¤Æ¤â¤è¤¤.
-{\tt cmo\_tag} ¤Ï {\tt CMO\_} ¤Ç»Ï¤Ş¤ëÄê¿ô¤Ç¤¢¤ë.
-CMOexpression ¤ÇÉ½¸½¤µ¤ì¤ë object ¤ò CMObject ¤È¸Æ¤Ö.
+CMOexpression ã«ã‚ã‚‰ã‚ã‚Œã‚‹å„è¦ç´ ã‚’åŒºåˆ‡ã‚‹ãŸã‚ã« {\tt ,} (ã‚³ãƒ³ãƒ) ã‚’ç”¨ã„ã¦ã‚‚ã‚ˆã„.
+{\tt cmo\_tag} ã¯ {\tt CMO\_} ã§å§‹ã¾ã‚‹å®šæ•°ã§ã‚ã‚‹.
+CMOexpression ã§è¡¨ç¾ã•ã‚Œã‚‹ object ã‚’ CMObject ã¨å‘¼ã¶.
 
 */
 /*&eg
@@ -81,12 +81,12 @@ The comma ({\tt ,}) may be used to separate each element in CMOexpressions.
 */
 
 /*&jp
-¤³¤ÎÉ½µ­Ë¡ CMOexpression ¤òÍøÍÑ¤·¤Æ, CMO Primitive ¤Î object ¤òµ­½Ò
-¤·¤Æ¤ß¤è¤¦.
-Object ¼«ÂÎ¤Î¹½Â¤¤òÀâÌÀ¤¹¤ë¤¿¤á,
-BNF ¤ò¤â¤¦¤¹¤³¤·³ÈÄ¥¤·¤Æ, Èó½ªÃ¼µ­¹æ, ½ªÃ¼µ­¹æÌ¾¤Î¤ß¤Ê¤é¤º, ÊÑ¿ô¤Î
-Ì¾Á°¤â½ñ¤¯¤³¤È¤Ë¤¹¤ë. ¤³¤¦¤¹¤ë¤³¤È¤Ë¤è¤ê, object ¤Î°ÕÌ£¤ÎÀâÌÀ¤âÍÆ°×¤Ë¤Ê¤ë
-¤«¤é¤Ç¤¢¤ë. ¤Ş¤¿ ``---'' ¤Ç¥³¥á¥ó¥È¤Î¤Ï¤¸¤Ş¤ê¤òÉ½¤¹¤â¤Î¤È¤¹¤ë. 
+ã“ã®è¡¨è¨˜æ³• CMOexpression ã‚’åˆ©ç”¨ã—ã¦, CMO Primitive ã® object ã‚’è¨˜è¿°
+ã—ã¦ã¿ã‚ˆã†.
+Object è‡ªä½“ã®æ§‹é€ ã‚’èª¬æ˜ã™ã‚‹ãŸã‚,
+BNF ã‚’ã‚‚ã†ã™ã“ã—æ‹¡å¼µã—ã¦, éçµ‚ç«¯è¨˜å·, çµ‚ç«¯è¨˜å·åã®ã¿ãªã‚‰ãš, å¤‰æ•°ã®
+åå‰ã‚‚æ›¸ãã“ã¨ã«ã™ã‚‹. ã“ã†ã™ã‚‹ã“ã¨ã«ã‚ˆã‚Š, object ã®æ„å‘³ã®èª¬æ˜ã‚‚å®¹æ˜“ã«ãªã‚‹
+ã‹ã‚‰ã§ã‚ã‚‹. ã¾ãŸ ``---'' ã§ã‚³ãƒ¡ãƒ³ãƒˆã®ã¯ã˜ã¾ã‚Šã‚’è¡¨ã™ã‚‚ã®ã¨ã™ã‚‹. 
 */
 /*&eg
 Let us describe CMO's in the Primitive group.
@@ -95,30 +95,30 @@ we may also put variable names to CMOexpressions.
 The start of comments are denoted by ``---''.
 */
 /*&jp
-¤¿¤È¤¨¤Ğ, (CMObject ¤Î) 32 bit integer ¤Ç¤¢¤ë integer32 ¤ò
-BNF¤ÇÄêµÁ¤¹¤ì¤Ğ,
+ãŸã¨ãˆã°, (CMObject ã®) 32 bit integer ã§ã‚ã‚‹ integer32 ã‚’
+BNFã§å®šç¾©ã™ã‚Œã°,
 \begin{center}
 Integer32 \  : \ ({\tt CMO\_INT32}, {\tt int32})
 \end{center}
-¤È½ñ¤¯¤Î¤¬ËÜÍè¤Î½ñ¤­Êı¤Ë¤è¤ëµ­Ë¡¤Ç¤¢¤ë¤¬, ¤³¤³¤Ç¤Ï,
+ã¨æ›¸ãã®ãŒæœ¬æ¥ã®æ›¸ãæ–¹ã«ã‚ˆã‚‹è¨˜æ³•ã§ã‚ã‚‹ãŒ, ã“ã“ã§ã¯,
 \begin{eqnarray*}
 \mbox{Integer32} \  &:& \ ({\tt CMO\_INT32}, {\sl int32}\  n) \\
-& & \  \mbox{--- 32 bit integer $n$ ¤òÉ½¤¹. } \\
+& & \  \mbox{--- 32 bit integer $n$ ã‚’è¡¨ã™. } \\
 \end{eqnarray*}
-¤È½ñ¤¯¤³¤È¤òµö¤¹¤³¤È¤Ë¤¹¤ë.
-¤³¤Î¤è¤¦¤Ë½ñ¤¯¤³¤È¤Ë¤è¤ê, Èó½ªÃ¼µ­¹æ  Integer32 ¤Ï,
+ã¨æ›¸ãã“ã¨ã‚’è¨±ã™ã“ã¨ã«ã™ã‚‹.
+ã“ã®ã‚ˆã†ã«æ›¸ãã“ã¨ã«ã‚ˆã‚Š, éçµ‚ç«¯è¨˜å·  Integer32 ã¯,
 \begin{center}
 Integer32 \  : \ ({\tt CMO\_INT32}, {\tt int32})
 \end{center}
-¤Î¤è¤¦¤Ë, ½ªÃ¼µ­¹æ {\tt CMO\_INT32} ¤È {\tt int32} ¤òÀ®Ê¬¤Ë¤â¤Á,
-CMObject ¤Î 
+ã®ã‚ˆã†ã«, çµ‚ç«¯è¨˜å· {\tt CMO\_INT32} ã¨ {\tt int32} ã‚’æˆåˆ†ã«ã‚‚ã¡,
+CMObject ã® 
 ({\tt CMO\_INT32}, {\sl int32}\ n)
-¤Ï, 
-32 bit integer $n$ ¤òÉ½¸½¤·¤Æ¤¤¤ë¤ó¤À¤È¤¤¤¦¤³¤È¤¬, 1 ¹Ô¤Ç¤ï¤«¤ë.
+ã¯, 
+32 bit integer $n$ ã‚’è¡¨ç¾ã—ã¦ã„ã‚‹ã‚“ã ã¨ã„ã†ã“ã¨ãŒ, 1 è¡Œã§ã‚ã‹ã‚‹.
 */
 /*&jp
-¤³¤Îµ­Ë¡¤òÍÑ¤¤¤Æ, Á°Àá¤ÇÆ³Æş¤·¤¿, Primitive ¤Î CMObject ¤ò
-·Á¼°Åª¤ËÄêµÁ¤·¤è¤¦.
+ã“ã®è¨˜æ³•ã‚’ç”¨ã„ã¦, å‰ç¯€ã§å°å…¥ã—ãŸ, Primitive ã® CMObject ã‚’
+å½¢å¼çš„ã«å®šç¾©ã—ã‚ˆã†.
 */
 /*&eg
 By using this notation, let us define formally CMObjects in the group
@@ -153,7 +153,7 @@ Document of CMObject/Primitive is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
 */
 
 
-//&jp Cstring ¤Ç, {\sl string} s ¤ÎÉôÊ¬¤ò {\tt byte} ¤ËÊ¬²ò¤¹¤ì¤Ğ,
+//&jp Cstring ã§, {\sl string} s ã®éƒ¨åˆ†ã‚’ {\tt byte} ã«åˆ†è§£ã™ã‚Œã°,
 //&eg In the definition of ``Cstring'', if we decompose  ``{\sl string} s'' into bytes, then  ``Cstring'' should be defined as
 /*&C
 \begin{eqnarray*}
@@ -162,17 +162,17 @@ Document of CMObject/Primitive is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
 \ldots, {\sl byte}\ \mbox{s[n-1]})
 \end{eqnarray*}
 */
-//&jp ¤È¤Ê¤ë.
+//&jp ã¨ãªã‚‹.
 /*&jp
-¤Ş¤¿, 
+ã¾ãŸ, 
 ``Group CMObject/Primitive  requires nothing''
-¤Ï, °Ê²¼¤Ï, ¥°¥ë¡¼¥× CMObject/Primitive ¤ÎÄêµÁ¤Ç¤¢¤ê,
-¤³¤Î¥°¥ë¡¼¥×¤Î CMObject ¤òÄêµÁ¤¹¤ë¤Î¤Ë, Í×ÀÁ¤µ¤ì¤ë CMObject ¤Î¥°¥ë¡¼¥×¤Ï
-¤Ê¤¤¤³¤È¤ò¼¨¤¹.
+ã¯, ä»¥ä¸‹ã¯, ã‚°ãƒ«ãƒ¼ãƒ— CMObject/Primitive ã®å®šç¾©ã§ã‚ã‚Š,
+ã“ã®ã‚°ãƒ«ãƒ¼ãƒ—ã® CMObject ã‚’å®šç¾©ã™ã‚‹ã®ã«, è¦è«‹ã•ã‚Œã‚‹ CMObject ã®ã‚°ãƒ«ãƒ¼ãƒ—ã¯
+ãªã„ã“ã¨ã‚’ç¤ºã™.
 ``Error2, Null, Integer32, Datum, Cstring, Mathcap, List
 $\in$ CMObject/Primitive''
-¤Ï, ¥°¥ë¡¼¥× CMObject/Primitive ¤Ë¤Ï,  Error2, Null, Integer32,
-Datum, Cstring ¤Ê¤ë¥¯¥é¥¹¤Î object ¤¬Â°¤¹¤ë¤³¤È¤ò¼¨¤¹.
+ã¯, ã‚°ãƒ«ãƒ¼ãƒ— CMObject/Primitive ã«ã¯,  Error2, Null, Integer32,
+Datum, Cstring ãªã‚‹ã‚¯ãƒ©ã‚¹ã® object ãŒå±ã™ã‚‹ã“ã¨ã‚’ç¤ºã™.
 */
 /*&eg
 ``Group CMObject/Primitive  requires nothing''
@@ -189,8 +189,8 @@ are members of the group CMObject/Primitive.
 */
 
 /*&jp 
-¤Ç¤Ï, ¼Âºİ¤Î¥Ç¡¼¥¿¤ÎÉ½¸½¤ÎÎã¤ò¤ß¤Æ¤ß¤è¤¦.
-¤¿¤È¤¨¤Ğ, 32 bit integer ¤Î 1234 ¤Ï,
+ã§ã¯, å®Ÿéš›ã®ãƒ‡ãƒ¼ã‚¿ã®è¡¨ç¾ã®ä¾‹ã‚’ã¿ã¦ã¿ã‚ˆã†.
+ãŸã¨ãˆã°, 32 bit integer ã® 1234 ã¯,
 */
 /*&eg
 Let us see examples.
@@ -202,8 +202,8 @@ Let us see examples.
 \end{center}
 */
 /*&jp
-¤È¤«¤¯.
-Ê¸»úÎó ``Hello''  ¤Ï
+ã¨ã‹ã.
+æ–‡å­—åˆ— ``Hello''  ã¯
 */
 /*&eg
 The string ``Hello'' is expressed as
@@ -213,27 +213,27 @@ The string ``Hello'' is expressed as
 ({\tt CMO\_STRING}, 5, "Hello")
 \end{center}
 */
-//&jp ¤È½ñ¤¯.
+//&jp ã¨æ›¸ã.
 
 /*&C
 
 */
 /*&jp
-CMOexpression ¤È, CMObject ¤Î¶èÊÌ¤òÍı²ò¤·¤Æ¤ª¤¯¤Î¤Ï½ÅÍ×¤Ç¤¢¤ë.
-¤¿¤È¤¨¤Ğ
+CMOexpression ã¨, CMObject ã®åŒºåˆ¥ã‚’ç†è§£ã—ã¦ãŠãã®ã¯é‡è¦ã§ã‚ã‚‹.
+ãŸã¨ãˆã°
 \begin{center}
 ({\tt CMO\_INT32}, 234, "abc",({\tt CMO\_STRING}))
 \end{center}
-¤Ï CMOexpression ¤Ç¤Ï¤¢¤ë¤¬, CMObject ¤Ç¤Ï¤Ê¤¤.
-¤³¤ì¤Ï, Ê¸Ë¡Åª¤Ë¤ÏÀµ¤·¤¤¥×¥í¥°¥é¥à¤À¤¬, ¤Ê¤Ë¤ò¤ä¤ë¤Î¤«¤ÏÁ´¤¯ÉÔÌÀ¤Ê
-¥×¥í¥°¥é¥à¤È»÷¤Æ¤¤¤ë.
+ã¯ CMOexpression ã§ã¯ã‚ã‚‹ãŒ, CMObject ã§ã¯ãªã„.
+ã“ã‚Œã¯, æ–‡æ³•çš„ã«ã¯æ­£ã—ã„ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã ãŒ, ãªã«ã‚’ã‚„ã‚‹ã®ã‹ã¯å…¨ãä¸æ˜ãª
+ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¨ä¼¼ã¦ã„ã‚‹.
 
 */
 
 /*&jp
-¤µ¤Æ, Open math É÷ (\cite{openmath}) 
-¤Î XML É½¸½Ë¡¤â²ÄÇ½¤Ç¤¢¤ê, ¤½¤Î¾ì¹ç¤Ï, ¾å¤ÎÆó¤Ä¤ÎÎã¤Ï¼¡¤Î¤è¤¦¤Ë
-½ñ¤¯.
+ã•ã¦, Open math é¢¨ (\cite{openmath}) 
+ã® XML è¡¨ç¾æ³•ã‚‚å¯èƒ½ã§ã‚ã‚Š, ãã®å ´åˆã¯, ä¸Šã®äºŒã¤ã®ä¾‹ã¯æ¬¡ã®ã‚ˆã†ã«
+æ›¸ã.
 */
 /*&eg
 CMO's are expressed by XML like Open Math (\cite{openmath}).
@@ -256,7 +256,7 @@ See example below.
 \end{verbatim}
 */
 
-//&jp \noindent cmo\_string ¤Ï¼¡¤Î¤è¤¦¤Ë¤¢¤é¤ï¤·¤Æ¤â¤è¤¤.
+//&jp \noindent cmo\_string ã¯æ¬¡ã®ã‚ˆã†ã«ã‚ã‚‰ã‚ã—ã¦ã‚‚ã‚ˆã„.
 //&eg \noindent cmo\_string may be expressed as follows.
 /*&C
 \begin{verbatim}
@@ -271,7 +271,7 @@ See example below.
 \end{verbatim}
 */
 
-//&jp \noindent ¤³¤Î¾ì¹ç¤Î cmo\_string ¤Î DTD ¤Ë¤è¤ëÄêµÁ¤Ï¼¡¤Î¤è¤¦¤Ë¤Ê¤ë. \\
+//&jp \noindent ã“ã®å ´åˆã® cmo\_string ã® DTD ã«ã‚ˆã‚‹å®šç¾©ã¯æ¬¡ã®ã‚ˆã†ã«ãªã‚‹. \\
 //&eg \noindent In this case, the DTD for cmo\_string is as follows; \\
 //&C \verb+  <!ELEMENT cmo_string (int32, byte*)>  +
 /*&C
@@ -280,12 +280,12 @@ See example below.
 */
 
 /*&jp
-¼¡¤Ë, É¸½à encoding Ë¡¤òÀâÌÀ¤·¤è¤¦.
-É¸½à encoding Ë¡¤Ç¤Ï, cmo\_tag ¤ò ¥Í¥Ã¥È¥ï¡¼¥¯¥Ğ¥¤¥È¥ª¡¼¥À¡¼¤Î
-32 bit integer {\tt int32} ¤Ë,
-¤½¤ÎÂ¾¤Î¥Õ¥£¡¼¥ë¥É¤Ï, ÄêµÁ¤Ëµ­½Ò¤µ¤ì¤Æ¤¤¤ë¥Ç¡¼¥¿·¿¤Ë½¾¤¤,
-byte ¥Ç¡¼¥¿ {\tt byte} ¤«¤Ş¤¿¤Ï 
-¥Í¥Ã¥È¥ï¡¼¥¯¥Ğ¥¤¥È¥ª¡¼¥À¡¼¤Î 32 bit integer {\tt int32} ¤Ë, ÊÑ´¹¤¹¤ë.
+æ¬¡ã«, æ¨™æº– encoding æ³•ã‚’èª¬æ˜ã—ã‚ˆã†.
+æ¨™æº– encoding æ³•ã§ã¯, cmo\_tag ã‚’ ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€ãƒ¼ã®
+32 bit integer {\tt int32} ã«,
+ãã®ä»–ã®ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã¯, å®šç¾©ã«è¨˜è¿°ã•ã‚Œã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿å‹ã«å¾“ã„,
+byte ãƒ‡ãƒ¼ã‚¿ {\tt byte} ã‹ã¾ãŸã¯ 
+ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€ãƒ¼ã® 32 bit integer {\tt int32} ã«, å¤‰æ›ã™ã‚‹.
 */
 /*&eg
 Let us explain the standard encoding method.
@@ -298,14 +298,14 @@ and byte data are encoded as it is.
 */
 
 /*&jp
-¹âÂ®¤ÎÄÌ¿®ÊıË¡¤òÍÑ¤¤¤Æ
-¸úÎ¨¤ò½Å»ë¤¹¤ëÀÜÂ³¤Î¾ì¹ç¤Ë¤Ï, {\tt int32} ¤ò network byte order
-¤ËÊÑ´¹¤¹¤ëÁàºî¤¬¤ª¤ª¤­¤Ê¥ª¡¼¥Ğ¥Ø¥Ã¥É¤È¤Ê¤ë¤³¤È¤¬
-Êó¹ğ¤µ¤ì¤Æ¤¤¤ë.
-100Mbps ¤ÎÄÌ¿®Ï©¤Ç 12Mbytes ¤Î {\tt CMO\_ZZ} ¤ÎÅ¾Á÷¤Ç¤Ï 
-Ìó 90\% ¤Î»ş´Ö¤¬ network byte order ¤Ø¤ÎÊÑ´¹¤Ë¤Ä¤¤¤ä¤µ¤ì¤Æ¤¤¤ë¤È¤¤¤¦
-¼Â¸³¥Ç¡¼¥¿¤â¤¢¤ë.
-¸úÎ¨¤ò½Å»ë¤·¤¿ encoding Ë¡¤Ë¤Ä¤¤¤Æ¤Ï¸å½Ò¤¹¤ë \ref{subsection:byteorder}.
+é«˜é€Ÿã®é€šä¿¡æ–¹æ³•ã‚’ç”¨ã„ã¦
+åŠ¹ç‡ã‚’é‡è¦–ã™ã‚‹æ¥ç¶šã®å ´åˆã«ã¯, {\tt int32} ã‚’ network byte order
+ã«å¤‰æ›ã™ã‚‹æ“ä½œãŒãŠãŠããªã‚ªãƒ¼ãƒãƒ˜ãƒƒãƒ‰ã¨ãªã‚‹ã“ã¨ãŒ
+å ±å‘Šã•ã‚Œã¦ã„ã‚‹.
+100Mbps ã®é€šä¿¡è·¯ã§ 12Mbytes ã® {\tt CMO\_ZZ} ã®è»¢é€ã§ã¯ 
+ç´„ 90\% ã®æ™‚é–“ãŒ network byte order ã¸ã®å¤‰æ›ã«ã¤ã„ã‚„ã•ã‚Œã¦ã„ã‚‹ã¨ã„ã†
+å®Ÿé¨“ãƒ‡ãƒ¼ã‚¿ã‚‚ã‚ã‚‹.
+åŠ¹ç‡ã‚’é‡è¦–ã—ãŸ encoding æ³•ã«ã¤ã„ã¦ã¯å¾Œè¿°ã™ã‚‹ \ref{subsection:byteorder}.
 */
 /*&eg
 When we are using a high speed network,
@@ -325,9 +325,9 @@ we will discuss a protocol to avoid the translation.
 */
 
 /*&jp
-É¸½à encoding ¤È CMOexpression ¤Î´Ö¤ÎÊÑ´¹¤ÏÍÆ°×¤Ç¤¢¤ë.
-Á°Àá¤ÇÍÑ¤¤¤¿¥Ç¡¼¥¿¤ÎÉ½µ­Ë¡,
-¤¿¤È¤¨¤Ğ, 
+æ¨™æº– encoding ã¨ CMOexpression ã®é–“ã®å¤‰æ›ã¯å®¹æ˜“ã§ã‚ã‚‹.
+å‰ç¯€ã§ç”¨ã„ãŸãƒ‡ãƒ¼ã‚¿ã®è¡¨è¨˜æ³•,
+ãŸã¨ãˆã°, 
 */
 /*&eg
 The translation between the standard encoding and CMOexpression
@@ -344,7 +344,7 @@ For example,
 \end{center}
 */
 /*&jp
-¤Ï, CMOexpression 
+ã¯, CMOexpression 
 */
 /*&eg
 is the encoding of the CMOexpression
@@ -355,7 +355,7 @@ is the encoding of the CMOexpression
 \end{center}
 */
 /*&jp
-¤Î É¸½à encoding Ë¡¤Ë¤è¤ëÉ½¸½¤Ç¤¢¤ë.
+ã® æ¨™æº– encoding æ³•ã«ã‚ˆã‚‹è¡¨ç¾ã§ã‚ã‚‹.
 */
 
 /*&C
@@ -365,10 +365,10 @@ is the encoding of the CMOexpression
 */
 
 /*&jp
-(¼Â¸³Åª)
-CMO ¤ª¤è¤Ó OX packets ¤Ï XML µ¬³Ê \cite{xml} ¤Ë½àµò¤·¤Æ¤¤¤ë.
-XML µ¬³Ê¤Î Attribute ¤ò binary encode ¤¹¤ë¤¿¤á¤Ë
-ÆÃÊÌ¤Ê¥¿¥° \\
+(å®Ÿé¨“çš„)
+CMO ãŠã‚ˆã³ OX packets ã¯ XML è¦æ ¼ \cite{xml} ã«æº–æ‹ ã—ã¦ã„ã‚‹.
+XML è¦æ ¼ã® Attribute ã‚’ binary encode ã™ã‚‹ãŸã‚ã«
+ç‰¹åˆ¥ãªã‚¿ã‚° \\
 */
 /*&eg
 (Experimental)
@@ -378,10 +378,10 @@ we have a tag: \\
 */
 //&C \verb! #define CMO_ATTRIBUTE_LIST  (LARGEID+3) !  \\
 /*&jp
-¤òÍÑ°Õ¤·¤Æ¤¢¤ë.
+ã‚’ç”¨æ„ã—ã¦ã‚ã‚‹.
 */
 /*&jp
-¤¿¤È¤¨¤Ğ Attribute {\tt font="Times-Roman" }  ¤Ï \\
+ãŸã¨ãˆã° Attribute {\tt font="Times-Roman" }  ã¯ \\
 */
 /*&eg
 For example, the attibute {\tt font="Times-Roman" } is encoded as \\
@@ -393,20 +393,20 @@ For example, the attibute {\tt font="Times-Roman" } is encoded as \\
 \end{verbatim}
 */
 /*&jp
-¤È encoding ¤µ¤ì¤ë.
+ã¨ encoding ã•ã‚Œã‚‹.
 */
 //&C  
 /*&jp
-¤³¤ÎÆÃÊÌ¤Ê CMO tag {\tt CMO\_ATTRIBUTE\_LIST} °Ê³°¤Ï,
-XML É½¸½¤Ç¤Ï XML ¤Î¥¿¥°¤È¤·¤ÆÍı²ò¤µ¤ì¤ë.
+ã“ã®ç‰¹åˆ¥ãª CMO tag {\tt CMO\_ATTRIBUTE\_LIST} ä»¥å¤–ã¯,
+XML è¡¨ç¾ã§ã¯ XML ã®ã‚¿ã‚°ã¨ã—ã¦ç†è§£ã•ã‚Œã‚‹.
 */
 /*&eg
 All tags except this special CMO tag {\tt CMO\_ATTRIBUTE\_LIST}
 are XML tags in the CMO/XML expression.
 */
 /*&jp
-CMO/XML ¤Ç {\it comment}, {\it for} ¤ÈÌ¾Á°¤¬¤Ä¤¤¤¿
-attributes ¤Ï CMO binary expression ¤Ë¤Ï¥¨¥ó¥³¡¼¥É¤µ¤ì¤Ê¤¤.
+CMO/XML ã§ {\it comment}, {\it for} ã¨åå‰ãŒã¤ã„ãŸ
+attributes ã¯ CMO binary expression ã«ã¯ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚Œãªã„.
 */
 /*&eg
 CMO/XML attributes such as {\it comment}, {\it for}

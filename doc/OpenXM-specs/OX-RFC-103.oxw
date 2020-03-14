@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.7 2006/02/04 10:44:22 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.8 2006/03/03 00:43:02 takayama Exp $
 /*&C
 
 OX-RFC: 103                                   OpenXM committers
@@ -11,9 +11,9 @@ OX-RFC: 103                                   OpenXM committers
 //&en  Supplement to OX-RFC-100 
 //&en     --- Broadcasting in process trees and engine authentication
 //&en     --- Structure of error packets.
-//&ja  OX-RFC-100 $B$X$NDI2C5!G=(B 
-//&ja     ---  $B%W%m%;%9LZ9=B$$G$NF1Js$H%(%s%8%sG'>Z(B
-//&ja     --- $B%(%i!<%Q%1%C%H$N9=B$(B.
+//&ja  OX-RFC-100 への追加機能 
+//&ja     ---  プロセス木構造での同報とエンジン認証
+//&ja     --- エラーパケットの構造.
 
 /*&C 
 
@@ -29,27 +29,27 @@ Copyright Notice
 
 /*&ja
 
-@@$BMWLs(B
- $B$3$N(B RFC $B$O(B OpenXM RFC 100 ($B$*$h$S(B 101) $B$N<BAu$K$h$jL@$i$+$K$J$C$?<o!9$NLdBjE@$r$b$H$K(B
- RFC 100 $B%W%m%H%3%k$X$N4v$D$+$NDI2C$rDs0F$9$k(B.
+@@要約
+ この RFC は OpenXM RFC 100 (および 101) の実装により明らかになった種々の問題点をもとに
+ RFC 100 プロトコルへの幾つかの追加を提案する.
 
 */
 
-//&ja @@$BCfCG$*$h$SJQ?t$NEAGE(B
+//&ja @@中断および変数の伝播
 //&en @@Propagation of an interruption and a value of a variable
 
-//&ja @@@$BCfCG(B
+//&ja @@@中断
 //&en @@@Interruption
 
 /*&ja
 
-OX RFC 103 $B$G$O(B,
-$B%(%s%8%s$O(B OX RFC 100 $B$KDj5A$5$l$?CfCG=hM}$r40N;$7$?$N$A(B,
-$B$5$i$K<!$N=hM}$r$*$3$J$o$J$$$H$$$1$J$$(B. 
-$B>e0U2<C#$NCfCG=hM}(B:
-1. $B<+J,$N;R6!%W%m%;%9$r$9$Y$F%j%9%H$9$k(B
-  ($B$?$H$($P(B asir $B$N>l9g$O(B ox_get_serverinfo())
-2. $B;R6!%W%m%;%9$K=gHV$K(B OpenXM-RFC 100 $B$NCfCG%a%C%;!<%8$rAw$k(B.
+OX RFC 103 では,
+エンジンは OX RFC 100 に定義された中断処理を完了したのち,
+さらに次の処理をおこなわないといけない. 
+上意下達の中断処理:
+1. 自分の子供プロセスをすべてリストする
+  (たとえば asir の場合は ox_get_serverinfo())
+2. 子供プロセスに順番に OpenXM-RFC 100 の中断メッセージを送る.
 
 */
 
@@ -66,10 +66,10 @@ defined by OX RFC 100.
 
 */
 
-//&ja @@@$B%5!<%PLZ$NBg0hJQ?t(B
+//&ja @@@サーバ木の大域変数
 //&en @@@Global variable of the tree of the servers
 
-//&ja OX RFC 103 $BBP1~$N%(%s%8%s$O%(%s%8%s4X?t(B 
+//&ja OX RFC 103 対応のエンジンはエンジン関数 
 /*&en
 The engines complient to OX RFC 103 implement the engine function
 */
@@ -77,11 +77,11 @@ The engines complient to OX RFC 103 implement the engine function
    ox103_set_shared_variable(CMO string Name, CMO object value)
 */
 /*&ja
-$B$r<BAu$7$F$$$k(B.
-$B$3$N4X?t$,8F$P$l$k$H(B, $B%(%s%8%s%9%?%C%/%^%7%s$NJQ?t(B Name $B$KCM(B value 
-$B$,@_Dj$5$l(B, $B$5$i$K;R$I$b$N%W%m%;%9$9$Y$F$N%(%s%8%s4X?t(B
+を実装している.
+この関数が呼ばれると, エンジンスタックマシンの変数 Name に値 value 
+が設定され, さらに子どものプロセスすべてのエンジン関数
       ox103_set_shared_variable
-$B$r$h$V(B.
+をよぶ.
 */
 /*&en
 When this function is called, 
@@ -93,9 +93,9 @@ of all the child processes with the same arguments.
 */
 
 /*&ja
-$B$?$H$($P(B,
-$B$3$N5!G=$O(B asir-contrib $B$K$*$$$FJQ?t(B  Xm_noX (ox server $BMQ$N(B debug
-window $B$rI=<($9$k$+$7$J$$$+$N%U%i%0(B) $B$NCM$rF1Js$9$k$N$KMQ$$$F$$$k(B.
+たとえば,
+この機能は asir-contrib において変数  Xm_noX (ox server 用の debug
+window を表示するかしないかのフラグ) の値を同報するのに用いている.
 */
 /*&en
 For example,
@@ -105,111 +105,111 @@ which is the flag of hiding the debug window of an ox server.
 */
 
 
-//&ja @@$B?7$7$$(B CMO
+//&ja @@新しい CMO
 //&en @@New CMO
 
-//&ja @@$B%U%!%$%k$X$NFI$_=q$-(B
+//&ja @@ファイルへの読み書き
 //&en @@File IO
 
-//&ja @@$B%(%s%8%sG'>Z<jB3$-(B
+//&ja @@エンジン認証手続き
 //&en @@Engine authentication
 
 /*&ja
 
-$B%P%$%H%*!<%@!<$r7h$a$k$?$a$N>pJs8r49(B (OX-RFC 100 $B;2>H(B) $B$NA0$K(B
-$B%(%s%8%sG'>Z<jB3$-$r$*$3$J$&(B.
+バイトオーダーを決めるための情報交換 (OX-RFC 100 参照) の前に
+エンジン認証手続きをおこなう.
 
-$BG'>Z%W%m%H%3%k$K$O2<$N?^$N(B step 1, step 2, step 3 $B$G$"$k(B.
+認証プロトコルには下の図の step 1, step 2, step 3 である.
 
 
  client                                            server
 
      ---------------- step 1 ----------------------->
-     ssh $B$K$h$k(B server $B$X$N(B login.
-     controle server, engine server $B$H$N@\B3$r3NN)$9$k$?$a$N(B
-     $B%]!<%HHV9f$*$h$S(B      -control= ... , -data=...
-     $BG'>ZJ}K!$*$h$S(B        -authtype=NONE | <<oneTimePassword>>
-     $BG'>Z%Q%9%o!<%I(B        -passControl=... , -passData=...
-     $B$bAw?.$5$l$k(B.
-     $BG'>Z%Q%9%o!<%I$N0E9f(B  -authEncoding=<<NONE>> | file | RSA
-     $B2=J}K!$N;XDj(B.
-     << >> $B$O(B src/kxx/ox $B$NI8=`CM(B
+     ssh による server への login.
+     controle server, engine server との接続を確立するための
+     ポート番号および      -control= ... , -data=...
+     認証方法および        -authtype=NONE | <<oneTimePassword>>
+     認証パスワード        -passControl=... , -passData=...
+     も送信される.
+     認証パスワードの暗号  -authEncoding=<<NONE>> | file | RSA
+     化方法の指定.
+     << >> は src/kxx/ox の標準値
 
 
     <----------------  step 2 -------------------------->
-       -reverse $B$N>l9g$O(B <--- $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
-       $B$=$&$G$J$$$H$-$O(B ---> $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
 
     <----------------  step 3 -------------------------->
-       -authtype=oneTimePassword $B$N;~(B.
-       connect $B$7$?B&$,(B accept $B$7$?B&$X(B oneTimePassword $B$rAw$k(B.
-       $BKvHx$N(B 0 $B$rAw?.$9$k(B.
+       -authtype=oneTimePassword の時.
+       connect した側が accept した側へ oneTimePassword を送る.
+       末尾の 0 を送信する.
 
-    $B0J2<(B launcher $B$N;E;v$O=*N;$7$F(B, engine $B$H(B control $B$K@)8f$,0\$k(B.
+    以下 launcher の仕事は終了して, engine と control に制御が移る.
     <----------------  step 4 -------------------------->
-       engine $B$N(B byte order $B$r@_Dj(B.
+       engine の byte order を設定.
 
     <---------------------------------------------------->
-       OpenXM $B$N%Q%1%C%H8r49(B
+       OpenXM のパケット交換
 
 
 */
 
 /*&ja
 
- authtype $B$O(B NONE $B$+(B oneTimePassword $B$G$"$k(B.
- oneTimePassword $B$O1Q?t;z$G9=@.$5$l$?Ns$G$"$k(B.
- oneTimePassword $B$O>o$K%/%i%$%"%s%H$G@8@.$5$l$F(B, $B$J$s$i$+$NJ}K!$G%5!<%P$K(B
- $BG[Aw$5$l$k(B.  connect $BB&$,(B oneTimePassword $B$rJ?J8$G(B accept $BB&$KAw?.$7$F(B
- $BG'>Z$,=*N;$9$k(B.
+ authtype は NONE か oneTimePassword である.
+ oneTimePassword は英数字で構成された列である.
+ oneTimePassword は常にクライアントで生成されて, なんらかの方法でサーバに
+ 配送される.  connect 側が oneTimePassword を平文で accept 側に送信して
+ 認証が終了する.
 
- authEncoding $B$G(B oneTimePassword $B$NG[AwJ}K!$r5,Dj$9$k(B.
- authEncoding $B$O(B NONE $B$+(B file $B$+(B RSA $B$G$"$k(B.
+ authEncoding で oneTimePassword の配送方法を規定する.
+ authEncoding は NONE か file か RSA である.
 
- authEncoding=NONE $B$,A*Br$5$l$?>l9g(B oneTimePassword $B$NG[Aw$KFCJL$JJ}K!$rMxMQ(B
- $B$7$J$$(B.
- NONE $B$rA*Br$7$?>l9g(B, $B8=:_$N(B ox launcher $B$N<BAu$G$O$?$H$($P(B -passControl
- $B$N$"$H$K(B oneTimePassword $B$,@8$N7A$G8=$l$k$3$H$H$J$k(B.
- Unix $B$N>l9g$3$l$O(B command $B$N0z?t$G$"$j(B client $B$H(B server $B$NDL?.O)$,(B
- ssh $BEy$G0E9f2=$5$l$F$$$?$H$9$k$H%M%C%H%o!<%/%f!<%6$OGA$-$_$k$3$H$O$G$-$J$$$,(B,
- $BF10l5!$N%f!<%6$O8+$k$3$H$,2DG=$G$"$k(B.
- $B$7$?$,$C$F(B NONE $B$NA*Br$,2DG=$G$"$k$N$O(B client $B$*$h$S(B server $B$,==J,?.Mj(B
- $B$G$-$k$H$-$K8B$k(B.
+ authEncoding=NONE が選択された場合 oneTimePassword の配送に特別な方法を利用
+ しない.
+ NONE を選択した場合, 現在の ox launcher の実装ではたとえば -passControl
+ のあとに oneTimePassword が生の形で現れることとなる.
+ Unix の場合これは command の引数であり client と server の通信路が
+ ssh 等で暗号化されていたとするとネットワークユーザは覗きみることはできないが,
+ 同一機のユーザは見ることが可能である.
+ したがって NONE の選択が可能であるのは client および server が十分信頼
+ できるときに限る.
 
 */
 
 /*&ja
 
-@@@authEncoding=file $B$N>l9g(B.
+@@@authEncoding=file の場合.
 
- authEncoding=file $B$rA*Br$7$?>l9g$O(B oneTimePassword $B$OJL$KMQ0U$5$l$?0BA4$J(B
- $BDL?.7PO)(B($B$?$H$($P(B scp) $B$rMQ$$$F(B file $B$H$7$FG[Aw$5$l$k(B.
- oneTimePassword $B$,3JG<$5$l$?(B file $BL>$r(B -passControl, -passData $B0z?t$GEO$9(B.
- file $BL>$O(B $HOME/.openxm/tmp.otp/ $B$+$i$NAjBP%Q%9L>$G$"$k(B.
- $B%Q%9$N6h@Z$jJ8;z$O(B windows $B$G$b(B / $B$rMQ$$$k(B.
- $B%/%i%$%"%s%H$O<!$N5,B'$G%U%!%$%kL>$r@8@.$9$k(B. 
- $B%U%!%$%kL>$K$O1Q?t;z$H(B . -  _ $B$NMxMQ$7$+$f$k$5$l$J$$(B. $B%U%!%$%kL>$O<!$N7A<0(B
- $B$G$"$k(B.
+ authEncoding=file を選択した場合は oneTimePassword は別に用意された安全な
+ 通信経路(たとえば scp) を用いて file として配送される.
+ oneTimePassword が格納された file 名を -passControl, -passData 引数で渡す.
+ file 名は $HOME/.openxm/tmp.otp/ からの相対パス名である.
+ パスの区切り文字は windows でも / を用いる.
+ クライアントは次の規則でファイル名を生成する. 
+ ファイル名には英数字と . -  _ の利用しかゆるされない. ファイル名は次の形式
+ である.
 
     clientname-servernameUidPidSerial-time.pass
 
- $B$3$3$G(B time $B$O(B time(2) $B$NLa$jCM$r?t;zJ8;zNs$KJQ49$7$?7A<0$G$"$k(B.
- oneTimePassword $B$N@8@.;~9o$r@Z$j>e$2$F(B 10 $BJ,Kh$N@5;~$KJQ49$7$?$b$N$H$9$k(B.
- servernameUidPidSerial $B$O(B client $B$,(B oneTimePassword $B$r@8@.$7$F$+$i(B
- 10 $BJ,4V(B, $B%/%i%$%"%s%H%7%9%F%`$G9b$$3NN($G0l0UE*$G$"$k$3$H$,J]>Z$5$l$F$$$k(B
- $BJ8;zNs$J$i$J$s$G$b$h$$(B.
+ ここで time は time(2) の戻り値を数字文字列に変換した形式である.
+ oneTimePassword の生成時刻を切り上げて 10 分毎の正時に変換したものとする.
+ servernameUidPidSerial は client が oneTimePassword を生成してから
+ 10 分間, クライアントシステムで高い確率で一意的であることが保証されている
+ 文字列ならなんでもよい.
 
- $BNc(B
+ 例
       client                                            server
 
-     oneTimePassword 1342546 $B$r3JG<$7$?%U%!%$%k(B
-     yama.openxm.org-00001-2312123123.pass   $B$r@8@.(B
+     oneTimePassword 1342546 を格納したファイル
+     yama.openxm.org-00001-2312123123.pass   を生成
 
-     oneTimePassword 89123888 $B$r3JG<$7$?%U%!%$%k(B
-     yama.openxm.org-00002-2312123124.pass   $B$r@8@.(B
+     oneTimePassword 89123888 を格納したファイル
+     yama.openxm.org-00002-2312123124.pass   を生成
      ----------------------------------------------------->
-        $B>e$NFs$D$N%U%!%$%k$r0BA4$JDL?.O)$rMQ$$$FG[Aw$9$k(B.
-       ($B$?$H$($P(B scp )
+        上の二つのファイルを安全な通信路を用いて配送する.
+       (たとえば scp )
 
      ----------------------------------------------------->
           ox -authtype oneTimePassword
@@ -219,140 +219,140 @@ which is the flag of hiding the debug window of an ox server.
  
 
     <----------------  step 2 -------------------------->
-       -reverse $B$N>l9g$O(B <--- $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
-       $B$=$&$G$J$$$H$-$O(B ---> $B$N8~$-$K(B TCP/IP $B@\B3$,3NN)$5$l$k(B.
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
 
     <----------------  step 3 -------------------------->
-       connect $B$7$?B&$,(B accept $B$7$?B&$X(B oneTimePassword $B$rJ?J8$G$*$/$k(B.
+       connect した側が accept した側へ oneTimePassword を平文でおくる.
      
 
 
-     oneTimePassword 1342546 $B$r3JG<$7$?%U%!%$%k(B
-     yama.openxm.org-00001-2312123123.pass   $B$r(B server $B$K@8@.$9$k$?$a$K(B
-    $B$?$H$($P(B sendStringAsAfile(char *servername, char *serveruser,
+     oneTimePassword 1342546 を格納したファイル
+     yama.openxm.org-00001-2312123123.pass   を server に生成するために
+    たとえば sendStringAsAfile(char *servername, char *serveruser,
                   char *filename, char *otp);
-    $B$N$h$&$J(B API $B$rMQ0U$7$F$*$/$H$h$$$G$"$m$&(B.
+    のような API を用意しておくとよいであろう.
 
 */
 
 /*&ja
 
-@@@authEncoding=RSA $B$N>l9g(B.
+@@@authEncoding=RSA の場合.
 
-RSA $B$NHkL)80(B, $B8x3+80$r3JG<$9$k%U%!%$%kL>$O0J2<$N$H$*$j(B.
-$HOME/.openxm/rsa/ox103-rsa0-identity       ($BHkL)80$r$J$i$Y$?$b$N(B)
-$HOME/.openxm/rsa/ox103-rsa0-identity.pub   ($B8x3+80(B: $B$3$N7A<0$G$OMxMQ$5$l$:(B) 
-$HOME/.openxm/rsa/ox103-rsa0-authorizedkeys ($B8x3+80$r$J$i$Y$?$b$N(B)
+RSA の秘密鍵, 公開鍵を格納するファイル名は以下のとおり.
+$HOME/.openxm/rsa/ox103-rsa0-identity       (秘密鍵をならべたもの)
+$HOME/.openxm/rsa/ox103-rsa0-identity.pub   (公開鍵: この形式では利用されず) 
+$HOME/.openxm/rsa/ox103-rsa0-authorizedkeys (公開鍵をならべたもの)
 
-$B80%U%!%$%k$O<!$N%G!<%?$r6uGr$G6h@Z$C$FJB$Y$?$b$N$G$"$k(B.
-  user$B<1JL;R(B    $B80(B($B#1#0?J?t;zNs(B)    RSA$B%U%)!<%^%C%H<1JL;R(B(optional)
-$B%3%a%s%H9T$O(B # $B$G;O$^$k(B.
-$B3F%G!<%?$N6h@Z$j$O(B 0xd $B$^$?$O(B 0xa $B$^$?$O(B $BN>J}$G$"$k(B.
+鍵ファイルは次のデータを空白で区切って並べたものである.
+  user識別子    鍵(１０進数字列)    RSAフォーマット識別子(optional)
+コメント行は # で始まる.
+各データの区切りは 0xd または 0xa または 両方である.
 
-$B%U%)!<%^%C%H<1JL;R$,(B 0 $B$N>l9g$O8x3+800E9f2=(B
-x --> x^65537 mod n $B$rMQ$$(B, 128 byte (1024 bit) $B$E$D%G!<%?$r6h@Z$C$F=hM}$9$k(B.
-$BHkL)800E9f2=$O(B  x --> x^d mod n $B$rMQ$$$k(B.
-$B%U%)!<%^%C%H<1JL;R(B 0 $B$O<B83MQ$N0UL#(B.
-$BHkL)80$O(B n,d ,  $B8x3+80$O(B n $B$N7A<0$G(B n $B$H(B d $B$O(B , $B$G6h@Z$k(B.
-$BJ8;zNs$rAw?.$9$k$H$-$O(B 0 $B$,J8;zNs=*$j$N%^!<%/$H$J$j(B, 
-0 $B$G$N$3$jItJ,$rKd$a$k(B. $B%P%$%HNs$rAw$k$H$-$O%G!<%?$ND9$5$OJLAw$9$k(B.
+フォーマット識別子が 0 の場合は公開鍵暗号化
+x --> x^65537 mod n を用い, 128 byte (1024 bit) づつデータを区切って処理する.
+秘密鍵暗号化は  x --> x^d mod n を用いる.
+フォーマット識別子 0 は実験用の意味.
+秘密鍵は n,d ,  公開鍵は n の形式で n と d は , で区切る.
+文字列を送信するときは 0 が文字列終りのマークとなり, 
+0 でのこり部分を埋める. バイト列を送るときはデータの長さは別送する.
 
-Todo: $B80$N3JG<J}K!(B, $B%G!<%?6h@Z$j$NJ}K!$J$I2DG=$J8B$j(B 
-RFC3447 $B$K=`5r$9$k$h$&$KJQ99$;$h(B.  $B=`5r$,40N;$7$?$i(B -rsa0- $B$r(B 
--rsa- $B$HJQ99$9$k(B.
+Todo: 鍵の格納方法, データ区切りの方法など可能な限り 
+RFC3447 に準拠するように変更せよ.  準拠が完了したら -rsa0- を 
+-rsa- と変更する.
 
-$BNc(B:
+例:
 
-client  $BB&(B
+client  側
 
   ox103-rsa0-identity
-     # client $BB&$,;H$&HkL)80(B
+     # client 側が使う秘密鍵
      takayama@client.math.kobe-u.ac.jp  1234523....
 
 
   ox103-rsa0-authorizedkeys
-     @ server $BB&$,;H$&HkL)80$KBP1~$9$k8x3+80(B
+     @ server 側が使う秘密鍵に対応する公開鍵
      takayama@server.math.kobe-u.ac.jp  8989898....
 
-server $BB&(B
+server 側
   ox103-rsa0-identity
-     # server $BB&$,;H$&HkL)80(B
+     # server 側が使う秘密鍵
      takayama@server.math.kobe-u.ac.jp  8781234....
 
   ox103-rsa0-authorizedkeys
-     @ client $BB&$,;H$&HkL)80$KBP1~$9$k8x3+80(B
+     @ client 側が使う秘密鍵に対応する公開鍵
      takayama@client.math.kobe-u.ac.jp  89891....
   
-authEncoding=RSA $B$rMxMQ$9$k>l9g$O$3$l$i$N80$rE,@Z$K(B .openxm/rsa $B$N2<$K(B
-$BCV$+$J$$$H$$$1$J$$(B.  .openxm/rsa $B$N(B permission $B$O(B rwx------ $B$G$"$k$3$H(B.
+authEncoding=RSA を利用する場合はこれらの鍵を適切に .openxm/rsa の下に
+置かないといけない.  .openxm/rsa の permission は rwx------ であること.
 
-$BCm0U(B: $BHkL)80$r@8$G3JG<$7$J$$>l9g%U%!%$%kL>$r(B ox103-rsa2-* $BEy$HJQ99$9$k(B
-$BM=Dj(B.  RSA encoding $BJ}K!$O?t;zL5$7(B, $B?t;z$NBg$-$$$b$N$+$i80%U%!%$%k$r(B
-$B=gHV$K%5!<%A$7$F(B RSA $B$N%U%)!<%^%C%H$r7hDj$9$k(B.
+注意: 秘密鍵を生で格納しない場合ファイル名を ox103-rsa2-* 等と変更する
+予定.  RSA encoding 方法は数字無し, 数字の大きいものから鍵ファイルを
+順番にサーチして RSA のフォーマットを決定する.
 
-authEncoding=RSA $B$N>l9g(B -passData $B$*$h$S(B -passControl $B$O(B
-oneTimePassword ($BJ8;zNs(B) $B$r(B bit data $B$H$_$F(B rsa $B$G0E9f2=$7$?$b$N$r(B
-URL encoding $B$7$?7A$GAw$k(B.
+authEncoding=RSA の場合 -passData および -passControl は
+oneTimePassword (文字列) を bit data とみて rsa で暗号化したものを
+URL encoding した形で送る.
 
-oneTimePassword $B$N<~4|$O==J,Bg$-$/$J$$$H$$$1$J$$(B.
-$B0lG/$O(B 31536000 $BIC$G$"$k(B. 100 $BG/$O(B 3153600000 $BIC(B (10 $B7e(B) $B$G$"$k(B.
-oneTimePassword $B$O?t;z$N>l9g(B 10 $B7e0J>e$G$"$k$3$H$,I,?\$G$"$j(B,
-20 $B7e0J>e$G$"$k$3$H$,K>$^$7$$(B.
+oneTimePassword の周期は十分大きくないといけない.
+一年は 31536000 秒である. 100 年は 3153600000 秒 (10 桁) である.
+oneTimePassword は数字の場合 10 桁以上であることが必須であり,
+20 桁以上であることが望ましい.
 
 */
 
 /*&ja
 
-@@@Step 1 $B$,<:GT$7$?>l9g$K$D$$$F(B.
+@@@Step 1 が失敗した場合について.
 
-Step 1  $B$N<:GT$N860x$K$O<!$N$h$&$J2DG=@-$,$"$k(B.
-1. ssh $B$K$h$k(B remote login $B$N<:GT(B.
-2. Remote server $B$N%Q%9$K(B ox100start/ox $BEy$N%m!<%s%A%c$,B8:_$7$J$$(B.
-3. Remote server $B$K(B xterm $B$,B8:_$7$J$$$+(B, $BB8:_$7$F$b(B X $B%5!<%P$N@\B3$K<:GT$9$k(B.
-4. Remote server $B$K%(%s%8%s$,B8:_$7$J$$(B.
-5. Remote server $B$H(B client $B$N(B TCP/IP $B@\B3$,$J$s$i$+$N860x$G<:GT$9$k(B.
+Step 1  の失敗の原因には次のような可能性がある.
+1. ssh による remote login の失敗.
+2. Remote server のパスに ox100start/ox 等のローンチャが存在しない.
+3. Remote server に xterm が存在しないか, 存在しても X サーバの接続に失敗する.
+4. Remote server にエンジンが存在しない.
+5. Remote server と client の TCP/IP 接続がなんらかの原因で失敗する.
 
-$B<:GT$N>l9g$KBP1~$9$k$?$a(B,
-TCP/IP $B@\B3$G$N(B Accept $BB&$O%?%$%`%"%&%HF0:n$r$9$k$3$H(B.
+失敗の場合に対応するため,
+TCP/IP 接続での Accept 側はタイムアウト動作をすること.
 
 
-$B<:GT$N860x$rCN$i$;$k%W%m%H%3%k$O$-$a$i$l$F$$$J$$$,(B, 
-$B<BAu>e$NBP:v$H$7$F0J2<$N$b$N$,$"$k(B.
-1. $B%(%i!<%a%C%;!<%8$r=PNO$7$F(B sleep(10); $B$9$k(B.
-2. $B%(%i!<%a%C%;!<%8$r%U%!%$%kEy$K=PNO$9$k(B.
+失敗の原因を知らせるプロトコルはきめられていないが, 
+実装上の対策として以下のものがある.
+1. エラーメッセージを出力して sleep(10); する.
+2. エラーメッセージをファイル等に出力する.
 
-$B$J$*(B OX-RFC-101 $B$G$O(B Step 1 $B$,J,N%$7$F$$$k$?$a(B, $B%(%i!<$NDLCN$,$h$j4JC1$G$"$k(B.
+なお OX-RFC-101 では Step 1 が分離しているため, エラーの通知がより簡単である.
 
 */
 
 
-//&ja @@$B9W8%<T$*$h$S;n83<BAu(B
+//&ja @@貢献者および試験実装
 //&en @@Contributors and sample implementations
 
 /*&ja
-$BCfCG$*$h$SJQ?t$NEAGE$K$D$$$F$O9b;3$,@_7W(B, asir $B$*$h$S(B kan/sm1 $B$X$N(B
-$B<BAu(B, $BI>2A$r$*$3$J$C$?(B.
+中断および変数の伝播については高山が設計, asir および kan/sm1 への
+実装, 評価をおこなった.
 (OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,
  OpenXM/src/kan96xx/Doc/oxrfc103.sm1
- $B$r$_$h(B).
+ をみよ).
 
-$B%(%s%8%sG'>Z<jB3$-$N(B file encoding $BK!$OLnO$$H9b;3$N5DO@$+$i@8$^$l$?(B.
-$B%(%s%8%sG'>Z<jB3$-$O(B   ox100start, ox $B$KItJ,<BAu$5$l$F$$$k(B.
+エンジン認証手続きの file encoding 法は野呂と高山の議論から生まれた.
+エンジン認証手続きは   ox100start, ox に部分実装されている.
   OpenXM/src/kxx/
-$B$N%U%!%$%k72$*$h$S(B
+のファイル群および
   OpenXM/src/kan96xx/Doc/ox.sm1
-$B$r$_$h(B.
-$BNc(B:  sm1$B$r5/F08e(B,   (ox.sm1) run  asirconnectr
+をみよ.
+例:  sm1を起動後,   (ox.sm1) run  asirconnectr
 */
 
 /*&ja
-$B9TNs(B, $B%Y%/%H%k$N(B CMO $B$O(B NTL $B$N%5!<%P2=$r%F%9%H%1!<%9$H$7$F(B
-$B4d:,$,@_7W(B, $B<BAu(B, $BI>2A$r9T$C$?(B.
-RSA $B$N%-!<@8@.(B, DES $BEy$N(B OpenXM crypt $B%i%$%V%i%j$N<BAu$O4d:,$,$*$3$J$C$F$$$k(B.
-OpenXM/src/ox_ntl/crypt $B$r$_$h(B.
+行列, ベクトルの CMO は NTL のサーバ化をテストケースとして
+岩根が設計, 実装, 評価を行った.
+RSA のキー生成, DES 等の OpenXM crypt ライブラリの実装は岩根がおこなっている.
+OpenXM/src/ox_ntl/crypt をみよ.
 */
 
-//&ja @@$B%(%i!<%Q%1%C%H$N9=B$(B.
+//&ja @@エラーパケットの構造.
 //&en @@Structure of error packets
 
 /*&en
@@ -360,34 +360,34 @@ OpenXM/src/ox_ntl/crypt $B$r$_$h(B.
 */
 
 /*&ja
-Error packet $B$O(B CMO_ARRAY $B$r(B body $BItJ,$H$9$k(B CMO $B$G$"$k$,(B,
-$B$3$3$G$O$=$N(B body $BItJ,$N(B array $B$N9=B$$rDj5A$9$k(B.
-0 $BHVL\$N@.J,$O(B CMO_INT32 $B$G$"$k(B.  $B%(%i!<H/@8$N860x$H$J$C$?%Q%1%C%HHV9f(B.
-                                  $B$o$+$i$J$$$H$-$O(B -1.
-1 $BHVL\$N@.J,$O(B CMO_INT32 $B$G$"$k(B.  CMO_ERROR2 $B6&DL%(%i!<HV9f(B.
-                                  $B$o$+$i$J$$$H$-$O(B -1.
-2 $BHVL\$N@.J,$O(B CMO_STRING $B$G$"$j%(%i!<%a%C%;!<%8$r3JG<$9$k(B.
-3 $BHVL\$N@.J,(B(optional) $B$,(B ox-rfc-103 $B$G?7$7$/Dj5A$9$kItJ,$G$"$k(B.
-3 $BHVL\$N@.J,$N%G!<%?7?$O(B CMO_ARRAY $B$G$"$k(B. 
-Array $B$N3FMWAG$O$^$?D9$5(B 2 $B$N(B CMO_ARRAY $B$G$"$j(B,
-$BBh0l@.J,$,(B CMO_STRING, $BBh(B2$B@.J,$O(B CMO $B%*%V%8%'%/%H$G$"$k(B.
-$BBh0l@.J,$O%-!<%o!<%I$,3JG<$5$l(B, $BBh(B2$B@.J,$O$=$NCM$G$"$k(B.
-$B%-!<%o!<%I$H$7$F8=:_<!$N$b$N$r(B ox-rfc-103 $B$H$7$FDs0F$7$F$$$k(B.
-$B$J$*%5!<%P$OA4$F$N%-!<%o!<%I$NCM$rLa$9I,MW$O$J$$(B.
-$B%(%i!<>pJs$O8@8l$N;EMM$K0MB8$9$k$?$a(B asir_where $B$NMQ$K(B asir $B8@8l$K0MB8$7$?(B
-$B7A<0$N%(%i!<>pJs$N$o$?$7$+$?$b$"$k(B. $B:#8e2?DL$j$+$NJ}K!$K<}B+$7$F$$$/$HM=A[$7$F$$$k(B.
+Error packet は CMO_ARRAY を body 部分とする CMO であるが,
+ここではその body 部分の array の構造を定義する.
+0 番目の成分は CMO_INT32 である.  エラー発生の原因となったパケット番号.
+                                  わからないときは -1.
+1 番目の成分は CMO_INT32 である.  CMO_ERROR2 共通エラー番号.
+                                  わからないときは -1.
+2 番目の成分は CMO_STRING でありエラーメッセージを格納する.
+3 番目の成分(optional) が ox-rfc-103 で新しく定義する部分である.
+3 番目の成分のデータ型は CMO_ARRAY である. 
+Array の各要素はまた長さ 2 の CMO_ARRAY であり,
+第一成分が CMO_STRING, 第2成分は CMO オブジェクトである.
+第一成分はキーワードが格納され, 第2成分はその値である.
+キーワードとして現在次のものを ox-rfc-103 として提案している.
+なおサーバは全てのキーワードの値を戻す必要はない.
+エラー情報は言語の仕様に依存するため asir_where の用に asir 言語に依存した
+形式のエラー情報のわたしかたもある. 今後何通りかの方法に収束していくと予想している.
 
-  reason_of_error,  (CMO_STRING)$B<B9T;~%(%i!<$NM}M3(B
-  where,   (CMO_ARRAY) $B<B9T;~%(%i!<$N>l=j$r$"$i$o$9(B CMO_STRING $B$N(Barray.
-  lines,    (CMO_ARRAY) $B<B9T;~%(%i!<$r5/$3$7$?9THV9f(B(CMO_INT32) $B$N(Barray.
-                        -1 $B$OITL@$rI=$9(B.
-  locals,  (CMO_ARRAY) $B<B9T;~%(%i!<$N;~$N6I=jJQ?t$NL>A0$HCM$N(B 
-                       pair($BD9$5(B2$B$N(Barray) $B$N(B array
-  parse_error_at,      (CMO_INT32) parse $B%(%i!<$r$*$3$7$?9THV9f(B.
-  reason_of_parse_error,  (CMO_STRING) parse $B%(%i!<$NM}M3(B.
-  asir_where, (CMO_ARRAY) asir$B7A<0$N%(%i!<0LCV>pJs(B.
-       [$B>l=j(B,$B4X?tL>(B,$B9THV9f(B] $B$^$?$O(B [$B>l=j(B,$B9THV9f(B] $B$N%j%9%H(B.
-       $BIi$N9THV9f$O0UL#$N$J$$>pJs$G$"$j%/%i%$%"%s%H$OL5;k$9$Y$-$G$"$k(B.
+  reason_of_error,  (CMO_STRING)実行時エラーの理由
+  where,   (CMO_ARRAY) 実行時エラーの場所をあらわす CMO_STRING のarray.
+  lines,    (CMO_ARRAY) 実行時エラーを起こした行番号(CMO_INT32) のarray.
+                        -1 は不明を表す.
+  locals,  (CMO_ARRAY) 実行時エラーの時の局所変数の名前と値の 
+                       pair(長さ2のarray) の array
+  parse_error_at,      (CMO_INT32) parse エラーをおこした行番号.
+  reason_of_parse_error,  (CMO_STRING) parse エラーの理由.
+  asir_where, (CMO_ARRAY) asir形式のエラー位置情報.
+       [場所,関数名,行番号] または [場所,行番号] のリスト.
+       負の行番号は意味のない情報でありクライアントは無視すべきである.
 */
 
 /*&C
@@ -406,7 +406,7 @@ Example 2.
 Example 3.
  ["asir_where"
   [["toplevel", 10],
-   ["string","foo",3],          // string $B$O(B execute_string $B$GEO$5$l$?(B string $BFb$r0UL#$9$k(B.
+   ["string","foo",3],          // string は execute_string で渡された string 内を意味する.
    ["/usr/local/lib/OpenXM/asir/lib/afo.rr","abc",4]
   ]
  ]
@@ -414,18 +414,18 @@ Example 3.
 */
 
 /*&ja
-$BNc(B2$B$NJdB-(B.
+例2の補足.
    ["where",["shell","length"]],
    ["lines", [15,-1]]
-$B$N(B lines $B$N0UL#$O2r@b$rMW$9$k$G$"$m$&(B.
-[15,-1] $B$N(B 15 $B$O(B executeString $B$KM?$($i$l$?J8;zNs$N(B 15 $B9TL\$K=P8=$7$F$$$k(B
-$B4X?t(B shell $B$G%(%i!<$,5/$3$C$?$3$H$r0UL#$7$F$$$k(B.
-$B4X?t(B shell $B$NCf$+$i8F$P$l$F$$$k(B length $B4X?t$G%(%i!<$,5/$-$F$$$k$N$G$"$k$,(B,
--1 $B$O$=$N9T(B(shell $B4X?t$NDj5ACf$G$NAjBPE*$J9THV9f(B)$B$OITL@$G$"$k$H$$$&$3$H$r(B
-$B0UL#$7$F$$$k(B.
+の lines の意味は解説を要するであろう.
+[15,-1] の 15 は executeString に与えられた文字列の 15 行目に出現している
+関数 shell でエラーが起こったことを意味している.
+関数 shell の中から呼ばれている length 関数でエラーが起きているのであるが,
+-1 はその行(shell 関数の定義中での相対的な行番号)は不明であるということを
+意味している.
 */
 
-//&ja @@$B;29MJ88%(B
+//&ja @@参考文献
 //&en @@Bibliography
 
 /*&C

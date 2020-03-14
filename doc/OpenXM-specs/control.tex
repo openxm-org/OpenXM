@@ -1,22 +1,22 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.11 2016/08/22 09:23:31 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.12 2016/08/27 02:11:01 takayama Exp $
 \section{Session Management}
 
 \subsection{Control server}
 /*&jp
-OpenXM �Ǥ�, ���˽Ҥ٤�褦��ñ�㤫�ĥ��Х��Ȥʥ����Ф�������ˡ
-����Ѥ��Ƥ���. 
+OpenXM では, 次に述べるような単純かつロバストなサーバの制御方法
+を採用している. 
 
-OpenXM �����Ф�����Ū�� 2 �Ĥ� I/O channel ����: �����Ϸ׻��ǡ���
-�ѤǤ���, ¾���Ϸ׻������ѤǤ���. ���� channel �ϥ����Ф����椹��
-����Υ��ޥ�ɤ����뤿��˻Ȥ���. 
-����ץ륵���� ({\tt oxmain.c}) �Ǥ�, ���Τ褦�ʥ���ȥ������å�����
-���̤Υץ��������ԤäƤ���. �ʲ�, ���Υץ������򥳥�ȥ����륵����
-�ȸƤ�. ������Ф���, �׻��ѥ����Ф򥨥󥸥�ȸƤ�. 
-����ȥ����륵���Фȥ��󥸥��Ʊ��Υޥ�����ư���. 
-���Τ���, ����ȥ����륵���Ф��饨�󥸥�� signal �����뤳�Ȥ��ưפǤ���. 
-����ȥ����륵���м��Τ� OX �����å��ޥ���Ǥ���
-{\tt SM\_control\_*} ���ޥ�ɤ�������. �����ϥ��󥸥�ؤ�
-signal ����, engine process �ν�λ�ʤɤ� request �Τ���Υ��ޥ�ɤǤ���. 
+OpenXM サーバは論理的に 2 つの I/O channel をもつ: 一方は計算データ
+用であり, 他方は計算制御用である. 制御 channel はサーバを制御する
+ためのコマンドを送るために使われる. 
+サンプルサーバ ({\tt oxmain.c}) では, そのようなコントロールメッセージ
+は別のプロセスが行っている. 以下, そのプロセスをコントロールサーバ
+と呼ぶ. これに対して, 計算用サーバをエンジンと呼ぶ. 
+コントロールサーバとエンジンは同一のマシン上で動作する. 
+このため, コントロールサーバからエンジンに signal を送ることは容易である. 
+コントロールサーバ自体も OX スタックマシンであり
+{\tt SM\_control\_*} コマンドを受け取る. それらはエンジンへの
+signal 送信, engine process の終了などの request のためのコマンドである. 
 */
 
 /*&eg
@@ -38,7 +38,7 @@ to send signals to a server or to terminate a server.
 
 \subsection{New OpenXM control servers}
 /*&jp
-OpenXM RFC 101 Draft �򸫤�
+OpenXM RFC 101 Draft を見よ
 \htmladdnormallink{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}.
 */
 /*&eg
@@ -49,46 +49,46 @@ See OpenXM RFC 101 Draft.
 \subsection{OpenXM reset protocol}
 
 /*&jp
-���饤����Ȥϥ���ȥ����륵���з�ͳ�Ǥ��ĤǤ⥨�󥸥�� signal ��
-���뤳�Ȥ��Ǥ���. ������, I/O �����̾�Хåե���󥰤���Ƥ���
-����, �ȥ�֥뤬�������礬����. ���󥸥������˥ꥻ�åȤ��뤿��
-����ɬ�פǤ���. 
+クライアントはコントロールサーバ経由でいつでもエンジンに signal を
+送ることができる. しかし, I/O 操作は通常バッファリングされている
+ため, トラブルが生ずる場合がある. エンジンを安全にリセットするため
+次が必要である. 
 
 \begin{enumerate}
-\item ���Ƥ� OX ��å������� Java �ΰ�̣�� synchronized object �Ǥ���. 
+\item 全ての OX メッセージは Java の意味で synchronized object である. 
 
-\item ���󥸥�Υꥻ�åȸ�������륯�饤����Ȥ���η׻��׵��å�������
-���󥸥󤫤���������������б����Ƥ��ʤ���Фʤ�ʤ�. 
+\item エンジンのリセット後に送られるクライアントからの計算要求メッセージと
+エンジンからの返答が正しく対応していなければならない. 
 \end{enumerate}
 
-{\tt SM\_control\_reset\_connection} ��, ���󥸥�ΰ����ʥꥻ�åȤ�
-�Ԥ���Ϣ�μ�³���򳫻Ϥ��뤿��� SM ���ޥ�ɤǤ���. 
-���饤����Ȥ��� {\tt SM\_control\_reset\_connection} ������ȥ�����
-�����Ф��������, ����ȥ����륵���Ф� {\tt SIGUSR1} �򥨥󥸥��
-����. �ʸ�μ�³���ϼ����̤�Ǥ���. 
+{\tt SM\_control\_reset\_connection} は, エンジンの安全なリセットを
+行う一連の手続きを開始するための SM コマンドである. 
+クライアントから {\tt SM\_control\_reset\_connection} がコントロール
+サーバに送られると, コントロールサーバは {\tt SIGUSR1} をエンジンに
+送る. 以後の手続きは次の通りである. 
 
 \vskip 2mm
 \noindent
-{\it ���饤�����¦} 
+{\it クライアント側} 
 \begin{enumerate}
-\item {\tt SM\_control\_reset\_connection} �򥳥�ȥ����륵���Ф�
-���ä���, ���饤����Ȥϥꥻ�åȾ��֤�����. �ꥻ�åȾ��֤Ǥ�, 
-{\tt OX\_SYNC\_BALL} ��������ޤǤ��٤ƤΥ�å��������ɤߤȤФ�. 
-\item {\tt OX\_SYNC\_BALL} �������ä�����, ���饤����Ȥ�
-{\tt OX\_SYNC\_BALL} �򥨥󥸥������, �̾���֤����. 
+\item {\tt SM\_control\_reset\_connection} をコントロールサーバに
+送った後, クライアントはリセット状態に入る. リセット状態では, 
+{\tt OX\_SYNC\_BALL} を受け取るまですべてのメッセージを読みとばす. 
+\item {\tt OX\_SYNC\_BALL} を受け取ったあと, クライアントは
+{\tt OX\_SYNC\_BALL} をエンジンに送り, 通常状態に戻る. 
 \end{enumerate}
 
 \noindent
-{\it ���󥸥�¦}
+{\it エンジン側}
 \begin{enumerate}
 \item 
-{\tt SIGUSR1} �򥳥�ȥ����륵���Ф��������ä���, ���󥸥��
-�ꥻ�åȾ��֤�����. {\tt OX\_SYNC\_BALL} �򥯥饤����Ȥ�����. 
-���λ����ǥ��饤����Ȥϴ��˥ꥻ�åȾ��֤ˤ���Τ�, ����������
-�֥��å�����뤳�ȤϤʤ�. 
-\item ���󥸥��
-{\tt OX\_SYNC\_BALL} ��������ޤǤ��٤ƤΥ�å��������ɤߤȤФ�. 
-{\tt OX\_SYNC\_BALL} �������ä����̾���֤����. 
+{\tt SIGUSR1} をコントロールサーバから受け取ったら, エンジンは
+リセット状態に入る. {\tt OX\_SYNC\_BALL} をクライアントに送る. 
+この時点でクライアントは既にリセット状態にあるので, この送信が
+ブロックされることはない. 
+\item エンジンは
+{\tt OX\_SYNC\_BALL} を受け取るまですべてのメッセージを読みとばす. 
+{\tt OX\_SYNC\_BALL} を受け取ったら通常状態に戻る. 
 \end{enumerate}
 */
 /*&eg
@@ -145,12 +145,12 @@ and that the subsequent request from a client correctly
 corresponds to the response from the engine.
 */
 /*&jp
-�� \ref{reset} �ϥǡ�����ή��򼨤�. 
-{\tt OX\_SYNC\_BALL} ���ü�� OX ��å������Ǥ���, 
-I/O stream �˻Ĥ�ǡ����ν���򼨤�. 
-{\tt OX\_SYNC\_BALL} ���ɤ����, ���줾��� stream �϶��Ǥ���, 
-���³�����饤����Ȥ���Υꥯ�����Ȥ�, ���󥸥󤫤��������
-�������б�����. 
+図 \ref{reset} はデータの流れを示す. 
+{\tt OX\_SYNC\_BALL} は特殊な OX メッセージであり, 
+I/O stream に残るデータの終りを示す. 
+{\tt OX\_SYNC\_BALL} を読んだ後, それぞれの stream は空であり, 
+後に続くクライアントからのリクエストと, エンジンからの返答が
+正しく対応する. 
 */
 \begin{figure}[htbp]
 \epsfxsize=10cm
@@ -169,7 +169,7 @@ I/O stream �˻Ĥ�ǡ����ν���򼨤�.
 SM_control_reset_connection 
 \end{verbatim}
 /*&jp
-����ȥ����륵���Ф�, {\tt SIGUSR1} �򥨥󥸥������褦�׵᤹��. 
+コントロールサーバに, {\tt SIGUSR1} をエンジンに送るよう要求する. 
 */
 /*&eg
 It requests a control server to send {\tt SIGUSR1} to the engine.
@@ -183,9 +183,9 @@ Request:
 \end{tabular}
 Result:   none. \\
 /*&jp
-  ���٤ƥ��󥸥�� reset protocol ��������뤳�Ȥ��侩����뤬,
-�������Ƥ��ʤ�����, mathcap ���裴������ option list ��
-{\tt no\_ox\_reset} ���������٤��Ǥ��� (����: oxpari). \\
+  すべてエンジンは reset protocol を実装することが推奨されるが,
+実装していない場合は, mathcap の第４引数の option list で
+{\tt no\_ox\_reset} を送信すべきである (参照: oxpari). \\
 */
 /*&eg
   All engines are encouraged to install the reset protocol,
@@ -194,9 +194,9 @@ but when it is not implemented,
 (option list) of the mathcap (ref: oxpari). \\
 */
 /*&jp
-����:  �Ť�����(2000ǯ����)�� control server, client �Ǥ�,
-���η����� result code ����뤳�Ȥ��ꤷ�Ƥ����礬����.
-�����Ť������Ϲ������뤳�Ȥ�ɬ�פǤ���. \\
+注意:  古い実装(2000年以前)の control server, client では,
+次の形式の result code が戻ることを仮定している場合がある.
+これら古い実装は更新することが必要である. \\
 */
 /*&eg
 Note: Some old implementations of control servers and clients (before 2000)
@@ -213,9 +213,9 @@ These obsolete implementations should be updated.\\
 SM_control_kill
 \end{verbatim}
 /*&jp
-�����ФϤ��Υ�å����������������
-%�������������򤪤���, 
-���٤ƤΥե�����򥯥��������ƽ�λ����.
+サーバはこのメッセージを受信したら
+%ただちに返答をおくり, 
+すべてのファイルをクローズして終了する.
 */
 /*&eg
 It requests a control server to terminate the engine and the control server
@@ -234,14 +234,14 @@ Result: none.
 
 \medbreak
 \noindent
-//&jp {\bf ��}: (���ꥢ���ֹ�Ͼ�ά���Ƥ���.) 
+//&jp {\bf 例}: (シリアル番号は省略してある.) 
 //&eg {\bf Example}: (serial numbers are omitted.)
 \begin{verbatim}
 0  0 2 01 (OX_COMMAND) 
 0  0 4 06 (SM_control_reset_connection)
 \end{verbatim}
 
-%//&jp Reset ���Ф����ֻ�.
+%//&jp Reset に対する返事.
 %//&eg Reply to the reset request
 %\begin{verbatim}
 %0  0 2 02 (OX_DATA)
@@ -250,7 +250,7 @@ Result: none.
 %\end{verbatim}
 
 
-//&jp ��1�Υ����ͥ�Ǥϼ��� {\tt OX\_SYNC\_BALL} ���򴹤����Ʊ���������.
+//&jp 第1のチャンネルでは次の {\tt OX\_SYNC\_BALL} が交換されて同期が取られる.
 //&eg {\tt OX\_SYNC\_BALL} are exchanged on the data channel for synchronization.
 
 \begin{verbatim}
@@ -260,10 +260,10 @@ Result: none.
 \subsection{Notification from servers}
 
 /*&jp
-OpenXM �����Ф�, ��ǽ�Ǥ��뤫������ۤǤ���.
-���Ȥ��Х��顼�򤪤����Ƥ�, ���顼�ϥ����ФΥ��󥸥󥹥��å��ˤĤޤ��
-�����Ǥ���, �����Фϥ��饤����Ȥ� {\tt pop\_cmo} ��å������򤪤���ʤ�
-�����겿���������ʤ�.
+OpenXM サーバは, 可能であるかぎり寡黙である.
+たとえばエラーをおこしても, エラーはサーバのエンジンスタックにつまれる
+だけであり, サーバはクライアントが {\tt pop\_cmo} メッセージをおくらない
+かぎり何も送信しない.
 */
 /*&eg
 OpenXM servers try to be as quiet as possible.
@@ -273,11 +273,11 @@ the engine does not send error packets unless the client sends the message
 */
 
 /*&jp
-OpenXM �Ϥ��θ�§���֤��㳰Ū����ˡ�����Ѱդ��Ƥ���.
-����ȥ����륵���Ф�,
-{\tt OX\_NOTIFY} �إå�����Ӥ���ˤĤŤ� {\tt OX\_DATA} �ѥ��åȤ�����
-���Ȥ��Ǥ���.
-���ε�ǽ�� mathcap �Ƕػߤ��뤳�Ȥ��ǽ�Ǥ���.
+OpenXM はこの原則をやぶる例外的な方法を一つ用意している.
+コントロールサーバは,
+{\tt OX\_NOTIFY} ヘッダおよびそれにつづく {\tt OX\_DATA} パケットを送る
+ことができる.
+この機能は mathcap で禁止することも可能である.
 */
 /*&eg
 OpenXM provides a method to notify events.
@@ -286,13 +286,13 @@ This transmission may be prohibited by mathcap.
 */
 
 /*&jp
-���ε�ǽ��ɤΤ褦�˻Ȥ�����򤢤����������褦.
-{\tt Asir} �� {\tt ox\_plot} �����Ф�, quit �ܥ�����äƤ���.
-quit �ܥ��󤬤������� canvas �����Ǥ��뤬, ���󥸥��Τ�¸�ߤ�
-�ĤŤ���.  ���ξ��֤�����̿�᤬�����,
-���󥸥󥹥��å���, ``canvas does not exist'' �Ȥ������顼���Ĥޤ��.
-���󥸥󤬤��Υ��顼�����������Ȥ�۵ޤ��Τ餻�����Ȥ���
-{\tt OX\_NOTIFY} ���Ѥ���.
+この機能をどのように使うか例をあげて説明しよう.
+{\tt Asir} の {\tt ox\_plot} サーバは, quit ボタンをもっている.
+quit ボタンがおされると canvas が消滅するが, エンジン自体は存在を
+つづける.  この状態で描画命令がくると,
+エンジンスタックに, ``canvas does not exist'' というエラーがつまれる.
+エンジンがこのエラーが生じたことを緊急に知らせたいときに
+{\tt OX\_NOTIFY} を用いる.
 */
 /*&eg
 Let us explain how to use {\tt OX\_NOTIFY} by an example.
@@ -307,20 +307,20 @@ the {\tt OX\_NOTIFY} message should be used.
 */
 
 /*&jp
-������, {\tt OX\_NOTIFY} �򤪤���Τ�, ����ȥ�����ץ�������
-���뤳�Ȥ����դ��褦.
-�������äƥ��󥸥�Ϥʤ�餫����ˡ��, ����ȥ����륵���Ф�
-{\tt OX\_NOTIFY} �򤪤��뤳�Ȥ���ꤷ�ʤ��Ȥ����ʤ�.
-������ˡ��, OS �ˤ�ꤤ����������ˡ����ǽ����,
-���Ȥ���, unix �Ǥ�
-�ե����� {\tt /tmp/.ox\_notify.pid} �� touch ���뤳�ȤǤ����
-��Ĥμ¸����뤳�Ȥ���ǽ�Ǥ���.
-������ {\tt pid} �ϥ��󥸥�Υץ������ֹ�Ǥ���.
-����ȥ����륵���Фϥե����� {\tt /tmp/.ox\_notify.pid} ��
-touch ���줿���Ȥ򸡽Ф�����, ���饤����Ȥ�
-{\tt OX\_NOTIFY} �ѥ��åȤ���� {\tt OX\_DATA} �� {\tt cmo\_null} ������.
-���󥸥�ϥե�������Ѥ��ƥ���ȥ����륵���Ф˵ޤ��Τ餻��ʳ���,
-��ͭ����䥷���ʥ���Ѥ��Ƥ��餻�Ƥ�褤.
+ここで, {\tt OX\_NOTIFY} をおくるのは, コントロールプロセスで
+あることに注意しよう.
+したがってエンジンはなんらかの方法で, コントロールサーバに
+{\tt OX\_NOTIFY} をおくることを依頼しないといけない.
+この方法は, OS によりいろいろな方法が可能だか,
+たとえば, unix では
+ファイル {\tt /tmp/.ox\_notify.pid} に touch することでこれを
+一つの実現することが可能である.
+ここで {\tt pid} はエンジンのプロセス番号である.
+コントロールサーバはファイル {\tt /tmp/.ox\_notify.pid} が
+touch されたことを検出したら, クライアントに
+{\tt OX\_NOTIFY} パケットおよび {\tt OX\_DATA} で {\tt cmo\_null} を送る.
+エンジンはファイルを用いてコントロールサーバに急を知らせる以外に,
+共有メモリやシグナルを用いてしらせてもよい.
 */
 /*&eg
 Let us note that only the control process is allowed to send {\tt OX\_NOTIFY}.

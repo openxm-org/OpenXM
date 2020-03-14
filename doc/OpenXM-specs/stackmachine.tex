@@ -1,22 +1,22 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.12 2004/03/08 03:08:12 takayama Exp $
-//&jp \section{ OX �����å��ޥ��� }
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.13 2016/08/22 09:08:50 takayama Exp $
+//&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
 /*&jp
-������Ǥ�, OX �����å��ޥ��� operator ������
-(TCP/IP �����åȾ�Ǥ�ɸ�� encoding ˡ ���Ѥ���),
-�����, ����ץ륵���Фȥ�󥯤�����ޤ���
-open XM �饤�֥��Ȥ��ƥ�󥯤��ƻ��Ѥ������
-����� C �δؿ��λ��ͤ���������.
+この節では, OX スタックマシン operator の説明
+(TCP/IP ソケット上での標準 encoding 法 を用いる),
+および, サンプルサーバとリンクする場合または
+open XM ライブラリとしてリンクして使用する場合の
+ための C の関数の仕様を説明する.
 
-����������, OX �����Х����å��ޥ����ư��θ�§��
-�������Ƥ���.
-�����Х����å��ޥ����,
-{\tt SM\_pop*} �ϤΥ����å��ޥ��󥳥ޥ�ɤ����ʤ�������,
-��ȯŪ�˥�å��������������뤳�ȤϤʤ�.
-���θ�§�˴�Ť���ʬ���׻��Υץ�����ߥ󥰤򤪤��ʤ�.
-���٥�ȥɥ�֥�ʥץ������ˡ�ȤϤ��������Ȥ�
-���դ��褦.
+説明の前に, OX サーバスタックマシンの動作の原則を
+説明しておく.
+サーバスタックマシンは,
+{\tt SM\_pop*} 系のスタックマシンコマンドがこないかぎり,
+自発的にメッセージを送信することはない.
+この原則に基づいて分散計算のプログラミングをおこなう.
+イベントドリブンなプログラム法とはちがうことに
+注意しよう.
 */
 
 /*&eg 
@@ -28,13 +28,13 @@ commands.  Note that the programming style should be different from
 that for event-driven programming.
 */
 
-//&jp \subsection{�����Х����å��ޥ��� }
+//&jp \subsection{サーバスタックマシン }
 //&eg \subsection{Server stack machine}
 
 /*&jp
-����ץ륵���ФǤ��� {\tt oxserver00.c}
-�ϰʲ��λ��ͤ� C �δؿ����Ѱդ���, 
-{\tt nullstackmachine.c } ���֤�������а��ư���Ϥ��Ǥ���.
+サンプルサーバである {\tt oxserver00.c}
+は以下の仕様の C の関数を用意して, 
+{\tt nullstackmachine.c } を置き換えれば一応動作するはずである.
 */
 /*&eg
 {\tt oxserver00.c} is implemented as a sample server.
@@ -43,45 +43,45 @@ write the following functions and use them instead of
 those in {\tt nullstackmachine.c}.
 */
 
-//&jp \subsubsection{�����Х����å��ޥ���Υ��롼�� SMobject/Primitive ��°���륪�ڥ졼��}
+//&jp \subsubsection{サーバスタックマシンのグループ SMobject/Primitive に属するオペレータ}
 //&eg \subsubsection{Operators in the group SMobject/Primitive}
 
 /*&jp
 \noindent
-�����Х����å��ޥ���Ϻ����1�ܤΥ����å�
+サーバスタックマシンは最低で1本のスタック
 \begin{verbatim}
 Object xxx_OperandStack[SIZE];
 \end{verbatim}
-����.  ������, {\tt Object} �Ϥ��Υ����ƥ��ͭ�� Object ���ǹ���ʤ�.
-CMObject �ϳƥ����и�ͭ�Υ������륪�֥������Ȥ��Ѵ����ƥ����å��إץ�
-���夷�Ƥ褤.  �������Ѵ�, ���Ѵ������������ΤϹ��������Ǥ��뤳�Ȥ�
-�Τ��ޤ���.  CMObject ��ɤΤ褦�� (local) Object ���Ѵ����뤫, Object 
-�������դ����å������������,�ƥ����ƥब�ȼ��ˤ����ʸ�񲽤��Ƥ���
-��ΤȤ���.  �Ĥޤꤹ�٤ƤΥ�å�������, private �Ǥ���.  ���Ȥ���,
-{\tt add } �Τ褦�ʴ���Ū�� ��å������ˤ������Ƥ�, OX �����å��ޥ���
-�Ϥʤˤ⤭��Ƥ��ʤ�.  ����Ū�ˤ� open math \cite{openmath} �Τ褦��
-CMObject ���Ф����������Ū�ʥ�å������λ��ͤ�content dictionary
-(CD) �η������������.
+をもつ.  ここで, {\tt Object} はそのシステム固有の Object 型で構わない.
+CMObject は各サーバ固有のローカルオブジェクトに変換してスタックへプッ
+シュしてよい.  ただし変換, 逆変換を合成したものは恒等写像であることが
+のぞましい.  CMObject をどのように (local) Object に変換するか, Object 
+が受け付けるメッセージの定義は,各システムが独自にきめて文書化しておく
+ものとする.  つまりすべてのメッセージは, private である.  たとえば,
+{\tt add } のような基本的な メッセージにたいしても, OX スタックマシン
+はなにもきめていない.  将来的には open math \cite{openmath} のように
+CMObject に対する最大公約数的なメッセージの仕様をcontent dictionary
+(CD) の形で定義したい.
 
-�ʲ�, \verb+ xxx_ + �ϸ���ζ��줬�ʤ��Ȥ��Ͼ�ά����.
-\verb+ xxx_ + �� local �����Х����ƥ�˸�ͭ�μ��̻ҤǤ���.
-{\tt Asir} �ξ��� \verb+ Asir_ + ���Ѥ���.  {\tt kan/sm1} �ξ��� 
-\verb+ Sm1_ + ���Ѥ���.  �ؿ�̾, ����̾��Ĺ���ΤǾ�ά�����Ѥ��Ƥ�褤.
+以下, \verb+ xxx_ + は誤解の恐れがないときは省略する.
+\verb+ xxx_ + は local サーバシステムに固有の識別子である.
+{\tt Asir} の場合は \verb+ Asir_ + を用いる.  {\tt kan/sm1} の場合は 
+\verb+ Sm1_ + を用いる.  関数名, タグ名は長いので省略形を用いてもよい.
 
-�ʲ��Ǥϼ��Τ褦�˥ѥ��åȤ򵭽Ҥ���.  �ƥե�����ɤ�,
-\fbox{�ǡ����� \quad  �ǡ���} �ʤ����
-�ǽ�.  ���Ȥ���, {\tt int32 OX\_DATA} �� 32 bit network byte order 
-�ο��� {\tt OX\_DATA}�Ȥ�����̣�Ǥ���.  ``������å��ǽ񤫤�Ƥ���ե���
-��ɤ�,������̤ΤȤ����Ǥʤ���Ƥ��뤫���˸���Τʤ��褦�ʼ�������
-����������Ƥ��� object ��ɽ��.''  ���Ȥ���, {\it String commandName} 
-��, String �ǡ������� local object {\it commandName} ���̣����.  (����
-�Х����å��ޥ����� object ��, CMO ������ object�Ȥϸ¤�ʤ����Ȥ���
-��.  CMO �����ǽ񤤤Ƥ��äƤ�, ����ϥ����Х����å��ޥ����local ����
-�ǥ����å���ˤ���Ȳ�ᤷ�Ʋ�����.)
+以下では次のようにパケットを記述する.  各フィールドは,
+\fbox{データ型 \quad  データ} なる形式
+で書く.  たとえば, {\tt int32 OX\_DATA} は 32 bit network byte order 
+の数字 {\tt OX\_DATA}という意味である.  ``イタリックで書かれているフィー
+ルドは,定義が別のところでなされているか解釈に誤解のないような自然言語
+で説明されている object を表す.''  たとえば, {\it String commandName} 
+は, String データ型の local object {\it commandName} を意味する.  (サー
+バスタックマシン上の object は, CMO 形式の objectとは限らないことに注
+意.  CMO 形式で書いてあっても, それはサーバスタックマシンのlocal 形式
+でスタック上にあると解釈して下さい.)
 
-���٤ƤΥ����Х����å��ޥ���ϰʲ�������������Ƥ��ʤ��Ȥ����ʤ�.
-�������Ф�, ��������ˤ����륹���å��ξ��֤򼨤�. �ޤˤ�����, 
-��ü�Υ��֥������Ȥ������å��Υȥåפ��б�����. 
+すべてのサーバスタックマシンは以下の操作を実装していないといけない.
+各操作に対し, その前後におけるスタックの状態を示す. 図において, 
+右端のオブジェクトがスタックのトップに対応する. 
 */
 
 /*&eg
@@ -123,10 +123,10 @@ top of the stack. Only the modified part of the stack are shown.
 \begin{enumerate}
 \item
 /*&jp
-CMObject/Primitive �� CMO �ǡ����Τ���ɬ�ܤΤ��, {\tt CMO\_ERROR2}, {\tt
-CMO\_NULL}, {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_LIST}������
-�����褿��礽��򥹥��å��� push ����.  ���Ȥ���, {\tt CMO\_NULL} 
-���뤤�� {\tt CMO\_String} �ξ�缡�Τ褦�ˤʤ�.
+CMObject/Primitive の CMO データのうち必須のもの, {\tt CMO\_ERROR2}, {\tt
+CMO\_NULL}, {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_LIST}がおく
+られて来た場合それをスタックに push する.  たとえば, {\tt CMO\_NULL} 
+あるいは {\tt CMO\_String} の場合次のようになる.
 */
 /*&eg
 Any server should accept CMObjects in the group CMObject/Primitive.
@@ -164,7 +164,7 @@ Stack after the request:
 
 Output:  none.
 
-//&jp CMO �ǡ����μ������˼��Ԥ������Τ�  \\
+//&jp CMO データの受け取りに失敗した時のみ  \\
 //&eg If the server fails to receive a CMO data,\\
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_ERROR2} & {\it CMObject} ob\\
@@ -172,14 +172,14 @@ Output:  none.
 \end{tabular}
 \\
 /*&jp
-�򥹥��å��� push ����.
-���ߤΤȤ���, ob �ˤ�, \\
+をスタックへ push する.
+現在のところ, ob には, \\
 \centerline{
-[{\sl Integer32} OX �ѥ��å��ֹ�, {\sl Integer32} ���顼�ֹ�, 
-{\sl CMObject} optional ����]
+[{\sl Integer32} OX パケット番号, {\sl Integer32} エラー番号, 
+{\sl CMObject} optional 情報]
 }
-�ʤ�ꥹ�Ȥ������ (CMO �����Ǥ����Ƥ��뤬, ����ϥ������ȼ��η����Ǥ褤.
-CMO �Ȥ������Ф����Ȥ����Τ褦�ʷ����Ǥʤ��Ȥ����ʤ��Ȥ�����̣�Ǥ���.)
+なるリストを入れる (CMO 形式でかいてあるが, これはサーバ独自の形式でよい.
+CMO として送出されるときこのような形式でないといけないという意味である.)
 */
 /*&eg
 is pushed onto the stack.
@@ -195,10 +195,10 @@ Currently ob is a list\\
 SM_mathcap
 \end{verbatim}
 /*&jp
-���Υ����Ф� mathcap ���ɤ� (termcap �Τޤ�).  �����ФΥ�����, ����
-�Х����å��ޥ����ǽ�Ϥ��Τ뤳�Ȥ��Ǥ���.  C ����Ǽ����������,
-mathcap �ι�¤�Τ򥷥��ƥ���ˤ�����ΤȤ�,���δؿ��Ϥ��ι�¤�Τؤ�
-�ݥ��󥿤��᤹.  (open sm1 �Ǥ� {\tt struct mathcap} ���Ѥ��Ƥ���.
+このサーバの mathcap をもどす (termcap のまね).  サーバのタイプ, サー
+バスタックマシンの能力を知ることができる.  C 言語で実装する場合は,
+mathcap の構造体をシステム毎にきめるものとし,この関数はその構造体への
+ポインタを戻す.  (open sm1 では {\tt struct mathcap} を用いている.
 */
 /*&eg
 It requests a server to push the mathcap of the server. 
@@ -226,10 +226,10 @@ Output: none.
 SM_setMathcap
 \end{verbatim}
 /*&jp
-������ä� Mathcap {\tt m} ��ʬ�Υ����ƥ�����ꤷ��, ���¦��������
-ǽ�� CMO �򤪤���ʤ��褦�ˤ���.  C ����Ǽ����������, mathcap �ι�
-¤�Τ򥷥��ƥ���ˤ�����ΤȤ�,���δؿ��Ϥ��ι�¤�ΤؤΥݥ��󥿤��
-���Ȥ���.  (open sm1 �Ǥ� {\tt struct mathcap} ���Ѥ��Ƥ���.
+受け取った Mathcap {\tt m} を自分のシステムに設定して, 相手側が理解不
+能な CMO をおくらないようにする.  C 言語で実装する場合は, mathcap の構
+造体をシステム毎にきめるものとし,この関数はその構造体へのポインタを引
+数とする.  (open sm1 では {\tt struct mathcap} を用いている.
 */
 /*&eg
 It requests a server to register the peer's mathcap {\tt m} in the server.
@@ -252,13 +252,13 @@ Request:
 Output:  none.
 /*&jp
 \noindent
-����: mathcap �ϰ��̤˥��饤����ȼ��Τ����ꤹ��.
-���饤����Ȥ������Ф� {\tt SM\_mathcap} �򤪤���,
-������¦�� mathcap ������.
-�����, ���饤����ȤϤ��Υ����Ф��տ路�� mathcap �Ȥ���
-���ꤹ��.
-����, ���饤����Ȥϥ����Ф˼�ʬ�� mathcap ��
-{\tt SM\_setMathcap} �Ǥ�����, ��ʬ�� mathcap �����ꤵ����.
+注意: mathcap は一般にクライアント主体で設定する.
+クライアントがサーバに {\tt SM\_mathcap} をおくり,
+サーバ側の mathcap を得る.
+それを, クライアントはそのサーバに付随した mathcap として
+設定する.
+次に, クライアントはサーバに自分の mathcap を
+{\tt SM\_setMathcap} でおくり, 自分の mathcap を設定させる.
 */
 /*&eg
 \noindent
@@ -274,13 +274,13 @@ registers it.
 SM_executeStringByLocalParser
 \end{verbatim}
 /*&jp
-ʸ���� {\tt s} �� stack ���� pop ��, 
-����ʸ����򥷥��ƥ��ͭ��ʸˡ(�����Х����å��ޥ�����Ȥ߹��ߥ�����
-�����)�ˤ������ä����ޥ�ɤȤ��Ƽ¹Ԥ���.  ���ޥ�ɤμ¹Ԥη�
-�̤κǸ������ͤ�����Ȥ���, {\tt OperandStack} ������ͤ� push ����.
-OpenXM �Ǥ�, ���ߤΤȤ����ؿ�̾��ɸ�ಽ�Ϥ����ʤäƤ��ʤ�.  
-���δؿ������ {\tt popString} �ε�ǽ��¸������, ����¤� open XM ��
-�����Фˤʤ��.  �����Ǥ�, �ޤ�������Ĥδؿ��ε�ǽ��¸����٤��Ǥ���.
+文字列 {\tt s} を stack から pop し, 
+その文字列をシステム固有の文法(サーバスタックマシンの組み込みローカ
+ル言語)にしたがったコマンドとして実行する.  コマンドの実行の結
+果の最後に戻り値があるときは, {\tt OperandStack} に戻り値を push する.
+OpenXM では, 現在のところ関数名の標準化はおこなっていない.  
+この関数および {\tt popString} の機能を実現すれば, 最低限の open XM の
+サーバになれる.  実装では, まずこの二つの関数の機能を実現すべきである.
 */
 /*&eg
 It requests a server to pop a character string {\tt s}, to
@@ -310,10 +310,10 @@ Request:
 Output:  none.
 /*&jp
 \noindent
-����: \  �¹����Υ����å��Υǡ�����,
-{\it String commandString} �ʤ� local stack machine �� object �Ȥ��ƥ�
-���å���ˤ��뤬, TCP/IP ���̿�ϩ�Ǥ�, ���Τ褦�ʥǡ������ޤ��ʤ����
-{\it commandName} �������å��� push �����:
+参考: \  実行前のスタックのデータは,
+{\it String commandString} なる local stack machine の object としてス
+タック上にあるが, TCP/IP の通信路では, 次のようなデータがまずながれて
+{\it commandName} がスタックに push される:
 */
 /*&eg
 \noindent
@@ -330,9 +330,9 @@ onto the stack. It is done by sending the following OX data message.
 SM_executeStringByLocalParserInBatchMode
 \end{verbatim}
 /*&jp
-�����å��������Ѥ��ʤ�(�����å��ˤ������Ƥʤ�����⤷�ʤ�)���Ȥ����
-��Ȥޤä���Ʊ���ؿ��Ǥ���.  ���顼�λ��Τ�, Error2 Object �򥹥��å�
-�إץå��夹��.
+スタックに副作用がない(スタックにたいしてなんの操作もしない)ことを除き
+上とまったく同じ関数である.  エラーの時のみ, Error2 Object をスタック
+へプッシュする.
 */
 /*&eg
 This is the same request as {\tt SM\_executeStringByLocalParser}
@@ -344,10 +344,10 @@ if an error has occurred.
 SM_popString
 \end{verbatim}
 /*&jp
-{\tt OperandStack} ��� Object �� pop ��, ����� xxx �ν��ϵ�§�ˤ�������ʸ
-���󷿤��Ѵ�������������.  �����å������ΤȤ���, {\tt (char *)NULL} ���᤹.
-ʸ����� TCP/IP stream �� CMO �Υǡ�
-���Ȥ�����������.  ���顼�ξ��� {\tt CMO\_ERROR2} ���᤹�٤��Ǥ���.
+{\tt OperandStack} より Object を pop し, それを xxx の出力規則にしたがい文
+字列型に変換して送信する.  スタックが空のときは, {\tt (char *)NULL} を戻す.
+文字列は TCP/IP stream へ CMO のデー
+タとして送信する.  エラーの場合は {\tt CMO\_ERROR2} を戻すべきである.
 */
 /*&eg
 It requests a server to pop an object from {\tt OperandStack},
@@ -381,8 +381,8 @@ Output:
 SM_getsp
 \end{verbatim}
 /*&jp
-���ߤΥ����å��ݥ��󥿤ΰ��֤��ɤ�.  �������Ȼ����Ǥΰ��֤� 0 �Ǥ���,
-object �� push ���줿�Ф���, 1 �Ť��������ΤȤ���.
+現在のスタックポインタの位置をもどす.  スタート時点での位置は 0 であり,
+object が push されたばあい, 1 づつ増えるものとする.
 */
 /*&eg
 It requests a server to push the current stack pointer onto the stack.
@@ -416,8 +416,8 @@ Output:  none.
 SM_dupErrors
 \end{verbatim}
 /*&jp
-�����å���Υ��顼���֥������Ȥ�ꥹ�Ȥˤ����᤹.  �����å����Τ��Ѳ�
-�����ʤ�.
+スタック上のエラーオブジェクトをリストにして戻す.  スタック自体は変化
+させない.
 */
 /*&eg
 It requests a server to push a list object containing all error objects on the stack.
@@ -442,10 +442,10 @@ Output: none.
 SM_pushCMOtag
 \end{verbatim}
 /*&jp
-�����å�����Ƭ���֥������Ȥ� CMO ���Ѵ����줿���� CMO tag ��
-{\tt CMO\_INT32} �Ȥ��ƥ����å��� push ����.
-��Ƭ���֥������Ȥϥ����å���α�ޤ�.
-��Ƭ���֥������Ȥ�CMO ���Ѵ�������ˡ��̵������, ���顼 object ���Ѥ�.
+スタックの先頭オブジェクトが CMO に変換された場合の CMO tag を
+{\tt CMO\_INT32} としてスタックへ push する.
+先頭オブジェクトはスタックに留まる.
+先頭オブジェクトをCMO へ変換する方法が無い場合は, エラー object を積む.
 */
 /*&eg
 It requests a server to push the CMO tag of the top object on the server
@@ -476,8 +476,8 @@ Output: none.
 //&C \subsubsection{ MathCap }  \label{subsubsection:mathcap}
 
 /*&jp
-{\bf ��}: \ 
-mathcap ���䤤��碌���Ф���, {\tt ox\_sm1} �ϼ��Τ褦��������.
+{\bf 例}: \ 
+mathcap の問い合わせに対して, {\tt ox\_sm1} は次のように答える.
 */
 /*&eg
 {\bf Example}: \ 
@@ -494,20 +494,20 @@ Class.mathcap
 \end{verbatim}
 
 /*&jp
-mathcap �� 3�İʾ�����Ǥ��ĥꥹ�ȤǤ���.  �ޤ�, �ǽ������(�����ꥹ��)�򸫤褦.
-�ꥹ�Ȥ���Ƭ�ο����� OpenXM �ץ��ȥ���ΥС������Ǥ���.
-Ox\_system �� openXM �����ƥ�̾�Ǥ���.  �ɤ߹���饤�֥�꤬�����ä�
-����, �ؿ�̾(�ޤ��� ����ܥ�)�ΰ�̣���������Ȥ��Ϥ���̾���⤫����. ��
-�Ȥ���, open math �� basic content dictionary �б��δؿ�����ޥ�������
-�ߤ���� sm1 ��, ox\_sm1\_basicCD �ʤ�̾���ˤ���.  HOSTTYPE �ͤ�, CPU 
-�μ���򤢤�路unix �ǤϴĶ��ѿ�\verb+$HOSTTYPE+ ���ͤǤ���.  2 ����
-�����Ǥ� ���Ѳ�ǽ�� SM ���ޥ�ɤ򤢤Ĥ᤿�ꥹ�ȤǤ���.  3 ���ܤΥꥹ��
-��, ������ǽ�ʿ��إǡ����η���, �����CMO�ξ��ʤ������ǽ��CMO�Υ���
-�Υꥹ�Ȥ�³��.  �����Ǥ�, 514 �� {\tt OX\_DATA} �򤢤�路, ���إǡ�
-���Υե��ޥåȤ�(����������ʤ���) CMO �Ǥ��뤳�Ȥ򼨤�.
-�����ܤΥꥹ�Ȥ� optinal ��, CMO string �Υꥹ�ȤǤ���.
-ʸ����� option̾, �ޤ��� option̾=��, �ʤ������Ϳ����.
-option ̾�ϱѿ�������ӥ�������С��ǵ���. = �ʲ��� utf-8 ʸ�������ɤ����Ѥ��Ƥ褤.
+mathcap は 3つ以上の要素をもつリストである.  まづ, 最初の要素(これもリスト)を見よう.
+リストの先頭の数字は OpenXM プロトコルのバージョンである.
+Ox\_system は openXM システム名である.  読み込むライブラリがちがって
+いて, 関数名(または シンボル)の意味がちがうときはこの名前もかえる. た
+とえば, open math の basic content dictionary 対応の関数定義マクロを読
+みこんだ sm1 は, ox\_sm1\_basicCD なる名前にする.  HOSTTYPE 値は, CPU 
+の種類をあらわしunix では環境変数\verb+$HOSTTYPE+ の値である.  2 番目
+の要素は 利用可能な SM コマンドをあつめたリストである.  3 番目のリスト
+は, 処理可能な数学データの形式, およびCMOの場合なら処理可能なCMOのタグ
+のリストが続く.  上の例では, 514 は {\tt OX\_DATA} をあらわし, 数学デー
+タのフォマットは(サイズ情報なしの) CMO であることを示す.
+四番目のリストは optinal で, CMO string のリストである.
+文字列は option名, または option名=値, なる形式で与える.
+option 名は英数字およびアンダーバーで記述. = 以下は utf-8 文字コードを利用してよい.
 */
 /*&eg
 A mathcap has three or more than three components. 
@@ -622,21 +622,21 @@ Example of the use of the fourth argument (optional parameter).
 
 \medbreak
 
-//&jp \subsubsection{ �� }
+//&jp \subsubsection{ 例 }
 //&eg \subsubsection{ Examples }
 
 \noindent
-//&jp {\bf ��}: \ 
+//&jp {\bf 例}: \ 
 //&eg {\bf Example}: \ 
 %%Prog: (ox.sm1) run  sm1connectr  [(oxWatch) ox.ccc] extension
 %%Prog: ox.ccc (122345; ) oxsubmit ;
-//&jp {\tt message\_body} �μ���򤢤���.   ���ꥢ���ֹ����Ͻ����Ƥ���.
+//&jp {\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
 //&eg We show examples of {\tt message\_body}. Serial numbers are omitted.
 \begin{enumerate}
 \item  {\tt executeStringByLocalParser("12345 ;");} 
 /*&jp
-�ϼ��Τ褦�ʥѥ��åȤ��Ѵ������. �ƿ����� 16��1�Х��Ȥ򤢤�魯.
-{\tt xx(yy)} �Τʤ��� {\tt (yy)} ���б����륢�����������ɤ򤢤�餹.
+は次のようなパケットに変換される. 各数字は 16進1バイトをあらわす.
+{\tt xx(yy)} のなかの {\tt (yy)} は対応するアスキーコードをあわらす.
 */
 /*&eg
 is converted into the following packet. Each number denotes
@@ -649,7 +649,7 @@ one byte in hexadecimal representation.
 0   0   2   1   0   0   1   c 
 \end{verbatim}
 /*&jp
-���줾��Υǡ����ΰ�̣�ϼ��ΤȤ���Ǥ���.
+それぞれのデータの意味は次のとおりである.
 */
 /*&eg
 Each data has the following meaning.
@@ -662,7 +662,7 @@ Each data has the following meaning.
 0   0   2   1  (OX_COMMAND) 
 0   0   1   c  (SM_executeStringByLocalParser)
 \end{verbatim}
-//&jp ����� OXexpression ��ɽ������ȼ��Τ褦�ˤʤ�.
+//&jp これを OXexpression で表記すると次のようになる.
 //&eg This is expressed by OXexpression as follows.
 \begin{center}
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;"))
@@ -671,30 +671,30 @@ Each data has the following meaning.
 (OX\_COMMAND, (SM\_executeStringByLocalParser))
 \end{center}
 
-//&jp \item  {\tt popString()}  �����������å�����:
+//&jp \item  {\tt popString()}  を要請するメッセージ:
 //&eg \item  A message which requests {\tt SM\_popString}:
 \begin{verbatim}
 0   0   2   1  (OX_COMMAND) 
 0   0   1   7  (SM_popString)
 \end{verbatim}
-//&jp OXexpression �Ǥ�
+//&jp OXexpression では
 //&eg In OXexpression it is represented as 
 (OX\_COMMAND, (SM\_popString)).
 
 \noindent
-//&jp ����ˤ������Ƽ���������å�����������.
+//&jp これにたいして次の返答メッセージがくる.
 //&eg The server returns the following reply message:
 \begin{verbatim}
 0   0   2   2   (OX_DATA) 
 0   0   0   4   (CMO_STRING) 0   0   0   5  (size)
 31(1)  32(2)  33(3)  34(4)  35(5) 
 \end{verbatim}
-//&jp OXexpression �Ǥ�����,
+//&jp OXexpression でかくと,
 //&eg In OXexpression it is represented as
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;")).
 \end{enumerate}
 
-//&jp \subsubsection{���롼�� SMobject/Basic ��°���륪�ڥ졼��}
+//&jp \subsubsection{グループ SMobject/Basic に属するオペレータ}
 //&eg \subsubsection{Operators in the group SMobject/Basic}
 
 \begin{enumerate}
@@ -703,8 +703,8 @@ Each data has the following meaning.
 SM_pops
 \end{verbatim}
 /*&jp
-operand stack ���, {\it n} �Ĥθ� ({\it obj1, obj2, $\ldots$, objn} 
-�� pop ���ƼΤƤ�.
+operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn} 
+を pop して捨てる.
 */
 /*&eg
 It requests a server to pop {\it n} and to discard elements {\it obj1, obj2,
@@ -732,10 +732,10 @@ Output:  none.
 int SM_setName
 \end{verbatim}
 /*&jp
-{\tt OperandStack} ��� {\it name} �� pop ��, �Ĥ���{\tt OperandStack} 
-��� {\it obj} �� pop ��, ����򸽺ߤ�̾�����֤��ѿ� {\it name} �� 
-bind ����.  ���ｪλ�ʤ� 0 ��, �۾ｪλ�ʤ� -1 ���ɤ�.  TCP/IP �ˤ�
-���̿��Ǥ�, �۾ｪλ�λ��Τ�, {\tt CMO\_ERROR2} ��stack �� push ����.
+{\tt OperandStack} より {\it name} を pop し, つぎに{\tt OperandStack} 
+より {\it obj} を pop し, それを現在の名前空間で変数 {\it name} に 
+bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
+る通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} をstack へ push する.
 */
 /*&eg
 It requests a server to pop {\it name}, to pop {\it obj}, and to
@@ -764,10 +764,10 @@ SM_evalName
 \end{verbatim}
 
 /*&jp
-���ߤ�̾�����֤��ѿ� {\it name} ��ɾ������.  ɾ���η�� {\it
-OutputObj} �򥹥��å����᤹.  �ؿ����Τ����ｪλ�ʤ� 0 ��, �۾ｪλ��
-�� -1 ���ɤ�.  TCP/IP �ξ��, �۾ｪλ�ξ��Τ� {\tt CMO\_ERROR2} 
-�� stack �� push ����.
+現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
+OutputObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
+ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
+を stack へ push する.
 */
 
 /*&eg
@@ -804,9 +804,9 @@ Output:  none.
 SM_executeFunction
 \end{verbatim}
 /*&jp
-�����å���� {\it n} �ĤΥǡ����� pop ����, �����ФΥ�������ؿ�{\it
-s} ��¹Ԥ���.  ���顼�ΤȤ��Τ� {\tt CMO\_ERROR2} �� stack �� push ��
-��.
+スタックより {\it n} 個のデータを pop して, サーバのローカル関数{\it
+s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
+る.
 */
 /*&eg
 It requests a server to pop {\it s} as a function name, 
@@ -829,7 +829,7 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Stack after the request: �ؿ��¹Ԥη��.
+//&jp Stack after the request: 関数実行の結果.
 //&eg Stack after the request: The Output of the execution.
 
 Output: none.
@@ -840,10 +840,10 @@ SM_popSerializedLocalObject
 \end{verbatim}
 
 /*&jp
-�����å���� pop ���� object �� local ������ serialization ����
-OX message �Ȥ��� stream �ؽ��Ϥ���. OX message tag �Ȥ��Ƥ�, 
-local �������б�������Τ��������Ƥ��뤳�Ȥ�ɬ�פǤ���. 
-���δؿ��Ϥ����, homogeneous ��ʬ�������ƥ���Ѥ���.
+スタックより pop した object を local 形式で serialization して
+OX message として stream へ出力する. OX message tag としては, 
+local 形式に対応したものが定義されていることが必要である. 
+この関数はおもに, homogeneous な分散システムで用いる.
 */
 /*&eg
 It requests a sever to pop an object, to convert it into a
@@ -861,8 +861,8 @@ SM_popCMO
 \end{verbatim}
 
 /*&jp
-{\tt OperandStack} ��� object �� pop �� CMO ������ serialized object �� 
-stream �� header {\tt OX\_DATA} ��Ĥ��Ƥʤ���. 
+{\tt OperandStack} より object を pop し CMO 形式の serialized object を 
+stream へ header {\tt OX\_DATA} をつけてながす. 
 */
 /*&eg
 It requests a server to pop an object from the stack, to convert
@@ -888,10 +888,10 @@ Output:
 SM_executeFunctionWithOptionalArgument
 \end{verbatim}
 /*&jp
-�����å���� {\it n} �ĤΥǡ�������Ӱ�Ĥ� optional ���� {\it opt} �� pop ����, 
-�����ФΥ�������ؿ�{\it s} ��¹Ԥ���.  ���顼�ΤȤ��Τ� {\tt CMO\_ERROR2} �� stack �� push ��
-��.
-{\it opt} �ϥ�����ɤ��ͤΥꥹ�ȤΥꥹ�ȤǤ���. ������ɤ�ʸ���󷿤Ǥ���.
+スタックより {\it n} 個のデータおよび一つの optional 引数 {\it opt} を pop して, 
+サーバのローカル関数{\it s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
+る.
+{\it opt} はキーワードと値のリストのリストである. キーワードは文字列型である.
 */
 /*&eg
 It requests a server to pop {\it s} as a function name, 
@@ -917,7 +917,7 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Stack after the request: �ؿ��¹Ԥη��.
+//&jp Stack after the request: 関数実行の結果.
 //&eg Stack after the request: The Output of the execution.
 
 Output: none.

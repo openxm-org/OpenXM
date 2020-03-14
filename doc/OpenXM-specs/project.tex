@@ -1,15 +1,15 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/project.tex,v 1.3 2000/01/24 12:32:49 noro Exp $
-//&jp \section{¸½ºß¸¡Æ¤Ãæ¤Îµ¡Ç½}
+%% $OpenXM: OpenXM/doc/OpenXM-specs/project.tex,v 1.4 2000/02/02 02:03:41 takayama Exp $
+//&jp \section{ç¾åœ¨æ¤œè¨ä¸­ã®æ©Ÿèƒ½}
 //&eg \section{Projects in work in progress}
 
-//&jp \subsection{ OX DATA with Length ¤Î¹½Â¤ }
+//&jp \subsection{ OX DATA with Length ã®æ§‹é€  }
 //&eg \subsection{ OX DATA with Length }
 
 /*&jp
-Digital signature ÉÕ¤Î {\tt OX\_DATA} ¤Ï
-¥Ø¥Ã¥À {\tt OX\_DATA\_WITH\_LENGTH }¤Ç, ¤Ï¤¸¤Ş¤ê, CMO ¤¬¤­¤Æ,
-¤½¤ì¤«¤é, ½ª¤ê¤Î¥Ş¡¼¥¯¤ª¤è¤Ó¥Ç¥¸¥¿¥ë½ğÌ¾¤¬¤¯¤ë.
-¤³¤Î·Á¤Î¥Ç¡¼¥¿¤ò {\it secured OX DATA} ¤È¸Æ¤Ö.
+Digital signature ä»˜ã® {\tt OX\_DATA} ã¯
+ãƒ˜ãƒƒãƒ€ {\tt OX\_DATA\_WITH\_LENGTH }ã§, ã¯ã˜ã¾ã‚Š, CMO ãŒãã¦,
+ãã‚Œã‹ã‚‰, çµ‚ã‚Šã®ãƒãƒ¼ã‚¯ãŠã‚ˆã³ãƒ‡ã‚¸ã‚¿ãƒ«ç½²åãŒãã‚‹.
+ã“ã®å½¢ã®ãƒ‡ãƒ¼ã‚¿ã‚’ {\it secured OX DATA} ã¨å‘¼ã¶.
 */
 /*&eg
 {\tt OX\_DATA\_WITH\_LENGTH } is the OX tag for 
@@ -30,10 +30,10 @@ This type of OX data message is called {\it secured OX DATA}.
 \hline 
 \end{tabular}
 
-//&jp {\tt size} ¥Õ¥£¡¼¥ë¥É¤Ë ÃÍ -1 ¤¬Æş¤Ã¤Æ¤¤¤ë¾ì¹ç¤³¤Î¾ğÊó¤òÌµ»ë¤¹¤ë.
+//&jp {\tt size} ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã« å€¤ -1 ãŒå…¥ã£ã¦ã„ã‚‹å ´åˆã“ã®æƒ…å ±ã‚’ç„¡è¦–ã™ã‚‹.
 //&eg If {\tt size} is equal to -1, then it is ignored.
 
-//&jp {\it tail } ¤Ï¼¡¤Î¤è¤¦¤ËÄêµÁ¤¹¤ë.
+//&jp {\it tail } ã¯æ¬¡ã®ã‚ˆã†ã«å®šç¾©ã™ã‚‹.
 //&eg {\it tail } is defined as follows.
 \\ \noindent
 \begin{tabular}{|c|c|c|}  \hline
@@ -43,11 +43,11 @@ This type of OX data message is called {\it secured OX DATA}.
 \end{tabular}
 
 /*&jp
-¤³¤³¤Ç, {\tt size} ¤Ï¥Ğ¥¤¥ÈÎó {\it signature} Éô¤ÎÄ¹¤µ.
-{\it signature} ¤Ï, Hash ´Ø¿ô¤òÍÑ¤¤¤¿, {\it CMO data}
-¤Ë¤¿¤¤¤¹¤ë, ¥Ç¥¸¥¿¥ë½ğÌ¾¤ò¤¤¤ì, ÉÔÀµ¤Ê serialized object 
-¤ò¸¡½Ğ¤¹¤ë.
-Tail ¤Î {\tt size} ¥Õ¥£¡¼¥ë¥É¤¬ 0 ¤Î¾ì¹ç, ¥Ç¥¸¥¿¥ë½ğÌ¾Éô¤Ï¤Ê¤¤.
+ã“ã“ã§, {\tt size} ã¯ãƒã‚¤ãƒˆåˆ— {\it signature} éƒ¨ã®é•·ã•.
+{\it signature} ã¯, Hash é–¢æ•°ã‚’ç”¨ã„ãŸ, {\it CMO data}
+ã«ãŸã„ã™ã‚‹, ãƒ‡ã‚¸ã‚¿ãƒ«ç½²åã‚’ã„ã‚Œ, ä¸æ­£ãª serialized object 
+ã‚’æ¤œå‡ºã™ã‚‹.
+Tail ã® {\tt size} ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ãŒ 0 ã®å ´åˆ, ãƒ‡ã‚¸ã‚¿ãƒ«ç½²åéƒ¨ã¯ãªã„.
 */
 /*&eg
 Here {\tt size} is the length of {\it signature}.
@@ -56,16 +56,16 @@ a Hash function and is used to detect invalid serialized objects.
 If {\tt size} of Tail is equal to 0, then it has no digital signature.
 */
 
-//&jp ¥¯¥é¥¤¥¢¥ó¥È, ¥µ¡¼¥Ğ¤Î¼ÂÁõ¤Ë¤Ï¼¡¤Î4¤Ä¤ÎÁªÂò¤¬¤¢¤ë.
+//&jp ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆ, ã‚µãƒ¼ãƒã®å®Ÿè£…ã«ã¯æ¬¡ã®4ã¤ã®é¸æŠãŒã‚ã‚‹.
 //&eg Currently there are four modes of communicating data.
 /*&jp
 \begin{enumerate}
-\item {\tt OX\_DATA} ¤Î¤ß¤òÍÑ¤¤¤Æ CMObject ¤òÁ÷¤ë (mathcap ÉÕ).
-\item {\tt OX\_SECURED\_DATA} ¤Î¤ß¤òÍÑ¤¤¤Æ CMObject ¤òÁ÷¤ë.
-\item {\tt OX\_DATA} ¤ª¤è¤Ó
-{\tt OX\_SECURED\_DATA} ¤òº®ºß¤·¤Æ
-»ÈÍÑ¤Ç¤­¤ë¤è¤¦¤Ë¤¹¤ë.
-\item {\tt OX\_DATA} ¤Î¤ß¤òÍÑ¤¤¤Æ¤«¤Ä mathcap ¤âÍÑ¤¤¤Ê¤¤(°ìÈÖ¹âÂ®).
+\item {\tt OX\_DATA} ã®ã¿ã‚’ç”¨ã„ã¦ CMObject ã‚’é€ã‚‹ (mathcap ä»˜).
+\item {\tt OX\_SECURED\_DATA} ã®ã¿ã‚’ç”¨ã„ã¦ CMObject ã‚’é€ã‚‹.
+\item {\tt OX\_DATA} ãŠã‚ˆã³
+{\tt OX\_SECURED\_DATA} ã‚’æ··åœ¨ã—ã¦
+ä½¿ç”¨ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹.
+\item {\tt OX\_DATA} ã®ã¿ã‚’ç”¨ã„ã¦ã‹ã¤ mathcap ã‚‚ç”¨ã„ãªã„(ä¸€ç•ªé«˜é€Ÿ).
 \end{enumerate} 
 */
 /*&eg
@@ -77,13 +77,13 @@ If {\tt size} of Tail is equal to 0, then it has no digital signature.
 \end{enumerate} 
 */
 /*&jp
-1 ¤ÎÃ»½ê¤Ï, mathcap ¤Î¼ÂÁõ¤¬ÉÔ½½Ê¬¤Ç,Íı²ò¤Ç¤­¤Ê¤¤ CMObject ¤ò¤¦¤±¤È¤ë
-¤È,°Ê¸å¤Î CMObject ¤ÏÍı²ò¤Ç¤­¤Ê¤¯¤Ê¤ë.  1 ¤ÎÄ¹½ê¤Ï, Ä¹¤µ¥Õ¥£¡¼¥ë¥É¤Î·×
-»»¤ò¤ª¤³¤Ê¤ï¤Ê¤¤¤¿¤á, ¥Ç¡¼¥¿¤òÁ÷¤ê½Ğ¤¹Â¦¤ËÉéÃ´¤¬¤«¤«¤é¤Ê¤¤¤³¤È¤Ç¤¢¤ë.
-2 ¤ÎÄ¹½ê¤Ï, mathcap ¤Î¼ÂÁõ¤¬ÉÔ½½Ê¬¤Ç,Íı²ò¤Ç¤­¤Ê¤¤ CMObject ¤ò¤¦¤±¤È¤Ã
-¤Æ¤â,Ä¹¤µ¥Õ¥£¡¼¥ë¥É¤òÍÑ¤¤¤Æ, ÄÌ¿®²óÀş¤Î¥À¥¦¥ó¤òËÉ¤°¤³¤È¤¬¤Ç¤­¤ë.  2 ¤Î
-Ã»½ê¤Ï, Ä¹¤µ¥Õ¥£¡¼¥ë¥É¤Î·×»»¤ò¤ª¤³¤Ê¤¦¤¿¤á, ¥Ç¡¼¥¿¤òÁ÷¤ê½Ğ¤¹Â¦¤ËÉéÃ´¤¬
-¤«¤«¤ë¤³¤È¤Ç¤¢¤ë.
+1 ã®çŸ­æ‰€ã¯, mathcap ã®å®Ÿè£…ãŒä¸ååˆ†ã§,ç†è§£ã§ããªã„ CMObject ã‚’ã†ã‘ã¨ã‚‹
+ã¨,ä»¥å¾Œã® CMObject ã¯ç†è§£ã§ããªããªã‚‹.  1 ã®é•·æ‰€ã¯, é•·ã•ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®è¨ˆ
+ç®—ã‚’ãŠã“ãªã‚ãªã„ãŸã‚, ãƒ‡ãƒ¼ã‚¿ã‚’é€ã‚Šå‡ºã™å´ã«è² æ‹…ãŒã‹ã‹ã‚‰ãªã„ã“ã¨ã§ã‚ã‚‹.
+2 ã®é•·æ‰€ã¯, mathcap ã®å®Ÿè£…ãŒä¸ååˆ†ã§,ç†è§£ã§ããªã„ CMObject ã‚’ã†ã‘ã¨ã£
+ã¦ã‚‚,é•·ã•ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’ç”¨ã„ã¦, é€šä¿¡å›ç·šã®ãƒ€ã‚¦ãƒ³ã‚’é˜²ãã“ã¨ãŒã§ãã‚‹.  2 ã®
+çŸ­æ‰€ã¯, é•·ã•ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®è¨ˆç®—ã‚’ãŠã“ãªã†ãŸã‚, ãƒ‡ãƒ¼ã‚¿ã‚’é€ã‚Šå‡ºã™å´ã«è² æ‹…ãŒ
+ã‹ã‹ã‚‹ã“ã¨ã§ã‚ã‚‹.
 */
 /*&eg
 Suppose that the mathcap handling is incomplete and an application
@@ -95,13 +95,13 @@ from the size information. However, in mode 2, additional cost is
 required on the sender to compute the total length of CMObjects.
 */
 
-//&jp ¸½ºß¤Î¤¹¤Ù¤Æ¤Î¥µ¥ó¥×¥ë¥µ¡¼¥Ğ¤Ï, 1, 4 ¤Î¤ß¤ò¼ÂÁõ¤·¤Æ¤¤¤ë.
+//&jp ç¾åœ¨ã®ã™ã¹ã¦ã®ã‚µãƒ³ãƒ—ãƒ«ã‚µãƒ¼ãƒã¯, 1, 4 ã®ã¿ã‚’å®Ÿè£…ã—ã¦ã„ã‚‹.
 //&teg Currently all sample servers implements only 1 and 4.
 
 /*&jp
-mathcap ¤Î¸ò´¹¤Ï¥»¥Ã¥·¥ç¥ó¤Î³«»Ï»şÅÀ¤ÇÉ¬¿Ü¤È¤¤¤¦Ìõ¤Ç¤Ï¤Ê¤¤¤³¤È¤ËÃí°Õ¤µ
-¤ì¤¿¤¤.  ¤¿¤È¤¨¤Ğ,¥â¡¼¥É 4 ¤ÇÄÌ¿®¤·¤Æ,¤½¤ì¤«¤é, mathcap ¤ò¸ò´¹¤·¤Æ,¥â¡¼
-¥É 1 ¤Ø°Ü¹Ô¤¹¤ë¤³¤È¤â²ÄÇ½¤Ê¤è¤¦¤Ë¼ÂÁõ¤¹¤Ù¤­¤Ç¤¢¤ë.
+mathcap ã®äº¤æ›ã¯ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®é–‹å§‹æ™‚ç‚¹ã§å¿…é ˆã¨ã„ã†è¨³ã§ã¯ãªã„ã“ã¨ã«æ³¨æ„ã•
+ã‚ŒãŸã„.  ãŸã¨ãˆã°,ãƒ¢ãƒ¼ãƒ‰ 4 ã§é€šä¿¡ã—ã¦,ãã‚Œã‹ã‚‰, mathcap ã‚’äº¤æ›ã—ã¦,ãƒ¢ãƒ¼
+ãƒ‰ 1 ã¸ç§»è¡Œã™ã‚‹ã“ã¨ã‚‚å¯èƒ½ãªã‚ˆã†ã«å®Ÿè£…ã™ã¹ãã§ã‚ã‚‹.
 */
 /*&eg
 Note that the exchange of mathcaps are not necessary at the start
@@ -109,7 +109,7 @@ of a session. Any server should be implemented so that it can
 change the communication mode dynamically, say, from 4 to 1.
 */
 
-//&jp \subsection{¥µ¡¼¥Ğ¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¤Ï¥í¡¼¥«¥ë¤Ê³ÈÄ¥µ¡Ç½¤ò¤â¤Ã¤Æ¤è¤¤}
+//&jp \subsection{ã‚µãƒ¼ãƒã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³ã¯ãƒ­ãƒ¼ã‚«ãƒ«ãªæ‹¡å¼µæ©Ÿèƒ½ã‚’ã‚‚ã£ã¦ã‚ˆã„}
 //&eg \subsection{Local extension on server stack machines}
 
 \begin{verbatim}
@@ -118,9 +118,9 @@ change the communication mode dynamically, say, from 4 to 1.
 
 /*&jp
 {\tt CMO\_PRIVATE} = {\tt OX\_PRIVATE} = {\tt SM\_PRIVATE} 
-¤è¤ê¤Ï¤¸¤Ş¤ë, 0x10000 ¸Ä¤Î ID ¤Ï, private ÎÎ°è¤È¤·¤ÆÍ½Ìó¤µ¤ì¤Æ¤¤¤ë.
-³Æ¥µ¡¼¥Ğ¤Î³«È¯¼Ô´Ö¤ÇÉ½¸½ÊıË¡¤Ë¤Ä¤­¤Ş¤À¹ç°Õ¤¬¤Ê¤¤¤è¤¦¤Ê, CMObject, 
-OX Message, SMobject ¤òÉ½¸½¤¹¤ë¤¿¤á¤Ë»ÈÍÑ¤¹¤ë.
+ã‚ˆã‚Šã¯ã˜ã¾ã‚‹, 0x10000 å€‹ã® ID ã¯, private é ˜åŸŸã¨ã—ã¦äºˆç´„ã•ã‚Œã¦ã„ã‚‹.
+å„ã‚µãƒ¼ãƒã®é–‹ç™ºè€…é–“ã§è¡¨ç¾æ–¹æ³•ã«ã¤ãã¾ã åˆæ„ãŒãªã„ã‚ˆã†ãª, CMObject, 
+OX Message, SMobject ã‚’è¡¨ç¾ã™ã‚‹ãŸã‚ã«ä½¿ç”¨ã™ã‚‹.
 */
 /*&eg
 0x10000 ID's beginning from 
@@ -131,15 +131,15 @@ which are not authorized yet.
 */
 
 
-//&jp \subsection{MathLink ¤ä OpenMath ¤Ê¤É¤ÎÄÌ¿®µ¬Ìó¤Î¼ÂÁõ}
+//&jp \subsection{MathLink ã‚„ OpenMath ãªã©ã®é€šä¿¡è¦ç´„ã®å®Ÿè£…}
 //&eg \subsection{Implementation of other protocols such as MathLink and OpenMath}
 
 /*&jp
-Open asir, open sm1 ¤È Mathematica ¤ÎÍÑ¤¤¤Æ¤¤¤ë MathLink ¤ä 
+Open asir, open sm1 ã¨ Mathematica ã®ç”¨ã„ã¦ã„ã‚‹ MathLink ã‚„ 
 Open Math (\cite{openmath})
-¥×¥í¥È¥³¥ë¤òÊÑ´¹¤¹¤ë¤¿¤á¤Î
-¥é¥¤¥Ö¥é¥ê¤ä¥µ¡¼¥Ğ¤òÍÑ°Õ¤¹¤ì¤Ğ, {\tt asir} ¤ä {\tt kan/sm1} ¤Î
-ÆâÉô¹½Â¤¤òÍı²ò¤¹¤ë¤³¤È¤Ê¤·¤Ë, ¤³¤ì¤é¤Ë½àµò¤·¤¿¥·¥¹¥Æ¥à¤ÈÄÌ¿®¤Ç¤­¤ë.
+ãƒ—ãƒ­ãƒˆã‚³ãƒ«ã‚’å¤‰æ›ã™ã‚‹ãŸã‚ã®
+ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚„ã‚µãƒ¼ãƒã‚’ç”¨æ„ã™ã‚Œã°, {\tt asir} ã‚„ {\tt kan/sm1} ã®
+å†…éƒ¨æ§‹é€ ã‚’ç†è§£ã™ã‚‹ã“ã¨ãªã—ã«, ã“ã‚Œã‚‰ã«æº–æ‹ ã—ãŸã‚·ã‚¹ãƒ†ãƒ ã¨é€šä¿¡ã§ãã‚‹.
 */
 /*&eg
 If we provide a library or a server for protocol conversion
@@ -148,14 +148,14 @@ a client conforming to such protocols can communicate with
 Asir or kan/sm1 without knowing their internal structures.
 */
 
-//&jp \subsection{¶¦ÄÌ¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¸À¸ì}
+//&jp \subsection{å…±é€šã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³è¨€èª}
 //&eg \subsection{Common operations on stack machines}
 
 /*&jp
-CMO ¤ËÉÕ¿ï¤·¤¿, ¤¿¤È¤¨¤Ğ, Integer 32 ¤ËÂĞ¤¹¤ë,
-add, sub, mul, ¤Ê¤É¤Î´ğËÜÅª¤Ê·×»»¤Ï {\tt SM\_executeFunction}
-¤ÇÁ´¤Æ¤Î¥·¥¹¥Æ¥à¤Ç¼Â¹Ô¤Ç¤­¤ë¤è¤¦¤Ë¸¡Æ¤¤·¤Æ¤¤¤ë.
-¥¹¥¿¥Ã¥¯¥Ş¥·¥ó¤ÎÀ©¸æ¹½Â¤¤Ë¤Ä¤¤¤Æ¤â¸¡Æ¤¤·¤Æ¤¤¤ë.
+CMO ã«ä»˜éšã—ãŸ, ãŸã¨ãˆã°, Integer 32 ã«å¯¾ã™ã‚‹,
+add, sub, mul, ãªã©ã®åŸºæœ¬çš„ãªè¨ˆç®—ã¯ {\tt SM\_executeFunction}
+ã§å…¨ã¦ã®ã‚·ã‚¹ãƒ†ãƒ ã§å®Ÿè¡Œã§ãã‚‹ã‚ˆã†ã«æ¤œè¨ã—ã¦ã„ã‚‹.
+ã‚¹ã‚¿ãƒƒã‚¯ãƒã‚·ãƒ³ã®åˆ¶å¾¡æ§‹é€ ã«ã¤ã„ã¦ã‚‚æ¤œè¨ã—ã¦ã„ã‚‹.
 */
 /*&eg
 Fundamental operations such as {\tt add}, {\tt sub}, {\tt mul} should be

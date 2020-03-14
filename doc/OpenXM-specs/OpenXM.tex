@@ -1,16 +1,16 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/OpenXM.tex,v 1.21 2016/08/22 05:38:27 takayama Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/OpenXM.tex,v 1.22 2016/08/22 09:08:50 takayama Exp $
 \documentclass{article}
 \IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
 \begin{document}
 /*&jp
-\title{{\bf Open XM ¤ÎÀß·×¤È¼ÂÁõ: ¥¯¥é¥¤¥¢¥ó¥È¥µ¡¼¥Ğ¥â¥Ç¥ë¤È¿ô³Ø¶¦ÄÌÉ½¸½ (OpenXM-RFC 100, proposed standard)} \\
+\title{{\bf Open XM ã®è¨­è¨ˆã¨å®Ÿè£…: ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã‚µãƒ¼ãƒãƒ¢ãƒ‡ãƒ«ã¨æ•°å­¦å…±é€šè¡¨ç¾ (OpenXM-RFC 100, proposed standard)} \\
  --- Open message eXchange protocol for Mathematics }
-\author{ ÌîÏ¤Àµ¹Ô, 
-         ¹â»³¿®µ£\thanks{¿À¸ÍÂç³ØÍı³ØÉô¿ô³Ø¶µ¼¼,\htmladdnormallink{http://www.math.kobe-u.ac.jp/$\tilde{\ }$taka}{http://www.math.kobe-u.ac.jp/\tilde{\ }taka}}}
-\date{ 1997Ç¯, 11·î20Æü --- 2000Ç¯, 11·î17Æü, \\
-       2001Ç¯, 8·î27Æü, 2002Ç¯, 1·î20Æü (¾®½¤Àµ),\\
-        ¤³¤ì°Ê¸å¤Î½¤Àµ¤Ï changeLog ¤ò¸«¤è.}
+\author{ é‡å‘‚æ­£è¡Œ, 
+         é«˜å±±ä¿¡æ¯…\thanks{ç¥æˆ¸å¤§å­¦ç†å­¦éƒ¨æ•°å­¦æ•™å®¤,\htmladdnormallink{http://www.math.kobe-u.ac.jp/$\tilde{\ }$taka}{http://www.math.kobe-u.ac.jp/\tilde{\ }taka}}}
+\date{ 1997å¹´, 11æœˆ20æ—¥ --- 2000å¹´, 11æœˆ17æ—¥, \\
+       2001å¹´, 8æœˆ27æ—¥, 2002å¹´, 1æœˆ20æ—¥ (å°ä¿®æ­£),\\
+        ã“ã‚Œä»¥å¾Œã®ä¿®æ­£ã¯ changeLog ã‚’è¦‹ã‚ˆ.}
 */
 /*&eg
 \title{{\bf Design and Implementation of OpenXM client server model and
@@ -46,11 +46,11 @@ Refer to codes of oxpari. \\
 
 
 \noindent
-2004-3-8: ¿·¤·¤¤ SM ¥³¥Ş¥ó¥É {\tt SM\_executeFunctionWithOptionalArgument} ¤ò²Ã¤¨¤¿. \\
-2005-3-4: ÉâÆ°¾®¿ôÅÀ¿ô¤òÁ÷¤ë¤¿¤á¤Î byte order negotiation ¤Ë¤Ä¤¤¤Æ¤Î
- µ­½Ò¤ò²Ã¤¨¤¿. {\tt CMO\_64BIT\_MACHINE\_DOUBLE} \\
-2016-08-22: bigfloat32 ¤Îµ­½Ò¤ò²Ã¤¨¤¿. ¸Å¤¤ bigfloat ¤Îµ­½Ò¤Ïºï½ü¤·¤¿.
-oxpari ¤Î¥³¡¼¥É¤â»²¾È. \\
+2004-3-8: æ–°ã—ã„ SM ã‚³ãƒãƒ³ãƒ‰ {\tt SM\_executeFunctionWithOptionalArgument} ã‚’åŠ ãˆãŸ. \\
+2005-3-4: æµ®å‹•å°æ•°ç‚¹æ•°ã‚’é€ã‚‹ãŸã‚ã® byte order negotiation ã«ã¤ã„ã¦ã®
+ è¨˜è¿°ã‚’åŠ ãˆãŸ. {\tt CMO\_64BIT\_MACHINE\_DOUBLE} \\
+2016-08-22: bigfloat32 ã®è¨˜è¿°ã‚’åŠ ãˆãŸ. å¤ã„ bigfloat ã®è¨˜è¿°ã¯å‰Šé™¤ã—ãŸ.
+oxpari ã®ã‚³ãƒ¼ãƒ‰ã‚‚å‚ç…§. \\
 2016-08-22: option {\tt no\_ox\_reset}
 */
 
@@ -69,8 +69,8 @@ oxpari ¤Î¥³¡¼¥É¤â»²¾È. \\
 
 /*&jp
 {\tt kxx/openxxx.tex}. {\bf Draft} 1997, 11/20 --- .
-¤³¤ÎÊ¸½ñ¤Ï open XM ¤ÎÀß·×ÍÑ¤Î¥á¥â¤È¤·¤Æ¤ÎÌòÌÜ¤â¤¢¤ë¤Î¤Ç,
-°ìÉô¤Î¥Õ¥¡¥¤¥ëÌ¾¤Ï³«È¯¼Ô¤Î¤ß¤¬»²¾È¤Ç¤­¤ë.
+ã“ã®æ–‡æ›¸ã¯ open XM ã®è¨­è¨ˆç”¨ã®ãƒ¡ãƒ¢ã¨ã—ã¦ã®å½¹ç›®ã‚‚ã‚ã‚‹ã®ã§,
+ä¸€éƒ¨ã®ãƒ•ã‚¡ã‚¤ãƒ«åã¯é–‹ç™ºè€…ã®ã¿ãŒå‚ç…§ã§ãã‚‹.
 */
 
 /*&C

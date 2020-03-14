@@ -1,14 +1,14 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic0.tex,v 1.6 2000/09/09 21:59:12 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic0.tex,v 1.7 2000/09/23 01:05:57 takayama Exp $
 //&jp \section{CMO Primitive object}
 //&eg \section{CMO Primitive object}
 \label{sec:basic0}
 /*&jp
-CMO (Common Mathematical Object format) ¥°¥ë¡¼¥× Primitive ¤Î Object ¤Ï, 
-¥í¡¼¥ì¥Ù¥ë¤Î¥Ç¡¼¥¿·¿, {\tt int} , {\tt string}
-¤Ê¤É¤ËÂĞ±ş¤¹¤ë object ¤Ç¤¢¤ë.
-¤³¤Î CMO ¤Ï¤¹¤Ù¤Æ¤Î OpenXM ¤¬¼ÂÁõ¤·¤Æ¤¤¤ë¤È²¾Äê¤µ¤ì¤ë.
-¤³¤ÎÀá¤Ç¤Ï, ¥¤¥ó¥È¥í¥À¥¯¥·¥ç¥ó¤È¤·¤Æ, ¥°¥ë¡¼¥× Primitive ¤ËÂ°¤¹¤ë CMObject
-(Common Mathematical Object) ¤ò·Á¼°Åª¤ÊÊıË¡¤ò¤Ä¤«¤ï¤ºÆ³Æş¤·¤è¤¦.
+CMO (Common Mathematical Object format) ã‚°ãƒ«ãƒ¼ãƒ— Primitive ã® Object ã¯, 
+ãƒ­ãƒ¼ãƒ¬ãƒ™ãƒ«ã®ãƒ‡ãƒ¼ã‚¿å‹, {\tt int} , {\tt string}
+ãªã©ã«å¯¾å¿œã™ã‚‹ object ã§ã‚ã‚‹.
+ã“ã® CMO ã¯ã™ã¹ã¦ã® OpenXM ãŒå®Ÿè£…ã—ã¦ã„ã‚‹ã¨ä»®å®šã•ã‚Œã‚‹.
+ã“ã®ç¯€ã§ã¯, ã‚¤ãƒ³ãƒˆãƒ­ãƒ€ã‚¯ã‚·ãƒ§ãƒ³ã¨ã—ã¦, ã‚°ãƒ«ãƒ¼ãƒ— Primitive ã«å±ã™ã‚‹ CMObject
+(Common Mathematical Object) ã‚’å½¢å¼çš„ãªæ–¹æ³•ã‚’ã¤ã‹ã‚ãšå°å…¥ã—ã‚ˆã†.
 */
 /*&eg
 Objects in CMO (Common Mathematical Object format) group Primitive 
@@ -20,12 +20,12 @@ CMObject (Common Mathematical Object) of the group Primitive without
 using the Backus-Nauer form.
 */
 /*&jp
-¤³¤Î¥°¥ë¡¼¥×¤ÎÀµ¼°¤ÊÌ¾Á°¤Ï,
-CMObject/Primitive  ¤Ç¤¢¤ë.
-°Ê²¼, {\tt int32} ¤Ç2¤ÎÊä¿ôÉ½¸½¤µ¤ì¤¿
-32 bit integer ¤ò¤¢¤é¤ï¤¹
-(¤³¤ì¤Ï¤è¤¯»È¤ï¤ì¤ë·×»»µ¡¤Ç¤Î C ¸À¸ì¤Î int ¤ÎÆâÉôÉ½¸½).
-{\tt byte} ¤Ç 8 bit ¥Ç¡¼¥¿¤ò¤¢¤é¤ï¤¹.
+ã“ã®ã‚°ãƒ«ãƒ¼ãƒ—ã®æ­£å¼ãªåå‰ã¯,
+CMObject/Primitive  ã§ã‚ã‚‹.
+ä»¥ä¸‹, {\tt int32} ã§2ã®è£œæ•°è¡¨ç¾ã•ã‚ŒãŸ
+32 bit integer ã‚’ã‚ã‚‰ã‚ã™
+(ã“ã‚Œã¯ã‚ˆãä½¿ã‚ã‚Œã‚‹è¨ˆç®—æ©Ÿã§ã® C è¨€èªã® int ã®å†…éƒ¨è¡¨ç¾).
+{\tt byte} ã§ 8 bit ãƒ‡ãƒ¼ã‚¿ã‚’ã‚ã‚‰ã‚ã™.
 */
 /*&eg
 The canonical name of this group is
@@ -39,16 +39,16 @@ this expression).
 
 //&C  
 /*&jp
-CMObject ¤Î TCP/IP ÍÑ¤Î¼ÂÁõ¤Ç¤Ï,
-CMO ¤Î object ¤Ï \\
+CMObject ã® TCP/IP ç”¨ã®å®Ÿè£…ã§ã¯,
+CMO ã® object ã¯ \\
 \begin{tabular}{|c|c|}
 \hline
 {\tt cmo\_tag}& {\tt cmo\_body} \\ 
 \hline
 \end{tabular} \\
-¤Ê¤ë·Á¤ò¤·¤Æ¤¤¤ë.
-¤³¤³¤Ç, {\tt cmo\_tag} ¤Ï, Àµ¤Î
-{\tt int32} ¤ÇÉ½¸½¤¹¤ë¤â¤Î¤Èµ¬Ìó¤¹¤ë.
+ãªã‚‹å½¢ã‚’ã—ã¦ã„ã‚‹.
+ã“ã“ã§, {\tt cmo\_tag} ã¯, æ­£ã®
+{\tt int32} ã§è¡¨ç¾ã™ã‚‹ã‚‚ã®ã¨è¦ç´„ã™ã‚‹.
 */
 /*&eg
 In our encoding of the CMO's for TCP/IP,
@@ -66,8 +66,8 @@ any CMObject consists of a tag and a body: \\
 
 */
 /*&jp
-{\tt cmo\_tag} ¤Ï object ¤Î¥¿¥¤¥×¤ò¤¢¤é¤ï¤¹¥¿¥°¤Ç¤¢¤ê,
-°Ê²¼¤Î¤è¤¦¤Ë·è¤á¤Æ¤¤¤ë.
+{\tt cmo\_tag} ã¯ object ã®ã‚¿ã‚¤ãƒ—ã‚’ã‚ã‚‰ã‚ã™ã‚¿ã‚°ã§ã‚ã‚Š,
+ä»¥ä¸‹ã®ã‚ˆã†ã«æ±ºã‚ã¦ã„ã‚‹.
 */
 //&eg The following is a list of tags of CMObject/Primitive.
 /*&C
@@ -85,12 +85,12 @@ any CMObject consists of a tag and a body: \\
 */
 
 /*&jp
-°Ê²¼, ³Æ object ¤Î ¥Õ¥©¡¼¥Ş¥Ã¥È¤òÀâÌÀ¤¹¤ë.
-¥µ¡¼¥Ğ, ¥¯¥é¥¤¥¢¥ó¥È¤Ï¤¹¤Ù¤Æ¤Î object ¤Î CMO ·Á¼°¤ò¥µ¥İ¡¼¥È¤¹¤ëÉ¬Í×¤Ï¤Ê¤¤¤¬,
+ä»¥ä¸‹, å„ object ã® ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’èª¬æ˜ã™ã‚‹.
+ã‚µãƒ¼ãƒ, ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã¯ã™ã¹ã¦ã® object ã® CMO å½¢å¼ã‚’ã‚µãƒãƒ¼ãƒˆã™ã‚‹å¿…è¦ã¯ãªã„ãŒ,
 {\tt CMO\_ERROR2}, {\tt CMO\_NULL},
 {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_MATHCAP}, {\tt CMO\_LIST}
-¤ÏºÇ¤â´ğËÜÅª¤Ê¥Ç¡¼¥¿¤Ç¤¢¤ê,
-¤Ş¤¿Á´¤Æ¤Î¥µ¡¼¥Ğ, ¥¯¥é¥¤¥¢¥ó¥È¤¬¼ÂÁõ¤¹¤Ù¤­ CMO ¥Ç¡¼¥¿¤Ç¤¢¤ë.
+ã¯æœ€ã‚‚åŸºæœ¬çš„ãªãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚Š,
+ã¾ãŸå…¨ã¦ã®ã‚µãƒ¼ãƒ, ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒå®Ÿè£…ã™ã¹ã CMO ãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚‹.
 */
 /*&eg
 We will explain each object format.
@@ -106,7 +106,7 @@ all servers and clients have to implement them.
 
 \medbreak \noindent
 */
-//&jp CMObject Error2 ¤Ï \\
+//&jp CMObject Error2 ã¯ \\
 //&eg CMObject Error2 is of the form \\
 /*&C
 \begin{tabular}{|c|c|}
@@ -116,18 +116,18 @@ all servers and clients have to implement them.
 \end{tabular} \\
 */
 /*&jp
-¤Ê¤ë·Á¤ÇÉ½¸½¤¹¤ë.  
-¥¨¥é¡¼¤Î»ş¤Ë push ¤¹¤ë object ¤Ç¤¢¤ê, {\it CMObject} ob ¤Î
-ÉôÊ¬¤Ë¾ÜºÙ¤Ê¥¨¥é¡¼¾ğÊó¤¬¤Ï¤¤¤ë.
-ob ¤Ï¥ê¥¹¥È¤Ç¤¢¤ê,  TCP/IP ¤Ë¤è¤ë¥¹¥È¥ê¡¼¥à·¿ÀÜÂ³¤Î¾ì¹ç,
-ºÇ½é¤ÎÀ®Ê¬¤Ï¥¨¥é¡¼¤òµ¯¤³¤·¤¿ OX ¥á¥Ã¥»¡¼¥¸(¸å½Ò)
-¤Î¥·¥ê¥¢¥ëÈÖ¹æ¤Ç¤Ê¤¤¤È¤¤¤±¤Ê¤¤.
-¥·¥ê¥¢¥ëÈÖ¹æ¤Ï Integer32 ¤ÇÉ½¸½¤¹¤ë.
+ãªã‚‹å½¢ã§è¡¨ç¾ã™ã‚‹.  
+ã‚¨ãƒ©ãƒ¼ã®æ™‚ã« push ã™ã‚‹ object ã§ã‚ã‚Š, {\it CMObject} ob ã®
+éƒ¨åˆ†ã«è©³ç´°ãªã‚¨ãƒ©ãƒ¼æƒ…å ±ãŒã¯ã„ã‚‹.
+ob ã¯ãƒªã‚¹ãƒˆã§ã‚ã‚Š,  TCP/IP ã«ã‚ˆã‚‹ã‚¹ãƒˆãƒªãƒ¼ãƒ å‹æ¥ç¶šã®å ´åˆ,
+æœ€åˆã®æˆåˆ†ã¯ã‚¨ãƒ©ãƒ¼ã‚’èµ·ã“ã—ãŸ OX ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(å¾Œè¿°)
+ã®ã‚·ãƒªã‚¢ãƒ«ç•ªå·ã§ãªã„ã¨ã„ã‘ãªã„.
+ã‚·ãƒªã‚¢ãƒ«ç•ªå·ã¯ Integer32 ã§è¡¨ç¾ã™ã‚‹.
 
 \noindent
-Remark: Îò»ËÅª¤ÊÍıÍ³¤Ë¤è¤ê, ¥¨¥é¡¼¥ª¥Ö¥¸¥§¥¯¥È¤Î CMO ¥¿¥°¤Ï {\it
-CMO\_ERROR2} ¤ÈÌ¾ÉÕ¤±¤é¤ì¤Æ¤¤¤ë. ¼¡¤ÎÈÇ¤Î»ÅÍÍ½ñ¤Ç¤Ï {\tt CMO\_ERROR}
-¤ËÊÑ¹¹¤¹¤ëÍ½Äê¤Ç¤¢¤ë. 
+Remark: æ­´å²çš„ãªç†ç”±ã«ã‚ˆã‚Š, ã‚¨ãƒ©ãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã® CMO ã‚¿ã‚°ã¯ {\it
+CMO\_ERROR2} ã¨åä»˜ã‘ã‚‰ã‚Œã¦ã„ã‚‹. æ¬¡ã®ç‰ˆã®ä»•æ§˜æ›¸ã§ã¯ {\tt CMO\_ERROR}
+ã«å¤‰æ›´ã™ã‚‹äºˆå®šã§ã‚ã‚‹. 
 */
 /*&eg
 It is an object used when a server makes an error.
@@ -148,7 +148,7 @@ we may rename it {\tt CMO\_ERROR}.
 \medbreak \noindent
 */
 
-//&jp CMObject Null ¤Ï \\
+//&jp CMObject Null ã¯ \\
 //&eg CMObject Null has the format \\
 /*&C
 \begin{tabular}{|c|c|}
@@ -158,7 +158,7 @@ we may rename it {\tt CMO\_ERROR}.
 \end{tabular} \\
 */
 /*&jp
-¤Ê¤ë·Á¤ÇÉ½¸½¤¹¤ë.
+ãªã‚‹å½¢ã§è¡¨ç¾ã™ã‚‹.
 */
 
 /*&C
@@ -166,7 +166,7 @@ we may rename it {\tt CMO\_ERROR}.
 \noindent
 */
 
-//&jp 32 bit integer n ¤Ï CMObject ¤È¤·¤Æ¤Ï Integer32 ¤È¸Æ¤Ğ¤ì, \\
+//&jp 32 bit integer n ã¯ CMObject ã¨ã—ã¦ã¯ Integer32 ã¨å‘¼ã°ã‚Œ, \\
 //&eg 32 bit integer n is called Integer32 as a CMObject and has the format \\
 /*&C
 \begin{tabular}{|c|c|}
@@ -175,7 +175,7 @@ we may rename it {\tt CMO\_ERROR}.
 \hline
 \end{tabular} \\
 */
-//&jp ¤Ê¤ë·Á¤ÇÉ½¸½¤¹¤ë.
+//&jp ãªã‚‹å½¢ã§è¡¨ç¾ã™ã‚‹.
 
 /*&C
 
@@ -183,7 +183,7 @@ we may rename it {\tt CMO\_ERROR}.
 */
 
 
-//&jp Ä¹¤µ n ¤Î ¥Ğ¥¤¥ÈÎó data ¤Ï CMObject ¤È¤·¤Æ¤Ï, Datum ·¿¤È¤è¤Ğ¤ì \\
+//&jp é•·ã• n ã® ãƒã‚¤ãƒˆåˆ— data ã¯ CMObject ã¨ã—ã¦ã¯, Datum å‹ã¨ã‚ˆã°ã‚Œ \\
 //&eg A byte array of the length n is called Datum as a CMObject and has the format \\
 /*&C
 \begin{tabular}{|c|c|c|c|}
@@ -195,14 +195,14 @@ $\cdots$ & {\tt byte} {\rm  data[n-1]} \\
 \cline{1-2}
 \end{tabular} \\
 */
-//&jp ¤ÈÉ½¸½¤¹¤ë.
+//&jp ã¨è¡¨ç¾ã™ã‚‹.
 
 /*&C
 
 \noindent
 */
 
-//&jp Ä¹¤µ n ¤Î Ê¸»úÎó data ¤Ï, CMObject ¤È¤·¤Æ¤Ï, Cstring ·¿¤È¤è¤Ğ¤ì \\
+//&jp é•·ã• n ã® æ–‡å­—åˆ— data ã¯, CMObject ã¨ã—ã¦ã¯, Cstring å‹ã¨ã‚ˆã°ã‚Œ \\
 //&eg String of n bytes is called Cstring as CMObject and has the format \\
 /*&C
 \begin{tabular}{|c|c|c|c|}
@@ -215,15 +215,15 @@ $\cdots$ & {\tt byte} {\rm data[n-1]} \\
 \end{tabular} \\
 */
 /*&jp
-¤ÈÉ½¸½¤¹¤ë.  C ¸À¸ì¤ÇÉáÄÌÍÑ¤¤¤é¤ì¤ë, Ê¸»úÎó¤Î¤ª¤ï¤ê¤Î {\tt 0} ¤ÏÊ¸»úÎó
-¤Ë´Ş¤á¤Ê¤¤. 
+ã¨è¡¨ç¾ã™ã‚‹.  C è¨€èªã§æ™®é€šç”¨ã„ã‚‰ã‚Œã‚‹, æ–‡å­—åˆ—ã®ãŠã‚ã‚Šã® {\tt 0} ã¯æ–‡å­—åˆ—
+ã«å«ã‚ãªã„. 
 */
 
 /*&C	
 
 \noindent
 */
-//&jp CMObject Mathcap ¤Ï \\
+//&jp CMObject Mathcap ã¯ \\
 //&eg CMObject Mathcap  has the format \\
 /*&C
 \begin{tabular}{|c|c|}
@@ -233,16 +233,16 @@ $\cdots$ & {\tt byte} {\rm data[n-1]} \\
 \end{tabular} \\
 */
 /*&jp
-¤Ê¤ë·Á¤ÇÉ½¸½¤¹¤ë.  
-{\tt ob} ¤Ï¥ê¥¹¥È¤Ç¤¢¤ê¾¯¤Ê¤¯¤È¤â3¤Ä¤ÎÍ×ÁÇ¤ò¤â¤Ä.
-0 ÈÖÌÜ¤ÎÍ×ÁÇ¤Ï, Integer32 ¤ÇÉ½¤·¤¿ OpenXM protocol version number ¤È,
-Cstring ¤ÇÉ½¤·¤¿¥·¥¹¥Æ¥àÌ¾, Server version, CPU type, ¤½¤ÎÂ¾¤Î¾ğÊó
-¤Î¥ê¥¹¥È¤Ç¤¢¤ë.
-1 ÈÖÌÜ¤ÎÍ×ÁÇ¤Ï, ¥·¥¹¥Æ¥à xxx ¤¬°·¤¦¤³¤È¤Î²ÄÇ½¤Ê
-SM ¥¿¥°¤ò, Integer32 ¤ÇÉ½¸½¤·¤¿¤â¤Î¤ò½¸¤á¤¿¥ê¥¹¥È¤Ç¤¢¤ë.
-3 ÈÖÌÜ¤ÎÍ×ÁÇ¤Ï, ¥·¥¹¥Æ¥à xxx ¤¬¤¢¤Ä¤«¤¦¤³¤È¤Î²ÄÇ½¤Ê
-¥Ç¡¼¥¿·Á¼°¤ò¤¢¤Ä¤á¤¿¥ê¥¹¥È¤Ç¤¢¤ë.
-¾ÜºÙ¤Ï mathcap ¤ÎÀá \ref{subsubsection:mathcap} ¤ÇÀâÌÀ¤¹¤ë.
+ãªã‚‹å½¢ã§è¡¨ç¾ã™ã‚‹.  
+{\tt ob} ã¯ãƒªã‚¹ãƒˆã§ã‚ã‚Šå°‘ãªãã¨ã‚‚3ã¤ã®è¦ç´ ã‚’ã‚‚ã¤.
+0 ç•ªç›®ã®è¦ç´ ã¯, Integer32 ã§è¡¨ã—ãŸ OpenXM protocol version number ã¨,
+Cstring ã§è¡¨ã—ãŸã‚·ã‚¹ãƒ†ãƒ å, Server version, CPU type, ãã®ä»–ã®æƒ…å ±
+ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹.
+1 ç•ªç›®ã®è¦ç´ ã¯, ã‚·ã‚¹ãƒ†ãƒ  xxx ãŒæ‰±ã†ã“ã¨ã®å¯èƒ½ãª
+SM ã‚¿ã‚°ã‚’, Integer32 ã§è¡¨ç¾ã—ãŸã‚‚ã®ã‚’é›†ã‚ãŸãƒªã‚¹ãƒˆã§ã‚ã‚‹.
+3 ç•ªç›®ã®è¦ç´ ã¯, ã‚·ã‚¹ãƒ†ãƒ  xxx ãŒã‚ã¤ã‹ã†ã“ã¨ã®å¯èƒ½ãª
+ãƒ‡ãƒ¼ã‚¿å½¢å¼ã‚’ã‚ã¤ã‚ãŸãƒªã‚¹ãƒˆã§ã‚ã‚‹.
+è©³ç´°ã¯ mathcap ã®ç¯€ \ref{subsubsection:mathcap} ã§èª¬æ˜ã™ã‚‹.
 */
 /*&eg
 ob is a list of which length is more than or equal to three.
@@ -261,7 +261,7 @@ The details will be explained in the section on mathcap \ref{subsubsection:mathc
 
 \medbreak \noindent
 */
-//&jp Ä¹¤µ m ¤Î¥ê¥¹¥È¤Ï \\
+//&jp é•·ã• m ã®ãƒªã‚¹ãƒˆã¯ \\
 //&eg A list of the length m has the form \\
 /*&C
 \begin{tabular}{|c|c|c|c|c|}
@@ -271,5 +271,5 @@ The details will be explained in the section on mathcap \ref{subsubsection:mathc
 \hline
 \end{tabular}\\
 */
-//&jp ¤ÇÉ½¸½¤¹¤ë.
+//&jp ã§è¡¨ç¾ã™ã‚‹.
 

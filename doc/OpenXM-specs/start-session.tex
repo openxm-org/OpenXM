@@ -1,17 +1,17 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.7 2002/01/20 09:26:22 takayama Exp $
-//&jp \section{TCP/IP �ǤΥ��å����Υ�������}
+%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.8 2005/03/04 03:49:47 takayama Exp $
+//&jp \section{TCP/IP でのセッションのスタート}
 //&eg \section{How to start a session on TCP/IP}
 
 \subsection{Standard I/O on OX servers}
 
 /*&jp
-�����Фμ������ưפˤ��뤿���, �����Ф�, ��ư���� file descriptor 3,
-4 �����줾�쥯�饤����Ȥ��������, ���饤����Ȥؤν����Ѥ� open ����
-�Ƥ���Ȳ��ꤹ��. ���ʤ��, �����м��Τ��̿�����Ω�����뤿��� socket 
-����Ԥ�ɬ�פϤʤ�. â��, OX message �θ�Ψ�褤�������Τ����, data 
-�ΥХåե���󥰤�Ԥ����Ȥϥ�����¦����Ǥ�Ǥ���. UNIX �ˤ����Ƥ�,
-file descriptor �ؤ�buffer �� attach �� {\tt fdopen()} �ǹԤ����Ȥ���
-����.
+サーバの実装を容易にするために, サーバは, 起動時に file descriptor 3,
+4 がそれぞれクライアントからの入力, クライアントへの出力用に open され
+ていると仮定する. すなわち, サーバ自体が通信を成立させるための socket 
+操作を行う必要はない. 但し, OX message の効率よい送受信のために, data 
+のバッファリングを行うことはサーバ側の責任である. UNIX においては,
+file descriptor へのbuffer の attach は {\tt fdopen()} で行うことがで
+きる.
 */
 
 /*&eg
@@ -26,23 +26,23 @@ with a descriptor can be done by {\tt fdopen()}.
 
 \subsection{Launcher}
 /*&jp
-�����Ф�, ���饤����Ȥ��鵯ư����뤬, TCP/IP ��³�Τ���ˤ� socket ��
-��������Ϥޤ��Ϣ����ɬ�פǤ���. ������, ���Ǥ˽Ҥ٤��褦��, ������
-���ΤϤ���������ǽ�Ϥ⤿�ʤ�. launcher ��, ����ξ�Ԥζ��Ϥ��򤹤� application
-�Ǥ���. launcher ��Ư���ϼ����̤�Ǥ���. 
+サーバは, クライアントから起動されるが, TCP/IP 接続のためには socket の
+生成から始まる一連の操作が必要である. 一方で, すでに述べたように, サーバ
+自体はそういう機能はもたない. launcher は, この両者の橋渡しをする application
+である. launcher の働きは次の通りである. 
 
 \begin{enumerate}
-\item launcher �ϥ��饤����Ȥ���ư����. launcher �ˤϻ��Ѥ��� port �ֹ�, 
-������ application �Υե�����̾����������. 
-\item client �Ϥޤ� launcher ���̿�����Ω������. ���κ�, one time password
-���Ѥ�������⤢��. 
-\item launcher �Ͽ������ץ�������ư��, ���Υץ������ˤ����� client ���̿�
-����Ω������. ������, �����̿�ϩ�� file descriptor �� 3, 4 �Ȥʤ�褦��
-���åȤ�, �����Ф� exec ����. 
+\item launcher はクライアントが起動する. launcher には使用する port 番号, 
+サーバ application のファイル名が伝えられる. 
+\item client はまず launcher と通信を成立させる. この際, one time password
+が用いられる場合もある. 
+\item launcher は新しいプロセスを起動し, そのプロセスにおいて client と通信
+を成立させる. そして, その通信路が file descriptor の 3, 4 となるように
+セットし, サーバを exec する. 
 \end{enumerate}
 
-�ʾ�����Τ���, launcher �ϥ���ȥ����륵���ФȤʤ�, ���Ȥ���ä�
-���������Ф������Ԥ�. 
+以上の操作のあと, launcher はコントロールサーバとなり, 自身が作った
+したサーバの制御を行う. 
 */
 /*&eg
 Though there need several socket operations to establish a 
@@ -69,40 +69,40 @@ acts as a control server and controls the server process created by
 itself.
 */
 
-//&jp \subsection{byte order �η���} \label{subsection:byteorder}
+//&jp \subsection{byte order の決定} \label{subsection:byteorder}
 //&eg \subsection{Negotiation of the byte order} \label{subsection:byteorder}
 /*&jp
-����ȥ�����ץ�����, �׻��ץ�����
-�Ȥ��, ��ưľ���
-1 byte �Υǡ�����񤭽Ф� flush ����.
-���Τ���, 1 byte �Υǡ������ɤ߹���.
-���饤����Ȥϥ���ȥ�����ץ�����, �׻��ץ�����
-�ˤĤʤ���ե�����ǥ�������ץ���ξ������
-�ޤ� 1 byte �Υǡ������ɤ�.
-���Τ���
-1 byte �Υǡ�����񤭽Ф� flush ����.
-1 byte �Υǡ�����,
-{\tt 0}, {\tt 1}, {\tt FF} �Τɤ줫�Ǥ���,
-{\tt 0} �ϰʲ����̿��ˤ����� {\tt int32} �򤪤���Τ�,
-network byte order ����Ѥ�����,
-{\tt 1} �ϰʲ����̿��ˤ����� {\tt int32} �򤪤���Τ�,
-little endian ����Ѥ�����,
-{\tt FF} �ϰʲ����̿��ˤ����� {\tt int32} �򤪤���Τ�,
-big endian ����Ѥ�����,
-�Ȥ�����̣�Ǥ���.
-ξ�Ԥδ�˾�����פ��ʤ����ϤĤͤ� {\tt 0} (network byte order)
-����Ѥ���.
-Network byte order �����������Ƥ��ʤ������ƥ�Ǥ�,
-{\tt 0} �򤪤���Ф褤.
-��������Ψ������Ȥʤ��̿��ˤ�����, network byte order �ؤ��Ѵ���
-�������ʥܥȥ�ͥå��Ȥʤ뤳�Ȥ����뤳�Ȥ�λ�򤷤Ƥ����٤��Ǥ���.
+コントロールプロセス, 計算プロセス
+ともに, 起動直後に
+1 byte のデータを書き出し flush する.
+そのあと, 1 byte のデータを読み込む.
+クライアントはコントロールプロセス, 計算プロセス
+につながるファイルディスクリプタの両方から
+まず 1 byte のデータを読む.
+そのあと
+1 byte のデータを書き出し flush する.
+1 byte のデータは,
+{\tt 0}, {\tt 1}, {\tt FF} のどれかであり,
+{\tt 0} は以下の通信において {\tt int32} をおくるのに,
+network byte order を使用したい,
+{\tt 1} は以下の通信において {\tt int32} をおくるのに,
+little endian を使用したい,
+{\tt FF} は以下の通信において {\tt int32} をおくるのに,
+big endian を使用したい,
+という意味である.
+両者の希望が一致しない場合はつねに {\tt 0} (network byte order)
+を使用する.
+Network byte order しか実装していないシステムでは,
+{\tt 0} をおくればよい.
+ただし効率が問題となる通信において, network byte order への変換は
+おおきなボトルネックとなることがあることを了解しておくべきである.
 
-64 bit machine double ����� 128 bit machine double (��ư��������)
-�Τ��Ȥ�˺ݤ��Ƥ�,
-���Ʊ�ͤ���ˡ���������ΤȤ���.
-���ʤ�� {\tt double64 *} �� {\tt int32 *} �˥��㥹�Ȥ��Ƥ���,
-��Ȥ� {\tt int32} ��Ʊ�ͤν�����ˡ������������.
-��ˤĤ��Ƥ� {\tt CMO\_64BIT\_MACHINE\_DOUBLE}  �򸫤�.
+64 bit machine double および 128 bit machine double (浮動小数点数)
+のやりとりに際しても,
+上と同様な方法をもちいるものとする.
+すなわち {\tt double64 *} を {\tt int32 *} にキャストしてから,
+中身を {\tt int32} と同様の処理方法で送受信する.
+例については {\tt CMO\_64BIT\_MACHINE\_DOUBLE}  を見よ.
 */
 /*&eg
 A client and a server exchange one byte data soon after
@@ -143,38 +143,38 @@ As to examples, see the section on {\tt CMO\_64BIT\_MACHINE\_DOUBLE}.
 #define OX_BYTE_BIG_ENDIAN         0xff
 \end{verbatim}
 
-//&jp \subsection{launcher ���� : {\tt ox}}
+//&jp \subsection{launcher の例 : {\tt ox}}
 //&eg \subsection{An example of launcher : {\tt ox}}
 /*&jp
-����: {\tt OpenXM/src/kxx} �˴ޤޤ��, {\tt ox} (����ȥ�����ץ�����,
-�׻��ץ������򤿤���������������)��, ɸ��� One Time Password
-�ε�ǽ���äƤ��ޤ�.
-���ε�ǽ�� OFF �ˤ���ˤ� {\tt -insecure} option ����Ѥ��Ʋ�����.
-One Time Password �� 0 �ǽ�λ����Х�����Ǥ���,
-����ȥ�����, �׻������Υץ������򤿤�������ޤ���,
-{\tt ox} �ϥ���ȥ�����, �׻������Υץ��������б�����,
-�դ��ĤΥݡ��Ȥ�
-One Time Password �Х���������Ф��Ƥ��ޤ�.
+注意: {\tt OpenXM/src/kxx} に含まれる, {\tt ox} (コントロールプロセス,
+計算プロセスをたちあげるローンチャ)は, 標準で One Time Password
+の機能をもっています.
+この機能を OFF にするには {\tt -insecure} option を使用して下さい.
+One Time Password は 0 で終了するバイト列であり,
+コントロール, 計算双方のプロセスをたちあげるまえに,
+{\tt ox} はコントロール, 計算双方のプロセスに対応する,
+ふたつのポートに
+One Time Password バイト列を送出しています.
 
-{\tt ox} (�������� {\tt oxmain.c}, {\tt kan96xx/plugin/oxmisc.c})�ˤ����Ƥ�
-{\tt oxTellMyByteOrder()} ��, �����ФˤĤ��Ƥ� byte order �����
-����, �ɤ߹��ߤ��äƤ���.
-���饤����ȤˤĤ��Ƥ�,
-{\tt oxSetByteOrder()} ��, byte order ������ɤ߹���, ���Ф򤪤��ʤäƤ���.
+{\tt ox} (ソースは {\tt oxmain.c}, {\tt kan96xx/plugin/oxmisc.c})においては
+{\tt oxTellMyByteOrder()} が, サーバについての byte order 情報の
+送出, 読み込みをやっている.
+クライアントについては,
+{\tt oxSetByteOrder()} が, byte order 情報の読み込み, 送出をおこなっている.
 
-One time �ѥ���ɤϰ������̿�ϩ�����������ɬ�פ�����ޤ�.
-�ޤ�, ���ߤ� {\rm ox} �μ����Ǥ�, One time �ѥ���ɤ�
-������, ���饤����Ȥ� login ���Ƥ���ͤϤ��٤Ƹ��뤳�Ȥ�
-�Ǥ��ޤ��Τ�, ������, ���饤����Ȥˤϰ��դΤ���ͤϤ��ʤ���
-���ꤷ�ʤ��Ȥ����ޤ���.
-One time �ѥ���ɤ������������, ��⡼�ȥޥ���� {\rm ox}
-��Ω���夲��ˤ�
-���Ȥ��� 
-{\tt ssh} �� {\tt -f } ���ץ������Ѥ��ƻ��Ѥ��ޤ�.
+One time パスワードは安全な通信路で配送される必要があります.
+また, 現在の {\rm ox} の実装では, One time パスワードを
+サーバ, クライアントに login している人はすべて見ることが
+できますので, サーバ, クライアントには悪意のある人はいないと
+仮定しないといけません.
+One time パスワードを安全に配送し, リモートマシンの {\rm ox}
+を立ち上げるには
+たとえば 
+{\tt ssh} を {\tt -f } オプションを用いて使用します.
 
-�ʲ��� {\rm sm1} �Ǥμ���, ư����Ǥ�.
-�����Ǥ�, {\tt yama} �� {\tt sm1} ��� {\tt dc1} �� {\tt ox} 
-��Ω���夲�Ƥ��ޤ�.
+以下は {\rm sm1} での実装, 動作例です.
+ここでは, {\tt yama} の {\tt sm1} より {\tt dc1} の {\tt ox} 
+を立ち上げています.
 */
 /*&eg
 \noindent
@@ -232,12 +232,12 @@ Byte order for engine process is network byte order.
 \end{verbatim}
 }
 
-//&jp \subsection{OX �����Ф�������}
+//&jp \subsection{OX サーバの利用例}
 //&eg \subsection{Example of using OX servers}
 
 /*&jp
-ox �����Ф� TCP/IP �� $C$ ������Ѥ������ 
-{\tt OpenXM/doc/oxlib/test1-tcp.c} �ˤ���.
+ox サーバを TCP/IP で $C$ より利用する例は 
+{\tt OpenXM/doc/oxlib/test1-tcp.c} にある.
 */
 /*&eg
 An sample C source code to use ox servers by TCP/IP can be found

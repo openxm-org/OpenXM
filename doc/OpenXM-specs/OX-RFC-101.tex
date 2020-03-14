@@ -1,12 +1,12 @@
 %#!make OX-RFC-101-ja.dvi
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.5 2000/12/05 06:38:55 ohara Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.6 2000/12/05 23:19:49 takayama Exp $
 \documentclass{article}
 %%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
 /*&jp
-\title{{\bf ���󥸥�ư�ץ��ȥ���, OpenXM RFC 101 Draft}}
-\author{ ������Ǥ\thanks{{��������������׻��ʳض���, \htmladdnormallink{http://omega.s.kanazawa-u.ac.jp/ohara/}{http://omega.s.kanazawa-u.ac.jp/ohara/}}}}
-\date{ 2000ǯ, 11��30��}
+\title{{\bf エンジン起動プロトコル, OpenXM RFC 101 Draft}}
+\author{ 小原功任\thanks{{金沢大学理学部計算科学教室, \htmladdnormallink{http://omega.s.kanazawa-u.ac.jp/ohara/}{http://omega.s.kanazawa-u.ac.jp/ohara/}}}}
+\date{ 2000年, 11月30日}
 */
 /*&eg
 \title{{\bf Protocol to Start Engines, OpenXM RFC 101 Draft}}
@@ -19,10 +19,10 @@
 \section{Session Management}
 
 /*&jp
-����ʸ��Ǥ� ``OpenXM RFC 100, OpenXM ���߷פȼ���''\ 
+この文書では ``OpenXM RFC 100, OpenXM の設計と実装''\ 
 \htmladdnormallink{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}
-��������줿����ȥ����륵���Ф��֤������뿷��������ȥ����륵���Ф�
-���ͤ���������.
+で定義されたコントロールサーバを置き換える新しいコントロールサーバの
+仕様を説明する.
 */
 
 /*&eg
@@ -37,36 +37,36 @@ a replacement of the control server defined in
 
 /*&jp
 
-�桹�Ͽ���������ȥ����륵���Ф���Ƥ��롣���Υ���ץ�����Ȥ��� oxc ��
-�󶡤���롣����������ȥ����륵���Фϰʲ������ǽ���Τ�ΤȰۤʤ롣
+我々は新しいコントロールサーバを提案する。そのサンプル実装として oxc が
+提供される。新しいコントロールサーバは以下の点で従来のものと異なる。
 \begin{enumerate}
-\item ����ȥ����륵���Ф� OpenXM �����å��ޥ���Ǥ��ꡢ
-CMObject/Primitive �򥵥ݡ��Ȥ��롣
-\item �׻������Фε�ư�ϥ����å��ޥ��󥳥ޥ�ɤ�𤷤ƹԤ���
-\item ��ĤΥ���ȥ����륵���Ф���ʣ���η׻������Ф�ư�Ǥ��롣
+\item コントロールサーバは OpenXM スタックマシンであり、
+CMObject/Primitive をサポートする。
+\item 計算サーバの起動はスタックマシンコマンドを介して行う。
+\item 一つのコントロールサーバから複数の計算サーバを起動できる。
 \end{enumerate}
 
-oxc ��Ƴ���ˤ�ꡢ���ޤޤǤΥ����Фε�ư���ϥ���ȥ����륵���Фε�ư��
-�׻������Фε�ư��ʬΥ����롣����ȥ����륵���Ф�ư����ˤϼ��μ���
-��롣�ޤ���Ŭ���ʥ��ץ����(���)��Ĥ��ơ�����ȥ����륵���Ф�ư����
-�ȡ�����ȥ����륵���Фϥ����åȤ��������connect ���롣���饤����Ȥϡ�
-listen, accept ���롣��³�塢�ǽ�˥Х��ȥ���������ꤹ�롣�Х��ȥ�����
-�η�����ˡ�ˤĤ��Ƥϡ�����Τ�Τ��ѹ��Ϥʤ�
-(OpenXM/doc/OpenXM-specs/control.tex �򸫤�)�����θ塢����ȥ����륵����
-���Ե����֤ˤϤ��롣����ȥ����륵���Ф� OpenXM �����å��ޥ���Ǥ��뤫�顢
-mathcap �θ򴹤ʤɤμ�³�������äƤ�褤��
+oxc の導入により、いままでのサーバの起動手順はコントロールサーバの起動と
+計算サーバの起動に分離される。コントロールサーバを起動するには次の手順を
+取る。まず、適当なオプション(後述)をつけて、コントロールサーバを起動する
+と、コントロールサーバはソケットを作成し、connect する。クライアントは、
+listen, accept する。接続後、最初にバイトオーダを決定する。バイトオーダ
+の決定方法については、従来のものと変更はない
+(OpenXM/doc/OpenXM-specs/control.tex を見よ)。その後、コントロールサーバ
+は待機状態にはいる。コントロールサーバは OpenXM スタックマシンであるから、
+mathcap の交換などの手続きに入ってもよい。
 
 \subsection{OpenXM control stack machine}
 
-����ȥ����륵���Фϡ����Υ����å��ޥ��󥳥ޥ�ɤ�������ʤ���Фʤ�ʤ���
-���줾��Υ����å����ޥ�ɤΰ�̣�ϡ�{\bf �����Υ���ȥ����륵���ФȤϰۤʤ롣}
+コントロールサーバは、次のスタックマシンコマンドを実装しなければならない。
+それぞれのスタックコマンドの意味は、{\bf 以前のコントロールサーバとは異なる。}
 
 \begin{enumerate}
 \item
 \begin{verbatim}
 SM_control_spawn_server
 \end{verbatim}
-�����˷׻������Ф�ư���롣�׻������Фε�ư����������ȡ����� ID ���֤���
+新たに計算サーバを起動する。計算サーバの起動に成功すると、その ID を返す。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -104,7 +104,7 @@ Ports:
 \begin{verbatim}
 SM_control_terminate_server
 \end{verbatim}
-���ꤵ�줿�׻������Ф� SIGKILL �����롣
+指定された計算サーバに SIGKILL を送る。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -124,7 +124,7 @@ Output: none.
 \begin{verbatim}
 SM_control_kill
 \end{verbatim}
-���Ƥη׻������Ф� SIGKILL �����롣
+全ての計算サーバに SIGKILL を送る。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -138,7 +138,7 @@ Output: none.
 \begin{verbatim}
 SM_control_reset_connection_server
 \end{verbatim}
-���ꤵ�줿�׻������Ф� SIGUSR1 �����롣
+指定された計算サーバに SIGUSR1 を送る。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -158,7 +158,7 @@ Output: none.
 \begin{verbatim}
 SM_control_reset_connection
 \end{verbatim}
-���Ƥη׻������Ф� SIGUSR1 �����롣����ϲ��̸ߴ����Τ�������֤Ǥ��롣
+全ての計算サーバに SIGUSR1 を送る。これは下位互換性のための措置である。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -174,32 +174,32 @@ Output: none.
 \bigskip
 
 \subsection{OpenXM reset protocol}
-OX-RFC-100 �˽�򤹤롣
+OX-RFC-100 に準拠する。
 
 \subsection{A sample implementation}
 
 \subsubsection{Command Line Arguments}
-����ȥ����륵���Фμ¹Է����� getopt(3) �� ``c:p:h:x'' �ǻ��ꤹ�륪�ץ���
-�����ġ����ʤ����
+コントロールサーバの実行形式は getopt(3) に ``c:p:h:x'' で指定するオプショ
+ンを持つ。すなわち、
 \begin{verbatim}
 oxc -c [password] -h [hostname] -p [portnumber] -x
 \end{verbatim}
 
-{\tt -h} �Ǥϡ����饤����ȤΥۥ���̾����ꤹ�롣���饤����ȤϤ��餫���ᡢ
-hostname:port �򳫤����Ԥ������ʤ���Фʤ�ʤ���
+{\tt -h} では、クライアントのホスト名を指定する。クライアントはあらかじめ、
+hostname:port を開いて待ち受けなければならない。
 
-{\tt -x} ���ץ����Ϥʤ��Ƥ�褤��-x ����ꤷ�����ĴĶ��ѿ� DISPLAY ��
-���ꤵ��Ƥ���ȡ�oxc �Ͽ�����ü��(������ɥ�)��������ơ���å�������
-��ü���˽��Ϥ��롣oxc ���Ѥ���ü���μ���ϴĶ��ѿ�OpenXM\_XTERM �ǻ��ꤹ
-�롣�ǥե���Ȥ� xterm �Ǥ��롣
+{\tt -x} オプションはなくてもよい。-x を指定し、かつ環境変数 DISPLAY が
+設定されていると、oxc は新たに端末(ウィンドウ)を作成して、メッセージをそ
+の端末に出力する。oxc の用いる端末の種類は環境変数OpenXM\_XTERM で指定す
+る。デフォルトは xterm である。
 
-���ץ���� {\tt -h} �����ꤵ��ʤ��Ȥ��ˤ����̤�ư���Ԥ���
+オプション {\tt -h} が指定されないときには特別な動作を行う。
 
-\subsubsection{�ѥ��פ����Ѥ�����³}
+\subsubsection{パイプを利用した接続}
 
-oxc �ϥ��ץ���� {\tt -h} �����ꤵ��ʤ��Ȥ��ˤϡ����ޥ�ɥ饤���Ϳ����
-���٤������ɸ�����Ϥ������褦�Ȥ��롣�����Ǥϡ����ε�ǽ�ˤĤ�������
-���롣�ޤ���ɸ�����Ϥ���������ǡ����ϼ��η����򤷤Ƥ��ʤ���Фʤ�ʤ���
+oxc はオプション {\tt -h} が指定されないときには、コマンドラインで与えら
+れるべき情報を、標準入力から得ようとする。ここでは、この機能について説明
+する。まず、標準入力から受け取るデータは次の形式をしていなければならない。
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 {\sl int32} port & {\sl String} hostname & {\sl byte} 0 & {\sl String} password & {\sl byte} 0\\
@@ -208,60 +208,60 @@ oxc �ϥ��ץ���� {\tt -h} �����ꤵ��ʤ��Ȥ��ˤϡ����ޥ�ɥ饤���Ϳ����
 
 \medskip
 
-String �� C �Υ��ȥ�󥰤ǤϤʤ��ơ�cmo\_string �Τ褦�ʡ�Ĺ���դ���
-���ȥ�󥰤Ǥ��롣
+String は C のストリングではなくて、cmo\_string のような、長さ付きの
+ストリングである。
 
 \noindent
-�ǡ�������: \\
+データの例: \\
 port = 1324 = 0x052c, hostname = ``orange'', password = ``hogehoge''
-�ξ��
+の場合
 \begin{verbatim}
 00 00 05 2c 00 00 00 07 6f 72 61 6e 67 65 00 00
 00 00 09 68 6f 67 65 68 6f 67 65 00
 \end{verbatim}
 
-���ƶ���Ū�ʵ�ư�ץ������ϼ����̤�Ǥ��롣
+さて具体的な起動プロセスは次の通りである。
 
 \begin{enumerate}
 \item 
-���饤����Ȥ� pipe(2) ���Ѥ��ơ��ե�����ǥ�������ץ� fd0, fd1 ��
-��ˤ���롣
+クライアントは pipe(2) を用いて、ファイルディスクリプタ fd0, fd1 を
+手にいれる。
 \item
-fork(2) �ǻҥץ����������������ҥץ������� dup2(fd1, 0) ��¹Ԥ��롣
-����� �ƥץ������� fd0 �Ȼҥץ������� 0 ����³����Ƥ��롣
+fork(2) で子プロセスを生成し、子プロセスは dup2(fd1, 0) を実行する。
+これで 親プロセスの fd0 と子プロセスの 0 が接続されている。
 \item
-�ҥץ������� exec("ssh remotehost controlserver") �Ȥ��ƥ�⡼�ȥץ���
-����ư���롣���ΤȤ����ƥץ������� fd0 �ȥ�⡼�ȥץ������� 0 ����³��
-��Ƥ��롣
+子プロセスは exec("ssh remotehost controlserver") としてリモートプロセ
+ス起動する。このとき、親プロセスの fd0 とリモートプロセスの 0 が接続さ
+れている。
 \item
-�����̿�ϩ�ϥ�⡼�ȥץ����������ɸ�����ϤȤ��Ƹ����Ƥ��롣
-��⡼�ȥץ�������ɸ�����Ϥ�����˽Ҥ٤��ե����ޥåȤˤ������äƥǡ�����
-�ɤ߹��ࡣ��⡼�ȥץ������ϡ����Υǡ������Ѥ��� connect(2) ��¹Ԥ��롣
+この通信路はリモートプロセスからは標準入力として見えている。
+リモートプロセスは標準入力から既に述べたフォーマットにしたがってデータを
+読み込む。リモートプロセスは、そのデータを用いて connect(2) を実行する。
 \end{enumerate}
 
 
 \subsubsection{Local Functions}
 
-����ȥ����륵���ФγƼ����ϡ��ȼ��˥�������ؿ��򥵥ݡ��Ȥ��Ƥ�褤��
-�ºݡ�����ץ���� oxc �ϥ�������ؿ��򥵥ݡ��Ȥ��Ƥ��롣
+コントロールサーバの各実装は、独自にローカル関数をサポートしてもよい。
+実際、サンプル実装 oxc はローカル関数をサポートしている。
 
-�����Ǥϡ�oxc �Υ�������ؿ� spawn �ˤĤ����������褦��
+ここでは、oxc のローカル関数 spawn について説明しよう。
 
-spawn �Ϸ׻������Ф�ư�������ʤ��Ȥ� 1 �Ĥΰ�������ġ����ΰ�����
-SM\_control\_spawn\_server ���Ѥ����� {\sl List} Argument ��Ʊ��η�����
-���롣���ʤ���������å���(�����ȥå�)
+spawn は計算サーバを起動し、少なくとも 1 個の引数を持つ。この引数は
+SM\_control\_spawn\_server で用いられる {\sl List} Argument と同一の形式で
+ある。すなわち、スタックに(右がトップ)
 \begin{tabular}{|c|c|c|}  \hline
 {\sl List} Argument & {\sl Integer32} 1 & {\sl String} ``spawn'' \\
 \hline
 \end{tabular}
-���Ѥߡ�SM\_executeFunction �򥳥�ȥ���������롣
-SM\_executeStringByLocalParser �����ѤǤ��ʤ��Τ����դ��롣
+を積み、SM\_executeFunction をコントローラに送る。
+SM\_executeStringByLocalParser は利用できないので注意する。
 
-spawn �ϡ��׻������Фε�ư������������ (CMO\_INT32, ������ID) �򡢼�
-�Ԥ����饨�顼���֥������Ȥ򥹥��å����Ѥࡣ�㤨�з׻������Ф�ȯ���Ǥ���
-���ä����ˤϥ��顼���֥������Ȥ��Ѥळ�Ȥˤʤ롣����ȥ����륵���Ф� 
-access(2) ���Ѥ��� PATH ����׻������Ф�õ�����⤷���Ĥ���ʤ���С�fork 
-�򤻤��ˡ����顼���֥������Ȥ򥹥��å����Ѥࡣ
+spawn は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
+敗したらエラーオブジェクトをスタックに積む。例えば計算サーバが発見できな
+かった場合にはエラーオブジェクトを積むことになる。コントロールサーバは 
+access(2) を用いて PATH から計算サーバを探す。もし見つからなければ、fork 
+をせずに、エラーオブジェクトをスタックに積む。
 */
 
 /*&eg

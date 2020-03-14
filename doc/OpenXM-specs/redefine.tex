@@ -1,18 +1,18 @@
-%% $OpenXM$
-//&jp \section{���Фκ�����˴ؤ�������}
+%% $OpenXM: OpenXM/doc/OpenXM-specs/redefine.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+//&jp \section{メンバの再定義に関する注意}
 
 /*&jp
-������,
-Coefficient �� Group DistributedPolynomials �� ���ФȤ����������.
-����򿷤��� group �Υ��С��Ȥ���������ĥ���뤳�Ȥ��Ǥ���.
-���Ȥ���, Coefficient ��, �Ƶ�ɽ��¿�༰�Υ��ФȤ��Ƥ�����Ǥ���.
-���ξ�������ѤȤ���, DistributedPolynomials �Υ��ФȤ��Ƥ� Coeffients
-�ΰ�̣���ĥ�����.
-�����ƥब���Τ����餷�� DistributedPolynomials �򤹤��ʤ��Ȥ� CMO �Ȥ��Ƥ�
-����Ǥ��ʤ��Ȥ����ʤ���, �����ºݤˤ��Υ����ƥ�Υ�������� Object ��
-�Ѵ��Ǥ��뤫�ϥ����ƥ��¸�Ǥ���.
-���Τ褦�ʺ�������뤹�Τ�, ����Ū�ʼ���ˡ����Ϥꤳ�Τ褦�ʻ��Ȥߤ�����
-�Ǥ���.
-mathcap �˥ǡ���ž�����ݸǽ�Ϥ��Τ褦�ʺƵ�Ūɽ��������å��Ǥ��ʤ���
-�����ʤ�.
+われわれは,
+Coefficient を Group DistributedPolynomials の メンバとして定義した.
+これを新しい group のメンバーとして定義を拡張することができる.
+たとえば, Coefficient を, 再帰表現多項式のメンバとしても定義できる.
+この場合副作用として, DistributedPolynomials のメンバとしての Coeffients
+の意味も拡張される.
+システムがそのあたらしい DistributedPolynomials をすくなくとも CMO としては
+理解できないといけないが, それを実際にそのシステムのローカルな Object に
+変換できるかはシステム依存である.
+このような再定義をゆるすのは, 一般的な実装法がやはりこのような仕組みだから
+である.
+mathcap にデータ転送の保護機能はこのような再帰的表現もチェックできないと
+いけない.
 */
