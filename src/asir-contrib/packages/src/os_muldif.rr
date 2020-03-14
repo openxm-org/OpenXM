@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.64 2020/03/12 06:28:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.65 2020/03/13 08:19:24 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -493,7 +493,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200311"$
+Muldif.rr="00200312"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -12854,8 +12854,10 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	if(type(Vw=getopt(view))==4){	/* Dislay on Canvas */
 		Glib_math_coordinate=1;
 		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
-		if(length(Vw)>1 && (C=trcolor(Vw[1]))!=0) Opt=[["color",C]];
-		else Opt=[];
+		if(length(Vw)>1){
+			if(type(Cl=Vw[1])==4) Cl=map(os_md.trcolor,Cl);
+			else Cl=trcolor(Cl);
+		}else Cl=0;
 		if(length(Vw)>2){
 			Mt=Vw[2];
 			if(LS==1){
@@ -12868,10 +12870,10 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			if(LS>1){
 				Mt=newmat(2,LS);Mt[0][0]=Mt[1][1]=1;
 			}else Mt=1;
-			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|option_list=Opt);
+			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|color=mcolor(Cl,0));
 			else{
 				YT=ptaffine(Mt,Ly);
-				glib_putpixel(YT[0],YT[1]|option_list=Opt); 
+				glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,0));
 			}
 		}
 	}else Vw=0;
@@ -12893,7 +12895,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	}else Inf=0;
 	Ckm*=Ck;
 
-	SS=subst(S,V,H);
+	SS=subst(S,V,H);N0=N;
 	if(Er>0){
 		HE=H/(Er+1);SSE=subst(S,V,HE);LyE=Ly;
 	}
@@ -12940,10 +12942,10 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		}
 		if(FL<0||(C+1)%FL) continue;
 		if(Vw){
-			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|option_list=Opt);
+			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|color=mcolor(Cl,CC/N0));
 			else{
  				YT=ptaffine(Mt,Ly);
-				glib_putpixel(YT[0],YT[1]|option_list=Opt);
+				glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,CC/N0));
 			}
 			continue;
 		}
