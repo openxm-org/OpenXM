@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.65 2020/03/13 08:19:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.66 2020/03/14 02:12:51 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -493,7 +493,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200312"$
+Muldif.rr="00200314"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -4810,7 +4810,7 @@ def openGlib(W)
 	}
 	if(type(W)==4&&length(W)==2){
 		Glib_canvas_x=W[0];
-		Glib_canvax_y=W[1];
+		Glib_canvas_y=W[1];
 	}
 	Glib_math_coordinate=1;
 	if(getopt(null)!=1) return glib_open();
@@ -12854,6 +12854,8 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	if(type(Vw=getopt(view))==4){	/* Dislay on Canvas */
 		Glib_math_coordinate=1;
 		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
+		if(length(car(Vw))==6) Vr=[car(Vw)[4],car(Vw)[5]];
+		else Vr=0;
 		if(length(Vw)>1){
 			if(type(Cl=Vw[1])==4) Cl=map(os_md.trcolor,Cl);
 			else Cl=trcolor(Cl);
@@ -12863,16 +12865,21 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			if(LS==1){
 				if(type(Mt)>1) Mt=0; 
 			}else{
-				if(type(Mt)!=6||size(Mt)!=[2,LS]) Mt=0;
+				if(type(Mt)!=6||((Ms=size(Mt))!=[2,LS]&&Ms!=[3,Ls])) Mt=0;
+				if(car(Ms)!=3) Vr=0;
 			}
 		}else Mt=0;
 		if(!Mt){
 			if(LS>1){
-				Mt=newmat(2,LS);Mt[0][0]=Mt[1][1]=1;
+				if(Vr){
+					Mt=newmat(3,LS);Mt[2][2]=1;
+				}
+				else Mt=newmat(2,LS);
+				Mt[0][0]=Mt[1][1]=1;
 			}else Mt=1;
 			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|color=mcolor(Cl,0));
 			else{
-				YT=ptaffine(Mt,Ly);
+				YT=Mt*ltov(Ly);
 				glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,0));
 			}
 		}
@@ -12886,7 +12893,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	if(type(Inf=getopt(Inf))==4&&length(Inf)>1&&Inf[0]>4){	/* explosion */
 		Ck=Inf[0];Ckm=Inf[1];
 		if(length(Inf)>2) MM=Inf[2];
-		if(!isint(Mt)||MM<1) MM=2;
+		if(!isint(MM)||MM<1) MM=2;
 		if(length(Inf)>3) C1=Inf[3];
 		if(type(C1)!=1||C1<0) C1=1;
 		if(length(Inf)>4) CB=Inf[4];
@@ -12942,11 +12949,13 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		}
 		if(FL<0||(C+1)%FL) continue;
 		if(Vw){
-			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|color=mcolor(Cl,CC/N0));
+			if(LS==1) CR=CC/N0;
 			else{
- 				YT=ptaffine(Mt,Ly);
-				glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,CC/N0));
+				YT=Mt*ltov(Ly); 
+				CR=(!Vr)?CC/N0:(YT[2]-Vr[0])/(Vr[1]-Vr[0]);
 			}
+			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|color=mcolor(Cl,CR));
+			else glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,CR));
 			continue;
 		}
 		TR=cons((Inf)?eval(T):deval(T),(V1)?[car(Ly)]:Ly);
