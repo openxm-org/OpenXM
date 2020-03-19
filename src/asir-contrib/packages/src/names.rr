@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.149 2019/10/26 08:12:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.150 2019/12/22 02:51:16 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20190319), Copyright 2000-2019, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20200320), Copyright 2000-2019, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -306,6 +306,18 @@ def base_is_asir2018() {
     if ((length(V)>=3) && (V[2])) return(1);
   }
   return(0);
+}
+/*&usage begin: base_is_equal(L1,L2)
+  returns 1 if the objects L1 and L2 are equal else return 0
+end: */
+def base_is_equal(L1,L2) {
+  return taka_base_is_equal(L1,L2);
+}
+/*&usage begin: base_f_definedp(Func)
+  returns 1 if the function Func is defined.
+end: */
+def base_f_definedp(Func) {
+  return taka_base_f_definedp(Func);
 }
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */

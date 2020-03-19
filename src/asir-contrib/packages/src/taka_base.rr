@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.32 2017/03/08 00:34:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.33 2017/03/12 00:39:26 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -416,6 +416,27 @@ def taka_base_number_eval(F) {
   if ((type(F)>=4) && (type(F)<=6)) return(map(number_eval,F));
   return(F); 
 }
+
+def taka_base_is_equal(L1,L2) {
+  if (type(L1) != type(L2)) return 0;
+  if (type(L1) < 4) return (L1==L2);
+  if (type(L1) == 9) return (L1==L2);  /* dist poly */
+  if ((type(L1) >= 4) && (type(L1) <=6)) {
+    if (length(L1) != length(L2)) return 0;
+    for (I=0; I<length(L1); I++) {  
+      if (tk_base_is_equal(L1[I],L2[I]) == 0) return 0;
+    }
+    return 1;
+  }
+  error("tk_base_is_equal is not implemented for this data type.");
+}
+
+def taka_base_f_definedp(Func) {
+  Pos = taka_base_position(rtostr(Func),flist());
+  if (Pos < 0) return 0;
+  return 1;
+}
+
 
 Taka_base_loaded = 1$
 end$
