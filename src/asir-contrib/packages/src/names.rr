@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.150 2019/12/22 02:51:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.151 2020/03/19 23:57:01 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -311,7 +311,8 @@ def base_is_asir2018() {
   returns 1 if the objects L1 and L2 are equal else return 0
 end: */
 def base_is_equal(L1,L2) {
-  return taka_base_is_equal(L1,L2);
+  return(L1==L2);
+/*  return taka_base_is_equal(L1,L2); */
 }
 /*&usage begin: base_f_definedp(Func)
   returns 1 if the function Func is defined.
