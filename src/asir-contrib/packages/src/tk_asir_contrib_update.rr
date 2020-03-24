@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.13 2014/05/28 09:57:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.14 2015/09/29 06:23:17 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -157,7 +157,7 @@ def asir_contrib_update_unix() {
   }
 
   C2move="mv " + InstallDir0 + " " + Trash+"/.asir-lib-trash";
-  C2mkdir = "mkdir  "+InstallDir;
+  C2mkdir = "mkdir -p "+InstallDir;
   for (I=0; I<length(ZipFiles); I++) {
    ZipFile=ZipFiles[I];
    C1=MyCurl+" "+Url+"/"+ZipFile+" >"+MyTmp+"/"+ZipFile+" 2> "+MyTmp+"/asir-contrib-update-error.txt";
