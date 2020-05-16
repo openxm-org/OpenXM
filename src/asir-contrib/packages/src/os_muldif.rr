@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.66 2020/03/14 02:12:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.67 2020/03/17 05:15:26 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Mar. 2020)
+ *          Toshio Oshima (Nov. 2007 - May. 2020)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -493,7 +493,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00200314"$
+Muldif.rr="00200515"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -7400,12 +7400,13 @@ def pcoef(P,L,Q)
 def pmaj(P)
 {
 	if(type(P)==4){
-		Opt=delopt(getopt(),"var"|inv=1);
-		P=mtransbys(os_md.pmaj,P,[]|optilon_list=Opt);
-		if(Opt==[]) return P;
+		Opt=getopt(var);
+		Opt=(isvar(Opt))?[["var",Opt]]:[];
+		for(Q=[];P!=[];P=cdr(P)) Q=cons(pmaj(car(P)|option_list=Opt),Q);
+		if(Opt==[]) return reverse(Q);
 		X=Opt[0][1];
-		D=mydeg(P,X);
-		for(S=0;D>=0;D--) S+=lmax(mycoef(P,D,X))*X^D;
+		D=mydeg(Q,X);
+		for(S=0;D>=0;D--) S+=lmax(mycoef(Q,D,X))*X^D;
 		return S;
 	}
 	V=vars(P);
@@ -11187,7 +11188,7 @@ def my_tex_form(S)
 					S=cons(123,S);
 					if(F==2) SS=cdr(SS);
 					else if(F==0) S=cons(car(SS),S);
-				}else if(F==2&&P-Q==3){		/* (2)^x -> 2^x*/
+				}else if(F==2&&P-Q==3){		/* (2)^x -> 2^x */
 					SS=cdr(SS);SS=cdr(SS);
 					S=cons(123,S);S=cons(car(SS),S);S=cons(125,S);
 					SS=cdr(SS);SS=cdr(SS);
@@ -11208,7 +11209,16 @@ def my_tex_form(S)
 		SS=reverse(S);
 		Top=P;
 	}
-	S=asciitostr(SS);
+    for(F=G=0,S=[];SS!=[];SS=cdr(SS)){  /* 22^x -> 2\cdot 2^x */
+		if(F==1&&G!=-1&&car(SS)==123 && length(SS)>1 && isnum(SS[1]))
+			S=append([116,111,100,99,92],S);
+		G=F;
+		if(car(SS)==125||car(SS)==95) F=-1;
+		else F=isnum(car(SS));
+		S=cons(car(SS),S);
+	}
+	S=asciitostr(reverse(S));
+/*	S=asciitostr(SS); */
 	if((K=getopt(ket))==1) S=texket(S);
 	else if(K==2) S=texket(S|all=1);
 	return S;
@@ -12817,6 +12827,7 @@ def rungeKutta(F,N,Lx,Y,IY)
 
 def pwTaylor(F,N,Lx,Y,Ly,M)
 {
+	/* Pr:bigfloat, V1:last, Sf: single, Tf: autonomous,  */
 	if(!isint(FL=getopt(mul))||!FL) FL=1;
 	if(getopt(val)==1) V1=1;
 	else V1=0;
@@ -12836,10 +12847,15 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 	}
 	if(Pr==1) Lx=[eval(Lx[0]),eval(Lx[1])];
 	else Lx=[deval(Lx[0]),deval(Lx[1])];
+	Sf=(type(F)!=4)?1:0;
 	if(type(Y)==4){
 		if(type(F)!=4)  F=append(cdr(Y),[F]);
 	}else Y=[Y];
 	if(type(Ly)!=4) Ly=[Ly];
+	if(findin(V,vars(F))>=0){
+		if(type(F)!=4) F=[F];
+		Tf=1;F=cons(1,subst(F,V,z_z));Y=cons(z_z,Y);Ly=cons(car(Lx),Ly);
+	}else Tf=0;							/* Tf: autonomous */
 	ErF=0;
 	if(type(Er=getopt(err))==4){
 		if(length(Er)==2) ErF=Er[1];	/* ErF&1: Raw,  ErF&2: relative,  ErF&4: add Sol */
@@ -12853,7 +12869,7 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 
 	if(type(Vw=getopt(view))==4){	/* Dislay on Canvas */
 		Glib_math_coordinate=1;
-		glib_window(car(Vw)[0], car(Vw)[1],car(Vw)[2],car(Vw)[3]);
+		glib_window(car(Vw)[0], car(Vw)[2],car(Vw)[1],car(Vw)[3]);
 		if(length(car(Vw))==6) Vr=[car(Vw)[4],car(Vw)[5]];
 		else Vr=0;
 		if(length(Vw)>1){
@@ -12865,19 +12881,20 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 			if(LS==1){
 				if(type(Mt)>1) Mt=0; 
 			}else{
-				if(type(Mt)!=6||((Ms=size(Mt))!=[2,LS]&&Ms!=[3,Ls])) Mt=0;
-				if(car(Ms)!=3) Vr=0;
+				if(type(Mt)!=6||((Ms=size(Mt)[0])!=2&&Ms!=3)) Mt=0;
+				if(Ms!=3) Vr=0;
 			}
+			if(Tf&&type(Mt)==6) Mt=newbmat(2,2,[[1,0],[0,Mt]]);
 		}else Mt=0;
 		if(!Mt){
-			if(LS>1){
+			if(LS>1+Tf){
 				if(Vr){
-					Mt=newmat(3,LS);Mt[2][2]=1;
+					Mt=newmat(3,LS);Mt[2+Tf][2+Tf]=1;
 				}
 				else Mt=newmat(2,LS);
-				Mt[0][0]=Mt[1][1]=1;
+				Mt[Tf][Tf]=Mt[Tf+1][Tf+1]=1;
 			}else Mt=1;
-			if(LS==1) glib_putpixel(Lx[0],Mt*Ly[0]|color=mcolor(Cl,0));
+			if(LS==1+Tf||Sf) glib_putpixel(Lx[0],Mt*Ly[Tf]|color=mcolor(Cl,0));
 			else{
 				YT=Mt*ltov(Ly);
 				glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,0));
@@ -12885,7 +12902,8 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		}
 	}else Vw=0;
 
-	RE=R=[cons(T=Lx[0],Ly)];
+	T=Lx[0];
+	RE=R=(Tf)?[Ly]:[cons(T,Ly)];
 	H=(Lx[1]-Lx[0])/N*One;
 
 	Ck=N+1;CB=10;Ckm=2;MM=2;C1=1;
@@ -12949,19 +12967,21 @@ def pwTaylor(F,N,Lx,Y,Ly,M)
 		}
 		if(FL<0||(C+1)%FL) continue;
 		if(Vw){
-			if(LS==1) CR=CC/N0;
+			if(LS==1+Tf||Sf) CR=CC/N0;
 			else{
 				YT=Mt*ltov(Ly); 
 				CR=(!Vr)?CC/N0:(YT[2]-Vr[0])/(Vr[1]-Vr[0]);
 			}
-			if(LS==1) glib_putpixel(deval(T),Mt*Ly[0]|color=mcolor(Cl,CR));
+			if(LS==1+Tf||Sf) glib_putpixel(deval(T),Mt*Ly[Tf]|color=mcolor(Cl,CR));
 			else glib_putpixel(YT[0],YT[1]|color=mcolor(Cl,CR));
 			continue;
 		}
-		TR=cons((Inf)?eval(T):deval(T),(V1)?[car(Ly)]:Ly);
+		TR=(V1)?[car(Ly)]:Ly;
+		if(!Tf) TR=cons((Inf)?eval(T):deval(T),TR);
 		R=cons(TR,R);
 		if(Er){
-			TRE=cons((Inf)?eval(T):deval(T),(V1)?[car(LyE)]:LyE);
+			TRE=(V1)?[car(LyE)]:LyE;
+			if(!Tf) TRE=cons((Inf)?eval(T):deval(T),TRE);
 			RE=cons(TRE,RE);
 		}
 	}
