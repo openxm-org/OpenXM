@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.67 2020/03/17 05:15:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.68 2020/05/16 05:40:32 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -143,6 +143,7 @@ localf mpower$
 localf mrot$
 localf texlen$
 localf isdif$
+localf isfctr$
 localf fctrtos$
 localf texlim$
 localf fmult$
@@ -4435,10 +4436,12 @@ def fctrtos(P)
 				if(D>1)	Op+="^"+((D>9)?(Pre+rtostr(D)+Post):rtostr(D));
 				PW=Op+Add+"}{"+PW+"}";
 			}else if(Add!=0) PW=PW+Add;
+			CD=0;
 			if(TeX>=1){
 				if(type(PC)==1 && ntype(PC)==0 && PC<0)
  					OC="-"+my_tex_form(-PC);
 				else OC=fctrtos(PC|TeX=1,br=1);
+				if(isint(PC)&&(PC<-1||PC>1)) CD=1;
 			}else	OC=fctrtos(PC|br=1);
 			if(PW!=""){
 				if(OC == "1")        OC = "";
@@ -4469,7 +4472,13 @@ def fctrtos(P)
 					}else L=LL;
 				}else L+=LL;
 			}else if(length(Tm)!=1) PW += CR;	/* not final term */
-			if(TeX) OC=texsp(OC);
+			if(TeX){
+				OC=texsp(OC);
+				if(CD){  /* 2*3^x */
+					CD=strtoascii(str_cut(PW,0,1));
+					if(length(CD)==2&&car(CD)==123&&isnum(CD[1])) OC+="\\cdots";
+				}
+			}
 			if(str_chr(OC,0,"-") == 0 || C==0)	str_tb([OC,PW], Out);
 			else{
 				str_tb(["+",OC,PW],Out);
@@ -4499,14 +4508,14 @@ def fctrtos(P)
 		if(imag(P)==0) P = fctr(P);		/* usual polynomial */
 		else P=[[P,1]];
 		S = str_tb(0,0);
-		for(J = N = 0; J < length(P); J++){
-			if(type(P[J][0]) <= 1){
-				if(P[J][0] == -1){
+		for(J = N = CD = 0; J < length(P); J++){
+			if(type(V=P[J][0]) <= 1){
+				if(V == -1){
 					write_to_tb("-",S);
 					if(length(P) == 1)
 						str_tb("1", S);
-				}else if(P[J][0] != 1){
-					str_tb((TeX>=1)?my_tex_form(P[J][0]):rtostr(P[J][0]), S);
+				}else if(V != 1){
+					str_tb((TeX>=1)?my_tex_form(V):rtostr(V), S);
 					N++;
 				}else if(length(P) == 1)
 					str_tb("1", S);
@@ -4514,6 +4523,7 @@ def fctrtos(P)
 					str_tb((TeX>=1)?my_tex_form(P[1][0]):rtostr(P[1][0]), S);
 					J++;
 				}
+				if(J==0&&isint(V=P[J][0])&&(V<-1||V>1)) CD=1;
 				continue;
 			}
 			if(N > 0 && TeX != 1 && TeX != 2 && TeX != 3)
@@ -4527,6 +4537,10 @@ def fctrtos(P)
 				str_tb(["^", (TeX>1)?rtotex(P[J][1]):monotos(P[J][1])],S);
 			}else{
 				if(nmono(P[J][0])>1) SS="("+SS+")";
+				else if(CD&&J==1){ /* 2*3^x */
+					CD=strtoascii(str_cut(SS,0,1));
+					if(length(CD)==2&&car(CD)==123&&isnum(CD[1])) SS="\\cdot"+SS;
+				}
 				write_to_tb(SS,S);
 			}
 		}
@@ -11669,14 +11683,27 @@ def getbyshell(S)
 	return open_file(F);
 }
 
+def isfctr(P)
+{
+	if(type(P)>3) return 0;
+	if(type(P)==3) return (!isfctr(nm(P))||!isfctr(dn(P)))?0:1;
+	V=ptol(P,vars(P)|opt=0);
+	for(;V!=[];V=cdr(V)){
+		if(type(car(V))>1||ntype(car(V))>0) return 0;
+	}
+	return 1;
+}
+
 def show(P)
 {
 	T=type(P);
 	S=P;
 	Var=getopt(opt);
+	if((Raw=getopt(raw))!=1) Raw=0;
 	if(Var=="verb"){
-		dviout("{\\tt"+verb_tex_form(T)+"}\n\n");
-		return;
+		S="{\\tt"+verb_tex_form(T)+"}\n\n";
+		if(Raw) return S;
+		dviout(S);return;
 	}
 	if(type(Var)<0) Var=getopt(var);
 	if(T==6){
@@ -11694,23 +11721,28 @@ def show(P)
 		if(Var=="pfrac") X=var(P);
 		else X=getopt(pfrac);
 		if(isvar(X)){
-				pfrac(P,X|dviout=1);
-				return;
+			if(Raw) return pfrac(P,X|TeX=1);
+			pfrac(P,X|dviout=1);return;
 		}
-		Opt=cons(["dviout",1],getopt());
-		if(type(Var)==2||type(Var)==4||type(Var)==7) fctrtos(P|option_list=Opt);
-		else{
+		Opt=getopt();
+		if(type(Var)!=2&&type(Var)!=4&&type(Var)!=7){
 			if(isdif(P)!=0) Opt=cons(["var","dif"],Opt);
 			else Opt=cons(["br",1],Opt);
-			fctrtos(P|option_list=Opt);
 		}
-		return;
+		if(!isfctr(P)){
+			if(Raw) return my_tex_form(P);
+			else{
+				dviout(P); return;
+			}
+		}
+		if(Raw) return fctrtos(P|option_list=cons(["TeX",3],Opt));
+		fctrtos(P|option_list=cons(["dviout",1],Opt));return;
 	}else if(T==4){
 		if(type(Var)==4 || type(Var)==7){
 			S=ltotex(P|option_list=getopt());
 			if(Var=="text"){
-				dviout(S);
-				return;
+				if(Raw) return S;
+				dviout(S);return;
 			}
 		}else{
 			for(F=0,L=P;L!=[] && F!=-1;L=cdr(L)){
@@ -11738,8 +11770,8 @@ def show(P)
 			if(F==1)	S=ltotex(P|opt="spt");
 			else if(F==2){
 				M=mtranspose(lv2m(S));
-				show(M|sp=1);	/* GRS */
-				return;
+				if(Raw) return show(M|sp=1,raw=1);	/* GRS */
+				show(M|sp=1);return;
 			}else if(F==7)	S=ltotex(P|opt="spts");
 			else{
 				for(F=0,L=P;L!=[] && F!=-1;L=cdr(L)){
@@ -11774,11 +11806,13 @@ def show(P)
 		if(Var=="raw" || 
 			(Var !="eq" && str_chr(P,0,"\\")<0 && str_char(P,0,"^")<0 && str_char(P,0,"_")<0
 			&& str_char(P,0,"&")<0)){
-				dviout(P+"\n\n");
-				return;
+				S=P+"\n\n";
+				if(Raw) return S;
+				dviout(S); return;
 		}
 	}
-	dviout(S|eq=5);
+	if(Raw) return "\\begin{align}\\begin{split}\n &"+S+"\\end{split}\\end{align}";
+	else dviout(S|eq=5);
 }
 
 
