@@ -117,7 +117,7 @@ GEN cmo_up_to_GEN(cmo_polynomial_in_one_variable *c)
   z = cgetg(d+3,t_POL);
   setsigne(z,1);
   setvarn(z,c->var);
-  setlgef(z,d+3);
+  setlg(z,d+3);
   for ( i = 2; i <= d+2; i++ )
     z[i] = (long)gen_0;
   for ( cell = c->head->next; cell != c->head; cell = cell->next ) {
@@ -158,7 +158,7 @@ cmo_zz *GEN_to_cmo_string(GEN z)
   cmo_string *c;
 
   c = new_cmo_string(GSTR(z));
-  return c;
+  return (cmo_zz *)c;
 }
 
 cmo_zz *GEN_to_cmo_zz(GEN z)
@@ -166,7 +166,7 @@ cmo_zz *GEN_to_cmo_zz(GEN z)
   cmo_zz *c;
 
   c = new_cmo_zz();
-  mpz_import(c->mpz,lgef(z)-2,1,sizeof(long),0,0,&z[2]);
+  mpz_import(c->mpz,lg(z)-2,1,sizeof(long),0,0,&z[2]);
   if ( signe(z) < 0 )
     mpz_neg(c->mpz,c->mpz);
   return c;
@@ -180,8 +180,8 @@ cmo_qq *GEN_to_cmo_qq(GEN z)
   num = (GEN)z[1];
   den = (GEN)z[2];
   c = new_cmo_qq();
-  mpz_import(mpq_numref(c->mpq),lgef(num)-2,1,sizeof(long),0,0,&num[2]);
-  mpz_import(mpq_denref(c->mpq),lgef(den)-2,1,sizeof(long),0,0,&den[2]);
+  mpz_import(mpq_numref(c->mpq),lg(num)-2,1,sizeof(long),0,0,&num[2]);
+  mpz_import(mpq_denref(c->mpq),lg(den)-2,1,sizeof(long),0,0,&den[2]);
   if ( signe(num)*signe(den) < 0 )
     mpz_neg(mpq_numref(c->mpq),mpq_numref(c->mpq));
   return c;

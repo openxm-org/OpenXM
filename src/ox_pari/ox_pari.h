@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pari/pari.h"
+#if 0
 #include "pari/paripriv.h"
+#endif
 #include "gmp.h"
 /* inconsistency between PARI and GMP */
 #undef un
@@ -39,6 +41,7 @@ struct parif {
   char *name;
   GEN (*f)();
   int type;
+  int opt;
 };
 
 #define MPFR_PREC(x)      ((x)->_mpfr_prec)

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.9 2020/01/09 00:52:39 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.10 2020/01/16 03:58:25 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -43,7 +43,7 @@ configure: patch
 build: configure
 	@if [ ! -f work/.build_done ]; then \
 		d=`cd work/${PARI} ; config/objdir` ; \
-		(cd work/${PARI}/$$d ; ${MAKE} lib-sta) ; \
+		(cd work/${PARI}/$$d ; ${MAKE} lib-sta; ${MAKE} gp) ; \
 	fi
 	@touch work/.build_done
 
@@ -57,7 +57,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		d=`cd work/${PARI} ; config/objdir` ; \
-		(cd work/${PARI}/$$d ; ${MAKE} install-lib-sta install-include) ; \
+		(cd work/${PARI}/$$d ; ${MAKE} install-lib-sta install-include install-lib-dyn) ; \
 		${RANLIB} ${PREFIX}/lib/libpari.a ; \
 	fi
 	@touch work/.install_done

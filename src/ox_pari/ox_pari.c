@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.18 2019/07/25 05:59:15 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.19 2019/12/19 08:34:41 fujimoto Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -27,12 +27,12 @@ void gc_free(void *p,size_t size)
 void init_gc()
 {
   GC_INIT();
-  mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
 }
 
 void init_pari()
 {
   pari_init(paristack,2);
+  mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
 }
 
 int initialize_stack()
@@ -157,21 +157,8 @@ int sm_executeFunction()
   struct parif *parif;
   unsigned long prec;
   char buf[BUFSIZ];
-  int status;
-  char *err;
-
-  if ( (status = setjmp(GP_DATA->env)) != 0 ) {
-    err = errmessage[status];
-    if ( status == errpile ) {
-      sprintf(buf,"%s\nIncrease PARI stack by pari(allocatemem,size).",err);
-      init_pari();
-    } else if ( strlen(err) != 0 )
-      sprintf(buf,"An error occured in PARI :%s",err);
-    else
-      sprintf(buf,"An error occured in PARI.");
-    push((cmo*)make_error2(buf));
-    return -1;
-  }
+  extern unsigned long precreal;
+  
   cmo_string *func = (cmo_string *)pop();
   if(func->tag != CMO_STRING) {
     sprintf(buf,"sm_executeFunction : func->tag=%d is not CMO_STRING",func->tag);
@@ -187,27 +174,26 @@ int sm_executeFunction()
   }
   for ( i = 0; i < ac; i++ ) {
     av[i] = (cmo *)pop();
-//    fprintf(stderr,"arg%d:",i);
-//    print_cmo(av[i]);
-//    fprintf(stderr,"\n");
   }
   if( strcmp( func->s, "exit" ) == 0 )
     exit(0);
 
+  if ( !strcmp(func->s,"allocatemem") ) {
+    paristack =  cmo_to_int(av[0]);
+    pari_close();
+    init_pari();
+    return 0;
+  } 
   parif =search_parif(func->s);
   if ( !parif ) {
     sprintf(buf,"%s : not implemented",func->s);
     push((cmo*)make_error2(buf));
     return -1;
- } else if ( parif->type == 0 ) {
-    /* one long int variable */ 
-    int a = cmo_to_int(av[0]);
-    a = (int)(parif->f)(a);
-    ret = (cmo *)new_cmo_int32(a);
-    push(ret);
-    return 0;
-  } else if ( parif->type == 1 ) {
-    /* one number/poly/matrix argument possibly with prec */ 
+  } else if ( parif->type <= 2 ) {
+    /* type=1 => one GEN argument possibly with prec */ 
+    /* type=2 => one GEN argument with optarg */ 
+    /* type=3 => one GEN, return ulong */
+
     av0 = avma;
     z = cmo_to_GEN(av[0]); 
     prec = ac==2 ? cmo_to_int(av[1])*3.32193/32+3 : precreal;
@@ -219,30 +205,42 @@ int sm_executeFunction()
       settyp(z,t_MAT);
       z = shallowtrans(z);
     }
-    printf("input : "); output(z);
-    m = (*parif->f)(z,prec);
-    ret = GEN_to_cmo(m);
-    avma = av0;
-    push(ret);
-    return 0;
-  } else if ( parif->type == 2 ) {
-    /* one number/poly/matrix argument with flag=0 */ 
-    av0 = avma;
-    z = cmo_to_GEN(av[0]); 
-    if ( ismatrix(z) ) {
-      int i,len;
-      len = lg(z); 
-      for ( i = 1; i < len; i++ )
-        settyp(z[i],t_COL);
-      settyp(z,t_MAT);
-      z = shallowtrans(z);
+    pari_CATCH(CATCH_ALL) {
+      GEN E = pari_err_last();
+      long code = err_get_num(E);
+      char *err = pari_err2str(E);
+      if ( code == e_MEM || code == e_STACK ) {
+        sprintf(buf,"%s\nIncrease PARI stack by pari(allocatemem,size).",err);
+      } else 
+        sprintf(buf,"An error occured in PARI :%s",err);
+      push((cmo*)make_error2(buf));
+      pari_CATCH_reset();
+      avma = av0;
+      return -1;
     }
-    printf("input : "); output(z);
-    m = (*parif->f)(z,0);
-    ret = GEN_to_cmo(m);
-    avma = av0;
-    push(ret);
-    return 0;
+    pari_TRY {
+      ret = 0;
+      if ( parif->type == 0 ) {
+        gp_allocatemem(z);
+        ret = av[0];
+        /* allocatemem */
+      } else if ( parif->type == 1 ) {
+        m = (*parif->f)(z,prec);
+        ret = GEN_to_cmo(m);
+      } else if ( parif->type == 2 ) {
+        m = (*parif->f)(z,parif->opt);
+        ret = GEN_to_cmo(m);
+      } else if ( parif->type == 3 ) {
+        /* XXX */
+        unsigned long a;
+        a = (unsigned long)(*parif->f)(z);
+        ret = (cmo *)new_cmo_int32((int)a);
+      }
+      avma = av0;
+      push(ret);
+      return 0;
+    }
+    pari_ENDCATCH
   } else {
     sprintf(buf,"%s : not implemented",func->s);
     push((cmo*)make_error2(buf));
@@ -319,15 +317,15 @@ int main()
   if ( sigsetjmp(ox_env,~0) ) {
 #endif
     fprintf(stderr,"resetting libpari and sending OX_SYNC_BALL...");
-    initialize_stack();
     init_pari();
+    initialize_stack();
     send_ox_tag(fd_rw,OX_SYNC_BALL);
     fprintf(stderr,"done\n");
   } else {
     init_gc();
     ox_stderr_init(stderr);
-    initialize_stack();
     init_pari();
+    initialize_stack();
   
     fprintf(stderr,"ox_pari\n");
 

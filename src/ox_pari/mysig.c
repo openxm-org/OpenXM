@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/ox_pari/mysig.c,v 1.1 2018/06/04 06:28:05 ohara Exp $
  */
 #include <stdio.h>
 #include <signal.h>
@@ -12,7 +12,6 @@ static void *Old_handler;
   sigset SIGINT, SIGCHLD, SIGUSR1
  */
 int unblock_signal(int sigset[]) {
-  struct sigaction act;
   sigset_t set;
   sigset_t oldset;
   int i;
@@ -23,7 +22,6 @@ int unblock_signal(int sigset[]) {
 }
 /* Add (or) blocked signals, see sigprocmask */
 int block_signal(int sigset[]) {
-  struct sigaction act;
   sigset_t set;
   sigset_t oldset;
   int i;
