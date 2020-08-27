@@ -1,0 +1,364 @@
+%% $OpenXM$
+%% debug に ln -s ../texinfo-ja.tex . をしておく.
+%% xetex ox_pari-ja.texi   (.texi までつける. ) 
+%% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage ja
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename ox_pari-ja
+
+@comment --- タイトル ---
+@settitle ox_pari
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title ox_pari
+@subtitle Risa/Asir ox_pari サーバ
+@subtitle 1.0 版
+@subtitle 2020 年 8 月 27 日
+
+@author  by Risa/Asir committers
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2020--2020. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する函数がある.
+@menu
+* ox_pariについて
+* ox_pari函数::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node ox_pariについて,,, Top
+@chapter ox_pariについて
+
+ox_pari は数論システム pari のサーバである.
+pari 函数の呼び出し方法は
+@example
+pari(函数名, 引数1, ...);
+@end example
+@noindent
+サーバーに登録されている函数名は次節を参照.
+
+@sp 3
+
+@noindent
+Pari/gp は Bordeaux 大学で開発されている数論システムである.
+次の web サイトを参照.
+@itemize @bullet
+@item [pari-gp] 
+@uref{http://pari.math.u-bordeaux.fr/index.html}
+@end itemize
+
+@node ox_pari函数,,, Top
+@chapter ox_pari函数
+
+@menu
+* pari::
+@end menu
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の函数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node pari,,, ox_pari函数
+@section @code{ox_pari}
+@comment --- 索引用キーワード
+@findex pari
+
+@table @t
+@item pari(@var{func},@var{arg1},@var{arg2}, ...)
+:: pari 函数 @var{func} を呼び出す.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+Pari 函数による計算結果
+@item argn
+Pari 函数への引数
+@end table
+
+@comment --- ここで函数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+pari library の函数の解説は @uref{https://pari.math.u-bordeaux.fr/dochtml/html/} を参照.
+@item 
+下記のテーブルに記載されている library 函数を呼び出せる. gp での函数名と異なってる場合があるので注意.
+@end itemize
+
+@comment OpenXM/src/ox_pari/pari_ftab.c を取り込む.
+@smallformat
+@verbatim
+/* type=1 : one num/poly/mat arg */
+/* type=2 : 1starg=num/poly/mat arg, 2ndarg=0(flag) */
+
+struct parif parif_tab[] = {
+/* (ulong)allocatemoremem(ulong) */
+  {"allocatemem",(GEN (*)())allocatemoremem,0},
+/* num/num */
+  {"abs",gabs,1},
+  {"erfc",gerfc,1},
+  {"arg",garg,1},
+  {"isqrt",racine,1},
+  {"gamma",ggamma,1},
+  {"zeta",gzeta,1},
+  {"floor",gfloor,1},
+  {"frac",gfrac,1},
+  {"imag",gimag,1},
+  {"conj",gconj,1},
+  {"ceil",gceil,1},
+  {"isprime",gisprime,2},
+  {"bigomega",gbigomega,1},
+  {"denom",denom,1},
+  {"numer",numer,1},
+  {"lngamma",glngamma,1},
+  {"logagm",glogagm,1},
+  {"classno",classno,1},
+  {"dilog",dilog,1},
+  {"disc",discsr,1},
+  {"discf",discf,1},
+  {"nextprime",nextprime,1},
+  {"eintg1",eint1,1},
+  {"eta",eta,1},
+  {"issqfree",gissquarefree,1},
+  {"issquare",gcarreparfait,1},
+  {"gamh",ggamd,1},
+  {"hclassno",classno3,1},
+
+  /* num/array */
+  {"binary",binaire,1},
+  {"factorint",factorint,2},
+  {"factor",Z_factor,1},
+  {"cf",gcf,1},
+  {"divisors",divisors,1},
+  {"smallfact",smallfact,1},
+
+  /* poly/poly */
+  {"centerlift",centerlift,1},
+  {"content",content,1},
+
+  /* poly/array */
+  {"galois",galois,1},
+  {"roots",roots,1},
+  {"factpol",factpol,1},
+
+  /* mat/mat */
+  {"adj",adj,1},
+  {"lll",lll,1},
+  {"lllgen",lllgen,1},
+  {"lllgram",lllgram,1},
+  {"lllgramgen",lllgramgen,1},
+  {"lllgramint",lllgramint,1},
+  {"lllgramkerim",lllgramkerim,1},
+  {"lllgramkerimgen",lllgramkerimgen,1},
+  {"lllint",lllint,1},
+  {"lllkerim",lllkerim,1},
+  {"lllkerimgen",lllkerimgen,1},
+  {"trans",gtrans,1},
+  {"eigen",eigen,1},
+  {"hermite",hnf,1},
+  {"mat",gtomat,1},
+  {"matrixqz2",matrixqz2,1},
+  {"matrixqz3",matrixqz3,1},
+  {"hess",hess,1},
+  {"ker",ker,1},
+  {"keri",keri,1},
+  {"kerint",kerint,1},
+  {"kerintg1",kerint1,1},
+
+  /* mat/poly */
+  {"det",det,1},
+  {"det2",det2,1},
+
+  /* not examined yet */
+  {"image",image,1},
+  {"image2",image2,1},
+  {"indexrank",indexrank,1},
+  {"indsort",indexsort,1},
+  {"initalg",initalg,1},
+  {"isfund",gisfundamental,1},
+  {"ispsp",gispsp,1},
+  {"jacobi",jacobi,1},
+  {"jell",jell,1},
+  {"length",(GEN(*)())glength,1},
+  {"lexsort",lexsort,1},
+  {"lift",lift,1},
+  {"lindep",lindep,1},
+  {"modreverse",polymodrecip,1},
+  {"mu",gmu,1},
+  {"norm",gnorm,1},
+  {"norml2",gnorml2,1},
+  {"numdiv",numbdiv,1},
+  {"omega",gomega,1},
+  {"order",order,1},
+  {"ordred",ordred,1},
+  {"phi",phi,1},
+  {"pnqn",pnqn,1},
+  {"primroot",gener,1},
+  {"psi",gpsi,1},
+  {"quadgen",quadgen    ,1},
+  {"quadpoly",quadpoly    ,1},
+  {"recip",polrecip       ,1},
+  {"redreal",redreal       ,1},
+  {"regula",regula  ,1},
+  {"reorder",reorder  ,1},
+  {"rhoreal",rhoreal       ,1},
+  {"sigma",sumdiv,1},
+  {"signat",signat,1},
+  {"simplify",simplify,1},
+  {"smith",smith,1},
+  {"smith2",smith2,1},
+  {"sort",sort,1},
+  {"sqr",gsqr,1},
+  {"sqred",sqred,1},
+  {"sqrt",gsqrt,1},
+  {"supplement",suppl,1},
+  {"trace",gtrace,1},
+  {"trunc",gtrunc,1},
+  {"unit",fundunit,1},
+  {"wf",wf,1},
+  {"wf2",wf2,1},
+};
+@end verbatim
+@end smallformat
+
+@sp 3
+@noindent
+呼び出し例,
+Ker(P: Z^4 ---> Z^2)
+の Z 基底を求める.
+@example
+pari(kerint,newmat(2,4,[[1,1,1],[0,1,3,4]]));
+@end example
+@noindent
+kerint についての情報は
+@uref{https://pari.math.u-bordeaux.fr/dochtml/html/}
+は見よ (gp での函数名は matkerint).
+
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@comment @ref{pari}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ OpenXM/src/ox_pari/pari_ftab.c に呼び出し可能な函数のテーブルがある.
+@end itemize
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+
+@comment テンプレート.  start_of_template.
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の函数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.hoge,,, 超幾何函数E(k,n)
+@subsection @code{gtt_ekn3.hoge}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.hoge
+
+@table @t
+@item gtt_ekn3.hoge(@var{i})
+:: 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item i  hage
+@item return  
+@end table
+
+@comment --- ここで函数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 説明.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 
+@example
+[2221] gtt_ekn3.hoge([[1,4],[2,3]]);
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+@end itemize
+@comment end_of_template
+
