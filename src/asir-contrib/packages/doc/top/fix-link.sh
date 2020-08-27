@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.10 2016/03/28 12:10:24 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.11 2016/10/12 02:19:17 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -112,6 +112,11 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[n_wishartd]]"
 NEW1="n_wishartd-html/n_wishartd-${LLL}.html"
 NEW2="n_wishartd "
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[ox_pari]]"
+NEW1="ox_pari-html/ox_pari-${LLL}.html"
+NEW2="ox_pari (OpenXM pari server)"
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
 
 rm -f cman-*.old
