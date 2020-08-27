@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/ox_pari/ox_pari-ja.texi,v 1.1 2020/08/27 06:02:13 takayama Exp $
 %% debug に ln -s ../texinfo-ja.tex . をしておく.
 %% xetex ox_pari-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
@@ -126,9 +126,17 @@ Pari 函数への引数
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item 
+ox_pari サーバーは自動的にスタートする. サーバの番号を得たい場合は
+ctrl("oxpari_id") または
+ox_get_serverinfo() 函数を用いる.
+ox_pari サーバへ中断命令, shutdown 命令を送るには
+ox_reset(サーバ番号), ox_shutdown(サーバ番号).
+これらの函数については Risa/Asir マニュアルを参照
+(たとえば @uref{http://www.openxm.org} の文書(documents)).
+@item 
 pari library の函数の解説は @uref{https://pari.math.u-bordeaux.fr/dochtml/html/} を参照.
 @item 
-下記のテーブルに記載されている library 函数を呼び出せる. gp での函数名と異なってる場合があるので注意.
+下記のテーブルに記載されている pari version 2.11.4 の library 函数を呼び出せる. gp での函数名と異なってる場合があるので注意.
 @end itemize
 
 @comment OpenXM/src/ox_pari/pari_ftab.c を取り込む.
@@ -285,7 +293,7 @@ kerint についての情報は
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@comment @ref{pari}
+@comment @ref{ox_get_serverinfo}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -295,7 +303,6 @@ ChangeLog
 @item
  OpenXM/src/ox_pari/pari_ftab.c に呼び出し可能な函数のテーブルがある.
 @end itemize
-
 
 
 @comment --- おまじない ---

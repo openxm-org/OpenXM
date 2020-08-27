@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/ox_pari/ox_pari-en.texi,v 1.1 2020/08/27 06:02:13 takayama Exp $
 %% debug に ln -s ../texinfo-ja.tex . をしておく.
 %% xetex ox_pari-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
@@ -126,6 +126,14 @@ Argument for the pari function.
 @comment --- @itemize〜@end itemize は箇条書き ---
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
+@item
+ox_pari server starts automatically when the user calls the pari function
+first time.
+The number number can be obtained by ctrl("oxpari_id") or ox_get_serverinfo().
+In order to interrupt ox_pari or shutdown ox_pari, use
+ox_reset(server number) and ox_shutdown(server number) respectively.
+As to these functions, refer to the Risa/Asir manual
+(see, e.g., documents of @uref{http://www.openxm.org}).
 @item 
 pari library functions are 
 described in @uref{https://pari.math.u-bordeaux.fr/dochtml/html/}

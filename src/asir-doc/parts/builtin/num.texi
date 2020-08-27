@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.12 2016/08/29 04:56:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.13 2019/03/29 01:57:46 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -896,8 +896,9 @@ Napier's number (@t{exp}(1))
 最後の引数 @var{prec} で計算精度を指定できる.
 @var{prec} を省略した場合 @code{setprec()} で指定した精度となる. 
 @item
-現時点で実行できる @b{PARI} の函数は次の通りである. いずれも
+現時点で実行できる @b{PARI} の主な函数は次の通りである. いずれも
 1 引数で @b{Asir} が対応できる型の引数をとる函数である. 
+実行できる函数の全リストは asir-contrib の ox_pari マニュアルを参照.
 なお各々の機能については @b{PARI} のマニュアルを参照のこと.
 \E
 \BEG
@@ -919,8 +920,10 @@ for bigfloat operation.
 If the precision is not explicitly specified, operation will be performed
 with the precision set by @code{setprec()}.
 @item
-Currently available functions of @b{PARI} system are as follows.
+Some of currently available functions of @b{PARI} system are as follows.
 Note these are only a part of functions in @b{PARI} system.
+A complete list of functions which can be called from asir
+is in the ox_pari manual of the asir-contrib.
 For details of individual functions, refer to the @b{PARI} manual.
 (Some of them can be seen in the following example.)
 \E
