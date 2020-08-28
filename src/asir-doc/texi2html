@@ -8,6 +8,6 @@ if [ -x /usr/bin/texi2html ]; then
 elif [ -x /usr/local/bin/texi2html ]; then
   /usr/local/bin/texi2html $* ;
 else
-  perl ./texi2html.perl $* ;
+  echo "Error or Warning: Using OpenXM_HOME in OpenXM/src/asir-doc/texi2html"; perl ${OpenXM_HOME}/src/asir-doc/texi2html.perl $* ;
 fi
 
