@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.10 2020/01/16 03:58:25 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.11 2020/08/26 06:03:31 noro Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -9,19 +9,25 @@ PATCH_FILE=${PARI}.diff
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DIST_SUFFIX=.tgz
 DISTFILES=${PARI}${DIST_SUFFIX}
+GALFILES=galdata.tgz galpol.tgz
 
 all: build 
 
 fetch:
 	-mkdir work
 	@if [ ! -f work/.fetch_done ]; then \
-		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+	    for i in ${DISTFILES} ${GALFILES}; do \
+	        ${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}"$$i" ${DISTDIR}; \
+	    done; \
 	fi 
 	@touch work/.fetch_done
 
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
 	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	    for i in ${GALFILES}; do \
+	        cat ${DISTDIR}/"$$i" | (cd work/${PARI} ; tar xzvf -) ; \
+	    done; \
 	fi 
 	@touch work/.extract_done
 
@@ -57,7 +63,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		d=`cd work/${PARI} ; config/objdir` ; \
-		(cd work/${PARI}/$$d ; ${MAKE} install-lib-sta install-include install-lib-dyn) ; \
+		(cd work/${PARI}/$$d ; ${MAKE} install-lib-sta install-include install-lib-dyn install-data) ; \
 		${RANLIB} ${PREFIX}/lib/libpari.a ; \
 	fi
 	@touch work/.install_done
