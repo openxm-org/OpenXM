@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.32 2019/03/19 00:51:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.33 2019/03/19 00:56:55 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -847,6 +847,22 @@ def taka_poly_coefficient(F,Deg,V) {
     return red(taka_poly_coefficient(NN,Deg,V)/DD);
   }
   return map(taka_poly_coefficient,F,Deg,V);
+}
+
+def taka_poly_lcm(F) {
+  G=1;
+  N=length(F);
+  for (I=0; I<N; I++) {
+    if (F[I] != 0) G=red(G*F[I]/gcd(G,F[I]));
+  }
+  return(G);
+}
+def taka_poly_denominator(F) {
+  if (type(F) == 0) return(1);
+  if (type(F) < 4) return(dn(F));
+  F = base_flatten(F);
+  G=map(taka_poly_denominator,F);
+  return(taka_poly_lcm(base_flatten(G)));
 }
 
 Taka_poly_loaded = 1$

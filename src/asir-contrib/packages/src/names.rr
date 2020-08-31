@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.151 2020/03/19 23:57:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.152 2020/03/20 01:10:55 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -679,6 +679,25 @@ def poly_coefficient(F,Deg,V) {
   return taka_poly_coefficient(F,Deg,V | option_list=Opt);
 }
 
+/*&usage begin: poly_lcm(L)
+ It returns the LCM of L[0], L[1], ...
+ example:
+  poly_lcm([x^2-1,x^3-1]);
+end: */
+def poly_lcm(L) {
+  Opt = getopt();
+  return taka_poly_lcm(L | option_list=Opt);
+}
+/*&usage begin: poly_denominator(L)
+ It returns the denominator of L. L may be a list.
+ example:
+  poly_denominator([1/(x^2-1),1/(x^3-1)]);
+end: */
+def poly_denominator(L) {
+  Opt = getopt();
+  return taka_poly_denominator(L | option_list=Opt);
+}
+
 
 /* ---------------------hypergeometric------------------ */
 /* Canonical function names for hypergeometric functions of
@@ -905,6 +924,15 @@ end: */
 def matrix_inverse_singular(Mat) {
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return ok_matrix_inverse_singular(Mat);
+}
+
+/*&usage begin: matrix_poly_to_matrix(Poly,Rule)
+ Replace variables in the polynomial Poly by matrices in the Rule.
+ example: matrix_poly_to_matrix(x^2-1,[[x,newmat(2,2,[[2,0],[0,3]])]]);
+end: */
+def matrix_poly_to_matrix(Poly,Rule) {
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return ok_poly_to_matrix(Poly,Rule | option_list=getopt());
 }
 
 

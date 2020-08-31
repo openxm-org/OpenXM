@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.6 2019/01/04 05:36:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_matrix.rr,v 1.7 2019/06/06 07:00:07 takayama Exp $ */
 /* Old: Matrix */
 
 /*-------------------------------*/
@@ -729,6 +729,36 @@ def ok_matrix_inverse_singular(Mat) {
   return(Inv);
 }
 
+/*
+  gauge.rr, matrix_replace() --> poly_to_matrix()
+  E=matrix_identity_matrix(2)$ poly_to_matrix(5*a^2*b^3-3*b-5,[[a,A],[b,B]])-(5*A^2*B^3-3*B-5*E);
+  Rule =[[scalar variable,matrix],...]
+*/
+def ok_poly_to_matrix(F,Rule) 
+{
+  V=[];
+  Rule2=[];
+  for (I=0; I<length(Rule); I++) {
+    V=cons(Rule[I][0],V);
+    Rule2=cons([Rule[I][0],T=matrix_list_to_matrix(Rule[I][1])],Rule2);
+    N = size(T)[0];
+  }
+  V = reverse(V); 
+  Rule = reverse(Rule2);
+  F = dp_ptod(F,V);
+  Ans=newmat(N,N);
+  E = matrix_identity_matrix(N);
+  while (F != 0) {
+    T = dp_hc(F)*E;
+    Exp = dp_etov(F);
+    for (I=0; I<length(Exp); I++) {
+      T = T*Rule[I][1]^Exp[I];
+    }
+    Ans = Ans + T;
+    F = dp_rest(F);
+  }
+  return Ans;
+}
 
 
 Loaded_ok_matrix = 1 $
