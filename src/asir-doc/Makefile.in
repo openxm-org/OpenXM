@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.13 2018/10/18 06:30:29 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.14 2020/08/27 23:34:32 takayama Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -86,7 +86,7 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
     int-parts/datatype/vect.texi
 
 tmp-en tmp-html-en: extract_man
-tmp-ja tmp-ja_utf8 tmp-html-ja tmp-html-internal-ja: extract_man
+tmp-ja tmp-ja_euc tmp-ja_utf8 tmp-html-ja tmp-html-internal-ja: extract_man
 man-en.dvi man-ja.dvi: texindex
 help-en help-func: extract_func
 html-win-en html-win: gen_hh
@@ -96,6 +96,12 @@ tmp-ja: ${SRCS}
 	-mkdir -p $@/parts/builtin
 	-cp texinfo*.* txi*tex $@
 	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
+
+tmp-ja_euc: ${SRCS}
+	-rm -rf $@
+	-mkdir -p $@/parts/builtin
+	-cp texinfo*.* txi*tex $@
+	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -e > $@/$$i; done
 
 tmp-ja_utf8: ${SRCS}
 	-rm -rf $@
@@ -146,11 +152,11 @@ man-en.dvi: tmp-en
 
 man: man-ja.pdf man-en.pdf
 
-help-ja: tmp-ja_utf8 man-ja.dvi
+help-ja: tmp-ja_euc man-ja.dvi
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd tmp-ja_utf8; ${MAKEINFO} man.texi)
-	-(cd $@; for i in ../tmp-ja_utf8/risaman*; do ../extract_func -j $$i; done)
+	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
+	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
 
 help-en: tmp-en man-en.dvi
 	-rm -rf $@

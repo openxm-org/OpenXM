@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.6 2009/02/22 20:27:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.7 2016/08/29 04:56:58 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -73,8 +73,8 @@ char **argv;
 				if ( buf1[0] == 0x1f ) {
 					fclose(fp); fp = 0;
 					if ( jis ) {
-						sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
-							name[0],name[0],name[0]);
+						sprintf(cmd,"nkf -w %s > %s.tmp; rm -f %s; mv %s.tmp %s",
+							name[0],name[0],name[0],name[0]);
 						system(cmd);
 					}
 				} else
@@ -84,7 +84,7 @@ char **argv;
 			if ( buf[0] == 0x1f ) {
 				fclose(fp); fp = 0;
 				if ( jis ) {
-					sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
+					sprintf(cmd,"nkf -w %s > %s.tmp; rm -f %s; mv %s.tmp %s",
 						fn,fn,fn,fn,fn);
 					system(cmd);
 				}
