@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.15 2020/09/05 00:57:16 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.16 2020/09/06 01:59:11 noro Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -31,7 +31,7 @@ install: all
 		for j in ${LANGUAGES}; do \
 			tar cf - help-$$j | (cd ${OpenXM_lib_asir}; tar xf -) ; \
 			tar cf - html-$$j | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
-			${INSTALL} man-$$j.pdf man-$$j.pdf ${OpenXM_doc_asir2000} ; \
+			${INSTALL} man-$$j.pdf ${OpenXM_doc_asir2000} ; \
 		done ; \
 		tar cf - html-internal-ja | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
 		tar cf - html-exp-ja      | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
@@ -158,7 +158,7 @@ man-en.pdf: tmp-en
 	-mv -f tmp-en/man.pdf $@
 	-touch $@
 
-man: man-ja.pdf man-en.pdf internal-ja.pdf
+man: man-ja.pdf man-en.pdf internal-ja.pdf exp-ja.pdf
 
 help-ja: tmp-ja_euc man-ja.pdf
 	-rm -rf $@
@@ -202,11 +202,17 @@ html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
 	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
+	-cp texinfo*.* txi*tex $@
 	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.pdf: tmp-internal-ja
 	-(cd tmp-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
 	-mv -f tmp-internal-ja/internal.pdf $@
+	-touch $@
+
+exp-ja.pdf: html-exp-ja
+	-(cd html-exp-ja; ${PTEX} exp-ja.texi; ../jtexindex/C/texindex exp-ja.??; ${PTEX} exp-ja.texi)
+	-mv -f html-exp-ja/exp-ja.pdf $@
 	-touch $@
 
 extract_func: extract_func.o
