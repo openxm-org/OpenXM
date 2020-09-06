@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.14 2020/08/27 23:34:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.15 2020/09/05 00:57:16 noro Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -31,7 +31,7 @@ install: all
 		for j in ${LANGUAGES}; do \
 			tar cf - help-$$j | (cd ${OpenXM_lib_asir}; tar xf -) ; \
 			tar cf - html-$$j | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
-			${INSTALL} man-$$j.dvi man-$$j.pdf ${OpenXM_doc_asir2000} ; \
+			${INSTALL} man-$$j.pdf man-$$j.pdf ${OpenXM_doc_asir2000} ; \
 		done ; \
 		tar cf - html-internal-ja | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
 		tar cf - html-exp-ja      | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
@@ -87,7 +87,7 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
 
 tmp-en tmp-html-en: extract_man
 tmp-ja tmp-ja_euc tmp-ja_utf8 tmp-html-ja tmp-html-internal-ja: extract_man
-man-en.dvi man-ja.dvi: texindex
+man-en.pdf man-ja.pdf: texindex
 help-en help-func: extract_func
 html-win-en html-win: gen_hh
 
@@ -131,6 +131,14 @@ tmp-html-en: ${SRCS}
 		./extract_man en $$i | sed -e "s/@fref/@ref/g" > $@/$$i;\
 	done
 
+tmp-internal-ja: ${INTERNAL_SRCS}
+	-rm -rf $@
+	-mkdir -p $@/parts/builtin $@/int-parts/datatype
+	-cp texinfo*.* txi*tex $@
+	-for i in ${INTERNAL_SRCS}; do \
+	  ./extract_man ja $$i | nkf -w > $@/$$i; \
+	done 
+
 tmp-html-internal-ja: ${INTERNAL_SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin $@/int-parts/datatype
@@ -139,26 +147,26 @@ tmp-html-internal-ja: ${INTERNAL_SRCS}
 	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
 
-man-ja.dvi: tmp-ja
+man-ja.pdf: tmp-ja
 	-(cd tmp-ja; ${PTEX} man.texi; ../jtexindex/C/texindex man.??; ${PTEX} man.texi)
-	-mv -f tmp-ja/man.dvi $@
+	-mv -f tmp-ja/man.pdf $@
 	-touch $@
 
-man-en.dvi: tmp-en
+man-en.pdf: tmp-en
 	-(cd tmp-en; ${TEX} man.texi; ../jtexindex/C/texindex man.??; ${TEX} man.texi)
 	-(cd tmp-en; ${MAKEINFO} man.texi)
-	-mv -f tmp-en/man.dvi $@
+	-mv -f tmp-en/man.pdf $@
 	-touch $@
 
-man: man-ja.pdf man-en.pdf
+man: man-ja.pdf man-en.pdf internal-ja.pdf
 
-help-ja: tmp-ja_euc man-ja.dvi
+help-ja: tmp-ja_euc man-ja.pdf
 	-rm -rf $@
 	-mkdir -p $@
 	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
 	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
 
-help-en: tmp-en man-en.dvi
+help-en: tmp-en man-en.pdf
 	-rm -rf $@
 	-mkdir -p $@
 	-(cd $@; for i in ../tmp-en/risaman*; do ../extract_func $$i; done)
@@ -196,9 +204,9 @@ html-exp-ja: exp/exp-ja.texi
 	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
 	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
 
-internal-ja.dvi: tmp-html-internal-ja
-	-(cd tmp-html-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
-	-mv -f tmp-html-internal-ja/internal.dvi $@
+internal-ja.pdf: tmp-internal-ja
+	-(cd tmp-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
+	-mv -f tmp-internal-ja/internal.pdf $@
 	-touch $@
 
 extract_func: extract_func.o
@@ -218,8 +226,8 @@ targzuu: help-en help-ja html-en html-ja
 
 clean:
 	-(cd jtexindex/C; ${MAKE} clean)
-	-rm -f man*.dvi man*.pdf *.o extract_man extract_func gen_hh
-	-rm -f internal-ja.dvi
+	-rm -f man*.pdf man*.pdf *.o extract_man extract_func gen_hh
+	-rm -f internal-ja.pdf
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*
