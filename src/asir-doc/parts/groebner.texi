@@ -1,7 +1,7 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.23 2019/09/13 09:31:00 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.24 2020/09/01 09:25:32 noro Exp $
 \BJP
-@node $B%0%l%V%J4pDl$N7W;;(B,,, Top
-@chapter $B%0%l%V%J4pDl$N7W;;(B
+@node グレブナ基底の計算,,, Top
+@chapter グレブナ基底の計算
 \E
 \BEG
 @node Groebner basis computation,,, Top
@@ -10,17 +10,16 @@
 
 @menu
 \BJP
-* $BJ,;6I=8=B?9`<0(B::
-* $B%U%!%$%k$NFI$_9~$_(B::
-* $B4pK\E*$JH!?t(B::
-* $B7W;;$*$h$SI=<($N@)8f(B::
-* $B9`=g=x$N@_Dj(B::
+* 分散表現多項式::
+* 基本的な函数::
+* 計算および表示の制御::
+* 項順序の設定::
 * Weight::
-* $BM-M}<0$r78?t$H$9$k%0%l%V%J4pDl7W;;(B::
-* $B4pDlJQ49(B::
-* Weyl $BBe?t(B::
-* $BB?9`<04D>e$N2C72(B::
-* $B%0%l%V%J4pDl$K4X$9$kH!?t(B::
+* 有理式を係数とするグレブナ基底計算::
+* 基底変換::
+* Weyl 代数::
+* 多項式環上の加群::
+* グレブナ基底に関する函数::
 \E
 \BEG
 * Distributed polynomial:: 
@@ -38,8 +37,8 @@
 @end menu
 
 \BJP
-@node $BJ,;6I=8=B?9`<0(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $BJ,;6I=8=B?9`<0(B
+@node 分散表現多項式,,, グレブナ基底の計算
+@section 分散表現多項式
 \E
 \BEG
 @node Distributed polynomial,,, Groebner basis computation
@@ -48,11 +47,11 @@
 
 @noindent
 \BJP
-$BJ,;6I=8=B?9`<0$H$O(B, $BB?9`<0$NFbIt7A<0$N0l$D$G$"$k(B. $BDL>o$NB?9`<0(B 
-(@code{type} $B$,(B 2) $B$O(B, $B:F5"I=8=$H8F$P$l$k7A<0$GI=8=$5$l$F$$$k(B. $B$9$J$o(B
-$B$A(B, $BFCDj$NJQ?t$r<gJQ?t$H$9$k(B 1 $BJQ?tB?9`<0$G(B, $B$=$NB>$NJQ?t$O(B, $B$=$N(B 1 $BJQ(B
-$B?tB?9`<0$N78?t$K(B, $B<gJQ?t$r4^$^$J$$B?9`<0$H$7$F8=$l$k(B. $B$3$N78?t$,(B, $B$^$?(B, 
-$B$"$kJQ?t$r<gJQ?t$H$9$kB?9`<0$H$J$C$F$$$k$3$H$+$i:F5"I=8=$H8F$P$l$k(B.
+分散表現多項式とは, 多項式の内部形式の一つである. 通常の多項式 
+(@code{type} が 2) は, 再帰表現と呼ばれる形式で表現されている. すなわ
+ち, 特定の変数を主変数とする 1 変数多項式で, その他の変数は, その 1 変
+数多項式の係数に, 主変数を含まない多項式として現れる. この係数が, また, 
+ある変数を主変数とする多項式となっていることから再帰表現と呼ばれる.
 \E
 \BEG
 A distributed polynomial is a polynomial with a special internal
@@ -84,8 +83,8 @@ representation, it is called the `recursive representation.'
 
 @noindent
 \BJP
-$B$3$l$KBP$7(B, $BB?9`<0$r(B, $BJQ?t$NQQ@Q$H78?t$N@Q$NOB$H$7$FI=8=$7$?$b$N$rJ,;6(B
-$BI=8=$H8F$V(B. 
+これに対し, 多項式を, 変数の冪積と係数の積の和として表現したものを分散
+表現と呼ぶ. 
 \E
 \BEG
 On the other hand,
@@ -112,10 +111,10 @@ something strange.)
 
 @noindent
 \BJP
-$B%0%l%V%J4pDl7W;;$K$*$$$F$O(B, $BC19`<0$KCmL\$7$FA`:n$r9T$&$?$aB?9`<0$,J,;6I=8=(B
-$B$5$l$F$$$kJ}$,$h$j8zN($N$h$$1i;;$,2DG=$K$J$k(B. $B$3$N$?$a(B, $BJ,;6I=8=B?9`<0$,(B, 
-$B<1JL;R(B 9 $B$N7?$H$7$F(B @b{Asir} $B$N%H%C%W%l%Y%k$+$iMxMQ2DG=$H$J$C$F$$$k(B. 
-$B$3$3$G(B, $B8e$N@bL@$N$?$a$K(B, $B$$$/$D$+$N8@MU$rDj5A$7$F$*$/(B. 
+グレブナ基底計算においては, 単項式に注目して操作を行うため多項式が分散表現
+されている方がより効率のよい演算が可能になる. このため, 分散表現多項式が, 
+識別子 9 の型として @b{Asir} のトップレベルから利用可能となっている. 
+ここで, 後の説明のために, いくつかの言葉を定義しておく. 
 \E
 \BEG
 For computation of Groebner basis, efficient operation is expected if
@@ -131,8 +130,8 @@ Here, we provide several definitions for the later description.
 
 @table @b
 \BJP
-@item $B9`(B (term)
-$BJQ?t$NQQ@Q(B. $B$9$J$o$A(B, $B78?t(B 1 $B$NC19`<0$N$3$H(B. @b{Asir} $B$K$*$$$F$O(B, 
+@item 項 (term)
+変数の冪積. すなわち, 係数 1 の単項式のこと. @b{Asir} においては, 
 \E
 \BEG
 @item term
@@ -145,9 +144,9 @@ In an @b{Asir} session, it is displayed in the form like
 @end example
 
 \BJP
-$B$H$$$&7A$GI=<($5$l(B, $B$^$?(B, $B$3$N7A$GF~NO2DG=$G$"$k(B. $B$3$NNc$O(B, 5 $BJQ?t$N9`(B
-$B$r<($9(B. $B3FJQ?t$r(B @code{a}, @code{b}, @code{c}, @code{d}, @code{e} $B$H$9$k$H(B
-$B$3$N9`$O(B @code{b*c^2*d^3*e^4} $B$rI=$9(B. 
+という形で表示され, また, この形で入力可能である. この例は, 5 変数の項
+を示す. 各変数を @code{a}, @code{b}, @code{c}, @code{d}, @code{e} とすると
+この項は @code{b*c^2*d^3*e^4} を表す. 
 \E
 \BEG
 and also can be input in such a form.
@@ -157,8 +156,8 @@ the term represents @code{b*c^2*d^3*e^4} in the ordinary expression.
 \E
 
 \BJP
-@item $B9`=g=x(B (term order)
-$BJ,;6I=8=B?9`<0$K$*$1$k9`$O(B, $B<!$N@-<A$rK~$?$9A4=g=x$K$h$j@0Ns$5$l$k(B. 
+@item 項順序 (term order)
+分散表現多項式における項は, 次の性質を満たす全順序により整列される. 
 \E
 \BEG
 @item term order
@@ -167,17 +166,17 @@ Terms are ordered according to a total order with the following properties.
 
 @enumerate
 @item
-\JP $BG$0U$N9`(B @code{t} $B$KBP$7(B @code{t} > 1
+\JP 任意の項 @code{t} に対し @code{t} > 1
 \EG For all @code{t} @code{t} > 1.
 
 @item
-\JP @code{t}, @code{s}, @code{u} $B$r9`$H$9$k;~(B, @code{t} > @code{s} $B$J$i$P(B @code{tu} > @code{su}
+\JP @code{t}, @code{s}, @code{u} を項とする時, @code{t} > @code{s} ならば @code{tu} > @code{su}
 \EG For all @code{t}, @code{s}, @code{u} @code{t} > @code{s} implies @code{tu} > @code{su}.
 @end enumerate
 
 \BJP
-$B$3$N@-<A$rK~$?$9A4=g=x$r9`=g=x$H8F$V(B. $B$3$N=g=x$OJQ?t=g=x(B ($BJQ?t$N%j%9%H(B) 
-$B$H9`=g=x7?(B ($B?t(B, $B%j%9%H$^$?$O9TNs(B) $B$K$h$j;XDj$5$l$k(B.
+この性質を満たす全順序を項順序と呼ぶ. この順序は変数順序 (変数のリスト) 
+と項順序型 (数, リストまたは行列) により指定される.
 \E
 \BEG
 Such a total order is called a term ordering. A term ordering is specified
@@ -186,8 +185,8 @@ by a variable ordering (a list of variables) and a type of term ordering
 \E
 
 \BJP
-@item $BC19`<0(B (monomial)
-$B9`$H78?t$N@Q(B. 
+@item 単項式 (monomial)
+項と係数の積. 
 \E
 \BEG
 @item monomial
@@ -199,16 +198,16 @@ In an @b{Asir} session, it is displayed in the form like
 2*<<0,1,2,3,4>>
 @end example
 
-\JP $B$H$$$&7A$GI=<($5$l(B, $B$^$?(B, $B$3$N7A$GF~NO2DG=$G$"$k(B. 
+\JP という形で表示され, また, この形で入力可能である. 
 \EG and also can be input in such a form.
 
 \BJP
-@item $BF,9`(B (head term)
-@itemx $BF,C19`<0(B (head monomial)
-@itemx $BF,78?t(B (head coefficient)
-$BJ,;6I=8=B?9`<0$K$*$1$k3FC19`<0$O(B, $B9`=g=x$K$h$j@0Ns$5$l$k(B. $B$3$N;~=g(B
-$B=x:GBg$NC19`<0$rF,C19`<0(B, $B$=$l$K8=$l$k9`(B, $B78?t$r$=$l$>$lF,9`(B, $BF,78?t(B
-$B$H8F$V(B. 
+@item 頭項 (head term)
+@itemx 頭単項式 (head monomial)
+@itemx 頭係数 (head coefficient)
+分散表現多項式における各単項式は, 項順序により整列される. この時順
+序最大の単項式を頭単項式, それに現れる項, 係数をそれぞれ頭項, 頭係数
+と呼ぶ. 
 \E
 \BEG
 @item head term
@@ -226,8 +225,8 @@ the head term and the head coefficient respectively.
 ChangeLog
 @itemize @bullet
 \BJP
-@item $BJ,;6I=8=B?9`<0$OG$0U$N%*%V%8%'%/%H$r78?t$K$b$F$k$h$&$K$J$C$?(B.
-$B$^$?2C72$N(Bk$B@.J,$NMWAG$r<!$N7A<0(B <<d0,d1,...:k>> $B$GI=8=$9$k$h$&$K$J$C$?(B (2017-08-31).
+@item 分散表現多項式は任意のオブジェクトを係数にもてるようになった.
+また加群のk成分の要素を次の形式 <<d0,d1,...:k>> で表現するようになった (2017-08-31).
 \E
 \BEG
 @item Distributed polynomials accept objects as coefficients.
@@ -261,43 +260,8 @@ The k-th element of a free module is expressed as <<d0,d1,...:k>> (2017-08-31).
 @end itemize
 
 \BJP
-@node $B%U%!%$%k$NFI$_9~$_(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B%U%!%$%k$NFI$_9~$_(B
-\E
-\BEG
-@node Reading files,,, Groebner basis computation
-@section Reading files
-\E
-
-@noindent
-\BJP
-$B%0%l%V%J4pDl$r7W;;$9$k$?$a$N4pK\E*$JH!?t$O(B @code{dp_gr_main()} $B$*$h$S(B
-@code{dp_gr_mod_main()}, @code{dp_gr_f_main()}
- $B$J$k(B 3 $B$D$NAH$_9~$_H!?t$G$"$k$,(B, $BDL>o$O(B, $B%Q%i%a%?(B
-$B@_Dj$J$I$r9T$C$?$N$A$3$l$i$r8F$S=P$9%f!<%6H!?t$rMQ$$$k$N$,JXMx$G$"$k(B. 
-$B$3$l$i$N%f!<%6H!?t$O(B, $B%U%!%$%k(B @samp{gr} $B$r(B @code{load()} $B$K$h$jFI(B
-$B$_9~$`$3$H$K$h$j;HMQ2DG=$H$J$k(B. @samp{gr} $B$O(B, @b{Asir} $B$NI8=`(B
-$B%i%$%V%i%j%G%#%l%/%H%j$KCV$+$l$F$$$k(B. 
-\E
-\BEG
-Facilities for computing Groebner bases are 
-@code{dp_gr_main()}, @code{dp_gr_mod_main()}and @code{dp_gr_f_main()}.
-To call these functions, 
-it is necessary to set several parameters correctly and it is convenient
-to use a set of interface functions provided in the library file
-@samp{gr}.
-The facilities will be ready to use after you load the package by
-@code{load()}.  The package @samp{gr} is placed in the standard library
-directory of @b{Asir}.  
-\E
-
-@example
-[0] load("gr")$
-@end example
-
-\BJP
-@node $B4pK\E*$JH!?t(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B4pK\E*$JH!?t(B
+@node 基本的な函数,,, グレブナ基底の計算
+@section 基本的な函数
 \E
 \BEG
 @node Fundamental functions,,, Groebner basis computation
@@ -306,10 +270,45 @@ directory of @b{Asir}.
 
 @noindent
 \BJP
-@samp{gr} $B$G$O?tB?$/$NH!?t$,Dj5A$5$l$F$$$k$,(B, $BD>@\(B
-$B%0%l%V%J4pDl$r7W;;$9$k$?$a$N%H%C%W%l%Y%k$O<!$N(B 3 $B$D$G$"$k(B. 
-$B0J2<$G(B, @var{plist} $B$OB?9`<0$N%j%9%H(B, @var{vlist} $B$OJQ?t(B ($BITDj85(B) $B$N%j%9%H(B, 
-@var{order} $B$OJQ?t=g=x7?(B, @var{p} $B$O(B @code{2^27} $BL$K~$NAG?t$G$"$k(B. 
+2003 年以前の版においては, グレブナ基底を計算するための基本的な函数は @code{dp_gr_main()} および
+@code{dp_gr_mod_main()}, @code{dp_gr_f_main()}
+ なる 3 つの組み込み函数であった. 通常は, パラメタ
+設定などを行ったのちこれらを呼び出すユーザ函数を用いるのが便利である. 
+これらのユーザ函数は, ファイル @samp{gr} を @code{load()} により読
+み込むことにより使用可能となる. @samp{gr} は, @b{Asir} の標準
+ライブラリディレクトリに置かれている. 
+@example
+[0] load("gr")$
+@end example
+
+
+現在の版においては, @code{nd_gr}, @code{nd_f4} などの新しい関数が実装されており,
+一般にこちらの方が効率よくグレブナー基底が計算できる 
+(@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
+\E
+\BEG
+In the vesion before 2003, 
+facilities for computing Groebner bases are 
+@code{dp_gr_main()}, @code{dp_gr_mod_main()}and @code{dp_gr_f_main()}.
+To call these functions, 
+it is necessary to set several parameters correctly and it is convenient
+to use a set of interface functions provided in the library file
+@samp{gr}.
+The facilities will be ready to use after you load the package by
+@code{load()}.  The package @samp{gr} is placed in the standard library
+directory of @b{Asir}.  
+
+In the current vesion, new functions such as @code{nd_gr}, @code{nd_f4} are available
+and these function can compute Groebner bases more efficiently than old functions
+(@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
+\E
+
+@noindent
+\BJP
+2003 年以前の版において
+グレブナ基底を計算するためのトップレベルは次の 3 つである. 
+以下で, @var{plist} は多項式のリスト, @var{vlist} は変数 (不定元) のリスト, 
+@var{order} は変数順序型, @var{p} は @code{2^27} 未満の素数である. 
 \E
 \BEG
 There are many functions and options defined in the package @samp{gr}.
@@ -326,9 +325,9 @@ and @var{p} stand for  a list of polynomials,  a list of variables
 @item gr(@var{plist},@var{vlist},@var{order})
 
 \BJP
-Gebauer-Moeller $B$K$h$k(B useless pair elimination criteria, sugar
-strategy $B$*$h$S(B Traverso $B$K$h$k(B trace-lifting $B$rMQ$$$?(B Buchberger $B%"%k(B
-$B%4%j%:%`$K$h$kM-M}?t78?t%0%l%V%J4pDl7W;;H!?t(B. $B0lHL$K$O$3$NH!?t$rMQ$$$k(B.
+Gebauer-Moeller による useless pair elimination criteria, sugar
+strategy および Traverso による trace-lifting を用いた Buchberger アル
+ゴリズムによる有理数係数グレブナ基底計算函数. 一般にはこの函数を用いる.
 \E
 \BEG
 Function that computes Groebner bases over the rationals. The
@@ -340,12 +339,12 @@ Traverso. For ordinary computation, this function is used.
 @item hgr(@var{plist},@var{vlist},@var{order})
 
 \BJP
-$BF~NOB?9`<0$r@F<!2=$7$?8e(B @code{gr()} $B$N%0%l%V%J4pDl8uJd@8@.It$K$h$j8u(B
-$BJd@8@.$7(B, $BHs@F<!2=(B, interreduce $B$7$?$b$N$r(B @code{gr()} $B$N%0%l%V%J4pDl(B
-$B%A%'%C%/It$G%A%'%C%/$9$k(B. 0 $B<!85%7%9%F%`(B ($B2r$N8D?t$,M-8B8D$NJ}Dx<07O(B) 
-$B$N>l9g(B, sugar strategy $B$,78?tKDD%$r0z$-5/$3$9>l9g$,$"$k(B. $B$3$N$h$&$J>l(B
-$B9g(B, strategy $B$r@F<!2=$K$h$k(B strategy $B$KCV$-49$($k$3$H$K$h$j78?tKDD%$r(B
-$BM^@)$9$k$3$H$,$G$-$k>l9g$,B?$$(B.
+入力多項式を斉次化した後 @code{gr()} のグレブナ基底候補生成部により候
+補生成し, 非斉次化, interreduce したものを @code{gr()} のグレブナ基底
+チェック部でチェックする. 0 次元システム (解の個数が有限個の方程式系) 
+の場合, sugar strategy が係数膨張を引き起こす場合がある. このような場
+合, strategy を斉次化による strategy に置き換えることにより係数膨張を
+抑制することができる場合が多い.
 \E
 \BEG
 After homogenizing the input polynomials a candidate of the \gr basis
@@ -359,20 +358,29 @@ the swells for such cases.
 @item gr_mod(@var{plist},@var{vlist},@var{order},@var{p})
 
 \BJP
-Gebauer-Moeller $B$K$h$k(B useless pair elimination criteria, sugar
-strategy $B$*$h$S(B Buchberger $B%"%k%4%j%:%`$K$h$k(B GF(p) $B78?t%0%l%V%J4pDl7W(B
-$B;;H!?t(B.
+Gebauer-Moeller による useless pair elimination criteria, sugar
+strategy および Buchberger アルゴリズムによる GF(p) 係数グレブナ基底計
+算函数.
 \E
 \BEG
 Function that computes Groebner bases over GF(@var{p}). The same
 algorithm as @code{gr()} is used.
 \E
-
 @end table
 
 \BJP
-@node $B7W;;$*$h$SI=<($N@)8f(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B7W;;$*$h$SI=<($N@)8f(B
+現在の版においては, これらに相当する機能は @code{nd_gr}, @code{nd_gr_trace} にまとめられている.
+詳しくは @fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace} 参照.
+\E
+\BEG
+In the current version, the functions corresponding to these three interfaces are provided
+by @code{nd_gr}, @code{nd_gr_trace}.
+See @fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}.
+\E
+
+\BJP
+@node 計算および表示の制御,,, グレブナ基底の計算
+@section 計算および表示の制御
 \E
 \BEG
 @node Controlling Groebner basis computations,,, Groebner basis computation
@@ -381,10 +389,10 @@ algorithm as @code{gr()} is used.
 
 @noindent
 \BJP
-$B%0%l%V%J4pDl$N7W;;$K$*$$$F(B, $B$5$^$6$^$J%Q%i%a%?@_Dj$r9T$&$3$H$K$h$j7W;;(B, 
-$BI=<($r@)8f$9$k$3$H$,$G$-$k(B. $B$3$l$i$O(B, $BAH$_9~$_H!?t(B @code{dp_gr_flags()}
-$B$K$h$j@_Dj;2>H$9$k$3$H$,$G$-$k(B. $BL50z?t$G(B @code{dp_gr_flags()} $B$r<B9T$9$k(B
-$B$H(B, $B8=:_@_Dj$5$l$F$$$k%Q%i%a%?$,(B, $BL>A0$HCM$N%j%9%H$GJV$5$l$k(B. 
+グレブナ基底の計算において, さまざまなパラメタ設定を行うことにより計算, 
+表示を制御することができる. これらは, 組み込み函数 @code{dp_gr_flags()}
+により設定参照することができる. 無引数で @code{dp_gr_flags()} を実行する
+と, 現在設定されているパラメタが, 名前と値のリストで返される. 
 \E
 \BEG
 One can cotrol a Groebner basis computation by setting various parameters.
@@ -400,8 +408,8 @@ ShowMag,1,Print,1,Stat,0,Reverse,0,InterReduce,0,Multiple,0]
 @end example
 
 \BJP
-$B0J2<$G(B, $B3F%Q%i%a%?$N0UL#$r@bL@$9$k(B. on $B$N>l9g$H$O(B, $B%Q%i%a%?$,(B 0 $B$G$J$$>l9g$r(B
-$B$$$&(B. $B$3$l$i$N%Q%i%a%?$N=i4|CM$OA4$F(B 0 (off) $B$G$"$k(B. 
+以下で, 各パラメタの意味を説明する. on の場合とは, パラメタが 0 でない場合を
+いう. これらのパラメタの初期値は全て 0 (off) である. 
 \E
 \BEG
 The return value is a list which contains the names of parameters and their
@@ -412,19 +420,19 @@ parameter is not zero.
 @table @code
 @item NoSugar
 \BJP
-on $B$N>l9g(B, sugar strategy $B$NBe$o$j$K(B Buchberger$B$N(B normal strategy $B$,MQ(B
-$B$$$i$l$k(B.
+on の場合, sugar strategy の代わりに Buchbergerの normal strategy が用
+いられる.
 \E
 \BEG
 If `on', Buchberger's normal strategy is used instead of sugar strategy.
 \E
 
 @item NoCriB
-\JP on $B$N>l9g(B, $BITI,MWBP8!=P5,=`$N$&$A(B, $B5,=`(B B $B$rE,MQ$7$J$$(B.
+\JP on の場合, 不必要対検出規準のうち, 規準 B を適用しない.
 \EG If `on', criterion B among the Gebauer-Moeller's criteria is not applied.
 
 @item NoGC
-\JP on $B$N>l9g(B, $B7k2L$,%0%l%V%J4pDl$K$J$C$F$$$k$+$I$&$+$N%A%'%C%/$r9T$o$J$$(B.
+\JP on の場合, 結果がグレブナ基底になっているかどうかのチェックを行わない.
 \BEG
 If `on', the check that a Groebner basis candidate is indeed a Groebner basis,
 is not executed.
@@ -432,8 +440,8 @@ is not executed.
 
 @item NoMC
 \BJP
-on $B$N>l9g(B, $B7k2L$,F~NO%$%G%"%k$HF1Ey$N%$%G%"%k$G$"$k$+$I$&$+$N%A%'%C%/(B
-$B$r9T$o$J$$(B.
+on の場合, 結果が入力イデアルと同等のイデアルであるかどうかのチェック
+を行わない.
 \E
 \BEG
 If `on', the check that the resulting polynomials generates the same ideal as
@@ -442,8 +450,8 @@ the ideal generated by the input, is not executed.
 
 @item NoRA
 \BJP
-on $B$N>l9g(B, $B7k2L$r(B reduced $B%0%l%V%J4pDl$K$9$k$?$a$N(B
-interreduce $B$r9T$o$J$$(B. 
+on の場合, 結果を reduced グレブナ基底にするための
+interreduce を行わない. 
 \E
 \BEG
 If `on', the interreduction, which makes the Groebner basis reduced, is not
@@ -452,8 +460,8 @@ executed.
 
 @item NoGCD
 \BJP
-on $B$N>l9g(B, $BM-M}<078?t$N%0%l%V%J4pDl7W;;$K$*$$$F(B, $B@8@.$5$l$?B?9`<0$N(B, 
-$B78?t$N(B content $B$r$H$i$J$$(B.
+on の場合, 有理式係数のグレブナ基底計算において, 生成された多項式の, 
+係数の content をとらない.
 \E
 \BEG
 If `on', content removals are not executed during a Groebner basis computation
@@ -461,13 +469,13 @@ over a rational function field.
 \E
 
 @item Top
-\JP on $B$N>l9g(B, normal form $B7W;;$K$*$$$FF,9`>C5n$N$_$r9T$&(B. 
+\JP on の場合, normal form 計算において頭項消去のみを行う. 
 \EG If `on', Only the head term of the polynomial being reduced is reduced.
 
 @comment @item Interreduce
 @comment \BJP
-@comment on $B$N>l9g(B, $BB?9`<0$r@8@.$9$kKh$K(B, $B$=$l$^$G@8@.$5$l$?4pDl$r$=$NB?9`<0$K(B
-@comment $B$h$k(B normal form $B$GCV$-49$($k(B.
+@comment on の場合, 多項式を生成する毎に, それまで生成された基底をその多項式に
+@comment よる normal form で置き換える.
 @comment \E
 @comment \BEG
 @comment If `on', intermediate basis elements are reduced by using a newly generated
@@ -476,8 +484,8 @@ over a rational function field.
 
 @item Reverse
 \BJP
-on $B$N>l9g(B, normal form $B7W;;$N:]$N(B reducer $B$r(B, $B?7$7$/@8@.$5$l$?$b$N$rM%(B
-$B@h$7$FA*$V(B.
+on の場合, normal form 計算の際の reducer を, 新しく生成されたものを優
+先して選ぶ.
 \E
 \BEG
 If `on', the selection strategy of reducer in a normal form computation
@@ -485,14 +493,14 @@ is such that a newer reducer is used first.
 \E
 
 @item Print
-\JP on $B$N>l9g(B, $B%0%l%V%J4pDl7W;;$NESCf$K$*$1$k$5$^$6$^$J>pJs$rI=<($9$k(B. 
+\JP on の場合, グレブナ基底計算の途中におけるさまざまな情報を表示する. 
 \BEG
 If `on', various informations during a Groebner basis computation is
 displayed.
 \E
 
 @item PrintShort
-\JP on $B$G!"(BPrint $B$,(B off $B$N>l9g(B, $B%0%l%V%J4pDl7W;;$NESCf$N>pJs$rC;=L7A$GI=<($9$k(B. 
+\JP on で、Print が off の場合, グレブナ基底計算の途中の情報を短縮形で表示する. 
 \BEG
 If `on' and Print is `off', short information during a Groebner basis computation is
 displayed.
@@ -500,8 +508,8 @@ displayed.
 
 @item Stat
 \BJP
-on $B$G(B @code{Print} $B$,(B off $B$J$i$P(B, @code{Print} $B$,(B on $B$N$H$-I=<($5(B
-$B$l$k%G!<%?$NFb(B, $B=87W%G!<%?$N$_$,I=<($5$l$k(B. 
+on で @code{Print} が off ならば, @code{Print} が on のとき表示さ
+れるデータの内, 集計データのみが表示される. 
 \E
 \BEG
 If `on', a summary of informations is shown after a Groebner basis
@@ -510,8 +518,8 @@ computation. Note that the summary is always shown if @code{Print} is `on'.
 
 @item ShowMag
 \BJP
-on $B$G(B @code{Print} $B$,(B on $B$J$i$P(B, $B@8@.$,@8@.$5$l$kKh$K(B, $B$=$NB?9`<0$N(B
-$B78?t$N%S%C%HD9$NOB$rI=<($7(B, $B:G8e$K(B, $B$=$l$i$NOB$N:GBgCM$rI=<($9$k(B. 
+on で @code{Print} が on ならば, 生成が生成される毎に, その多項式の
+係数のビット長の和を表示し, 最後に, それらの和の最大値を表示する. 
 \E
 \BEG
 If `on' and @code{Print} is `on', the sum of bit length of
@@ -523,12 +531,12 @@ computation the maximal value among the sums is shown.
 @item Content
 @itemx Multiple
 \BJP
-0 $B$G$J$$M-M}?t$N;~(B, $BM-M}?t>e$N@55,7A7W;;$K$*$$$F(B, $B78?t$N%S%C%HD9$NOB$,(B
-@code{Content} $BG\$K$J$k$4$H$K78?tA4BN$N(B GCD $B$,7W;;$5$l(B, $B$=$N(B GCD $B$G(B
-$B3d$C$?B?9`<0$r4JLs$9$k(B. @code{Content} $B$,(B 1 $B$J$i$P(B, $B4JLs$9$k$4$H$K(B
-GCD $B7W;;$,9T$o$l0lHL$K$O8zN($,0-$/$J$k$,(B, @code{Content} $B$r(B 2 $BDxEY(B
-$B$H$9$k$H(B, $B5pBg$J@0?t$,78?t$K8=$l$k>l9g(B, $B8zN($,NI$/$J$k>l9g$,$"$k(B. 
-backward compatibility $B$N$?$a!"(B@code{Multiple} $B$G@0?tCM$r;XDj$G$-$k(B.
+0 でない有理数の時, 有理数上の正規形計算において, 係数のビット長の和が
+@code{Content} 倍になるごとに係数全体の GCD が計算され, その GCD で
+割った多項式を簡約する. @code{Content} が 1 ならば, 簡約するごとに
+GCD 計算が行われ一般には効率が悪くなるが, @code{Content} を 2 程度
+とすると, 巨大な整数が係数に現れる場合, 効率が良くなる場合がある. 
+backward compatibility のため、@code{Multiple} で整数値を指定できる.
 \E
 \BEG
 If a non-zero rational number, in a normal form computation
@@ -547,12 +555,12 @@ backward compatibility.
 @item Demand
 
 \BJP
-$B@5Ev$J%G%#%l%/%H%jL>(B ($BJ8;zNs(B) $B$rCM$K;}$D$H$-(B, $B@8@.$5$l$?B?9`<0$O%a%b%j(B
-$BCf$K$*$+$l$:(B, $B$=$N%G%#%l%/%H%jCf$K%P%$%J%j%G!<%?$H$7$FCV$+$l(B, $B$=$NB?9`(B
-$B<0$rMQ$$$k(B normal form $B7W;;$N:](B, $B<+F0E*$K%a%b%jCf$K%m!<%I$5$l$k(B. $B3FB?(B
-$B9`<0$O(B, $BFbIt$G$N%$%s%G%C%/%9$r%U%!%$%kL>$K;}$D%U%!%$%k$K3JG<$5$l$k(B. 
-$B$3$3$G;XDj$5$l$?%G%#%l%/%H%j$K=q$+$l$?%U%!%$%k$O<+F0E*$K$O>C5n$5$l$J$$(B
-$B$?$a(B, $B%f!<%6$,@UG$$r;}$C$F>C5n$9$kI,MW$,$"$k(B. 
+正当なディレクトリ名 (文字列) を値に持つとき, 生成された多項式はメモリ
+中におかれず, そのディレクトリ中にバイナリデータとして置かれ, その多項
+式を用いる normal form 計算の際, 自動的にメモリ中にロードされる. 各多
+項式は, 内部でのインデックスをファイル名に持つファイルに格納される. 
+ここで指定されたディレクトリに書かれたファイルは自動的には消去されない
+ため, ユーザが責任を持って消去する必要がある. 
 \E
 \BEG
 If the value (a character string) is a valid directory name, then
@@ -565,7 +573,7 @@ and one should remove them by hand.
 @end table
 
 @noindent
-\JP @code{Print} $B$,(B 0 $B$G$J$$>l9g<!$N$h$&$J%G!<%?$,I=<($5$l$k(B.
+\JP @code{Print} が 0 でない場合次のようなデータが表示される.
 \EG If @code{Print} is `on', the following informations are shown.
 
 @example
@@ -593,9 +601,9 @@ D=12 ZR=5 NZR=6 Max_mag=6
 
 @noindent
 \BJP
-$B:G=i$KI=<($5$l$k(B @code{mod}, @code{eval} $B$O(B, trace-lifting $B$GMQ$$$i$l$kK!(B
-$B$G$"$k(B. @code{mod} $B$OAG?t(B, @code{eval} $B$OM-M}<078?t$N>l9g$KMQ$$$i$l$k(B
-$B?t$N%j%9%H$G$"$k(B. 
+最初に表示される @code{mod}, @code{eval} は, trace-lifting で用いられる法
+である. @code{mod} は素数, @code{eval} は有理式係数の場合に用いられる
+数のリストである. 
 \E
 \BEG
 In this example @code{mod} and @code{eval} indicate moduli used in
@@ -604,7 +612,7 @@ used for evaluation when the ground field is a field of rational functions.
 \E
 
 @noindent
-\JP $B7W;;ESCf$GB?9`<0$,@8@.$5$l$kKh$K<!$N7A$N%G!<%?$,I=<($5$l$k(B. 
+\JP 計算途中で多項式が生成される毎に次の形のデータが表示される. 
 \EG The following information is shown after every normal form computation.
 
 @example
@@ -612,46 +620,46 @@ used for evaluation when the ground field is a field of rational functions.
 @end example
 
 @noindent
-\JP $B$=$l$i$N0UL#$O<!$NDL$j(B. 
+\JP それらの意味は次の通り. 
 \EG Meaning of each component is as follows.
 
 @table @code
 \BJP
 @item TNF
 
-normal form $B7W;;;~4V(B ($BIC(B)
+normal form 計算時間 (秒)
 
 @item TCONT
 
-content $B7W;;;~4V(B ($BIC(B)
+content 計算時間 (秒)
 
 @item HT
 
-$B@8@.$5$l$?B?9`<0$NF,9`(B
+生成された多項式の頭項
 
 @item INDEX
 
-S-$BB?9`<0$r9=@.$9$kB?9`<0$N%$%s%G%C%/%9$N%Z%"(B
+S-多項式を構成する多項式のインデックスのペア
 
 @item NB
 
-$B8=:_$N(B, $B>iD9@-$r=|$$$?4pDl$N?t(B
+現在の, 冗長性を除いた基底の数
 
 @item NAB
 
-$B8=:_$^$G$K@8@.$5$l$?4pDl$N?t(B
+現在までに生成された基底の数
 
 @item RP
 
-$B;D$j$N%Z%"$N?t(B
+残りのペアの数
 
 @item S
 
-$B@8@.$5$l$?B?9`<0$N(B sugar $B$NCM(B
+生成された多項式の sugar の値
 
 @item M
 
-$B@8@.$5$l$?B?9`<0$N78?t$N%S%C%HD9$NOB(B (@code{ShowMag} $B$,(B on $B$N;~$KI=<($5$l$k(B. )
+生成された多項式の係数のビット長の和 (@code{ShowMag} が on の時に表示される. )
 \E
 \BEG
 @item TNF
@@ -694,8 +702,8 @@ Magnitude of the genrated basis element (shown if @code{ShowMag} is `on'.)
 
 @noindent
 \BJP
-$B:G8e$K(B, $B=87W%G!<%?$,I=<($5$l$k(B. $B0UL#$O<!$NDL$j(B. 
-($B;~4V$NI=<($K$*$$$F(B, $B?t;z$,(B 2 $B$D$"$k$b$N$O(B, $B7W;;;~4V$H(B GC $B;~4V$N%Z%"$G$"$k(B.)
+最後に, 集計データが表示される. 意味は次の通り. 
+(時間の表示において, 数字が 2 つあるものは, 計算時間と GC 時間のペアである.)
 \E
 \BEG
 The summary of the informations shown after a Groebner basis
@@ -708,71 +716,71 @@ for garbage colection.
 \BJP
 @item UP
 
-$B%Z%"$N%j%9%H$NA`:n$K$+$+$C$?;~4V(B
+ペアのリストの操作にかかった時間
 
 @item SP
 
-$BM-M}?t>e$N(B S-$BB?9`<07W;;;~4V(B
+有理数上の S-多項式計算時間
 
 @item SPM
 
-$BM-8BBN>e$N(B S-$BB?9`<07W;;;~4V(B
+有限体上の S-多項式計算時間
 
 @item NF
 
-$BM-M}?t>e$N(B normal form $B7W;;;~4V(B
+有理数上の normal form 計算時間
 
 @item NFM
 
-$BM-8BBN>e$N(B normal form $B7W;;;~4V(B
+有限体上の normal form 計算時間
 
 @item ZNFM
 
-@code{NFM} $B$NFb(B, 0 $B$X$N(B reduction $B$K$+$+$C$?;~4V(B
+@code{NFM} の内, 0 への reduction にかかった時間
 
 @item PZ
 
-content $B7W;;;~4V(B
+content 計算時間
 
 @item NP
 
-$BM-M}?t78?tB?9`<0$N78?t$KBP$9$k>jM>1i;;$N7W;;;~4V(B
+有理数係数多項式の係数に対する剰余演算の計算時間
 
 @item MP
 
-S-$BB?9`<0$r@8@.$9$k%Z%"$NA*Br$K$+$+$C$?;~4V(B
+S-多項式を生成するペアの選択にかかった時間
 
 @item RA
 
-interreduce $B7W;;;~4V(B
+interreduce 計算時間
 
 @item MC
 
-trace-lifting $B$K$*$1$k(B, $BF~NOB?9`<0$N%a%s%P%7%C%W7W;;;~4V(B
+trace-lifting における, 入力多項式のメンバシップ計算時間
 
 @item GC
 
-$B7k2L$N%0%l%V%J4pDl8uJd$N%0%l%V%J4pDl%A%'%C%/;~4V(B
+結果のグレブナ基底候補のグレブナ基底チェック時間
 
 @item T
 
-$B@8@.$5$l$?%Z%"$N?t(B
+生成されたペアの数
 
 @item B, M, F, D
 
-$B3F(B criterion $B$K$h$j=|$+$l$?%Z%"$N?t(B
+各 criterion により除かれたペアの数
       
 @item ZR
 
-0 $B$K(B reduce $B$5$l$?%Z%"$N?t(B
+0 に reduce されたペアの数
 
 @item NZR
 
-0 $B$G$J$$B?9`<0$K(B reduce $B$5$l$?%Z%"$N?t(B
+0 でない多項式に reduce されたペアの数
 
 @item Max_mag
 
-$B@8@.$5$l$?B?9`<0$N(B, $B78?t$N%S%C%HD9$NOB$N:GBgCM(B
+生成された多項式の, 係数のビット長の和の最大値
 \E
 \BEG
 @item UP
@@ -848,8 +856,8 @@ Maximal magnitude among all the generated polynomials
 @end table
 
 \BJP
-@node $B9`=g=x$N@_Dj(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B9`=g=x$N@_Dj(B
+@node 項順序の設定,,, グレブナ基底の計算
+@section 項順序の設定
 \E
 \BEG
 @node Setting term orderings,,, Groebner basis computation
@@ -858,11 +866,11 @@ Maximal magnitude among all the generated polynomials
 
 @noindent
 \BJP
-$B9`$OFbIt$G$O(B, $B3FJQ?t$K4X$9$k;X?t$r@.J,$H$9$k@0?t%Y%/%H%k$H$7$FI=8=$5$l(B
-$B$k(B. $BB?9`<0$rJ,;6I=8=B?9`<0$KJQ49$9$k:](B, $B3FJQ?t$,$I$N@.J,$KBP1~$9$k$+$r(B
-$B;XDj$9$k$N$,(B, $BJQ?t%j%9%H$G$"$k(B. $B$5$i$K(B, $B$=$l$i@0?t%Y%/%H%k$NA4=g=x$r(B
-$B;XDj$9$k$N$,9`=g=x$N7?$G$"$k(B. $B9`=g=x7?$O(B, $B?t(B, $B?t$N%j%9%H$"$k$$$O(B
-$B9TNs$GI=8=$5$l$k(B. 
+項は内部では, 各変数に関する指数を成分とする整数ベクトルとして表現され
+る. 多項式を分散表現多項式に変換する際, 各変数がどの成分に対応するかを
+指定するのが, 変数リストである. さらに, それら整数ベクトルの全順序を
+指定するのが項順序の型である. 項順序型は, 数, 数のリストあるいは
+行列で表現される. 
 \E
 \BEG
 A term is internally represented as an integer vector whose components
@@ -873,18 +881,18 @@ represented by an integer, a list of integer or matrices.
 \E
 
 @noindent
-\JP $B4pK\E*$J9`=g=x7?$H$7$F<!$N(B 3 $B$D$,$"$k(B. 
+\JP 基本的な項順序型として次の 3 つがある. 
 \EG There are following three fundamental types.
 
 @table @code
-\JP @item 0 (DegRevLex; @b{$BA4<!?t5U<-=q<0=g=x(B})
+\JP @item 0 (DegRevLex; @b{全次数逆辞書式順序})
 \EG @item 0 (DegRevLex; @b{total degree reverse lexicographic ordering})
 
 \BJP
-$B0lHL$K(B, $B$3$N=g=x$K$h$k%0%l%V%J4pDl7W;;$,:G$b9bB.$G$"$k(B. $B$?$@$7(B, 
-$BJ}Dx<0$r2r$/$H$$$&L\E*$KMQ$$$k$3$H$O(B, $B0lHL$K$O$G$-$J$$(B. $B$3$N(B
-$B=g=x$K$h$k%0%l%V%J4pDl$O(B, $B2r$N8D?t$N7W;;(B, $B%$%G%"%k$N%a%s%P%7%C%W$d(B, 
-$BB>$NJQ?t=g=x$X$N4pDlJQ49$N$?$a$N%=!<%9$H$7$FMQ$$$i$l$k(B. 
+一般に, この順序によるグレブナ基底計算が最も高速である. ただし, 
+方程式を解くという目的に用いることは, 一般にはできない. この
+順序によるグレブナ基底は, 解の個数の計算, イデアルのメンバシップや, 
+他の変数順序への基底変換のためのソースとして用いられる. 
 \E
 \BEG
 In general, computation by this ordering shows the fastest speed
@@ -896,14 +904,14 @@ the number of solutions, solving ideal membership problem and seeds
 for conversion to other Groebner bases under different ordering.
 \E
 
-\JP @item 1 (DegLex; @b{$BA4<!?t<-=q<0=g=x(B})
+\JP @item 1 (DegLex; @b{全次数辞書式順序})
 \EG @item 1 (DegLex; @b{total degree lexicographic ordering})
 
 \BJP
-$B$3$N=g=x$b(B, $B<-=q<0=g=x$KHf$Y$F9bB.$K%0%l%V%J4pDl$r5a$a$k$3$H$,$G$-$k$,(B, 
-@code{DegRevLex} $B$HF1MMD>@\$=$N7k2L$rMQ$$$k$3$H$O:$Fq$G$"$k(B. $B$7$+$7(B, 
-$B<-=q<0=g=x$N%0%l%V%J4pDl$r5a$a$k:]$K(B, $B@F<!2=8e$K$3$N=g=x$G%0%l%V%J4pDl(B
-$B$r5a$a$F$$$k(B. 
+この順序も, 辞書式順序に比べて高速にグレブナ基底を求めることができるが, 
+@code{DegRevLex} と同様直接その結果を用いることは困難である. しかし, 
+辞書式順序のグレブナ基底を求める際に, 斉次化後にこの順序でグレブナ基底
+を求めている. 
 \E
 \BEG
 By this type term ordering, Groebner bases are obtained fairly faster
@@ -915,14 +923,14 @@ that a Groebner basis is computed in this ordering after homogenization
 to obtain the final lexicographic Groebner basis.
 \E
 
-\JP @item 2 (Lex; @b{$B<-=q<0=g=x(B})
+\JP @item 2 (Lex; @b{辞書式順序})
 \EG @item 2 (Lex; @b{lexicographic ordering})
 
 \BJP
-$B$3$N=g=x$K$h$k%0%l%V%J4pDl$O(B, $BJ}Dx<0$r2r$/>l9g$K:GE,$N7A$N4pDl$rM?$($k$,(B
-$B7W;;;~4V$,$+$+$j2a$.$k$N$,FqE@$G$"$k(B. $BFC$K(B, $B2r$,M-8B8D$N>l9g(B, $B7k2L$N(B
-$B78?t$,6K$a$FD9Bg$JB?G\D9?t$K$J$k>l9g$,B?$$(B. $B$3$N>l9g(B, @code{gr()}, 
-@code{hgr()} $B$K$h$k7W;;$,6K$a$FM-8z$K$J$k>l9g$,B?$$(B. 
+この順序によるグレブナ基底は, 方程式を解く場合に最適の形の基底を与えるが
+計算時間がかかり過ぎるのが難点である. 特に, 解が有限個の場合, 結果の
+係数が極めて長大な多倍長数になる場合が多い. この場合, @code{gr()}, 
+@code{hgr()} による計算が極めて有効になる場合が多い. 
 \E
 \BEG
 Groebner bases computed by this ordering give the most convenient
@@ -939,8 +947,8 @@ that i.e., computation by
 
 @noindent
 \BJP
-$B$3$l$i$rAH$_9g$o$;$F%j%9%H$G;XDj$9$k$3$H$K$h$j(B, $BMM!9$J>C5n=g=x$,;XDj$G$-$k(B. 
-$B$3$l$O(B, 
+これらを組み合わせてリストで指定することにより, 様々な消去順序が指定できる. 
+これは, 
 \E
 \BEG
 By combining these fundamental orderingl into a list, one can make
@@ -951,11 +959,11 @@ various term ordering called elimination orderings.
 
 @noindent
 \BJP
-$B$G;XDj$5$l$k(B. @code{Oi} $B$O(B 0, 1, 2 $B$N$$$:$l$+$G(B, @code{Li} $B$OJQ?t$N8D(B
-$B?t$rI=$9(B. $B$3$N;XDj$O(B, $BJQ?t$r@hF,$+$i(B @code{L1}, @code{L2} , ...$B8D(B
-$B$:$D$NAH$KJ,$1(B, $B$=$l$>$l$NJQ?t$K4X$7(B, $B=g$K(B @code{O1}, @code{O2},
-...$B$N9`=g=x7?$GBg>.$,7hDj$9$k$^$GHf3S$9$k$3$H$r0UL#$9$k(B. $B$3$N7?$N(B
-$B=g=x$O0lHL$K>C5n=g=x$H8F$P$l$k(B. 
+で指定される. @code{Oi} は 0, 1, 2 のいずれかで, @code{Li} は変数の個
+数を表す. この指定は, 変数を先頭から @code{L1}, @code{L2} , ...個
+ずつの組に分け, それぞれの変数に関し, 順に @code{O1}, @code{O2},
+...の項順序型で大小が決定するまで比較することを意味する. この型の
+順序は一般に消去順序と呼ばれる. 
 \E
 \BEG
 In this example @code{Oi} indicates 0, 1 or 2 and @code{Li} indicates
@@ -971,8 +979,8 @@ is called an elimination ordering.
 
 @noindent
 \BJP
-$B$5$i$K(B, $B9TNs$K$h$j9`=g=x$r;XDj$9$k$3$H$,$G$-$k(B. $B0lHL$K(B, @code{n} $B9T(B
-@code{m} $BNs$N<B?t9TNs(B @code{M} $B$,<!$N@-<A$r;}$D$H$9$k(B. 
+さらに, 行列により項順序を指定することができる. 一般に, @code{n} 行
+@code{m} 列の実数行列 @code{M} が次の性質を持つとする. 
 \E
 \BEG
 Furthermore one can specify a term ordering by a matix.
@@ -982,7 +990,7 @@ following properties.
 
 @enumerate
 @item
-\JP $BD9$5(B @code{m} $B$N@0?t%Y%/%H%k(B @code{v} $B$KBP$7(B @code{Mv=0} $B$H(B @code{v=0} $B$OF1CM(B. 
+\JP 長さ @code{m} の整数ベクトル @code{v} に対し @code{Mv=0} と @code{v=0} は同値. 
 \BEG
 For all integer verctors @code{v} of length @code{m} @code{Mv=0} is equivalent
 to @code{v=0}.
@@ -990,8 +998,8 @@ to @code{v=0}.
 
 @item
 \BJP
-$BHsIi@.J,$r;}$DD9$5(B @code{m} $B$N(B 0 $B$G$J$$@0?t%Y%/%H%k(B @code{v} $B$KBP$7(B, 
-@code{Mv} $B$N(B 0 $B$G$J$$:G=i$N@.J,$OHsIi(B.
+非負成分を持つ長さ @code{m} の 0 でない整数ベクトル @code{v} に対し, 
+@code{Mv} の 0 でない最初の成分は非負.
 \E
 \BEG
 For all non-negative integer vectors @code{v} the first non-zero component
@@ -1001,9 +1009,9 @@ of @code{Mv} is non-negative.
 
 @noindent
 \BJP
-$B$3$N;~(B, 2 $B$D$N%Y%/%H%k(B @code{t}, @code{s} $B$KBP$7(B, 
-@code{t>s} $B$r(B, @code{M(t-s)} $B$N(B 0 $B$G$J$$:G=i$N@.J,$,HsIi(B,
-$B$GDj5A$9$k$3$H$K$h$j9`=g=x$,Dj5A$G$-$k(B.
+この時, 2 つのベクトル @code{t}, @code{s} に対し, 
+@code{t>s} を, @code{M(t-s)} の 0 でない最初の成分が非負,
+で定義することにより項順序が定義できる.
 \E
 \BEG
 Then we can define a term ordering such that, for two vectors
@@ -1013,8 +1021,8 @@ of @code{M(t-s)} is non-negative.
 
 @noindent
 \BJP
-$B9`=g=x7?$O(B, @code{gr()} $B$J$I$N0z?t$H$7$F;XDj$5$l$kB>(B, $BAH$_9~$_H!?t(B
-@code{dp_ord()} $B$G;XDj$5$l(B, $B$5$^$6$^$JH!?t$N<B9T$N:]$K;2>H$5$l$k(B. 
+項順序型は, @code{gr()} などの引数として指定される他, 組み込み函数
+@code{dp_ord()} で指定され, さまざまな函数の実行の際に参照される. 
 \E
 \BEG
 Types of term orderings are used as arguments of functions such as
@@ -1024,8 +1032,8 @@ during executions of various functions.
 
 @noindent
 \BJP
-$B$3$l$i$N=g=x$N6qBNE*$JDj5A$*$h$S%0%l%V%J4pDl$K4X$9$k99$K>\$7$$2r@b$O(B
-@code{[Becker,Weispfenning]} $B$J$I$r;2>H$N$3$H(B. 
+これらの順序の具体的な定義およびグレブナ基底に関する更に詳しい解説は
+@code{[Becker,Weispfenning]} などを参照のこと. 
 \E
 \BEG
 For concrete definitions of term ordering and more information
@@ -1034,7 +1042,7 @@ about Groebner basis, refer to, for example, the book
 \E
 
 @noindent
-\JP $B9`=g=x7?$N@_Dj$NB>$K(B, $BJQ?t$N=g=x<+BN$b7W;;;~4V$KBg$-$J1F6A$rM?$($k(B. 
+\JP 項順序型の設定の他に, 変数の順序自体も計算時間に大きな影響を与える. 
 \BEG
 Note that the variable ordering have strong effects on the computation
 time as well as the choice of types of term orderings.
@@ -1072,14 +1080,14 @@ z^3*y^2+2*t^3*y+(-t^7+2*t^4+t^2-t)*z^2,
 
 @noindent
 \BJP
-$BJQ?t=g=x(B @code{[x,y,z,t]} $B$K$*$1$k%0%l%V%J4pDl$O(B, $B4pDl$N?t$bB?$/(B, $B$=$l$>$l$N(B
-$B<0$bBg$-$$(B. $B$7$+$7(B, $B=g=x(B @code{[t,z,y,x]} $B$K$b$H$G$O(B, @code{B} $B$,$9$G$K(B
-$B%0%l%V%J4pDl$H$J$C$F$$$k(B. $BBg;(GD$K$$$($P(B, $B<-=q<0=g=x$G%0%l%V%J4pDl$r5a$a$k(B
-$B$3$H$O(B, $B:8B&$N(B ($B=g=x$N9b$$(B) $BJQ?t$r(B, $B1&B&$N(B ($B=g=x$NDc$$(B) $BJQ?t$G=q$-I=$9(B
-$B$3$H$G$"$j(B, $B$3$NNc$N>l9g$O(B, @code{t},  @code{z}, @code{y} $B$,4{$K(B
-@code{x} $B$GI=$5$l$F$$$k$3$H$+$i$3$N$h$&$J6KC<$J7k2L$H$J$C$?$o$1$G$"$k(B. 
-$B<B:]$K8=$l$k7W;;$K$*$$$F$O(B, $B$3$N$h$&$KA*$V$Y$-JQ?t=g=x$,L@$i$+$G$"$k(B
-$B$3$H$O>/$J$/(B, $B;n9T:x8m$,I,MW$J>l9g$b$"$k(B. 
+変数順序 @code{[x,y,z,t]} におけるグレブナ基底は, 基底の数も多く, それぞれの
+式も大きい. しかし, 順序 @code{[t,z,y,x]} にもとでは, @code{B} がすでに
+グレブナ基底となっている. 大雑把にいえば, 辞書式順序でグレブナ基底を求める
+ことは, 左側の (順序の高い) 変数を, 右側の (順序の低い) 変数で書き表す
+ことであり, この例の場合は, @code{t},  @code{z}, @code{y} が既に
+@code{x} で表されていることからこのような極端な結果となったわけである. 
+実際に現れる計算においては, このように選ぶべき変数順序が明らかである
+ことは少なく, 試行錯誤が必要な場合もある. 
 \E
 \BEG
 As you see in the above example, the Groebner base under variable
@@ -1097,7 +1105,7 @@ beforehand, and some heuristic trial may be inevitable.
 \E
 
 \BJP
-@node Weight ,,, $B%0%l%V%J4pDl$N7W;;(B
+@node Weight ,,, グレブナ基底の計算
 @section Weight
 \E
 \BEG
@@ -1105,8 +1113,8 @@ beforehand, and some heuristic trial may be inevitable.
 @section Weight
 \E
 \BJP
-$BA0@a$G>R2p$7$?9`=g=x$O(B, $B3FJQ?t$K(B weight ($B=E$_(B) $B$r@_Dj$9$k$3$H$G(B
-$B$h$j0lHLE*$J$b$N$H$J$k(B. 
+前節で紹介した項順序は, 各変数に weight (重み) を設定することで
+より一般的なものとなる. 
 \E
 \BEG
 Term orderings introduced in the previous section can be generalized
@@ -1120,14 +1128,14 @@ by setting a weight for each variable.
 6
 @end example
 \BJP
-$BC19`<0$NA4<!?t$r7W;;$9$k:](B, $B%G%U%)%k%H$G$O(B
-$B3FJQ?t$N;X?t$NOB$rA4<!?t$H$9$k(B. $B$3$l$O3FJQ?t$N(B weight $B$r(B 1 $B$H(B
-$B9M$($F$$$k$3$H$KAjEv$9$k(B. $B$3$NNc$G$O(B, $BBh0l(B, $BBhFs(B, $BBh;0JQ?t$N(B
-weight $B$r$=$l$>$l(B 1,2,3 $B$H;XDj$7$F$$$k(B. $B$3$N$?$a(B, @code{<<1,1,1>>}
-$B$NA4<!?t(B ($B0J2<$G$O$3$l$rC19`<0$N(B weight $B$H8F$V(B) $B$,(B @code{1*1+1*2+1*3=6} $B$H$J$k(B.
-weight $B$r@_Dj$9$k$3$H$G(B, $BF1$89`=g=x7?$N$b$H$G0[$J$k9`=g=x$,Dj5A$G$-$k(B.
-$BNc$($P(B, weight $B$r$&$^$/@_Dj$9$k$3$H$G(B, $BB?9`<0$r(B weighted homogeneous
-$B$K$9$k$3$H$,$G$-$k>l9g$,$"$k(B. 
+単項式の全次数を計算する際, デフォルトでは
+各変数の指数の和を全次数とする. これは各変数の weight を 1 と
+考えていることに相当する. この例では, 第一, 第二, 第三変数の
+weight をそれぞれ 1,2,3 と指定している. このため, @code{<<1,1,1>>}
+の全次数 (以下ではこれを単項式の weight と呼ぶ) が @code{1*1+1*2+1*3=6} となる.
+weight を設定することで, 同じ項順序型のもとで異なる項順序が定義できる.
+例えば, weight をうまく設定することで, 多項式を weighted homogeneous
+にすることができる場合がある. 
 \E
 \BEG
 By default, the total degree of a monomial is equal to
@@ -1143,17 +1151,17 @@ be made weighted homogeneous by setting an appropriate weight.
 \E
 
 \BJP
-$B3FJQ?t$KBP$9$k(B weight $B$r$^$H$a$?$b$N$r(B weight vector $B$H8F$V(B.
-$B$9$Y$F$N@.J,$,@5$G$"$j(B, $B%0%l%V%J4pDl7W;;$K$*$$$F(B, $BA4<!?t$N(B
-$BBe$o$j$KMQ$$$i$l$k$b$N$rFC$K(B sugar weight $B$H8F$V$3$H$K$9$k(B.
-sugar strategy $B$K$*$$$F(B, $BA4<!?t$NBe$o$j$K;H$o$l$k$+$i$G$"$k(B.
-$B0lJ}$G(B, $B3F@.J,$,I,$:$7$b@5$H$O8B$i$J$$(B weight vector $B$O(B,
-sugar weight $B$H$7$F@_Dj$9$k$3$H$O$G$-$J$$$,(B, $B9`=g=x$N0lHL2=$K$O(B
-$BM-MQ$G$"$k(B. $B$3$l$i$O(B, $B9TNs$K$h$k9`=g=x$N@_Dj$K$9$G$K8=$l$F(B
-$B$$$k(B. $B$9$J$o$A(B, $B9`=g=x$rDj5A$9$k9TNs$N3F9T$,(B, $B0l$D$N(B weight vector
-$B$H8+$J$5$l$k(B. $B$^$?(B, $B%V%m%C%/=g=x$O(B, $B3F%V%m%C%/$N(B
-$BJQ?t$KBP1~$9$k@.J,$N$_(B 1 $B$GB>$O(B 0 $B$N(B weight vector $B$K$h$kHf3S$r(B
-$B:G=i$K9T$C$F$+$i(B, $B3F%V%m%C%/Kh$N(B tie breaking $B$r9T$&$3$H$KAjEv$9$k(B.
+各変数に対する weight をまとめたものを weight vector と呼ぶ.
+すべての成分が正であり, グレブナ基底計算において, 全次数の
+代わりに用いられるものを特に sugar weight と呼ぶことにする.
+sugar strategy において, 全次数の代わりに使われるからである.
+一方で, 各成分が必ずしも正とは限らない weight vector は,
+sugar weight として設定することはできないが, 項順序の一般化には
+有用である. これらは, 行列による項順序の設定にすでに現れて
+いる. すなわち, 項順序を定義する行列の各行が, 一つの weight vector
+と見なされる. また, ブロック順序は, 各ブロックの
+変数に対応する成分のみ 1 で他は 0 の weight vector による比較を
+最初に行ってから, 各ブロック毎の tie breaking を行うことに相当する.
 \E
 
 \BEG
@@ -1174,10 +1182,10 @@ then it applies a tie breaker.
 \E
 
 \BJP
-weight vector $B$N@_Dj$O(B @code{dp_set_weight()} $B$G9T$&$3$H$,$G$-$k(B
-$B$,(B, $B9`=g=x$r;XDj$9$k:]$NB>$N%Q%i%a%?(B ($B9`=g=x7?(B, $BJQ?t=g=x(B) $B$H(B
-$B$^$H$a$F@_Dj$G$-$k$3$H$,K>$^$7$$(B. $B$3$N$?$a(B, $B<!$N$h$&$J7A$G$b(B
-$B9`=g=x$,;XDj$G$-$k(B.
+weight vector の設定は @code{dp_set_weight()} で行うことができる
+が, 項順序を指定する際の他のパラメタ (項順序型, 変数順序) と
+まとめて設定できることが望ましい. このため, 次のような形でも
+項順序が指定できる.
 \E
 \BEG
 A weight vector can be set by using @code{dp_set_weight()}.
@@ -1197,18 +1205,18 @@ and a variable order. This is realized as follows.
 @end example
 
 \BJP
-$B$$$:$l$NNc$K$*$$$F$b(B, $B9`=g=x$O(B option $B$H$7$F;XDj$5$l$F$$$k(B.
-$B:G=i$NNc$G$O(B @code{v} $B$K$h$jJQ?t=g=x$r(B, @code{sugarweight} $B$K$h$j(B
-sugar weight vector $B$r(B, @code{order}$B$K$h$j9`=g=x7?$r;XDj$7$F$$$k(B.
-$BFs$DL\$NNc$K$*$1$k(B @code{order} $B$N;XDj$O(B matrix order $B$HF1MM$G$"$k(B.
-$B$9$J$o$A(B, $B;XDj$5$l$?(B weight vector $B$r:8$+$i=g$K;H$C$F(B weight $B$NHf3S(B
-$B$r9T$&(B. $B;0$DL\$NNc$bF1MM$G$"$k$,(B, $B$3$3$G$O(B weight vector $B$NMWAG$r(B
-$BJQ?tKh$K;XDj$7$F$$$k(B. $B;XDj$,$J$$$b$N$O(B 0 $B$H$J$k(B. $B;0$DL\$NNc$G$O(B,
-@code{order} $B$K$h$k;XDj$G$O9`=g=x$,7hDj$7$J$$(B. $B$3$N>l9g$K$O(B,
-tie breaker $B$H$7$FA4<!?t5U<-=q<0=g=x$,<+F0E*$K@_Dj$5$l$k(B.
-$B$3$N;XDjJ}K!$O(B, @code{dp_gr_main}, @code{dp_gr_mod_main} $B$J$I(B
-$B$NAH$_9~$_4X?t$G$N$_2DG=$G$"$j(B, @code{gr} $B$J$I$N%f!<%6Dj5A4X?t(B
-$B$G$OL$BP1~$G$"$k(B.
+いずれの例においても, 項順序は option として指定されている.
+最初の例では @code{v} により変数順序を, @code{sugarweight} により
+sugar weight vector を, @code{order}により項順序型を指定している.
+二つ目の例における @code{order} の指定は matrix order と同様である.
+すなわち, 指定された weight vector を左から順に使って weight の比較
+を行う. 三つ目の例も同様であるが, ここでは weight vector の要素を
+変数毎に指定している. 指定がないものは 0 となる. 三つ目の例では,
+@code{order} による指定では項順序が決定しない. この場合には,
+tie breaker として全次数逆辞書式順序が自動的に設定される.
+この指定方法は, @code{dp_gr_main}, @code{dp_gr_mod_main} など
+の組み込み関数でのみ可能であり, @code{gr} などのユーザ定義関数
+では未対応である.
 \E
 \BEG
 In each example, a term ordering is specified as options.
@@ -1230,8 +1238,8 @@ user defined functions such as @code{gr()}.
 \E
 
 \BJP
-@node $BM-M}<0$r78?t$H$9$k%0%l%V%J4pDl7W;;(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $BM-M}<0$r78?t$H$9$k%0%l%V%J4pDl7W;;(B
+@node 有理式を係数とするグレブナ基底計算,,, グレブナ基底の計算
+@section 有理式を係数とするグレブナ基底計算
 \E
 \BEG
 @node Groebner basis computation with rational function coefficients,,, Groebner basis computation
@@ -1240,10 +1248,10 @@ user defined functions such as @code{gr()}.
 
 @noindent
 \BJP
-@code{gr()} $B$J$I$N%H%C%W%l%Y%kH!?t$O(B, $B$$$:$l$b(B, $BF~NOB?9`<0%j%9%H$K(B
-$B8=$l$kJQ?t(B ($BITDj85(B) $B$H(B, $BJQ?t%j%9%H$K8=$l$kJQ?t$rHf3S$7$F(B, $BJQ?t%j%9%H$K(B
-$B$J$$JQ?t$,F~NOB?9`<0$K8=$l$F$$$k>l9g$K$O(B, $B<+F0E*$K(B, $B$=$NJQ?t$r(B, $B78?t(B
-$BBN$N85$H$7$F07$&(B. 
+@code{gr()} などのトップレベル函数は, いずれも, 入力多項式リストに
+現れる変数 (不定元) と, 変数リストに現れる変数を比較して, 変数リストに
+ない変数が入力多項式に現れている場合には, 自動的に, その変数を, 係数
+体の元として扱う. 
 \E
 \BEG
 Such variables that appear within the input polynomials but
@@ -1259,17 +1267,17 @@ by top level functions, such as @code{gr()}.
 
 @noindent
 \BJP
-$B$3$NNc$G$O(B, @code{a}, @code{b}, @code{c}, @code{d} $B$,78?tBN$N85$H$7$F(B
-$B07$o$l$k(B. $B$9$J$o$A(B, $BM-M}H!?tBN(B 
-@b{F} = @b{Q}(@code{a},@code{b},@code{c},@code{d}) $B>e$N(B 2 $BJQ?tB?9`<04D(B
-@b{F}[@code{x},@code{y}] $B$K$*$1$k%0%l%V%J4pDl$r5a$a$k$3$H$K$J$k(B. 
-$BCm0U$9$Y$-$3$H$O(B, 
-$B78?t$,BN$H$7$F07$o$l$F$$$k$3$H$G$"$k(B. $B$9$J$o$A(B, $B78?t$N4V$KB?9`<0(B
-$B$H$7$F$N6&DL0x;R$,$"$C$?>l9g$K$O(B, $B7k2L$+$i$=$N0x;R$O=|$+$l$F$$$k(B
-$B$?$a(B, $BM-M}?tBN>e$NB?9`<04D>e$NLdBj$H$7$F9M$($?>l9g$N7k2L$H$O0lHL(B
-$B$K$O0[$J$k(B. $B$^$?(B, $B<g$H$7$F7W;;8zN(>e$NLdBj$N$?$a(B, $BJ,;6I=8=B?9`<0(B
-$B$N78?t$H$7$F<B:]$K5v$5$l$k$N$OB?9`<0$^$G$G$"$k(B. $B$9$J$o$A(B, $BJ,Jl$r(B
-$B;}$DM-M}<0$OJ,;6I=8=B?9`<0$N78?t$H$7$F$O5v$5$l$J$$(B. 
+この例では, @code{a}, @code{b}, @code{c}, @code{d} が係数体の元として
+扱われる. すなわち, 有理函数体 
+@b{F} = @b{Q}(@code{a},@code{b},@code{c},@code{d}) 上の 2 変数多項式環
+@b{F}[@code{x},@code{y}] におけるグレブナ基底を求めることになる. 
+注意すべきことは, 
+係数が体として扱われていることである. すなわち, 係数の間に多項式
+としての共通因子があった場合には, 結果からその因子は除かれている
+ため, 有理数体上の多項式環上の問題として考えた場合の結果とは一般
+には異なる. また, 主として計算効率上の問題のため, 分散表現多項式
+の係数として実際に許されるのは多項式までである. すなわち, 分母を
+持つ有理式は分散表現多項式の係数としては許されない. 
 \E
 \BEG
 In this example, variables @code{a}, @code{b}, @code{c}, and @code{d}
@@ -1290,8 +1298,8 @@ to numbers and polynomials because of efficiency.
 \E
 
 \BJP
-@node $B4pDlJQ49(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B4pDlJQ49(B
+@node 基底変換,,, グレブナ基底の計算
+@section 基底変換
 \E
 \BEG
 @node Change of ordering,,, Groebner basis computation
@@ -1300,16 +1308,16 @@ to numbers and polynomials because of efficiency.
 
 @noindent
 \BJP
-$B<-=q<0=g=x$N%0%l%V%J4pDl$r5a$a$k>l9g(B, $BD>@\(B @code{gr()} $B$J$I$r5/F0$9$k(B
-$B$h$j(B, $B0lC6B>$N=g=x(B ($BNc$($PA4<!?t5U<-=q<0=g=x(B) $B$N%0%l%V%J4pDl$r7W;;$7$F(B, 
-$B$=$l$rF~NO$H$7$F<-=q<0=g=x$N%0%l%V%J4pDl$r7W;;$9$kJ}$,8zN($,$h$$>l9g(B
-$B$,$"$k(B. $B$^$?(B, $BF~NO$,2?$i$+$N=g=x$G$N%0%l%V%J4pDl$K$J$C$F$$$k>l9g(B, $B4pDl(B
-$BJQ49$H8F$P$l$kJ}K!$K$h$j(B, Buchberger $B%"%k%4%j%:%`$K$h$i$:$K8zN(NI$/(B
-$B<-=q<0=g=x$N%0%l%V%J4pDl$,7W;;$G$-$k>l9g$,$"$k(B. $B$3$N$h$&$JL\E*$N$?$a$N(B
-$BH!?t$,(B, $B%f!<%6Dj5AH!?t$H$7$F(B @samp{gr} $B$K$$$/$D$+Dj5A$5$l$F$$$k(B. 
-$B0J2<$N(B 2 $B$D$NH!?t$O(B, $BJQ?t=g=x(B @var{vlist1}, $B9`=g=x7?(B @var{order} $B$G(B
-$B4{$K%0%l%V%J4pDl$H$J$C$F$$$kB?9`<0%j%9%H(B @var{gbase} $B$r(B, $BJQ?t=g=x(B
-@var{vlist2} $B$K$*$1$k<-=q<0=g=x$N%0%l%V%J4pDl$KJQ49$9$kH!?t$G$"$k(B. 
+辞書式順序のグレブナ基底を求める場合, 直接 @code{gr()} などを起動する
+より, 一旦他の順序 (例えば全次数逆辞書式順序) のグレブナ基底を計算して, 
+それを入力として辞書式順序のグレブナ基底を計算する方が効率がよい場合
+がある. また, 入力が何らかの順序でのグレブナ基底になっている場合, 基底
+変換と呼ばれる方法により, Buchberger アルゴリズムによらずに効率良く
+辞書式順序のグレブナ基底が計算できる場合がある. このような目的のための
+函数が, ユーザ定義函数として @samp{gr} にいくつか定義されている. 
+以下の 2 つの函数は, 変数順序 @var{vlist1}, 項順序型 @var{order} で
+既にグレブナ基底となっている多項式リスト @var{gbase} を, 変数順序
+@var{vlist2} における辞書式順序のグレブナ基底に変換する函数である. 
 \E
 \BEG
 When we compute a lex order Groebner basis, it is often efficient to
@@ -1329,9 +1337,9 @@ to the variable order @var{vlist2}.
 @item tolex(@var{gbase},@var{vlist1},@var{order},@var{vlist2})
 
 \BJP
-$B$3$NH!?t$O(B, @var{gbase} $B$,M-M}?tBN>e$N%7%9%F%`$N>l9g$K$N$_;HMQ2DG=$G$"$k(B. 
-$B$3$NH!?t$O(B, $B<-=q<0=g=x$N%0%l%V%J4pDl$r(B, $BM-8BBN>e$G7W;;$5$l$?%0%l%V%J4pDl(B
-$B$r?w7?$H$7$F(B, $BL$Dj78?tK!$*$h$S(B Hensel $B9=@.$K$h$j5a$a$k$b$N$G$"$k(B. 
+この函数は, @var{gbase} が有理数体上のシステムの場合にのみ使用可能である. 
+この函数は, 辞書式順序のグレブナ基底を, 有限体上で計算されたグレブナ基底
+を雛型として, 未定係数法および Hensel 構成により求めるものである. 
 \E
 \BEG
 This function can be used only when @var{gbase} is an ideal over the
@@ -1348,16 +1356,16 @@ coefficient method and linear equation solving by Hensel lifting.
 @item tolex_tl(@var{gbase},@var{vlist1},@var{order},@var{vlist2},@var{homo})
 
 \BJP
-$B$3$NH!?t$O(B, $B<-=q<0=g=x$N%0%l%V%J4pDl$r(B Buchberger $B%"%k%4%j%:%`$K$h$j5a(B
-$B$a$k$b$N$G$"$k$,(B, $BF~NO$,$"$k=g=x$K$*$1$k%0%l%V%J4pDl$G$"$k>l9g$N(B 
-trace-lifting$B$K$*$1$k%0%l%V%J4pDl8uJd$NF,9`(B, $BF,78?t$N@-<A$rMxMQ$7$F(B, 
-$B:G=*E*$J%0%l%V%J4pDl%A%'%C%/(B, $B%$%G%"%k%a%s%P%7%C%W%A%'%C%/$r>JN,$7$F$$(B
-$B$k$?$a(B, $BC1$K(BBuchberger $B%"%k%4%j%:%`$r7+$jJV$9$h$j8zN($h$/7W;;$G$-$k(B. 
-$B99$K(B, $BF~NO$,(B 0 $B<!85%7%9%F%`$N>l9g(B, $B<+F0E*$K$b$&(B 1 $B$D$NCf4VE*$J9`=g=x$r(B
-$B7PM3$7$F<-=q<0=g=x$N%0%l%V%J4pDl$r7W;;$9$k(B. $BB?$/$N>l9g(B, $B$3$NJ}K!$O(B, 
-$BD>@\<-=q<0=g=x$N7W;;$r9T$&$h$j8zN($,$h$$(B. ($B$b$A$m$sNc30$"$j(B. )
-$B0z?t(B @var{homo} $B$,(B 0 $B$G$J$$;~(B, @code{hgr()} $B$HF1MM$K@F<!2=$r7PM3$7$F(B
-$B7W;;$r9T$&(B. 
+この函数は, 辞書式順序のグレブナ基底を Buchberger アルゴリズムにより求
+めるものであるが, 入力がある順序におけるグレブナ基底である場合の 
+trace-liftingにおけるグレブナ基底候補の頭項, 頭係数の性質を利用して, 
+最終的なグレブナ基底チェック, イデアルメンバシップチェックを省略してい
+るため, 単にBuchberger アルゴリズムを繰り返すより効率よく計算できる. 
+更に, 入力が 0 次元システムの場合, 自動的にもう 1 つの中間的な項順序を
+経由して辞書式順序のグレブナ基底を計算する. 多くの場合, この方法は, 
+直接辞書式順序の計算を行うより効率がよい. (もちろん例外あり. )
+引数 @var{homo} が 0 でない時, @code{hgr()} と同様に斉次化を経由して
+計算を行う. 
 \E
 \BEG
 This function computes the lex Groebner basis of @var{gbase}.  The
@@ -1377,9 +1385,9 @@ not equal to 0, homogenization is used in each step.
 
 @noindent
 \BJP
-$B$=$NB>(B, 0 $B<!85%7%9%F%`$KBP$7(B, $BM?$($i$l$?B?9`<0$N:G>.B?9`<0$r5a$a$k(B
-$BH!?t(B, 0 $B<!85%7%9%F%`$N2r$r(B, $B$h$j%3%s%Q%/%H$KI=8=$9$k$?$a$NH!?t$J$I$,(B
-@samp{gr} $B$GDj5A$5$l$F$$$k(B. $B$3$l$i$K$D$$$F$O8D!9$NH!?t$N@bL@$r;2>H$N$3$H(B. 
+その他, 0 次元システムに対し, 与えられた多項式の最小多項式を求める
+函数, 0 次元システムの解を, よりコンパクトに表現するための函数などが
+@samp{gr} で定義されている. これらについては個々の函数の説明を参照のこと. 
 \E
 \BEG
 For zero-dimensional systems, there are several fuctions to
@@ -1389,8 +1397,8 @@ Refer to the sections for each functions.
 \E
 
 \BJP
-@node Weyl $BBe?t(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section Weyl $BBe?t(B
+@node Weyl 代数,,, グレブナ基底の計算
+@section Weyl 代数
 \E
 \BEG
 @node Weyl algebra,,, Groebner basis computation
@@ -1400,14 +1408,14 @@ Refer to the sections for each functions.
 @noindent
 
 \BJP
-$B$3$l$^$G$O(B, $BDL>o$N2D49$JB?9`<04D$K$*$1$k%0%l%V%J4pDl7W;;$K$D$$$F(B
-$B=R$Y$F$-$?$,(B, $B%0%l%V%J4pDl$NM}O@$O(B, $B$"$k>r7o$rK~$?$9Hs2D49$J(B
-$B4D$K$b3HD%$G$-$k(B. $B$3$N$h$&$J4D$NCf$G(B, $B1~MQ>e$b=EMW$J(B, 
-Weyl $BBe?t(B, $B$9$J$o$AB?9`<04D>e$NHyJ,:nMQAG4D$N1i;;$*$h$S(B
-$B%0%l%V%J4pDl7W;;$,(B Risa/Asir $B$K<BAu$5$l$F$$$k(B. 
+これまでは, 通常の可換な多項式環におけるグレブナ基底計算について
+述べてきたが, グレブナ基底の理論は, ある条件を満たす非可換な
+環にも拡張できる. このような環の中で, 応用上も重要な, 
+Weyl 代数, すなわち多項式環上の微分作用素環の演算および
+グレブナ基底計算が Risa/Asir に実装されている. 
 
-$BBN(B @code{K} $B>e$N(B @code{n} $B<!85(B Weyl $BBe?t(B 
-@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} $B$O(B
+体 @code{K} 上の @code{n} 次元 Weyl 代数 
+@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} は
 \E
 
 \BEG
@@ -1427,16 +1435,16 @@ algebra which has the following fundamental relations:
 @code{Di*xi-xi*Di=1}
 
 \BJP
-$B$H$$$&4pK\4X78$r;}$D4D$G$"$k(B. @code{D} $B$O(B $BB?9`<04D(B @code{K[x1,@dots{},xn]} $B$r78?t(B
-$B$H$9$kHyJ,:nMQAG4D$G(B,  @code{Di} $B$O(B @code{xi} $B$K$h$kHyJ,$rI=$9(B. $B8r494X78$K$h$j(B, 
-@code{D} $B$N85$O(B, @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn} $B$J$kC19`(B
-$B<0$N(B @code{K} $B@~7A7k9g$H$7$F=q$-I=$9$3$H$,$G$-$k(B. 
-Risa/Asir $B$K$*$$$F$O(B, $B$3$NC19`<0$r(B, $B2D49$JB?9`<0$HF1MM$K(B
-@code{<<i1,@dots{},in,j1,@dots{},jn>>} $B$GI=$9(B. $B$9$J$o$A(B, @code{D} $B$N85$b(B
-$BJ,;6I=8=B?9`<0$H$7$FI=$5$l$k(B. $B2C8:;;$O(B, $B2D49$N>l9g$HF1MM$K(B, @code{+}, @code{-}
-$B$K$h$j(B
-$B<B9T$G$-$k$,(B, $B>h;;$O(B, $BHs2D49@-$r9MN8$7$F(B @code{dp_weyl_mul()} $B$H$$$&4X?t(B
-$B$K$h$j<B9T$9$k(B.
+という基本関係を持つ環である. @code{D} は 多項式環 @code{K[x1,@dots{},xn]} を係数
+とする微分作用素環で,  @code{Di} は @code{xi} による微分を表す. 交換関係により, 
+@code{D} の元は, @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn} なる単項
+式の @code{K} 線形結合として書き表すことができる. 
+Risa/Asir においては, この単項式を, 可換な多項式と同様に
+@code{<<i1,@dots{},in,j1,@dots{},jn>>} で表す. すなわち, @code{D} の元も
+分散表現多項式として表される. 加減算は, 可換の場合と同様に, @code{+}, @code{-}
+により
+実行できるが, 乗算は, 非可換性を考慮して @code{dp_weyl_mul()} という関数
+により実行する.
 \E
 
 \BEG
@@ -1468,8 +1476,8 @@ the non-commutativity of @code{D}.
 @end example
 
 \BJP
-$B%0%l%V%J4pDl7W;;$K$D$$$F$b(B, Weyl $BBe?t@lMQ$N4X?t$H$7$F(B, 
-$B<!$N4X?t$,MQ0U$7$F$"$k(B. 
+グレブナ基底計算についても, Weyl 代数専用の関数として, 
+次の関数が用意してある. 
 \E
 \BEG
 The following functions are avilable for Groebner basis computation
@@ -1481,15 +1489,15 @@ in Weyl algebra:
 @code{dp_weyl_f4_main()},
 @code{dp_weyl_f4_mod_main()}.
 \BJP
-$B$^$?(B, $B1~MQ$H$7$F(B, global b $B4X?t$N7W;;$,<BAu$5$l$F$$$k(B. 
+また, 応用として, global b 関数の計算が実装されている. 
 \E
 \BEG
 Computation of the global b function is implemented as an application.
 \E
 
 \BJP
-@node $BB?9`<04D>e$N2C72(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $BB?9`<04D>e$N2C72(B
+@node 多項式環上の加群,,, グレブナ基底の計算
+@section 多項式環上の加群
 \E
 \BEG
 @node Module over a polynomial ring,,, Groebner basis computation
@@ -1499,48 +1507,48 @@ Computation of the global b function is implemented as an application.
 @noindent
 
 \BJP
-$BB?9`<04D>e$N<+M32C72$N85$O(B, $B2C72C19`<0(B te_i $B$N@~7?OB$H$7$FFbItI=8=$5$l$k(B.
-$B$3$3$G(B t $B$OB?9`<04D$NC19`<0(B, e_i $B$O<+M32C72$NI8=`4pDl$G$"$k(B. $B2C72C19`<0$O(B, $BB?9`<04D$NC19`<0(B
-$B$K0LCV(B i $B$rDI2C$7$?(B @code{<<a,b,...,c:i>>} $B$GI=$9(B. $B2C72B?9`<0(B, $B$9$J$o$A2C72C19`<0$N@~7?OB$O(B,
-$B@_Dj$5$l$F$$$k2C729`=g=x$K$7$?$,$C$F9_=g$K@0Ns$5$l$k(B. $B2C729`=g=x$K$O0J2<$N(B3$B<oN`$,$"$k(B.
+多項式環上の自由加群の元は, 加群単項式 te_i の線型和として内部表現される.
+ここで t は多項式環の単項式, e_i は自由加群の標準基底である. 加群単項式は, 多項式環の単項式
+に位置 i を追加した @code{<<a,b,...,c:i>>} で表す. 加群多項式, すなわち加群単項式の線型和は,
+設定されている加群項順序にしたがって降順に整列される. 加群項順序には以下の3種類がある.
 
 @table @code
-@item TOP $B=g=x(B
+@item TOP 順序
 
-$B$3$l$O(B, te_i > se_j $B$H$J$k$N$O(B t>s $B$^$?$O(B (t=s $B$+$D(B i<j) $B$H$J$k$h$&$J9`=g=x$G$"$k(B. $B$3$3$G(B,
-t, s $B$NHf3S$OB?9`<04D$K@_Dj$5$l$F$$$k=g=x$G9T$&(B. 
-$B$3$N7?$N=g=x$O(B, @code{dp_ord([0,Ord])} $B$K(B
-$B$h$j@_Dj$9$k(B. $B$3$3$G(B, @code{Ord} $B$OB?9`<04D$N=g=x7?$G$"$k(B.
+これは, te_i > se_j となるのは t>s または (t=s かつ i<j) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う. 
+この型の順序は, @code{dp_ord([0,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
 
-@item POT $B=g=x(B
+@item POT 順序
 
-$B$3$l$O(B, te_i > se_j $B$H$J$k$N$O(B i<j $B$^$?$O(B (i=j $B$+$D(B t>s) $B$H$J$k$h$&$J9`=g=x$G$"$k(B. $B$3$3$G(B,
-t, s $B$NHf3S$OB?9`<04D$K@_Dj$5$l$F$$$k=g=x$G9T$&(B.
-$B$3$N7?$N=g=x$O(B, @code{dp_ord([1,Ord])} $B$K(B
-$B$h$j@_Dj$9$k(B. $B$3$3$G(B, @code{Ord} $B$OB?9`<04D$N=g=x7?$G$"$k(B.
+これは, te_i > se_j となるのは i<j または (i=j かつ t>s) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う.
+この型の順序は, @code{dp_ord([1,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
 
-@item Schreyer $B7?=g=x(B
+@item Schreyer 型順序
 
-$B3FI8=`4pDl(B e_i $B$KBP$7(B, $BJL$N<+M32C72$N2C72C19`<0(B T_i $B$,M?$($i$l$F$$$F(B, te_i > se_j $B$H$J$k$N$O(B
-tT_i > sT_j $B$^$?$O(B (tT_i=sT_j $B$+$D(B i<j) $B$H$J$k$h$&$J9`=g=x$G$"$k(B. $B$3$3$G(B tT_i, sT_j $B$N(B
-$BHf3S$O(B, $B$3$l$i$,=jB0$9$k<+M32C72$K@_Dj$5$l$F$$$k=g=x$G9T$&(B.
-$B$3$N7?$N=g=x$O(B, $BDL>o:F5"E*$K@_Dj$5$l$k(B. $B$9$J$o$A(B, T_i $B$,=jB0$9$k<+M32C72$N=g=x$b(B Schreyer $B7?(B
-$B$G$"$k$+(B, $B$^$?$O%\%H%`$H$J$k(B TOP, POT $B$J$I$N9`=g=x$H$J$k(B. 
-$B$3$N7?$N=g=x$O(B @code{dpm_set_schreyer([H_1,H_2,...])} $B$K$h$j;XDj$9$k(B. $B$3$3$G(B,
-@code{H_i=[T_1,T_2,...]} $B$O2C72C19`<0$N%j%9%H$G(B, @code{[H_2,...]} $B$GDj5A$5$l$k(B Schreyer $B7?9`=g=x$r(B
-@code{tT_i} $B$i$KE,MQ$9$k$H$$$&0UL#$G$"$k(B. 
+各標準基底 e_i に対し, 別の自由加群の加群単項式 T_i が与えられていて, te_i > se_j となるのは
+tT_i > sT_j または (tT_i=sT_j かつ i<j) となるような項順序である. ここで tT_i, sT_j の
+比較は, これらが所属する自由加群に設定されている順序で行う.
+この型の順序は, 通常再帰的に設定される. すなわち, T_i が所属する自由加群の順序も Schreyer 型
+であるか, またはボトムとなる TOP, POT などの項順序となる. 
+この型の順序は @code{dpm_set_schreyer([H_1,H_2,...])} により指定する. ここで,
+@code{H_i=[T_1,T_2,...]} は加群単項式のリストで, @code{[H_2,...]} で定義される Schreyer 型項順序を
+@code{tT_i} らに適用するという意味である. 
 @end table
 
-$B2C72B?9`<0$rF~NO$9$kJ}K!$H$7$F$O(B, @code{<<a,b,...:i>>} $B$J$k7A<0$GD>@\F~NO$9$kB>$K(B,
-$BB?9`<0%j%9%H$r:n$j(B, @code{dpm_ltod()} $B$K$h$jJQ49$9$kJ}K!$b$"$k(B.
+加群多項式を入力する方法としては, @code{<<a,b,...:i>>} なる形式で直接入力する他に,
+多項式リストを作り, @code{dpm_ltod()} により変換する方法もある.
 \E
 \BEG
 not yet
 \E
 
 \BJP
-@node $B%0%l%V%J4pDl$K4X$9$kH!?t(B,,, $B%0%l%V%J4pDl$N7W;;(B
-@section $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+@node グレブナ基底に関する函数,,, グレブナ基底の計算
+@section グレブナ基底に関する函数
 \E
 \BEG
 @node Functions for Groebner basis computation,,, Groebner basis computation
@@ -1574,6 +1582,10 @@ not yet
 * dpm_dtol::
 * dpm_ltod::
 * dpm_dptodpm::
+* dpm_schreyer_base::
+* dpm_schreyer_frame::
+* dpm_set_schreyer_level::
+* dpm_sp_nf::
 * dp_td dp_sugar::
 * dp_lcm::
 * dp_redble::
@@ -1593,7 +1605,7 @@ not yet
 * bfunction bfct generic_bfct ann ann0::
 @end menu
 
-\JP @node gr hgr gr_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node gr hgr gr_mod,,, グレブナ基底に関する函数
 \EG @node gr hgr gr_mod,,, Functions for Groebner basis computation
 @subsection @code{gr}, @code{hgr}, @code{gr_mod}, @code{dgr}
 @findex gr
@@ -1606,58 +1618,58 @@ not yet
 @itemx hgr(@var{plist},@var{vlist},@var{order})
 @itemx gr_mod(@var{plist},@var{vlist},@var{order},@var{p})
 @itemx dgr(@var{plist},@var{vlist},@var{order},@var{procs})
-\JP :: $B%0%l%V%J4pDl$N7W;;(B
+\JP :: グレブナ基底の計算
 \EG :: Groebner basis computation
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist  procs
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item p
-\JP 2^27 $BL$K~$NAG?t(B
+\JP 2^27 未満の素数
 \EG prime less than 2^27
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BI8=`%i%$%V%i%j$N(B @samp{gr} $B$GDj5A$5$l$F$$$k(B. 
+標準ライブラリの @samp{gr} で定義されている. 
 @item
-gr $B$rL>A0$K4^$`4X?t$O8=:_%a%s%F$5$l$F$$$J$$(B. @code{nd_gr}$B7O$N4X?t$rBe$o$j$KMxMQ$9$Y$-$G$"$k(B(@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
+gr を名前に含む関数は現在メンテされていない. @code{nd_gr}系の関数を代わりに利用すべきである(@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
 @item
-$B$$$:$l$b(B, $BB?9`<0%j%9%H(B @var{plist} $B$N(B, $BJQ?t=g=x(B @var{vlist}, $B9`=g=x7?(B
-@var{order} $B$K4X$9$k%0%l%V%J4pDl$r5a$a$k(B. @code{gr()}, @code{hgr()}
-$B$O(B $BM-M}?t78?t(B, @code{gr_mod()} $B$O(B GF(@var{p}) $B78?t$H$7$F7W;;$9$k(B. 
+いずれも, 多項式リスト @var{plist} の, 変数順序 @var{vlist}, 項順序型
+@var{order} に関するグレブナ基底を求める. @code{gr()}, @code{hgr()}
+は 有理数係数, @code{gr_mod()} は GF(@var{p}) 係数として計算する. 
 @item
-@var{vlist} $B$OITDj85$N%j%9%H(B. @var{vlist} $B$K8=$l$J$$ITDj85$O(B, 
-$B78?tBN$KB0$9$k$H8+$J$5$l$k(B. 
+@var{vlist} は不定元のリスト. @var{vlist} に現れない不定元は, 
+係数体に属すると見なされる. 
 @item
-@code{gr()}, trace-lifting ($B%b%8%e%i1i;;$rMQ$$$?9bB.2=(B) $B$*$h$S(B sugar
-strategy $B$K$h$k7W;;(B, @code{hgr()} $B$O(B trace-lifting $B$*$h$S(B
-$B@F<!2=$K$h$k(B $B6:@5$5$l$?(B sugar strategy $B$K$h$k7W;;$r9T$&(B. 
+@code{gr()}, trace-lifting (モジュラ演算を用いた高速化) および sugar
+strategy による計算, @code{hgr()} は trace-lifting および
+斉次化による 矯正された sugar strategy による計算を行う. 
 @item
-@code{dgr()} $B$O(B, @code{gr()}, @code{hgr()} $B$r(B
-$B;R%W%m%;%9%j%9%H(B @var{procs} $B$N(B 2 $B$D$N%W%m%;%9$K$h$jF1;~$K7W;;$5$;(B, 
-$B@h$K7k2L$rJV$7$?J}$N7k2L$rJV$9(B. $B7k2L$OF10l$G$"$k$,(B, $B$I$A$i$NJ}K!$,(B
-$B9bB.$+0lHL$K$OITL@$N$?$a(B, $B<B:]$N7P2a;~4V$rC;=L$9$k$N$KM-8z$G$"$k(B. 
+@code{dgr()} は, @code{gr()}, @code{hgr()} を
+子プロセスリスト @var{procs} の 2 つのプロセスにより同時に計算させ, 
+先に結果を返した方の結果を返す. 結果は同一であるが, どちらの方法が
+高速か一般には不明のため, 実際の経過時間を短縮するのに有効である. 
 @item
-@code{dgr()} $B$GI=<($5$l$k;~4V$O(B, $B$3$NH!?t$,<B9T$5$l$F$$$k%W%m%;%9$G$N(B
-CPU $B;~4V$G$"$j(B, $B$3$NH!?t$N>l9g$O$[$H$s$IDL?.$N$?$a$N;~4V$G$"$k(B. 
+@code{dgr()} で表示される時間は, この函数が実行されているプロセスでの
+CPU 時間であり, この函数の場合はほとんど通信のための時間である. 
 @item
-$BB?9`<0%j%9%H(B @var{plist} $B$NMWAG$,J,;6I=8=B?9`<0$N>l9g$O(B
-$B7k2L$bJ,;6I=8=B?9`<0$N%j%9%H$G$"$k(B.
-$B$3$N>l9g(B, $B0z?t$NJ,;6B?9`<0$OM?$($i$l$?=g=x$K=>$$(B @code{dp_sort} $B$G(B
-$B%=!<%H$5$l$F$+$i7W;;$5$l$k(B.
-$BB?9`<0%j%9%H$NMWAG$,J,;6I=8=B?9`<0$N>l9g$b(B
-$BJQ?t$N?tJ,$NITDj85$N%j%9%H$r(B @var{vlist} $B0z?t$H$7$FM?$($J$$$H$$$1$J$$(B
-($B%@%_!<(B).
+多項式リスト @var{plist} の要素が分散表現多項式の場合は
+結果も分散表現多項式のリストである.
+この場合, 引数の分散多項式は与えられた順序に従い @code{dp_sort} で
+ソートされてから計算される.
+多項式リストの要素が分散表現多項式の場合も
+変数の数分の不定元のリストを @var{vlist} 引数として与えないといけない
+(ダミー).
 \E
 \BEG
 @item 
@@ -1711,13 +1723,13 @@ Variables must be given in @var{vlist} even in this case
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
 @fref{dp_ord}.
 @end table
 
-\JP @node lex_hensel lex_tl tolex tolex_d tolex_tl,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node lex_hensel lex_tl tolex tolex_d tolex_tl,,, グレブナ基底に関する函数
 \EG @node lex_hensel lex_tl tolex tolex_d tolex_tl,,, Functions for Groebner basis computation
 @subsection @code{lex_hensel}, @code{lex_tl}, @code{tolex}, @code{tolex_d}, @code{tolex_tl}
 @findex lex_hensel
@@ -1729,103 +1741,103 @@ Variables must be given in @var{vlist} even in this case
 @table @t
 @item lex_hensel(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
 @itemx lex_tl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-\JP :: $B4pDlJQ49$K$h$k<-=q<0=g=x%0%l%V%J4pDl$N7W;;(B
+\JP :: 基底変換による辞書式順序グレブナ基底の計算
 \EG:: Groebner basis computation with respect to a lex order by change of ordering
 @item tolex(@var{plist},@var{vlist1},@var{order},@var{vlist2})
 @itemx tolex_d(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{procs})
 @itemx tolex_tl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-\JP :: $B%0%l%V%J4pDl$rF~NO$H$9$k(B, $B4pDlJQ49$K$h$k<-=q<0=g=x%0%l%V%J4pDl$N7W;;(B
+\JP :: グレブナ基底を入力とする, 基底変換による辞書式順序グレブナ基底の計算
 \EG :: Groebner basis computation with respect to a lex order by change of ordering, starting from a Groebner basis
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist1  vlist2  procs
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item homo
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BI8=`%i%$%V%i%j$N(B @samp{gr} $B$GDj5A$5$l$F$$$k(B. 
+標準ライブラリの @samp{gr} で定義されている. 
 @item
-@code{lex_hensel()}, @code{lex_tl()} $B$O(B, 
-$BB?9`<0%j%9%H(B @var{plist} $B$N(B, $BJQ?t=g=x(B @var{vlist1}, $B9`=g=x7?(B
-@var{order} $B$K4X$9$k%0%l%V%J4pDl$r5a$a(B, $B$=$l$r(B, $BJQ?t=g=x(B @var{vlist2}
-$B$N<-=q<0=g=x%0%l%V%J4pDl$KJQ49$9$k(B. 
+@code{lex_hensel()}, @code{lex_tl()} は, 
+多項式リスト @var{plist} の, 変数順序 @var{vlist1}, 項順序型
+@var{order} に関するグレブナ基底を求め, それを, 変数順序 @var{vlist2}
+の辞書式順序グレブナ基底に変換する. 
 @item
-@code{tolex()}, @code{tolex_tl()} $B$O(B, 
-$BJQ?t=g=x(B @var{vlist1}, $B9`=g=x7?(B @var{order} $B$K4X$9$k%0%l%V%J4pDl$G$"$k(B
-$BB?9`<0%j%9%H(B @var{plist} $B$rJQ?t=g=x(B @var{vlist2} $B$N<-=q<0=g=x%0%l%V%J(B
-$B4pDl$KJQ49$9$k(B. 
-@code{tolex_d()} $B$O(B, @code{tolex()} $B$K$*$1$k(B, $B3F4pDl$N7W;;$r(B, $B;R%W%m%;%9(B
-$B%j%9%H(B @var{procs} $B$N3F%W%m%;%9$KJ,;67W;;$5$;$k(B. 
+@code{tolex()}, @code{tolex_tl()} は, 
+変数順序 @var{vlist1}, 項順序型 @var{order} に関するグレブナ基底である
+多項式リスト @var{plist} を変数順序 @var{vlist2} の辞書式順序グレブナ
+基底に変換する. 
+@code{tolex_d()} は, @code{tolex()} における, 各基底の計算を, 子プロセス
+リスト @var{procs} の各プロセスに分散計算させる. 
 @item
-@code{lex_hensel()}, @code{lex_tl()} $B$K$*$$$F$O(B, $B<-=q<0=g=x%0%l%V%J4pDl$N(B
-$B7W;;$O<!$N$h$&$K9T$o$l$k(B. (@code{[Noro,Yokoyama]} $B;2>H(B.)
+@code{lex_hensel()}, @code{lex_tl()} においては, 辞書式順序グレブナ基底の
+計算は次のように行われる. (@code{[Noro,Yokoyama]} 参照.)
 @enumerate
 @item
-@var{vlist1}, @var{order} $B$K4X$9$k%0%l%V%J4pDl(B @var{G0} $B$r7W;;$9$k(B. 
-(@code{lex_hensel()} $B$N$_(B. )
+@var{vlist1}, @var{order} に関するグレブナ基底 @var{G0} を計算する. 
+(@code{lex_hensel()} のみ. )
 @item
-@var{G0} $B$N3F85$N(B @var{vlist2} $B$K4X$9$k<-=q<0=g=x$K$*$1$kF,78?t$r3d$i$J$$(B
-$B$h$&$JAG?t(B @var{p} $B$rA*$S(B, GF(@var{p}) $B>e$G$N<-=q<0=g=x%0%l%V%J4pDl(B
-@var{Gp} $B$r7W;;$9$k(B. 
+@var{G0} の各元の @var{vlist2} に関する辞書式順序における頭係数を割らない
+ような素数 @var{p} を選び, GF(@var{p}) 上での辞書式順序グレブナ基底
+@var{Gp} を計算する. 
 @item
-@var{Gp} $B$K8=$l$k$9$Y$F$N9`$N(B, @var{G0} $B$K4X$9$k@55,7A(B @var{NF} $B$r7W;;$9$k(B. 
+@var{Gp} に現れるすべての項の, @var{G0} に関する正規形 @var{NF} を計算する. 
 @item
-@var{Gp} $B$N3F85(B @var{f} $B$K$D$-(B, @var{f} $B$N78?t$rL$Dj78?t$G(B, 
-@var{f} $B$N3F9`$rBP1~$9$k(B @var{NF} $B$N85$GCV$-49$((B, $B3F9`$N78?t$r(B 0 $B$HCV$$$?(B,
-$BL$Dj78?t$K4X$9$k@~7AJ}Dx<07O(B @var{Lf} $B$r:n$k(B. 
+@var{Gp} の各元 @var{f} につき, @var{f} の係数を未定係数で, 
+@var{f} の各項を対応する @var{NF} の元で置き換え, 各項の係数を 0 と置いた,
+未定係数に関する線形方程式系 @var{Lf} を作る. 
 @item
-@var{Lf} $B$,(B, $BK!(B @var{p} $B$G0l0U2r$r;}$D$3$H$rMQ$$$F(B @var{Lf} $B$N2r$r(B
-$BK!(B @var{p}$B$N2r$+$i(B Hensel $B9=@.$K$h$j5a$a$k(B. 
+@var{Lf} が, 法 @var{p} で一意解を持つことを用いて @var{Lf} の解を
+法 @var{p}の解から Hensel 構成により求める. 
 @item
-$B$9$Y$F$N(B @var{Gp} $B$N85$K$D$-@~7AJ}Dx<0$,2r$1$?$i$=$N2rA4BN$,5a$a$k(B
-$B<-=q<0=g=x$G$N%0%l%V%J4pDl(B. $B$b$7$I$l$+$N@~7AJ}Dx<0$N5a2r$K<:GT$7$?$i(B, 
-@var{p} $B$r$H$jD>$7$F$d$jD>$9(B. 
+すべての @var{Gp} の元につき線形方程式が解けたらその解全体が求める
+辞書式順序でのグレブナ基底. もしどれかの線形方程式の求解に失敗したら, 
+@var{p} をとり直してやり直す. 
 @end enumerate
 
 @item
-@code{lex_tl()}, @code{tolex_tl()} $B$K$*$$$F$O(B, $B<-=q<0=g=x%0%l%V%J4pDl$N(B
-$B7W;;$O<!$N$h$&$K9T$o$l$k(B. 
+@code{lex_tl()}, @code{tolex_tl()} においては, 辞書式順序グレブナ基底の
+計算は次のように行われる. 
 
 @enumerate
 @item
-@var{vlist1}, @var{order} $B$K4X$9$k%0%l%V%J4pDl(B @var{G0} $B$r7W;;$9$k(B. 
-(@code{lex_hensel()} $B$N$_(B. )
+@var{vlist1}, @var{order} に関するグレブナ基底 @var{G0} を計算する. 
+(@code{lex_hensel()} のみ. )
 @item
-@var{G0} $B$,(B 0 $B<!85%7%9%F%`$G$J$$$H$-(B, @var{G0} $B$rF~NO$H$7$F(B, 
-@var{G0} $B$N3F85$N(B @var{vlist2} $B$K4X$9$k<-=q<0=g=x$K$*$1$kF,78?t$r3d$i$J$$(B
-$B$h$&$JAG?t(B @var{p} $B$rA*$S(B, @var{p} $B$rMQ$$$?(B trace-lifting $B$K$h$j<-=q<0(B
-$B=g=x$N%0%l%V%J4pDl8uJd$r5a$a(B, $B$b$75a$^$C$?$J$i%A%'%C%/$J$7$K$=$l$,5a$a$k(B
-$B%0%l%V%J4pDl$H$J$k(B. $B$b$7<:GT$7$?$i(B, @var{p} $B$r$H$jD>$7$F$d$jD>$9(B. 
+@var{G0} が 0 次元システムでないとき, @var{G0} を入力として, 
+@var{G0} の各元の @var{vlist2} に関する辞書式順序における頭係数を割らない
+ような素数 @var{p} を選び, @var{p} を用いた trace-lifting により辞書式
+順序のグレブナ基底候補を求め, もし求まったならチェックなしにそれが求める
+グレブナ基底となる. もし失敗したら, @var{p} をとり直してやり直す. 
 @item
-@var{G0} $B$,(B 0 $B<!85%7%9%F%`$N$H$-(B, @var{G0} $B$rF~NO$H$7$F(B, 
-$B$^$:(B, @var{vlist2} $B$N:G8e$NJQ?t0J30$r>C5n$9$k>C5n=g=x$K$h$j(B
-$B%0%l%V%J4pDl(B @var{G1} $B$r7W;;$7(B, $B$=$l$+$i<-=q<0=g=x$N%0%l%V%J4pDl$r(B
-$B7W;;$9$k(B. $B$=$N:](B, $B3F%9%F%C%W$G$O(B, $BF~NO$N3F85$N(B, $B5a$a$k=g=x$K$*$1$k(B
-$BF,78?t$r3d$i$J$$AG?t$rMQ$$$?(B trace-lifting $B$G%0%l%V%J4pDl8uJd$r5a$a(B, 
-$B$b$75a$^$C$?$i%A%'%C%/$J$7$K$=$l$,$=$N=g=x$G$N%0%l%V%J4pDl$H$J$k(B. 
+@var{G0} が 0 次元システムのとき, @var{G0} を入力として, 
+まず, @var{vlist2} の最後の変数以外を消去する消去順序により
+グレブナ基底 @var{G1} を計算し, それから辞書式順序のグレブナ基底を
+計算する. その際, 各ステップでは, 入力の各元の, 求める順序における
+頭係数を割らない素数を用いた trace-lifting でグレブナ基底候補を求め, 
+もし求まったらチェックなしにそれがその順序でのグレブナ基底となる. 
 @end enumerate
 
 @item
-$BM-M}<078?t$N7W;;$O(B, @code{lex_tl()}, @code{tolex_tl()} $B$N$_<u$1IU$1$k(B. 
+有理式係数の計算は, @code{lex_tl()}, @code{tolex_tl()} のみ受け付ける. 
 @item
-@code{homo} $B$,(B 0 $B$G$J$$>l9g(B, $BFbIt$G5/F0$5$l$k(B Buchberger $B%"%k%4%j%:%`$K(B
-$B$*$$$F(B, $B@F<!2=$,9T$o$l$k(B.
+@code{homo} が 0 でない場合, 内部で起動される Buchberger アルゴリズムに
+おいて, 斉次化が行われる.
 @item
-@code{tolex_d()} $B$GI=<($5$l$k;~4V$O(B, $B$3$NH!?t$,<B9T$5$l$F$$$k%W%m%;%9$K(B
-$B$*$$$F9T$o$l$?7W;;$KBP1~$7$F$$$F(B, $B;R%W%m%;%9$K$*$1$k;~4V$O4^$^$l$J$$(B. 
+@code{tolex_d()} で表示される時間は, この函数が実行されているプロセスに
+おいて行われた計算に対応していて, 子プロセスにおける時間は含まれない. 
 \E
 \BEG
 @item 
@@ -1928,14 +1940,14 @@ processes.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
-\JP @fref{dp_ord}, @fref{$BJ,;67W;;(B}
+\JP @fref{dp_ord}, @fref{分散計算}
 \EG @fref{dp_ord}, @fref{Distributed computation}
 @end table
 
-\JP @node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, グレブナ基底に関する函数
 \EG @node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, Functions for Groebner basis computation
 @subsection @code{lex_hensel_gsl}, @code{tolex_gsl}, @code{tolex_gsl_d}
 @findex lex_hensel_gsl
@@ -1944,52 +1956,52 @@ processes.
 
 @table @t
 @item lex_hensel_gsl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-\JP :: GSL $B7A<0$N%$%G%"%k4pDl$N7W;;(B
+\JP :: GSL 形式のイデアル基底の計算
 \EG ::Computation of an GSL form ideal basis
 @item tolex_gsl(@var{plist},@var{vlist1},@var{order},@var{vlist2})
 @itemx tolex_gsl_d(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{procs})
-\JP :: $B%0%l%V%J4pDl$rF~NO$H$9$k(B, GSL $B7A<0$N%$%G%"%k4pDl$N7W;;(B
+\JP :: グレブナ基底を入力とする, GSL 形式のイデアル基底の計算
 \EG :: Computation of an GSL form ideal basis stating from a Groebner basis
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist1  vlist2  procs
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item homo
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{lex_hensel_gsl()} $B$O(B @code{lex_hensel()} $B$N(B, @code{tolex_gsl()} $B$O(B
-@code{tolex()} $B$NJQ<o$G(B, $B7k2L$N$_$,0[$J$k(B. 
-@code{tolex_gsl_d()} $B$O(B, $B4pDl7W;;$r(B, @code{procs} $B$G;XDj$5$l$k;R%W%m%;%9$K(B
-$BJ,;67W;;$5$;$k(B. 
+@code{lex_hensel_gsl()} は @code{lex_hensel()} の, @code{tolex_gsl()} は
+@code{tolex()} の変種で, 結果のみが異なる. 
+@code{tolex_gsl_d()} は, 基底計算を, @code{procs} で指定される子プロセスに
+分散計算させる. 
 @item
-$BF~NO$,(B 0 $B<!85%7%9%F%`$G(B, $B$=$N<-=q<0=g=x%0%l%V%J4pDl$,(B
-@code{[f0,x1-f1,...,xn-fn]} (@code{f0},...,@code{fn} $B$O(B
-@code{x0} $B$N(B 1 $BJQ?tB?9`<0(B) $B$J$k7A(B ($B$3$l$r(B SL $B7A<0$H8F$V(B) $B$r;}$D>l9g(B, 
-@code{[[x1,g1,d1],...,[xn,gn,dn],[x0,f0,f0']]} $B$J$k%j%9%H(B ($B$3$l$r(B GSL $B7A<0$H8F$V(B)
-$B$rJV$9(B. 
-$B$3$3$G(B, @code{gi} $B$O(B, @code{di*f0'*fi-gi} $B$,(B @code{f0} $B$G3d$j@Z$l$k$h$&$J(B
-@code{x0} $B$N(B1 $BJQ?tB?9`<0$G(B, 
-$B2r$O(B @code{f0(x0)=0} $B$J$k(B @code{x0} $B$KBP$7(B, @code{[x1=g1/(d1*f0'),...,xn=gn/(dn*f0')]}
-$B$H$J$k(B. $B<-=q<0=g=x%0%l%V%J4pDl$,>e$N$h$&$J7A$G$J$$>l9g(B, @code{tolex()} $B$K(B
-$B$h$kDL>o$N%0%l%V%J4pDl$rJV$9(B. 
+入力が 0 次元システムで, その辞書式順序グレブナ基底が
+@code{[f0,x1-f1,...,xn-fn]} (@code{f0},...,@code{fn} は
+@code{x0} の 1 変数多項式) なる形 (これを SL 形式と呼ぶ) を持つ場合, 
+@code{[[x1,g1,d1],...,[xn,gn,dn],[x0,f0,f0']]} なるリスト (これを GSL 形式と呼ぶ)
+を返す. 
+ここで, @code{gi} は, @code{di*f0'*fi-gi} が @code{f0} で割り切れるような
+@code{x0} の1 変数多項式で, 
+解は @code{f0(x0)=0} なる @code{x0} に対し, @code{[x1=g1/(d1*f0'),...,xn=gn/(dn*f0')]}
+となる. 辞書式順序グレブナ基底が上のような形でない場合, @code{tolex()} に
+よる通常のグレブナ基底を返す. 
 @item
-GSL $B7A<0$K$h$jI=$5$l$k4pDl$O%0%l%V%J4pDl$G$O$J$$$,(B, $B0lHL$K78?t$,(B SL $B7A<0(B
-$B$N%0%l%V%J4pDl$h$jHs>o$K>.$5$$$?$a7W;;$bB.$/(B, $B2r$b5a$a$d$9$$(B. 
-@code{tolex_gsl_d()} $B$GI=<($5$l$k;~4V$O(B, $B$3$NH!?t$,<B9T$5$l$F$$$k%W%m%;%9$K(B
-$B$*$$$F9T$o$l$?7W;;$KBP1~$7$F$$$F(B, $B;R%W%m%;%9$K$*$1$k;~4V$O4^$^$l$J$$(B. 
+GSL 形式により表される基底はグレブナ基底ではないが, 一般に係数が SL 形式
+のグレブナ基底より非常に小さいため計算も速く, 解も求めやすい. 
+@code{tolex_gsl_d()} で表示される時間は, この函数が実行されているプロセスに
+おいて行われた計算に対応していて, 子プロセスにおける時間は含まれない. 
 \E
 \BEG
 @item 
@@ -2037,14 +2049,14 @@ processes.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl},
-\JP @fref{$BJ,;67W;;(B}
+\JP @fref{分散計算}
 \EG @fref{Distributed computation}
 @end table
 
-\JP @node gr_minipoly minipoly,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node gr_minipoly minipoly,,, グレブナ基底に関する函数
 \EG @node gr_minipoly minipoly,,, Functions for Groebner basis computation
 @subsection @code{gr_minipoly}, @code{minipoly}
 @findex gr_minipoly
@@ -2052,54 +2064,54 @@ processes.
 
 @table @t
 @item gr_minipoly(@var{plist},@var{vlist},@var{order},@var{poly},@var{v},@var{homo})
-\JP :: $BB?9`<0$N(B, $B%$%G%"%k$rK!$H$7$?:G>.B?9`<0$N7W;;(B
+\JP :: 多項式の, イデアルを法とした最小多項式の計算
 \EG :: Computation of the minimal polynomial of a polynomial modulo an ideal
 @item minipoly(@var{plist},@var{vlist},@var{order},@var{poly},@var{v})
-\JP :: $B%0%l%V%J4pDl$rF~NO$H$9$k(B, $BB?9`<0$N:G>.B?9`<0$N7W;;(B
+\JP :: グレブナ基底を入力とする, 多項式の最小多項式の計算
 \EG :: Computation of the minimal polynomial of a polynomial modulo an ideal
 @end table
 
 @table @var
 @item return
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item plist  vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item poly
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item v
-\JP $BITDj85(B
+\JP 不定元
 \EG indeterminate
 @item homo
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{gr_minipoly()} $B$O%0%l%V%J4pDl$N7W;;$+$i9T$$(B, @code{minipoly()} $B$O(B
-$BF~NO$r%0%l%V%J4pDl$H$_$J$9(B. 
+@code{gr_minipoly()} はグレブナ基底の計算から行い, @code{minipoly()} は
+入力をグレブナ基底とみなす. 
 @item
-$B%$%G%"%k(B I $B$,BN(B K $B>e$NB?9`<04D(B K[X] $B$N(B 0 $B<!85%$%G%"%k$N;~(B, 
-K[@var{v}] $B$N85(B f(@var{v}) $B$K(B f(@var{p}) mod I $B$rBP1~$5$;$k(B
-$B4D=`F17?$N3K$O(B 0 $B$G$J$$B?9`<0$K$h$j@8@.$5$l$k(B. $B$3$N@8@.85$r(B @var{p}
-$B$N(B, $BK!(B @var{I} $B$G$N:G>.B?9`<0$H8F$V(B. 
+イデアル I が体 K 上の多項式環 K[X] の 0 次元イデアルの時, 
+K[@var{v}] の元 f(@var{v}) に f(@var{p}) mod I を対応させる
+環準同型の核は 0 でない多項式により生成される. この生成元を @var{p}
+の, 法 @var{I} での最小多項式と呼ぶ. 
 @item
-@code{gr_minipoly()}, @code{minipoly()} $B$O(B, $BB?9`<0(B @var{p} $B$N:G>.B?9`<0(B
-$B$r5a$a(B, @var{v} $B$rJQ?t$H$9$kB?9`<0$H$7$FJV$9(B. 
+@code{gr_minipoly()}, @code{minipoly()} は, 多項式 @var{p} の最小多項式
+を求め, @var{v} を変数とする多項式として返す. 
 @item
-$B:G>.B?9`<0$O(B, $B%0%l%V%J4pDl$N(B 1 $B$D$N85$H$7$F7W;;$9$k$3$H$b$G$-$k$,(B, 
-$B:G>.B?9`<0$N$_$r5a$a$?$$>l9g(B, @code{minipoly()}, @code{gr_minipoly()} $B$O(B
-$B%0%l%V%J4pDl$rMQ$$$kJ}K!$KHf$Y$F8zN($,$h$$(B. 
+最小多項式は, グレブナ基底の 1 つの元として計算することもできるが, 
+最小多項式のみを求めたい場合, @code{minipoly()}, @code{gr_minipoly()} は
+グレブナ基底を用いる方法に比べて効率がよい. 
 @item
-@code{gr_minipoly()} $B$K;XDj$9$k9`=g=x$H$7$F$O(B, $BDL>oA4<!?t5U<-=q<0=g=x$r(B
-$BMQ$$$k(B. 
+@code{gr_minipoly()} に指定する項順序としては, 通常全次数逆辞書式順序を
+用いる. 
 \E
 \BEG
 @item 
@@ -2136,12 +2148,12 @@ for @code{gr_minipoly()}.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl}.
 @end table
 
-\JP @node tolexm minipolym,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node tolexm minipolym,,, グレブナ基底に関する函数
 \EG @node tolexm minipolym,,, Functions for Groebner basis computation
 @subsection @code{tolexm}, @code{minipolym}
 @findex tolexm
@@ -2149,38 +2161,38 @@ for @code{gr_minipoly()}.
 
 @table @t
 @item tolexm(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{mod})
-\JP :: $BK!(B @var{mod} $B$G$N4pDlJQ49$K$h$k%0%l%V%J4pDl7W;;(B
+\JP :: 法 @var{mod} での基底変換によるグレブナ基底計算
 \EG :: Groebner basis computation modulo @var{mod} by change of ordering.
 @item minipolym(@var{plist},@var{vlist1},@var{order},@var{poly},@var{v},@var{mod})
-\JP :: $BK!(B @var{mod} $B$G$N%0%l%V%J4pDl$K$h$kB?9`<0$N:G>.B?9`<0$N7W;;(B
+\JP :: 法 @var{mod} でのグレブナ基底による多項式の最小多項式の計算
 \EG :: Minimal polynomial computation modulo @var{mod} the same method as
 @end table
 
 @table @var
 @item return
-\JP @code{tolexm()} : $B%j%9%H(B, @code{minipolym()} : $BB?9`<0(B
+\JP @code{tolexm()} : リスト, @code{minipolym()} : 多項式
 \EG @code{tolexm()} : list, @code{minipolym()} : polynomial
 @item plist  vlist1  vlist2
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BF~NO(B @var{plist} $B$O$$$:$l$b(B $BJQ?t=g=x(B @var{vlist1}, $B9`=g=x7?(B @var{order},
-$BK!(B @var{mod} $B$K$*$1$k%0%l%V%J4pDl$G$J$1$l$P$J$i$J$$(B. 
+入力 @var{plist} はいずれも 変数順序 @var{vlist1}, 項順序型 @var{order},
+法 @var{mod} におけるグレブナ基底でなければならない. 
 @item
-@code{minipolym()} $B$O(B @code{minipoly} $B$KBP1~$9$k7W;;$rK!(B @var{mod}$B$G9T$&(B. 
+@code{minipolym()} は @code{minipoly} に対応する計算を法 @var{mod}で行う. 
 @item
-@code{tolexm()} $B$O(B FGLM $BK!$K$h$k4pDlJQ49$K$h$j(B @var{vlist2},
-$B<-=q<0=g=x$K$h$k%0%l%V%J4pDl$r7W;;$9$k(B. 
+@code{tolexm()} は FGLM 法による基底変換により @var{vlist2},
+辞書式順序によるグレブナ基底を計算する. 
 \E
 \BEG
 @item 
@@ -2202,13 +2214,13 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl},
 @fref{gr_minipoly minipoly}.
 @end table
 
-\JP @node dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main,,, グレブナ基底に関する函数
 \EG @node dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main,,, Functions for Groebner basis computation
 @subsection @code{dp_gr_main}, @code{dp_gr_mod_main}, @code{dp_gr_f_main}, @code{dp_weyl_gr_main}, @code{dp_weyl_gr_mod_main}, @code{dp_weyl_gr_f_main}
 @findex dp_gr_main
@@ -2225,66 +2237,66 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @itemx dp_weyl_gr_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_weyl_gr_mod_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_weyl_gr_f_main(@var{plist},@var{vlist},@var{homo},@var{order})
-\JP :: $B%0%l%V%J4pDl$N7W;;(B ($BAH$_9~$_H!?t(B)
+\JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item homo
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @item modular
-\JP $B%U%i%0$^$?$OAG?t(B
+\JP フラグまたは素数
 \EG flag or prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B$3$l$i$NH!?t$O(B, $B%0%l%V%J4pDl7W;;$N4pK\E*AH$_9~$_H!?t$G$"$j(B, @code{gr()},
-@code{hgr()}, @code{gr_mod()} $B$J$I$O$9$Y$F$3$l$i$NH!?t$r8F$S=P$7$F7W;;(B
-$B$r9T$C$F$$$k(B. $B4X?tL>$K(B weyl $B$,F~$C$F$$$k$b$N$O(B, Weyl $BBe?t>e$N7W;;(B
-$B$N$?$a$N4X?t$G$"$k(B. 
+これらの函数は, グレブナ基底計算の基本的組み込み函数であり, @code{gr()},
+@code{hgr()}, @code{gr_mod()} などはすべてこれらの函数を呼び出して計算
+を行っている. 関数名に weyl が入っているものは, Weyl 代数上の計算
+のための関数である. 
 @item
-@code{dp_gr_f_main()}, @code{dp_weyl_f_main()} $B$O(B, $B<o!9$NM-8BBN>e$N%0%l%V%J4pDl$r7W;;$9$k(B
-$B>l9g$KMQ$$$k(B. $BF~NO$O(B, $B$"$i$+$8$a(B, @code{simp_ff()} $B$J$I$G(B, 
-$B9M$($kM-8BBN>e$K<M1F$5$l$F$$$kI,MW$,$"$k(B. 
+@code{dp_gr_f_main()}, @code{dp_weyl_f_main()} は, 種々の有限体上のグレブナ基底を計算する
+場合に用いる. 入力は, あらかじめ, @code{simp_ff()} などで, 
+考える有限体上に射影されている必要がある. 
 @item
-$B%U%i%0(B @var{homo} $B$,(B 0 $B$G$J$$;~(B, $BF~NO$r@F<!2=$7$F$+$i(B Buchberger $B%"%k%4%j%:%`(B
-$B$r<B9T$9$k(B. 
+フラグ @var{homo} が 0 でない時, 入力を斉次化してから Buchberger アルゴリズム
+を実行する. 
 @item
-@code{dp_gr_mod_main()} $B$KBP$7$F$O(B, @var{modular} $B$O(B, GF(@var{modular}) $B>e(B
-$B$G$N7W;;$r0UL#$9$k(B. 
-@code{dp_gr_main()} $B$KBP$7$F$O(B, @var{modular} $B$O<!$N$h$&$J0UL#$r;}$D(B. 
+@code{dp_gr_mod_main()} に対しては, @var{modular} は, GF(@var{modular}) 上
+での計算を意味する. 
+@code{dp_gr_main()} に対しては, @var{modular} は次のような意味を持つ. 
 @enumerate
 @item
-@var{modular} $B$,(B 1 $B$N;~(B, trace-lifting $B$K$h$k7W;;$r9T$&(B. $BAG?t$O(B
-@code{lprime(0)} $B$+$i=g$K@.8y$9$k$^$G(B @code{lprime()} $B$r8F$S=P$7$F@8@.$9$k(B. 
+@var{modular} が 1 の時, trace-lifting による計算を行う. 素数は
+@code{lprime(0)} から順に成功するまで @code{lprime()} を呼び出して生成する. 
 @item
-@var{modular} $B$,(B 2 $B0J>e$N<+A3?t$N;~(B, $B$=$NCM$rAG?t$H$_$J$7$F(B trace-lifting
-$B$r9T$&(B. $B$=$NAG?t$G<:GT$7$?>l9g(B, 0 $B$rJV$9(B. 
+@var{modular} が 2 以上の自然数の時, その値を素数とみなして trace-lifting
+を行う. その素数で失敗した場合, 0 を返す. 
 @item
-@var{modular} $B$,Ii$N>l9g(B, 
-@var{-modular} $B$KBP$7$F>e=R$N5,B'$,E,MQ$5$l$k$,(B, trace-lifting $B$N:G=*(B
-$BCJ3,$N%0%l%V%J4pDl%A%'%C%/$H%$%G%"%k%a%s%P%7%C%W%A%'%C%/$,>JN,$5$l$k(B. 
+@var{modular} が負の場合, 
+@var{-modular} に対して上述の規則が適用されるが, trace-lifting の最終
+段階のグレブナ基底チェックとイデアルメンバシップチェックが省略される. 
 @end enumerate
 
 @item
-@code{gr(P,V,O)} $B$O(B @code{dp_gr_main(P,V,0,1,O)}, @code{hgr(P,V,O)} $B$O(B
-@code{dp_gr_main(P,V,1,1,O)}, @code{gr_mod(P,V,O,M)} $B$O(B
-@code{dp_gr_mod_main(P,V,0,M,O)} $B$r$=$l$>$l<B9T$9$k(B. 
+@code{gr(P,V,O)} は @code{dp_gr_main(P,V,0,1,O)}, @code{hgr(P,V,O)} は
+@code{dp_gr_main(P,V,1,1,O)}, @code{gr_mod(P,V,O,M)} は
+@code{dp_gr_mod_main(P,V,0,M,O)} をそれぞれ実行する. 
 @item
-@var{homo}, @var{modular} $B$NB>$K(B, @code{dp_gr_flags()} $B$G@_Dj$5$l$k(B
-$B$5$^$6$^$J%U%i%0$K$h$j7W;;$,@)8f$5$l$k(B. 
+@var{homo}, @var{modular} の他に, @code{dp_gr_flags()} で設定される
+さまざまなフラグにより計算が制御される. 
 \E
 \BEG
 @item
@@ -2331,17 +2343,17 @@ Actual computation is controlled by various parameters set by
 @end itemize
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
 @fref{setmod_ff},
-\JP @fref{$B7W;;$*$h$SI=<($N@)8f(B}.
+\JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main,,, グレブナ基底に関する函数
 \EG @node dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main,,, Functions for Groebner basis computation
 @subsection @code{dp_f4_main}, @code{dp_f4_mod_main}, @code{dp_weyl_f4_main}, @code{dp_weyl_f4_mod_main}
 @findex dp_f4_main
@@ -2354,35 +2366,35 @@ Actual computation is controlled by various parameters set by
 @itemx dp_f4_mod_main(@var{plist},@var{vlist},@var{order})
 @itemx dp_weyl_f4_main(@var{plist},@var{vlist},@var{order})
 @itemx dp_weyl_f4_mod_main(@var{plist},@var{vlist},@var{order})
-\JP :: F4 $B%"%k%4%j%:%`$K$h$k%0%l%V%J4pDl$N7W;;(B ($BAH$_9~$_H!?t(B)
+\JP :: F4 アルゴリズムによるグレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation by F4 algorithm (built-in functions)
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @end table
 
 @itemize @bullet
 \BJP
 @item
-F4 $B%"%k%4%j%:%`$K$h$j%0%l%V%J4pDl$N7W;;$r9T$&(B. 
+F4 アルゴリズムによりグレブナ基底の計算を行う. 
 @item
-F4 $B%"%k%4%j%:%`$O(B, J.C. Faugere $B$K$h$jDs>'$5$l$??7@$Be%0%l%V%J4pDl(B
-$B;;K!$G$"$j(B, $BK\<BAu$O(B, $BCf9q>jM>DjM}$K$h$k@~7AJ}Dx<05a2r$rMQ$$$?(B
-$B;n83E*$J<BAu$G$"$k(B. 
+F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
+算法であり, 本実装は, 中国剰余定理による線形方程式求解を用いた
+試験的な実装である. 
 @item
-$B@F<!2=$N0z?t$,$J$$$3$H$r=|$1$P(B, $B0z?t$*$h$SF0:n$O$=$l$>$l(B 
+斉次化の引数がないことを除けば, 引数および動作はそれぞれ 
 @code{dp_gr_main()}, @code{dp_gr_mod_main()},
 @code{dp_weyl_gr_main()}, @code{dp_weyl_gr_mod_main()}
-$B$HF1MM$G$"$k(B. 
+と同様である. 
 \E
 \BEG
 @item
@@ -2400,16 +2412,16 @@ except for lack of the argument for controlling homogenization.
 @end itemize
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
-\JP @fref{$B7W;;$*$h$SI=<($N@)8f(B}.
+\JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace,,, グレブナ基底に関する函数
 \EG @node nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace,,, Functions for Groebner basis computation
 @subsection @code{nd_gr}, @code{nd_gr_trace}, @code{nd_f4}, @code{nd_f4_trace}, @code{nd_weyl_gr}, @code{nd_weyl_gr_trace}
 @findex nd_gr
@@ -2426,73 +2438,73 @@ except for lack of the argument for controlling homogenization.
 @itemx nd_f4_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order}[|@var{option=value,...}])
 @itemx nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order}[|@var{option=value,...}])
 @itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order}[|@var{option=value,...}])
-\JP :: $B%0%l%V%J4pDl$N7W;;(B ($BAH$_9~$_H!?t(B)
+\JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item plist  vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item homo
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @item modular
-\JP $B%U%i%0$^$?$OAG?t(B
+\JP フラグまたは素数
 \EG flag or prime
 @end table
 
 \BJP
 @itemize @bullet
 @item
-$B$3$l$i$NH!?t$O(B, $B%0%l%V%J4pDl7W;;AH$_9~$_4X?t$N?7<BAu$G$"$k(B.
-@item @code{nd_gr} $B$O(B, @code{p} $B$,(B 0 $B$N$H$-M-M}?tBN>e$N(B Buchberger
-$B%"%k%4%j%:%`$r<B9T$9$k(B. @code{p} $B$,(B 2 $B0J>e$N<+A3?t$N$H$-(B, GF(p) $B>e$N(B
-Buchberger $B%"%k%4%j%:%`$r<B9T$9$k(B.
-@item @code{nd_gr_trace} $B$*$h$S(B @code{nd_f4_trace}
-$B$OM-M}?tBN>e$G(B trace $B%"%k%4%j%:%`$r<B9T$9$k(B.
-@var{p} $B$,(B 0 $B$^$?$O(B 1 $B$N$H$-(B, $B<+F0E*$KA*$P$l$?AG?t$rMQ$$$F(B, $B@.8y$9$k(B
-$B$^$G(B trace $B%"%k%4%j%:%`$r<B9T$9$k(B.
-@var{p} $B$,(B 2 $B0J>e$N$H$-(B, trace $B$O(BGF(p) $B>e$G7W;;$5$l$k(B. trace $B%"%k%4%j%:%`(B
-$B$,<:GT$7$?>l9g(B 0 $B$,JV$5$l$k(B. @var{p} $B$,Ii$N>l9g(B, $B%0%l%V%J4pDl%A%'%C%/$O(B
-$B9T$o$J$$(B. $B$3$N>l9g(B, @var{p} $B$,(B -1 $B$J$i$P<+F0E*$KA*$P$l$?AG?t$,(B,
-$B$=$l0J30$O;XDj$5$l$?AG?t$rMQ$$$F%0%l%V%J4pDl8uJd$N7W;;$,9T$o$l$k(B. 
-@code{nd_f4_trace} $B$O(B, $B3FA4<!?t$K$D$$$F(B, $B$"$kM-8BBN>e$G(B F4 $B%"%k%4%j%:%`(B
-$B$G9T$C$?7k2L$r$b$H$K(B, $B$=$NM-8BBN>e$G(B 0 $B$G$J$$4pDl$rM?$($k(B S-$BB?9`<0$N$_$r(B
-$BMQ$$$F9TNs@8@.$r9T$$(B, $B$=$NA4<!?t$K$*$1$k4pDl$r@8@.$9$kJ}K!$G$"$k(B. $BF@$i$l$k(B
-$BB?9`<0=89g$O$d$O$j%0%l%V%J4pDl8uJd$G$"$j(B, @code{nd_gr_trace} $B$HF1MM$N(B
-$B%A%'%C%/$,9T$o$l$k(B.
+これらの函数は, グレブナ基底計算組み込み関数の新実装である.
+@item @code{nd_gr} は, @code{p} が 0 のとき有理数体上の Buchberger
+アルゴリズムを実行する. @code{p} が 2 以上の自然数のとき, GF(p) 上の
+Buchberger アルゴリズムを実行する.
+@item @code{nd_gr_trace} および @code{nd_f4_trace}
+は有理数体上で trace アルゴリズムを実行する.
+@var{p} が 0 または 1 のとき, 自動的に選ばれた素数を用いて, 成功する
+まで trace アルゴリズムを実行する.
+@var{p} が 2 以上のとき, trace はGF(p) 上で計算される. trace アルゴリズム
+が失敗した場合 0 が返される. @var{p} が負の場合, グレブナ基底チェックは
+行わない. この場合, @var{p} が -1 ならば自動的に選ばれた素数が,
+それ以外は指定された素数を用いてグレブナ基底候補の計算が行われる. 
+@code{nd_f4_trace} は, 各全次数について, ある有限体上で F4 アルゴリズム
+で行った結果をもとに, その有限体上で 0 でない基底を与える S-多項式のみを
+用いて行列生成を行い, その全次数における基底を生成する方法である. 得られる
+多項式集合はやはりグレブナ基底候補であり, @code{nd_gr_trace} と同様の
+チェックが行われる.
 @item
-@code{nd_f4} $B$O(B @code{modular} $B$,(B 0 $B$N$H$-M-M}?tBN>e$N(B, @code{modular} $B$,(B
-$B%^%7%s%5%$%:AG?t$N$H$-M-8BBN>e$N(B F4 $B%"%k%4%j%:%`$r<B9T$9$k(B.
+@code{nd_f4} は @code{modular} が 0 のとき有理数体上の, @code{modular} が
+マシンサイズ素数のとき有限体上の F4 アルゴリズムを実行する.
 @item
-@var{plist} $B$,B?9`<0%j%9%H$N>l9g(B, @var{plist}$B$G@8@.$5$l$k%$%G%"%k$N%0%l%V%J!<4pDl$,(B
-$B7W;;$5$l$k(B. @var{plist} $B$,B?9`<0%j%9%H$N%j%9%H$N>l9g(B, $B3FMWAG$OB?9`<04D>e$N<+M32C72$N85$H8+$J$5$l(B,
-$B$3$l$i$,@8@.$9$kItJ,2C72$N%0%l%V%J!<4pDl$,7W;;$5$l$k(B. $B8e<T$N>l9g(B, $B9`=g=x$O2C72$KBP$9$k9`=g=x$r(B
-$B;XDj$9$kI,MW$,$"$k(B. $B$3$l$O(B @var{[s,ord]} $B$N7A$G;XDj$9$k(B. @var{s} $B$,(B 0 $B$J$i$P(B TOP (Term Over Position),
-1 $B$J$i$P(B POT (Position Over Term) $B$r0UL#$7(B, @var{ord} $B$OB?9`<04D$NC19`<0$KBP$9$k9`=g=x$G$"$k(B.
+@var{plist} が多項式リストの場合, @var{plist}で生成されるイデアルのグレブナー基底が
+計算される. @var{plist} が多項式リストのリストの場合, 各要素は多項式環上の自由加群の元と見なされ,
+これらが生成する部分加群のグレブナー基底が計算される. 後者の場合, 項順序は加群に対する項順序を
+指定する必要がある. これは @var{[s,ord]} の形で指定する. @var{s} が 0 ならば TOP (Term Over Position),
+1 ならば POT (Position Over Term) を意味し, @var{ord} は多項式環の単項式に対する項順序である.
 @item
-@code{nd_weyl_gr}, @code{nd_weyl_gr_trace} $B$O(B Weyl $BBe?tMQ$G$"$k(B.
+@code{nd_weyl_gr}, @code{nd_weyl_gr_trace} は Weyl 代数用である.
 @item
-@code{f4} $B7O4X?t0J30$O$9$Y$FM-M}4X?t78?t$N7W;;$,2DG=$G$"$k(B.
+@code{f4} 系関数以外はすべて有理関数係数の計算が可能である.
 @item
-$B0lHL$K(B @code{dp_gr_main}, @code{dp_gr_mod_main} $B$h$j9bB.$G$"$k$,(B,
-$BFC$KM-8BBN>e$N>l9g82Cx$G$"$k(B.
+一般に @code{dp_gr_main}, @code{dp_gr_mod_main} より高速であるが,
+特に有限体上の場合顕著である.
 @item
-$B0J2<$N%*%W%7%g%s$,;XDj$G$-$k(B.
+以下のオプションが指定できる.
 @table @code
 @item homo
-1 $B$N$H$-(B, $B@F<!2=$r7PM3$7$F7W;;$9$k(B. (@code{nd_gr}, @code{nd_f4} $B$N$_(B)
+1 のとき, 斉次化を経由して計算する. (@code{nd_gr}, @code{nd_f4} のみ)
 @item dp
-1 $B$N$H$-(B, $BJ,;6I=8=B?9`<0(B ($B2C72$N>l9g$K$O2C72B?9`<0(B) $B$r7k2L$H$7$FJV$9(B.
+1 のとき, 分散表現多項式 (加群の場合には加群多項式) を結果として返す.
 @item nora
-1 $B$N$H$-(B, $B7k2L$NAj8_4JLs$r9T$o$J$$(B.
+1 のとき, 結果の相互簡約を行わない.
 @end table
 @end itemize
 \E
@@ -2568,15 +2580,15 @@ ndv_alloc=1477188
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
-\JP @fref{$B7W;;$*$h$SI=<($N@)8f(B}.
+\JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node nd_gr_postproc nd_weyl_gr_postproc,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node nd_gr_postproc nd_weyl_gr_postproc,,, グレブナ基底に関する函数
 \EG @node nd_gr_postproc nd_weyl_gr_postproc,,, Functions for Groebner basis computation
 @subsection @code{nd_gr_postproc}, @code{nd_weyl_gr_postproc}
 @findex nd_gr_postproc
@@ -2585,39 +2597,39 @@ ndv_alloc=1477188
 @table @t
 @item nd_gr_postproc(@var{plist},@var{vlist},@var{p},@var{order},@var{check})
 @itemx nd_weyl_gr_postproc(@var{plist},@var{vlist},@var{p},@var{order},@var{check})
-\JP :: $B%0%l%V%J4pDl8uJd$N%A%'%C%/$*$h$SAj8_4JLs(B
+\JP :: グレブナ基底候補のチェックおよび相互簡約
 \EG :: Check of Groebner basis candidate and inter-reduction
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B $B$^$?$O(B 0
+\JP リスト または 0
 \EG list or 0
 @item plist  vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item p
-\JP $BAG?t$^$?$O(B 0
+\JP 素数または 0
 \EG prime or 0
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item check
-\JP 0 $B$^$?$O(B 1
+\JP 0 または 1
 \EG 0 or 1
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B%0%l%V%J4pDl(B($B8uJd(B)$B$NAj8_4JLs$r9T$&(B.
+グレブナ基底(候補)の相互簡約を行う.
 @item
-@code{nd_weyl_gr_postproc} $B$O(B Weyl $BBe?tMQ$G$"$k(B.
+@code{nd_weyl_gr_postproc} は Weyl 代数用である.
 @item
-@var{check=1} $B$N>l9g(B, @var{plist} $B$,(B, @var{vlist}, @var{p}, @var{order} $B$G;XDj$5$l$kB?9`<04D(B, $B9`=g=x$G%0%l%V%J!<4pDl$K$J$C$F$$$k$+(B
-$B$N%A%'%C%/$b9T$&(B.
+@var{check=1} の場合, @var{plist} が, @var{vlist}, @var{p}, @var{order} で指定される多項式環, 項順序でグレブナー基底になっているか
+のチェックも行う.
 @item
-$B@F<!2=$7$F7W;;$7$?%0%l%V%J!<4pDl$rHs@F<!2=$7$?$b$N$rAj8_4JLs$r9T$&(B, CRT $B$G7W;;$7$?%0%l%V%J!<4pDl8uJd$N%A%'%C%/$r9T$&$J$I$N>l9g$KMQ$$$k(B.
+斉次化して計算したグレブナー基底を非斉次化したものを相互簡約を行う, CRT で計算したグレブナー基底候補のチェックを行うなどの場合に用いる.
 \E
 \BEG
 @item
@@ -2637,7 +2649,7 @@ computed via homogenization, or Groebner basis check of a Groebner basis candida
 afo
 @end example
 
-\JP @node dp_gr_flags dp_gr_print,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_gr_flags dp_gr_print,,, グレブナ基底に関する函数
 \EG @node dp_gr_flags dp_gr_print,,, Functions for Groebner basis computation
 @subsection @code{dp_gr_flags}, @code{dp_gr_print}
 @findex dp_gr_flags
@@ -2646,7 +2658,7 @@ afo
 @table @t
 @item dp_gr_flags([@var{list}])
 @itemx dp_gr_print([@var{i}])
-\JP :: $B7W;;$*$h$SI=<(MQ%Q%i%a%?$N@_Dj(B, $B;2>H(B
+\JP :: 計算および表示用パラメタの設定, 参照
 \BEG :: Set and show various parameters for cotrolling computations 
 and showing informations.
 \E
@@ -2654,29 +2666,29 @@ and showing informations.
 
 @table @var
 @item return
-\JP $B@_DjCM(B
+\JP 設定値
 \EG value currently set
 @item list
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item i
-\JP $B@0?t(B
+\JP 整数
 \EG integer
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_gr_main()}, @code{dp_gr_mod_main()}, @code{dp_gr_f_main()}  $B<B9T;~$K$*$1$k$5$^$6$^(B
-$B$J%Q%i%a%?$r@_Dj(B, $B;2>H$9$k(B. 
+@code{dp_gr_main()}, @code{dp_gr_mod_main()}, @code{dp_gr_f_main()}  実行時におけるさまざま
+なパラメタを設定, 参照する. 
 @item
-$B0z?t$,$J$$>l9g(B, $B8=:_$N@_Dj$,JV$5$l$k(B. 
+引数がない場合, 現在の設定が返される. 
 @item
-$B0z?t$O(B, @code{["Print",1,"NoSugar",1,...]} $B$J$k7A$N%j%9%H$G(B, $B:8$+$i=g$K(B
-$B@_Dj$5$l$k(B. $B%Q%i%a%?L>$OJ8;zNs$GM?$($kI,MW$,$"$k(B. 
+引数は, @code{["Print",1,"NoSugar",1,...]} なる形のリストで, 左から順に
+設定される. パラメタ名は文字列で与える必要がある. 
 @item
-@code{dp_gr_print()} $B$O(B, $BFC$K%Q%i%a%?(B @code{Print}, @code{PrintShort} $B$NCM$rD>@\@_Dj(B, $B;2>H(B
-$B$G$-$k(B. $B@_Dj$5$l$kCM$O<!$NDL$j$G$"$k!#(B
+@code{dp_gr_print()} は, 特にパラメタ @code{Print}, @code{PrintShort} の値を直接設定, 参照
+できる. 設定される値は次の通りである。
 @table @var
 @item i=0
 @code{Print=0}, @code{PrintShort=0}
@@ -2685,9 +2697,9 @@ and showing informations.
 @item i=2
 @code{Print=0}, @code{PrintShort=1}
 @end table
-$B$3$l$O(B, @code{dp_gr_main()} $B$J$I$r%5%V%k!<%A%s$H$7$FMQ$$$k%f!<%6(B
-$BH!?t$K$*$$$F(B, $B$=$N%5%V%k!<%A%s$,Cf4V>pJs$NI=<((B
-$B$r9T$&:]$K(B, $B?WB.$K%U%i%0$r8+$k$3$H$,$G$-$k$h$&$KMQ0U$5$l$F$$$k(B. 
+これは, @code{dp_gr_main()} などをサブルーチンとして用いるユーザ
+函数において, そのサブルーチンが中間情報の表示
+を行う際に, 迅速にフラグを見ることができるように用意されている. 
 \E
 \BEG
 @item
@@ -2717,61 +2729,61 @@ uses the value as a flag for showing intermediate informations.
 @end itemize
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
-\JP @fref{$B7W;;$*$h$SI=<($N@)8f(B}
+\JP @fref{計算および表示の制御}
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node dp_ord,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_ord,,, グレブナ基底に関する函数
 \EG @node dp_ord,,, Functions for Groebner basis computation
 @subsection @code{dp_ord}
 @findex dp_ord
 
 @table @t
 @item dp_ord([@var{order}])
-\JP :: $BJQ?t=g=x7?$N@_Dj(B, $B;2>H(B
+\JP :: 変数順序型の設定, 参照
 \EG :: Set and show the ordering type.
 @end table
 
 @table @var
 @item return
-\JP $BJQ?t=g=x7?(B ($B?t(B, $B%j%9%H$^$?$O9TNs(B)
+\JP 変数順序型 (数, リストまたは行列)
 \EG ordering type (number, list or matrix)
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B0z?t$,$"$k;~(B, $BJQ?t=g=x7?$r(B @var{order} $B$K@_Dj$9$k(B. $B0z?t$,$J$$;~(B, 
-$B8=:_@_Dj$5$l$F$$$kJQ?t=g=x7?$rJV$9(B. 
+引数がある時, 変数順序型を @var{order} に設定する. 引数がない時, 
+現在設定されている変数順序型を返す. 
 
 @item
-$BJ,;6I=8=B?9`<0$K4X$9$kH!?t(B, $B1i;;$O0z?t$H$7$FJQ?t=g=x7?$r$H$k$b$N$H$H$i$J$$$b$N(B
-$B$,$"$j(B, $B$H$i$J$$$b$N$K4X$7$F$O(B, $B$=$N;~E@$G@_Dj$5$l$F$$$kCM$rMQ$$$F7W;;$,(B
-$B9T$o$l$k(B. 
+分散表現多項式に関する函数, 演算は引数として変数順序型をとるものととらないもの
+があり, とらないものに関しては, その時点で設定されている値を用いて計算が
+行われる. 
 
 @item
-@code{gr()} $B$J$I(B, $B0z?t$H$7$FJQ?t=g=x7?$r$H$k$b$N$O(B, $BFbIt$G(B @code{dp_ord()}
-$B$r8F$S=P$7(B, $BJQ?t=g=x7?$r@_Dj$9$k(B. $B$3$N@_Dj$O(B, $B7W;;=*N;8e$b@8$-;D$k(B. 
+@code{gr()} など, 引数として変数順序型をとるものは, 内部で @code{dp_ord()}
+を呼び出し, 変数順序型を設定する. この設定は, 計算終了後も生き残る. 
 
 @item
-$BJ,;6I=8=B?9`<0$N;MB'1i;;$b(B, $B@_Dj$5$l$F$$$kCM$rMQ$$$F7W;;$5$l$k(B. $B=>$C$F(B, 
-$B$=$NB?9`<0$,@8@.$5$l$?;~E@$K$*$1$kJQ?t=g=x7?$,(B, $B;MB'1i;;;~$K@5$7$/@_Dj(B
-$B$5$l$F$$$J$1$l$P$J$i$J$$(B. $B$^$?(B, $B1i;;BP>]$H$J$kB?9`<0$O(B, $BF10l$NJQ?t=g=x(B
-$B7?$K4p$E$$$F@8@.$5$l$?$b$N$G$J$1$l$P$J$i$J$$(B. 
+分散表現多項式の四則演算も, 設定されている値を用いて計算される. 従って, 
+その多項式が生成された時点における変数順序型が, 四則演算時に正しく設定
+されていなければならない. また, 演算対象となる多項式は, 同一の変数順序
+型に基づいて生成されたものでなければならない. 
 
 @item
-$B%H%C%W%l%Y%kH!?t0J30$NH!?t$rD>@\8F$S=P$9>l9g$K$O(B, $B$3$NH!?t$K$h$j(B
-$BJQ?t=g=x7?$r@5$7$/@_Dj$7$J$1$l$P$J$i$J$$(B. 
+トップレベル函数以外の函数を直接呼び出す場合には, この函数により
+変数順序型を正しく設定しなければならない. 
 
 @item
-$B0z?t$,%j%9%H$N>l9g(B, $B<+M32C72$K$*$1$k9`=g=x7?$r@_Dj$9$k(B. $B0z?t$,(B@code{[0,Ord]} $B$N>l9g(B,
-$BB?9`<04D>e$G(B @code{Ord} $B$G;XDj$5$l$k9`=g=x$K4p$E$/(B TOP $B=g=x(B, $B0z?t$,(B @code{[1,Ord]} $B$N>l9g(B
-OPT $B=g=x$r@_Dj$9$k(B.
+引数がリストの場合, 自由加群における項順序型を設定する. 引数が@code{[0,Ord]} の場合,
+多項式環上で @code{Ord} で指定される項順序に基づく TOP 順序, 引数が @code{[1,Ord]} の場合
+OPT 順序を設定する.
 
 \E
 \BEG
@@ -2819,13 +2831,13 @@ If the argument is @code{[1,Ord]} then a POT ordering is set.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
-\JP @fref{$B9`=g=x$N@_Dj(B}
+\JP @fref{項順序の設定}
 \EG @fref{Setting term orderings}
 @end table
 
-\JP @node dp_set_weight dp_set_top_weight dp_weyl_set_weight,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_set_weight dp_set_top_weight dp_weyl_set_weight,,, グレブナ基底に関する函数
 \EG @node dp_set_weight dp_set_top_weight dp_weyl_set_weight,,, Functions for Groebner basis computation
 @subsection @code{dp_set_weight}, @code{dp_set_top_weight}, @code{dp_weyl_set_weight}
 @findex dp_set_weight
@@ -2834,43 +2846,43 @@ If the argument is @code{[1,Ord]} then a POT ordering is set.
 
 @table @t
 @item dp_set_weight([@var{weight}])
-\JP :: sugar weight $B$N@_Dj(B, $B;2>H(B
+\JP :: sugar weight の設定, 参照
 \EG :: Set and show the sugar weight.
 @item dp_set_top_weight([@var{weight}])
-\JP :: top weight $B$N@_Dj(B, $B;2>H(B
+\JP :: top weight の設定, 参照
 \EG :: Set and show the top weight.
 @item dp_weyl_set_weight([@var{weight}])
-\JP :: weyl weight $B$N@_Dj(B, $B;2>H(B
+\JP :: weyl weight の設定, 参照
 \EG :: Set and show the weyl weight.
 @end table
 
 @table @var
 @item return
-\JP $B%Y%/%H%k(B
+\JP ベクトル
 \EG a vector
 @item weight
-\JP $B@0?t$N%j%9%H$^$?$O%Y%/%H%k(B
+\JP 整数のリストまたはベクトル
 \EG a list or vector of integers
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_set_weight} $B$O(B sugar weight $B$r(B @var{weight} $B$K@_Dj$9$k(B. $B0z?t$,$J$$;~(B, 
-$B8=:_@_Dj$5$l$F$$$k(B sugar weight $B$rJV$9(B. sugar weight $B$O@5@0?t$r@.J,$H$9$k%Y%/%H%k$G(B,
-$B3FJQ?t$N=E$_$rI=$9(B. $B<!?t$D$-=g=x$K$*$$$F(B, $BC19`<0$N<!?t$r7W;;$9$k:]$KMQ$$$i$l$k(B.
-$B@F<!2=JQ?tMQ$K(B, $BKvHx$K(B 1 $B$rIU$12C$($F$*$/$H0BA4$G$"$k(B.
+@code{dp_set_weight} は sugar weight を @var{weight} に設定する. 引数がない時, 
+現在設定されている sugar weight を返す. sugar weight は正整数を成分とするベクトルで,
+各変数の重みを表す. 次数つき順序において, 単項式の次数を計算する際に用いられる.
+斉次化変数用に, 末尾に 1 を付け加えておくと安全である.
 @item
-@code{dp_set_top_weight} $B$O(B top weight $B$r(B @var{weight} $B$K@_Dj$9$k(B. $B0z?t$,$J$$;~(B, 
-$B8=:_@_Dj$5$l$F$$$k(B top weight $B$rJV$9(B. top weight $B$,@_Dj$5$l$F$$$k$H$-(B, 
-$B$^$:(B top weight $B$K$h$kC19`<0Hf3S$r@h$K9T$&(B. tie breaker $B$H$7$F8=:_@_Dj$5$l$F$$$k(B
-$B9`=g=x$,MQ$$$i$l$k$,(B, $B$3$NHf3S$K$O(B top weight $B$OMQ$$$i$l$J$$(B.
+@code{dp_set_top_weight} は top weight を @var{weight} に設定する. 引数がない時, 
+現在設定されている top weight を返す. top weight が設定されているとき, 
+まず top weight による単項式比較を先に行う. tie breaker として現在設定されている
+項順序が用いられるが, この比較には top weight は用いられない.
 
 @item
-@code{dp_weyl_set_weight} $B$O(B weyl weight $B$r(B @var{weight} $B$K@_Dj$9$k(B. $B0z?t$,$J$$;~(B, 
-$B8=:_@_Dj$5$l$F$$$k(B weyl weight $B$rJV$9(B. weyl weight w $B$r@_Dj$9$k$H(B,
-$B9`=g=x7?(B 11 $B$G$N7W;;$K$*$$$F(B, (-w,w) $B$r(B top weight, tie breaker $B$r(B graded reverse lex
-$B$H$7$?9`=g=x$,@_Dj$5$l$k(B.
+@code{dp_weyl_set_weight} は weyl weight を @var{weight} に設定する. 引数がない時, 
+現在設定されている weyl weight を返す. weyl weight w を設定すると,
+項順序型 11 での計算において, (-w,w) を top weight, tie breaker を graded reverse lex
+とした項順序が設定される.
 \E
 \BEG
 @item
@@ -2892,41 +2904,41 @@ the top weight=(-w,w) and the tie breaker=graded reverse lex is applied.
 @end itemize
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{Weight}
 @end table
 
 
-\JP @node dp_ptod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_ptod,,, グレブナ基底に関する函数
 \EG @node dp_ptod,,, Functions for Groebner basis computation
 @subsection @code{dp_ptod}
 @findex dp_ptod
 
 @table @t
 @item dp_ptod(@var{poly},@var{vlist})
-\JP :: $BB?9`<0$rJ,;6I=8=B?9`<0$KJQ49$9$k(B. 
+\JP :: 多項式を分散表現多項式に変換する. 
 \EG :: Converts an ordinary polynomial into a distributed polynomial.
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item poly
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BJQ?t=g=x(B @var{vlist} $B$*$h$S8=:_$NJQ?t=g=x7?$K=>$C$FJ,;6I=8=B?9`<0$KJQ49$9$k(B. 
+変数順序 @var{vlist} および現在の変数順序型に従って分散表現多項式に変換する. 
 @item
-@var{vlist} $B$K4^$^$l$J$$ITDj85$O(B, $B78?tBN$KB0$9$k$H$7$FJQ49$5$l$k(B. 
+@var{vlist} に含まれない不定元は, 係数体に属するとして変換される. 
 \E
 \BEG
 @item
@@ -2951,41 +2963,41 @@ the coefficient field.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_dtop},
 @fref{dp_ord}.
 @end table
 
-\JP @node dpm_dptodpm,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_dptodpm,,, グレブナ基底に関する函数
 \EG @node dpm_dptodpm,,, Functions for Groebner basis computation
 @subsection @code{dpm_dptodpm}
 @findex dpm_dptodpm
 
 @table @t
 @item dpm_dptodpm(@var{dpoly},@var{pos})
-\JP :: $BJ,;6I=8=B?9`<0$r2C72B?9`<0$KJQ49$9$k(B. 
+\JP :: 分散表現多項式を加群多項式に変換する. 
 \EG :: Converts a distributed polynomial into a module polynomial.
 @end table
 
 @table @var
 @item return
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item pos
-\JP $B@5@0?t(B
+\JP 正整数
 \EG positive integer
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BJ,;6I=8=B?9`<0$r2C72B?9`<0$KJQ49$9$k(B.
+分散表現多項式を加群多項式に変換する.
 @item
-$B=PNO$O2C72B?9`<0(B @code{dpoly e_pos} $B$G$"$k(B.
+出力は加群多項式 @code{dpoly e_pos} である.
 \E
 \BEG
 @item
@@ -3006,41 +3018,41 @@ The output is @code{dpoly e_pos}.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_ptod},
 @fref{dp_ord}.
 @end table
 
-\JP @node dpm_ltod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_ltod,,, グレブナ基底に関する函数
 \EG @node dpm_ltod,,, Functions for Groebner basis computation
 @subsection @code{dpm_ltod}
 @findex dpm_ltod
 
 @table @t
 @item dpm_dptodpm(@var{plist},@var{vlist})
-\JP :: $BB?9`<0%j%9%H$r2C72B?9`<0$KJQ49$9$k(B. 
+\JP :: 多項式リストを加群多項式に変換する. 
 \EG :: Converts a list of polynomials into a module polynomial.
 @end table
 
 @table @var
 @item return
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
 @item plist
-\JP $BB?9`<0%j%9%H(B
+\JP 多項式リスト
 \EG list of polynomials
 @item vlist
-\JP $BJQ?t%j%9%H(B
+\JP 変数リスト
 \EG list of variables
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BB?9`<0%j%9%H$r2C72B?9`<0$KJQ49$9$k(B.
+多項式リストを加群多項式に変換する.
 @item
-@code{[p1,...,pm]} $B$O(B @code{p1 e1+...+pm em} $B$KJQ49$5$l$k(B.
+@code{[p1,...,pm]} は @code{p1 e1+...+pm em} に変換される.
 \E
 \BEG
 @item
@@ -3058,43 +3070,43 @@ This function converts a list of polynomials into a module polynomial.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dpm_dtol},
 @fref{dp_ord}.
 @end table
 
-\JP @node dpm_dtol,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_dtol,,, グレブナ基底に関する函数
 \EG @node dpm_dtol,,, Functions for Groebner basis computation
 @subsection @code{dpm_dtol}
 @findex dpm_dtol
 
 @table @t
 @item dpm_dptodpm(@var{poly},@var{vlist})
-\JP :: $B2C72B?9`<0$rB?9`<0%j%9%H$KJQ49$9$k(B. 
+\JP :: 加群多項式を多項式リストに変換する. 
 \EG :: Converts a module polynomial into a list of polynomials.
 @end table
 
 @table @var
 @item return
-\JP $BB?9`<0%j%9%H(B
+\JP 多項式リスト
 \EG list of polynomials
 @item poly
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
 @item vlist
-\JP $BJQ?t%j%9%H(B
+\JP 変数リスト
 \EG list of variables
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B2C72B?9`<0$rB?9`<0%j%9%H$KJQ49$9$k(B.
+加群多項式を多項式リストに変換する.
 @item
-@code{p1 e1+...+pm em} $B$O(B @code{[p1,...,pm]} $B$KJQ49$5$l$k(B.
+@code{p1 e1+...+pm em} は @code{[p1,...,pm]} に変換される.
 @item
-$B=PNO%j%9%H$ND9$5$O(B, @code{poly} $B$K4^$^$l$kI8=`4pDl$N:GBg%$%s%G%C%/%9$H$J$k(B.
+出力リストの長さは, @code{poly} に含まれる標準基底の最大インデックスとなる.
 \E
 \BEG
 @item
@@ -3116,41 +3128,41 @@ containd in @code{poly}.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dpm_ltod},
 @fref{dp_ord}.
 @end table
 
-\JP @node dp_dtop,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_dtop,,, グレブナ基底に関する函数
 \EG @node dp_dtop,,, Functions for Groebner basis computation
 @subsection @code{dp_dtop}
 @findex dp_dtop
 
 @table @t
 @item dp_dtop(@var{dpoly},@var{vlist})
-\JP :: $BJ,;6I=8=B?9`<0$rB?9`<0$KJQ49$9$k(B. 
+\JP :: 分散表現多項式を多項式に変換する. 
 \EG :: Converts a distributed polynomial into an ordinary polynomial.
 @end table
 
 @table @var
 @item return
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BJ,;6I=8=B?9`<0$r(B, $BM?$($i$l$?ITDj85%j%9%H$rMQ$$$FB?9`<0$KJQ49$9$k(B. 
+分散表現多項式を, 与えられた不定元リストを用いて多項式に変換する. 
 @item
-$BITDj85%j%9%H$O(B, $BD9$5J,;6I=8=B?9`<0$NJQ?t$N8D?t$H0lCW$7$F$$$l$P2?$G$b$h$$(B. 
+不定元リストは, 長さ分散表現多項式の変数の個数と一致していれば何でもよい. 
 \E
 \BEG
 @item
@@ -3170,7 +3182,7 @@ variables of @var{dpoly}.
 z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @end example
 
-\JP @node dp_mod dp_rat,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_mod dp_rat,,, グレブナ基底に関する函数
 \EG @node dp_mod dp_rat,,, Functions for Groebner basis computation
 @subsection @code{dp_mod}, @code{dp_rat}
 @findex dp_mod
@@ -3178,10 +3190,10 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 
 @table @t
 @item dp_mod(@var{p},@var{mod},@var{subst})
-\JP :: $BM-M}?t78?tJ,;6I=8=B?9`<0$NM-8BBN78?t$X$NJQ49(B
+\JP :: 有理数係数分散表現多項式の有限体係数への変換
 \EG :: Converts a disributed polynomial into one with coefficients in a finite field.
 @item dp_rat(@var{p})
-\JP :: $BM-8BBN78?tJ,;6I=8=B?9`<0$NM-M}?t78?t$X$NJQ49(B
+\JP :: 有限体係数分散表現多項式の有理数係数への変換
 \BEG
 :: Converts a distributed polynomial with coefficients in a finite field into
 one with coefficients in the rationals.
@@ -3190,34 +3202,34 @@ one with coefficients in the rationals.
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item p
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @item subst
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_nf_mod()}, @code{dp_true_nf_mod()} $B$O(B, $BF~NO$H$7$FM-8BBN78?t$N(B
-$BJ,;6I=8=B?9`<0$rI,MW$H$9$k(B. $B$3$N$h$&$J>l9g(B, @code{dp_mod()} $B$K$h$j(B
-$BM-M}?t78?tJ,;6I=8=B?9`<0$rJQ49$7$FMQ$$$k$3$H$,$G$-$k(B. $B$^$?(B, $BF@$i$l$?(B
-$B7k2L$O(B, $BM-8BBN78?tB?9`<0$H$O1i;;$G$-$k$,(B, $BM-M}?t78?tB?9`<0$H$O1i;;$G$-$J$$(B
-$B$?$a(B, @code{dp_rat()} $B$K$h$jJQ49$9$kI,MW$,$"$k(B. 
+@code{dp_nf_mod()}, @code{dp_true_nf_mod()} は, 入力として有限体係数の
+分散表現多項式を必要とする. このような場合, @code{dp_mod()} により
+有理数係数分散表現多項式を変換して用いることができる. また, 得られた
+結果は, 有限体係数多項式とは演算できるが, 有理数係数多項式とは演算できない
+ため, @code{dp_rat()} により変換する必要がある. 
 @item
-$BM-8BBN78?t$N1i;;$K$*$$$F$O(B, $B$"$i$+$8$a(B @code{setmod()} $B$K$h$jM-8BBN$N85$N(B
-$B8D?t$r;XDj$7$F$*$/I,MW$,$"$k(B. 
+有限体係数の演算においては, あらかじめ @code{setmod()} により有限体の元の
+個数を指定しておく必要がある. 
 @item
-@var{subst} $B$O(B, $B78?t$,M-M}<0$N>l9g(B, $B$=$NM-M}<0$NJQ?t$K$"$i$+$8$a?t$rBeF~(B
-$B$7$?8eM-8BBN78?t$KJQ49$9$k$H$$$&A`:n$r9T$&:]$N(B, $BBeF~CM$r;XDj$9$k$b$N$G(B, 
-@code{[[@var{var},@var{value}],...]} $B$N7A$N%j%9%H$G$"$k(B. 
+@var{subst} は, 係数が有理式の場合, その有理式の変数にあらかじめ数を代入
+した後有限体係数に変換するという操作を行う際の, 代入値を指定するもので, 
+@code{[[@var{var},@var{value}],...]} の形のリストである. 
 \E
 \BEG
 @item
@@ -3243,14 +3255,14 @@ converting the coefficients into elements of a finite field.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod},
 @fref{subst psubst},
 @fref{setmod}.
 @end table
 
-\JP @node dp_homo dp_dehomo,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_homo dp_dehomo,,, グレブナ基底に関する函数
 \EG @node dp_homo dp_dehomo,,, Functions for Groebner basis computation
 @subsection @code{dp_homo}, @code{dp_dehomo}
 @findex dp_homo
@@ -3258,36 +3270,36 @@ converting the coefficients into elements of a finite field.
 
 @table @t
 @item dp_homo(@var{dpoly})
-\JP :: $BJ,;6I=8=B?9`<0$N@F<!2=(B
+\JP :: 分散表現多項式の斉次化
 \EG :: Homogenize a distributed polynomial
 @item dp_dehomo(@var{dpoly})
-\JP :: $B@F<!J,;6I=8=B?9`<0$NHs@F<!2=(B
+\JP :: 斉次分散表現多項式の非斉次化
 \EG :: Dehomogenize a homogenious distributed polynomial
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_homo()} $B$O(B, @var{dpoly} $B$N(B $B3F9`(B @var{t} $B$K$D$$$F(B, $B;X?t%Y%/%H%k$ND9$5$r(B
-1 $B?-$P$7(B, $B:G8e$N@.J,$NCM$r(B @var{d}-@code{deg(@var{t})} 
-(@var{d} $B$O(B @var{dpoly} $B$NA4<!?t(B) $B$H$7$?J,;6I=8=B?9`<0$rJV$9(B. 
+@code{dp_homo()} は, @var{dpoly} の 各項 @var{t} について, 指数ベクトルの長さを
+1 伸ばし, 最後の成分の値を @var{d}-@code{deg(@var{t})} 
+(@var{d} は @var{dpoly} の全次数) とした分散表現多項式を返す. 
 @item
-@code{dp_dehomo()} $B$O(B, @var{dpoly} $B$N3F9`$K$D$$$F(B, $B;X?t%Y%/%H%k$N:G8e$N@.J,(B
-$B$r<h$j=|$$$?J,;6B?9`<0$rJV$9(B. 
+@code{dp_dehomo()} は, @var{dpoly} の各項について, 指数ベクトルの最後の成分
+を取り除いた分散多項式を返す. 
 @item
-$B$$$:$l$b(B, $B@8@.$5$l$?B?9`<0$rMQ$$$?1i;;$r9T$&>l9g(B, $B$=$l$i$KE,9g$9$k9`=g=x$r(B
-$B@5$7$/@_Dj$9$kI,MW$,$"$k(B. 
+いずれも, 生成された多項式を用いた演算を行う場合, それらに適合する項順序を
+正しく設定する必要がある. 
 @item
-@code{hgr()} $B$J$I$K$*$$$F(B, $BFbItE*$KMQ$$$i$l$F$$$k(B.
+@code{hgr()} などにおいて, 内部的に用いられている.
 \E
 \BEG
 @item
@@ -3317,12 +3329,12 @@ These are used internally in @code{hgr()} etc.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{gr hgr gr_mod}.
 @end table
 
-\JP @node dp_ptozp dp_prim,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_ptozp dp_prim,,, グレブナ基底に関する函数
 \EG @node dp_ptozp dp_prim,,, Functions for Groebner basis computation
 @subsection @code{dp_ptozp}, @code{dp_prim}
 @findex dp_ptozp
@@ -3330,14 +3342,14 @@ These are used internally in @code{hgr()} etc.
 
 @table @t
 @item dp_ptozp(@var{dpoly})
-\JP :: $BDj?tG\$7$F78?t$r@0?t78?t$+$D78?t$N@0?t(B GCD $B$r(B 1 $B$K$9$k(B. 
+\JP :: 定数倍して係数を整数係数かつ係数の整数 GCD を 1 にする. 
 \BEG
 :: Converts a distributed polynomial @var{poly} with rational coefficients
 into an integral distributed polynomial such that GCD of all its coefficients
 is 1.
 \E
 @item dp_prim(@var{dpoly})
-\JP :: $BM-M}<0G\$7$F78?t$r@0?t78?tB?9`<078?t$+$D78?t$NB?9`<0(B GCD $B$r(B 1 $B$K$9$k(B. 
+\JP :: 有理式倍して係数を整数係数多項式係数かつ係数の多項式 GCD を 1 にする. 
 \BEG
 :: Converts a distributed polynomial @var{poly} with rational function
 coefficients into an integral distributed polynomial such that polynomial 
@@ -3347,22 +3359,22 @@ GCD of all its coefficients is 1.
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_ptozp()} $B$O(B,  @code{ptozp()} $B$KAjEv$9$kA`:n$rJ,;6I=8=B?9`<0$K(B
-$BBP$7$F9T$&(B. $B78?t$,B?9`<0$r4^$`>l9g(B, $B78?t$K4^$^$l$kB?9`<06&DL0x;R$O(B
-$B<h$j=|$+$J$$(B. 
+@code{dp_ptozp()} は,  @code{ptozp()} に相当する操作を分散表現多項式に
+対して行う. 係数が多項式を含む場合, 係数に含まれる多項式共通因子は
+取り除かない. 
 @item
-@code{dp_prim()} $B$O(B, $B78?t$,B?9`<0$r4^$`>l9g(B, $B78?t$K4^$^$l$kB?9`<06&DL0x;R(B
-$B$r<h$j=|$/(B. 
+@code{dp_prim()} は, 係数が多項式を含む場合, 係数に含まれる多項式共通因子
+を取り除く. 
 \E
 \BEG
 @item
@@ -3384,12 +3396,12 @@ polynomial contents included in the coefficients are not removed.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{ptozp}.
 @end table
 
-\JP @node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod,,, グレブナ基底に関する函数
 \EG @node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_nf}, @code{dp_nf_mod}, @code{dp_true_nf}, @code{dp_true_nf_mod}
 @findex dp_nf
@@ -3404,7 +3416,7 @@ polynomial contents included in the coefficients are not removed.
 @item dp_weyl_nf(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce})
 @item dp_nf_mod(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce},@var{mod})
 @item dp_weyl_nf_mod(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce},@var{mod})
-\JP :: $BJ,;6I=8=B?9`<0$N@55,7A$r5a$a$k(B. ($B7k2L$ODj?tG\$5$l$F$$$k2DG=@-$"$j(B)
+\JP :: 分散表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
 
 \BEG
 :: Computes the normal form of a distributed polynomial.
@@ -3412,7 +3424,7 @@ polynomial contents included in the coefficients are not removed.
 \E
 @item dp_true_nf(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce})
 @item dp_true_nf_mod(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce},@var{mod})
-\JP :: $BJ,;6I=8=B?9`<0$N@55,7A$r5a$a$k(B. ($B??$N7k2L$r(B @code{[$BJ,;R(B, $BJ,Jl(B]} $B$N7A$GJV$9(B)
+\JP :: 分散表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
 \BEG
 :: Computes the normal form of a distributed polynomial. (The true result
 is returned in such a list as @code{[numerator, denominator]})
@@ -3421,59 +3433,59 @@ is returned in such a list as @code{[numerator, denominator]})
 
 @table @var
 @item return
-\JP @code{dp_nf()} : $BJ,;6I=8=B?9`<0(B, @code{dp_true_nf()} : $B%j%9%H(B
+\JP @code{dp_nf()} : 分散表現多項式, @code{dp_true_nf()} : リスト
 \EG @code{dp_nf()} : distributed polynomial, @code{dp_true_nf()} : list
 @item indexlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpolyarray
-\JP $BG[Ns(B
+\JP 配列
 \EG array of distributed polynomial
 @item fullreduce
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BJ,;6I=8=B?9`<0(B @var{dpoly} $B$N@55,7A$r5a$a$k(B. 
+分散表現多項式 @var{dpoly} の正規形を求める. 
 @item
-$BL>A0$K(B weyl $B$r4^$`4X?t$O%o%$%kBe?t$K$*$1$k@55,7A7W;;$r9T$&(B. $B0J2<$N@bL@$O(B weyl $B$r4^$`$b$N$KBP$7$F$bF1MM$K@.N)$9$k(B.
+名前に weyl を含む関数はワイル代数における正規形計算を行う. 以下の説明は weyl を含むものに対しても同様に成立する.
 @item
-@code{dp_nf_mod()}, @code{dp_true_nf_mod()} $B$NF~NO$O(B, @code{dp_mod()} $B$J$I(B
-$B$K$h$j(B, $BM-8BBN>e$NJ,;6I=8=B?9`<0$K$J$C$F$$$J$1$l$P$J$i$J$$(B. 
+@code{dp_nf_mod()}, @code{dp_true_nf_mod()} の入力は, @code{dp_mod()} など
+により, 有限体上の分散表現多項式になっていなければならない. 
 @item
-$B7k2L$KM-M}?t(B, $BM-M}<0$,4^$^$l$k$N$rHr$1$k$?$a(B, @code{dp_nf()} $B$O(B
-$B??$NCM$NDj?tG\$NCM$rJV$9(B. $BM-M}<078?t$N>l9g$N(B @code{dp_nf_mod()} $B$bF1MM(B
-$B$G$"$k$,(B, $B78?tBN$,M-8BBN$N>l9g(B @code{dp_nf_mod()} $B$O??$NCM$rJV$9(B. 
+結果に有理数, 有理式が含まれるのを避けるため, @code{dp_nf()} は
+真の値の定数倍の値を返す. 有理式係数の場合の @code{dp_nf_mod()} も同様
+であるが, 係数体が有限体の場合 @code{dp_nf_mod()} は真の値を返す. 
 @item
-@code{dp_true_nf()}, @code{dp_true_nf_mod()} $B$O(B, 
-@code{[@var{nm},@var{dn}]} $B$J$k7A$N%j%9%H$rJV$9(B. 
-$B$?$@$7(B, @var{nm} $B$O78?t$KJ,?t(B, $BM-M}<0$r4^$^$J$$J,;6I=8=B?9`<0(B, @var{dn} $B$O(B
-$B?t$^$?$OB?9`<0$G(B @var{nm}/@var{dn} $B$,??$NCM$H$J$k(B. 
+@code{dp_true_nf()}, @code{dp_true_nf_mod()} は, 
+@code{[@var{nm},@var{dn}]} なる形のリストを返す. 
+ただし, @var{nm} は係数に分数, 有理式を含まない分散表現多項式, @var{dn} は
+数または多項式で @var{nm}/@var{dn} が真の値となる. 
 @item
-@var{dpolyarray} $B$OJ,;6I=8=B?9`<0$rMWAG$H$9$k%Y%/%H%k(B, 
-@var{indexlist} $B$O@55,2=7W;;$KMQ$$$k(B @var{dpolyarray} $B$NMWAG$N%$%s%G%C%/%9(B
-$B$N%j%9%H(B. 
+@var{dpolyarray} は分散表現多項式を要素とするベクトル, 
+@var{indexlist} は正規化計算に用いる @var{dpolyarray} の要素のインデックス
+のリスト. 
 @item
-@var{fullreduce} $B$,(B 0 $B$G$J$$$H$-A4$F$N9`$KBP$7$F4JLs$r9T$&(B. @var{fullreduce}
-$B$,(B 0 $B$N$H$-F,9`$N$_$KBP$7$F4JLs$r9T$&(B. 
+@var{fullreduce} が 0 でないとき全ての項に対して簡約を行う. @var{fullreduce}
+が 0 のとき頭項のみに対して簡約を行う. 
 @item
-@var{indexlist} $B$G;XDj$5$l$?B?9`<0$O(B, $BA0$NJ}$N$b$N$,M%@hE*$K;H$o$l$k(B. 
+@var{indexlist} で指定された多項式は, 前の方のものが優先的に使われる. 
 @item
-$B0lHL$K$O(B @var{indexlist} $B$NM?$(J}$K$h$jH!?t$NCM$O0[$J$k2DG=@-$,$"$k$,(B, 
-$B%0%l%V%J4pDl$KBP$7$F$O0l0UE*$KDj$^$k(B. 
+一般には @var{indexlist} の与え方により函数の値は異なる可能性があるが, 
+グレブナ基底に対しては一意的に定まる. 
 @item
-$BJ,;6I=8=$G$J$$8GDj$5$l$?B?9`<0=89g$K$h$k@55,7A$rB??t5a$a$kI,MW$,$"$k>l9g(B
-$B$KJXMx$G$"$k(B. $BC10l$N1i;;$K4X$7$F$O(B, @code{p_nf}, @code{p_true_nf} $B$r(B
-$BMQ$$$k$H$h$$(B. 
+分散表現でない固定された多項式集合による正規形を多数求める必要がある場合
+に便利である. 単一の演算に関しては, @code{p_nf}, @code{p_true_nf} を
+用いるとよい. 
 \E
 \BEG
 @item
@@ -3544,7 +3556,7 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_dtop},
 @fref{dp_ord},
@@ -3552,7 +3564,7 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
 @fref{p_nf p_nf_mod p_true_nf p_true_nf_mod}.
 @end table
 
-\JP @node dpm_nf dpm_nf_and_quotient,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_nf dpm_nf_and_quotient,,, グレブナ基底に関する函数
 \EG @node dpm_nf dpm_nf_and_quotient,,, Functions for Groebner basis computation
 @subsection @code{dpm_nf}, @code{dpm_nf_and_quotient}
 @findex dpm_nf
@@ -3560,14 +3572,14 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
 
 @table @t
 @item dpm_nf([@var{indexlist},]@var{dpoly},@var{dpolyarray},@var{fullreduce})
-\JP :: $B2C72B?9`<0$N@55,7A$r5a$a$k(B. ($B7k2L$ODj?tG\$5$l$F$$$k2DG=@-$"$j(B)
+\JP :: 加群多項式の正規形を求める. (結果は定数倍されている可能性あり)
 
 \BEG
 :: Computes the normal form of a module polynomial.
 (The result may be multiplied by a constant in the ground field.)
 \E
 @item dpm_nf_and_quotient([@var{indexlist},]@var{dpoly},@var{dpolyarray})
-\JP :: $B2C72B?9`<0$N@55,7A$H>&$r5a$a$k(B.
+\JP :: 加群多項式の正規形と商を求める.
 \BEG
 :: Computes the normal form of a module polynomial and the quotient.
 \E
@@ -3575,42 +3587,42 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
 
 @table @var
 @item return
-\JP @code{dpm_nf()} : $B2C72B?9`<0(B, @code{dpm_nf_and_quotient()} : $B%j%9%H(B
+\JP @code{dpm_nf()} : 加群多項式, @code{dpm_nf_and_quotient()} : リスト
 \EG @code{dpm_nf()} : module polynomial, @code{dpm_nf_and_quotient()} : list
 @item indexlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item dpoly
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
 @item dpolyarray
-\JP $BG[Ns(B
+\JP 配列
 \EG array of module polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B2C72B?9`<0(B @var{dpoly} $B$N@55,7A$r5a$a$k(B. 
+加群多項式 @var{dpoly} の正規形を求める. 
 @item
-$B7k2L$KM-M}?t(B, $BM-M}<0$,4^$^$l$k$N$rHr$1$k$?$a(B, @code{dpm_nf()} $B$O(B
-$B??$NCM$NDj?tG\$NCM$rJV$9(B. 
+結果に有理数, 有理式が含まれるのを避けるため, @code{dpm_nf()} は
+真の値の定数倍の値を返す. 
 @item
-@var{dpolyarray} $B$O2C72B?9`<0$rMWAG$H$9$k%Y%/%H%k(B, 
-@var{indexlist} $B$O@55,2=7W;;$KMQ$$$k(B @var{dpolyarray} $B$NMWAG$N%$%s%G%C%/%9(B
+@var{dpolyarray} は加群多項式を要素とするベクトル, 
+@var{indexlist} は正規化計算に用いる @var{dpolyarray} の要素のインデックス
 @item
-@var{indexlist} $B$,M?$($i$l$F$$$k>l9g(B, @var{dpolyarray} $B$NCf$G(B, @var{indexlist} $B$G;XDj$5$l$?$b$N$N$_$,(B, $BA0$NJ}$+$iM%@hE*$K;H$o$l$k(B. 
-@var{indexlist} $B$,M?$($i$l$F$$$J$$>l9g$K$O(B, @var{dpolyarray} $B$NCf$NA4$F$NB?9`<0$,A0$NJ}$+$iM%@hE*$K;H$o$l$k(B.
+@var{indexlist} が与えられている場合, @var{dpolyarray} の中で, @var{indexlist} で指定されたもののみが, 前の方から優先的に使われる. 
+@var{indexlist} が与えられていない場合には, @var{dpolyarray} の中の全ての多項式が前の方から優先的に使われる.
 @item
-@code{dpm_nf_and_quotient()} $B$O(B, 
-@code{[@var{nm},@var{dn},@var{quo}]} $B$J$k7A$N%j%9%H$rJV$9(B. 
-$B$?$@$7(B, @var{nm} $B$O78?t$KJ,?t$r4^$^$J$$2C72B?9`<0(B, @var{dn} $B$O(B
-$B?t$^$?$OB?9`<0$G(B @var{nm}/@var{dn} $B$,??$NCM$H$J$k(B. 
-@var{quo} $B$O=|;;$N>&$rI=$9G[Ns$G(B, @var{dn}@var{dpoly}=@var{nm}+@var{quo[0]dpolyarray[0]+...} $B$,@.$jN)$D(B.
-$B$N%j%9%H(B. 
+@code{dpm_nf_and_quotient()} は, 
+@code{[@var{nm},@var{dn},@var{quo}]} なる形のリストを返す. 
+ただし, @var{nm} は係数に分数を含まない加群多項式, @var{dn} は
+数または多項式で @var{nm}/@var{dn} が真の値となる. 
+@var{quo} は除算の商を表す配列で, @var{dn}@var{dpoly}=@var{nm}+@var{quo[0]dpolyarray[0]+...} が成り立つ.
+のリスト. 
 @item
-@var{fullreduce} $B$,(B 0 $B$G$J$$$H$-A4$F$N9`$KBP$7$F4JLs$r9T$&(B. @var{fullreduce}
-$B$,(B 0 $B$N$H$-F,9`$N$_$KBP$7$F4JLs$r9T$&(B. 
+@var{fullreduce} が 0 でないとき全ての項に対して簡約を行う. @var{fullreduce}
+が 0 のとき頭項のみに対して簡約を行う. 
 \E
 \BEG
 @item
@@ -3665,14 +3677,14 @@ only the head term is reduced.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dpm_sp},
 @fref{dp_ord}.
 @end table
 
 
-\JP @node dp_hm dp_ht dp_hc dp_rest,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_hm dp_ht dp_hc dp_rest,,, グレブナ基底に関する函数
 \EG @node dp_hm dp_ht dp_hc dp_rest,,, Functions for Groebner basis computation
 @subsection @code{dp_hm}, @code{dp_ht}, @code{dp_hc}, @code{dp_rest}
 @findex dp_hm
@@ -3682,26 +3694,26 @@ only the head term is reduced.
 
 @table @t
 @item dp_hm(@var{dpoly})
-\JP :: $BF,C19`<0$r<h$j=P$9(B. 
+\JP :: 頭単項式を取り出す. 
 \EG :: Gets the head monomial.
 @item dp_ht(@var{dpoly})
-\JP :: $BF,9`$r<h$j=P$9(B. 
+\JP :: 頭項を取り出す. 
 \EG :: Gets the head term.
 @item dp_hc(@var{dpoly})
-\JP :: $BF,78?t$r<h$j=P$9(B. 
+\JP :: 頭係数を取り出す. 
 \EG :: Gets the head coefficient.
 @item dp_rest(@var{dpoly})
-\JP :: $BF,C19`<0$r<h$j=|$$$?;D$j$rJV$9(B. 
+\JP :: 頭単項式を取り除いた残りを返す. 
 \EG :: Gets the remainder of the polynomial where the head monomial is removed.
 @end table
 
 @table @var
 \BJP
 @item return
-@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : $BJ,;6I=8=B?9`<0(B,
-@code{dp_hc()} : $B?t$^$?$OB?9`<0(B
+@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : 分散表現多項式,
+@code{dp_hc()} : 数または多項式
 @item dpoly
-$BJ,;6I=8=B?9`<0(B
+分散表現多項式
 \E
 \BEG
 @item return
@@ -3715,9 +3727,9 @@ distributed polynomial
 @itemize @bullet
 \BJP
 @item
-$B$3$l$i$O(B, $BJ,;6I=8=B?9`<0$N3FItJ,$r<h$j=P$9$?$a$NH!?t$G$"$k(B. 
+これらは, 分散表現多項式の各部分を取り出すための函数である. 
 @item
-$BJ,;6I=8=B?9`<0(B @var{p} $B$KBP$7<!$,@.$jN)$D(B. 
+分散表現多項式 @var{p} に対し次が成り立つ. 
 \E
 \BEG
 @item
@@ -3746,7 +3758,7 @@ The next equations hold for a distributed polynomial @var{p}.
 +(-490)*<<0,0,0>>
 @end example
 
-\JP @node dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest,,, グレブナ基底に関する函数
 \EG @node dpm_hm dpm_ht dpm_hc dpm_hp dpm_rest,,, Functions for Groebner basis computation
 @subsection @code{dpm_hm}, @code{dpm_ht}, @code{dpm_hc}, @code{dpm_hp}, @code{dpm_rest}
 @findex dpm_hm
@@ -3757,29 +3769,29 @@ The next equations hold for a distributed polynomial @var{p}.
 
 @table @t
 @item dpm_hm(@var{dpoly})
-\JP :: $B2C72B?9`<0$NF,C19`<0$r<h$j=P$9(B. 
+\JP :: 加群多項式の頭単項式を取り出す. 
 \EG :: Gets the head monomial of a module polynomial.
 @item dpm_ht(@var{dpoly})
-\JP :: $B2C72B?9`<0$NF,9`$r<h$j=P$9(B. 
+\JP :: 加群多項式の頭項を取り出す. 
 \EG :: Gets the head term of a module polynomial.
 @item dpm_hc(@var{dpoly})
-\JP :: $B2C72B?9`<0$NF,78?t$r<h$j=P$9(B. 
+\JP :: 加群多項式の頭係数を取り出す. 
 \EG :: Gets the head coefficient of a module polynomial.
 @item dpm_hp(@var{dpoly})
-\JP :: $B2C72B?9`<0$NF,0LCV$r<h$j=P$9(B. 
+\JP :: 加群多項式の頭位置を取り出す. 
 \EG :: Gets the head position of a module polynomial.
 @item dpm_rest(@var{dpoly})
-\JP :: $B2C72B?9`<0$NF,C19`<0$r<h$j=|$$$?;D$j$rJV$9(B. 
+\JP :: 加群多項式の頭単項式を取り除いた残りを返す. 
 \EG :: Gets the remainder of a module polynomial where the head monomial is removed.
 @end table
 
 @table @var
 \BJP
 @item return
-@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : $B2C72B?9`<0(B,
-@code{dp_hc()} : $B?t$^$?$OB?9`<0(B
+@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : 加群多項式,
+@code{dp_hc()} : 数または多項式
 @item dpoly
-$B2C72B?9`<0(B
+加群多項式
 \E
 \BEG
 @item return
@@ -3793,12 +3805,12 @@ distributed polynomial
 @itemize @bullet
 \BJP
 @item
-$B$3$l$i$O(B, $B2C72B?9`<0$N3FItJ,$r<h$j=P$9$?$a$NH!?t$G$"$k(B. 
+これらは, 加群多項式の各部分を取り出すための函数である. 
 @item
-@code{dpm_hc()} $B$O(B, @code{dpm_hm()} $B$N(B, $BI8=`4pDl$K4X$9$k78?t$G$"$kC19`<0$rJV$9(B.
-$B%9%+%i!<78?t$r<h$j=P$9$K$O(B, $B$5$i$K(B @code{dp_hc()} $B$r<B9T$9$k(B.
+@code{dpm_hc()} は, @code{dpm_hm()} の, 標準基底に関する係数である単項式を返す.
+スカラー係数を取り出すには, さらに @code{dp_hc()} を実行する.
 @item
-@code{dpm_hp()} $B$O(B, $BF,2C72C19`<0$K4^$^$l$kI8=`4pDl$N%$%s%G%C%/%9$rJV$9(B.
+@code{dpm_hp()} は, 頭加群単項式に含まれる標準基底のインデックスを返す.
 \E
 \BEG
 @item
@@ -3828,7 +3840,7 @@ For getting its scalar coefficient apply @code{dp_hc()}.
 @end example
 
 
-\JP @node dp_td dp_sugar,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_td dp_sugar,,, グレブナ基底に関する函数
 \EG @node dp_td dp_sugar,,, Functions for Groebner basis computation
 @subsection @code{dp_td}, @code{dp_sugar}
 @findex dp_td
@@ -3836,35 +3848,35 @@ For getting its scalar coefficient apply @code{dp_hc()}.
 
 @table @t
 @item dp_td(@var{dpoly})
-\JP :: $BF,9`$NA4<!?t$rJV$9(B. 
+\JP :: 頭項の全次数を返す. 
 \EG :: Gets the total degree of the head term.
 @item dp_sugar(@var{dpoly})
-\JP :: $BB?9`<0$N(B @code{sugar} $B$rJV$9(B. 
+\JP :: 多項式の @code{sugar} を返す. 
 \EG :: Gets the @code{sugar} of a polynomial.
 @end table
 
 @table @var
 @item return
-\JP $B<+A3?t(B
+\JP 自然数
 \EG non-negative integer
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item onoff
-\JP $B%U%i%0(B
+\JP フラグ
 \EG flag
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_td()} $B$O(B, $BF,9`$NA4<!?t(B, $B$9$J$o$A3FJQ?t$N;X?t$NOB$rJV$9(B. 
+@code{dp_td()} は, 頭項の全次数, すなわち各変数の指数の和を返す. 
 @item
-$BJ,;6I=8=B?9`<0$,@8@.$5$l$k$H(B, @code{sugar} $B$H8F$P$l$k$"$k@0?t$,IUM?(B
-$B$5$l$k(B. $B$3$NCM$O(B $B2>A[E*$K@F<!2=$7$F7W;;$7$?>l9g$K7k2L$,;}$DA4<!?t$NCM$H$J$k(B. 
+分散表現多項式が生成されると, @code{sugar} と呼ばれるある整数が付与
+される. この値は 仮想的に斉次化して計算した場合に結果が持つ全次数の値となる. 
 @item
-@code{sugar} $B$O(B, $B%0%l%V%J4pDl7W;;$K$*$1$k@55,2=BP$NA*Br$N%9%H%i%F%8$r(B
-$B7hDj$9$k$?$a$N=EMW$J;X?K$H$J$k(B.
+@code{sugar} は, グレブナ基底計算における正規化対の選択のストラテジを
+決定するための重要な指針となる.
 \E
 \BEG
 @item
@@ -3891,30 +3903,30 @@ selection strategy of critical pairs in Groebner basis computation.
 3
 @end example
 
-\JP @node dp_lcm,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_lcm,,, グレブナ基底に関する函数
 \EG @node dp_lcm,,, Functions for Groebner basis computation
 @subsection @code{dp_lcm}
 @findex dp_lcm
 
 @table @t
 @item dp_lcm(@var{dpoly1},@var{dpoly2})
-\JP :: $B:G>.8xG\9`$rJV$9(B. 
+\JP :: 最小公倍項を返す. 
 \EG :: Returns the least common multiple of the head terms of the given two polynomials.
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpoly1  dpoly2
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B$=$l$>$l$N0z?t$NF,9`$N:G>.8xG\9`$rJV$9(B. $B78?t$O(B 1 $B$G$"$k(B. 
+それぞれの引数の頭項の最小公倍項を返す. 係数は 1 である. 
 \E
 \BEG
 @item
@@ -3929,38 +3941,38 @@ two polynomials, where coefficient is always set to 1.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{p_nf p_nf_mod p_true_nf p_true_nf_mod}.
 @end table
 
-\JP @node dp_redble,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_redble,,, グレブナ基底に関する函数
 \EG @node dp_redble,,, Functions for Groebner basis computation
 @subsection @code{dp_redble}
 @findex dp_redble
 
 @table @t
 @item dp_redble(@var{dpoly1},@var{dpoly2})
-\JP :: $BF,9`$I$&$7$,@0=|2DG=$+$I$&$+D4$Y$k(B. 
+\JP :: 頭項どうしが整除可能かどうか調べる. 
 \EG :: Checks whether one head term is divisible by the other head term.
 @end table
 
 @table @var
 @item return
-\JP $B@0?t(B
+\JP 整数
 \EG integer
 @item dpoly1  dpoly2
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@var{dpoly1} $B$NF,9`$,(B @var{dpoly2} $B$NF,9`$G3d$j@Z$l$l$P(B 1, $B3d$j@Z$l$J$1$l$P(B
-0 $B$rJV$9(B. 
+@var{dpoly1} の頭項が @var{dpoly2} の頭項で割り切れれば 1, 割り切れなければ
+0 を返す. 
 @item
-$BB?9`<0$N4JLs$r9T$&:](B, $B$I$N9`$r4JLs$G$-$k$+$rC5$9$N$KMQ$$$k(B. 
+多項式の簡約を行う際, どの項を簡約できるかを探すのに用いる. 
 \E
 \BEG
 @item
@@ -3984,38 +3996,38 @@ Used for finding candidate terms at reduction of polynomials.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_red dp_red_mod}.
 @end table
 
-\JP @node dpm_redble,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_redble,,, グレブナ基底に関する函数
 \EG @node dpm_redble,,, Functions for Groebner basis computation
 @subsection @code{dpm_redble}
 @findex dpm_redble
 
 @table @t
 @item dpm_redble(@var{dpoly1},@var{dpoly2})
-\JP :: $BF,9`$I$&$7$,@0=|2DG=$+$I$&$+D4$Y$k(B. 
+\JP :: 頭項どうしが整除可能かどうか調べる. 
 \EG :: Checks whether one head term is divisible by the other head term.
 @end table
 
 @table @var
 @item return
-\JP $B@0?t(B
+\JP 整数
 \EG integer
 @item dpoly1  dpoly2
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@var{dpoly1} $B$NF,9`$,(B @var{dpoly2} $B$NF,9`$G3d$j@Z$l$l$P(B 1, $B3d$j@Z$l$J$1$l$P(B
-0 $B$rJV$9(B. 
+@var{dpoly1} の頭項が @var{dpoly2} の頭項で割り切れれば 1, 割り切れなければ
+0 を返す. 
 @item
-$BB?9`<0$N4JLs$r9T$&:](B, $B$I$N9`$r4JLs$G$-$k$+$rC5$9$N$KMQ$$$k(B. 
+多項式の簡約を行う際, どの項を簡約できるかを探すのに用いる. 
 \E
 \BEG
 @item
@@ -4026,33 +4038,33 @@ Used for finding candidate terms at reduction of polynomials.
 \E
 @end itemize
 
-\JP @node dp_subd,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_subd,,, グレブナ基底に関する函数
 \EG @node dp_subd,,, Functions for Groebner basis computation
 @subsection @code{dp_subd}
 @findex dp_subd
 
 @table @t
 @item dp_subd(@var{dpoly1},@var{dpoly2})
-\JP :: $BF,9`$N>&C19`<0$rJV$9(B. 
+\JP :: 頭項の商単項式を返す. 
 \EG :: Returns the quotient monomial of the head terms.
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpoly1  dpoly2
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_ht(@var{dpoly1})/dp_ht(@var{dpoly2})} $B$r5a$a$k(B. $B7k2L$N78?t$O(B 1 
-$B$G$"$k(B. 
+@code{dp_ht(@var{dpoly1})/dp_ht(@var{dpoly2})} を求める. 結果の係数は 1 
+である. 
 @item
-$B3d$j@Z$l$k$3$H$,$"$i$+$8$a$o$+$C$F$$$kI,MW$,$"$k(B.
+割り切れることがあらかじめわかっている必要がある.
 \E
 \BEG
 @item
@@ -4069,12 +4081,12 @@ Divisibility assumed.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_red dp_red_mod}.
 @end table
 
-\JP @node dp_vtoe dp_etov,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_vtoe dp_etov,,, グレブナ基底に関する函数
 \EG @node dp_vtoe dp_etov,,, Functions for Groebner basis computation
 @subsection @code{dp_vtoe}, @code{dp_etov}
 @findex dp_vtoe
@@ -4082,32 +4094,32 @@ Divisibility assumed.
 
 @table @t
 @item dp_vtoe(@var{vect})
-\JP :: $B;X?t%Y%/%H%k$r9`$KJQ49(B
+\JP :: 指数ベクトルを項に変換
 \EG :: Converts an exponent vector into a term.
 @item dp_etov(@var{dpoly})
-\JP :: $BF,9`$r;X?t%Y%/%H%k$KJQ49(B
+\JP :: 頭項を指数ベクトルに変換
 \EG :: Convert the head term of a distributed polynomial into an exponent vector.
 @end table
 
 @table @var
 @item return
-\JP @code{dp_vtoe} : $BJ,;6I=8=B?9`<0(B, @code{dp_etov} : $B%Y%/%H%k(B
+\JP @code{dp_vtoe} : 分散表現多項式, @code{dp_etov} : ベクトル
 \EG @code{dp_vtoe} : distributed polynomial, @code{dp_etov} : vector
 @item vect
-\JP $B%Y%/%H%k(B
+\JP ベクトル
 \EG vector
 @item dpoly
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{dp_vtoe()} $B$O(B, $B%Y%/%H%k(B @var{vect} $B$r;X?t%Y%/%H%k$H$9$k9`$r@8@.$9$k(B. 
+@code{dp_vtoe()} は, ベクトル @var{vect} を指数ベクトルとする項を生成する. 
 @item
-@code{dp_etov()} $B$O(B, $BJ,;6I=8=B?9`<0(B @code{dpoly} $B$NF,9`$N;X?t%Y%/%H%k$r(B
-$B%Y%/%H%k$KJQ49$9$k(B. 
+@code{dp_etov()} は, 分散表現多項式 @code{dpoly} の頭項の指数ベクトルを
+ベクトルに変換する. 
 \E
 \BEG
 @item
@@ -4128,35 +4140,35 @@ head term of @code{dpoly}.
 (1)*<<1,2,4>>
 @end example
 
-\JP @node dp_mbase,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_mbase,,, グレブナ基底に関する函数
 \EG @node dp_mbase,,, Functions for Groebner basis computation
 @subsection @code{dp_mbase}
 @findex dp_mbase
 
 @table @t
 @item dp_mbase(@var{dplist})
-\JP :: monomial $B4pDl$N7W;;(B
+\JP :: monomial 基底の計算
 \EG :: Computes the monomial basis
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0$N%j%9%H(B
+\JP 分散表現多項式のリスト
 \EG list of distributed polynomial
 @item dplist
-\JP $BJ,;6I=8=B?9`<0$N%j%9%H(B
+\JP 分散表現多項式のリスト
 \EG list of distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$B$"$k=g=x$G%0%l%V%J4pDl$H$J$C$F$$$kB?9`<0=89g$N(B, $B$=$N=g=x$K4X$9$kJ,;6I=8=(B
-$B$G$"$k(B @var{dplist} $B$K$D$$$F(B, 
-@var{dplist} $B$,(B K[X] $BCf$G@8@.$9$k%$%G%"%k(B I $B$,(B 0 $B<!85$N;~(B, 
-K $B>eM-8B<!85@~7A6u4V$G$"$k(B K[X]/I $B$N(B monomial $B$K$h$k4pDl$r5a$a$k(B. 
+ある順序でグレブナ基底となっている多項式集合の, その順序に関する分散表現
+である @var{dplist} について, 
+@var{dplist} が K[X] 中で生成するイデアル I が 0 次元の時, 
+K 上有限次元線形空間である K[X]/I の monomial による基底を求める. 
 @item
-$BF@$i$l$?4pDl$N8D?t$,(B, K[X]/I $B$N(B K-$B@~7A6u4V$H$7$F$N<!85$KEy$7$$(B. 
+得られた基底の個数が, K[X]/I の K-線形空間としての次元に等しい. 
 \E
 \BEG
 @item
@@ -4183,43 +4195,43 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{gr hgr gr_mod}.
 @end table
 
-\JP @node dp_mag,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_mag,,, グレブナ基底に関する函数
 \EG @node dp_mag,,, Functions for Groebner basis computation
 @subsection @code{dp_mag}
 @findex dp_mag
 
 @table @t
 @item dp_mag(@var{p})
-\JP :: $B78?t$N%S%C%HD9$NOB$rJV$9(B
+\JP :: 係数のビット長の和を返す
 \EG :: Computes the sum of bit lengths of coefficients of a distributed polynomial.
 @end table
 
 @table @var
 @item return
-\JP $B?t(B
+\JP 数
 \EG integer
 @item p
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @end table
 
 @itemize @bullet
 \BJP
 @item
-$BJ,;6I=8=B?9`<0$N78?t$K8=$l$kM-M}?t$K$D$-(B, $B$=$NJ,JlJ,;R(B ($B@0?t$N>l9g$OJ,;R(B)
-$B$N%S%C%HD9$NAmOB$rJV$9(B. 
+分散表現多項式の係数に現れる有理数につき, その分母分子 (整数の場合は分子)
+のビット長の総和を返す. 
 @item
-$BBP>]$H$J$kB?9`<0$NBg$-$5$NL\0B$H$7$FM-8z$G$"$k(B. $BFC$K(B, 0 $B<!85%7%9%F%`$K$*$$$F$O(B
-$B78?tKDD%$,LdBj$H$J$j(B, $BESCf@8@.$5$l$kB?9`<0$,78?tKDD%$r5/$3$7$F$$$k$+$I$&$+(B
-$B$NH=Dj$KLrN)$D(B. 
+対象となる多項式の大きさの目安として有効である. 特に, 0 次元システムにおいては
+係数膨張が問題となり, 途中生成される多項式が係数膨張を起こしているかどうか
+の判定に役立つ. 
 @item
-@code{dp_gr_flags()} $B$G(B, @code{ShowMag}, @code{Print} $B$r(B on $B$K$9$k$3$H$K$h$j(B
-$BESCf@8@.$5$l$kB?9`<0$K$?$$$9$k(B @code{dp_mag()} $B$NCM$r8+$k$3$H$,$G$-$k(B. 
+@code{dp_gr_flags()} で, @code{ShowMag}, @code{Print} を on にすることにより
+途中生成される多項式にたいする @code{dp_mag()} の値を見ることができる. 
 \E
 \BEG
 @item
@@ -4243,12 +4255,12 @@ values of @code{dp_mag()} for intermediate basis elements are shown.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_gr_flags dp_gr_print}.
 @end table
 
-\JP @node dp_red dp_red_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_red dp_red_mod,,, グレブナ基底に関する函数
 \EG @node dp_red dp_red_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_red}, @code{dp_red_mod}
 @findex dp_red
@@ -4257,41 +4269,41 @@ values of @code{dp_mag()} for intermediate basis elements are shown.
 @table @t
 @item dp_red(@var{dpoly1},@var{dpoly2},@var{dpoly3})
 @item dp_red_mod(@var{dpoly1},@var{dpoly2},@var{dpoly3},@var{mod})
-\JP :: $B0l2s$N4JLsA`:n(B
+\JP :: 一回の簡約操作
 \EG :: Single reduction operation
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item dpoly1  dpoly2  dpoly3
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@var{dpoly1} + @var{dpoly2} $B$J$kJ,;6I=8=B?9`<0$r(B @var{dpoly3} $B$G(B
-1 $B2s4JLs$9$k(B.
+@var{dpoly1} + @var{dpoly2} なる分散表現多項式を @var{dpoly3} で
+1 回簡約する.
 @item
-@code{dp_red_mod()} $B$NF~NO$O(B, $BA4$FM-8BBN78?t$KJQ49$5$l$F$$$kI,MW$,$"$k(B. 
+@code{dp_red_mod()} の入力は, 全て有限体係数に変換されている必要がある. 
 @item
-$B4JLs$5$l$k9`$O(B @var{dpoly2} $B$NF,9`$G$"$k(B. $B=>$C$F(B, @var{dpoly2} $B$N(B
-$BF,9`$,(B @var{dpoly3} $B$NF,9`$G3d$j@Z$l$k$3$H$,$"$i$+$8$a$o$+$C$F$$$J$1$l$P(B
-$B$J$i$J$$(B. 
+簡約される項は @var{dpoly2} の頭項である. 従って, @var{dpoly2} の
+頭項が @var{dpoly3} の頭項で割り切れることがあらかじめわかっていなければ
+ならない. 
 @item
-$B0z?t$,@0?t78?t$N;~(B, $B4JLs$O(B, $BJ,?t$,8=$l$J$$$h$&(B, $B@0?t(B @var{a}, @var{b}, 
-$B9`(B @var{t} $B$K$h$j(B @var{a}(@var{dpoly1} + @var{dpoly2})-@var{bt} @var{dpoly3} $B$H$7$F7W;;$5$l$k(B. 
+引数が整数係数の時, 簡約は, 分数が現れないよう, 整数 @var{a}, @var{b}, 
+項 @var{t} により @var{a}(@var{dpoly1} + @var{dpoly2})-@var{bt} @var{dpoly3} として計算される. 
 @item
-$B7k2L$O(B, @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]} $B$J$k%j%9%H$G$"$k(B.
+結果は, @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]} なるリストである.
 \E
 \BEG
 @item
@@ -4327,12 +4339,12 @@ The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_mod dp_rat}.
 @end table
 
-\JP @node dp_sp dp_sp_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dp_sp dp_sp_mod,,, グレブナ基底に関する函数
 \EG @node dp_sp dp_sp_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_sp}, @code{dp_sp_mod}
 @findex dp_sp
@@ -4341,31 +4353,31 @@ The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
 @table @t
 @item dp_sp(@var{dpoly1},@var{dpoly2})
 @item dp_sp_mod(@var{dpoly1},@var{dpoly2},@var{mod})
-\JP :: S-$BB?9`<0$N7W;;(B
+\JP :: S-多項式の計算
 \EG :: Computation of an S-polynomial
 @end table
 
 @table @var
 @item return
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item dpoly1  dpoly2
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 \EG distributed polynomial
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@var{dpoly1}, @var{dpoly2} $B$N(B S-$BB?9`<0$r7W;;$9$k(B. 
+@var{dpoly1}, @var{dpoly2} の S-多項式を計算する. 
 @item
-@code{dp_sp_mod()} $B$NF~NO$O(B, $BA4$FM-8BBN78?t$KJQ49$5$l$F$$$kI,MW$,$"$k(B. 
+@code{dp_sp_mod()} の入力は, 全て有限体係数に変換されている必要がある. 
 @item
-$B7k2L$KM-M}?t(B, $BM-M}<0$,F~$k$N$rHr$1$k$?$a(B, $B7k2L$,Dj?tG\(B, $B$"$k$$$OB?9`<0(B
-$BG\$5$l$F$$$k2DG=@-$,$"$k(B. 
+結果に有理数, 有理式が入るのを避けるため, 結果が定数倍, あるいは多項式
+倍されている可能性がある. 
 \E
 \BEG
 @item
@@ -4389,40 +4401,40 @@ make the result integral.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_mod dp_rat}.
 @end table
 
-\JP @node dpm_sp,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_sp,,, グレブナ基底に関する函数
 \EG @node dmp_sp,,, Functions for Groebner basis computation
 @subsection @code{dpm_sp}
 @findex dpm_sp
 
 @table @t
 @item dpm_sp(@var{dpoly1},@var{dpoly2}[|coef=1])
-\JP :: S-$BB?9`<0$N7W;;(B
+\JP :: S-多項式の計算
 \EG :: Computation of an S-polynomial
 @end table
 
 @table @var
 @item return
-\JP $B2C72B?9`<0$^$?$O%j%9%H(B
+\JP 加群多項式またはリスト
 \EG module polynomial or list
 @item dpoly1  dpoly2
-\JP $B2C72B?9`<0(B
+\JP 加群多項式
 \EG module polynomial
-\JP $BJ,;6I=8=B?9`<0(B
+\JP 分散表現多項式
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@var{dpoly1}, @var{dpoly2} $B$N(B S-$BB?9`<0$r7W;;$9$k(B. 
+@var{dpoly1}, @var{dpoly2} の S-多項式を計算する. 
 @item
-$B%*%W%7%g%s(B @var{coef=1} $B$,;XDj$5$l$F$$$k>l9g(B, @code{[S,t1,t2]} $B$J$k%j%9%H$rJV$9(B.
-$B$3$3$G(B, @code{t1}, @code{t2} $B$O(BS-$BB?9`<0$r:n$k:]$N78?tC19`<0$G(B @code{S=t1 dpoly1-t2 dpoly2}
-$B$rK~$?$9(B.
+オプション @var{coef=1} が指定されている場合, @code{[S,t1,t2]} なるリストを返す.
+ここで, @code{t1}, @code{t2} はS-多項式を作る際の係数単項式で @code{S=t1 dpoly1-t2 dpoly2}
+を満たす.
 \E
 \BEG
 @item
@@ -4433,7 +4445,184 @@ where @code{S} is the S-polynmial and @code{t1}, @code{t2} are monomials satisfy
 \E
 @end itemize
 
-\JP @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node dpm_schreyer_base,,, グレブナ基底に関する函数
+\EG @node dmp_schreyer_base,,, Functions for Groebner basis computation
+@subsection @code{dpm_schreyer_base}
+@findex dpm_schreyer_base
+
+@table @t
+@item dpm_schreyer_base(@var{G})
+\JP :: szygy 加群のグレブナー基底の計算
+\EG :: Computation of a Groebner basis of the syzygy module
+@end table
+
+@table @var
+@item return
+\JP 加群多項式リスト
+\EG list of module polynomials
+@item G
+\JP 加群多項式リスト
+\EG list of module polynomials
+@end table
+
+@itemize @bullet
+\BJP
+@item
+加群多項式で表された簡約グレブナー基底 @var{G} に対し, @var{syz(G)} の極小グレブナー基底を計算して返す.
+@item
+得られる結果は, @var{G} の先頭項から定まる Schreyer 順序に関するグレブナー基底である. 
+副作用として, この Schreyer 順序が自動的に設定される.
+\E
+\BEG
+@item
+This function computes a minimal Groebner basis of @var{syz(G)} for a Groenber basis @var{G}
+that is represented as a list of module polynomials.
+@item
+The result is a Groebner basis with respect to a Schreyer ordering determined by the leading terms of
+@var{G}. As a side effect, this Schreyer ordering is autoatically set.
+\E
+@end itemize
+
+\JP @node dpm_schreyer_frame,,, グレブナ基底に関する函数
+\EG @node dmp_schreyer_frame,,, Functions for Groebner basis computation
+@subsection @code{dpm_schreyer_frame}
+@findex dpm_schreyer_frame
+
+@table @t
+@item dpm_schreyer_frame(@var{G})
+\JP :: Schreyer フレームの計算
+\EG :: Computation of the Schreyer frame
+@end table
+
+@table @var
+@item return
+\JP 加群単項式リストのリスト
+\EG a list of lists of module monomials
+@item G
+\JP 加群多項式リスト
+\EG list of module polynomials
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@var{G} の先頭項からスタートして, Schreyer フレーム, すなわち Schreyer の自由分解に現れるグレブナー基底の,
+Schreyer 順序に関する先頭単項式を計算する.
+@item
+得られる結果は, 自由分解における F_i の標準基底の像の先頭単項式のリスト M_i のリスト
+[M_m,...,M_1] である.
+@item
+副作用として, 各レベルにおける Schreyer 順序を設定するためのデータが作られる. このデータは
+@code{dpm_set_schreyer_level} により, 各レベルの Schreyer 順序を設定する際に用いられる.
+\E
+\BEG
+@item
+This function computes the Schreyer frame starting from a Groebner basis @var{G}, that is the lists of leading monomials of Groebner bases
+of syzygy modules with respect to Schreyer orderings in the Schreyer free resolution.
+@item
+The result is a list @var{[Mm,...,M1]}, where @var{Mi} is the list of leading monomials of
+the images of standard bases of the free module @var{Fi} in the Schreyer free resolution.
+@item
+As a by-product, data for setting a Schreyer order in each level are created. The date are
+used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level.
+\E
+@end itemize
+
+\JP @node dpm_set_schreyer_level,,, グレブナ基底に関する函数
+\EG @node dmp_set_schreyer_level,,, Functions for Groebner basis computation
+@subsection @code{dpm_set_schreyer_level}
+@findex dpm_set_schreyer_level
+
+@table @t
+@item dpm_set_schreyer_level(@var{L})
+\JP :: 指定されたレベルの Schreyer ordering の設定
+\EG :: Setting the Schreyer ordering of a specified level
+@end table
+
+@table @var
+@item return
+\JP 非負整数
+\EG a non-negative integer
+@item G
+\JP 非負整数
+\EG a non-negative integer
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@var{G} の先頭項からスタートして, Schreyer フレーム, すなわち Schreyer の自由分解に現れるグレブナー基底の,
+Schreyer 順序に関する先頭単項式を計算する.
+@item
+得られる結果は, 自由分解における F_i の標準基底の像の先頭単項式のリスト M_i のリスト
+[M_m,...,M_1] である.
+@item
+副作用として, 各レベルにおける Schreyer 順序を設定するためのデータが作られる. このデータは
+@code{dpm_set_schreyer_level} により, 各レベルの Schreyer 順序を設定する際に用いられる.
+\E
+\BEG
+@item
+This function computes the Schreyer frame starting from a Groebner basis @var{G}, that is the lists of leading monomials of Groebner bases
+of syzygy modules with respect to Schreyer orderings in the Schreyer free resolution.
+@item
+The result is a list @var{[Mm,...,M1]}, where @var{Mi} is the list of leading monomials of
+the images of standard bases of the free module @var{Fi} in the Schreyer free resolution.
+@item
+As a by-product, data for setting a Schreyer order in each level are created. The date are
+used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level.
+\E
+@end itemize
+
+\JP @node dpm_sp_nf,,, グレブナ基底に関する函数
+\EG @node dmp_sp_nf,,, Functions for Groebner basis computation
+@subsection @code{dpm_sp_nf}
+@findex dpm_sp_nf
+
+@table @t
+@item dpm_sp_nf(@var{C},@var{Z},@var{P},@var{Q})
+\JP :: S-多項式を多項式配列で割った余りの計算
+\EG :: Computation of a remainder of an S-polynomial modulo a polynomial array
+@end table
+
+@table @var
+@item return
+\JP 加群単項式のリスト
+\EG a list of module monomials
+@item C
+\JP 加群多項式配列
+\EG an array of module polynomials
+@item Z
+\JP 整数リストの配列
+\EG an array of integer lists
+@item P
+@itemx Q
+\JP 整数
+\EG integers
+@end table
+
+@itemize @bullet
+\BJP
+@item
+C[P], C[Q] の S-多項式を C で割った余り f が
+ct C[P]-c't'C[Q]=g1C[1]+...+gLC[L]+f と表されるとき
+g'=ct e_P-c't' e_Q-(g1 e_1+...+gL e_L) に対し [g',f] を返す.
+@item
+配列 @var{Z} の第 I 成分は, 先頭項の位置が @var{I} であるような @var{C} の元の配列インデックスのリストである.
+\E
+\BEG
+@item
+When the remainder of the S-polynomial of @var{C[P]} and @var{C[Q]} modulo @var{C}
+is represented as @var{ct C[P]-c't'C[Q]=g1C[1]+...+gLC[L]+f},
+this function returns a list @var{[g',f]}, where @var{g'=ct eP-c't' eQ-(g1 e1+...+gL eL}.
+@item
+The @var{I}-th element of an array @var{Z} is a list of indices of elements of @var{C}
+whose leading position is @var{I}.
+\E
+@end itemize
+
+
+
+\JP @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, グレブナ基底に関する函数
 \EG @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, Functions for Groebner basis computation
 @subsection @code{p_nf}, @code{p_nf_mod}, @code{p_true_nf}, @code{p_true_nf_mod}
 @findex p_nf
@@ -4444,14 +4633,14 @@ where @code{S} is the S-polynmial and @code{t1}, @code{t2} are monomials satisfy
 @table @t
 @item p_nf(@var{poly},@var{plist},@var{vlist},@var{order})
 @itemx p_nf_mod(@var{poly},@var{plist},@var{vlist},@var{order},@var{mod})
-\JP :: $BI=8=B?9`<0$N@55,7A$r5a$a$k(B. ($B7k2L$ODj?tG\$5$l$F$$$k2DG=@-$"$j(B)
+\JP :: 表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
 \BEG
 :: Computes the normal form of the given polynomial. 
 (The result may be multiplied by a constant.)
 \E
 @item p_true_nf(@var{poly},@var{plist},@var{vlist},@var{order})
 @itemx p_true_nf_mod(@var{poly},@var{plist},@var{vlist},@var{order},@var{mod})
-\JP :: $BI=8=B?9`<0$N@55,7A$r5a$a$k(B. ($B??$N7k2L$r(B @code{[$BJ,;R(B, $BJ,Jl(B]} $B$N7A$GJV$9(B)
+\JP :: 表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
 \BEG
 :: Computes the normal form of the given polynomial. (The result is returned
 as a form of @code{[numerator, denominator]})
@@ -4460,44 +4649,44 @@ as a form of @code{[numerator, denominator]})
 
 @table @var
 @item return
-\JP @code{p_nf} : $BB?9`<0(B, @code{p_true_nf} : $B%j%9%H(B
+\JP @code{p_nf} : 多項式, @code{p_true_nf} : リスト
 \EG @code{p_nf} : polynomial, @code{p_true_nf} : list
 @item poly
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item plist vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item mod
-\JP $BAG?t(B
+\JP 素数
 \EG prime
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@samp{gr} $B$GDj5A$5$l$F$$$k(B. 
+@samp{gr} で定義されている. 
 @item
-$BB?9`<0$N(B, $BB?9`<0%j%9%H$K$h$k@55,7A$r5a$a$k(B. 
+多項式の, 多項式リストによる正規形を求める. 
 @item
 @code{dp_nf()}, @code{dp_true_nf()}, @code{dp_nf_mod()}, @code{dp_true_nf_mod}
-$B$KBP$9$k%$%s%?%U%'!<%9$G$"$k(B. 
+に対するインタフェースである. 
 @item
-@var{poly} $B$*$h$S(B @var{plist} $B$O(B, $BJQ?t=g=x(B @var{vlist} $B$*$h$S(B
-$BJQ?t=g=x7?(B @var{otype} $B$K=>$C$FJ,;6I=8=B?9`<0$KJQ49$5$l(B, 
+@var{poly} および @var{plist} は, 変数順序 @var{vlist} および
+変数順序型 @var{otype} に従って分散表現多項式に変換され, 
 @code{dp_nf()}, @code{dp_true_nf()}, @code{dp_nf_mod()},
-@code{dp_true_nf_mod()} $B$KEO$5$l$k(B. 
+@code{dp_true_nf_mod()} に渡される. 
 @item
 @code{dp_nf()}, @code{dp_true_nf()}, @code{dp_nf_mod()},
-@code{dp_true_nf_mod()} $B$O(B @var{fullreduce} $B$,(B 1 $B$G8F$S=P$5$l$k(B. 
+@code{dp_true_nf_mod()} は @var{fullreduce} が 1 で呼び出される. 
 @item
-$B7k2L$OB?9`<0$KJQ49$5$l$F=PNO$5$l$k(B. 
+結果は多項式に変換されて出力される. 
 @item
-@code{p_true_nf()}, @code{p_true_nf_mod()} $B$N=PNO$K4X$7$F$O(B,
-@code{dp_true_nf()}, @code{dp_true_nf_mod()} $B$N9`$r;2>H(B. 
+@code{p_true_nf()}, @code{p_true_nf_mod()} の出力に関しては,
+@code{dp_true_nf()}, @code{dp_true_nf_mod()} の項を参照. 
 \E
 \BEG
 @item
@@ -4537,7 +4726,7 @@ refer to @code{dp_true_nf()} and @code{dp_true_nf_mod()}.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_ptod},
 @fref{dp_dtop},
@@ -4545,43 +4734,43 @@ refer to @code{dp_true_nf()} and @code{dp_true_nf_mod()}.
 @fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod dp_weyl_nf dp_weyl_nf_mod}.
 @end table
 
-\JP @node p_terms,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node p_terms,,, グレブナ基底に関する函数
 \EG @node p_terms,,, Functions for Groebner basis computation
 @subsection @code{p_terms}
 @findex p_terms
 
 @table @t
 @item p_terms(@var{poly},@var{vlist},@var{order})
-\JP :: $BB?9`<0$K$"$i$o$l$kC19`$r%j%9%H$K$9$k(B. 
+\JP :: 多項式にあらわれる単項をリストにする. 
 \EG :: Monomials appearing in the given polynomial is collected into a list.
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item poly
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item vlist
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item order
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@samp{gr} $B$GDj5A$5$l$F$$$k(B. 
+@samp{gr} で定義されている. 
 @item
-$BB?9`<0$rC19`$KE83+$7$?;~$K8=$l$k9`$r%j%9%H$K$7$FJV$9(B.
-@var{vlist} $B$*$h$S(B @var{order} $B$K$h$jDj$^$k9`=g=x$K$h$j(B, $B=g=x$N9b$$$b$N(B
-$B$,%j%9%H$N@hF,$KMh$k$h$&$K%=!<%H$5$l$k(B. 
+多項式を単項に展開した時に現れる項をリストにして返す.
+@var{vlist} および @var{order} により定まる項順序により, 順序の高いもの
+がリストの先頭に来るようにソートされる. 
 @item
-$B%0%l%V%J4pDl$O$7$P$7$P78?t$,5pBg$K$J$k$?$a(B, $B<B:]$K$I$N9`$,8=$l$F(B
-$B$$$k$N$+$r8+$k$?$a$J$I$KMQ$$$k(B. 
+グレブナ基底はしばしば係数が巨大になるため, 実際にどの項が現れて
+いるのかを見るためなどに用いる. 
 \E
 \BEG
 @item
@@ -4606,19 +4795,19 @@ u0^21,u0^20,u0^19,u0^18,u0^17,u0^16,u0^15,u0^14,u0^13,u0^12,u0^11,
 u0^10,u0^9,u0^8,u0^7,u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @end example
 
-\JP @node gb_comp,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node gb_comp,,, グレブナ基底に関する函数
 \EG @node gb_comp,,, Functions for Groebner basis computation
 @subsection @code{gb_comp}
 @findex gb_comp
 
 @table @t
 @item gb_comp(@var{plist1}, @var{plist2})
-\JP :: $BB?9`<0%j%9%H$,(B, $BId9f$r=|$$$F=89g$H$7$FEy$7$$$+$I$&$+D4$Y$k(B. 
+\JP :: 多項式リストが, 符号を除いて集合として等しいかどうか調べる. 
 \EG :: Checks whether two polynomial lists are equal or not as a set
 @end table
 
 @table @var
-\JP @item return 0 $B$^$?$O(B 1
+\JP @item return 0 または 1
 \EG @item return 0 or 1
 @item plist1  plist2
 @end table
@@ -4626,11 +4815,11 @@ u0^10,u0^9,u0^8,u0^7,u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @itemize @bullet
 \BJP
 @item
-@var{plist1}, @var{plist2} $B$K$D$$$F(B, $BId9f$r=|$$$F=89g$H$7$FEy$7$$$+$I$&$+(B
-$BD4$Y$k(B. 
+@var{plist1}, @var{plist2} について, 符号を除いて集合として等しいかどうか
+調べる. 
 @item
-$B0[$J$kJ}K!$G5a$a$?%0%l%V%J4pDl$O(B, $B4pDl$N=g=x(B, $BId9f$,0[$J$k>l9g$,$"$j(B, 
-$B$=$l$i$,Ey$7$$$+$I$&$+$rD4$Y$k$?$a$KMQ$$$k(B. 
+異なる方法で求めたグレブナ基底は, 基底の順序, 符号が異なる場合があり, 
+それらが等しいかどうかを調べるために用いる. 
 \E
 \BEG
 @item
@@ -4654,7 +4843,7 @@ as a generating set of an ideal.
 1
 @end example
 
-\JP @node katsura hkatsura cyclic hcyclic,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node katsura hkatsura cyclic hcyclic,,, グレブナ基底に関する函数
 \EG @node katsura hkatsura cyclic hcyclic,,, Functions for Groebner basis computation
 @subsection @code{katsura}, @code{hkatsura}, @code{cyclic}, @code{hcyclic}
 @findex katsura
@@ -4667,30 +4856,30 @@ as a generating set of an ideal.
 @item hkatsura(@var{n})
 @item cyclic(@var{n})
 @item hcyclic(@var{n})
-\JP :: $BB?9`<0%j%9%H$N@8@.(B
+\JP :: 多項式リストの生成
 \EG :: Generates a polynomial list of standard benchmark.
 @end table
 
 @table @var
 @item return
-\JP $B%j%9%H(B
+\JP リスト
 \EG list
 @item n
-\JP $B@0?t(B
+\JP 整数
 \EG integer
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{katsura()} $B$O(B @samp{katsura}, @code{cyclic()} $B$O(B @samp{cyclic}
-$B$GDj5A$5$l$F$$$k(B. 
+@code{katsura()} は @samp{katsura}, @code{cyclic()} は @samp{cyclic}
+で定義されている. 
 @item
-$B%0%l%V%J4pDl7W;;$G$7$P$7$P%F%9%H(B, $B%Y%s%A%^!<%/$KMQ$$$i$l$k(B @code{katsura}, 
-@code{cyclic} $B$*$h$S$=$N@F<!2=$r@8@.$9$k(B. 
+グレブナ基底計算でしばしばテスト, ベンチマークに用いられる @code{katsura}, 
+@code{cyclic} およびその斉次化を生成する. 
 @item
-@code{cyclic} $B$O(B @code{Arnborg}, @code{Lazard}, @code{Davenport} $B$J$I$N(B
-$BL>$G8F$P$l$k$3$H$b$"$k(B. 
+@code{cyclic} は @code{Arnborg}, @code{Lazard}, @code{Davenport} などの
+名で呼ばれることもある. 
 \E
 \BEG
 @item
@@ -4735,12 +4924,12 @@ u0^2-u0+2*u4^2+2*u3^2+2*u2^2+2*u1^2+2*u5^2]
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{dp_dtop}.
 @end table
 
-\JP @node primadec primedec,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node primadec primedec,,, グレブナ基底に関する函数
 \EG @node primadec primedec,,, Functions for Groebner basis computation
 @subsection @code{primadec}, @code{primedec}
 @findex primadec
@@ -4749,46 +4938,51 @@ u0^2-u0+2*u4^2+2*u3^2+2*u2^2+2*u1^2+2*u5^2]
 @table @t
 @item primadec(@var{plist},@var{vlist})
 @item primedec(@var{plist},@var{vlist})
-\JP :: $B%$%G%"%k$NJ,2r(B
+\JP :: イデアルの分解
 \EG :: Computes decompositions of ideals.
 @end table
 
 @table @var
 @item return
 @itemx plist
-\JP $BB?9`<0%j%9%H(B
+\JP 多項式リスト
 \EG list of polynomials
 @item vlist
-\JP $BJQ?t%j%9%H(B
+\JP 変数リスト
 \EG list of variables
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{primadec()}, @code{primedec} $B$O(B @samp{primdec} $B$GDj5A$5$l$F$$$k(B.
+ここで解説されているイデアル分解については, 新しいパッケージ @samp{noro_pd.rr} 
+においてより高速な実装が利用できる.
 @item
-@code{primadec()}, @code{primedec()} $B$O$=$l$>$lM-M}?tBN>e$G$N%$%G%"%k$N(B
-$B=`AGJ,2r(B, $B:,4p$NAG%$%G%"%kJ,2r$r9T$&(B.
+@code{primadec()}, @code{primedec} は @samp{primdec} で定義されている.
 @item
-$B0z?t$OB?9`<0%j%9%H$*$h$SJQ?t%j%9%H$G$"$k(B. $BB?9`<0$OM-M}?t78?t$N$_$,5v$5$l$k(B. 
+@code{primadec()}, @code{primedec()} はそれぞれ有理数体上でのイデアルの
+準素分解, 根基の素イデアル分解を行う.
 @item
-@code{primadec} $B$O(B @code{[$B=`AG@.J,(B, $BIUB0AG%$%G%"%k(B]} $B$N%j%9%H$rJV$9(B. 
+引数は多項式リストおよび変数リストである. 多項式は有理数係数のみが許される. 
 @item
-@code{primadec} $B$O(B $BAG0x;R$N%j%9%H$rJV$9(B. 
+@code{primadec} は @code{[準素成分, 付属素イデアル]} のリストを返す. 
 @item
-$B7k2L$K$*$$$F(B, $BB?9`<0%j%9%H$H$7$FI=<($5$l$F$$$k3F%$%G%"%k$OA4$F(B
-$B%0%l%V%J4pDl$G$"$k(B. $BBP1~$9$k9`=g=x$O(B, $B$=$l$>$l(B 
-$BJQ?t(B @code{PRIMAORD}, @code{PRIMEORD} $B$K3JG<$5$l$F$$$k(B. 
+@code{primadec} は 素因子のリストを返す. 
 @item
-@code{primadec} $B$O(B @code{[Shimoyama,Yokoyama]} $B$N=`AGJ,2r%"%k%4%j%:%`(B
-$B$r<BAu$7$F$$$k(B. 
+結果において, 多項式リストとして表示されている各イデアルは全て
+グレブナ基底である. 対応する項順序は, それぞれ 
+変数 @code{PRIMAORD}, @code{PRIMEORD} に格納されている. 
 @item
-$B$b$7AG0x;R$N$_$r5a$a$?$$$J$i(B, @code{primedec} $B$r;H$&J}$,$h$$(B. 
-$B$3$l$O(B, $BF~NO%$%G%"%k$,:,4p%$%G%"%k$G$J$$>l9g$K(B, @code{primadec}
-$B$N7W;;$KM>J,$J%3%9%H$,I,MW$H$J$k>l9g$,$"$k$+$i$G$"$k(B. 
+@code{primadec} は @code{[Shimoyama,Yokoyama]} の準素分解アルゴリズム
+を実装している. 
+@item
+もし素因子のみを求めたいなら, @code{primedec} を使う方がよい. 
+これは, 入力イデアルが根基イデアルでない場合に, @code{primadec}
+の計算に余分なコストが必要となる場合があるからである. 
 \E
 \BEG
+@item
+A new package @samp{noro_pd.rr} provides more efficient functions for ideal decomposition.
 @item
 Function @code{primadec()} and @code{primedec} are defined in @samp{primdec}.
 @item
@@ -4828,66 +5022,66 @@ if an input ideal is not radical.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{fctr sqfr},
-\JP @fref{$B9`=g=x$N@_Dj(B}.
+\JP @fref{項順序の設定}.
 \EG @fref{Setting term orderings}.
 @end table
 
-\JP @node primedec_mod,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node primedec_mod,,, グレブナ基底に関する函数
 \EG @node primedec_mod,,, Functions for Groebner basis computation
 @subsection @code{primedec_mod}
 @findex primedec_mod
 
 @table @t
 @item primedec_mod(@var{plist},@var{vlist},@var{ord},@var{mod},@var{strategy})
-\JP :: $B%$%G%"%k$NJ,2r(B
+\JP :: イデアルの分解
 \EG :: Computes decompositions of ideals over small finite fields.
 @end table
 
 @table @var
 @item return
 @itemx plist
-\JP $BB?9`<0%j%9%H(B
+\JP 多項式リスト
 \EG list of polynomials
 @item vlist
-\JP $BJQ?t%j%9%H(B
+\JP 変数リスト
 \EG list of variables
 @item ord
-\JP $B?t(B, $B%j%9%H$^$?$O9TNs(B
+\JP 数, リストまたは行列
 \EG number, list or matrix
 @item mod
-\JP $B@5@0?t(B
+\JP 正整数
 \EG positive integer
 @item strategy
-\JP $B@0?t(B
+\JP 整数
 \EG integer
 @end table
 
 @itemize @bullet
 \BJP
 @item
-@code{primedec_mod()} $B$O(B @samp{primdec_mod}
-$B$GDj5A$5$l$F$$$k(B. @code{[Yokoyama]} $B$NAG%$%G%"%kJ,2r%"%k%4%j%:%`(B
-$B$r<BAu$7$F$$$k(B. 
+@code{primedec_mod()} は @samp{primdec_mod}
+で定義されている. @code{[Yokoyama]} の素イデアル分解アルゴリズム
+を実装している. 
 @item
-@code{primedec_mod()} $B$OM-8BBN>e$G$N%$%G%"%k$N(B
-$B:,4p$NAG%$%G%"%kJ,2r$r9T$$(B, $BAG%$%G%"%k$N%j%9%H$rJV$9(B. 
+@code{primedec_mod()} は有限体上でのイデアルの
+根基の素イデアル分解を行い, 素イデアルのリストを返す. 
 @item
-@code{primedec_mod()} $B$O(B, GF(@var{mod}) $B>e$G$NJ,2r$rM?$($k(B. 
-$B7k2L$N3F@.J,$N@8@.85$O(B, $B@0?t78?tB?9`<0$G$"$k(B. 
+@code{primedec_mod()} は, GF(@var{mod}) 上での分解を与える. 
+結果の各成分の生成元は, 整数係数多項式である. 
 @item
-$B7k2L$K$*$$$F(B, $BB?9`<0%j%9%H$H$7$FI=<($5$l$F$$$k3F%$%G%"%k$OA4$F(B
-[@var{vlist},@var{ord}] $B$G;XDj$5$l$k9`=g=x$K4X$9$k%0%l%V%J4pDl$G$"$k(B.
+結果において, 多項式リストとして表示されている各イデアルは全て
+[@var{vlist},@var{ord}] で指定される項順序に関するグレブナ基底である.
 @item
-@var{strategy} $B$,(B 0 $B$G$J$$$H$-(B, incremental $B$K(B component $B$N6&DL(B
-$BItJ,$r7W;;$9$k$3$H$K$h$k(B early termination $B$r9T$&(B. $B0lHL$K(B, 
-$B%$%G%"%k$N<!85$,9b$$>l9g$KM-8z$@$,(B, 0 $B<!85$N>l9g$J$I(B, $B<!85$,>.$5$$(B
-$B>l9g$K$O(B overhead $B$,Bg$-$$>l9g$,$"$k(B. 
+@var{strategy} が 0 でないとき, incremental に component の共通
+部分を計算することによる early termination を行う. 一般に, 
+イデアルの次元が高い場合に有効だが, 0 次元の場合など, 次元が小さい
+場合には overhead が大きい場合がある. 
 @item
-$B7W;;ESCf$GFbIt>pJs$r8+$?$$>l9g$K$O!"(B
-$BA0$b$C$F(B @code{dp_gr_print(2)} $B$r<B9T$7$F$*$1$P$h$$(B.
+計算途中で内部情報を見たい場合には、
+前もって @code{dp_gr_print(2)} を実行しておけばよい.
 \E
 \BEG
 @item
@@ -4931,16 +5125,16 @@ execute @code{dp_gr_print(2)} in advance.
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
 @fref{modfctr},
 @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
-\JP @fref{$B9`=g=x$N@_Dj(B}.
+\JP @fref{項順序の設定}.
 \EG @fref{Setting term orderings},
 @fref{dp_gr_flags dp_gr_print}.
 @end table
 
-\JP @node bfunction bfct generic_bfct ann ann0,,, $B%0%l%V%J4pDl$K4X$9$kH!?t(B
+\JP @node bfunction bfct generic_bfct ann ann0,,, グレブナ基底に関する函数
 \EG @node bfunction bfct generic_bfct ann ann0,,, Functions for Groebner basis computation
 @subsection @code{bfunction}, @code{bfct}, @code{generic_bfct}, @code{ann}, @code{ann0}
 @findex bfunction
@@ -4953,49 +5147,49 @@ execute @code{dp_gr_print(2)} in advance.
 @item bfunction(@var{f})
 @itemx bfct(@var{f})
 @itemx generic_bfct(@var{plist},@var{vlist},@var{dvlist},@var{weight})
-\JP :: @var{b} $B4X?t$N7W;;(B
+\JP :: @var{b} 関数の計算
 \EG :: Computes the global @var{b} function of a polynomial or an ideal
 @item ann(@var{f})
 @itemx ann0(@var{f})
-\JP :: $BB?9`<0$N%Y%-$N(B annihilator $B$N7W;;(B
+\JP :: 多項式のベキの annihilator の計算
 \EG :: Computes the annihilator of a power of polynomial
 @end table
 
 @table @var
 @item return
-\JP $BB?9`<0$^$?$O%j%9%H(B
+\JP 多項式またはリスト
 \EG polynomial or list
 @item f
-\JP $BB?9`<0(B
+\JP 多項式
 \EG polynomial
 @item plist
-\JP $BB?9`<0%j%9%H(B
+\JP 多項式リスト
 \EG list of polynomials
 @item vlist dvlist
-\JP $BJQ?t%j%9%H(B
+\JP 変数リスト
 \EG list of variables
 @end table
 
 @itemize @bullet
 \BJP
-@item @samp{bfct} $B$GDj5A$5$l$F$$$k(B. 
-@item @code{bfunction(@var{f})}, @code{bfct(@var{f})} $B$OB?9`<0(B @var{f} $B$N(B global @var{b} $B4X?t(B @code{b(s)} $B$r(B
-$B7W;;$9$k(B. @code{b(s)} $B$O(B, Weyl $BBe?t(B @code{D} $B>e$N0lJQ?tB?9`<04D(B @code{D[s]}
-$B$N85(B @code{P(x,s)} $B$,B8:_$7$F(B, @code{P(x,s)f^(s+1)=b(s)f^s} $B$rK~$?$9$h$&$J(B
-$BB?9`<0(B @code{b(s)} $B$NCf$G(B, $B<!?t$,:G$bDc$$$b$N$G$"$k(B. 
+@item @samp{bfct} で定義されている. 
+@item @code{bfunction(@var{f})}, @code{bfct(@var{f})} は多項式 @var{f} の global @var{b} 関数 @code{b(s)} を
+計算する. @code{b(s)} は, Weyl 代数 @code{D} 上の一変数多項式環 @code{D[s]}
+の元 @code{P(x,s)} が存在して, @code{P(x,s)f^(s+1)=b(s)f^s} を満たすような
+多項式 @code{b(s)} の中で, 次数が最も低いものである. 
 @item @code{generic_bfct(@var{f},@var{vlist},@var{dvlist},@var{weight})}
-$B$O(B, @var{plist} $B$G@8@.$5$l$k(B @code{D} $B$N:8%$%G%"%k(B @code{I} $B$N(B, 
-$B%&%'%$%H(B @var{weight} $B$K4X$9$k(B global @var{b} $B4X?t$r7W;;$9$k(B. 
-@var{vlist} $B$O(B @code{x}-$BJQ?t(B, @var{vlist} $B$OBP1~$9$k(B @code{D}-$BJQ?t(B
-$B$r=g$KJB$Y$k(B. 
-@item @code{bfunction} $B$H(B @code{bfct} $B$G$OMQ$$$F$$$k%"%k%4%j%:%`$,(B
-$B0[$J$k(B. $B$I$A$i$,9bB.$+$OF~NO$K$h$k(B.
-@item @code{ann(@var{f})} $B$O(B, @code{@var{f}^s} $B$N(B annihilator ideal
-$B$N@8@.7O$rJV$9(B. @code{ann(@var{f})} $B$O(B, @code{[@var{a},@var{list}]}
-$B$J$k%j%9%H$rJV$9(B. $B$3$3$G(B, @var{a} $B$O(B @var{f} $B$N(B @var{b} $B4X?t$N:G>.@0?t:,(B,
-@var{list} $B$O(B @code{ann(@var{f})} $B$N7k2L$N(B @code{s}$ $B$K(B, @var{a} $B$r(B
-$BBeF~$7$?$b$N$G$"$k(B.
-@item $B>\:Y$K$D$$$F$O(B, [Saito,Sturmfels,Takayama] $B$r8+$h(B. 
+は, @var{plist} で生成される @code{D} の左イデアル @code{I} の, 
+ウェイト @var{weight} に関する global @var{b} 関数を計算する. 
+@var{vlist} は @code{x}-変数, @var{vlist} は対応する @code{D}-変数
+を順に並べる. 
+@item @code{bfunction} と @code{bfct} では用いているアルゴリズムが
+異なる. どちらが高速かは入力による.
+@item @code{ann(@var{f})} は, @code{@var{f}^s} の annihilator ideal
+の生成系を返す. @code{ann(@var{f})} は, @code{[@var{a},@var{list}]}
+なるリストを返す. ここで, @var{a} は @var{f} の @var{b} 関数の最小整数根,
+@var{list} は @code{ann(@var{f})} の結果の @code{s}$ に, @var{a} を
+代入したものである.
+@item 詳細については, [Saito,Sturmfels,Takayama] を見よ. 
 \E
 \BEG
 @item These functions are defined in @samp{bfct}.
@@ -5040,9 +5234,9 @@ x*y*dt+5*z^4*dt+dz,-x^4-z*y*x-y^4-z^5+t]$
 @end example
 
 @table @t
-\JP @item $B;2>H(B
+\JP @item 参照
 \EG @item References
-\JP @fref{Weyl $BBe?t(B}.
+\JP @fref{Weyl 代数}.
 \EG @fref{Weyl algebra}.
 @end table
 
