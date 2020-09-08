@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.24 2020/09/01 09:25:32 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.25 2020/09/07 05:16:41 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -75,11 +75,11 @@ representation, it is called the `recursive representation.'
 \EG $(x+y+z)^2 = 1 \cdot x^2 + (2 \cdot y + (2 \cdot z)) \cdot x + ((2 \cdot z) \cdot y + (1 \cdot z^2 ))$
 @end tex
 @end iftex
-@ifinfo
+@ifnottex
 @example
 (x+y+z)^2 = 1 x^2 + (2 y + (2 z)) x + ((2 z) y + (1 z^2 ))
 @end example
-@end ifinfo
+@end ifnottex
 
 @noindent
 \BJP
@@ -103,11 +103,11 @@ something strange.)
 \EG $(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1 \cdot z^2$
 @end tex
 @end iftex
-@ifinfo
+@ifnottex
 @example
 (x+y+z)^2 = 1 x^2 + 2 xy + 2 xz + 1 y^2 + 2 yz +1 z^2$
 @end example
-@end ifinfo
+@end ifnottex
 
 @noindent
 \BJP
@@ -4509,8 +4509,8 @@ The result is a Groebner basis with respect to a Schreyer ordering determined by
 @var{G} の先頭項からスタートして, Schreyer フレーム, すなわち Schreyer の自由分解に現れるグレブナー基底の,
 Schreyer 順序に関する先頭単項式を計算する.
 @item
-得られる結果は, 自由分解における F_i の標準基底の像の先頭単項式のリスト M_i のリスト
-[M_m,...,M_1] である.
+得られる結果は, 自由分解における @var{F}_i の標準基底の像の先頭単項式のリスト @var{M}_i のリスト
+[@var{M}_m,...,@var{M}_1] である.
 @item
 副作用として, 各レベルにおける Schreyer 順序を設定するためのデータが作られる. このデータは
 @code{dpm_set_schreyer_level} により, 各レベルの Schreyer 順序を設定する際に用いられる.
@@ -4520,8 +4520,8 @@ Schreyer 順序に関する先頭単項式を計算する.
 This function computes the Schreyer frame starting from a Groebner basis @var{G}, that is the lists of leading monomials of Groebner bases
 of syzygy modules with respect to Schreyer orderings in the Schreyer free resolution.
 @item
-The result is a list @var{[Mm,...,M1]}, where @var{Mi} is the list of leading monomials of
-the images of standard bases of the free module @var{Fi} in the Schreyer free resolution.
+The result is a list [@var{M}_m,...,@var{M}_1], where @var{M}_i is the list of leading monomials of
+the images of standard bases of the free module @var{F}_i in the Schreyer free resolution.
 @item
 As a by-product, data for setting a Schreyer order in each level are created. The date are
 used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level.
@@ -4554,8 +4554,8 @@ used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level
 @var{G} の先頭項からスタートして, Schreyer フレーム, すなわち Schreyer の自由分解に現れるグレブナー基底の,
 Schreyer 順序に関する先頭単項式を計算する.
 @item
-得られる結果は, 自由分解における F_i の標準基底の像の先頭単項式のリスト M_i のリスト
-[M_m,...,M_1] である.
+得られる結果は, 自由分解における @var{F}_i の標準基底の像の先頭単項式のリスト @var{M}_i のリスト
+[@var{M}_m,...,@var{M}_1] である.
 @item
 副作用として, 各レベルにおける Schreyer 順序を設定するためのデータが作られる. このデータは
 @code{dpm_set_schreyer_level} により, 各レベルの Schreyer 順序を設定する際に用いられる.
@@ -4565,8 +4565,8 @@ Schreyer 順序に関する先頭単項式を計算する.
 This function computes the Schreyer frame starting from a Groebner basis @var{G}, that is the lists of leading monomials of Groebner bases
 of syzygy modules with respect to Schreyer orderings in the Schreyer free resolution.
 @item
-The result is a list @var{[Mm,...,M1]}, where @var{Mi} is the list of leading monomials of
-the images of standard bases of the free module @var{Fi} in the Schreyer free resolution.
+The result is a list [@var{M}_m,...,@var{M}_1], where @var{M}_i is the list of leading monomials of
+the images of standard bases of the free module @var{F}_i in the Schreyer free resolution.
 @item
 As a by-product, data for setting a Schreyer order in each level are created. The date are
 used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level.
@@ -4603,17 +4603,57 @@ used by @code{dpm_set_schreyer_level} for setting a Schreyer order in each level
 @itemize @bullet
 \BJP
 @item
-C[P], C[Q] の S-多項式を C で割った余り f が
-ct C[P]-c't'C[Q]=g1C[1]+...+gLC[L]+f と表されるとき
-g'=ct e_P-c't' e_Q-(g1 e_1+...+gL e_L) に対し [g',f] を返す.
+@iftex
+@var{C[P]}, @var{C[Q]} の S-多項式を C で割った余り f が
+@tex
+$$ct C[P]-c't'C[Q]=g_1C[1]+\cdots+g_LC[L]+f$$
+@end tex
+と表されるとき
+@tex
+$$g'=ct e_P-c't' e_Q-(g_1 e_1+...+g_L e_L)$$
+@end tex
+に対し
+@tex
+[g',f]
+@end tex
+を返す.
+@end iftex
+@ifnottex
+@var{C[P]}, @var{C[Q]} の S-多項式を C で割った余り f が
+ct @var{C[P]}-c't'@var{C[Q]}=g_1@var{C[1]}+...+g_L@var{C[L]}+f
+と表されるとき
+g'=ct e_P-c't' e_Q-(g_1 e_1+...+g_L e_L)
+に対し
+[g',f]
+を返す.
+@end ifnottex
 @item
 配列 @var{Z} の第 I 成分は, 先頭項の位置が @var{I} であるような @var{C} の元の配列インデックスのリストである.
 \E
 \BEG
 @item
+@iftex
 When the remainder of the S-polynomial of @var{C[P]} and @var{C[Q]} modulo @var{C}
-is represented as @var{ct C[P]-c't'C[Q]=g1C[1]+...+gLC[L]+f},
-this function returns a list @var{[g',f]}, where @var{g'=ct eP-c't' eQ-(g1 e1+...+gL eL}.
+is represented as 
+@tex
+$$ct C[P]-c't'C[Q]=g_1C[1]+\cdots+g_LC[L]+f$$
+@end tex
+this function returns a list 
+@tex
+[g',f],
+@end tex
+where 
+@tex
+$$g'=ct e_P-c't' e_Q-(g_1 e_1+...+g_L e_L).$$
+@end tex
+@end iftex
+@ifnottex
+When the remainder of the S-polynomial of @var{C[P]} and @var{C[Q]} modulo @var{C}
+is represented as 
+ct @var{C[P]}-c't'@var{C[Q]}=g_1@var{C[1]}+...+g_L@var{C[L]}+f,
+this function returns a list [g',f], where 
+g'=ct eP-c't' eQ-(g_1 e1+...+gL e_L).
+@end ifnottex
 @item
 The @var{I}-th element of an array @var{Z} is a list of indices of elements of @var{C}
 whose leading position is @var{I}.

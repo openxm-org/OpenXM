@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_module_syz/noro_module_syz-ja.texi,v 1.3 2017/03/30 06:16:36 takayama Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_module_syz/noro_module_syz-ja.texi,v 1.4 2017/08/31 06:31:47 takayama Exp $
 %comment --- おまじない ---
 \input texinfo-ja
 @iftex
@@ -39,8 +39,8 @@
 @comment --- タイトル, バージョン, 著者名, 著作権表示 ---
 @title noro_module_syz
 @subtitle noro_module_syz User's Manual
-@subtitle Edition 1.0
-@subtitle Aug 2016
+@subtitle Edition 2.0
+@subtitle Sep 2020
 
 @author  by Masayuki Noro
 @page
@@ -70,6 +70,7 @@ Copyright @copyright{} Masayuki Noro
 @chapter noro_module_syz.rr 
 @comment --- section 名を正確に並べる ---
 @menu
+* 多項式環上の加群::
 * 加群の syzygy::
 * 加群の自由分解::
 @end menu
@@ -91,6 +92,44 @@ Copyright @copyright{} Masayuki Noro
 @comment --- @b{} はボールド表示 ---
 @comment --- @samp{} はファイル名などの表示 ---
 
+@node 多項式環上の加群,,, noro_module_syz.rr
+@section 多項式環上の加群
+
+多項式環上の自由加群の元は, 加群単項式 te_i の線型和として内部表現される.
+ここで t は多項式環の単項式, e_i は自由加群の標準基底である. 加群単項式は, 多項式環の単項式
+に位置 i を追加した @code{<<a,b,...,c:i>>} で表す. 加群多項式, すなわち加群単項式の線型和は,
+設定されている加群項順序にしたがって降順に整列される. 加群項順序には以下の3種類がある.
+
+@table @code
+@item TOP 順序
+
+これは, te_i > se_j となるのは t>s または (t=s かつ i<j) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う.
+この型の順序は, @code{dp_ord([0,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
+
+@item POT 順序
+
+これは, te_i > se_j となるのは i<j または (i=j かつ t>s) となるような項順序である. ここで,
+t, s の比較は多項式環に設定されている順序で行う.
+この型の順序は, @code{dp_ord([1,Ord])} に
+より設定する. ここで, @code{Ord} は多項式環の順序型である.
+
+@item Schreyer 型順序
+
+各標準基底 e_i に対し, 別の自由加群の加群単項式 T_i が与えられていて, te_i > se_j となるのは
+tT_i > sT_j または (tT_i=sT_j かつ i<j) となるような項順序である. ここで tT_i, sT_j の
+比較は, これらが所属する自由加群に設定されている順序で行う.
+この型の順序は, 通常再帰的に設定される. すなわち, T_i が所属する自由加群の順序も Schreyer 型
+であるか, またはボトムとなる TOP, POT などの項順序となる.
+この型の順序は @code{dpm_set_schreyer([H_1,H_2,...])} により指定する. ここで,
+@code{H_i=[T_1,T_2,...]} は加群単項式のリストで, @code{[H_2,...]} で定義される Schreyer 型項順序を
+@code{tT_i} らに適用するという意味である.
+@end table
+
+加群多項式を入力する方法としては, @code{<<a,b,...:i>>} なる形式で直接入力する他に,
+多項式リストを作り, @code{dpm_ltod()} により変換する方法もある.
+
 @node 加群の syzygy,,, noro_module_syz.rr
 @section 加群の syzygy
 
@@ -104,13 +143,13 @@ Copyright @copyright{} Masayuki Noro
 @findex newsyz.module_syz
 
 @table @t
-@item newsyz.module_syz(@var{f},@var{v},@var{h},@var{O}[|@var{weyl=1}])
+@item newsyz.module_syz(@var{f},@var{v},@var{h},@var{O}[|weyl=1,dp=1,f4=1])
 syzygy の生成系 (グレブナー基底) を計算する.
 @end table
 
 @table @var
 @item return
-または多項式リストのリスト
+要素が3つのリスト, 各要素は多項式リストまたは加群多項式のリスト
 
 @item f
 多項式リスト, または多項式リストのリスト
@@ -129,32 +168,81 @@ syzygy の生成系 (グレブナー基底) を計算する.
 満たす多項式ベクトル @var{(h1,...,hm)} 全体のなす加群のグレブナー基底を
 計算する.
 @item @var{fi} が多項式リストの場合, 自然に多項式ベクトルと見なす.
-@item 与えられた項順序 @var{O} に対し, 加群の項順序 @var{[1,O]} すなわち
-@var{O} で定まる POT (position over term) 項順序でのグレブナー基底を
-結果として返す.
+@item 返される結果は @var{[S,G,C]} の形のリストである. ここで 
+@var{S}は,
+与えられた項順序 @var{O} に対し, 加群の項順序 @var{[1,O]} すなわち
+@var{O} で定まる POT (position over term) 項順序でのグレブナー基底である.
+@var{G}は, 入力加群のPOT 項順序でのグレブナー基底である.
+@var{C}は, 入力生成系から@var{G}の各元を生成する係数リストのリストである.
+
 @item @var{h} が 0 のとき有理数体上で trace アルゴリズムにより計算する.
 @var{h} が 1 のとき有理数体上で斉次化 trace アルゴリズムにより計算する.
 @var{h} が 2 以上の素数のとき有限体上で計算する.
-オプション @var{weyl} が 1 のとき Weyl 代数上で, 左イデアル (左加群) として計算する.
+
+@item オプション @var{f4} が 1 のとき, F4 アルゴリズムにより計算する.
+@item オプション @var{weyl} が 1 のとき Weyl 代数上で, 左イデアル (左加群) として計算する.
+@item オプション @var{dp}l が 1 のとき, 返される結果は, 加群の要素を表す
+多項式リストの代わりに加群単項式が用いられる.
 @end itemize
 
 @example
-afo
+[0] load("noro_module_syz.rr")$
+[43] load("cyclic")$
+[53] F=cyclic(4);
+[c3*c2*c1*c0-1,((c2+c3)*c1+c3*c2)*c0+c3*c2*c1,(c1+c3)*c0+c2*c1+c3*c2,
+c0+c1+c2+c3]
+[54] V=[c0,c1,c2,c3]$
+[55] L=newsyz.module_syz(F,V,0,0)$
+[56] L[0];
+[[(-c2^2+c3^2)*c1-c3*c2^2+c3^3,-c3^2*c2^2+1,(c3*c2^3-c3^3*c2)*c1+...],
+...,[0,0,c0+c1+c2+c3,(-c1-c3)*c0-c2*c1-c3*c2]]
+[57] L[1];
+[[(-c2+c3)*c1-c3^4*c2^2-c3*c2+2*c3^2],[-c3^2*c2^3-c3^3*c2^2+c2+c3],
+...,[c1^2+2*c3*c1+c3^2],[c0+c1+c2+c3]]
+[58] L[2];
+[[(c2-c3)*c1+c3*c2-2*c3^2,c3^2*c2,(-c3*c2^2+c3^2*c2)*c1-c3*c2^3,...],
+...,[0,0,-1,c1+c3],[0,0,0,1]]
+[59] C0=L[2][0];
+[(c2-c3)*c1+c3*c2-2*c3^2,c3^2*c2,(-c3*c2^2+c3^2*c2)*c1-c3*c2^3,
+(c3*c2^3-c3^2*c2^2)*c1+c3^2*c2^3-c3^3*c2^2]
+[60] L[1][0][0]-(C0[0]*F[0]+C0[1]*F[1]+C0[2]*F[2]+C0[3]*F[3]);
+0
+[61] M=newsuz.modules_syz(F,V,0,0dp=1)$
+[62] M[0];
+[(-1)*<<0,1,2,0:1>>+(-1)*<<0,0,2,1:1>>+(1)*<<0,1,0,2:1>>+...,
+...,(1)*<<1,0,0,0:3>>+(1)*<<0,1,0,0:3>>+(1)*<<0,0,1,0:3>>+
+...+(-1)*<<0,1,1,0:4>>+(-1)*<<1,0,0,1:4>>+(-1)*<<0,0,1,1:4>>]
 @end example
 
 @node 加群の自由分解,,, noro_module_syz.rr
 @section 加群の自由分解
 
 @menu
-* newsyz.module_minres::
+* newsyz.fres newsyz.minres::
+* newsyz.lres newsyz.sres newsyz.minsres::
 @end menu
 
-@node newsyz.module_minres,,,加群の自由分解
-@subsection @code{newsyz.module_minres}
-@findex newsyz.module_minres
+R を多項式環とし. F_i を R 上の自由加群, n_i を F_i のランクとする.
+本節の関数は, F_0 の部分加群 I に対し, F_0/I の自由分解
+@iftex
+@tex
+$$0\to F_l\to \cdots \to F_0 \to F_0/I \to 0$$
+@end tex
+@end iftex
+@ifnottex
+0->F_l->...->F_0->F_0/I->0
+@end ifnottex
+を与える関数について解説する.
+この自由分解において phi_i:F_i->F_(i-1) とする.
+
+@node newsyz.fres newsyz.minres,,,加群の自由分解
+@subsection @code{newsyz.fres}, @code{newsyz.minres}
+@findex newsyz.fres
+@findex newsyz.minres
 
 @table @t
-@item newsyz.module_syz(@var{f},@var{v},@var{h},@var{O}[|@var{weyl=1}])
+@item newsyz.fres(@var{f},@var{v},@var{h},@var{O}[|weyl=1])
+@itemx newsyz.minres(@var{f},@var{v},@var{h},@var{O}[|weyl=1])
 加群の自由分解を計算する.
 @end table
 
@@ -174,23 +262,91 @@ afo
 
 
 @itemize @bullet
-@item @var{R} を多項式環とする. @var{f=[f1,...,fm]} は @var{R} のイデアルまたは @var{R^k} の部分加群 (いずれも @var{M}と
-する) の生成系とする.
-この関数は, @var{M} の自由分解, すなわち完全列 @var{0->F(l)->F(l-1)->...->F(0)->M->0} を計算する.
-@var{F(i)=R^(ni)} とする.
-@item 結果は @var{[fl,...,f0]} なるリストで, @var{fi} は @var{F(i)->F(i-1)}
-(ただし @var{F(-1)=M}) なる写像を表すベクトル列である.
-@var{fi=[g(1),...,g(n(i))]} のとき, 各 @var{gj} はサイズ @var{n(i-1)} のリストで, @var{F(i)} の @var{j} 番目の
-標準基底ベクトルの像を表す.
-@item @code{newsyz.module_syz} を実行し, 得られた syzygy の生成系のうち, 定数を成分に持つものがある限り簡約を行う,
-という操作を単に繰り返すアルゴリズムを実装している.
-@item 前項により, @var{f} が斉次の場合, 極小自由分解を得る. @var{f} が斉次でない場合, 前項の簡約は単に @var{F(i)} の
-ランクを小さくする簡単化となる.
-@item @var{h}, @var{O}, オプション @var{weyl} については @code{newsyz.module_syz} と同様である.
+f=[f_1,...,f_m] を部分加群 I の生成系とするとき,
+の生成系とする.  この関数は, F_0/I の自由分解を計算する.
+@item 結果は [M_1,...,M_l] なるリストで, M_i は [phi_i(e_1),...,phi_i(e_(n_i)]
+なるベクトルのリストで, syz M_(i-1) の, O 上の POT 順序に関するグレブナー基底である.
+@item @code{newsyz.module_syz} を逐次的に実行する. 
+@code{newsyz.minres} では, 得られた syzygy の生成系のうち, 定数を成分に持つものがある限り簡約を行う.
+@item @code{newsyz.minres} は, f が斉次の場合, 極小自由分解を得る. 
+@item h, O, オプション weyl については @code{newsyz.module_syz} と同様である.
 @end itemize
 
 @example
-afo
+[0] load("noro_module_syz.rr")$
+[43] load("katsura")$
+[47] F=hkatsura(4)$
+[48] V=[t,u0,u1,u2,u3,u4]$
+[49] R=newsyz.fres(F,V,0,0)$
+[51] map(length,R);
+[5,22,28,12,2]
+[52] S=newsyz.minres(F,V,0,0)$
+[5,10,10,5,1]
+@end example
+
+@node newsyz.lres newsyz.sres newsyz.minsres,,,加群の自由分解
+@subsection @code{newsyz.lres}, @code{newsyz.sres}, @code{newsyz.minsres}, 
+@findex newsyz.lres
+@findex newsyz.sres
+@findex newsyz.minsres
+
+@table @t
+@item newsyz.lres(@var{f},@var{v},@var{h},@var{O}[|dp=1,top=1])
+@itemx newsyz.sres(@var{f},@var{v},@var{h},@var{O}[|dp=1])
+@itemx newsyz.minsres(@var{f},@var{v},@var{h},@var{O}[|dp=1])
+加群の自由分解を計算する.
+@end table
+
+@table @var
+@item return
+多項式リストのリストのリスト
+
+@item f
+多項式リスト, または多項式リストのリスト
+@item v
+変数リスト
+@item h
+0 または 1
+@item O
+項順序
+@end table
+
+@itemize @bullet
+@item
+f=[f_1,...,f_m] を部分加群 I の生成系とするとき,
+@code{newsyz.lres} は F_0/I の自由分解を La Scala-Stillman アルゴリズムにより計算する.
+@code{newsyz.sres}, @code{newsyz.minsres} は F_0/I の自由分解を Schreyer アルゴリズムにより計算する.
+@item
+有理数体上の多項式環上の加群に対してのみ実装されている.
+@item 結果は [M_1,...,M_l] なるリストで, M_i は syz M_(i-1) の, Schreyer 順序に関する
+グレブナー基底である.
+@item h=1 のとき, 最初のグレブナー基底計算が斉次化経由で行われる.
+@item dp=1 のとき, 結果を加群多項式で返す.
+@item @code{newsyz.lres} において top=1 のとき, S-多項式の剰余計算は, 先頭項が簡約できなかった時点で修了する.
+@item f が斉次の場合, @code{newsyz.lres} および @code{newsyz.minsres} は極小自由分解を得る. 
+@end itemize
+
+@example
+[0] load("noro_module_syz.rr")$
+[43] F=[x00*x11-x01*x10,x01*x12-x02*x11,x02*x13-x03*x12,-x11*x20+x21*x10,
+-x21*x12+x22*x11,-x22*x13+x23*x12,x31*x20-x30*x21,x32*x21-x31*x22,x33*x22-x32*x23]$
+[44] V=[x00,x01,x02,x03,x10,x11,x12,x13,x20,x21,x22,x23,x30,x31,x32,x33]$
+[45] cputime(1)$
+1.8e-05sec(1.502e-05sec)
+[46] R=newsyz.minres(F,V,0,0)$
+333.4sec(339.6sec)
+[47] S=newsyz.lres(F,V,0,0)$
+85.34sec(85.56sec)
+[48] T=newsyz.minsres(F,V,0,0)$
+241.2sec(250.3sec)
+[49] cputime(0)$
+[50] map(length,R);
+[9,75,456,1602,3391,4680,4388,2849,1290,393,72,6]
+[51] map(length,S);
+[9,75,456,1602,3391,4680,4388,2849,1290,393,72,6,0]
+[52] map(length,T);
+[9,75,456,1602,3391,4680,4388,2849,1290,393,72,6,0]
+
 @end example
 
 @comment --- おまじない ---
