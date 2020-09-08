@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.69 2020/05/17 23:15:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.70 2020/08/23 00:39:59 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -90,6 +90,7 @@ localf vprod$
 localf dvangle$
 localf dvprod$
 localf dnorm$
+localf dext$
 localf mulseries$
 localf pluspower$
 localf vtozv$
@@ -97,6 +98,7 @@ localf dupmat$
 localf matrtop$
 localf mytrace$
 localf mydet$
+localf permanent$
 localf mperm$
 localf mtranspose$
 localf mtoupper$
@@ -117,6 +119,7 @@ localf myimage$
 localf mymod$
 localf mmod$
 localf ladd$
+localf lsub$
 localf lchange$
 localf llsize$
 localf llbase$
@@ -182,6 +185,7 @@ localf mylog$
 localf nlog$
 localf mypow$
 localf scale$
+localf iceil$
 localf arg$
 localf sqrt$
 localf gamma$
@@ -451,6 +455,7 @@ localf xyoval$
 localf xypoch$
 localf ptline$
 localf ptcommon$
+localf ptcontain$
 localf ptcopy$
 localf ptaffine$
 localf ptlattice$
@@ -458,6 +463,8 @@ localf ptpolygon$
 localf ptwindow$
 localf ptconvex$
 localf ptbbox$
+localf darg$
+localf dwinding$
 localf lninbox$
 localf ptcombezier$
 localf ptcombz$
@@ -1308,6 +1315,7 @@ def sord(W,V)
 
 def vprod(V1,V2)
 {
+	V1=lsub(V1);V2=lsub(V2);
 	for(R = 0, I = length(V1)-1; I >= 0; I--)
 		R = radd(R, rmul(V1[I], V2[I]));
 	return R;
@@ -1343,6 +1351,8 @@ def dvprod(V1,V2)
 {
 	if(type(V1)<2) return V1*V2;
 	R=0;
+	V1=lsub(V1);
+	V2=lsub(V2);
 	if(type(V1)!=4)
 		for(I = length(V1)-1; I >= 0; I--)
 			R += V1[I]*V2[I];
@@ -1728,6 +1738,30 @@ def mydet(M)
 			Dn *= MM[1][I];
 		return (!Dn)?0:red(det(MM[0])/Dn);
 	}
+}
+
+def permanent(M)
+{
+	SS=size(M);
+	if((S=SS[0]) != SS[1] || S==0) return 0;
+	if((Red=getopt(red))!=1){
+		MM = matrtop(M);
+		for(Dn = 1, I = 0; I < S; I++)
+			Dn *= MM[1][I];
+		return (!Dn)?0:red(permanent(MM[0]|red=1)/Dn);
+	}
+	if(S<3){
+		if(S==1) return M[0][0];
+		else return M[0][0]*M[1][1]+M[0][1]*M[1][0];
+	}
+	LL=m2ll(M);
+	for(V=I=0;I<S;I++){
+		if(!(K=M[I][0])) continue;
+		for(TL=[],SL=LL,J=0;J<S;J++,SL=cdr(SL))
+			if(I!=J) TL=cons(cdr(car(SL)),TL);
+		if(K) V+=K*permanent(lv2m(TL));
+	}
+	return V;
 }
 
 def mperm(M,P,Q)
@@ -6752,8 +6786,8 @@ def eqs2tex(P,L)
 	if(type(L)!=4) L=[];
 	Sgn=0;
 	if(L!=[]){
-		if(car(L)==0) L=[[L]];
-		else if(length(L)>1 && isvar(L[1])) L=[[L]];
+		if(car(L)==0) L=[L];
+		else if(length(L)>1 && isvar(L[1])) L=[L];
 		R=car(L);L=cdr(L);Sgn=1;
 	}else R=[];
 	if(type(R)==4&&car(R)==0){
@@ -6791,14 +6825,24 @@ def eqs2tex(P,L)
 	return S;
 }
 
-
+/* Opt: var, opt, dbg */
 def res0(P,Q,X)
 {
-	if(!isvar(X)) return -1;
-	if(type(Var=getopt(var))!=4) Var=0;
+	if(!isvar(X)){
+		if(!isvar(P)) return -1;
+		Y=P;P=Q;Q=X;X=Y;
+	}
+	if(isvar(Var=getopt(var))) Var=[Var];
+	else if(type(Var)!=4) Var=0;W=[];
 	if(!isint(Opt=getopt(opt))) Opt=0;
+	Dbg=getopt(dbg)==1?1:0;
 	P=nm(P);Q=nm(Q);
+	Fctr=isfctr(P)*isfctr(Q);
 	DP=deg(P,X);DQ=deg(Q,X);
+	if(DP==DQ&&nmono(coef(P,DP,X))<nmono(coef(Q,DQ,X))){
+		R=P;P=Q;Q=R;
+		R=DP;DP=DQ;DQ=R;
+	}
 	while(DQ>0){
 		if(DP<DQ){
 			R=P;P=Q;Q=R;
@@ -6806,18 +6850,35 @@ def res0(P,Q,X)
 			if(Opt==-1) return [P,Q,DP,DQ];
 			if(DQ<1) break;
 		}
+		if(Dbg==1) mycat0([DP,":",DQ,","],0);
 		TQ=coef(Q,DQ,X);TP=coef(P,DP,X);
-		T=gcd(TP,TQ);
-		P=red(TQ/T)*P-red(TP/T)*Q*X^(DP-DQ);
-		if(Var){
-			for(S=fctr(P),P=1;S!=[];S=cdr(S)){
-				TV=vars(car(S)[0]);
-				if(type(TV)==4&&lsort(TV,Var,2)!=[]) P*=car(S)[0];
+		if(Fctr){
+			T=gcd(TP,TQ);M=red(TQ/T);
+			if(Var&&M!=car(W)&&type(TV=vars(M))==4&&lsort(TV,Var,2)!=[]) W=cons(M,W);
+			P=M*(P-coef(P,DP,X)*X^DP)-red(TP/T)*X^(DP-DQ)*(Q-coef(Q,DQ,X)*X^DQ);
+			if(Var){
+				for(S=fctr(P),P=1;S!=[];S=cdr(S)){
+					TV=vars(S0=car(S)[0]);
+					if(type(TV)==4&&lsort(TV,Var,2)!=[]){
+						for(TW=W;TW!=[];TW=cdr(TW))
+							if(gcd(car(TW),S0)!=1){
+								S0=1;break;
+							}
+						P*=S0;
+					}
+				}
 			}
+		}else{
+			if(type(TQ)==1){
+				Q/=TQ;
+				P=P-TP*X^(DP-DQ)*Q;
+			}else P=TQ*P-TP*X^(DP-DQ);
+			if(deg(P,X)==DP) P-=coef(P,DP,X)*X^DP;
 		}
 		DP=deg(P,X);
 		if(Opt==-2) return [P,Q,DP,DQ];
 	}
+	if(Dbg==1) mycat0([DP,":",DQ," "],0);
 	if(Opt==1) Q=[P,Q,DP,DQ];
 	return (DQ==0)?Q:0;
 }
@@ -6828,6 +6889,7 @@ def baseODE0(L)
 	if(!isint(Ord=getopt(ord))) Ord=0;
 	if(!isint(Step=getopt(step))) Step=0;
 	if(!isint(F=getopt(f))) F=0;
+	if(!isint(Dbg=getopt(dbg))) Dbg=0;
 	if(F<0) Step=1;
 	if(Step>0&&Ord>0) Ord=-1;
 	N=length(L);
@@ -6897,12 +6959,13 @@ def baseODE0(L)
 			R0=cons(car(R),R0);
 			if(R!=[]){
 				for(P=car(R),R=cdr(R); R!=[]; R=cdr(R)){
+					if(Dbg==1)mycat0(["\nStep ",C,"-",length(R)," ",TV," "],0);
 					if(findin(TV,vars(car(R)))<0){
 						TR=cons(car(R),TR);
 						continue;
 					}
 					if(Ord>-3){
-						TQ=res0(P,car(R),TV|var=V0,opt=1);
+						TQ=res0(P,car(R),TV|var=V0,opt=1,dbg=Dbg);
 						if(Ord==-2) P=car(TQ);
 						TQ=TQ[1];
 					}else TQ=res(TV,P,car(R));
@@ -6914,6 +6977,7 @@ def baseODE0(L)
 			}
 			R=TR;
 		}
+		if(Dbg==1) mycat([]);
 		return (F==1)?car(R):cons(car(R),R0);
 	}
 	V=append(V,[makev([To,N])]);
@@ -7681,12 +7745,14 @@ def pmaj(P)
 		return S;
 	}
 	V=vars(P);
-	if(!(K=length(V))) return abs(P);
+	Y=getopt(var);
+	Abs=(Y==1)?1:0;
+	if(!(K=length(V))) return Y==1?1:abs(P);
 	for(R=0,D=deg(P,X=V[0]);D>=0;D--){
 		Q=coef(P,D,X);
-		if(Q!=0) R+=((type(Q)>1)?pmaj(Q):abs(Q))*X^D;
+		if(Q!=0) R+=((type(Q)>1)?pmaj(Q|var=Abs):(Y==1?1:abs(Q)))*X^D;
 	}
-	if(isvar(Y=getopt(var))) for(;V!=[];V=cdr(V)) R=subst(R,car(V),Y);
+	if(isvar(Y)) for(;V!=[];V=cdr(V)) R=subst(R,car(V),Y);
 	return R;
 }
 
@@ -12020,7 +12086,7 @@ def show(P)
 		if(N==1){
 			if(type(Var=getopt(var))>1){
 				if(isvar(Var)) Var=[0,Var];
-				else if(type(Var)==4) Var=cons(0,Var);
+				else if(type(Var)==4&&Var[0]!=0) Var=cons(0,Var);
 				else Var=0;
 			}else if(type(Var=getopt(eqs))!=4) Var=0;
 		}else if(N==0) Var=[];
@@ -12103,12 +12169,15 @@ def show(P)
 			}
 		}
 	}else if(T==7){
-		if(Var=="raw" || 
-			(Var !="eq" && str_chr(P,0,"\\")<0 && str_char(P,0,"^")<0 && str_char(P,0,"_")<0
-			&& str_char(P,0,"&")<0)){
-				S=P+"\n\n";
-				if(Raw) return S;
-				dviout(S); return;
+		if(Var=="raw") S=P+"\n\n";
+		else if(Var != "eq" &&str_str(P,"\\begin"|end=128)<0){
+			if((TikZ&&str_str(P,"\\draw"|end=128)>=0)||(!TikZ&&str_str(P,"\\ar@"|end=128)>=0))
+				S=xyproc(P);
+		}else if(Var !="eq" && str_chr(P,0,"\\")<0 && str_char(P,0,"^")<0 && str_char(P,0,"_")<0
+			&& str_char(P,0,"&")<0) S=P+"\n\n";
+		if(P!=S){
+			if(Raw) return S;
+			dviout(S); return;
 		}
 	}
 	if(Raw) return "\\begin{align}\\begin{split}\n &"+S+"\\end{split}\\end{align}";
@@ -12542,52 +12611,84 @@ def frac2n(N)
 #endif
 }
 
+/* Option : opt */
 def ptconvex(L)
 {
-	if(!(Opt=isint(getopt()))) Opt=0;
-/*
-	if(Opt==1){
-		P1=P2=P3=P4=car(L)[0];
-		for(TL=cdr(L);TL!=[];TL=cdr(TL)){
-		}
-	}
-*/
-	L0=car(L);X=car(L0);Y=car(L0)[1];
+	if(!(isint(Opt=getopt(opt)))) Opt=0;
+	L0=car(L);X=L0[0];Y=L0[1];
 	for(TL=cdr(L);TL!=[];TL=cdr(TL)){	/* find the most left pt L0 */
-		if(X>car(TL)[0]||(X==car(TL)[0]&&Y>car(TL)[1])) continue;
+		if(X<car(TL)[0]||(X==car(TL)[0]&&Y<car(TL)[1])) continue;
 		L0=car(TL);X=car(L0);
 	}
+	if(Opt==3) return L0;
 
 	R=[];	/* find a polygone through all points */
 	X0=L0[0];Y0=L0[1];
 	for(TL=L;TL!=[];TL=cdr(TL)){
-		X=car(TL)[0]-X0;Y=car(TL)[1]-Y0;S=X^2+Y^2;
-		if(!S) R=cons(-2,cons(0,R));
-		else R=cons((Y>0?Y^2:-Y^2)/S,cons(S,R));
+		L0=car(TL);
+		X=L0[0]-X0;Y=L0[1]-Y0;S=X^2+Y^2;
+		L0=(!S)? append([-8,0],L0):append([(Y>0?Y^2:-Y^2)/S,S],L0);
+		R=cons(L0,R);
 	}
 	L=qsort(R);
 	if(Opt==2) return L;
-	for(R=[],TL=L;TL!=[];TL=cdr(TL))
-		R=cons(cdr(cdr(car(TL))),R);
-	R=reverse(R);	
-	if(Opt==1) return R;
 
-	X0=car(L)[0];Y0=car(L)[1];R=[cons(V0=-4,car(L))];
+	for(R=[],TL=L;TL!=[];TL=cdr(TL)){
+		if(Opt==4){
+			L0=car(TL);
+			V=car(L0);
+			L0=append(cdr(cdr(L0)),[V]);
+		}else L0=cdr(cdr(car(TL)));
+		R=cons(L0,R);
+	}
+	L=reverse(R);	
+	if(Opt==1) return L;
+	R=[cons(V0=-8,L0=car(L))];
 	for(TL=cdr(L);TL!=[];TL=cdr(TL)){
-		X=(X1=car(TL)[0])-X0;Y=(Y1=car(TL)[1])-Y0;S=X^2+Y^2;
-		if(!S) continue;
-		V=(Y>0?Y^2:-Y^2)/S;
+		V=darg(L0,L1=car(TL));
+		if(V<-4) continue;
 		while(V<V0){
 			R=cdr(R);
-			X=X1-car(R)[1];Y=Y1-car(R)[2];S=X^2+Y^2;V0=cdr(R)[0];
-			V=(Y>0?Y^2:-Y^2)/S;
-			if(X<0) V=2-V;		/* -1 - (3-0)  */
+			V0=car(car(R));
+			V=darg(cdr(car(R)),L1);
 		}
 		if(V==V0) R=cdr(R);
-		R=cons(cons(V0=V,car(L)),R);
+		R=cons(cons(V0=V,L0=L1),R);
 	}
-	for(L=[],TL=R;TL!=[];TL=cdr(TL)) L=[cdr(car(TL)),L];
+	for(L=[],TL=R;TL!=[];TL=cdr(TL)) L=cons(cdr(car(TL)),L);
 	return L;
+}
+
+def darg(P,Q)
+{
+	if(type(car(P))==4){
+		if((V=darg(Q[0],Q[1]))<-1) return -8;
+		if((V-=darg(P[0],P[1]))>2){
+			if((V-=4)>4) return -4;
+		}else if(V<=-2) V+=4;
+		return V;
+	}
+	X=Q[0]-P[0];Y=Q[1]-P[1];
+	if(!(S=X^2+Y^2)) return -8;
+	V=Y^2/S;
+	if(Y<0) V=-V;
+	return X<=0?2-V:V;
+}
+
+def dwinding(P,Q)
+{
+	V=V0=V1=darg(P,Q0=car(Q));
+	Q=cons(Q0,reverse(Q));
+	for(Q=cdr(Q);Q!=[];Q=cdr(Q)){
+		if((V2=darg(P,car(Q)))<-4) return 1/3;
+		V1=V2-V1;
+		if(V1==2||V1==-2) return 1/2;
+		if(V1<-2) V1+=4;
+		else if(V1>2) V1-=4;
+		V+=V1;
+		V1=V2;
+	}
+	return floor((V0-V+1/2)/4);
 }
 
 def xyproc(F)
@@ -14773,8 +14874,8 @@ def xyplot(L,LX,LY)
 	if(type(Vw)!=1 && type(Vw)!=7 && Vw!=0) Vw=-1;
 	if(!LX){
 		L0=llget(L,1,[0]|flat=1);
-		LX=[lmin(L0),lmax(L0)];
-		S=LX[1]-LX[0];
+		LX=[lmin(L0),LXm=lmax(L0)];
+		S=SX=LX[1]-LX[0];
 		if(S>0){
 			if(Vw) LX=[LX[0]-S/32,LX[1]+S/32];
 		}else LX=[LX[0]-1,LX[0]+1];
@@ -14782,8 +14883,8 @@ def xyplot(L,LX,LY)
 	LX=map(deval,LX);
 	if(!LY){
 		L0=llget(L,1,[1]|flat=1);
-		LY=[lmin(L0),lmax(L0)];
-		S=LY[1]-LY[0];
+		LY=[lmin(L0),LYm=lmax(L0)];
+		S=SY=LY[1]-LY[0];
 		if(S>0){
  			if(Vw) LY=[LY[0]-S/32,LY[1]+S/32];
 		}else LY=[LY[0]-1,LY[0]+1];
@@ -14799,6 +14900,27 @@ def xyplot(L,LX,LY)
 		glib_window(LX[0],LY[0],LX[1],LY[1]);
 		for(; L!=[];L=cdr(L))
 			glib_putpixel(car(L)[0],car(L)[1]|option_list=Opt);
+		if((AX=getopt(ax))==1||AX==2){
+			if(LY[0]<0&&LY[1]>0){
+				glib_line(LX[0],0,LX[1],0);
+				if(AX==2&&LXm>0){
+					E=floor(dlog(LXm)/dlog(10));
+					V=floor(LXm*10^(-E)+1/128)*10^E;
+					glib_line(V,0,V,SY/64);
+					glib_print(V,-SY/128,rtostr(V));
+				}
+			}
+			if(LX[0]<0&&LX[1]>0){
+				glib_line(0,LY[0],0,LY[1]);
+					if(AX==2&&LYm>0){
+						E=floor(dlog(LYm)/dlog(10)+1/64);
+						V=floor(LYm*10^(-E)+1/128)*10^E;
+						glib_line(0,V,SX/64,V);
+					glib_print(SX/96,V,rtostr(V));
+				}
+
+			}
+		}
 		return [LX,LY];
 	}
 	Opt=getopt();Opt0=delopt(Opt,["dviout","proc"]);
@@ -15416,6 +15538,27 @@ def polroots(L,V)
 	return reverse(SS);
 }
 
+def lsub(P)
+{
+	if((T=type(P[0]))==4){
+		Q=reverse(P[1]);P=reverse(P[0]);
+		for(R=[];P!=[];P=cdr(P),Q=cdr(Q)) R=cons(car(Q)-car(P),R);
+		return R;
+	}else if(T==5){
+		L=length(P[0]);Q=P[1];P=P[0];
+		R=newvect(L);
+		for(V=[],L--;L>=0;L--) R[L]=Q[L]-P[L];
+		return R;
+	}
+	return P;
+}
+
+def dext(P,Q)
+{
+	P=lsub(P);Q=lsub(Q);
+	return P[0]*Q[1]-P[1]*Q[0];
+}
+
 def ptcommon(X,Y)
 {
 	if(length(X)!=2 || length(Y)!=2) return 0;
@@ -15458,18 +15601,29 @@ def ptcommon(X,Y)
 			T=[Y[0][0]+(Y[1][0]-Y[0][0])*y_-S[0],
 				Y[0][1]+(Y[1][1]-Y[0][1])*y_-S[1]];
 			R=lsol(T,[x_,y_]);
-			if(type(R[0])==4&&type(R[1])==4&&R[0][0]==x_&&R[1][0]==y_){
-				if(!In || (R[0][1]>=0&&R[0][1]<=1&&R[1][1]>=0&&R[1][1]<=1) )
-					return subst(S,x_,R[0][1],y_,R[1][1]);
+			if(type(R[0])==4&&type(R[1])==4&&R[0][0]==x_&&R[1][0]==y_){ 
+					/* unique sol of parameters */
+				if(In && (R[0][1]<0||R[0][1]>1||R[1][1]<0||R[1][1]>1) ) return 0;
+				return subst(S,x_,R[0][1],y_,R[1][1]);
 			}
-			if((type(R[0])>0&&type(R[0])<4)||(type(R[1])>0&&type(R[1])<4)) return 0;
-			if(!In) return 1;
-			R=T[0]?T[0]:T[1];R0=subst(R,x_,0);R1=subst(R,x_,1);
-			F=subst(R0,y_,0);
-			if(subst(R0,y_,1)*F>0&&subst(R1,y_,0)*F>0&&subst(R1,y_,1)*F>0) return 0;
-			if(X[0]==X[1]) return X[0];
-			if(Y[0]==Y[1]) return Y[0];
-			return 1;
+			if((type(R[0])>0&&type(R[0])<4)||(type(R[1])>0&&type(R[1])<4)) return 0;  /* no solution */
+			F=0;
+			if(X[0]==X[1]) F=1;
+			else if(Y[0]==Y[1]) F=2;
+			if(!In){
+				if(!F) return 1;
+				else if(F==1) return X[0];
+				else if(F==2) return Y[0];
+			}
+			X0=X[0];X1=X[1];
+			if(X0>X1){R=X0;X0=X1;X1=R;}
+			Y0=Y[0];Y1=Y[1];
+			if(Y0>Y1){R=Y0;Y0=Y1;Y1=R;}
+			if(X0<Y0) X0=Y0;
+			if(Y0>Y1) X1=Y1;
+			if(X0>X1) return 0;
+			if(X0<X1) return [X0,X1];
+			return X0;
 		}else if(Y[1]==0){ /* orth */
 			T=[Y[0][0]+(X[1][1]-X[0][1])*y_-S[0],
 				Y[0][1]-(X[1][0]-X[0][0])*y_-S[1]];
@@ -15524,6 +15678,39 @@ def ptcommon(X,Y)
 	}
 	if(length(L)!=0) return L;
 	return 0;
+}
+
+
+def ptcontain(P,L)
+{
+	if(type(car(P))==4){
+		if((C=getopt(common))!=1) C=0;
+		if((F0=ptcontain(P[0])&&!C)) return F0;
+		if((F1=ptcontain(P[1])&&!C)) return F1;
+		if(F0&&F1) return P;	/* include */
+		L=cons(L[2],L);		/* outside part exists */
+		for(I=1,R=[];I<4;I++,L=cdr(L)){
+			if(!(F[I]=ptcotain(P,[L[0],L[1]]))){
+				if(C) continue;
+				return -1;
+			}
+			if(type(F[I])==4&&length(F[I])==2)	/* infinite points */
+				return F[I];
+			else R=cons(F[I],R);
+		}
+		if(R==[]) return 0; 		/* no intersection */
+		if(F1==1) return [P[0],car(R)];
+		if(F2==1) return [P[1],car(R)];
+		if(length(R)>1 && R[0]==R[1]) R=cdr(R);
+		return R;
+	}
+	if(dext([L[0],L[1]],[L[0],L[2]])<0) L=[L[0],L[2],L[1]];
+	L=cons(L[2],L);
+	for(I=F=1;I<4;I++,L=cdr(L)){
+		if((V=dext([L[0],L[1]],[L[0],P])) < 0) return 0;
+		if(!V) F++;
+	}
+	return F;
 }
 
 def tobezier(L)
@@ -15935,6 +16122,16 @@ def polstrum(P)
 	return reverse(L);
 }
 
+def iceil(X)
+{
+	S=(X>0)?1:-1;
+	X*=S;
+	if(X>1) X=ceil(X);
+	else if(X>1/2) X=1;
+	else if(X) X=1/floor(1/X);
+	return S*X;
+}
+
 def polradiusroot(P)
 {
 	X=var(P);D=deg(P,X);
@@ -15948,7 +16145,7 @@ def polradiusroot(P)
 			TV=eval((abs(coef(P,TD,X))*ND)^(1/(D-TD)));
 			if(V<TV) V=TV;
 		}
-		return (Int==1)?ceil(V):V;
+		return (Int==1)? iceil(X):X;
 	}
 	for(N0=N1=0,TD=0;TD<D;TD++){
 		if(!(C=coef(P,TD,X))) continue;
@@ -15969,35 +16166,36 @@ def polradiusroot(P)
 			if(V1<TV) V1=TV; 
 		}
 	}
-	return (Int==1)?[-ceil(V1),ceil(V2)]:[-V1,V2];
+	return Int?[-iceil(V1),iceil(V2)]:[-V1,V2];
 }
 
-
+/* step, num, strum */
 def polrealroots(P)
 {
 	if(type(MC=getopt(step))==4){
 		MC1=MC[1];MC=car(MC);
 	}else if(isint(MC)&&MC>1&&MC<10001) MC1=MC;
-	else MC1=MC=20;
-	if(type(I=getopt(num))!=4){
-		I=polradisuroot(P)*eval(eval(exp(0)));
+	else MC1=MC=32;
+	if(type(I=getopt(in))!=4){
+		I=polradiusroot(P);
 		W=(I[1]-I[0])/1024;
 		I=[I[0]-W,I[1]+W];
 	}
 	if(type(L=type(getopt(strum)))!=4) L=polstrum(P);
 	N0=sgnstrum(L,I[0]);N1=sgnstrum(L,I[1]);
 	P=car(L);X=var(P);
-	if(N0<=N1) return [];
+	if(N0<=N1) return []; /* [L,I,N0,N1]; */
 	LT=[[0,I[0],I[1],N0,N1]];R=[];
+	Z=eval(exp(0));
 	while(LT!=[]){
 		T=car(LT);LT=cdr(LT);
 		C=T[0];X0=T[1];X1=T[2];N0=T[3];N1=T[4];
 		if(N0<=N1)continue;
 		if(N0==N1+1){
-			V0=subst(P,X,I0);
-			V1=subst(P,X,I1);
+			V0=subst(P,X,X0);
+			V1=subst(P,X,X1);
 			while(C++<MC1){
-				V2=subst(P,X,X2=(X0+X1)/2);
+				V2=subst(P,X,X2=(X0+X1)/2*Z);
 				if((V0>0&&V2>0)||(V0<0&&V2<0)) X0=X2;
 				else X1=X2;
 			}
@@ -16005,68 +16203,48 @@ def polrealroots(P)
 			continue;
 		}
 		while(++C<MC){
-			N2=sgnstrum(L,X2=(X0+X1)/2);
+			N2=sgnstrum(L,X2=(X0+X1)/2*Z);
 			if(N0>N2){
-				if(N2>N1) LT=cons([C,X2,X1,N2,N1]);
+				if(N2>N1) LT=cons([C,X2,X1,N2,N1],LT);
 				X1=X2;
 				N1=N2;
 				if(N0==N1+1){
 					LT=cons([C,X0,X1,N0,N1],LT);
-					C=-1;
+					C=MC+1;
 				}
 			}else{
 				X0=X2;
 				N0=N2;
 			}
 		}
-		if(C>0) R=cons([X0,X1,N0-N1],R);
+		if(C!=MC+2) R=cons([X0,X1,N0-N1],R);
+	}
+	if(isint(Nt=getopt(nt)) && Nt>0){
+		if(Nt>256) Nt=256;
+		Q=diff(P,X);
+		for(S=[],TR=R;TR!=[];TR=cdr(TR)){
+			if(car(TR)[2]>1) continue;
+			V0=subst(P,X,car(TR)[0]);
+			V1=subst(P,X,car(TR)[1]);
+			if(abs(V0)<abs(V1))
+				X0=car(TR)[0];
+			else{
+				X0=car(TR)[1];V0=V1;
+			}
+			for(Tn=Nt;Tn>0;Tn--){
+				X1=X0-V0/subst(Q,X,X0);
+				V1=subst(P,X,X1);
+				if(abs(V1)>=abs(V0)) break;
+				X0=X1;V0=V1;
+			}
+			S=cons(X0,S);
+		}
+		for(TR=R;TR!=[];TR=cdr(TR))
+			if(car(TR)[2]>1) S=cons(car(TR),S);
+		return reverse(S);
 	}
 	return reverse(cons(P,R));
 }
-
-#if 0
-def polrealroots(P,X0,W)
-{
-	X=vars(P0=P);
-	if(length(X)!=0) return [];
-	X=car(X);
-	if(isfuctr(P)){
-		Q=gcd(P,diff(P,X));
-		P=sdv(P,Q);
-	}
-	D=deg(P,X);
-	P=P/coef(P,deg(P,X),X);
-	Q=diff(P,X)/D;
-	for(L=[Q,P],I=D;I>=0;I--){
-		R=urem(P,Q);
-		if((TD=deg(R,X))>0){
-			C=coef(R,TD,X);
-			if(C<0) C=-C;
-			R/=C;
-		}
-		L=cons(R,L);
-	}
-mycat(["In",[X0,X0+W]]);
-	Div=10;
-	X=var(P);
-	if(!isint(Step=getopt(step))) Step=6;
-	W=W*eval(exp(0));X1=X0+W;
-	Q=diff(subst(P,X,X+X0+W/2),X);
-	Mx=subst(pmaj(Q),X,W/2);
-	W/=Div;
-	M=Mx*W/2;
-	for(R=[],X0+=W/2;X0<X1;X0+=W){
-		if((V=subst(P,X,X0))<0) V=-V;
-/* mycat([X0,V,M]); */
-		if(V-M<=0) R=cons(X0-W/2,R);
-	}
-	if(R!=[]) mycat(["get",reverse(R)]);
-	if(!Step) return reverse(R);
-	for(L=[];R!=[];R=cdr(R))
-		L=append(L,polrealroots(P,car(R),W|step=Step-1));
-	return L;
-}
-#endif
 
 /*
 def ptcombezier0(P,Q)
