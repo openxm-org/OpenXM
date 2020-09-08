@@ -1,0 +1,468 @@
+/*
+$OpenXM$
+  num-ht --> misc-2020/09/num-ht2/tk_mat2mpfr.rr
+  2020.02.14
+  tk_mat2mpfr.rr
+  matrix factorial by mpfr.
+
+  2020.09.07 generate C and mpfr ODE solver
+*/
+load("tk_any2mpfr/tk_asir2mpfr.rr")$
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module tk_ode_by_mpfr$
+static A2M_template$  //initialized by init_mat2mpfr()
+static A2M_config_compile$
+#else
+extern A2M_template$
+extern A2M_config_compile$
+#endif
+
+#ifdef USE_MODULE
+localf mat_to_mpfr$
+localf identity_matrix_mpfr$
+localf testm1$
+localf new_identity_matrix_mpfr$
+localf set_mat_mpfr_mpfr$
+localf code_mat_fac_mpfr$
+localf prod_atomic_matrix_mpfr$
+localf code_declare_mpfr_matrix$
+localf set_mat_array_mpfr$
+localf test2m$
+localf test_template2$
+localf test3m$
+localf mat_fac_by_asir$
+localf code_compare_mat$
+localf rk4_mat$
+localf code_solve_ode_by_rk4_with_defuse$
+localf test0908$
+localf config$
+localf init_mat2mpfr$
+#endif
+
+def mat_to_mpfr(Mat,V) {
+  M=size(Mat)[0]; N=size(Mat)[1];
+  Ob_mat=newmat(M,N);
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Ob_mat[I][J] = poly_to_mpfr(Mat[I][J],V)[0];
+    }
+  }
+  return Ob_mat;
+}
+
+def identity_matrix_mpfr(N) {
+  Mat = matrix_identity_matrix(N);
+  return mat_to_mpfr(Mat,[]);
+}
+/*
+  Todo, 定数の計算が first_ の中に全部入ってない.
+  Todo, より複雑な行列.
+load("ak2.rr");
+0
+[2130] QQ=rk_mat2(newmat(2,2,[[0,1],[t,0]]))$
+[2131] QQ2=rk_mat2(newmat(2,2,[[0,1],[1/t,0]]))$
+*/
+def testm1() {
+  Mat=newmat(2,2,[[1,h],[h*t,1]]);
+  mat_to_mpfr(Mat,[t]);
+}
+
+/* 2020.02.15
+  上の QQ2 で matrix factorial のprogramを作ってみる.
+  これを作りながら man-asir2mpfr.tex も加筆.
+*/
+
+/*
+  2020.02.17
+  書き換え用の identity matrix
+*/
+def new_identity_matrix_mpfr(N) {
+  Ob_mat=newmat(N,N);
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      if (I==J) Ob_mat[I][J] = new_mpfr(1)[0];
+      else Ob_mat[I][J] = new_mpfr(0)[0];
+      add_code(sprintf("/* Ob_mat[%a][%a] = %a */",I,J,Ob_mat[I][J]));
+    }
+  }
+  return Ob_mat;
+}
+
+/* 2020.02.18 */
+/* X <-- A */
+def set_mat_mpfr_mpfr(X,A) {
+  M=size(A)[0]; N=size(A)[1];
+  Code=sprintf("/*set_mat_mpfr_mpfr*/ ");
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Code += sprintf("mpfr_set(%a,%a,MPFR_RNDD);",X[I][J],A[I][J]);
+    }
+  }
+  add_code(Code);
+}
+
+/* matrix factorial 
+  Code を生成する関数は 最初に code_ をつける.
+   Mat は [行列, Rule] の形式.
+   mpfr 引数は h, t(スタートの) で決め打ち.
+   積の回数は int n で決め打ち.
+ clear_all();
+ QQ=[newmat(2,2,[[1,d0*h],[0,1]]),[[d0,1/t]]];
+ Code=code_mat_fac_mpfr(QQ)$
+
+ y'=(2/t)y
+ clear_all();
+ QQ=[newmat(1,1,[[1+2*d0*h]]),[[d0,1/t]]];
+ Code=code_mat_fac_mpfr(QQ)$
+*/
+def code_mat_fac_mpfr(MatRule) {
+//  extern Mpfr_indent;
+  Rem=sprintf("/*code_mat_fac_mpfr, generated from %a  */\n",MatRule);
+  Begin=begin_function("mat_fac",[t,h],["int n","mpfr_t *ans","int *argcv","mpfr_t *argv"]);
+  Begin += "\nint i,j;";
+  Mat = MatRule[0]; Rule=MatRule[1];
+  Mat = matrix_list_to_matrix(Mat);
+  N=size(Mat)[0];
+  if (N != size(Mat)[1]) error("Not a square matrix.");
+  use_init_code(); // mpfr_init2 はまとめて. 定数の初期化もまとめて.
+  Dep = dep_vars(Rule,[t]); 
+  V = append([t],Dep);
+  P = new_identity_matrix_mpfr(N);
+  Code=sprintf("/* Matrix factorial is stored in P=%a */",matrix_matrix_to_list(P));
+  add_code(Code);
+//  Tmp = new_identity_matrix_mpfr(N);
+//  Code=sprintf("/* Matrix Tmp=%a is used to store M*P temporarly. You must not do P=M*P */",matrix_matrix_to_list(Tmp));
+//  add_code(Code);
+  add_code("for (i=0; i<n; i++) { /* begin for */"); Mpfr_indent++;
+  init_code(Rule | var=V);
+  /* 2020.02.20, bug: [d0,1/t] だと  d0 も変化するので var には d0 も入れる */
+  M = mat_to_mpfr(Mat,V);
+  Code = sprintf("/* multiplier M(t)=%a */",matrix_matrix_to_list(M));
+  add_code(Code);
+  Prod = M*P;
+  ProdR=newmat(N,N);
+  TT = new_mpfr(0)[0]; 
+  Code=sprintf("/* M*P = %a, %a is a work area to multiply */",matrix_matrix_to_list(Prod),TT);
+  add_code(Code);
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) { 
+      add_code(sprintf("/* Evaluate [%a,%a] term %a */",I,J,Prod[I][J]));
+      ProdR[I][J]=prod_atomic_matrix_mpfr(M,P,I,J,Prod[I][J],TT)[0]; // 2020.02.23  M*P の (I,J) 成分を計算. TT が workarea.
+    }
+  }
+//  set_mat_mpfr_mpfr(Tmp,ProdR);
+  set_mat_mpfr_mpfr(P,ProdR);
+  Code = sprintf("mpfr_add(%a,%a,%a,MPFR_RNDD); /* t<-t+h */",search_obj(t),search_obj(t),search_obj(h));
+  add_code(Code);
+  Mpfr_indent--; add_code("} /* end for */");
+
+  /* 行列をどのように戻す? */
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      Code=sprintf("mpfr_set(ans[%a*N+%a],%a,MPFR_RNDD);",I,J,P[I][J]);
+      add_code(Code);
+    }
+  }
+
+  /* 最後の時刻を optional[0] 戻り値へ代入. */
+  Code = sprintf("mpfr_set(argv[0],%a,MPFR_RNDD); /* argv[0]<- t_last */\n",search_obj(t));
+  add_code(Code);
+  /* h を optional[1] へ. */
+  Code = sprintf("mpfr_set(argv[1],%a,MPFR_RNDD); /* argv[1]<- h */\n",search_obj(h));
+  add_code(Code);
+  Code = sprintf("*argcv = 2;\n");
+  add_code(Code);
+
+  /* 以下をつないだものがコード */
+  Rem;
+  Begin;
+  Dec0=gen_declaration_ob(";\n");
+  Dec1=gen_declaration_tmp(";\n");
+  Dec2=gen_declaration_static(";\n" | no_static=1); // 何度も呼ぶ関数では first をstaticにしない.
+  Init0 = output_init_code();
+  Body0=output_code();
+  End=end_function(0)+"\n";
+  return Rem+Begin+Dec0+Dec1+Dec2+Init0+Body0+End;
+}
+
+/*
+  sum(k,M_ik*P_kj) の計算. M_ik, P_kj はこれ以上分解できない式.
+*/
+def prod_atomic_matrix_mpfr(M,P,I,J,Prod_IJ,TT) {
+//  extern Mpfr_indent;
+  Mpfr_indent++;
+  N=size(M)[0];
+  if ((R=search_obj(Prod_IJ)) != 0) return [R,1];
+  R=register_obj(Prod_IJ)[0];
+  Code=sprintf("mpfr_set_si(%a,(long) 0, MPFR_RNDD); /* Put 0 to sum up */",R);
+  add_code(Code);
+  for (K=0; K<N; K++) {
+    Code=sprintf("mpfr_mul(%a,%a,%a,MPFR_RNDD);",TT,M[I][K],P[K][J]);
+    add_code(Code);
+    Code=sprintf("mpfr_add(%a,%a,%a,MPFR_RNDD);",R,R,TT);
+    add_code(Code);
+  }
+  Mpfr_indent--;
+  return [R,0];
+}
+
+def code_declare_mpfr_matrix(Name,Size) {
+  return sprintf("mpfr_t %a[%a][%a]",Name,Size,Size);
+}
+def set_mat_array_mpfr(Name,M) {
+  N = size(M)[0];
+}
+
+/* 2020.02.23  code_mat_fac_mpfr のテスト.
+   [[t,0],[0,t+2]],  h=1, t_0 = 1 で factorial を計算する.
+*/
+def test2m() {
+  N = 2;
+  QQ=[ [[t,0],[0,t+2]], []];
+  return test_template2(QQ,N,1,1,3);
+}
+def test_template2(QQ,N,TT,HH,Times) {
+//  N = 2;
+//  QQ=[ [[t,0],[0,t+2]], []];
+  clear_all();
+  Code_func=code_mat_fac_mpfr(QQ);
+  Prolog=sprintf("#include <stdio.h>\n#include <stdlib.h>\n#include <mpfr.h>\n#define M %a\n#define N %a\n#define MPFR_PREC 64\n",N,N);
+  printf("Code generation is done. Evalute matrix factorial by asir... ");
+  P_ans=mat_fac_by_asir(QQ,TT,HH2=number_eval(exp(0)*HH),Times | option_list=getopt());
+  printf("\nDone.\n");
+  print(P_ans);
+  Code_check=code_compare_mat(P_ans,N,N); // asir による答えと ans を比較する関数を生成.
+
+  Main  = "\nint main() {\n";
+  Main += "  mpfr_t *ans;\n";
+  Main += "  mpfr_t *opt;\n";
+  Main += "  int argc,i;\n";
+  Main += "  ans = (mpfr_t *)malloc(sizeof(mpfr_t)*(N*N+1));\n";
+  Main += "  opt = (mpfr_t *)malloc(sizeof(mpfr_t)*(N*N+2));\n";
+  Main += "  mpfr_init2(opt[0],MPFR_PREC);\n";
+  Main += "  mpfr_init2(opt[1],MPFR_PREC);\n";
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      Main += sprintf("  mpfr_init2(ans[%a*N+%a],MPFR_PREC);\n",I,J);
+    }
+  }
+  Main += "  mpfr_t t;\nmpfr_t h;\n";
+  Main += "  mpfr_init2(t,MPFR_PREC); mpfr_init2(h,MPFR_PREC);\n";
+  Main += sprintf("  mpfr_set_d(t,(double) %a,MPFR_RNDD); mpfr_set_d(h,(double) %a,MPFR_RNDD);\n",number_eval(TT),number_eval(HH));
+  Main += sprintf("  mat_fac(t,h,%a,ans,&argc,opt);\n",Times);
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      Main += sprintf("  mpfr_out_str(stdout,10,0,ans[%a*N+%a],MPFR_RNDD);",I,J);
+      Main += "putchar('\\n');\n";
+    }
+  }
+  Main += "  for (i=0; i<argc; i++) {printf(\"opt[%d]=\",i); mpfr_out_str(stdout,10,0,opt[i],MPFR_RNDD); putchar('\\n');}\n";
+  Main += sprintf("  printf(\"opt[1]=%a, h by asir \\n\");\n",rtostr(HH2));
+  Main += sprintf("  compare_mat(ans);\n",N,N);
+  Main += "  return(0);\n}\n";
+  Code=Prolog + Code_func + Code_check + Main;
+  util_write_string_to_a_file("t0.c",Code);
+
+  return "Written to t0.c";
+}
+
+/*
+ y'=(2/t)y
+ option: rational=1  ==> mat_fac_by_asir is evaluated over Q.
+ option: times
+*/
+def test3m() {
+  N = 1;
+  if (type(getopt(times))>0) Times=getopt(times);
+  else Times=3;
+  QQ=[newmat(1,1,[[1+2*d0*h]]),[[d0,1/t]]];
+//  return test_template2(QQ,N,TT=1,HH=1/10^5,Times | option_list=getopt());
+  return test_template2(QQ,N,TT=1,HH=0.00001,Times | option_list=getopt());
+}
+
+/* 2020.03.17 */
+def mat_fac_by_asir(QQ,TT,HH,Times) {
+  T0=time();
+  M=matrix_list_to_matrix(QQ[0]); Rule=QQ[1];
+  N = size(M)[0];
+  P=matrix_identity_matrix(N);
+  if ((type(getopt(rational))>0) && (ntype(HH)>0)) HH=number_float_to_ratinoal(HH);
+  for (I=0; I<Times; I++) {
+    Rule_tmp=base_replace(Rule,RR=[[t,TT],[h,HH]]);
+    P = base_replace(base_replace(M,Rule_tmp),RR)*P;
+    TT += HH;
+  }
+  T1=time();
+  printf("Time of mac_fac_by_asir = %a\n",matrix_list_to_matrix(T1)-matrix_list_to_matrix(T0));
+  if (type(getopt(rational))>0) return P;
+  else return map(number_eval,P);
+}
+
+/*
+  P と ans を比較する関数 compare_mat を生成する.
+  MPFR_PREC は精度の bit 数
+*/
+def code_compare_mat(P,M,N) {
+  Prec_tolerance=2;  // MPFR_PREC/2 まで許す.
+  M = size(P)[0]; N = size(P)[1];
+  Code = sprintf("int compare_mat(mpfr_t *ans) {\n");
+  Code += "  int err=0; int rel=0; mpfr_t d; mpfr_init2(d,MPFR_PREC);\n";
+  Code += "  mpfr_t small; mpfr_init2(small,MPFR_PREC); mpfr_t two; mpfr_init2(two,MPFR_PREC);\n";
+  Code += "  mpfr_set_si(two,(long) 2, MPFR_RNDD);\n";
+  Code += sprintf("  mpfr_set_si(small,(long) -MPFR_PREC/%a,MPFR_RNDD);\n",Prec_tolerance);
+  Code += "  mpfr_pow(small,two,small,MPFR_RNDD);\n\n";
+  Code += "  printf(\"small eps=\"); mpfr_out_str(stdout,10,0,small,MPFR_RNDD); putchar('\\n');\n";
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Code += sprintf("  /* (%a,%a) */\n",I,J);
+      Code += sprintf("  mpfr_strtofr(d,\"%a\",NULL,10,MPFR_RNDD);\n",rtostr(number_eval(P[I][J]*exp(0))));
+      Code += sprintf("  mpfr_sub(d,d,ans[%a*M+%a],MPFR_RNDD);\n",I,J);
+      Code += sprintf("  printf(\"Diff (not relative) of (%a,%a): \"); \n",I,J);
+      Code += "  mpfr_out_str(stdout,10,0,d,MPFR_RNDD); putchar('\\n');\n";
+      Code += "  mpfr_abs(d,d,MPFR_RNDD); \n";
+      Code += sprintf("  if (!mpfr_zero_p(ans[%a*M+%a])) { mpfr_div(d,d,ans[%a*M+%a],MPFR_RNDD); rel=1; } else {rel=0;}\n",I,J,I,J);
+      Code += "  if (mpfr_greater_p(d,small)) { err=1; printf(\"err, rel=\%d\\n\",rel);} \n\n";
+    }
+  }
+  Code += "  return(err);\n}\n";
+  return Code;
+}
+
+/* 
+   ak2.rr  rk_mat2() よりコピー.  rk4_mat へ.
+   2019.10.09  Runge-Kutta の行列を求める  だたし分母と分子をわける.
+   y' = A y
+   a0 = A(t_n)
+   a1 = A(t_n+h/2)
+   a2 = A(t_n+h)
+   A は t を変数とする行列.  線形の場合専用.
+  Example:  M=rk4_mat([[0,1],[t,0]]);
+
+  戻り値: [4th RK の行列, Rule], 行列は多項式成分, 
+  Rule は有理式を右辺に持つ.  
+  Rule で変換して RK の one step. 
+  つまり, base_replace(M[0],M[1]); が RK の one step
+*/
+def rk4_mat(A) {
+  if (type(getopt(verbose))>0) Verbose=1; else Verbose=0;
+  A = matrix_list_to_matrix(A);
+  Dn = poly_denominator(A);
+  A = map(red,A*Dn);
+  K1 = a0*y;
+  K2 = a1*(y+K1*h/2);
+  K3 = a1*(y+K2*h/2);
+  K4 = a2*(y+K3*h);
+  NewY = y + (h/6)*(K1+2*K2+2*K3+K4);
+  if (Verbose) printf("NewY=%a\n",NewY);
+  C=coef(NewY,1,y);
+  A = matrix_list_to_matrix(A);
+  Rule=[[a2,base_replace(A,[[t,t+h]])*d2],[a1,base_replace(A,[[t,t+h/2]])*d1],
+        [a0,A*d0]];
+  Rmat = matrix_poly_to_matrix(C,Rule);
+  DRule = [[d0,1/Dn],[d1,base_replace(1/Dn,[[t,t+h/2]])],
+                     [d2,base_replace(1/Dn,[[t,t+h]])]];
+  return [Rmat,DRule];
+}
+
+// 2020.09.07.  tairy.c, solve_ode_by_r4d.c を参照
+/*
+  Code=code_solve_ode_by_rk4_with_defuse([[0,1],[t,0]],0,[0.355028053887817,-0.258819403792807],10.1)$
+  util_write_string_to_a_file("tmp-test.c",Code)$
+  cc -o tmp-test tmp-test.c proj.o -lmpfr -lgmp  -lgsl -lgslcblas  -lm
+*/
+def code_solve_ode_by_rk4_with_defuse(Pmat,T0,F0,T1) {
+  clear_all();
+  T0=number_eval(T0);
+  F0=number_eval(F0);
+  T1=number_eval(T1);
+  Pmat = matrix_list_to_matrix(Pmat);
+  N = size(Pmat)[0];
+  if (N != size(Pmat)[1]) error("Pmat must be a square matrix.");
+  if (type(getopt(prec))>0) Prec=getopt(prec);
+  else Prec=64; // 64 bit mpfr double as a default
+  if (type(getopt(progname))>0) T_progname=getopt(progname);
+  else T_progname="tmp-test";
+  if (type(getopt(h))>0) H=getopt(h);
+  else H=0.001;
+  if (type(getopt(t_noproj))>0) T_noproj = getopt(t_noproj);
+  else T_noproj=0.0;
+  if (type(getopt(n_prune))>0) N_prune = getopt(n_prune);
+  else N_prune=1;
+  if (type(getopt(strategy))>0) T_strat = getopt(strategy);
+  else T_strat=1;
+  if (type(getopt(n_defuse))>0) N_defuse = getopt(n_defuse);
+  else N_defuse = number_floor(1/H)*5;
+  if (type(getopt(ref_value_file))>0) T_ref_value_file = getopt(ref_value_file);
+  else T_ref_value_file = "tmp_ref_value.txt";
+
+  Code = util_read_file_as_a_string(A2M_template+"/solve_ode_by_r4d.h");
+  Code += sprintf("#define N %a\n",N);
+  Code += sprintf("#define PREC  %a\n",Prec);
+  Code += sprintf("#define MPFR_PREC PREC\n");
+  Code += sprintf("// include proj.h\n");
+  Code += util_read_file_as_a_string(A2M_template+"/proj.h"); 
+  Code += "\n\n";
+
+  if (vars(Pmat) != [t]) error("Pmat must be a function of t");
+
+  Code += sprintf("#define T_PROGNAME \"%a\"\n",T_progname);
+  Code += sprintf("#define T_RANK %a\n",N);
+  Code += sprintf("#define T_T0 %a\n",T0);
+  Code += sprintf("#define T_T1 %a\n",T1);
+  Code += sprintf("#define T_H  %a\n",H);
+  Code += sprintf("#define T_NOPROJ %a\n",T_noproj);
+  Code += sprintf("#define T_STRAT %a\n",T_strat);
+  Code += sprintf("#define T_N_PRUNE %a\n",N_prune);
+  Code += sprintf("#define T_N_DEFUSE %a\n",N_defuse);
+  Code += sprintf("#define T_REF_VALUE_FILE \"%a\"\n",T_ref_value_file);
+  Code += sprintf("#define T_F0 {");
+  for (I=0; I<N; I++) {
+    Code += sprintf("%a",F0[I]);
+    if (I < N-1) Code += sprintf(",");
+  }
+  Code += "}\n\n\n";
+
+  MatRule = rk4_mat(Pmat);
+  Code += code_mat_fac_mpfr(MatRule);
+  Code += "\n\n";
+
+  Code += util_read_file_as_a_string(A2M_template+"/solve_ode_by_r4d.c");
+
+  if (sysinfo()[1] == "Linux") GSL_opt = " -lgsl -lgslcblas ";
+  else GSL_opt = " -lcblas -lblas -lgsl "; // bsd
+  CompileCmd += sprintf("ln -s %a/proj.c tmp-proj.c ; cc -I%a/ -DNN=%a -c tmp-proj.c\n",A2M_template,A2M_template,N);
+  CompileCmd += sprintf("cc -o %a %a.c tmp-proj.o -lmpfr -lgmp %a -lm\n",T_progname,T_progname,GSL_opt);
+  print(CompileCmd);
+  A2M_config_compile=CompleCmd;
+
+  return Code;
+}
+
+// 2020.09.08
+def test0908() {
+  Code=code_solve_ode_by_rk4_with_defuse([[0,1],[t,0]],0,[0.355028053887817,-0.258819403792807],10.1)$
+  util_write_string_to_a_file("tmp-test.c",Code)$
+}
+
+def config() {
+  return A2M_config_compile;
+}
+
+def init_mat2mpfr() {
+  if (base_subsetq(strtoascii("num-ht2"),strtoascii(pwd()))) {
+    A2M_template="."$  // debug 用
+  }else{
+    A2M_template=getenv("OpenXM_HOME")+"/lib/asir-contrib/tk_any2mpfr"$
+  }
+  printf("Template dir (A2M_template) is %a\n",A2M_template);
+}
+
+#ifdef USE_MODULE
+endmodule$
+tk_ode_by_mpfr.init_mat2mpfr()$
+#else
+init_mat2mpfr()$
+#endif
+end$

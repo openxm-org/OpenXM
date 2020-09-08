@@ -1,0 +1,278 @@
+%% $OpenXM$
+%% debug に ln -s ../texinfo-ja.tex . をしておく.
+%% xetex tk_ode_by_mpfr-ja.texi   (.texi までつける. ) 
+%% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@c tex
+@c \overfullrule=0pt
+@c end tex
+@documentlanguage ja
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename ox_pari-ja
+
+@comment --- タイトル ---
+@settitle ox_pari
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title tk_ode_by_mpfr
+@subtitle MPFR で ODE の数値解析をするC言語のコードを生成
+@subtitle 1.0 版
+@subtitle 2020 年 9 月 8 日
+
+@author  by Nobuki Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2020--2020. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する函数がある.
+@menu
+* tk_ode_by_mpfrについて
+* tk_ode_by_mpfr函数::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node tk_ode_by_mpfrについて,,, Top
+@chapter tk_ode_by_mpfrについて
+
+ODE(ordinary differential equation)をMPFR(任意精度小数パッケージ)を援用して数値解析するための
+C言語のプログラムを生成する.
+下記のコマンドでこのパッケージがロードされる.
+@example
+load("tk_ode_by_mpfr.rr")$
+@end example
+@noindent
+
+@sp 3
+
+@noindent
+このパッケージは HGM に出現する ODE の数値解析のために作成された.
+HGM については次の web サイトを参照.
+@itemize @bullet
+@item [hgm] 
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/hgm/ref-hgm.html}
+@end itemize
+
+@noindent
+内部函数の仕様は man-asir2mpfr.tex 参照(まだ未公開).
+@c Ref: num-ht2/man-asir2mpfr.tex
+
+@node tk_ode_by_mpfr函数,,, Top
+@chapter tk_ode_by_mpfr函数
+
+@menu
+* pari::
+@end menu
+
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の函数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node code_solve_ode_by_rk4_with_defuse,,, tk_ode_by_mpfr函数
+@section @code{tk_ode_by_mpfr}
+@comment --- 索引用キーワード
+@findex code_solve_ode_by_rk4_with_defuse
+
+@table @t
+@item code_solve_ode_by_rk4_with_defuse(@var{Pmat},@var{T0},@var{F0},@var{T1})
+:: 係数 @var{Pmat} をもつ ODE の初期値問題を解くC言語のコードを生成する.
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item return
+C言語のコード. main 函数を含む.
+@item Pmat
+ODE dF/dt = P F の係数行列 P(t). t の式を成分とすること.
+@item T0
+初期時刻.
+@item F0
+初期条件.
+@item T1
+終了時刻. T1>T0 を満たすこと. 
+@end table
+
+@comment --- ここで函数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+dF/dt = PF を F(T0)=F0 の初期条件の元, 時刻 T1 まで求める.
+@item 
+big float による matrix factorial を用いて計算する.
+@item 
+defusing heuristics や知られている厳密値を用いて不安定性を
+コードも含む.
+これらは下記の option 引数でコントロールする.
+@end itemize
+
+@comment man-asir2mpfr.tex より
+@c @verbatim
+@c @end verbatim
+@multitable {xxxxxxxxxx} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} {xxxxxxxxxxxxxx}
+@item Option @tab    @tab  default value 
+@item { verbose} @tab  @tab  0 
+@item { prec}    @tab  doube size of MPFR @tab  64 
+@item { progname} @tab  @tab  { tmp-test} 
+@item { h}       @tab  step size @tab  0.001 
+@item { t_noproj}@tab  time to apply defusing @tab  0 
+@item { n_prune} @tab  number of eigen vectors to prune @tab  1 
+@item { strat}   @tab  projection strategy @tab  1 
+@item { n_defuse}@tab  number of the matrix factorial @tab  5 [1/h] 
+@item { ref_value_file}@tab  File name of exact values @tab  { tmp_ref_value.txt} 
+@end multitable
+
+
+@sp 3
+@noindent
+例:
+Airy の微分方程式
+dF/dt=[[0,1],[t,0]]F, F(0)=[0.355028053887817,-0.258819403792807]
+の解 F(t) を t=10.1 まで計算.
+@comment tk_mat2mpfr.rr, test0908();
+@smallformat
+@example
+--> load("tk_ode_by_mpfr.rr"); 
+--> Code=tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse([[0,1],[t,0]],
+     0,[0.355028053887817,-0.258819403792807],10.1 | h=0.001)$
+-->  util_write_string_to_a_file("tmp-test.c",Code)$
+
+On the unix shell
+ln -s ${OpenXM_HOME}/lib/asir-contrib/tk_ode_by_mpfr/proj.c tmp-proj.c 
+cc -I${OpenXM_HOME}/lib/asir-contrib/tk_ode_by_mpfr -DNN=2 -c tmp-proj.c
+cc -o tmp-test tmp-test.c tmp-proj.o -lmpfr -lgmp  -lgsl -lgslcblas  -lm
+
+./tmp-test --verbose --t_noproj 8.1 --n_defuse 2000 --n_prune 1
+@end example
+@end smallformat
+@noindent
+上記の compile 用のコマンドは上記のコマンドが出力する.
+--t_noproj 8.1 は t<8.1 までは4次の Runge-Kutta 法を適用する.
+t=8.1 以降は --n_prune で指定した個数の固有空間(Re(固有値)の順)の成分
+を削除する.
+--n_defuse 2000 は 2000 個の行列の matrix factorial を計算する.
+
+@noindent
+
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@comment @ref{code_mat_fac_mpfr}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ tk_ode_by_mpfr/tk_man2mpfr.rr
+@end itemize
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+
+@comment テンプレート.  start_of_template.
+@comment **********************************************************
+@comment --- ◯◯◯◯  の説明 
+@comment --- 個々の函数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node gtt_ekn3.hoge,,, 超幾何函数E(k,n)
+@subsection @code{gtt_ekn3.hoge}
+@comment --- 索引用キーワード
+@findex gtt_ekn3.hoge
+
+@table @t
+@item gtt_ekn3.hoge(@var{i})
+:: 
+@end table
+
+@comment --- 引数の簡単な説明 ---  以下まだ書いてない.
+@table @var
+@item i  hage
+@item return  
+@end table
+
+@comment --- ここで函数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 説明.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+例: 
+@example
+[2221] gtt_ekn3.hoge([[1,4],[2,3]]);
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{gtt_ekn3.nc}
+@ref{gtt_ekn3.gmvector}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+@end itemize
+@comment end_of_template
+

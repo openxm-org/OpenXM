@@ -1,0 +1,727 @@
+/* 
+$OpenXM$
+  2020.02.12
+ tk_asir2mpfr.rr
+
+  new_ 系列は read only (ro) でない.
+  他の mpfr 変数は ro (read only)
+  apt install libmpfr-dev
+*/
+import("names.rr")$
+#define USE_MODULE
+#ifdef USE_MODULE
+module tk_ode_by_mpfr$
+//initialized by init_asir2mpfr()
+static Mpfr_obj$
+static Mpfr_obj_index$
+static AllCode$
+static Mpfr_tmp$
+static Mpfr_tmp_index$
+static Mpfr_indent$
+static Mpfr_static$
+static Mpfr_static_index$
+static Mpfr_init_code$
+static Mpfr_ob_declare$
+#else
+extern Mpfr_obj$
+extern Mpfr_obj_index$
+extern AllCode$
+extern Mpfr_tmp$
+extern Mpfr_tmp_index$
+extern Mpfr_indent$
+extern Mpfr_static$
+extern Mpfr_static_index$
+extern Mpfr_init_code$
+extern Mpfr_ob_declare$
+/*  init_asir2mpfr() で初期化. 
+    新しい extern を加えたら clear_all() へも加えること. */
+#endif
+
+#ifdef USE_MODULE
+localf use_init_code$
+localf add_init_code$
+localf output_init_code$
+localf register_static$
+localf new_tmp$
+localf add_code$
+localf output_code$
+localf register_obj$
+localf search_obj$
+localf int_to_mpfr$
+localf ratnum_to_mpfr$
+localf new_mpfr$
+localf clone_mpfr$
+localf new_dup_mpfr$
+localf power_to_mpfr$
+localf rpoly_to_mpfr$
+localf rat_to_mpfr$
+localf init_code$
+localf poly_to_mpfr$
+localf gen_declaration$
+localf gen_declaration_except$
+localf gen_declaration_tmp$
+localf gen_declaration_static$
+localf is_ob_form$
+localf is_tmp_form$
+localf test1$
+localf test1b$
+localf test1a$
+localf clear_all$
+localf begin_function$
+localf end_function$
+localf set_obj_mpfr$
+localf set_mpfr_obj$
+localf set_obj_obj$
+localf set_mpfr_mpfr$
+localf gen_declaration_ob$
+localf depend_q$
+localf dep_vars$
+localf init_asir2mpfr$
+#endif
+
+/*  これを呼ぶと mpfr_init2() が Mpfr_init_code にまとめられる */
+def use_init_code() {
+//  extern Mpfr_init_code;
+  Mpfr_init_code=string_to_tb("")$
+}
+def add_init_code(Code,R) {
+//  extern Mpfr_init_code;
+//  extern Mpfr_ob_declare;
+  if (R!=0) Mpfr_ob_declare=cons(R,Mpfr_ob_declare);
+  write_to_tb(Code+"\n",Mpfr_init_code);
+}
+def output_init_code() {
+//  extern Mpfr_init_code;
+  return tb_to_string(Mpfr_init_code);
+}
+
+def register_static() {
+//  extern Mpfr_static;
+//  extern Mpfr_static_index;
+  V=util_v(first,[Mpfr_static_index++]);
+  Mpfr_static=cons(V,Mpfr_static);
+  return V;
+}
+
+def new_tmp(Arg) {  
+//  extern Mpfr_init_code;
+  if (Arg != 0) return Arg;
+  Mpfr_tmp=cons([tmp,R=util_v("tmp",[Mpfr_tmp_index])],Mpfr_tmp);
+  Mpfr_tmp_index++;
+  Code=sprintf("mpfr_init2(%a,MPFR_PREC); ",R);
+  if (type(Mpfr_init_code) == 0) add_code(Code); else add_init_code(Code,0);
+  return [R,0];
+}
+def add_code(Code) {
+//  extern AllCode;
+//  extern Mpfr_indent;
+  for (I=0; I<Mpfr_indent*4; I++) write_to_tb(" ",AllCode);
+  write_to_tb(Code+"\n",AllCode);
+}
+def output_code() {
+//  extern AllCode;
+  return tb_to_string(AllCode);
+}
+
+def register_obj(Obj) {
+//  extern Mpfr_obj;
+//  extern Mpfr_obj_index;
+//  extern Mpfr_init_code;
+  if (type(getopt(no_init_code))>0) No_init_code=1; else No_init_code=0;
+  if (Obj == tmp) {
+    return new_tmp(0);
+  }else{
+    R = search_obj(Obj);
+  }
+  if ((R==0) && is_ob_form(Obj)) {
+    /* ob_12 などが参照されている. これは計算済みのはず. */
+    Mpfr_obj=cons([Obj,Obj],Mpfr_obj);
+    Mpfr_obj_index++;
+    return [Obj,0];
+  }
+  if (R == 0) {
+    Mpfr_obj=cons([Obj,R=util_v("ob",[Mpfr_obj_index])],Mpfr_obj);
+    Mpfr_obj_index++;
+    if (No_init_code) return [R,0];
+    Code = sprintf("mpfr_init2(%a,MPFR_PREC); /* register %a */ ",R,Obj);
+    if (type(Mpfr_init_code) == 0) add_code(Code); else {
+      add_init_code(Code,R);
+      add_code(sprintf("/* register %a to %a in init_code */",Obj,R));
+    }    
+    if (is_tmp_form(Obj)) {
+      add_code(sprintf("mpfr_set(%a,%a,MPFR_RNDD); /* ob_* <- tmp_* */",R,Obj));
+    }
+    return [R,0];
+  }
+  return [R,1];
+}
+def search_obj(Obj) {
+//  extern Mpfr_obj;
+  N=length(Mpfr_obj);
+  for (I=0; I<N; I++) {
+    if (Mpfr_obj[I][0] == Obj) return(Mpfr_obj[I][1]);
+  }
+  return(0);
+}
+def int_to_mpfr(N0) {
+//  extern Mpfr_init_code;
+  A1=register_obj(N0);
+  Obj=A1[0];
+  if (A1[1]==0) { // 新しい obj
+    Code=sprintf("mpfr_strtofr(%a,\"%a\",NULL,10,MPFR_RNDD); ",Obj,N0);
+    if (Mpfr_init_code) {
+      add_init_code(Code,0);
+    }else{
+      add_code(Code);
+    }
+    return [Obj,Code];
+  }else{
+    return [Obj,0];  // Obj, code はなし.
+  }
+}
+def ratnum_to_mpfr(N) {
+//  extern Mpfr_init_code;
+  R=search_obj(N);  //注意: ここで register_obj をやると code を持たない obj ができてしまう.
+  if (R!=0) return [R,0];
+  N0=nm(N); N1=dn(N);
+  if (N1==1) return int_to_mpfr(N0);
+
+  R = register_obj(N);  // ここではじめて mpfr obj を作る
+  Mp0 = int_to_mpfr(N0);
+  Mp1 = int_to_mpfr(N1);
+  Code=sprintf("mpfr_div(%a,%a,%a,MPFR_RNDD); ",R[0],Mp0[0],Mp1[0]);
+  if (Mpfr_init_code) {
+    add_init_code(Code,0);
+  }else{
+    add_code(Code);
+  }
+  return [R[0],Code];
+}
+/*
+  ratnum_to_mpfr(1/2);
+  ratnum_to_mpfr(0);
+  output_code();
+*/
+/*
+  Obj が登録されていてもいなくても生成.
+  書き換える変数に必要.
+*/
+def new_mpfr(Obj) {
+  if (type(Obj)==0) {
+    R=register_obj(tmp);
+    Code=sprintf(" mpfr_set_si(%a,(long) 0,MPFR_RNDD); ",R[0]);
+    add_code(Code);
+    return [R[0],Code];
+  } if ((type(Obj) == 1) && (dn(Obj) == 1)) {
+    R=register_obj(tmp);
+    Code=sprintf(" mpfr_strtofr(%a,\"%a\",NULL,10,MPFR_RNDD); ",R[0],Obj);
+    add_code(Code);
+    return [R[0],Code];
+  } else{
+    error("Not implemented.");
+  }
+}
+
+def clone_mpfr(Obj,Fr_obj) {
+  V=util_index(Fr_obj);
+  if ((V[0] != "ob") && (V[0] != "tmp")) error("clone_mpfr");
+  R=register_obj(Obj);
+  if (R[1] != 0) {
+    Code=sprintf("/*Note: The summation tmp_ var %a is not used becase obj %a is already evaluated. */",Fr_obj,Obj);
+    add_code(Code);
+    return R;
+  }
+  Code=sprintf("mpfr_set(%a,%a,MPFR_RNDD); ",R[0],Fr_obj);
+  add_code(Code);
+  return [R[0],Code];
+}
+def new_dup_mpfr(Fr_obj) {
+  V=util_index(Fr_obj);
+  if (V[0] != "ob") error("new_dup_mpfr");
+  R=register_obj(tmp);
+  Code=sprintf(" mpfr_set(%a,%a,MPFR_RNDD); ",R[0],Fr_obj);
+  add_code(Code);
+  return [R[0],Code];
+}
+/* Obj^K, Obj は asir の多項式変数 */
+def power_to_mpfr(Obj_V,Fr_V,K) {
+  R=register_obj(Obj_V);
+  if (R[1] == 1) return R;
+  Code = sprintf("mpfr_pow_ui(%a,%a,%a,MPFR_RNDD); ",R[0],Fr_V,K);
+  add_code(Code);
+  return [R[0],Code];
+}
+/*
+  再帰表現多項式を mpfr 形式へ.
+
+  rpoly_to_mpfr((x-1)^2); rpoly_to_mpfr((x+y)^3); output_code();
+  rpoly_to_mpfr(t^2); output_code();
+*/
+def rpoly_to_mpfr(F) {
+  if (type(F) <=1) return ratnum_to_mpfr(F);
+  V=var(F);
+  R=search_obj(F);
+  if (R != 0) {
+    add_code(sprintf("/* %a is already evaluated as %a */",F,R));
+    return [R,0];
+  }else{
+    add_code(sprintf("/* evaluate %a */ ",F));
+  }
+  N=deg(F,V);
+  CF=newvect(N+1);
+  Mpfr_indent++;
+  for (I=0; I<=N; I++) {
+    C=coef(F,I);
+    if (C != 0) CF[I]=rpoly_to_mpfr(C);
+  }
+  Mpfr_indent--;
+  /* CF には計算済みの object のリスト */
+  if ((Fr_V=search_obj(V))==0) {
+    RV=register_obj(V); add_code(sprintf("/* Warning. %a is not initialized. */",RV[0]));
+    Fr_V = RV[0];
+  }
+  Fr_F = new_mpfr(0)[0]; /* ここに足し込む */
+  Code = sprintf("/* %a will be set to obj %a */",Fr_F,F);
+  add_code(Code);
+  Tmp=new_tmp(0)[0];
+  Mpfr_indent++;
+  for (I=0; I<=N; I++) {
+    if (CF[I] != 0) {
+      VK=power_to_mpfr(V^I,Fr_V,I);
+      Code=sprintf("mpfr_mul(%a,%a,%a,MPFR_RNDD);/* Tmp=%a^%a*%a  coef of %a^%a */ ",Tmp,VK[0],CF[I][0],V,I,CF[I][0],V,I);
+      add_code(Code);
+      Code=sprintf("mpfr_add(%a,%a,%a,MPFR_RNDD); /* Fr_F += Tmp */ ",Fr_F,Fr_F,Tmp);
+      add_code(Code);
+    }
+  }
+  R=clone_mpfr(F,Fr_F);
+  Mpfr_indent--;
+  Code=sprintf("/* Done of %a */ ",F); add_code(Code);
+  return R;
+}
+def rat_to_mpfr(Obj) {
+  if (type(Obj)<=2) return rpoly_to_mpfr(Obj);
+  if (type(Obj)==3) {
+     R = search_obj(Obj);
+     if (R != 0) return [R,0];
+     R1=rpoly_to_mpfr(nm(Obj));
+     R2=rpoly_to_mpfr(dn(Obj));
+     R=register_obj(Obj);
+     if (R[1] != 0) return R;
+     Code=sprintf("mpfr_div(%a,%a,%a,MPFR_RNDD); ",R[0],R1[0],R2[0]);
+     add_code(Code);
+     return [R[0],Code];
+  }
+  error("Not implemented in rat_to_mpfr");
+}
+/*
+  変数の初期化用
+  init_code([[t,0.2],[h,10^(-5)]]);
+*/
+def init_code(L) {
+  if (type(getopt(var))>0) Var=getopt(var);
+  else Var=0;
+  Code="";
+  N=length(L);
+  for (I=0; I<N; I++) {
+     R=search_obj(L[I][0]);
+     if (R==0) {
+       R=register_obj(L[I][0]);
+       if (type(Var)==0) {
+         Val=rat_to_mpfr(L[I][1]);
+       }else{
+         /* Var を定数でない変数にしたときにはこちらを使う */
+         Val=poly_to_mpfr(L[I][1],Var); 
+       }
+       Code += sprintf("mpfr_set(%a,%a,MPFR_RNDD); /* set variable %a=%a */ ",R[0],Val[0],L[I][0],L[I][1])+"\n";
+     }else{
+       error("This variable is already used.");
+     }
+  }
+  add_code(Code);
+  return Code;
+}
+/*
+  F は 多項式
+  V は main 変数.
+  rk_mat2(newmat(2,2,[[0,1],[t,0]])); の [1][0] 成分より.
+  poly_to_mpfr1((1/12*d1^2*d2+1/12*d0*d1^2)*h^3*t^2+((1/8*d1^2*d2+1/24*d0*d1^2)*h^4+(1/6*d2+2/3*d1+1/6*d0)*h)*t+1/24*d1^2*d2*h^5+(1/6*d2+1/3*d1)*h^2,[t]);
+*/
+/* 2020.02.13 */
+def poly_to_mpfr(F,V) {
+  if (F == 0) {return int_to_mpfr(0);}
+  if (type(getopt(loop))>0) Loop=getopt(loop); else Loop=1;
+  R = search_obj(F); if (R != 0) return [R,1];
+  if (type(F) == 3) {  /* 2020.02.20 */
+     if (length(base_intersection(vars(nm(F)),V))==0) {
+       R1=rpoly_to_mpfr(nm(F));
+     }else {
+       R1=poly_to_mpfr(nm(F),V);
+     }
+     if (length(base_intersection(vars(dn(F)),V))==0) {
+       R2=rpoly_to_mpfr(dn(F));
+     }else {
+       R2=poly_to_mpfr(dn(F),V);
+     }
+     R=register_obj(F);
+     Code=sprintf("mpfr_div(%a,%a,%a,MPFR_RNDD); ",R[0],R1[0],R2[0]);
+     add_code(Code);
+     return [R[0],Code];
+  }
+  First = register_static();
+  F_orig = F;
+  add_code(sprintf("/*begin of poly_to_mpfr(%a,%a); */ ",F,V));
+  if (Loop > 1) add_code(sprintf("int i; for (i=0; i<%a; i++) {\n",Loop));
+  Mpfr_indent++;
+  Ans = new_mpfr(0);
+  add_code(sprintf("if (%a) {",First));
+  Mpfr_indent++;
+  Vall = vars(F);
+  F=dp_ptod(F,V);
+  Param = base_set_minus(Vall,V);
+  FD_orig=F;
+  while (F != 0) {
+    C = dp_hc(F);
+    T = dp_ht(F);
+    F = dp_rest(F);
+//    print([C,T]);
+    RC = rat_to_mpfr(C); /* 係数の部分 */
+  }
+  add_code(sprintf("%a=0;",First));
+  add_code("}\n");
+  Mpfr_indent--;
+  F = FD_orig;
+  while (F != 0) {
+    C = dp_hc(F);
+    T = dp_ht(F);
+    F = dp_rest(F);
+//    print([C,T]);
+    EP = dp_dtop(T,V);  /* モノミアルの部分 */
+    RT = rpoly_to_mpfr(EP);
+    RC = rat_to_mpfr(C); /* 係数の部分 */
+    R=register_obj(C*T);
+    Code ="";
+    if (R[1] == 0) {
+      Code = sprintf("mpfr_mul(%a,%a,%a,MPFR_RNDD); ",R[0],RC[0],RT[0]);
+    }
+    Code += sprintf("mpfr_add(%a,%a,%a,MPFR_RNDD); ",Ans[0],Ans[0],R[0]);
+    add_code(Code);
+  }
+  Mpfr_indent--;
+  add_code("\n");
+  Ans=clone_mpfr(F_orig,Ans[0]);
+  if (Loop > 1) {
+    add_code(sprintf("mpfr_out_str(stdout,10,0,%a,MPFR_RNDD);putchar('\\n');\n",Ans[0]));
+    Rt=register_obj(t); Rh=register_obj(h);
+    add_code(sprintf("mpfr_add(%a,%a,%a,MPFR_RNDD);\n",Rt[0],Rt[0],Rh[0]));
+    add_code("} /* end of i loop */");
+  }
+  add_code(sprintf("/*end of poly_to_mpfr(); */ "));
+  return Ans;
+}
+/*
+  Rule に出てくる変数の宣言
+*/
+def gen_declaration(Rule,Sep) {
+//  extern Mpfr_obj;
+  N = length(Rule); M = length(Mpfr_obj);
+  Code="";
+  for (I=0; I<N; I++) {
+    D=0;
+    for (J=0; J<M; J++) {
+      if (Rule[I][0] == Mpfr_obj[J][0]) {
+	D += sprintf("mpfr_t %a",Mpfr_obj[J][1]);
+	if ((Sep == 0) && (I < N-1)) D += ", ";
+	else D += Sep;
+	break;
+      }
+    }
+    if (D == 0) error("object is not found.");
+    Code += D;
+  }
+  return Code;
+}
+
+/*
+  Rule に出てくる以外の変数の宣言.
+*/
+def gen_declaration_except(Rule,Sep) {
+//  extern Mpfr_obj;
+  N = length(Rule); M = length(Mpfr_obj);
+  Code="";
+  for (J=0; J<M; J++) {
+    D=0;
+    for (I=0; I<N; I++) {
+      if (Rule[I][0] == Mpfr_obj[J][0]) {
+        D = 1;
+        break;
+      }
+    }
+    if (D) continue;
+    Code += sprintf("mpfr_t %a",Mpfr_obj[J][1])+Sep;
+  }
+  return Code;
+}
+def gen_declaration_tmp(Sep) {
+//  extern Mpfr_tmp;
+  M = length(Mpfr_tmp);
+  Code="";
+  for (J=0; J<M; J++) {
+    Code += sprintf("mpfr_t %a",Mpfr_tmp[J][1])+Sep;
+  }
+  return Code;
+}
+
+def gen_declaration_static(Sep) {
+//  extern Mpfr_static;
+  if (type(getopt(no_static))>0) No_static=getopt();
+  else No_static=0;
+  M = length(Mpfr_static);
+  Code="";
+  for (J=0; J<M; J++) {
+    if (No_static) {
+      Code += sprintf("int %a=1",Mpfr_static[J])+Sep;
+    }else{
+      Code += sprintf("static int %a=1",Mpfr_static[J])+Sep;
+    }
+  }
+  return Code;
+}
+
+/* Obj が ob_ の形式か判定する */
+def is_ob_form(Obj) {
+  if (type(Obj)!=2) return(0);
+  V=vars(Obj);
+  if (length(V) > 1) return(0);
+  V=V[0];
+  if (V != Obj) return(0);
+  S=strtoascii(rtostr(V)); S0=strtoascii("ob_");
+  if (length(S) < 4) return(0); // number follows, but is not checked.
+  if ((S[0]==S0[0]) && (S[1]==S0[1]) && (S[2]==S0[2])) return 1;
+  return 0;
+}
+/* Obj が tmp_ の形式か判定する */
+def is_tmp_form(Obj) {
+  if (type(Obj)!=2) return(0);
+  V=vars(Obj);
+  if (length(V) > 1) return(0);
+  V=V[0];
+  if (V != Obj) return(0);
+  S=strtoascii(rtostr(V)); S0=strtoascii("tmp_");
+  if (length(S) < 5) return(0); // number follows, but it is not checked.
+  if ((S[0]==S0[0]) && (S[1]==S0[1]) && (S[2]==S0[2]) && (S[3]==S0[3])) return 1;
+  return 0;
+}
+
+def test1() {
+  S = test1a(F=3*t^2);
+//  S = test1a(F=1-(t+1)*h*a);
+//  S = test1a(F=(1-(t+1)*h*a)^2);
+  util_write_string_to_a_file("t0.c",S);
+  test1b(F);
+  print("Write to t0.c");
+  /* Ref: test1.c */
+}
+def test1b(F) {
+  H = number_eval(1/10^5);
+  for (I=0; I<4; I++) {
+    print(number_eval(base_replace(F,[[t,1+I*H],[a,2],[h,H]])));
+  }
+}
+/*
+ 40万回繰り返してどの程度の時間か?  --> 13.44s
+T0=time()$ H=number_eval(1/10^5)$ for (I=0; I<400000; I++) {base_replace_n((1-(t+1)*h*a)^2,[[t,1+I*H],[h,H],[a,2]]);} T1=time()$ T1[0]-T0[0];
+
+0.80s by t0.c
+*/
+def test1a(F) {
+  V=[t];
+  Vrule=[[t,1]];
+  Prule=[[h,1/10^5],[a,2]];
+  Code_asir = sprintf("base_replace(%a,append(%a,%a));",F,Vrule,Prule);
+  Code = "/*" + Code_asir + "*/\n";
+  print(eval_str(Code_asir));
+  print(number_eval(eval_str(Code_asir)));
+
+  init_code(Vrule);
+  init_code(Prule);
+  Dec0 = gen_declaration(Rule=append(Vrule,Prule),";\n");
+  R = poly_to_mpfr(F,V | loop=4);
+  Code += "#include <stdio.h>\n#include <gmp.h>\n#include <mpfr.h>\n";
+  Code += "#define MPFR_PREC 64\n";
+  Code += "/*Note that MPFR_PREC is a bit size.*/\n";
+  Code += "int main(void) {\n";
+  Code += Dec0+"\n\n";
+  Code += gen_declaration_except(Rule,";\n");
+  Code += gen_declaration_tmp(";\n");
+  Code += "\n"+gen_declaration_static(";\n");
+  Code += output_code();
+  Code += sprintf("mpfr_out_str(stdout,10,0,%a,MPFR_RNDD);putchar('\\n');\n",R[0]);
+  Code += "}\n";
+  return Code;
+}
+
+/* 2020.02.18
+*/
+def clear_all() {
+//  extern Mpfr_obj;
+  Mpfr_obj=[];
+//  extern Mpfr_obj_index;
+  Mpfr_obj_index=0;
+//  extern AllCode;
+  AllCode=string_to_tb("");
+
+//  extern Mpfr_tmp;
+  Mpfr_tmp=[];
+//  extern Mpfr_tmp_index;
+  Mpfr_obj_index=0;
+//  extern Mpfr_indent;
+  Mpfr_indent=0;
+
+//  extern Mpfr_static;
+  Mpfr_static=[];   /* static int first_ ... とする変数 */
+//  extern Mpfr_static_index;
+  Mpfr_static_index=0;
+
+//  extern Mpfr_init_code;
+  Mpfr_init_code=0;
+//  extern Mpfr_ob_declare$
+  Mpfr_ob_declare=[]$
+
+}
+clear_all()$ print("All global variables of the package are cleared.")$
+
+/* ArgList は mpfr 用,
+   OtherArgList は 他の変数用 文字列で.
+*/
+def begin_function(Fname,ArgList, OtherArgList) {
+//  extern Mpfr_indent;
+  Mpfr_indent++;
+  for (I=0; I<length(ArgList); I++) {
+    register_obj(ArgList[I] | no_init_code=1);
+  }
+  Code = sprintf("int %a(",Fname);
+  for (I=0; I<length(ArgList); I++) {
+    if (I != 0) Code += ",";
+    Code += sprintf("mpfr_t %a /* %a */",search_obj(ArgList[I]),ArgList[I]);
+  }
+  for (I=0; I<length(OtherArgList); I++) {
+    if (length(ArgList) > 0) Code += ",";
+    Code += sprintf("%a",OtherArgList[I]);
+  }
+  Code += ") {\n";
+  return Code;  // add_code はしない.
+}
+def end_function(Result) {
+//  extern Mpfr_indent;
+  Mpfr_indent--;
+  Code=sprintf("  return(%a);\n}",Result);
+  return Code;  // add_code はしない.
+}
+
+/*
+  search_obj(Obj) <-- M
+*/
+def set_obj_mpfr(Obj, M) {
+  R = search_obj(Obj);
+  if (R == 0) error("no Obj");
+  Code = sprintf("mpfr_set(%a,%a,MPFR_RNDD); /* %a <- %a */",R,M,Obj,M);
+  add_code(Code);
+  return Code;
+}
+def set_mpfr_obj(M,Obj) {
+  R = search_obj(Obj);
+  if (R == 0) error("no Obj");
+  Code = sprintf("mpfr_set(%a,%a,MPFR_RNDD);/* %a <- %a */",M,R,M,Obj);
+  add_code(Code);
+  return Code;
+}
+def set_obj_obj(Obj, ObjM) {
+  R = search_obj(Obj);
+  if (R == 0) error("no Obj");
+  M = search_obj(ObjM);
+  if (M == 0) error("no ObjM");
+  Code = sprintf("mpfr_set(%a,%a,MPFR_RNDD); /* %a <- %a */",R,M,Obj,ObjM);
+  add_code(Code);
+  return Code;
+}
+def set_mpfr_mpfr(R, M) {
+  Code = sprintf("mpfr_set(%a,%a,MPFR_RNDD); /* %a <- %a */",R,M,R,M);
+  add_code(Code);
+  return Code;
+}
+
+/*test codes
+  ２つの数の足し算関数
+clear_all();
+Begin=begin_function("myadd",[r,a,b],[]);
+R=poly_to_mpfr(a+b,[a,b]);
+D0=gen_declaration_except([[r,0],[a,0],[b,0]],";\n");
+D1=gen_declaration_tmp(";\n");
+D2=gen_declaration_static(";\n");
+set_obj_mpfr(r,R[0]);
+End=end_function(0);
+Begin+D0+D1+D2+output_code()+End; 
+
+*/
+
+def gen_declaration_ob(Sep) {
+//  extern Mpfr_ob_declare;
+  V = Mpfr_ob_declare;
+  Code="";
+  for (I=0; I<length(V); I++) {
+    Code += sprintf("mpfr_t %a",V[I])+Sep;
+  }
+  return Code;
+}
+
+/* 2020.02.20 */
+/* [S,F] , F が V に依存するか? */
+def depend_q(F,V) {
+  for (I=0; I<length(V); I++) {
+     if (red(diff(F,V[I])) != 0) return(1);
+  }
+  return(0);
+}
+/* Rule の左変数で V に依存するものを list する */
+def dep_vars(Rule,V) {
+  Dep=[];
+  for (I=0; I<length(Rule); I++) {
+    if (depend_q(Rule[I][1],V)) {
+       Dep=cons(Rule[I][0],Dep);
+    }
+  }
+  return Dep;				  
+}
+
+def init_asir2mpfr() {
+  Mpfr_obj=[];
+  /* データ形式
+     [
+     [1, ob0],
+     [2, ob1],
+     [1/2, ob2],
+     [1/2+h,ob3]
+     ]
+  */
+  Mpfr_obj_index=0;
+  AllCode=string_to_tb("");
+
+  Mpfr_tmp=[];
+  Mpfr_obj_index=0;
+  Mpfr_indent=0;
+
+  Mpfr_static=[];   /* static int first_ ... とする変数 */
+  Mpfr_static_index=0;
+
+  Mpfr_init_code=0;
+  Mpfr_ob_declare=[];
+  /*  新しい extern を加えたら clear_all() へも加えること. */
+}
+#ifdef USE_MODULE
+endmodule$
+tk_ode_by_mpfr.init_asir2mpfr()$
+#else
+init_asir2mpfr()$
+#endif
+end$
