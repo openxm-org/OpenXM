@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.72 2020/09/24 06:15:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.73 2020/09/30 05:07:55 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -5209,7 +5209,10 @@ def execdraw(L,P)
 					}
 				}
 				if(MM) V=ptaffine(MM,V|option_list=Org);
-				if(length(T)>3) V=append(V,T[3]);
+				if(length(T)>3){
+					if(type(T2=T[3])==7) T2=[T2];
+					V=append(V,T2);
+				}
 				str_tb(xyput(V),Out);
 			}else if(T[0]==3){
 				F++;
@@ -11424,16 +11427,19 @@ def readTikZ(L)
 					L=0;break;
 				}
 			}
-			S=S?["opt",S]:[];
-			if(DF){
-				S==[]?["cmd","fill"]:[S,["cmd","fill"]];
-			}
 			if(T){
-				while(length(S)<2) S=append(S,"");
-				S=append(S,[T]);
+				if(length(C)==2){
+					if(!S) S=
+					S=(!S)?["",T]:[S,T];
+				}else L=0;
 			}
-			R=cons([1,S,reverse(C)],R);
-		}else if(!str_str(L,"\\node")==0){
+			S=(!S)? []:[["opt",S]];
+			if(DF) S==cons(["cmd","fill"],S);
+			if(T&&L){
+				if(L) R=cons([3,S,C[0],C[1]],R);
+			}else
+				R=cons([1,S,reverse(C)],R);
+		}else if(!str_str(L,"\\node")){
 			U=0;
 			I=str_str(L,"(");J=str_str(L,"[");
 			if(J>0&&I>J){
