@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.17 2017/03/19 00:22:16 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.18 2017/03/28 12:00:04 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -705,18 +705,19 @@ void
 outputOfExample(char *com) {
   FILE *fp2;
   int c;
+  int r;
   fp2 = fopen("gentexi-in.tmp","w");
   if (fp2 == NULL) {
     fprintf(stderr,"Cannot open tentexi-in.tmp\n");
     exit(10);
   }
-  system("rm -f gentexi-out.tmp");
+  r=system("rm -f gentexi-out.tmp");
   fprintf(fp2,"output(\"gentexi-out.tmp\")$\n");
   fprintf(fp2,"%s\n",com);
   fprintf(fp2,"output()$\n");
   fprintf(fp2,"quit;");
   fclose(fp2);
-  system("asir <gentexi-in.tmp >/dev/null");
+  r=system("asir <gentexi-in.tmp >/dev/null");
 
   fp2 = fopen("gentexi-out.tmp","r");
   if (fp2 == NULL) {

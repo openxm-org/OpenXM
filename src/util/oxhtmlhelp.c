@@ -4,12 +4,13 @@
 #define BUFSIZE 1024
 /* BUG:  it is only for knoppix/math */
 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   char *oxhome;
   char browser[BUFSIZE];
   char fname[BUFSIZE];
   char comm[BUFSIZE];
   int i;
+  int r;
 
   fname[0] = 0;
   oxhome = getenv("OpenXM_HOME");
@@ -29,7 +30,7 @@ main(int argc, char *argv[]) {
   }
 
   sprintf(comm,"%s %s",browser,fname);
-  system(comm);
+  r=system(comm);
 
   return 0;
 

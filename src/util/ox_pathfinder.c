@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.35 2015/09/26 12:40:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.36 2015/10/13 10:16:53 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -85,7 +85,7 @@ int ox_pathfinderNoX(int f) {
   return f;
 }
 int ox_pathfinderVerbose(int f) {
-  extern Verbose_get_home;
+  extern int Verbose_get_home;
   if (f < 0) return Verbose_get_home;
   Verbose_get_home = f;
   return f;

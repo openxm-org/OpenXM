@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxlistlocalf.c,v 1.1 2014/03/25 07:08:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxlistlocalf.c,v 1.2 2015/10/13 06:18:26 takayama Exp $ */
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -6,6 +6,21 @@
 #include <sys/stat.h>
 #include <string.h>
 #include "oxlistlocalf.h"
+
+int readcomment();
+int readcomment2();
+char *readstring();
+int readchar();
+void putchar0(int c);
+void printf0(char *s);
+void printf1(char *s);
+int isReserved(char *s);
+int shouldReplace(char *s);
+int fsgetc(FILE *fp);
+
+
+
+
 
 objectp KClval;
 int Replace = 0;
@@ -354,7 +369,7 @@ int KClex() {
 }
 
 
-readcomment() {
+int readcomment() {
   int c;
   while (1) {
     c = fsgetc(Inop);
@@ -369,7 +384,7 @@ readcomment() {
   }
 }
 
-readcomment2() {
+int readcomment2() {
   int c;
   while (1) {
     c = fsgetc(Inop);
@@ -429,7 +444,7 @@ char *readstring() {
 }
       
 
-readchar() {
+int readchar() {
   int c;
   if (Replace) putchar0('\'');
   c = fsgetc(Inop); /* 'c.'   '\.c' */
@@ -456,29 +471,25 @@ readchar() {
   return(c);
 }
   
-putchar0(c)
-  int c;
+void putchar0(int c)
 {
   if (c > 0) putchar(c);
 }
 
-printf0(s)
-  char *s;
+void printf0(char *s)
 {
   int i = 0;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-printf1(s)
-  char *s;
+void printf1(char *s)
 {
   int i = 0;
   /* putchar0('K'); */   /* do your own replacement */
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-isReserved(s)
-  char *s;
+int isReserved(char *s)
 {
   char *r[] = {"auto","break","case","char","const","continue",
                "default","do","double","else","enum","extern",
@@ -514,8 +525,7 @@ isReserved(s)
 
 }
 
-shouldReplace(s)
-  char *s;
+int shouldReplace(char *s)
 {
   char *r[] = {"dummy"};
   int n = 1;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.3 2006/03/05 04:01:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.4 2009/02/22 17:30:03 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +22,7 @@
 
 int Sjis = 0;
 int LeaveTag = 0;
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   int i,m,pid,n, cpos,start;
   char *com;
   char workf[256];
@@ -30,6 +30,7 @@ main(int argc, char *argv[]) {
   char s[SSIZE];
   char ss[SSIZE*2];
   FILE *fp;
+  int r;
   m = 256;
   pid = getpid();
   if (argc < 2) {
@@ -56,7 +57,7 @@ main(int argc, char *argv[]) {
   }
   sprintf(workf,"/tmp/tmp-oxgreph-%d.txt",pid);
   sprintf(&(com[strlen(com)]),">%s",workf);
-  system(com);
+  r=system(com);
 
   printf("<ol>\n");
   fp = fopen(workf,"r");
@@ -93,5 +94,6 @@ main(int argc, char *argv[]) {
   }
   printf("</ol>\n");
   sprintf(com,"rm -f %s",workf);
-  system(com);
+  r=system(com);
+  return 0;
 }
