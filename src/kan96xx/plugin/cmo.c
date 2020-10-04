@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.15 2016/08/28 02:43:14 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.16 2020/10/04 03:14:07 noro Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -1476,11 +1476,11 @@ int cmoOutRawInt(int k)
   cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
 }  
 
-void warningCmo(char *s) {
+int warningCmo(char *s) {
   fprintf(stderr,"Warning: plugin/cmo.c : %s\n",s);
 }
 
-void errorCmo(char *s) {
+int errorCmo(char *s) {
   fprintf(stderr,"plugin/cmo.c : %s\n",s);
   errorKan1("%s\n","cmo fatal error. ox servers need SM_control_reset_connection.");
   /* ErrorPacket is automatically push on the ErrorStack.
