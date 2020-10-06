@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.5 2009/09/04 02:25:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.6 2018/05/03 13:20:35 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -38,7 +38,7 @@ char *pmPutstr(int c) {
   return putstr(c);
 }
 
-pmSetS(char *s) {
+int pmSetS(char *s) {
   S = s;
   return 0;
 }

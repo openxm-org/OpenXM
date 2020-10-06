@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/oxdecode_post.c,v 1.1 2013/09/22 01:07:38 takayama Exp $ 
+/* $OpenXM: OpenXM/src/kan96xx/trans/oxdecode_post.c,v 1.2 2013/09/22 02:38:25 takayama Exp $ 
 Decompose a given multi-part post message to URL encoded one for cgi.sm1
 */
 
@@ -17,7 +17,7 @@ char *urlEncoding(char *s);
 int substr(char s[],int n,char a[]);
 char *byteArrayToUrlEncoding(unsigned char *s,int size);
 int isUrlEncoding3(char s);
-main() {
+int main() {
   char *s;
   int i,j,limit,len;
   int c;
@@ -51,7 +51,7 @@ main() {
    the index i of s[] so that &(s[i]) agrees with a.
    n is the size of s.
 */
-substr(char s[],int n,char a[]) {
+int substr(char s[],int n,char a[]) {
   int m,i,j;
   m = strlen(a);
   for (i=0; i<= n-m; i++) {  /*BUG(< --> <=). Make corrections for other use!*/
@@ -64,7 +64,7 @@ substr(char s[],int n,char a[]) {
 }
 
 /* bug, they should follow RFC */
-multipart(char *s) {
+int multipart(char *s) {
   if ((strlen(s) > 3) && (strncmp(s,"---",3)==0)) return(1);
   else return(0);
 }

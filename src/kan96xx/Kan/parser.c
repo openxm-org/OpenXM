@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.11 2015/09/29 01:52:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.12 2015/10/08 11:49:37 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -40,8 +40,8 @@ static int Spv = 0;   /* stack pointer */
 #define SSIZE 20000
 static int TagStack[SSIZE];
 static union valObject ValStack[SSIZE];
-#define NAME_MAX 2000
-static char Name[NAME_MAX];
+#define MY_NAME_MAX 2000
+static char Name[MY_NAME_MAX];
 
 static union valObject ValTmp;
 
@@ -222,7 +222,7 @@ static int getoken() {
     i = 0;
     do {
       Name[i] = Ch; Name[i+1] = '\0'; i++;
-      if (i+2 >= NAME_MAX) {
+      if (i+2 >= MY_NAME_MAX) {
         errorParser("Too long name begining with @.");
       }
       Ch = getcharFromStr();

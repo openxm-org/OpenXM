@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.6 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.7 2005/07/03 11:08:54 ohara Exp $ */
 /* list.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,8 +6,8 @@
 #include "stackm.h"
 #include "extern.h"
 
-static errorList(char *s);
-static warningList(char *s);
+static void errorList(char *s);
+static void warningList(char *s);
 
 /* The basic data structure for list is
     struct object *,
@@ -160,7 +160,7 @@ void printObjectList(op)
   printObjectList0(op,1);
 }
 
-memberQ(list1,obj2)
+int memberQ(list1,obj2)
      struct object *list1;
      struct object obj2;
      /* If obj2 is an member of list1, the functions the position.
@@ -177,14 +177,14 @@ memberQ(list1,obj2)
   return(0);
 }
 
-static errorList(str)
+static void errorList(str)
      char *str;
 {
   fprintf(stderr,"list.c: %s\n",str);
   exit(10);
 }
 
-static warningList(str)
+static void warningList(str)
      char *str;
 {
   fprintf(stderr,"Warning. list.c: %s\n",str);

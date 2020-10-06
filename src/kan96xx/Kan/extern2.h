@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.10 2003/08/26 12:46:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.11 2006/12/21 05:29:49 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -125,7 +125,6 @@ struct coeff *universalNumberGCD(struct coeff *a,struct coeff *b);
 /* output.c */
 char *POLYToString(POLY f,int multSym,int brace);
 int isOne(struct coeff *cp);
-int isMinusOne(struct coeff *cp);
 int isMinusOne(struct coeff *cp);
 int isNegative(struct coeff *cp);
 int isConstant(POLY f);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.9 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.10 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,10 +11,10 @@
 static int ppp(char *s,int kstart,int kend, int vstart, int vend);
 static int cgiHex(int p);
 
-static test1();
-static test2();
-static test3();
-static test4();
+static void test1();
+static void test2();
+static void test3();
+static void test4();
 
 /* main() {KSstart();test4();} */
 
@@ -234,14 +234,14 @@ static int ppp(char *s,int kstart,int kend, int vstart, int vend) {
     printf("\n");
   }
 }
-static test1() {
+static void test1() {
   char s[1000];
   cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=asdfsdf&foo=asdfasdf");
   cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=&foo=asdfasdf&");
   scanf("%s",s);
   cgiUrlEncodingToKeyValuePair(s);
 }
-static test2() {
+static void test2() {
   char s[1000];
   struct object ob = OINIT;
   ob=cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=asdfsdf&foo=asdfasdf");
@@ -253,7 +253,7 @@ static test2() {
   printObject(ob,1,stdout);
 }
 
-static test4() {
+static void test4() {
   char s[1000];
   struct object ob = OINIT;
   char *ts;
@@ -498,7 +498,7 @@ int cgiKeyValuePairToHttpFile2(struct object ob,FILE2 *fp) {
 }
 
 
-static test3() {
+static void test3() {
   char *s;
   struct object ob = OINIT;
   s = "Pragma: no-cache\nContent-Length:  2915\nContent-Type: text/html\nConnection: close\n\n                <DIV class=Section1> \n    <P class=MsoNormal \n   style=\"mso-list: none; mso-list-ins: \" 19991102T2025\">&nbsp;\n      </P> ";

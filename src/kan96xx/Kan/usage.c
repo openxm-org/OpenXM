@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.50 2013/09/22 01:26:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.51 2018/09/07 00:09:32 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -539,7 +540,8 @@ void Kusage2(fp,s)
     fppp(fp,"                              The 4th differential operator.\n");
     fppp(fp,"         [(PrintDollar) 0] system_variable\n");
     fppp(fp,"                          Set the global variable PrintDollar to 0\n");
-    fppp(fp,"DebugReductionEcart (bit):  (2) *% (1) find_reducer,in(r) \n");
+//    fppp(fp,"DebugReductionEcart (bit):  (2) *% (1) find_reducer,in(r) \n");
+    fppp(fp,"DebugReductionEcart (bit):  (2) * (1) find_reducer,in(r) \n");
     fppp(fp,"              (any) cont   (4) #+[rat division, + ecartd] \n");
     fppp(fp,"                           (8) check the order. \n");
     fppp(fp,"DoCancel (bit):  (2) always_reduce_content  (1) Noro_strategy \n");

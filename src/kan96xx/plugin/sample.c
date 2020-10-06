@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sample.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sample.c,v 1.3 2005/06/16 05:07:24 takayama Exp $ */
 #include <stdio.h>
 #include "../Kan/datatype.h"
 #include "../Kan/stackm.h"
@@ -32,7 +32,7 @@ int Kplugin_sample(int opcode, struct object obj) {
   struct object ob1 = OINIT;
   struct object ob2 = OINIT;
   struct object ob3 = OINIT;
-  static initialized = 0;
+  static int initialized = 0;
   if (opcode != KPLUGIN_SAMPLE_INIT && !initialized) {
     errorSample("This component is not initialized.");
     return(-1);
@@ -108,7 +108,7 @@ struct object Kplugin_peek(int k,struct operandStack *operandstack)
 
 
 static void errorSample(char *s) {
-  fprintf(stderr,"Error in plugin/sample: %s\n");
+  fprintf(stderr,"Error in plugin/sample: %s\n",s);
   /* or push error message in the sharedStack. */
 }
 

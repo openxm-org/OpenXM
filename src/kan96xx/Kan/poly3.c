@@ -1,7 +1,9 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.7 2004/02/23 09:03:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.8 2004/06/12 07:29:46 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
+
+void outputTable(void);
 
 int Homogenize = 1;
   
@@ -262,7 +264,7 @@ POLY mpMult_difference_org(POLY f,POLY g)
   return(r);
 }
 
-outputTable() {
+void outputTable() {
   int i,j;
   printf("Maxv = %d Plist=%d\n",Maxv,Plist);
   for (i=0; i<Maxv; i++) printf("%5d",V[i]);

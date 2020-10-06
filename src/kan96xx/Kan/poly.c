@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.5 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.6 2010/01/27 15:10:08 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
 #include "extern2.h"
-
+void initSyzRingp(void);  /* defined in gradedset.h */
 
 void KinitKan(void) {
 

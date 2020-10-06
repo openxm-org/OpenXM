@@ -1,11 +1,15 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.21 2004/09/13 11:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.22 2005/07/03 11:08:53 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
+// #include "extern.h"
 #include "extern2.h"
 #include "gradedset.h"
 
 #define outofmemory(a) if (a == NULL) {fprintf(stderr,"ecart.c: out of memory.\n"); exit(10);}
+
+int errorKan1(char *s,char *m); /* defined in extern.h */
+
 /* Local structures */
 struct ecartReducer {
   int ell; /* s^\ell */
@@ -44,9 +48,9 @@ static void  ecartCheckSyz0_printinfo(POLY cf,POLY r_0,POLY syz,
 extern int DebugReductionRed;
 extern int TraceLift;
 struct ring *TraceLift_ringmod;
-extern DoCancel;
+extern int DoCancel;
 int DebugReductionEcart = 0;
-extern DebugContentReduction;
+extern int DebugContentReduction;
 extern int Sugar;
 
 /* This is used for goHomogenization */
@@ -559,7 +563,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     ells = ecartFindReducer(r,gset,gg);
     ell = ells.ell;
     if (ell > 0) {
-      if (DebugReductionEcart & 2) printf("%");
+      if (DebugReductionEcart & 2) printf("%%");
       if (needSyz) {
         gg = ecartPutPolyInG(r,gg,cf,syz);
       }else{
@@ -814,7 +818,7 @@ static POLY reduction_ecart1_mod(r,gset)
     ells = ecartFindReducer_mod(r,gset,gg);
     ell = ells.ell;
     if (ell > 0) {
-      if (DebugReductionEcart & 2) printf("%");
+      if (DebugReductionEcart & 2) printf("%%");
       gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
     }
     if (ell >= 0) {

@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.9 2005/07/18 10:55:16 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.10 2018/09/07 00:15:44 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -62,15 +62,15 @@ static int FileStackP = 0;
 /****************  end of declaration part of lexical analizer ******/
 
 static int getSM();
-static putSM();
+static void putSM();
 static struct tokens flushSM();
-static isSpaceSM();
-static isDollarSM();
-static isBraceSM();
-static isKakkoSM();
-static isSymbolSM();
-static mygetchar();
-static myungetchar();
+static int isSpaceSM();
+static int isDollarSM();
+static int isBraceSM();
+static int isKakkoSM();
+static int isSymbolSM();
+static int mygetchar();
+static int myungetchar();
 
 int ScannerWhich = 0;
 unsigned char ScannerBuf[SCANNERBUF_SIZE];
@@ -84,7 +84,7 @@ static mygetchar()
 }
 */
 
-static mygetchar()
+static int mygetchar()
 { int c;
   c = getc(Cfp);
   if (c > 0) { /* ungetchar is ignored */
@@ -104,7 +104,7 @@ static mygetchar()
 }
 
 
-static myungetchar(c)
+static int myungetchar(c)
      int c;
 {
   return( ungetc(c,Cfp) );
@@ -130,7 +130,7 @@ static int getSM()
   } else return(c);
 }
 
-static putSM(c)
+static void putSM(c)
      int c;
      /* put a letter on BufSM */
 {
@@ -176,35 +176,35 @@ static struct tokens flushSM()
   return(r);
 }
 
-static isSpaceSM(c)
+static int isSpaceSM(c)
      int c;
 {
   if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 
-static isDollarSM(c)
+static int isDollarSM(c)
      int c;
 {
   if (c == '$') return(1);
   else return(0);
 }
 
-static isBraceSM(c)
+static int isBraceSM(c)
      int c;
 {
   if (c == '{') return(1);
   else return(0);
 }
 
-static isKakkoSM(c)
+static int isKakkoSM(c)
      int c;
 {
   if (c == '(') return(1);
   else return(0);
 }
 
-static isSymbolSM(c)
+static int isSymbolSM(c)
      int c;
 {
   if ((c == '{') ||

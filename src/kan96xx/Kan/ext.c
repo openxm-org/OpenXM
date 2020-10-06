@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.48 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.49 2018/09/07 00:09:32 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -21,6 +21,8 @@
 #include <regex.h>
 #include "ox_pathfinder.h"
 #include "mysig.h"
+
+void cmoDumpCmo(struct object ob); /* defined in ../plugin/cmo0.h */
 
 extern int Quiet;
 extern char **environ;
@@ -124,7 +126,7 @@ struct object Kextension(struct object obj)
   char **argv;
   FILE *fp;
   void (*oldsig)();
-  extern SecureMode;
+  extern int SecureMode;
   extern char *UD_str;
   extern int UD_attr;
 

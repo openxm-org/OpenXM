@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.15 2015/10/10 11:29:46 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.16 2016/03/31 03:22:55 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "file2.h"
 #include "mysig.h"
+#include "sm1Socket.h"
 
 /* If you use file2 standalone to output string,  
     make the following dummy definition;
@@ -95,7 +96,7 @@ void fp2setfp(FILE2 *fp2,FILE *fp,int popened) {
 int fp2fflush(FILE2 *fp2) {
   int r;
   if (debug1) {
-    printf("fp2fflush is called with FILE2 *%x.\n", (int )fp2);
+    printf("fp2fflush is called with FILE2 *%lx.\n", (long)fp2);
     fp2dumpBuffer(fp2);
     printf("--------------------------\n");
   }
@@ -141,7 +142,7 @@ int fp2fputc(int c,FILE2 *fp2) {
   FILE *fp;
   if (debug1) {
     printf("fp2fputc is called with %2x, fp2->writepos=%d, ",c,fp2->writepos);
-    printf("fp2 = %x.\n",(int) fp2);
+    printf("fp2 = %lx.\n",(long) fp2);
   }
   if (fp2->watch || WatchStream) {
     if (fp2->watch) fp = fp2->watchFile;

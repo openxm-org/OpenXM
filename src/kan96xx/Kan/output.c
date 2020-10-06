@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.6 2006/12/21 05:29:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.7 2011/10/05 05:46:14 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -229,7 +229,7 @@ char *KPOLYToString(f)
   return(POLYToString(f,OutputStyle,0));
 }
 
-isOne(c)
+int isOne(c)
      struct coeff *c;
 {
   switch(c->tag) {
@@ -247,7 +247,7 @@ isOne(c)
     errorCoeff("not yet");
   }
 }
-isMinusOne(c)
+int isMinusOne(c)
      struct coeff *c;
 {
   switch(c->tag) {
@@ -265,7 +265,7 @@ isMinusOne(c)
   }
 
 }
-isNegative(c)
+int isNegative(c)
      struct coeff *c;
 {
   switch(c->tag) {
@@ -284,7 +284,7 @@ isNegative(c)
   }
 }
 
-isConstant(f)
+int isConstant(f)
      POLY f;
 {
   int i;

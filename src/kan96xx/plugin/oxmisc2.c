@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.26 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.27 2013/11/06 06:23:24 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
 #include "cmo.h"
@@ -760,11 +761,11 @@ struct object KoxCloseClient(struct object client) {
   switch (cc1->type) {
   case CLIENT_SOCKET:
     fp2fclose(cc1->datafp2);
-    close(cc1->controlfd);
+    {int r; r=close(cc1->controlfd);}
     break;
   case CLIENT_FILE:
     fp2fclose(cc1->datafp2);
-    close(cc1->controlfd);
+    {int r; r=close(cc1->controlfd);}
     break;
   default:
     errorOxmisc2("Unknown client->type\n");
@@ -1102,10 +1103,11 @@ int KgetCmoTagOfObject(struct object obj) {
   return(k);
 }
 
-errorOxmisc2(char *s) {
+int errorOxmisc2(char *s) {
   SET_MYERROROUT;  
   fprintf(MyErrorOut,"error in oxmisc2.c: %s\n",s);
   errorKan1("%s\n","  ");
+  return 0;
 }
 
 struct object KoxPushCMD(struct object client,struct object cmd) {
@@ -1259,10 +1261,10 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
   /* Authentication by password. */
   m = strlen(pass);
   s = (char *)mymalloc(sizeof(char)*(m+1));
-  read(fdStream,s,m+1); s[m] = '\0';
+  {int r; r=read(fdStream,s,m+1);} s[m] = '\0';
   if (strcmp(s,pass) != 0) {
     fprintf(stderr,"oxCreateControl_RFC_101(): password authentication failed for control channel.\n");
-    close(fdStream);
+    {int r; r=close(fdStream);}
     return(NULL);
   }
 

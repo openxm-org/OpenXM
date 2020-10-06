@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.48 2012/09/16 01:53:08 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.49 2015/10/08 11:49:37 takayama Exp $  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -688,7 +688,7 @@ struct object KooDiv(ob1,ob2)
 }
 
 /* :relation */
-KooEqualQ(obj1,obj2)
+int KooEqualQ(obj1,obj2)
      struct object obj1;
      struct object obj2;
 {
@@ -3312,7 +3312,7 @@ struct object KsetAttribute(struct object ob,struct object key,struct object val
      Error handler
 ******************************************************************/
 
-errorKan1(str,message)
+int errorKan1(str,message)
      char *str;
      char *message;
 {
@@ -3351,7 +3351,7 @@ errorKan1(str,message)
 }
 
 
-warningKan(str)
+int warningKan(str)
      char *str;
 {
   extern int WarningMessageMode;
@@ -3366,7 +3366,7 @@ warningKan(str)
   }
   if (WarningMessageMode != 1) {
     fprintf(stderr,"\nWARNING(kanExport[0|1].c): ");
-    fprintf(stderr,str);
+    fprintf(stderr,"%s",str);
     fprintf(stderr,"\n");
   }
   /* if (Strict) errorKan1("%s\n"," "); */
@@ -3374,7 +3374,7 @@ warningKan(str)
   return(0);
 }
 
-warningKanNoStrictMode(str)
+int warningKanNoStrictMode(str)
      char *str; 
 {
   extern int Strict;

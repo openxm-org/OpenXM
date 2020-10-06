@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.8 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.9 2005/07/18 10:55:16 takayama Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
@@ -49,14 +49,16 @@ static int TypeSM = ID;
 /****************  end of declaration part of lexical analizer ******/
 
 static int getSM();
-static putSM();
+static void putSM();
 static struct tokens flushSM();
-static isSpaceSM();
-static isDollarSM();
-static isBraceSM();
-static isKakkoSM();
-static isSymbolSM();
+static int isSpaceSM();
+static int isDollarSM();
+static int isBraceSM();
+static int isKakkoSM();
+static int isSymbolSM();
 static struct tokens getokenSM2();
+
+void errorScanner2(char *str);
 
 extern int ScannerWhich;
 extern unsigned char ScannerBuf[];
@@ -122,7 +124,7 @@ static int getSM()
   } else return(c);
 }
 
-static putSM(c)
+static void putSM(c)
      int c;
      /* put a letter on BufSM */
 {
@@ -168,35 +170,35 @@ static struct tokens flushSM()
   return(r);
 }
 
-static isSpaceSM(c)
+static int isSpaceSM(c)
      int c;
 {
   if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 
-static isDollarSM(c)
+static int isDollarSM(c)
      int c;
 {
   if (c == '$') return(1);
   else return(0);
 }
 
-static isBraceSM(c)
+static int isBraceSM(c)
      int c;
 {
   if (c == '{') return(1);
   else return(0);
 }
 
-static isKakkoSM(c)
+static int isKakkoSM(c)
      int c;
 {
   if (c == '(') return(1);
   else return(0);
 }
 
-static isSymbolSM(c)
+static int isSymbolSM(c)
      int c;
 {
   if ((c == '{') ||
@@ -327,7 +329,7 @@ static struct tokens getokenSM2(kind,str)
 /*********** end of code part of lexical analizer ********************/
 
 
-errorScanner2(str)
+void errorScanner2(str)
      char *str;
 {
   fprintf(stderr,"Error (scanner2.c): %s\n",str);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.8 2005/06/30 08:35:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.9 2005/07/03 11:08:53 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
@@ -373,7 +373,7 @@ void outputGradedPolySet(grG,needSyz)
 {
   int i,j;
   struct polySet *set;
-  extern Ecart;
+  extern int Ecart;
   printf("======== gradedPolySet ==========\n");
   printf("maxGrade=%d\n",grG->maxGrade);
   for (i=0; i<grG->maxGrade; i++) {

@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.12 2005/06/30 08:35:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.13 2005/07/07 02:59:47 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "matrix.h"

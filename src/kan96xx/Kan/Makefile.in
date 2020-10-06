@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.23 2016/09/19 07:50:02 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.24 2016/09/20 04:47:36 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -27,7 +27,7 @@ STATIC_LINK_FLAG =
 
 #### Optimization level etc.
 #### option  for gdb CFLAGS = -g,   optimize -O, profile -p, -DNOGC
-CFLAGS = @CFLAGS@ -D_BSD_SOURCE
+CFLAGS = @CFLAGS@ -D_DEFAULT_SOURCE -D_BSD_SOURCE -Wno-trigraphs
 
 ###################  Plugin modules
 ####  (2) cmo, file2, socket

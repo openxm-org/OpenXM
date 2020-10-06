@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.9 2004/09/13 11:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.10 2005/06/09 04:09:22 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -221,7 +221,7 @@ POLY reduction1_gen(f,g,needSyz,c,h)
   struct ring *rp;
   struct spValue sv;
   POLY f2;
-  extern DoCancel;
+  extern int DoCancel;
   static int crcount=0;
   
   if (needSyz) {
@@ -356,7 +356,7 @@ POLY reduction_gen(f,gset,needSyz,syzp)
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
-  extern DoCancel;
+  extern int DoCancel;
   
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else { rp = f->m->ringp; }

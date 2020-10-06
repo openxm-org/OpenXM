@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.6 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.7 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
@@ -1008,7 +1008,7 @@ struct coeff *gcdOfCoeff(POLY f) {
 }
 
 int shouldReduceContent(POLY f,int ss) {
-  extern DoCancel;
+  extern int DoCancel;
   static int prevSize = 1;
   int size;
   if (f == POLYNULL) return 0;

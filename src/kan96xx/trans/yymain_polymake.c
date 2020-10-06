@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.5 2018/05/02 21:25:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.6 2018/05/03 13:20:35 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
 
 
 char *SS=NULL;
-main_t() {
+int main_t() {
   int c,type;
   pmPutstr(-1);
   while ((c=getchar()) != EOF) {
@@ -26,9 +26,10 @@ main_t() {
 	}
 	printf("\n");
   }
+  return 0;
 }
 
-main() {
+int main() {
   int c,type;
   GC_INIT();  
   pmPutstr(-1);
@@ -48,6 +49,7 @@ main() {
   printf("--------------------------\n");
 #endif
   PMparse();
+  return 0;
 }
 
 void *sGC_malloc(int n) {

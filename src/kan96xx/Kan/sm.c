@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.28 2015/09/19 09:56:06 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.29 2015/09/29 01:52:14 takayama Exp $ */
 #define DATE "2005/06/15"
 #define RELEASE "3.050615"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -31,7 +32,7 @@ extern int Quiet;
 extern char *VersionString;
 //extern unsigned int GC_version;
 
-main(argc,argv) 
+int main(argc,argv) 
      int argc;
      char *argv[];
 {
@@ -98,6 +99,7 @@ main(argc,argv)
   }
   scanner();
   Kclose();  stackmachine_close();
+  return(0);
 }
 
 

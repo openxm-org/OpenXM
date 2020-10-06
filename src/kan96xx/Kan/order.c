@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.15 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.16 2018/09/07 00:15:44 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -465,7 +466,7 @@ int mmLarger_qmatrix(ff,gg)
 }
 
 /* x(N-1)>x(N-2)>....>D(N-1)>....>D(0) */
-mmLarger_pureLexicographic(f,g)
+int mmLarger_pureLexicographic(f,g)
      POLY f;
      POLY g;
 {

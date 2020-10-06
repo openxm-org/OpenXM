@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.34 2005/09/27 06:10:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.35 2006/02/01 00:30:05 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -100,7 +100,7 @@ char *traceShowStack(void);
 struct object *traceNameStackToArrayp(void);
 
 /* kclass.c */
-int initClassDataBase();
+void initClassDataBase();
 void fprintClass(FILE *fp,struct object ob);
 int KclassEqualQ(struct object ob1,struct object ob2);
 struct object KcreateClassIncetance(struct object ob1,
@@ -318,3 +318,13 @@ int objToInteger(struct object ob);
 struct object KoxWhich(struct object cmdo,struct object patho);
 struct object KoxShell(struct object ob);
 void KoxShellHelp(char *key,FILE *fp);
+
+/* ---- */
+void KinitKan(void);
+int stackmachine_close(void);
+void stackmachine_init(void);
+int memberQ(struct object *list1,struct object obj2);
+int warningStackmachine(char *str);
+void errorStackmachine(char *str);
+int putPrimitiveFunction(char *str,int number);
+

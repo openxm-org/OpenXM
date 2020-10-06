@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.24 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.25 2018/09/07 00:15:44 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
+#include <unistd.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -454,8 +456,8 @@ int executePrimitive(ob)
   extern int KeepInput;
   extern int History;
   extern struct ring *CurrentRingp;
-  extern TimerOn;
-  extern SecureMode;
+  extern int TimerOn;
+  extern int SecureMode;
   extern int RestrictedMode;
 
   infixOn = 0;
@@ -1201,7 +1203,7 @@ int executePrimitive(ob)
     default: errorStackmachine("Usage:system");
     }
     if (SecureMode) errorStackmachine("Security violation.");
-    system( ob1.lc.str );
+    {int rr; rr=system( ob1.lc.str );}
     break;
 
   case Scat_n:

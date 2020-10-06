@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.15 2004/11/23 05:28:19 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.16 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -8,6 +8,7 @@
 #include <netdb.h>
 #include <setjmp.h>
 #include <errno.h>
+#include <unistd.h>
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "ox_kan.h"
 /* 
@@ -35,7 +36,7 @@ FILE *TcpioError = NULL;
 int OpenedSocket = 0;
 extern int Quiet;
 
-socketOpen(char *serverName,int portNumber) {
+int socketOpen(char *serverName,int portNumber) {
   static struct hostent *myhost;
   static struct sockaddr_in me;
   static int s_waiting;
@@ -85,7 +86,7 @@ socketOpen(char *serverName,int portNumber) {
 }
 
 
-socketAccept(int snum) {
+int socketAccept(int snum) {
   int s, news;
     
   SET_TCPIOERROR;
@@ -107,7 +108,7 @@ socketAccept(int snum) {
   return(news);
 }
 
-socketAcceptLocal(int snum) {
+int socketAcceptLocal(int snum) {
   int s, news;
   struct sockaddr peer;
   int len;
@@ -152,7 +153,7 @@ socketAcceptLocal(int snum) {
 }
 
 /* It does not close the socket for listening. */
-socketAcceptLocal2(int snum) {
+int socketAcceptLocal2(int snum) {
   int s, news;
   struct sockaddr peer;
   int len;
@@ -220,7 +221,7 @@ int oxSocketSelect0(int fd,int t) {
   else return(0);
 }
 
-oxSocketMultiSelect(int sid[],int size,int t,int result[])
+int oxSocketMultiSelect(int sid[],int size,int t,int result[])
 {
   int i,fd,p;
   fd_set readfds;
@@ -271,7 +272,7 @@ oxSocketMultiSelect(int sid[],int size,int t,int result[])
 }
 
 
-socketConnect(char *serverName,int portNumber) {
+int socketConnect(char *serverName,int portNumber) {
   struct hostent *servhost;
   struct sockaddr_in server;
   int socketid;
@@ -294,7 +295,7 @@ socketConnect(char *serverName,int portNumber) {
   }
   /* on=1; setsockopt(socketid,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on));  */
   if (!Quiet) {
-    fprintf(TcpioError,"Trying to connect port %d, ip=%x\n",ntohs(server.sin_port),server.sin_addr);
+    fprintf(TcpioError,"Trying to connect port %d, ip=%lx\n",ntohs(server.sin_port),(long) server.sin_addr.s_addr);
   }
   if (connect(socketid,(struct sockaddr *)&server,sizeof(server)) == -1) {
     errorMsg1s("cannot connect");
@@ -304,7 +305,7 @@ socketConnect(char *serverName,int portNumber) {
   return(socketid);
 }
 
-socketConnectWithPass(char *servername,int port,char *pass)
+int socketConnectWithPass(char *servername,int port,char *pass)
 {
   int fd;
   int m;

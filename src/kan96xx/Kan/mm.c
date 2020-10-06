@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/mm.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/mm.c,v 1.3 2004/07/02 06:41:53 noro Exp $ */
 #include <stdio.h>
 
-main() {
+int main() {
   int c;
   printf("\" ");
   while ((c=getchar()) != EOF) {

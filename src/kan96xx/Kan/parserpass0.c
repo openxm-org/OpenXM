@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.4 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.5 2013/11/06 06:23:24 takayama Exp $ */
 /* parserpass0.c */
 /*  In this preprocessor, for example, the expression
       x^2+y^2-4+x y;
@@ -47,7 +47,7 @@ static int get0()
   } else return(c);
 }
 
-static put0(c)
+static void put0(c)
      int c;
      /* put a letter on Buf0 */
 {
@@ -87,7 +87,7 @@ static struct tokens flush()
   return(r);
 }
 
-static isSpace0(c)
+static int isSpace0(c)
      int c;
 {
   if (c <= ' ') return(1);
@@ -173,7 +173,7 @@ static char Buftmp[STRBUFMAX];
 static char *Buf = Buftmp;
 static int Buflimit = STRBUFMAX;
 
-static putstr(str,kind)
+static int putstr(str,kind)
      char str[]; /* string to be outputted */
      actionType kind; /* kind is INIT or PUT */
 {

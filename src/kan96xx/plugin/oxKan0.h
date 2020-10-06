@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.10 2004/09/17 07:27:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.11 2004/09/17 08:46:10 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) sGC_malloc(n)
@@ -13,6 +13,7 @@ int oxSocketSelect0(int fd,int t);
 int oxSocketMultiSelect(int sid[],int size,int t,int result[]);
 int socketConnect(char *serverName,int portNumber);
 int socketConnectWithPass(char *serverName,int portNumber,char *pass);
+int errorOxmisc2(char *s);  // defined in oxmisc2.c
 
 
 /* ------------------------------------- */

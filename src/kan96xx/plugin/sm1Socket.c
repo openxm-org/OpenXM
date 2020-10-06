@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.20 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.21 2015/10/10 11:29:46 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "datatype.h"
 #include "stackm.h"
@@ -148,7 +149,7 @@ struct object KsocketConnect(struct object obj) {
     perror("socket"); errorMsg1s("socket allocation is failed.\n");
   }
   if (!Quiet) {
-    fprintf(stderr,"Trying to connect port %d, ip=%x\n",ntohs(server.sin_port),server.sin_addr);
+    fprintf(stderr,"Trying to connect port %d, ip=%lx\n",ntohs(server.sin_port),(long) server.sin_addr.s_addr);
   }
   if (connect(socketid,(struct sockaddr *)&server,sizeof(server)) == -1) {
     perror("connect"); errorMsg1s("cannot connect");

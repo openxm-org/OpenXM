@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.7 2003/12/06 02:49:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.8 2005/06/16 05:07:24 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "../datatype.h"
 #include "../stackm.h"
 #include "../extern.h"

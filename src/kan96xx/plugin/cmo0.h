@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/cmo0.h,v 1.2 2000/01/16 07:55:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmo0.h,v 1.3 2000/01/31 12:32:52 takayama Exp $ */
 /*  cmo0.h */
 
 typedef enum {CMOINIT,CMOPUT,CMOGET,CMOFLUSH,
@@ -21,19 +21,20 @@ void cmoPrintCmo(struct object ob);
 struct object cmoCmoToObject(struct object ob);
 
 /* ----------------------- */
-int errorCmo(char *s);
+void errorCmo(char *s);
 struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size);
 int dumpCmoBuf(struct cmoBuffer *cb);
-int cmoOutInt32(int k);
+void cmoOutCmoNull(void);
+void cmoOutInt32(int k);
 int cmoOutString(char *s,int size);
-int cmoOutInt32Coeff(int k);
-int cmoGetIntFromBuf(cmoAction a,struct cmoBuffer *cb);
+void cmoOutInt32Coeff(int k);
 int cmoOutMonomial32(POLY cell);
 int cmoOutDMS() ;
 int cmoOutPolynomial(POLY f) ;
 int cmoOutPolynomial2(POLY f) ;
-int cmoOutRingDefinition(struct ring * rp,int option);
-int cmoOutRingDefinition2(struct ring * rp,int option);
+void cmoOutRingDefinition(struct ring * rp,int option);
+void cmoOutRingDefinition2(struct ring * rp,int option);
+int cmoGetIntFromBuf(cmoAction a,struct cmoBuffer *cb);
 
 void *cmoGetString(struct cmoBuffer *cb, int size);
 struct coeff * cmoGetInt32Coeff(struct cmoBuffer *cb);
@@ -60,6 +61,8 @@ struct object KSmathCap(void);
 
 struct object cmoTranslateVariable_outGoing(struct object ob);
 struct object cmoTranslateVariable_inComming(struct object ob);
+
+void cmoDumpCmo(struct object ob);
 /* ---------------- end of cmo.h ---------------------*/
 
 

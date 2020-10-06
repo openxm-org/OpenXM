@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.19 2016/03/31 03:22:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.20 2016/03/31 05:27:34 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -10,6 +11,7 @@
 #include "mysig.h"
 
 extern void ctrlC();
+void warningOption(char *str);
 
 
 struct object KsystemVariable(ob)
@@ -466,7 +468,7 @@ struct object KsystemVariable(ob)
   return(rob);
 }
 
-warningOption(str)
+void warningOption(str)
      char *str;
 {
   fprintf(stderr,"Warning(option.c): %s\n",str);

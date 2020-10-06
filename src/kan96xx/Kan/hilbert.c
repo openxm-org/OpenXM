@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/hilbert.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/hilbert.c,v 1.4 2005/06/16 05:07:23 takayama Exp $ */
 /*   hilbert.c
      1992/06/16
      1992/06/18
@@ -15,6 +15,9 @@
 #include "stackm.h"
 #include "extern.h"
 #include "extern2.h"
+
+void warningHilbert(char str[]);
+void errorHilbert(char str[]);
 
 struct arrayOfPOLYold {
   int n;
@@ -219,7 +222,7 @@ static int polyToInt(POLY f) {
 }
 
 
-static shell(v,n)
+static void shell(v,n)
      int v[];
      int n;
 {
@@ -750,14 +753,12 @@ outputarrayOfPOLYold(set)
 #endif
   
   
-warningHilbert(str)
-     char str[];
+void warningHilbert(char str[])
 {
   fprintf(stderr,"Warning (hilbert.c): %s\n",str);
 }
 
-errorHilbert(str)
-     char str[];
+void errorHilbert(char str[])
 {
   errorKan1("%s\n",str);
 }

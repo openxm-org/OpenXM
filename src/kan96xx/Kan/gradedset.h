@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.7 2005/06/09 04:09:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.8 2005/06/16 06:54:55 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -151,6 +151,17 @@ void errorSyz0(char *s);
 struct arrayOfPOLY *syzPolyToArrayOfPOLY(int size,POLY f,
 					 struct gradedPolySet *grG);
 /* f is in SyzRingp. */
+
+int criterion1(POLY f,POLY g,POLY lc);
+struct gradedPolySet *groebner_gen(
+     struct arrayOfPOLY *f,
+     int needBack,
+     int needSyz,
+     struct pair **grP,  /* if (needSyz), it is set. */
+     int countDown,
+     int forceReduction,
+     int reduceOnly,
+     int gbCheck);
 
 
 #define checkRingSp(f,g,r) {\

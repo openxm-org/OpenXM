@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.15 2012/10/29 02:51:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.16 2013/09/20 06:02:19 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -64,7 +64,7 @@ void KoxShellHelp(char *key,FILE *fp) {
     for (i=0; strcmp(keys[i],"@@@@gatekeeper") != 0; i++) {
       fprintf(fp,"%s\n",keys[i]);
       KoxShellHelp(keys[i],fp);
-      fprintf(fp,"\n",keys[i]);
+      fprintf(fp,"%s\n",keys[i]);
     }
     return;
   }
@@ -199,7 +199,7 @@ static int mysetenv(char *name, char *value, int overwrite) {
 
 /* bug on Solaris. It does not unsetenv.
    libc4, libc5, glibc. It does unsetenv. */
-static myunsetenv(char *name) {
+static int myunsetenv(char *name) {
   return(putenv(name));
 }
 

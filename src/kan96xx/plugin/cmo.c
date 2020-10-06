@@ -1,8 +1,9 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.16 2020/10/04 03:14:07 noro Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.17 2020/10/04 06:10:36 noro Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
 #include <stdlib.h>
+#include <arpa/inet.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -17,6 +18,13 @@
 
 #include "cmotag.htmp"   /* static char *cmotagToName(int tag) is defined
                             here. */
+
+void warningCmo(char *s);
+void errorCmo(char *s);
+size_t cmoOutGMPCoeff(mpz_srcptr x); // defined in cmo-gmp.c
+size_t cmoGetGMPCoeff(MP_INT *x, struct cmoBuffer *cb); 
+int cmoCheckMathCap(struct object ob, struct object *mathcapObjp); // in oxmisc2.h
+
 
 extern int OxVersion;
 
@@ -156,7 +164,7 @@ struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size)
   }
 }
 
-dumpCmoBuf(struct cmoBuffer *cb)
+int dumpCmoBuf(struct cmoBuffer *cb)
 {
   int i,size, tag;
   char *s;
@@ -167,7 +175,7 @@ dumpCmoBuf(struct cmoBuffer *cb)
   size = cb->pos;
   s = (char *)(cb->buf);
   tag = htonl(*((int *) s));
-  printf("CMO StandardEncoding: size = %d, size/sizeof(int) = %d, tag=%s \n",size,size/sizeof(int),cmotagToName(tag));
+  printf("CMO StandardEncoding: size = %d, size/sizeof(int) = %d, tag=%s \n",size,size/((int)sizeof(int)),cmotagToName(tag));
   for (i=0; i<size; i++) {
     if (i % 20 == 0) putchar('\n');
     printf("%3x",(int)(unsigned char)s[i]);
@@ -179,7 +187,7 @@ dumpCmoBuf(struct cmoBuffer *cb)
 /* This obsolete function is used to write data
    in cmoBuffer (cmo object in kan)
    to a stream */
-cmoToStream(struct object cmoObj,struct object of)
+int cmoToStream(struct object cmoObj,struct object of)
 {
   int i,size;
   struct cmoBuffer *cb;
@@ -245,7 +253,7 @@ struct object streamToCmo(struct object of)
 }
 
 
-cmoOutCmoNull() {
+void cmoOutCmoNull() {
   cmoint tmp[1];
   tmp[0] = htonl((cmoint) CMO_NULL);
   cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
@@ -255,7 +263,7 @@ cmoOutCmoNull() {
 
 
 /* unsigned short int must be 32 bits */
-cmoOutInt32(int k)
+void cmoOutInt32(int k)
 {
   cmoint tmp[2];
   tmp[0] = htonl((cmoint) CMO_INT32);
@@ -263,12 +271,13 @@ cmoOutInt32(int k)
   cmoOutputToBuf(CMOPUT,tmp,2*sizeof(cmoint));
 }
 
-cmoOutString(char *d,int size) {
+int cmoOutString(char *d,int size) {
   cmoint tmp[2];
   tmp[0] = htonl((cmoint) CMO_STRING);
   tmp[1] = htonl((cmoint ) size);
   cmoOutputToBuf(CMOPUT,tmp,2*sizeof(cmoint));
   cmoOutputToBuf(CMOPUT,d,size);
+  return 0;
 }
 
 
@@ -362,7 +371,7 @@ int cmoOutPolynomial2(POLY f)
   return(0);
 }
 
-int cmoOutRingDefinition(struct ring *rp,int option)
+void cmoOutRingDefinition(struct ring *rp,int option)
 {
   cmoint tmp[3];
   /* minimal information */
@@ -388,7 +397,7 @@ int cmoOutRingDefinition(struct ring *rp,int option)
   
 }
 
-int cmoOutRingDefinition2(struct ring *rp,int option)
+void cmoOutRingDefinition2(struct ring *rp,int option)
 {
   cmoint tmp[3];
   /* minimal information */
@@ -1234,7 +1243,7 @@ struct object cmoObjectFromStream(struct object obStream)
 {
   struct cmoBuffer cb;
   struct object rob = OINIT;
-  extern DebugCMO;
+  extern int DebugCMO;
   if (obStream.tag != Sfile) {
     errorCmo("cmoObjectFromStream: Argument must be of type file.");
   }
@@ -1476,11 +1485,11 @@ int cmoOutRawInt(int k)
   cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
 }  
 
-int warningCmo(char *s) {
+void warningCmo(char *s) {
   fprintf(stderr,"Warning: plugin/cmo.c : %s\n",s);
 }
 
-int errorCmo(char *s) {
+void errorCmo(char *s) {
   fprintf(stderr,"plugin/cmo.c : %s\n",s);
   errorKan1("%s\n","cmo fatal error. ox servers need SM_control_reset_connection.");
   /* ErrorPacket is automatically push on the ErrorStack.

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.30 2016/03/31 03:22:55 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.31 2016/08/29 01:15:01 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <setjmp.h>
 #include <errno.h>
+#include <time.h>
 #define SET_MYERROROUT { if (MyErrorOut == NULL) MyErrorOut=stdout; }
 /* It is also defined in oxmisc2.c */
 FILE *MyErrorOut = NULL;
@@ -25,6 +26,7 @@ FILE *MyErrorOut = NULL;
 #include "ox_kan.h"
 #include "mysig.h"
 
+void restoreLockCtrlCForOx(); // defined in Kan/stackmachine.c
 
 #define READBUFSIZE 5000
 
@@ -243,7 +245,7 @@ void oxfdSendCmoNull(int fd)
 {
   char data[4];
   *((int *)&data[0]) = htonl(CMO_NULL);
-  write(fd,data,4);
+  {int r; r=write(fd,data,4);}
   fflush((FILE *)NULL);
 }
 void oxSendCmoNull(ox_stream os)
@@ -275,7 +277,7 @@ void oxfdSendInt32(int fd,int k)
 {
   char data[4];
   *((int *)&data[0]) = htonl(k);
-  write(fd,data,4);
+  {int r; r=write(fd,data,4);}
   fflush((FILE *)NULL);
 }
 void oxSendInt32(ox_stream os,int k)
@@ -291,7 +293,7 @@ void oxfdSendCmoInt32(int fd,int k)
   char data[4*2];
   *((int *)&data[0]) = htonl(CMO_INT32);
   *((int *)&data[4]) = htonl(k);
-  write(fd,data,4*2);
+  {int r; r=write(fd,data,4*2);}
   fflush((FILE *)NULL);
 }
 void oxSendCmoInt32(ox_stream os,int k)
@@ -312,9 +314,9 @@ void oxfdSendCmoString(int fd,char *s)
   }
   *((int *)&data[0]) = htonl(CMO_STRING);
   *((int *)&data[4]) = htonl(n);
-  write(fd,data,4*2);
+  {int r; r=write(fd,data,4*2);}
   if (s != NULL) {
-    write(fd,s,n);
+    {int r; r=write(fd,s,n);}
   }
   fflush((FILE *)NULL);
 }
@@ -350,7 +352,7 @@ void oxSendResultOfControlInt32(int fd,int i)
   oxfdSendOXheader(fd,OX_DATA,SerialOX++);
   *((int *)&data[0]) = htonl(CMO_INT32);
   *((int *)&data[4]) = htonl(i);
-  write(fd,data,4*2);
+  {int r; r=write(fd,data,4*2);}
   fflush((FILE *)NULL);
 }
   
@@ -359,7 +361,7 @@ void oxSendResultOfControl(int fd)
   char data[4*1];
   oxfdSendOXheader(fd,OX_DATA,SerialOX++);
   *((int *)&data[0]) = htonl(CMO_NULL);
-  write(fd,data,4*1);
+  {int r; r=write(fd,data,4*1);}
   fflush((FILE *)NULL);
 }
 
@@ -839,7 +841,7 @@ int oxGetOXheader(ox_stream ostream,int *sss)
 }
 
 
-oxWritePortFile(int func,int port,char *fname) {
+int oxWritePortFile(int func,int port,char *fname) {
   char name[1024];
   FILE *fp;
   strcpy(name,fname);
@@ -855,7 +857,7 @@ oxWritePortFile(int func,int port,char *fname) {
     fclose(fp);
   }
 }
-oxReadPortFile(int func,char *fname) {
+int oxReadPortFile(int func,char *fname) {
   int port = 0;
   char name[1024];
   FILE *fp;
@@ -863,12 +865,12 @@ oxReadPortFile(int func,char *fname) {
   if (func == 0) {
     strcat(name,".control");
     fp = fopen(name,"r");
-    fscanf(fp,"%d",&port);
+    {int r; r=fscanf(fp,"%d",&port);}
     fclose(fp);
   }else {
     strcat(name,".data");
     fp = fopen(name,"r");
-    fscanf(fp,"%d",&port);
+    {int r; r=fscanf(fp,"%d",&port);}
     fclose(fp);
   }
   return(port);
@@ -922,12 +924,12 @@ char *oxGenPass(void) {
   char *s;
   int i,n;
   if (seed == 0) {
-    seed = (int) time(NULL) + (int) &p;
+    seed = (int) time(NULL) + (int) ((long) &p);
     srandom((unsigned int) seed);
   }
   s = (char *)malloc(128*sizeof(char));
   if (s == NULL) { fprintf(stderr,"No more memory.\n"); return(s); }
-  n = (((int) s) + (int) time(NULL)) % 100;
+  n = (((int)((long) s)) + (int) time(NULL)) % 100;
   for (i=0; i < n ; i++) random();
   p = random();
   sprintf(s,"%ld",p);
@@ -1004,7 +1006,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   if (m > 0) {
     s = (char *)mymalloc(sizeof(char)*(m+1));
     m = strlen(passControl); s[0] = 0;
-    read(fdControl,s,m+1); s[m] = '\0';
+    {int r; r=read(fdControl,s,m+1);} s[m] = '\0';
     if (strcmp(s,passControl) != 0) {
       fprintf(stderr,"s=%s, passControl=%s\n",s,passControl);
       fprintf(stderr,"oxCreateClient2(): password authentication failed for control channel.\n");
@@ -1012,7 +1014,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
       return(NULL);
     }
     m = strlen(passData); s[0] = 0;
-    read(fdStream,s,m+1); s[m] = '\0';
+    {int r; r=read(fdStream,s,m+1);} s[m] = '\0';
     if (strcmp(s,passData) != 0) {
       fprintf(stderr,"s=%s, passData=%s\n",s,passData);
       fprintf(stderr,"oxCreateClient2(): password authentication failed for data channel.\n");
@@ -1056,12 +1058,12 @@ int oxSetByteOrder(int fd) {
   int peertype;
   /* It is for client. read and next write. */
   /* oxSocketSelect0(fd,10);  wait. */
-  read(fd,data,1);
+  {int r; r=read(fd,data,1);}
   peertype = (unsigned char) data[0];
 
   /* We support only Network byte order */
   data[0] = OX_BYTE_NETWORK_BYTE_ORDER;
-  write(fd,data,1);
+  {int r; r=write(fd,data,1);}
 
   return(OX_BYTE_NETWORK_BYTE_ORDER);
 }
@@ -1073,10 +1075,10 @@ int oxTellMyByteOrder(int fdOut, int fdIn) {
 
   /* We support only Network byte order */
   data[0] = OX_BYTE_NETWORK_BYTE_ORDER;
-  write(fdOut,data,1);
+  {int r; r=write(fdOut,data,1);}
   fsync(fdOut);  /* returns 0 if normal. Does it work for socket? */
 
-  read(fdIn,data,1); /* Read pear's byte order */
+  {int r; r=read(fdIn,data,1);} /* Read pear's byte order */
 
   return(OX_BYTE_NETWORK_BYTE_ORDER);
 }

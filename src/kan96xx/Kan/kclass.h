@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.4 2003/11/21 02:39:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.5 2003/12/06 02:49:22 takayama Exp $ */
 
 /* kclass.h  1997, 3/1
    This module handles class data base.
@@ -123,4 +123,4 @@ struct object KtreeiRemoveChild(struct object otree,struct object index);
 
 struct object KtreeCopy(struct object otree);
 struct object KtreeCopyCopy(struct object otree);  /* recursive copy */
-
+void fprintIndeterminate(FILE *fp,struct object op);

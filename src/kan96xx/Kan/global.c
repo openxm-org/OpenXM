@@ -1,10 +1,12 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.36 2011/10/05 05:46:14 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.37 2015/09/29 01:52:14 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "lookup.h"
 
+void hashInitialize(struct dictionary *dic);  /* declared in extern.h */
+void initClassDataBase(void); 
 /*-------- variables to define  a ring ----------------*/
 /*
   The numbers L,M, LL,MM,NN are set in setUpRing() in setupring.c now.
@@ -158,7 +160,7 @@ int VerboseK = 1;  /* 1 is standard */
 int DebugK   = 0;
 FILE *Fk = NULL;  /* Initialized to stdout in stackmachine_init() */
 
-stackmachine_init() {
+void stackmachine_init() {
   int i,j;
   extern FILE *BaseFp;
   /* GC_init(); */
@@ -189,13 +191,13 @@ stackmachine_init() {
 }
 
 
-stackmachine_close() {
+int stackmachine_close() {
   /* close output stream */
 }
 
 
 
-Kclose() {
+void Kclose() {
   /* close Fk */
 }
 

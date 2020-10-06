@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.42 2016/03/31 06:34:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.43 2018/09/07 00:15:44 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -11,6 +11,7 @@
 #include "kclass.h"
 #include <signal.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include "mysig.h"
 
 /* The msys2 seems to make a buffer overflow of  EnvOfStackmachine[].
@@ -81,12 +82,13 @@ int GotoP = 0;
 static char *SMacros =
 #include "smacro.h"
 
-static isInteger(char *);
-static strToInteger(char *);
-static power(int s,int i);
+static int isInteger(char *);
+static int strToInteger(char *);
+static int power(int s,int i);
 static void pstack(void);
 static struct object executableStringToExecutableArray(char *str);
 static int isThereExecutableArrayOnStack(int n);
+
 
 extern int SerialCurrent;
 extern int QuoteMode;
@@ -133,7 +135,7 @@ struct object newObjectArray(size)
   return(rob);
 }
 
-isNullObject(obj)
+int isNullObject(obj)
      struct object obj;
 {
   if (obj.tag == 0) return(1);
@@ -401,7 +403,7 @@ void hashInitialize(struct dictionary *dic)
   }
 }
 
-static isInteger(str)
+static int isInteger(str)
      char *str;
 {
   int i;
@@ -422,7 +424,7 @@ static isInteger(str)
   return(1);
 }
 
-static strToInteger(str)
+static int strToInteger(str)
      char *str;
 {
   int i;
@@ -443,7 +445,7 @@ static strToInteger(str)
   return(r);
 }
 
-static power(s,i)
+static int power(s,i)
      int s;
      int i;
 {
@@ -672,7 +674,7 @@ void printOperandStack() {
 
     
 
-static initSystemDictionary()
+static int initSystemDictionary()
 {
   StandardStack.ostack = StandardStackA;
   StandardStack.sp = StandardStackP;
@@ -1117,8 +1119,7 @@ int executeToken(token)
 
       
 
-errorStackmachine(str)
-     char *str;
+void errorStackmachine(char *str)
 {
   int i,j,k;
   static char *u="Usage:";
@@ -1160,7 +1161,7 @@ errorStackmachine(str)
       }
     }else {
       fprintf(stderr,"ERROR(sm): ");
-      fprintf(stderr,str);
+      fprintf(stderr,"%s",str);
     }
     fprintf(stderr,"\n");
 	MsgStackTraceInArrayp = traceNameStackToArrayp();
@@ -1178,8 +1179,7 @@ errorStackmachine(str)
   MYLONGJMP(EnvOfStackMachine,1);
 }
 
-warningStackmachine(str)
-     char *str;
+int warningStackmachine(char *str)
 {
   extern int WarningMessageMode;
   extern int Strict;
@@ -1187,8 +1187,8 @@ warningStackmachine(str)
     pushErrorStack(KnewErrorPacket(SerialCurrent,-1,str));
   }
   if (WarningMessageMode != 1) {
-    fprintf(stderr,"WARNING(sm): ");
-    fprintf(stderr,str);
+    fprintf(stderr,"%s","WARNING(sm): ");
+    fprintf(stderr,"%s",str);
   }
   if (Strict) errorStackmachine(" ");
   return(0);
@@ -1199,7 +1199,7 @@ warningStackmachine(str)
 /* NOTE:  If you call this function and an error occured,
    you have to reset the jump buffer by setjmp(EnvOfStackMachine).
    cf. kxx/memo1.txt, kxx/stdserver00.c 1998, 2/6 */
-KSexecuteString(s)
+int KSexecuteString(s)
      char *s;
 {
   struct tokens token;
@@ -1294,7 +1294,7 @@ KSexecuteString(s)
   return(0);
 }
 
-KSdefineMacros() {
+int KSdefineMacros() {
   struct tokens token;
   int tmp;
   struct object ob = OINIT;
@@ -1371,7 +1371,7 @@ void KSpush(ob)
   Kpush(ob);
 }
 
-struct object KSpeek(k) {
+struct object KSpeek(int k) {
   return(peek(k));
 }
 

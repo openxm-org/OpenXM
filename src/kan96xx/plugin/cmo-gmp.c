@@ -1,9 +1,10 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.9 2005/07/03 11:08:54 ohara Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.10 2015/09/14 07:56:20 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 /* #include <netinet/in.h> */
 #include <limits.h>
+#include <arpa/inet.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -26,15 +27,17 @@
 extern int OxVersion;
 size_t cmoOutGMPCoeff_old(mpz_srcptr x);
 size_t cmoOutGMPCoeff_new(mpz_srcptr x);
-size_t
-cmoOutGMPCoeff(mpz_srcptr x) {
+size_t cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb);
+size_t cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb);
+
+size_t cmoOutGMPCoeff(mpz_srcptr x) {
   if (OxVersion >= 199907170)
     return(cmoOutGMPCoeff_new(x));
   else
     return(cmoOutGMPCoeff_old(x));
 }
 
-cmoGetGMPCoeff(MP_INT *x, struct cmoBuffer *cb) {
+size_t cmoGetGMPCoeff(MP_INT *x, struct cmoBuffer *cb) {
   if (OxVersion >= 199907170)
     return(cmoGetGMPCoeff_new(x,cb));
   else
@@ -71,18 +74,18 @@ static int myfputc(int i) {
   tmp[0] = i;
   cmoOutputToBuf(CMOPUT,tmp,1);
 }
-static outRawInt32(int k)
+static void outRawInt32(int k)
 {
   int tmp[1];
   tmp[0] = htonl((int) k);
   cmoOutputToBuf(CMOPUT,tmp,4);
 }
 
-size_t
-cmoOutGMPCoeff_old(mpz_srcptr x)
+size_t cmoOutGMPCoeff_old(mpz_srcptr x)
 {
   fprintf(stderr,"cmoOutGMPCoeff_old is no longer supported.\n");
   exit(10);
+  return 0;
 }
 
 
@@ -148,18 +151,18 @@ static int getRawInt32(struct cmoBuffer *cb)
 }
 #endif
 
-cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)
+size_t cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)
 {
   fprintf(stderr,"cmoGetGMPCoeff_old is no longer supported.\n");
   exit(10);
+  return 0;
 }
 
 /*****************************************************/
 /*****   new version for CMO_ZZ  *********************/
 /*****************************************************/
 #if BYTES_PER_MP_LIMB == 8
-size_t
-cmoOutGMPCoeff_new(mpz_srcptr x)
+size_t cmoOutGMPCoeff_new(mpz_srcptr x)
 {
   int i;
   mp_size_t s;
@@ -209,7 +212,7 @@ cmoOutGMPCoeff_new(mpz_srcptr x)
   return ( ABS (xsize) );
 }
 
-cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
+size_t cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
 {
   int i;
   mp_size_t s;
@@ -259,8 +262,7 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
   return( xsize0 ); 
 }
 #elif BYTES_PER_MP_LIMB == 4
-size_t
-cmoOutGMPCoeff_new(mpz_srcptr x)
+size_t cmoOutGMPCoeff_new(mpz_srcptr x)
 {
   int i;
   mp_size_t s;
@@ -307,7 +309,7 @@ cmoOutGMPCoeff_new(mpz_srcptr x)
   return ( ABS (xsize) );
 }
 
-cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
+size_t cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
 {
   int i;
   mp_size_t s;

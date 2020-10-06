@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.5 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.6 2006/01/30 10:38:36 takayama Exp $ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.
@@ -7,6 +7,7 @@
                                       grep the keyword CLASSNAME_sampleClass
 */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -21,7 +22,7 @@ struct object * ClassDictionaries[CLASSTABLE_SIZE];
 char *ClassNames[CLASSTABLE_SIZE];
 int ClassTypes[CLASSTABLE_SIZE];
 
-initClassDataBase() {
+void initClassDataBase() {
   int i;
   for (i=0; i<CLASSTABLE_SIZE; i++) {
     ClassTypes[i] = CLASS_NOT_USED;
