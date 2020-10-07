@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.3 2013/11/07 07:29:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.4 2015/10/10 11:29:46 takayama Exp $ */
 /* This is imported from kxx/sm1stackmachine.c */
 #include <stdio.h>
 #include <setjmp.h>
@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "../kxx/ox_kan.h"
 #include "../kxx/serversm.h"
+#include "ox_k0.h"
+
 extern int OXprintMessage;
 
 /*  server stack machine */

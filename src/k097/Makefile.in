@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.8 2016/09/27 01:05:55 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.9 2019/01/28 04:51:51 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -19,7 +19,7 @@ OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
 BDATE =19970416
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
-CFLAGS= @CFLAGS@ -D_BSD_SOURCE -g -DLOAD_K_PATH=${LOAD_K_PATH} -DLOAD_SM1_PATH2=${LOAD_SM1_PATH2}
+CFLAGS= @CFLAGS@ -D_BSD_SOURCE -D_DEFAULT_SOURCE -g -DLOAD_K_PATH=${LOAD_K_PATH} -DLOAD_SM1_PATH2=${LOAD_SM1_PATH2}
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
 ## Kan source.  kan sources must be built up by hand.
@@ -64,7 +64,7 @@ Stable/sm1symbo.h : Stable/reserved.txt
 	(cd Stable; make)
 
 clean:
-	rm -f simple d0 k0 test0 *.o *~  simple.output asir-tmp.t asir-tmp.tt asir-tmp-out.t asir-tmp-out.tt k2 .*_done
+	rm -f simple d0 k0 test0 *.o *~  simple.output asir-tmp.t asir-tmp.tt asir-tmp-out.t asir-tmp-out.tt k2 .*_done ox_k0
 	(cd Stable; make clean)
 	(cd try; make clean)
 ##	rm -f simple.tab.c simple.tab.h
@@ -90,10 +90,10 @@ KXX = simple.tab.o d.o ki.o dic.o
 k0:  k0.o $(KXX) ${Kan96xx_Kan}/kanlib.a ${Kan96xx_Kan}/lookup.h
 	${CC} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o k0 k0.o $(KXX)  ${KANLIB}
 
-k0.o: k2.c
+k0.o: k2.c ki.h
 	${CC} -c ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o k0.o k2.c
 
-ki.o: ki.c
+ki.o: ki.c ki.h
 	${CC} -c ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o ki.o ki.c
 
 dic.o: dic.c d.h
@@ -108,8 +108,8 @@ ${Kan96xx_Kan}/lookup.h :
 
 ox_k0: ox_k0.o k0 sm1sm.o
 	${CC} ${STATIC_LINK_FLAG} ${CFLAGS}  -I${OpenXM_include} -I${Kan96xx_Kan} -o ox_k0 ox_k0.c sm1sm.c $(KXX)  ${KANLIB}
-ox_k0.o: ox_k0.c
-sm1sm.o: sm1sm.c
+ox_k0.o: ox_k0.c ki.h ox_k0.h
+sm1sm.o: sm1sm.c ox_k0.h
 ##########  
 ## A sample to compilation:  source is test0.c, output is test0
 test0:  test0.c  $(KXX) ${Kan96xx_Kan}/kanlib.a ${Kan96xx_Kan}/lookup.h

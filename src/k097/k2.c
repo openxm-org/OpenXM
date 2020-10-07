@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/k2.c,v 1.5 2015/09/29 01:52:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/k2.c,v 1.6 2015/10/10 11:29:46 takayama Exp $ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
@@ -9,6 +9,8 @@
 #include "stackm.h"
 #include "extern.h"
 #include "extern2.h"
+
+#include "ki.h"
 
 char *getLOAD_K_PATH();  /* from d.h */
 
@@ -24,7 +26,7 @@ extern int K00_verbose;
 int Startupk2 = 1;
 
 
-main(int argc,char *argv[]) {
+void main(int argc,char *argv[]) {
   extern int Saki;
   extern int Interactive;
   int i;

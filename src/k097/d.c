@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.19 2016/04/02 08:20:09 ohara Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.20 2018/11/02 01:33:26 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
 #include <setjmp.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "d.h"
@@ -49,7 +50,7 @@ int Interactive = 1;
 static int isThereStdin();
 #define MARK_CHAR  3
 
-main2(int argc, char *argv[]) {
+void main2(int argc, char *argv[]) {
   FILE *f;
   FILE *outf;
   char name[1024];
@@ -79,7 +80,7 @@ main2(int argc, char *argv[]) {
   }
 }
 
-repl(FILE *inFile,FILE *outFile) {
+void repl(FILE *inFile,FILE *outFile) {
   int c;
   int t;
   Inop = newObject_d();
@@ -160,7 +161,7 @@ repl(FILE *inFile,FILE *outFile) {
 	case INCREMENT: printf("\nKClex returns --- ++."); break;
 	case DECREMENT: printf("\nKClex returns --- --."); break;
 	case MEMBER: printf("\nKClex returns --- ->."); break;
-	case RESIDUEPUT: printf("\nKClex returns --- %=."); break;
+	case RESIDUEPUT: printf("\nKClex returns --- %%=."); break;
 	case NEGATEPUT: printf("\nKClex returns --- ^=."); break;
 	case MULTPUT: printf("\nKClex returns --- *=."); break;
 
@@ -595,7 +596,7 @@ int KClex() {
 
 }
 
-KCerror(char *s)   /* You need this function. Otherwise, you get core. */
+int KCerror(char *s)   /* You need this function. Otherwise, you get core. */
 {
   K00recoverFromError();
   fprintf(stderr,"\nSyntax Error in the line %d:%s\n",Linenumber,s);
@@ -610,7 +611,7 @@ KCerror(char *s)   /* You need this function. Otherwise, you get core. */
   exit(1); 
 }
 
-readcomment() {
+int readcomment() {
   int c;
   while (1) {
     c = fsgetc(Inop);
@@ -674,7 +675,7 @@ char *readstring() {
 }
       
 
-readchar() {
+int readchar() {
   int c;
   if (Replace) putchar0('\'');
   c = fsgetc(Inop); /* 'c.'   '\.c' */
@@ -702,20 +703,20 @@ readchar() {
   return(c);
 }
   
-putchar0(c)
+void putchar0(c)
 int c;
 {
   if (c > 0) fputc(c,outfile);
 }
 
-printf0(s)
+void printf0(s)
 char *s;
 {
   int i = 0;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-printf1(s)
+void printf1(s)
 char *s;
 {
   int i = 0;
@@ -723,7 +724,7 @@ char *s;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-isReserved(s)
+int isReserved(s)
 char *s;
 {
   char *r[] = {"auto","break","case","char","const","continue",
@@ -760,7 +761,7 @@ char *s;
 
 }
 
-shouldReplace(s)
+int shouldReplace(s)
 char *s;
 {
   char *r[] = {"dummy"};
@@ -1021,7 +1022,7 @@ objectp checkIfTheFileExists(objectp op) {
       }
     }
   }
-  close(fp);
+  fclose(fp);
   op = newObject_d();
   op->tag = Sstring;
   s = (char *)GC_malloc(sizeof(char)*(strlen(fname)+1));
@@ -1137,7 +1138,7 @@ void showStringBuff(objectp op)
   if (K00_verbose) {
     fprintf(stderr,"stringBuff ptr = %d, ",ptr);
     fprintf(stderr,"sb[ptr] = %x,%d",(sb->str)[ptr],(sb->str)[ptr]);
-    fprintf(stderr,"Saki(yomi) = %x \n",Saki,Saki);
+    fprintf(stderr,"Saki(yomi) = %x,%d \n",Saki,Saki);
   }
   if (ptr == 0 && Saki == -1) {
     fprintf(stderr," ; was expected.\n");

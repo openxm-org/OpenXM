@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/dm.c,v 1.4 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/dm.c,v 1.5 2013/11/07 07:29:47 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -6,7 +6,7 @@ int K00_verbose = 0;
 extern int DebugMode;
 
 /* dm.c main program of d. */
-main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
   int i;
   DebugMode = 0;
   if (argc >= 2) {
@@ -43,7 +43,7 @@ void *sGC_malloc(size_t size) {
   return ((void *) GC_malloc(size));
 }
 
-sendKan(int p) { /* do nothing */ }
+int sendKan(int p) { /* do nothing */ return 0; }
 
 /*           test new function           */
 void testNewFunction(objectp op)

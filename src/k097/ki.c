@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.10 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.11 2016/03/31 06:34:29 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -14,6 +14,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "mysig.h"
+
+#include "ki.h"
 
 char *getLOAD_K_PATH();  /* from d.h */
 
@@ -42,7 +44,7 @@ int K00_verbose = 0;
 
 extern int DebugMode;
 
-sendKan(int p) {
+int sendKan(int p) {
   static int n = 2;
   extern int Interactive;
   struct object obj = OINIT;
@@ -131,7 +133,7 @@ void *mymalloc(int n)
   return((void *)GC_malloc(n));
 }
 
-execFile(char *s)
+int execFile(char *s)
 {
   FILE *fp;
 #define TMP_SIZE 1024

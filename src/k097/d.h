@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.h,v 1.6 2013/11/07 07:29:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.7 2015/10/10 11:29:46 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
 #include <string.h>
@@ -130,7 +130,7 @@ void *mymalloc(int size);
 int isProtectedSymbol(char *s);
 int ips(objectp op);
 /* read from file */
-void parseAFile(FILE *fp);
+void parseAfile(FILE *fp);
 void parseAstring(char *s);
 int fsgetc(objectp op);
 int fsungetc(int c,objectp op);
@@ -175,6 +175,21 @@ void K00toPrimitiveClass();
 void *GC_malloc(size_t size);
 void *sGC_malloc(size_t size);
 
+int KClex();
+int KCerror(char *s);
+int KCparse();
+int sendKan(int p);
+void printTens(objectp op);
+void K00foo1();
+void K00fooPrimitive();
+void repl(FILE *inFile,FILE *outFile);
+int readcomment();
+int readchar();
+void putchar0(int c);
+void printf0(char *s);
+void printf1(char *s);
+int isReserved(char *s);
+int shouldReplace(char *s);
 
 
 

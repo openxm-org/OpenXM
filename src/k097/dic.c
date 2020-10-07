@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/dic.c,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -17,7 +17,7 @@ int K00Strict2 = 1;
 
 static void myerror(char *s) {
   fprintf(stderr,"Error in dic.c : ");
-  fprintf(stderr,s);
+  fprintf(stderr,"%s",s);
 }
 
 int K00putUserDictionary(str,h0,h1,ob,cp)
@@ -474,13 +474,13 @@ void pkkanInteger(int k) {
 }
   
 
-K00foo1() {
+void K00foo1() {
   extern struct context *K00CurrentContextp;
   extern int K00debug0;
   if (K00debug0) K00fprintContextAndDictionary(stderr,K00CurrentContextp);
 }
 
-K00fooPrimitive() {
+void K00fooPrimitive() {
   extern struct context *K00PrimitiveContextp;
   extern int K00debug0;
   if (K00debug0) {

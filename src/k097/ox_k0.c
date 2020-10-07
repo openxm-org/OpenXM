@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.10 2015/10/10 11:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.11 2016/03/31 05:27:34 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -12,6 +12,9 @@
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "../kxx/ox_kan.h"
 #include "../kxx/serversm.h"
+#include "ox_k0.h"
+#include "ki.h"
+
 
 int OxCritical = 0;
 int OxInterruptFlag = 0;
@@ -31,7 +34,7 @@ jmp_buf EnvOfChildServer;
 int JmpMessage = 0;
 
 static char *getSuffix(char *s);
-main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
   char *s;
 
   if (argc > 1) {
@@ -65,7 +68,7 @@ static char *getSuffix(char *s) {
   }
   return(s);
 }
-nullserver(int fdStreamIn,int fdStreamOut) {
+void nullserver(int fdStreamIn,int fdStreamOut) {
   int mtag;
   int message = 1;
   ox_stream ostreamIn;
@@ -232,7 +235,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
   }
 }
 
-nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
+int nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   int id;
   int mtag;
   int n;
@@ -311,13 +314,13 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     }
     break;
   case SM_popCMO:
-    if (message) fprintf(stderr,"popCMO.  Start to sending data.\n",n);
+    if (message) fprintf(stderr,"popCMO.  Start to sending data %d\n",n);
     oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
     n=Sm1_popCMO(ostreamOut,SerialCurrent);
     if (message) fprintf(stderr,"Done.\n"); 
     break;
   case SM_popString:
-    if (message) fprintf(stderr,"popString. send data from the stack.\n",n);
+    if (message) fprintf(stderr,"popString. send data from the stack %d\n",n);
     oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
     oxSendCmoString(ostreamOut,Sm1_popString());
     if (message) fprintf(stderr,"Done.\n");
@@ -340,7 +343,7 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
 }
 
       
-nullserver_simplest(int fd) {
+int nullserver_simplest(int fd) {
   int c;
   while(1) {
     c = readOneByte(fd);
@@ -383,7 +386,7 @@ extern int K00_verbose;
 int Startupk2 = 1;
 
 
-K0_start() {
+void K0_start() {
   extern int Saki;
   extern int Interactive;
   int i;
@@ -445,7 +448,7 @@ K0_start() {
   KSstop();  closing 
 */
 
-K0_executeStringByLocalParser() {
+int K0_executeStringByLocalParser() {
   extern int Interactive;
   char *s;
   s = Sm1_popString();
