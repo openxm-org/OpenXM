@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.16 2016/03/31 03:22:55 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.17 2020/10/06 11:33:47 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -16,6 +16,7 @@
 int KsocketSelect0(int a,int b) { return(0); }
 int oxSocketSelect0(int a,int b) { return(0); }
 or define FORSTRING
+Real oxSocketSelect0 is defined in kan96xx/plugin/mytcpio.c
 */
 #ifdef  FORSTRING
 #define KsocketSelect0(a,b) 0
@@ -24,6 +25,7 @@ or define FORSTRING
 
 #ifdef KXX
 #define sGC_malloc(n) malloc(n)
+int oxSocketSelect0(int fd,int t);
 #else
 void *sGC_malloc(int size);
 #endif
