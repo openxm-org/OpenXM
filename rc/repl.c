@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.17 2004/06/20 04:55:32 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.18 2019/03/29 02:49:48 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +47,7 @@ main(int argc,char *argv[]) {
 	  strcat(cwd,"/OpenXM");
       if (cwd[0] != '/') {
         fprintf(stderr,"Warning: prefix must start with /\n");
-        fprintf(stderr,"Your prefix is %d\n",cwd);
+        fprintf(stderr,"Your prefix is %s\n",cwd);
       }
     }else{
       fprintf(stderr,"Warning: Unknown option.\n");
