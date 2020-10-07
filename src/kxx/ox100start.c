@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.7 2006/01/26 08:36:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.8 2016/03/31 05:27:34 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <ctype.h>
+#include <string.h>
 #include "ox_pathfinder.h"
 #include "mysig.h"
 
@@ -22,7 +23,7 @@ int Quiet = 0;
 static int EngineLogToStdout = 0;
 extern char **environ;
 
-main(int argc,char *argv[]) {
+void main(int argc,char *argv[]) {
   char *s;
   char s2[1024];
   char buf[1024];

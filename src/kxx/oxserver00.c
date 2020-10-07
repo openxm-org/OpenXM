@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.23 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.24 2016/08/28 02:43:15 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -30,11 +30,19 @@ sigjmp_buf EnvOfChildServer;
 jmp_buf EnvOfChildServer;
 #endif
 
+void nullserver(int fdStreamIn,int fdStreamOut);
+int nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut);
+int nullserver_simplest(int fd);
+int KSexecuteString(char *s); // kan96xx/Kan/datatype.h
+void cancelAlarm(); // nullstackmachine.c
+char *traceShowStack(); // kan96xx/Kan/extern.h
+void traceClearStack(); // kan96xx/Kan/extern.h
+
 int JmpMessage = 0;
 extern int Lisplike;
 
 static char *getSuffix(char *s);
-main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
   char *s;
   char *forAsir[] = {"callsm1.sm1","callsm1b.sm1"};
   char *gnuplot[] = {"callsm1.sm1","gnuplot.sm1"};
@@ -93,7 +101,7 @@ static char *getSuffix(char *s) {
   }
   return(s);
 }
-nullserver(int fdStreamIn,int fdStreamOut) {
+void nullserver(int fdStreamIn,int fdStreamOut) {
   int mtag;
   int message = 1;
   ox_stream ostreamIn;
@@ -246,7 +254,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
   }
 }
 
-nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
+int nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   int id;
   int mtag;
   int n;
@@ -366,7 +374,7 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
 }
 
       
-nullserver_simplest(int fd) {
+int nullserver_simplest(int fd) {
   int c;
   while(1) {
     c = readOneByte(fd);

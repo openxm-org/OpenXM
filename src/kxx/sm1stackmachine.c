@@ -8,6 +8,15 @@ extern char *MsgStackTrace;
 extern char *MsgSourceTrace;
 extern struct object *MsgStackTraceInArrayp;
 
+void KSstart(); // kan96xx/Kan/datatype.h
+int KSexecuteString(char *s); // kan96xx/Kan/datatype.h
+int Kan_pushCMOFromStream(FILE2 *fp); //kan96xx/Kan/plugin.h
+int Kan_popCMOToStream(FILE2 *fp,int serial); //
+int KgetCmoTagOfObject(struct object obj);    //
+int KSstackPointer(void); //kan96xx/Kan/extern.h
+int Kan_setMathCapToStream(FILE2 *fp,struct object ob); // kan96xx/plugin/cmo.c
+
+
 /*  server stack machine */
 
 int Sm1_start(int argc, char *fnames[],char *myname) {

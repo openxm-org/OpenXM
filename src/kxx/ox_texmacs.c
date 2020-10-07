@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.46 2019/09/25 06:29:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.47 2019/09/25 06:30:37 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +18,11 @@
 #define SETJMP(env)  MYSETJMP(env)
 #define LONGJMP(env,p)  MYLONGJMP(env,p)
 #endif
+
+void KSstart(); // kan96xx/Kan/datatype.h
+void KSstart_quiet(); // kan96xx/Kan/datatype.h
+int KSexecuteString(char *s); // kan96xx/Kan/datatype.h
+
 
 /*
 #define DEBUG 
@@ -168,7 +173,7 @@ static int mystrncmp(char a[],char s[]);
 */
 FILE *Dfp;
 
-main(int argc,char *argv[]) {
+void main(int argc,char *argv[]) {
   char *s;
   char *r;
   char *sys;

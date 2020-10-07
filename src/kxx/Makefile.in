@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.46 2016/09/19 07:50:02 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.47 2016/09/20 04:47:36 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -35,7 +35,7 @@ MYSIG=${OpenXM_lib}/mysig.o
 CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
-CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE -I${OpenXM_include}
+CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE -D_DEFAULT_SOURCE -I${OpenXM_include}
 # University binary is no longer supported. See old configure.in (version 1.7)
 # Or use "lipo -create ox-i386 ox-ppc -output ox"
 #STATIC_LINK_FLAG=-static

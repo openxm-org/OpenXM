@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.28 2016/08/27 00:11:27 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.29 2016/09/26 11:43:38 takayama Exp $  */
 /*  Note on IntelMac. [2006.06.05]
     SIGINT does not seem to be blocked on the rosetta emulator of ppc
     on the IntelMac's. "ox" should be universal binary.
@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <signal.h>
@@ -25,6 +26,13 @@
 #include "serversm.h"
 
 #define SERVERNAME "ox_sm1"
+
+void oxmainUsage();
+void parentServerMain(int fdControl, int fdStream);
+int childServerMain(int fdControl, int fdStream);
+void unlockCtrlCForOx();
+void restoreLockCtrlCForOx();
+
 
 extern char **environ;
 int OxCritical = 0;
@@ -54,7 +62,7 @@ void *sGC_malloc(int n) {
   return (void *)malloc(n);
 }
 
-main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
   int fd;
   int size;
   char sname[1024];
@@ -184,14 +192,14 @@ main(int argc, char *argv[]) {
 	sprintf(stmp,"%s/.openxm/tmp.opt/%s",(char *)getenv("HOME"),passControl);
 	fp = fopen(stmp,"r");
 	if (fp == NULL) { fprintf(stderr,"passControl file %s is not found.\n",stmp); exit(1);}
-	fgets(stmp,127,fp); passControl = stmp; fclose(fp);
+	{char *rrr; rrr=fgets(stmp,127,fp);} passControl = stmp; fclose(fp);
 
 	stmp = (char *)sGC_malloc(strlen(getenv("HOME"))+strlen(passControl)+
 							  strlen(passData)+128);
 	sprintf(stmp,"%s/.openxm/tmp.opt/%s",(char *)getenv("HOME"),passData);
 	fp = fopen(stmp,"r");
 	if (fp == NULL) { fprintf(stderr,"passData file %s is not found.\n",stmp); exit(1);}
-	fgets(stmp,127,fp); passData = stmp; fclose(fp);
+	{char *rrr; rrr=fgets(stmp,127,fp);} passData = stmp; fclose(fp);
   }
 
   if (reverse) {
@@ -330,7 +338,7 @@ static void errorToStartEngine(void) {
   exit(-1);
 }
 
-oxmainUsage() {
+void oxmainUsage() {
   fprintf(stderr,"Usage: \n");
   fprintf(stderr,"  ox [-ox serverprogram -host name -data portnum -control portnum -monitor]\n");
   fprintf(stderr," [-insecure -portfile fname -reverse -passControl xxxyyyzzz -passData pppqqqrrr]");
@@ -362,7 +370,7 @@ oxmainUsage() {
   fprintf(stderr,"\n");
 }
 
-parentServerMain(int fdControl, int fdStream) {
+void parentServerMain(int fdControl, int fdStream) {
   int id;
   int mtag;
   int size;
@@ -370,7 +378,7 @@ parentServerMain(int fdControl, int fdStream) {
   int r;
   int message = 1;
   int controlByteOrder;
-  extern OxTerminateMode;
+  extern int OxTerminateMode;
   extern void myServerExit(int m);
 
   int sigchld[]={SIGCHLD,-1};
@@ -414,7 +422,7 @@ parentServerMain(int fdControl, int fdStream) {
       r=kill(MyServerPid,SIGUSR1);
       if (message) printf("Result = %d\n",r);
       if (Ox_protocol_1999) {
-	if (message) printf("[obsolete protocol of ox-rfc-100 in 1999] Sending the result packet to the control channel.\n",r);
+	if (message) printf("[obsolete protocol of ox-rfc-100 in 1999] Sending the result packet to the control channel. r=%d\n",r);
         oxSendResultOfControlInt32(fdControl,0); 
       }
       fflush(NULL);
@@ -435,7 +443,7 @@ void myServerExit(int m) {
   exit(0);
 }
 
-childServerMain(int fdControl, int fdStream) {
+int childServerMain(int fdControl, int fdStream) {
   int i;
   struct rlimit res;
   close(fdControl);   /* close(0); dup(fdStream); */
@@ -506,8 +514,8 @@ childServerMain(int fdControl, int fdStream) {
 
 
 /* These are dummy.  It is defined in stackmachine.c */
-unlockCtrlCForOx() { ; }
-restoreLockCtrlCForOx() { ; }
+void unlockCtrlCForOx() { ; }
+void restoreLockCtrlCForOx() { ; }
 
 static int findOxServer(char *server) {
   char *p;
