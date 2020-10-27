@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.14 2019/09/09 23:39:52 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.15 2019/09/13 05:21:33 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -122,6 +122,7 @@ localf laplace $
 localf add_d$
 localf regular_triangulation$
 localf mod_reduction$
+localf reduction_verbose$
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
 def init_Sm1_proc() {
@@ -2004,6 +2005,44 @@ def mod_reduction(A) {
   Ans = pop(P);  /* Throw away Ans[3] */
   sm1(P," env_for_asir popEnv ");
   return([Ans[0],Ans[1],Ans[2],A[1]]);
+}
+
+def reduction_verbose(A) 
+"reduction_verbose([F,G,V,Weight]) returns [R,R0,S,G,LT,Ord] where R*R0+S*G=0 and LT is the initial of R with the Order"
+{
+  /* Example: reduction(A|proc=10) */
+  SM1L_FIND_PROC(P);
+  /* check the arguments */
+  if (type(A) != 4) {
+   error("sm1. reduction(A|proc=p): A must be a list.");
+  }
+  if (length(A) == 2) return mod_reduction(A | option_list=getopt());
+  if (type(A[0]) != 4) {
+    AA = [rtostr(A[0])];
+    AA = append(AA,[ map(rtostr,A[1]) ]);
+  }else{ // module case
+    AA = [map(rtostr,A[0])];
+    B=[];
+    for (I=0; I<length(A[1]); I++) {
+      B=cons(map(rtostr,A[1][I]),B);
+    }
+    AA = append(AA,[reverse(B)]);
+  }
+  AA = append(AA, cdr(cdr(A)));
+/*  printf("AA=%a\n",AA);
+  print(map(type,AA[0]));
+  print(map(type,AA[2]));
+  print(map(type,AA[3][0])); */
+  sm1(P," /reduction*.noH 0 def ");
+  push_int0(P,AA);
+  sm1(P," reduction* /tmp-reduction set tmp-reduction getRing :: tmp-reduction ");
+  ox_check_errors2(P);
+  Ans = pop(P);  /* Throw away Ans[3] */
+  sm1(P," tmp-reduction 0 get init /tmp-reduction-init set tmp-reduction-init ");
+  Ans2 = pop(P);
+  sm1(P," tmp-reduction getRing (oxRingStructure) data_conversion ");
+  Ans3 = pop(P);
+  return([Ans[0],Ans[1],Ans[2],A[1],Ans2,Ans3]);
 }
 
 endmodule;
