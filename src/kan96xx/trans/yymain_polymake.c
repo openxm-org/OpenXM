@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.6 2018/05/03 13:20:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.7 2020/10/06 11:33:48 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
@@ -28,6 +28,8 @@ int main_t() {
   }
   return 0;
 }
+
+int PMparse();
 
 int main() {
   int c,type;

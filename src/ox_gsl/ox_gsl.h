@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.7 2018/06/07 11:49:51 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.h,v 1.8 2018/06/08 00:03:43 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
@@ -56,3 +56,5 @@ void init_dic();
 cmo *element_of_at(cmo *list,int k);
 int get_length(cmo *c);
 
+void replace(int n, ...);
+void replace2(int n, char *s[], double v[]);

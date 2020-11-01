@@ -1,6 +1,6 @@
 diff -urN TiGERS_0.9.orig/Makefile TiGERS_0.9/Makefile
 --- TiGERS_0.9.orig/Makefile	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/Makefile	2014-03-30 04:58:05.000000000 +0900
++++ TiGERS_0.9/Makefile	2020-11-01 10:49:33.000000000 +0900
 @@ -2,7 +2,7 @@
  
  # specify compiler and compiler flags
@@ -11,18 +11,18 @@ diff -urN TiGERS_0.9.orig/Makefile TiGERS_0.9/Makefile
  
  Lib_Dirs = 
 diff -urN TiGERS_0.9.orig/NOTE.txt TiGERS_0.9/NOTE.txt
---- TiGERS_0.9.orig/NOTE.txt	Thu Jan  1 09:00:00 1970
-+++ TiGERS_0.9/NOTE.txt	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/NOTE.txt	1970-01-01 09:00:00.000000000 +0900
++++ TiGERS_0.9/NOTE.txt	2020-11-01 10:49:33.000000000 +0900
 @@ -0,0 +1 @@
 +This is a working directory by NT.  1999, 6/26.
 diff -urN TiGERS_0.9.orig/README.change TiGERS_0.9/README.change
---- TiGERS_0.9.orig/README.change	Thu Jan  1 09:00:00 1970
-+++ TiGERS_0.9/README.change	Sat Jan  8 07:46:11 2000
+--- TiGERS_0.9.orig/README.change	1970-01-01 09:00:00.000000000 +0900
++++ TiGERS_0.9/README.change	2020-11-01 10:49:33.000000000 +0900
 @@ -0,0 +1 @@
 +The original source code of TiGERS is in OpenXM_contib/TiGERS_0.9.
 diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
---- TiGERS_0.9.orig/binomial.c	Sat Jan  8 07:42:43 2000
-+++ TiGERS_0.9/binomial.c	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/binomial.c	1999-06-12 07:05:51.000000000 +0900
++++ TiGERS_0.9/binomial.c	2020-11-01 10:49:33.000000000 +0900
 @@ -12,7 +12,7 @@
  #include<stdlib.h>
  #include "utils.h"
@@ -106,8 +106,8 @@ diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
  
  /*
 diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
---- TiGERS_0.9.orig/call.c	Sat Jun 12 07:05:52 1999
-+++ TiGERS_0.9/call.c	Wed Dec 15 03:06:28 2004
+--- TiGERS_0.9.orig/call.c	1999-06-12 07:05:52.000000000 +0900
++++ TiGERS_0.9/call.c	2020-11-01 10:49:33.000000000 +0900
 @@ -15,6 +15,8 @@
  #include "gset.h"
  #include "matrices.h"
@@ -297,8 +297,8 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  }
 +}
 diff -urN TiGERS_0.9.orig/gset.c TiGERS_0.9/gset.c
---- TiGERS_0.9.orig/gset.c	Sat Jan  8 07:42:43 2000
-+++ TiGERS_0.9/gset.c	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/gset.c	1999-06-12 07:05:51.000000000 +0900
++++ TiGERS_0.9/gset.c	2020-11-01 10:49:33.000000000 +0900
 @@ -13,6 +13,7 @@
  #include "gset.h"
  #include "matrices.h"
@@ -334,9 +334,36 @@ diff -urN TiGERS_0.9.orig/gset.c TiGERS_0.9/gset.c
  }
  
  /*
+diff -urN TiGERS_0.9.orig/gset.h TiGERS_0.9/gset.h
+--- TiGERS_0.9.orig/gset.h	1999-06-12 07:05:52.000000000 +0900
++++ TiGERS_0.9/gset.h	2020-11-01 10:59:44.000000000 +0900
+@@ -40,9 +40,17 @@
+ gset gset_toric_ideal(int **,int,int);
+ void gset_rgb(gset g, int (*comp)(monomial,monomial));
+ 
+-
+-
+-
+-
+-
+-
++void binomial_copy(binomial src,binomial dest);
++void vertex_print(gset g1);
++int rsearch(gset g1);
++int exsearch(gset g1);
++void LP_free_space();
++int ring_read(FILE *infile);
++void print_monomial(FILE *of, int *exps);
++int binomial_compair(binomial b1,binomial b2);
++void reducetrail(binomial b1, binomial b2);
++void binomial_bumpto(binomial b1, binomial b2);
++int monomial_rel_prime(monomial m1, monomial m2);
++int lp_isfacet(gset g,binomial b);
++void gset_facet_print(FILE *of,gset g);
++int ihermite(int **S,int **U,int m, int n);
 diff -urN TiGERS_0.9.orig/memo.txt TiGERS_0.9/memo.txt
---- TiGERS_0.9.orig/memo.txt	Thu Jan  1 09:00:00 1970
-+++ TiGERS_0.9/memo.txt	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/memo.txt	1970-01-01 09:00:00.000000000 +0900
++++ TiGERS_0.9/memo.txt	2020-11-01 10:49:33.000000000 +0900
 @@ -0,0 +1,33 @@
 +Open XM 化は２とおりの方法があり.  1999, 6/26
 +一つは, 出力をパーサで理解する方法。
@@ -372,8 +399,8 @@ diff -urN TiGERS_0.9.orig/memo.txt TiGERS_0.9/memo.txt
 +---  よい経験になると思う.  この経験をプログラム作法として記録するのは
 +---  大事であろう. のこりは日本でやる.  あとは, 級数解の構成プログラム.
 diff -urN TiGERS_0.9.orig/tigers.c TiGERS_0.9/tigers.c
---- TiGERS_0.9.orig/tigers.c	Sat Jan  8 07:42:43 2000
-+++ TiGERS_0.9/tigers.c	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/tigers.c	1999-06-12 07:05:51.000000000 +0900
++++ TiGERS_0.9/tigers.c	2020-11-01 10:49:33.000000000 +0900
 @@ -12,6 +12,7 @@
  #include "utils.h"
  #include "gset.h"
@@ -434,8 +461,8 @@ diff -urN TiGERS_0.9.orig/tigers.c TiGERS_0.9/tigers.c
    
  
 diff -urN TiGERS_0.9.orig/toric.c TiGERS_0.9/toric.c
---- TiGERS_0.9.orig/toric.c	Sat Jan  8 07:42:43 2000
-+++ TiGERS_0.9/toric.c	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/toric.c	1999-06-12 07:05:52.000000000 +0900
++++ TiGERS_0.9/toric.c	2020-11-01 10:49:33.000000000 +0900
 @@ -15,7 +15,7 @@
  #include "gset.h"
  #include "matrices.h"
@@ -457,3 +484,14 @@ diff -urN TiGERS_0.9.orig/toric.c TiGERS_0.9/toric.c
  
    /* set lex last variable to be lv */
    lold=ring_lv;
+diff -urN TiGERS_0.9.orig/utils.c TiGERS_0.9/utils.c
+--- TiGERS_0.9.orig/utils.c	1999-06-12 07:05:52.000000000 +0900
++++ TiGERS_0.9/utils.c	2020-11-01 10:59:09.000000000 +0900
+@@ -10,6 +10,7 @@
+ */
+ #include<stdio.h>
+ #include<stdlib.h>
++#include<ctype.h>
+ 
+ int eatwhite(FILE *is){
+  int c;

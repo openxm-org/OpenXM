@@ -1,11 +1,12 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.44 2018/04/03 09:58:30 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.45 2018/04/05 05:31:51 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 #define _OX_TOOLKIT_H_
 
 
 #include <stdio.h>
+#include <string.h>
 #include <gmp.h>
 #include <mpfr.h>
 #include <ox/cmotag.h>
@@ -354,6 +355,13 @@ char *generate_otp();
 
 int ox_stderr_init(FILE *fp);
 int ox_printf(char *format, ...);
+
+int gclose();
+int gopen();
+int gFlush(); 
+int moveto(int x, int y);
+int lineto(int x, int y);
+int setpixel(int x, int y);
 
 #ifdef __cplusplus
 }
