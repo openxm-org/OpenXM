@@ -1,13 +1,14 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.19 2005/01/19 16:58:27 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.20 2015/02/21 06:20:36 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME    = gnuplot-4.0.0
+DISTNAME    = gnuplot-5.4.0
 DISTFILES   = ${DISTNAME}.tar.gz
 DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist
 WRKSRC      = work/${DISTNAME}
 #PATCH_FILES = gnuplot-v4.diff
-PATCH_FILES = gnuplot4_interix.diff
+#PATCH_FILES = gnuplot4_interix.diff
+PATCH_FILES =
 INSTALL_PROGRAM = install -c -s
 
 all: build
@@ -47,10 +48,10 @@ build: configure
 install: build
 	@if [ ! -f work/.install_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd`; \
-		mkdir -p $${prefix}/libexec/gnuplot/4.0; \
+		mkdir -p $${prefix}/libexec/gnuplot/5.4; \
 		(cd ${WRKSRC}/src; \
 		 ${INSTALL_PROGRAM} gnuplot     $${prefix}/bin/gnuplot ; \
-		 ${INSTALL_PROGRAM} gnuplot_x11 $${prefix}/libexec/gnuplot/4.0) ; \
+		 ${INSTALL_PROGRAM} gnuplot_x11 $${prefix}/libexec/gnuplot/5.4) ; \
 	fi
 	@touch work/.install_done
 
