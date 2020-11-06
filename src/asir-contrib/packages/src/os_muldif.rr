@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.75 2020/10/05 03:42:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.76 2020/10/13 02:58:16 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Oct. 2020)
+ *          Toshio Oshima (Nov. 2007 - Nov. 2020)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -85,6 +85,7 @@ localf trpos$
 localf sprod$
 localf sinv$
 localf slen$
+localf sexps$
 localf sord$
 localf vprod$
 localf dvangle$
@@ -517,7 +518,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00201012"$
+Muldif.rr="00201103"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1283,6 +1284,18 @@ def slen(S)
 			if(S[I] > S[J]) V++;
 	}
 	return V;
+}
+
+def sexps(S)
+{
+	K=length(S);S=ltov(S);
+	for(R=[],I=0;I<K-1;I++){
+		for(J=I;J>=0&&S[J]>S[J+1];J--){
+			T=S[J];S[J]=S[J+1];S[J+1]=T;
+			R=cons(J,R);
+		}
+	}
+	return R;
 }
 
 def sord(W,V)
@@ -21811,129 +21824,91 @@ def bernoulli(N)
 }
 
 /* linfrac01([x,y]) */
-/* linfrac01(newvect(10,[0,1,2,3,4,5,6,7,8,9]) */
-/* 0:x=0, 1:x=y, 2:x=1, 3:y=0, 4:y=1, 5:x=\infty, 6:y=\infty, 7:x=y=0, 8:x=y=1, 9:x=y=\infty
-	 10:y_2=0, 11:y_2=x, 12:y_2=y, 13: y_2=1,   14: y_2=\infty 
-	 15:y_3=0, 16:y_3=x, 17:y_3=y, 18: y_3=y_2, 19: y_3=1, 20:y_3=\infty
-	 X[0],X[11],X[2],X[10],X[13],X[5],X[14],X[7],X[8],X[9],
-	 X[3],X[1],X[12],X[4],X[6]
+/* (x_0,x_1,x_2,x_3,...,x_{q+3})=(x,0,1,y_1,...,y_q,\infty)
 
 	T=0   (x_2,x_1,x_3,x_4,...)
 	T=-j  (x_1,x_2,..,x_{j-1},x_{j+1},x_j,x_{j+2},...)
 	T=1   (1-x_1,1-x_2,1-x_3,1-x_4,...)
 	T=2   (1/x_1,1/x_2,1/x_3,1/x_4,...)
-	T=3   (x_1,x_1/x_2,x_1/x_3,x_1/x_4,...)
+	T=3   (1/x_1,x_2/x_1,x_3/x_1,x_4/x_1,...)
 */
-
 def lft01(X,T)
 {
-	MX=getopt();
+	S=0;
 	if(type(X)==4){
+		if(type(car(X))==4){
+			S=X[1];X=car(X);
+		}
 		K=length(X);
 		if(K>=1) D=1;
 	}
-	if(type(X)==5){
-		K=length(X);
-		for(J=5, F=K-10; F>0; F-=J++);
-		if(F==0) D=2;
-	}
 	if(D==0) return 0;
-	if(T==0){  /* x <-> y */
-		if(D==1){
-			R=cdr(X); R=cdr(R);
-			R=cons(X[0],R);
-			return cons(X[1],R);
-		}
-		R=newvect(K,[X[3],X[1],X[4],X[0],X[2],X[6],X[5]]);
-		for(I=7;I<K;I++) R[I]=X[I];
-		for(I=11,J=5; I<K; I+=J++){
-			R[I]=X[I+1]; R[I+1]=X[I];
-		}
-		return R;
-	}
-	if(T==1){
-		if(D==1){
-			for(R=[];X!=[];X=cdr(X)) R=cons(1-car(X),R);
-			return reverse(R);
-		}
-		R=newvect(K,[X[2],X[1],X[0],X[4],X[3],X[5],X[6],X[8],X[7],X[9]]);
-		for(I=11;I<K;I++) R[I]=X[I];
-		for(I=10, J=5; I<K; I+=J++){
-			R[I]=X[I+J-2]; R[I+J-2]=X[I];
+	if(type(T)==4&&(length(T)==K+3||length(T)==2)){
+		for(U=[],I=K+2;I>=0;I--) U=cons(I,U);
+		if(length(T)==2) T=mperm(U,[T],0);
+		L=sexps(T);
+		for(R=[X,S];L!=[];L=cdr(L)){
+			if(!(I=car(L))) I=4;
+			/* else if(I==1) I=1; */
+			else if(I==2) I=5;
+			else if(I==K+1) I=6;
+			else if(I>2) I=2-I;
+			R=lft01(R,I);
 		}
 		return R;
 	}
-	if(T==2){
-		if(D==1){
-			for(R=[]; X!=[]; X=cdr(X)) R=cons(red(1/car(X)),R);
-			return reverse(R);
-		}
-		R=newvect(K,[X[5],X[1],X[2],X[6],X[4],X[0],X[3],X[9],X[8],X[7]]);
-		for(I=11;I<K;I++) R[I]=X[I];
-		for(I=10,J=5; I<K; I+=J++){
-			R[I]=X[I+J-1]; R[I+J-1]=X[I];
-		}
-		return R;
-	}
-	if(T==3){
-		if(D==1){
-			T=car(X);
-			for(R=[T],X=cdr(X); X!=[]; X=cdr(X))
-				R=cons(red(T/car(X)),R);
-			return reverse(R);
-		}
-		R=newvect(K,[X[7],X[4],X[2],X[6],X[1],X[9],X[3],X[0],X[8],X[5]]);
-		for(I=10,J=5; I<K; I+=J++){
-			R[I]=X[I+J-1]; R[I+1]=X[I+J-2]; R[I+J-2]=X[I+1]; R[I+J-1]=X[I];
+	if(!S) S=getopt(tr);
+	if(type(S)==4&&length(S)==K+3){
+		D=2;
+	}else if(S==1) for(S=[],I=K+2;I>=0;I--) S=cons(I,S);
+	else S=0;
+	if(T<=0){  /* y_i <-> y_{i+1}, y_0=x=x_0, y_i=x_{i+2} */
+		R=mperm(X,[[-T,1-T]],0);
+		if(S){
+			if(!T) S=mperm(S,[[0,3]],0);
+			else   S=mperm(S,[[2-T,3-T]],0); /* : J J=3,...,K; */
+			R=[R,S];
 		}
 		return R;
-	}
-	if(T==-1){
-		if(D==1){
-			return append([X[1],X[2],X[0]],cdr(cdr(cdr(X))));
-		}
-		R=newvect(K,[X[0],X[11],X[2],X[10],X[13],X[5],X[14],X[7],X[8],X[9],
-			 X[3],X[1],X[12],X[4],X[6]]);
-		for(I=11;I<K;I++) R[I]=X[I];
-		for(I=17,J=5; I<K; I+=J++){
-			R[I]=X[I+1]; R[I+1]=X[I];
-		}
-		return R;
-	}
-	if(T<0){
-		if(D==1){
-			for(R=[],I=0; X!=[]; X=cdr(X),I--){
-				if(I==T){
-					R=cons(X[1],R);
-					R=cons(X[0],R);
-					X=cdr(X);
-				}
-				else R=cons(car(X),R);
-			}
-			return reverse(R);
-		}
-		T=3-T;
-		R=newvect(K);
-		for(I=0;I<K;I++) R[I]=X[I];
-		for(I=10,J=5;J<T;I+=J++);
-		for(II=0; II<J-2; II++){
-			R[I]=X[I+J]; R[I+J]=R[I];
-		}
-		for( ; II<J; II++){
-			R[I]=X[I+J+1]; R[I+J+1]=X[I];
-		}
-		return R;
-	}
-	return 0;
+	}else if(T==1){ /* (x_1=0, x_2=1) : 1 */
+		for(R=[];X!=[];X=cdr(X)) R=cons(1-car(X),R);
+		if(S) S=mperm(S,[[1,2]],0);
+	}else if(T==2){ /* (x_1=0, x_{K+2}=infty) */ 
+		for(R=[]; X!=[]; X=cdr(X)) R=cons(red(1/car(X)),R);
+		if(S) S=mperm(S,[[1,K+2]],0);
+	}else if(T==3){ /* (x_0=x, x_2=1) */ 
+		T=car(X);
+		for(R=[red(1/T)],X=cdr(X); X!=[]; X=cdr(X)) R=cons(red(car(X)/T),R);
+		if(S) S=mperm(S,[[0,2]],0);
+	}else if(T==4){ /* (x_0=x,x_1=0) : 0 */
+		T=car(X);
+		for(R=[red(T/(T-1))],X=cdr(X); X!=[]; X=cdr(X)) R=cons(red((T-car(X))/(T-1)),R);
+		if(S) S=mperm(S,[[0,1]],0);
+	}else if(T==5){ /* (x_2=1,x_3=y) : 2 */
+		T=X[1];
+		for(R=[1/T,red(X[0]/T)],X=cdr(cdr(X));X!=[]; X=cdr(X)) R=cons(red(car(X)/T),R);
+		if(S) S=mperm(S,[[2,3]],0);
+	}else if(T==6){ /* (x_{K+1}=y_{K-1}, x_{K+2}=infty) : K+1 */
+		T=X[K-1];
+		for(R=[];length(X)>1;X=cdr(X)) R=cons(red(car(X)*(1-T)/(car(X)-T)),R);
+		R=cons(1-T,R);
+		if(S) S=mperm(S,[[K+1,K+2]],0);
+	}else if(T==7){	/* x_2=1 <-> x_{K+2}=infty */ 
+		for(R=[];X!=[];X=cdr(X)) R=cons(red(car(X)/(car(X)-1)),R);
+		if(S) S=mperm(S,[[2,K+2]],0);
+	}else return 0;
+	R=reverse(R);
+	return S?[R,S]:R;
 }
 
 def linfrac01(X)
 {
-	if(type(X)==4) K=length(X)-2;
-	else if(type(X)==5){
-		L=length(X);
-		for(K=0,I=10,J=5; I<L; K++,I+=J++);
-		if(I!=L) return 0;
+	if(type(X)==4){
+		K=length(X)-2;
+		if(type(car(X))==4){
+			for(U=[],I=K+4;I>=0;I--) U=cons(I,U);
+			X=[car(X),U];
+		}else U=0;
 	}
 	if(K>3 && getopt(over)!=1) return(-1);
 	II=(K==-1)?3:4;
@@ -21948,7 +21923,7 @@ def linfrac01(X)
 			}
 		}
 	}
-	return L;
+	return reverse(L);
 }
 
 
