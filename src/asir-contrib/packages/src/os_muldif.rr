@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.76 2020/10/13 02:58:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.77 2020/11/06 00:01:40 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -5435,8 +5435,8 @@ def appldo(P,F,L)
 		L = vweyl(L);
 		X = L[0]; DX = L[1];
 		for(I=mydeg(P,DX);I>0;I--){
-			if(!(TP=mycoef(P,D,DX))) continue;
-			P=red(P+TP*(muldo(D^(I-1),F,L)-D^I));
+			if(!(TP=mycoef(P,I,DX))) continue;
+			P=red(P-TP*DX^I+TP*muldo(DX^(I-1),F,L));
 		}
 		return P;
 	}
@@ -21831,6 +21831,7 @@ def bernoulli(N)
 	T=1   (1-x_1,1-x_2,1-x_3,1-x_4,...)
 	T=2   (1/x_1,1/x_2,1/x_3,1/x_4,...)
 	T=3   (1/x_1,x_2/x_1,x_3/x_1,x_4/x_1,...)
+    ...
 */
 def lft01(X,T)
 {
