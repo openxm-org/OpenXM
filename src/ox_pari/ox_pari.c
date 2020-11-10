@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.19 2019/12/19 08:34:41 fujimoto Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.20 2020/08/26 06:03:31 noro Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -9,6 +9,7 @@ static int stack_size = 0;
 static int stack_pointer = 0;
 static cmo **stack = NULL;
 extern int debug_print;
+extern unsigned long precreal;
 long paristack=10000000;
 
 #define INIT_S_SIZE 2048
@@ -157,7 +158,6 @@ int sm_executeFunction()
   struct parif *parif;
   unsigned long prec;
   char buf[BUFSIZ];
-  extern unsigned long precreal;
   
   cmo_string *func = (cmo_string *)pop();
   if(func->tag != CMO_STRING) {
@@ -196,7 +196,7 @@ int sm_executeFunction()
 
     av0 = avma;
     z = cmo_to_GEN(av[0]); 
-    prec = ac==2 ? cmo_to_int(av[1])*3.32193/32+3 : precreal;
+    prec = ac==2 ? ndec2prec(cmo_to_int(av[1])) : nbits2prec(precreal);
     if ( ismatrix(z) ) {
       int i,len;
       len = lg(z); 
