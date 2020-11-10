@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.20 2020/08/26 06:03:31 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.21 2020/11/10 01:11:38 noro Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -182,6 +182,13 @@ int sm_executeFunction()
     paristack =  cmo_to_int(av[0]);
     pari_close();
     init_pari();
+    return 0;
+  } 
+  if ( !strcmp(func->s,"pari_setprec") ) {
+    long n,prec;
+
+    n = cmo_to_int(av[0]);
+    setrealprecision(n,&prec);
     return 0;
   } 
   parif =search_parif(func->s);
