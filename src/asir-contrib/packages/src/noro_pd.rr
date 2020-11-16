@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_pd.rr,v 1.7 2018/06/08 07:26:55 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_pd.rr,v 1.8 2018/12/24 06:33:41 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBF4,GBTrace,GBCheck,Chrem,Procs,IntGB,UsualInt,ContAlg,Competitive$
@@ -222,6 +222,7 @@ def syci_dec(B,V)
   if ( type(Lexdec=getopt(lexdec)) == -1 ) Lexdec = 0;
   if ( type(Time=getopt(time)) == -1 ) Time = 0;
   if ( type(Iso=getopt(iso)) == -1 ) Iso = 0;
+  if ( type(IsoOnly=getopt(isoonly)) == -1 ) IsoOnly = 0;
   if ( type(Ass=getopt(ass)) == -1 ) Ass = 0;
   if ( type(Colon=getopt(colon)) == -1 ) Colon = 0;
   if ( type(Para=getopt(para)) == -1 ) Para = 0;
@@ -331,6 +332,7 @@ ACCUM_TIME(Tint,RTint)
     }
     QL = append(QL,[IntQ]);
     if ( gen_gb_comp(IntQ,G,Mod) ) break;
+    if ( IsoOnly ) return RL;
   }
 T0 = time();
   if ( Iso != 3 && !Ass )
