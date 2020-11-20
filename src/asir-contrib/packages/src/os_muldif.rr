@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.77 2020/11/06 00:01:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.78 2020/11/07 06:01:26 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -370,6 +370,7 @@ localf getbyshell$
 localf show$
 localf dviout$
 localf rtotex$
+localf togreek$
 localf mtotex$
 localf ltotex$
 localf texbegin$
@@ -518,7 +519,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00201103"$
+Muldif.rr="00201119"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1056,12 +1057,13 @@ def cmpsimple(P,Q)
 
 def simplify(P,L,T)
 {
-	if(type(P) > 3)
+	if(type(P) > 3){
 #ifdef USEMODULE
 		return map(os_md.simplify,P,L,T);
 #else
 		return map(simplify,P,L,T);
 #endif
+	}
 	if(type(L[0]) == 4){
 		if(length(L[0]) > 1)
 #if USEMODULE
@@ -10080,11 +10082,12 @@ def mc2grs(G,P)
 			}
 		}
 		if(F=="rest"||F=="eigen"||F=="rest0"||F=="rest1"){
-			if(F!="eigen") G=mc2grs(G,"homog");
+			if((Hg=getopt(homog))!=0) Hg=1;
+			if(F!="eigen"&&Hg) G=mc2grs(G,"homog");
 			if(length(P)==1){
 				for(R=[],I=0;I<4;I++){
 					for(J=I+1;J<5;J++){
-						S=mc2grs(G,[F,[I,J]]);
+						S=mc2grs(G,[F,[I,J]]|homog=Hg);
 						if(S!=[]) R=cons(cons([I,J],S),R);
 					}
 				}
@@ -12584,6 +12587,25 @@ def rtotex(P)
 {
 	S = my_tex_form(P);
 	return (str_len(S) == 1)?S:"{"+S+"}";
+}
+
+def togreek(P,T)
+{
+	R0=[a,b,c,d,e,i,k,l,m,n,o,p,r,s,t,u,x,z];
+	R1=[alpha,beta,gamma,delta,epsilon,iota,kappa,lambda,
+		mu,nu,omega,pi,rho,sigma,theta,tau,xi,zeta];
+	if(T==0||T==[]) T=[a,b,c];
+	for(S=[],TR=T;TR!=[];TR=cdr(TR)){
+		if(type(TR[0])!=4){
+			if((I=findin(car(TR),R0))>=0) S=cons([car(TR),R1[I]],S);
+		}else if((I=findin(car(TR)[0],R0))>=0){
+			for(U=car(TR)[1];U!=[];U=cdr(U))
+				S=cons([makev([R0[I],car(U)]),makev([R1[I],car(U)])],S);
+		}
+	}
+	if(getopt(raw)==1) return S;
+	if(getopt(inv)==1) return mysubst(P,S|inv=1);
+	else return mysubst(P,S);
 }
 
 def mtotex(M)
