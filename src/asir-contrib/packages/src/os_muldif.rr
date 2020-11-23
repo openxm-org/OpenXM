@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.78 2020/11/07 06:01:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.79 2020/11/20 05:42:23 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8232,9 +8232,10 @@ def stoe(M,L,N)
 	L = vweyl(L);
 	Size = size(M);
 	S = Size[0];
-	NN = 0;
+	NN = -1;
 	if(type(N) == 4){
 		NN=N[0]; N=N[1];
+		if(N==NN) return 1;
 	}else if(N < 0){
 		NN=-N; N=0;
 	}
@@ -8244,7 +8245,7 @@ def stoe(M,L,N)
 	MN = dupmat(M);
 	MD = newmat(S,S);
 	DD = D[0];
-	DD[N] = 1; DD[S] = 1;
+	DD[N]=1; DD[S] = 1;
 	for(Lcm = I = 1; ; ){
 		DD = D[I];
 		MM = MN[N];
@@ -8257,9 +8258,9 @@ def stoe(M,L,N)
 			 DD[J] = red(DD[J]*Lcm);
 		if(I++ >= S)
 			break;
-		if(I==S && NN>0){
+		if(I==S && NN>=0){
 			DD = D[I];
-			DD[0]=-z_zz; DD[NN]=1;
+			DD[S]=z_zz; DD[NN]=1;
 			break;
 		}
 		Mm = dupmat(MN*M);
@@ -8277,7 +8278,7 @@ def stoe(M,L,N)
 		if(mydeg(P[I][0],L[1]) > 0)
 			 R *= P[I][0]^P[I][1];
 	}
-	if(NN > 0)
+	if(NN >= 0)
 		R = -red(coef(R,0,z_zz)/coef(R,1,z_zz));
 	return R;
 }
