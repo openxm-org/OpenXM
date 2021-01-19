@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.58 2020/09/06 03:26:47 noro Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.59 2020/09/09 00:33:25 noro Exp $
 \input texinfo-ja
 @iftex
 @catcode`@#=6
@@ -3270,6 +3270,22 @@ $\{(x^2-x) \partial_x^2+((a+b+1)x-c) \partial_x+ab \}
 @{(x^2-x)dx^2+((a+b+1)x-c)dx+ab @} - 1/1 @{ dt (-t+1)dx @} \in I
 であることを意味する.
 @end ifinfo
+
+この例のように積分変数が1変数 t, パラメータ変数が x のとき
+イデアル I に対する inhomo=1 での積分アルゴリズムの出力が
+[[L],[[[[dt,M]],N]]] である場合,
+L は x のみの微分作用素, M は x, t の微分作用素, N は数で,
+L - (1/N)*dt*M が I の元となる. したがって f(x,t) が I で零化される
+函数とすれば,
+@iftex
+@tex
+$L \cdot \int_a^b f(x,t) dt - {{1}\over{N}}[M\cdot f]_{x=a}^{x=b} = 0$
+@end tex
+@ifinfo
+L integral(f(x,t),[t,a,b]) - (1/N)[(Mf)(a)-(Mf)(b)]=0
+@end ifinfo
+が成り立つ.
+
 
 @node nk_restriction.trans_inhomo,,, D 加群の積分イデアルの非斉次部分に関する関数
 @subsection @code{nk_restriction.trans_inhomo}
