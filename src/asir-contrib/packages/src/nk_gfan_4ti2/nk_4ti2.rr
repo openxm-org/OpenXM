@@ -130,7 +130,7 @@ def groebner(L)
 	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
 	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
 	input_4ti2(L, TmpFileName);
-	Cmd = "groebner " + TmpFileName;
+	Cmd = "4ti2-groebner " + TmpFileName;
 	if ( Quiet ) Cmd += " > /dev/null";
 	shell(Cmd);
 	return output_4ti2(TmpFileName + ".gro");
@@ -153,7 +153,7 @@ def circuits(L)
 	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
 	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
 	input_4ti2(L, TmpFileName);
-	Cmd = "circuits " + TmpFileName;
+	Cmd = "4ti2-circuits " + TmpFileName;
 	if ( Quiet ) Cmd += " > /dev/null";
 	shell(Cmd);
 	return output_4ti2(TmpFileName + ".cir");
@@ -176,7 +176,7 @@ def graver(L)
 	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
 	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
 	input_4ti2(L, TmpFileName);	
-	Cmd = "graver " + TmpFileName;
+	Cmd = "4ti2-graver " + TmpFileName;
 	if ( Quiet ) Cmd += " > /dev/null";
 	shell(Cmd);
 	return output_4ti2(TmpFileName + ".gra");
@@ -199,7 +199,7 @@ def markov(L)
 	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
 	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
 	input_4ti2(L, TmpFileName);
-	Cmd = "markov " + TmpFileName;
+	Cmd = "4ti2-markov " + TmpFileName;
 	if ( Quiet ) Cmd += " > /dev/null";
         shell(Cmd);
 	return output_4ti2(TmpFileName + ".mar");
