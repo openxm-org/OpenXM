@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.1 2021/01/20 03:05:29 takayama Exp $
 %% xetex mt_gkz-en.texi   (.texi までつける. ) 
 %% @math{tex形式の数式} 
 %% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
@@ -696,6 +696,7 @@ Example:
 * mt_gkz.ord_xi::
 * mt_gkz.get_check_fvec::
 * mt_gkz.get_bf_step_up::
+* mt_gkz.mytoric_ideal::
 @end menu
 
 @node some utility functions,,, utilities
@@ -711,6 +712,7 @@ Example:
 @node mt_gkz.ord_xi,,, some utility functions
 @node mt_gkz.get_check_fvec,,, some utility functions
 @node mt_gkz.get_bf_step_up,,, some utility functions
+@node mt_gkz.mytoric_ideal,,, some utility functions
 
 @findex mt_gkz.reduce_by_toric
 @findex mt_gkz.tk_base_equal
@@ -722,6 +724,7 @@ Example:
 @findex mt_gkz.ord_xi
 @findex mt_gkz.get_check_fvec
 @findex mt_gkz.get_bf_step_up
+@findex mt_gkz.mytoric_ideal
 
 @comment --- @example〜@end example は実行例の表示 ---
 We only show examples on these functions. As for details, please see
@@ -780,6 +783,12 @@ the source code.
      -s_2^3+(3*s_1+1)*s_2^2-3*s_1*s_2 s_2^3-3*s_2^2+2*s_2 ],
   [ x3^3*dx4^2+ ---snip---
     3*x3^2*x4*dx4^2+ --- snip---]]
+[3191] mt_gkz.mytoric_ideal(0 | use_4ti2=1);
+// 4ti2 is used to obtain a generator set of the toric ideal 
+// defined by the matrix A
+[3192] mt_gkz.mytoric_ideal(0 | use_4ti2=0);
+// A slower method is used to obtain a generator set of the toric ideal 
+// defined by the matrix A.  4ti2 is not needed. Default.
 @end example
 
 
@@ -847,7 +856,7 @@ the source code.
 * mt_gkz.secondary_eq::
 * mt_gkz.generate_maple_file_IC::
 * mt_gkz.generate_maple_file_MR::
-* mt_gkz.normalizing_constant::
+* mt_gkz.principal_normalizing_constant::
 @end menu
 
 
@@ -873,7 +882,7 @@ the source code.
 @comment --- 引数の簡単な説明 --- 
 @table @var
 @item return
-a matrix which is equal to the Kronecker product of @var{A} and @var{B} (https://en.wikipedia.org/wiki/Kronecker_product).
+a matrix which is equal to the Kronecker product of @var{A} and @var{B} (@uref{https://en.wikipedia.org/wiki/Kronecker_product}).
 @item A,B
 list
 @end table
@@ -886,7 +895,7 @@ list
 [[a,b],[c,d]]
 [2645] B=[[e,f],[g,h]];
 [[e,f],[g,h]]
-[2646] kronecker_prd(A,B);
+[2646] mt_gkz.kronecker_prd(A,B);
 [ e*a f*a e*b f*b ]
 [ g*a h*a g*b h*b ]
 [ e*c f*c e*d f*d ]
@@ -941,7 +950,7 @@ Example:
 [2650] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
 [2651] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
 [2652] Xrule=[[x2,1],[x3,1]]$
-[2653] P=secondary_eq(A,Beta,Ap,Rvec,DirX|xrule=Xrule)$
+[2653] P=mt_gkz.secondary_eq(A,Beta,Ap,Rvec,DirX|xrule=Xrule)$
 --snip--
 [2654] length(P);
 2
@@ -1013,7 +1022,7 @@ Example:
 [2684] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
 [2685] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
 [2687] Xrule=[[x2,1],[x3,1]]$
-[2688] generate_maple_file_IC(A,Beta,Ap,Rvec,DirX|xrule=Xrule,filename="Test.ml")$
+[2688] mt_gkz.generate_maple_file_IC(A,Beta,Ap,Rvec,DirX|xrule=Xrule,filename="Test.ml")$
 
 
 //A file named Test.ml is automatically generated as follows:
@@ -1115,7 +1124,7 @@ Example:
 [2672] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
 [2673] Xvar=[x1,x4]$
 [2674] Xrule=[[x2,1],[x3,1]]$
-[2675] generate_maple_file_MR(A,Beta,Ap,Rvec,DirX,2,2|xrule=Xrule)$
+[2675] mt_gkz.generate_maple_file_MR(A,Beta,Ap,Rvec,DirX,2,2|xrule=Xrule)$
 
 
 //A file "auto-generated-MR.ml" is automatically generated as follows:
@@ -1211,7 +1220,7 @@ Example:
 [2677] Beta=[b1,b2,b3]$
 [2678] K=2$
 [2679] T=[[1,2,3],[2,3,4]]$
-[2680] normalizing_constant(A,T,Beta,K);
+[2680] mt_gkz.principal_normalizing_constant(A,T,Beta,K);
 (-b1-b2)/(b3*b1+b3*b2-b3^2)
 @end example
 
