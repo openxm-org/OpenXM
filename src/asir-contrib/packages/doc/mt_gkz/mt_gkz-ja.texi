@@ -1,0 +1,137 @@
+%% $OpenXM$
+%% xetex mt_gkz-ja.texi   (.texi までつける. ) 
+%% @math{tex形式の数式} 
+%% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
+%% @tex{tex形式で書いたもの} 
+%%https://www.gnu.org/software/texinfo/manual/texinfo/html_node/_0040TeX-_0040LaTeX.html
+
+%% 日本語版 まだ書いてない, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage ja
+@c -*-texinfo-*-
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename mt_gkz_man
+
+@comment --- タイトル ---
+@settitle GKZ hypergeometric system
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title GKZ hypergeometric system
+@subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
+@subtitle Version 1.0
+@subtitle January 20, 2021
+
+@author  by S-J. Matsubara-Heo, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2020. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+
+@menu
+* About this document::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
+
+英語版をまだ翻訳してない.
+英語版のマニュアル
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/en/mt_gkz-en.pdf},
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/en/mt_gkz-html/mt_gkz-en.html}
+を参照.
+
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+@comment *********************************************************
+@comment ********* template
+@comment **********************************************************
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.pfaff_eq,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.pfaff_eq}
+@comment --- 索引用キーワード
+@findex mt_gkz.pfaff_eq
+
+@table @t
+@item mt_gkz.pfaff_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the Pfaff equation for the GKZ system defined by @var{A} and @var{Beta} with respect to cocycles defined by @var{Rvec}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of coefficients of the Pfaff equation with respect to the direction @var{DirX} 
+@item A
+the matrix A of the GKZ system.
+@item Beta
+...
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: Gauss hypergeometric system, see [GM2020] example ??.
+@example
+[1883] import("mt_gkz.rr");
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
