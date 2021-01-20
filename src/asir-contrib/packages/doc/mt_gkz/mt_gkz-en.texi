@@ -1,0 +1,1509 @@
+%% $OpenXM$
+%% xetex mt_gkz-en.texi   (.texi までつける. ) 
+%% @math{tex形式の数式} 
+%% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
+%% @tex{tex形式で書いたもの} 
+%%https://www.gnu.org/software/texinfo/manual/texinfo/html_node/_0040TeX-_0040LaTeX.html
+
+%% 英語版, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage en
+@c -*-texinfo-*-
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename mt_gkz_man
+
+@comment --- タイトル ---
+@settitle GKZ hypergeometric system
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title GKZ hypergeometric system
+@subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
+@subtitle Version 1.0
+@subtitle January 20, 2021
+
+@author  by S-J. Matsubara-Heo, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2020. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+
+@menu
+* About this document::
+* Pfaff equation::
+* b function::
+* Utilities::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
+
+This document explains Risa/Asir functions for GKZ hypergeometric system
+(A-hypergeometric system). @*    @comment 強制改行
+Loading the package:
+@example
+import("mt_gkz.rr");
+@end example
+@noindent
+References cited in this document.
+@itemize @bullet
+@item [MT2020] 
+Saiei-Jaeyeong Matsubara-Heo, Nobuki Takayama,
+Algorithms for Pfaffian Systems and Cohomology Intersection Numbers of Hypergeometric Integrals,
+Lecture Notes in Computer Science 12097 (2020), 73--84.
+Errata is posted on @uref{http://arxiv.org/abs/???}.
+E-attachments can be obtainable at
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/intersection2}
+@item [GM2020]
+Yoshiaki Goto, Saiei-Jaeyeong Matsubara-Heo,
+Homology and cohomology intersection numbers of GKZ systems, arXiv:2006.07848
+@item [SST1999]
+M.Saito, B.Sturmfels, N.Takayama, Hypergeometric polynomials
+and integer programming, Compositio Mathematica, 155 (1999), 185--204
+@item [SST2000]
+M.Saito, B.Sturmfels, N.Takayama, Groebner Deformations of Hypergeometric
+Differential Equations. Springer, 2000.
+@end itemize
+
+References for maple packages IntegrableConnections and OreMorphisms.
+@itemize @bullet
+@item [BCEW]
+M.Barkatou, T.Cluzeau, C.El Bacha, J.-A.Weil,
+IntegrableConnections – a maple package for computing closed form solutions of integrable connections
+(2012). @uref{https://www.unilim.fr/pages perso/thomas.cluzeau/Packages/IntegrableConnections/PDS.html}
+@item [CQ]
+T.Cluzeau and A.Quadrat,
+OreMorphisms: A homological algebraic package for factoring, reducing and decomposing linear functional systems (2009). @uref{https://who.rocq.inria.fr/Alban.Quadrat/OreMorphisms/index.html}
+@item [CQ08]
+T.Cluzeau, A.Quadrat, Factoring and decomposing a class of linear functional
+systems, Linear Algebra and its Applications (LAA), 428(1): 324-381, 2008.
+@end itemize
+
+
+
+@node Pfaff equation,,, Top
+@chapter Pfaff equation
+
+@menu
+* mt_gkz.pfaff_eq::
+* mt_gkz.ff::
+* mt_gkz.ff1::
+* mt_gkz.ff2::
+* mt_gkz.rvec_to_fvec::
+@end menu
+
+@node Pfaff equation for given cocycles,,, Pfaff equation
+@section Pfaff equation for given cocycles
+
+@comment **********************************************************
+@comment --- 関数 pfaff_eq
+@node mt_gkz.pfaff_eq,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.pfaff_eq}
+@comment --- 索引用キーワード
+@findex mt_gkz.pfaff_eq
+
+@table @t
+@item mt_gkz.pfaff_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the Pfaff equation for the GKZ system defined by @var{A} and @var{Beta} with respect to cocycles defined by @var{Rvec}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of coefficients of the Pfaff equation with respect to the direction @var{DirX} 
+@item A
+the matrix A of the GKZ system.
+@item Beta
+the parameter vector of the GKZ system.
+@item Ap
+See [MT2020].
+@item Rvec
+It is used to specify a basis of cocycles. See [MT2020]
+@item DirX
+a list of dxi's.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The independent variables are x1, x2, x3, ...
+@item  
+When @var{Rvec}=[v_1, v_2, ..., v_r] where r is the rank of the GKZ system,
+the set of the cocycles standing for Av_1, Av_2, ..., Av_r 
+(see [MT2020])
+is supposed
+to be the basis to construct the Pfaffian system.
+Let a_1, a_2, ..., a_n be the column vectors of the matrix A
+and v be a column vector (x_1, x_2, ..., x_n)^T.
+Av is defined as a_1 x_1 + a_2 x_2 + ... + a_n x_n.
+@item 
+When the columns of @var{A} are expressed as
+@math{e_i \otimes \alpha_{i_j}},
+the columns of @var{Ap} is 
+@math{e_i \otimes 0} where $e_i$ is the i-th unit vector.
+See [MT2020] on the definition of @var{Ap}.
+Here are some examples.
+When @var{A} is
+@verbatim
+[[1,1,0,0],
+ [0,0,1,1],
+ [0,1,0,1]]
+@end verbatim
+@var{Ap} is
+@verbatim
+[[1,1,0,0],
+ [0,0,1,1],
+ [0,0,0,0]] <-- zero row
+@end verbatim
+When @var{A} is
+@verbatim
+[[1,1,1,0,0,0],
+ [0,0,0,1,1,1],
+ [0,1,0,0,1,0],
+ [0,0,1,0,0,1]
+]
+@end verbatim
+@var{Ap} is
+@verbatim
+[[1,1,1,0,0,0],
+ [0,0,0,1,1,1],
+ [0,0,0,0,0,0], <-- zero row
+ [0,0,0,0,0,0]  <-- zero row
+]
+@end verbatim
+See also page 223 of [SST2000].
+@item 
+Option @var{xrule}. When the option @var{xrule} is given,
+the x variables specified by this option are specialized to numbers.
+@item
+Option @var{shift}. When the matrix @var{A} is not normal
+(the associated toric ideal is not normal), a proper shift vector
+must be given to obtain an element of the b-ideal. Or, use the option
+@var{b_ideal} below. See [SST1999] on the theory.
+@item
+Option @var{b_ideal}. When the matrix @var{A} is not normal,
+the option @code{b_ideal=1} obtains b-ideals and the first element
+of each b-ideal is used as the b-function. The option @var{shift}
+is ignored.
+@item
+Option @var{cg}. A constant matrix given by this option is used
+for the Gauge transformation of the Pfaffian system.
+In other words, the basis of cocycles specified by @var{Rvec}
+is transformed by the constant matrix given by this option.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: Gauss hypergeometric system, see [GM2020] example ??.
+@example
+[1883] import("mt_gkz.rr");
+[2657] PP=mt_gkz.pfaff_eq(A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+             Beta=[-g1,-g2,-c],
+             Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
+             Rvec = [[1,0,0,0],[0,0,1,0]], 
+             DirX=[dx4,dx3] | xrule=[[x1,1],[x2,1]], 
+             cg=matrix_list_to_matrix([[1,0],[-1,1]]))$
+
+Bfunctions=[s_1*s_2-s_1*s_3+s_1^2,s_1*s_3,s_2^2+(-s_3+s_1)*s_2,s_3*s_2]
+-- snip --
+[2658] PP[0];
+[ (g2*x3-g2)/(x4-x3) (g2*x3)/(x4-x3) ]
+[ ((-g2*x3-c+g2)*x4+(c-g1)*x3+g1)/(x4^2-x3*x4) 
+           ((-g2*x3-c)*x4+(c-g1)*x3)/(x4^2-x3*x4) ]
+[2659] PP[1];
+[ (-g2*x4+g2)/(x4-x3) (-g2*x4)/(x4-x3) ]
+[ ((g2*x3+c-g2-1)*x4+(-c+g1+1)*x3-g1)/(x3*x4-x3^2) 
+     ((g2*x3+c-g2-1)*x4+(-c+g1+g2+1)*x3)/(x3*x4-x3^2) ]
+@end example
+
+@*
+
+Example: The role of shift.
+When the toric ideal is not normal, a proper shift vector
+must be given with the option @code{shift} to find an element of the b-ideal.
+@example
+[1882] load("mt_gkz.rr");
+[1883] A=[[1,1,1,1],[0,1,3,4]];
+  [[1,1,1,1],[0,1,3,4]]
+[1884] Ap=[[1,1,1,1],[0,0,0,0]];
+  [[1,1,1,1],[0,0,0,0]]
+[1885] Rvec=[[0,0,0,0],[0,0,1,0],[0,0,0,1],[0,0,0,2]];
+  [[0,0,0,0],[0,0,1,0],[0,0,0,1],[0,0,0,2]];
+[2674] P=mt_gkz.pfaff_eq(A,[b1,b2],Ap,Rvec,DirX=[dx4]
+    | xrule=[[x1,1],[x2,2],[x3,4]] )$
+dx remains
+stopped in step_up at line 342 in file "./mt_gkz/saito-b.rr"
+342    if (type(dn(Ans)) > 1) error("dx remains");
+(debug) quit
+// Since the toric ideal for A is not normal, it stops with the error.
+[2675]  P=mt_gkz.pfaff_eq(A,[b1,b2],Ap,Rvec,DirX=[dx4] 
+   | shift=[1,0],xrule=[[x1,1],[x2,2],[x3,4]])$
+// It works.
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.ff1}
+@ref{mt_gkz.ff2}
+@ref{mt_gkz.ff}
+@ref{mt_gkz.rvec_to_fvec}
+@end table
+@comment mt_gkz.pfaff_eq の説明おわり. あとはこれの繰り返し.
+
+
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.ff2,,, Pfaff equation for given cocycles
+@node mt_gkz.ff1,,, Pfaff equation for given cocycles
+@node mt_gkz.ff,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.ff2}, @code{mt_gkz.ff1}, @code{mt_gkz.ff}
+@comment --- 索引用キーワード
+@findex mt_gkz.ff2
+@findex mt_gkz.ff1
+@findex mt_gkz.ff
+
+@table @t
+@item mt_gkz.ff(@var{Rvec0},@var{A},@var{Beta},@var{Ap})
+@item mt_gkz.ff1(@var{Rvec0},@var{A},@var{Beta},@var{Ap})
+@item mt_gkz.ff2(@var{Rvec0},@var{A},@var{Beta},@var{Ap},@var{BF},@var{C})
+:: @code{ff} returns a differential operator whose action to 1 gives
+the cocycle defined by @var{Rvec0}
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+@code{ff} returns a differential operator whose action to 1 of @math{M_A(\beta)}
+gives the cocycle defined by @var{Rvec0}.
+@item return
+@code{ff1} returns a composite of step-down operators for the positive part
+of @var{Rvec0}
+@item return
+@code{ff2} returns a composite of step-up operators for the positive part
+of @var{Rvec0}
+@item Rvec0
+An element of @var{Rvec} explained in @ref{mt_gkz.pfaff_eq}.
+@item BF
+the list of b-functions to all directions.
+@item C
+the list of the step up operators for all a_1, a_2, ..., a_n. 
+@end table
+Other arguments are same with those of @code{pfaff_eq}.
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The function @code{ff} generates the list of b-functions and the list of
+step up operators and store them in the cache variable.
+They can be obtained by calling as @code{S=mt_gkz.get_bf_step_up()}
+where S[0] is the list of b-functions and S[1] is the list of step up
+operators.
+Step up operators are obtained by the algorithm given in [SST1999].
+@item
+Option nf. When nf=1, the output operator is reduced to the normal form
+with respect to the Groebner basis of the GKZ system of the graded reverse
+lexicographic order.
+@item 
+Option shift. See @ref{mt_gkz.pfaff_eq}.
+@item
+Internal info: The function @code{mt_gkz.bb} gives the constant so that
+the step up and step down operators (contiguity operators) give
+contiguity relations for the integral representation in [MT2020].
+Note that @code{mt_gkz.ff1} and @code{mt_gkz.ff2} give contiguity
+relations which are constant multiple of those for hypergeometric
+polynomials.
+@item
+Internal info: @code{mt_gkz.step_up} generates step up operators
+of [SST1999] from b-functions by utilizing @code{mt_gkz.bf2euler}
+and @code{mt_gkz.toric}.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: Step up operators compatible with the integral representation in [MT2020].
+The function hgpoly_res defined in @code{check-by-hgpoly.rr} returns
+a multiple of the hypergeometric polynomial which agrees with
+the residue times a power of @math{2\pi \sqrt{-1}}
+of the integral representation.
+See [SST1999].
+@example
+[1883] import("mt_gkz.rr")$
+[3175] load("mt_gkz/check-by-hgpoly.rr")$
+[3176]  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+[3177]  B=newvect(3,[5,4,7])$ Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
+[3179]  Beta=[b1,b2,b3]$  R=[0,0,-1,0]$
+[3180]  F2=hgpoly_res(A,B,2);  // HG polynomial. 2 is the number of e_i's.
+  10*x1^2*x2^3*x4^4+20*x1*x2^4*x3*x4^3+6*x2^5*x3^2*x4^2
+[3182]  mt_gkz.ff(R,A,Ap,Beta); // the operator standing for R
+  (x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3)/(b1+b2-b3+1)
+[3184] S=mt_gkz.get_bf_step_up(A); // b-function and non-reduced step up op's
+  [[ s_1*s_2-s_1*s_3+s_1^2 s_1*s_3 s_2^2+(-s_3+s_1)*s_2 s_3*s_2 ],
+  [ x2*x3*dx4+x1*x3*dx3+x1*x2*dx2+x1^2*dx1+x1 
+    x2*x4*dx4+x1*x4*dx3+x2^2*dx2+x1*x2*dx1+x2 
+    x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3 
+    x4^2*dx4+x3*x4*dx3+x2*x4*dx2+x2*x3*dx1+x4 ]]
+[3185] Fvec=mt_gkz.ff2(R,A,Beta,Ap,S[0],S[1]);
+  (x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3)/(b1+b2-b3+1)
+[3188] Fvec = base_replace(Fvec,assoc(Beta,vtol(B)));
+  1/3*x3*x4*dx4+1/3*x3^2*dx3+1/3*x1*x4*dx2+1/3*x1*x3*dx1+1/3*x3
+[3189] R32d = odiff_act(Fvec,F2,[x1,x2,x3,x4]); // Act Fvec to the hg-poly
+  10*x1^3*x2^2*x4^5+50*x1^2*x2^3*x3*x4^4+50*x1*x2^4*x3^2*x4^3+10*x2^5*x3^3*x4^2
+[3190] red(R32d/hgpoly_res(A,B+newvect(3,[0,1,0]),2)); 
+   // R32d agrees with the HG polynomial with Beta=[5,4,7]+[0,1,0].
+1
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+@comment --- 個々の関数の説明 ---  Ref:2020-11-09-tw-cohom-progs.goodnotes
+@comment --- section 名を正確に ---
+@node mt_gkz.rvec_to_fvec,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.rvec_to_fvec}
+@comment --- 索引用キーワード
+@findex mt_gkz.rvec_to_fvec
+
+@table @t
+@item mt_gkz.rvec_to_fvec(@var{Rvec},@var{A},@var{Ap},@var{Beta})
+:: It returns a set of differential operators standing for @var{Rvec}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+It returns a set of differential operators of which action to
+@math{1 \in M_A(\beta)} give cocycles specified by @var{Rvec}.
+@item A, Ap, Beta
+Same with @ref{mt_gkz.pfaff_eq}
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+Internal info: this function builds the set of operators by calling
+@ref{mt_gkz.ff}.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: The following two expressions are congruent because
+@math{2a_1-a_2-a_3+a_4=a_1} for this @code{A}.
+@example
+[1883] import("mt_gkz.rr");
+[3191] mt_gkz.rvec_to_fvec([[2,-1,-1,1],[0,0,1,0]],
+ [[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+ [[1,1,0,0],[0,0,1,1],[0,0,0,0]],[b1,b2,b3]);
+[(x2*x3*x4^2*dx1^2*dx4^3+((x1*x3*x4^2+x2*x3^2*x4)*dx1^2*dx3
+ +(x1*x2*x4^2+x2^2*x3*x4)*dx1^2*dx2+(x1^2*x4^2+2*x1*x2*x3*x4+x2^2*x3^2)*dx1^3
+ +(x1*x4^2+3*x2*x3*x4)*dx1^2)*dx4^2+(x1*x3^2*x4*dx1^2*dx3^2
+ +((x1^2*x3*x4+x1*x2*x3^2)*dx1^3+(3*x1*x3*x4+x2*x3^2)*dx1^2)*dx3
+ +x1*x2^2*x4*dx1^2*dx2^2+((x1^2*x2*x4+x1*x2^2*x3)*dx1^3
+ +(3*x1*x2*x4+x2^2*x3)*dx1^2)*dx2+x1^2*x2*x3*dx1^4
+ +(x1^2*x4+3*x1*x2*x3)*dx1^3+(x1*x4+x2*x3)*dx1^2)*dx4)
+ /(b3*b2*b1^3+(b3*b2^2+(-b3^2-2*b3)*b2)*b1^2+(-b3*b2^2+(b3^2+b3)*b2)*b1),
+ (dx3)/(b2)]
+[3192] mt_gkz.rvec_to_fvec([[1,0,0,0],[0,0,1,0]],
+   [[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+   [[1,1,0,0],[0,0,1,1],[0,0,0,0]],[b1,b2,b3]);
+[(dx1)/(b1),(dx3)/(b2)]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+@comment --- fvec_to_conn_mat
+@comment --- section 名を正確に ---
+@node mt_gkz.fvec_to_conn_mat,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.fvec_to_conn_mat}
+@comment --- 索引用キーワード
+@findex mt_gkz.fvec_to_conn_mat
+
+@table @t
+@item mt_gkz.fvec_to_conn_mat(@var{Fvec},@var{A},@var{Beta},@var{DirX})
+:: It returns the coefficient matrices of the basis
+@var{Fvec} or @var{DirX}[I]*@var{Fvec} in terms of the set of the standard basis.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+It returns the coefficient matrices of the basis
+@var{Fvec} or @var{DirX}[I]*@var{Fvec} in terms of the set of the standard basis of the Groebner basis explained below.
+@item A Beta
+Same with @ref{mt_gkz.pfaff_eq}.
+@item DirX
+When @var{DirX} is 1, this function returns the matrix which expresses
+@var{Fvec} in terms of the set of the standard monomials of
+the Groebner basis of the GKZ system in the ring of rational function
+coefficients with respect to the graded reverse lexicographic order.
+In other cases, it returns the coefficient matrices of 
+@var{DirX}[I]'s*@var{Fvec} in terms of the set of the standard basis of the Groebner basis.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+It utilizes a Groebner basis computation by the package @code{yang.rr}
+and @code{yang.reduction} to obtain connection matrices.
+@item 
+This function calls some utility functions
+@code{mt_gkz.dmul(Op1,Op2,XvarList)} (multiplication of @code{Op1} and @code{Op2} 
+and @code{mt_gkz.index_vars(x,Start,End | no_=1)}
+which generates indexed variables without the underbar ``_''.
+@item
+We note here some other utility functions in this section:
+@code{mt_gkz.check_compatibility(P,Q,X,Y)},
+which checkes if the sytem d/dX-P, d/dY-Q is compatible.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: The following example illustrates how mt_gkz.pfaff_eq
+obtains connection matrices.
+@example
+[1883] import("mt_gkz.rr");
+[3201] V=mt_gkz.index_vars(x,1,4 | no_=1);
+  [x1,x2,x3,x4]
+[3202] mt_gkz.dmul(dx1,x1^2,V);
+  x1^2*dx1+2*x1
+[3204] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+   Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
+   Beta= [b1,b2,b3]$
+   Rvec = [[1,0,0,0],[0,0,1,0]]$
+   Fvec = mt_gkz.rvec_to_fvec(Rvec,A,Ap,Beta)$
+    /* Express cocyles Rvec 
+       by elements Fvec in the Weyl algebra by contiguity relations. */
+   Cg = matrix_list_to_matrix([[1,0],[1,-1]])$
+[3208] NN=mt_gkz.fvec_to_conn_mat(Fvec,A,Beta,1); 
+  // Express Fvec by the standard monomials Std=NN[1].
+ 1 ooo 2 .ooo
+  [[ (x4)/(b1*x1) (b1-b3)/(b1*x1) ]
+  [ (-x4)/(b1*x2) (1)/(x3) ],[dx4,1]]
+[3209] Std=NN[1]; 
+  [dx4,1]
+[3173] NN=NN[0];
+  [ (x4)/(b1*x1) (b1-b3)/(b1*x1) ]
+  [ (-x4)/(b2*x3) (1)/(x3) ]
+[3174] NN1=mt_gkz.fvec_to_conn_mat(Fvec,A,Beta,dx1)[0];
+  // Express dx1*Fvec by the standard monomials Std.
+ 1 ooo 2 .ooo
+  [ ((2*b1+b2-b3-1)*x1*x4^2+(-b1+b3+1)*x2*x3*x4)/(b1*x1^3*x4-b1*x1^2*x2*x3)
+    ((b1^2+(-2*b3-1)*b1-b3*b2+b3^2+b3)*x1*x4
+     +(-b1^2+(2*b3+1)*b1-b3^2-b3)*x2*x3)/(b1*x1^3*x4-b1*x1^2*x2*x3) ]
+  [(b1 (-b1*x1*x4^2-b2*x2*x3*x4)/(b2*x1^2*x3*x4-b2*x1*x2*x3^2) 
+   (b1*x1*x4+(-b1+b3)*x2*x3)/(x1^2*x3*x4-x1*x2*x3^2) ]
+[3188] P1=map(red,Cg*NN1*matrix_inverse(NN)*matrix_inverse(Cg));
+  [ ((-b2*x3+(b1+b2-b3-1)*x1)*x4+(-b1+b3+1)*x2*x3)/(x1^2*x4-x1*x2*x3) 
+     (b2*x3*x4)/(x1^2*x4-x1*x2*x3) ]
+  [ ((-b2*x3+(b2-b3-1)*x1)*x4+(-b1+b3+1)*x2*x3+b1*x1*x2)/(x1^2*x4-x1*x2*x3) 
+    ((b2*x3+b1*x1)*x4)/(x1^2*x4-x1*x2*x3) ]
+
+[3191] mt_gkz.pfaff_eq(A,Beta,Ap,Rvec,[dx1]|cg=Cg)[0]-P1;
+ [ 0 0 ]
+ [ 0 0 ]  // P1 agrees with the output of mt_gkz.pfaff_eq.
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+@comment ---------- New Chapter  ---------------
+@node b function,,, Top
+@chapter b function
+
+@menu
+* mt_gkz.bf::
+* mt_gkz.bf::
+@end menu
+
+@node b function and facet polynomial,,, b function
+@section b function and facet polynomial
+@comment ------- bf
+@comment **********************************************************
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.bf,,, b function and facet polynomial
+@subsection @code{mt_gkz.bf}
+@comment --- 索引用キーワード
+@findex mt_gkz.bf
+
+@table @t
+@item mt_gkz.bf(@var{A},@var{Facet_poly},@var{II0})
+:: It returns the b-function with respect to the direction @var{II0}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+It returns the b-function introduced Saito with respect to the direction @var{II0} in case of @var{A} is normal or an element of b-ideal when a proper shift vector is given in case of @var{A} is not normal.
+@item A
+the matrix A of the GKZ system.
+@item Facet_poly
+The set of facet polynomials of the convex hull of @var{A}.
+@item II0
+Direction expressed as 0, 1, 2, ... (not 1, 2, 3, ...) to obtain the b function.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+See [SST1999] on the b-function introduced Saito and b-ideal.
+@item
+The facet polynomial must be primitive.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 
+@example
+[1883] import("mt_gkz.rr");
+
+[3193] A;
+  [[1,1,0,0],[0,0,1,1],[0,1,0,1]]
+[3194] Fpoly=mt_gkz.facet_poly(A);
+  [[s_3,s_1,s_2-s_3+s_1,s_2],[[0,0,1],[1,0,0],[1,1,-1],[0,1,0]]]
+[3196] mt_gkz.bf(A,Fpoly,0);
+  s_1*s_2-s_1*s_3+s_1^2
+[3197] mt_gkz.bf(A,Fpoly,1);
+  s_1*s_3
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.ff}
+@ref{mt_gkz.facet_poly}
+@end table
+@comment おわり. 
+
+@comment ------ facet_poly
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.facet_polyl,,, b function and facet polynomial
+@subsection @code{mt_gkz.facet_poly}
+@comment --- 索引用キーワード
+@findex mt_gkz.facet_poly
+
+@table @t
+@item mt_gkz.facet_poly(@var{A})
+:: It returns the set of facet polynomials and their normal vectors of
+the cone defined by  @var{A}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+It returns the set of facet polynomials and their normal vectors of
+the cone generated by the column vectors of the matrix @var{A}.
+@item A
+the matrix A of the GKZ system.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The facet polynomial f is primitive. In other words,
+all f(a_i) is integer and min f(a_i)=1 for a_i's not being on f=0.
+where a_i is the i-th column vector of the matrix @var{A}.
+It can be checked by @code{mt_gkz.is_primitive(At,Facets)}
+where @var{At} is the transpose of @var{A} and
+@var{Facets} is the second return value of this function.
+@item
+This function utilizes the system polymake @uref{https://polymake.org}
+on our server.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 
+@example
+[1883] import("mt_gkz.rr");
+[1884] mt_gkz.facet_poly([[1,1,1,1],[0,1,2,3]]);
+  oohg_native=0, oohg_curl=1
+  [[s_2,-s_2+3*s_1],[[0,1],[3,-1]]]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.bf}
+@end table
+@comment おわり. 
+
+@comment ---------- New Chapter  ---------------
+@node utilities,,, Top
+@chapter Utilities
+
+@menu
+* mt_gkz.reduce_by_toric::
+* mt_gkz.tk_base_equal::
+* mt_gkz.dp_op_to_coef_vec::
+* mt_gkz.yang_gkz_buch::
+* mt_gkz.p_true_nf_rat::
+* mt_gkz.mdiff::
+* mt_gkz.dvar::
+* mt_gkz.ord_xi::
+* mt_gkz.get_check_fvec::
+* mt_gkz.get_bf_step_up::
+@end menu
+
+@node some utility functions,,, utilities
+@section Some utility functions
+
+@node mt_gkz.reduce_by_toric,,, some utility functions
+@node mt_gkz.tk_base_equal,,, some utility functions
+@node mt_gkz.dp_op_to_coef_vec,,, some utility functions
+@node mt_gkz.yang_gkz_buch,,, some utility functions
+@node mt_gkz.p_true_nf_rat,,, some utility functions
+@node mt_gkz.mdiff,,, some utility functions
+@node mt_gkz.dvar,,, some utility functions
+@node mt_gkz.ord_xi,,, some utility functions
+@node mt_gkz.get_check_fvec,,, some utility functions
+@node mt_gkz.get_bf_step_up,,, some utility functions
+
+@findex mt_gkz.reduce_by_toric
+@findex mt_gkz.tk_base_equal
+@findex mt_gkz.dp_op_to_coef_vec
+@findex mt_gkz.yang_gkz_buch
+@findex mt_gkz.p_true_nf_rat
+@findex mt_gkz.mdiff
+@findex mt_gkz.dvar
+@findex mt_gkz.ord_xi
+@findex mt_gkz.get_check_fvec
+@findex mt_gkz.get_bf_step_up
+
+@comment --- @example〜@end example は実行例の表示 ---
+We only show examples on these functions. As for details, please see
+the source code.
+@example
+[1883] import("mt_gkz.rr");
+[2667] mt_gkz.dvar([x1,x2]);  // it generates variables starting with d
+  [dx1,dx2]
+[2669] mt_gkz.p_true_nf_rat((1/3)*x^3-1,[x^2-1],[x],0);
+  [x-3,3]     // p_true_nf does not accept rational number coefficients
+[2670] A=[[1,1,1,1],[0,1,3,4]];
+  [[1,1,1,1],[0,1,3,4]]
+[2671] mt_gkz.reduce_by_toric(dx3^4,A);
+  dx1*dx4^3   // reduction by toric ideal defined by A
+[2672] nk_toric.toric_ideal(A);
+  [-x1*x4+x2*x3,-x2*x4^2+x3^3,x2^2*x4-x1*x3^2,-x1^2*x3+x2^3]
+[2673] mt_gkz.yang_gkz_buch(A,[b1,b2]);  // Groebner basis of GKZ system by yang.rr
+ 1 o 2 ..o 3 ..oooooooo 4 o 6 ooo 9 o
+[[[(x2)*<<0,1,0,0>>+(3*x3)*<<0,0,1,0>>+ ---snip ---*<<0,0,0,0>>,1]],
+[dx1,dx2,dx3,dx4],
+[(1)*<<0,0,0,2>>,(1)*<<0,0,1,0>>,(1)*<<0,0,0,1>>,(1)*<<0,0,0,0>>]]
+
+[2674] mt_gkz.dp_op_to_coef_vec([x1*<<1,0>>+x1*x2*<<0,1>>,x1+1],[<<1,0>>,<<0,1>>]);
+  // x1+1 is the denominator
+  [ (x1)/(x1+1) (x1*x2)/(x1+1) ]
+[2675] mt_gkz.tk_base_is_equal([1,2],[1,2]);
+ 1
+[2676] mt_gkz.tk_base_is_equal([1,2],[1,x,y]);
+ 0
+[2677] mt_gkz.mdiff(sin(x),x,1);
+ cos(x)
+[2678] mt_gkz.mdiff(sin(x),x,2); //2nd derivative
+ -sin(x)
+[3164] mt_gkz.ord_xi(V=[x1,x2,x3],II=1); 
+// matrix to define graded lexicographic order so that V[II] is the smallest.
+[ 1 1 1 ]
+[ 0 -1 0 ]
+[ -1 0 0 ]
+[3166] load("mt_gkz/check-by-hgpoly.rr");
+[3187] check_0123(); // check the pfaffian for the A below by hg-polynomial.
+  A=[[1,1,1,1],[0,1,2,3]]
+  Ap=[[1,1,1,1],[0,0,0,0]]
+  --- snip ---
+  Bfunctions= --- snip ---
+  0 (vector) is expected:
+  [[ 0 0 0 ],[ 0 0 0 ]]
+[3188] mt_gkz.get_check_fvec();  
+ // get the basis of cocycles used in terms of differential operators.
+  [1,(dx4)/(b1),(dx4^2)/(b1^2-b1)]
+[3189] mt_gkz.clear_bf();
+0
+[3190] mt_gkz.get_bf_step_up(A=[[1,1,1,1],[0,1,2,3]]);
+// b-functions and step-up operators.
+// Option b_ideal=1 or shift=... may be used for non-normal case.
+  [[ -s_2^3+(9*s_1-3)*s_2^2+ ---snip---
+     -s_2^3+(3*s_1+1)*s_2^2-3*s_1*s_2 s_2^3-3*s_2^2+2*s_2 ],
+  [ x3^3*dx4^2+ ---snip---
+    3*x3^2*x4*dx4^2+ --- snip---]]
+@end example
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@comment ここから追加版
+
+@node Cohomology intersection numbers,,, Top
+@chapter Cohomology intersection numbers
+
+@menu
+* mt_gkz.kronecker_prd::
+* mt_gkz.secondary_eq::
+* mt_gkz.generate_maple_file_IC::
+* mt_gkz.generate_maple_file_MR::
+* mt_gkz.normalizing_constant::
+@end menu
+
+
+
+
+
+
+@node Secondary equation,,, Cohomology intersection numbers
+@section Secondary equation
+
+@comment **********************************************************
+@comment --- 関数 pfaff_eq
+@node mt_gkz.kronecker_prd,,, Secondary equation
+@subsection @code{mt_gkz.kronecker_prd}
+@comment --- 索引用キーワード
+@findex mt_gkz.kronecker_prd
+
+@table @t
+@item mt_gkz.kronecker_prd(@var{A},@var{B})
+:: It returns the Kronecker product of @var{A} and @var{B}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a matrix which is equal to the Kronecker product of @var{A} and @var{B} (https://en.wikipedia.org/wiki/Kronecker_product).
+@item A,B
+list
+@end table
+
+
+@comment --- @example〜@end example は実行例の表示 ---
+
+@example
+[2644]  A=[[a,b],[c,d]];
+[[a,b],[c,d]]
+[2645] B=[[e,f],[g,h]];
+[[e,f],[g,h]]
+[2646] kronecker_prd(A,B);
+[ e*a f*a e*b f*b ]
+[ g*a h*a g*b h*b ]
+[ e*c f*c e*d f*d ]
+[ g*c h*c g*d h*d ]
+@end example
+
+
+
+
+
+
+
+
+@node mt_gkz.secondary_eq,,, Secondary equation
+@subsection @code{mt_gkz.secondary_eq}
+@comment --- 索引用キーワード
+@findex mt_gkz.secondary_eq
+
+@table @t
+@item mt_gkz.secondary_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the secondary equation with respect to cocycles defined by Rvec.
+@end table
+
+
+@table @var
+@item return
+a list of coefficients of the Pfaffian system corresponding to the secondary equation (cf. equation (8) of [MT2020]).
+@item A,Beta,Ap,Rvec,DirX
+see @code{pfaff_eq}
+@end table
+
+
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+The secondary equation is originally a Pfaffian system for an unkwon @math{r} by @math{r} matrix @math{I} with @math{r=}length(Rvec). We set @math{Y=(I_{11},I_{12},...,I_{1r},I_{21},I_{22},...)^T}. Then, the secondary equation can be seen as a Pfaffian system @math{{dY\over dx_i}=A_iY} with DirX=@math{\{dx_i\}_i}. The function mt_gkz.secondary_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX}) outputs a list obtained by aligning the matrices @math{A_i}.
+@item
+Let @math{F:=(\omega_i)_i} be a column vector whose entries are given by the cohomology classes specified by entries of Rvec. Then, @code{pfaff_eq} computes the Pfaffian matrices @math{P_i} so that @math{{dF\over dx_i}=P_iF}. If @math{Q_i} denotes the matrix obtained by replacing Beta by -Beta, we have @math{A_i=}@code{mt_gkz.kronecker_prd}(E,@math{P_i})+@code{mt_gkz.kronecker_prd}(@math{Q_i},E) where E is the identity matrix of size length(Rvec).
+@item Options xrule, shift, b_ideal,cg.
+Same as @code{pfaff_eq}.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[2647] Beta=[b1,b2,b3]$
+[2648] DirX=[dx1,dx4]$
+[2649] Rvec=[[1,0,0,0],[0,0,1,0]]$
+[2650] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+[2651] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
+[2652] Xrule=[[x2,1],[x3,1]]$
+[2653] P=secondary_eq(A,Beta,Ap,Rvec,DirX|xrule=Xrule)$
+--snip--
+[2654] length(P);
+2
+[2655] P[0];
+[[(-2*x1^3*x4^2+4*x1^2*x4-2*x1)/(x1^4*x4^2-2*x1^3*x4+x1^2),(b2*x4)/(x1^2*x4-x1),
+(-b2*x4)/(x1^2*x4-x1),0],[(b1)/(x1*x4-1),
+((b2-4/3)*x1^2*x4^2+(-b1-b2+8/3)*x1*x4+b1-4/3)/(x1^3*x4^2-2*x1^2*x4+x1),0,
+(-b2*x4)/(x1^2*x4-x1)],[(-b1)/(x1*x4-1),0,
+((-b2-2/3)*x1^2*x4^2+(b1+b2+4/3)*x1*x4-b1-2/3)/(x1^3*x4^2-2*x1^2*x4+x1),
+(b2*x4)/(x1^2*x4-x1)],[0,(-b1)/(x1*x4-1),(b1)/(x1*x4-1),0]]
+<--- Paffian matrix in x1 direction.
+[2656] P[1];
+[[0,(b2)/(x1*x4-1),(-b2)/(x1*x4-1),0],[(b1*x1)/(x1*x4^2-x4),
+((b2-1/3)*x1^2*x4^2+(-b1-b2+2/3)*x1*x4+b1-1/3)/(x1^2*x4^3-2*x1*x4^2+x4),0,
+(-b2)/(x1*x4-1)],[(-b1*x1)/(x1*x4^2-x4),0,
+((-b2+1/3)*x1^2*x4^2+(b1+b2-2/3)*x1*x4-b1+1/3)/(x1^2*x4^3-2*x1*x4^2+x4),
+(b2)/(x1*x4-1)],[0,(-b1*x1)/(x1*x4^2-x4),(b1*x1)/(x1*x4^2-x4),0]]
+<--- Paffian matrix in x4 direction.
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+
+
+
+@node mt_gkz.generate_maple_file_IC,,, Secondary equation
+@subsection @code{mt_gkz.generate_maple_file_IC}
+@comment --- 索引用キーワード
+@findex mt_gkz.generate_maple_file_IC
+
+@table @t
+@item mt_gkz.generate_maple_file_IC(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the maple input for a solver of a Pfaffian system IntegrableConnections[RationalSolutions].
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a maple input file for the function IntegrableConnections[RationalSolutions] (cf. [BCEW]) for the Pfaffian system mt_gkz.secondary_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX}).
+@item A,Beta,Ap,Rvec,DirX
+see @code{pfaff_eq}.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+A maple package IntegrableConnections is available in [BCEW]. In order to use IntegrableConnections, you need to add the global path to the file IntegrableConnections.m to libname on maple. See [BCEW].
+@item
+If Beta contains unkwon variables, they are regarded as generic parameters. For example, if Beta=[b1,b2,1/5,1/7,b5,...], parameters are [b1,b2,b5,...].
+@item Options xrule, shift, b_ideal,cg.
+Same as @code{pfaff_eq}.
+@item Option filename.
+You can specify the file name by specifying the option variable filename. If you do not specify it, @code{generate_maple_file_IC} generates a file "auto-generated-IC.ml".
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: 
+@example
+[2681] Beta=[b1,b2,1/3]$
+[2682] DirX=[dx1,dx4]$
+[2683] Rvec=[[1,0,0,0],[0,0,1,0]]$
+[2684] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+[2685] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
+[2687] Xrule=[[x2,1],[x3,1]]$
+[2688] generate_maple_file_IC(A,Beta,Ap,Rvec,DirX|xrule=Xrule,filename="Test.ml")$
+
+
+//A file named Test.ml is automatically generated as follows:
+
+
+
+with(OreModules);
+with(IntegrableConnections);
+with(linalg);
+C:=[Matrix([[(-2*x1^3*x4^2+4*x1^2*x4-2*x1)/(x1^4*x4^2-2*x1^3*x4+x1^2),
+(b2*x4)/(x1^2*x4-x1),(-b2*x4)/(x1^2*x4-x1),0],[(b1)/(x1*x4-1),
+((b2-4/3)*x1^2*x4^2+(-b1-b2+8/3)*x1*x4+b1-4/3)/(x1^3*x4^2-2*x1^2*x4+x1),0,
+(-b2*x4)/(x1^2*x4-x1)],[(-b1)/(x1*x4-1),0,
+((-b2-2/3)*x1^2*x4^2+(b1+b2+4/3)*x1*x4-b1-2/3)/(x1^3*x4^2-2*x1^2*x4+x1),
+(b2*x4)/(x1^2*x4-x1)],[0,(-b1)/(x1*x4-1),(b1)/(x1*x4-1),0]]),
+Matrix([[0,(b2)/(x1*x4-1),(-b2)/(x1*x4-1),0],[(b1*x1)/(x1*x4^2-x4),
+((b2-1/3)*x1^2*x4^2+(-b1-b2+2/3)*x1*x4+b1-1/3)/(x1^2*x4^3-2*x1*x4^2+x4),0,
+(-b2)/(x1*x4-1)],[(-b1*x1)/(x1*x4^2-x4),0,
+((-b2+1/3)*x1^2*x4^2+(b1+b2-2/3)*x1*x4-b1+1/3)/(x1^2*x4^3-2*x1*x4^2+x4),
+(b2)/(x1*x4-1)],[0,(-b1*x1)/(x1*x4^2-x4),(b1*x1)/(x1*x4^2-x4),0]])];
+RatSols:=RationalSolutions(C,[x1,x4],['param',[b1,b2]]);
+
+
+/*
+If you run the output file on maple, you obtain a rational solution of
+the secondary equation.
+*/
+
+         [b2*(3*b1-1)/(b1*x1^2)]
+RatSols:=[3*b2/x1              ]
+         [3*b2/x1              ]
+         [3*b2-1               ]
+
+/*
+Note that the 4 entries of this vector correspond to entries of a 2 by 2 matrix.
+They are aligned as (1,1), (1,2), (2,1) (2,2) from the top.
+*/
+@end example
+
+@*
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+
+
+
+
+
+
+
+@node mt_gkz.generate_maple_file_MR,,, Secondary equation
+@subsection @code{mt_gkz.generate_maple_file_MR}
+@comment --- 索引用キーワード
+@findex mt_gkz.generate_maple_file_MR
+
+@table @t
+@item mt_gkz.generate_maple_file_MR(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX},@var{D1},@var{D2})
+:: It returns the maple input for a solver of a Pfaffian system MorphismsRat[OreMorphisms].
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a maple input file for the function MorphismsRat[OreMorphisms] (cf. [CQ]) for the Pfaffian system obtained by @code{secondary_eq}. If you run the output file on maple, you obtain a rational solution of the secondary equation. 
+@item A,Beta,Ap,Rvec,DirX
+see @code{pfaff_eq}.
+@item D1,D2
+Positive integers. D1 (resp. D2) is the upper bound of the degree of the numerator (resp. denominator) of the solution. 
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+We use the same notation as the explanation of @code{generate_maple_file_IC}. Let @math{D} denote the ring of linear differential operators with coeffiecients in the field of rational functions. We consider @math{D}-modules @math{R:=D^{1\times l}/\sum_{dx_i\in DirX}D^{1\times l}(\partial_i E-P_i)} and @math{S:=D^{1\times l}/\sum_{dx_i\in DirX}D^{1\times l}(\partial_i E+Q_i^T)} where @math{l=}length(Rvec). Then, computing a rational solution of the secondary equation is equivalent to computing a @math{D}-morphism from @math{R} to @math{S} represented by rational function matrix (cf. pp12-13 of [CQ08]).
+@item 
+A  maple package OreMorphisms is available in [CQ]. In order to use OreMorphisms, you need to add the global path to the file OreMorphisms.m to libname on maple.
+@item Options xrule, shift, b_ideal,cg.
+Same as @code{pfaff_eq}.
+@item Option filename.
+You can specify the file name as in @code{generate_maple_file_IC}.
+@item
+The difference between @code{generate_maple_file_IC} and @code{generate_maple_file_MR} is the appearence of auxilliary variables D1 and D2. If you can guess the degree of the numerator and the denominator of the solution of the secondary equation, MorphismsRat[OreMorphisms] can be faster than RationalSolutions[IntegrableConnections]. 
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[2668] Beta=[b1,b2,1/3]$
+[2669] DirX=[dx1,dx4]$
+[2670] Rvec=[[1,0,0,0],[0,0,1,0]]$
+[2671] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+[2672] Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
+[2673] Xvar=[x1,x4]$
+[2674] Xrule=[[x2,1],[x3,1]]$
+[2675] generate_maple_file_MR(A,Beta,Ap,Rvec,DirX,2,2|xrule=Xrule)$
+
+
+//A file "auto-generated-MR.ml" is automatically generated as follows:
+
+
+with(OreModules);
+with(OreMorphisms);
+with(linalg);
+Alg:=DefineOreAlgebra(diff=[dx1,x1],diff=[dx4,x4],polynom=[x1,x4],comm=[b1,b2]);
+P:=Matrix([[dx1,0],[0,dx1],[dx4,0],[0,dx4]])
+-Matrix([[((b1+b2-4/3)*x1*x4-b1+4/3)/(x1^2*x4-x1),(-b2*x4)/(x1^2*x4-x1)],
+[(-b1)/(x1*x4-1),(b1*x4)/(x1*x4-1)],[(b2*x1)/(x1*x4-1),(-b2)/(x1*x4-1)],
+[(-b1*x1)/(x1*x4^2-x4),(1/3*x1*x4+b1-1/3)/(x1*x4^2-x4)]]);
+Q:=Matrix([[dx1,0],[0,dx1],[dx4,0],[0,dx4]])
++Matrix([[((-b1-b2-2/3)*x1*x4+b1+2/3)/(x1^2*x4-x1),(b1)/(x1*x4-1)],
+[(b2*x4)/(x1^2*x4-x1),(-b1*x4)/(x1*x4-1)],[(-b2*x1)/(x1*x4-1),(b1*x1)/(x1*x4^2-x4)],
+[(b2)/(x1*x4-1),(-1/3*x1*x4-b1+1/3)/(x1*x4^2-x4)]]);
+RatSols:=MorphismsRat(P,Q,Alg,0,2,2);
+
+/*
+If you run the output file on maple, you obtain a vector RatSols.
+RatSols[1] is the rational solution of the secondary equation:
+*/
+
+RatSols[1]:=[(1/3)*@math{n_{2_{1_{3_1}}}}*(3*b1-1)/(b1*x1^2*@math{d_{6_1}})  @math{n_{2_{1_{3_1}}}}/(x1*@math{d_{6_1}})]
+            [@math{n_{2_{1_{3_1}}}}/(x1*@math{d_{6_1}})       (1/3)*@math{n_{2_{1_{3_1}}}}*(3*b2-1)/(b2*@math{d_{6_1}})]
+
+/*
+Here, @math{n_{2_{1_{3_1}}}} and @math{d_{6_1}} are arbitrary constants. We can take @math{n_{2_{1_{3_1}}}=3*b2} and @math{d_{6_1}=1} to obtain the rational solution of the secondary equation which is identical to the one obtained from @code{generate_maple_file_IC}.
+*/
+@end example
+
+@*
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}, @ref{mt_gkz.generate_maple_file_IC}.
+@end table
+@comment おわり. 
+
+
+
+
+
+
+
+
+
+
+
+
+@node Normalizing constant,,, Cohomology intersection numbers
+@section Normalizing the cohomology intersection matrix
+
+
+@node mt_gkz.principal_normalizing_constant,,, Normalizing constant
+@subsection @code{mt_gkz.principal_normalizing_constant}
+@comment --- 索引用キーワード
+@findex mt_gkz.principal_normalizing_constant
+
+@table @t
+@item mt_gkz.principal_normalizing_constant(@var{A},@var{T},@var{Beta},@var{K})
+:: It returns the normalizing constant of the cohomology intersection matrix in terms of a regular triangulation T.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a rational function which is the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[{dx\over x}],[{dx\over x}]\rangle_{ch}} in terms of the regular triangulation T. Here, @math{n} is the number of integration variables and @math{dx\over x} is the volume form @math{{dx_1\over x_1}\wedge\cdots\wedge{dx_n\over x_n}} of the complex @math{n}-torus.
+@item A,Beta
+see @code{pfaff_eq}.
+@item T
+a regular triangulation of A.
+@item K
+The number of polynomial factors in the integrand. see [MT2020].
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+This function is useful when the basis of the cohomology group @math{\{\omega_i\}_{i=1}^r} is given so that @math{\omega_1=[{dx\over x}]}.
+@item
+@code{leading_term} can be used more generally.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[2676] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
+[2677] Beta=[b1,b2,b3]$
+[2678] K=2$
+[2679] T=[[1,2,3],[2,3,4]]$
+[2680] normalizing_constant(A,T,Beta,K);
+(-b1-b2)/(b3*b1+b3*b2-b3^2)
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.leading_term}.
+@end table
+@comment おわり. 
+
+
+
+
+
+
+
+
+@node mt_gkz.leading_term,,, Normalizing constant
+@subsection @code{mt_gkz.leading_term}
+@comment --- 索引用キーワード
+@findex mt_gkz.leading_terms
+
+@table @t
+@item mt_gkz.leading_term(@var{A},@var{Beta},@var{W},@var{Q1},@var{Q2},@var{K},@var{N})
+:: It returns the W-leading terms of a cohomology intersection number specified by Q1 and Q2 up to W-degree=(minimum W-degree)+N.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list [[C1,DEG1],[C2,DEG2],...]. Each CI is a rational function depending on Beta times a monomial @math{x^m} in x-variables. DEGI is the W-degree of @math{x^m}. The cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}x^{q_1^{\prime\prime}}{dx\over x}],[h^{-q_2^\prime}x^{q_2^{\prime\prime}}{dx\over x}]\rangle_{ch}} has a Laurent expansion of the form C1+C2+.... 
+@item A,Beta
+see @code{pfaff_eq}.
+@item W
+a positive and integral weight vector.
+@item Q1,Q2
+@math{Q1=(q_1^\prime,q_1^{\prime\prime})^T}, @math{Q2=(q_2^\prime,q_2^{\prime\prime})^T} are integer vectors. The lengths of @math{q_1^\prime} and @math{q_2^\prime} are both equal to @math{K}.
+@item K
+The number of polynomial factors in the integrand. see [MT2020].
+@item N
+A positive integer.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+For a monomial @math{x^m=x_1^{m_1}\cdots x_n^{m_n}} and a weight vector @math{W=(w_1,\dots,w_n)}, the W-degree of @math{x^m} is given by the dot product @math{m\cdot W=m_1w_1+\cdots +m_nw_n}.
+@item 
+The W-leading terms of the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}x^{q_1^{\prime\prime}}{dx\over x}],[h^{-q_2^\prime}x^{q_2^{\prime\prime}}{dx\over x}]\rangle_{ch}} can be computed by means of Theorem 2.6 of [GM2020]. See also Theorem 3.4.2 of [SST2000].
+@item
+If the weight vector is not generic, you will receive an error message such as "WARNING(initial_mon): The weight may not be generic". In this case, the output may be wrong and you should retake a suitable W. To be more precise, W should be chosen from an open cone of the Groebner fan.
+@item Option xrule.
+Same as @code{pfaff_eq}.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[2922] Beta=[b1,b2,1/3];
+[b1,b2,1/3]
+[2923] Q=[[1,0,0],[0,1,0]];
+[[1,0,0],[0,1,0]]
+[2924] A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+[[1,1,0,0],[0,0,1,1],[0,1,0,1]]
+[2925] W=[1,0,0,0];
+[1,0,0,0]
+[2926] K=2;
+2
+[2927] N=2;
+2
+[2928] NC=leading_term(A,Beta,W,Q[0],Q[1],K,N|xrule=[[x2,1],[x3,1],[x4,1]])$
+--snip--
+[2929] NC;
+[[(-3)/(x1),-5],[0,-4],[0,-3]]
+
+
+/*
+This output means that the W-leading term of the (1,2) entry of the cohomology
+intersection matrix is @math{(-3)/(x1)\times (2\pi\sqrt{-1})}. In view of examples of @code{generate_maple_file_IC} or @code{generate_maple_file_MR}, we can conclude that the cohomology
+intersection matrix is given by
+*/
+
+[-(3*b1-1)/(b1*x1^2)  -3/x1        ]
+[-3/x1                -(3*b2-1)/b2]]
+
+
+//divided by  2@math{\pi\sqrt{-1}}.
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.leading_term}, @ref{mt_gkz.generate_maple_file_IC}, @ref{mt_gkz.generate_maple_file_MR}.
+@end table
+@comment おわり. 
+
+
+
+
+
+@node mt_gkz.leading_term_rat,,, Normalizing constant
+@subsection @code{mt_gkz.leading_term_rat}
+@comment --- 索引用キーワード
+@findex mt_gkz.leading_term_rat
+
+@table @t
+@item mt_gkz.leading_term_rat(@var{P},@var{W},@var{V})
+:: It returns the W-leading term of a rational function P depending on variables V.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+It returns the W-leading term of a rational function P.
+@item P
+a rational function.
+@item W
+a weight vector.
+@item V
+a list of variables of P.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+This function is supposed to be combined with @code{leading_term} to compute the leading term of a cohomology intersection number.
+@item
+If W is chose so that there are several initial terms, you will receive an error message "WARNING(leading_term_rat):The weight vector may not be generic."
+@end itemize
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.leading_term}.
+@end table
+@comment おわり. 
+
+
+
+
+
+
+@node Regular triangulations,,, Cohomology intersection numbers
+@section Regular triangulations
+
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.toric_gen_initial,,, Regular triangulations
+@node mt_gkz.regular_triangulation,,, Regular triangulations
+@node mt_gkz.top_standard_pairs,,, Regular triangulations
+@subsection @code{mt_gkz.toric_gen_initial}, @code{mt_gkz.regular_triangulation}, @code{mt_gkz.top_standard_pairs}
+@comment --- 索引用キーワード
+@findex mt_gkz.toric_gen_initial
+@findex mt_gkz.regular_triangulation
+@findex mt_gkz.top_standard_pairs
+
+@table @t
+@item mt_gkz.toric_gen_initial(@var{A},@var{W})
+@item mt_gkz.regular_triangulation(@var{A},@var{W})
+@item mt_gkz.top_standard_pairs(@var{A},@var{W})
+:: utility functions for computing ring theoretic invariants: generic initial ideal for the toric ideal specified by the matrix A and a weight W, its associated regular triangulation, and its associated top-dimensional standard pairs.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+@code{toric_gen_initial} returns a list [L1,L2] of length 2. L1 is a list of generators of the W-initial ideal of the toric ideal @math{I_A} specified by A. L2 is a list of variables of @math{I_A}.
+@item return
+@code{regular_triangulation} returns a list of simplices of a regular triangulation @math{T_W} specified by the weight W.
+@item return
+@code{top_standard_pairs} returns a list of the form [[L1,S1],[L2,S2],...]. Each SI is a simplex of @math{T_W}. Each LI is a list of exponents.
+@item A
+a configuration matrix.
+@item W
+a positive weight vector.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+As for the definition of the standard pair, see Chapter 3 of [SST00].
+@item
+We set n=length(A) and set BS1:=@math{\{ 1,2,...,n\}\setminus S1}. Then, each L1[I] is an exponent @math{\bf k} of a top-dimensional standard pair @math{(\partial^{\bf k}_{BS1},S1)}. Here, @math{\bf k} is a list of length n-length(S1) and @math{\partial_{BS1}=(\partial_J)_{J\in BS1}}.
+@item
+If the weight vector is not generic, you will receive an error message such as "WARNING(initial_mon): The weight may not be generic". See also @code{leading_term}.
+@item
+These functions are utilized in @code{leading_term}.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: An example of a non-unimodular triangulation and non-trivial standard pairs.
+@example
+[3256] A=[[1,1,1,1,1],[0,1,0,2,0],[0,0,1,0,2]];
+[[1,1,1,1,1],[0,1,0,2,0],[0,0,1,0,2]]
+[3257] W=[2,0,1,2,2];
+[2,0,1,2,2]
+[3258] toric_gen_initial(A,W);
+--snip--
+[[x1*x5,x1*x4,x3^2*x4],[x1,x2,x3,x4,x5]]
+[3259] regular_triangulation(A,W);
+--snip--
+[[2,4,5],[2,3,5],[1,2,3]]
+[3260] top_standard_pairs(A,W);
+--snip--
+[[[[0,0],[0,1]],[2,4,5]],[[[0,0]],[2,3,5]],[[[0,0]],[1,2,3]]]
+
+/*
+This means that the regular triangulation of the configuration matrix A is
+given by @math{T=\{\{2,4,5\},\{2,3,5\},\{1,2,3\}\}}. The normalized volumes of these simplices
+are 2,1 and 1. Moreover, the top-dimensional standard pairs are
+@math{(1,\{2,4,5\}),(\partial_3,\{2,4,5\})}, @math{(1,\{2,3,5\})},@math{(1,\{1,2,3\})}.
+*/
+@end example
+
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.leading_term}.
+@end table
+@comment おわり. 
+
+
+
+
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+@comment *********************************************************
+@comment ********* template
+@comment **********************************************************
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.pfaff_eq,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.pfaff_eq}
+@comment --- 索引用キーワード
+@findex mt_gkz.pfaff_eq
+
+@table @t
+@item mt_gkz.pfaff_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the Pfaff equation for the GKZ system defined by @var{A} and @var{Beta} with respect to cocycles defined by @var{Rvec}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of coefficients of the Pfaff equation with respect to the direction @var{DirX} 
+@item A
+the matrix A of the GKZ system.
+@item Beta
+...
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: Gauss hypergeometric system, see [GM2020] example ??.
+@example
+[1883] import("mt_gkz.rr");
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 

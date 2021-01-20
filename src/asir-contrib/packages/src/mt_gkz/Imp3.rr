@@ -1,0 +1,1381 @@
+/* $OpenXM$ */
+#define USE_MODULE 1
+#ifdef USE_MODULE
+module mt_gkz;
+localf make_Ap$
+localf kronecker_prd$
+localf make_Brule$
+localf secondary_eq$
+localf type_vector$
+localf dx_to_x$
+localf generate_maple_file_IC$
+localf poch$
+localf submatrix$
+localf myabs$
+localf quad_term$
+localf principal_normalizing_constant$
+localf cohomology_base_change$
+localf generate_maple_file_MR$
+localf dot_prd$
+localf my_max$
+localf my_min$
+localf initial_mon$
+localf remove_duplication$
+localf gen_initial$
+localf toric_gen_initial$
+localf relm$
+localf diag_gens$
+localf obj_diff$
+localf diff_set$
+localf xj_to_j$
+localf regular_triangulation$
+localf top_standard_pairs$
+localf subvect$
+localf if_all_int$
+localf comp_k_ab$
+localf vect_poch$
+localf my_coeff$
+localf leading_term_rat$
+localf index_inequality$
+localf f_factorial$
+localf canonical_series_coeff$
+localf truncated_canonical_series$
+localf grobner_to_u_vect$
+localf top_standard_pairs2$
+localf lt_summand2$
+localf if_I_in_S$
+localf shuffle$
+localf v_vect$
+localf series_prd$
+localf my_power$
+localf leading_terms$
+localf test100$
+localf test101$
+localf test102$
+#endif
+
+def make_Ap (A,L){
+  Ap=newvect(length(A));
+  for (I=0;I<L;I++){
+    Ap[I]=A[I]$
+      }
+  LEN=length(A[0])$
+    for (I=L;I<length(A);I++){
+      Ap[I]=newvect(LEN)$
+      Ap[I]=vtol(Ap[I])$
+    }
+    return Ap;
+}
+
+
+
+
+
+
+//A,BのKronecker積をとる操作。A,Bは行列とする。
+def kronecker_prd(A,B){
+  A=matrix_matrix_to_list(A)$
+    B=matrix_matrix_to_list(B)$
+      R=length(A)$
+        S=length(A[0])$
+          T=length(B)$
+            U=length(B[0])$
+              L1=R*T$
+                L2=S*U$
+                  C=newmat(L1,L2)$
+                    for(I=0;I<L1;I++){
+                      for(J=0;J<L2;J++){
+                        C[I][J]=A[idiv(I,T)][idiv(J,U)]*B[I%T][J%U]$
+                      }
+                    }
+                    //      C=matrix_matrix_to_list(C)$
+                    return C;
+}
+
+
+
+
+
+def make_Brule(Beta){
+  L=length(Beta)$
+    Brule=newvect(L)$
+      for (I=0;I<L;I++){
+        Brule[I]=[Beta[I],-Beta[I]]$
+      }
+      Brule=vtol(Brule)$
+        return(Brule);
+}
+
+
+
+
+//secondary equationを返す。optionsはmt_gkz.pfaff_eqと同じ。Betaが文字式の場合にはbIを-bIに置き換えるだけで良いが、Betaが数字の場合は双対方程式を計算するために二度手間な書き方をしている。
+def secondary_eq(A,Beta,Ap,Rvec,DirX){
+  M=mt_gkz.pfaff_eq(A,Beta,Ap,Rvec,DirX|option_list=getopt())$
+    LB=length(Beta)$
+      TypeB=type_vector(Beta)$
+        Type2=newvect(LB)$
+          for (I=0;I<LB;I++){
+            TypeB[I]=2$
+          }
+          if (TypeB==Type2){
+            Brule=make_Brule(Beta)$
+              MM=base_replace(M,Brule)$
+                }
+          else
+            B=ltov(Beta)$
+            DB=(-1)*B$
+              DB=vtol(DB)$
+                MM=mt_gkz.pfaff_eq(A,DB,Ap,Rvec,DirX|option_list=getopt())$
+                  Rank=length(Rvec)$
+                    L1=length(DirX)$
+                      E=matrix_identity_matrix(Rank)$
+                        Tensor=newvect(L1)$
+                          for(I=0;I<L1;I++){
+                            Tensor[I]=kronecker_prd(M[I],E)+kronecker_prd(E,MM[I])$
+                          }
+                          Tensor=matrix_matrix_to_list(Tensor)$
+                            return (Tensor);
+}
+
+
+
+
+
+def type_vector(List){
+  L=length(List)$
+    Type=newvect(L)$
+      for (I=0;I<L;I++){
+        Type[I]=type(List[I])$
+      }
+      return(Type);
+}
+
+
+
+def dx_to_x(S){
+  A=rtostr(S)$
+    L=str_len(A)$
+      LL=L-1$
+        A=sub_str(A,1,LL)$
+          A=strtov(A)$
+            return A;
+}
+
+
+//mt_generate_maple_fileでは入力する変数はmatsu_generate_connection_matrixより増えてBrule,Xvar,XDiffがあることに注意。
+// /tw-cohom/auto-generate.rr内のmatsu_generate_maple_file2(...)を書き直したもの。
+
+def generate_maple_file_IC (A,Beta,Ap,Rvec,DirX){
+  //FNはfile nameのこと
+  //option変数filenameには"hoge.ml"のように入力すること。
+  FileName=getopt(filename)$
+    if (type(FileName)==7){
+      FN=FileName$
+    }
+    else {
+      FN="auto-generated-IC.ml"$
+        }
+    Tensor=secondary_eq(A,Beta,Ap,Rvec,DirX|option_list=getopt())$
+      L=length(DirX)$
+        Param=[]$
+          LB=length(Beta)$
+            for(I=0;I<LB;I++){
+              if (type(Beta[I])==2){
+                Param=cons(Beta[I],Param)$
+              }
+            }
+            Param=reverse(Param)$
+              Xvar=newvect(L)$
+                for (I=0;I<L;I++){
+                  Xvar[I]=dx_to_x(DirX[I])$
+                }
+                Xvar=vtol(Xvar)$
+                  Fp = open_file(FN,"w");
+                  fprintf(Fp,"with(OreModules);\n");
+                  fprintf(Fp,"with(IntegrableConnections);\n");
+                  fprintf(Fp,"with(linalg);\n");
+
+                  fprintf(Fp,"C:=[Matrix(%a)",Tensor[0]);
+                  for (I=1;I<L;I++){
+                    fprintf(Fp,",Matrix(%a)",Tensor[I]);
+                  }
+                  fprintf(Fp,"];\n");
+                  fprintf(Fp,"RatSols:=RationalSolutions(C,%a,['param',%a]);\n",Xvar,Param);
+                  close_file(Fp);
+}
+
+
+
+
+
+
+//まずはPochhammer symbolを用意。Aは実数、Sは整数。
+
+def poch(A,S){
+  V=1$
+    if (S>0) {
+      for (I=0;I<S;I++){
+        V=V*(A+I)$
+      }
+    }
+
+    if (S<0) {
+      S=-S$
+        for (I=1;I<S+1;I++){
+          V=V/(A-I)$
+        }
+    }
+    return(V);
+}
+
+
+
+
+
+def submatrix(A,Sigma){
+  M=newmat(length(A),length(Sigma))$
+    for (I=0;I<length(A);I++){
+      for (J=0;J<length(Sigma);J++){
+        M[I][J]=A[I][Sigma[J]-1]$
+      }
+    }
+    return(M);
+}
+// length(A)=length(Sigma)を仮定しない。
+
+
+
+def myabs(X) {
+  if (X<0) return(-X);
+  else return(X);
+}
+
+  
+
+
+// (1/|det A_\sigma|)*\prod_{i\in \sigma}(1/p_{\sigma i}(Beta))を計算する
+def quad_term(A,Sigma,Beta){
+  AS=submatrix(A,Sigma)$
+    D=myabs(det(AS))$
+      AS=matrix_matrix_to_list(AS)$
+        B=ltov(Beta)$
+          P=1$
+            L=length(Sigma)$
+              IAS=matrix_inverse(AS)$
+                V=IAS*B$
+                  for (I=0;I<L;I++){
+                    P=P*V[I]$
+                  }
+                  P=D*P$
+                    P=1/P$
+                      return(P);
+}
+
+
+
+//Tは正則三角形分割、Kは積分核の多項式因子の数
+def principal_normalizing_constant(A,T,Beta,K){
+  L=length(T)$
+    M=length(A)$
+      S=0$
+        for (I=0;I<L;I++){
+          S=S+quad_term(A,T[I],Beta)$
+        }
+        for (J=0;J<K;J++){
+          S=Beta[J]*S$
+            }
+        S=(-1)^(M-K)*S$
+          return(red(S));
+}
+
+
+//RvecをBasisの線型結合で表す。BasisはR vectorsの集まりによって表されている、リストのリストである。返り値は行列Cで、Rvec,Basisを縦ベクトルとみなすとき、Rvec=C*Basisである。
+def cohomology_base_change(Rvec,Basis,A,Ap,Beta){
+  Fvec=mt_gkz.rvec_to_fvec(Rvec,A,Ap,Beta)$
+    P=mt_gkz.fvec_to_conn_mat(Fvec,A,Beta,1)$
+      C1=P[0]$
+        FB=mt_gkz.rvec_to_fvec(Basis,A,Ap,Beta)$
+          Q=mt_gkz.fvec_to_conn_mat(FB,A,Beta,1)$
+            C2=Q[0]$
+              IC2=matrix_inverse(C2)$
+                return red(C1*IC2);
+}
+
+
+
+
+
+
+def generate_maple_file_MR (A,Beta,Ap,Rvec,DirX,D1,D2){
+  //FNはfile nameのこと
+  //option変数filenameには"hoge.ml"のように入力すること。
+  FileName=getopt(filename)$
+    if (type(FileName)==7){
+      FN=FileName$
+    }
+    else {
+      FN="auto-generated-MR.ml"$
+        }
+    M=mt_gkz.pfaff_eq(A,Beta,Ap,Rvec,DirX|option_list=getopt())$
+      LB=length(Beta)$
+        TypeB=type_vector(Beta)$
+          Type2=newvect(LB)$
+            for (I=0;I<LB;I++){
+              TypeB[I]=2$
+            }
+            if (TypeB==Type2){
+              Brule=make_Brule(Beta)$
+                MM=base_replace(M,Brule)$
+                  }
+            else {
+              B=ltov(Beta)$
+                DB=(-1)*B$
+                  DB=vtol(DB)$
+                    MM=mt_gkz.pfaff_eq(A,DB,Ap,Rvec,DirX|option_list=getopt())$
+                      }
+            MM=ltov(MM)$
+              L=length(DirX)$
+                for (I=0;I<L;I++){
+                  MM[I]=matrix_transpose(MM[I])$
+                }
+                R=length(Rvec)$
+                  E=matrix_identity_matrix(R)$
+                    EE=DirX[0]*E$
+                      EE=matrix_matrix_to_list(EE)$
+                        for (I=1;I<L;I++){
+                          F=DirX[I]*E$
+                          F=matrix_matrix_to_list(F)$
+                          EE=append(EE,F)$
+                        }
+                        P=M[0]$
+                          P=matrix_matrix_to_list(P)$
+                            for (I=1;I<L;I++){
+                              PP=M[I]$
+                              PP=matrix_matrix_to_list(PP)$
+                              P=append(P,PP)$
+                            }
+                            Q=MM[0]$
+                              Q=matrix_matrix_to_list(Q)$
+                                for (I=1;I<L;I++){
+                                  QQ=MM[I]$
+                                  QQ=matrix_matrix_to_list(QQ)$
+                                  Q=append(Q,QQ)$
+                                }
+                                Param=[]$
+                                  LB=length(Beta)$
+                                    for(I=0;I<LB;I++){
+                                      if (type(Beta[I])==2){
+                                        Param=cons(Beta[I],Param)$
+                                      }
+                                    }
+                                    Param=reverse(Param)$
+                                      Xvar=newvect(L)$
+                                        for (I=0;I<L;I++){
+                                          Xvar[I]=dx_to_x(DirX[I])$
+                                        }
+                                        Xvar=vtol(Xvar)$
+                                          Fp = open_file(FN,"w");
+                                          fprintf(Fp,"with(OreModules);\n");
+                                          fprintf(Fp,"with(OreMorphisms);\n");
+                                          fprintf(Fp,"with(linalg);\n");
+                                          fprintf(Fp,"Alg:=DefineOreAlgebra(");
+                                          for (I=0;I<L;I++){
+                                            fprintf(Fp,"diff=[%a,%a],",DirX[I],Xvar[I])$
+                                              }
+                                          fprintf(Fp,"polynom=%a,",Xvar)$
+                                            fprintf(Fp,"comm=%a);\n",Param)$
+                                              fprintf(Fp,"P:=Matrix(%a)-Matrix(%a);\n",EE,P)$
+                                                fprintf(Fp,"Q:=Matrix(%a)+Matrix(%a);\n",EE,Q)$
+                                                  fprintf(Fp,"RatSols:=MorphismsRat(P,Q,Alg,0,%a,%a);\n",D1,D2);
+                                                  close_file(Fp);
+}
+
+
+
+def dot_prd(L1,L2){
+  LEN1=length(L1)$
+    LEN2=length(L2)$  
+      if (LEN1==LEN2){
+        S=0$
+        for(I=0;I<LEN1;I++){
+          S=S+L1[I]*L2[I]$
+        }
+        return S;
+      }
+      else print("WARNING(dot_prd): The lengths should be same.")$
+        }
+
+def my_max(L){
+  LEN=length(L)$
+    if(LEN==0){
+      print("WARNING(my_max): The list is empty.")$
+    }
+    else 
+      S=L[0]$
+      for(I=1;I<LEN;I++){
+        if(S<L[I]){
+          S=L[I]$
+        }
+      }
+      return S;
+}
+
+
+
+def my_min(L){
+  LEN=length(L)$
+    if(LEN==0){
+      print("WARNING(my_max): The list is empty.")$
+    }
+    else 
+      S=L[0]$
+      for(I=1;I<LEN;I++){
+        if(S>L[I]){
+          S=L[I]$
+        }
+      }
+      return S;
+}
+
+
+
+
+//多項式Pの重みWについてのinitial monomialを計算。Vは変数のリスト。
+def initial_mon(P,V,W){
+  L=p_terms(P,V,0)$
+    LEN=length(L)$
+      E=newvect(LEN)$
+        for(I=0;I<LEN;I++){
+          E[I]=dp_etov(dp_ptod(L[I],V))$
+        }
+        WE=newvect(LEN)$
+          for(I=0;I<LEN;I++){
+            WE[I]=dot_prd(W,E[I])$
+          }
+          WE=vtol(WE)$
+            DEG=my_max(WE)$
+              ME=[]$
+                for (I=0;I<LEN;I++){
+                  if(WE[I]==DEG){
+                    ME=cons(E[I],ME)$
+                  }
+                }
+                if (length(ME)>1){
+                  print("WARNING(initial_mon): The weight may not be generic.")$
+                    }
+                else {
+                  S=1$
+                    LM=length(ME[0])$
+                      for(I=0;I<LM;I++){
+                        S=S*V[I]^ME[0][I]$
+                      }
+                      return S;    
+                }
+}
+
+
+
+
+
+def remove_duplication(S){
+  if (length(S)==0){
+    return S;
+  }
+  else{
+    SS=[S[0]]$
+      L=length(S)$
+        for (I=1;I<L;I++){
+          J=0$
+          while (J<length(SS) && SS[J]!=S[I]){
+            J=J+1$
+          }
+          if (J==length(SS)){
+            SS=cons(S[I],SS)$
+          }
+        }
+        SS=reverse(SS)$
+          return SS;
+  }
+}
+
+
+
+def gen_initial(Id,V,W){
+  IW=nk_toric.gr_w(Id,V,W)$
+    LW=length(IW)$
+      S=newvect(LW)$
+        for (I=0;I<LW;I++){
+          S[I]=initial_mon(IW[I],V,W)$
+        }
+        SS=remove_duplication(S)$
+          return SS;
+}
+//W must be a positive vector
+//nk_toric.gr_w is in the package nk_toric.rr
+
+
+def toric_gen_initial(A,W){
+  Id=mytoric_ideal(A)$
+    V=reverse(vars(Id))$
+      return  [gen_initial(Id,V,W),V];
+}
+
+
+
+
+def relm(L,R){
+  W=[]$
+    LEN=length(L)$
+      for (I=0;I<LEN;I++){
+        for (J=0;J<R;J++){
+          T=cons(J,reverse(L[I]))$
+          T=reverse(T)$
+          W=append(W,[T])$
+        }
+      }
+      return W;
+}
+
+
+
+
+
+def diag_gens(L){
+  W=[[]]$
+    LEN=length(L)$
+      for (I=0;I<LEN;I++){
+        W=relm(W,L[I])$
+      }
+      return W;
+}
+
+
+
+def obj_diff(L,Obj){
+  LEN=length(L)$
+    R=[]$
+      I=0$
+        while(I<LEN){
+          if (L[I]!=Obj){
+            R=append(R,[L[I]])$
+            I++$
+          }
+          else I++$
+        }
+        return R;
+}
+
+
+def diff_set(L1,L2){
+  LEN=length(L2)$
+    for (I=0;I<LEN;I++){
+      L1=obj_diff(L1,L2[I])$
+    }
+    return L1;
+}
+
+
+
+
+def xj_to_j(L){
+  LEN=length(L)$
+    N=newvect(LEN)$
+      for (I=0;I<LEN;I++){
+        N[I]=dx_to_x(L[I])$
+      }
+      return vtol(N);
+}//これは結局使っていない。
+
+def regular_triangulation(A,W){
+  IV=toric_gen_initial(A,W)$
+    if (IV[0][0]==0){
+      N=length(A[0])$
+      L=[]$
+      for (I=0;I<N;I++){
+        L=append(L,[I+1])$
+      }
+      return [L];
+    }
+    else{
+      PD=primadec(IV[0],IV[1])$
+        L=length(PD)$
+          T=[]$
+            for (I=0;I<L;I++){
+              Delta=diff_set(IV[1],PD[I][1])$
+              Delta=xj_to_j(Delta)$
+              T=append(T,[Delta])$
+            }
+            return T;
+    }
+}
+//202012/11  変数がない（Aが正方行列）場合に対処できるように改良。
+
+
+def top_standard_pairs(A,W){
+  CL=length(A)$
+    RL=length(A[0])$
+      IV=toric_gen_initial(A,W)$
+        if (IV[0][0]==0){
+          print("Either A is a square matrix or the row length is strictly smaller than column length.")$        
+        }
+        else{
+          Vars=IV[1]$
+            PD=primadec(IV[0],Vars)$
+              L=length(PD)$
+                PDN=[]$
+                  I=0$
+                    while (I<L){
+                      if (length(PD[I][1])==RL-CL){
+                        PDN=append(PDN,[PD[I]])$
+                        I++$
+                      }
+                      else I++$
+                    }
+                    // Remove embedded factors
+                    ANS=[]$
+                      L2=length(PDN)$
+                        LIV=length(Vars)$
+                          VIV=newvect(LIV)$
+                            for (I=0;I<LIV;I++){
+                              VIV[I]=[Vars[I],I+1]$
+                            }
+                            VIV=vtol(VIV)$
+                              for (I=0;I<L2;I++){
+                                Sigma=diff_set(Vars,PDN[I][1])$
+                                Sigma=base_replace(Sigma,VIV)$
+                                LE=length(PDN[I][0])$
+                                Prd=1$
+                                for (J=0;J<LE;J++){
+                                  Prd=Prd*PDN[I][0][J]$
+                                }
+                                E=vtol(dp_etov(dp_ptod(Prd,reverse(vars(Prd)))))$//vars(Prd)=[xJ1,xJ2,...] J1>J2>.......
+                                Vol=1$
+                                for (K=0;K<length(E);K++){
+                                  Vol=Vol*E[K]$
+                                }
+                                EE=diag_gens(E)$
+                                ANS=append(ANS,[[EE,Sigma]])$
+                              }
+                              return ANS;
+        }
+}
+
+
+
+
+def subvect(V,Sigma){
+  LEN=length(Sigma)$
+    W=newvect(LEN)$
+      for (J=0;J<LEN;J++){
+        W[J]=V[Sigma[J]-1]$
+      }
+      return W;
+}
+
+
+def if_all_int(L){
+  LEN=length(L)$
+    I=0$
+      while(I<LEN && dn(L[I])==1){
+        I++$
+      }
+      if (I==LEN) return 1;
+      else          return 0;
+}
+
+
+
+
+//有限アーベル群の元[A_{\bs}k_{a,b}]のk_{a,b}を求めるアルゴリズム。Stdはstandard pairsからくる代表系を想定。Repはinputとなる群の元。Q=(-b,a)^T
+def comp_k_ab(Std,Rep,Q,A,Sigma){
+  LEN=length(A[0])$
+    N=newvect(LEN)$
+      for (I=0;I<LEN;I++){
+        N[I]=I+1$
+      }
+      N=vtol(N)$
+        AS=submatrix(A,Sigma)$
+          IAS=matrix_inverse(AS)$
+            SB=diff_set(N,Sigma)$
+              ASB=submatrix(A,SB)$
+                Q=ltov(Q)$
+                  LL=length(Std)$
+                    J=0$
+                      while(if_all_int(vtol(IAS*(Q-ASB*ltov(Rep)+ASB*ltov(Std[J]))))==0 && J<LL){
+                        J++$
+                      }
+                      return [Std[J],vtol(IAS*(Q-ASB*ltov(Rep)+ASB*ltov(Std[J])))];
+}
+//出力は[k_{a,b},l_{a,b}]
+//bugあり（2020/12/04時点）
+//bug fixed?(2020/12/06)
+
+
+
+def vect_poch(A,L){
+  LEN=length(L)$
+    if (LEN!=length(A)){
+      print("WARNING(vect_poch):The lengths should be same.")$
+    }
+    else
+      S=1$
+      for (I=0;I<LEN;I++){
+        S=S*poch(A[I],L[I])$
+      }
+      return red(S);
+}
+
+
+
+
+
+def my_coeff(P,Deg,Vars){
+  L=length(Vars)$
+    if (L!=length(Deg)){
+      print("WARNING(my_coeff):The length of the degree vector should be same as that of the variable vector.")$
+    }
+    else{
+      for (I=0;I<L;I++){
+        P=coef(P,Deg[I],Vars[I])$
+          }
+      return P;
+    }
+}
+
+
+
+
+
+//leading term of a rational function
+def leading_term_rat(P,W,V){
+  DP=p_terms(dn(P),V,0)$
+    NP=p_terms(nm(P),V,0)$
+      DL=length(DP)$
+        NL=length(NP)$
+          DW=newvect(DL)$
+            NW=newvect(NL)$
+              for (I=0;I<DL;I++){
+                DW[I]=dot_prd(W,vtol(dp_etov(dp_ptod(DP[I],V))))$
+              }
+              for (I=0;I<NL;I++){
+                NW[I]=dot_prd(W,vtol(dp_etov(dp_ptod(NP[I],V))))$
+                  }
+              DD=my_min(vtol(DW))$
+                ND=my_min(vtol(NW))$
+                  DI=[]$
+                    NI=[]$  
+                      J=0$
+                        while (J<DL){
+                          if (DW[J]==DD){
+                            DI=append(DI,[J])$
+                            J++$
+                          }
+                          else J++$
+                        }
+                        J=0$
+                          while (J<NL){
+                            if (NW[J]==ND){
+                              NI=append(NI,[J])$
+                              J++$
+                            }
+                            else J++$
+                          }
+                          if (length(DI)+length(NI)>2){
+                            print("WARNING(leading_term_rat):The weight vector may not be generic.")$
+                              }
+                          else{
+                            NDeg=vtol(dp_etov(dp_ptod(NP[NI[0]],V)))$
+                              DDeg=vtol(dp_etov(dp_ptod(DP[DI[0]],V)))$
+                                A1=my_coeff(nm(P),NDeg,V)$
+                                  A2=NP[NI[0]]$  
+                                    B1=my_coeff(dn(P),DDeg,V)$
+                                      B2=DP[DI[0]]$
+                                        return [red(A1/B1),red(A2/B2)];
+                          }
+}
+
+
+
+
+
+
+
+//----2020/12/20------
+
+
+
+//Grobner道場6章の与えられたp_1,...p_s\geq 1とN\geq 0に対してsum_{i=1}^sp_im_i\leq Nを満たすm_1,...,m_sを列挙するアルゴリズム。P=[p_1,...,p_s]とおいた。（定理6.12.14の次頁をみよ。）
+//option variableとしてww(weight-wise)を設置。
+def index_inequality(P,N){
+  S=length(P)$
+    Xvars=newvect(S)$
+      for (I=0;I<S;I++){
+        Xvars[I]=util_v(x,[I])$
+      }
+      Q=1$
+        for (I=0;I<S;I++){
+          Q=Q+Xvars[I]*t^P[I]$
+        }
+        Q=Q^N$
+          L=newvect(N+1)$
+            for (I=0;I<N+1;I++){
+              L[I]=coef(Q,I,t)$
+            }
+            Xvars=vtol(Xvars)$
+              ANS=[]$
+                for (I=0;I<N+1;I++){
+                  PL=p_terms(L[I],Xvars,0)$
+                  EL=[]$
+                  for (J=0;J<length(PL);J++){
+                    EL=cons(vtol(dp_etov(dp_ptod(PL[J],Xvars))),EL)$
+                  }
+                  EL=reverse(EL)$
+                  EL=remove_duplication(EL)$
+                  ANS=cons([EL,I],ANS)$
+                }
+                ANS=reverse(ANS)$
+                  WW=getopt(ww)$
+                    if (WW==0)
+                      {
+                        NA=[]$
+                        for (I=0;I<N+1;I++){
+                          NA=append(NA,ANS[I][0])$
+                        }
+                        ANS=NA$
+                      }
+                    return ANS;
+}
+
+
+
+//以下、与えられたgeneric weightに対してその<_w-Grobner basisを用いてcanonical series solutionのweight N以下の項たちを計算する。
+
+
+def f_factorial(A,N){
+  ANS=1$
+    if (N<0){
+      print("WARNING(f_factorial):the index must be positive.")$
+    }
+    else{
+      for (I=0;I<N;I++){
+        ANS=ANS*(A-I)$
+          }
+    }
+    return ANS;
+}
+//falling factorial
+
+
+//canonical series solution \phi_v(z)の各項の係数の計算
+def canonical_series_coeff(U,V){
+  C=1$
+    if (length(U)!=length(V)){
+      print("WARNING(canonical_series):The length of U and V should be same.")$
+    }
+    else{
+      L=length(U)$
+        for (I=0;I<L;I++){
+          if(U[I]<0){
+            C=C*f_factorial(V[I],-U[I])$
+          }
+          else{
+            C=C/f_factorial(U[I]+V[I],U[I])$
+          }
+        }
+        return red(C);
+    }
+}
+
+
+//L:kernel lattice, C:support coneとする。v_1=u_+^1-u_-^1,...v_s=u_+^s-u_-^sを用いてC\cap L=sum_i m_i*v_i (m_i:non-negative)と表せるとする。このときcanonical series \phi_v(z)をW weightがN以下の項まですべて列挙するアルゴリズム。G=[[u^1_+,u^1_-],...,[u^s_+,u^s_-]]を想定。Vはleading exponent. （後に使う状況ではsimplexを固定する）
+//出力は[L0,L1,...]で、LI=[CI,EI]とすると\phi=z^V*(sum_I CI*z^EI)の意味。
+
+def truncated_canonical_series(V,G,N,W){
+  P=newvect(length(G))$
+    for (I=0;I<length(G);I++){
+      U0=ltov(G[I][0])$
+      U1=ltov(G[I][1])$
+      U=vtol(U0-U1)$
+      P[I]=dot_prd(W,U)$
+    }
+    PL=index_inequality(P,N|ww=0)$//これで動くのか？？
+      L=length(PL)$
+        UL=newvect(L)$
+          for (I=0;I<L;I++){
+            UL[I]=newvect(length(G[0][0]))$
+            for (J=0;J<length(G);J++){
+              UL[I]=UL[I]+PL[I][J]*(ltov(G[J][0])-ltov(G[J][1]))$
+            }
+          }
+          UL=matrix_matrix_to_list(UL)$
+            UL=remove_duplication(UL)$
+              /*
+                Xvars=newvect(length(W))$
+                for (I=0;I<length(W);I++){
+                Xvars[I]=util_v(x,[I+1])$
+                }
+              */
+              ANS=[]$
+                for (I=0;I<length(UL);I++){
+                  C=canonical_series_coeff(UL[I],V)$
+                  ANS=cons([C,UL[I],dot_prd(UL[I],W)],ANS)$
+                }
+                ANS=reverse(ANS)$
+                  return ANS;
+}
+
+
+
+
+
+def grobner_to_u_vect(G,Vars,W){
+  L=length(G)$  
+    U=newvect(L)$
+      for (I=0;I<L;I++){
+        PT=p_terms(G[I],Vars,0)$
+        W0=dot_prd(vtol(dp_etov(dp_ptod(PT[0],Vars))),W)$
+        W1=dot_prd(vtol(dp_etov(dp_ptod(PT[1],Vars))),W)$
+        if (W0==W1){
+          print("WARNING(grobner_to_u_vect):The weight may not be generic.")$
+        }
+        if (W0<W1){
+          U[I]=[vtol(dp_etov(dp_ptod(PT[1],Vars))),vtol(dp_etov(dp_ptod(PT[0],Vars)))]$
+        }
+        else {
+          U[I]=[vtol(dp_etov(dp_ptod(PT[0],Vars))),vtol(dp_etov(dp_ptod(PT[1],Vars)))]$
+        }
+      }
+      return vtol(U);
+}
+
+
+
+
+
+
+//------2020/12/21-------
+
+//     IV=toric_gen_initial(A,W)[0]である。二回grobner basisを計算することがないように調整している。
+
+
+def top_standard_pairs2(A,W,IV,Vars){
+  CL=length(A)$
+    RL=length(A[0])$
+      PD=primadec(IV,Vars)$
+        L=length(PD)$
+          PDN=[]$
+            I=0$
+              while (I<L){
+                if (length(PD[I][1])==RL-CL){
+                  PDN=append(PDN,[PD[I]])$
+                  I++$
+                }
+                else I++$
+              }
+              // Remove embedded factors
+              ANS=[]$
+                L2=length(PDN)$
+                  LIV=length(Vars)$
+                    VIV=newvect(LIV)$
+                      for (I=0;I<LIV;I++){
+                        VIV[I]=[Vars[I],I+1]$
+                      }
+                      VIV=vtol(VIV)$
+                        for (I=0;I<L2;I++){
+                          Sigma=diff_set(Vars,PDN[I][1])$
+                          Sigma=base_replace(Sigma,VIV)$
+                          LE=length(PDN[I][0])$
+                          Prd=1$
+                          for (J=0;J<LE;J++){
+                            Prd=Prd*PDN[I][0][J]$
+                          }
+                          E=vtol(dp_etov(dp_ptod(Prd,reverse(vars(Prd)))))$//vars(Prd)=[xJ1,xJ2,...] J1>J2>.......
+                          Vol=1$
+                          for (K=0;K<length(E);K++){
+                            Vol=Vol*E[K]$
+                          }
+                          EE=diag_gens(E)$
+                          ANS=append(ANS,[[EE,Sigma]])$
+                        }
+                        return ANS;
+}
+
+
+
+
+
+
+
+
+
+def lt_summand2(A,Beta,Sigma,Std,Q1,Q2,W){
+  LStd=length(Std)$
+    Store_kl1=newvect(LStd)$
+      for (I=0;I<LStd;I++){
+        Store_kl1[I]=comp_k_ab(Std,Std[I],Q1,A,Sigma)$
+      }
+      Store_kl2=newvect(LStd)$
+        for (I=0;I<LStd;I++){
+          V=ltov(Std[I])$
+          V=-V$
+          V=vtol(V)$
+          Store_kl2[I]=comp_k_ab(Std,V,Q2,A,Sigma)$
+        }// computing k_{a,b},l_{a,b} for Q1 and Q2
+        N=length(A[0])$
+          NV=newvect(N)$
+            for (I=0;I<N;I++){
+              NV[I]=I+1$
+            }
+            NV=vtol(NV)$
+              BS=diff_set(NV,Sigma)$//computing the complement of Sigma
+                Delta=-ltov(Beta)$
+                  ANS=0$
+                    AS=submatrix(A,Sigma)$
+                      IAS=matrix_inverse(AS)$
+                        ABS=submatrix(A,BS)$
+                          IS=newvect(length(Sigma))$
+                            for (J=0;J<length(Sigma);J++){
+                              IS[J]=1$
+                            }
+                            IBS=newvect(length(BS))$
+                              for (J=0;J<length(BS);J++){
+                                IBS[J]=1$
+                              }
+                              //used for factorial in the denominator.
+                              ANS=newvect(LStd)$
+                                for (In=0;In<LStd;In++){
+                                  VECT=IS+IAS*(Delta+ABS*ltov(Std[In]))-ltov(Store_kl2[In][1])$
+                                  LIST=-IS+ltov(Store_kl1[In][1])+ltov(Store_kl2[In][1])$
+                                  F=vect_poch(VECT,LIST)$
+                                  Sign=0$
+                                  Signk=0$
+                                  for (J=0;J<length(Sigma);J++){
+                                    Sign=Sign+Store_kl1[In][1][J]$
+                                  }
+                                  if (Sign>0){
+                                    Sign=(-1)^Sign$
+                                  }
+                                  else {
+                                    Sign=(-1)^(-Sign)$
+                                  }
+                                  for (J=0;J<length(BS);J++){
+                                    Signk=Signk+Std[In][J]$
+                                  }
+                                  if (Signk>0){
+                                    Signk=(-1)^Signk$
+                                  }
+                                  else {
+                                    Signk=(-1)^(-Signk)$
+                                  }
+                                  ANS[In]=Sign*Signk*red(F)*(1/vect_poch(vtol(IBS),Store_kl1[In][0]))*(1/vect_poch(vtol(IBS),Store_kl2[In][0]))$
+                                }
+                                return vtol(ANS);
+}
+
+
+
+def if_I_in_S(I,S){
+  L=length(S)$
+    K=0$
+      for (J=0;J<L;J++){
+        if (I==S[J]){
+          K=1$
+        }
+      }
+      return K;
+}
+
+
+def shuffle(V1,V2,S1,S2){
+  N1=length(S1)$
+    N2=length(S2)$
+      N=N1+N2$
+        J1=0$
+          J2=0$
+            S1=ltov(S1)$
+              S2=ltov(S2)$
+                for (I=0;I<N1;I++){
+                  S1[I]=S1[I]-1$
+                }
+                for (I=0;I<N2;I++){
+                  S2[I]=S2[I]-1$
+                    }
+                V=newvect(N)$
+                  for (I=0;I<N;I++){
+                    if (if_I_in_S(I,S1)==1){
+                      V[I]=V1[J1]$
+                      J1++$
+                    }
+                    else {
+                      V[I]=V2[J2]$
+                      J2++$
+                    }
+                  }
+                  return V;
+}
+
+
+
+def v_vect(A,Beta,K,Sigma){
+  N=length(A[0])$
+    NV=newvect(N)$
+      for (I=0;I<N;I++){
+        NV[I]=I+1$
+      }
+      NV=vtol(NV)$
+        BS=diff_set(NV,Sigma)$//computing the complement of Sigma
+          AS=submatrix(A,Sigma)$
+            ABS=submatrix(A,BS)$
+              Delta=-ltov(Beta)$
+                V1=-matrix_inverse(AS)*(Delta+ABS*ltov(K))$
+                  V1=vtol(V1)$
+                    return shuffle(V1,K,Sigma,BS);
+}
+
+
+
+//Phi1=[[C0,E0,W0],[C1,E1,W1],...]で、CIは係数、EIは指数、WIは重み。
+//WCはweighted coefficientであり、WC*Phi1*Phi2の次数Nまでの項を出力する。
+def series_prd(Phi1,Phi2,WC,N){
+  L1=length(Phi1)$
+    L2=length(Phi2)$
+      Phi=[]$
+        for (I=0;I<L1;I++){
+          for (J=0;J<L2;J++){
+            if (Phi1[I][2]+Phi2[J][2]<=N){
+              E=ltov(Phi1[I][1])+ltov(Phi2[J][1])$
+              E=vtol(E)$
+              C=WC*Phi1[I][0]*Phi2[J][0]$
+              Phi=cons([C,E,Phi1[I][2]+Phi2[J][2]],Phi)$
+            }
+          }
+        }
+        Phi=reverse(Phi)$
+          return Phi;
+}
+
+
+
+def my_power(Z,E){
+  L=length(Z)$
+    ANS=1$
+      for (I=0;I<L;I++){
+        ANS=ANS*(Z[I]^E[I])$
+      }
+      return ANS;
+}
+
+
+
+/*
+  (1/|det A_Sigma|)*phi1*phi2のW-orderがN次以下の項たちを計算。
+
+  def newfcn(A,Beta,W,Std,Sigma,Q1,Q2,N){
+  }
+*/
+
+//lt_summand2(A,Beta,Sigma,Std,Q1,Q2,W)
+//truncated_canonical_series(V,G,N,W)
+//grobner_to_u_vect(G,Vars,W)
+
+def leading_terms(A,Beta,W,Q1,Q2,K,N){
+  Id=mytoric_ideal(A)$
+    Vars=reverse(vars(Id))$
+      IV=nk_toric.gr_w(Id,Vars,W)$
+        LV=length(IV)$
+          SSS=newvect(LV)$
+            for (I=0;I<LV;I++){
+              SSS[I]=initial_mon(IV[I],Vars,W)$
+            }
+            SSS=remove_duplication(SSS)$
+              L=top_standard_pairs2(A,W,SSS,Vars)$
+                NN=length(L)$
+                  S=newvect(NN)$
+                    for (J=0;J<NN;J++){
+                      S[J]=lt_summand2(A,Beta,L[J][1],L[J][0],Q1,Q2,W)$
+                    }
+                    //L[J][0]=Std, L[J][1]=Sigma
+                    G=grobner_to_u_vect(IV,Vars,W)$
+                      //ここからは級数の積の低次項たちを取り出す。
+                      Phi1=newvect(NN)$
+                        for (I=0;I<NN;I++){
+                          Counter=length(L[I][0])$
+                          NV=newvect(Counter)$
+                          for (J=0;J<Counter;J++){
+                            Exp=ltov(Beta)-ltov(Q1)$
+                            Exp=vtol(Exp)$
+                            V=v_vect(A,Exp,L[I][0][J],L[I][1])$
+                            NV[J]=truncated_canonical_series(V,G,N,W)$
+                          }
+                          Phi1[I]=NV$
+                        }
+                        Phi2=newvect(NN)$
+                          for (I=0;I<NN;I++){
+                            Counter=length(L[I][0])$
+                            Phi2[I]=newvect(Counter)$
+                            for (J=0;J<Counter;J++){
+                              Exp=-ltov(Beta)-ltov(Q2)$
+                              Exp=vtol(Exp)$
+                              V=v_vect(A,Exp,L[I][0][J],L[I][1])$
+                              Phi2[I][J]=truncated_canonical_series(V,G,N,W)$
+                            }
+                          }//それぞれの級数を計算   
+                          Store_kl1=newvect(NN)$
+                            for (I=0;I<NN;I++){
+                              Counter=length(L[I][0])$
+                              Store_kl1[I]=newvect(Counter)$
+                              for (J=0;J<Counter;J++){
+                                Store_kl1[I][J]=comp_k_ab(L[I][0],L[I][0][J],Q1,A,L[I][1])$
+                              }
+                            }
+                            Store_kl2=newvect(NN)$
+                              for (I=0;I<NN;I++){
+                                Counter=length(L[I][0])$
+                                Store_kl2[I]=newvect(Counter)$
+                                for (J=0;J<Counter;J++){
+                                  V=ltov(L[I][0][J])$
+                                  V=-V$
+                                  V=vtol(V)$
+                                  Store_kl2[I][J]=comp_k_ab(L[I][0],V,Q2,A,L[I][1])$
+                                }
+                              }// computing k_{a,b},l_{a,b} for Q1 and Q2
+                              NVect=newvect(length(A[0]))$
+                                for (I=0;I<length(A[0]);I++){
+                                  NVect[I]=I+1$
+                                }
+                                DEG=newvect(NN)$
+                                  for (I=0;I<NN;I++){
+                                    Counter=length(L[I][0])$
+                                    BS=diff_set(vtol(NVect),L[I][1])$
+                                    DEG[I]=newvect(Counter)$
+                                    for (J=0;J<Counter;J++){
+                                      Shift=shuffle(-ltov(Store_kl1[I][J][1])-ltov(Store_kl2[I][J][1]),ltov(Store_kl1[I][J][0])+ltov(Store_kl2[I][J][0]),L[I][1],BS)$
+                                      Phi2[I][J]=ltov(Phi2[I][J])$
+                                      DEG[I][J]=dot_prd(ltov(Phi2[I][J][0][1])+ltov(Shift),W)$
+                                      for(M=0;M<length(Phi2[I][J]);M++){
+                                        Exp=ltov(Phi2[I][J][M][1])+ltov(Shift)$
+                                        Phi2[I][J][M]=[Phi2[I][J][M][0],vtol(Exp),dot_prd(Exp,W)]$
+                                      }
+                                    }
+                                  }
+                                  for (I=0;I<NN;I++){
+                                    DEG[I]=my_min(DEG[I])$
+                                      }
+                                  MDEG=my_min(DEG)$
+                                    //特性指数から来るズレの計算
+                                    Phi1=matrix_matrix_to_list(Phi1)$
+                                      Phi2=matrix_matrix_to_list(Phi2)$
+                                        ANS=1$
+                                          B1=newvect(K)$
+                                            for (J=0;J<K;J++){
+                                              B1[J]=-Q1[J]$
+                                            }
+                                            B2=newvect(K)$
+                                              for (J=0;J<K;J++){
+                                                B2[J]=-Q2[J]$
+                                              }
+                                              Sign=0$
+                                                for (J=0;J<K;J++){
+                                                  Sign=Sign+B1[J]+B2[J]$
+                                                }
+                                                if (Sign>0){
+                                                  Sign=(-1)^Sign$
+                                                    }
+                                                else {
+                                                  Sign=(-1)^(-Sign)$
+                                                    }
+                                                G=newvect(K)$
+                                                  for (J=0;J<K;J++){
+                                                    G[J]=-Beta[J]$
+                                                  }
+                                                  Gamma_prd=1$
+                                                    for (J=0;J<K;J++){
+                                                      Gamma_prd=Gamma_prd*G[J]$
+                                                    }
+                                                    ANS=Sign*ANS$
+                                                      ANS=vect_poch(vtol(G-B1),vtol(B1))*ANS$
+                                                        ANS=vect_poch(vtol(-G-B2),vtol(B2))*ANS$
+                                                          ANS=Gamma_prd*ANS$  
+                                                            ANS=red(ANS)$
+                                                              Phi=[]$
+                                                                for (I=0;I<NN;I++){
+                                                                  Counter=length(L[I][0])$
+                                                                  for(J=0;J<Counter;J++){
+                                                                    WC=(1/myabs(matrix_det(submatrix(A,L[I][1]))))*S[I][J]*ANS$
+                                                                    Phi=append(Phi,series_prd(Phi1[I][J],Phi2[I][J],WC,N+MDEG))$
+                                                                  }
+                                                                }
+                                                                //ここからはPhiを並べ替える。
+                                                                LEN=length(Phi)$
+                                                                  Phi2=newvect(N+1)$
+                                                                    for (I=0;I<N+1;I++){
+                                                                      Phi2[I]=[]$
+                                                                    }
+                                                                    for (I=0;I<N+1;I++){
+                                                                      for (J=0;J<LEN;J++){
+                                                                        if (Phi[J][2]==MDEG+I){
+                                                                          Phi2[I]=cons(Phi[J],Phi2[I])$
+                                                                            }
+                                                                      }
+                                                                      Phi2[I]=reverse(Phi2[I])$
+                                                                        }
+                                                                    Phi3=newvect(N+1)$
+                                                                      for (I=0;I<N+1;I++){
+                                                                        for (J=0;J<length(Phi2[I]);J++){
+                                                                          Phi3[I]=Phi3[I]+Phi2[I][J][0]*my_power(Vars,Phi2[I][J][1])$
+                                                                        }
+                                                                        Phi3[I]=red(Phi3[I])$
+                                                                        Phi3[I]=[Phi3[I],MDEG+I]$
+                                                                      }
+                                                                      Xrule=getopt(xrule);
+                                                                      XType=type(Xrule);
+                                                                      if (XType == 4){
+                                                                        Phi3=base_replace(Phi3,Xrule);
+                                                                        return vtol(Phi3);
+                                                                      }
+                                                                      else{
+                                                                        return vtol(Phi3);
+                                                                      }
+}
+//計算は動いているようだが、指数が同じ項はまとめたほうが良い。
+//2020/12/30....weight vector は整数ベクトルに直すべき。
+
+def test100() {
+  print("Test of regular_triangulation and top_standard_pairs");
+  A=[[1,1,1,1,1],[0,1,0,2,0],[0,0,1,0,2]];
+  mytoric_ideal(0 | option_list=getopt());
+  W=[2,0,1,2,2];
+  print(regular_triangulation(A,W));
+  return top_standard_pairs(A,W);
+}
+def test101() {
+  print("Test of principal_normalizing_constant");
+  print("If you want to test it with 4ti2, execute mt_gkz.mytoric_ideal(0 | use_4ti2=1) in advance.");
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  Beta=[b1,b2,b3];
+  K=2;
+  T=[[1,2,3],[2,3,4]];
+  printf("A=%a,T=%a,Beta=%a, K=%a\n",A,T,Beta,K);
+  return principal_normalizing_constant(A,T,Beta,K);
+}
+
+def test102() {
+  print("Test of Maple output.");
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  Beta=[b1,b2,1/3];
+  Rvec=[[1,0,0,0],[0,0,1,0]];
+  DirX=[dx1,dx4];
+  Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]];
+  Xrule=[[x2,1],[x3,1]];
+  Fname="tmp-maple-input-0.ml";
+  printf("File %a to find a rational solution will be generated.\n",Fname);
+  return generate_maple_file_IC(A,Beta,Ap,Rvec,DirX|xrule=Xrule,filename=Fname);
+}
+#ifdef USE_MODULE
+endmodule;
+#endif
+
+
+
+end$

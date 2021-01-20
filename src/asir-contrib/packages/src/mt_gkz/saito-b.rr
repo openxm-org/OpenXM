@@ -1,0 +1,922 @@
+/* $OpenXM$
+*/
+import("names.rr")$
+import("tk_polymake.rr")$
+import("yang.rr")$
+import("fj_simplify.rr")$
+import("nk_toric.rr")$
+import("nk_gfan_4ti2/nk_4ti2.rr")$
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module mt_gkz$
+localf facet_poly$
+localf bf$
+localf is_primitive$
+localf gkz_gauss$
+localf n4_gauss1$
+localf y_dtop$
+localf rat_coef$
+localf nf_to_mat0$
+localf n4_gauss$
+localf n0_gauss$
+localf p4_gauss$
+localf nf_to_mat_aux$
+localf nf_to_mat$
+localf bf2euler$
+localf ord_xi$
+localf vmove_last$
+localf dvar_$
+localf dvar$
+localf test1$
+localf step_up$
+localf test2$
+localf test3$
+localf mdiff$
+localf phi_omega_r$
+localf mymon$
+localf bp$
+localf test4$
+localf bb$
+localf dmul$
+localf index_vars$
+localf ff2$
+localf ff1$
+localf p_true_nf_rat$
+localf reduce_by_toric$
+localf clear_bf$
+localf ff$
+localf remove_dn$
+localf yang_gkz_buch$
+localf dp_op_to_coef_vec$
+localf tk_base_is_equal$
+localf rvec_to_fvec$
+localf fvec_to_conn_mat$
+localf check_compatibility$
+localf pfaff_eq$
+
+localf check_bf$
+localf set_check_bf$
+localf check_c$
+localf set_check_c$
+localf get_bf_step_up$
+localf make_Ap$
+localf b_ideal$
+localf get_check_fvec$
+localf mytoric_ideal$
+
+static Check_BF$   /* saito b-functions */
+static Check_FP$
+static Check_C$    /* step up operators (not containing bi's) */
+static Check_Amat$  /* matrix A associated to Check_BF and Check_C */
+static Check_Fvec$  /* matrix A associated to Check_BF and Check_C */
+static Check_toric_command$
+#else
+/* 以下は check と共用 */
+extern Check_BF$
+extern Check_FP$
+extern Check_C$
+extern Check_Amat$ 
+extern Check_Fvec$
+extern Check_toric_command$
+#endif
+
+/*
+  2020.02.25  cohom2019/saito-b.rr とは異なる新しいversion.
+*/
+def facet_poly(A)
+"Example: facets_poly([[1,1,1,1],[0,1,0,1],[0,0,1,1]]);"
+{
+  At = matrix_transpose(A);
+  At = matrix_matrix_to_list(At);
+  polymake.start(|oohg_curl=1);
+  Facets=polymake.polymake("FACETS","POINTS",At);
+  SS=newvect(D=length(At[0]));
+  for (I=0; I<D; I++) SS[I] = util_v(s,[I+1]);
+  Facet_poly=[];
+  for (I=0; I<length(Facets); I++) {
+    Facet_poly=cons(matrix_inner_product(SS,Facets[I]),Facet_poly);
+  }
+  
+  /* facets で point が positive か調べる */
+  for (I=0; I<D; I++) {
+    for (J=0; J<length(Facets); J++) {
+      if (matrix_inner_product(At[I],Facets[J]) < 0) error("negative");
+    }
+  }
+  if (! is_primitive(At,Facets)) error("not primitive facet expression.");
+  Facet_poly=reverse(Facet_poly);
+  return [Facet_poly,Facets];
+}
+
+def bf(A,Facet_poly,II0) 
+"bf(A,Facet_pooy,II0) returns Saito's b-function for the direction II0. Example: bf(A=[[1,1,1,1],[0,1,0,1],[0,0,1,1]],FP=facet_poly(A),0);"
+{
+  if (type(getopt(shift))>0) Shift=matrix_list_to_matrix(getopt(shift));
+  else Shift=0;
+  Bf=1; //II0=II-1;
+  At = matrix_transpose(A);
+  Facets=Facet_poly[1];
+  Facet_poly = Facet_poly[0];
+  for (J=0; J<length(Facet_poly); J++) {
+    if ((H=matrix_inner_product(At[II0]+Shift,Facets[J])) > 0) {
+      for (M=0; M<H; M++) Bf=Bf*(Facet_poly[J]-M); 
+    }
+  }
+  return Bf;
+}
+
+def is_primitive(At,Facets) {
+  for (I=0; I<length(Facets); I++) {
+    Min=10^10;  // sufficiently big, heuristic part.
+    for (J=0; J<length(At); J++) {
+      H = matrix_inner_product(At[J],Facets[I]);
+      if (H == 0) continue;
+      if (dn(H) != 1) {
+	printf("dn(H) != 1,  Facets[%a]=%a and At[%a]=%a\n",I,Facets[I],J,At[J]);
+	return(0);
+      }
+      if (H < Min) Min=H;
+    }
+    if (Min != 1) {
+      printf("vector Facets[%a]=%a is not primitive.\n",I,Facets[I]);
+      return(0);
+    }
+  }
+  return (1);
+}
+/* 2020.03.02
+   論文の実例用
+   cohom2019 より.
+*/
+def gkz_gauss() {
+  F=sm1.gkz([ [[1,1,0,0],[0,0,1,1],[0,1,0,1]], [b1,b2,b3]]);
+  Eq=F[0];
+  V=[x1,x2,x3,x4]; DV=[dx1,dx2,dx3,dx4];
+  yang.define_ring(["partial",V]);
+  yang.verbose();
+  E=yang.buchberger(map(dp_ptod,Eq,DV)); /* [分子(分散),分母] のリストで */
+  G=yang.gr(map(dp_ptod,Eq,DV));  /* 多項式形式 */
+  return [G,E,yang.stdmon(G)];
+}
+def n4_gauss1() {
+  T=gkz_gauss();
+  E=T[1];
+/*
+  NN=[ yang.reduction((1/(b1))*<<1,0,0,1>>,E),
+       yang.reduction((1/(b1))*<<1,0,0,1>>-(1/(b2))*<<0,0,1,1>>,E)];
+*/
+  NN=[ yang.reduction(b2*<<1,0,0,1>>,E),
+       yang.reduction(b2*<<1,0,0,1>>-b1*<<0,0,1,1>>,E)];
+}
+
+/*
+  yang の標準形から普通の形へ.
+*/
+def y_dtop(YN,DV) {
+  Nm=YN[0]; Dn=YN[1];
+  return red(dp_dtop(Nm,DV)/Dn);
+}
+
+def rat_coef(F,Deg,D) {
+  Nm=coef(nm(F),Deg,D);
+  return red(Nm/dn(F));
+}
+def nf_to_mat0(NM) {
+  DV=[dx1,dx2,dx3,dx4];
+  NM=map(y_dtop,NM,DV);
+  NM=[[rat_coef(NM[0],0,dx4),rat_coef(NM[0],1,dx4)],
+      [rat_coef(NM[1],0,dx4),rat_coef(NM[1],1,dx4)]];
+  return NM;
+}
+def n4_gauss() {
+  NM=n4_gauss1();
+  return N4=nf_to_mat0(NM);
+}
+
+def n0_gauss() {
+  T=gkz_gauss();
+  E=T[1];
+/*
+  NM= [ yang.reduction((1/b1)*<<1,0,0,0>>,E),
+        yang.reduction((1/b1)*<<1,0,0,0>>-(1/b2)*<<0,0,1,0>>,E)];
+  分数式を係数に使えないので, b1*b2 を全体に×
+*/
+  NM= [ yang.reduction(b2*<<1,0,0,0>>,E),
+        yang.reduction(b2*<<1,0,0,0>>-b1*<<0,0,1,0>>,E)];
+  return nf_to_mat0(NM);
+}
+
+/*
+  P_4
+*/
+def p4_gauss() {
+  N4=matrix_list_to_matrix(n4_gauss());
+  N0=matrix_list_to_matrix(n0_gauss());
+  P4=N4*matrix_inverse(N0);
+  P4=map(red,P4);
+  return P4;
+}
+
+/* 2020.03.03
+   論文の c_i (creating op) を求めるための関数.
+*/
+
+/* 2019.12.18
+  nf_to_mat0 の一般変数版.  Note の matrix N^{(i)} を求める用.
+  NM = [ nf0, nf1, ... ], Base が std basis, list of monomials.
+  DV ,  NM yang の標準形　[nm by dist poly,dn] から poly へ戻すための変数list
+  Std basis についての行列表示.
+*/
+def nf_to_mat_aux(NM,DV,Base) {  // NM はシングル
+  N=length(Base);
+  NF=newvect(N);
+  F=NM[0];
+  while (F != 0) {
+     Mon=dp_ht(F); HC=dp_hc(F); F=dp_rest(F);
+     Pos=base_position(Mon,Base);
+     if (Pos < 0) debug("NM is not a normal form.");
+     NF[Pos] = red(HC/NM[1]);
+  }
+  return vtol(NF);
+}
+def nf_to_mat(NM,DV,Base) {
+  Base=map(dp_ptod,Base,DV);
+  N=length(Base);
+  NF=[];
+  for (I=0; I<length(NM); I++) {
+    NF = cons(nf_to_mat_aux(NM[I],DV,Base),NF);
+  }
+  NF=reverse(NF);
+  return matrix_list_to_matrix(NF);
+}
+/*
+  T=gkz_gauss();
+  E=T[1];
+  NM= [ yang.reduction(b2*<<1,0,0,0>>,E),
+        yang.reduction(b1*<<0,0,1,0>>-b2*<<1,0,0,0>>,E)];
+  matrix_list_to_matrix(nf_to_mat0(NM))-nf_to_mat(NM,[dx1,dx2,dx3,dx4],[1,dx4]);
+*/
+
+/* 2019.12.30 
+  b-function F の s_i を Euler op で置き換える.  E=[...,E_i-s_i,...] が A-hg の homog op.
+  E=[E_1-s_1, E_2-s_2, ...]
+  V=[x1,x2,...,dx1,dx2,...]
+  bf2euler(s_2*s_3,[x1*dx1+x2*dx2-s_1,x3*dx3+x4*dx4-s_2,x2*dx2+x4*dx4-s_3], [x1,x2,x3,x4,dx1,dx2,dx3,dx4]);
+*/
+def bf2euler(F,E,V) {
+  D=length(E);
+  S=index_vars(s,1,D);
+  Rule=[];
+  for (I=0; I<length(E); I++) {
+    Rule = cons([S[I],E[I]+S[I]],Rule);
+  }
+  L=fctr(F);
+  Op=dp_ptod(L[0][0]^L[0][1],V);
+  for (I=1; I<length(L); I++) {
+     Fac=L[I];
+     for (J=0; J<Fac[1]; J++) {
+       Op=dp_weyl_mul(dp_ptod(base_replace(Fac[0],Rule),V),Op);
+     }
+  }
+  return dp_dtop(Op,V);
+}
+
+/*
+  graded reverse order with V[II] is the smallest.
+*/
+def ord_xi(V,II) {
+  N=length(V);
+  Ord=newmat(N,N);
+  for (J=0; J<N; J++) Ord[0][J] = 1;
+  Ord[1][II]=-1;
+  for (I=2,J=0; I<N; I++,J++) {
+    if (J == II) J++;
+    Ord[I][J] = -1;
+  }
+  return Ord;
+}
+/* V の中の II 番目の元を最後へ移動. */
+def vmove_last(V,II0) {
+  N = length(V);
+  V = matrix_list_to_matrix(V);
+  T = V[N-1];
+  V[N-1] = V[II0];
+  V[II0] = T;
+  return vtol(V);
+}
+
+def dvar_(V) {
+  return eval_str("d"+rtostr(V));
+}
+def dvar(V) { return map(dvar_,V); }
+
+def test1() {
+  A=[[1,1,1,0,0,0],[0,0,0,1,1,1],[0,1,0,0,1,0],[0,0,1,0,0,1]];
+  TT=mk_toric.toric_ideal(A);
+  V=reverse(vars(TT));
+  printf("vars=%a\n",V);
+  DV=dvar(V);
+  return [TT,append(V,DV)];
+}
+
+/*
+  Find the step up operator (creation op)
+*/
+def step_up(A,Bf,II) {
+  TT=mytoric_ideal(A);
+  V=reverse(vars(TT));
+  printf("vars=%a\n",V);
+  DV=dvar(V);
+  G=nd_gr(TT,V,0,ord_xi(V,II-1));
+  G=base_replace(G,assoc(V,DV));
+  VDV=append(V,DV);
+//  G=nd_gr(G,VDV,0,ord_xi(VDV,length(V)+II-1));
+  
+  /* gkz */
+  Amat=matrix_list_to_matrix(A);
+  Theta = []; SS=[];
+  for (I=0; I<length(V); I++) {
+    Theta = cons(V[I]*DV[I],Theta);
+  }
+  for (I=0; I<length(A); I++)   SS = cons(util_v(s,[I+1]),SS);
+  Theta = matrix_list_to_matrix(reverse(Theta));
+  SS = matrix_list_to_matrix(reverse(SS));
+  E= base_flatten(matrix_matrix_to_list(Amat*Theta-SS));
+
+  Op=bf2euler(Bf,E,append(V,DV));
+  Nf=p_true_nf(Op,G,VDV,ord_xi(VDV,length(V)+II-1));
+  Ans=red(Nf[0]/eval_str("dx"+rtostr(II)))/Nf[1];
+  if (type(dn(Ans)) > 1) error("dx remains");
+  return Ans;
+}
+
+def test2() {
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  return step_up(A,s_2*s_3,4);  // step_up for x4
+}
+
+/* 2020.03.04 pf.texに書いた式の確認用 
+*/
+/*
+  B について. T=test3(); red(T[0]*T[2]); が 1 なら OK.
+*/
+def test3() {
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]];
+  Beta=[-g1,-g2,-c];
+//  R=[2,1,0,0];
+//  R=[3,2,0,0];
+//  R=[0,0,1,0];
+//  R=[3,2,1,0];
+  R=[3,2,2,3];
+  R0=[0,0,0,0];
+  DPhi0=Phi0=phi_omega_r(R0,A,Beta,2);
+  for (I=0; I<length(R); I++) {
+   DPhi0 = mdiff(DPhi0,util_v(z,[I+1]),R[I]);
+  }
+  Phi2=phi_omega_r(R,A,Beta,2);
+  return [bp(R,A,Beta,Ap),Phi2,fj_simplify.simplify(Phi2/DPhi0)];
+}
+def mdiff(F,V,N) {
+  for (I=0; I<N; I++) F=diff(F,V);
+  return F;
+}
+/* phi_omega_r  r*A = q
+  Phi*omega_q/(dx/x) を戻す.
+  KK , factor の数.
+*/
+def phi_omega_r(R,A,Beta,KK) {
+  A=matrix_list_to_matrix(A);
+  D=size(A)[0]; N=size(A)[1];
+  At=matrix_transpose(A);
+  R = matrix_list_to_matrix(R);
+  Beta = matrix_list_to_matrix(Beta);
+  Q = A*R;
+  F = 1;
+  G = 0;  /* 各 factor を入れる. */
+  L=0;
+  for (I=0; I<N; I++) {
+    if (At[I][L] != 1) {
+      if (G != 0) F=F*G^(Beta[L]-Q[L]);
+      L++; G=0;
+    }
+    G += util_v(z,[I+1])*mymon(x,At[I],KK);
+  }
+  if (G != 0) F=F*G^(Beta[L]-Q[L]);
+  F = F*mymon(x,-Beta+Q,KK);
+  return F;
+}
+def mymon(V,E,KK) {
+  Mon=1;
+  D=length(E);
+  for (I=KK; I<D; I++) {
+    Mon *= util_v(V,[I-KK+1])^E[I];
+  }
+  return Mon;
+}
+/* B' of pf.tex  
+   R: r, Ap: A' 
+*/
+def bp(R,A,Beta,Ap) {
+  Apt = matrix_transpose(Ap); N=size(Apt)[0];
+  At  = matrix_transpose(A);
+  Bpi = 1;
+  Betap = matrix_clone(matrix_list_to_matrix(Beta));
+  for (J=0; J<N; J++) {
+    if (R[J] < 0) continue;
+    for (K=0; K<R[J]; K++) {
+      Bpi *= matrix_inner_product(Apt[J],Betap-K*At[J]);
+    }
+    Betap = Betap - R[J]*At[J];
+  }
+  return Bpi;
+}
+
+/*
+  定数 B の式の計算例
+*/
+def test4() {
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]];
+  Beta=[-g1,-g2,-c];
+  R=[-2,-1,-1,0];
+  R0=[0,0,0,0];
+/*  FP=facet_poly(A);
+  BF=newvect(4);
+  for (I=0; I<4; I++) BF[I]=bf(A,FP,I);
+  print(vtol(BF)); */
+  BF=[s_1*s_2-s_1*s_3+s_1^2,s_1*s_3,s_2^2+(-s_3+s_1)*s_2,s_3*s_2];
+/*
+  C = newvect(4);
+  for (I=0; I<4; I++) C[I]=step_up(A,BF[I],I+1);
+  print(vtol(C));
+*/
+  C = [x2*x3*dx4+x1*x3*dx3+x1*x2*dx2+x1^2*dx1+x1,x2*x4*dx4+x1*x4*dx3+x2^2*dx2+x1*x2*dx1+x2,x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3,x4^2*dx4+x3*x4*dx3+x2*x4*dx2+x2*x3*dx1+x4];
+  return bb(R,A,Beta,Ap,BF | do_shift=1);
+}
+
+/*
+  B of pf.tex
+  BF, list of b-functions
+*/
+def bb(R,A,Beta,Ap,BF) {
+  Do_shift=0;
+  if (type(getopt(do_shift))>0) Do_shift=getopt(do_shift);
+  // Do_shift>0 なら R[I]>0 の分の beta を shift する. cf. ff2(). bugfix, 2020.11.13
+  Apt = matrix_transpose(Ap); N=size(Apt)[0]; D=size(Apt)[1];
+  Svars = index_vars(s,1,D);
+  At  = matrix_transpose(A);
+  B = 1;
+  Betap = matrix_clone(matrix_list_to_matrix(Beta));
+  if (Do_shift) {
+    for (L=0; L<N; L++) {
+      if (R[L] > 0) {
+	Betap = Betap-R[L]*At[L];
+      }
+    }
+  }
+
+  for (J=0; J<N; J++) {
+    if (R[J] > 0) continue;
+    for (K=1; K<=-R[J]; K++) {
+      // Operator は bb() で割るので, 論文の denominator, numerator の逆.
+      Fd = matrix_inner_product(Apt[J], Betap+K*At[J]); // denominator
+      Fn = base_replace(BF[J],assoc(Svars,vtol(Betap+K*At[J])));
+      B *= Fn/Fd;
+    }
+    Betap = Betap +(- R[J])*At[J];
+  }
+  return B;
+}
+
+/*
+  2020.03.05
+  再帰表現形式の微分作用素の掛け算.
+  dmul(dx*dy,(x+y+1)^3,[x,y])-sm1.mul(dx*dy,(x+y+1)^3,[x,y]);
+  dmul(dx^2*dy+2*dy^2,(x+y+1)^3,[x,y])-sm1.mul(dx^2*dy+2*dy^2,(x+y+1)^3,[x,y]);
+*/
+def dmul(F,G,V)
+"Ex: dmul(dx,x,[x])"
+{
+  Check=0;
+  if (type(getopt(check))>0) Check=getopt(check);
+  Check=1; // debug 中
+  Fd=dn(F); Fn=nm(F);
+  Gd=dn(G); Gn=nm(G);
+  if (Check) {
+    if (length(base_intersection(vars(Gd),V)) > 0) {
+      error("Denominator constains variable(s).");
+    }
+  }
+  DV=dvar(V); Vdv = append(V,DV);
+  Op = dp_weyl_mul(dp_ptod(Fn,Vdv),dp_ptod(Gn,Vdv));
+  Op = red(dp_dtop(Op,Vdv)/(Fd*Gd));
+  return Op;
+}
+def index_vars(X,Start,End)
+{
+  if (type(getopt(no_))>0) No_=1;
+  else No_=0;
+  V=[];
+  for (I=Start; I<=End; I++) {
+    if (No_) {
+      V = cons(eval_str(rtostr(X)+rtostr(I)),V);
+    }else{
+      V = cons(util_v(X,[I]),V);
+    }
+  }
+  return reverse(V);
+}
+/*
+  BF = (bf_i), C = (c_i)
+*/
+def ff2(R,A,Beta,Ap,BF,C) {
+  Apt = matrix_transpose(Ap); N=size(Apt)[0]; D=size(Apt)[1];
+  At  = matrix_transpose(A);
+  V = index_vars(x,1,N | no_=1);
+  Op = 1;
+  Betap = matrix_clone(matrix_list_to_matrix(Beta));
+
+  for (L=0; L<N; L++) {
+    if (R[L] > 0) {
+       Betap = Betap-R[L]*At[L];
+    }
+  }
+
+  for (J=0; J<N; J++) {
+    if (R[J] > 0) continue;
+    for (K=0; K<-R[J]; K++) {
+      Op = dmul(C[J],Op,V);
+    }
+  }
+  B = bb(R,A,Betap,Ap,BF | do_shift=0); // 上でBetaのshiftはすでにやってる.2020.11.13
+  return red(Op/B);
+}
+def ff1(R,A,Beta,Ap) {
+  Apt = matrix_transpose(Ap); N=size(Apt)[0]; D=size(Apt)[1];
+  V = index_vars(x,1,N | no_=1);
+  DV = dvar(V);
+  Op = 1;
+  for (J=0; J<N; J++) {
+    if (R[J] < 0) continue;
+    for (K=0; K<R[J]; K++) {
+      Op = dmul(DV[J],Op,V);
+    }
+  }
+  B = bp(R,A,Beta,Ap);
+  return red(Op/B);
+}
+/*
+  debug 用の確認プログラムは check.rr を参照
+*/
+
+/* 
+  2020.03.08
+  toric で reduction.
+  p_true_nf では Q 係数を扱えず. Z 係数のみ.
+*/
+def p_true_nf_rat(F,G,V,Ord) {
+  T = ptozp(F | factor=1);
+  Ans = p_true_nf(T[0],G,V,Ord);
+  return [Ans[0],Ans[1]/T[1]];
+}
+def reduce_by_toric(Op,A) {
+  Op_nm = nm(Op); Op_dn = dn(Op);
+  TT=mytoric_ideal(A);
+  V=reverse(vars(TT));
+  DV=dvar(V);
+  VDV = append(V,DV);
+  TT = base_replace(TT,assoc(V,DV));
+  G=nd_gr(TT,VDV,0,0);
+  Nf=p_true_nf_rat(Op_nm,G,VDV,0);
+ return red((Nf[0]/Nf[1])/Op_dn);
+}
+
+def clear_bf() {
+#ifdef USE_MODULE
+#else
+  extern Check_BF$
+  extern Check_FP$
+  extern Check_C$
+#endif
+  Check_BF=0$   // b-function
+  Check_FP=0$
+  Check_C=0$  // C
+}
+print("saito-b.rr: If you want to clear the cash of bfunction (Check_BF) and the step up op (Check_C), run clear_bf(); Check_ are shared with check.rr")$
+
+def get_bf_step_up(A) {
+  if (type(getopt(b_ideal))>0) Use_b_ideal=1; else Use_b_ideal=0;
+  Amat = matrix_list_to_matrix(A);
+  D = size(Amat)[0]; N = size(Amat)[1];
+  if (Amat != Check_Amat) {
+     clear_bf(); // New A has come.
+     Check_Amat = matrix_clone(Amat);
+  }
+  if (Use_b_ideal) {
+    if (Check_BF==0) {
+      BF=b_ideal(A)[0];
+      printf("Chosen Bfunctions from b_ideal=%a\n",vtol(BF));
+      Check_BF=BF;
+    }else{
+      BF=Check_BF;
+    }
+  }else{
+    if (Check_BF == 0) {
+      FP=facet_poly(A); Check_FP=FP;
+      BF=newvect(N);
+      for (I=0; I<N; I++) BF[I]=bf(A,FP,I | option_list = getopt());
+      printf("Bfunctions=%a\n",vtol(BF));
+      Check_BF=BF;
+    }else BF=Check_BF;
+  }
+  if (Check_C == 0) {
+    C = newvect(N);
+    for (I=0; I<N; I++) C[I]=step_up(A,Check_BF[I],I+1);
+    Check_C=C;
+  }else C=Check_C;
+  return [BF,C];
+}
+/*
+  A = A
+  Ap = A'
+  
+  関数 ff は q = AR の時に, F(q) を戻す.
+  nf=1 option をつけた場合 normal form を計算.
+  dir option をつけた場合 dir*F(q)  (direction of Pfaffian sys)
+*/
+def ff(R,A,Ap,Beta) {
+#ifdef USE_MODULE
+#else
+  extern Check_BF$
+  extern Check_C$
+  extern Check_t1$
+#endif
+  if (type(getopt(nf))>0) Nf=1; else Nf=0;
+  if (type(getopt(dir))>0) Dir=getopt(dir); else Dir=1;
+  if (type(getopt(beta))>0) {
+    if (!tk_base_is_equal(matrix_matrix_to_list(Beta),matrix_matrix_to_list(getopt(beta)))) {
+      error("Beta and beta=...(for bf) must agree.");
+    }
+  }
+
+  Amat = matrix_list_to_matrix(A);
+  D = size(Amat)[0]; N = size(Amat)[1];
+  P=ff1(R,A,Beta,Ap);
+
+  TT0=get_bf_step_up(A | option_list = getopt());
+  BF=TT0[0]; C = TT0[1];
+
+  Q = ff2(R,A,Beta,Ap,BF,C);
+  printf("Done ff2\n");
+  R = red(Q*P);  // P は x 変数を持たない.
+  Op = reduce_by_toric(nm(R),A)/dn(R);
+  Check_t1 = Op;
+
+  V=index_vars(x,1,N | no_=1);
+  DV = dvar(V);
+  if (Dir != 1) Op = dmul(Dir,Op,V);
+
+  if (!Nf) return Op;
+  E = yang_gkz_buch(A,Beta);
+//  print(E);
+  return [yang.reduction(dp_ptod(Op,E[1]),E[0])];
+}
+
+// [[F1,D1],[F2,D2], ...] を [[F1,1],[F2,1],...] の形に.
+def remove_dn(G) {
+  H = [];
+  for (I=0; I<length(G); I++) {
+    H = cons([G[I][0],1],H);
+  }
+  reverse(H);
+}
+
+def yang_gkz_buch(A,Beta) {
+  N = size(Amat=matrix_list_to_matrix(A))[1];
+  D = size(Amat)[0];
+  V=index_vars(x,1,N | no_=1);
+  F = sm1.gkz([A,Beta_generic=index_vars(b,1,D)]);
+//  print(F);
+  F = base_replace(F,assoc(Beta_generic,matrix_matrix_to_list(Beta)));
+//  print([F,Beta]);
+  Eq = F[0];
+  DV = dvar(V);
+  yang.define_ring(["partial",V]);
+  yang.verbose();
+  E=yang.buchberger(map(dp_ptod,Eq,DV)); /* [分子(分散),分母] のリストで */
+  E=remove_dn(E);  /* [分子,1]  の形へ.  */
+  S=dp_mbase(yang.initial_term(E));
+  return [E,DV,S];
+}
+
+/* 2020.03.08
+   check.rr/test9c()
+ */
+def dp_op_to_coef_vec(Op,S)
+{
+  Op_dn = Op[1]; Op=Op[0];
+  Rank = length(S);
+  P = newvect(Rank);
+  while (Op != 0) {
+    M = dp_ht(Op);
+    C = dp_hc(Op);
+    Op = dp_rest(Op);
+    Pos = base_position(M,S);
+    if (Pos < 0) error("Op is not a normal form.");
+    P[Pos] = C;
+  }
+  P = map(red,P/Op_dn);
+  return P;
+}
+/* 2020.03.10   リストが等しいか? 
+   2020.03.20  base_is_equal が asir_contrib へ.
+*/
+def tk_base_is_equal(L1,L2) {
+  if (type(L1) != type(L2)) return 0;
+  if (type(L1) < 4) return (L1==L2);
+  if (type(L1) == 9) return (L1==L2);  // dist poly
+  if ((type(L1) >= 4) && (type(L1) <=6)) {
+    if (length(L1) != length(L2)) return 0;
+    for (I=0; I<length(L1); I++) {  
+      if (tk_base_is_equal(L1[I],L2[I]) == 0) return 0;
+    }
+    return 1;
+  }
+  error("tk_base_is_equal is not implemented for this data type.");
+}
+/*  2020.03.10
+  Rvec は R のベクトル. q = A*R,
+  Fvec は Rvec に対応する F(q) のベクトル,  ただし toric reduction しかしてない.
+  option beta は bf に渡される. option の beta と Beta は等しいこと. check は ff() で.
+  Todo, option を足す.
+  check.rr/test9d();
+*/
+def rvec_to_fvec(Rvec,A,Ap,Beta) 
+{
+  Rvec = matrix_matrix_to_list(Rvec);
+  Rank = length(Rvec);
+  Fvec = newvect(Rank);
+  for (I=0; I<Rank; I++) {
+    Fvec[I] = ff(Rvec[I],A,Ap,Beta  | option_list = getopt());
+  }
+  return Check_Fvec=vtol(Fvec);
+}
+
+/*
+  F(q) のベクトルを, DirX 方向 (DirX は 1 か dx1, dx2, 等) の行列に直す.
+  ただし base は Std
+  Pfaffian の部品となる.
+  check.rr/test9e()
+*/
+def fvec_to_conn_mat(Fvec,A,Beta,DirX) {
+  Rank = length(Fvec);
+  E_all = yang_gkz_buch(A,Beta);
+  G = E_all[0]; // gb
+  Std = E_all[2]; // std by dp
+  DV = E_all[1];  // dx1, dx2, ...
+  V = index_vars(x,1,length(DV) | no_=1);
+  NFvec = newvect(Rank);
+  P = newvect(Rank);
+  for (I=0; I<Rank; I++) {
+    Op = Fvec[I];
+    if (DirX != 1) {
+      printf("[DirX,Op,V]=%a\n",[DirX,Op,V]);
+      Op=dmul(DirX,Op,V);
+      printf("  ===>%a\n",Op);
+    }
+    Op_dn = dn(Op); Op = nm(Op);
+    NFvec[I] = yang.reduction(dp_ptod(Op,DV),G);
+    P[I] = map(red,dp_op_to_coef_vec(NFvec[I],Std)/Op_dn);
+  }
+  return [matrix_list_to_matrix(matrix_matrix_to_list(P)),map(dp_dtop,Std,DV)];  
+}
+
+/*
+  Dx-P, Dy-Q ==> Dy P + P Q = Dx Q + Q P
+*/
+def check_compatibility(P,Q,X,Y) {
+  L1 = map(diff,P,Y)+P*Q;
+  L2 = map(diff,Q,X)+Q*P;
+  return map(red,L1-L2);
+}
+
+/*
+  pfaff_eq(A,Beta,Ap,Rvec,DirX | xrule=Xrule, shift=Shift, cg=Cg)
+  The function returns coefficient matrices of Pfaffian equation
+  associated to the bases twisted cohomology group.
+  A: Matrix A (11) of [MT2]
+  Beta: -delta of [MT2]
+  Ap: Matrix A (11) of [MT2] with all A_l = 0
+  The set of the columns of A*Rvec^T is the set Q of Algorithm 1 [MT2].
+  Rvec expresses a basis of the twisted cohomology group.
+  When the return value is [P0, P1, P2, ...], P0 is the coefficient matrix for DirX[0],
+  P1 is the coefficient matrix for DirX[1], ...
+  
+  Example 1:
+   PP=pfaff_eq(A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+             Beta=[-g1,-g2,-c],
+             Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
+             Rvec = [[1,0,0,0],[0,0,1,0]], 
+             DirX=[dx4,dx3] | xrule=[[x1,1],[x2,1]], cg=matrix_list_to_matrix([[1,0],[-1,1]]));
+   // d/d(x4) - PP[0], d/d(x3)-PP[1] are Pfaffian equations.
+   check_compatibility(PP[0],PP[1],x4,x3);  // it returns zero matrix.
+
+  Reference: [MT2] Matsubara-Takayama, 
+  Algorithms for Pfaffian equations and cohomology intersection numbers, Algorithm 1.
+*/
+
+def pfaff_eq(A,Beta,Ap,Rvec,DirX) {
+  if (type(getopt(xrule))>0) Xrule=getopt(xrule); else Xrule=[];
+  /* shift vector to find b-function when A is not normal. */
+  if (type(getopt(shift))>0) Shift=getopt(shift); else Shift=0;
+  /* constant Gauge matrix */
+  if (type(getopt(cg))>0) Cg=getopt(cg); else Cg=matrix_identity_matrix(length(Rvec));
+  if (type(getopt(no_clear_bf)) <=0) clear_bf();
+  Pf = [];
+  Fvec = rvec_to_fvec(Rvec,A,Ap,Beta | option_list=getopt());
+  NN = fvec_to_conn_mat(Fvec,A,Beta,1);
+  NN = base_replace(NN,Xrule);
+  Std = NN[1]; NN=NN[0];
+  NNinv = matrix_inverse(NN);
+  for (I=0; I<length(DirX); I++) {
+    NN4 = fvec_to_conn_mat(Fvec,A,Beta,DirX[I])[0];
+    NN4 = base_replace(NN4,Xrule);
+    P=map(red,Cg*NN4*NNinv*matrix_inverse(Cg));
+    Pf = cons(P,Pf);
+  }
+  return reverse(Pf);
+}
+
+def check_bf() {
+  return Check_BF;
+}
+def set_check_bf(B) {
+  Check_BF=matrix_list_to_matrix(B);
+}
+def check_c() {
+  return Check_C;
+}
+def set_check_c(StepUp) {
+  Check_C=matrix_list_to_matrix(StepUp);
+}
+def get_check_fvec() {
+  return Check_Fvec;
+}
+def make_Ap(A,L){ // from Imp.rr
+  Ap=newvect(length(A));
+  for (I=0;I<L;I++){
+    Ap[I]=A[I];
+  }
+  LEN=length(A[0]);
+  for (I=L;I<length(A);I++){
+    Ap[I]=newvect(LEN);
+    Ap[I]=vtol(Ap[I]);
+  }
+  return vtol(Ap);
+}
+
+def b_ideal(A) {
+  N = size(Amat=matrix_list_to_matrix(A))[1];
+  D = size(Amat)[0];
+  F = sm1.gkz([A,Beta_generic=index_vars(s,1,D)]);
+  Vx=index_vars(x,1,N | no_=1);
+  V=append(Vx,dvar(Beta_generic));
+  Bideal=newvect(N);
+  DV = append(dvar(Vx),Beta_generic);
+  VDV = append(V,DV);
+  for (I=0; I<N; I++) {
+    // print(append(F[0],[DV[I]])); print(VDV);
+    G=nd_weyl_gr(append(F[0],[DV[I]]),VDV,0,2);
+    B=[];
+    for (J=0; J<length(G); J++) {
+      if (base_subsetq(vars(G[J]),Beta_generic)) {
+	B=cons(G[J],B);
+      } 
+    }
+    Bideal[I]=reverse(B);
+  }
+  Bideal=vtol(Bideal);
+  Btop=newvect(N);
+  for (I=0; I<N; I++) Btop[I]=Bideal[I][0];
+  return [Btop,Bideal];
+}
+
+def mytoric_ideal(A) {
+  if (type(getopt(use_4ti2))>0) Check_toric_command=1;
+  if (type(getopt(use_4ti2))==0) Check_toric_command=0;
+  if (type(A)<1) return 0;
+  if (Check_toric_command) {
+    N = length(A[0]);
+    V = base_var_list(x,1,N);
+    return nk_4ti2.toric_ideal(A,V);
+  }else{
+    return nk_toric.toric_ideal(A);
+  }
+}
+
+#ifdef USE_MODULE
+endmodule$
+#endif
+end$
