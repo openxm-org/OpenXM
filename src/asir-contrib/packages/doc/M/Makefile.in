@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.9 2017/03/30 06:16:36 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.10 2017/08/31 06:31:44 takayama Exp $
 # Original file was ../Makefile.common
 # Targets
 # gen-texi : generating texi files.
@@ -69,13 +69,7 @@ SRC_LANG = ${MYNAME}.en ${MYNAME}.ja
 .oxw.ja:
 	${OXWEAVE} C ja < $< | ${NKF} -w > ${<:.oxw=.ja}
 
-.dvi.pdf:
-	@echo "xetex has already generated PDF files."
-
-.dvi.ps:
-	${DVIPS} $< > ${<:.dvi=.ps}
-
-.texi.dvi:
+.texi.pdf: 
 	${PTEX} $<
 	${PTEX} $<
 
@@ -133,7 +127,7 @@ install-document: gen-document
 		for j in ${LANGUAGES} ; do \
 			mkdir -p "${DOCDIR}/$$j/${MYNAME}-html" ; \
 			(cd html-$$j; tar cf - .) | (cd "${DOCDIR}/$$j/${MYNAME}-html" ; tar xf -) ; \
-			${INSTALL_DATA} ${MYNAME}-$$j.dvi ${MYNAME}-$$j.pdf ${DOCDIR}/$$j/ ; \
+			${INSTALL_DATA} ${MYNAME}-$$j.pdf ${DOCDIR}/$$j/ ; \
 		done ; \
 		touch ./.install_doc_done ; \
 	fi
