@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.16 2020/09/06 01:59:11 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.17 2020/09/06 03:26:47 noro Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -160,11 +160,11 @@ man-en.pdf: tmp-en
 
 man: man-ja.pdf man-en.pdf internal-ja.pdf exp-ja.pdf
 
-help-ja: tmp-ja_euc man-ja.pdf
+help-ja: tmp-ja_utf8 man-ja.pdf
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
-	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
+	-(cd tmp-ja_utf8; ${MAKEINFO} man.texi)
+	-(cd $@; for i in ../tmp-ja_utf8/risaman*; do ../extract_func -j $$i; done)
 
 help-en: tmp-en man-en.pdf
 	-rm -rf $@
