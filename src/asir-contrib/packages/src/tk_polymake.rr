@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.3 2013/09/25 07:30:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_polymake.rr,v 1.4 2013/10/11 01:51:46 takayama Exp $ */
 module polymake;
 localf start$
 localf callp$
@@ -82,17 +82,17 @@ def callp(S) {
   if (type(R) != 4) {
     print(R);
     ox_check_errors(P);
-    hint();error("Output format error for R in polymake.callp.");
+    hint(0);error("Output format error for R in polymake.callp.");
   }
   if (length(R) != 3) {
     print(R);
     ox_check_errors(P);
-    hint(); error("Output format error for R polymake.callp.");
+    hint(0); error("Output format error for R polymake.callp.");
   }
   return R;
 }
 def get_data(T,Key) {
-  if (type(T) != 4) {hint(); error("polymake.get_data: the return value T is 0."); }
+  if (type(T) != 4) {hint(0); error("polymake.get_data: the return value T is 0."); }
   N = length(T);
   for (I=2; I<N; I++) {
     D = T[I];
@@ -100,15 +100,18 @@ def get_data(T,Key) {
       TT = D[2]; 
     }
   }
-  if (TT == 0) {hint(); error("polymake.get_data: no Key in the data T");}
+  if (TT == 0) {hint(Key); error("polymake.get_data: no Key in the data T");}
   return TT;
 }
 def log() {
   return Polymake_log;
 }
-def hint() {
+def hint(Key) {
   print("Hint for debug: the source code is tk_polymake.rr.");
-  print("   Use polymake.log() to see the output of polymake.");
+  print("   Use polymake.log() to see the output of polymake; Ignore last ,0,0] in the log.");
+  if (Key != 0) {
+    printf("\nThis error happens when you cannot obtain the property %a by your input.\n\n",Key);
+  }
 }
 
 /* Example
