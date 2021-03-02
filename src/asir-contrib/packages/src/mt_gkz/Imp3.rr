@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.1 2021/01/20 03:05:29 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -1197,31 +1197,7 @@ def leading_terms(A,Beta,W,Q1,Q2,K,N){
                     }
                     //L[J][0]=Std, L[J][1]=Sigma
                     G=grobner_to_u_vect(IV,Vars,W)$
-                      //ここからは級数の積の低次項たちを取り出す。
-                      Phi1=newvect(NN)$
-                        for (I=0;I<NN;I++){
-                          Counter=length(L[I][0])$
-                          NV=newvect(Counter)$
-                          for (J=0;J<Counter;J++){
-                            Exp=ltov(Beta)-ltov(Q1)$
-                            Exp=vtol(Exp)$
-                            V=v_vect(A,Exp,L[I][0][J],L[I][1])$
-                            NV[J]=truncated_canonical_series(V,G,N,W)$
-                          }
-                          Phi1[I]=NV$
-                        }
-                        Phi2=newvect(NN)$
-                          for (I=0;I<NN;I++){
-                            Counter=length(L[I][0])$
-                            Phi2[I]=newvect(Counter)$
-                            for (J=0;J<Counter;J++){
-                              Exp=-ltov(Beta)-ltov(Q2)$
-                              Exp=vtol(Exp)$
-                              V=v_vect(A,Exp,L[I][0][J],L[I][1])$
-                              Phi2[I][J]=truncated_canonical_series(V,G,N,W)$
-                            }
-                          }//それぞれの級数を計算   
-                          Store_kl1=newvect(NN)$
+                            Store_kl1=newvect(NN)$
                             for (I=0;I<NN;I++){
                               Counter=length(L[I][0])$
                               Store_kl1[I]=newvect(Counter)$
@@ -1240,6 +1216,31 @@ def leading_terms(A,Beta,W,Q1,Q2,K,N){
                                   Store_kl2[I][J]=comp_k_ab(L[I][0],V,Q2,A,L[I][1])$
                                 }
                               }// computing k_{a,b},l_{a,b} for Q1 and Q2
+
+                      //ここからは級数の積の低次項たちを取り出す。
+                      Phi1=newvect(NN)$
+                        for (I=0;I<NN;I++){
+                          Counter=length(L[I][0])$
+                          NV=newvect(Counter)$
+                          for (J=0;J<Counter;J++){
+                            Exp=ltov(Beta)-ltov(Q1)$
+                            Exp=vtol(Exp)$
+                            V=v_vect(A,Exp,Store_kl1[I][J][0],L[I][1])$
+                            NV[J]=truncated_canonical_series(V,G,N,W)$
+                          }
+                          Phi1[I]=NV$
+                        }
+                        Phi2=newvect(NN)$
+                          for (I=0;I<NN;I++){
+                            Counter=length(L[I][0])$
+                            Phi2[I]=newvect(Counter)$
+                            for (J=0;J<Counter;J++){
+                              Exp=-ltov(Beta)-ltov(Q2)$
+                              Exp=vtol(Exp)$
+                              V=v_vect(A,Exp,Store_kl2[I][J][0],L[I][1])$
+                              Phi2[I][J]=truncated_canonical_series(V,G,N,W)$
+                            }
+                          }//それぞれの級数を計算   
                               NVect=newvect(length(A[0]))$
                                 for (I=0;I<length(A[0]);I++){
                                   NVect[I]=I+1$

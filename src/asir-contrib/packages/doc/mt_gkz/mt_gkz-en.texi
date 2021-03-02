@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.1 2021/01/20 03:05:29 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.2 2021/01/20 08:17:54 takayama Exp $
 %% xetex mt_gkz-en.texi   (.texi までつける. ) 
 %% @math{tex形式の数式} 
 %% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
@@ -1194,7 +1194,7 @@ Here, @math{n_{2_{1_{3_1}}}} and @math{d_{6_1}} are arbitrary constants. We can 
 @comment --- 引数の簡単な説明 --- 
 @table @var
 @item return
-a rational function which is the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[{dx\over x}],[{dx\over x}]\rangle_{ch}} in terms of the regular triangulation T. Here, @math{n} is the number of integration variables and @math{dx\over x} is the volume form @math{{dx_1\over x_1}\wedge\cdots\wedge{dx_n\over x_n}} of the complex @math{n}-torus.
+a rational function which is the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[{dt\over t}],[{dt\over t}]\rangle_{ch}} in terms of the regular triangulation T. Here, @math{n} is the number of integration variables and @math{dt\over t} is the volume form @math{{dt_1\over t_1}\wedge\cdots\wedge{dt_n\over t_n}} of the complex @math{n}-torus.
 @item A,Beta
 see @code{pfaff_eq}.
 @item T
@@ -1208,9 +1208,11 @@ The number of polynomial factors in the integrand. see [MT2020].
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item 
-This function is useful when the basis of the cohomology group @math{\{\omega_i\}_{i=1}^r} is given so that @math{\omega_1=[{dx\over x}]}.
+This function is useful when the basis of the cohomology group @math{\{\omega_i\}_{i=1}^r} is given so that @math{\omega_1=[{dt\over t}]}.
 @item
-@code{leading_term} can be used more generally.
+One can find a regular triangulation by using a function @code{mt_gkz.regular_triangulation}.
+@item
+@code{mt_gkz.leading_terms} can be used more generally.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -1227,7 +1229,7 @@ Example:
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item Refer to
-@ref{mt_gkz.leading_term}.
+@ref{mt_gkz.leading_terms}.
 @end table
 @comment おわり. 
 
@@ -1238,20 +1240,20 @@ Example:
 
 
 
-@node mt_gkz.leading_term,,, Normalizing constant
-@subsection @code{mt_gkz.leading_term}
+@node mt_gkz.leading_terms,,, Normalizing constant
+@subsection @code{mt_gkz.leading_terms}
 @comment --- 索引用キーワード
 @findex mt_gkz.leading_terms
 
 @table @t
-@item mt_gkz.leading_term(@var{A},@var{Beta},@var{W},@var{Q1},@var{Q2},@var{K},@var{N})
+@item mt_gkz.leading_terms(@var{A},@var{Beta},@var{W},@var{Q1},@var{Q2},@var{K},@var{N})
 :: It returns the W-leading terms of a cohomology intersection number specified by Q1 and Q2 up to W-degree=(minimum W-degree)+N.
 @end table
 
 @comment --- 引数の簡単な説明 --- 
 @table @var
 @item return
-a list [[C1,DEG1],[C2,DEG2],...]. Each CI is a rational function depending on Beta times a monomial @math{x^m} in x-variables. DEGI is the W-degree of @math{x^m}. The cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}x^{q_1^{\prime\prime}}{dx\over x}],[h^{-q_2^\prime}x^{q_2^{\prime\prime}}{dx\over x}]\rangle_{ch}} has a Laurent expansion of the form C1+C2+.... 
+a list [[C1,DEG1],[C2,DEG2],...]. Each CI is a rational function depending on Beta times a monomial @math{x^m} in x-variables. DEGI is the W-degree of @math{x^m}. The cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}t^{q_1^{\prime\prime}}{dt\over t}],[h^{-q_2^\prime}t^{q_2^{\prime\prime}}{dt\over t}]\rangle_{ch}} has a Laurent expansion of the form C1+C2+.... 
 @item A,Beta
 see @code{pfaff_eq}.
 @item W
@@ -1271,7 +1273,7 @@ A positive integer.
 @item
 For a monomial @math{x^m=x_1^{m_1}\cdots x_n^{m_n}} and a weight vector @math{W=(w_1,\dots,w_n)}, the W-degree of @math{x^m} is given by the dot product @math{m\cdot W=m_1w_1+\cdots +m_nw_n}.
 @item 
-The W-leading terms of the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}x^{q_1^{\prime\prime}}{dx\over x}],[h^{-q_2^\prime}x^{q_2^{\prime\prime}}{dx\over x}]\rangle_{ch}} can be computed by means of Theorem 2.6 of [GM2020]. See also Theorem 3.4.2 of [SST2000].
+The W-leading terms of the cohomology intersection number @math{{1\over (2\pi\sqrt{-1})^n} \langle[h^{-q_1^\prime}t^{q_1^{\prime\prime}}{dt\over t}],[h^{-q_2^\prime}t^{q_2^{\prime\prime}}{dt\over t}]\rangle_{ch}} can be computed by means of Theorem 2.6 of [GM2020]. See also Theorem 3.4.2 of [SST2000].
 @item
 If the weight vector is not generic, you will receive an error message such as "WARNING(initial_mon): The weight may not be generic". In this case, the output may be wrong and you should retake a suitable W. To be more precise, W should be chosen from an open cone of the Groebner fan.
 @item Option xrule.
@@ -1293,7 +1295,7 @@ Example:
 2
 [2927] N=2;
 2
-[2928] NC=leading_term(A,Beta,W,Q[0],Q[1],K,N|xrule=[[x2,1],[x3,1],[x4,1]])$
+[2928] NC=mt_gkz.leading_terms(A,Beta,W,Q[0],Q[1],K,N|xrule=[[x2,1],[x3,1],[x4,1]])$
 --snip--
 [2929] NC;
 [[(-3)/(x1),-5],[0,-4],[0,-3]]
@@ -1316,7 +1318,7 @@ intersection matrix is given by
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item Refer to
-@ref{mt_gkz.leading_term}, @ref{mt_gkz.generate_maple_file_IC}, @ref{mt_gkz.generate_maple_file_MR}.
+@ref{mt_gkz.leading_terms}, @ref{mt_gkz.generate_maple_file_IC}, @ref{mt_gkz.generate_maple_file_MR}.
 @end table
 @comment おわり. 
 
@@ -1351,7 +1353,7 @@ a list of variables of P.
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item 
-This function is supposed to be combined with @code{leading_term} to compute the leading term of a cohomology intersection number.
+This function is supposed to be combined with @code{leading_terms} to compute the leading term of a cohomology intersection number.
 @item
 If W is chose so that there are several initial terms, you will receive an error message "WARNING(leading_term_rat):The weight vector may not be generic."
 @end itemize
@@ -1360,7 +1362,7 @@ If W is chose so that there are several initial terms, you will receive an error
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item Refer to
-@ref{mt_gkz.leading_term}.
+@ref{mt_gkz.leading_terms}.
 @end table
 @comment おわり. 
 
@@ -1413,9 +1415,9 @@ As for the definition of the standard pair, see Chapter 3 of [SST00].
 @item
 We set n=length(A) and set BS1:=@math{\{ 1,2,...,n\}\setminus S1}. Then, each L1[I] is an exponent @math{\bf k} of a top-dimensional standard pair @math{(\partial^{\bf k}_{BS1},S1)}. Here, @math{\bf k} is a list of length n-length(S1) and @math{\partial_{BS1}=(\partial_J)_{J\in BS1}}.
 @item
-If the weight vector is not generic, you will receive an error message such as "WARNING(initial_mon): The weight may not be generic". See also @code{leading_term}.
+If the weight vector is not generic, you will receive an error message such as "WARNING(initial_mon): The weight may not be generic". See also @code{leading_terms}.
 @item
-These functions are utilized in @code{leading_term}.
+These functions are utilized in @code{leading_terms}.
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -1425,13 +1427,13 @@ Example: An example of a non-unimodular triangulation and non-trivial standard p
 [[1,1,1,1,1],[0,1,0,2,0],[0,0,1,0,2]]
 [3257] W=[2,0,1,2,2];
 [2,0,1,2,2]
-[3258] toric_gen_initial(A,W);
+[3258] mt_gkz.toric_gen_initial(A,W);
 --snip--
 [[x1*x5,x1*x4,x3^2*x4],[x1,x2,x3,x4,x5]]
-[3259] regular_triangulation(A,W);
+[3259] mt_gkz.regular_triangulation(A,W);
 --snip--
 [[2,4,5],[2,3,5],[1,2,3]]
-[3260] top_standard_pairs(A,W);
+[3260] mt_gkz.top_standard_pairs(A,W);
 --snip--
 [[[[0,0],[0,1]],[2,4,5]],[[[0,0]],[2,3,5]],[[[0,0]],[1,2,3]]]
 
@@ -1448,7 +1450,7 @@ are 2,1 and 1. Moreover, the top-dimensional standard pairs are
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item Refer to
-@ref{mt_gkz.leading_term}.
+@ref{mt_gkz.leading_terms}.
 @end table
 @comment おわり. 
 
