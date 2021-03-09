@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.152 2020/03/20 01:10:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.153 2020/08/31 23:46:46 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -230,6 +230,17 @@ end: */
 def base_replace_n(S,Rule) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace_n(S,Rule);
+}
+/*&usage begin: base_preplace(S,Rule)
+ It rewrites {S} by using the rule {Rule}. psubst is used instead of subst. 
+ The replacement is not performed for function arguments.
+ example: base_preplace(exp(x)+x^2,[[x,a+1],[exp(x),b]]);
+ example_description: x is replaced by a+1 and exp(x) is replaced by b in
+ exp(x)+x^2.
+end: */
+def base_preplace(S,Rule) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_preplace(S,Rule);
 }
 /*&usage begin: base_set_minus(A,B)
 @tex

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.34 2020/03/19 23:57:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.35 2020/03/20 01:10:55 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -448,6 +448,32 @@ def taka_base_f_definedp(Func) {
   return 1;
 }
 
+def taka_psubst(S,X,A) {
+  if (type(S) == QUOTE) {
+    if (type(A) != QUOTE) {
+      A = quote_to_quote(A);
+    }
+  }else{
+    return(psubst(S,X,A));
+  }
+  return subst_quote(S,X,A);
+}
+def taka_base_preplace(S,Rule) {
+  //printf("S=%a, Rule=%a\n",S,Rule);
+  if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
+    Rule = Rule->Rule;
+  }
+  N = length(Rule);
+  for (I=0; I<N; I++) {
+    S = taka_psubst(Sorig=S,Rule[I][0],taka_base_rule_name(I));
+    //printf("Step1: %a ==> %a\n",Sorig,S);
+  }
+  for (I=0; I<N; I++) {
+    S = taka_psubst(Sorig=S,taka_base_rule_name(I),Rule[I][1]);
+    //printf("Step2: %a ==> %a\n",Sorig,S);
+  }
+  return S;
+}
 
 Taka_base_loaded = 1$
 end$
