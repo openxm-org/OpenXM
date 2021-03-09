@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.21 2017/03/31 03:06:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.22 2017/08/24 02:47:20 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -63,6 +63,8 @@ def taka_util_write_string_to_a_file(Fname,Str) {
 
 /* From fb/src/a2tfb/tfb2asir.rr */
 def taka_util_find_substr(W,S) {
+  if (type(W)==7) W=strtoascii(W);
+  if (type(S)==7) S=strtoascii(S);
   N1 = length(W); N2 = length(S);
   for (J=0; J<N2-N1+1; J++) {
     for  (I=0; I<N1; I++) {
@@ -132,9 +134,13 @@ def taka_util_index(V) {
 }
 
 /*
-  example: taka_util_find_and_replace_new([1,2],[5,1,2,5,1,2,1,2],[22,23,24]); 
+  example: taka_util_find_and_replace([1,2],[5,1,2,5,1,2,1,2],[22,23,24]); 
 */
 def taka_util_find_and_replace(Old,S,Snew) {
+  ReturnStr=0;
+  if (type(S)==7) {S=strtoascii(S); ReturnStr=1;}
+  if (type(Old)==7) {Old=strtoascii(Old); ReturnStr=1;}
+  if (type(Snew)==7) {Snew=strtoascii(Snew); ReturnStr=1;}
   N = length(S);
   Nold = length(Old); 
   Nnew = length(Snew);
@@ -181,7 +187,11 @@ def taka_util_find_and_replace(Old,S,Snew) {
   for (I=0; I<K; I++) {
     Ans[I] = New[I];
   }
-  return vtol(Ans);
+  if (ReturnStr) {
+    return asciitostr(vtol(Ans));
+  }else{
+    return vtol(Ans);
+  }
 }
 
 def taka_util_timing(Q) {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.153 2020/08/31 23:46:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.154 2021/03/09 02:47:43 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -1198,7 +1198,7 @@ def util_filter(C,Input) {
 /*---------- util for strings---------------*/
 /*&usage begin: util_find_and_replace(W,S,Wnew)
  It replaces {W} in {S} by {Wnew}.
- Arguments must be a list of ascii codes.
+ Arguments must be lists of ascii codes or strings.
 end: */
 def util_find_and_replace(W,S,Snew) {
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
@@ -1207,7 +1207,7 @@ def util_find_and_replace(W,S,Snew) {
 /*&usage begin: util_find_substr(W,S)
  It returns the position of {W} in {S}.
  If {W} cannot be found, it returns -1.
- Arguments must be a list of ascii codes.
+ Arguments must be lists of ascii codes or strings.
 end: */
 def util_find_substr(W,S) {
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
