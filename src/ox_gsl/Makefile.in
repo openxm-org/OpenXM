@@ -1,6 +1,6 @@
 prefix = @prefix@
-CFLAGS = @CFLAGS@
-LIBS = @LIBS@
+CFLAGS = @CFLAGS@ `gsl-config --cflags`
+LIBS = @LIBS@ `gsl-config --libs`
 LN_S = @LN_S@
 TARGET = @TARGET@
 CC = @CC@
@@ -24,4 +24,4 @@ distclean: clean
 link:
 	ln -s ../asir-contrib/packages/src/gsl.rr .
 
-# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.5 2019/10/21 05:37:20 takayama Exp $
+# $OpenXM: OpenXM/src/ox_gsl/Makefile.in,v 1.6 2019/10/23 07:00:43 takayama Exp $

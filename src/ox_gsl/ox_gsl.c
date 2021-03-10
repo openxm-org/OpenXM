@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.16 2019/10/21 05:37:20 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_gsl/ox_gsl.c,v 1.17 2019/10/23 07:00:43 takayama Exp $
 */
 
 #include <stdio.h>
@@ -489,7 +489,7 @@ void push_error_from_file() {
   FILE *fp;
 #define BUF_SIZE 1024
   char logname[BUF_SIZE];
-  char cmd[BUF_SIZE];
+  char cmd[BUF_SIZE+100];
   char file[BUF_SIZE];
   char reason[BUF_SIZE];
   int gsl_errno, line;
