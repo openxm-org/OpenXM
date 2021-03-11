@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.22 2017/08/24 02:47:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.23 2021/03/09 07:46:15 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -149,7 +149,7 @@ def taka_util_find_and_replace(Old,S,Snew) {
   K = 0;
   for (I=0; I<N; I++) {
     Found = 0;
-    for (J=I; J<Nold+I; J++) {
+    for (J=I; (J<Nold+I) && (J<N); J++) {
       if (S[J] != Old[J-I]) {
          break;
       }
