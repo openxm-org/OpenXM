@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.21 2014/09/22 06:23:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.22 2020/01/24 01:15:00 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -193,6 +193,10 @@ def quote_input_form_quote_list(S) {
     }
   }else if (S[0] == "n_op") {
      return quote_input_form_quote_list_b_op(cdr(S));
+  }else if (S[0] == "derivative") {
+     R=sprintf("%a{%a}(%a)",S[1],quote_input_form_quote_list_args(cdr(S[3])),
+	       quote_input_form_quote_list_args(cdr(S[2])));
+     return R;
   }else {
      error("Unknown quote format.");
   }
@@ -280,6 +284,18 @@ def quote_input_form_quote_list_list(S) {
       }
     }
     A += "]";
+    return A;
+}
+def quote_input_form_quote_list_args(S) {
+    T = S;
+    A = "";
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += quote_input_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
     return A;
 }
 
