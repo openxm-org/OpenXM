@@ -1,4 +1,11 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.37 2019/01/28 05:05:02 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.38 2020/03/14 01:21:56 takayama Exp $
+
+//&C March 12, 2021
+//&ja Q. MacOS で asir2018 のビルドが X11/Xlib.h not found で止まります.
+//&en Q. The build of asir2018 stops with the error X11/Xlib.h not found on MacOS.
+
+//&ja A. XQaurtz を再インストールすると /usr/X11 から /opt/X11 へのシンボリックリンクができて, cd OpenXM/src/asir2018; rm .*done ; make でビルドできるようになります.
+//&en A. Please reinstall XQuartz, which will generate a symbolic link from /usr/X11 to /opt/X11. Please retry the build by cd OpenXM/src/asir2018; rm .*done ; make
 
 //&C March 14, 2020
 //&ja Q. Icon になってる ox server window を Mac で開くことができません.
