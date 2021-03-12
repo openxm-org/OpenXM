@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.11 2016/03/31 05:27:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.12 2020/10/07 23:53:25 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -34,7 +34,7 @@ jmp_buf EnvOfChildServer;
 int JmpMessage = 0;
 
 static char *getSuffix(char *s);
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   char *s;
 
   if (argc > 1) {
@@ -50,6 +50,7 @@ void main(int argc, char *argv[]) {
   K0_start();
 
   nullserver(3,4);
+  return 0;
 }
 
 static char *getSuffix(char *s) {
@@ -216,7 +217,7 @@ void nullserver(int fdStreamIn,int fdStreamOut) {
       default: fprintf(stderr," ?! \n"); break;
       }
     }
-    /*sleep(2);  /* for dubug OX_SYNC_BALL */
+    /*sleep(2);  // for dubug OX_SYNC_BALL */
     switch(mtag) {
     case OX_COMMAND:
       nullserverCommand(ostreamIn,ostreamOut);

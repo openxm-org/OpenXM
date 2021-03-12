@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.20 2018/11/02 01:33:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.21 2020/10/07 23:53:25 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -430,7 +430,7 @@ int KClex() {
       /*if (Mydebug) printf("identifier string=[%s]",name);*/
       if (isdigit(name[0])) {
         /****************************
-	  /**case : machine integer. 
+	  **case : machine integer. 
 	KClval = newObject_d();
 	KClval->tag = Sinteger;
 	sscanf(name,"%d",&(KClval->lc.ival));*************/
@@ -443,7 +443,7 @@ int KClex() {
 	break;
       } /* else : Identifier case.*/
       
-      if (d = isReserved(name)) {
+      if ((d = isReserved(name))) {
 	if (Replace) printf0(name);
 	return(d);
       } else {
@@ -940,6 +940,7 @@ int fsgetc(objectp op) {
 
 int fsungetc(int c,objectp op) {
   fprintf(stderr,"Sorry. fsungetc has not yet implemented.\n");
+  return -1;
 }
 
 void clearInop() {

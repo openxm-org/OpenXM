@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/dm.c,v 1.5 2013/11/07 07:29:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/dm.c,v 1.6 2020/10/07 23:53:25 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -6,7 +6,7 @@ int K00_verbose = 0;
 extern int DebugMode;
 
 /* dm.c main program of d. */
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   int i;
   DebugMode = 0;
   if (argc >= 2) {
@@ -22,7 +22,7 @@ void main(int argc, char *argv[]) {
   parseAfile(stdin);
   /*  parseAstring("print(1+2);\nx=1+2;\n"); tests */
   KCparse();
-  exit(0);
+  return 0;
 }
 
 

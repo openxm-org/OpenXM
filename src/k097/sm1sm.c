@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.4 2015/10/10 11:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.5 2020/10/07 23:53:25 takayama Exp $ */
 /* This is imported from kxx/sm1stackmachine.c */
 #include <stdio.h>
 #include <setjmp.h>
@@ -31,6 +31,7 @@ int Sm1_setMathCap(ox_stream os) {
   KSpush(ob);  KSexecuteString(" (mathcap data is ) message message ");
   Kan_setMathCapToStream(os,ob);
   /* set the math cap data associated to the ox_stream. */
+  return 0;
 }
 void Sm1_pops(void) {
   char data[100];
@@ -107,6 +108,7 @@ int Sm1_pushError2(int serial, int no, char *s)
   struct object ob = OINIT;
   ob = KnewErrorPacket(serial,no,s);
   KSpush(ob);
+  return 0;
 }
 
 char *Sm1_popErrorMessage(char *s) {

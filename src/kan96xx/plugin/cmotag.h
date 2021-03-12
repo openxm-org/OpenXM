@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotag.h,v 1.5 2000/02/02 02:03:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotag.h,v 1.6 2020/10/04 03:14:07 noro Exp $ */
 /*  cmotag.h */
 /* Never Use 0 as a CMO tag. */
 /* If you add new CMO_*,
    you need to make changes following the comment of cmo.c 
    and modify the two files:
    OpenXM/doc/OpenXM-web/cmotag.h
-   OpenXM/doc/OpenXM-specs/*.tex
+   OpenXM/doc/OpenXM-specs/?*.tex
 */
 #include <string.h>
 
