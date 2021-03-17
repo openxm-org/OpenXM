@@ -1,11 +1,11 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/solve_ode_by_r4d.c,v 1.1 2020/09/08 07:45:32 takayama Exp $ */
 int T_verbose=0;
 void usage() {
   printf("%s [--rank r --t0 t0 --init f1 ... fr  --t1 t1]\n",T_PROGNAME);
   printf("      [--h h --n_defuse n_defuse]\n");
   printf("      [--n_prune n_prune --strategy strat --t_noproj t_noproj]\n");
   printf("      [--ref_value_file ref_file]\n");
-  printf("      [--verbose]\n");
+  printf("      [--verbose --go]\n");
 }
 void usage_example(int type,double t0,double f0[],double t1,double h,double t_noproj,int r, int strat,int n_prune,int n_defuse,char *ref_file) {
   int i;
@@ -16,13 +16,19 @@ void usage_example(int type,double t0,double f0[],double t1,double h,double t_no
     printf("%g ",f0[i]);
   }
   printf(" --t1 %g [ --h %g --n_defuse %d --n_prune %d --t_noproj %g --strategy %d --ref_value_file %s --verbose ]\n",t1,h,n_defuse,n_prune,t_noproj,strat,ref_file);
+  printf("If you want to run this program with values above, type in  %s --go\n",T_PROGNAME);
+}
+void usage_draw_graph() {
+  printf("--- To draw a graph of the solution, do\n");
+  printf("This_program | grep '^gnuplot' | awk '{print $2, $3}' >t.txt\n");
+  printf("In the gnuplot, plot 't.txt' w lp\n");
 }
 
 void output_tf(double t,double f[]) {
   int i;
   printf("t=%g, ",t);
   for (i=0; i<N; i++) printf("f[%d]=%g, ",i,f[i]); putchar('\n');
-  printf("gnuplot %g, %g\n",t,f[0]);
+  printf("gnuplot %g  %g\n",t,f[0]);
 }
 void outout_mpfr_vec(mpfr_t m_ans[],int size) {
   int i;
@@ -77,10 +83,12 @@ int main(int argc,char *argv[]) {
     if (strcmp(argv[i],"--t_noproj")==0) {i++; sscanf(argv[i],"%lg",&t_noproj);continue;}
     if (strcmp(argv[i],"--verbose")==0) {T_verbose=1; continue;}
     if (strcmp(argv[i],"--help")==0) { show_help=1; continue; }
+    if (strcmp(argv[i],"--go")==0) { continue; }
     printf("Error: Unknown option %s.\n",argv[i]); usage(); return(-1);
   }
   if (show_help) {
     usage();
+    usage_draw_graph(); printf("\n");
     usage_example(0, t0, f0, t1, h, t_noproj, r, strat, n_prune, n_defuse,ref_value_file);
     return 0;
   }
@@ -130,9 +138,8 @@ int main(int argc,char *argv[]) {
     mpfr_set_d(m_t,t,MPFR_RNDD);
   }
   if (T_verbose) {
-    printf("--- To draw a graph of the solution, do\n");
-    printf("This_program | grep gnuplot | awk '{print $2, $3} >t.txt'\n");
-    printf("In the gnuplot, plot 't.txt'\n");
+    usage_draw_graph();
   }
   return 0;
 }
+

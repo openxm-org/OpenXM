@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_mat2mpfr.rr,v 1.1 2020/09/08 07:45:32 takayama Exp $
   num-ht --> misc-2020/09/num-ht2/tk_mat2mpfr.rr
   2020.02.14
   tk_mat2mpfr.rr
@@ -216,7 +216,12 @@ def set_mat_array_mpfr(Name,M) {
 }
 
 /* 2020.02.23  code_mat_fac_mpfr のテスト.
-   [[t,0],[0,t+2]],  h=1, t_0 = 1 で factorial を計算する.
+   QQ=[ [[t,0],[0,t+2]], []],  h=1, t_0 = 1 で factorial を計算する.
+   test_template2() の定義はすぐ下. 引数は
+   QQ,N, TT=1, HH=1, Times=3
+   QQ(TT+2HH)*QQ(TT+HH)*QQ(T)  を計算する.
+   Ex.  mat_fac_by_asir([ [[t,0],[0,t^2]], []], s, h,2);
+    係数は rational でないので注意.
 */
 def test2m() {
   N = 2;
@@ -434,6 +439,7 @@ def code_solve_ode_by_rk4_with_defuse(Pmat,T0,F0,T1) {
   else GSL_opt = " -lcblas -lblas -lgsl "; // bsd
   CompileCmd += sprintf("ln -s %a/proj.c tmp-proj.c ; cc -I%a/ -DNN=%a -c tmp-proj.c\n",A2M_template,A2M_template,N);
   CompileCmd += sprintf("cc -o %a %a.c tmp-proj.o -lmpfr -lgmp %a -lm\n",T_progname,T_progname,GSL_opt);
+  CompiledCmd += sprintf("or\ncc -o %a %a.c tmp-proj.o -lmpfr -lgmp `gsl-config --libs`\n",T_progname,T_progname);
   print(CompileCmd);
   A2M_config_compile=CompleCmd;
 

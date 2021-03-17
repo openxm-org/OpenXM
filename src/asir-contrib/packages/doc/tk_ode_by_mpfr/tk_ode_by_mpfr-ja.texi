@@ -1,5 +1,5 @@
-%% $OpenXM$
-%% debug に ln -s ../texinfo-ja.tex . をしておく.
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/tk_ode_by_mpfr/tk_ode_by_mpfr-ja.texi,v 1.1 2020/09/08 07:45:31 takayama Exp $
+%% debug に ln -s ../texinfo-ja.tex . をしておく.  txi-ja.tex も?
 %% xetex tk_ode_by_mpfr-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
 \input texinfo-ja
@@ -44,7 +44,7 @@
 @title tk_ode_by_mpfr
 @subtitle MPFR で ODE の数値解析をするC言語のコードを生成
 @subtitle 1.0 版
-@subtitle 2020 年 9 月 8 日
+@subtitle 2020 年 9 月 9 日
 
 @author  by Nobuki Takayama
 @page
@@ -142,8 +142,11 @@ dF/dt = PF を F(T0)=F0 の初期条件の元, 時刻 T1 まで求める.
 @item 
 big float による matrix factorial を用いて計算する.
 @item 
-defusing heuristics や知られている厳密値を用いて不安定性を
-コードも含む.
+defusing heuristics や知られている値を用いて不安定性を
+回避コードも含む.
+初期値の値がエラーを含む場合, 本来の解でないものがドミナントとなる
+場合がある. この方法はそれを修正して解くのに有効である.
+また知られている値が誤差を含む場合も有効である.
 これらは下記の option 引数でコントロールする.
 @end itemize
 
