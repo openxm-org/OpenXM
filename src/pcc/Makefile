@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/src/pcc/Makefile,v 1.3 2014/03/29 21:09:28 ohara Exp $
+# $OpenXM: OpenXM/src/pcc/Makefile,v 1.4 2015/02/21 06:20:36 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=pcc-101228
+DISTNAME=pcc-20210323
 DISTFILES=${DISTNAME}.tgz
 WRKSRC=work/${DISTNAME}
 BUILDDIR=${WRKSRC}/cpp

@@ -1,90 +1,45 @@
 diff -ubBr Makefile.in.orig Makefile.in
---- Makefile.in.orig	2008-07-18 23:00:38.000000000 +0900
-+++ Makefile.in	2014-03-30 05:56:20.000000000 +0900
-@@ -12,19 +12,18 @@
- YACC=@YACC@
- LEX=@LEX@
+--- Makefile.in.orig	2011-06-07 22:56:05.000000000 +0900
++++ Makefile.in	2021-03-23 14:57:31.896967000 +0900
+@@ -5,7 +5,7 @@
  
--SUBDIR=cc
-+SUBDIR=cpp
+ @SET_MAKE@
  
- all: ${SUBDIR}
+-ALL_SUBDIRS=	cc
++ALL_SUBDIRS=	cpp
+ DIST_SUBDIRS=	$(ALL_SUBDIRS) f77
  
- install:
--	cd cc && ${MAKE} install
-+	cd cpp && ${MAKE} install
- 
- clean:
--	cd cc && ${MAKE} clean
-+	cd cpp && ${MAKE} clean
- 
- distclean:
--	cd cc && ${MAKE} distclean
--	cd f77 && ${MAKE} distclean
-+	cd cpp && ${MAKE} distclean
- 	/bin/rm -rf Makefile config.log stamp-h1 config.status \
- 	configure.lineno config.h autom4te.cache
- 
+ all install clean:
 diff -ubBr configure.orig configure
---- configure.orig	2010-11-01 03:20:51.000000000 +0900
-+++ configure	2014-03-30 05:57:22.000000000 +0900
-@@ -5081,7 +5081,7 @@
+--- configure.orig	2020-06-13 23:55:53.000000000 +0900
++++ configure	2021-03-23 15:00:01.478465000 +0900
+@@ -5445,7 +5445,7 @@
  _ACEOF
  
  
--ac_config_files="$ac_config_files Makefile cc/Makefile cc/cc/Makefile cc/cpp/Makefile cc/ccom/Makefile f77/Makefile f77/f77/Makefile f77/fcom/Makefile"
+-ac_config_files="$ac_config_files Makefile cc/Makefile cc/cc/Makefile cc/cpp/Makefile cc/ccom/Makefile cc/cxxcom/Makefile cc/driver/Makefile f77/Makefile f77/f77/Makefile f77/fcom/Makefile"
 +ac_config_files="$ac_config_files Makefile cpp/Makefile"
  
  cat >confcache <<\_ACEOF
  # This file is a shell script that caches the results of configure
-@@ -5640,7 +5640,7 @@
+@@ -6143,7 +6143,7 @@
      "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
      "cc/Makefile") CONFIG_FILES="$CONFIG_FILES cc/Makefile" ;;
      "cc/cc/Makefile") CONFIG_FILES="$CONFIG_FILES cc/cc/Makefile" ;;
 -    "cc/cpp/Makefile") CONFIG_FILES="$CONFIG_FILES cc/cpp/Makefile" ;;
 +    "cpp/Makefile") CONFIG_FILES="$CONFIG_FILES cpp/Makefile" ;;
      "cc/ccom/Makefile") CONFIG_FILES="$CONFIG_FILES cc/ccom/Makefile" ;;
-     "f77/Makefile") CONFIG_FILES="$CONFIG_FILES f77/Makefile" ;;
-     "f77/f77/Makefile") CONFIG_FILES="$CONFIG_FILES f77/f77/Makefile" ;;
-diff -ubBr cc/cpp/Makefile.in.orig cc/cpp/Makefile.in
---- cc/cpp/Makefile.in.orig	2010-12-19 00:22:13.000000000 +0900
-+++ cc/cpp/Makefile.in	2011-01-14 22:05:51.000000000 +0900
-@@ -12,7 +12,7 @@
- prefix = @prefix@
- exec_prefix = @exec_prefix@
- bindir = @bindir@
--libexecdir = @libexecdir@
-+libexecdir = @bindir@
- datarootdir = @datarootdir@
- mandir = @mandir@
- strip = @strip@
-@@ -30,7 +30,7 @@
+     "cc/cxxcom/Makefile") CONFIG_FILES="$CONFIG_FILES cc/cxxcom/Makefile" ;;
+     "cc/driver/Makefile") CONFIG_FILES="$CONFIG_FILES cc/driver/Makefile" ;;
+diff -ubBr cc/cpp/Makefile.in.orig cpp/Makefile.in
+--- cc/cpp/Makefile.in.orig	2020-06-29 22:37:18.000000000 +0900
++++ cc/cpp/Makefile.in	2021-03-23 15:04:06.518851000 +0900
+@@ -32,7 +32,7 @@
+ MDIR=$(top_srcdir)/arch/$(TARGMACH)
+ COMMONDIR=$(top_srcdir)/common
  
- OBJS=cpp.o cpy.o token.o compat.o
- HEADERS=cpp.h
 -DEST=@BINPREFIX@cpp$(EXEEXT)
 +DEST=@BINPREFIX@ox_cpp$(EXEEXT)
+ MANPAGE=@BINPREFIX@cpp
  
- MIPDIR=$(top_srcdir)/mip
- MDIR=$(top_srcdir)/arch/$(TARGMACH)
-@@ -89,8 +89,6 @@
- 		strip ${DESTDIR}${libexecdir}/${DEST} ;	\
- 		echo strip ${DESTDIR}${libexecdir}/${DEST} ;	\
- 	fi
--	test -z "${DESTDIR}$(mandir)/man1" || mkdir -p "${DESTDIR}$(mandir)/man1"       
--	${INSTALL} $(srcdir)/cpp.1 ${DESTDIR}${mandir}/man1/$(DEST).1
- 
- clean:
- 	/bin/rm -f $(OBJS) $(DEST) lex.yy.c y.tab.[ch] tests/run*
-diff -ubBr mip/node.h.orig mip/node.h
---- mip/node.h.orig	2010-08-11 23:08:44.000000000 +0900
-+++ mip/node.h	2011-05-18 12:21:30.000000000 +0900
-@@ -42,7 +42,7 @@
- struct attr {
- 	struct attr *next;
- 	int atype;
--	union aarg aa[];
-+	union aarg aa[1];
- };
- 
- /*
+ all: $(DEST)
