@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-gc/Makefile,v 1.1 2020/01/08 16:03:45 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -35,7 +35,12 @@ fetch:
 
 configure: fetch
 	@if [ ! -f .configure_done ]; then \
-		(cd $(ASIR_GC) ; \
-            ./configure --prefix="`cd ../../OpenXM; pwd`") \
+		if [ -z $TARGET_TYPE ]; then \
+		  (cd $(ASIR_GC) ; \
+		  ./configure --prefix="`cd ../../OpenXM; pwd`") \
+		else \
+		  (cd $(ASIR_GC) ; \
+		  ./configure --host=${TARGET_TYPE} --prefix="`cd ../../OpenXM; pwd`") \
+		fi ; \
 	fi
 	@touch .configure_done

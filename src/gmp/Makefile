@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.22 2017/03/30 13:17:15 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.23 2017/03/31 01:20:06 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -38,12 +38,16 @@ patch: extract
 configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-		  make configure-cygwin ; \
-		elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
-		  make configure-msys ; \
-		else \
-		  make configure-others ; \
+		if [ -z $TARGET_TYPE ]; then \
+			if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+			  make configure-cygwin ; \
+			elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
+			  make configure-msys ; \
+			else \
+			  make configure-others ; \
+			fi ; \
+	    	else \
+		  make configure-cross ; \
 		fi ; \
 	fi
 	@touch work/.configure_done
@@ -57,6 +61,9 @@ configure-msys:
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx)
+configure-cross:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; CC=${CC} ./configure --host=${TARGET_TYPE} --prefix=$$prefix --enable-cxx)
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \

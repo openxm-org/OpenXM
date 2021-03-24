@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/ox_pari/make-configure,v 1.1 2016/09/22 10:20:30 ohara Exp $
+# $OpenXM: OpenXM/src/ox_pari/make-configure,v 1.2 2016/09/23 03:04:22 takayama Exp $
 
 prefix=`cd ../..; pwd`
 cache_file=`pwd`/config.cache
@@ -8,7 +8,11 @@ case "$1" in
     automake
     autoconf
     touch ${cache_file}
-    ./configure --prefix=${prefix} --cache-file=${cache_file}
+    if [ -z $TARGET_TYPE ]; then
+        ./configure --prefix=${prefix} --cache-file=${cache_file}
+    else
+        ./configure --host=${TARGET_TYPE} --prefix=${prefix} --cache-file=${cache_file}
+    fi
     ;;
 "-d"|"--disable-shared")
 if [ ! -f ./.configure_done ]; then 
@@ -19,7 +23,11 @@ if [ ! -f ./.configure_done ]; then
 		autoconf 
   	fi
     touch ${cache_file}
-    ./configure --prefix=${prefix} --cache-file=${cache_file} --disable-shared
+    if [ -z $TARGET_TYPE ]; then
+        ./configure --prefix=${prefix} --cache-file=${cache_file} --disable-shared
+    else
+        ./configure --host=${TARGET_TYPE} --prefix=${prefix} --cache-file=${cache_file} --disable-shared
+    fi
 fi
 ;;
 *)
@@ -31,7 +39,11 @@ if [ ! -f ./.configure_done ]; then
 		autoconf 
   	fi
     touch ${cache_file}
-    ./configure --prefix=${prefix} --cache-file=${cache_file}
+    if [ -z $TARGET_TYPE ]; then
+        ./configure --prefix=${prefix} --cache-file=${cache_file}
+    else
+        ./configure --host=${TARGET_TYPE} --prefix=${prefix} --cache-file=${cache_file}
+    fi
 fi
     ;;
 esac

@@ -1,9 +1,13 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/make-configure,v 1.4 2004/06/30 22:42:33 takayama Exp $
+# $OpenXM: OpenXM/src/util/make-configure,v 1.5 2019/01/28 04:51:51 takayama Exp $
 if test ! -f ./.configure_done   -o ! -f ./Makefile
 then 
 # make -f Makefile.conf
- echo "--prefix=`cd ../../../OpenXM ; pwd`"
- ./configure --prefix="`cd ../../../OpenXM ; pwd`" --enable-shared
+  echo "--prefix=`cd ../../../OpenXM ; pwd`"
+  if [ -z $TARGET_TYPE ] ; then 
+    ./configure --prefix="`cd ../../../OpenXM ; pwd`" --enable-shared
+  else
+    ./configure --host=${TARGET_TYPE} --prefix="`cd ../../../OpenXM ; pwd`" --enable-shared
+  fi
 fi
 touch .configure_done 

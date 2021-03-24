@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.2 2018/12/22 01:54:58 kondoh Exp $
+# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.3 2020/01/08 17:29:26 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -22,6 +22,9 @@ all-nox: configure-nox
 install: all
 	(cd ${ASIR} ; ${MAKE} install-openxm)
 
+install-nox: all-nox
+	(cd ${ASIR} ; ${MAKE} install-openxm)
+
 clean:
 	(cd ${ASIR} ; ${MAKE} clean)
 	@rm -f ./.make_* ./.configure_* ./.install-* ./.fetch*
@@ -33,29 +36,49 @@ fetch: install-pari install-asirgc
 
 configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; \
-            ./configure --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		if [ -z $TARGET_TYPE ]; then \
+		    (cd $(ASIR) ; \
+		    ./configure --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		else \
+		    (cd $(ASIR) ; \
+		    ./configure --host=${TARGET_TYPE} --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		fi \
 	fi
 	@touch ./.configure_done
 
 configure-nox: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; \
-            ./configure --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		if [ -z $TARGET_TYPE ]; then \
+		    (cd $(ASIR) ; \
+                    ./configure --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		else \
+		    (cd $(ASIR) ; \
+                    ./configure --host=${TARGET_TYPE} --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		fi \
 	fi
 	@touch ./.configure_done
 
 configure-static: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; \
-            ./configure --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		if [ -z $TARGET_TYPE ]; then \
+		    (cd $(ASIR) ; \
+                    ./configure --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		else \
+		    (cd $(ASIR) ; \
+                    ./configure --host=${TARGET_TYPE} --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		fi \
 	fi
 	@touch ./.configure_done
 
 configure-interval: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; \
-            ./configure --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
+		if [ -z $TARGET_TYPE ]; then \
+		    (cd $(ASIR) ; \
+                    ./configure --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
+		else \
+		    (cd $(ASIR) ; \
+                    ./configure --host=${TARGET_TYPE} --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
+		fi \
 	fi
 	@touch ./.configure_done
 

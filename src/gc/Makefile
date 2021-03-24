@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.28 2020/01/08 16:07:09 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.29 2020/01/09 12:15:00 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -40,12 +40,16 @@ patch: extract
 configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-		  make configure-cygwin ; \
-		elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
-		  make configure-msys ; \
+		if [ -z $TARGET_TYPE ]; then \
+			if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+			  make configure-cygwin ; \
+			elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
+			  make configure-msys ; \
+			else \
+			  make configure-others ; \
+			fi ; \
 		else \
-		  make configure-others ; \
+		  make configure-cross ; \
 		fi ; \
 	fi
 	@touch work/.configure_done
@@ -59,6 +63,9 @@ configure-msys:
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; ./configure --disable-threads --prefix=$$prefix )
+configure-cross:
+	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
+	(cd ${WRKSRC}; ./configure --host=${TARGET_TYPE} --disable-threads --prefix=$$prefix )
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
