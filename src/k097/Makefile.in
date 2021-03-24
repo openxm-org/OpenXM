@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.9 2019/01/28 04:51:51 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.10 2020/10/07 23:53:25 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -19,7 +19,7 @@ OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
 BDATE =19970416
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
-CFLAGS= @CFLAGS@ -D_BSD_SOURCE -D_DEFAULT_SOURCE -g -DLOAD_K_PATH=${LOAD_K_PATH} -DLOAD_SM1_PATH2=${LOAD_SM1_PATH2}
+CFLAGS= @CFLAGS@ -D_BSD_SOURCE -D_DEFAULT_SOURCE -g -DLOAD_K_PATH=${LOAD_K_PATH} -DLOAD_SM1_PATH2=${LOAD_SM1_PATH2} -fcommon
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
 ## Kan source.  kan sources must be built up by hand.
