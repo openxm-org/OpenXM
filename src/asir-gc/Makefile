@@ -1,12 +1,12 @@
-# $OpenXM: OpenXM/src/asir-gc/Makefile,v 1.1 2020/01/08 16:03:45 ohara Exp $
+# $OpenXM: OpenXM/src/asir-gc/Makefile,v 1.2 2021/03/24 14:32:47 fujimoto Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original. http://www.hboehm.info/gc/gc_source
-DISTNAME=gc-7.4.2
-DISTFILES=${DISTNAME}.tar.gz libatomic_ops-7.4.0.tar.gz
+DISTNAME=gc-7.6.12
+DISTFILES=${DISTNAME}.tar.gz libatomic_ops-7.6.10.tar.gz
 
 ASIR_GC = ../../../OpenXM_contrib2/asir-gc
 
