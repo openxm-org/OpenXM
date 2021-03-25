@@ -1,36 +1,84 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.26 2020/01/16 03:58:25 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.27 2020/08/26 06:03:31 noro Exp $
 
-# Choose one of pari version.
-# Example.
-# $ make install                 ( for PARI/GP 2.0.x)
-# $ make PARI_VER=2.2 install    ( for PARI/GP 2.2.x)
+OpenXM_HOME=../..
+PREFIX=${OpenXM_HOME}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+RM = /bin/rm
+RANLIB=ranlib
+PARI=pari-2.11.4
+PATCH_FILE=${PARI}.diff
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
+DIST_SUFFIX=.tar.gz
+DISTFILES=${PARI}${DIST_SUFFIX}
+GALFILES=galdata.tgz galpol.tgz
 
-#PARI_VER=2.0
-#PARI_VER=2.2
-#PARI_VER=2.3
-PARI_VER=2.11
+all: build 
 
-## for PARI/GP unstable (2.2)
-PARI_DEVEL_VER=pari-2.2.8.alpha
-PARI_DEVEL_SUFFIX=.tar.gz
+fetch:
+	-mkdir work
+	@if [ ! -f work/.fetch_done ]; then \
+	    for i in ${DISTFILES} ${GALFILES}; do \
+	        ${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}"$$i" ${DISTDIR}; \
+	    done; \
+	fi 
+	@touch work/.fetch_done
 
-## for PARI/GP unstable (2.3)
-PARI_23_VER=pari-2.3.4
-PARI_23_SUFFIX=.tar.gz
+extract: fetch
+	@if [ ! -f work/.extract_done ]; then \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	    for i in ${GALFILES}; do \
+	        cat ${DISTDIR}/"$$i" | (cd work/${PARI} ; tar xzvf -) ; \
+	    done; \
+	fi 
+	@touch work/.extract_done
 
-## for PARI/GP unstable (2.11)
-PARI_211_VER=pari-2.11.4
-PARI_211_SUFFIX=.tar.gz
+patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+	    if [ -f "${PATCH_FILE}" ]; then \
+	        cat ${PATCH_FILE} | (cd work/${PARI} ; patch -p1 ) ; \
+	    fi \
+	fi 
+	@touch work/.patch_done
 
-all: build
-
-fetch extract patch configure build build-doc install install-doc clean distclean:
-	@if [ "${PARI_VER}" = 2.11 ]; then \
-		${MAKE} -f Makefile.2.0 PARI=${PARI_211_VER} DIST_SUFFIX=${PARI_211_SUFFIX} $@ ; \
-	elif [ "${PARI_VER}" = 2.3 ]; then \
-		${MAKE} -f Makefile.2.0 PARI=${PARI_23_VER} DIST_SUFFIX=${PARI_23_SUFFIX} $@ ; \
-	elif [ "${PARI_VER}" = 2.2 ]; then \
-		${MAKE} -f Makefile.2.0 PARI=${PARI_DEVEL_VER} DIST_SUFFIX=${PARI_DEVEL_SUFFIX} $@ ; \
-	else \
-		${MAKE} -f Makefile.2.0 $@ ; \
+configure: patch
+	@if [ ! -f work/.configure_done ]; then \
+		prefix=`cd ${OpenXM_HOME}; pwd` ; \
+		(cd work/${PARI} ; ./Configure --prefix="$$prefix" ) ; \
 	fi
+	@touch work/.configure_done
+
+build: configure
+	@if [ ! -f work/.build_done ]; then \
+		d=`cd work/${PARI} ; config/objdir` ; \
+		(cd work/${PARI}/$$d ; ${MAKE} lib-sta; ${MAKE} gp) ; \
+	fi
+	@touch work/.build_done
+
+build-doc: configure
+	@if [ ! -f work/.build_doc_done ]; then \
+		(cd work/${PARI} ; ${MAKE} doc) ; \
+	fi
+	@touch work/.build_doc_done
+
+install: build
+	-mkdir ${PREFIX}/bin ${PREFIX}/lib
+	@if [ ! -f work/.install_done ]; then \
+		d=`cd work/${PARI} ; config/objdir` ; \
+		(cd work/${PARI}/$$d ; ${MAKE} install-lib-sta install-include install-lib-dyn install-data) ; \
+		${RANLIB} ${PREFIX}/lib/libpari.a ; \
+	fi
+	@touch work/.install_done
+
+install-doc: build-doc
+	-mkdir ${PREFIX}/doc/pari
+	@if [ ! -f work/.install_doc_done ]; then \
+		for i in users.dvi tutorial.dvi; do \
+			cp work/${PARI}/doc/$$i ${PREDIX}/doc/pari ; \
+		done ; \
+	fi
+	@touch work/.install_doc_done
+
+clean:
+	-${RM} -rf work
+
+distclean: clean
