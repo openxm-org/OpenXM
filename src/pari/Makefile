@@ -1,11 +1,12 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.27 2020/08/26 06:03:31 noro Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.28 2021/03/25 03:02:40 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 RANLIB=ranlib
-PARI=pari-2.11.4
+#PARI=pari-2.11.4
+PARI=pari-2.13.1
 PATCH_FILE=${PARI}.diff
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DIST_SUFFIX=.tar.gz

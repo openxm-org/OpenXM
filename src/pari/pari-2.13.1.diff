@@ -1,0 +1,12 @@
+diff -ubBr pari-2.13.1.orig/config/Makefile.SH pari-2.13.1/config/Makefile.SH
+--- pari-2.13.1.orig/config/Makefile.SH	2020-10-26 21:43:04.000000000 +0900
++++ pari-2.13.1/config/Makefile.SH	2021-03-25 12:22:04.074809000 +0900
+@@ -488,7 +488,7 @@
+ 	mkdir -p \$(DATADIR); \
+ 	if test -d $data; then cd $data; \
+ 	  for d in \`ls\`; do \
+-            test -d "\$\$d" && (\$(TAR) c \$\$d | (cd \$(DATADIR) && \$(TAR) xo )); \
++            test -d "\$\$d" && (\$(TAR) cf - \$\$d | (cd \$(DATADIR) && \$(TAR) xof - )); \
+ 	  done; \
+ 	fi;
+ 
