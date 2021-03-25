@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.18 2021/01/22 02:39:55 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.19 2021/01/22 03:07:15 noro Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -9,12 +9,10 @@ PTEX=@PTEX@
 MAKEINFO=@MAKEINFO@ --force
 LANGUAGES = en ja
 INSTALL = cp -f
-TEXI2HTML = texi2html
+TEXI2HTML = @TEXI2HTML@
+TEXINDEX = @TEXINDEX@
 
-.SUFFIXES: .dvi .pdf
-
-.dvi.pdf:
-	@echo "xetex has already generated PDF files"
+.SUFFIXES: .pdf
 
 all:
 	if [ ! -f .make_done ]; then ${MAKE} all2 ; touch .make_done ; fi
@@ -38,15 +36,6 @@ install: all
 		${INSTALL} asir.1 ${OpenXM_man} ; \
 		touch .install_done ; \
 	fi
-
-configure-texindex:
-	if [ ! -f .configure_sub_done ]; then \
-		(cd jtexindex/C; ./configure; ${MAKE} clean); \
-		touch .configure_sub_done ; \
-	fi
-
-texindex: configure-texindex
-	(cd jtexindex/C; ${MAKE})
 
 BUILTINS=\
 	parts/builtin/array.texi parts/builtin/bit.texi\
@@ -86,33 +75,20 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
     int-parts/datatype/vect.texi
 
 tmp-en tmp-html-en: extract_man
-tmp-ja tmp-ja_euc tmp-ja_utf8 tmp-html-ja tmp-html-internal-ja: extract_man
-man-en.pdf man-ja.pdf: texindex
+tmp-ja tmp-html-ja tmp-html-internal-ja: extract_man
 help-en help-func: extract_func
 html-win-en html-win: gen_hh
 
 tmp-ja: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
-	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
-
-tmp-ja_euc: ${SRCS}
-	-rm -rf $@
-	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
-	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -e > $@/$$i; done
-
-tmp-ja_utf8: ${SRCS}
-	-rm -rf $@
-	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${SRCS}; do ./extract_man ja $$i | nkf -w > $@/$$i; done
 
 tmp-html-ja: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${SRCS}; do \
 	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
@@ -120,13 +96,13 @@ tmp-html-ja: ${SRCS}
 tmp-en: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${SRCS}; do ./extract_man en $$i > $@/$$i; done
 
 tmp-html-en: ${SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${SRCS}; do \
 		./extract_man en $$i | sed -e "s/@fref/@ref/g" > $@/$$i;\
 	done
@@ -134,7 +110,7 @@ tmp-html-en: ${SRCS}
 tmp-internal-ja: ${INTERNAL_SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin $@/int-parts/datatype
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${INTERNAL_SRCS}; do \
 	  ./extract_man ja $$i | nkf -w > $@/$$i; \
 	done 
@@ -142,29 +118,29 @@ tmp-internal-ja: ${INTERNAL_SRCS}
 tmp-html-internal-ja: ${INTERNAL_SRCS}
 	-rm -rf $@
 	-mkdir -p $@/parts/builtin $@/int-parts/datatype
-	-cp texinfo*.* txi*tex $@
+	-cp texinfo/* $@
 	-for i in ${INTERNAL_SRCS}; do \
 	  ./extract_man ja $$i | nkf -w | sed -e "s/@fref/@ref/g" > $@/$$i; \
 	done 
 
 man-ja.pdf: tmp-ja
-	-(cd tmp-ja; ${PTEX} man.texi; ../jtexindex/C/texindex man.??; ${PTEX} man.texi)
+	-(cd tmp-ja; ${PTEX} man.texi; ${TEXINDEX} man.??; ${PTEX} man.texi)
 	-mv -f tmp-ja/man.pdf $@
 	-touch $@
 
 man-en.pdf: tmp-en
-	-(cd tmp-en; ${TEX} man.texi; ../jtexindex/C/texindex man.??; ${TEX} man.texi)
+	-(cd tmp-en; ${TEX} man.texi; ${TEXINDEX} man.??; ${TEX} man.texi)
 	-(cd tmp-en; ${MAKEINFO} man.texi)
 	-mv -f tmp-en/man.pdf $@
 	-touch $@
 
 man: man-ja.pdf man-en.pdf internal-ja.pdf exp-ja.pdf
 
-help-ja: tmp-ja_euc man-ja.pdf
+help-ja: tmp-ja man-ja.pdf
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
-	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
+	-(cd tmp-ja; ${MAKEINFO} man.texi)
+	-(cd $@; for i in ../tmp-ja/risaman*; do ../extract_func -j $$i; done)
 
 help-en: tmp-en man-en.pdf
 	-rm -rf $@
@@ -174,12 +150,12 @@ help-en: tmp-en man-en.pdf
 html-ja: tmp-html-ja
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ln -s ../texi2html.perl . ; ../texi2html -menu -split_node ../tmp-html-ja/man.texi)
+	-(cd $@; ${TEXI2HTML} -menu -split_node ../tmp-html-ja/man.texi)
 
 html-en: tmp-html-en
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ln -s ../texi2html.perl . ;../texi2html -menu -split_node ../tmp-html-en/man.texi)
+	-(cd $@; ${TEXI2HTML} -menu -split_node ../tmp-html-en/man.texi)
 
 html-win: html-ja gen_hh
 	-rm -rf $@
@@ -196,22 +172,22 @@ html-win-en: html-en gen_hh
 html-internal-ja: tmp-html-internal-ja
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} ../tmp-html-internal-ja/internal.texi)
+	-(cd $@; ${TEXI2HTML} ../tmp-html-internal-ja/internal.texi)
 
 html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
 	-nkf -w exp/exp-ja.texi > $@/exp-ja.texi
-	-cp texinfo*.* txi*tex $@
-	-(cd $@; ln -s ../texi2html.perl . ; ../${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
+	-cp texinfo/* $@
+	-(cd $@; ${TEXI2HTML} -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.pdf: tmp-internal-ja
-	-(cd tmp-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
+	-(cd tmp-internal-ja; ${PTEX} internal.texi; ${TEXINDEX} internal.??; ${PTEX} internal.texi)
 	-mv -f tmp-internal-ja/internal.pdf $@
 	-touch $@
 
 exp-ja.pdf: html-exp-ja
-	-(cd html-exp-ja; ${PTEX} exp-ja.texi; ../jtexindex/C/texindex exp-ja.??; ${PTEX} exp-ja.texi)
+	-(cd html-exp-ja; ${PTEX} exp-ja.texi; ${TEXINDEX} exp-ja.??; ${PTEX} exp-ja.texi)
 	-mv -f html-exp-ja/exp-ja.pdf $@
 	-touch $@
 
@@ -231,9 +207,8 @@ targzuu: help-en help-ja html-en html-ja
 	-tar cf - html-ja | gzip -9 | uuencode html-ja.tgz > html-ja.uu
 
 clean:
-	-(cd jtexindex/C; ${MAKE} clean)
 	-rm -f man*.pdf man*.pdf *.o extract_man extract_func gen_hh
-	-rm -f internal-ja.pdf
+	-rm -f internal-ja.pdf exp-ja.pdf
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*

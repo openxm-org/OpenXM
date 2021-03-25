@@ -1,18 +1,31 @@
-dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.5 2017/03/30 05:36:04 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.6 2017/08/31 01:24:32 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT
 AC_PREREQ(2.61)
 AC_PROG_CC
 
-AC_PATH_PROGS([MAKEINFO],[jmakeinfo makeinfo])
-AC_SUBST([MAKEINFO])
-AC_PATH_PROG([PTEX],[xetex])
-AC_SUBST([PTEX])
-AC_PATH_PROG([TEX],[xetex])
-AC_SUBST([TEX])
+AC_PATH_PROG([MAKEINFO],[makeinfo],[no])
+AC_PATH_PROG([TEXINDEX],[texindex],[no])
+AC_PATH_PROG([TEXI2HTML],[texi2html],[no])
+if test "$MAKEINFO" = no -o "$TEXINDEX" = no; then
+    AC_MSG_ERROR([makeinfo is not found.])
+fi
+if test "$TEXI2HTML" = no ; then
+    AC_MSG_ERROR([texi2html is not found.])
+fi
+AC_PATH_PROG([PTEX],[xetex],[no])
+AC_PATH_PROG([TEX],[xetex],[no])
+if test "$PTEX" = no -o "$TEX" = no ; then
+    AC_MSG_ERROR([xetex is not found.])
+fi
 
 OpenXM_HOME=`cd ../..; pwd`
+AC_SUBST([MAKEINFO])
+AC_SUBST([TEXINDEX])
+AC_SUBST([TEXI2HTML])
+AC_SUBST([PTEX])
+AC_SUBST([TEX])
 AC_SUBST([OpenXM_HOME])
 
 AC_CONFIG_FILES([Makefile])

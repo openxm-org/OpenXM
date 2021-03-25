@@ -1,4 +1,3 @@
-% $Id$
 % txi-ja.tex -- Japanese translations and font definitions for texinfo.tex.
 %
 % Copyright 1999, 2007, 2008, 2016 Free Software Foundation, Inc.
@@ -192,21 +191,6 @@
         #1%
         \parseargline\empty% Insert the \empty token, see \finishparsearg below.
     }
-    % Re-define texinfo.tex's \comment
-    \def\comment{\begingroup \catcode`\^^M=\active%
-      \ifx\ltjlineendcomment\thisisundefined
-        % Ignore U+FFFFF for LuaTeX-ja <= 20160208.0
-        \catcode"FFFFF=9%
-      \else
-        % Ignore the character \ltjlineendcomment for LuaTeX-ja > 20160208.0
-        \catcode\ltjlineendcomment=9%
-      \fi
-    \catcode`\@=\other \catcode`\{=\other \catcode`\}=\other\commentxxx}%
-    % Re-let \comment related macros
-    \let\setfilename=\comment
-    \let\dircategory=\comment
-    \let\definfoenclose=\comment
-    \let\footnotestyle=\comment
     % Re-define texinfo.tex's \c
     \def\c{\begingroup \catcode`\^^M=\active%
       \ifx\ltjlineendcomment\thisisundefined
@@ -219,7 +203,12 @@
     \catcode`\@=\other \catcode`\{=\other \catcode`\}=\other%
     \cxxx}
     % Re-let \c related macro
-    \let\texinfoc=\c
+    \let\comment=\c
+    % Re-let \comment related macros
+    \let\setfilename=\comment
+    \let\dircategory=\comment
+    \let\definfoenclose=\comment
+    \let\footnotestyle=\comment
   \fi % LuaTeX
 
   %

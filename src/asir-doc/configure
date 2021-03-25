@@ -586,6 +586,8 @@ LIBOBJS
 OpenXM_HOME
 TEX
 PTEX
+TEXI2HTML
+TEXINDEX
 MAKEINFO
 OBJEXT
 EXEEXT
@@ -2516,10 +2518,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-for ac_prog in jmakeinfo makeinfo
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
+# Extract the first word of "makeinfo", so it can be a program name with args.
+set dummy makeinfo; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_path_MAKEINFO+:} false; then :
@@ -2545,6 +2545,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_MAKEINFO" && ac_cv_path_MAKEINFO="no"
   ;;
 esac
 fi
@@ -2558,10 +2559,94 @@ $as_echo "no" >&6; }
 fi
 
 
-  test -n "$MAKEINFO" && break
+# Extract the first word of "texindex", so it can be a program name with args.
+set dummy texindex; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_TEXINDEX+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $TEXINDEX in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_TEXINDEX="$TEXINDEX" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_TEXINDEX="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
 done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_TEXINDEX" && ac_cv_path_TEXINDEX="no"
+  ;;
+esac
+fi
+TEXINDEX=$ac_cv_path_TEXINDEX
+if test -n "$TEXINDEX"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $TEXINDEX" >&5
+$as_echo "$TEXINDEX" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
 
 
+# Extract the first word of "texi2html", so it can be a program name with args.
+set dummy texi2html; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_TEXI2HTML+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $TEXI2HTML in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_TEXI2HTML="$TEXI2HTML" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_TEXI2HTML="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_TEXI2HTML" && ac_cv_path_TEXI2HTML="no"
+  ;;
+esac
+fi
+TEXI2HTML=$ac_cv_path_TEXI2HTML
+if test -n "$TEXI2HTML"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $TEXI2HTML" >&5
+$as_echo "$TEXI2HTML" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "$MAKEINFO" = no -o "$TEXINDEX" = no; then
+    as_fn_error $? "makeinfo is not found." "$LINENO" 5
+fi
+if test "$TEXI2HTML" = no ; then
+    as_fn_error $? "texi2html is not found." "$LINENO" 5
+fi
 # Extract the first word of "xetex", so it can be a program name with args.
 set dummy xetex; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -2589,6 +2674,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_PTEX" && ac_cv_path_PTEX="no"
   ;;
 esac
 fi
@@ -2600,7 +2686,6 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-
 
 
 # Extract the first word of "xetex", so it can be a program name with args.
@@ -2630,6 +2715,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_TEX" && ac_cv_path_TEX="no"
   ;;
 esac
 fi
@@ -2643,9 +2729,16 @@ $as_echo "no" >&6; }
 fi
 
 
-
+if test "$PTEX" = no -o "$TEX" = no ; then
+    as_fn_error $? "xetex is not found." "$LINENO" 5
+fi
 
 OpenXM_HOME=`cd ../..; pwd`
+
+
+
+
+
 
 
 ac_config_files="$ac_config_files Makefile"
