@@ -1,5 +1,21 @@
 #include "ox_pari.h"
 
+int with_gmp;
+
+int gmp_check()
+{
+  GEN z1,z2;
+
+  // z1=[*,*,1,2], z2=[*,*,2,1]
+  // if gmp style => z1>z2 else z1<z2
+  z1 = cgeti(2+2); setsigne(z1,1); setlgefint(z1,lg(z1));
+  z1[2] = 1; z1[3] = 2;
+  z2 = cgeti(2+2); setsigne(z2,1); setlgefint(z2,lg(z2));
+  z2[2] = 2; z2[3] = 1;
+  if ( cmpii(z1,z2) > 0 ) with_gmp = 1;
+  else with_gmp = 0;
+}
+
 GEN cmo_int32_to_GEN(cmo_int32 *c)
 {
   GEN z;
@@ -42,8 +58,12 @@ GEN cmo_zz_to_GEN(cmo_zz *c)
   len = ABSIZ(mpz);
   ptr = (long *)PTR(mpz);
   z = cgeti(len+2);
-  for ( j = 0; j < len; j++ )
-    z[len-j+1] = ptr[j];
+  if ( with_gmp ) // least signifcant first
+    for ( j = 0; j < len; j++ )
+      z[j+2] = ptr[j];
+  else // most signifcant first
+    for ( j = 0; j < len; j++ )
+      z[len-j+1] = ptr[j];
   setsigne(z,sgn);
   setlgefint(z,lg(z));
   return z;
@@ -166,7 +186,8 @@ cmo_zz *GEN_to_cmo_zz(GEN z)
   cmo_zz *c;
 
   c = new_cmo_zz();
-  mpz_import(c->mpz,lg(z)-2,1,sizeof(long),0,0,&z[2]);
+  // -1:least significant first, 1:most significant first
+  mpz_import(c->mpz,lg(z)-2,with_gmp?-1:1,sizeof(long),0,0,&z[2]);
   if ( signe(z) < 0 )
     mpz_neg(c->mpz,c->mpz);
   return c;

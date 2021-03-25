@@ -15,6 +15,7 @@
 void init_pari(void);
 cmo_error2 *make_error2(char *message);
 
+int gmp_check(void);
 cmo *GEN_to_cmo(GEN z);
 cmo_zz *GEN_to_cmo_zz(GEN z);
 cmo_qq *GEN_to_cmo_qq(GEN z);

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.21 2020/11/10 01:11:38 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.22 2020/11/10 04:48:49 noro Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -34,6 +34,7 @@ void init_pari()
 {
   pari_init(paristack,2);
   mp_set_memory_functions(GC_malloc,gc_realloc,gc_free);
+  gmp_check();
 }
 
 int initialize_stack()
