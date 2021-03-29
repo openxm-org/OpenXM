@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.56 2019/03/29 03:01:45 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.57 2020/03/14 02:25:07 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -76,6 +76,7 @@ all-current-index: configure-dir
 	cp index-doc-asir-en.html ${CURRENT_DOC}/index-doc-asir.html
 	cp video.html ${CURRENT}/video.html
 	cp video-ja.html ${CURRENT}/video-ja.html
+	${RSYNC} ${CURRENT_FILES} ${CURRENT}
 all-current: all-current-index configure-dir
 	(cd ${OpenXM_doc} ; make all)
 	(cd ${OpenXM_doc} ; ${RSYNC} ${OXWEAVE_FILES_in_doc} ${CURRENT})
