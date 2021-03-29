@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.10 2017/08/31 06:31:44 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.11 2021/01/21 23:30:31 takayama Exp $
 # Original file was ../Makefile.common
 # Targets
 # gen-texi : generating texi files.
@@ -53,7 +53,8 @@ OPTGENTEXI= --include
 #OPTGENTEXI= --include --example
 ## PS documents are installed under ${OpenXM_doc}/asir-contrib
 DVIPS=dvips -f
-TEXI2HTML=${ASIRDOC}/texi2html -menu
+#TEXI2HTML=${ASIRDOC}/texi2html -menu
+TEXI2HTML=texi2html -menu
 RM=rm -f
 NKF=nkf -w
 
