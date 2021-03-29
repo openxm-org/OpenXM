@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.9 2002/10/23 08:40:16 takayama Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.10 2002/10/27 10:39:32 takayama Exp $
  */
 package ORG.openxm.tam;
 
@@ -8,9 +8,9 @@ import java.net.*;
 
 
 /*&ja
-    OpenXM �����ФȤ���³��Ԥʤ����饹. 
-    ���饤�����¦�����Ѥ���.     
-    ��³���륵������˰�Ĥ� OpenXM ���饹��ɬ��. 
+    OpenXM サーバとの接続を行なうクラス. 
+    クライアント側が使用する.     
+    接続するサーバ毎に一つの OpenXM クラスが必要. 
 */
 /**
  * OpenXM is a class to connect to OpenXM servers,
@@ -23,9 +23,9 @@ public class OpenXM{
   final protected boolean debug = false;
 
   /*&ja
-   * OpenXM �����ФȤ���³�� TCP/IP �����åȤ��Ѥ��ƹԤʤ�.
-   * �ޥ���̾ host �Υݡ����ֹ� CtrlPort �˥���ȥ������,
-   * �ݡ����ֹ� StreamPort �˥ǡ����Ѥ���³��Ԥʤ�.
+   * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
+   * マシン名 host のポート番号 CtrlPort にコントロールを,
+   * ポート番号 StreamPort にデータ用の接続を行なう.
    */
   /**
    * Connect to an OpenXM server via TCP/IP socket.
@@ -54,10 +54,10 @@ public class OpenXM{
   }
 
   /*&ja
-   * ���ޥ�� command ��Ω���夲��
-   * OpenXM �����ФȤ���³�� TCP/IP �����åȤ��Ѥ��ƹԤʤ�.
-   * �ޥ���̾ host �Υݡ����ֹ� CtrlPort �˥���ȥ������,
-   * �ݡ����ֹ� StreamPort �˥ǡ����Ѥ���³��Ԥʤ�.
+   * コマンド command を立ち上げ、
+   * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
+   * マシン名 host のポート番号 CtrlPort にコントロールを,
+   * ポート番号 StreamPort にデータ用の接続を行なう.
    */
   /**
    * First, execute a command, which is usually an OpenXM server,
@@ -134,7 +134,7 @@ public OpenXM(String ox_server) throws IOException {
 
 
   /*&ja
-   * �����Фη׻����Ǥ�Ԥʤ�. ���ߤ�̤����.
+   * サーバの計算中断を行なう. 現在は未実装.
    */
   /**
    * Resetting the engine process.  It has not yet been implemented.
@@ -145,9 +145,9 @@ public OpenXM(String ox_server) throws IOException {
   }
 
   /*&ja
-   * OpenXM ��å�������ǡ������ȥ꡼�����������.
-   * ���Υ᥽�åɤϥ�å������Υܥǥ�����ʬ�����Ǥ褤.
-   * �إå���ʬ�ϼ�ư���ղä����.
+   * OpenXM メッセージをデータストリームに送信する.
+   * このメソッドはメッセージのボディの部分だけでよい.
+   * ヘッダ部分は自動で付加される.
    */
   /**
    * Send an OpenXM message object. 
@@ -160,7 +160,7 @@ public OpenXM(String ox_server) throws IOException {
   }
 
   /*&ja
-   * �ǡ������ȥ꡼�फ�� OpenXM ��å�������������.
+   * データストリームから OpenXM メッセージを受け取る.
    */
   /**
    * Receive an OpenXM message.
@@ -170,12 +170,12 @@ public OpenXM(String ox_server) throws IOException {
   }
 
   /*&ja
-   * �ǡ������ȥ꡼��� MathCap �� mathcap �����ꤹ��.
-   * �ʸ�, �������륪�֥������Ȥ� mathcap �˹�äƤ��뤫�ɤ���
-   * �����å�������. �ºݤ˥����å������뤫�ɤ�����
-   * OXbody ���饹���������饹�μ����ˤ��.
-   * mathcap ��ȿ�������֥������Ȥ��������Ȥ������ˤ�,
-   * �ʸ� MathcapViolation ��ȯ�����뤳�Ȥ����Ԥ����.
+   * データストリームの MathCap を mathcap に設定する.
+   * 以後, 送信するオブジェクトは mathcap に合っているかどうか
+   * チェックが入る. 実際にチェックが入るかどうかは
+   * OXbody クラスの派生クラスの実装による.
+   * mathcap に反したオブジェクトを送ろうとした時には,
+   * 以後 MathcapViolation が発生することが期待される.
    */
   /**
    * Set the mathcap.
@@ -232,7 +232,7 @@ public OpenXM(String ox_server) throws IOException {
     }
 
     try{
-      //������¦��ʸ������������ޤ���
+      //サーバ側へ文字列を送信します。
       ox.send(new SM(SM.SM_mathcap));
       ox.send(new SM(SM.SM_popString));
 
@@ -266,7 +266,7 @@ public OpenXM(String ox_server) throws IOException {
 
       //os.flush();
 
-      //������¦�����������줿ʸ�����������ޤ���
+      //サーバ側から送信された文字列を受信します。
       while(true){
 	ox.receive();
       }
