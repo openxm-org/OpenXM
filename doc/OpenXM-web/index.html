@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index.html,v 1.72 2020/10/04 10:39:41 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index.html,v 1.73 2020/11/24 11:46:00 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:openxm2005@math(ematics).sci.kobe-u.ac.jp">
@@ -27,10 +27,6 @@ Welcome to the home page of OpenXM-HEAD <img src="../Stable/logo-openxm5.jpg">
 
 <H2>Source Distribution (Download) </H2>
 
-<font color="red">
-2020.10.04: MacOS X, the version of xcode should be less than 12.
-</font>
-<br>
 
 <OL>
 <LI> HEAD branch is available from our web site:
@@ -44,6 +40,26 @@ It is updated everyday.
 <li> <a href="install-en.txt"> Installation guide in English </a>
 <li> <a href="install-ja.txt"> Installation guide in Japanse </a>
 </ul>
+
+<h2 id="apt"> Debian package for amd64</h2>
+<ol>
+<li> Add the following to /etc/apt/sources.list
+<pre>
+  deb http://www.math.kobe-u.ac.jp/deb2/ unstable/
+  deb http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
+<pre>
+<li> Add our keys to your system.
+The keys are at <a href="http://www.math.kobe-u.ac.jp/deb2/pub-keys">
+  http://www.math.kobe-u.ac.jp/deb2/pub-keys </a>
+<pre>
+   apt-key add mathlibre.pub
+   apt-key add debian-math.kobe-u.ac.jp.pub
+</pre>
+<li>
+<pre>
+    sudo apt-get update
+</pre>
+</ol>
 
 <H2>
 <A HREF="ERRATA.html">ERRATA</A>.

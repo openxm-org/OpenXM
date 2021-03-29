@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//JA">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.11 2020/10/04 10:39:41 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.12 2020/11/24 11:46:00 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:openxm2005@math(ematics).sci.kobe-u.ac.jp">
@@ -27,10 +27,6 @@ OpenXM-HEAD <img src="../Stable/logo-openxm5.jpg"> ブランチへようこそ
 
 <H2>ソースのダウンロード </H2>
 
-<font color="red">
-2020.10.04: MacOS X, xcode の version は 12 未満の必要あり.
-</font>
-<br>
 
 <OL>
 <LI> HEAD branch is available from our web site:
@@ -45,6 +41,26 @@ OpenXM-HEAD <img src="../Stable/logo-openxm5.jpg"> ブランチへようこそ
 <li> <a href="install-ja.txt"> 日本語のインストールガイド </a>
 </ul>
 
+<h2 id="apt"> Debian package for amd64</h2>
+<ol>
+<li> 以下を /etc/apt/sources.list へ加える.
+<pre>
+  deb http://www.math.kobe-u.ac.jp/deb2/ unstable/
+  deb http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
+<pre>
+<li> 我々の keys を加える.
+keys は <a href="http://www.math.kobe-u.ac.jp/deb2/pub-keys">
+  http://www.math.kobe-u.ac.jp/deb2/pub-keys </a>
+にあり.
+<pre>
+  sudo apt-key add mathlibre.pub
+  sudo apt-key add debian-math.kobe-u.ac.jp.pub
+</pre>
+<li>
+<pre>
+    sudo apt-get update
+</pre>
+</ol>
 
 <H2>
 <A HREF="ERRATA.html">ERRATA</A>.
