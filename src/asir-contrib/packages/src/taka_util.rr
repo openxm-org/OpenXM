@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.23 2021/03/09 07:46:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.24 2021/03/11 05:21:42 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -251,7 +251,7 @@ def  tk_util_helph() {
   if (type(getopt(browser)) > 0) {
     Start=rtostr(getopt(browser));
   }else{
-    Start = tk_util_find_start();
+    Start = tk_util_find_start(|find_browser=1);
   }
   if (Start == 0) { error("Command to start a browser is not found. Specify the name of the browser by helph(|browser=Your_browser_name);"); return(-1); }
   DocumentTop = tk_util_docdir();
