@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.34 2015/02/20 01:20:45 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.35 2015/07/28 06:28:00 takayama Exp $
 
-VERSION=1.3.1
+VERSION=1.3.3
 TAG=HEAD
-## TAG=RELEASE_1_3_1
+## TAG=RELEASE_1_3_3
 
 ### Configure below.
 TAR_WORK=$(HOME)/tmp
@@ -126,8 +126,8 @@ copy-release-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
-	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib OpenXM_contrib2)
-	(cd work ; tar czvf ${TAR_WORK}/openxm-${VERSION}.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
+	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib2)
+	(cd work ; tar czvf ${TAR_WORK}/openxm-${VERSION}.tar.gz OpenXM OpenXM_contrib2)
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${WHO}:${FTP_AREA}
 
@@ -135,8 +135,8 @@ copy-head-tar-ball-to-http-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
-	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib OpenXM_contrib2)
-	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
+	(cd work ; ${RCVS} checkout OpenXM  OpenXM_contrib2)
+	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib2)
 	/bin/rm -rf work
 	cp ${TAR_WORK}/openxm-head.tar.gz ${FTP_AREA_HEAD}
 
