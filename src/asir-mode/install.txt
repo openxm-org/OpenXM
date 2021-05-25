@@ -53,4 +53,27 @@ pushd ../rc ; make  ; source ./dot.bashrc ; popd
 cd asir-mode
 make build-for-mac
 
-$OpenXM: OpenXM/src/asir-mode/install.txt,v 1.6 2019/11/05 23:00:39 takayama Exp $
+The source code can be obtainable from Download of http://www.openxm.org
+The building is relatively easy on MacOS X with Xcode and some additional tools in homebrew.
+
+------- How to remove
+1. Move the OpenXM folder to the trash.
+2. rm ~/bin/openxm
+3. Remove the following lines in ~/.emacs.d/init.d
+;;
+;; Added by use-asir-mode.sh
+(add-to-list 'load-path "~/.emacs.d/OpenXM/")
+(setq auto-mode-alist (cons '("\\.rr$" . asir-mode) auto-mode-alist))
+(autoload 'asir-mode "asir-mode" "Asir mode" t)
+------- 削除法
+1. Desktop の OpenXM をゴミ箱へ.
+2. rm ~/bin/openxm
+3. ~/.emacs.d/init.el の 下記を消す.
+;;
+;; Added by use-asir-mode.sh
+(add-to-list 'load-path "~/.emacs.d/OpenXM/")
+(setq auto-mode-alist (cons '("\\.rr$" . asir-mode) auto-mode-alist))
+(autoload 'asir-mode "asir-mode" "Asir mode" t)
+
+
+$OpenXM: OpenXM/src/asir-mode/install.txt,v 1.7 2019/11/16 10:57:21 takayama Exp $
