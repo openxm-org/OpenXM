@@ -1,10 +1,12 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/solve_ode_by_r4d.c,v 1.1 2020/09/08 07:45:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/solve_ode_by_r4d.c,v 1.2 2021/03/17 11:22:32 takayama Exp $ */
 int T_verbose=0;
+int output_intermediate_values(double t0,double t1,double f0[], double h,int n_defuse);
 void usage() {
   printf("%s [--rank r --t0 t0 --init f1 ... fr  --t1 t1]\n",T_PROGNAME);
   printf("      [--h h --n_defuse n_defuse]\n");
   printf("      [--n_prune n_prune --strategy strat --t_noproj t_noproj]\n");
   printf("      [--ref_value_file ref_file]\n");
+  printf("      [--output_step_size h2]\n");
   printf("      [--verbose --go]\n");
 }
 void usage_example(int type,double t0,double f0[],double t1,double h,double t_noproj,int r, int strat,int n_prune,int n_defuse,char *ref_file) {
@@ -20,7 +22,7 @@ void usage_example(int type,double t0,double f0[],double t1,double h,double t_no
 }
 void usage_draw_graph() {
   printf("--- To draw a graph of the solution, do\n");
-  printf("This_program | grep '^gnuplot' | awk '{print $2, $3}' >t.txt\n");
+  printf("This_program --output_step_size 0.2 | grep '^gnuplot' | awk '{print $2, $3}' >t.txt\n");
   printf("In the gnuplot, plot 't.txt' w lp\n");
 }
 
@@ -45,6 +47,8 @@ int main(int argc,char *argv[]) {
   double t1=T_T1; // 終了時刻
   double h=T_H; // 微小ステップ
   double t_noproj=T_NOPROJ; // この時刻まではprojection しない
+  double output_step_size=0; // defuse する間の時間のデータを出力するか?
+  double tt0,tt1;
   int r=N; // ODE の rank
   int strat=T_STRAT; // projection の strategy
   int n_prune=T_N_PRUNE;  /* 最大の Re eigen_val を除く */
@@ -84,6 +88,7 @@ int main(int argc,char *argv[]) {
     if (strcmp(argv[i],"--verbose")==0) {T_verbose=1; continue;}
     if (strcmp(argv[i],"--help")==0) { show_help=1; continue; }
     if (strcmp(argv[i],"--go")==0) { continue; }
+    if (strcmp(argv[i],"--output_step_size")==0) { i++; sscanf(argv[i],"%lg",&output_step_size);continue;}
     printf("Error: Unknown option %s.\n",argv[i]); usage(); return(-1);
   }
   if (show_help) {
@@ -106,6 +111,7 @@ int main(int argc,char *argv[]) {
 
   for (i=0; i<N; i++) f[i]=f0[i];
   while (t < t1) {
+    tt0=t;
     output_tf(t,f);
     mat_fac(m_t,m_h,n_defuse,m_ans,&m_argc,m_argv); // matrix factorial
     if (T_verbose) outout_mpfr_vec(m_ans,N*N);
@@ -113,7 +119,7 @@ int main(int argc,char *argv[]) {
     cp_vmatm(data,mat_step);   // mat_step として保存.
     printf("matrix factorial=\n"); output_mat(mat_step);
     t = mpfr_get_d(m_argv[0],MPFR_RNDD); // 次の t.
-
+    tt1=t;
     if (t<=t_noproj) for (i=0; i<N; i++) f_new[i]=f[i]; // projection 無し.
     else {
       projection_matrix_to_subspace_of(n_prune,data,proj_mat); 
@@ -134,11 +140,59 @@ int main(int argc,char *argv[]) {
       }
     }
 
+    if (output_step_size > 0) {
+      output_intermediate_values(tt0,tt1,f_new,h,(int) (output_step_size/h));
+    }
     mat_linear_transformation(mat_step,f_new,f);  // 新しい t での解.
     mpfr_set_d(m_t,t,MPFR_RNDD);
   }
   if (T_verbose) {
     usage_draw_graph();
+  }
+  return 0;
+}
+
+int output_intermediate_values(double t0,double t1,double f0[], double h,int n_defuse) {
+  // double t0 初期時刻
+  // double f0[N]; 初期条件 
+  // double t1 // 終了時刻
+  // double h; // 微小ステップ
+  int r=N;  // ODE の rank
+  // int n_defuse=T_N_DEFUSE;  // matrix factorial の長さ.
+
+  mpfr_t m_t; double t;
+  mpfr_t m_h; 
+  mpfr_t m_ans[N*N];
+  int m_argc=2;
+  mpfr_t m_argv[2];
+  int i,j;
+  double f[N];
+  double f_new[N];
+  double data[N*N]; // 変換行列
+  double mat_step[N][N];
+
+  if (n_defuse <= 0) return 0;
+  mpfr_init2(m_t,MPFR_PREC); 
+  mpfr_init2(m_h,MPFR_PREC);
+  t=t0;
+  mpfr_set_d(m_t,t,MPFR_RNDD);
+  mpfr_set_d(m_h,h,MPFR_RNDD);
+  for (i=0; i<N*N; i++) mpfr_init2(m_ans[i],MPFR_PREC);
+  for (i=0; i<2; i++) mpfr_init2(m_argv[i],MPFR_PREC);
+
+  for (i=0; i<N; i++) f[i]=f0[i];
+  while (t < t1) {
+    if ( t!= t0) output_tf(t,f);
+    mat_fac(m_t,m_h,n_defuse,m_ans,&m_argc,m_argv); // matrix factorial
+    if (T_verbose) outout_mpfr_vec(m_ans,N*N);
+    mat_get_dvec(data,m_ans);  // data に変換行列
+    cp_vmatm(data,mat_step);   // mat_step として保存.
+    // printf("matrix factorial=\n"); output_mat(mat_step);
+    t = mpfr_get_d(m_argv[0],MPFR_RNDD); // 次の t.
+
+    for (i=0; i<N; i++) f_new[i]=f[i]; // projection 無し.
+    mat_linear_transformation(mat_step,f_new,f);  // 新しい t での解.
+    mpfr_set_d(m_t,t,MPFR_RNDD);
   }
   return 0;
 }

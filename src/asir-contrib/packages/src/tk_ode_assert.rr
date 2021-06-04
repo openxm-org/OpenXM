@@ -1,0 +1,106 @@
+/* $OpenXM$ */
+import("names.rr")$
+ctrl("bigfloat",1)$
+printf("Bigfloat is used as default.\n")$
+import("./tk_ode_by_mpfr.rr");
+load("tk_any2mpfr/tk_ode_assert_data.rr");
+
+module tk_ode_assert;
+localf usage1;
+localf airy1;
+localf hkn1;
+localf hkn2;
+localf read_data;
+def usage1() {
+  printf("The code is written to tmp-test.c. Compile by the commands above.\n");
+  printf("Helpful options of tmp-test: --help, --verbose, --go, --t1 terminating_time\n");
+}
+def airy1() {
+  tk_ode_by_mpfr.clear_all() ;
+  printf("Generating a C code by tk_ode_by_mpfr.clear_all(); tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse([[0,1],[t,0]],0,[0.355028053887817,-0.258819403792807],10.1);\n");
+  Code=tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse([[0,1],[t,0]],0,[0.355028053887817,-0.258819403792807],10.1);
+  usage1();
+  util_write_string_to_a_file("tmp-test.c",Code);
+  return 0;
+}
+
+def hkn1() {
+  PP=[[(-y-k+n-1)/(y),1,0,0],
+      [0,(-y-k+n-1)/(y),1,0],
+      [0,0,(-y-k+n-1)/(y),1],
+      [((-k-1)*x)/(y^2),((-y+n)*x+n*k+2*n)/(y^2),
+       (y*x+(k+n+3)*y-n^2-n)/(y^2),(-k-n-3)/(y)]];
+  F0= [0.0287318962085547,0.0187481538210843,0.00754253574043086,0.00216602086364252];
+  Pmat=base_replace(PP,[[k,10],[n,1],[x,1],[y,t]]) ;
+  tk_ode_by_mpfr.clear_all() ;
+  printf("Generating a C code by tk_ode_by_mpfr.clear_all(); tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse(Pmat,T0=1,F0,500 | prec=100)\n");
+  printf("where Pmat(ODE coef matrix)=\n%a,\n F0(initial value at 1)=%a\n",Pmat,F0);
+  Code=tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse(Pmat,T0=1,F0,500 | prec=100) ;
+  usage1();
+  util_write_string_to_a_file("tmp-test.c",Code) ;
+  return 0;
+}
+
+def read_data(Fname) 
+"read_data(Fname) returns a list of [x, y0, y1, y2, ...] from the data in the file Fname"
+{
+  Fp=open_file(Fname,"r");
+  if (Fp < 0) error("The file is not found.");
+  L=[];
+  while ((S=get_line(Fp)) != 0) {
+    P=strtoascii(S);
+    N=length(P);
+    P=matrix_list_to_matrix(P);
+    for (I=N-1; I>=0; I--) {   // remove <=' ' from the back.
+      if (P[I] <= 32) P[I]=0; else break;
+    }
+    PP=[];
+    for (I=N-1; I>=0; I--) {
+      if (P[I]>0) PP=cons(P[I],PP);
+    }
+    P = PP;
+    if (length(P)==0) continue; // empty line
+    if (P[0]==35) continue; // #  comment line
+    N=length(P);
+    Sep=0;
+    for (I=0; I<N; I++) {
+      if (P[I] == 44) { // 44==','
+	Sep=1;
+      }
+    }
+    if (!Sep) { // add ,
+      PP=matrix_list_to_matrix(P);
+      Flag=1;
+      for (I=0; I<N; I++) {
+	if ((PP[I] <= 32) && Flag) {
+          PP[I]=44; Flag=0;
+	}else if ((Flag==0) && (PP[I] > 32)) Flag=1;
+      }
+      P=vtol(PP);
+    }
+    Pstr="["+asciitostr(P)+"]";
+    L=cons(eval_str(Pstr),L);
+  }
+  close_file(Fp);
+  return reverse(L);
+}
+
+def hkn2() {
+  PP=[[(-y-k+n-1)/(y),1,0,0],
+      [0,(-y-k+n-1)/(y),1,0],
+      [0,0,(-y-k+n-1)/(y),1],
+      [((-k-1)*x)/(y^2),((-y+n)*x+n*k+2*n)/(y^2),
+       (y*x+(k+n+3)*y-n^2-n)/(y^2),(-k-n-3)/(y)]];
+  F0= [7.795136173919699251873977490874863288541692227314433921311, 0.0773998192578244367277906369860221711957775341930133184674, 0.0007646778505751598225614740711183276005483677161764086695, 7.516913210521624673991086117893830483541326435505719e-6];  // zoom by 10^4301
+  Pmat=base_replace(PP,[[k,10],[n,1],[x,1],[y,t]]) ;
+  tk_ode_by_mpfr.clear_all() ;
+  printf("Generating a C code by tk_ode_by_mpfr.clear_all(); tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse(Pmat,T0=10000,F0,10200 | prec=100)\n");
+  printf("where Pmat(ODE coef matrix)=\n%a,\n F0(initial value at 1)=%a\n",Pmat,F0);
+  Code=tk_ode_by_mpfr.code_solve_ode_by_rk4_with_defuse(Pmat,T0=10000,F0,10200 | prec=100) ;
+  usage1();
+  util_write_string_to_a_file("tmp-test.c",Code) ;
+  return 0;
+}
+
+endmodule;
+end$

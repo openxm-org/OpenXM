@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_mat2mpfr.rr,v 1.1 2020/09/08 07:45:32 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_mat2mpfr.rr,v 1.2 2021/03/17 11:22:32 takayama Exp $
   num-ht --> misc-2020/09/num-ht2/tk_mat2mpfr.rr
   2020.02.14
   tk_mat2mpfr.rr
@@ -398,7 +398,9 @@ def code_solve_ode_by_rk4_with_defuse(Pmat,T0,F0,T1) {
   if (type(getopt(strategy))>0) T_strat = getopt(strategy);
   else T_strat=1;
   if (type(getopt(n_defuse))>0) N_defuse = getopt(n_defuse);
-  else N_defuse = number_floor(1/H)*5;
+  else { N_defuse = number_floor(5/H);
+         if (N_defuse*H < 5) N_defuse++; 
+  }
   if (type(getopt(ref_value_file))>0) T_ref_value_file = getopt(ref_value_file);
   else T_ref_value_file = "tmp_ref_value.txt";
 

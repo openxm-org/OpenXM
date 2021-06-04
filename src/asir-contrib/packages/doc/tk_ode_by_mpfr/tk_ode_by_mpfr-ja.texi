@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/tk_ode_by_mpfr/tk_ode_by_mpfr-ja.texi,v 1.2 2021/03/17 11:22:31 takayama Exp $
+%% %% $OpenXM: OpenXM/src/asir-contrib/packages/doc/tk_ode_by_mpfr/tk_ode_by_mpfr-ja.texi,v 1.3 2021/03/29 05:08:01 takayama Exp $
 %% debug に ln -s ../texinfo-ja.tex . をしておく.  txi-ja.tex も?
 %% xetex tk_ode_by_mpfr-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
@@ -21,7 +21,7 @@
 @setfilename asir-contrib-tk_ode_by_mpfr
 
 @comment --- タイトル ---
-@settitle ox_pari
+@settitle tk_ode_by_mpfr
 
 @comment %**end of header
 @comment %@setchapternewpage odd
@@ -44,7 +44,7 @@
 @title tk_ode_by_mpfr
 @subtitle MPFR で ODE の数値解析をするC言語のコードを生成
 @subtitle 1.0 版
-@subtitle 2020 年 9 月 9 日
+@subtitle 2021 年 6 月 4 日
 
 @author  by Nobuki Takayama
 @page
@@ -141,6 +141,9 @@ ODE dF/dt = P F の係数行列 P(t). t の式を成分とすること.
 dF/dt = PF を F(T0)=F0 の初期条件の元, 時刻 T1 まで求める.
 @item 
 big float による matrix factorial を用いて計算する.
+仮数部(significand)のビットサイズは生成したプログラムに PREC の値として定義されている.
+仮数部のサイズを変更するには生成された C プログラムの #define PREC 64 の部分を
+変更するかこの関数の option prec を用いる.
 @item 
 defusing heuristics や知られている値を用いて不安定性を
 回避コードも含む.
@@ -156,7 +159,7 @@ defusing heuristics や知られている値を用いて不安定性を
 @multitable {xxxxxxxxxx} {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} {xxxxxxxxxxxxxx}
 @item Option @tab    @tab  default value 
 @item { verbose} @tab  @tab  0 
-@item { prec}    @tab  doube size of MPFR @tab  64 
+@item { prec}    @tab  significand size of MPFR @tab  64 
 @item { progname} @tab  @tab  { tmp-test} 
 @item { h}       @tab  step size @tab  0.001 
 @item { t_noproj}@tab  time to apply defusing @tab  0 
@@ -196,8 +199,42 @@ t=8.1 以降は --n_prune で指定した個数の固有空間(Re(固有値)の�
 を削除する.
 --n_defuse 2000 は 2000 個の行列の matrix factorial を計算する.
 
+@sp 3
+@noindent
+例:
+H^k_n(1,t) k=10, n=1, 10000<=t<=10100 の計算とその値fと真の値Hとの relative error (f-H)/Hの計算.
+"Hkn10000" は "h2" でもよい(alias).
+@smallformat
+@example
+--> load("tk_ode_assert.rr");
+--> tk_ode_assert.usage_assert();   // Usage of assert
+--> tk_ode_assert.hkn2()
+==>   Compile tmp-test.c following the instruction.
+==>   ./tmp-test --go --output_stepsize 1 | grep '^gnuplot' | awk '{print $2,$3}' > t.txt
+      // Data is stored in t.txt. 
+-->  tk_ode_assert.output_relative_error("Hkn10000","t.txt"|zoom=10^4301); 
+  // The initial value for tmp-test is multiplied by 10^4301. 
+  // Output tmp-rerror.txt
+==>   Start the gnuplot and plot "tmp-rerror.txt" w lp to show the relative error
+@end example
+@end smallformat
 @noindent
 
+@sp 3
+@noindent
+例: Airy や H^k_n(1,t) で 1<=t<=400 で同様.
+@smallformat
+@example
+--> tk_ode_assert.airy1()
+==>   Run tmp-test
+--> tk_ode_assert.output_relative_error("a","t.txt"|zoom=1);
+
+--> tk_ode_assert.hkn1()
+==>   Run tmp-test
+--> tk_ode_assert.output_relative_error("h","t.txt"|zoom=1);
+@end example
+@end smallformat
+@noindent
 
 
 @comment --- 参照(リンク)を書く ---
