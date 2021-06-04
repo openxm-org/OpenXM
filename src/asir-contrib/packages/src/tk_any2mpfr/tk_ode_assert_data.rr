@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_ode_assert_data.rr,v 1.1 2021/06/04 06:19:10 takayama Exp $ */
 
 module tk_ode_assert;
   static Airy_m20_20;
@@ -14,6 +14,7 @@ module tk_ode_assert;
   localf gnuplot_help;
   localf output_relative_error;
   localf usage_assert;
+  localf read_data; // defined in tk_ode_assert.rr
   def usage_assert() {
     printf("Example 1:\n");
     printf("  tk_ode_assert.airy1(); Generate tmp-test; ./tmp-test --go --output_stepsize 1 | grep '^gnuplot' | awk '{print $2,$3}' > t.txt\n");
