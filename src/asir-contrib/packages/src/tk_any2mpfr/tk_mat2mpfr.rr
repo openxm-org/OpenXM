@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_mat2mpfr.rr,v 1.2 2021/03/17 11:22:32 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_mat2mpfr.rr,v 1.3 2021/06/04 06:19:10 takayama Exp $
   num-ht --> misc-2020/09/num-ht2/tk_mat2mpfr.rr
   2020.02.14
   tk_mat2mpfr.rr
@@ -412,7 +412,7 @@ def code_solve_ode_by_rk4_with_defuse(Pmat,T0,F0,T1) {
   Code += util_read_file_as_a_string(A2M_template+"/proj.h"); 
   Code += "\n\n";
 
-  if (vars(Pmat) != [t]) error("Pmat must be a function of t");
+  if ((length(vars(Pmat))!=0) && (vars(Pmat) != [t])) error("Pmat must be a function of t");
 
   Code += sprintf("#define T_PROGNAME \"%a\"\n",T_progname);
   Code += sprintf("#define T_RANK %a\n",N);
@@ -459,7 +459,7 @@ def config() {
 }
 
 def init_mat2mpfr() {
-  if (base_subsetq(strtoascii("num-ht2"),strtoascii(pwd()))) {
+  if (base_subsequenceq(strtoascii("num-ht2"),strtoascii(pwd()))) {
     A2M_template="."$  // debug 用
   }else{
     A2M_template=getenv("OpenXM_HOME")+"/lib/asir-contrib/tk_any2mpfr"$

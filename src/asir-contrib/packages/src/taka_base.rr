@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.35 2020/03/20 01:10:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.36 2021/03/09 02:47:43 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -158,6 +158,24 @@ def taka_base_subsetq(A,B) {
     if (!taka_base_memberq(A[I],B)) return 0;
   }
   return 1;
+}
+def taka_base_subsequenceq(A,B) {
+  /* A is a part of B? */
+  /* Better algorithm should be used in the final version. */
+  NA = length(A);
+  NB = length(B);
+  if (NA==0) return 1;
+  Flag=0;
+  for (I=0; I<=NB-NA;I++) {
+    if (B[I]==A[0]) {
+      Flag=1;
+      for (J=1; J<NA; J++) {
+	if (B[I+J]!=A[J]) { Flag=0; break; }
+      }
+      if (Flag) return 1;
+    }
+  }
+  return Flag;
 }
 
 def taka_base_intersection(A,B) {

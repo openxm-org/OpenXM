@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.154 2021/03/09 02:47:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.155 2021/03/09 07:46:15 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -280,6 +280,14 @@ end: */
 def base_subsets_of_size(K,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_subsets_of_size(K,S);
+}
+/*&usage begin: base_subsequenceq(A,B)
+if A is a subsequence B, then it returns 1 else 0.
+ example: base_subsequence([3,2,5],[1,2,3,4,5]);
+end: */
+def base_subsequenceq(A,B) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_subsequenceq(A,B);
 }
 
 
