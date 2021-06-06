@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_ode_assert.rr,v 1.1 2021/06/04 06:19:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_ode_assert.rr,v 1.2 2021/06/04 10:03:09 takayama Exp $ */
 import("names.rr")$
 ctrl("bigfloat",1)$
 printf("Bigfloat is used as default.\n")$
@@ -25,6 +25,10 @@ def airy1() {
 }
 
 def hkn1() {
+/*
+Prog: misc-2019/??/num-ht/Prog/test3-ak2.rr  test1028a(), a19-n-pf.rr y_pf()
+  H^k_n ODE --> system for Y'=P*Y-->  Y=exp(y)*y^(k-n+1)*G, G'=PP*G
+*/
   PP=[[(-y-k+n-1)/(y),1,0,0],
       [0,(-y-k+n-1)/(y),1,0],
       [0,0,(-y-k+n-1)/(y),1],

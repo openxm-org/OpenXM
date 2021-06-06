@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_ode_assert_data.rr,v 1.1 2021/06/04 06:19:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_ode_assert_data.rr,v 1.2 2021/06/04 10:17:23 takayama Exp $ */
 
 module tk_ode_assert;
   static Airy_m20_20;
@@ -14,18 +14,28 @@ module tk_ode_assert;
   localf gnuplot_help;
   localf output_relative_error;
   localf usage_assert;
+  localf usage;
   localf read_data; // defined in tk_ode_assert.rr
+  def usage() { usage_assert(); }
   def usage_assert() {
     printf("Example 1:\n");
     printf("  tk_ode_assert.airy1(); Generate tmp-test; ./tmp-test --go --output_stepsize 1 | grep '^gnuplot' | awk '{print $2,$3}' > t.txt\n");
-    printf("  tk_ode_assert.output_relative_error(\"Airy_m20_20\",\"t.txt\");\n");
+    printf("  tk_ode_assert.output_relative_error(\"Airy_m20_20\",\"t.txt\");\n\n");
+    printf("  tk_ode_assert.get_linear_interpolation_value(\"a\",T); returns \n");
+    printf("    the value of AiryAi(T), -20<=T<=20.\n");
     printf("Example 2:\n");
     printf("  tk_ode_assert.hkn1(); Generate tmp-test; ./tmp-test --go --output_stepsize 1 | grep '^gnuplot' | awk '{print $2,$3}' > t.txt\n");
-    printf("  tk_ode_assert.output_relative_error(\"Hkn1_200\",\"t.txt\");\n");
+    printf("  tk_ode_assert.output_relative_error(\"Hkn1_200\",\"t.txt\");\n\n");
+    printf("  tk_ode_assert.get_linear_interpolation_value(\"h\",Y); returns \n");
+    printf("    the value of H^k_n(1,Y)/g(Y) where g(y)=exp(y)*y^(k-n+1), k=10,n=1.\n");
+    printf("    1<=Y<=200.\n");
 
     printf("Example 3:\n");
     printf("  tk_ode_assert.hkn2(); Generate tmp-test; ./tmp-test --go --output_stepsize 1 | grep '^gnuplot' | awk '{print $2,$3}' > t.txt\n");
-    printf("  tk_ode_assert.output_relative_error(\"Hkn10000\",\"t.txt\"|zoom=10^4301);\n");
+    printf("  tk_ode_assert.output_relative_error(\"Hkn10000\",\"t.txt\"|zoom=10^4301);\n\n");
+    printf("  tk_ode_assert.get_linear_interpolation_value(\"h2\",Y); returns \n");
+    printf("    the value of H^k_n(1,Y)/g(Y) where g(y)=exp(y)*y^(k-n+1), k=10,n=1.\n");
+    printf("    10000<=Y<=10100.");
   }
   def get_value(Type) {
     X=x; L=[];
@@ -126,7 +136,11 @@ module tk_ode_assert;
    Ref: num-ht3/Prog/2021-06-02-hkn-data-10000.txt and refered Mathematica code.
 
    Airy_m20_20: Data of the Airy function on [-20,20].  
-   Hkn10000:    Data of (dy^i H^10_1(1,y))/g(y), y(y)=exp(y)*y^10 on [1000,10100]
+   Hkn10000:    Data of (dy^i H^10_1(1,y))/g(y), g(y)=exp(y)*y^10 on [1000,10100]
+Prog: misc-2019/??/num-ht/Prog/test3-ak2.rr  test1028a(), a19-n-pf.rr y_pf()
+  H^k_n ODE --> system for Y'=P*Y-->  Y=exp(y)*y^(k-n+1)*G, G'=PP*G
+          g(y)=exp(y)*y^(k-n+1)
+
    Hkn1_200:    Data of ... on [1,200]
    BoundaryG, BoundaryY, BoundaryF: Not used.
 */
