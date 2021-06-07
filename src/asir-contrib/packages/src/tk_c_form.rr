@@ -1,0 +1,293 @@
+/* $OpenXM$
+ History
+  tk_p_form.rr  C and python forms in num-ht3/Prog_tk_ode
+  tk_c_form.rr  in num-ht2/tk_c_form.rr
+
+  tk_c_form.cform() is called from print_c_form() in names.rr
+*/
+#define NUMBER 1
+#define RPOLYNOMIAL 2
+#define RATIONAL 3
+#define LIST 4
+#define VECTOR 5
+#define MATRIX 6
+#define STRING 7
+#define STRUCT 8
+#define DPOLYNOMIAL   9
+#define QUOTE 17
+
+#define NOT_YET   print("It has not yet been implemented.")
+extern Loaded_tk_c_form$
+
+module tk_c_form;
+localf init;
+localf c_form;
+localf set_mode;
+localf tk_C_form_quote;
+localf tk_C_form_set_power;
+localf quote_list_to_list;
+localf tk_C_form_quote_list;
+localf tk_C_form_quote_list_u_op;
+localf taka_is_internal_zero;
+localf tk_C_form_quote_list_b_op;
+localf tk_C_form_list_t_op;
+localf tk_C_form_quote_list_exponent_vector;
+localf tk_C_form_quote_list_function;
+localf tk_C_symbol;
+localf tk_C_form_quote_list_internal;
+localf tk_C_form_quote_list_variable;
+localf tk_C_form_node_name;
+localf tk_C_form_quote_list_list;
+
+static Tk_c_form_power;
+static Tk_c_form_derivative_format ;
+static Tk_c_form_function_names ;
+static Tk_c_form_python_mode;
+
+def init() {
+  Tk_c_form_power="mypower" ;  // or "pow"
+  Tk_c_form_derivative_format=1 ;
+  Tk_c_form_function_names=[] ;  // tk_dual_num.rr で使う. dnum f() --> f()[0] など.
+  Tk_c_form_python_mode=0;
+}
+/*&usage:
+Example:
+ tk_c_form.c_form([x^2,y^3+x]);
+ function f(x); tk_c_form(f(x^3+1));
+ tk_c_form.c_form(f(sin(x^2-1)));   
+ tk_c_form.c_form(diff(f(x)),x);   Not available for now.
+end: */
+def c_form(Obj) {
+  if (type(getopt(mode))>=0) set_mode(getopt(mode));
+  if (type(Obj)==QUOTE) return tk_C_form_quote(Obj);
+  if (base_subsetq([type(Obj)],[0,NUMBER,RPOLYNOMIAL,RATIONAL])) {
+    return tk_C_form_quote(objtoquote(Obj));
+  }
+  if (base_subsetq([type(Obj)],[LIST,VECTOR,MATRIX])) {
+    return map(tk_c_form,Obj);
+  }
+  if (type(Obj)==STRING) return Obj;
+  error("tk_c_form does not support this object.");
+}
+def tk_C_form_quote(S) {
+  S = quotetolist(S);
+  return tk_C_form_quote_list(S);
+}
+
+def set_mode(Mode) {
+  if (type(Mode)<=1) Tk_c_form_python_mode=Mode;
+  Mode=rtostr(Mode);
+  if (Mode == "python") Tk_c_form_python_mode=1;
+  if (Mode == "C") Tk_c_form_python_mode=0;
+  if (Mode == "c") Tk_c_form_python_mode=0;
+  return Tk_c_form_python_mode;
+  error("Unknown mode keyword : python or C or c are accepted.");
+}
+
+def tk_C_form_set_power(P) {
+  Tk_c_form_power=rtostr(P);
+}
+
+def quote_list_to_list(L) {
+  if (L[0] != "list") error("L should be [list,...]");
+  L=cdr(L);
+  A=newvect(length(L));
+  for (I=0; I<length(L); I++) {
+    if (L[I][0] != "internal") error("L[I] should be [internal,num]");
+    A[I] = eval_str(rtostr(L[I][1]));
+  }
+  return vtol(A);
+}
+
+def tk_C_form_quote_list(S) {
+  if (type(S) != LIST) return tk_C_form_node_name(S);
+  A = " ";
+  if (S[0] == "u_op") {
+     return tk_C_form_quote_list_u_op(cdr(S));
+  }else if (S[0] == "b_op") {
+     return tk_C_form_quote_list_b_op(cdr(S));
+  }else if (S[0] == "t_op") {
+     return tk_C_form_quote_list_t_op(cdr(S));
+  }else if (S[0] == "list") {
+     return tk_C_form_quote_list_list(cdr(S));
+  }else if (S[0] == "exponent_vector") {
+     return tk_C_form_quote_list_exponent_vector(cdr(S));
+  }else if (S[0] == "internal") {
+     return tk_C_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "variable") {
+     return tk_C_form_quote_list_variable(cdr(S));
+  }else if (S[0] == "function") {
+    if (base_position(rtostr(S[1]),Tk_c_form_function_names) >= 0) {
+      return sprintf("%a[0]",tk_C_form_quote_list_function(cdr(S)));
+    }else{
+      return tk_C_form_quote_list_function(cdr(S));
+    }
+  }else if (S[0] == "derivative") {
+     if ((Tk_c_form_derivative_format==1) && (base_position(rtostr(S[1]),Tk_c_form_function_names) >= 0)) {
+       Der=quote_list_to_list(S[3]);
+       //printf("Der=%a\n",Der);
+       DerSum=0;
+       for (I=0; I<length(Der); I++) DerSum += Der[I];
+       if (DerSum > 1) error("More than first order derivatives in S");
+       Pos = base_position(1,Der);
+       Pos = Pos+1;
+       R=sprintf(" (%a(%a))[%a] ",S[1],tk_C_form_quote_list(S[2]),Pos);
+     }else{
+       R=sprintf("%a{%a}(%a)",S[1],quote_input_form_quote_list_args(cdr(S[3])),
+		 tk_C_form_quote_list(S[2]));
+     }
+     return R;
+  }else {
+     error("Unknown quote format.");
+  }
+}
+
+def tk_C_form_quote_list_u_op(S) {
+  if (S[0] == "()") {
+    A += "(";
+    A += tk_C_form_quote_list(S[1]);
+    A += ") ";
+  }else
+  if (S[0] == "-") {
+    A += "-(";
+    A += tk_C_form_quote_list(S[1]);
+    A += ")";
+  }else{
+    error("Not implemented");
+  }
+  return A;
+}
+
+def taka_is_internal_zero(S) {
+  if (type(S) != LIST) return 0;
+  if (length(S) != 2) return 0;
+  if (S[0] == "internal" && S[1] == 0) return 1;
+  else return 0;
+}
+def tk_C_form_quote_list_b_op(S) {
+   if (S[0] == "+") {
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += tk_C_form_quote_list(T[I]);
+        if (I != N-1) A += S[0];
+    }
+  }else
+  if (S[0] == "-") {
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      if (I == 0 && taka_is_internal_zero(T[I])) {
+         /* Do not print 0. */
+      } else {
+         A += "("+tk_C_form_quote_list(T[I])+")";
+      }
+      if (I != N-1) A += S[0];
+    }
+  } else
+  if (S[0] == "*") {
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += "("+tk_C_form_quote_list(T[I])+")";
+      if (I != N-1) A += S[0];
+    }
+  } else
+  if (S[0] == "/") {
+    T = cdr(S);
+    A += "("+tk_C_form_quote_list(T[0])+")";
+    A += "/";
+    A += "("+tk_C_form_quote_list(T[1])+")";
+  } else
+  if (S[0] == "^") {
+    if (Tk_c_form_python_mode) {
+      T = cdr(S);
+      A += "("+tk_C_form_quote_list(T[0]);
+      A += ")**(";
+      A += tk_C_form_quote_list(T[1])+")";
+    }else{
+      T = cdr(S);
+      A += Tk_c_form_power+"("+tk_C_form_quote_list(T[0]);
+      A += ",";
+      A += tk_C_form_quote_list(T[1])+")";
+    }
+  }else {
+    error("Not implemented.");
+  }
+  return A;
+}
+
+def tk_C_form_list_t_op(S) {
+  NOT_YET ;
+}
+
+def tk_C_form_quote_list_exponent_vector(S) {
+    A = "(";
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += tk_C_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += ")";
+    return(A);
+}
+
+def tk_C_form_quote_list_function(S) {
+    if (S[0] == "exponent_vector") {
+      return tk_C_form_quote_list_exponent_vector(cdr(S));
+    }
+    if (S[0] == "topology_circle") {
+      return print_tex_form_topology_circle(S);
+    }else if (S[0] == "topology_open_segment") {
+      return print_tex_form_topology_open_segment(S);
+    }else {
+      /* printing general prefix functions. */
+      A = tk_C_form_node_name(S[0]);
+      A += "(";
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += tk_C_form_quote_list(T[I]);
+        if (I != N-1) {
+          A += ", ";
+        }
+      }
+      A += ")";
+      return(A);
+   }
+}
+
+def tk_C_symbol(X) { return X; }
+def tk_C_form_quote_list_internal(S) {
+  X = car(S);
+  if (type(X) == RPOLYNOMIAL) {
+    return tk_C_symbol(rtostr(X));
+  }
+  return rtostr(X);
+}
+def tk_C_form_quote_list_variable(S) {
+  X = car(S);
+  if (type(X) == STRING) return X;
+  else return rtostr(X);
+}
+
+def tk_C_form_node_name(S) {
+  if (type(S) != STRING) return rtostr(S);
+  /* Table of Mathematical Symbols. */
+  return tk_C_symbol(S);
+}
+def tk_C_form_quote_list_list(L) {
+  Str="";
+  for (I=0; I<length(L); I++) {
+    Str += sprintf("%a",tk_C_form_quote_list(L[I]));
+    if (I != length(L)-1) Str +=", ";
+  }
+  return Str;
+}
+endmodule;
+tk_c_form.init()$
+
+end$

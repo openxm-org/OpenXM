@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.155 2021/03/09 07:46:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.156 2021/06/05 03:09:56 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -79,6 +79,7 @@ ox_loadfile_(Loaded_ok_matrix,"ok_matrix.rr")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
 ox_loadfile_(Loaded_glib,"glib")$
+ox_loadfile_(Loaded_tk_c_form,"tk_c_form.rr")$
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
@@ -1114,6 +1115,17 @@ end: */
 def print_tfb_form(F) { 
   OX_LOADFILE(Loaded_taka_print_tfb,"taka_print_tfb.rr");
   return(taka_tfb_form(F));
+}
+
+/*&usage begin: print_c_form(S)
+ It transforms {S} to the C format or python format string.
+ example: print_c_form(x^2+1);
+ example: print_c_form(x^2+1 | mode=python);
+ example: print_c_form(sin(x^2+1)/5 | mode=c);
+end: */
+def print_c_form(F) { 
+  OX_LOADFILE(Loaded_tk_c_form,"tk_c_form.rr");
+  return(tk_c_form.c_form(F | option_list=getopt()));
 }
 
 

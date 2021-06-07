@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_ode_assert_data.rr,v 1.2 2021/06/04 10:17:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_any2mpfr/tk_ode_assert_data.rr,v 1.3 2021/06/06 00:31:16 takayama Exp $ */
 
 module tk_ode_assert;
   static Airy_m20_20;
@@ -11,8 +11,10 @@ module tk_ode_assert;
   localf get_value;
   localf output_value;
   localf get_linear_interpolation_value;
+  localf get_linear_interpolation_value_all;
   localf gnuplot_help;
   localf output_relative_error;
+  localf hkn_gauged_pf;
   localf usage_assert;
   localf usage;
   localf read_data; // defined in tk_ode_assert.rr
@@ -35,7 +37,17 @@ module tk_ode_assert;
     printf("  tk_ode_assert.output_relative_error(\"Hkn10000\",\"t.txt\"|zoom=10^4301);\n\n");
     printf("  tk_ode_assert.get_linear_interpolation_value(\"h2\",Y); returns \n");
     printf("    the value of H^k_n(1,Y)/g(Y) where g(y)=exp(y)*y^(k-n+1), k=10,n=1.\n");
-    printf("    10000<=Y<=10100.");
+    printf("    10000<=Y<=10100.\n");
+    printf("  tk_ode_assert.hkn_gauged_pf() returns pf for H^k_n(x,y)/g(y) w.r.t.y\n");
+  }
+  def hkn_gauged_pf() {
+  /* 
+  Ref: h-mle/non-central/Prog/a19-n-pf.rr  y_pf();
+  */
+    if (type(getopt(nogauge))>0) {
+      return [[0,1,0,0],[0,0,1,0],[0,0,0,1],[((-k-1)*x)/(y^2),((-y+n)*x+n*k+2*n)/(y^2),(y*x+(k+n+3)*y-n^2-n)/(y^2),(y-2*n-2)/(y)]];
+    }
+    return [[(-y-k+n-1)/(y),1,0,0],[0,(-y-k+n-1)/(y),1,0],[0,0,(-y-k+n-1)/(y),1],[((-k-1)*x)/(y^2),((-y+n)*x+n*k+2*n)/(y^2),(y*x+(k+n+3)*y-n^2-n)/(y^2),(-k-n-3)/(y)]];
   }
   def get_value(Type) {
     X=x; L=[];
@@ -58,7 +70,11 @@ module tk_ode_assert;
     }
     return "Not found in the interval";
   }
+/*&usage:
+Example: tk_ode_assert.get_linear_interpolation_value("h",1.5 | vec=1);
+end: */
   def get_linear_interpolation_value(Type,X) {
+    if (type(getopt(vec))>0) return get_linear_interpolation_value_all(Type,X|option_list=getopt());
     Zoom=1;
     if (type(getopt(zoom))>0) Zoom=getopt(zoom);
     Ans=get_value(Type |x=X);
@@ -68,6 +84,21 @@ module tk_ode_assert;
     X0=Ans0[0]; X1=Ans1[0];
     F0=Ans0[2][0]*(10^(-Ans0[1])*Zoom);
     F1=Ans1[2][0]*(10^(-Ans1[1])*Zoom);
+    return F0+(F1-F0)*(X-X0)/(X1-X0);
+  }
+  def get_linear_interpolation_value_all(Type,X) {
+    Zoom=1;
+    if (type(getopt(zoom))>0) Zoom=getopt(zoom);
+    Ans=get_value(Type |x=X);
+    if (type(Ans) != 4) return Ans;
+    if (length(Ans)!=2) {
+      F=matrix_list_to_matrix(Ans[2]);
+      return F*(10^(-Ans[1])*Zoom);
+    }
+    Ans0=Ans[0]; Ans1=Ans[1];
+    X0=Ans0[0]; X1=Ans1[0];
+    F0=matrix_list_to_matrix(Ans0[2])*(10^(-Ans0[1])*Zoom);
+    F1=matrix_list_to_matrix(Ans1[2])*(10^(-Ans1[1])*Zoom);
     return F0+(F1-F0)*(X-X0)/(X1-X0);
   }
   /*&usage:
