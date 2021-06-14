@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_c_form.rr,v 1.1 2021/06/07 11:17:51 takayama Exp $
  History
   tk_p_form.rr  C and python forms in num-ht3/Prog_tk_ode
   tk_c_form.rr  in num-ht2/tk_c_form.rr
@@ -202,13 +202,21 @@ def tk_C_form_quote_list_b_op(S) {
   if (S[0] == "^") {
     if (Tk_c_form_python_mode) {
       T = cdr(S);
-      A += "("+tk_C_form_quote_list(T[0]);
-      A += ")**(";
+      if (T[0]==["function","@e"]) {
+        A += "exp(";
+      }else{
+	A += "("+tk_C_form_quote_list(T[0]);
+	A += ")**(";
+      }
       A += tk_C_form_quote_list(T[1])+")";
     }else{
       T = cdr(S);
-      A += Tk_c_form_power+"("+tk_C_form_quote_list(T[0]);
-      A += ",";
+      if (T[0]==["function","@e"]) {
+	A += "exp(";
+      }else{
+	A += Tk_c_form_power+"("+tk_C_form_quote_list(T[0]);
+	A += ",";
+      }
       A += tk_C_form_quote_list(T[1])+")";
     }
   }else {

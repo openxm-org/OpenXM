@@ -1,4 +1,4 @@
-%% %% $OpenXM: OpenXM/src/asir-contrib/packages/doc/tk_ode_by_mpfr/tk_ode_by_mpfr-ja.texi,v 1.4 2021/06/04 06:19:10 takayama Exp $
+%% %% $OpenXM: OpenXM/src/asir-contrib/packages/doc/tk_ode_by_mpfr/tk_ode_by_mpfr-ja.texi,v 1.5 2021/06/10 23:39:50 takayama Exp $
 %% debug に ln -s ../texinfo-ja.tex . をしておく.  txi-ja.tex も?
 %% xetex tk_ode_by_mpfr-ja.texi   (.texi までつける. ) 
 %% 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
@@ -18,10 +18,10 @@
 @comment --- おまじない終り ---
 
 @comment --- GNU info ファイルの名前 ---
-@setfilename asir-contrib-tk_ode_by_mpfr
+@setfilename asir-contrib-tk_ode
 
 @comment --- タイトル ---
-@settitle tk_ode_by_mpfr
+@settitle tk_ode
 
 @comment %**end of header
 @comment %@setchapternewpage odd
@@ -41,10 +41,10 @@
 @comment --- おまじない終り ---
 
 @comment --- タイトル, バージョン, 著者名, 著作権表示 ---
-@title tk_ode_by_mpfr
-@subtitle MPFR で ODE の数値解析をするC言語のコードを生成
+@title tk_ode
+@subtitle ODE の数値解析のためのパッケージ群
 @subtitle 1.0 版
-@subtitle 2021 年 6 月 11 日
+@subtitle 2021 年 6 月 13 日
 
 @author  by Nobuki Takayama
 @page
@@ -66,18 +66,27 @@ Copyright @copyright{} Risa/Asir committers
 @comment --- この文書では chapter XYZ, Chapter Index がある.
 @comment ---  Chapter XYZ には section XYZについて, section XYZに関する函数がある.
 @menu
-* tk_ode_by_mpfrについて
+* tk_odeについて
 * tk_ode_by_mpfr函数::
+* tk_ode_sparse_interp函数::
 * Index::
 @end menu
 
 @comment --- chapter の開始 ---
 @comment --- 親 chapter 名を正確に. 親がない場合は Top ---
-@node tk_ode_by_mpfrについて,,, Top
-@chapter tk_ode_by_mpfrについて
+@node tk_odeについて,,, Top
+@chapter tk_oderについて
 
+この文書は ODE の数値解析を補助するパッケージ群のマニュアルである.
+パッケージは多くのファイルに分かれており,
+@example
+load("tk_ode.rr")$
+@end example
+とするとすべてのパッケージをロードできる.
+
+主なパッケージは単独で読み込める.
 ODE(ordinary differential equation)をMPFR(任意精度小数パッケージ)を援用して数値解析するための
-C言語のプログラムを生成する.
+C言語のプログラムを生成パッケージが tk_ode_by_mpfr である.
 下記のコマンドでこのパッケージがロードされる.
 @example
 load("tk_ode_by_mpfr.rr")$
@@ -251,6 +260,12 @@ ChangeLog
  tk_ode_by_mpfr/tk_man2mpfr.rr
 @end itemize
 
+@node tk_ode_sparse_interp函数,,, Top
+@chapter tk_ode_sparse_interp函数
+
+@menu
+* pari::
+@end menu
 
 @comment --- おまじない ---
 @node Index,,, Top
