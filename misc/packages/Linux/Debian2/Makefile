@@ -114,7 +114,7 @@ copy-tar-ball-and-asir: make-tar-ball-2 make-tar-ball-3
 	(cp ../openxm*changes . ;  ${RSYNC} "openxm_${VERSION}_${OS}.changes" ${USER}@fe.math.kobe-u.ac.jp:${APT_DIR})
 
 clean: clean-tilde
-	rm -rf debian/tmp build-stamp work .*done openxm*.deb
+	rm -rf debian/tmp debian/.debhelper build-stamp work .*done openxm*.deb
 clean-tilde:
 	rm -rf *~
 
