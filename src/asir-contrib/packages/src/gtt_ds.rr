@@ -1,6 +1,7 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.2 2019/03/20 05:16:14 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.3 2021/07/24 21:22:11 takayama Exp $
 gtt_ds.rr  gtt_ekn for Direct Sampler  2018.07.09
+misc-2018/07/mano/gtt_ds.rr is the original.
 */
 import("gtt_ekn3.rr")$
 #define USE_MODULE 1
@@ -38,6 +39,7 @@ localf get_from_hash$
 localf put_in_hash$
 localf gmvector_hashed$
 localf check6$
+localf check_minors$
 
 static DS_k$  // k of [GM]
 static DS_n$  // n of [GM]  (k+1) x (n+1) contingency table.
@@ -232,13 +234,13 @@ def init(B) {
 def alpha_move_to_contiguity(Alpha_move) {
   if (length(Alpha_move)==4) {
     if (Alpha_move[0] == u) {
-      C=gtt_ekn.upAlpha(Alpha_move[1],DS_k,DS_n);
+      C=gtt_ekn3.upAlpha(Alpha_move[1],DS_k,DS_n);
       C=base_replace(C,[[a_0,DS_a0]]);
       A1=util_v(a,[Alpha_move[1]]);
       Rule=[[A1,A1+1]];
     } else debug("Not implemented.");
     if (Alpha_move[2] == d) {
-      C2=gtt_ekn.downAlpha(Alpha_move[3],DS_k,DS_n);
+      C2=gtt_ekn3.downAlpha(Alpha_move[3],DS_k,DS_n);
       C2=base_replace(C2,[[a_0,DS_a0]]);
       C2=base_replace(C2,Rule);
     } else debug("Not implemented.");    
@@ -246,7 +248,7 @@ def alpha_move_to_contiguity(Alpha_move) {
   }
   if (length(Alpha_move)==2) {
     if (Alpha_move[0] == d) {
-      C2=gtt_ekn.downAlpha(Alpha_move[1],DS_k,DS_n);
+      C2=gtt_ekn3.downAlpha(Alpha_move[1],DS_k,DS_n);
       C2=base_replace(C2,[[a_0,DS_a0]]);
     } else debug("Not implemented.");    
     return([C2]);
@@ -260,7 +262,7 @@ def alpha_move_to_contiguity(Alpha_move) {
 */
 
 // P must be the normal form.
-// If ( | forced=1 ), then gtt_ekn.gmvector is called.
+// If ( | forced=1 ), then gtt_ekn3.gmvector is called.
 def gmvector_cached(B,P) {
   ShapeOne=0;
   if (type(getopt(forced)) > 0) Forced=1;
@@ -299,7 +301,7 @@ def gmvector_cached(B,P) {
     if (ShapeOne) {
       DS_gm_prev=0;
     }else{
-//      DS_gm_prev=gtt_ekn.gmvector(B,P);
+//      DS_gm_prev=gtt_ekn3.gmvector(B,P);
       DS_gm_prev=gmvector_hashed(B,P,NN,DS_k,DS_n); // It will be faster.
     }
     return(DS_gm_prev);
@@ -342,7 +344,7 @@ def update_gm(II,JJ,B,P,GM) {
 init([[0,0],[0,0]]);
 gmvector_cached([[4,3],[5,2]],[[1,1/2],[1,1]]);
 gmvector_cached([[3,3],[4,2]],[[1,1/2],[1,1]]);
-gtt_ekn.gmvector([[3,3],[4,2]],[[1,1/2],[1,1]]);
+gtt_ekn3.gmvector([[3,3],[4,2]],[[1,1/2],[1,1]]);
 gmvector_cached([[2,3],[4,1]],[[1,1/2],[1,1]]);
  */
 
@@ -362,7 +364,7 @@ def normalize_p(P) {
       NP[I][J] = util_v(x,[I+1,J]);
     }
   }
-  Rule=gtt_ekn.xRule_num(P,D-1,N-1);
+  Rule=gtt_ekn3.xRule_num(matrix_matrix_to_list(P),D-1,N-1);
   NP = base_replace_n(NP,Rule);
   return(NP);
 }
@@ -496,6 +498,7 @@ P is the cell probability. sum(B[0]) must be equal to sum(B[1]).\
 Example: (2 x 3 table) B=[[5,6],[3,3,5]];P=[[1,1/2,1/3],[1,1,1]];\
 for (I=0; I<10; I++) print(gtt_ds.direct_sampler(B,P));"
 {
+  if (check_minors(P)==0) return 0;
   init_update_DS_b_p(B,P);
   C = newmat(length(B[0]),length(B[1]));
   update_DS_b_p(|force=1);
@@ -504,7 +507,7 @@ for (I=0; I<10; I++) print(gtt_ds.direct_sampler(B,P));"
 
     update_DS_b_p();
     GM=gmvector_cached(DS_b,DS_p);
-    if (GM) E=gtt_ekn.cBasistoE(GM,DS_b,DS_p);
+    if (GM) E=gtt_ekn3.cBasistoE(GM,DS_b,DS_p);
     else E=expectation_of_shape_one(DS_b);
     if (DS_debug) {
       show_globals();
@@ -642,7 +645,7 @@ def put_in_hash(NBP,KN) {
 // Todo, bug of dsamp3.rr: mean should be replaced by cmle.
 def gmvector_hashed(B,P,Nall,KK,NN) {
   if ((GM=get_from_hash([Nall,B,P],[KK,NN])) == 0) {
-     GM=gtt_ekn.gmvector(B,P);
+     GM=gtt_ekn3.gmvector(matrix_matrix_to_list(B),matrix_matrix_to_list(P));
      put_in_hash([Nall,B,P,GM],[KK,NN]);
      return(GM);
    }else{
@@ -654,7 +657,7 @@ def gmvector_hashed(B,P,Nall,KK,NN) {
 def check6() {
   // report180324.pdf
   U=[[53,19],[56,31]];
-  Cmle=gtt_ekn.cmle(U);
+  Cmle=gtt_ekn3.cmle(U);
 //  R=number_float_to_rational(Cmle);
   return Cmle;
 }
@@ -662,6 +665,19 @@ def check6() {
   list of programs, hand written comments
 Note: file={@s/2018/07/20170725-my-note.pdf}
 */
+def check_minors(P) {
+  P=matrix_list_to_matrix(P);
+  M=size(P)[0]; N=size(P)[1];
+  if (M>N) { printf("Error: M>N for %a\n",P); return 0;}
+  Nset=newvect(N); for (I=0; I<N; I++) Nset[I]=I; Nset=vtol(Nset);
+  Subsets=base_choose(Nset,M);
+  P=matrix_transpose(P);
+  for (I=0; I<length(Subsets); I++) {
+    Mat=matrix_submatrix(P,Subsets[I]);
+    if (matrix_det(Mat)==0) { printf("Error: minor is 0 for %a\n",P); return 0;}
+  }
+  return(1);
+}
 
 #ifdef USE_MODULE
 endmodule;
