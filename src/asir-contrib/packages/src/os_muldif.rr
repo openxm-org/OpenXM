@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.81 2021/07/04 22:31:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.82 2021/07/10 23:18:13 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -461,6 +461,7 @@ localf xypoch$
 localf xycircuit$
 localf ptline$
 localf ptcommon$
+localf ptinversion$
 localf ptcontain$
 localf ptcopy$
 localf ptaffine$
@@ -520,7 +521,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00210702"$
+Muldif.rr="00210716"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3761,6 +3762,12 @@ def llbase(VV,L)
 		X = var(L[J]); N = deg(L[J],X);
 		for(I = LV; I < S; I++){
 			if((C2=coef(V[I],N,X)) != 0){
+				if(type(C2)==1){
+					for(K=I+1;K<S;K++){
+						if(!(C1=coef(V[K],N,X))||type(C1)!=1) continue;
+						if(abs(C2)<abs(C1)) I=K;
+					}
+				}
 				if(I > LV){
 					Temp = V[I];
 					V[I] = V[LV];
@@ -14601,7 +14608,7 @@ def mypow(Z,R)
 
 def myarg(Z)
 {
-	if(type(Z=map(eval,Z))==4){
+	if(type(Z=map(eval,Z))==4||type(Z)==5){
 		if(length(Z)!=2) return todf(os_md.myarg,[Z]);
 		Re=Z[0];Im=Z[1];
 	}else if(type(Z)>1){
@@ -16040,6 +16047,38 @@ def dext(P,Q)
 {
 	P=lsub(P);Q=lsub(Q);
 	return P[0]*Q[1]-P[1]*Q[0];
+}
+
+def ptinversion(P)
+{
+	if(type(P)==4&&type(P[1])==4){
+		for(R=[];P!=[];P=cdr(P))
+			R=cons(ptinversion(car(P)|option_list=getopt()),R);
+		return reverse(R);
+	}
+	if(type(V=getopt(org))!=0) V=[0,0];
+	if(P==[0,0]) return 0;
+	if(type(P[0])==4){
+		R=P[1];P=P[0];
+	}
+	X=P[0]-V[0];Y=P[1]-V[1];N=X^2+Y^2;
+	if(getopt(bar)==1) S=1;
+	else S=-1;
+	if(!R){
+		if(!N) return 0;
+		return [X/N+V[0],S*Y/N+V[1]];
+	}
+	N-=R^2;
+	if(!N){
+		if(X+R!=0) X0=X+R;
+		else X0=X-R;
+		S=[];
+		S=cons(ptinversion([X0,Y]|option_list=getopt()),S);
+		if(Y+R!=0) Y0=Y+R;
+		else Y0=Y-R;
+		return cons(ptinversion([X,Y0]|option_list=getopt()),S);
+	}
+	return [[X/N+V[0],S*Y/N+V[1]],R/N];
 }
 
 def ptcommon(X,Y)
@@ -17777,6 +17816,41 @@ def ptwindow(L,X,Y)
 
 def pt5center(P,Q,R)
 {
+/* P=[1,[0,0]];Q=[[0,0],[1,0]];R=[[0,0],[0,1]]; */
+	if(length(P)==2&&type(P[0])==4){ /* circle */
+		if(type(Q)==4&&type(Q[1])==4){ /* line */
+			A=myarg(lsub(Q));B=myarg(lsub(R));X0=ptcommon(Q,R);
+			M=mrot(-A);N=mrot(A);X=M*ltov(X0);O=M*ltov(P[0]);
+			if(!(L=B-A)) return 0;
+			Pi=deval(@pi);for(;L<0;L+=Pi);for(;L>Pi;L-=Pi);
+			XX=X[0]+y*deval(cos(L/2))/deval(sin(L/2));
+			XY=X[1]+y;
+			if(getopt(neg)==1){
+				XX=subst(XX,y,-y);XY=subst(XY,y,-y);
+			}
+/* mycat([[P[0],O],XX,XY]); */
+			V=(XX-O[0])^2+(XY-O[1])^2;
+/* mycat(V-(y+P[0])^2); */
+			S=polroots(V-(y+P[1])^2,y);
+			S=append(polroots(V-(y-P[1])^2,y),S);
+			S=qsort(S);V=ltov([XX,XY]);
+/* mycat([S,V,M,N,M*N]); */
+			for(R0=[],ST=S;ST!=[];ST=cdr(ST)) R0=cons([vtol(N*subst(V,y,car(ST))), car(ST)],R0);
+/*  mycat(R0); */
+			for(R=[],F=1;R0!=[];R0=cdr(R0)){
+				if(car(R0)[1]>=0) R=cons(car(R0),R);
+				else{
+					if(F){
+						F=0; R=reverse(R);
+					}
+					R=cons(car(R0),R);
+				}
+			}
+/* mycat(R); */
+			if(!F) R=reverse(R);
+			return R;
+		}
+	}
 	L=newvect(7);
 	L[2]=ptcommon([P,Q],[P,R]|in=-1);
 	Q1=ptcommon([P,R],[Q,0]);R1=ptcommon([P,Q],[R,0]);
