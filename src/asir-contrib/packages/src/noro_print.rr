@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.20 2010/08/03 10:32:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.21 2019/12/22 02:51:16 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -213,7 +213,11 @@ def taka_dp_print(F) {
 }
 
 def taka_dvi_form(S,Opt) {
-  S = taka_tex_form_top(S,Opt);
+  if (type(getopt(texstr))>0) {
+    /* no translation */
+  }else{
+    S = taka_tex_form_top(S,Opt);
+  }
   File0 = ox_work_dir()+"/"+ox_new_file_name();
   File = File0+".tex";
   shell("rm -f "+File);
@@ -234,7 +238,7 @@ def taka_dvi_form(S,Opt) {
          /* (0) .dvi, (1) no extension, (2) .tex, (3) workding dir */
 }
 def taka_xdvi_form(S) {
-  F = taka_dvi_form(S,[]);
+  F = taka_dvi_form(S,[] | option_list=getopt());
   /* Use xdvi for a moment. */
   shell(" xdvi -s 3 -geometry 800x300 "+F[1]+"  >>/dev/null & ");
   return F;
@@ -278,7 +282,11 @@ def taka_png_form(S) {
 }
 
 def taka_dvi_form2(S,Opt) {
-  S = taka_tex_form_top(S,Opt);
+  if (type(getopt(texstr))>0) {
+    /* no translation */
+  }else {
+    S = taka_tex_form_top(S,Opt);
+  }
   File0 = ox_work_dir()+"/"+ox_new_file_name();
   File = File0+".tex";
   shell("rm -f "+File);

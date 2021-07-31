@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.156 2021/06/05 03:09:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.157 2021/06/07 11:17:51 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -1074,12 +1074,12 @@ def print_tex_form(F) {
 /*&usage begin: print_xdvi_form(S)
  It transforms {S} to a xdvi file and previews the file by xdvi.
  example: print_xdvi_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
- example: print_xdvi_form(print_tex_form(1/2));
+ example: print_xdvi_form(print_tex_form(1/2) | texstr=1);
  ref: print_tex_form, print_dvi_form
 end: */
 def print_xdvi_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
-  return(taka_xdvi_form(F));
+  return(taka_xdvi_form(F | option_list=getopt()));
 }
 
 /*&usage begin: print_pdf_form(S)
