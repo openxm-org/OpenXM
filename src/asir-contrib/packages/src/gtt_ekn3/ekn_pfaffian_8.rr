@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_pfaffian_8.rr,v 1.1 2019/03/19 02:14:49 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ekn3/ekn_pfaffian_8.rr,v 1.2 2019/04/09 00:48:15 takayama Exp $
 */
 /* memo
 load("ekn_pfaffian_8.rr");
@@ -2481,6 +2481,7 @@ def contiguity_mat_list_3(A,K,N){
     }else{}
     // printf("%a\n",Alv);
   }
+  // printf("%a=reverse(CList)\n",reverse(CList));  // 2021.08.02
   return(cons(t,reverse(CList)));
 }
 /****** Strategy 3 end ***************/
@@ -2544,8 +2545,10 @@ def contiguity_mat_list_3_dist(A,K,N){
       E = cdr(E);
     }
   }
-  Ekn_CList = reverse(cdr(vtol(Ekn_CList)));
-  return(cons(t,cdr(vtol(CList))));
+  Ekn_CList = base_prune(0,vtol(Ekn_CList));
+  CList=base_prune(0,vtol(CList));
+  // printf("%a=CList\n",vtol(CList)); // 2021.08.02
+  return(cons(t,CList));
 }
 
 

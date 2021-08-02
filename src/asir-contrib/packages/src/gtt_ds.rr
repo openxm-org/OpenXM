@@ -1,7 +1,8 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.3 2021/07/24 21:22:11 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.4 2021/07/28 01:41:46 takayama Exp $
 gtt_ds.rr  gtt_ekn for Direct Sampler  2018.07.09
 misc-2018/07/mano/gtt_ds.rr is the original.
+misc-2021/07/mano/gtt_ds.rr: the current version.
 */
 import("gtt_ekn3.rr")$
 #define USE_MODULE 1
@@ -40,6 +41,7 @@ localf put_in_hash$
 localf gmvector_hashed$
 localf check6$
 localf check_minors$
+localf setup$
 
 static DS_k$  // k of [GM]
 static DS_n$  // n of [GM]  (k+1) x (n+1) contingency table.
@@ -76,7 +78,8 @@ static DS_contiguity_denom_cache$
 static DS_HASH_SIZE$
 static DS_gm_hash$
 static DS_bigfloat$
-
+// 2021.08/02
+static DS_crt_opt$
 #else
 
 extern DS_k$  // k of [GM]
@@ -114,6 +117,7 @@ extern DS_contiguity_denom_cache$
 extern DS_HASH_SIZE$
 extern DS_gm_hash$
 extern DS_bigfloat$
+extern DS_crt_opt$$
 
 #endif
 
@@ -140,6 +144,7 @@ def init_load()
   DS_b=0;
   DS_p=0;
   DS_debug=0;
+  DS_crt_opt=0;
   
   DS_CACHE_SIZE=10;
   DS_b_move_cache= newmat(DS_CACHE_SIZE,DS_CACHE_SIZE);
@@ -644,8 +649,15 @@ def put_in_hash(NBP,KN) {
 // dsamp3.rr takes 660s (about 100s faster).
 // Todo, bug of dsamp3.rr: mean should be replaced by cmle.
 def gmvector_hashed(B,P,Nall,KK,NN) {
+  //printf("B=%a\nP=%a\n",B,P);
   if ((GM=get_from_hash([Nall,B,P],[KK,NN])) == 0) {
-     GM=gtt_ekn3.gmvector(matrix_matrix_to_list(B),matrix_matrix_to_list(P));
+     if (DS_crt_opt != 0) {
+       //printf("New dist\n");
+       GM=gtt_ekn3.gmvector(matrix_matrix_to_list(B),matrix_matrix_to_list(P)|option_list=DS_crt_opt);
+     }else{
+       //printf("New\n");
+       GM=gtt_ekn3.gmvector(matrix_matrix_to_list(B),matrix_matrix_to_list(P));
+     }
      put_in_hash([Nall,B,P,GM],[KK,NN]);
      return(GM);
    }else{
@@ -679,6 +691,15 @@ def check_minors(P) {
   return(1);
 }
 
+/*
+Example: 
+gtt_ekn3.setup(|nps=Nproc,nprm=300,minp=10^100,sub_progs=["gtt_ekn3.rr","gtt_ekn3/childprocess.rr"],x=1,fgp="p300.txt");  
+Opt=[["nps",Nproc],["x",1],["crt",1],["interval",100]]$
+gtt_ds.setup(Opt);
+*/
+def setup(Opt) {
+  DS_crt_opt=Opt;
+}
 #ifdef USE_MODULE
 endmodule;
 gtt_ds.init_load()$
