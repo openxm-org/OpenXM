@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.4 2021/07/28 01:41:46 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/gtt_ds.rr,v 1.5 2021/08/02 02:08:09 takayama Exp $
 gtt_ds.rr  gtt_ekn for Direct Sampler  2018.07.09
 misc-2018/07/mano/gtt_ds.rr is the original.
 misc-2021/07/mano/gtt_ds.rr: the current version.
@@ -42,6 +42,8 @@ localf gmvector_hashed$
 localf check6$
 localf check_minors$
 localf setup$
+localf seed_by_md5sum$
+localf get_samples$
 
 static DS_k$  // k of [GM]
 static DS_n$  // n of [GM]  (k+1) x (n+1) contingency table.
@@ -700,6 +702,69 @@ gtt_ds.setup(Opt);
 def setup(Opt) {
   DS_crt_opt=Opt;
 }
+
+def seed_by_md5sum() {
+  shell("ps axuww | md5sum |head -c 32 >.tmp_seed");
+  S=util_read_file_as_a_string("./.tmp_seed");
+  S="0x"+S;
+  Num=eval_str(S) % 0x100000000;
+  if (Num == 0) error("Fail to get a seed");
+  return Num;
+}
+/*&begin:
+example: gtt_ds.get_samples([[2,5],[4,3]],[[1,1/3],[1,1]],5 | verbose=1);
+example: gtt_ds.get_samples([[20,50],[40,30]],[[1,1/3],[1,1]],5 | nproc=3,verbose=1,x=1);
+end: */
+def get_samples(Beta,PP,N) {
+  Beta=matrix_matrix_to_list(Beta);
+  PP=matrix_matrix_to_list(PP);
+  if (type(getopt(nproc))>0) Nproc=getopt(nproc);  else Nproc=0;
+  if (type(getopt(verbose))>0) Verbose=getopt(verbose);  else Verbose=0;
+  if (type(getopt(x))>0) X=getopt(x);  else X=0;
+  if (type(getopt(flat))>=0) Flat=getopt(flat); else Flat=1;
+  // X=1; Verbose=1;  // for debug
+  if (Nproc>0) {
+    Procs=newvect(Nproc);
+    Seeds=newvect(Nproc);
+    for (I=0; I<Nproc; I++) {
+      if (X) Procs[I]=ox_launch(0,"ox_asir");
+      else Procs[I]=ox_launch_nox(0,"ox_asir");
+      Seeds[I]=seed_by_md5sum();
+    }
+    Procs=vtol(Procs);
+  }else {
+    Samples=[];
+    for (I=0; I<N; I++) {
+      Samples=cons(NewS=matrix_matrix_to_list(direct_sampler(Beta,PP)),Samples);
+      if (Verbose) printf("%a I=%a\n",NewS,I);
+    }
+    return Samples;
+  }
+  for (I=0; I<Nproc; I++) {
+    ox_execute_string(Procs[I],"load(\"gtt_ds.rr\");");
+    ox_execute_string(Procs[I],sprintf("random(%a);",Seeds[I]));
+    ox_execute_string(Procs[I],sprintf("Ans=gtt_ds.get_samples(%a,%a,%a | verbose=%a);",Beta,PP,N,Verbose));
+    ox_push_cmd(Procs[I],258);
+  }
+  Remain=Nproc;
+  Ans=[]; 
+  while (Remain>0) {
+    Ready=ox_select(Procs);
+    for (I=0; I<length(Ready); I++) {
+      if (Flat) {
+        Ans=append(TT=ox_get(Ready[I]),Ans);
+      }else{
+        Ans=cons(TT=ox_get(Ready[I]),Ans);
+      }
+    }
+    Remain -= length(Ready);
+    if (Remain > 0) {
+      Procs = base_set_minus(Procs,Ready);
+    }
+  }
+  return Ans;
+}
+
 #ifdef USE_MODULE
 endmodule;
 gtt_ds.init_load()$
