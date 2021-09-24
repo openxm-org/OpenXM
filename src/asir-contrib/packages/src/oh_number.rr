@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_number.rr,v 1.7 2014/05/24 17:52:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_number.rr,v 1.8 2014/05/26 11:18:55 ohara Exp $ */
 module oh_number;
 localf rats_prec;
 localf rats;
@@ -38,7 +38,8 @@ def to_continued_fraction(X,K) {
         Sign = -1; X = -X; 
     }
 /* continued fraction (X ~= reverse(L)) */
-    Bound = 2^62;
+    if (ntype(X) > 1) Bound=2^number_floor(setprec()*deval(log(10)/log(2)));
+    else Bound = 2^62;
     if (X==0 || (ntype(X) && Bound*X < 1)) {
         return [Sign, [0], 0];
     }
