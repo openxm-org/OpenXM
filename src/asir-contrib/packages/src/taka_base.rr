@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.36 2021/03/09 02:47:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.37 2021/06/05 03:09:56 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -430,7 +430,8 @@ def taka_base_number_abs(X) {
 
 def taka_base_number_eval(F) {
   if (type(F)==0) return(F);
-  if (type(F)<=3) return(eval(exp(0)*F));
+  if (type(F)<3) return(eval(exp(0)*F));
+  if (type(F)==3) return(taka_base_number_eval(nm(F))/taka_base_number_eval(dn(F)));
   if ((type(F)>=4) && (type(F)<=6)) return(map(number_eval,F));
   return(F); 
 }
