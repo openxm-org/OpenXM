@@ -1,11 +1,11 @@
-# 
+# $OpenXM$
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-MASTER_SITE=https://gforge.inria.fr/frs/download.php/file/38111/
-MASTER_SITE=https://gforge.inria.fr/frs/download.php/file/37331/
+#MASTER_SITE=https://gforge.inria.fr/frs/download.php/file/38111/
+#MASTER_SITE=https://gforge.inria.fr/frs/download.php/file/37331/
 DISTNAME=mpfi-1.5.3
 DISTFILES=${DISTNAME}.tgz
 DISTFILES=${DISTNAME}.tar.bz2
