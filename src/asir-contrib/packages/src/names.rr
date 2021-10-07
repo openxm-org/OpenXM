@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.157 2021/06/07 11:17:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.158 2021/07/31 01:40:51 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20200320), Copyright 2000-2019, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20211007), Copyright 2000-2021, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -55,6 +55,7 @@ import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
+import("tk_matrix.rr")$
 import("tk_asir_contrib_update.rr")$
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
@@ -953,6 +954,34 @@ end: */
 def matrix_poly_to_matrix(Poly,Rule) {
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return ok_poly_to_matrix(Poly,Rule | option_list=getopt());
+}
+
+/*&usage begin: matrix_kronecker_product(A,B)
+ Kronecker product of the matrices A and B.
+ example: matrix_kronecker_product([[a11,a12],[a21,a22]],[[b11,b12],[b21,b22]]);
+end: */
+def matrix_kronecker_product(A,B) {
+  OX_LOADFILE(Loaded_ok_matrix,"tk_matrix.rr");
+  return tk_matrix.kronecker_product(A,B | option_list=getopt());
+}
+
+/*&usage begin: matrix_stack(A,B)
+ Stack the matrices A and B.
+ example: matrix_stack([[a11,a12],[a21,a22]],[[b11,b12],[b21,b22]]);
+end: */
+def matrix_stack(A,B) {
+  OX_LOADFILE(Loaded_ok_matrix,"tk_matrix.rr");
+  return tk_matrix.stack(A,B | option_list=getopt());
+}
+
+/*&usage begin: matrix_row_matrix(L | size=n)
+ It returns 1*n matrix [[L,L,...,L]] when L is a scalar.
+ It returns 1*length(L) matrix [L].
+ example: matrix_row_matrix(1 | size=5);
+end: */
+def matrix_row_matrix(L) {
+  OX_LOADFILE(Loaded_ok_matrix,"tk_matrix.rr");
+  return tk_matrix.row_matrix(L | option_list=getopt());
 }
 
 

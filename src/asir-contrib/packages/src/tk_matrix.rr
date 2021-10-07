@@ -1,0 +1,63 @@
+/* $OpenXM$ 
+*/
+module tk_matrix;
+localf kronecker_product;
+localf test_kronecker_product;
+localf row_matrix;
+localf stack;
+
+def kronecker_product(A,B) {
+  A=matrix_list_to_matrix(A);
+  B=matrix_list_to_matrix(B);
+  Ma=size(A)[0]; Na=size(A)[1];
+  Mb=size(B)[0]; Nb=size(B)[1];
+  C=newmat(Ma*Mb,Na*Nb);
+  for (I=0; I<Ma*Mb; I++) {
+    Ia = idiv(I,Mb); Ib = I % Mb;
+    for (J=0; J<Na*Nb; J++) {
+      Ja = idiv(J,Nb); Jb = J % Nb;
+      C[I][J] = A[Ia][Ja]*B[Ib][Jb];
+    }
+  }
+  return C;
+}
+def test_kronecker_product() {
+  A=[[a11,a12],[a21,a22]];
+  B=[[b11,b12],[b21,b22]];
+  print(kronecker_product(A,B));
+  print("----");
+  A=[[a11,a12],[a21,a22]];
+  B=[[b11,b12,b13],[b21,b22,b23]];
+  print(kronecker_product(A,B));
+}
+/*
+test_kronecker_product()$
+*/
+def row_matrix(L) {
+  if (type(getopt(size))>0) {
+    N=getopt(size);
+  }else{
+    return matrix_list_to_matrix([matrix_matrix_to_list(L)]);
+  }
+  C=newmat(1,N);
+  for (I=0; I<N; I++) C[0][I]=L;
+  return C;
+}
+/*
+matrix_row_matrix(1 | size=5);
+matrix_row_matrix([1,2,3]);
+print("--------")$
+*/
+
+def stack(A,B) {
+  C=append(matrix_matrix_to_list(A),
+           matrix_matrix_to_list(B));
+  return matrix_list_to_matrix(C);
+}
+
+endmodule;
+/*
+tk_matrix.stack(tk_matrix.kronecker_product(matrix_identity_matrix(2),tk_matrix.row_matrix(1 |size=3)),
+                tk_matrix.kronecker_product(tk_matrix.row_matrix(1 | size=2),matrix_identity_matrix(3)));
+*/
+end$
