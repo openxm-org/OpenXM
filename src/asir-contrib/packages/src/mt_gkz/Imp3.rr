@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.1 2021/01/20 03:05:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.2 2021/03/02 10:57:17 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -52,6 +52,8 @@ localf leading_terms$
 localf test100$
 localf test101$
 localf test102$
+localf fexp$
+localf xvars$
 #endif
 
 def make_Ap (A,L){
@@ -517,7 +519,8 @@ def gen_initial(Id,V,W){
 
 def toric_gen_initial(A,W){
   Id=mytoric_ideal(A)$
-    V=reverse(vars(Id))$
+    //V=reverse(vars(Id))$
+      V=xvars(length(A[0]))$
       return  [gen_initial(Id,V,W),V];
 }
 
@@ -1179,9 +1182,16 @@ def my_power(Z,E){
 //truncated_canonical_series(V,G,N,W)
 //grobner_to_u_vect(G,Vars,W)
 
+//2021/10/14, leading_terms内部にバグ発見。2行目のvars(Id)が予想したものでないことが原因。新たな函数xvarsを用いて問題を回避。
+
+
+
+
+
 def leading_terms(A,Beta,W,Q1,Q2,K,N){
   Id=mytoric_ideal(A)$
-    Vars=reverse(vars(Id))$
+    Vars=xvars(length(A[0]))$
+    //Vars=reverse(vars(Id))$
       IV=nk_toric.gr_w(Id,Vars,W)$
         LV=length(IV)$
           SSS=newvect(LV)$
@@ -1216,7 +1226,7 @@ def leading_terms(A,Beta,W,Q1,Q2,K,N){
                                   Store_kl2[I][J]=comp_k_ab(L[I][0],V,Q2,A,L[I][1])$
                                 }
                               }// computing k_{a,b},l_{a,b} for Q1 and Q2
-
+			      //They are defined so that [A_{\bsigma}k]=[{-b,a}+A_{\bsigma}k_{a,b}] or [-A_{\bsigma}k]=[{-b,a}+A_{\bsigma}k_{a,b}] in the quotient group associated to \sigma. l_{a,b} is chosen so that A_{\bsigma}k+A_{\sigma}l_{a,b}={-b,a}+A_{\bsigma}k_{a,b} or -A_{\bsigma}k+A_{\sigma}l_{a,b}={-b,a}+A_{\bsigma}k_{a,b}. See [GotoMatsubara-Heo] though l_{a,b} is not mentioned.
                       //ここからは級数の積の低次項たちを取り出す。
                       Phi1=newvect(NN)$
                         for (I=0;I<NN;I++){
@@ -1373,6 +1383,35 @@ def test102() {
   printf("File %a to find a rational solution will be generated.\n",Fname);
   return generate_maple_file_IC(A,Beta,Ap,Rvec,DirX|xrule=Xrule,filename=Fname);
 }
+
+
+
+def fexp(A,W,Beta){
+  T=top_standard_pairs(A,W)$
+  N=length(T)$
+    ANS=newvect(N)$
+      for(I=0;I<N;I++){
+	L=length(T[I][0])$
+	V=newvect(L)$
+	for(J=0;J<L;J++){
+	  V[J]=v_vect(A,Beta,T[I][0][J],T[I][1])$
+	}
+	ANS[I]=[vtol(V),T[I][1]]$
+      }
+      return vtol(ANS);
+}
+
+
+
+def xvars(N){
+  V=newvect(N)$
+  for (I=0;I<N;I++){
+    J=I+1$
+    V[I]=strtov(rtostr(x)+rtostr(J))$
+  }
+  return vtol(V);
+}
+
 #ifdef USE_MODULE
 endmodule;
 #endif
