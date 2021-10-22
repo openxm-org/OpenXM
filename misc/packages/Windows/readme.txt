@@ -1,7 +1,24 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.7 2015/10/13 06:59:34 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.8 2016/06/30 00:04:45 takayama Exp $
 
 
 THIS IS A NOTE FOR DEVELOPPERS.
+
+2021.10.21.
+1. Install cygmpfr-4.dll by setup if it is not installed.
+2. OpenXM/src/mpfr cannot be configure with the static option.
+   Do below by hand.
+     cd OpenXM/src/mpfr ; rm .configure_done
+     ./configure --disable-static --enable-shared --prefix /home/nobuki/OX4/OpenXM
+     touch .configure_done
+3. Perform the standard install procedure.
+4. Test by cmd.exe
+     cd AppData\Roaming\OpenXM\OpenXM-win\bin
+     ox_pari   (check if ox_pari starts)
+   Test by asirgui
+     import("names.rr");
+     oxpari.start_win();
+cf. misc-2021/10/misc/note-ox_pari-exe.txt
+;;
 
 In order to build asir on cygwin, set the following path.
     export PATH=/usr/X11R6/bin:$PATH

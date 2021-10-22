@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.44 2015/10/13 06:59:34 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.45 2016/08/27 02:20:55 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -8,6 +8,9 @@ WGET_PHC=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
 WGET_HEAD=http://www.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
 
 WINASIR=c:/home/asir
+
+#obtained by ldd ox_pari.exe
+SYS_DLL_FILES=/bin/cygwin1.dll /usr/bin/cyggcc_s-seh-1.dll /usr/bin/cyggmp-10.dll  /usr/bin/cygmpfr-4.dll
 
 #obtained by chgcheck command
 DLLS_ox_asir=/bin/cygX11*dll /bin/cygxcb*.dll /bin/cygXau*.dll \
@@ -52,6 +55,8 @@ oxpari-copy-binary-cygwin: build-binary-openxm-cygwin
 	   cp  ../${OpenXM_TOP}/bin/ox_pari bin ; \
 	   cp  ../${OpenXM_TOP}/bin/ox bin ; \
 	   cp  ../${OpenXM_TOP}/bin/cyggc*.dll bin ; \
+	   cp  ../${OpenXM_TOP}/bin/cygcord*.dll bin ; \
+	   cp  ../${OpenXM_TOP}/bin/libpari*.dll bin ; \
 	   cp  ../${OpenXM_TOP}/bin/sm1 bin ; \
 	   cp  ../${OpenXM_TOP}/bin/ox_sm1 bin ; \
 	   cp  ../${OpenXM_TOP}/bin/ox_sm1 bin/ox_sm1_forAsir ; \
@@ -60,7 +65,7 @@ oxpari-copy-binary-cygwin: build-binary-openxm-cygwin
 	fi 
 oxpari-copy-cygwin-dlls:
 	if [ ! -f .oxpari-copy-cygwin-dlls-done ] ; then \
-	 cp /bin/cygwin1.dll OpenXM-win/bin ; \
+	 cp  ${SYS_DLL_FILES} OpenXM-win/bin ; \
 	 touch .oxpari-copy-cygwin-dlls-done ; \
 	fi
 
