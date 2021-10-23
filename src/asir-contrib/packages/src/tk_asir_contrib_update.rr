@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.14 2015/09/29 06:23:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.15 2020/03/24 02:12:33 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -38,6 +38,7 @@ def mymessage(OS) {
    printf("If you understand this risk and want to update to the HEAD branch, execute the command above.\n");
    if (OS == "Windows") {
      printf("It is installed under "+getenv("APPDATA")+"\\OpenXM\n");
+     printf("In order to call pari, download the ox_pari server by asir_contrib_update(|update=4);\n");
    }else {
      printf("It is installed under "+OpenXM_tmp+"/OpenXM\n");
    }
