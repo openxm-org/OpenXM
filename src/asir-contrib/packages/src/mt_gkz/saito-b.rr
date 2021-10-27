@@ -1,4 +1,4 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.1 2021/01/20 03:05:29 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -64,6 +64,7 @@ localf make_Ap$
 localf b_ideal$
 localf get_check_fvec$
 localf mytoric_ideal$
+localf use_hilbert_driven$
 
 static Check_BF$   /* saito b-functions */
 static Check_FP$
@@ -71,6 +72,7 @@ static Check_C$    /* step up operators (not containing bi's) */
 static Check_Amat$  /* matrix A associated to Check_BF and Check_C */
 static Check_Fvec$  /* matrix A associated to Check_BF and Check_C */
 static Check_toric_command$
+static Check_use_hilbert_driven$
 #else
 /* 以下は check と共用 */
 extern Check_BF$
@@ -79,6 +81,7 @@ extern Check_C$
 extern Check_Amat$ 
 extern Check_Fvec$
 extern Check_toric_command$
+extern Check_use_hilbert_driven$
 #endif
 
 /*
@@ -705,7 +708,11 @@ def yang_gkz_buch(A,Beta) {
   DV = dvar(V);
   yang.define_ring(["partial",V]);
   yang.verbose();
-  E=yang.buchberger(map(dp_ptod,Eq,DV)); /* [分子(分散),分母] のリストで */
+  if (Check_use_hilbert_driven) {
+    E=yang.buchberger(map(dp_ptod,Eq,DV) | sm1=1, hilbert=Check_use_hilbert_driven); /* [分子(分散),分母] のリストで */
+  }else{
+    E=yang.buchberger(map(dp_ptod,Eq,DV)); /* [分子(分散),分母] のリストで */
+  }
   E=remove_dn(E);  /* [分子,1]  の形へ.  */
   S=dp_mbase(yang.initial_term(E));
   return [E,DV,S];
@@ -834,6 +841,9 @@ def pfaff_eq(A,Beta,Ap,Rvec,DirX) {
   /* constant Gauge matrix */
   if (type(getopt(cg))>0) Cg=getopt(cg); else Cg=matrix_identity_matrix(length(Rvec));
   if (type(getopt(no_clear_bf)) <=0) clear_bf();
+  if (Check_use_hilbert_driven) {
+    printf("Rank is assumed to be %a. To clear this assumption, mt_gkz.use_hilbert_driven(0);\n",Check_use_hilbert_driven);
+  }
   Pf = [];
   Fvec = rvec_to_fvec(Rvec,A,Ap,Beta | option_list=getopt());
   NN = fvec_to_conn_mat(Fvec,A,Beta,1);
@@ -914,6 +924,10 @@ def mytoric_ideal(A) {
   }else{
     return nk_toric.toric_ideal(A);
   }
+}
+
+def use_hilbert_driven(Rank) {
+  Check_use_hilbert_driven=Rank;
 }
 
 #ifdef USE_MODULE

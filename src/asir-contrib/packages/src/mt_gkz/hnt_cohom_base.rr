@@ -1,0 +1,100 @@
+/* $OpenXM$ */
+/* Cohomology basis by Hibi-Nishiyama-Takayama alg.
+   Original: h-mle/A-hg/Prog/issac.rr 
+   cbasis is also installed in ot_hgm_ahg.rr
+*/
+import("tk_sm1emu.rr")$
+module mt_gkz$
+localf genrule_p$
+localf add_d$
+localf mytoric_by_euler$
+localf mydistraction$
+localf cbase_by_euler$
+localf ctest7$
+
+def genrule_p(V) {
+  R=[]; P1=2;
+  for (I=0; I<length(V); I++) { 
+    P1 = pari(nextprime,P1+1); 
+    P2 = pari(nextprime,P1+1);
+    R = cons([V[I],P1/P2],R);
+    P1 = P2;
+  }
+  return reverse(R);
+}
+def add_d(V) {
+  Dv = newvect(length(V));
+  for (I=0; I<length(V); I++) {
+    Dv[I] = eval_str("d"+rtostr(V[I]));
+  }
+  return vtol(Dv);
+}
+def mytoric_by_euler(A,W) {
+  En=length(A);
+  Gkz=tk_sm1emu.gkz([A,vtol(newvect(En))]);
+  V=Gkz[1];
+  T=Gkz[0];
+  E=[]; Vb=[];
+  for (I=0; I<En; I++) { E=cons(car(T)-util_v(b,[I+1]),E); T=cdr(T); Vb=cons(util_v(b,[I+1]),Vb);}
+  E=reverse(E);  Vb=reverse(Vb);
+  T=tk_sm1emu.gb([T,V,W]);
+  return [E,T[0],V,Vb,W,T[1]];
+  /* [euler,toric,V,Vb,weight_vec,toric_init_by_weight_vec] */
+}
+def mydistraction(F,Vs) {
+  return sm1.distraction(append([F],Vs));
+}
+/*&usage
+cbase_by_euler(A)
+Cohomology basis of the GKZ system defined by A for generic beta.
+Basis is given by a set of Euler operators. 
+It is an implementation of the algorithm in http://dx.doi.org/10.1016/j.aim.2016.10.021
+beta is set by random numbers. Option: no_prob=1
+Example:
+  mt_gkz.ctest7(3);
+*/
+def cbase_by_euler(A) {
+  W=[[dx1, 1]]; /* dummy */
+  T0=mytoric_by_euler(A,W);
+  E=T0[0];
+  T=T0[1];
+  V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
+  Gt=nd_gr(T,Vd,0,0);
+  printf("Gt=%a\n",Gt);
+  dp_ord(0); /* rev lex */
+  T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  printf("T2     =%a\n",T2);
+  T2 = map(mydistraction,T2,[V,V,Vd,Vd]);
+  printf("T2(new)=%a\n",T2);
+  E = map(mydistraction,E,[append(V,Vb),V,Vd,Vd]);
+  printf("E=%a\n",E);
+  if (type(getopt(no_prob)) >0) {
+    Er=E; Vd=append(Vd,Vb);
+    /* Todo, it is buggy. Must be Vd > Vb. initial must be taken properly. */
+  }else {
+    Er=base_replace(E,genrule_p(Vb)); /* prob method */
+    printf("We use a probablistic method to determine the base.\n");
+  }
+  dp_ord(0);
+  G=nd_gr(append(Er,T2),Vd,0,0);  /* Er: linear Euler op, T2: distraction of init of Euler */
+  G1=G;
+  Gin = map(dp_ht,map(dp_ptod,G1,Vd)); Gin_p=map(dp_dtop,Gin,Vd);
+  Std = dp_mbase(Gin); Std=map(dp_dtop,Std,Vd);
+  printf("Note: dx1, dx2, ..., are the Euler operators\n");  
+  return Std;
+}
+
+def ctest7(P) {
+  A=[[0,0,0,1,1,1],
+     [1,1,1,0,0,0],
+     [1,0,0,-1,0,0],
+     [0,1,1-P,0,-1,P-1]];
+  T0=time();
+  Std=cbase_by_euler(A);
+  T1=time();
+  printf("CPU time=%a, GC time=%a\n",T1[0]-T0[0],T1[1]-T0[1]);
+  return [A,Std];
+}
+
+endmodule$
+end$

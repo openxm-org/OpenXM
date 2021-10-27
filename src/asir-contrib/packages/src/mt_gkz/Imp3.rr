@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.2 2021/03/02 10:57:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.3 2021/10/18 06:50:36 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -591,6 +591,8 @@ def xj_to_j(L){
 }//これは結局使っていない。
 
 def regular_triangulation(A,W){
+    CL=length(A)$
+    RL=length(A[0])$
   IV=toric_gen_initial(A,W)$
     if (IV[0][0]==0){
       N=length(A[0])$
@@ -605,15 +607,17 @@ def regular_triangulation(A,W){
         L=length(PD)$
           T=[]$
             for (I=0;I<L;I++){
+	      if (length(PD[I][1])==RL-CL){
               Delta=diff_set(IV[1],PD[I][1])$
               Delta=xj_to_j(Delta)$
               T=append(T,[Delta])$
+	      }
             }
             return T;
     }
 }
 //202012/11  変数がない（Aが正方行列）場合に対処できるように改良。
-
+//2021/10/20 embedded primeまでカウントしていたbugを修正。
 
 def top_standard_pairs(A,W){
   CL=length(A)$
@@ -1405,11 +1409,24 @@ def fexp(A,W,Beta){
 
 def xvars(N){
   V=newvect(N)$
+    Diff=getopt(diff)$
+      if(type(Diff)==-1){
   for (I=0;I<N;I++){
     J=I+1$
     V[I]=strtov(rtostr(x)+rtostr(J))$
   }
   return vtol(V);
+      }
+      if(type(Diff)==1){
+  for (I=0;I<N;I++){
+    J=I+1$
+    V[I]=strtov(rtostr(dx)+rtostr(J))$
+  }
+  return vtol(V);
+      }
+      else{
+    printf("option diff should be either empty or 1.\n");
+  }
 }
 
 #ifdef USE_MODULE
