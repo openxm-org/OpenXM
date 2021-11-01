@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.158 2021/07/31 01:40:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.159 2021/10/07 02:11:34 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -53,6 +53,7 @@ import("mt_graph.rr")$
 import("oh_number.rr")$
 import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
+import("nk_toric.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
 import("tk_matrix.rr")$
@@ -615,10 +616,16 @@ def poly_sort(F) {
 /*&usage begin: poly_toric_ideal(A,V)
  It returns generators of the affine toric ideal defined by the matrix(list) A.
  V is the list of variables.
+ option: nk_toric=1 (disable 4ti2)
  example: poly_toric_ideal([[1,1,1,1],[0,1,2,3]],base_var_list(x,0,3));
 end: */
 def poly_toric_ideal(A,V) {
   Opt = getopt();
+  if (type(getopt(nk_toric))>0) {
+    II=nk_toric.toric_ideal(A);
+    V2=base_var_list(x,1,length(A[0]));
+    return base_replace(II,assoc(V2,V));
+  }  
   return nk_4ti2.toric_ideal(A,V | option_list=Opt);
 }
 
