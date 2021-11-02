@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.159 2021/10/07 02:11:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.160 2021/11/01 05:21:20 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -395,10 +395,10 @@ def poly_factor(A) { return(taka_poly_factor(A)); }
 end: */
 def poly_gcd(A,B)  { return(gcd(A,B)); }
 
-/*&usage begin: poly_elimination_ideal(I,VV|grobner_basis,v,homo,grace,strategy)
+/*&usage begin: poly_elimination_ideal(I,VV|grobner_basis,gb,v,homo,grace,strategy)
  It computes the intersection of the ideal {I} and the subring K[{VV}].
  description:
- If grobner_basis is "yes", I is assumed to be a Grobner basis.
+ If grobner_basis is "yes" or gb=1, I is assumed to be a Grobner basis.
  The optional variable v is a list of variables which defines the ring 
  of polynomials.
  example: poly_elimination_ideal([x^2+y^2-4,x*y-1],[x]);
@@ -410,11 +410,8 @@ def poly_gcd(A,B)  { return(gcd(A,B)); }
  ref: gr, hgr, gr_mod, dp_*
 end: */
 def poly_elimination_ideal(I,VV) { 
-  O = getopt(grobner_basis);
-  V = getopt(v);
-  OL = [["grobner_basis",O],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_elimination_ideal(I,VV|option_list=OL);
+  return taka_poly_elimination_ideal(I,VV|option_list=getopt());
 }
 
 /*&usage begin: poly_expand(F)
