@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.160 2021/11/01 05:21:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.161 2021/11/02 01:08:10 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -384,6 +384,11 @@ def number_real_part(X) { return(taka_base_real_part(X)); }
 def number_sign(X) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */
+/*&usage begin: poly_dvar(V)
+ Add d to the variable name {V}.
+ example: poly_dvar([x1,x2,x3]);
+end: */
+def poly_dvar(V) { return(taka_poly_dvar(V)); }
 /*&usage begin: poly_factor(F)
  It factorizes the polynomial {F}.
  example: poly_factor(x^10-y^10);
