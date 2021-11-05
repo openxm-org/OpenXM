@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.82 2021/07/10 23:18:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.83 2021/07/29 07:47:48 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - July 2021)
+ *          Toshio Oshima (Nov. 2007 - Oct. 2021)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -61,6 +61,7 @@ localf mycoef$
 localf mydiff$
 localf myediff$
 localf mypdiff$
+localf difflog$
 localf pTaylor$
 localf pwTaylor$
 localf m2l$
@@ -105,7 +106,10 @@ localf mtranspose$
 localf mtoupper$
 localf mydet2$
 localf myrank$
+localf lext2$
 localf meigen$
+localf pf2kz$
+localf mext2$
 localf transm$
 localf vgen$
 localf mmc$
@@ -429,6 +433,7 @@ localf openGlib$
 localf xyproc$
 localf xypos$
 localf xyput$
+localf xylabel$
 localf xybox$
 localf xyline$
 localf xylines$
@@ -521,7 +526,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00210716"$
+Muldif.rr="00211022"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -837,6 +842,22 @@ def mypdiff(P,L)
 		L=cdr(L);
 	}
 	return red(Q);
+}
+
+def difflog(L)
+{
+	if(!isvar(X=getopt(var))) X=x; 
+	if(type(L)!=4) return 0;
+	for(S=0;L!=[];L=cdr(L)){
+		if(type(L0=car(L))==4) S+=L0[1]*mydiff(L0[0],X)/L0[0];
+		if(type(L0)<4) S+=mydiff(L[0],X);
+	}
+	S=red(S);
+	if(type(F=getopt(mc))>0){
+		X=vweyl(X);
+		S=mc(X[1]-S,X,F);
+	}
+	return red(S);
 }
 
 def pTaylor(S,X,N)
@@ -2276,6 +2297,75 @@ def meigen(M)
 	S = size(M)[0];
 	P = mydet2(mgen(S,0,[zz],0)-M);
 	return (F==1)?getroot(P,zz|mult=1):getroot(P,zz);
+}
+
+def lext2(L)
+{
+	if(length(L)==2){
+		for(S=0,I=1;I<L[1];I++){
+			S+=L[1]-I;
+			if(S>L[0]) break;
+		}
+		return [I-1,L[0]+L[1]-S];
+	}
+	if(L[0]==L[1]) return [0,0];
+	if(L[0]<L[1]){
+		L0=L[0];L1=L[1];S=1;
+	}else{
+		L0=L[1];L1=L[0];S=-1;
+	}
+	return [(2*L[2]-L0-3)*L0/2+L1-1,S];
+}
+
+def pf2kz(M)
+{
+	L=length(M);
+	for(S=0,N=1;S<=L;N++){
+		S+=N;
+	}
+	if(S!=L+1) return 0;
+	for(L=[],I=0;I<N-2;I++){
+		for(S=J=0;J<N;J++)
+			if(I!=J) S+=M[car(lext2([I,J,N]))];
+		L=cons(-S,L);
+	}
+	for(S=0,K=M;K!=[];K=cdr(K)) S-=car(K);
+	S0=S;
+	for(I=0;I<N-2;I++) S+=M[car(lext2([I,N-2,N]))];
+	L=cons(-S,L);
+	for(S=0,K=L;K!=[];K=cdr(K)) S+=car(K);
+	L=cons(-S,L);L=reverse(L);
+	if(getopt(all)==1){
+		for(LL=[],I=0;I<N-2;I++){
+			for(J=I+1;J<N;J++) LL=cons(M[car(lext2([I,J,N]))],LL);
+			LL=cons(car(L),LL); L=cdr(L);
+		}
+		LL=cons(S0,LL); LL=cons(car(L),LL);LL=cons(L[1],LL);
+		return reverse(LL);
+	}
+	return cons(S0,L);
+}
+
+def mext2(M)
+{
+	S=size(M);
+	if(S[0]!=S[1]) return 0;
+	S=S[0];
+	SS=S*(S-1)/2;MM=matrix(SS,SS);
+	for(I=0;I<S;I++){
+		for(J=I+1;J<S;J++){
+			II=lext2([I,J,S])[0];
+			for(I0=0;I0<S;I0++){
+				L=lext2([I0,J,S]);
+				MM[II][L[0]]+=L[1]*M[I][I0];
+			}
+			for(J0=0;J0<S;J0++){
+				L=lext2([I,J0,S]);
+				MM[II][L[0]]+=L[1]*M[J][J0];
+			}
+		}
+	}
+	return MM;
 }
 
 def transm(M)
@@ -5861,6 +5951,13 @@ def mce(P,L,V,R)
 {
 	L = vweyl(L);
 	X = L[0]; DX = L[1];
+	P=red(P);
+	if(findin(DX,dn(P))>=0) return 0;
+	PP=fctr(nm(P));
+	for(P=1;PP!=[];PP=cdr(PP)){
+		TP=car(PP);
+		if(findin(DX,vars(TP[0]))>=0) P*=TP[0]^TP[1];
+	}
 	P = sftexp(laplace1(P,L),L,V,R|option_list=getopt());
 	return laplace(P,L);
 }
@@ -7465,6 +7562,7 @@ def fromeul(P,L,V)
 		R += mycoef(P,J,DX)*S;
 	}
 	if(getopt(raw)!=1){
+		R=nm(R);
 		while(mycoef(R,0,X) == 0)
 			R = tdiv(R,X);
 	}
@@ -7476,10 +7574,9 @@ def fromeul(P,L,V)
 def sftexp(P,L,V,N)
 {
 	L = vweyl(L); DX = L[1];
-	P = mysubst(toeul(P,L,V|opt_list=getpt()),[DX,DX+N]);
+	P = mysubst(toeul(P,L,V|opt_list=getopt()),[DX,DX+N]);
 	return fromeul(P,L,V|option_list=getopt());
 }
-
 
 def fractrans(P,L,N0,N1,N2)
 {
@@ -8737,7 +8834,6 @@ def okuboetos(P,L)
 		Phi[J+1] = Phi[J]*(X-L[J]);
 	for(ATT = AT[N], J = 0; J < N; J++)
 		ATT[J] = mycoef(P,J,DX);
-
 	for(K = 1; K <= N; K++){
 		for(J = N; J >= K; J--){
 			Aj = A[J-1];
@@ -8758,7 +8854,6 @@ def okuboetos(P,L)
 			ATj[J-K-1] = red(ATj[J-K-1]-DAT);
 		}
 	}
-
 	ATT  = newmat(N,N);
 	for(J = 0; J < N; J++){
 		for(K = 0; K < N; K++){
@@ -13270,6 +13365,31 @@ def xyput(P)
 	return "\\"+xypos(P)+";\n";
 }
 
+def xylabel(P,S)
+{
+	if(type(P[0])==4){
+		if(type(S)==4){
+			if(type(Put=getopt(put))!=7) Put="";
+			if(type(Opt=getopt(opt))!=7) Opt=0;
+			for(R="";P!=[];P=cdr(P),S=cdr(S)){
+				T=car(S);
+				if(Opt) T=[Opt,T];
+				R+=xyput([car(P),Put,T]|option_list=getopt());
+			}
+			return R;
+		}
+		if(type(S)==7){
+			B=getopt(base);
+			if(!isint(B)) B=0;
+			for(SS=[],I=length(P)-1;I>=0;I--) SS=cons(S+rtostr(I+B),SS);
+			return xylabel(P,SS);
+		}
+	}
+	if(P[0]==0||type(P[0])==1){
+		if(type(S)==7) return xylabel([P],[S]|option_list=getopt());
+	}
+}
+
 def xyline(P,Q)
 {
 	if(!TikZ)	return "{"+xypos(P)+" \\ar@{-} "+xypos(Q)+"};\n";
@@ -16062,8 +16182,9 @@ def ptinversion(P)
 		R=P[1];P=P[0];
 	}
 	X=P[0]-V[0];Y=P[1]-V[1];N=X^2+Y^2;
-	if(getopt(bar)==1) S=1;
-	else S=-1;
+	if(type(T=getopt(sc))==1||T==0){
+		S=(T<0)?(-T^2):T^2;
+	}else S=-1;
 	if(!R){
 		if(!N) return 0;
 		return [X/N+V[0],S*Y/N+V[1]];
@@ -16078,7 +16199,7 @@ def ptinversion(P)
 		else Y0=Y-R;
 		return cons(ptinversion([X,Y0]|option_list=getopt()),S);
 	}
-	return [[X/N+V[0],S*Y/N+V[1]],R/N];
+	return [[X/N+V[0],S*Y/N+V[1]],T^2*R/N];
 }
 
 def ptcommon(X,Y)
@@ -17862,6 +17983,24 @@ def pt5center(P,Q,R)
 	L[4]=vtol((-A*P+B*Q+C*R)/(-A+B+C));
 	L[5]=vtol((A*P-B*Q+C*R)/(A-B+C));
 	L[6]=vtol((A*P+B*Q-C*R)/(A+B-C));
+	if((V=getopt(opt))==0){
+		H1=ptcommon([Q,R],[1,1]|in=1);
+		H2=ptcommon([R,P],[1,1]|in=1);
+		H3=ptcommon([P,Q],[1,1]|in=1);
+		return [L(0),H1,H2,H3];
+	}else if(V==1||V==4||V==5||V==6){
+		H1=ptcommon([Q,R],[L[1],0]);
+		H2=ptcommon([R,P],[L[1],0]);
+		H3=ptcommon([P,Q],[L[1],0]);
+		return [[L[1],dnorm(L[1],H1)],H1,H2,H3];
+	}else if(V==2){
+		return [L[2],dnorm([L[2],P])];
+	}else if(V==3){
+		H1=ptcommon([Q,R],[P,0]);
+		H2=ptcommon([R,P],[Q,0]);
+		H3=ptcommon([P,Q],[R,0]);
+		return [L[3],H1,H2,H3];
+	}
 	return vtol(L);
 }
 
