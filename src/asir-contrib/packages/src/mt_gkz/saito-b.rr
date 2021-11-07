@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.1 2021/01/20 03:05:29 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.2 2021/10/27 06:13:24 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -328,7 +328,8 @@ def test1() {
 */
 def step_up(A,Bf,II) {
   TT=mytoric_ideal(A);
-  V=reverse(vars(TT));
+  //V=reverse(vars(TT));
+  N=length(A[0]); V = base_var_list(x,1,N);
   printf("vars=%a\n",V);
   DV=dvar(V);
   G=nd_gr(TT,V,0,ord_xi(V,II-1));
@@ -587,7 +588,8 @@ def p_true_nf_rat(F,G,V,Ord) {
 def reduce_by_toric(Op,A) {
   Op_nm = nm(Op); Op_dn = dn(Op);
   TT=mytoric_ideal(A);
-  V=reverse(vars(TT));
+  //V=reverse(vars(TT));
+  N=length(A[0]); V = base_var_list(x,1,N);
   DV=dvar(V);
   VDV = append(V,DV);
   TT = base_replace(TT,assoc(V,DV));
