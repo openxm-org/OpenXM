@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.15 2019/09/13 05:21:33 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.16 2020/10/27 02:44:16 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -725,6 +725,8 @@ def reduction_noH_d(F,G) {
 
 
 def hilbert(A) {
+  G=nd_gr(A[0],A[1],0,0); /* bug fix for duplicated generators. misc-2021/11/misc/sm1-hilb-bug.rr */
+  A=[G,A[1]];
   SM1L_FIND_PROC(P);
   P = check_server(P);
   sm1(P,"[ ");
