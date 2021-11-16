@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.4 2021/10/27 06:13:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.5 2021/11/03 12:20:25 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -55,6 +55,21 @@ localf test102$
 localf fexp$
 localf xvars$
 localf coh_basis0$
+localf rvec_to_coeff_mat$
+localf seq_vect$
+localf id_vect$
+localf coeff_vect$
+localf rvec_red2$
+localf make_xrule$
+localf matsu_gkz_red2$
+localf matsu_gkz_red$
+localf mylcm$
+localf gkz_b$
+localf to_partial1$
+localf to_partial2$
+localf to_partial3$
+
+
 #endif
 
 def make_Ap (A,L){
@@ -295,11 +310,12 @@ def principal_normalizing_constant(A,T,Beta,K){
 
 //RvecをBasisの線型結合で表す。BasisはR vectorsの集まりによって表されている、リストのリストである。返り値は行列Cで、Rvec,Basisを縦ベクトルとみなすとき、Rvec=C*Basisである。
 def cohomology_base_change(Rvec,Basis,A,Ap,Beta){
-  Fvec=mt_gkz.rvec_to_fvec(Rvec,A,Ap,Beta)$
-    P=mt_gkz.fvec_to_conn_mat(Fvec,A,Beta,1)$
+  GetOpt=getopt()$
+  Fvec=mt_gkz.rvec_to_fvec(Rvec,A,Ap,Beta|option_list=GetOpt)$
+    P=mt_gkz.fvec_to_conn_mat(Fvec,A,Beta,1|option_list=GetOpt)$
       C1=P[0]$
-        FB=mt_gkz.rvec_to_fvec(Basis,A,Ap,Beta)$
-          Q=mt_gkz.fvec_to_conn_mat(FB,A,Beta,1)$
+        FB=mt_gkz.rvec_to_fvec(Basis,A,Ap,Beta|option_list=GetOpt)$
+          Q=mt_gkz.fvec_to_conn_mat(FB,A,Beta,1|option_list=GetOpt)$
             C2=Q[0]$
               IC2=matrix_inverse(C2)$
                 return red(C1*IC2);
@@ -1455,6 +1471,274 @@ ID[I]=vect_poch(ltov(DX)-E+Iden,E)$
 	yang.verbose()$
 	  yang.define_ring(X)$
 	    return yang.stdmon(ID);
+}
+
+
+
+
+
+//Rvecで表示されたコホモロジー類をStandard monomials(または与えられた基底)で展開する。
+//基底はBasisで、簡約はSigmaで指定する。
+def rvec_to_coeff_mat(Rvec,A,Ap,Beta){
+  Basis=getopt(basis);
+    Sigma=getopt(sigma);
+    if(type(Sigma)==-1){
+      Fvec=rvec_to_fvec(Rvec,A,Ap,Beta);
+      Fvec=fvec_to_conn_mat(Fvec,A,Beta,1);
+      if(type(Basis)==-1){
+	return append(Fvec,["partial"]);
+      }
+      else{
+	Basis=rvec_to_fvec(Basis,A,Ap,Beta);
+	Basis=fvec_to_conn_mat(Basis,A,Beta,1);
+      return red(Fvec[0]*matrix_inverse(Basis[0]));
+      }
+    }
+    else{
+      Fvec=rvec_red2(Rvec,A,Ap,Beta,Sigma);
+      BS=diff_set(seq_vect(length(A[0])),Sigma);
+      X=newvect(length(BS));
+	for(I=0;I<length(BS);I++){
+	  X[I]=strtov(rtostr(x)+rtostr(BS[I]));
+	}
+	X=vtol(X);
+	DX=dvar(X);
+        yang.verbose();
+	yang.define_ring(X);
+        Id=gkz_b(A,Beta,Sigma);
+        G=yang.buchberger(Id);
+	Std=yang.stdmon(G);
+	Std2=map(dp_ptod,Std,DX);
+	F=map(dp_dtop,Fvec[0],DX);    
+	F=map(yang.nf,F,G);
+	C=newvect(length(F));
+	      for(I=0;I<length(F);I++){
+		C[I]=(1/(Fvec[1][I]*dn(F[I])))*coeff_vect(dp_ptod(nm(F[I]),DX),Std2);
+		C[I]=red(vtol(C[I]));
+	      }
+	      C=newmat(length(F),length(Std2),vtol(C));
+		if(type(Basis)==-1){
+		  return [C,Std,"euler"];
+		}
+		else{
+		  Basis=rvec_red2(Basis,A,Ap,Beta,Sigma);
+		  B=map(yang.nf,Basis[0],G);
+		  C2=newvect(length(B));
+	      for(I=0;I<length(B);I++){
+		C2[I]=(1/(Basis[1][I]*dn(B[I])))*coeff_vect(dp_ptod(nm(B[I]),DX),Std2);
+		C2[I]=red(vtol(C2[I]));
+	      }
+	      C2=newmat(length(B),length(B),vtol(C2));
+		return red(C*matrix_inverse(C2));
+		}
+    }
+}
+
+
+
+
+def rvec_red2(Rvec,A,Ap,Beta,Sigma){
+  Fvec=rvec_to_fvec(Rvec,A,Ap,Beta);
+  DX=dvar(index_vars(x,1,length(A[0])|no_=1));
+  F=newvect(length(Fvec));
+  Dn=newvect(length(Fvec));
+	for (I=0;I<length(Fvec);I++){
+	  F[I]=dp_ptod(nm(Fvec[I]),DX);
+	  Dn[I]=dn(Fvec[I]);
+	}
+	F=map(matsu_gkz_red2,vtol(F),A,Beta,Sigma);
+	  return base_replace([F,Dn],make_xrule(Sigma));     	  
+}
+
+
+
+
+//分散表現の微分作用素をGKZ簡約する。
+//asirでは有理式に問題が多いので、red=1のときは分母を払った形を出力する。
+def matsu_gkz_red2(Dp,A,Beta,Sigma){
+  Ans=0;
+  BS=diff_set(seq_vect(length(A[0])),Sigma);
+  X=newvect(length(BS));
+	for(I=0;I<length(BS);I++){
+	  X[I]=strtov(rtostr(x)+rtostr(BS[I]));
+	}
+	X=vtol(X);
+	DX=dvar(X);
+	L=[];
+    while(Dp!=0){
+      P=matsu_gkz_red(dp_etov(dp_ht(Dp)),A,Beta,Sigma);
+      Ans=Ans+(dp_hc(Dp)/P[1])*dp_ptod(P[0],DX);
+      Dp=dp_rest(Dp);
+      L=append(L,[P[1]]);
+    }
+    Red=getopt(red);
+      if(Red==1){
+    return red(mylcm(L)*Ans);
+      }
+      else{
+return red(Ans);
+      }
+}
+
+
+
+
+def mylcm(L){
+  P=1;
+  while(length(L)>0){
+    P=lcm(P,L[0])$
+      L=cdr(L)$
+  }
+  return P;
+}
+
+
+
+
+//V=exponent vectorをGKZ簡約.Sigmaに対応する成分を1に置く。
+//出力を[P0,P1]とすると(1/P1)*P0が答え
+//dxiはi-th Euler operator
+def matsu_gkz_red(V,A,Beta,Sigma){
+  IN=newvect(length(V));
+    for (I=0;I<length(V);I++){
+      IN[I]=I+1;
+    }
+    BS=diff_set(IN,Sigma);
+    AS=matrix_inverse(submatrix(A,Sigma));
+    ABS=submatrix(A,BS);
+    X=xvars(length(V));
+    DX=xvars(length(V)|diff=1);
+    Sign=1;
+      for(I=0;I<length(Sigma);I++){
+	Sign=(-1)^(V[Sigma[I]-1])*Sign;
+      }
+      Theta=subvect(DX,BS);
+      Id=newvect(length(BS));
+	for(I=0;I<length(BS);I++){
+	  Id[I]=1;
+	}
+	return [Sign*vect_poch(AS*ABS*Theta-AS*ltov(Beta),subvect(V,Sigma))*vect_poch(Theta-subvect(V,BS)+Id,subvect(V,BS)),my_power(subvect(X,BS),subvect(V,BS))];  
+}
+
+
+
+
+
+def gkz_b(A,Beta,Sigma){
+  Id=sm1.gkz([A,Beta]);
+  Id0=Id[0];
+  for(I=0;I<length(A);I++){
+    Id0=cdr(Id0);
+  }
+  Id=map(dp_ptod,Id0,dvar(Id[1]));
+  Id=ltov(Id)$
+  for(I=0;I<length(Id);I++){
+    Id[I]=matsu_gkz_red2(Id[I],A,Beta,Sigma|red=1);
+}
+  Partial=getopt(partial);
+  if(Partial==1){
+    Id=vtol(Id);
+    IN=seq_vect(length(A[0]));
+    BS=diff_set(IN,Sigma);
+    XVars=newvect(length(BS))$
+	for(I=0;I<length(BS);I++){
+	  XVars[I]=strtov(rtostr(x)+rtostr(BS[I]))$
+	}
+	XVars=vtol(XVars)$
+	  Id=map(to_partial3,Id,XVars);
+  }
+  else{
+  return vtol(Id);
+}
+}
+
+
+
+
+//Euler作用素dx^Vで表された微分作用素を通常の偏微分作用素に変換
+
+def to_partial1(N,X){
+  if(N==0){
+    return 1;
+  }
+  else{
+  M=newmat(N,N);
+  V=newvect(N);
+  for(I=0;I<N;I++){
+    V[I]=(I+1)^N;
+    for(J=0;J<N;J++){
+      M[I][J]=mt_gkz.poch(I-J+1,J+1);
+    }
+  }
+  V=matrix_inverse(M)*V;
+  ANS=0;
+  for(I=0;I<N;I++){
+    ANS=ANS+V[I]*X^(I+1)*mt_gkz.dvar(X)^(I+1);
+  }
+  return ANS;
+}
+}
+
+def to_partial2(V,XVars){
+    ANS=1;
+    for (I=0;I<length(V);I++){
+      ANS=ANS*to_partial1(V[I],XVars[I]);
+    }
+    return dp_ptod(ANS,mt_gkz.dvar(XVars));
+}
+
+
+def to_partial3(Dp,XVars){
+  N=size(dp_etov(dp_ht(Dp)));
+  ANS=0;
+  while(Dp!=0){
+    ANS=ANS+dp_hc(Dp)*to_partial2(vtol(dp_etov(dp_ht(Dp))),XVars);
+    Dp=dp_rest(Dp);
+  }
+  return ANS;
+}
+
+
+
+
+def coeff_vect(Dp,Std){
+  V=newvect(length(Std))$
+    while(Dp!=0){
+    C=dp_hc(Dp)$
+    E=dp_ht(Dp)$
+    P=base_position(E,Std)$
+    V[P]=C$
+    Dp=dp_rest(Dp)$
+    }
+    return V;
+}
+
+
+
+def make_xrule(Sigma){
+  V=newvect(length(Sigma))$
+    for(I=0;I<length(Sigma);I++){
+      V[I]=[strtov(rtostr(x)+rtostr(Sigma[I])),1]$
+    }
+    return vtol(V);
+}
+
+
+
+def id_vect(N){
+  V=newvect(N)$
+    for(I=0;I<N;I++){
+V[I]=1$
+    }
+    return V;
+}
+
+def seq_vect(N){
+  V=newvect(N)$
+    for(I=0;I<N;I++){
+      V[I]=I+1$
+    }
+    return V;
 }
 
 
