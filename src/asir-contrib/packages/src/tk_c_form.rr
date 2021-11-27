@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_c_form.rr,v 1.1 2021/06/07 11:17:51 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_c_form.rr,v 1.2 2021/06/14 23:07:27 takayama Exp $
  History
   tk_p_form.rr  C and python forms in num-ht3/Prog_tk_ode
   tk_c_form.rr  in num-ht2/tk_c_form.rr
@@ -38,6 +38,8 @@ localf tk_C_form_quote_list_internal;
 localf tk_C_form_quote_list_variable;
 localf tk_C_form_node_name;
 localf tk_C_form_quote_list_list;
+localf format2;
+localf format;
 
 static Tk_c_form_power;
 static Tk_c_form_derivative_format ;
@@ -64,7 +66,7 @@ def c_form(Obj) {
     return tk_C_form_quote(objtoquote(Obj));
   }
   if (base_subsetq([type(Obj)],[LIST,VECTOR,MATRIX])) {
-    return map(tk_c_form,Obj);
+    return map(c_form,Obj);
   }
   if (type(Obj)==STRING) return Obj;
   error("tk_c_form does not support this object.");
@@ -294,6 +296,38 @@ def tk_C_form_quote_list_list(L) {
     if (I != length(L)-1) Str +=", ";
   }
   return Str;
+}
+
+def format2(Obj,Tb,Bracket,Sep) {
+  if (type(Obj) != 4) {
+    write_to_tb(rtostr(Obj),Tb);
+    return 0;
+  }
+  N=length(Obj);
+  write_to_tb(Bracket[0],Tb);
+  for (I=0; I<N; I++) {
+    format2(Obj[I],Tb,Bracket,Sep);
+    if (I != N-1) write_to_tb(Sep,Tb);
+  }
+  write_to_tb(Bracket[1],Tb);
+  return 0;
+}
+/*&usage
+format(Obj); options: sep (separator), list (bracket for the list)
+  Example:
+    format([x,[1,y^2]] | list=["(",")"], sep=" ");
+*/
+def format(Obj) {
+  Bracket=["{","}"]; 
+  Sep=",";
+  if (type(getopt(list))>0) Bracket=getopt(list);
+  if (type(getopt(sep))>0) Sep=getopt(sep);
+  Tb=string_to_tb("");
+  if ((type(Obj)==5) || (type(Obj)==6)) Obj=matrix_matrix_to_list(Obj);
+  if (type(Obj)>7) error("This object type is not supported.");
+  if (type(Obj) != 4) return rtostr(Obj);
+  format2(Obj,Tb,Bracket,Sep);
+  return tb_to_string(Tb);
 }
 endmodule;
 tk_c_form.init()$

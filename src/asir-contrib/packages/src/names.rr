@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.161 2021/11/02 01:08:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.162 2021/11/04 07:31:11 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -57,6 +57,7 @@ import("nk_toric.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
 import("tk_matrix.rr")$
+import("tk_c_form.rr")$
 import("tk_asir_contrib_update.rr")$
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
@@ -1078,6 +1079,18 @@ def print_png_form(F) {
 def print_png_form2(F) {
   OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_png_form2(F);
+}
+
+/*&usage begin: print_format(S)
+ It changes the list format of S. Options are list, sep.
+ Defaults are list=["{","}"], sep=",".
+ example: print_format([1,[x,y^2]]);
+ example: print_format([1,[x,y^2]] | list=["(",")"], sep=" ");
+ example: print_format(print_c_form([1,[x,y^2]]) );
+end: */
+def print_format(F) {  
+  OX_LOADFILE(Loaded_tk_c_form,"tk_c_form.rr");
+  return tk_c_form.format(F | option_list=getopt());
 }
 
 /*&usage begin: print_terminal_form(S)
