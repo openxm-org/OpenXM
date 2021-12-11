@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.4 2021/03/29 05:08:01 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.5 2021/10/27 06:13:24 takayama Exp $
 %% xetex mt_gkz-en.texi   (.texi までつける. ) 
 %% @math{tex形式の数式} 
 %% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
@@ -38,7 +38,7 @@
 @title GKZ hypergeometric system
 @subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
 @subtitle Version 1.0
-@subtitle January 20, 2021
+@subtitle December 21, 2021
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -123,6 +123,8 @@ systems, Linear Algebra and its Applications (LAA), 428(1): 324-381, 2008.
 * mt_gkz.ff1::
 * mt_gkz.ff2::
 * mt_gkz.rvec_to_fvec::
+* mt_gkz.fvec_to_conn_mat::
+* mt_gkz.contiguity::
 @end menu
 
 @node Pfaff equation for given cocycles,,, Pfaff equation
@@ -152,7 +154,7 @@ the parameter vector of the GKZ system.
 @item Ap
 See [MT2020].
 @item Rvec
-It is used to specify a basis of cocycles. See [MT2020]
+It is used to specify a basis of cocycles as explained below. See also [MT2020].
 @item DirX
 a list of dxi's.
 @end table
@@ -169,6 +171,9 @@ the set of the cocycles standing for Av_1, Av_2, ..., Av_r
 (see [MT2020])
 is supposed
 to be the basis to construct the Pfaffian system.
+The exponents @math{(q_\ell, q)} of the integral representation 
+@math{\int \prod h_\ell^{-q_\ell} x^q {{dx} \over {x}}}
+is shifted by Av_i@math{=:A_{v_i}} as @math{(q_\ell,q)+A_{v_i}}.
 Let a_1, a_2, ..., a_n be the column vectors of the matrix A
 and v be a column vector (x_1, x_2, ..., x_n)^T.
 Av is defined as a_1 x_1 + a_2 x_2 + ... + a_n x_n.
@@ -558,6 +563,55 @@ obtains connection matrices.
 @table @t
 @item Refer to
 @ref{mt_gkz.pfaff_eq}
+@end table
+@comment おわり. 
+
+@comment --- contiguity
+@comment --- section 名を正確に ---
+@node mt_gkz.contiguity,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.contiguity}
+@comment --- 索引用キーワード
+@findex mt_gkz.contiguity
+
+@table @t
+@item mt_gkz.contiguity(@var{A},@var{Beta},@var{Ap},@var{Rvec1},@var{Rvec2})
+:: It returns the coefficient matrix P that satisfies
+@var{Rvec1} = P @var{Rvec2}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+The coefficient matrix P that satisfies @var{Rvec1} = P @var{Rvec2}.
+@item A Beta Ap Rvec1 Rvec2
+Same with @ref{mt_gkz.pfaff_eq}.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+It returns the contiguity relation between
+@var{Rvec1} and @var{Rvec2}
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example:
+@example
+[1883] import("mt_gkz.rr");
+[3200] PP=mt_gkz.contiguity(A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+             Beta=[-g1,-g2,-c],
+             Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
+             Rvec1 = [[1,0,0,0],[0,0,1,0]],   
+             Rvec2 = [[0,0,1,0],[1,0,0,0]]);   
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.pfaff_eq}
+@ref{mt_gkz.fvec_to_conn_mat}
 @end table
 @comment おわり. 
 

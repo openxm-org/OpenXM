@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.2 2021/10/27 06:13:24 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.3 2021/11/07 12:07:09 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -65,6 +65,7 @@ localf b_ideal$
 localf get_check_fvec$
 localf mytoric_ideal$
 localf use_hilbert_driven$
+localf contiguity$
 
 static Check_BF$   /* saito b-functions */
 static Check_FP$
@@ -931,6 +932,22 @@ def mytoric_ideal(A) {
 def use_hilbert_driven(Rank) {
   Check_use_hilbert_driven=Rank;
 }
+
+def contiguity(A,Beta,Ap,Rvec1,Rvec2) {
+  Fvec1 = rvec_to_fvec(Rvec1,A,Ap,Beta);
+  Fvec2 = rvec_to_fvec(Rvec2,A,Ap,Beta);
+  P1 = fvec_to_conn_mat(Fvec1,A,Beta,1);
+  P2 = fvec_to_conn_mat(Fvec2,A,Beta,1);
+  return map(red,P1[0]*matrix_inverse(P2[0]));
+}
+/*&usage
+Example.
+  PP=mt_gkz.contiguity(A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]],
+             Beta=[-g1,-g2,-c],
+             Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
+             Rvec1 = [[1,0,0,0],[0,0,1,0]],   
+             Rvec2 = [[0,0,-1,1],[1,0,0,0]]);   
+*/
 
 #ifdef USE_MODULE
 endmodule$

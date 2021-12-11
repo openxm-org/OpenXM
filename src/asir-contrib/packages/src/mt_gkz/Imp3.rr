@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.5 2021/11/03 12:20:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.6 2021/11/16 23:27:39 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -605,8 +605,9 @@ def xj_to_j(L){
         N[I]=dx_to_x(L[I])$
       }
       return vtol(N);
-}//これは結局使っていない。
+}
 
+/*
 def regular_triangulation(A,W){
     CL=length(A)$
     RL=length(A[0])$
@@ -633,8 +634,50 @@ def regular_triangulation(A,W){
             return T;
     }
 }
+*/
+
+def regular_triangulation(A,W){
+    CL=length(A);
+  RL=length(A[0]);
+      if (CL==RL){
+      L=[];
+      for (I=0;I<RL;I++){
+        L=append(L,[I+1]);
+      }
+      return [L];
+    }
+      else{
+  if(type(getopt(revlex))==-1) IV=toric_gen_initial(A,W);
+  if(getopt(revlex)==1){
+    IV=mytoric_ideal(A);
+    Xvars=xvars(RL);
+    IV=gr(IV,Xvars,0);
+    IV=map(dp_ptod,IV,Xvars);
+    IV=map(dp_ht,IV);
+    IV=map(dp_dtop,IV,Xvars);
+    IV=[IV,Xvars];
+  }
+  Xrule=[];
+  for(I=0;I<length(IV[1]);I++){
+    Xrule=append(Xrule,[[IV[1][I],I+1]]);
+  }
+      PD=primadec(IV[0],IV[1])$
+        L=length(PD)$
+          T=[]$
+            for (I=0;I<L;I++){
+	      if (length(PD[I][1])==RL-CL){
+              Delta=diff_set(IV[1],PD[I][1])$
+              Delta=base_replace(Delta,Xrule)$
+              T=append(T,[Delta])$
+	      }
+            }
+            return T;
+    }
+}
+
 //202012/11  変数がない（Aが正方行列）場合に対処できるように改良。
 //2021/10/20 embedded primeまでカウントしていたbugを修正。
+//2021/11/25 出力が数になるように修正。
 
 def top_standard_pairs(A,W){
   CL=length(A)$
