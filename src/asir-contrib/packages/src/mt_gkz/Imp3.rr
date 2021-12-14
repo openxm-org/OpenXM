@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.6 2021/11/16 23:27:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.7 2021/12/11 11:40:45 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -1516,8 +1516,8 @@ ID[I]=vect_poch(ltov(DX)-E+Iden,E)$
 	    return yang.stdmon(ID);
 }
 
-
-
+//2021/12/05
+// A=[[1,1,1,1,1,1,1,1,1,1],[2,2,1,1,1,1,1,0,0,0],[1,0,2,1,1,0,0,2,1,1],[0,1,0,1,0,2,1,1,2,1]]に対してerrorが起こる。yang.stdmonが0次元イデアルじゃないとのたまう。
 
 
 //Rvecで表示されたコホモロジー類をStandard monomials(または与えられた基底)で展開する。
