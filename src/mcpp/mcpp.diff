@@ -1,8 +1,17 @@
-# $OpenXM$
-diff -u src/system.c.orig src/system.c
 --- src/system.c.orig	2008-11-26 18:53:51.000000000 +0900
-+++ src/system.c	2010-08-03 20:06:07.000000000 +0900
-@@ -1276,7 +1276,7 @@
++++ src/system.c	2021-12-25 20:30:44.000000000 +0900
+@@ -52,6 +52,10 @@
+ #include    "dir.h"
+ #endif
+ 
++#if defined(__clang__)
++ssize_t readlink(const char *restrict path, char *restrict buf, size_t bufsize);
++#endif
++
+ #include    "sys/types.h"
+ #include    "sys/stat.h"                        /* For stat()       */
+ #if     ! defined( S_ISREG)
+@@ -1276,7 +1280,7 @@
      chk_opts( sflag, trad);
  
      if (warn_level == -1)               /* No -W option             */
