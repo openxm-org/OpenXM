@@ -29,6 +29,25 @@ http://www.math.kobe-u.ac.jp/pub/XXX に同じものがおいてあります.
 <h2> ニュース </h2>
 
 <ul>
+<li id="xcodeBug1">
+llvm 12 をもとに作られた Apple clang 13
+<pre>
+clang --version
+Apple clang version 13.0.0 (clang-1300.0.29.30)
+</pre>
+によりコンパイルされた M1 Mac 上の Risa/Asir はあるデータの元で dp_ptod が segmentation fault
+をおこします.
+この原因は optimizer がゴミでない領域を Boehm GC に回収させてしまうような
+コードを生成するためです
+(局所変数-8 がレジスターに入っているだけのコード. 局所変数は stack に格納されない.).
+<!-- misc-2021/10/m1bench/M1bug -->
+この問題点の workaround は 
+<a href="http://c1.math.kobe-u.ac.jp/cgi-bin/cvsweb.cgi/OpenXM_contrib2/asir2018/engine/dist.c.diff?r1=1.25&r2=1.26&f=h"> この commit </a>
+で与えられていますが,
+他の部分でも同じような問題が生じる可能性があるので,
+homebrew <a href="https://formulae.brew.sh/formula/llvm">llvm@13</a>
+に付属する clang を用いて Risa/Asir をコンパイルすべきです.
+(2021-12-28)
 <li> c1 の cvsweb  は一時的に動いていません. こちらを利用してください:
 <a href="http://fe.math.kobe-u.ac.jp/cgi-bin/cvsweb.cgi/">cvsweb</a>,
 <li> Debian パッケージ openxm-1.3.3-5 (Debian, 64bit, ネットワークインストーラ) は
@@ -228,7 +247,7 @@ OpenXM サーバを使う (February 18, 2005) <a href="http://www.inftyproject.o
 
 
 <pre>
-$OpenXM: OpenXM/doc/OpenXM-web/news-o-ja.html,v 1.19 2021/03/29 08:03:43 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/news-o-ja.html,v 1.20 2021/07/27 03:51:25 takayama Exp $
 </pre>
 
 </BODY>
