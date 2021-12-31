@@ -1,0 +1,12 @@
+pari(nextprime,10)$
+if (Pid == 0) {
+  Pid=ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_python/ox_python")$
+}else{}$
+ox_execute_string(Pid,"print('Hello')\n")$  // It is executed by PyRun_SimpleString()
+ox_execute_string(Pid,"import numpy as np; A=np.array([[1,2],[3,4],[4,6]]); print(np.linalg.matrix_rank(A))\n")$
+ox_cmo_rpc(Pid,"PyRun_String","str(np.linalg.matrix_rank(A))")$
+//ox_cmo_rpc(Pid,"PyRun_String","import numpy as np; A=np.array([[1,2],[3,4],[4,6]]); print(np.linalg.matrix_rank(A))")$
+printf("result = %a\n",ox_pop_cmo(Pid))$
+sleep(10^10)$
+end$
+
