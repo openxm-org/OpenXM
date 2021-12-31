@@ -2,7 +2,7 @@ pari(nextprime,10)$
 if (Pid == 0) {
   Pid=ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_python/ox_python")$
 }else{}$
-ox_execute_string(Pid,"from time import time,ctime\nprint 'Today is',ctime(time())\n")$  // It is executed by PyRun_SimpleString()
+ox_execute_string(Pid,"from time import time,ctime\nprint('Today is',ctime(time()))\n")$  // It is executed by PyRun_SimpleString()
 printf("result of ox_execute_string = %a, see also server window\n",ox_pop_cmo(Pid))$
 ox_cmo_rpc(Pid,"PyRun_String","str(eval('1+2'))")$
 printf("result of PyRun_String str(eval('1+2')) = %a\n",ox_pop_cmo(Pid))$
@@ -12,5 +12,15 @@ ox_cmo_rpc(Pid,"PyRun_String","1+2")$
 printf("result of PyRun_String 1+2= %a\n",ox_pop_cmo(Pid))$
 ox_cmo_rpc(Pid,"eval","1+2")$
 printf("result of eval 1+2= %a\n",ox_pop_cmo(Pid))$
+
+ox_cmo_rpc(Pid,"PyRun_String","str(eval('1+2'))")$
+printf("result type of PyRun_String str(eval('1+2')) = %a\n",type(ox_pop_cmo(Pid)))$
+ox_cmo_rpc(Pid,"PyRun_String","print('Hello')")$
+printf("result type of PyRun_String print('Hello')= %a\n",type(ox_pop_cmo(Pid)))$
+ox_cmo_rpc(Pid,"PyRun_String","1+2")$
+printf("result type of PyRun_String 1+2= %a\n",type(ox_pop_cmo(Pid)))$
+ox_cmo_rpc(Pid,"eval","1+2")$
+printf("result type of eval 1+2= %a\n",type(ox_pop_cmo(Pid)))$
+printf("where type=7 string, type=10 int32\n");
 end$
 

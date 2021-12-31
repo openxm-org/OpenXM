@@ -1,4 +1,4 @@
-dnl $OpenXM$
+dnl $OpenXM: OpenXM/src/ox_python/configure.in,v 1.1 2018/09/08 00:16:19 takayama Exp $
 
 AC_INIT
 AC_PREREQ(2.61)
@@ -14,6 +14,13 @@ case "${host}" in
 *-apple-darwin*)
     LIBS="-L../../lib -L/usr/local/lib  -lox -lmpfr -lgmp -lgc"
     CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include"
+    ;;
+*-linux-gnu*)
+    LIBS_GCC=" "
+    LIBS_OX="-L../../lib -lox -lmpfr -lgmp -lgc"
+    LIBS_P38="-lpython3.8"
+    LIBS="${LIBS_GCC} ${LIBS_P38} ${LIBS_OX}"
+    CFLAGS="${CPPFLAGS} -Wno-attributes -I../../include -I /usr/local/include "
     ;;
 *)
     LIBS_GCC="-L/usr/local/lib -L/usr/local/lib/gcc49 -Wl,-rpath=/usr/local/lib/gcc49"

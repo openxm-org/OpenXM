@@ -1,5 +1,5 @@
 prefix = @prefix@
-CFLAGS = @CFLAGS@
+CFLAGS = @CFLAGS@ -fPIE
 LIBS = @LIBS@
 LN_S = @LN_S@
 TARGET = @TARGET@
@@ -8,14 +8,20 @@ CC = @CC@
 all: ${TARGET}
 
 ox_python: ox_python.o mysig.o
-	${CC} ${CFLAGS} `python2-config --cflags` -o ox_python ox_python.o mysig.o `python2-config --ldflags` ${LIBS}
+	${CC} ${CFLAGS} `python3-config --cflags` -o ox_python ox_python.o mysig.o `python3-config --ldflags` ${LIBS}
 
 .c.o: ox_python.h mysig.h
-	${CC} ${CFLAGS} `python2-config --cflags` -c -g $<
+	${CC} ${CFLAGS} `python3-config --cflags` -c -g $<
 
 clean:
 	rm -f *.o *~ ox_python  
 distclean: clean
 	rm -f .configure_done
 
-# $OpenXM$
+install: all
+	install ox_python ../../bin
+install-for-debug: all
+	rm -f ../../bin/ox_python
+	(cd ../../bin ; ln -s ../src/ox_python/ox_python .)
+
+# $OpenXM: OpenXM/src/ox_python/Makefile.in,v 1.1 2018/09/08 00:16:19 takayama Exp $

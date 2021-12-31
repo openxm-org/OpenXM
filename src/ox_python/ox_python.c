@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.3 2018/09/08 05:04:34 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.4 2019/03/22 00:14:50 takayama Exp $
 */
 
 #include <stdio.h>
@@ -526,7 +526,7 @@ int main(int argc,char *argv[])
 #endif
 
     /* Initialize python */
-    Py_SetProgramName(argv[0]);  /* optional but recommended */
+    Py_SetProgramName((wchar_t *) argv[0]);  /* optional but recommended */
     Py_Initialize();
 
   
@@ -590,7 +590,7 @@ int my_PyRun_String() {
   if (py_main == NULL) py_main = PyImport_AddModule("__main__");
   if (py_dict == NULL) py_dict = PyModule_GetDict(py_main);
 //  pyRes = PyRun_String(cmd,Py_single_input,py_dict,py_dict);
-  pyRes = PyRun_String(cmd,Py_single_input,py_dict,py_dict);
+  pyRes = PyRun_String(cmd,Py_eval_input,py_dict,py_dict);
   if (pyRes==NULL) {
     push(make_error2("PyRun_String: exception",NULL,0,-1));
     PyRun_SimpleString("\n");
@@ -602,15 +602,17 @@ int my_PyRun_String() {
 }
 
 int push_python_result(PyObject *pyRes) {
-  if (PyString_Check(pyRes)) {
-    push((cmo *)new_cmo_string(PyString_AsString(pyRes)));
+  if (PyUnicode_Check(pyRes)) {
+    push((cmo *)new_cmo_string(PyBytes_AsString(PyUnicode_AsEncodedString(pyRes,"UTF-8","strict"))));
     return(0);
-  }else if (PyInt_Check(pyRes)) {
-    push((cmo *)new_cmo_int32((int) PyInt_AS_LONG(pyRes)));
+  }else if (PyLong_Check(pyRes)) {
+    push((cmo *)new_cmo_int32((int) PyLong_AsLong(pyRes)));
     return(0);
   }else {
-    push((cmo *)new_cmo_string(PyString_AsString(PyObject_Str(pyRes))));
+    push((cmo *)new_cmo_string(PyBytes_AsString(PyUnicode_AsEncodedString(PyObject_Str(pyRes),"UTF-8","strict"))));
     return(0);
+    /* push((cmo *)new_cmo_string(PyBytes_AsString(PyObject_Str(pyRes))));
+    return(0); */
 //    push(make_error2("PyRun_String returns an object which as not been implemented.",NULL,0,-1));
 //    return(-1);
   }
@@ -634,14 +636,14 @@ int my_eval() {
   printf("my_eval cmd=%s\n",cmd);
 
   // code from https://docs.python.jp/2.7/extending/embedding.html
-  if (pName==NULL) pName = PyString_FromString("__builtin__"); 
+  if (pName==NULL) pName = PyBytes_FromString("__builtin__"); 
   if (pModule==NULL) pModule = PyImport_Import(pName);
 
   if (pModule != NULL) {
     if (pFunc==NULL) pFunc = PyObject_GetAttrString(pModule, "eval");
     if (pFunc && PyCallable_Check(pFunc)) {
       pArgs = PyTuple_New(3);
-      PyTuple_SetItem(pArgs,0,PyString_FromString(cmd));
+      PyTuple_SetItem(pArgs,0,PyBytes_FromString(cmd));
       PyTuple_SetItem(pArgs,1,PyEval_GetGlobals());
       PyTuple_SetItem(pArgs,2,PyEval_GetLocals());
       pValue = PyObject_CallObject(pFunc, pArgs);
@@ -698,7 +700,7 @@ int my_eval2() {
   if (pModule != NULL) {
     if (pFunc && PyCallable_Check(pFunc)) {
       pArgs = PyTuple_New(1);
-      PyTuple_SetItem(pArgs,0,PyString_FromString(cmd));
+      PyTuple_SetItem(pArgs,0,PyBytes_FromString(cmd));
       pValue = PyObject_CallObject(pFunc, pArgs);
       Py_DECREF(pArgs);
       if (pValue != NULL) {
