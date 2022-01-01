@@ -1,0 +1,165 @@
+/*$OpenXM$*/
+
+module python;
+
+/* ------------ list of local functions ---------- */
+localf init_python_proc$
+localf which_ox_python$
+localf get_python_proc$
+localf set_python_proc$
+localf find_proc$
+localf start$
+localf start_unix$
+localf start_windows$
+localf stop$
+localf set_debug$
+
+localf rat_to_float$
+localf array$
+localf matrix_rank$
+localf solve_by_QR$
+localf test1$
+localf test2$
+/*  ------------ static variables ---------------- */
+static PYTHON_proc$
+static Debug$
+
+def init_python_proc() {
+  PYTHON_proc = -1;
+  Debug=0;
+}
+
+def set_debug(L) {
+  Debug=L;
+}
+/* Functions to get and set static variables out of the module */
+def get_python_proc() {
+  return PYTHON_proc;
+}
+
+def set_python_proc(A) {
+  PYTHON_proc = A;
+}
+
+#define    PYTHON_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = find_proc();\
+                          }
+
+def which_ox_python() {
+  L = ox_get_serverinfo();
+  for (I=0; I<length(L); I++) {  
+    if (base_position("ox_python",L[I][1][0])>0) return L[I][0];
+  }
+  return -1;
+}
+
+def find_proc() {
+  /*! extern PYTHON_proc; */
+  if (PYTHON_proc == -1) {
+     PYTHON_proc = which_ox_python();
+     if (PYTHON_proc < 0) PYTHON_proc = start();
+  }
+  return(PYTHON_proc);
+}
+
+def stop() {
+  if (PYTHON_proc >= 0) {
+    ox_shutdown(PYTHON_proc);
+    PYTHON_proc=-1;
+  }
+}
+/* Search : oxPrintMessage, see cmoDebugCMO, too. */
+/************** end of configure *******************************/
+
+def start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return start_windows(0);
+  else
+    return start_unix();
+}
+
+def start_unix() {
+ extern Xm_noX;
+ if (Xm_noX) {
+   P = ox_launch_nox(0,getenv("OpenXM_HOME")+"/src/ox_python/ox_python");
+ }else{
+   P = ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_python/ox_python");
+ }
+// ox_check_errors(P);  //workaround to avoid mathcap error.
+ PYTHON_proc = P;
+ return(P);
+}
+
+def start_windows(U) {
+  error("Not implemeted.");
+}
+
+def rat_to_float(Obj) {
+  if (type(Obj)<4) return(number_eval(Obj));
+  if (type(Obj)==4) return map(rat_to_float,Obj);
+  if ((type(Obj)==5) || (type(Obj)==6)) return map(number_eval,Obj);
+  if (type(Obj)==7) return Obj;
+  error("rat_to_float does not support this object.");
+}
+def array(Obj) { return Obj; }  /* for python tag array */
+
+def matrix_rank(Mat) {
+  PYTHON_FIND_PROC(Pid);
+  Mat=matrix_matrix_to_list(Mat);
+  Mat=rat_to_float(Mat);
+  Cmd=sprintf("import numpy as np; ox_a=np.array(%a)\n",Mat); 
+  if (Debug) printf("Cmd=%a",Cmd);
+  ox_execute_string(Pid,Cmd);
+  ox_cmo_rpc(Pid,"PyRun_String","str(np.linalg.matrix_rank(ox_a))");
+  Ans=ox_pop_cmo(Pid);
+  Ans=eval_str(rtostr(Ans));
+  return Ans;
+}
+def test1() {
+  matrix_rank([[1,2],[3,4],[(2^5-1)/3^8,10.5]]);
+}
+
+def solve_by_QR(A,B) {
+  PYTHON_FIND_PROC(Pid);
+  A=rat_to_float(matrix_matrix_to_list(A)); 
+  B=rat_to_float(matrix_matrix_to_list(B)); 
+  Cmd=sprintf("import numpy as np; ox_a=np.array(%a); ox_b=np.array(%a)\n",A,B); 
+  if (Debug) printf("Cmd=%a",Cmd);
+  ox_execute_string(Pid,Cmd);
+
+  Cmd=sprintf("ox_q,ox_r=np.linalg.qr(ox_a);\n");
+  if (Debug) printf("Cmd=%a",Cmd);
+  ox_execute_string(Pid,Cmd);
+
+  Cmd=sprintf("ox_qb=np.dot(ox_q.T,ox_b);\n");
+  if (Debug) printf("Cmd=%a",Cmd);
+  ox_execute_string(Pid,Cmd);
+  
+  ox_cmo_rpc(Pid,"PyRun_String","str(repr(np.linalg.solve(ox_r,ox_qb)))");
+  Ans=ox_pop_cmo(Pid);
+  if (Debug) printf("Ans=%a\n",Ans);
+  Ans=eval_str("python."+Ans);
+
+  /* Check the result */
+  Err=matrix_list_to_matrix(A)*matrix_list_to_matrix(Ans)-matrix_list_to_matrix(B);
+  ErrMax=0;
+  for (I=0; I<length(Err); I++) {
+    if ((Tmax=number_abs(Err[I])) > ErrMax) ErrMax=Tmax;
+  }
+  return [Ans,ErrMax];
+}
+
+def test2() {
+  print(solve_by_QR([[1,2],[3,4],[1/2,6]],[2,3,5]));
+  solve_by_QR([[1,2],[3,4],[4,6]],[2,3,5]);
+}
+
+endmodule;
+
+python.init_python_proc()$
+/* python.test2(); */
+
+end$
+
