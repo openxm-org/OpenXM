@@ -1,4 +1,4 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/python.rr,v 1.1 2022/01/01 08:25:13 takayama Exp $*/
 
 module python;
 
@@ -23,6 +23,10 @@ localf test2$
 /*  ------------ static variables ---------------- */
 static PYTHON_proc$
 static Debug$
+
+/*
+#define CHECK_ERROR(ans) ((type(ans)==4)&&(length(ans)>0)&&(ans[0]=="Error")?return(ans);:ans)
+*/
 
 def init_python_proc() {
   PYTHON_proc = -1;

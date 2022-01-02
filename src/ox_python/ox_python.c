@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.4 2019/03/22 00:14:50 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.5 2021/12/31 07:43:48 takayama Exp $
 */
 
 #include <stdio.h>
@@ -152,14 +152,18 @@ cmo *make_error2(const char *reason,const char *fname,int line,int code)
     cmo **argv;
     int n;
     char *s;
+    char s_tmp[256]; 
+    s = s_tmp;
     n = 5;
     argv = (cmo **) GC_malloc(sizeof(cmo *)*n);
-    ms = (cmo *)new_cmo_string("Error"); argv[0] = ms; 
-    if (reason != NULL) {s = (char *)GC_malloc(strlen(reason)+1); strcpy(s,reason);
-    }else strcpy(s,"");
+    ms = (cmo *)new_cmo_string("error"); argv[0] = ms; 
+    if (reason != NULL) {s = (char *)GC_malloc(strlen(reason)+3);
+      strcpy(s,"\"");strcat(s,reason);strcat(s,"\"");
+    }else strcpy(s,"0");
     ms = (cmo *) new_cmo_string(s); argv[1] = ms;
-    if (fname != NULL) {s = (char *)GC_malloc(strlen(fname)+1); strcpy(s,fname);
-    }else strcpy(s,"");
+    if (fname != NULL) {s = (char *)GC_malloc(strlen(fname)+3);
+      strcpy(s,"\"");strcat(s,fname);strcat(s,"\"");
+    }else strcpy(s,"0");
     ms = (cmo *) new_cmo_string(s); argv[2] = ms;
     err = (cmo *)new_cmo_int32(line); argv[3] = err;
     err = (cmo *)new_cmo_int32(code); argv[4] = err;
@@ -477,7 +481,7 @@ void push_error_from_file() {
   FILE *fp;
 #define BUF_SIZE 1024
   char logname[BUF_SIZE];
-  char cmd[BUF_SIZE];
+  char cmd[BUF_SIZE+256];
   char file[BUF_SIZE];
   char reason[BUF_SIZE];
   int gsl_errno, line;

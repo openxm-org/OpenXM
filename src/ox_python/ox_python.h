@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.h,v 1.1 2018/09/08 00:16:19 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.h,v 1.2 2018/09/08 03:05:19 takayama Exp $
 */
 // Todo, misc-2017/A3/kanazawa/ox_gsl.h.for_obj
 #include <fcntl.h>
@@ -61,6 +61,7 @@ int sm_executeStringByLocalParser();
 int my_PyRun_String();
 int push_python_result(PyObject *pyRes);
 int my_eval();
+int my_eval2();
 
 
 
