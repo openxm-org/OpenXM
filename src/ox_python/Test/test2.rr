@@ -1,0 +1,19 @@
+pari(nextprime,2)$  Pid=0$ // assume the server id of ox_pari is 0
+//load("python.rr")$ Pid=python.start()$
+//Pid=ox_launch(0,"ox_asir")$
+ox_push_cmo(Pid,"Hello")$
+ox_pop_cmo(Pid);
+Size=7309676$
+//Size=1024*10$
+A=newvect(Size)$
+for (I=0; I<Size; I++) A[I]=0x41;
+A=vtol(A)$
+ox_push_cmo(Pid,99)$
+ox_push_cmo(Pid,asciitostr(A))$
+printf("ox_push_cmo(string) is Done.\n")$
+B=ox_pop_cmo(Pid)$
+printf("B=ox_pop_cmo(); Done. type(B)=%a\n",type(B))$
+length(strtoascii(B));
+ox_pop_cmo(Pid)$ // pop 99
+end$
+

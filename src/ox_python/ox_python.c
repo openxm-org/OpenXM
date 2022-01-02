@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.5 2021/12/31 07:43:48 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.6 2022/01/02 00:23:25 takayama Exp $
 */
 
 #include <stdio.h>
@@ -394,6 +394,7 @@ int sm_executeStringByLocalParser()
         push(make_error2("sm_executeStringByLocalParser, not CMO_STRING",NULL,0,-1));
         return -1;
     }
+/***    {FILE *fp; fp=fopen("tmp-debug.txt","a"); fprintf(fp,"strlen=%d\n%s\n",strlen(cmd->s),cmd->s);fclose(fp); } ***/
     status=PyRun_SimpleString(cmd->s);
 //     push(make_error2("sm_executeStringByLocalParser",NULL,0,-1));
     push((cmo *)new_cmo_int32(status));

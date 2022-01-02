@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/python.rr,v 1.1 2022/01/01 08:25:13 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/python.rr,v 1.2 2022/01/02 00:23:25 takayama Exp $*/
 
 module python;
 
@@ -13,6 +13,7 @@ localf start_unix$
 localf start_windows$
 localf stop$
 localf set_debug$
+localf execute_by_file$
 
 localf rat_to_float$
 localf array$
@@ -113,9 +114,14 @@ def matrix_rank(Mat) {
   PYTHON_FIND_PROC(Pid);
   Mat=matrix_matrix_to_list(Mat);
   Mat=rat_to_float(Mat);
-  Cmd=sprintf("import numpy as np; ox_a=np.array(%a)\n",Mat); 
+
+  Cmd=sprintf("import numpy as np\n"); 
   if (Debug) printf("Cmd=%a",Cmd);
   ox_execute_string(Pid,Cmd);
+  Cmd=sprintf("ox_a=np.array(%a)\n",Mat); 
+  if (Debug) printf("Cmd=%a",Cmd);
+  ox_execute_string(Pid,Cmd);
+  /*** printf("strlen(cmd)=%a\n",length(strtoascii(Cmd))); ***/
   ox_cmo_rpc(Pid,"PyRun_String","str(np.linalg.matrix_rank(ox_a))");
   Ans=ox_pop_cmo(Pid);
   Ans=eval_str(rtostr(Ans));
@@ -159,6 +165,37 @@ def test2() {
   print(solve_by_QR([[1,2],[3,4],[1/2,6]],[2,3,5]));
   solve_by_QR([[1,2],[3,4],[4,6]],[2,3,5]);
 }
+
+def execute_by_file(Cmd1,Cmd2) {
+   OpenXM_tmp=getenv("OpenXM_tmp");
+   if (OpenXM_tmp == 0) OpenXM_tmp=".";
+   Cmd=sprintf("import os\n");
+   Fname=sprintf("%a/tmp_python_%a.py",OpenXM_tmp,getpid());
+   OutName=sprintf("%a/tmp_python_%a.txt",OpenXM_tmp,getpid());
+   Cmd +=sprintf("oxp_f=open('%a',mode='w')\n",OutName);
+
+   CmdAll="";
+   if (type(Cmd1)==4) {
+     for (I=0; I<length(Cmd1); I++) CmdAll += sprintf("%a\n",Cmd1[I]);
+   }else CmdAll=Cmd1;
+
+   Cmd += CmdAll;
+   Cmd += sprintf("oxp_f.write(str(%a))\n",Cmd2);
+   Cmd+="oxp_f.close()\n";
+   print(Cmd);
+   util_write_string_to_a_file(Fname,Cmd);
+   shell(sprintf("python %a",Fname));
+
+   Ans=util_read_file_as_a_string(OutName);
+   if (type(getopt(del))>0) shell(sprintf("rm -f %a %a",Fname,OutName));
+   return(Ans);
+}
+/*&usage
+Cmd2 is the command that you want the result. The result is a string.
+Example:
+  execute_by_file("import numpy as np\nA=[[1,1],[2,3]]\n","np.linalg.matrix_rank(A)");
+  execute_by_file(["import numpy as np","A=[[1,1],[2,3]]"],"np.linalg.matrix_rank(A)");
+*/
 
 endmodule;
 
