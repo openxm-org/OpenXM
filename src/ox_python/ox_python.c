@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.6 2022/01/02 00:23:25 takayama Exp $
+/* $OpenXM: OpenXM/src/ox_python/ox_python.c,v 1.7 2022/01/02 02:54:00 takayama Exp $
 */
 
 #include <stdio.h>
@@ -529,7 +529,6 @@ int main(int argc,char *argv[])
 #else
   signal(SIGUSR1,usr1_handler);
 #endif
-
     /* Initialize python */
     Py_SetProgramName((wchar_t *) argv[0]);  /* optional but recommended */
     Py_Initialize();

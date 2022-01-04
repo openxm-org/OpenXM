@@ -4,11 +4,11 @@ LIBS = @LIBS@
 LN_S = @LN_S@
 TARGET = @TARGET@
 CC = @CC@
-
+LIB_CONFIG = @LIB_CONFIG@
 all: ${TARGET}
 
 ox_python: ox_python.o mysig.o
-	${CC} ${CFLAGS} `python3-config --cflags` -o ox_python ox_python.o mysig.o `python3-config --ldflags --embed` ${LIBS}
+	${CC} ${CFLAGS} `python3-config --cflags` -o ox_python ox_python.o mysig.o `${LIB_CONFIG}` ${LIBS}
 
 .c.o: ox_python.h mysig.h
 	${CC} ${CFLAGS} `python3-config --cflags` -c -g $<
@@ -24,4 +24,4 @@ install-for-debug: all
 	rm -f ../../bin/ox_python
 	(cd ../../bin ; ln -s ../src/ox_python/ox_python .)
 
-# $OpenXM: OpenXM/src/ox_python/Makefile.in,v 1.2 2021/12/31 07:43:48 takayama Exp $
+# $OpenXM: OpenXM/src/ox_python/Makefile.in,v 1.3 2022/01/03 05:11:15 takayama Exp $
