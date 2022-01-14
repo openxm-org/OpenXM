@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.35 2021/11/02 01:08:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.36 2021/11/04 07:31:11 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -54,6 +54,8 @@ def taka_poly_solve_poly1(F,V) {
 }
 
 def taka_poly_solve_linear(Z,X) {
+  if (type(getopt(p))>0) P=getopt(p);
+  else P=0;
   Size_Z = length(Z);
   Sol = [ ];
   F = [];
@@ -71,7 +73,8 @@ def taka_poly_solve_linear(Z,X) {
     return Sol;
   }
 
-  G = nd_gr(F, reverse(X),0, 2);
+  if (P) F=map(ptozp,F);
+  G = nd_gr(F, reverse(X),P, 2);
 
   if (G[0] == 1 || G[0] == -1) {
     return [];

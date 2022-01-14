@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.162 2021/11/04 07:31:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.163 2021/11/27 02:24:04 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -596,12 +596,12 @@ def poly_solve(Eqs,V) { NOT_YET; }
 
 /*&usage begin: poly_solve_linear(Eqs,V)
  It solves the system of linear equations {Eqs} with respect to the set of
- variables {V}.
+ variables {V}. When the option p=P is given, it solves the system by mod P.
  example: poly_solve_linear([2*x+3*y-z-2, x+y+z-1], [x,y,z]);
 end: */
 def poly_solve_linear(Eqs,V) { 
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  return taka_poly_solve_linear(Eqs,V);
+  return taka_poly_solve_linear(Eqs,V | option_list=getopt());
 }
 
 /*&usage begin: poly_sort(F|v,w,truncate)
