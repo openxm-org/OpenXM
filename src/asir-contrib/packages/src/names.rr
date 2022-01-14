@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.163 2021/11/27 02:24:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.164 2022/01/14 02:25:23 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20211007), Copyright 2000-2021, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20220114), Copyright 2000-2021, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -928,6 +928,22 @@ end: */
 def matrix_rank(M) { 
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_rank(M);
+}
+/*&usage
+begin: matrix_rank_ff(Mat,P) 
+  It evalutes the rank of the matrix Mat by mod P.
+  Entries may be rational numbers, and the inverse of the denominator D 
+  in F_P is properly computedd when P does not devide D,
+  but the case P devides D does not raise an error.
+end: */
+def matrix_rank_ff(Mat,P) {
+  if (P > 2^28) {
+    printf("Warning: matrix_rank_ff(Mat,P) P is too large. Use, e.g., P=pari(nextprime,2^27)\n");
+  }
+  Mat=matrix_list_to_matrix(Mat);
+  Rref=generic_gauss_elim_mod(Mat,P); // undocumented. p-openxm, 2022.01.13
+  N=size(Mat)[1];
+  return N-size(Rref[0])[1];
 }
 
 /*&usage begin: matrix_gauge_transformation(M,T,V)
