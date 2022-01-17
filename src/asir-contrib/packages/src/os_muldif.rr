@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.83 2021/07/29 07:47:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.84 2021/11/05 03:29:59 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Oct. 2021)
+ *          Toshio Oshima (Nov. 2007 - Dec. 2022)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -218,6 +218,7 @@ localf mmulbys$
 localf appldo$
 localf appledo$
 localf muldo$
+localf caldo$
 localf jacobian$
 localf hessian$
 localf wronskian$
@@ -526,7 +527,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00211022"$
+Muldif.rr="00220126"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2924,7 +2925,7 @@ def mdivisor(M,X)
 			P=M[0][0]; M[0][0]=1;
 			for(J=0;J<S1;J++){	/* (1,1) -> 1 */
 				if(J>0) M[0][J]= red(M[0][J]/P);
-				if(Tr) GR[0][J]=red(GR[0][J]/P);
+				if(Tr) GC[0][J]=red(GC[0][J]/P);
 			}
 			if(S0>1 && S1>1) N=newmat(S0-1,S1-1);
 			else N=0;
@@ -5825,6 +5826,26 @@ def appledo(P,F,L)
 #else
 	mmulbys(appledo,P,F,[L]);
 #endif
+}
+
+def caldo(P,L)
+{
+	for(R=0;P!=[];P=cdr(P)){
+		TP=car(P);
+		if(type(TP)<4){
+			R=red(R+TP);continue;
+		}
+		for(S=1;TP!=[];TP=cdr(TP)){
+			S0=car(TP);
+			if(type(S0)==4){
+				TP0=S0;
+				for(S0=1,K=TP0[1];K>0;K--) S0=muldo(S0,TP0[0],L);
+			}
+			S=muldo(S,S0,L);
+		}
+		R=red(R+S);
+	}
+	return R;
 }
 
 def muldo(P,Q,L)
