@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.85 2022/01/17 05:47:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.86 2022/01/22 08:52:57 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -84,6 +84,7 @@ localf nextpart$
 localf transpart$
 localf pg2tg$
 localf pgpart$
+localf xypg2tg;
 localf trpos$
 localf sprod$
 localf sinv$
@@ -1447,6 +1448,83 @@ def mulseries(V1,V2)
 	return VV;
 }
 
+def cataran(K)
+{
+	if(isint(K)) return cataran([K,K]);
+	if(type(K)==4){
+		if(length(K)==2){
+			M=K[0];N=K[1];
+			if(M<0||N<1) return 0;
+			T=fac(M+N);
+			return T/fac(M)/fac(N)-T/fac(M+1)/fac(N-1);
+		}
+		if(length(K)==3){
+			T=K[0];N=K[1];K=K[2];
+			if(T=="P"||T=="C"||T=="H"){
+				if(T=="P") return fac(N)/fac(N-K);
+				if(T=="H") N+=K-1;
+				if(K<0||K>N) return 0;
+				return fac(N)/fac(K)/fac(N-K);
+			}
+			if(K<1||N<1||K>N) return 0;
+			if(N==K) return 1;
+			if(T==1){
+				if(K==1) return fac(N-1);
+				return cataran([1,N-1,K-1])+(N-1)*cataran([1,N-1,K]);
+			}else if(T==2){
+				if(K==1) return 1;
+				return cataran([2,N-1,K-1])+ K*cataran([2,N-1,K]);
+			}
+		}
+	}
+	return 0;
+}
+
+def xypg2tg(K)
+{
+	if(TikZ!=1) return "";
+	S=length(K)+3;
+	D=3.1416/2;Or=[0,0];Op="[red]";M=0.5;F=0;
+
+	if(isint(T=getopt(pg))) S=T;
+	if(isint(T=getopt(skip))) F=T;
+	if(type(T=getopt(r))==1) M=T;
+	if(type(T=getopt(org))==4) Or=T;
+	if(type(T=getopt(opt))==7){
+		Op=T;
+		if(strtoascii(Op)[0]!=91) Op="["+Op+"]";
+	}
+	L=newvect(S);
+
+	Tb=str_tb(0,0);
+	for(I=0;I<S;I++) L[I]=
+     [asciitostr([40,80,48+I,41]),[Or[0]+M*dcos(D+3.1416*2*I/S),Or[1]+M*dsin(D+3.1416*2*I/S)]];
+
+	if(!iand(F%1)){
+		Tb=str_tb("\\coordinate (S) at"+xypos(Or)+";\n",Tb);
+		for(I=0;I<S;I++) Tb=str_tb("\\coordinate"+car(L[I])+" at"+xypos(L[I][1])+";\n",Tb);
+	}
+	if(!iand(F%2)){
+		Tb=str_tb("\\draw ",Tb);
+		for(I=0;I<S;I++){
+			Tb=str_tb((I%6)?" ":"\n",Tb);
+			if(I) Tb=str_tb("--",Tb);
+			Tb=str_tb("($(S)+"+car(L[I])+"$)",Tb);
+		}
+		Tb=str_tb("--cycle;\n",Tb);
+	}
+	if(!iand(F%4)){
+		Tb=str_tb("\\draw "+Op,Tb);
+		for(I=0,T=K;T!=[];T=cdr(T),I++){
+			Tb=str_tb((I%3)?" ":"\n",Tb);
+			Tb=str_tb("($(S)+"+car(L[ car(T)[0] ])+"$)--($(S)+"+car(L[ car(T)[1] ])+"$)",Tb);
+		}
+		Tb=str_tb(";\n",Tb);
+	}
+	S=str_tb(0,Tb);
+	return S;
+}
+
 /* 
    F=0 : sort
      1 : list of circulate
@@ -1459,9 +1537,11 @@ def mulseries(V1,V2)
      8 : inverse of 7
    F<0 : circulate -F: [I,J] -> {I-F,J-F] 
    F=[I,J] => another diagonal (flip option)
+   F=[I] : the other ends of diagonal starting from I
  */
-def pg2tg(K,F)
+def pgpart(K,F)
 {
+	S=length(K)+3;
 	if(type(F)==4){
 		if(length(F)==1){
 			F=car(F);
@@ -1469,27 +1549,44 @@ def pg2tg(K,F)
 				if(car(K)[0]==F) R=cons(car(K)[1],R);
 				else if(car(K)[1]==F) R=cons(car(K)[0],R);
 			}
-			return K;
+			return R;
 		}
 		if(length(F)==2){
-			if(F[0]>F[1]) F=[F[1],F[0]];
-			R=lsort(pgpart(K,F[0]),pgpart(K,F[1]),2);
-			if(length(R)!=2) return [];
-			if(R[0]>R[1]) R=[R[1],R[0]];
-			if(getopt(flip)==1){
-				for(RR=[];K!=[];K=cdr(K))
-					RR=cons((F==car(K))?R:car(K),RR);
-				R=pgpart(RR,0);
+			if(isint(F[0])){
+				if(F[0]>F[1]) F=[F[1],F[0]];
+				R=lsort(pgpart(K,F[0]),pgpart(K,F[1]),2);
+				if(length(R)!=2) return [];
+				if(R[0]>R[1]) R=[R[1],R[0]];
+				if(getopt(flip)==1){
+					for(RR=[];K!=[];K=cdr(K))
+						RR=cons((F==car(K))?R:car(K),RR);
+					R=pgpart(RR,0);
+				}
+				return R;
 			}
-			return R;
+			if(F[0]=="ext"){
+				if(F[1]=="all"){
+					for(I=0,R=[];I<S;I++) R=cons(pgpart(K,["ext",I]),R);
+					return R;
+				}
+				if(F[1]=="red"){
+					R=pgpart(K,1);
+					for(K=[];R!=[];R=cdr(R)) K=cons(pgpart(car(R),["ext",0]),K);
+					for(R=[];K!=[];K=cdr(K)) R=cons(pgpart(car(K),3),R);
+					return R;
+				}
+				if(F[1]) K=pgpart(K,-F[1]);
+				K=cons([0,S-1],K);
+				return pgpart(K,F[1]);
+			}
+			return [];
 		}
 	}
 	if(F==0) return qsort(K);
-	S=length(K)+3;
 	if(F<0){
 		for(R=[];K!=[];K=cdr(K)){
-			I=(car(K)[0]-F+S)%S;
-			J=(car(K)[1]-F+S)%S;
+			I=(car(K)[0]-F+1024*S)%S;
+			J=(car(K)[1]-F+1024*S)%S;
 			if(I<J) R=cons([I,J],R);
 			else R=cons([J,I],R);
 		}
@@ -1554,39 +1651,7 @@ def pg2tg(K,F)
 	}
 }
 
-def cataran(K)
-{
-	if(isint(K)) return cataran([K,K]);
-	if(type(K)==4){
-		if(length(K)==2){
-			M=K[0];N=K[1];
-			if(M<0||N<1) return 0;
-			T=fac(M+N);
-			return T/fac(M)/fac(N)-T/fac(M+1)/fac(N-1);
-		}
-		if(length(K)==3){
-			T=K[0];N=K[1];K=K[2];
-			if(T=="P"||T=="C"||T=="H"){
-				if(T=="P") return fac(N)/fac(N-K);
-				if(T=="H") N+=K-1;
-				if(K<0||K>N) return 0;
-				return fac(N)/fac(K)/fac(N-K);
-			}
-			if(K<1||N<1||K>N) return 0;
-			if(N==K) return 1;
-			if(T==1){
-				if(K==1) return fac(N-1);
-				return cataran([1,N-1,K-1])+(N-1)*cataran([1,N-1,K]);
-			}else if(T==2){
-				if(K==1) return 1;
-				return cataran([2,N-1,K-1])+ K*cataran([2,N-1,K]);
-			}
-		}
-	}
-	return 0;
-}
-
-def pgpart(K)
+def pg2tg(K)
 {
 	if((F=getopt(verb))!=1) F=0;
 	if(!isint(Al=getopt(all))) Al=0;
@@ -1595,10 +1660,10 @@ def pgpart(K)
 	if(isint(K)){
 		R=[];
 		if(K>3){
-			while(K-- > 3) R=pgpart(R|verb=F,red=M,all=Al);
+			while(K-- > 3) R=pg2tg(R|verb=F,red=M,all=Al);
 			return R;
 		}else if(K<-3){
-			for(RR=[],K=-K-3;K>0;K--) RR=cons(R=pgpart(R|verb=F,red=M,all=Al),RR);
+			for(RR=[],K=-K-3;K>0;K--) RR=cons(R=pg2tg(R|verb=F,red=M,all=Al),RR);
 			return reverse(RR);
 		}
 		return [];
@@ -1608,6 +1673,7 @@ def pgpart(K)
 	for(R=[],I=N=0;K!=[];K=cdr(K),I++){
 		TR=pgpart(car(K),(Al==1)?6:5);
 		if(!Al){
+			TR=append(pgpart(pgpart(car(K),4),5),TR);
 			for(T=TR,TR=[];T!=[];T=cdr(T)) if(pgpart(car(T),4) >= car(T)) TR=cons(car(T),TR);
 			TR=reverse(TR);
 		}
