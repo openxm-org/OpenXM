@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.164 2022/01/14 02:25:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.165 2022/01/14 02:35:50 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -462,6 +462,7 @@ def poly_hilbert_polynomial(I)  {
 /*&usage begin: poly_in(I|order,v)
  It is an alias of poly_initial().
  example: poly_in([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
+          poly_in([x^2+y^2-4,x*y-1]|order=[1,0],v=[x,y]);
 end: */
 def poly_in(I) {
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
@@ -477,6 +478,7 @@ ${\rm in}_\prec (I)$
 @end tex
  example: poly_initial([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
     poly_initial([x^2+y^2-4,x*y-1]|order=0,v=[x,y],gb=1);
+    poly_in([x^2+y^2-4,x*y-1]|order=[1,0],v=[x,y]);
 end: */
 def poly_initial(I) {
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
@@ -598,6 +600,7 @@ def poly_solve(Eqs,V) { NOT_YET; }
  It solves the system of linear equations {Eqs} with respect to the set of
  variables {V}. When the option p=P is given, it solves the system by mod P.
  example: poly_solve_linear([2*x+3*y-z-2, x+y+z-1], [x,y,z]);
+          poly_solve_linear([2*x+3*y-z-2, x+y+z-1], [x,y,z] | p=13);
 end: */
 def poly_solve_linear(Eqs,V) { 
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
