@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.7 2021/12/11 11:40:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.8 2021/12/14 04:42:38 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -647,11 +647,11 @@ def regular_triangulation(A,W){
       return [L];
     }
       else{
-  if(type(getopt(revlex))==-1) IV=toric_gen_initial(A,W);
-  if(getopt(revlex)==1){
+  if(type(getopt(order))==-1) IV=toric_gen_initial(A,W);
+  if(getopt(order)>=0){
     IV=mytoric_ideal(A);
     Xvars=xvars(RL);
-    IV=gr(IV,Xvars,0);
+    IV=gr(IV,Xvars,getopt(order));
     IV=map(dp_ptod,IV,Xvars);
     IV=map(dp_ht,IV);
     IV=map(dp_dtop,IV,Xvars);
@@ -956,7 +956,7 @@ def canonical_series_coeff(U,V){
 
 
 //L:kernel lattice, C:support coneとする。v_1=u_+^1-u_-^1,...v_s=u_+^s-u_-^sを用いてC\cap L=sum_i m_i*v_i (m_i:non-negative)と表せるとする。このときcanonical series \phi_v(z)をW weightがN以下の項まですべて列挙するアルゴリズム。G=[[u^1_+,u^1_-],...,[u^s_+,u^s_-]]を想定。Vはleading exponent. （後に使う状況ではsimplexを固定する）
-//出力は[L0,L1,...]で、LI=[CI,EI]とすると\phi=z^V*(sum_I CI*z^EI)の意味。
+//出力は[L0,L1,...]で、LI=[CI,EI,DI]とすると\phi=z^V*(sum_I CI*z^EI)かつこの項のW degreeはDIの意味。
 
 def truncated_canonical_series(V,G,N,W){
   P=newvect(length(G))$
@@ -1579,7 +1579,8 @@ def rvec_to_coeff_mat(Rvec,A,Ap,Beta){
 
 
 
-
+//rvec_red2はRvecをSigma reduced coordinateにおける微分作用素に変換する。
+//出力はEuler作用素で書かれている。
 def rvec_red2(Rvec,A,Ap,Beta,Sigma){
   Fvec=rvec_to_fvec(Rvec,A,Ap,Beta);
   DX=dvar(index_vars(x,1,length(A[0])|no_=1));
@@ -1597,6 +1598,7 @@ def rvec_red2(Rvec,A,Ap,Beta,Sigma){
 
 
 //分散表現の微分作用素をGKZ簡約する。
+//出力はEuler作用素で表示されている。
 //asirでは有理式に問題が多いので、red=1のときは分母を払った形を出力する。
 def matsu_gkz_red2(Dp,A,Beta,Sigma){
   Ans=0;
