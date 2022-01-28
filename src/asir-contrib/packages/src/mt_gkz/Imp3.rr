@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.8 2021/12/14 04:42:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.9 2022/01/28 04:33:04 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -647,11 +647,12 @@ def regular_triangulation(A,W){
       return [L];
     }
       else{
-  if(type(getopt(order))==-1) IV=toric_gen_initial(A,W);
-  if(getopt(order)>=0){
+  Ord=getopt(order);
+  if(type(Ord)==-1) IV=toric_gen_initial(A,W);
+  if(type(Ord)>=0){
     IV=mytoric_ideal(A);
     Xvars=xvars(RL);
-    IV=gr(IV,Xvars,getopt(order));
+    IV=gr(IV,Xvars,Ord);
     IV=map(dp_ptod,IV,Xvars);
     IV=map(dp_ht,IV);
     IV=map(dp_dtop,IV,Xvars);
