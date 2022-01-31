@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.36 2021/11/04 07:31:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.37 2022/01/14 02:25:23 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -868,14 +868,19 @@ def taka_poly_denominator(F) {
   G=map(taka_poly_denominator,F);
   return(taka_poly_lcm(base_flatten(G)));
 }
-def taka_poly_dvar(V) {
+def taka_poly_dvar2(V,D) {
   if (type(V)==2) {
-    return eval_str("d"+rtostr(V));
+    return eval_str(D+rtostr(V));
   }
   if (type(V)>=4) {
-    return map(taka_poly_dvar,V);
+    return map(taka_poly_dvar2,V,D);
   }
   error("Invalid argument");
+}
+def taka_poly_dvar(V) {
+  if (type(getopt(d))<0) D="d";
+  else D=rtostr(getopt(d));
+  return taka_poly_dvar2(V,D);
 }
 
 Taka_poly_loaded = 1$

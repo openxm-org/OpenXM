@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.165 2022/01/14 02:35:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.166 2022/01/27 06:52:56 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -388,8 +388,9 @@ def number_sign(X) { NOT_YET; }
 /*&usage begin: poly_dvar(V)
  Add d to the variable name {V}.
  example: poly_dvar([x1,x2,x3]);
+          poly_dvar([x1,x2,x3] | d=t);
 end: */
-def poly_dvar(V) { return(taka_poly_dvar(V)); }
+def poly_dvar(V) { return(taka_poly_dvar(V | option_list=getopt())); }
 /*&usage begin: poly_factor(F)
  It factorizes the polynomial {F}.
  example: poly_factor(x^10-y^10);
