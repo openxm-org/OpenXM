@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.166 2022/01/27 06:52:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.167 2022/01/31 06:53:17 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -58,6 +58,7 @@ import("noro_pd.rr")$
 import("tk_polymake.rr")$
 import("tk_matrix.rr")$
 import("tk_c_form.rr")$
+import("taka_diffop.rr")$
 import("tk_asir_contrib_update.rr")$
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
@@ -385,6 +386,44 @@ def number_real_part(X) { return(taka_base_real_part(X)); }
 def number_sign(X) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */
+
+/*&usage begin: poly_dact(Op,F,XL)
+ Act the differential operator Op to F. XL is a list of x variables.
+ example: poly_dact( x*dx+y*dy+a, x^(-3)*y^(-2), [x,y]);
+end: */
+def poly_dact(Op,F,XL) {
+  return tk_diff.dact(Op,F,XL | option_list=getopt());
+}
+/*&usage begin: poly_diff2euler(Op,XL)
+ Express the differential operator Op by the euler operators. XL is a list of x variables.
+ When XL=[x,y], dx,dy are differential operators and tx,ty are Euler operators
+ (tx=x*dx, ty=y*dy). t stands for theta. When the return value is R, R[0]*R[1]=Op.  
+ example: poly_diff2euler(dx^2-a*x,[x]);
+end: */
+def poly_diff2euler(F,XL) {
+  if (type(getopt(t))>0) TL=poly_dvar(XL | d=getopt(t));
+  else TL=poly_dvar(XL | d=t);
+  return tk_diff.diff2euler(F,XL,TL | option_list=getopt());
+}
+/*&usage begin: poly_dmult(Op1,Op2,XL)
+ Multiply Op1 and Op2 in the Weyl algebra (the ring of differential operators).
+ XL is a list of x variables.
+ example: poly_dmult( x*dx+y*dy+a*x, x*y*dx*dy, [x,y]);
+end: */
+def poly_dmul(F,G,XL) {
+  return tk_diff.dmul(F,G,XL | option_list=getopt());
+}
+/*&usage begin: poly_euler2diff(Op,XL)
+ Translate the differential operator Op expressed in terms of euler operators into the operators in terms of d. XL is a list of x variables.
+ When XL=[x,y], dx,dy are differential operators and tx,ty are Euler operators
+ (tx=x*dx, ty=y*dy). t stands for theta. 
+ example: poly_euler2diff(tx^2-x*(tx+1/2)^2,[x]);
+end: */
+def poly_euler2diff(F,XL) {
+  if (type(getopt(t))>0) TL=poly_dvar(XL | d=getopt(t));
+  else TL=poly_dvar(XL | d=t);
+  return tk_diff.euler2diff(F,XL,TL | option_list=getopt());
+}
 /*&usage begin: poly_dvar(V)
  Add d to the variable name {V}.
  example: poly_dvar([x1,x2,x3]);

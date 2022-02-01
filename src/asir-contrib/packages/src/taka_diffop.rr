@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.5 2004/08/03 02:32:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.6 2019/10/09 07:02:46 takayama Exp $ */
 #define DEBUG
 
 #define ANK_SIZE 20
@@ -6,6 +6,87 @@
 #define XX   x
 #define LOG  log(x)
 /* #define LOG  log(-x) */
+
+/* module taka_dr1 is defined later. */
+
+module tk_diff;
+localf euler2diff$
+localf diff2euler1$
+localf diff2euler$
+localf dact$
+localf dmul$
+def euler2diff(F,XL,TL) {
+  DXL=poly_dvar(XL);
+  return taka_dr1.euler2diff(F,XL,TL,DXL);
+}
+def diff2euler1(F,X,T) {
+  /* T is theta_X=X*Dx */
+  DN = dn(F);
+  F = nm(F);
+  Dx = poly_dvar(X);
+  F = dp_ptod(F,[X,Dx]);
+  R = 0;
+  while (F != 0) {
+    P=dp_hm(F);
+    F=dp_rest(F);
+    E = dp_etov(P);
+    R += dp_hc(P)*dp_vtoe(newvect(2,[E[0]-E[1],0]))*taka_dr1.dp_poch(E[1]);
+  }
+  R = dp_dtop(R,[X,T]);
+  R = eval_str(rtostr(R));
+  DN2= dn(R);
+  R = nm(R);
+  /* factor out X */
+  M = taka_dr1.root_multiplicity(R,X,0);
+  return [red(R/X^M),X^M/(DN*DN2)];
+}
+
+def diff2euler(F,XL,TL) {
+  L=[F,1];
+  for (I=0; I<length(XL); I++) {
+    L2=diff2euler1(L[0],XL[I],TL[I]);
+    L=[L2[0],red(L[1]*L2[1])];
+  }
+  return(L);
+}
+/*&usage
+  Example:
+   ED=diff2euler((x-y)*dx*dy+a*dx+b*dy,[x,y],[tx,ty]);
+   red(euler2diff(ED[0],[x,y],[tx,ty])*ED[1]);
+*/
+/*&usage
+dact(L,F,XL) acts the operator L to F. XL is a list of X variables.
+*/
+def dact(L,F,XL) {
+  if (length(XL)==0) return(L*F);
+  D = dn(L);
+  L = nm(L);
+  X=XL[0]; Dx=poly_dvar(X);
+  N = deg(L,Dx);
+  R = 0;
+  for (I=0; I<=N; I++) {
+   G=dact(coef(L,I,Dx),taka_dr1.diff2(F,X,I),cdr(XL));
+   R += G;
+  }
+  return red(R/D);
+}
+/*&usage
+  Example:
+  load("ok_diff.rr");
+  L0=(x*dx+(1-x-y)*dy)^3; F0=1/(x^3-y^2); V0=[x,y];
+  printf("actdiff=%a\n",red(dact(L0,F0,V0)-odiff_act(L0,F0,V0)));
+*/
+def dmul(F,G,XL) {
+  if ((F==0) || (G==0)) return 0;
+  if ((dn(F) != 1) || (dn(G) != 1)) error("dmul works only for polynomial differential operators.");
+  DXL=poly_dvar(XL);
+  V=append(XL,DXL);
+  F=dp_ptod(F,V); G=dp_ptod(G,V);
+  R=dp_weyl_mul(F,G);
+  return dp_dtop(R,V);
+}
+endmodule;
+
 
 module taka_dr1;
 
