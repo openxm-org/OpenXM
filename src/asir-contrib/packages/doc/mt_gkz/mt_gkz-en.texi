@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.6 2021/12/11 11:40:45 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.7 2022/01/13 02:38:00 takayama Exp $
 %% xetex mt_gkz-en.texi   (.texi までつける. ) 
 %% @math{tex形式の数式} 
 %% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
@@ -38,7 +38,7 @@
 @title GKZ hypergeometric system
 @subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
 @subtitle Version 1.0
-@subtitle December 21, 2021
+@subtitle February 13, 2022
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -125,6 +125,7 @@ systems, Linear Algebra and its Applications (LAA), 428(1): 324-381, 2008.
 * mt_gkz.rvec_to_fvec::
 * mt_gkz.fvec_to_conn_mat::
 * mt_gkz.contiguity::
+* mt_gkz.contiguity_by_fvec::
 @end menu
 
 @node Pfaff equation for given cocycles,,, Pfaff equation
@@ -569,20 +570,26 @@ obtains connection matrices.
 @comment --- contiguity
 @comment --- section 名を正確に ---
 @node mt_gkz.contiguity,,, Pfaff equation for given cocycles
-@subsection @code{mt_gkz.contiguity}
+@node mt_gkz.contiguity_by_fvec,,, Pfaff equation for given cocycles
+@subsection @code{mt_gkz.contiguity}, @code{mt_gkz.contiguity_by_fvec}
 @comment --- 索引用キーワード
 @findex mt_gkz.contiguity
+@findex mt_gkz.contiguity_by_fvec
 
 @table @t
 @item mt_gkz.contiguity(@var{A},@var{Beta},@var{Ap},@var{Rvec1},@var{Rvec2})
 :: It returns the coefficient matrix P that satisfies
 @var{Rvec1} = P @var{Rvec2}.
+@item mt_gkz.contiguity_by_fvec(@var{A},@var{Beta},@var{Ap},@var{Fvec1},@var{Fvec2})
+:: It returns the coefficient matrix P that satisfies
+@var{Fvec1} = P @var{Fvec2}.
 @end table
 
 @comment --- 引数の簡単な説明 --- 
 @table @var
 @item return
-The coefficient matrix P that satisfies @var{Rvec1} = P @var{Rvec2}.
+The coefficient matrix P that satisfies @var{Rvec1} = P @var{Rvec2}
+or @var{Fvec1}=P @var{Fvec2}
 @item A Beta Ap Rvec1 Rvec2
 Same with @ref{mt_gkz.pfaff_eq}.
 @end table
@@ -605,6 +612,16 @@ Example:
              Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
              Rvec1 = [[1,0,0,0],[0,0,1,0]],   
              Rvec2 = [[0,0,1,0],[1,0,0,0]]);   
+
+[3366] Fvec411=mt_gkz.rvec_to_fvec(Rvec411=[[1,1,0]], 
+                    A=[[1,1,1],[1,0,1],[0,1,1]],
+                    Ap=[[1,1,1],[0,0,0],[0,0,0]],
+                    Beta=[eps,-eps*del,-eps*del])$
+Fvec411d=[mt_gkz.dmul(dx1,Fvec411[0],[x1,x2,x3])]; 
+ [(dx1^2*dx2)/(eps^2-eps)]
+[3367] mt_gkz.contiguity_by_fvec(A,Beta,Ap,Fvec411d,Fvec411);  
+ 1 .ooo
+[ ((del+1)*eps-1)/(x1) ]
 @end example
 
 @comment --- 参照(リンク)を書く ---
