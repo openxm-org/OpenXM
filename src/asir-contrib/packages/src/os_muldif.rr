@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.87 2022/01/23 02:10:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.88 2022/01/29 04:58:15 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Dec. 2022)
+ *          Toshio Oshima (Nov. 2007 - Jan. 2022)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -537,7 +537,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00220126"$
+Muldif.rr="00220131"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1571,18 +1571,26 @@ def getCatalan(X,N)
 
 def xypg2tg(K)
 {
-	D=3.1416/2;Or=[0,0];Op="red";M=0.5;Pr=F=0;R=[];
+	D=3.1416/2;Or=[0,0];Op="red";Every="";M=0.5;V=0.15;W=0.2;Num=St=Pr=F=0;Line=R=[];
 	if(isint(T=getopt(pg))) S=T;
 	if(isint(T=getopt(skip))) F=T;
 	if(type(T=getopt(r))==1) M=T;
+	else if(type(T)==4){
+		M=T[0];
+		if(length(T)>1) V=T[1];
+		if(length(T)>2) W=T[2];
+	}
 	if(isint(T=getopt(proc))) Pr=T;
 	if(type(T=getopt(org))==4) Or=T;
 	if(type(T=getopt(rot))==1||T==0) D=T;
 	if(type(T=getopt(dviout))==1) Dvi=T;
+	if(type(T=getopt(num))==1) Num=T;
+	if(type(T=getopt(every))==7) Every=T;
 
 	if(type(car(K)[0])==4){
+		if(type(T=getopt(line))==4) Line=T;
 		S=length(K);
-		Opt=delopt(getopt(),["Opt","skip","proc","dviout"]);
+		Opt=delopt(getopt(),["Opt","skip","proc","dviout","num","line"]);
 		if(type(car(Or))!=4||length(Or)!=S){
 			Or0=[0,0]; Or1=[1.5,0]; Or2=[0,1.5]; M=10;
 			if(car(Or)==0&&type(Or[1])==4){
@@ -1601,24 +1609,43 @@ def xypg2tg(K)
 			Or=reverse(R);
 		}
 		if(!Pr&&TikZ){
-			Tb=str_tb("%TikZ0\n",0);
+			Tb=str_tb("%TikZ0%\n",0);
+			if(Line!=[]) F=ior(F,512);
 			for(I=0;K!=[];K=cdr(K),Or=cdr(Or),I++){
-				T=append([["org",car(Or)],["skip",F]],Opt);
-				Tb=str_tb("% "+rtostr(I+1)+"\n",Tb); 
+				T=append([["org",car(Or)],["skip",F],["num",I+1]],Opt);
+				Tb=str_tb("%"+rtostr(I+1)+"%"+"\n",Tb); 
 				Tb=str_tb(xypg2tg(car(K)|option_list=T),Tb);
 				F=ior(F,1);
 			}
+			if(length(Line)>0){
+				Tb=str_tb("%%\n",Tb);
+				if(type(car(Line))!=4) Line=[Line];
+			}
+			for(S="";Line!=[]; Line=cdr(Line)){
+				T=car(Line);
+				if(length(T)>2){
+					S=T[2];
+					if(S!="") S="["+S+"]";
+				}
+				Tb=str_tb("\\draw"+S+"(S"+rtostr(T[0])+")--(S"+rtostr(T[1])+");\n",Tb);
+			}
 			S=str_tb(0,Tb);
 			if(Dvi==1) xyproc(S|dviout=1);
-			else if(Dvi=-1) S=xyproc(S);
+			else if(Dvi==-1) S=xyproc(S);
 			return S;
 		}
 	}
-	S=length(K)+3;
-	L=newvect(S);
 
+	if(type(L=getopt(V))>3){
+		if(type(L)==4) L=ltov(L);
+		S=length(L);
+	}else{
+		S=length(K)+3;
+		L=newvect(S);
+	}
 	if(Pr==1){
-		for(I=0;I<S;I++) L[I]=[Or[0]+M*dcos(D+3.1416*2*I/S),Or[1]+M*dsin(D+3.1416*2*I/S)];
+		if(!L[0])
+			for(I=0;I<S;I++) L[I]=[Or[0]+M*dcos(D+3.1416*2*I/S),Or[1]+M*dsin(D+3.1416*2*I/S)];
 		if(!iand(F,2)) R=[xylines(L|proc=1,close=1)];
 		if(!iand(F,4)){
 			for(TK=K;TK!=[];TK=cdr(TK)) 
@@ -1630,32 +1657,73 @@ def xypg2tg(K)
 	if(Op!="" && strtoascii(Op)[0]!=91) Op="["+Op+"]";
 
 	Tb=str_tb(0,0);
-	for(I=0;I<S;I++) L[I]=
-     ["("+rtostr(I)+")", /* "($(S)+("+rtostr(I)+")$)", */
-    [Or[0]+M*dcos(D+3.1416*2*I/S),Or[1]+M*dsin(D+3.1416*2*I/S)]];
-
-	if(!iand(F,1))
-		for(I=0;I<S;I++) /* Tb=str_tb("\\coordinate"+car(L[I])+" at "+xypos(L[I][1])+";\n",Tb); */
-			Tb=str_tb("\\coordinate"+car(L[I])+" at "+xypos(L[I][1])+";\n",Tb);
-	if(!iand(F,4))
-		Tb=str_tb("\\coordinate(S) at"+xypos(Or)+";\n",Tb);
+	J=iand(F,64)?-1:1;
+	if(iand(F,256)){
+		M1=10;M2=6;
+	}else{
+		M1=6;M2=3;
+	}
+	if(!L[0]){
+			for(I=0;I<S;I++) L[I]=["("+rtostr(I+St)+")", 
+				[Or[0]+M*dcos(D+3.1416*2*I*J/S),Or[1]+M*dsin(D+3.1416*2*I*J/S)]];
+	}else{
+		for(I=0;I<S;I++)
+			if(length(L[I])==2) L[I]=["("+rtostr(I+St)+")", L[I][0],L[I],1];
+	}
+	if(!iand(F,1)){
+		for(I=0;I<S;I++) Tb=str_tb("\\coordinate"+(iand(F,256)?"(P"+rtostr(I+St)+")":car(L[I]))
+			+" at "+xypos(L[I][1])+";\n",Tb);
+		if(iand(F,32)){
+			for(I=0;I<S;I++){
+				if(!iand(F,16))  VV=ladd(0,L[I][1],1+V/M);
+				else{
+					VV=ladd(L[I][1],L[(I+1)%S][1],1);
+					J=dnorm(VV);
+					VV=ladd(0,VV,1/2+V/J);
+				}
+				Tb=str_tb("\\coordinate("+(iand(F,16)?"E":"V")+rtostr(I+St)+")"
+					+" at "+xypos(VV)+";\n",Tb);
+			}
+		}
+		Tb=str_tb("%\n",Tb);
+	}
+	if(!iand(F,4)){
+		Tb=str_tb("\\coordinate(S) at "+xypos(Or)+";\n",Tb);
+		if(iand(F,512)) str_tb("\\node(S"+rtostr(Num)+
+			")[circle,minimum size=" +rtostr(2*(M+W))+ "cm] at (S){};\n",Tb);
+		if(iand(F,256)) for(I=0;I<S;I++)  Tb=str_tb("\\coordinate"+L[I][0]+" at " + 
+			"($(S)+(P"+ rtostr(I+St) +")$);\n",Tb);
+		if(Every!=""){
+			Tb=str_tb(Every,Tb);Tb=str_tb("\n",Tb);
+		}
+	}
 	if(!iand(F,2)){
 		Tb=str_tb("\\draw ",Tb);
 		for(I=0;I<S;I++){
-			if(!(I%6)) Tb=str_tb("\n",Tb);
+			if(!(I%M1)) Tb=str_tb("\n",Tb);
 			if(I) Tb=str_tb("--",Tb);
-			Tb=str_tb("($(S)+"+car(L[I])+"$)",Tb);
+			Tb=iand(F,256)? str_tb(car(L[I]),Tb):str_tb("($(S)+"+car(L[I])+"$)",Tb);
 		}
 		Tb=str_tb("--cycle;\n",Tb);
 	}
 	if(!iand(F,8)){
-		Tb=str_tb("\\draw "+Op,Tb);
 		for(I=0,T=K;T!=[];T=cdr(T),I++){
-			Tb=str_tb((I%3)?" ":"\n",Tb);
-			Tb=str_tb("($(S)+"+ car(L[car(T)[0]]) +"$)--($(S)+" +car(L[car(T)[1]]) +"$)",Tb);
+			if(length(car(T))>2){
+				if(I<=0) Tb=str_tb(";\n",Tb);
+				TOp="["+car(T)[2]+"]";I=-1;
+			}else TOp=Op;
+			if(!I) Tb=str_tb("\\draw "+TOp,Tb);
+			Tb=str_tb((I%M2)?" ":"\n",Tb);
+			if(!iand(F,256))
+				Tb=str_tb("($(S)+"+ car(L[car(T)[0]]) +"$)--($(S)+" +car(L[car(T)[1]]) +"$)",Tb);
+			else
+				Tb=str_tb(car(L[car(T)[0]])+"--"+car(L[car(T)[1]]),Tb);
 		}
 		Tb=str_tb(";\n",Tb);
 	}
+	if(iand(F,32)) for(I=0;I<S;I++)
+		Tb=str_tb("\\node at ($(S)+("+(iand(F,16)?"E":"V") + rtostr(I+St) + 
+			")$) \{" +rtostr(I+St) +"\};\n",Tb);
 	S=str_tb(0,Tb);
 	if(Dvi==1) xyproc(S|dviout=1);
 	else if(Dvi==-1) S=xyproc(S);
@@ -4951,7 +5019,14 @@ def ladd(X,Y,M)
 	}
 	if(type(Y)==4) Y=ltov(Y);
 	if(type(X)==4) X=ltov(X);
-	return vtol(X+M*Y);
+	if(type(M)==4){
+		if(length(M)==1)
+			N=1-(M=car(M));
+		else{
+			N=M[0];M=M[1];
+		}
+	}else N=1;
+	return vtol(N*X+M*Y);
 }
 
 def mrot(X)
@@ -18385,8 +18460,16 @@ def ptlattice(M,N,X,Y)
 	for(L=[],I=M-1;I>=0;I--){
 		for(P0=P1=0,J=N-1;J>=0;J--){
 			P=Org+I*X+J*Y;
-			for(C=Cond; C!=[]; C=cdr(C))
-				if(subst(car(C),x,P[0],y,P[1])<0) break;
+			for(C=Cond; C!=[]; C=cdr(C)){
+				TC=car(C);
+				if(type(TC)<4)
+					if(subst(TC,x,P[0],y,P[1])<0) break;
+				else{
+					for(;TC!=[];TC=cdr(TC))
+						if(subst(car(TC),x,P[0],y,P[1])>=0) break;
+					if(TC==[]) break;
+				}
+			}
 			if(C!=[]) continue;
 			if(Line) F[I][J]=1;
 			else L=cons(vtol(S*P),L);
@@ -21352,17 +21435,16 @@ def pfrac(F,X)
 
 def cfrac(X,N)
 {
-	F=[floor(X)];
-	if(N<0){
-		Max=N=-N;
-	}
-	X-=F[0];
-	if(Max!=1)
-		M=mat([F[0],1],[1,0]);
+	if(!ntype(X)&&N==0) N=2*dn(X)+1;
+	if(N<0) Max=N=-N;
+	Ng=(getopt(neg)==1)?1:0;
+	F=[Ng?ceil(X):floor(X)];
+	X=Ng?F[0]-X:X-F[0];
+	if(Max!=1) M=mat([F[0],1],[1,0]);
 	for(;N>0 && X!=0;N--){
 		X=1/X;
-		F=cons(Y=floor(X),F);
-		X-=Y;
+		F=cons(Y=N?ceil(X):floor(X),F);
+		X=Ng?Y-X:X-Y;
 		if(Max){
 			M0=M[0][0];M1=M[1][0];
 			M=M*mat([Y,1],[1,0]);
@@ -21507,11 +21589,72 @@ def sqrt2rat(X)
 
 def cfrac2n(X)
 {
+	if(((Q=getopt(q))==1||Q==-1)&&isall(os_md.isint,X)){
+		F=car(X);
+		R=[red((1-q^F)/(1-q))];X=cdr(X);
+		for(SQ=1/q;X!=[];SQ=1/SQ,X=cdr(X)){
+			G=car(X);
+			V=(Q==1)?[(1/SQ)^F,(1-SQ^G)/(1-SQ)]:[-q^(F-1),(1-q^G)/(1-q)];
+			R=cons(red(V),R);
+			F=G;
+		}
+		return cfrac2n(reverse(R)|ex=1);
+	}
+	if((Ex=getopt(ex))!=1) Ex=0;
+	if(isvar(car(X))&&length(X)==4&&isint(X[1])){
+		A=newmat(2,2);B=mgen(2,"diag",[1],0);
+		for(I=1;I<=X[1];I++){
+			A[1][1]=0;A[0][1]=1;
+			A[1][0]=Ex?myfeval(X[2],[X[0],I]):subst(X[2],X[0],I);
+			A[0][0]=Ex?myfeval(X[3],[X[0],I]):subst(X[3],X[0],I);
+			if(vars(A)!=[]) A=red(A);
+			B=B*A;
+			if(vars(B)!=[]) B=red(B);
+		}
+		if(getopt(var)==1) return [B[1][0],B[0][0]];
+		B=B[1][0]/B[0][0];
+		if(vars(B)!=[]) B=red(B);
+		return B;
+	}
+	if(Ex||(type(car(X))==4&&length(car(X))==2)){
+		if(type(car(X))!=4){
+			N=car(X);X=cdr(X);
+		}
+		if(getopt(reg)==1){
+			for(R=[N], F=1;X!=[];X=cdr(X)) {
+				if(type(car(X))==4){
+					F=car(X)[0]/F;
+					R=cons(car(X)[1]/F,R);
+				}else{
+					F=1/F;
+					R=cons(car(X)/F,R);
+				}
+			}
+			return reverse(R);
+		}
+		A=newmat(2,2);B=mgen(2,"diag",[1],0);
+		for(I=0,TX=X;TX!=[];TX=cdr(TX),I++){
+			A[1][1]=0;A[0][1]=1;
+			if(type(car(TX))!=4){
+				 A[1][0]=1;A[0][0]=car(TX);
+			}else{
+				A[1][0]=car(TX)[0];A[0][0]=car(TX)[1];
+			}
+			if(vars(A)!=[]) A=red(A);
+			B=B*A;
+			if(vars(B)!=[]) B=red(B);
+		}
+		if(getopt(var)==1) return [N,B[1][0],B[0][0]];
+		B=N+B[1][0]/B[0][0];
+		if(vars(B)!=[]) B=red(B);
+		return B;
+	}
 	if(type(L=getopt(loop))==1&&L>0)
 		C=x;
 	else{
 		C=0;L=0;
 	}
+	Sg=getopt(neg)==1?-1:1;
 	if(L>1){
 		for(Y=[];L>1;L--){
 			Y=cons(car(X),Y);
@@ -21520,21 +21663,21 @@ def cfrac2n(X)
 		if(X!=[]){
 			P=cfrac2n(X|loop=1);
 			for(V=P,Y=reverse(Y);Y!=[];Y=cdr(Y))
-				V=sqrt2rat(car(Y)+1/V);
+				V=sqrt2rat(car(Y)+Sg/V);
 			return V;
 		}else{
 			C=0;X=reverse(Y);
 		}
 	}
 	for(V=C,X=reverse(X);X!=[];X=cdr(X)){
-		if(V!=0) V=1/V;
+		if(V!=0) V=Sg/V;
 		V+=car(X);
 	}
 	if(C!=0){
 		V=red(V);P=dn(V)*x-nm(V);
 		S=getroot(P,x|cpx=2);
 		T=map(eval,S);
-		V=(T[0]>0)?S[0]:S[1];
+		V=T[0]>0?S[0]:S[1];
 	}
 	return V;
 }
