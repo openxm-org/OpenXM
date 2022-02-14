@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.88 2022/01/29 04:58:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.89 2022/02/13 07:39:47 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Jan. 2022)
+ *          Toshio Oshima (Nov. 2007 - Feb. 2022)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -133,6 +133,7 @@ localf lchange$
 localf llsize$
 localf llbase$
 localf llget$
+localf lcut$
 localf rev$
 localf qsortn$
 localf lsort$
@@ -537,7 +538,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00220131"$
+Muldif.rr="00220213"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1496,7 +1497,7 @@ def catalan(K)
 		}
 		if(length(K)==3){
 			T=K[0];N=K[1];K=K[2];
-			if(T=="P"||T=="C"||T=="H"){
+			if(T=="P"||T=="01"||T=="H"){
 				if(T=="P") return fac(N)/fac(N-K);
 				if(T=="H") N+=K-1;
 				if(K<0||K>N) return 0;
@@ -1524,49 +1525,182 @@ def sort2(L)
 	return L;
 }
 
+/* 01: 01 list
+ * s : 01 str
+ * T : tounament
+ * # : #lines of vertexes (vector)
+ * P : Polygon with tg
+ */
 def getCatalan(X,N)
 {
-	F=(getopt(opt)==1)?1:0;
-	if(!isint(X)){
-		for(V=0,M=N=Y=1;X!=[];X=cdr(X)){
-			if(!F){
-/* mycat([M,N,Y,catalan([M,N])]); */
-				if(car(X)==0){
-					N++;Z=Y*(M-N+1)*(M+N)/(M-N+2)/N;
-					V+=Z-Y;Y=Z;
-				}else{
-					M++;Y*=(M-N+1)*(M+N)/(M-N)/(M+1);
-				}
-			}else{
+	if(type(To=getopt(to))!=7) To=0;
+	 if(type(X)==7){	/* string: s or T */
+		X=strtoascii(X);
+		N=length(X);
+		if(X[0]==48){
+			if(To=="s") return R;
+			R=calc(X,["-",48]);  /* s -> 01 */
+			if(To) R=getCatalan(R,0|to=To);
+			return R;
+		}
+		if(To=="T") return X;
+		if(To!="P"&&To!="#"){	/* T -> 01 */
+			for(R=[];X!=[];X=cdr(X)){
+				if(car(X)==41) R=cons(1,R);
+				else if(car(X)==42) R=cons(0,R);
+			}
+			R=cdr(reverse(R));
+			if(To!="01") R=getCatalan(R,0|to=To);
+			return R;
+		}
+		if(N%3!=1) return 0;
+		M=(N+2)/3;	/* T -> # */
+		V=newvect(M+1);
+		V[0]=V[M]=-1; 
+		for(;X!=[];X=cdr(X)){
+			if(car(X)==40||car(X)==41) V[I]++;
+			else I++;
+		}
+		V[M]+=F;
+		if(To!="P") return V;
+		X=V;
+	}
+	if(type(X)==5){ /* vector: # -> P */
+		if(To=="#") return X;
+		Y=newvect(length(X));K=dupmat(X);
+		M=length(X);
+		for(R=[],I=F=0;;I++){
+			if(I>=M){
+				if(!F) break;
+				F=0;I=-1;continue;
+			}
+			if(X[I]>0){
+				if(I+1>=M ||K[I+1]>0) continue;
+				for(J=I+2;J<M&&!K[J];J++);
+				if(J>=M||findin([I,J],R)>=0) continue;
+				R=cons([I,J],R);
+				K[I]--;K[J]--;Y[J]++;
+				I=J-1;
+				F++;
 			}
 		}
-		return V;
+		if(To&&To!="P"){
+			for(V=[],J=0;J<M;J++){
+				V=cons(0,V);
+				for( ; Y[J]>0; Y[J]--) V=cons(1,V);
+			}
+			V=reverse(V);
+			if(To!=0&&To!="01") V=getCatalan(V,0|to=To);
+			return V;
+		}
+		R=qsort(R);
+		return R;
+	}
+	if(!isint(F=getopt(opt))) F=0;
+	if(!isint(X)){
+		if(type(X)==4&&type(car(X))==4){ /* ptg */
+			N=length(X)+3;
+			V=newvect(N);R=newvect(N);
+			for(TX=X;TX!=[];TX=cdr(TX)){
+				V[car(TX)[0]]++;R[car(TX)[1]]++;
+			}
+			if(To=="#"){
+				for(I=0;I<N;I++) V[I]+=R[I];
+				return V;
+			}else{
+				for(K="(",I=0;;I){
+					for(J=R[I];J>0;J--) K=K+")";
+					for(J=V[I];J>0;J--) K=K+"(";
+					if(++I<N) K=K+"*";
+					else break;
+				}
+				K=K+")";
+				if(To!="T") K=getCatalan(K,0|to=To);
+				return K;
+			}
+		}
+			/* 01 list */
+		if(To=="s") return asciitostr(calc(X,["+",48]));
+		if(To=="T"||To=="#"||To=="P"){
+			for(R=["*"],TX=X;TX!=[];TX=cdr(TX)){
+				if(car(TX)==0) R=cons("*",R);
+				else{
+					T=car(R);R=cdr(R);T="("+car(R)+T+")";
+					R=cons(T,cdr(R));
+				}
+			}
+			R=car(R);
+			if(To=="P"||To=="#") R=getCatalan(R,0|to=To);
+			return R;
+		}
+		K=length(X)/2;
+		if(K<2) return 0;
+		if(F){			/* Not checked */
+			for(I=F=0,TX=X;TX!=[];I++,TX=cdr(TX)){
+				if(!car(TX)){
+					F++;continue;
+				}
+				F--;
+				if(F<=0){
+					for(J=1;J<I;J+=2) F+=catalan((J-1)/2)*catalan(K-(J+1)/2);
+					J=lcut(X,1,I-1);J=getCatalan(J,(I-1)/2|opt=1);
+					V=lcut(X,I+1,2*K-1);V=getCatalan(V,K-(I+1)/2|opt=1);
+					F+=J*catalan(K-(I+1)/2)+V;
+					break;
+				}
+			}
+			return F;
+		}
+		for(R=M=N=0,TX=X;TX!=[];TX=cdr(TX)){
+			if(car(TX)==0){
+				if(M>N) R+=catalan([K-N-1,K-M]);
+				M++;
+			}else N++;
+		}
+		return R;
 	}
 	if(!isint(X)||X++<0) return 0;
+					/* integer: */
 	if(!N){
 		for(Y=N=1;X>Y;N++) Y*=(4*N+2)/(N+2);
 	}else{
 		Y=catalan(N);
-		if(X>Y) return 0;
+		if(X>Y)	return 0;
 	}
-	for(R=[],M=N;M>0||N>0;){
-		if(!F){
+	if(F){
+		X--;
+		if(N<3){
+			if(N==2) R=X>0?"0011":"0101";
+			else if(N==1) R="01";
+			else R="";
+		}
+		else for(I=0;I<N;I++){
+			V=catalan(I)*catalan(N-I-1);
+			if(X>=V) X-=V;
+			else{
+				J=X%catalan(N-I-1);
+				K=(X-J)/catalan(N-I-1);
+				R=(I==0)?"01":"0"+getCatalan(K,I|opt=F+1)+"1";
+				if(N-I>1) R=R+getCatalan(J,N-I-1|opt=F+1);
+				break;
+			}
+		}
+		if(To=="s"||F>1) return R;
+		R=calc(strtoascii(R),["-",48]);
+	}else{
+		for(R=[],M=N;M>0||N>0;){
 			Z=Y*(M-N)*(M+1)/(M-N+1)/(M+N); 
 			if(X>Z){
 				N--;X-=Z;Y-=Z;R=cons(0,R);
 			}else{
 				M--;Y=Z;R=cons(1,R);
 			}
-		}else{
-			Z=Y*(M-N+2)*N/(M-N+1)/(M+N);
-			if(X>Z){
-				M--;X-=Z;Y-=Z;R=cons(1,R);
-			}else{
-				N--;Y=Z;R=cons(0,R);
-			}
 		}
+		R=reverse(R);
 	}
-	return reverse(R);
+	if(To=="s") R=asciitostr(calc(R,["+",48]));
+	else if(To=="T"||To=="#"||To=="P") R=getCatalan(R,0|to=To);
+	return R;
 }
 
 def xypg2tg(K)
@@ -4453,6 +4587,15 @@ def rsort(L,T,K)
 	if(T>0||iand(T,iand(K,2)/2)) return reverse(R);
 	R=qsort(R);
 	return (iand(K,1))? reverse(R):R;
+}
+
+def lcut(L,M,N)
+{
+	for(I=0,R=[];L!=[]&&I<=N;I++,L=cdr(L)){
+		if(I<M) continue;
+		R=cons(car(L),R);
+	}
+	return reverse(R);
 }
 
 def llget(L,LL,LC)
@@ -21443,7 +21586,7 @@ def cfrac(X,N)
 	if(Max!=1) M=mat([F[0],1],[1,0]);
 	for(;N>0 && X!=0;N--){
 		X=1/X;
-		F=cons(Y=N?ceil(X):floor(X),F);
+		F=cons(Y=Ng?ceil(X):floor(X),F);
 		X=Ng?Y-X:X-Y;
 		if(Max){
 			M0=M[0][0];M1=M[1][0];
