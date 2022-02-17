@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.4 2021/12/11 11:40:45 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.5 2022/02/13 05:59:56 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -67,6 +67,11 @@ localf mytoric_ideal$
 localf use_hilbert_driven$
 localf contiguity$
 localf contiguity_by_fvec$
+localf rvec_to_rLP$
+localf rLP_to_rvec$
+localf mypoch$
+localf rLP_const$
+localf gamma_normalization$
 
 static Check_BF$   /* saito b-functions */
 static Check_FP$
@@ -959,6 +964,113 @@ Example.
              Ap = [[1,1,0,0],[0,0,1,1],[0,0,0,0]],
              Rvec1 = [[1,0,0,0],[0,0,1,0]],   
              Rvec2 = [[0,0,-1,1],[1,0,0,0]]);   
+*/
+
+/*&usage
+rvec_to_rLP(Rvec,A)
+  A is assumed to be the form [[1,1,....],...] 
+  It returns [Dim,nu] of IBP.
+  I^d(nu) = int P(d,nu;t) g(t)^eps t^(eps*delta) dt/dt
+  where P(d,nu) = g^(-d/2) t^nu
+  Hence Beta is (eps-d/2,-eps*delta-nu)=(-d/2,-nu)+O(eps), 
+  Beta shift from P=1 is (d/2,nu).
+  rvec is (d/2,nu)=sum(rvec_i*a_i,[i,1,n]).
+  rLP is an abbreviation of regularized integration by parts.
+rLP_to_rvec(Ibp,A)
+*/
+def rvec_to_rLP(Rvec,A) {
+  if (type(Rvec[0])>3) return map(rvec_to_rLP,Rvec,A);
+  N = length(A[0]); 
+  At=matrix_transpose(A); D=size(At)[1];
+  for (I=0; I<N; I++) if (At[I][0] != 1) error("A should be of the form [[1,1,...],...]");
+  Shift=newvect(D);
+  for (I=0; I<N; I++) {
+    Shift = Shift+Rvec[I]*At[I];
+  }
+//  print(Shift);
+  Shift=vtol(Shift);
+  return cons(Shift[0]*2,cdr(Shift));
+}
+/*&usage
+Example:
+  rvec_to_rLP([[1,1,0],[1,1,1],[2,2,-1]],A=[[1,1,1],[1,0,1],[0,1,1]]);
+*/
+
+def rLP_to_rvec(Ibp,A) {
+  if (type(Ibp[0])>3) return map(rLP_to_rvec,Ibp,A);
+  N = length(A[0]); 
+  At=matrix_transpose(A); D=size(At)[1];
+  for (I=0; I<N; I++) if (At[I][0] != 1) error("A should be of the form [[1,1,...],...]");
+  Rvec=base_var_list(r,0,N-1);
+  for (I=0; I<N; I++) {
+    Shift = Shift+Rvec[I]*At[I];
+  }
+  Eq=newvect(D);
+  Eq[0]=Ibp[0]/2-Shift[0];
+  for (I=1; I<D; I++) Eq[I]=Ibp[I]-Shift[I];
+  Sol=poly_solve_linear(vtol(Eq),Rvec);
+  return base_replace(Rvec,Sol);
+}
+/*&usage
+Example:
+ rLP_to_rvec([[4,1,1],[6,2,2],[6,1,1]],A=[[1,1,1],[1,0,1],[0,1,1]]);
+*/
+/* 2022.02.16 */
+def mypoch(A,N) {
+  P=1;
+  if (N<0) error("Negative N");
+  if (dn(N) != 1) error("not integer N");
+  for (I=0; I<N; I++) P=P*(A+I);
+  return P;
+}
+/*&usage
+  grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],g3->Gamma[e*d+1],g4->Gamma[-2*e*(1+d)+1]}
+  C^d(nu)
+*/
+def rLP_const(Ibp) {
+  D=Ibp[0]; Nu=cdr(Ibp);
+  Cn=1;
+  if (D%2==0) Cn=Cn*ga1*mypoch(-e+1,D/2-1);
+  else Cn=Cn*ga2*mypoch(-e-1/2,D/2+1/2);
+  C=1;
+  for (I=0; I<length(Nu); I++) {
+    if (Nu[I]>=1) C=C*ga3*mypoch(e*d+1,Nu[I]);
+    else C=C*ga3/(e*d);
+  }
+  Dnu=D; for (I=0;I<length(Nu); I++) Dnu=Dnu-Nu[I];
+  if (Dnu-1 >=0) C=C*ga4*mypoch(-2*e*(1+d)+1,Dnu-1);
+  else C*C*ga4/mypoch(2*e*(1+d),-(Dnu-1))*(-1)^(-(Dnu-1));
+  return red(Cn/C);
+}
+/*&usage
+Example:
+  poly_factor(rLP_const([4,1,1]));
+*/
+def gamma_normalization(U,RLP1,RLP2) {
+  if (type(U)==6) Un=matrix_clone(U);
+  else Un=matrix_list_to_matrix(U);
+  M=size(Un)[0]; N=size(Un)[1];
+  G1=newvect(M); G2=newvect(N);
+  for (I=0; I<M; I++) G1[I]=rLP_const(RLP1[I]);
+  for (J=0; J<N; J++) G2[J]=rLP_const(RLP2[J]);
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Un[I][J]=red(Un[I][J]*G1[I]/G2[J]);
+    }
+  }
+  return Un;
+}
+/*&usage
+Example:
+mt_gkz.clear_bf();
+A=[[1,1,1],[1,0,1],[0,1,1]];
+Ap=[[1,1,1],[0,0,0],[0,0,0]];
+Beta=[e,-e*d,-e*d];
+Rvec411=mt_gkz.rLP_to_rvec([[4,1,1]],A);  // I^4(1,1)=J(4,1,1;x)
+Fvec411=mt_gkz.rvec_to_fvec(Rvec411,A,Ap,Beta);
+Fvec411d=[mt_gkz.dmul(dx3,Fvec411[0],[x1,x2,x3])]; 
+R10=mt_gkz.contiguity_by_fvec(A,Beta,Ap,Fvec411d,Fvec411);  
+R10p=mt_gkz.gamma_normalization(R10,RLP1=[[4,1,1]],RLP1); // (10) is obtained
 */
 
 #ifdef USE_MODULE
