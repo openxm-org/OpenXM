@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.5 2022/02/13 05:59:56 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.6 2022/02/17 04:56:25 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1009,7 +1009,8 @@ def rLP_to_rvec(Ibp,A) {
   Eq[0]=Ibp[0]/2-Shift[0];
   for (I=1; I<D; I++) Eq[I]=Ibp[I]-Shift[I];
   Sol=poly_solve_linear(vtol(Eq),Rvec);
-  return base_replace(Rvec,Sol);
+  Zero=assoc(Rvec,vtol(newvect(length(Rvec))));
+  return base_replace(base_replace(Rvec,Sol),Zero);
 }
 /*&usage
 Example:
