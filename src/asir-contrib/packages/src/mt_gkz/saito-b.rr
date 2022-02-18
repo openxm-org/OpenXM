@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.6 2022/02/17 04:56:25 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.7 2022/02/17 05:38:56 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -72,6 +72,7 @@ localf rLP_to_rvec$
 localf mypoch$
 localf rLP_const$
 localf gamma_normalization$
+localf gamma_rule$
 
 static Check_BF$   /* saito b-functions */
 static Check_FP$
@@ -1073,6 +1074,10 @@ Fvec411d=[mt_gkz.dmul(dx3,Fvec411[0],[x1,x2,x3])];
 R10=mt_gkz.contiguity_by_fvec(A,Beta,Ap,Fvec411d,Fvec411);  
 R10p=mt_gkz.gamma_normalization(R10,RLP1=[[4,1,1]],RLP1); // (10) is obtained
 */
+
+def gamma_rule() {
+  return "grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1),ga4->Gamma[1-2*e*(1+d)]}";
+}
 
 #ifdef USE_MODULE
 endmodule$
