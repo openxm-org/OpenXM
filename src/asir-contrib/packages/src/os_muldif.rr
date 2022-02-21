@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.89 2022/02/13 07:39:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.90 2022/02/14 08:24:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.90 2022/02/14 08:24:13 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -84,6 +85,7 @@ localf nextpart$
 localf transpart$
 localf getCatalan$
 localf pg2tg$
+localf pg2tgb;
 localf pgpart$
 localf xypg2tg;
 localf trpos$
@@ -538,7 +540,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00220213"$
+Muldif.rr="00220217"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1866,22 +1868,27 @@ def xypg2tg(K)
 
 /* 
    F=0 : sort
-     1 : list of circulate
-     2 : sorted above list
-     3 : minimum in the above
-     4 : minimum mirror
-     5 : minimam extend
-     6 : extend
+   F<0 : circulate -F: [I,J] -> [I-F,J-F] 
+*     1 : list of circulate
+*     2 : sorted above list
+*     3 : minimum in the above
+*     4 : minimum mirror
+*     5 : minimam extend
+*     6 : extend
    "std" :  to normal form
     "#"  :  #lines  (10)
     "-#" :  inverse of "#" (11)
     "del":  reduction points
-   F<0 : circulate -F: [I,J] -> {I-F,J-F] 
-   F=[I,J] => another diagonal (flip option)
-   F=[I] : the other ends of diagonal starting from I
-   ["ext",I] 
-   ["res",I] 
-   ["pair",I]
+   	F=[I,J] => another diagonal (flip option)
+   	F=[I] : the other ends of diagonal starting from I
+	["ext",I] : [I-1,I] に頂点を付加
+    ["del",I] : Iを潰す
+	["pair",I] : Iを通る対角線の他方
+	["pairb",I] : Iとつながった頂点（辺でのつながりを含む）
+	["mirror",K]：[I,J] -> [K-I,K-J]
+    ["flip0",[I,J]] : [I,J] の他方の対角線
+	["flip",[I,J]]  : [I,J] でフリップ
+			   ["res",I]  :
  */
 def pgpart(K,F)
 {
@@ -1922,31 +1929,66 @@ def pgpart(K,F)
 					for(R=[];K!=[];K=cdr(K)) R=cons(pgpart(car(K),3),R);
 					return R;
 				}
-				if(F[1]) K=pgpart(K,-F[1]);
-				K=cons([0,S-1],K);
-				return pgpart(K,F[1]);
+				F=F[1];
+				R=[sort2([(F-1)%(S+1),(F+1)%(S+1)])];
+				for(;K!=[];K=cdr(K)){
+					I=car(K)[0];if(I>=F)I++;
+					J=car(K)[1];if(J>=F)J++;
+					R=cons([I,J],R);
+				}
+				return pgpart(R,0);
 			}
 			if(F[0]=="res"){
 				F1=F[1];
-				I=(F1-1+S)%S;J=(F1+1)%S;
-				T=sort2([I,J]);
+				T=sort2([(F1-1)%S,(F1+1)%S]);
 				for(R=[];K!=[];K=cdr(K)){
 					if(car(K)==T) continue;
 					if((I=car(K)[0])>F1)I--;
 					if((J=car(K)[1])>F1)J--;
 					R=cons([I,J],R);
 				}
-				if(length(R)!=S-2) return [];
+				if(length(R)!=S-4) return 0;
 				return pgpart(R,0);
 			}
-			if(F[0]=="pair"){
+			if(F[0]=="pair"||F[0]=="pairb"){
 				for(R=[];K!=[];K=cdr(K)){
 					if(car(K)[0]==F[1]) R=cons(car(K)[1],R);
 					if(car(K)[1]==F[1]) R=cons(car(K)[0],R);
 				}
-				return reverse(R);
+				if(F[0]=="pairb"){
+					R=cons((F[1]+1)%S,R);R=cons((F[1]-1)%S,R);
+				}
+				return qsort(R);
+			}
+			if(F[0]=="flip"||F[0]=="flip0"){
+				S=sort2(F[1]);
+				I=pgpart(K,["pairb",S[0]]);J=pgpart(K,["pairb",S[1]]);
+				I=lsort(I,J,"cap"); 
+				if(length(I)!=2) return 0;
+				if(F[0]=="flip0") return I;
+				for(R=[];K!=[];K=cdr(K))
+					R=cons((car(K)==S)?I:car(K),R);
+				return qsort(R);
+			}
+			if(F[0]=="mirror"){
+				for(R=[];K!=[];K=cdr(K))
+					R=cons([(F[1]-car(K)[0])%S,(F[1]-car(K)[1])%S],R);
+				return pgpart(R,0);
 			}
 		}
+	}
+	if(F=="check"){
+		K=pgpart(K,0);
+		for(;K!=[];){
+			L=pgpart(K,"res");
+			if(L==[]) return 0;
+			for(L=reverse(L);L!=[];L=cdr(L)){
+				R=pgpart(K,["res",car(L)]);
+				if(R==0) return 0;
+				K=R;
+			}
+		}
+		return 1;
 	}
 	if(F=="std") F=0;
 	if(type(F)==7){
@@ -1994,11 +2036,18 @@ def pgpart(K,F)
 		return lsort(pgpart(K,2),[],1);
 	}
 	if(F==7||F=="#"){
+/*
 		for(R=newvect(S);K!=[];K=cdr(K)){
 			R[car(K)[0]]++;
 			R[car(K)[1]]++;
 		}
 		return vtol(R);
+*/
+		return vtol(getCatalan(K,0|to="#"));
+	}
+	if(F=="-#"||F==8){
+		if(type(K)==4) K=ltov(K);
+		return getCatalan(K,0|to="P");
 	}
     if(F==10||F==11){
 		S=length(K);
@@ -2018,13 +2067,9 @@ def pgpart(K,F)
 		if(F==11) return reverse(pgpart(R,8)); 
 		return pgpart(R,0);
 	}
-	if(F==8||F=="-#"){
-		for(R=[];K!=[];K=cdr(K)) R=cons(sort2(car(K)),R);
-		return reverse(R);
-	}
 	if(F==12||F=="res"){
 		K=pgpart(K,7);
-		for(I=0,R=[];K!=[];K=cdr(K),I++) if(!K[I]) R=cons(I,R);
+		for(I=0,R=[];K!=[];I++,K=cdr(K)) if(!car(K)) R=cons(I,R);
 		return reverse(R);
 	}
 	if(F==13||F==14||F=="0"||F=="("||(F=="T"&&type(K)==7)){
@@ -2077,8 +2122,39 @@ def pgpart(K,F)
 	}
 }
 
-
 def pg2tg(K)
+{
+	if(getopt(bis)==1||K<0) return getoptb(K|option_list=getopt());
+	if(!isint(Al=getopt(all))) Al=0;
+	if(K<4||!isint(K)) return [];
+	R=[];F=0;N=catalan(K-2)-1;
+	for(;N>=0;N--){
+		T=getCatalan(N,K-2|to="P",opt=1);
+		if(Al==0||Al==2){
+			for(I=1;T!=0&&I<K;I++){
+				S=pgpart(T,-I);
+				if(S==T) break;
+				if(S<T) T=0;
+			}
+			if(!T) continue;
+		}
+		if(Al==0){
+			U=pgpart(T,["mirror",0]);
+			if(U==T) I=K;
+			else if(U<T) T=0;
+			for(I=1;T!=0&&I<K;I++){
+				S=pgpart(U,-I);
+				if(S==U) break;
+				if(S<T) T=0;
+			}
+			if(!T) continue; 
+		}
+		R=cons(T,R);
+	}
+	return R;
+}
+
+def pg2tgb(K)
 {
 	if((F=getopt(verb))!=1) F=0;
 	if(!isint(Al=getopt(all))) Al=0;
