@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.21 2019/12/22 02:51:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.22 2021/07/31 01:40:51 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -93,15 +93,19 @@ def taka_tex_form_quote(S,Tb) {
 def taka_tex_form_matrix(A,Tb) {
   N = size(A)[0];
   M = size(A)[1];
-  write_to_tb(AMSTeX?"\\begin{pmatrix}\n":"\\pmatrix{\n",Tb);
+  write_to_tb(AMSTeX?"\\begin{pmatrix}\n":"\\left(\\begin{array}{",Tb);
+  if (!AMSTeX) {
+    for (J=0; J<M; J++) write_to_tb("c",Tb);
+    write_to_tb("}\n",Tb);
+  }
   for (I=0; I<N; I++) {
     for (J=0; J<M; J++) {
       taka_tex_form(A[I][J],Tb);
       if (J != M-1) write_to_tb("& ",Tb);
     }
-    write_to_tb(AMSTeX?" \\\\\n":" \\cr\n",Tb);
+    write_to_tb(AMSTeX?" \\\\\n":" \\\\\n",Tb);
   }
-  write_to_tb(AMSTeX?"\\\end{pmatrix}\n":"}\n",Tb);
+  write_to_tb(AMSTeX?"\\\end{pmatrix}\n":"\\end{array}\\right)\n",Tb);
 }
 
 def taka_tex_form_vector(A,Tb) {
