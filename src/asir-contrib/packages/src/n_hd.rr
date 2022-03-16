@@ -1,0 +1,110 @@
+import("gr")$
+module n_hd$
+
+localf emat, hd, hd_trace, hd_sba$
+
+def emat(N,W)
+{
+  A = matrix(N,N,[W]);
+  for ( I = 1; I < N; I++ ) A[I][N-I] = -1;
+  return A;
+}
+
+def hd_sba(G0,V,P,Ord)
+{
+  if ( type(Nora=getopt(nora)) == -1 ) Nora = 0;
+  if ( type(Top=getopt(top)) == -1 ) Top = 0;
+  if ( type(Trace=getopt(gentrace)) == -1 ) Trace = 0;
+  if ( type(DontSort=getopt(dontsort)) == -1 ) DontSort = 0;
+  if ( type(Rev=getopt(rev)) == -1 ) Rev = 0;
+  if ( type(W=getopt(weight)) == -1 ) W = 0;
+  if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
+  if ( type(Last=getopt(last)) == -1 ) Last = 0;
+  if ( type(Fglm=getopt(fglm)) == -1 ) Fglm = 0;
+  Ord1 = Last ? [[0,length(V)-1],[0,1]] : Ord;
+  ZeroDim = zero_dim(G0,V,0);
+  if ( W ) dp_set_weight(W);
+  dp_ord(0);
+  D = dp_monomial_hilbert_poincare(G0,V);
+  if ( Weyl )
+    G1 = nd_weyl_sba(G0,V,P,Ord1|sba_gbinput=[[],0,W],top=Top,nora=Nora,hpdata=D,homo=1,
+      gentrace=Trace,sba_dontsort=DontSort,dp=1);
+  else 
+    G1 = nd_sba(G0,V,P,Ord1|sba_gbinput=[[],0,W],top=Top,nora=Nora,hpdata=D,homo=1,
+      gentrace=Trace,sba_dontsort=DontSort,dp=1);
+  if ( Last ) {
+    H1 = map(dp_ht,G1);
+    G1 = map(dp_dtop,G1,V); 
+    dp_ord(Ord);
+    H = map(dp_ht,map(dp_ptod,G1,V));
+    if ( H == H1 )
+      G2 = G1;
+    else if ( Weyl ) {
+      if ( P ) G2 = nd_weyl_gr(G1,V,P,Ord);
+      else G2 = nd_weyl_gr_trace(G1,V,0,-1,Ord);
+    } else if ( ZeroDim && Fglm && Ord == 2 ) {
+      if ( P ) G2 = tolexm(G1,V,Ord1,V,P);
+      else G2 = tolex(G1,V,Ord1,V);
+    } else {
+      if ( P ) G2 = nd_gr(G1,V,P,Ord);
+      else G2 = nd_gr_trace(G1,V,0,-1,Ord);
+    }
+  } else
+    G2 = map(dp_dtop,G1,V);
+  dp_set_weight(0);
+  return G2;
+}
+
+def hd(G0,V,P,Ord)
+{
+  if ( type(Nora=getopt(nora)) == -1 ) Nora = 0;
+  if ( type(Top=getopt(top)) == -1 ) Top = 0;
+  if ( type(W=getopt(weight)) == -1 ) W = 0;
+  if ( type(DontSort=getopt(dontsort)) == -1 ) DontSort = 0;
+  if ( type(Rev=getopt(rev)) == -1 ) Rev = 0;
+  if ( type(Trace=getopt(trace)) == -1 ) Trace = 1;
+  if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
+  if ( Rev ) G0 = reverse(G0);
+  if ( type(Last=getopt(last)) == -1 ) Last = 0;
+  if ( type(Fglm=getopt(fglm)) == -1 ) Fglm = 0;
+  Ord1 = Last ? [[0,length(V)-1],[0,1]] : Ord;
+  ZeroDim = zero_dim(G0,V,0);
+  dp_set_weight(W);
+  dp_ord(0);
+  D = dp_monomial_hilbert_poincare(G0,V);
+  if ( Weyl ) {
+    if ( !P && Trace )
+      G1 = nd_weyl_gr_trace(G0,V,1,-1,Ord1|nora=Nora,hpdata=D,dp=1,top=Top); 
+    else
+      G1 = nd_weyl_gr(G0,V,0,Ord1|nora=Nora,hpdata=D,homo=1,dp=1,top=Top);
+  } else {
+    if ( !P && Trace )
+      G1 = nd_gr_trace(G0,V,1,-1,Ord1|nora=Nora,hpdata=D,dp=1,top=Top); 
+    else
+      G1 = nd_gr(G0,V,P,Ord1|nora=Nora,hpdata=D,homo=1,dp=1,top=Top);
+  }
+  if ( Last ) {
+    H1 = map(dp_ht,G1);
+    G1 = map(dp_dtop,G1,V); 
+    dp_ord(Ord);
+    H = map(dp_ht,map(dp_ptod,G1,V));
+    if ( H == H1 )
+      G2 = G1;
+    else if ( Weyl ) {
+      if ( P ) G2 = nd_weyl_gr(G1,V,P,Ord);
+      else G2 = nd_weyl_gr_trace(G1,V,0,-1,Ord);
+    } else if ( ZeroDim && Fglm && Ord == 2 ) {
+      if ( P ) G2 = tolexm(G1,V,Ord1,V,P);
+      else G2 = tolex(G1,V,Ord1,V);
+    } else {
+      if ( P ) G2 = nd_gr(G1,V,P,Ord);
+      else G2 = nd_gr_trace(G1,V,0,-1,Ord);
+    }
+  } else
+    G2 = map(dp_dtop,G1,V);
+  dp_ord(0);
+  dp_set_weight(0);
+  return G2;
+}
+endmodule$
+end$
