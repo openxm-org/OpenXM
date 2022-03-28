@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//JA">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.14 2021/04/02 06:49:16 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.15 2022/03/28 10:33:48 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:openxm2005@math(ematics).sci.kobe-u.ac.jp">
@@ -64,12 +64,20 @@ sudo cp fe-deb2-archive-keyring.gpg /usr/share/keyrings
 
 以上をまとめてコマンドで行うには
 <pre>
+sudo apt update
+sudo apt install wget
 sudo wget -O /etc/apt/sources.list.d/fe-deb2.list http://www.math.kobe-u.ac.jp/deb2/fe-deb2.list
 sudo wget -O /usr/share/keyrings/fe-deb2-archive-keyring.gpg  http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg
 sudo apt update
 sudo apt install openxm
 </pre>
 
+参考: apt install openxm で asir license にあらかじめ同意して y/n を避けるには
+<pre>
+touch /tmp/i-agree-with-asir-license 
+sudo apt install openxm
+rm  /tmp/i-agree-with-asir-license 
+</pre>
 
 <H2>
 <A HREF="ERRATA.html">ERRATA</A>.
