@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.22 2020/11/10 04:48:49 noro Exp $  */
+/*  $OpenXM: OpenXM/src/ox_pari/ox_pari.c,v 1.23 2021/03/25 07:03:21 noro Exp $  */
 
 #include <signal.h>
 #include "ox_pari.h"
@@ -276,7 +276,7 @@ int receive_and_execute_sm_command()
     exit(0);
     break;
   default:
-    printf("receive_and_execute_sm_command : code=%d\n",code);fflush(stdout);
+    ox_printf("receive_and_execute_sm_command : code=%d\n",code);
     break;
   }
   return 0;
@@ -289,15 +289,15 @@ int receive()
   tag = receive_ox_tag(fd_rw);
   switch(tag) {
   case OX_DATA:
-    printf("receive : ox_data %d\n",tag);fflush(stdout);
+    ox_printf("receive : ox_data %d\n",tag);
     push(receive_cmo(fd_rw));
     break;
   case OX_COMMAND:
-    printf("receive : ox_command %d\n",tag);fflush(stdout);
+    ox_printf("receive : ox_command %d\n",tag);
     receive_and_execute_sm_command();
     break;
   default:
-    printf("receive : tag=%d\n",tag);fflush(stdout);
+    ox_printf("receive : tag=%d\n",tag);
   }
   return 0;
 }
@@ -317,6 +317,10 @@ void usr1_handler(int sig)
 #endif
 }
 
+#if defined(USE_OXPARI_LOG)
+#define LOGFILE "/tmp/oxpari.log"
+#endif
+
 int main()
 {
 #if defined(ANDROID)
@@ -324,18 +328,21 @@ int main()
 #else
   if ( sigsetjmp(ox_env,~0) ) {
 #endif
-    fprintf(stderr,"resetting libpari and sending OX_SYNC_BALL...");
+    ox_printf("resetting libpari and sending OX_SYNC_BALL...");
     init_pari();
     initialize_stack();
     send_ox_tag(fd_rw,OX_SYNC_BALL);
-    fprintf(stderr,"done\n");
+    ox_printf("done\n");
   } else {
     init_gc();
-    ox_stderr_init(stderr);
+
+#if defined(LOGFILE)
+    ox_stderr_init(fopen(LOGFILE,"a"));
+#endif
     init_pari();
     initialize_stack();
   
-    fprintf(stderr,"ox_pari\n");
+    ox_printf("ox_pari\n");
 
     fd_rw = oxf_open(3);
     oxf_determine_byteorder_server(fd_rw);
