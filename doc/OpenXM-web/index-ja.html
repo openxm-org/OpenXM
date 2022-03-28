@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//JA">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.13 2021/03/29 08:03:43 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-ja.html,v 1.14 2021/04/02 06:49:16 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:openxm2005@math(ematics).sci.kobe-u.ac.jp">
@@ -43,25 +43,33 @@ OpenXM-HEAD <img src="../Stable/logo-openxm5.jpg"> ブランチへようこそ
 
 <h2 id="apt"> Debian package for amd64</h2>
 <ol>
-<li> 以下を /etc/apt/sources.list へ加える.
+<li> 以下を書いたファイル fe-deb2.list を /etc/apt/sources.list.d へ加える.
 <pre>
-  deb http://www.math.kobe-u.ac.jp/deb2/ unstable/
-  deb http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
+deb [signed-by=/usr/share/keyrings/fe-deb2-archive-keyring.gpg] http://www.math.kobe-u.ac.jp/deb2/ unstable/
+deb [signed-by=/usr/share/keyrings/fe-deb2-archive-keyring.gpg] http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
 <pre>
-<li> 我々の keys を加える.
-keys は <a href="http://www.math.kobe-u.ac.jp/deb2/pub-keys">
-  http://www.math.kobe-u.ac.jp/deb2/pub-keys </a>
-にあり.
+<li> gpg public key をダウンロード.
+keys は <a href="http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg">
+   http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg </a>
+にあり. このファイルを /usr/share/keyrings へコピー.
 <pre>
-  sudo apt-key add mathlibre.pub
-  sudo apt-key add debian-math.kobe-u.ac.jp.pub
+sudo cp fe-deb2-archive-keyring.gpg /usr/share/keyrings
 </pre>
 <li>
 <pre>
-    sudo apt-get update
-    sudo apt-get install openxm
+    sudo apt update
+    sudo apt install openxm
 </pre>
 </ol>
+
+以上をまとめてコマンドで行うには
+<pre>
+sudo wget -O /etc/apt/sources.list.d/fe-deb2.list http://www.math.kobe-u.ac.jp/deb2/fe-deb2.list
+sudo wget -O /usr/share/keyrings/fe-deb2-archive-keyring.gpg  http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg
+sudo apt update
+sudo apt install openxm
+</pre>
+
 
 <H2>
 <A HREF="ERRATA.html">ERRATA</A>.

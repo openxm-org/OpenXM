@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index.html,v 1.74 2021/03/29 08:03:43 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index.html,v 1.75 2021/04/02 06:49:16 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:openxm2005@math(ematics).sci.kobe-u.ac.jp">
@@ -43,24 +43,34 @@ It is updated everyday.
 
 <h2 id="apt"> Debian package for amd64</h2>
 <ol>
-<li> Add the following to /etc/apt/sources.list
+<li> Add the file fe-deb2.list of which contents are 
 <pre>
-  deb http://www.math.kobe-u.ac.jp/deb2/ unstable/
-  deb http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
+deb [signed-by=/usr/share/keyrings/fe-deb2-archive-keyring.gpg] http://www.math.kobe-u.ac.jp/deb2/ unstable/
+deb [signed-by=/usr/share/keyrings/fe-deb2-archive-keyring.gpg] http://www.math.kobe-u.ac.jp/deb2/ mathlibre2020/
 <pre>
-<li> Add our keys to your system.
-The keys are at <a href="http://www.math.kobe-u.ac.jp/deb2/pub-keys">
-  http://www.math.kobe-u.ac.jp/deb2/pub-keys </a>
+under /etc/apt/sources.list.d
+<li> Add our gpg public key to your system.
+The key is at <a href="http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg">
+   http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg </a>
+Copy this file to /usr/share/keyrings by
 <pre>
-   apt-key add mathlibre.pub
-   apt-key add debian-math.kobe-u.ac.jp.pub
+sudo cp fe-deb2-archive-keyring.gpg /usr/share/keyrings
 </pre>
 <li>
 <pre>
-    sudo apt-get update
-    sudo apt-get install openxm
+    sudo apt update
+    sudo apt install openxm
 </pre>
 </ol>
+
+
+The following commands execute the above instruction.
+<pre>
+sudo wget -O /etc/apt/sources.list.d/fe-deb2.list http://www.math.kobe-u.ac.jp/deb2/fe-deb2.list
+sudo wget -O /usr/share/keyrings/fe-deb2-archive-keyring.gpg  http://www.math.kobe-u.ac.jp/deb2/fe-deb2-archive-keyring.gpg
+sudo apt update
+sudo apt install openxm
+</pre>
 
 <H2>
 <A HREF="ERRATA.html">ERRATA</A>.
