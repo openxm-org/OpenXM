@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.47 2016/06/29 05:07:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.48 2016/06/30 01:14:00 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -181,11 +181,12 @@ static cmo_int32* receive_cmo_int32(OXFILE *oxfp)
 
 static cmo_string* receive_cmo_string(OXFILE *oxfp)
 {
+    int i,n;
     int len = receive_int32(oxfp);
     char* s = MALLOC(len+1);
     memset(s, '\0', len+1);
-    if (len > 0) {
-        oxf_read(s, 1, len, oxfp);
+    for(i=0; i<len; i+=n) {
+        n=oxf_read(s+i, 1, len-i, oxfp);
     }
     return new_cmo_string(s);
 }
