@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.16 2021/10/23 23:32:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_asir_contrib_update.rr,v 1.17 2022/03/30 04:45:14 takayama Exp $ */
 /*
   We assume that (windows)
   (1) curl and zip are installed in asir/bin
@@ -98,9 +98,9 @@ def asir_contrib_update_win() {
 
   if (Update && (type(getopt(zip_files))<=0)) {
     ZipFiles=[];
-    if (iand(Update,4)) ZipFiles = append(["openxm-win-oxpari.zip"],ZipFiles);
-    if (iand(Update,2)) ZipFiles = append(["doc-asir-contrib.zip","doc-asir2000.zip","doc-other-docs.zip"],ZipFiles);
-    if (iand(Update,1)) ZipFiles = append(["lib-asir-contrib.zip"],ZipFiles);
+    if (Update==4) ZipFiles = append(["openxm-win-oxpari.zip"],ZipFiles);
+    if (Update==2) ZipFiles = append(["doc-asir-contrib.zip","doc-asir2000.zip","doc-other-docs.zip"],ZipFiles);
+    if (Update==1) ZipFiles = append(["lib-asir-contrib.zip"],ZipFiles);
   }
 
   C2move="move /Y " + "\""+InstallDir0+"\"" + " \""+Trash+"\\asir-lib-trash\"";
@@ -157,8 +157,8 @@ def asir_contrib_update_unix() {
 
   if (Update && (type(getopt(zip_files))<=0)) {
     ZipFiles=[];
-    if (iand(Update,2)) ZipFiles = append(["doc-asir-contrib.zip","doc-asir2000.zip","doc-other-docs.zip"],ZipFiles);
-    if (iand(Update,1)) ZipFiles = append(["lib-asir-contrib.zip"],ZipFiles);
+    if (Update==2) ZipFiles = append(["doc-asir-contrib.zip","doc-asir2000.zip","doc-other-docs.zip"],ZipFiles);
+    if (Update==1) ZipFiles = append(["lib-asir-contrib.zip"],ZipFiles);
   }
 
   C2move="mv " + InstallDir0 + " " + Trash+"/.asir-lib-trash";
