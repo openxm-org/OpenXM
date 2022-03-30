@@ -1,10 +1,13 @@
-# $OpenXM: OpenXM/src/jupyter/Makefile,v 1.2 2019/05/27 07:15:46 takayama Exp $
+# $OpenXM: OpenXM/src/jupyter/Makefile,v 1.3 2019/05/28 00:26:23 takayama Exp $
 usage:
 	@echo "install-debian-for-debug clean-debian"
 	@echo "install-mac-anaconda2-for-debug"
 	@echo "put-to-ox-dir  get-from-ox-dir"
+	@echo "  "
+	@echo "On Ubuntu20.04/wsl2, do apt install jupyter-notebook and pip3 install metakernel. Start with /usr/bin/jupyter notebook"
 
-Debian_ASIR_KERNEL_DIR=${HOME}/.local/lib/python2.7/site-packages/asir_kernel
+#Debian_ASIR_KERNEL_DIR=${HOME}/.local/lib/python2.7/site-packages/asir_kernel
+Debian_ASIR_KERNEL_DIR=${HOME}/.local/lib/python3.8/site-packages/asir_kernel
 Debian_ASIR_KERNEL_INFO=${HOME}/.local/share/jupyter/kernels/asir
 install-debian-for-debug:
 	-mkdir ${HOME}/bin
