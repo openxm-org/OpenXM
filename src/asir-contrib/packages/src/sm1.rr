@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.16 2020/10/27 02:44:16 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.17 2021/11/07 06:59:41 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -206,6 +206,11 @@ def start_windows(U) {
   /*  if (sysinfo()[0] != "windows") error("This is not Windows"); */
   if (type(getopt(openxm_home_win)) > 0) {
     OpenXM_HOME_WIN=rtostr(getopt(openxm_home_win));
+  }else if (access(getenv("APPDATA")+"/OpenXM/OpenXM-win")) {
+    OpenXM_HOME_WIN=getenv("APPDATA")+"/OpenXM/OpenXM-win"; 
+    /* NOTE!!  No space or damemoji are allowed in the user name. */
+  }else if (access("c:/ProgramData/asir/OpenXM")) {
+    OpenXM_HOME_WIN="c:/ProgramData/asir/OpenXM/OpenXM-win"; 
   }else{
     OpenXM_HOME_WIN=getenv("APPDATA")+"/OpenXM/OpenXM-win"; 
     /* NOTE!!  No space or damemoji are allowed in the user name. */
