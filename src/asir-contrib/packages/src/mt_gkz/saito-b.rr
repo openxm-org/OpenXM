@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.9 2022/03/02 04:50:57 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.10 2022/03/31 02:45:16 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1092,8 +1092,10 @@ R10=mt_gkz.contiguity_by_fvec(A,Beta,Ap,Fvec411d,Fvec411);
 R10p=mt_gkz.gamma_normalization(R10,RLP1=[[4,1,1]],RLP1,Loop=1); // (10) is obtained
 */
 
-def gamma_rule(D0,Nu,Loop) {
-  if (D0 % 2 == 0) {
+def gamma_rule(RLP,Loop) {
+  D0=RLP[0]; Nu=cdr(RLP);
+  printf("d0=%a, nu=%a, loop(L)=%a\n",D0,Nu,Loop);
+  if (((Loop+1)*D) % 2 == 0) {
     Ga4=1-(Loop+1)*e-length(Nu)*e*d;
   }else{
     Ga4=1/2-(Loop+1)*e-length(Nu)*e*d;
