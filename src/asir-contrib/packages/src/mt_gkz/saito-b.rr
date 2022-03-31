@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.10 2022/03/31 02:45:16 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.11 2022/03/31 04:54:04 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -71,6 +71,7 @@ localf rvec_to_rLP$
 localf rLP_to_rvec$
 localf mypoch$
 localf rLP_const$
+localf rLP_const2$
 localf gamma_normalization$
 localf gamma_rule$
 
@@ -1026,14 +1027,22 @@ def mypoch(A,N) {
   return P;
 }
 /*&usage
+  if (((Loop+1)*D) % 2 == 0) {
+    Ga4=1-(Loop+1)*e-length(Nu)*e*d;
+  }else{
+    Ga4=1/2-(Loop+1)*e-length(Nu)*e*d;
+  }
+
   When d is even
   grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1],
-  ga4->Gamma[1-(ell+1)*e-lenNu*e*d]}
+  ga4->Gamma[Ga4],
+  ga1b->Gamma[e+1], ga2b->Gamma[e+1/2]}
   where ell is the number of loops and lenNu=Length[Nu].
 
   When d is odd
   grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1],
-  ga4->Gamma[1/2-(ell+1)*e-lenNu*e*d]}
+  ga4->Gamma[Ga4],
+  ga1b->Gamma[e+1], ga2b->Gamma[e+1/2]}
   C^d(nu)
 */
 def rLP_const(Ibp,Loop) {
@@ -1041,13 +1050,22 @@ def rLP_const(Ibp,Loop) {
   Cn=1;
   if (D%2==0) Cn=Cn*ga1*mypoch(-e+1,D/2-1);
   else Cn=Cn*ga2*mypoch(-e-1/2,D/2+1/2);
+
+/*  The factor below is not needed for rLP, because we use the basis 
+      int g^beta0 x-beta' dx/x
+*/
+/*
+  if (D%2==0) Cn=Cn*ga1b/mypoch(-e,D/2)*(-1)^(D/2);
+  else Cn=Cn*ga2b/mypoch(1/2-e,(D-1)/2)*(-1)^((D-1)/2);
+*/
+
   C=1;
   for (I=0; I<length(Nu); I++) {
     if (Nu[I]>=1) C=C*ga3*mypoch(e*d+1,Nu[I]);
     else C=C*ga3/(e*d);
   }
 
-  /*Ref: 2022.03.30 note */
+  /*Ref: 2022.03.30, 2022.03.31 mynote */
   LenNu=length(Nu);
   Dnu=(Loop+1)*D/2; for (I=0;I<length(Nu); I++) Dnu=Dnu-Nu[I];
   if (((Loop+1)*D) % 2 == 0) {
@@ -1065,6 +1083,19 @@ def rLP_const(Ibp,Loop) {
 Example:
   poly_factor(rLP_const([4,1,1],Loop=0));
 */
+def rLP_const2(Ibp,Loop) {
+  D=Ibp[0]; Nu=cdr(Ibp);
+  Cn=1;
+/*  The factor below is needed for rLP, when we use the basis
+      f=1/gamma(beta0+1) int g^beta0 x-beta' dx/x
+    For this case d_i f(beta) = f(beta-a_i)
+Ref: mynote 2022.03.31
+*/
+  if (D%2==0) Cn=Cn*ga1b/mypoch(-e,D/2)*(-1)^(D/2);
+  else Cn=Cn*ga2b/mypoch(1/2-e,(D-1)/2)*(-1)^((D-1)/2);
+  return red(Cn*rLP_const(Ibp,Loop);
+}
+
 def gamma_normalization(U,RLP1,RLP2,Loop) {
   if (type(U)==6) Un=matrix_clone(U);
   else Un=matrix_list_to_matrix(U);
@@ -1100,7 +1131,8 @@ def gamma_rule(RLP,Loop) {
   }else{
     Ga4=1/2-(Loop+1)*e-length(Nu)*e*d;
   }
-  S=sprintf("grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*%a+1),ga4->Gamma[%a]}",D0,Ga4);
+  S=sprintf("grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*%a+1),ga4->Gamma[%a], ga1b->Gamma[e+1], ga2b->Gamma[e+1/2]}
+}",D0,Ga4);
   return S;
 }
 
