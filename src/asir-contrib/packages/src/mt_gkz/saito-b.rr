@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.8 2022/02/18 23:03:55 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.9 2022/03/02 04:50:57 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1026,10 +1026,17 @@ def mypoch(A,N) {
   return P;
 }
 /*&usage
-  grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],g3->Gamma[e*d+1],g4->Gamma[-2*e*(1+d)+1]}
+  When d is even
+  grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1],
+  ga4->Gamma[1-(ell+1)*e-lenNu*e*d]}
+  where ell is the number of loops and lenNu=Length[Nu].
+
+  When d is odd
+  grule={ga1->Gamma[-e+1],ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1],
+  ga4->Gamma[1/2-(ell+1)*e-lenNu*e*d]}
   C^d(nu)
 */
-def rLP_const(Ibp) {
+def rLP_const(Ibp,Loop) {
   D=Ibp[0]; Nu=cdr(Ibp);
   Cn=1;
   if (D%2==0) Cn=Cn*ga1*mypoch(-e+1,D/2-1);
@@ -1039,22 +1046,32 @@ def rLP_const(Ibp) {
     if (Nu[I]>=1) C=C*ga3*mypoch(e*d+1,Nu[I]);
     else C=C*ga3/(e*d);
   }
-  Dnu=D; for (I=0;I<length(Nu); I++) Dnu=Dnu-Nu[I];
-  if (Dnu-1 >=0) C=C*ga4*mypoch(-2*e*(1+d)+1,Dnu-1);
-  else C=C*ga4/mypoch(2*e*(1+d),-(Dnu-1))*(-1)^(-(Dnu-1));
+
+  /*Ref: 2022.03.30 note */
+  LenNu=length(Nu);
+  Dnu=(Loop+1)*D/2; for (I=0;I<length(Nu); I++) Dnu=Dnu-Nu[I];
+  if (((Loop+1)*D) % 2 == 0) {
+    Alpha=1-(Loop+1)*e-LenNu*e*d;
+    if (Dnu-1 >=0) C=C*ga4*mypoch(Alpha,Dnu-1);
+    else C=C*ga4/mypoch(-(Alpha-1),-(Dnu-1))*(-1)^(-(Dnu-1));
+  }else{
+    Alpha=1/2-(Loop+1)*e-LenNu*e*d;
+    if (Dnu-1/2 >=0) C=C*ga4*mypoch(Alpha,Dnu-1/2);
+    else C=C*ga4/mypoch(-(Alpha-1),-(Dnu-1/2))*(-1)^(-(Dnu-1/2));
+  }
   return red(Cn/C);
 }
 /*&usage
 Example:
-  poly_factor(rLP_const([4,1,1]));
+  poly_factor(rLP_const([4,1,1],Loop=0));
 */
-def gamma_normalization(U,RLP1,RLP2) {
+def gamma_normalization(U,RLP1,RLP2,Loop) {
   if (type(U)==6) Un=matrix_clone(U);
   else Un=matrix_list_to_matrix(U);
   M=size(Un)[0]; N=size(Un)[1];
   G1=newvect(M); G2=newvect(N);
-  for (I=0; I<M; I++) G1[I]=rLP_const(RLP1[I]);
-  for (J=0; J<N; J++) G2[J]=rLP_const(RLP2[J]);
+  for (I=0; I<M; I++) G1[I]=rLP_const(RLP1[I],Loop);
+  for (J=0; J<N; J++) G2[J]=rLP_const(RLP2[J],Loop);
   for (I=0; I<M; I++) {
     for (J=0; J<N; J++) {
       Un[I][J]=red(Un[I][J]*G1[I]/G2[J]);
@@ -1072,11 +1089,17 @@ Rvec411=mt_gkz.rLP_to_rvec([[4,1,1]],A);  // I^4(1,1)=J(4,1,1;x)
 Fvec411=mt_gkz.rvec_to_fvec(Rvec411,A,Ap,Beta);
 Fvec411d=[mt_gkz.dmul(dx3,Fvec411[0],[x1,x2,x3])]; 
 R10=mt_gkz.contiguity_by_fvec(A,Beta,Ap,Fvec411d,Fvec411);  
-R10p=mt_gkz.gamma_normalization(R10,RLP1=[[4,1,1]],RLP1); // (10) is obtained
+R10p=mt_gkz.gamma_normalization(R10,RLP1=[[4,1,1]],RLP1,Loop=1); // (10) is obtained
 */
 
-def gamma_rule() {
-  return "grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*d+1),ga4->Gamma[1-2*e*(1+d)]}";
+def gamma_rule(D0,Nu,Loop) {
+  if (D0 % 2 == 0) {
+    Ga4=1-(Loop+1)*e-length(Nu)*e*d;
+  }else{
+    Ga4=1/2-(Loop+1)*e-length(Nu)*e*d;
+  }
+  S=sprintf("grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*%a+1),ga4->Gamma[%a]}",D0,Ga4);
+  return S;
 }
 
 #ifdef USE_MODULE

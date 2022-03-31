@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.9 2022/01/28 04:33:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/Imp3.rr,v 1.10 2022/01/28 08:05:59 takayama Exp $ */
 #define USE_MODULE 1
 #ifdef USE_MODULE
 module mt_gkz;
@@ -1492,28 +1492,38 @@ def xvars(N){
 
 
 
+//2022/03/15 option variable weightを追加
 
 def coh_basis0(A,Beta){
-  N=length(A[0])$
-  Id=mytoric_ideal(A)$
-  X=xvars(N)$
-  DX=xvars(N|diff=1)$
-    Iden=newvect(N)$
+  N=length(A[0]);
+  X=xvars(N);
+  DX=xvars(N|diff=1);
+  Iden=newvect(N);
       for (I=0;I<N;I++){
-Iden[I]=1$
+	Iden[I]=1;
       }
-    Id=gr(Id,X,0)$
-      ID=newvect(length(Id))$
+      W=getopt(weight);
+      if(type(W)==-1){
+      Id=mytoric_ideal(A);
+      Id=gr(Id,X,0);
+      Id=map(dp_ptod,Id,X);
+      Id=map(dp_ht,Id);
+      Id=map(dp_dtop,Id,X);
+      }
+      else{
+	Id=toric_gen_initial(A,W)[0];
+      }
+      ID=newvect(length(Id));
 	for (I=0;I<length(Id);I++){
-E=dp_etov(dp_ptod(Id[I],X))$
-ID[I]=vect_poch(ltov(DX)-E+Iden,E)$
+	  E=dp_etov(dp_ptod(Id[I],X));
+	  ID[I]=vect_poch(ltov(DX)-E+Iden,E);
       }
-    A=newmat(length(A),N,A)$
-  J=vtol(A*ltov(DX)-ltov(Beta))$
-    ID=append(vtol(ID),J)$
-      ID=gr(ID,DX,0)$
-	yang.verbose()$
-	  yang.define_ring(X)$
+	A=newmat(length(A),N,A);
+	J=vtol(A*ltov(DX)-ltov(Beta));
+	ID=append(vtol(ID),J);
+	ID=gr(ID,DX,0);
+	yang.verbose();
+	yang.define_ring(X);
 	    return yang.stdmon(ID);
 }
 
@@ -1582,6 +1592,7 @@ def rvec_to_coeff_mat(Rvec,A,Ap,Beta){
 
 //rvec_red2はRvecをSigma reduced coordinateにおける微分作用素に変換する。
 //出力はEuler作用素で書かれている。
+//分子、分母が分けて書かれている。
 def rvec_red2(Rvec,A,Ap,Beta,Sigma){
   Fvec=rvec_to_fvec(Rvec,A,Ap,Beta);
   DX=dvar(index_vars(x,1,length(A[0])|no_=1));
@@ -1599,6 +1610,7 @@ def rvec_red2(Rvec,A,Ap,Beta,Sigma){
 
 
 //分散表現の微分作用素をGKZ簡約する。
+//Dpは全てのGKZ変数で表示されている。
 //出力はEuler作用素で表示されている。
 //asirでは有理式に問題が多いので、red=1のときは分母を払った形を出力する。
 def matsu_gkz_red2(Dp,A,Beta,Sigma){
