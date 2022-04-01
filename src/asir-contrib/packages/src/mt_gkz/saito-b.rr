@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.11 2022/03/31 04:54:04 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.12 2022/03/31 10:37:58 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1093,7 +1093,7 @@ Ref: mynote 2022.03.31
 */
   if (D%2==0) Cn=Cn*ga1b/mypoch(-e,D/2)*(-1)^(D/2);
   else Cn=Cn*ga2b/mypoch(1/2-e,(D-1)/2)*(-1)^((D-1)/2);
-  return red(Cn*rLP_const(Ibp,Loop);
+  return red(Cn*rLP_const(Ibp,Loop));
 }
 
 def gamma_normalization(U,RLP1,RLP2,Loop) {
