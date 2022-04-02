@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.12 2022/03/31 10:37:58 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.13 2022/04/01 22:46:52 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1061,7 +1061,7 @@ def rLP_const(Ibp,Loop) {
 
   C=1;
   for (I=0; I<length(Nu); I++) {
-    if (Nu[I]>=1) C=C*ga3*mypoch(e*d+1,Nu[I]);
+    if (Nu[I]>=1) C=C*ga3*mypoch(e*d+1,Nu[I]-1);
     else C=C*ga3/(e*d);
   }
 
