@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/hgm/orthant/src/hgm_ko_orthant.c,v 1.4 2015/03/24 06:10:33 takayama Exp $*/
+/*$OpenXM: OpenXM/src/hgm/orthant/src/hgm_ko_orthant.c,v 1.5 2015/04/01 06:10:34 takayama Exp $*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -10,6 +10,8 @@
 #ifndef _STANDALONE
 #include <R_ext/BLAS.h>
 #include <R_ext/Lapack.h>
+#ifndef FCONE
+#define FCONE
 #endif
 
 void hgm_ko_orthant(int *, double *, double *, double *retv);
@@ -162,10 +164,11 @@ sigma_mu2xy(double *sigma, double *mu, double *x, double *y)
   alpha = -0.5;
   dscal_(&dimdim, &alpha, x, &one);
 #else
+#endif
   F77_CALL(dcopy)(&dimdim, sigma, &one, x, &one);
-  F77_CALL(dpotrf)("U", &dim, x, &dim, &info);
-  F77_CALL(dpotri)("U", &dim, x, &dim, &info);
-  F77_CALL(dsymv)("U", &dim, &alpha, x, &dim, mu, &one, &beta, y, &one);
+  F77_CALL(dpotrf)("U", &dim, x, &dim, &info FCONE);
+  F77_CALL(dpotri)("U", &dim, x, &dim, &info FCONE);
+  F77_CALL(dsymv)("U", &dim, &alpha, x, &dim, mu, &one, &beta, y, &one FCONE);
   alpha = -0.5;
   F77_CALL(dscal)(&dimdim, &alpha, x, &one);
 #endif
@@ -386,14 +389,14 @@ cal_sigmaI_muI(const int I)
 #ifdef _STANDALONE
   dpotrf_("U", &n, g_submat, &m, &info);
 #else
-  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
+  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info FCONE);
 #endif
   //oxprintfe( "info=%d\n", info);
   n = m = deg_I;
 #ifdef _STANDALONE
   dpotri_("U", &n, g_submat, &m, &info);
 #else
-  F77_CALL(dpotri)("U", &n, g_submat, &m, &info);
+  F77_CALL(dpotri)("U", &n, g_submat, &m, &info FCONE);
 #endif
   //oxprintfe( "info=%d\n", info);
   for ( i = 0; i < deg_I; i++)
@@ -462,7 +465,7 @@ cal_det_sigmaI(const int I, const int deg_I)
 #ifdef _STANDALONE
   dpotrf_("U", &n, g_submat, &m, &info);
 #else
-  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info);
+  F77_CALL(dpotrf)("U", &n, g_submat, &m, &info FCONE);
 #endif
   //oxprintfe( "info=%d\n", info);
   for ( i = 0; i < deg_I; i++)

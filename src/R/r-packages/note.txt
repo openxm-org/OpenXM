@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.10 2019/11/16 11:03:43 takayama Exp $
+$OpenXM: OpenXM/src/R/r-packages/note.txt,v 1.11 2020/02/06 05:58:17 takayama Exp $
 
 See also OpenXM/src/hgm/note.txt
 
@@ -11,6 +11,11 @@ https://cran.r-project.org/bin/macosx/tools/
   R CMD INSTALL hgm
   Start R and library(hgm)
   hgm.ncso3()
+
+  ??hgm
+  ?hgm.ncorthant
+
+  remove.packages('hgm')   
 
 * C source codes.
  C sources and headers should be developed and edited in the directory
@@ -115,6 +120,7 @@ R CMD check hgm --as-cran
  apt-get install subversion ccache
  apt-get install xorg-dev
  apt-get install libcurl4-openssl-dev
+ apt install libpcre2-dev    (2022.04.06  this22/R orange3m)
  pushd ~/this19/R  (for example)
  svn co https://svn.r-project.org/R/trunk r-devel/R
  cd r-devel/R   and follow the INSTALL
