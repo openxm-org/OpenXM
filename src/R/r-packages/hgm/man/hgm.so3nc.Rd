@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.6 2015/03/27 02:36:30 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.so3nc.Rd,v 1.7 2019/11/16 11:03:44 takayama Exp $
 \name{hgm.ncso3}
 \alias{hgm.ncso3}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -57,7 +57,7 @@ The output is an array of c(Theta) and its derivatives with respect to Theta_{11
 Tomonari Sei, Hiroki Shibata, Akimichi Takemura, Katsuyoshi Ohara, Nobuki Takayama,
 Properties and applications of Fisher distribution on the rotation group,
 Journal of Multivariate Analysis, 116 (2013), 440--455,
-\url{http://dx.doi.org/10.1016/j.jmva.2013.01.010}
+\doi{10.1016/j.jmva.2013.01.010}
 }
 \author{
 Nobuki Takayama

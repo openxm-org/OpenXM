@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.14 2016/02/16 02:17:00 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.cwishart.Rd,v 1.15 2016/03/01 07:29:18 takayama Exp $
 \name{hgm.pwishart}
 \alias{hgm.pwishart}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -108,7 +108,7 @@ See the reference below.
 H.Hashiguchi, Y.Numata, N.Takayama, A.Takemura,
 Holonomic gradient method for the distribution function of the largest root of a Wishart matrix,
 Journal of Multivariate Analysis, 117, (2013) 296-312, 
-\url{http://dx.doi.org/10.1016/j.jmva.2013.03.011},
+\doi{10.1016/j.jmva.2013.03.011},
 }
 \author{
 Nobuki Takayama

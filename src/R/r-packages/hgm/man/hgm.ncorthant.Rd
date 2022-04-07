@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.4 2015/03/24 07:49:06 takayama Exp $
+% $OpenXM: OpenXM/src/R/r-packages/hgm/man/hgm.ncorthant.Rd,v 1.5 2015/03/27 02:36:30 takayama Exp $
 \name{hgm.ncorthant}
 \alias{hgm.ncorthant}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -43,7 +43,7 @@ The output is the orthant probalibity.
 Tamio Koyama, Akimichi Takemura, 
 Calculation of orthant probabilities
 by the holonomic gradient method,
-\url{http://arxiv.org/abs/1211.6822}.
+\url{https://arxiv.org/abs/1211.6822}.
 }
 \author{
 Tamio Koyama
