@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.167 2022/01/31 06:53:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.168 2022/02/01 00:36:22 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 import("oxrfc100.rr")$
@@ -639,6 +639,7 @@ def poly_solve(Eqs,V) { NOT_YET; }
 /*&usage begin: poly_solve_linear(Eqs,V)
  It solves the system of linear equations {Eqs} with respect to the set of
  variables {V}. When the option p=P is given, it solves the system by mod P.
+ When the option reverse=1 is given, the lex order of reverse(V) is used.
  example: poly_solve_linear([2*x+3*y-z-2, x+y+z-1], [x,y,z]);
           poly_solve_linear([2*x+3*y-z-2, x+y+z-1], [x,y,z] | p=13);
 end: */

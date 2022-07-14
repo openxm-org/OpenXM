@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.38 2022/01/31 06:53:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.39 2022/07/14 01:07:43 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -56,6 +56,9 @@ def taka_poly_solve_poly1(F,V) {
 def taka_poly_solve_linear(Z,X) {
   if (type(getopt(p))>0) P=getopt(p);
   else P=0;
+  if (type(getopt(reverse))>0) MyReverse=getopt(reverse);
+  else MyReverse=0;
+
   Size_Z = length(Z);
   Sol = [ ];
   F = [];
@@ -74,7 +77,11 @@ def taka_poly_solve_linear(Z,X) {
   }
 
   if (P) F=map(ptozp,F);
-  G = nd_gr(F, reverse(X),P, 2);
+  if (MyReverse) {
+    G = nd_gr(F, X, P, 2);
+  }else{
+    G = nd_gr(F, reverse(X),P, 2);
+  }
 
   if (G[0] == 1 || G[0] == -1) {
     return [];
@@ -82,17 +89,34 @@ def taka_poly_solve_linear(Z,X) {
 
   Sol = newvect(length(X));
   N = 0;
-  for (I = 0; I < length(G); I++) {
-    for (J = length(X) - 1; J >= 0; J--) {
-      Nm = nm(G[I]); Dn = dn(G[I]);
-      if (coef(Nm, 1, X[J]) != 0) {
-        if (P) {
-	  Sol[J] = [X[J], X[J] - Nm*inv(coef(Nm, 1, X[J]),P)];
-        }else{
-	  Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+  if (MyReverse) {
+    for (I = 0; I < length(G); I++) {
+      for (J=0; J < length(X) ; J++) {
+        Nm = nm(G[I]); Dn = dn(G[I]);
+        if (coef(Nm, 1, X[J]) != 0) {
+          if (P) {
+            Sol[J] = [X[J], X[J] - Nm*inv(coef(Nm, 1, X[J]),P)];
+          }else{
+            Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+          }
+          N++;
+          break;
         }
-        N++;
-        break;
+      }
+    }
+  }else{
+    for (I = 0; I < length(G); I++) {
+      for (J = length(X) - 1; J >= 0; J--) {
+        Nm = nm(G[I]); Dn = dn(G[I]);
+        if (coef(Nm, 1, X[J]) != 0) {
+          if (P) {
+            Sol[J] = [X[J], X[J] - Nm*inv(coef(Nm, 1, X[J]),P)];
+          }else{
+            Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+          }
+          N++;
+          break;
+        }
       }
     }
   }
