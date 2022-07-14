@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.37 2022/01/14 02:25:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.38 2022/01/31 06:53:17 takayama Exp $ */
 #include "tags.h"
 
 /*  tests
@@ -86,7 +86,11 @@ def taka_poly_solve_linear(Z,X) {
     for (J = length(X) - 1; J >= 0; J--) {
       Nm = nm(G[I]); Dn = dn(G[I]);
       if (coef(Nm, 1, X[J]) != 0) {
-        Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+        if (P) {
+	  Sol[J] = [X[J], X[J] - Nm*inv(coef(Nm, 1, X[J]),P)];
+        }else{
+	  Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+        }
         N++;
         break;
       }
