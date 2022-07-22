@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.93 2022/04/05 02:09:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.94 2022/07/19 04:14:49 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -8484,23 +8484,33 @@ def toeul(F,L,V)
 	L = vweyl(L); 
 	X = L[0]; DX = L[1];
 	I = mydeg(F,DX);
+	if(V=="infty"){
+		if(getopt(raw)!=1){
+			for(II=I; II>=0; II--){
+				J = mydeg(P=mycoef(F,I,DX),X);
+				if(II==I) S=II-J;
+				else if(P!=0 && II-J>S) S=II-J;
+			}
+			F *= X^S;
+		}
+		for(R=0 ; I >= 0; I--)
+			 R += red(mysubst(mycoef(F,I,DX),[X,1/X])*(x*DX)^I);
+		return(subst(pol2sft(R,DX),DX,-DX));
+	}
+	F = subst(F,X,X+V);
 	if(getopt(raw)!=1){
 		for(II=I; II>=0; II--){
-			J = mydeg(P=mycoef(F,II,DX),X);
+			J = mymindeg(P=mycoef(F,II,DX),X);
 			if(II==I) S=II-J;
 			else if(P!=0 && II-J>S) S=II-J;
 		}
 		F *= X^S;
 	}
-	if(V == "infty"){
-		for(R=0; I >= 0; I--)
-			 R += red((mysubst(mycoef(F,I,DX),[X,1/X])*(x*DX)^I));
-		return(subst(pol2sft(R,DX),DX,-DX));
-	}
-	for(R=0; I >= 0; I--)
+	for(R = 0 ; I >= 0; I--)
 		R += (red(mycoef(F,I,DX)/X^I))*DX^I;
 	return pol2sft(R,DX);
 }
+
 
 /*
 def topoldif(P,F,L)
@@ -22300,7 +22310,7 @@ def sp2grs(M,A,L)
 			else{
 				if(LM == 1)
 					MN = cons([V, (J==0)?0:makev([AA])], MN);
-				else if(I == 1 && Mat == 0)
+				else if(I == 1 && getopt(con)==1 && Mat == 0)
 					MN = cons([V, (J==length(MI)-1)?0:makev([AA,J+Sft])], MN);
 				else
 					MN = cons([V, (J==0)?0:makev([AA,J])], MN);
