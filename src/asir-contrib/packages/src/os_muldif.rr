@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.94 2022/07/19 04:14:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.95 2022/07/22 23:09:09 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -19856,9 +19856,9 @@ def getbygrs(M, TT)
 				R = cons(asciitostr([97+I]), R);
 		}
 		Sft=(Sft>=0)?1:0;
-		if(General < 0)
-			Sft=-Sft-1;
-		M = sp2grs(M,R,Sft|mat=Mat);
+		if(General < 0) Sft=-Sft-1;
+		Con=(M[1][0]==1)?1:0;
+		M = sp2grs(M,R,Sft|mat=Mat,con=Con);
 	}
 	for(M0=[],MM=M;MM!=[];MM=cdr(MM)){	/* change "?" -> z_z */
 		for(M1=[],Mm=car(MM);Mm!=[];Mm=cdr(Mm)){
@@ -22301,6 +22301,7 @@ def sp2grs(M,A,L)
 			AA = rtostr(A[I]);
 		else
 			AA = rtostr(A)+rtostr(I);
+		Con=getopt(con);
 		for(J = LM = length(MI)-1; J >= 0; J--){
 			V = MI[J];
 			if(type(V) > 3)
@@ -22310,7 +22311,7 @@ def sp2grs(M,A,L)
 			else{
 				if(LM == 1)
 					MN = cons([V, (J==0)?0:makev([AA])], MN);
-				else if(I == 1 && getopt(con)==1 && Mat == 0)
+				else if(I == 1 && Con==1 && Mat == 0)
 					MN = cons([V, (J==length(MI)-1)?0:makev([AA,J+Sft])], MN);
 				else
 					MN = cons([V, (J==0)?0:makev([AA,J])], MN);
