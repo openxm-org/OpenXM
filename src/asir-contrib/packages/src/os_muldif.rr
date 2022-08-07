@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.95 2022/07/22 23:09:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.96 2022/07/28 04:08:41 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -314,6 +314,7 @@ localf extra6e$
 localf rigid211$
 localf solpokuboe$
 localf stoe$
+localf etos$
 localf dform$
 localf polinvsym$
 localf polinsym$
@@ -544,7 +545,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00220719"$
+Muldif.rr="00220804"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -9559,6 +9560,19 @@ def solpokuboe(P,L,N)
 		U = red(U - R*CC);
 	}
 	return [nm(S),E];
+}
+
+def etos(P,L,M)
+{
+	L=vweyl(L);
+	if(!(D=mydeg(P,L[1]))) return 0;
+	R=mgen(D,"highdiag",[1],0);
+	T=mycoef(P,D,L[1]);
+	for(I=0;I<D;I++) R[D-1][I]=-red(mycoef(P,I,L[1])/T);
+	if(M==1) return R;
+	if(type(M)==4 && length(M)==D) M=diagm(D,M);
+	N=red(mydiff(M,L)+M*R);
+	return red(N*myinv(M));
 }
 
 def stoe(M,L,N)
@@ -20208,7 +20222,7 @@ def getbygrs(M, TT)
 				if(ALT[0] == 0) continue;
 				Out0 += "\\int_p^{"+V1+"}";
 				if(TeX == 16)
-					str_tb(["mc_",rtotex(ALT[0])], Out);
+					str_tb(["\\mathrm{mc}_",rtotex(ALT[0])], Out);
 				else{
 					str_tb(["(",V1,"-",V2,")^",rtotex(-1+ALT[0])], Out);
 					AL11=AL[L-1][1][1];
@@ -20251,7 +20265,7 @@ def getbygrs(M, TT)
 				dviout(Out|eq=0,keep=Keep);
 				return 1;
 			}
-			return O;
+			return Out;
 		}
 		if(Short >= 0){
 			for(ALL = [] ; AL != []; AL = cdr(AL)){
@@ -21803,6 +21817,51 @@ def unim(S)
 
 def pfrac(F,X)
 {
+	if(type(F)==6){
+		F=mtransbys(os_md.pfrac,F,[X]);
+		S=size(F);
+		for(L=[],I=0;I<S[0];I++)
+			for(J=0;J<S[1];J++)
+				for(T=F[I][J];T!=[];T=cdr(T)) L=cons(cdr(car(T)),L);
+		L=lsort(L,[],1);
+		for(RR=[],U=L;U!=[];U=cdr(U)){
+			K=newmat(S[0],S[1]);
+			for(I=0;I<S[0];I++)
+				for(J=0;J<S[1];J++)
+					for(T=F[I][J];T!=[];T=cdr(T)){
+						if(cdr(car(T))==car(U))
+							K[I][J]=car(T)[0];
+							break;
+						};
+			RR=cons([K,car(U)[0],car(U)[1]],RR);
+		}
+		R=reverse(RR);
+		T=car(R)[0];
+		for(K=0,I=0;I<S[0];I++)
+			for(J=0;J<S[1];J++)
+				if(T[I][J]!=0) K=1;
+		if(!K) R=cdr(R);
+		if(getopt(TeX)==1||getopt(dviout)==1){
+			for(S="",TR=R;TR!=[];TR=cdr(TR)){
+mycat(TR);
+				if(S!="") S+="+";
+				M=mtotex(car(TR)[0]);
+				if(car(TR)[1]==1){
+					S+=M;
+					continue;
+				}
+				N=my_tex_form(car(TR)[1]);
+				if(car(TR)[2]>1) N="("+N+")^{"+m_to_tex(car(TR)[2])+"}";
+				S+="\\frac{"+ M + "}{" + N + "}";
+			}
+			if(getopt(dviout)==1){
+				dviout(S|eq=1);
+				return 1;
+			}
+			return S;
+		}
+		return R;
+	}
 	F = red(F);
 	FN = nm(F);
 	FD = dn(F);
