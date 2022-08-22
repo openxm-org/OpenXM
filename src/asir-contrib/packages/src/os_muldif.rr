@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.96 2022/07/28 04:08:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.97 2022/08/07 23:38:42 takayama Exp $ */
 /* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
  scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
 */
@@ -5619,11 +5619,14 @@ def texlen(S)
 def isdif(P)
 {
 	if(type(P)<1 || type(P)>3) return 0;
-	for(Var=[],R=vars(P);R!=[];R=cdr(R)){
+	for(Var=[],R=R0=vars(P);R!=[];R=cdr(R)){
 		V0=rtostr(car(R));
-		if(V0>"d" && V0<"e"){
+		if(V0>"d" && V0<"e" && V0!="delta"){
 			V=sub_str(V0,1,str_len(V0)-1);
-			if(V>="a" && V<"{")	Var=cons([strtov(V),strtov(V0)],Var);
+			if(V>="a" && V<"{"){
+				V1=strtov(V);
+				Var=cons([V1,strtov(V0)],Var);
+			}
 		}
 	}
 	if(Var==[]) return 0;
@@ -5679,7 +5682,7 @@ def fctrtos(P)
 	if(Dif>0){
 		for(Var=[],R=vars(P);R!=[];R=cdr(R)){
 			V=rtostr(car(R));
-			if(V>"d" && V<"e"){
+			if(V>"d" && V<"e" && V!="delta"){
 				V=sub_str(V,1,str_len(V)-1);
 				if(V>="a" && V<"{"){
 					if(TeX>0){
@@ -9603,7 +9606,7 @@ def stoe(M,L,N)
 		}
 		DD[S] = L[1]^I;
 		for(J = 0; J <= S; J++)
-			 DD[J] = red(DD[J]*Lcm);
+			DD[J] = red(DD[J]*Lcm);
 		if(I++ >= S)
 			break;
 		if(I==S && NN>=0){
@@ -10251,6 +10254,20 @@ def sproot(MP,T)
 					U[K]=newvect(LM[K]); V[K]=newvect(LM[K]); W[K]=newvect(LM[K]);
 				}
 				S=R[I][0];
+				if((Sym=getopt(sym))!=1||Sym!=2) Sym=0;
+				if(Sym){	/* symmetry */
+					for(K=C;K<NP;K++){
+						if(Sym==1 && K>0 && MV[K]==MV[K-1] && R[I][1][K]>R[I][1][K-1]){
+							K=NP+1;break;
+						}
+						for(J=1; J<LM[K]; J++){
+							if(MV[K][J]==MV[K][J-1] && R[I][1][K][J]>R[I][1][K][J-1]){
+								K=NP+1;break; 
+							}
+						}
+					}
+					if(K>=NP+1) continue;
+				}
 				for(K=0; K<NP; K++){
 					for(Q=J=0; J<LM[K]; J++){
 						V[K][J] = S*(U[K][J] = R[I][1][K][J]);
