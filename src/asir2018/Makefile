@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.4 2021/03/24 14:32:47 fujimoto Exp $
+# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.5 2022/09/07 03:20:07 ohara Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -36,7 +36,7 @@ fetch: install-pari install-asirgc
 
 configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		if [ -z $TARGET_TYPE ]; then \
+		if [ -z "${TARGET_TYPE}" ]; then \
 		    (cd $(ASIR) ; \
 		    ./configure --enable-plot --enable-fep --prefix="`cd ../../OpenXM; pwd`") \
 		else \
@@ -48,7 +48,7 @@ configure: fetch
 
 configure-nox: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		if [ -z $TARGET_TYPE ]; then \
+		if [ -z "${TARGET_TYPE}" ]; then \
 		    (cd $(ASIR) ; \
                     ./configure --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
 		else \
@@ -60,7 +60,7 @@ configure-nox: fetch
 
 configure-static: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		if [ -z $TARGET_TYPE ]; then \
+		if [ -z "${TARGET_TYPE}" ]; then \
 		    (cd $(ASIR) ; \
                     ./configure --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
 		else \
@@ -72,7 +72,7 @@ configure-static: fetch
 
 configure-interval: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		if [ -z $TARGET_TYPE ]; then \
+		if [ -z "${TARGET_TYPE}" ]; then \
 		    (cd $(ASIR) ; \
                     ./configure --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
 		else \
