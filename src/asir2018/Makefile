@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.3 2020/01/08 17:29:26 ohara Exp $
+# $OpenXM: OpenXM/src/asir2018/Makefile,v 1.4 2021/03/24 14:32:47 fujimoto Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
@@ -38,7 +38,7 @@ configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		if [ -z $TARGET_TYPE ]; then \
 		    (cd $(ASIR) ; \
-		    ./configure --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
+		    ./configure --enable-plot --enable-fep --prefix="`cd ../../OpenXM; pwd`") \
 		else \
 		    (cd $(ASIR) ; \
 		    ./configure --host=${TARGET_TYPE} --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
