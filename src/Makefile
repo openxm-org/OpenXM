@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.187 2020/01/08 17:29:26 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.188 2020/03/05 00:29:44 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -12,6 +12,9 @@ COPYRIGHTDIR=../Copyright
 all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-asir2000 all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
+
+all-editline: install-util 
+	(cd editline; ${MAKE} all)
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
@@ -37,7 +40,7 @@ all-oxtoolkit: configure-oxtoolkit install-gmp install-mpfr install-mpc install-
 all-oxc: configure-oxc install-oxtoolkit 
 	-(cd oxc; ${MAKE} all)
 
-all-asir: configure-asir install-pari install-asirgc install-gmp install-mpfr install-mpc install-mpfi
+all-asir: configure-asir install-pari install-editline install-asirgc install-gmp install-mpfr install-mpc install-mpfi
 	(cd asir2018; ${MAKE} all)
 
 all-asir2000: configure-asir2000 install-pari install-gmp install-mpfr install-mpc install-mpfi
@@ -136,6 +139,9 @@ install-util-lib: all-util-lib
 	(cd util; ${MAKE} install-lib)
 
 install-util: install-util-bin install-util-lib
+
+install-editline: all-editline
+	(cd editline; ${MAKE} install)
 
 install-gc: all-gc
 	(cd gc; ${MAKE} install)
