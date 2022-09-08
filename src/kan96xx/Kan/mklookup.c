@@ -1,4 +1,8 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/mklookup.c,v 1.5 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/mklookup.c,v 1.6 2020/10/06 11:33:46 takayama Exp $ */
+/*
+ If you add new names, update lookup.h by
+   make gen-lookup.h
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
