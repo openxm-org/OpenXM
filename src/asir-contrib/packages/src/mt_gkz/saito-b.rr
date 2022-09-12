@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.13 2022/04/01 22:46:52 takayama Exp $
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mt_gkz/saito-b.rr,v 1.14 2022/04/02 10:18:04 takayama Exp $
 */
 import("names.rr")$
 import("tk_polymake.rr")$
@@ -1131,8 +1131,7 @@ def gamma_rule(RLP,Loop) {
   }else{
     Ga4=1/2-(Loop+1)*e-length(Nu)*e*d;
   }
-  S=sprintf("grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*%a+1),ga4->Gamma[%a], ga1b->Gamma[e+1], ga2b->Gamma[e+1/2]}
-}",D0,Ga4);
+  S=sprintf("grule={ga1->Gamma[-e+1),ga2->Gamma[-e-1/2],ga3->Gamma[e*%a+1),ga4->Gamma[%a], ga1b->Gamma[e+1], ga2b->Gamma[e+1/2]}",D0,Ga4);
   return S;
 }
 
