@@ -1,0 +1,28 @@
+CFLAGS=-g -O3 -DUSEGC -I/opt/homebrew/include
+OBJS=calc.o ff.o z.o q.o main.o y.tab.o
+all: linsolv  rank_check_ff
+$(OBJS): lin.h
+linsolv: $(OBJS)
+	cc -g -o linsolv -L/opt/homebrew/lib calc.o z.o q.o ff.o y.tab.o main.o -lgc -lgmp -lm
+y.tab.c: cparse.y
+	yacc -d cparse.y
+rank_check_ff: rank_check_ff.c
+	cc -o rank_check_ff rank_check_ff.c
+clean:
+	rm -f linsolv  *.o y.tab.*  rank_check_ff ${HOME}/bin/linsolv ${HOME}/bin/rank_check_ff
+
+test1: linsolv
+	./linsolv --char 0 --vars test1-v.txt <test1.txt
+
+install-to-my-bin: all
+	mkdir -p ${HOME}/bin
+	-ln -s `pwd`/linsolv ${HOME}/bin
+	-ln -s `pwd`/rank_check_ff ${HOME}/bin
+
+# openxm make install
+install: all
+	mkdir -p ${OpenXM_HOME}/bin/mt_mm_bin
+	install linsolv ${OpenXM_HOME}/bin/mt_mm_bin
+	install rank_check_ff ${OpenXM_HOME}/bin/mt_mm_bin
+
+

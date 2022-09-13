@@ -1,0 +1,9 @@
+#!/bin/sh
+# For configuring in the OpenXM source tree.
+if test ! -f ./.configure_done  -o ! -f ./Makefile
+then 
+# make -f Makefile.conf
+ echo "--prefix=`cd ../../../OpenXM ; pwd`"
+ ./configure --prefix="`cd ../../../OpenXM ; pwd`" --enable-shared
+fi
+touch .configure_done 

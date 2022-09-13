@@ -1,0 +1,45 @@
+OpenXM_HOME=@prefix@
+LDIR=${OpenXM_HOME}/lib
+IDIR=${OpenXM_HOME}/include
+CC=@CC@
+CFLAGS=@CFLAGS@ -DUSEGC
+MYYACC=@YACC@
+OBJS=calc.o ff.o z.o q.o main.o y.tab.o
+.c.o:
+	${CC} -I${IDIR} -c $<
+all: linsolv  rank_check_ff
+$(OBJS): lin.h
+linsolv: $(OBJS)
+	${CC} -g -static -o linsolv calc.o z.o q.o ff.o y.tab.o main.o -L${LDIR} -lgc -lgmp -lm
+y.tab.c: cparse.y
+	${MYYACC} -d cparse.y
+
+rank_check_ff: rank_check_ff.c
+	${CC} -o rank_check_ff rank_check_ff.c
+clean:
+	rm -rf linsolv  *~ *.o y.tab.*  rank_check_ff autom4te.cache config.log .configure_done config.status Makefile
+clean-my-bin: clean
+	rm -f ${HOME}/bin/linsolv ${HOME}/bin/rank_check_ff
+
+
+test1: linsolv
+	./linsolv --char 0 --vars test1-v.txt <test1.txt
+test4: linsolv
+	./linsolv --char 0 --vars test4-v.txt <test4.txt
+test4-v: linsolv
+	./linsolv --verbose --char 0 --vars test4-v.txt <test4.txt
+test5: linsolv
+	./linsolv <test5.txt
+
+install-to-my-bin: all
+	mkdir -p ${HOME}/bin
+	-ln -s `pwd`/linsolv ${HOME}/bin
+	-ln -s `pwd`/rank_check_ff ${HOME}/bin
+
+# openxm make install
+install: all
+	mkdir -p ${OpenXM_HOME}/bin/mt_mm_bin
+	install linsolv ${OpenXM_HOME}/bin/mt_mm_bin
+	install rank_check_ff ${OpenXM_HOME}/bin/mt_mm_bin
+
+
