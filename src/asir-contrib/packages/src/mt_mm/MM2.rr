@@ -1,0 +1,2382 @@
+//Macaulay matrixを自作する。2021/12/9
+//yangを呼び出す前提。
+//現在のfind_macaulayの実装ではDegreeが上がるたびに下のMacaulay matrix を計算し直しているが、これは非効率的。
+
+
+
+import("mt_gkz.rr");
+//import("os_muldif.rr");
+
+//[NT]
+#define TEST 1
+// test of vars(M1), vars(M2).
+
+/* test6(); (F_C)
+   test7()$  test8()$ で動作確認 
+*/
+extern NT_MData;
+extern NT_Debug;
+
+extern NT_prime;
+extern NT_prefix;
+extern NT_info; /* [rank,[row, col](transposed m),indep_columns(L[2])]\n"); */
+extern NT_timing; 
+extern NT_std;
+extern MT_mm_bin;
+
+def init_mm() {
+  if (access(getenv("OpenXM_HOME")+"/bin/mt_mm_bin/linsolv")) {
+    MT_mm_bin=getenv("OpenXM_HOME")+"/bin/mt_mm_bin";
+  }else{
+    MT_mm_bin=getenv("HOME")+"/bin";
+  }
+  if (!access(sprintf("%a/linsolv",MT_mm_bin))) printf("Warning: linsolv is not installed under %a\n",MT_mm_bin);
+  if (!access(sprintf("%a/rank_check_ff",MT_mm_bin))) printf("Warning: rank_check_ff is not installed under %a.\n  make install-to-my-bin in the source folder linsolv\n\n",MT_mm_bin);
+
+  Xm_noX=1;
+  NT_Debug=0;
+  NT_prime=pari(nextprime,2^16);
+  NT_prefix=sprintf("tmp-mm-%a-",getpid());
+  print("clean_tmp() to remove temporary data files starting with tmp-mm.");
+}
+
+def st() { /* Start to take Timing */
+  NT_timing=time();
+}
+def pt(Msg) { /* Print Timing data */
+  T=time();
+  printf("%a: CPU=%a, Real Time=%a\n",Msg,T[0]-NT_timing[0],T[3]-NT_timing[3]);
+}
+
+def clean_tmp() {
+  shell("ls tmp-mm-*");
+  printf("Remove all tmp-mm-*? (y/n) ");
+  if (type(getopt(y))<=0) {
+    purge_stdin();
+    Ans=get_line();
+  } else {Ans="y\n";}
+  if (Ans == "y\n") { shell("rm -f tmp-mm-*");  print("Done"); return 1;}
+  return 0;
+}
+def matrix_rank_ff(Mat,P) {
+  if (P > 2^28) {
+    printf("Warning: matrix_rank_ff(Mat,P) P is too large. Use, e.g., P=pari(nextprime,2^27)\n");
+  }
+  Mat=matrix_list_to_matrix(Mat);
+  Rref=generic_gauss_elim_mod(Mat,P); // undocumented. p-openxm, 2022.01.13
+  N=size(Mat)[1];
+  return N-size(Rref[0])[1];
+}
+
+/* 2021.01.15, see also tk_mm.rr  
+  ES=d(Std)-Std,  ES2[i]: position vector of ES[i] in Ext=MData[2]
+*/
+def rank_check(MData,ES,Xvars){
+  bsave(MData,NT_prefix+"mdata.ab");
+  bsave([ES,Xvars],NT_prefix+"ES-Xvars.ab");
+  if (type(getopt(p))>0) P=getopt(p);
+  else return rank_check_orig(MData,ES,Xvars | option_list=getopt());
+
+  return rank_check_ff(MData,ES,Xvars,P);
+
+  /* The below will be obsoleted. */
+  if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=%a\n",ES); print(Xvars);}
+  Check=0;
+  N=0;
+  for(I=0;I<length(ES);I++){
+    N=N+mt_gkz.if_I_in_S(ES[I],MData[2]);
+  }
+  if(N==length(ES)){
+    N=0;
+    M=MData[0];
+    NTvars=vars(M);
+    M=base_replace(M,assoc(NTvars,pnumvect(length(NTvars))));
+    printf("We use a probabilistic method for rank_check with P=%a\nWarning: prules are ignored.\n",P);
+
+    ES2=newvect(length(ES));
+    for(I=0;I<length(ES);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(ES[I],MData[2][J]);
+      }
+      ES2[I]=V;
+    }
+    ES2=vtol(ES2);
+    V0=vtol(newvect(length(MData[2])));
+    Check0=0;
+    I=0;
+    while(Check0==0 && I<length(ES2)){
+      if(ES2[I]==V0){Check0=1;}
+      I++;
+    }
+    if(Check0==0){
+      L=gauss_elim_column_ff(matrix_list_to_matrix(M),P);
+      printf("size(M)=%a, ",[length(M),length(M[0])]); printf("size(L[2])=%a\n",size(L[2]));
+      bsave(L,NT_prefix+"gauss_elim_column_ff.ab");
+      R=length(L[1]);
+      if(R==length(M[0])){
+	Check=1;
+	printf("The macaulay matrix is of full rank: rank=%a\n",R);
+      }
+      else{
+	printf("The macaulay matrix is not of full rank.\n");
+	printf("Expected rank is %a.\n",R);
+	printf("Expected independent rows are %a.\n",L[1]);
+	while(length(ES2)>0 && if_is_0_ff(truncate_at_N(ES2[0]*L[2],R),P)){
+	  if (NT_Debug) printf("ES2[0]=%a, ES2[0]*L[2]=%a, len(ES2[0])=len(Ext)=%a\n",ES2[0],ES2[0]*L[2],length(ES2[0]));
+	  N++;
+	  ES2=cdr(ES2);
+	  printf("Have checked %a-th rank condition (total step=%a)\n",N,length(ES));
+	}
+	if(N==length(ES))Check=1;
+      }
+    }
+  }
+  return Check;
+}
+//Gauss elimination by mod P
+//L=[Row reduced form,independent columns,transformation matrix]の順番に出力する。
+//L[0]==L[2]*Mが成立する。
+/* 2022.01.14  setmod(P) は仕様細部が不明のため mymodp2, gauss_elim_ff2 で. 
+   Use test7() to check speed.
+*/
+def mymodp(N,P) {
+  return dp_hc(dp_rat(dp_mod(N*<<0>>,P,[])));
+}
+def gauss_elim_ff_by_asir(M,Prime) {
+  if(type(M)!=6) M=matrix_list_to_matrix(M);
+  M=map(mymodp,M,Prime);
+  RL=size(M)[0];
+  CL=size(M)[1];
+  P=matrix_identity_matrix(RL);
+  Current_row=0;
+  Current_column=0;
+  Null=newvect(RL);
+  Indep_columns=[];
+  while((Current_row<RL)&&(Current_column<CL))
+    {
+      MT=matrix_transpose(M);
+      J=Current_column;
+      while((J<CL)&&(MT[J]==Null)){
+	J++;
+      }
+      if(J<CL){
+	I=Current_row;
+	while((I<RL)&&(M[I][J]==0)){
+	  I++;
+	}
+	if(I<RL){
+	  rowx(P,Current_row,I);
+	  rowx(M,Current_row,I);
+	  rowm(P,Current_row,inv(M[Current_row][J],Prime));
+	  rowm(M,Current_row,inv(M[Current_row][J],Prime));
+	  for(K=0;K<RL;K++){
+	    if((K!=Current_row)&&(M[K][J]!=0)){
+	      rowa(P,K,Current_row,-M[K][J]);
+	      rowa(M,K,Current_row,-M[K][J]);
+	    }
+	  }
+	  Current_row++;
+	  Indep_columns=cons(J,Indep_columns);
+	}
+      }
+      /* 遅くなる
+      M=map(mymodp,M,Prime);
+      P=map(mymodp,P,Prime);
+      */
+      Current_column=J+1;
+    }
+  M=map(mymodp,M,Prime); P=map(mymodp,P,Prime);
+  return [M,reverse(Indep_columns),P];
+}
+
+def gauss_elim_ff_by_C(M,Prime) {
+  if (Prime > 2^28) {
+    error("gauss_elim_ff_by_C(Mat,P) P is too large. Use, e.g., P=pari(nextprime,2^27)\n");
+  }
+  if(type(M)!=6) M=matrix_list_to_matrix(M);
+  M=map(mymodp,M,Prime);
+  Row=size(M)[0];
+  Col=size(M)[1];
+  Fp=open_file(NT_prefix+"ga.txt","w");
+  fprintf(Fp,"%a\n",Prime);
+  fprintf(Fp,"%a\n%a\n",Row,Col);
+  for (I=0; I<Row; I++) {
+    for (J=0; J<Col; J++) {
+      fprintf(Fp,"%a ",M[I][J]);
+    }
+  }
+  close_file(Fp);
+  R=shell("./gauss_elim_ff "+NT_prefix+"ga.txt "+NT_prefix+"ga-out.txt");
+  if (R) error("gauss_elim_ff "+NT_prefix+"ga.txt"+" failed.");
+  S=util_read_file_as_a_string(NT_prefix+"ga-out.txt");
+  MData=eval_str(S);
+  return MData;
+}
+
+def gauss_elim_ff(M,Prime) {
+  return gauss_elim_ff_by_C(M,Prime);
+  // return gauss_elim_ff_by_asir(M,Prime);
+}
+
+//L=[Column reduced form,independent rows,transformation matrix]の順番に出力する。
+//M*L[2]==L[0]となる。
+def gauss_elim_column_ff(M,P){
+  L=gauss_elim_ff(matrix_transpose(M),P);
+  return [matrix_transpose(L[0]),L[1],matrix_transpose(L[2])];
+}
+/* 2022.01.16 */
+def if_is_0_ff(L,P){
+  I=0;
+  while(I<length(L) && mymodp(L[I],P)==0){
+    I++;
+  }
+  if(I==length(L))return 1;
+  else return 0;
+}
+
+/* 2022.01.21 */
+def rank_check_ff(MData,ES,Xvars,Prime){
+  if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=%a\n",ES); print(Xvars);}
+  Check=0;
+  N=0;
+  for(I=0;I<length(ES);I++){
+    N=N+mt_gkz.if_I_in_S(ES[I],MData[2]);
+  }
+  if(N==length(ES)){
+    N=0;
+    M=MData[0];
+    NTvars=vars(M);
+    M=base_replace(M,assoc(NTvars,pnumvect(length(NTvars))));
+    printf("We use a probabilistic method for rank_check with P=%a\nWarning: prules are ignored.\n",Prime);
+
+    ES2=newvect(length(ES));
+    for(I=0;I<length(ES);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(ES[I],MData[2][J]);
+      }
+      ES2[I]=V;
+    }
+    ES2=vtol(ES2);
+    V0=vtol(newvect(length(MData[2])));
+    Check0=0;
+    I=0;
+    while(Check0==0 && I<length(ES2)){
+      if(ES2[I]==V0){Check0=1;}
+      I++;
+    }
+    if(Check0==0){
+        if (Prime > 2^28) {
+	  error("rank_check_ff(Mat,P) P is too large. Use, e.g., P=pari(nextprime,2^27)\n");
+	}
+	if(type(M)!=6) M=matrix_list_to_matrix(M);
+        M=matrix_transpose(M); // gauss_elim_column -> gauss_elim に注意.
+
+	M=map(mymodp,M,Prime);
+	Row=size(M)[0];
+	Col=size(M)[1];
+	Fp=open_file(NT_prefix+"ga.txt","w");
+	fprintf(Fp,"%a\n",Prime);
+	fprintf(Fp,"%a\n%a\n",Row,Col);
+	for (I=0; I<Row; I++) {
+	  for (J=0; J<Col; J++) {
+	    fprintf(Fp,"%a ",M[I][J]);
+	  }
+	}
+	close_file(Fp);
+
+	Fp=open_file(NT_prefix+"es2.txt","w");
+	fprintf(Fp,"%a\n%a\n",Row2=length(ES2),Col2=length(ES2[0]));
+	for (I=0; I<Row2; I++) {
+	  for (J=0; J<Col2; J++) {
+	    fprintf(Fp,"%a ",ES2[I][J]);
+	  }
+	}
+	close_file(Fp);
+
+        Rank_check_ff=sprintf("%a/rank_check_ff ",MT_mm_bin);
+	R=shell(Rank_check_ff+NT_prefix+"ga.txt "+NT_prefix+"es2.txt "+NT_prefix+"check-out.txt");
+	if (R) error(Rank_check_ff+NT_prefix+"ga.txt "+NT_prefix+"es2.txt "+" failed.");
+	S=util_read_file_as_a_string(NT_prefix+"check-out.txt");
+	Check=eval_str(S);
+	S2=util_read_file_as_a_string(NT_prefix+"check-out.txt-info.txt");
+	NT_info=eval_str(S2);
+    }
+  }
+  return Check;
+}
+
+
+//[/NT]
+
+def my_terms(DP){
+  P=DP;
+  L=[];
+  while(P!=0){
+    L=cons(dp_ht(P),L);
+    P=dp_rest(P);
+  }
+  return reverse(L);  
+}
+
+
+
+
+
+//Nは変数の個数
+//yang.define_ring(mt_gkz.xvars(N))などが呼び出されていることを想定。
+//my_monomialsはDeg次のmacaulay行列の全ての成分を作成。
+
+
+
+
+def my_monomials(Id,Deg,N){
+  P=1;
+  Xvars=mt_gkz.xvars(N);
+  for(I=0;I<N;I++){
+    P=P+Xvars[I];
+  }
+  P=P^Deg;
+  L=my_terms(dp_ptod(P,Xvars));
+  L=map(dp_etov,L);//Deg次以下の全てのmonomialsを得る。
+  L=reverse(L);
+  Rows=[];
+  for(I=0;I<length(L);I++){
+  for(J=0;J<length(Id);J++){
+    Rows=cons(yang.multi(dp_vtoe(L[I]),Id[J]),Rows);
+  }
+  }
+  Rows=reverse(Rows);
+  ML=map(my_terms,Rows);//MLはmonomial list
+  Mons=[];
+  for(I=0;I<length(ML);I++){
+    Mons=append(Mons,ML[I]);
+  }
+  P=0;
+for(I=0;I<length(Mons);I++){
+P=P+Mons[I];
+}
+ return [Rows,my_terms(P)];
+}
+
+
+/*
+def my_monomials2(Id,Deg,N,Mons){
+  P=0;
+  Xvars=mt_gkz.xvars(N);
+  for(I=0;I<N;I++){
+    P=P+Xvars[I];
+  }
+  P=P^Deg;
+  L=my_terms(dp_ptod(P,Xvars));
+  L=map(dp_etov,L);//Deg次の全てのmonomialsを得る。
+  L=reverse(L);
+  Rows=[];
+  for(I=0;I<length(L);I++){
+  for(J=0;J<length(Id);J++){
+    Rows=cons(yang.multi(dp_vtoe(L[I]),Id[J]),Rows);
+  }
+  }
+  Rows=reverse(Rows);
+  ML=map(my_terms,Rows);
+  Mons2=[];
+  for(I=0;I<length(ML);I++){
+    Mons2=append(Mons2,ML[I]);
+  }
+  Mons2=append(Mons,Mons2);
+  Mons2=mt_gkz.remove_duplication(Mons2);
+  return [Rows,Mons2];
+}
+*/
+
+
+
+
+//分散表示多項式DPの中における単項式Eの係数。
+def my_coeff(E,DP){
+  C=0;
+  P=DP;
+  while(P!=0){
+    if(E==dp_ht(P)){C=dp_hc(P);}
+    P=dp_rest(P);
+  }
+  return C;
+}
+
+
+
+
+//Lは分散表示のmonomialsからなるリスト。
+//term orderの大きい順番に並べ替える。
+
+def my_rearrange(L){
+  P=0;
+  for(I=0;I<length(L);I++){
+    P=P+L[I];
+  }
+  LL=[];
+  while(P!=0){
+    LL=cons(dp_ht(P),LL);
+    P=dp_rest(P);
+  }
+  return reverse(LL);
+}
+
+
+
+//Macaulay matrix of degree Deg
+
+def my_macaulay(Id,Std,Deg,N){
+  RM=my_monomials(Id,Deg,N);
+  Rows=RM[0];
+  Tot=append(my_rearrange(RM[1]),Std);
+  Ext=mt_gkz.diff_set(Tot,Std);
+  M1=newmat(length(Rows),length(Ext));
+  for(I=0;I<length(Rows);I++){
+    for(J=0;J<length(Ext);J++){
+      M1[I][J]=my_coeff(Ext[J],Rows[I]);
+    }
+  }
+  M2=newmat(length(Rows),length(Std));
+  for(I=0;I<length(Rows);I++){
+    for(J=0;J<length(Std);J++){
+      M2[I][J]=my_coeff(Std[J],Rows[I]);
+    }
+  }
+  M1=matrix_matrix_to_list(M1);
+  M2=matrix_matrix_to_list(M2);
+  return [M1,M2,Ext,Std];
+}
+
+
+
+
+//DIdはIdealのgenerators P1,P2,...にmonomial微分を左からかけたものからなる集合(D^AI*PJ)_{I,J}
+
+//DIdがDeg次のmacaulay idealであるとき、Deg+1次のmacaulay idealを返す。
+//my_monomials2(Id,Deg,N,Mons)=[Rows,Mons]
+
+/*
+def step_up_ideal(Id,DId,Deg,N,Mons){
+  RM=my_monomials2(Id,Deg,N,Mons);
+  return [append(DId,RM[0]),Mons];
+}
+*/
+
+
+/*
+def to_macaulay(DId,Std,Mons){
+  Tot=append(my_rearrange(Mons),Std);
+  Ext=mt_gkz.diff_set(Tot,Std);
+  M1=newmat(length(DId),length(Ext));
+  for(I=0;I<length(DId);I++){
+    for(J=0;J<length(Ext);J++){
+      M1[I][J]=my_coeff(Ext[J],DId[I]);
+    }
+  }
+  M2=newmat(length(DId),length(Std));
+  for(I=0;I<length(DId);I++){
+    for(J=0;J<length(Std);J++){
+      M2[I][J]=my_coeff(Std[J],DId[I]);
+    }
+  }
+  M1=matrix_matrix_to_list(M1);
+  M2=matrix_matrix_to_list(M2);
+  return [M1,M2,Ext,Std];
+}
+*/
+
+
+
+
+
+//ot-tmp2.rrから拝借
+def pnumvect(Size) {
+  R=newvect(Size);
+  P=3;
+  for (I=0; I<Size; I++) {
+    R[I]=1/P;
+    P = pari(nextprime,P+1);
+  }
+  return vtol(R);
+}
+
+
+
+
+
+//MData=[macaulay matrix1, macaulay matrix2, External monomials, Standard monomials]
+
+def rank_check_orig(MData,ES,Xvars){
+  Check=0;
+  N=0;
+  for(I=0;I<length(ES);I++){
+    N=N+mt_gkz.if_I_in_S(ES[I],MData[2]);
+  }
+if(N==length(ES)){
+    N=0;
+    Xrules=assoc(Xvars,pnumvect(length(Xvars)));
+    Prules=getopt(prules);
+    if(type(Prules)==4){
+      Xrules=append(Xrules,Prules);
+    }
+    M=base_replace(MData[0],Xrules);
+    ES2=newvect(length(ES));
+    for(I=0;I<length(ES);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(ES[I],MData[2][J]);
+      }
+      //      ES2[I]=vtol(V);
+      ES2[I]=V;
+    }
+    ES2=vtol(ES2);
+    V0=vtol(newvect(length(MData[2])));
+    Check0=0;
+    I=0;
+    while(Check0==0 && I<length(ES2)){
+      if(ES2[I]==V0){Check0=1;}
+      I++;
+    }
+    if(Check0==0){
+      //    M=gauss_elim(matrix_list_to_matrix(M));
+      // R=matrix_rank(M);
+    L=gauss_elim_column(matrix_list_to_matrix(M));
+    R=length(L[1]);
+    //    M=matrix_matrix_to_list(M);
+    //MR=M;
+    if(R==length(M[0])){
+      Check=1;
+      printf("The macaulay matrix is of full rank: rank=%a\n",R);
+    }
+    else{
+      printf("The macaulay matrix is not of full rank.\n");
+      printf("Expected rank is %a.\n",R);
+      printf("Expected independent rows are %a.\n",L[1]);
+      /*  
+    while(R==matrix_rank(MR) && length(ES2)>0){
+      N++;
+      MR=cons(ES2[0],M);
+      ES2=cdr(ES2);
+      printf("Checking %a-th rank condition (total step=%a)\n",N,length(ES));
+  }
+      */
+      while(length(ES2)>0 && if_is_0(truncate_at_N(ES2[0]*L[2],R))){
+      N++;
+      ES2=cdr(ES2);
+      printf("Have checked %a-th rank condition (total step=%a)\n",N,length(ES));
+  }
+  if(N==length(ES))Check=1;
+    }
+    }
+ }
+  return Check;
+}
+
+
+/*
+def debug1(M,ES){
+  N=0;
+  S=0;
+  if(M[0]==1){
+  ES2=newvect(length(ES));
+    for(I=0;I<length(ES);I++){
+      V=newvect(length(M));
+      for(J=0;J<length(M);J++){
+	V[J]=rtostr(a);
+      }
+      ES2[I]=vtol(V);
+      N++;
+    }
+    ES2=vtol(ES2);
+    if(N==length(ES))S=1;  
+  }
+  return [ES2,S];
+}
+*/
+//動作が変だ。
+
+
+
+
+
+def truncate_at_N(L,N){
+  LL=vtol(L);
+  for(I=0;I<N;I++){
+    LL=cdr(LL);
+  }
+  return LL;
+}
+
+
+
+def if_is_0(L){
+  I=0;
+  while(I<length(L) && L[I]==0){
+    I++;
+  }
+  if(I==length(L))return 1;
+  else return 0;
+}
+
+
+
+
+//Gauss elimination
+//L=[Row reduced form,independent columns,transformation matrix]の順番に出力する。
+//L[0]==L[2]*Mが成立する。
+def gauss_elim(M){
+  if(type(M)!=6) printf("WARNING(gauss_elim):The input should be a matrix");
+  else{
+    RL=size(M)[0];
+    CL=size(M)[1];
+    P=matrix_identity_matrix(RL);
+    Current_row=0;
+    Current_column=0;
+    Null=newvect(RL);
+    Indep_columns=[];
+    while((Current_row<RL)&&(Current_column<CL))
+      {
+    MT=matrix_transpose(M);
+    J=Current_column;
+    while((J<CL)&&(MT[J]==Null)){
+      J++;
+    }
+    if(J<CL){
+    I=Current_row;
+    while((I<RL)&&(M[I][J]==0)){
+      I++;
+    }
+    if(I<RL){
+    rowx(P,Current_row,I);
+    rowx(M,Current_row,I);
+    rowm(P,Current_row,1/M[Current_row][J]);
+    rowm(M,Current_row,1/M[Current_row][J]);
+    for(K=0;K<RL;K++){
+      if((K!=Current_row)&&(M[K][J]!=0)){
+        rowa(P,K,Current_row,-M[K][J]);
+	rowa(M,K,Current_row,-M[K][J]);
+      }
+    }
+    Current_row++;
+    Indep_columns=cons(J,Indep_columns);
+    }
+    }
+    M=red(M);
+    P=red(P);
+    Current_column=J+1;
+      }
+    return [M,reverse(Indep_columns),red(P)];
+  }
+}
+
+
+
+//L=[Column reduced form,independent rows,transformation matrix]の順番に出力する。
+//M*L[2]==L[0]となる。
+def gauss_elim_column(M){
+  L=gauss_elim(matrix_transpose(M));
+  return [matrix_transpose(L[0]),L[1],matrix_transpose(L[2])];
+}
+
+
+
+
+
+
+
+def gauss_elim_explained(M){
+  if(type(M)!=6) printf("WARNING(gauss_elim):The input should be a matrix");
+  else{
+    RL=size(M)[0];
+    CL=size(M)[1];
+    P=matrix_identity_matrix(RL);
+    Current_row=0;
+    Current_column=0;
+    Null=newvect(RL);
+    Indep_columns=[];
+    while((Current_row<RL)&&(Current_column<CL))
+      {
+    MT=matrix_transpose(M);
+    J=Current_column;
+    while((J<CL)&&(MT[J]==Null)){
+      J++;
+    }
+    if(J<CL){
+    I=Current_row;
+    while((I<RL)&&(M[I][J]==0)){
+      I++;
+    }
+    if(I<RL){
+    printf("Working on %a-th row and %a-th column.\n",Current_row,Current_column);
+    rowx(P,Current_row,I);
+    rowx(M,Current_row,I);
+    rowm(P,Current_row,1/M[Current_row][J]);
+    rowm(M,Current_row,1/M[Current_row][J]);
+    M[Current_row][J]=1;
+    for(K=0;K<RL;K++){
+      if((K!=Current_row)&&(M[K][J]!=0)){
+        rowa(P,K,Current_row,-M[K][J]);
+	rowa(M,K,Current_row,-M[K][J]);
+      }
+    }
+    Current_row++;
+    Indep_columns=cons(J,Indep_columns);
+    }
+    }
+    M=red(M);
+    P=red(P);
+    Current_column=J+1;
+      }
+    return [M,reverse(Indep_columns),red(P)];
+  }
+}
+
+
+
+
+
+
+
+
+
+def find_macaulay(Id,Std,Xvars){
+  bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
+  if (type(getopt(p))>0) NT_prime=getopt(p); //[NT]
+  if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
+  E=map(dp_ptod,Xvars,Xvars);
+  P=0;
+  for(I=0;I<length(Xvars);I++){
+    for(J=0;J<length(Std);J++){
+      P=P+yang.multi(E[I],Std[J]);
+    }
+  }
+  /*
+  EStd=[];
+  for(I=0;I<length(Xvars);I++){
+    for(J=0;J<length(Std);J++){
+      EStd=cons(yang.multi(E[I],Std[J]),EStd);
+    }
+  }
+  EStd=reverse(EStd);
+//このままでは無駄を生み出す可能性あり。
+  */
+  EStd=my_terms(P);
+  ES=[];
+  while(EStd!=[]){
+    if(length(mt_gkz.diff_set([EStd[0]],Std))>0){ES=cons(EStd[0],ES);}
+    EStd=cdr(EStd);
+  }
+  ES=reverse(ES);
+//  Deg=0;  //[NT]
+  MData=my_macaulay(Id,Std,Deg,length(Xvars));
+  Prules=getopt(prules);
+  while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime)==0){//[NT]
+    Deg++;
+    printf("Computing the Macaulay matrix of degree %a\n",Deg);
+    MData=my_macaulay(Id,Std,Deg,length(Xvars));
+    printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
+  }
+  printf("We use a probabilistic method to compute the rank of a matrix with entries of rational functions.\n");
+  printf("The output is a macaulay matrix of degree %a\n",Deg);
+
+  //[NT]
+  printf("To draw a picture of the rref of the Macaulay matrix, use Util/show_mat with tmp-mm-*-M-transposed*.bin\n");
+  printf("[Std,Xvars] is stored in %aStd-Xvars.ab\n",NT_prefix); 
+  printf("[ES,Xvars] is stored in %aEs-Xvars.ab\n",NT_prefix); 
+  printf("[rank=%a,[row,col]=%a (size of t(M1)),Indep_cols] is stored in the variable NT_info.\n",NT_info[0],NT_info[1]); 
+  bsave(NT_info,NT_prefix+"NT_info.ab"); 
+  printf("NT_info is stored in %aNT_info.ab\n",NT_prefix); 
+  bsave(MData,NT_prefix+"mdata.ab"); 
+  printf("MData is stored in %amdata.ab\n",NT_prefix);
+  //[/NT]
+
+  return MData;
+}
+
+
+
+
+/*
+
+def find_macaulay2(Id,Std,Xvars){
+  E=map(dp_ptod,Xvars,Xvars);
+  EStd=[];
+  for(I=0;I<length(Xvars);I++){
+    for(J=0;J<length(Std);J++){
+      EStd=cons(yang.multi(E[I],Std[J]),EStd);
+    }
+  }
+  EStd=reverse(EStd);
+  ES=[];
+  while(EStd!=[]){
+    if(length(mt_gkz.diff_set([EStd[0]],Std))>0){ES=cons(EStd[0],ES);}
+    EStd=cdr(EStd);
+  }
+  ES=reverse(ES);
+  Deg=0;
+  DId=Id;
+  MData=my_macaulay(Id,Std,Deg,length(Xvars));
+  Prules=getopt(prules);
+  Mons=[];
+  for(I=0;I<length(Id);I++){
+    Mons=append(Mons,my_terms(Id[I]));
+  }
+  Mons=mt_gkz.remove_duplication(Mons);
+  while(rank_check(MData,ES,Xvars|prules=Prules)==0){
+    Deg++;
+    printf("Computing the Macaulay matrix of degree %a\n",Deg);
+    RM=my_monomials2(Id,Deg,length(Xvars),Mons);
+    Mons=RM[1];
+    DId=append(DId,RM[0]);
+    MData=to_macaulay(DId,Std,Mons);
+    printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
+  }
+  printf("We use a probabilistic method to compute the rank of a matrix with entries of rational functions.\n");
+  printf("The output is a macaulay matrix of degree %a\n",Deg);
+  return MData;
+}
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+//Dir方向のPfaffianを求める。
+//Dir=1,2,...
+//MData[0]がfull rankで、かつ列の数がrankに一致するときにしか動かない。
+
+
+def find_pfaffian_orig(MData,Xvars,Dir){  //NT
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+  M1=newmat(length(MData[0]),length(MData[0][0]),MData[0]);
+  M2=newmat(length(MData[1]),length(MData[1][0]),MData[1]);
+  A=mt_gkz.index_vars(a,1,length(MData[0]));
+  B=[];
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      W=newvect(length(MData[3]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R[I]=[V,W];
+    }
+    for(I=0;I<length(DStd);I++){
+      Eqn=ltov(A)*M1-R[I][0];
+      Sol=poly_solve_linear(vtol(Eqn),A);
+      S=[];
+      for(J=0;J<length(A);J++){
+	S=cons(Sol[J][1],S);
+      }
+      S=reverse(S);
+      B=cons(vtol(R[I][1]-ltov(S)*M2),B);//This is the Pfaffian.
+    }
+    B=reverse(B);
+    /*
+    P=newmat(length(B),length(MData[3]));
+    for(I=0;I<length(B);I++){
+      for(J=0;J<length(MData[3]);J++){
+	P[I][J]=my_coeff(MData[3][J],B[I]);
+      }
+    }
+    */
+    return red(B);
+}
+
+//2022/01/23 改定版
+//numerical Pfaffianを想定しているので、xrules,brulesのオプション使用を前提
+
+//[NT]
+def find_pfaffian(MData,Xvars,Dir){
+  extern NT_Debug;
+  extern NT_info;
+  if (type(getopt(use_orig)) <= 0) {
+    printf("The value of NT_info[2] is used for independent columns\n");
+    return find_pfaffian_fast(MData,Xvars,Dir,NT_info[2] | option_list=getopt());
+  }
+
+  if (type(getopt(p))>0) Prime=getopt(p); else Prime=0;
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+  for(J=0;J<length(MData[3]);J++){
+    DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+  }
+  DStd=reverse(DStd);
+  M1=newmat(length(MData[0]),length(MData[0][0]),MData[0]);
+  M2=newmat(length(MData[1]),length(MData[1][0]),MData[1]);
+  if(type(getopt(xrules))>0){
+    if(type(getopt(brules))>0){
+      Rules=append(getopt(xrules),getopt(brules));
+    }
+    else{Rules=getopt(xrules);}
+  }
+  if(type(getopt(xrules))<1){
+    if(type(getopt(brules))>0){
+      Rules=getopt(brules);
+    }
+    else{Rules=[];}
+  }
+  M1=base_replace(M1,Rules);
+  M2=base_replace(M2,Rules);
+  A=mt_gkz.index_vars(a,1,length(MData[0]));
+  B=[];
+  R=newvect(length(DStd));
+  for(I=0;I<length(DStd);I++){
+    V=newvect(length(MData[2]));
+    W=newvect(length(MData[3]));
+    for(J=0;J<length(MData[2]);J++){
+      V[J]=my_coeff(DStd[I],MData[2][J]);
+    }
+    for(K=0;K<length(MData[3]);K++){
+      W[K]=my_coeff(DStd[I],MData[3][K]);
+    }
+    R[I]=[V,W];
+  }
+  for(I=0;I<length(DStd);I++){
+    Eqn=ltov(A)*M1-R[I][0];
+    if (Prime>0) Sol=poly_solve_linear(vtol(Eqn),A | p=Prime);
+    else Sol=poly_solve_linear(vtol(Eqn),A);
+    L=[];
+    for(J=0;J<length(Sol);J++){
+      L=cons([Sol[J][0],base_replace(Sol[J][1],assoc(A,vtol(newvect(length(A)))))],L);
+    }
+    L=reverse(L);
+    if (NT_Debug == 255) {
+      printf("%a: Sol=%a\nL=%a\n",I,Sol,L);
+    }
+    S=[];
+    C=A;
+    while(length(C)>0){
+      if(length(L)>0&&L[0][0]==C[0]){
+	S=cons(L[0][1],S);
+	L=cdr(L);
+      }
+      else{S=cons(0,S);}
+      C=cdr(C);
+    }
+    S=reverse(S);
+    if (NT_Debug == 255) {
+      printf("%a: S=%a\n",I,S);
+    }
+    B=cons(vtol(R[I][1]-ltov(S)*M2),B);//This is the Pfaffian.
+  }
+  B=reverse(B);
+  return red(B);
+}
+
+//NT_Debug=255;
+// 2022.01.29
+def find_pfaffian_fast(MData,Xvars,Dir,Indep){
+  extern NT_Debug;
+
+  Linsolv=1;
+  if (type(getopt(linsolv))==0) {
+    Linsolv=0;
+  }
+  if (Linsolv) printf("Generate a data for linsolv.\n");
+  T0=time();
+  if (type(getopt(p))>0) Prime=getopt(p); else Prime=0;
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+  for(J=0;J<length(MData[3]);J++){
+    DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+  }
+  DStd=reverse(DStd);
+  M1=newmat(length(MData[0]),length(MData[0][0]),MData[0]);
+  M2=newmat(length(MData[1]),length(MData[1][0]),MData[1]);
+  if(type(getopt(xrules))>0){
+    if(type(getopt(brules))>0){
+      Rules=append(getopt(xrules),getopt(brules));
+    }
+    else{Rules=getopt(xrules);}
+  }
+  if(type(getopt(xrules))<1){
+    if(type(getopt(brules))>0){
+      Rules=getopt(brules);
+    }
+    else{Rules=[];}
+  }
+  M1=base_replace(M1,Rules);
+  M2=base_replace(M2,Rules);
+  A=mt_gkz.index_vars(a,1,length(MData[0]));
+  B=[];
+  R=newvect(length(DStd));
+  for(I=0;I<length(DStd);I++){
+    V=newvect(length(MData[2]));
+    W=newvect(length(MData[3]));
+    for(J=0;J<length(MData[2]);J++){
+      V[J]=my_coeff(DStd[I],MData[2][J]);
+    }
+    for(K=0;K<length(MData[3]);K++){
+      W[K]=my_coeff(DStd[I],MData[3][K]);
+    }
+    R[I]=[V,W];
+  }
+
+  Rank=length(DStd);
+  printf("Sol rank=%a\n",Rank);
+  Avec=newvect(length(A)); Avars=[];
+  for (I=0; I<length(Indep); I++) {
+    Avec[Indep[I]]=1;  /* 0 にしない a_i にマーク */
+  }
+  for (I=0; I<length(A); I++) {
+    if (Avec[I] != 0) {
+      Avec[I]=A[I];
+      Avars=cons(A[I],Avars);
+    }
+  } /* Avec=[0,0,a3,a4,0,a6] みたいな形にする */
+  Avars=reverse(Avars);  /* Avars=[a3,a4,a6] */
+  C1=0; C1vars=base_var_list(c1_,0,Rank-1);
+  for (I=0; I<Rank; I++) {
+    C1 += R[I][0]*util_v(c1,[I]);
+  }
+
+#ifdef TEST
+  if ((length(vars(M1))>0) || (length(vars(M2))>0)) {
+    printf("Warning. find_pfaffian_fast works only for linear polynomials. Calls find_pfaffian_orig\n");
+    return find_pfaffian_orig(MData,Xvars,Dir | option_list=getopt());
+  }
+#endif
+
+  Eqn = Avec*M1-C1; /* C1 に不定元を導入して一気に連立方程式を解く */
+  if (Linsolv) {
+    Sol=linsolv(vtol(Eqn),Avars,C1vars | option_list=getopt());
+    // return Sol;  // 2022.02.04 for test.
+  }else{
+    if (Prime) {
+      Sol = poly_solve_linear(vtol(Eqn),Avars | p = Prime);
+    }else{
+      Sol = poly_solve_linear(vtol(Eqn),Avars);
+    }
+  }
+  if (NT_Debug==255) printf("Sol=%a\n",Sol);
+  /* Sol から Pfaffian を作る */
+  bsave([Rank,Avec,Sol,C1vars,R,M2,B],NT_prefix+"to-get-pf.ab");
+  for (I=0; I<Rank; I++) {
+    S=base_replace(Avec,Sol);
+    for (J=0; J<Rank; J++) {
+      if (J != I) S=subst(S,C1vars[J],0);
+      else S=subst(S,C1vars[J],1);
+    }
+    B=cons(vtol(R[I][1]-S*M2),B);
+  }
+  B=reverse(B);  // B is the pfaffian
+  printf("Time(find_pfaffian_fast)=%a seconds\n",time()[0]-T0[0]);
+  return red(B);
+}
+
+/* numerical pf を求めるテスト用. x,b の数は pnumvect で */
+def try_find_pfaffian(Dir) {
+  MData=bload(NT_prefix+"mdata.ab");
+  Xvars=bload(NT_prefix+"Std-Xvars.ab")[1];
+  VV=vars(MData[0]);
+  if (type(getopt(use_orig))>0) {
+    return find_pfaffian(MData,Xvars,Dir | xrules=assoc(VV,pnumvect(length(VV))), use_orig=1);
+  }else{
+    return find_pfaffian_fast(MData,Xvars,Dir,NT_info[2] | xrules=assoc(VV,pnumvect(length(VV))),linsolv=1);
+   // to test linsolv, add linsolv=1;
+   // , opt_linsolv=" --verbose "
+  }
+}
+def test3n() { test3(); return try_find_pfaffian(1);}
+def test4n() { test4(); return try_find_pfaffian(1);}
+def test5n() { test5(); return try_find_pfaffian(1);}
+def test6n() { test6_0(); return try_find_pfaffian(1);}
+def test7n() { test7(); return try_find_pfaffian(1);}
+def test8n() { test8(); return try_find_pfaffian(1);}
+
+/* 2022.02.07 */
+def assert_pf1(Dir) {
+  Ans= base_is_equal(Pf1=try_find_pfaffian(Dir),
+                     Pf2=try_find_pfaffian(Dir | use_orig=1));
+  if (!Ans) debug();
+  return Ans;
+}
+/* test if fast and orig give the same result. */
+def test3nn() { st();test3(); pt("3");st();T=assert_pf1(1);pt("3"); return T;}
+def test4nn() { st();test4(); pt("4");st();T=assert_pf1(1);pt("4"); return T;}
+def test5nn() { st();test5(); pt("5");st();T=assert_pf1(1);pt("5"); return T;}
+def test6nn() { st();test6_0(); pt("6");st();T=assert_pf1(1);pt("6"); return T;}
+def test7nn() { st();test7(); pt("7");st();T=assert_pf1(1);pt("7"); return T;}
+def test8nn() { st();test8(); pt("8");st();T=assert_pf1(1);pt("8"); return T;}
+
+/* Timing data */
+def test3nnn() { st();test3(); pt("3");st();T=try_find_pfaffian(1);pt("3"); return T;}
+def test4nnn() { st();test4(); pt("4");st();T=try_find_pfaffian(1);pt("4"); return T;}
+def test5nnn() { st();test5(); pt("5");st();T=try_find_pfaffian(1);pt("5"); return T;}
+def test6nnn() { st();test6_0(); pt("6");st();T=try_find_pfaffian(1);pt("6"); return T;}
+def test7nnn() { st();test7(); pt("7");st();T=try_find_pfaffian(1);pt("7"); return T;}
+def test8nnn() { st();test8(); pt("8");st();T=try_find_pfaffian(1);pt("8"); return T;}
+def test9nnn() { st();test9(); pt("9");st();T=try_find_pfaffian(1);pt("9"); return T;}
+
+// 2022.02.04, 2022.02.05
+def linsolv_to_rule_orig(G,X) {
+  printf("a_1 > a_2 > ... ? X=%a\n",X);   // for debug
+  if (length(G)==0) return [];
+  if (G[0] == 1 || G[0] == -1) {
+    return [];
+  }
+  Sol = newvect(length(X));
+  N = 0;
+  for (I = 0; I < length(G); I++) {
+    for (J = 0; J< length(X); J++) {
+      Nm = nm(G[I]); Dn = dn(G[I]);
+      if (type(X[J])>1) {  /* 2022.02.06 */
+	if (coef(Nm, 1, X[J]) != 0) {
+	  Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+	  N++;
+	  break;
+	}
+      }
+    }
+  }
+  Sol2 = newvect(N);
+  I = 0;
+  for (J=0; J<size(Sol)[0]; J++) {
+    if (Sol[J] == 0) {
+    }else{
+       Sol2[I] = Sol[J]; I++;
+    }
+  }
+  /* 2022.02.06, 4cycle case */
+  if (I < N) {
+    printf("Error: linsolv_to_rule(G,X), G is not the reduced basis nor the order of G is not X.\n");
+    debug();
+  }
+  return vtol(Sol2);
+}
+/* InG is the initial of G. 2022.02.07 */
+def linsolv_to_rule(G,X,InG) {
+  if (length(G)==0) return [];
+  if (G[0] == 1 || G[0] == -1) {
+    return [];
+  }
+  /* set a variables not in InG to 0 */
+  // ZeroRule=[];
+  ZeroV=base_set_minus(X,InG);
+  ZeroRule=assoc(ZeroV,vtol(newvect(length(ZeroV))));
+
+  Sol2 = newvect(length(G));
+  N = 0;
+  for (I = 0; I < length(G); I++) {
+    Nm = nm(G[I]); Dn = dn(G[I]);
+    if (coef(Nm, 1, InG[I]) != 0) {
+      Right=base_replace(InG[I] - Nm/coef(Nm, 1, InG[I]),ZeroRule);
+      Sol2[I] = [InG[I],Right];
+    }else error("G and InG are not compatible.");
+  }
+  return append(ZeroRule,vtol(Sol2));
+}
+
+def test_linsolv0() {
+  Out=linsolv(In=[a_1+a_2-c1_1-c1_2,a_2+a_3+c1_1],[a_1,a_2,a_3],[c1_1,c1_2]);
+  printf("In=%a\n",In);
+  printf("Out=%a\n",Out);
+}
+
+// test7n(); largest.
+def linsolv(Eqn,Avars,C1vars) {
+  if (type(getopt(opt_linsolv))>0) Opt_linsolv=getopt(opt_linsolv);
+  else Opt_linsolv="";
+  if (type(getopt(check))>0) Check=getopt(check);
+  else Check=0;
+  if (type(getopt(p))>0) {
+    Opt_prime=sprintf("  --chr %a ",getopt(p));
+  }else Opt_prime="";
+  Vars=append(Avars,C1vars);
+  Fp=open_file(FnameV=NT_prefix+"linsolv-vars.txt","w");
+  fprintf(Fp,"%a\n",Vars);
+  close_file(Fp);
+  Fp=open_file(FnameL=NT_prefix+"linsolv.txt","w");
+  fprintf(Fp,"R=E(%a);\nF(R);\n",Eqn);
+  close_file(Fp);
+  FnameAns=NT_prefix+"linsolv-ans.txt";
+  Cmd=sprintf("time %a/linsolv %a %a --vars %a  <%a >%a\n",MT_mm_bin,Opt_linsolv,Opt_prime,
+	      FnameV,FnameL,FnameAns);
+  printf("cmd=%a\n",Cmd);
+  T0=time();
+  print("Starting linsolv");
+  shell(Cmd);
+  Cmd=sprintf("echo 'end$' >>%a",FnameAns);
+  shell(Cmd);
+  load(FnameAns); // Ans1 and InAns1, Ans2 are set.
+  printf("#time of linsolv=%a\n",time()[3]-T0[3]);
+  T0=time();
+  if (Ans2 == 0) {
+    Rule=linsolv_to_rule(Ans1,Avars,InAns1);
+    printf("#time to genrules=%a\n",time()[0]-T0[0]);
+  }else {
+    ZeroV=base_set_minus(Avars,InAns1);
+    ZeroRule=assoc(ZeroV,vtol(newvect(length(ZeroV))));
+    Rule=append(ZeroRule,Ans2);
+  }
+  Fp=open_file(NT_prefix+"linsolv-ans-by-rules.txt","w");
+  fprintf(Fp,"Rule=%a$\nend$\n",Rule);
+  close_file(Fp);
+
+  if (Check) {
+    printf("Comparing with the result by poly_solve_linear\n");
+    Sol=poly_solve_linear(Eqn,Avars);  
+    A1=matrix_list_to_matrix(base_replace(Avars,Sol));
+    A2=matrix_list_to_matrix(base_replace(Avars,Rule));
+    if (base_is_equal(A1-A2,newvect(length(A1)))) {
+      printf("OK agree.\n");
+    }else error("poly_solve_linear and linsolv do not agree.");
+  }
+  return Rule;
+}
+
+// 2022.03.11
+// massless hexagon, column order is resorted as in the amp manuscript
+def test5_amp(){
+A=[[1,1,1,1,1,1,1,1,1,1],
+   [1,0,0,0,0,1,1,0,0,0],
+   [0,1,0,0,0,0,0,1,1,0],
+   [0,0,1,0,0,1,0,0,0,1],
+   [0,0,0,1,0,0,1,1,0,0],
+   [0,0,0,0,1,0,0,0,1,1]];
+ Sigma=[1,6,7,8,9,10];
+ Beta=[d,2*d,3*d,4*d,5*d,6*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x2,x3,x4,x5];
+   Id=map(remove_redundancy,Id,Xvars);
+//   NT_std=Std=mt_gkz.cbase_by_euler(A);  // do not use this Std.
+   NT_std=Std=base_replace([dx10^3,dx9^2,dx6*dx10,dx8*dx10,dx9*dx10,dx10^2,dx6,dx8,dx9,dx10,1],[[dx10,dx5],[dx9,dx4],[dx8,dx3],[dx6,dx2]]);
+   printf("NT_std=%a\n",NT_std);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+ yang.define_ring(["partial",Xvars]);
+ return find_macaulay(Id,Std,Xvars|prules=[[d,1/13]]);
+}
+
+def test5n_amp() { test5_amp(); return try_find_pfaffian(1);}
+def test5nn_amp() { st();test5_amp(); pt("5_amp");st();T=assert_pf1(1);pt("5"); return T;}
+def test5nnn_amp() { st();test5_amp(); pt("5_amp");st();T=try_find_pfaffian(1);pt("5"); return T;}
+
+
+//[/NT]
+
+
+
+
+
+def produce_DStd(MData,Xvars,Dir){
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+    C1=newvect(length(DStd));
+    C2=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      W=newvect(length(MData[3]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      C1[I]=vtol(V);
+      C2[I]=vtol(W);
+    }
+    return [vtol(C1),vtol(C2)];
+}
+
+
+
+
+
+
+
+def test1(){
+  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];
+  Beta=[b1,b2,b3];
+  Sigma=[1,2,3];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Id=map(remove_redundancy,Id,[x4]);
+  yang.verbose();
+  yang.define_ring(["partial",[x4]]);
+  Std=[<<1>>,<<0>>];
+  MData=find_macaulay(Id,Std,[x4]|prules=[[b1,1/7],[b2,1/11],[b3,1/13]]);
+  NT_MData=MData;
+  P1=find_pfaffian(MData,[x4],1);
+  P2=yang.pfaffian([],Id);
+  return red(P1)==matrix_matrix_to_list(P2)[0];
+}
+
+//返事は1.
+
+
+
+
+def test2(){
+  A=[[1,1,0,0,0,0],[0,0,1,1,0,0],[0,0,0,0,1,1],[0,1,0,1,0,1]];
+  Beta=[b1,b2,b3,b4];
+  Sigma=[1,2,3,5];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x4,x6];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,[dx4,dx6]);
+  MData=find_macaulay(Id,Std,Xvars|prules=[[b1,1/7],[b2,1/11],[b3,1/13],[b4,1/17]]);
+  P1=find_pfaffian(MData,Xvars,1);
+  P2=yang.pfaffian([],G);
+  return red(P1)==matrix_matrix_to_list(P2[0]);
+}
+//返事は1. もう一つの方向も然り。
+//mt_gkz.gkz_bの出力が、共通因子によって割り切れるのはなぜか。。。。あーeuler作用素で書いていたりするからかな？
+//これは計算効率が異なってくるので、除くべき。
+
+
+def test2_1(){
+  A=[[1,1,0,0,0,0],[0,0,1,1,0,0],[0,0,0,0,1,1],[0,1,0,1,0,1]];
+  Beta=[b1,b2,b3,b4];
+  Sigma=[1,2,3,5];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x4,x6];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,[dx4,dx6]);
+  MData=find_macaulay2(Id,Std,Xvars|prules=[[b1,1/7],[b2,1/11],[b3,1/13],[b4,1/17]]);
+  P1=find_pfaffian(MData,Xvars,1);
+  P2=yang.pfaffian([],G);
+  return red(P1)==matrix_matrix_to_list(P2[0]);
+}
+
+
+
+def test2_2(){
+  A=[[1,1,1,0,0,0,0,0,0],[0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,1,1,1],[0,1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0,1]];
+  Beta=[b1,b2,b3,b4,b5];
+  Sigma=[1,2,3,4,7];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6,x8,x9];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,Xvars);
+  MData=find_macaulay(Id,Std,Xvars|prules=[[b1,1/13],[b2,1/17],[b3,1/19],[b4,1/23],[b5,1/29]]);
+  P1=find_pfaffian(MData,Xvars,1);
+  P2=yang.pfaffian([],G);
+  return red(P1)==matrix_matrix_to_list(P2[0]);
+}
+//おっそい。degree 8まで計算しているのはなぜ？？多分Stdのせいだと思われる。
+
+def test2_3(){
+  A=[[1,1,1,0,0,0,0,0,0],[0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,1,1,1],[0,1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0,1]];
+  Beta=[b1,b2,b3,b4,b5];
+  Sigma=[1,2,3,4,7];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6,x8,x9];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Std=mt_gkz.cbase_by_euler(A);
+  DX=mt_gkz.dvar(Xvars);
+  Std=map(dp_ptod,Std,DX);
+  return find_macaulay2(Id,Std,Xvars|prules=[[b1,1/13],[b2,1/17],[b3,1/19],[b4,1/23],[b5,1/29]]);
+}
+
+
+def test2_4(){
+  A=[[1,1,1,0,0,0,0,0,0],[0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,1,1,1],[0,1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0,1]];
+  Beta=[b1,b2,b3,b4,b5];
+  Sigma=[1,2,3,4,7];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6,x8,x9];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Std=mt_gkz.cbase_by_euler(A);
+  DX=mt_gkz.dvar(Xvars);
+  Std=map(dp_ptod,Std,DX);
+  return find_macaulay(Id,Std,Xvars|prules=[[b1,1/13],[b2,1/17],[b3,1/19],[b4,1/23],[b5,1/29]]);
+}
+
+
+
+
+
+//massless box (1 internal mass)
+
+def test3(){
+A = [
+	[1,1,1,1,1,1,1,1,1],
+	[2,1,1,1,1,0,0,0,0],
+	[0,1,0,0,0,1,1,0,0],
+	[0,0,1,0,0,0,0,1,0],
+	[0,0,0,1,0,1,0,0,1]
+];
+Beta = [e,d,d,d,d];
+Sigma = [4,5,6,8,9];
+Id=mt_gkz.gkz_b(A,Beta,Sigma | partial=1);
+ Xvars=[x1,x2,x3,x7];
+ yang.verbose();
+ yang.define_ring(["partial",Xvars]);
+ Std=[(1)*<<0,0,1,1>>,(1)*<<0,0,0,2>>,(1)*<<1,0,0,0>>,(1)*<<0,1,0,0>>,(1)*<<0,0,1,0>>,(1)*<<0,0,0,1>>,(1)*<<0,0,0,0>>];
+ return find_macaulay(Id,Std,Xvars|prules=[[e,1/7],[d,1/11]]);
+}
+
+
+
+
+
+
+
+def test3_1(){
+A = [
+	[1,1,1,1,1,1,1,1,1],
+	[2,1,1,1,1,0,0,0,0],
+	[0,1,0,0,0,1,1,0,0],
+	[0,0,1,0,0,0,0,1,0],
+	[0,0,0,1,0,1,0,0,1]
+];
+Beta = [e,d,d,d,d];
+Sigma = [4,5,6,8,9];
+Id=mt_gkz.gkz_b(A,Beta,Sigma | partial=1);
+ Xvars=[x1,x2,x3,x7];
+ yang.verbose();
+ yang.define_ring(["partial",Xvars]);
+ Std=[(1)*<<0,0,1,1>>,(1)*<<0,0,0,2>>,(1)*<<1,0,0,0>>,(1)*<<0,1,0,0>>,(1)*<<0,0,1,0>>,(1)*<<0,0,0,1>>,(1)*<<0,0,0,0>>];
+ return find_macaulay2(Id,Std,Xvars|prules=[[e,1/7],[d,1/11]]);
+}
+
+//test3の出力と一致する
+
+//2L sunrise (3 unequal masses)
+def test4(){
+ A=
+[
+[1,1,1,1,1,1,1,1,1,1],
+[2,2,1,1,1,1,1,0,0,0],
+[1,0,2,1,1,0,0,2,1,1],
+[0,1,0,1,0,2,1,1,2,1]
+];
+ Sigma=[1,2,4,5]; //Henrik's choiceは[1,2,5,10]
+Beta=[d,2*d,3*d,4*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+   Xvars=[x3,x6,x7,x8,x9,x10];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return (NT_MData=find_macaulay(Id,Std,Xvars|prules=[[d,1/19]]));
+}
+//degree 1
+//147 x 167
+
+
+def test4_1(){
+ A=
+[
+[1,1,1,1,1,1,1,1,1,1],
+[2,2,1,1,1,1,1,0,0,0],
+[1,0,2,1,1,0,0,2,1,1],
+[0,1,0,1,0,2,1,1,2,1]
+];
+Sigma=[1,2,5,10];
+Beta=[d,2*d,3*d,4*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1)$
+   Xvars=[x3,x4,x6,x7,x8,x9];
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return find_macaulay2(Id,Std,Xvars|prules=[[d,1/19]]);
+}
+
+
+
+//Idが多くの場合単項式でくくれる。これを取り除く努力をしよう。
+
+
+
+
+def remove_redundancy(P,Xvars){
+  Q=P;
+  DX=mt_gkz.dvar(Xvars);
+  for(I=0;I<length(Xvars);I++){
+    if(dn(red((1/Xvars[I])*dp_dtop(Q,DX)))==1){Q=red((1/Xvars[I])*Q);}
+  }
+  return Q;
+}
+
+
+
+def test4_2(){
+  MData=test4();
+  Xvars=[x3,x4,x6,x7,x8,x9];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Dir=1;
+  Ext=map(dp_dtop,MData[2],mt_gkz.dvar(Xvars));
+  Std=map(dp_dtop,MData[3],mt_gkz.dvar(Xvars));
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      R[I]=V;
+    }
+  R2=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      W=newvect(length(MData[3]));
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R2[I]=W;
+    }
+    Data=[MData[0],MData[1],Ext,Std,R,R2];
+    Fp=open_file("2L_sunrise_with_three_unequal_masses.txt","w");
+    fprintf(Fp,"%a",print_format(Data));
+    close_file(Fp); 
+}
+
+
+
+
+//massless pentagon
+def test5(){
+A=[[1,1,1,1,1,1,1,1,1,1],
+   [1,1,1,0,0,0,0,0,0,0],
+   [0,0,0,1,1,1,0,0,0,0],
+   [1,0,0,0,0,0,1,1,0,0],
+   [0,1,0,1,0,0,0,0,1,0],
+   [0,0,0,0,1,0,1,0,0,1]];
+ Sigma=[1,2,3,4,5,7];
+ Beta=[d,2*d,3*d,4*d,5*d,6*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x6,x8,x9,x10];
+   Id=map(remove_redundancy,Id,Xvars);
+   NT_std=Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return find_macaulay(Id,Std,Xvars|prules=[[d,1/13]]);
+}
+//macaulay matrix of degree 2で成功。
+
+
+
+
+/*
+T=[[3,5,7,8,9,10],[3,5,6,8,9,10],[2,3,5,7,9,10],[1,3,5,7,8,9],[1,3,5,6,8,9],[1,2,3,5,7,9],[1,2,3,5,6,9],[1,4,5,7,8,9],[1,4,5,6,8,9],[1,2,4,5,7,9],[1,2,4,5,6,9]];
+Beta=[d,2*d,3*d,4*d,5*d,6*d];
+L=[];
+for(I=0;I<length(T);I++){
+AS=mt_gkz.submatrix(A,T[I]);
+L=cons(matrix_inverse(AS)*ltov(Beta),L);
+}
+Beta is a non-resonant choice.
+ */
+
+/*
+MData=test5()$
+MyRule=assoc([x6,x8,x9,x10,d],pnumvect(5));
+Dir=1;
+Xvars=[x6,x8,x9,x10];
+M1=base_replace(MData[0],MyRule)$
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd)$
+  A=mt_gkz.index_vars(a,1,length(MData[0]))$
+  B=[];
+  R=newvect(length(DStd))$
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      W=newvect(length(MData[3]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R[I]=[V,W];
+    }
+    for(I=0;I<length(DStd);I++){
+      Eqn=ltov(A)*M1-R[I][0];
+      Sol=poly_solve_linear(vtol(Eqn),A);
+printf("%a",Sol==[]);
+}
+ */
+
+
+
+
+
+//Lauricella F_C
+def test6(){
+  A=[[1,1,1,0,0,0],[0,0,0,1,1,1],[0,1,0,0,-1,0],[0,0,1,0,0,-1]];
+  Beta=[b1,b2,b3,b4];
+  Sigma=[1,2,3,4];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6];
+  Id=map(remove_redundancy,Id,Xvars);
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,[dx5,dx6]);
+  MData=find_macaulay(Id,Std,Xvars|prules=[[b1,1/7],[b2,1/11],[b3,1/13],[b4,1/17]]);
+  NT_MData=MData;
+  P1=[find_pfaffian(MData,Xvars,1),find_pfaffian(MData,Xvars,2)];
+  P2=yang.pfaffian([],G);
+  PL=[red(P1),map(matrix_matrix_to_list,P2)];
+  return [PL[0][0]==PL[1][0],PL[0][1]==PL[1][1]];
+}
+//macaulay matrix of degree 1. ok.
+
+//[NT]
+def test6_0(){
+  A=[[1,1,1,0,0,0],[0,0,0,1,1,1],[0,1,0,0,-1,0],[0,0,1,0,0,-1]];
+  Beta=[b1,b2,b3,b4];
+  Sigma=[1,2,3,4];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6];
+  Id=map(remove_redundancy,Id,Xvars);
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,[dx5,dx6]);
+  MData=find_macaulay(Id,Std,Xvars|prules=[[b1,1/7],[b2,1/11],[b3,1/13],[b4,1/17]]);
+  NT_MData=MData;
+}
+//[/NT]
+
+def test6_1(){
+  A=[[1,1,1,0,0,0],[0,0,0,1,1,1],[0,1,0,0,-1,0],[0,0,1,0,0,-1]];
+  Beta=[b1,b2,b3,b4];
+  Sigma=[1,2,3,4];
+  Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+  Xvars=[x5,x6];
+  Id=map(remove_redundancy,Id,Xvars);
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Std=map(dp_ptod,Std,[dx5,dx6]);
+  MData=find_macaulay(Id,Std,Xvars|prules=[[b1,1/7],[b2,1/11],[b3,1/13],[b4,1/17]]);
+  P1=[find_pfaffian(MData,Xvars,1),find_pfaffian(MData,Xvars,2)];
+  P2=yang.pfaffian([],G);
+  PL=[red(P1),map(matrix_matrix_to_list,P2)];
+  return [PL[0][0]==PL[1][0],PL[0][1]==PL[1][1]];
+}
+
+
+
+//For crest seminar
+/*
+  Id=[(-x5^2)*<<2,0>>+(-2*x5*x6)*<<1,1>>+(-x6^2+x6)*<<0,2>>+((b1+b2-b3-b4-1)*x5)*<<1,0>>+((b1+b2-b3-b4-1)*x6+b4+1)*<<0,1>>+(-b2*b1+(b3+b4)*b2)*<<0,0>>,(-x5)*<<2,0>>+(x6)*<<0,2>>+(-b3-1)*<<1,0>>+(b4+1)*<<0,1>>];
+  //  Std=[(1)*<<0,2>>,(1)*<<1,0>>,(1)*<<0,1>>,(1)*<<0,0>>];
+  Xvars=[x5,x6];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  A=yang.pfaffian([],G);
+  Std=map(dp_ptod,Std,[dx5,dx6]);
+  MData=find_macaulay(Id,Std,Xvars);
+  B=[find_pfaffian(MData,Xvars,1),find_pfaffian(MData,Xvars,2)];
+*/
+
+
+
+
+//1L box with three internal masses
+
+def test7(){
+ A=
+[
+[1,1,1,1,1,1,1,1,1,1,1,1,1],
+[2,1,1,1,1,0,0,0,0,0,0,0,0],
+[0,1,0,0,0,2,1,1,1,0,0,0,0],
+[0,0,1,0,0,0,1,0,0,2,1,1,0],
+[0,0,0,1,0,0,0,1,0,0,1,0,1]
+];
+ Sigma=[1,2,3,4,5];
+ Beta=[d,2*d,3*d,4*d,5*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x6,x7,x8,x9,x10,x11,x12,x13];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return (NT_MData=find_macaulay(Id,Std,Xvars|prules=[[d,1/29]]));
+}
+
+//The macaulay matrix of degree 2 is of full rank: rank=481
+//掃き出しに10分くらいかそれ以上かかる。
+
+
+
+def test7_1(){
+ A=
+[
+[1,1,1,1,1,1,1,1,1,1,1,1,1],
+[2,1,1,1,1,0,0,0,0,0,0,0,0],
+[0,1,0,0,0,2,1,1,1,0,0,0,0],
+[0,0,1,0,0,0,1,0,0,2,1,1,0],
+[0,0,0,1,0,0,0,1,0,0,1,0,1]
+];
+ Sigma=[1,2,3,4,5];
+ Beta=[d,2*d,3*d,4*d,5*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x6,x7,x8,x9,x10,x11,x12,x13];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return my_macaulay(Id,Std,2,length(Xvars));
+}
+//full rank!
+
+
+
+
+
+
+
+
+def test7_2(){
+  MData=test7_1();
+  Xvars=[x6,x7,x8,x9,x10,x11,x12,x13];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Dir=1;
+  Ext=map(dp_dtop,MData[2],mt_gkz.dvar(Xvars));
+  Std=map(dp_dtop,MData[3],mt_gkz.dvar(Xvars));
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      R[I]=V;
+    }
+  R2=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      W=newvect(length(MData[3]));
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R2[I]=W;
+    }
+    Data=[MData[0],MData[1],Ext,Std,R,R2];
+    Fp=open_file("1L_box_three_internal_masses.txt","w");
+    fprintf(Fp,"%a",print_format(Data));
+    close_file(Fp); 
+}
+
+
+
+
+
+//1L 1 external mass and two internal masses
+
+def test8(){
+A=
+[
+[1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,0,0,0,0,0,0,0],
+[0,1,0,0,0,1,1,1,0,0,0,0],
+[0,0,1,0,0,1,0,0,1,1,1,0],
+[0,0,0,1,0,0,1,0,0,1,0,1]
+];
+ Sigma=[1,2,3,4,6];
+ Beta=[d,2*d,3*d,4*d,5*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x5,x7,x8,x9,x10,x11,x12];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return find_macaulay(Id,Std,Xvars|prules=[[d,1/23]]);
+}
+//orange3mの方で計算成功。
+//degree 2のMacaulay matrixで良い。
+//改良によってlap top上での計算に成功。数分だった。
+//rank 307
+
+
+
+
+
+
+def test8_1(){
+  Dir=1;
+  A=
+[
+[1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,0,0,0,0,0,0,0],
+[0,1,0,0,0,1,1,1,0,0,0,0],
+[0,0,1,0,0,1,0,0,1,1,1,0],
+[0,0,0,1,0,0,1,0,0,1,0,1]
+];
+ Sigma=[1,2,3,4,6];
+ Beta=[d,2*d,3*d,4*d,5*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x5,x7,x8,x9,x10,x11,x12];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+  MData=my_macaulay(Id,Std,2,length(Xvars));
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Ext=map(dp_dtop,MData[2],mt_gkz.dvar(Xvars));
+  Std=map(dp_dtop,MData[3],mt_gkz.dvar(Xvars));
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      R[I]=V;
+    }
+  R2=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      W=newvect(length(MData[3]));
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R2[I]=W;
+    }
+    Data=[MData[0],MData[1],Ext,Std,R,R2];
+    Fp=open_file("1L_box_1_external_mass_and_two_internal_masses.txt","w");
+    fprintf(Fp,"%a",print_format(Data));
+    close_file(Fp);
+}
+
+
+
+
+def non_zero_places(V){
+  L=[];
+  for(I=0;I<length(V);I++){
+    if(V[I]!=0)L=cons(I,L);
+  }
+  return reverse(L);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//massless hexagon
+def test9(){
+A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+   [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+   [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],
+   [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+   [0,1,0,0,1,0,0,0,0,0,0,1,1,0,0],
+   [0,0,1,0,0,1,0,0,1,0,0,0,0,1,0],
+   [0,0,0,0,0,0,1,0,0,1,0,1,0,0,1]];
+ Sigma=[1,2,3,4,5,7,9];
+ Beta=[d,2*d,3*d,4*d,5*d,6*d,7*d];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x6,x8,x10,x11,x12,x13,x14,x15];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A); printf("Std=%a\n",Std);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return find_macaulay(Id,Std,Xvars|prules=[[d,1/29]]);
+}
+//改良によってlap topでの計算に成功。970sそこいらだった。
+
+
+
+
+/*
+  E=map(dp_ptod,Xvars,Xvars)$
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd)$
+M1=MData[0]$
+MyRule=assoc(vars(M1),pnumvect(9))$
+M1=base_replace(M1,MyRule)$
+  A=mt_gkz.index_vars(a,1,length(MData[0]))$
+  B=[];
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      W=newvect(length(MData[3]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R[I]=[V,W];
+    }
+M1=matrix_list_to_matrix(M1)$
+    for(I=0;I<length(DStd);I++){
+      Eqn=ltov(A)*M1-R[I][0];
+      Sol=poly_solve_linear(vtol(Eqn),A);
+printf("%a\n",Sol==[]);
+}
+ */
+
+
+
+def test9_1(){
+  Dir=1;
+  MData=bload("MData_hexagon.ab");
+  Xvars=[x6,x8,x10,x11,x12,x13,x14,x15];
+  yang.verbose();
+  yang.define_ring(["partial",Xvars]);
+  Ext=map(dp_dtop,MData[2],mt_gkz.dvar(Xvars));
+  Std=map(dp_dtop,MData[3],mt_gkz.dvar(Xvars));
+  E=map(dp_ptod,Xvars,Xvars);
+  DStd=[];
+    for(J=0;J<length(MData[3]);J++){
+      DStd=cons(yang.multi(E[Dir-1],MData[3][J]),DStd);
+    }
+  DStd=reverse(DStd);
+  R=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      V=newvect(length(MData[2]));
+      for(J=0;J<length(MData[2]);J++){
+	V[J]=my_coeff(DStd[I],MData[2][J]);
+      }
+      R[I]=V;
+    }
+  R2=newvect(length(DStd));
+    for(I=0;I<length(DStd);I++){
+      W=newvect(length(MData[3]));
+      for(K=0;K<length(MData[3]);K++){
+	W[K]=my_coeff(DStd[I],MData[3][K]);
+      }
+      R2[I]=W;
+    }
+    Data=[MData[0],MData[1],Ext,Std,R,R2];
+    Fp=open_file("hexagon.txt","w");
+    fprintf(Fp,"%a",print_format(Data));
+    close_file(Fp);
+}
+
+
+
+
+def non_zero_places(V){
+  L=[];
+  for(I=0;I<length(V);I++){
+    if(V[I]!=0)L=cons(I,L);
+  }
+  return reverse(L);
+}
+
+
+
+
+/*
+
+
+Expected rank is 534.
+Expected independent rows are [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,107,108,110,112,113,115,116,117,118,119,120,121,122,123,124,125,128,131,136,139,141,142,143,144,145,146,148,149,151,155,157,158,160,161,162,163,164,167,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,275,276,278,280,281,283,284,285,286,287,288,289,290,291,292,293,296,299,304,307,309,310,311,312,313,314,316,317,319,323,325,326,328,329,330,331,332,335,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,404,406,407,408,409,410,411,412,414,415,416,417,418,419,420,425,428,430,431,432,433,434,435,436,437,438,439,440,446,454,456,457,458,459,460,461,470,472,473,475,476,477,478,479,482,499,500,501,503,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,527,528,529,530,531,532,533,534,535,536,537,538,540,541,542,543,544,545,551,554,556,557,558,559,561,562,563,564,565,566,572,580,582,583,584,585,586,587,601,602,603,604,605,608,625,626,627,628,629,632,633,634,635,636,637,640,641,642,643,645,646,647,648,649,650,656,661,662,663,664,666,667,668,669,670,671,677,685,687,688,689,690,691,692,706,708,709,710,713,730,731,732,733,734,740,745,746,747,748,750,751,752,753,754,755,772,773,774,775,776,790,792,793,794,797,814,815,818,824,832,834,835,836,837,838,839,853,855,856,857,860,877,878,879,881,895,897,898,899,902,919,920,923,940,941,944].
+
+
+ */
+
+
+/*
+MM1=[];
+L=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,107,108,110,112,113,115,116,117,118,119,120,121,122,123,124,125,128,131,136,139,141,142,143,144,145,146,148,149,151,155,157,158,160,161,162,163,164,167,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,275,276,278,280,281,283,284,285,286,287,288,289,290,291,292,293,296,299,304,307,309,310,311,312,313,314,316,317,319,323,325,326,328,329,330,331,332,335,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,404,406,407,408,409,410,411,412,414,415,416,417,418,419,420,425,428,430,431,432,433,434,435,436,437,438,439,440,446,454,456,457,458,459,460,461,470,472,473,475,476,477,478,479,482,499,500,501,503,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,527,528,529,530,531,532,533,534,535,536,537,538,540,541,542,543,544,545,551,554,556,557,558,559,561,562,563,564,565,566,572,580,582,583,584,585,586,587,601,602,603,604,605,608,625,626,627,628,629,632,633,634,635,636,637,640,641,642,643,645,646,647,648,649,650,656,661,662,663,664,666,667,668,669,670,671,677,685,687,688,689,690,691,692,706,708,709,710,713,730,731,732,733,734,740,745,746,747,748,750,751,752,753,754,755,772,773,774,775,776,790,792,793,794,797,814,815,818,824,832,834,835,836,837,838,839,853,855,856,857,860,877,878,879,881,895,897,898,899,902,919,920,923,940,941,944]$
+for(I=0;I<length(L);I++){
+  MM1=cons(M1[L[I]],MM1);
+ }
+*/
+
+
+
+
+
+
+
+def test10(){
+  A=[[1,0,0,0,0,-1,0,0,0,0,-1,0,0,0,0,1],[0,1,0,0,0,1,0,0,0,0,0,-1,0,0,0,-1],[0,0,1,0,0,0,0,-1,0,0,1,0,0,0,0,-1],[0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],[0,0,0,0,1,1,0,0,0,0,0,0,0,0,-1,-1],[0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],[0,0,0,0,0,0,0,0,1,0,1,0,0,-1,0,-1],[0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],[0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1]];
+ Sigma=[1,2,3,4,5,7,9,10,13];
+ Beta=[b1,b2,b3,b4,b5,b6,b7,b8,b9];
+ Id=mt_gkz.gkz_b(A,Beta,Sigma|partial=1);
+ Xvars=[x6,x8,x11,x12,x14,x15,x16];
+   Id=map(remove_redundancy,Id,Xvars);
+   Std=mt_gkz.cbase_by_euler(A);
+   DX=mt_gkz.dvar(Xvars);
+   Std=map(dp_ptod,Std,DX);
+   yang.verbose();
+yang.define_ring(["partial",Xvars]);
+ return find_macaulay(Id,Std,Xvars|prules=assoc(Beta,pnumvect(9)));
+
+}
+
+
+
+
+
+
+
+
+def remove_column(M,N){
+  N=N-1;
+  L=matrix_matrix_to_list(matrix_transpose(M));
+  LL=[];
+  for(I=0;I<length(L);I++){
+    if(I!=N)LL=cons(L[I],LL);
+  }
+  LL=reverse(LL);
+  return matrix_transpose(matrix_list_to_matrix(LL));
+}
+
+
+
+
+
+
+def rank_check0(){ //NT
+A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+   [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+   [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],
+   [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+   [0,1,0,0,1,0,0,0,0,0,0,1,1,0,0],
+   [0,0,1,0,0,1,0,0,1,0,0,0,0,1,0],
+   [0,0,0,0,0,0,1,0,0,1,0,1,0,0,1]];
+ L=[];
+ Xvars=mt_gkz.xvars(length(A[0])-1);
+ for(I=0;I<length(A[0]);I++){
+ AA=matrix_matrix_to_list(remove_column(matrix_list_to_matrix(A),I+1));
+ IA=mt_gkz.mytoric_ideal(AA);
+ F=sm1.hilbert([IA,Xvars]);
+ F=dp_ptod(F,[h]);
+ L=cons((7!)*dp_hc(F),L);
+ }
+ return reverse(L);
+}
+
+//結果[25,30,25,29,25,30,25,29,25,30,29,25,29,29,29]
+
+
+
+
+//2022/01/10 小行列式計算
+
+def minor_det(M,S1,S2){
+  L1=length(S1);
+  L2=length(S2);
+  if(L1!=L2)printf("Index sets must have the same length.\n");
+  else{
+    N=newmat(L1,L2);
+    for(I=0;I<L1;I++){
+      for(J=0;J<L2;J++){
+	N[I][J]=M[S1[I]][S2[J]];
+      }
+    }
+    return det(N);
+  }
+}
+
+
+def myseq(N){
+  L=[];
+  for(I=0;I<N;I++){
+    L=cons(I,L);
+  }
+  return reverse(L);
+}
+
+
+
+//hexagonの特異点の計算
+def minor_dets(){
+  M=newmat(6,7,[[0,0,z1,z2,z3,0,z4],[0,0,0,z5,z6,z7,z8],[z1,0,0,0,z9,z10,z11],[z2,z5,0,0,0,z12,z13],[z3,z6,z9,0,0,0,z14],[0,z7,z10,z12,0,0,z15]]);
+  M=base_replace(M,[[z1,1],[z2,1],[x3,1],[z4,1],[z5,1],[z7,1],[z9,1]]);
+  L=[];
+  S=[0,1,2,3,4,5];
+  for(I=0;I<6;I++){
+    S1=base_subsets_of_size(I+1,S);
+    S2=base_subsets_of_size(I,S);
+    S2=map(append,S2,[6]);
+    for(J=0;J<length(S1);J++){
+      for(K=0;K<length(S2);K++){
+	P=minor_det(M,S1[J],S2[K]);
+	if(P!=0)L=cons(P,L);
+      }
+    }
+  }
+  L=reverse(L);
+  return L;
+  /*
+  P=1;
+  for(I=0;I<length(L);I++){
+    P=lcm(P,L[I]);
+    printf("step %a.\n",I);
+  }
+  return P;
+おもたすぎる。
+  */
+}
+
+//726個の非零な行列式
+
+
+
+
+//Horn-Kapranov uniformizationとsampling
+/*
+B=[[0,0,0,0,1,1,1,1],[1,1,-1,0,-2,-1,0,-1],[-1,0,1,1,1,1,0,1],[0,-1,0,-1,0,-1,-1,-1],[-1,-1,1,0,1,0,0,1],[1,0,0,0,0,0,0,0],[0,0,-1,0,-1,0,0,-1],[0,1,0,0,0,0,0,0],[0,0,-1,-1,-1,-1,-1,-1],[0,0,1,0,0,0,0,0],[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,1]]
+はmassless hexagon(test9)の核である。ここで、Horn-Kapranov uniformizationを用いることで、値のsamplesを得ることができる。
+
+1.FiniteFlowのdegree boundを用いてA-discriminantを計算させる。
+2.
+ */
+
+
+/*
+M2=newmat(7,7,[[0,0,z1,z2,z3,0,z4],[0,0,0,z5,z6,z7,z8],[z1,0,0,0,z9,z10,z11],[z2,z5,0,0,0,z12,z13],[z3,z6,z9,0,0,0,z14],[0,z7,z10,z12,0,0,z15],[z4,z8,z11,z13,z14,z15,0]]);
+  M2=base_replace(M2,[[z1,1],[z2,1],[x3,1],[z4,1],[z5,1],[z7,1],[z9,1]]);
+principal A-discriminantは
+det(M2)/2=
+(-z6+z3)*z15^2+((-z6*z12+(z6-z3)*z10+1)*z14+(z6^2*z12+(-z6^2+z3*z6)*z10+z6-2*z3)*z13+((-z6^2+z3*z6)*z11+(z6-2*z3)*z8+z6)*z12+((z6^2-2*z3*z6+z3^2)*z10-z6+z3)*z11+((-z6+z3)*z8+z6-z3)*z10+z8-1)*z15+(z12-z10)*z14^2+((-z6*z12+(z6+z3)*z10-1)*z13+z6*z8*z12^2+((z6-2*z3)*z11+((-2*z6+z3)*z8+z6)*z10+z8-2)*z12+((-z6+z3)*z10+1)*z11+((z6-z3)*z8-z6+z3)*z10^2+(-z8+1)*z10)*z14+(-z3*z6*z10+z3)*z13^2+((z3*z6*z11+(z3*z6*z8-z6^2)*z10-2*z3*z8+z6)*z12+((z3*z6-z3^2)*z10-z3)*z11+((-z3*z6+z3^2)*z8+z6^2-z3*z6)*z10^2+(z3*z8-2*z6+z3)*z10+1)*z13+((-z3*z6*z8+z6^2)*z11+z3*z8^2-z6*z8)*z12^2+((-z3*z6+z3^2)*z11^2+(((z3*z6-z3^2)*z8-z6^2+z3*z6)*z10+z3*z8+z6-2*z3)*z11+(-z3*z8^2+(z6+z3)*z8-z6)*z10-z8+1)*z12
+であろう。
+
+
+すべてのfacesはpolymakeによるコマンド
+$p=new Polytope(VERTICES=>[[1,1,0,1,0,0,0],[1,1,0,0,1,0,0],[1,1,0,0,0,1,0],[1,1,0,0,0,0,0],[1,0,1,0,1,0,0],[1,0,1,0,0,1,0],[1,0,1,0,0,0,1],[1,0,1,0,0,0,0],[1,0,0,1,0,1,0],[1,0,0,1,0,0,1],[1,0,0,1,0,0,0],[1,0,0,0,1,0,1],[1,0,0,0,1,0,0],[1,0,0,0,0,1,0],[1,0,0,0,0,0,1]]);
+$HD=$p->HASSE_DIAGRAM;
+print $HD->FACES;
+で計算できる。
+
+
+
+polymake出力S1をasir入力S2へ変換するには、
+S1=strtoascii("{S1}");
+S1=my_transf(S1);
+S2=asciitostr(S1);
+とすればよい。
+
+asciiでは
+32が空白
+10が改行
+44が,（カンマ）
+91が[
+93が]
+*/
+
+def my_transf(S){
+L=[];
+while(S!=[]){
+if(S[0]==10){
+S=cdr(S);
+L=cons(44,L);
+}
+if(S[0]==32){
+S=cdr(S);
+L=cons(44,L);
+}
+if(S[0]==123){
+S=cdr(S);
+L=cons(91,L);
+}
+if(S[0]==125){
+S=cdr(S);
+L=cons(93,L);
+}
+else{
+L=cons(S[0],L);
+S=cdr(S);
+}
+}
+return reverse(L);
+}
+
+/*
+
+
+A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+   [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+   [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],
+   [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+   [0,1,0,0,1,0,0,0,0,0,0,1,1,0,0],
+   [0,0,1,0,0,1,0,0,1,0,0,0,0,1,0],
+   [0,0,0,0,0,0,1,0,0,1,0,1,0,0,1]];
+
+P=z1*x1*x3+z2*x1*x4+z3*x1*x5+z4*x1+z5*x2*x4+z6*x2*x5+z7*x2*x6+z8*x2+z9*x3*x5+z10*x3*x6+z11*x3+z12*x4*x6+z13*x4+z14*x5+z15*x6
+
+ */
+
+def quad_form(P){
+ Xvars=vars(P);
+ L=p_terms(P,vars(P),0);
+ for(I=0;I<length(L);I++){
+   Xvars=cdr(Xvars);
+ }
+ Xvars=reverse(Xvars);
+ N=newvect(length(Xvars));
+ for(I=0;I<length(Xvars);I++){
+   N[I]=I;
+ }
+ Xrule=assoc(Xvars,vtol(N));
+ M=newmat(length(Xvars)+1,length(Xvars)+1);
+ P=dp_ptod(P,Xvars);
+ while(P!=0){
+  Q=fctr(dp_dtop(dp_ht(P),Xvars)); 
+  Q=cdr(Q);
+  if(length(Q)==2){M[base_replace(Q[0][0],Xrule)][base_replace(Q[1][0],Xrule)]=dp_hc(P);}
+  if(length(Q)==1){M[base_replace(Q[0][0],Xrule)][length(Xvars)]=dp_hc(P);}
+  P=dp_rest(P);
+}
+return M+matrix_transpose(M);
+}
+
+
+
+
+def a_det(){
+  Faces=[[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],[1,2,3,4,5,6,7,11,12,13,14],[1,2,4,5,8,11,12,13],[4,5,6,7,8,9,10,11,12,13,14],[3,7,10,12,13,14],[2,5,6,8,9,11,13,14],[0,4,5,6,7,8,9,10],[0,1,2,3,4,5,6,7],[0,2,3,5,6,7,8,9,10,13,14],[0,1,4,8,9,10,11,12],[0,1,3,4,6,7,9,10,11,12,14],[0,1,2,3,6,9,11,14],[0,1,2,4,5,6,8,9,11],[0,1,2,3,8,9,10,11,12,13,14],[0,1,2,3,4,5,7,8,10,12,13],[1,2,4,5,11,12,13],[4,5,6,7,11,12,13,14],[3,7,12,13,14],[2,5,6,11,13,14],[1,2,3,4,5,6,7],[2,3,5,6,7,13,14],[1,3,4,6,7,11,12,14],[1,2,3,6,11,14],[1,2,4,5,6,11],[1,2,3,11,12,13,14],[1,2,3,4,5,7,12,13],[4,5,8,11,12,13],[2,5,8,11,13],[1,4,8,11,12],[1,2,4,5,8,11],[1,2,8,11,12,13],[1,2,4,5,8,12,13],[7,10,12,13,14],[5,6,8,9,11,13,14],[4,5,6,7,8,9,10],[5,6,7,8,9,10,13,14],[4,8,9,10,11,12],[4,6,7,9,10,11,12,14],[4,5,6,8,9,11],[8,9,10,11,12,13,14],[4,5,7,8,10,12,13],[3,7,10,13,14],[3,7,10,12,14],[3,10,12,13,14],[3,7,10,12,13],[2,5,6,8,9,13,14],[2,6,9,11,14],[2,5,6,8,9,11],[2,8,9,11,13,14],[0,4,5,6,7],[0,5,6,7,8,9,10],[0,4,8,9,10],[0,4,6,7,9,10],[0,4,5,6,8,9],[0,4,5,7,8,10],[0,2,3,5,6,7],[0,1,3,4,6,7],[0,1,2,3,6],[0,1,2,4,5,6],[0,1,2,3,4,5,7],[0,3,6,7,9,10,14],[0,2,3,6,9,14],[0,2,5,6,8,9],[0,2,3,8,9,10,13,14],[0,2,3,5,7,8,10,13],[0,1,4,9,10,11,12],[0,1,4,8,9,11],[0,1,8,9,10,11,12],[0,1,4,8,10,12],[0,1,3,6,9,11,14],[0,1,4,6,9,11],[0,1,3,9,10,11,12,14],[0,1,3,4,7,10,12],[0,1,2,6,9,11],[0,1,2,3,9,11,14],[0,1,2,8,9,11],[0,1,2,4,5,8],[0,1,2,3,8,10,12,13],[4,5,11,12,13],[2,5,11,13],[1,4,11,12],[1,2,4,5,11],[1,2,11,12,13],[1,2,4,5,12,13],[7,12,13,14],[5,6,11,13,14],[4,5,6,7],[5,6,7,13,14],[4,6,7,11,12,14],[4,5,6,11],[11,12,13,14],[4,5,7,12,13],[3,7,13,14],[3,7,12,14],[3,12,13,14],[3,7,12,13],[2,5,6,13,14],[2,6,11,14],[2,5,6,11],[2,11,13,14],[2,3,5,6,7],[1,3,4,6,7],[1,2,3,6],[1,2,4,5,6],[1,2,3,4,5,7],[3,6,7,14],[2,3,6,14],[2,3,13,14],[2,3,5,7,13],[1,3,6,11,14],[1,4,6,11],[1,3,11,12,14],[1,3,4,7,12],[1,2,6,11],[1,2,3,11,14],[1,2,3,12,13],[5,8,11,13],[4,8,11,12],[4,5,8,11],[8,11,12,13],[4,5,8,12,13],[2,5,8,11],[2,8,11,13],[2,5,8,13],[1,4,8,11],[1,8,11,12],[1,4,8,12],[1,2,8,11],[1,2,4,5,8],[1,2,8,12,13],[7,10,13,14],[7,10,12,14],[10,12,13,14],[7,10,12,13],[5,6,8,9,13,14],[6,9,11,14],[5,6,8,9,11],[8,9,11,13,14],[5,6,7,8,9,10],[4,8,9,10],[4,6,7,9,10],[4,5,6,8,9],[4,5,7,8,10],[6,7,9,10,14],[8,9,10,13,14],[5,7,8,10,13],[4,9,10,11,12],[4,8,9,11],[8,9,10,11,12],[4,8,10,12],[4,6,9,11],[9,10,11,12,14],[4,7,10,12],[8,10,12,13],[3,7,10,14],[3,10,13,14],[3,7,10,13],[3,10,12,14],[3,7,10,12],[3,10,12,13],[2,6,9,14],[2,5,6,8,9],[2,8,9,13,14],[2,6,9,11],[2,9,11,14],[2,8,9,11],[0,5,6,7],[0,4,6,7],[0,4,5,6],[0,4,5,7],[0,6,7,9,10],[0,5,6,8,9],[0,8,9,10],[0,5,7,8,10],[0,4,9,10],[0,4,8,9],[0,4,8,10],[0,4,6,9],[0,4,7,10],[0,4,5,8],[0,3,6,7],[0,2,3,6],[0,2,5,6],[0,2,3,5,7],[0,1,3,6],[0,1,4,6],[0,1,3,4,7],[0,1,2,6],[0,1,2,3],[0,1,2,4,5],[0,3,6,9,14],[0,3,9,10,14],[0,3,7,10],[0,2,6,9],[0,2,3,9,14],[0,2,8,9],[0,2,5,8],[0,2,3,8,10,13],[0,1,4,9,11],[0,1,9,10,11,12],[0,1,4,10,12],[0,1,8,9,11],[0,1,4,8],[0,1,8,10,12],[0,1,6,9,11],[0,1,3,9,11,14],[0,1,3,10,12],[0,1,2,9,11],[0,1,2,8],[5,11,13],[4,11,12],[4,5,11],[11,12,13],[4,5,12,13],[2,5,11],[2,11,13],[2,5,13],[1,4,11],[1,11,12],[1,4,12],[1,2,11],[1,2,4,5],[1,2,12,13],[7,13,14],[7,12,14],[12,13,14],[7,12,13],[5,6,13,14],[6,11,14],[5,6,11],[11,13,14],[5,6,7],[4,6,7],[4,5,6],[4,5,7],[6,7,14],[5,7,13],[4,6,11],[11,12,14],[4,7,12],[3,7,14],[3,13,14],[3,7,13],[3,12,14],[3,7,12],[3,12,13],[2,6,14],[2,5,6],[2,13,14],[2,6,11],[2,11,14],[3,6,7],[2,3,6],[2,3,5,7],[1,3,6],[1,4,6],[1,3,4,7],[1,2,6],[1,2,3],[3,6,14],[2,3,14],[2,3,13],[1,6,11],[1,3,11,14],[1,3,12],[5,8,11],[8,11,13],[5,8,13],[4,8,11],[8,11,12],[4,8,12],[4,5,8],[8,12,13],[2,8,11],[2,5,8],[2,8,13],[1,8,11],[1,4,8],[1,8,12],[1,2,8],[7,10,14],[10,13,14],[7,10,13],[10,12,14],[7,10,12],[10,12,13],[6,9,14],[5,6,8,9],[8,9,13,14],[6,9,11],[9,11,14],[8,9,11],[6,7,9,10],[8,9,10],[5,7,8,10],[4,9,10],[4,8,9],[4,8,10],[4,6,9],[4,7,10],[9,10,14],[8,10,13],[4,9,11],[9,10,11,12],[4,10,12],[8,10,12],[3,10,14],[3,7,10],[3,10,13],[3,10,12],[2,6,9],[2,9,14],[2,8,9],[2,9,11],[0,6,7],[0,5,6],[0,5,7],[0,4,6],[0,4,7],[0,4,5],[0,6,9],[0,9,10],[0,7,10],[0,8,9],[0,5,8],[0,8,10],[0,4,9],[0,4,10],[0,4,8],[0,3,6],[0,3,7],[0,2,6],[0,2,3],[0,2,5],[0,1,6],[0,1,3],[0,1,4],[0,1,2],[0,3,9,14],[0,3,10],[0,2,9],[0,2,8],[0,1,9,11],[0,1,10,12],[0,1,8],[5,11],[11,13],[5,13],[4,11],[11,12],[4,12],[4,5],[12,13],[2,11],[2,5],[2,13],[1,11],[1,4],[1,12],[1,2],[7,14],[13,14],[7,13],[12,14],[7,12],[6,14],[5,6],[6,11],[11,14],[6,7],[5,7],[4,6],[4,7],[3,14],[3,7],[3,13],[3,12],[2,6],[2,14],[3,6],[2,3],[1,6],[1,3],[8,11],[5,8],[8,13],[4,8],[8,12],[2,8],[1,8],[10,14],[7,10],[10,13],[10,12],[6,9],[9,14],[8,9],[9,11],[9,10],[8,10],[4,9],[4,10],[3,10],[2,9],[0,6],[0,7],[0,5],[0,4],[0,9],[0,10],[0,8],[0,3],[0,2],[0,1],[0],[1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12],[13],[14]];
+  Terms=[z1*x1*x3,z2*x1*x4,z3*x1*x5,z4*x1,z5*x2*x4,z6*x2*x5,z7*x2*x6,z8*x2,z9*x3*x5,z10*x3*x6,z11*x3,z12*x4*x6,z13*x4,z14*x5,z15*x6];
+  L=[];
+  L2=[];
+  while(length(Faces)>0){
+    G=Faces[0];
+    P=0;
+    while(length(G)>0){
+      P=P+Terms[G[0]];
+      G=cdr(G);
+    }
+    M=quad_form(P);
+    if(det(M)!=0){
+      L=cons(det(M),L);
+      L2=cons([Faces[0],M],L2);
+    }
+    Faces=cdr(Faces);
+  }
+  return [reverse(L),reverse(L2)];
+}
+
+
+/*
+mt_gkz.remove_duplicationなどを用いることで、既約因子は54個あり、
+[z11,z10,z2,z4,z13,z14,z6,z15,z8,z1*z13-z2*z11,z1^2*z14^2+(-2*z1*z3*z11-2*z1*z4*z9)*z14+z3^2*z11^2-2*z3*z4*z9*z11+z4^2*z9^2,z1,z1*z15-z4*z10,z9,z5,z10*z13-z11*z12,z6*z11-z8*z9,z9*z15-z10*z14,z7*z11-z8*z10,z2*z14-z3*z13,z2*z8-z4*z5,z2*z15-z4*z12,z3*z8-z4*z6,z3,z7,z5*z14-z6*z13,z12,z5^2*z15^2+(-2*z5*z7*z13-2*z5*z8*z12)*z15+z7^2*z13^2-2*z7*z8*z12*z13+z8^2*z12^2,z6*z15-z7*z14,(z1*z2*z13-z2^2*z11)*z14-z1*z3*z13^2+(z2*z3*z11-z2*z4*z9)*z13,z1*z8*z13+(-z2*z8+z4*z5)*z11,(z1*z13-z2*z11)*z15-z4*z10*z13+z4*z11*z12,z1*z12-z2*z10,z1*z6*z8*z14+(-z3*z6*z8+z4*z6^2)*z11+(z3*z8^2-z4*z6*z8)*z9,z1*z9*z15^2+(-z1*z10*z14+z3*z10*z11-z4*z9*z10)*z15+z4*z10^2*z14,z1*z8*z15+z4*z7*z11-z4*z8*z10,z5*z11*z14+(-z6*z11+z8*z9)*z13,z9*z13*z15+(-z10*z13+z11*z12)*z14,z5*z10*z11*z15+(-z7*z10*z11+z8*z10^2)*z13+(z7*z11^2-z8*z10*z11)*z12,(z6*z11-z8*z9)*z15+(-z7*z11+z8*z10)*z14,z6*z10-z7*z9,(z2*z8-z4*z5)*z14+(-z3*z8+z4*z6)*z13,z2*z6-z3*z5,(z2*z14-z3*z13)*z15-z4*z12*z14,(z2^2*z8-z2*z4*z5)*z15+z2*z4*z7*z13+(-z2*z4*z8+z4^2*z5)*z12,(z3*z8-z4*z6)*z15+z4*z7*z14,(z5*z6*z14-z6^2*z13)*z15-z5*z7*z14^2+(z6*z7*z13-z6*z8*z12)*z14,z1^2*z5^2*z14^2+(-2*z1^2*z5*z6*z13+(2*z1*z2*z5*z6-2*z1*z3*z5^2)*z11+(2*z1*z2*z5*z8-2*z1*z4*z5^2)*z9)*z14+z1^2*z6^2*z13^2+((-2*z1*z2*z6^2+2*z1*z3*z5*z6)*z11+((2*z1*z2*z6-4*z1*z3*z5)*z8+2*z1*z4*z5*z6)*z9)*z13+(z2^2*z6^2-2*z2*z3*z5*z6+z3^2*z5^2)*z11^2+((-2*z2^2*z6+2*z2*z3*z5)*z8+2*z2*z4*z5*z6-2*z3*z4*z5^2)*z9*z11+(z2^2*z8^2-2*z2*z4*z5*z8+z4^2*z5^2)*z9^2,z2^2*z9^2*z15^2+((2*z1*z2*z9*z12-2*z2^2*z9*z10)*z14+(-4*z1*z3*z9*z12+2*z2*z3*z9*z10)*z13+(2*z2*z3*z9*z11-2*z2*z4*z9^2)*z12)*z15+(z1^2*z12^2-2*z1*z2*z10*z12+z2^2*z10^2)*z14^2+((2*z1*z3*z10*z12-2*z2*z3*z10^2)*z13+(-2*z1*z3*z11-2*z1*z4*z9)*z12^2+(2*z2*z3*z10*z11+2*z2*z4*z9*z10)*z12)*z14+z3^2*z10^2*z13^2+(-2*z3^2*z10*z11+2*z3*z4*z9*z10)*z12*z13+(z3^2*z11^2-2*z3*z4*z9*z11+z4^2*z9^2)*z12^2,z1^2*z5^2*z15^2+(-2*z1^2*z5*z7*z13-2*z1^2*z5*z8*z12+2*z1*z2*z5*z7*z11+(2*z1*z2*z5*z8-2*z1*z4*z5^2)*z10)*z15+z1^2*z7^2*z13^2+(-2*z1^2*z7*z8*z12-2*z1*z2*z7^2*z11+(2*z1*z2*z7*z8+2*z1*z4*z5*z7)*z10)*z13+z1^2*z8^2*z12^2+((2*z1*z2*z7*z8-4*z1*z4*z5*z7)*z11+(-2*z1*z2*z8^2+2*z1*z4*z5*z8)*z10)*z12+z2^2*z7^2*z11^2+(-2*z2^2*z7*z8+2*z2*z4*z5*z7)*z10*z11+(z2^2*z8^2-2*z2*z4*z5*z8+z4^2*z5^2)*z10^2,z1^2*z6^2*z15^2+(-2*z1^2*z6*z7*z14+2*z1*z3*z6*z7*z11+(2*z1*z3*z6*z8-2*z1*z4*z6^2)*z10+(-4*z1*z3*z7*z8+2*z1*z4*z6*z7)*z9)*z15+z1^2*z7^2*z14^2+(-2*z1*z3*z7^2*z11+(2*z1*z3*z7*z8+2*z1*z4*z6*z7)*z10-2*z1*z4*z7^2*z9)*z14+z3^2*z7^2*z11^2+((-2*z3^2*z7*z8+2*z3*z4*z6*z7)*z10-2*z3*z4*z7^2*z9)*z11+(z3^2*z8^2-2*z3*z4*z6*z8+z4^2*z6^2)*z10^2+(2*z3*z4*z7*z8-2*z4^2*z6*z7)*z9*z10+z4^2*z7^2*z9^2,z5^2*z9^2*z15^2+(-2*z5^2*z9*z10*z14+(2*z5*z6*z9*z10-2*z5*z7*z9^2)*z13+(2*z5*z6*z9*z11-2*z5*z8*z9^2)*z12)*z15+z5^2*z10^2*z14^2+((-2*z5*z6*z10^2+2*z5*z7*z9*z10)*z13+((2*z5*z6*z10-4*z5*z7*z9)*z11+2*z5*z8*z9*z10)*z12)*z14+(z6^2*z10^2-2*z6*z7*z9*z10+z7^2*z9^2)*z13^2+((-2*z6^2*z10+2*z6*z7*z9)*z11+2*z6*z8*z9*z10-2*z7*z8*z9^2)*z12*z13+(z6^2*z11^2-2*z6*z8*z9*z11+z8^2*z9^2)*z12^2,(z2^2*z6^2-2*z2*z3*z5*z6+z3^2*z5^2)*z15^2+((-2*z2^2*z6+2*z2*z3*z5)*z7*z14+(2*z2*z3*z6-2*z3^2*z5)*z7*z13+((2*z2*z3*z6-2*z3^2*z5)*z8-2*z2*z4*z6^2+2*z3*z4*z5*z6)*z12)*z15+z2^2*z7^2*z14^2+(-2*z2*z3*z7^2*z13+(2*z2*z3*z7*z8+(2*z2*z4*z6-4*z3*z4*z5)*z7)*z12)*z14+z3^2*z7^2*z13^2+(-2*z3^2*z7*z8+2*z3*z4*z6*z7)*z12*z13+(z3^2*z8^2-2*z3*z4*z6*z8+z4^2*z6^2)*z12^2,(z1*z2*z5*z6-z1*z3*z5^2)*z9*z15^2+((z1^2*z5*z6*z12+(-z1*z2*z5*z6+z1*z3*z5^2)*z10-z1*z2*z5*z7*z9)*z14+(-z1^2*z6^2*z12+(z1*z2*z6^2-z1*z3*z5*z6)*z10+(-z1*z2*z6+2*z1*z3*z5)*z7*z9)*z13+((z1*z2*z6^2-z1*z3*z5*z6)*z11+((-z1*z2*z6+2*z1*z3*z5)*z8-z1*z4*z5*z6)*z9)*z12+((-z2^2*z6^2+2*z2*z3*z5*z6-z3^2*z5^2)*z10+(z2^2*z6-z2*z3*z5)*z7*z9)*z11+((z2^2*z6-z2*z3*z5)*z8-z2*z4*z5*z6+z3*z4*z5^2)*z9*z10+(-z2^2*z7*z8+z2*z4*z5*z7)*z9^2)*z15+(-z1^2*z5*z7*z12+z1*z2*z5*z7*z10)*z14^2+((z1^2*z6*z7*z12+(-z1*z2*z6-z1*z3*z5)*z7*z10+z1*z2*z7^2*z9)*z13-z1^2*z6*z8*z12^2+((-z1*z2*z6+2*z1*z3*z5)*z7*z11+((2*z1*z2*z6-z1*z3*z5)*z8-z1*z4*z5*z6)*z10+(-z1*z2*z7*z8+2*z1*z4*z5*z7)*z9)*z12+((z2^2*z6-z2*z3*z5)*z7*z10-z2^2*z7^2*z9)*z11+((-z2^2*z6+z2*z3*z5)*z8+z2*z4*z5*z6-z3*z4*z5^2)*z10^2+(z2^2*z7*z8-z2*z4*z5*z7)*z9*z10)*z14+(z1*z3*z6*z7*z10-z1*z3*z7^2*z9)*z13^2+((-z1*z3*z6*z7*z11+(-z1*z3*z6*z8+z1*z4*z6^2)*z10+(2*z1*z3*z7*z8-z1*z4*z6*z7)*z9)*z12+((-z2*z3*z6+z3^2*z5)*z7*z10+z2*z3*z7^2*z9)*z11+((z2*z3*z6-z3^2*z5)*z8-z2*z4*z6^2+z3*z4*z5*z6)*z10^2+(-z2*z3*z7*z8+(2*z2*z4*z6-z3*z4*z5)*z7)*z9*z10-z2*z4*z7^2*z9^2)*z13+((z1*z3*z6*z8-z1*z4*z6^2)*z11+(-z1*z3*z8^2+z1*z4*z6*z8)*z9)*z12^2+((z2*z3*z6-z3^2*z5)*z7*z11^2+(((-z2*z3*z6+z3^2*z5)*z8+z2*z4*z6^2-z3*z4*z5*z6)*z10+(-z2*z3*z7*z8+(-z2*z4*z6+2*z3*z4*z5)*z7)*z9)*z11+(z2*z3*z8^2+(-z2*z4*z6-z3*z4*z5)*z8+z4^2*z5*z6)*z9*z10+(z2*z4*z7*z8-z4^2*z5*z7)*z9^2)*z12]
+となる。
+
+
+
+Zrule=[[z1,1],[z2,1],[z3,1],[z4,1],[z5,1],[z7,1],[z9,1]]で簡約したものはz1,z2,z3,z4,z5,z7,z9たちがいなくなって、
+
+
+[z11,z10,z13,z14,z6,z15,z8,z13-z11,z14^2+(-2*z11-2)*z14+z11^2-2*z11+1,z15-z10,z10*z13-z11*z12,z6*z11-z8,z15-z10*z14,z11-z8*z10,z14-z13,z8-1,z15-z12,z8-z6,z14-z6*z13,z12,z15^2+(-2*z13-2*z8*z12)*z15+z13^2-2*z8*z12*z13+z8^2*z12^2,z6*z15-z14,(z13-z11)*z14-z13^2+(z11-1)*z13,z8*z13+(-z8+1)*z11,(z13-z11)*z15-z10*z13+z11*z12,z12-z10,z6*z8*z14+(-z6*z8+z6^2)*z11+z8^2-z6*z8,z15^2+(-z10*z14+z10*z11-z10)*z15+z10^2*z14,z8*z15+z11-z8*z10,z11*z14+(-z6*z11+z8)*z13,z13*z15+(-z10*z13+z11*z12)*z14,z10*z11*z15+(-z10*z11+z8*z10^2)*z13+(z11^2-z8*z10*z11)*z12,(z6*z11-z8)*z15+(-z11+z8*z10)*z14,z6*z10-1,(z8-1)*z14+(-z8+z6)*z13,z6-1,(z14-z13)*z15-z12*z14,(z8-1)*z15+z13+(-z8+1)*z12,(z8-z6)*z15+z14,(z6*z14-z6^2*z13)*z15-z14^2+(z6*z13-z6*z8*z12)*z14,z14^2+(-2*z6*z13+(2*z6-2)*z11+2*z8-2)*z14+z6^2*z13^2+((-2*z6^2+2*z6)*z11+(2*z6-4)*z8+2*z6)*z13+(z6^2-2*z6+1)*z11^2+((-2*z6+2)*z8+2*z6-2)*z11+z8^2-2*z8+1,z15^2+((2*z12-2*z10)*z14+(-4*z12+2*z10)*z13+(2*z11-2)*z12)*z15+(z12^2-2*z10*z12+z10^2)*z14^2+((2*z10*z12-2*z10^2)*z13+(-2*z11-2)*z12^2+(2*z10*z11+2*z10)*z12)*z14+z10^2*z13^2+(-2*z10*z11+2*z10)*z12*z13+(z11^2-2*z11+1)*z12^2,z15^2+(-2*z13-2*z8*z12+2*z11+(2*z8-2)*z10)*z15+z13^2+(-2*z8*z12-2*z11+(2*z8+2)*z10)*z13+z8^2*z12^2+((2*z8-4)*z11+(-2*z8^2+2*z8)*z10)*z12+z11^2+(-2*z8+2)*z10*z11+(z8^2-2*z8+1)*z10^2,z6^2*z15^2+(-2*z6*z14+2*z6*z11+(2*z6*z8-2*z6^2)*z10-4*z8+2*z6)*z15+z14^2+(-2*z11+(2*z8+2*z6)*z10-2)*z14+z11^2+((-2*z8+2*z6)*z10-2)*z11+(z8^2-2*z6*z8+z6^2)*z10^2+(2*z8-2*z6)*z10+1,z15^2+(-2*z10*z14+(2*z6*z10-2)*z13+(2*z6*z11-2*z8)*z12)*z15+z10^2*z14^2+((-2*z6*z10^2+2*z10)*z13+((2*z6*z10-4)*z11+2*z8*z10)*z12)*z14+(z6^2*z10^2-2*z6*z10+1)*z13^2+((-2*z6^2*z10+2*z6)*z11+2*z6*z8*z10-2*z8)*z12*z13+(z6^2*z11^2-2*z6*z8*z11+z8^2)*z12^2,(z6^2-2*z6+1)*z15^2+((-2*z6+2)*z14+(2*z6-2)*z13+((2*z6-2)*z8-2*z6^2+2*z6)*z12)*z15+z14^2+(-2*z13+(2*z8+2*z6-4)*z12)*z14+z13^2+(-2*z8+2*z6)*z12*z13+(z8^2-2*z6*z8+z6^2)*z12^2,(z6-1)*z15^2+((z6*z12+(-z6+1)*z10-1)*z14+(-z6^2*z12+(z6^2-z6)*z10-z6+2)*z13+((z6^2-z6)*z11+(-z6+2)*z8-z6)*z12+((-z6^2+2*z6-1)*z10+z6-1)*z11+((z6-1)*z8-z6+1)*z10-z8+1)*z15+(-z12+z10)*z14^2+((z6*z12+(-z6-1)*z10+1)*z13-z6*z8*z12^2+((-z6+2)*z11+((2*z6-1)*z8-z6)*z10-z8+2)*z12+((z6-1)*z10-1)*z11+((-z6+1)*z8+z6-1)*z10^2+(z8-1)*z10)*z14+(z6*z10-1)*z13^2+((-z6*z11+(-z6*z8+z6^2)*z10+2*z8-z6)*z12+((-z6+1)*z10+1)*z11+((z6-1)*z8-z6^2+z6)*z10^2+(-z8+2*z6-1)*z10-1)*z13+((z6*z8-z6^2)*z11-z8^2+z6*z8)*z12^2+((z6-1)*z11^2+(((-z6+1)*z8+z6^2-z6)*z10-z8-z6+2)*z11+(z8^2+(-z6-1)*z8+z6)*z10+z8-1)*z12]
+
+の47個となる。
+*/
+
+// 2022.03.14, Change columns to fit to the paper. Hexagon example.
+def test9_for_paper(){
+A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+   [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+   [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],
+   [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+   [0,1,0,0,1,0,0,0,0,0,0,1,1,0,0],
+   [0,0,1,0,0,1,0,0,1,0,0,0,0,1,0],
+   [0,0,0,0,0,0,1,0,0,1,0,1,0,0,1]];
+ Std=mt_gkz.cbase_by_euler(A); printf("Std=%a\n",Std);
+ IndexH=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+ IndexM=[4,8,11,13,14,15,1,2,3,5,6,7,9,10,12];
+ At=matrix_transpose(A);
+ AHt=newvect(size(At)[0]);
+ for (I=0; I<size(At)[0]; I++) {
+   AHt[I]=At[IndexM[I]-1];
+ }
+ AH=matrix_transpose(matrix_matrix_to_list(AHt));
+ print(print_tex_form(AH));
+ printf("AH(A by Henrik)=%a\n",AH);
+
+ DxH=newvect(length(IndexH));
+ for (I=0; I<length(IndexH); I++) {
+   DxH[I]=eval_str("dx"+rtostr(IndexH[I]));
+ }
+ DxH=vtol(DxH);
+
+ DxM=newvect(length(IndexM));
+ for (I=0; I<length(IndexM); I++) {
+   DxM[I]=eval_str("dx"+rtostr(IndexM[I]));
+ }
+ DxM=vtol(DxM);
+ Rule=assoc(DxM,DxH);
+ return base_replace(Std,Rule);
+}
+
+init_mm();
+
+end$
