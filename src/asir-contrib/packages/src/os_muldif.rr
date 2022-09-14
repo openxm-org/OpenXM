@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - July. 2022)
+ *          Toshio Oshima (Nov. 2007 - Sep. 2022)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -545,7 +545,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00220804"$
+Muldif.rr="00220913"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -10254,7 +10254,7 @@ def sproot(MP,T)
 					U[K]=newvect(LM[K]); V[K]=newvect(LM[K]); W[K]=newvect(LM[K]);
 				}
 				S=R[I][0];
-				if((Sym=getopt(sym))!=1||Sym!=2) Sym=0;
+				if((Sym=getopt(sym))!=1&&Sym!=2) Sym=0;
 				if(Sym){	/* symmetry */
 					for(K=C;K<NP;K++){
 						if(Sym==1 && K>0 && MV[K]==MV[K-1] && R[I][1][K]>R[I][1][K-1]){
@@ -11525,13 +11525,9 @@ def mc2grs(G,P)
 			for(LL=[],T=L;T!=[];T=cdr(T))
 				LL=cons(mc2grs(G,["get0",[I,car(T)]]),LL);
 			LL=reverse(LL);
-/* mycat(["I",I,"\nL",L,"\nLL",LL]);
-mycat([I,mc2grs(G,["get0",I])]); */
 			for(R=[],Q=mc2grs(G,["get0",I]);Q!=[];Q=cdr(Q)){ /* Q : simultaneous spct */
-/* mycat(["Q",Q,car(Q)[1]]); */
 				for(T=[],J=2;J>=0;J--){
 					V=anal2sp(LL[J],["get1",(I[0]<L[J][0])?1:2,car(Q)[1]]); /* an eigenvalue */
-/* mycat(["a",V]); */
 					if(F=="rest"){
 						V=anal2sp(V,["+",-car(Q)[1]]);
 						if(I[0]==0){
@@ -11539,9 +11535,7 @@ mycat([I,mc2grs(G,["get0",I])]); */
 								if(L[J][1]!=4) V=anal2sp(V,["+",-car(Q)[1]]);
 							}else if (L[J][0]!=2&&L[J][1]!=2) V=anal2sp(V,["+",-car(Q)[1]]);
 						}else if(L[J][0]!=0) V=anal2sp(V,["+",-car(Q)[1]]);
-#endif
 					}
-/* mycat(["b",V]); */
 					T=cons(V,T);
 				}
 				R=cons(cons(car(Q)[1],T),R);
