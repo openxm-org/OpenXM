@@ -9,7 +9,7 @@ RCDIR=../rc
 SHAREDIR=../share
 COPYRIGHTDIR=../Copyright
 
-all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-asir2000 all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
 	all-oxmgraph all-pcc all-oxpari
 
@@ -121,7 +121,7 @@ all-pcc: configure-pcc
 all-document-asir-contrib: configure-document-asir-contrib
 	(cd asir-contrib/packages/doc; ${MAKE} all)
 
-install: install-oxtags install-util install-asir install-asir2000 install-gnuplot \
+install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
