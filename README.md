@@ -4,8 +4,7 @@ OpenXM package including Risa/Asir computer algebra system.
 * [OpenXM project](http://www.openxm.org). Binaries are distributed from this project page.
 
 * Prerequisite for building from the source codes on Debian:
-nkf, wget, texinfo, java-common, openjdk-11-jdk, gnupg, latex2html, evince, dpkg-dev, debhelper, fakeroot, texi2html, dvipdfmx, gcc, freeglut3, freeglut3-dev, make, libxaw7, libxaw7,
--dev, bison, libtinfo-dev, libtinfo5, sharutils, build-essential
+nkf, wget, texinfo, java-common, openjdk-11-jdk, gnupg, latex2html, evince, dpkg-dev, debhelper, fakeroot, texi2html, dvipdfmx, gcc, freeglut3, freeglut3-dev, make, libxaw7, libxaw7-dev, bison, libtinfo-dev, libtinfo5, sharutils, build-essential
 
 * Building the package from the source codes.
 ```
