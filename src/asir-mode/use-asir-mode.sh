@@ -18,8 +18,8 @@ _ok_local() {
 
 _install_local() {
 	mkdir -p $HOME/.emacs.d/OpenXM
-	ver=$(emacs --version | grep 'GNU Emacs 28')
-	if [ -z "${ver}" ]; then
+	ver=$(emacs --batch --eval="(princ emacs-major-version)")
+	if [  ${ver} -le 27 ]; then
 	echo "emacs ver <= 27" ; sed -e 's/(insert "openxm asir")/(insert "openxm asir -nofep")/g' $OpenXM_HOME/share/emacs/asir-mode.el >$HOME/.emacs.d/OpenXM/asir-mode.el
 	else 
 	echo "emacs ver == 28" ; sed -e 's/(insert "asir -nofep")/(insert "openxm asir -nofep")/g' $OpenXM_HOME/share/emacs/asir-mode-v28.el >$HOME/.emacs.d/OpenXM/asir-mode.el
