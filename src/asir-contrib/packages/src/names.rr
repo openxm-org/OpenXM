@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20220114), Copyright 2000-2021, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20221010), Copyright 2000-2022, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -771,6 +771,15 @@ end: */
 def poly_denominator(L) {
   Opt = getopt();
   return taka_poly_denominator(L | option_list=Opt);
+}
+/*&usage begin: poly_numerator(L)
+ It returns the numerator of L. L may be a list.
+ example:
+  poly_numerator([1/(x^2-1),1/(x^3-1)]);
+end: */
+def poly_numerator(L) {
+  Opt = getopt();
+  return taka_poly_numerator(L | option_list=Opt);
 }
 
 

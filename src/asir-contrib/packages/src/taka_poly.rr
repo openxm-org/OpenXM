@@ -910,6 +910,19 @@ def taka_poly_dvar(V) {
   else D=rtostr(getopt(d));
   return taka_poly_dvar2(V,D);
 }
+def taka_poly_mult2(F,Dn) {
+  if (type(F) < 4) return red(F*Dn);
+  return map(taka_poly_mult2,F,Dn);
+}
+def taka_poly_numerator(F) {
+  if (type(F) == 0) return(1);
+  if (type(F) < 4) return(nm(F));
+  Dn=taka_poly_denominator(F);
+  return taka_poly_mult2(F,Dn);
+}
+/*
+  taka_poly_numerator([[1/x,1/y],newmat(2,2,[[1/a,1/2],[1/3,1/b]])]); 
+*/
 
 Taka_poly_loaded = 1$
 end$
