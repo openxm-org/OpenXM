@@ -1,19 +1,126 @@
 //Macaulay matrixを自作する。2021/12/9
-//yangを呼び出す前提。
 //現在のfind_macaulayの実装ではDegreeが上がるたびに下のMacaulay matrix を計算し直しているが、これは非効率的。
-
-
 
 import("mt_gkz.rr");
 //import("os_muldif.rr");
-
 //[NT]
 #define TEST 1
 // test of vars(M1), vars(M2).
 
-/* test6(); (F_C)
-   test7()$  test8()$ で動作確認 
+/* Some tests.
+   mt_mm.test6(); (F_C)
+   mt_mm.test7()$  mt_mm.test8()$ 
+   Ans=mt_mm.test6nnn();  // numerical Pfaffian matrix
+   Ans=mt_mm.test7nnn();
 */
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module mt_mm$
+localf init_mm$
+localf st$
+localf pt$
+localf clean_tmp$
+localf matrix_rank_ff$
+localf rank_check$
+localf mymodp$
+localf gauss_elim_ff_by_asir$
+localf gauss_elim_ff_by_C$
+localf gauss_elim_ff$
+localf gauss_elim_column_ff$
+localf if_is_0_ff$
+localf rank_check_ff$
+localf my_terms$
+localf my_monomials$
+localf my_coeff$
+localf my_rearrange$
+localf my_macaulay$
+localf pnumvect$
+localf rank_check_orig$
+localf truncate_at_N$
+localf if_is_0$
+localf gauss_elim$
+localf gauss_elim_column$
+localf gauss_elim_explained$
+localf find_macaulay$
+localf find_pfaffian_orig$
+localf find_pfaffian$
+localf find_pfaffian_fast$
+localf try_find_pfaffian$
+localf test3n$
+localf test4n$
+localf test5n$
+localf test6n$
+localf test7n$
+localf test8n$
+localf assert_pf1$
+localf test3nn$
+localf test4nn$
+localf test5nn$
+localf test6nn$
+localf test7nn$
+localf test8nn$
+localf test3nnn$
+localf test4nnn$
+localf test5nnn$
+localf test6nnn$
+localf test7nnn$
+localf test8nnn$
+localf test9nnn$
+localf linsolv_to_rule_orig$
+localf linsolv_to_rule$
+localf test_linsolv0$
+localf linsolv$
+localf test5_amp$
+localf test5n_amp$
+localf test5nn_amp$
+localf test5nnn_amp$
+localf produce_DStd$
+localf test1$
+localf test2$
+localf test2_1$
+localf test2_2$
+localf test2_3$
+localf test2_4$
+localf test3$
+localf test3_1$
+localf test4$
+localf test4_1$
+localf remove_redundancy$
+localf test4_2$
+localf test5$
+localf test6$
+localf test6_0$
+localf test6_1$
+localf test7$
+localf test7_1$
+localf test7_2$
+localf test8$
+localf test8_1$
+localf non_zero_places$
+localf test9$
+localf test9_1$
+localf non_zero_places$
+localf test10$
+localf remove_column$
+localf rank_check0$
+localf minor_det$
+localf myseq$
+localf minor_dets$
+localf my_transf$
+localf quad_form$
+localf a_det$
+localf test9_for_paper$
+
+static NT_MData;
+static NT_Debug;
+static NT_prime;
+static NT_prefix;
+static NT_info; /* [rank,[row, col](transposed m),indep_columns(L[2])]\n"); */
+static NT_timing; 
+static NT_std;
+static MT_mm_bin;
+#else
 extern NT_MData;
 extern NT_Debug;
 
@@ -23,6 +130,7 @@ extern NT_info; /* [rank,[row, col](transposed m),indep_columns(L[2])]\n"); */
 extern NT_timing; 
 extern NT_std;
 extern MT_mm_bin;
+#endif
 
 def init_mm() {
   if (access(getenv("OpenXM_HOME")+"/bin/mt_mm_bin/linsolv")) {
@@ -32,6 +140,7 @@ def init_mm() {
   }
   if (!access(sprintf("%a/linsolv",MT_mm_bin))) printf("Warning: linsolv is not installed under %a\n",MT_mm_bin);
   if (!access(sprintf("%a/rank_check_ff",MT_mm_bin))) printf("Warning: rank_check_ff is not installed under %a.\n  make install-to-my-bin in the source folder linsolv\n\n",MT_mm_bin);
+  printf("linsolv and rank_check_ff at %a are used.\n",MT_mm_bin);
 
   Xm_noX=1;
   NT_Debug=0;
@@ -299,7 +408,7 @@ def rank_check_ff(MData,ES,Xvars,Prime){
 	R=shell(Rank_check_ff+NT_prefix+"ga.txt "+NT_prefix+"es2.txt "+NT_prefix+"check-out.txt");
 	if (R) error(Rank_check_ff+NT_prefix+"ga.txt "+NT_prefix+"es2.txt "+" failed.");
 	S=util_read_file_as_a_string(NT_prefix+"check-out.txt");
-	Check=eval_str(S);
+	NT_result=Check=eval_str(S);
 	S2=util_read_file_as_a_string(NT_prefix+"check-out.txt-info.txt");
 	NT_info=eval_str(S2);
     }
@@ -905,8 +1014,8 @@ def find_pfaffian_orig(MData,Xvars,Dir){  //NT
 
 //[NT]
 def find_pfaffian(MData,Xvars,Dir){
-  extern NT_Debug;
-  extern NT_info;
+//  extern NT_Debug;
+//  extern NT_info;
   if (type(getopt(use_orig)) <= 0) {
     printf("The value of NT_info[2] is used for independent columns\n");
     return find_pfaffian_fast(MData,Xvars,Dir,NT_info[2] | option_list=getopt());
@@ -984,7 +1093,7 @@ def find_pfaffian(MData,Xvars,Dir){
 //NT_Debug=255;
 // 2022.01.29
 def find_pfaffian_fast(MData,Xvars,Dir,Indep){
-  extern NT_Debug;
+//  extern NT_Debug;
 
   Linsolv=1;
   if (type(getopt(linsolv))==0) {
@@ -2377,6 +2486,12 @@ A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
  return base_replace(Std,Rule);
 }
 
-init_mm();
+#ifdef USE_MODULE
+endmodule$
+mt_mm.init_mm()$
+#else
+init_mm()$
+#endif
+
 
 end$

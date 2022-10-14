@@ -1,0 +1,785 @@
+/* invlin0.rr  
+   invariant subspace of a linear map
+*/
+// import("os_muldif.rr")$  // to generate sample problems in check6().
+
+#define USE_MODULE
+#ifdef USE_MODULE
+module mt_mm$
+localf set_InvX$
+localf set_default_InvQQ$
+localf set_Verbose$
+localf set_Debug$
+localf ediv_set_field$
+localf mycoef$
+localf mydeg$
+localf mysqr$
+localf mysrem$
+localf check_mysqr$
+localf eAdd$
+localf eSwap$
+localf etRow$
+localf etCol$
+localf matrix_is_diagonal$
+localf eDiag$
+localf cmp_deg$
+localf eDiv$
+localf check1$
+localf indef2$
+localf check1b$
+localf crt2$
+localf check2$
+localf crtn$
+localf check3$
+localf inv_space_of_poly$
+localf check4$
+localf check4b$
+localf check4c$
+localf ptomat$
+localf mat_inv_space$
+localf pvectovec$
+localf p_inv_space_to_vect_one$
+localf check5$
+localf ifinv$
+localf check6$
+localf myfctr$
+localf check7$
+localf check8$
+localf is_integral_difference_sol$
+localf init_invlin0$
+
+/* Inv is the prefix of global variables */
+static InvX$   // x variable for elementary divisor
+static InvQQ$  // If 1, over QQ else over QQ(params)
+static Verbose$
+static Debug$
+
+#else
+/* Inv is the prefix of global variables */
+extern InvX$   // x variable for elementary divisor
+extern InvQQ$  // If 1, over QQ else over QQ(params)
+extern Verbose$
+extern Debug$
+#endif
+
+def set_InvX(X) { InvX=X; }
+def set_default_InvQQ() { InvQQ=1;}
+def set_Verbose(V) { Verbose=V; }
+def set_Debug(D) {Debug=D; }
+def init_invlin0() {
+  set_InvX(x);
+  mt_mm.set_default_InvQQ();
+  mt_mm.set_Verbose(1);
+  mt_mm.set_Debug(1);
+}
+/* oxweave2 --format 3 usage <invlin0.rr
+  or 
+   openxm oxweave usage <invlin0.rr
+  to output usages.
+*/
+/*&usage 
+begin:
+ ediv_set_field(1) sets the base field to Q.
+ ediv_set_field(0) sets the base field to Q(params).
+end:*/
+def ediv_set_field(QQ) {
+  InvQQ=QQ;
+  if (QQ) print("Base field is Q."); else print("Base field is Q(params). Warning: computation over Q(params) may require huge memory space and time.");
+  return QQ;
+}
+ediv_set_field(InvQQ)$
+
+/* Division in Q(parameters)[X] */
+/*Old:amp/Data2/2022-09-26-mysqr.rr -> invlin0.rr
+*/
+def mycoef(F,M,X) {
+  if (InvQQ) return coef(F,M,X);
+  D=dn(F);
+  return red(coef(nm(F),M,X)/D);
+}
+def mydeg(F,X) {
+  if (InvQQ) return deg(F,X);
+  FF=nm(F);
+  return deg(FF,X);
+}
+def mysqr(F,G,X) {
+  if (InvQQ) return sqr(F,G);
+  Df=mydeg(F,X);
+  Dg=mydeg(G,X);
+  if (Df < Dg) return [0,F];
+  Q=0;
+  while (Df >= Dg) {
+    Mon=red(mycoef(F,Df,X)/mycoef(G,Dg,X))*X^(Df-Dg);
+    F = red(F-Mon*G);
+    Q = Q+Mon;
+    Df=mydeg(F,X);
+  }
+  return [Q,F];
+}
+def mysrem(F,G,X) {
+  return mysqr(F,G,X)[1];
+}
+
+def check_mysqr(F,G,X) {
+  Ans=mysqr(F,G,X);
+  if (red(F-Ans[0]*G-Ans[1]) != 0) error("check_mysqr");
+  return Ans;
+}
+
+/*
+check_mysqr(x^2-1,x-2,x);
+check_mysqr(x^4-1,(a+1)*x^2-b,x);
+check_mysqr(x^4-x-1,(a+1)*x^2-b,x);
+*/
+
+/*Old: amp/Data2/2022-09-16-ediv.rr
+ 2022-09-16-ediv.rr */
+/*
+Ax=newmat(2,2,[[x-5,-9],[1,x+1]]);
+L1=newmat(2,2,[[0,1],[1,0]]);
+Ax2=L1*Ax;
+L2=newmat(2,2,[[1,0],[-(x-5),1]]);
+Ax3=L2*Ax2;
+R1=newmat(2,2,[[1,-(x+1)],[0,1]]);
+Ax4=Ax3*R1;
+*/
+
+/* 左から掛けると J行を I 行に足す.  I行が変化. N x N 行列 
+   右から掛けると I 列を J 列に足す. J列が変化. N x N 行列 
+*/
+def eAdd(I,J,C,N) {
+  if (Verbose==1) printf("eAdd(%a,%a,%a)\n",I,J,C);
+  if (I==J) error("eAdd, I==J");
+  T=matrix_identity_matrix(N);
+  T[I][J]=C;
+  if (Debug) { if (matrix_det(T)==0) error("det=0"); }
+  return T;
+}
+/* left, exchange I row  and J row
+   right, exchange I col and  J col
+*/
+def eSwap(I,J,N) {
+  if (Verbose==1) printf("eSwap(%a,%a)\n",I,J);
+  T=matrix_identity_matrix(N);
+  T[I][I]=T[J][J]=0;
+  T[I][J]=T[J][I]=1;
+  if (Debug) { if (matrix_det(T)==0) error("det=0"); }
+  return T;
+}
+
+/*
+  行についての triangulation
+*/
+def etRow(A) {
+  if (Verbose==1) printf("etRow(%a)\n",A);
+  X=InvX;
+  A=matrix_list_to_matrix(A);
+  A=matrix_clone(A);
+  N=size(A)[0];
+  L = matrix_identity_matrix(N);
+  for (K=0; K<N; K++) {
+    if (Verbose==1) printf("  etRow, K=%a\n",K);
+    if (A[K][K]==0) {
+      Flag=0;
+      for (I=K+1; I<N; I++) {
+        if (A[I][K] != 0) {
+          MM=eSwap(I,K,N);
+          L=MM*L;
+          A=MM*A;
+          Flag=1; break;
+        }
+      }
+      if (Flag==0) continue;
+    }
+    for (I=K+1; I<N; I++) {
+      if (A[I][K] != 0) {
+        if (mydeg(A[I][K],X) < mydeg(A[K][K],X)) {
+           MM=eSwap(I,K,N);
+           L=MM*L;
+           A=MM*A;
+        }
+      }
+    }
+    for (I=K+1; I<N; I++) {
+      if (A[I][K] != 0) {
+        QR=mysqr(A[I][K],A[K][K],InvX);
+        MM=eAdd(I,K,-QR[0],N);
+        L=MM*L;
+        A=MM*A;
+      }
+    }
+  }
+  if (Verbose==1) printf("etRow returns %a\n\n",A);
+  return [A,L];
+}
+
+def etCol(A) {
+  if (Verbose==1) printf("etCol begin A=%a\n",A);
+  A = matrix_transpose(A);
+  B = etRow(A);
+  A=matrix_transpose(B[0]);
+  B1=matrix_transpose(B[1]);
+  printf("etCol returns A=%a\n\n",A);
+  return [A,B1];
+}
+
+/*
+A1=matrix_list_to_matrix([[x-5,-9],[1,x+1]]);
+B1=etRow(A1);
+B1[0]-B1[1]*A1;
+*/
+
+/*
+A2=matrix_list_to_matrix([[0,2,1],[-4,6,2],[4,-4,0]]);
+A2=matrix_identity_matrix(3)*x-A2;
+B2=etRow(A2);
+B2[0]-B2[1]*A2;
+A2_1=B2[0]$
+B2_1=etCol(A2_1);
+B2_1[0]-A2_1*B2_1[1];
+*/
+
+def matrix_is_diagonal(A) {
+  A=matrix_list_to_matrix(A);
+  N=size(A)[0];
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      if (I != J) {
+        if (A[I][J] != 0) return 0;
+      }
+    }
+  }
+  return 1;
+}
+
+def eDiag(A) {
+  A = matrix_list_to_matrix(A);
+  A = matrix_clone(A);
+  if (Verbose==1) printf("eDiag(%a): diagonalize\n",A);
+  N = size(A)[0];
+  L = matrix_identity_matrix(N);
+  R = matrix_identity_matrix(N);
+  while (!matrix_is_diagonal(A)) {
+     B=etRow(A);
+     L=B[1]*L; A=B[0];
+     B=etCol(A);
+     R=R*B[1]; A=B[0];
+  }
+  if  (Verbose==1) printf("eDiag returns %a\n\n",A);
+  return [A,L,R];
+}
+
+/*
+B2_2=eDiag(A2);
+B2_2[0]-B2_2[1]*A2*B2_2[2];
+*/
+
+def cmp_deg(F,G) {
+  X=InvX;
+  if ((F==0) && (G==0)) return 0;
+  if ((F==0) && (G!=0)) return 1;
+  if ((F!=0) && (G==0)) return -1;
+  if (mydeg(F,X)==mydeg(G,X)) return 0;
+  if (mydeg(F,X)>mydeg(G,X)) return 1;
+  if (mydeg(F,X)<mydeg(G,X)) return -1;
+  error("cmp_deg");
+}
+/*&usage
+eDiv(A) returns [D,L,R] where $D$ is the elementary divisors and
+ D=L*A*R
+*/
+def eDiv(A) {
+  A_orig = matrix_list_to_matrix(A);
+  A = matrix_clone(A_orig);
+  if (Verbose==1) printf("eDiv(%a): elementary divisor\n",A);
+  N = size(A)[0];
+  L = matrix_identity_matrix(N);
+  R = matrix_identity_matrix(N);
+  Flag=1;
+  while (Flag) {
+    Flag=0;
+    B = eDiag(A);
+    L = B[1]*L; R=R*B[2];
+    A = B[0];
+    /* buble sort, A is diagonal. Sort the diagonal part */
+    for (I=0; I<N; I++) {
+      for (J=I+1; J<N; J++) {
+	if (cmp_deg(A[I][I],A[J][J]) == 1) {
+	  MM=eSwap(I,J,N);
+	  L=MM*L; R=R*MM;
+	  A=MM*A*MM;
+	}
+      }
+    }
+    if (Verbose==1) {
+      printf("dDiv loop: diagonals are [");
+      for (I=0; I<N; I++) { printf("%a, ",A[I][I]); }
+      printf("]\n");
+    }
+    for (I=0; I<N; I++) {
+      for (K=I+1; K<N; K++) {
+	if (mysrem(A[K][K],A[I][I],InvX) != 0) {
+	  Flag=1;
+	  MM=eAdd(I,K,A[K][K],N);
+	  A=MM*A;
+	  L=MM*L;
+	  break;
+	}
+      }
+    }
+  }
+  return [A,L,R];
+}
+//eDiv([[0,0,0,0,0],[0,x^2,0,0,0],[0,0,x,0,0],[0,0,0,1,0],[0,0,0,0,10]]);
+
+def check1(A) {
+  X=InvX;
+  A=matrix_list_to_matrix(A);
+  N=size(A)[0];
+  A2=matrix_identity_matrix(N)*X-A;
+  B2=eDiv(A2);
+  Z=B2[0]-B2[1]*A2*B2[2];
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      if (Z[I][J] != 0) error("L and R are not correct.");
+    }
+  }
+  print("Check is passed.");
+  return B2;
+}
+/*
+A2=matrix_list_to_matrix([[0,2,1],[-4,6,2],[4,-4,0]]);
+check1(A2);
+check1([[5,9],[-1,-1]]); 
+check1([[4,0,1],[2,3,2],[0,-2,0]]); // Saito, lin alg p.191
+check1([[4,-1,-4],[4,-1,-4],[3,-1,-3]]);
+check1([[6,-3,-2],[4,-1,-2],[3,-2,0]]);
+check1([[0,-1,-1,0],[-1,1,0,1],[2,1,2,-1],[-1,-1,-1,1]]);
+check1([[x+1,0,0],[0,x^3,0],[0,0,(x+1)^3]]);
+
+check1([[2,1],[1,1]]);  // 2022.09.18
+check1([[0,2,1],[-4,6,2],[4,-4,0]]); // 2022.09.24
+*/
+
+/*Old: amp/Data2/2022-09-24-crt.rr   crt=Chinese Remainder Theorem
+*/
+/*&usage:
+  indef2(F,G) returns [C1,C2] such that 
+  C1*F+C2*G=1
+*/
+def indef2(F,G) {
+  X=InvX;
+  if (mydeg(F,X) < mydeg(G,X)) error("indef2, it should be deg F >= deg G");
+  QR=mysqr(F,G,InvX);
+  Q=QR[0]; R=QR[1];
+  if (R==0) error("indef2, F and G are not relatively prime.");
+  if (mydeg(R,X)==0) {
+    return [1/R,-(1/R)*Q];
+  } else {
+    C=indef2(G,R);
+    return [C[1],C[0]-C[1]*Q];
+  }
+}
+
+def check1b(F,G) {
+  C=indef2(F,G);
+  return C[0]*F+C[1]*G-1;
+}
+/*
+check1b((x-1)^3,(x+1)^3);
+check1b(2*x^5-1,10*x^5-2);
+check1b(x^5-1,x^4-1);
+*/
+
+/*&usage:
+ crt2([r1,p1],[r2,p2]) returns h such that h mod p1 = r1, h mod p2 = r2
+ 2022.09.24
+*/
+def crt2(RP1,RP2) {
+  X=InvX;
+  if (mydeg(RP1[1],X) < mydeg(RP2[1],X)) {
+    return crt2(RP2,RP1);
+  }
+  R1=RP1[0]; P1=RP1[1];
+  R2=RP2[0]; P2=RP2[1];
+  S=indef2(P1,P2);
+  return (1-S[0]*P1)*R1+R2*S[0]*P1;
+}
+def check2(RP1,RP2) {
+  H=crt2(RP1,RP2);
+  return [mysrem(H-RP1[0],RP1[1],InvX),mysrem(H-RP2[0],RP2[1],InvX)];
+}
+/*
+check2([x^2+1,(x-1)^3],[x^3-1,(x+1)^3]);
+check2([x^2+1,(x-1)^3+x^4],[x^3-1,(x+1)^3]);
+check2([x^2+1,(x-1)^3],[x^3-1,(x+1)^3+10*x^5]);
+check2([0,(x-1)^3],[3,(x+1)^3+10*x^5]);
+*/
+/*&usage:
+  crtn(L) returns H such that H mod L[i][1] = L[i][0]
+  2022.09.24
+*/
+def crtn(L) {
+  if (length(L)==1) return L[0][0];
+  if (length(L)==2) return crt2(L[0],L[1]);
+  Ans=crt2(L[0],L[1]); 
+  return crtn(cons([Ans,L[0][1]*L[1][1]],cdr(cdr(L))));
+}
+def check3(L) {
+  H=crtn(L);
+//  printf("H=%a\n",fctr(H));
+  Ans=[];
+  for (I=0; I<length(L); I++) {
+    Ans=cons(mysrem(H-L[I][0],L[I][1],InvX),Ans);
+  }
+  return reverse(Ans);
+}
+/*
+check3([[x^2+1,(x-1)^3],[x^3-1,(x+1)^3],[1,(x-1/2)^4+10*x^5]]);
+check3([[5*x,(3*x-1)^4],[x^2+1,(x-1)^3],[x^3-1,(x+1)^3],[1,(x-1/2)^4+10*x^5]]);
+check3([[5*x,(3*x-1)^4],[0,(x-1)^3],[0,(x+1)^3],[0,(x-1/2)^4+10*x^5]]);
+*/
+
+/*&usage:
+  inv_space_of_poly(P) returns bases of the invariant spaces of K[x]/P
+  where P=P1*P2*P3*...
+  They are expressed as [[b11,b12, ...], [b21,b22,...], ...]
+  [bi1,bi2, ...] stands for the basis of K[x]/Pi.
+*/
+def inv_space_of_poly(P) {
+  X=InvX;
+  PP2=myfctr(P);  /* PP2 consists of irreducbile monic factors */
+
+  B=[];
+  for (I=0; I<length(PP2); I++) {
+    D=mydeg(PP2[I],X); Bi=[];
+    for (J=0; J<D; J++) {
+      L=newvect(length(PP2)); L[I]=X^J; L=vtol(L);
+      H=crtn(assoc(L,PP2));
+      Bi=cons(mysrem(H,P,InvX),Bi);
+    }
+    Bi=reverse(Bi);
+    B=cons(Bi,B);
+  }
+  return reverse(B);
+}
+def check4(P) {
+  L=inv_space_of_poly(P);
+  for (I=0; I<length(L); I++) {
+    check4b(L[I],P);
+  }
+  return L;
+}
+/*&usage: check4b checks if L is invariant by the action of x modulo P */
+def check4b(L,P) {
+  L2=[];
+  for (I=0; I<length(L); I++) {
+    L2=cons(mysrem(L[I]*InvX,P,invX),L2);
+  }
+  L2=reverse(L2);
+  for (I=0; I<length(L2); I++) {
+    check4c(L2[I],L);
+  }
+}
+/*&usage: check4c(F,L) checks if F = sum c_i L_i, c_i is a constant */
+def check4c(F,L) {
+  X=InvX;
+  F0=F;
+  V=base_var_list(c,0,length(L)-1);
+  G=0; for (I=0; I<length(L); I++) G += V[I]*L[I];
+  F=F-G;
+  Eq=[];
+  for (I=0; I<=mydeg(F,X); I++) {
+    Eq=cons(mycoef(F,I,X),Eq);
+  }
+  Ans=poly_solve_linear(Eq,V);
+  printf("F=%a, Ans=%a\n",F0,Ans);
+  if (length(Ans)==0) error("check4c is failed.");
+}
+/*
+check4(x^2*(x-1)^3);
+// z-Done/2022-09-15-lin-alg-saito.pdf, z-Done/2022-09-07-lin-alg-invariant-factor-iri.pdf
+check4(x^4-1);
+check4(x-2);
+check4((x-2)^2);
+*/
+
+/*&usage: ptomat(F,X,Mat) replaces X in the polynomial F by the matrix Mat
+*/
+def ptomat(F,X,Mat) {
+  Mat=matrix_list_to_matrix(Mat);
+  Ans=0;
+  for (I=0; I<=mydeg(F,X); I++) {
+    Ans += mycoef(F,I,X)*Mat^I;
+  }
+  return Ans;
+}
+/*
+ptomat(a*x^3+b*x+c,x,newmat(2,2,[[1,2],[3,4]]));
+ptomat((x^2-5*x+4-3*a)*x*(x-1/2),x,newmat(2,2,[[1,a],[3,4]]));
+*/
+
+/*&usage
+begin:
+ mat_inv_space(A) returns invariant spaces of A over Q or Q(param).
+ Note that the returned bases of the invariant subspaces do not give
+ bases for the Jordan canonical form.
+ Example: mat_inv_space([[ -8, 6, 4, 5, -4 ],[ -4, -2, 7, -3, -7 ],[ 4, 6, -7, 4, 6 ],[ 1, 4, -6, 6, 6 ],[ 6, 1, -3, -3, 2 ]]);
+);
+end:
+*/
+def mat_inv_space(A) {
+  if (type(getopt(ediv))>0) NeedElementaryDivisor=1;
+  else NeedElementaryDivisor=0;
+  A=matrix_list_to_matrix(A);
+  V=vars(A);
+  if ((length(V) > 1) && InvQQ) error("The input seems to be on Q(params). Do ediv_set_field(0);");
+  if (base_memberq(InvX,V)) error("The matrix contains InvX variable.");
+
+  X=InvX;
+  N=size(A)[0];
+  Ep=ptomat(X-t_yyy,t_yyy,A);
+  EeRL=eDiv(Ep);
+  Ee = EeRL[0]; /* elementary divisor */
+  L  = EeRL[1];
+  R  = EeRL[2]; /* L (x-A) R = Ee */
+  Linv = matrix_inverse(L);
+  if (Verbose) printf("L=%a,\nEp=%a,\nR=%a\nEe(eDiv)=%a,\nL^(-1)=%a\n",L,Ep,R,Ee,Linv);
+  Inv=[];
+  for (I=0; I<N; I++) {
+    if (mydeg(Ee[I][I],X) == 0) continue;
+    C=mycoef(Ee[I][I],mydeg(Ee[I][I],X),X);
+    if (C != 1) {
+      Ee[I][I] = Ee[I][I]/C; R[I][I]=R[I][I]/C;  /* make it monic */
+    }
+    II=inv_space_of_poly(Ee[I][I]);
+    for (J=0; J<length(II); J++) {
+      Inv_one = p_inv_space_to_vect_one(Linv,II[J],I,A);
+      Inv = cons(Inv_one,Inv);
+    }
+  }
+  if (NeedElementaryDivisor) {
+    return [reverse(Inv),EeRL];
+  }else {
+    return reverse(Inv);
+  }
+}
+def pvectovec(Vec,X,A) {
+  N=length(Vec);
+  Ans=newvect(N);
+  for (I=0; I<N; I++) {
+    Ei = newvect(N); Ei[I]=1;
+    Ans += ptomat(Vec[I],X,A)*Ei;
+  }
+  return Ans;
+}
+def p_inv_space_to_vect_one(Linv,Ps,I,A) {
+  Inv=[];
+  X=InvX;
+  N=size(A)[0];
+  Ei = newvect(N); Ei[I]=1;
+  for (I=0; I<length(Ps); I++) {
+    V=pvectovec(Linv*(Ei*Ps[I]),X,A);
+    Inv=cons(V,Inv);
+  }
+  return reverse(Inv);
+}
+def check5(A) {
+  A=matrix_list_to_matrix(A);
+  Inv = mat_inv_space(A);
+  printf("Inv=%a\n",Inv);
+  M=length(Inv);
+  P=[];
+  printf("%a invariant spaces\n",M);
+  for (I=0; I<M; I++) {
+     ifinv(A,Inv[I]);
+     for (J=0; J<length(Inv[I]); J++) {
+       P=cons(vtol(Inv[I][J]),P);
+     }
+  }
+  P = reverse(P); P = matrix_transpose(P);
+  printf("P^(-1)*A*P = %a\n\n",QD=matrix_inverse(P)*A*P);
+  return [Inv,P,QD];
+}
+def ifinv(A,Vecs) {
+  A=matrix_list_to_matrix(A);
+  Vecs2=[];
+  for (I=0; I<length(Vecs); I++) {
+    Vecs2=cons(A*Vecs[I],Vecs2);
+  }
+  V = base_var_list(c,1,length(Vecs));
+  Vsum = newvect(length(Vecs[0]));
+  for (I=0; I<length(Vecs); I++) Vsum += V[I]*Vecs[I];
+  /* if Vecs2 is a subspace of Vecs */
+  for (I=0; I<length(Vecs2); I++) {
+    Eq = Vecs2[I]-Vsum;
+    Eq = base_flatten(Eq);
+    Sol=poly_solve_linear(Eq,V);
+    if (length(Sol)==0) error("ifinv");
+  }
+}
+/*
+check5(A=[[2,1,0],[0,2,0],[0,0,2]]);
+*/
+/*
+check5([[0,2,1],[-4,6,2],[4,-4,0]]);
+check5([[6,-3,-7],[-1,2,1],[5,-3,-6]]); // saito p.192. diagonal
+check5([[6,-3,-2],[4,-1,-2],[3,-2,0]]); // saito p.193. ex4.
+check5([[0,2,1],[-4,6,2],[4,-4,0]]);    // saito p.193. ex5.
+check5([[0,-1,-1,0],[-1,1,0,1],[2,1,2,-1],[-1,-1,-1,1]]); // saito p.194. ex6.
+*/
+
+/* 2022.10.05 */
+def check6() {
+  printf("importing os_muldif.rr is required to execute this function.");
+  S=os_md.unim(5 | conj=1);
+  Ans=check5(matrix_matrix_to_list(S[0]));
+  return [Ans,S];
+}
+
+/*
+Note that our basis of the invariant space does not give that of
+the Jordan canonical form.
+*/
+/*
+check5(-matrix_list_to_matrix(
+[[ 2, 4, 0, 4, 4 ],
+[ 4, 2, -1, 3, 4 ],
+[ -7, 2, 2, -4, -7 ],
+[ -6, -3, 3, -4, -6 ],
+[ 2, -1, -2, -1, 0 ]]));
+*/
+/*
+dim 3 invariant space.
+[[ -8, 6, 4, 5, -4 ],
+[ -4, -2, 7, -3, -7 ],
+[ 4, 6, -7, 4, 6 ],
+[ 1, 4, -6, 6, 6 ],
+[ 6, 1, -3, -3, 2 ]]
+*/
+
+/* 2022.10.05 */
+def myfctr(P) {
+  if (InvQ) {
+    Fp=fctr(P);
+    if (Fp[0][0]^Fp[0][1] != 1) error("The given P is not monic");
+    PP=cdr(Fp);  
+    PP2=[];
+    for (I=0; I<length(PP); I++) {
+      PP2=cons(PP[I][0]^PP[I][1],PP2);
+    }
+    PP2 = reverse(PP2);
+    return PP2;  /* PP2 is monic invariant factors */
+  }
+  X=InvX;
+  if (mycoef(P,mydeg(P,X),X) != 1) error("The given P is not monic.");
+  Dn=dn(P); P=nm(P);
+  Fp=fctr(P);
+  Param_coef=1;
+  PP2=[]; 
+  for (I=0; I<length(Fp); I++) {
+    if (mydeg(Fp[I][0],X)==0) {
+      Param_coef *= Fp[I][0]^Fp[I][1];
+    }else{
+      PP2=cons(Fp[I][0]^Fp[I][1],PP2);
+    }
+  }
+  PP2=reverse(PP2);
+  /* parameter coef is set to PP2[0] */
+  F=red(PP2[0]*Param_coef/Dn);
+  return cons(F,cdr(PP2));
+}
+
+/* parametric case, P should be Jordan canonical form. */
+def check7(P) {
+  QQprev=InvQQ;
+  ediv_set_field(0);
+  P=matrix_list_to_matrix(P);
+  N=size(P)[0];
+  Q=matrix_identity_matrix(N);
+  Q[0][0]=1/(a+1); Q[N-1][N-1]=a/(a+2);
+  for (I=0; I<N-1; I++) Q[I][I+1]=a^(I%3);
+  for (I=1; I<N; I++) Q[I][I-1]=I;
+  Mat=map(red,matrix_inverse(Q)*P*Q);
+  Ans=check5(Mat);
+  printf("Computation has been done with K=Q(params). Restoring the field type ... ");
+  ediv_set_field(QQprev);
+  return [Mat,Ans];
+}
+
+/* check5(Mat) over Q[x]
+   check7(Mat) over Q(param)[x]
+*/
+//check7([[a,1],[0,a]]);
+//check7([[a,1,0],[0,a,0],[0,0,b]]);  // この程度でも inv subspace の計算は巨大多項式. inv spaces が出た時点で abort.
+
+/* 2022.10.09, for bug fix. It was not bug. Do not forget ediv_set_field(0); */
+def check8() {
+  ediv_set_field(0);
+  Mat=[[b1-b4,b3*x6,b3*b1-b3*b2-b3^2-b4*b3],[0,0,0],[0,0,0]];
+  return mat_inv_space(Mat);
+}
+
+/* 2022.10.14 */
+def is_integral_difference_sol(F1,F2) {
+  F1=nm(F1);
+  F2=nm(F2);
+  X=InvX;
+  Y=_tmp;
+  LL=[F1,F2];
+  for (I=0; I<length(LL); I++) {
+    L=fctr(LL[I]);
+    if (length(L) > 2) {
+      printf("%a=%a : ",LL[I],L);
+      error("F is not irreducible.");
+    }
+    if (L[1][1] > 1) error("F is not square free.");
+  }
+  F1=base_replace(F1,[[X,X+Y]]);
+  G=F1-F2;
+  S=[];
+  N=deg(G,X);
+  for (I=0; I<=N; I++) {
+    C=coef(G,I,X);
+    if (C != 0) S=cons(C,S);
+  }
+  if (length(S) == 0) error("Invalid input");
+  if (length(vars(S))==0) return 0;
+  S=nd_gr(S,V=vars(S),0,0);
+  P=poly_prime_dec(S,V);
+  if (Debug) printf("S=%a\nP=%a\n",S,P);
+  for (I=0; I<length(P); I++) {
+    for (J=0; J<length(P[I]); J++) {
+      Fac=P[I][J];
+      if (vars(Fac)==[Y]) {
+        if (deg(Fac,Y)==1) {
+	  if (number_is_integer(Sol=base_replace(Fac,[[Y,0]]))) {
+	    return [1,Sol];
+	  }
+	}
+      }
+    }
+  }
+  return 0;
+}
+
+/*
+is_integral_difference_sol(x^2+1,red((x^5+1)/(x+1)));
+is_integral_difference_sol(x^2+1,(x+@i+1)*(x-@i+1)); // @i and @i+2, ...
+// b/(a+1)*@i, b/(a+1)*@i+3,...
+is_integral_difference_sol(x^2+(b/(a+1))^2,(x-(b/(a+1))*@i+3)*(x+(b/(a+1))*@i+3));
+*/
+
+#ifdef USE_MODULE
+endmodule$
+mt_mm.init_invlin0()$
+#else
+init_invlin0()$
+#endif
+
+//mt_mm.is_integral_difference_sol(x^2+(b/(a+1))^2,(x-(b/(a+1))*@i+3)*(x+(b/(a+1))*@i+3));
+
+end$
+
+
+
