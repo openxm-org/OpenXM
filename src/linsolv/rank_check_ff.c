@@ -486,14 +486,16 @@ int main(int argc, char *argv[]) {
   fprintf(stderr,"NT_info=[rank,[row, col]( of m=transposed MData[0]),indep_columns(L[2])]\n");
   if (fname_info[0] != 0) fp = fopen(fname_info,"w");
   else fp = stdout;
-  fprintf(fp,"NT_info=[");
+/*  fprintf(fp,"NT_info=["); */
+/*  2022.10.15, static variable of asir must not be used in eval_str. */
+  fprintf(fp,"["); 
   fprintf(fp,"%d, ",md.len);
   fprintf(fp,"[%d,%d], [",row,col);
   for (i=0; i<md.len; i++) {
     fprintf(fp,"%d",(md.Indep_columns)[i]);
     if (i != (md.len-1)) fprintf(fp,",");
   }
-  fprintf(fp,"]]$ ");
+  fprintf(fp,"]]; ");
   if (fp != stdout)  fclose(fp);
 
 
@@ -531,7 +533,8 @@ int main(int argc, char *argv[]) {
     fprintf(fp3,"]$\n");
   }
 
-  fprintf(fp3,"NT_result=%d$ ",result);
+/*  fprintf(fp3,"NT_result=%d$ ",result); */
+  fprintf(fp3,"%d; ",result); 
   if (fp3 != stdout) fclose(fp3);
 
   freemat(m,row);
