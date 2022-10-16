@@ -111,6 +111,8 @@ localf my_transf$
 localf quad_form$
 localf a_det$
 localf test9_for_paper$
+localf get_NT_info$
+localf get_indep_cols$
 
 static NT_MData;
 static NT_Debug;
@@ -138,9 +140,10 @@ def init_mm() {
   }else{
     MT_mm_bin=getenv("HOME")+"/bin";
   }
+  Warn=0;
   if (!access(sprintf("%a/linsolv",MT_mm_bin))) printf("Warning: linsolv is not installed under %a\n",MT_mm_bin);
-  if (!access(sprintf("%a/rank_check_ff",MT_mm_bin))) printf("Warning: rank_check_ff is not installed under %a.\n  make install-to-my-bin in the source folder linsolv\n\n",MT_mm_bin);
-  printf("linsolv and rank_check_ff at %a are used.\n",MT_mm_bin);
+  if (!access(sprintf("%a/rank_check_ff",MT_mm_bin))) {printf("Warning: rank_check_ff is not installed under %a.\n  make install-to-my-bin in the source folder linsolv\n\n",MT_mm_bin); Warn=1;}
+  if (!Warn) printf("linsolv and rank_check_ff at %a are used.\n",MT_mm_bin);
 
   Xm_noX=1;
   NT_Debug=0;
@@ -854,6 +857,16 @@ def find_macaulay(Id,Std,Xvars){
   bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
   if (type(getopt(p))>0) NT_prime=getopt(p); //[NT]
   if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
+  yang.define_ring(["partial",Xvars]); //[NT]
+  Dvars=poly_dvar(Xvars);
+  if (type(Std[0])<9) {
+     print("Warning: Input Std should be distributed poly. Changing the format.");
+     Std=map(dp_ptod,Std,Dvars);
+  }
+  if (type(Id[0])<9) { 
+     print("Warning: Input Ideal should be distributed poly. Changing the format.");
+     Id = map(dp_ptod,Id,Dvars);
+  }
   E=map(dp_ptod,Xvars,Xvars);
   P=0;
   for(I=0;I<length(Xvars);I++){
@@ -2485,6 +2498,10 @@ A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
  Rule=assoc(DxM,DxH);
  return base_replace(Std,Rule);
 }
+
+/* 2022.10.16 */
+def get_NT_info() {  return NT_info; }
+def get_indep_cols() { return NT_info[2]; }
 
 #ifdef USE_MODULE
 endmodule$
