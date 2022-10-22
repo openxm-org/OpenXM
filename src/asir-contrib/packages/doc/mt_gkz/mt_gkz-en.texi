@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.7 2022/01/13 02:38:00 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-contrib/packages/doc/mt_gkz/mt_gkz-en.texi,v 1.8 2022/02/13 05:59:56 takayama Exp $
 %% xetex mt_gkz-en.texi   (.texi までつける. ) 
 %% @math{tex形式の数式} 
 %% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
@@ -38,7 +38,7 @@
 @title GKZ hypergeometric system
 @subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
 @subtitle Version 1.0
-@subtitle February 13, 2022
+@subtitle October 22, 2022
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -379,7 +379,8 @@ See [SST1999].
 [3176]  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]]$
 [3177]  B=newvect(3,[5,4,7])$ Ap=[[1,1,0,0],[0,0,1,1],[0,0,0,0]]$
 [3179]  Beta=[b1,b2,b3]$  R=[0,0,-1,0]$
-[3180]  F2=hgpoly_res(A,B,2);  // HG polynomial. 2 is the number of e_i's.
+[3180]  F2=hgpoly_res(A,B,2);  // HG polynomial. 2 is the number of e_i's
+                               // =the number of non-zero rows of Ap
   10*x1^2*x2^3*x4^4+20*x1*x2^4*x3*x4^3+6*x2^5*x3^2*x4^2
 [3182]  mt_gkz.ff(R,A,Ap,Beta); // the operator standing for R
   (x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3)/(b1+b2-b3+1)
@@ -774,6 +775,7 @@ Example:
 * mt_gkz.get_bf_step_up::
 * mt_gkz.mytoric_ideal::
 * mt_gkz.cbase_by_euler::
+* mt_gkz.gkz_b::
 @end menu
 
 @node some utility functions,,, utilities
@@ -791,6 +793,7 @@ Example:
 @node mt_gkz.get_bf_step_up,,, some utility functions
 @node mt_gkz.mytoric_ideal,,, some utility functions
 @node mt_gkz.cbase_by_euler,,, some utility functions
+@node mt_gkz.gkz_b,,, some utility functions
 
 @findex mt_gkz.reduce_by_toric
 @findex mt_gkz.tk_base_equal
@@ -805,8 +808,99 @@ Example:
 @findex mt_gkz.mytoric_ideal
 @findex mt_gkz.cbase_by_euler
 
+@comment -------------------------------------------------------------
+@node mt_gkz.gkz_b,,, Some some utility functions
+@subsection @code{mt_gkz.gkz_b}
+@comment --- 索引用キーワード
+@findex mt_gkz.gkz_b
+
+@table @t
+@item mt_gkz.gkz_b(@var{A},@var{Beta},@var{Simplex})
+:: It returns the so called Horn system (B expression of GKZ) 
+standing for the GKZ system for @var{A}, @var{Beta}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+the Horn system. It is expressed by the Euler operator, e.g.,
+<<3>> stands for (x1*dx1)^3 in D. 
+@item A
+the matrix A of the GKZ system.
+@item Beta
+the vector beta of the GKZ system.
+@item Simplex
+the indices of the variables to put 1. The index starts from 1.
+It should be a simplex obtained by a regular triangulation.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+When the option partial=1 is given, the Horn system is expressed 
+by partial differential 
+operators, e.g., <<1,2>> stands for dx1*dx2^2.
+@item 
+When B is the Gale transform matrix of A, in other words, AB=0 
+where the column vectors span Ker A,
+the associated Horn system is obtained from the series expansion
+associated to the matrix B and the simplex.
+The 'b' of the function name gkz_b comes from this fact.
+@end itemize
+
 @comment --- @example〜@end example は実行例の表示 ---
-We only show examples on these functions. As for details, please see
+Example: Pfaffian equation for Appell function F1.
+@example
+import("mt_gkz.rr");
+import("yang.rr");
+A=[[1,1,1,0,0,0],
+   [0,0,0,1,1,1],
+   [0,1,0,0,1,0],
+   [0,0,1,0,0,1]];
+Id=mt_gkz.gkz_b(A,[b1,b2,b3,b4],[1,2,3,6] | partial=1);
+yang.define_ring(["partial",Xvars=[x4,x5]]);
+// Id=map(mt_mm.remove_redundancy,Id,Xvars);
+yang.verbose();
+G=yang.buchberger(Id);
+Std=yang.stdmon(G);
+Pf=yang.pfaffian(map(dp_ptod,Std,poly_dvar(Xvars)),G);
+// print_xdvi_form(poly_factor(Pf[0]);
+end$
+
+Outputs are, e.g.,
+
+[3104] Id[2];
+(x4*x5^2-x4*x5)*<<1,1>>+(x5^3-x5^2)*<<0,2>>+(-b3*x4*x5)*<<1,0>>
++((-b2-b3+1)*x5^2+(b2-b4-1)*x5)*<<0,1>>+(b3*b2*x5)*<<0,0>>
+[3105] G[1];
+[(-x5+x4)*<<1,1>>+(b3)*<<1,0>>+(-b1-b2+b3+b4)*<<0,1>>,-x5+x4]
+[3106] Std;
+[dx4,dx5,1]
+@end example
+Pf[0] by print_tex_form(poly_factor(Pf[0])) is @*
+@math{
+\pmatrix{
+{ (    (      (     {b}_{1}+  2  {b}_{2}-  2  {b}_{3}- {b}_{4}- 1)  {x}_{4}- {b}_{2}+ {b}_{3}+ {b}_{4}+ 1)  {x}_{5}+  (     - {b}_{1}-  2  {b}_{2}+ {b}_{3}+ {b}_{4}+ 1)   {x}_{4}^{ 2} +  (   {b}_{2}- {b}_{4}- 1)  {x}_{4})}\over{   ( {x}_{4})  (  {x}_{4}- 1)  (  {x}_{5}- {x}_{4})}&  {   (    {b}_{1}+ {b}_{2}- {b}_{3}- {b}_{4})  ( {x}_{5})  (  {x}_{5}- 1)}\over {   ( {x}_{4})  (  {x}_{4}- 1)  (  {x}_{5}- {x}_{4})}&  {   ( - 1)  ( {b}_{2})  (    {b}_{1}+ {b}_{2}- {b}_{3}- {b}_{4})}\over {  ( {x}_{4})  (  {x}_{4}- 1)} \cr
+ { ( {b}_{3})} \over{ (  {x}_{5}- {x}_{4})}&  {  ( - 1)  (    {b}_{1}+ {b}_{2}- {b}_{3}- {b}_{4})} \over{ (  {x}_{5}- {x}_{4})}& 0 \cr
+ 1& 0& 0 \cr }
+}.
+dx4-Pf[0], dx5-Pf[1] are Pfaffian equations obtained by the Buchberger algorithm.
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.regular_triangulation}
+@ref{mt_gkz.top_standard_pairs}
+@end table
+@comment ------------------------------------------------
+@*
+@*
+
+@comment --- @example〜@end example は実行例の表示 ---
+For other function, we have not yet written manual entries. 
+We only show examples on these. As for details, please see
 the source code.
 @example
 [1883] import("mt_gkz.rr");
@@ -1591,7 +1685,7 @@ the matrix A of the GKZ system.
 The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
 @end itemize
 
-@comment --- @example〜@end example は実行例の表示 ---
+@comment --- @example〜@end example は実行例の表示 ---  @* 強制改行
 Example: Gauss hypergeometric system, see [GM2020] example ??.
 @example
 [1883] import("mt_gkz.rr");
