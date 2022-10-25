@@ -2,10 +2,11 @@
 HEADERS=config.h odeiv_util.h t-gsl_errno.h \
         t-gsl_math.h t-gsl_odeiv.h t-gsl_sys.h \
         t-gsl_types.h
+Opt= -Wstrict-prototypes 
 hgm_so3_nc: make-link so3_nc.o 
-	${CC} -o hgm_so3_nc so3_nc.o ../../gsl-t-1/src/gsl-t-1.a -lm
+	${CC} ${Opt} -o hgm_so3_nc so3_nc.o ../../gsl-t-1/src/gsl-t-1.a -lm
 so3_nc.o : so3_nc.c
-	${CC} -c -DSTANDALONE so3_nc.c
+	${CC} ${Opt} -c -DSTANDALONE so3_nc.c
 
 make-link: make-link-p
 	-if [ ! -f .link_done ] ; then \

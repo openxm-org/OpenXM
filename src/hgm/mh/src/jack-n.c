@@ -200,10 +200,10 @@ static int nk(int KK[]);
 static int myeq(int P1[],int P2[]);
 static int pListPartition(int M,int N);
 static int pListPartition2(int Less,int From,int To, int M);
-static void pExec_0();
+static void pExec_0(void);
 static int pListHS(int Kap[],int N);
 static int pListHS2(int From,int To,int Kap[]);
-static void hsExec_0();
+static void hsExec_0(void);
 static int pmn(int M,int N);
 static int *cloneP(int a[]);
 static int copyP(int p[],int a[]);
@@ -216,8 +216,8 @@ static int psublen(int Kap[],int Mu[]);
 static int genJack(int M,int N);
 
 static int imypower(int x,int n);
-static int usage();
-static int setParamDefault();
+static int usage(void);
+static int setParamDefault(void);
 static int next(struct SFILE *fp,char *s,char *msg);
 static int setParam(char *fname);
 static int showParam(struct SFILE *fp,int fd);
@@ -239,16 +239,16 @@ static void setM_x_ef_type1(void);
 static void setM_x_ef_type2(void);
 
 #ifdef STANDALONE
-static int test_ptrans();
+static int test_ptrans(void);
 static int printp2(int kappa[]);
-static int test_beta();
-static void mtest4();
-static void mtest4b();
+static int test_beta(void);
+static void mtest4(void);
+static void mtest4b(void);
 static int plength2(int P1[],int P2[]);
-static int checkBeta1();
+static int checkBeta1(void);
 static int checkJack1(int M,int N);
 static int checkJack2(int M,int N);
-static int mtest1b();
+static int mtest1b(void);
 static double q3_5(double A[],double B[],int K[],int I);
 #endif
 
@@ -256,8 +256,8 @@ double mh_t(double A[],double B[],int N,int M);
 double mh_t2(int J);
 struct MH_RESULT *jk_main(int argc,char *argv[]);
 struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int newDegree);
-int jk_freeWorkArea();
-int jk_initializeWorkArea();
+int jk_freeWorkArea(void);
+int jk_initializeWorkArea(void);
 static void setA(double a[],int alen);  /* set A_LEN and A_pFq */
 static void setB(double b[],int blen);
 
@@ -300,7 +300,7 @@ static void setB(double b[],int blen) {
   return;
 }
 
-int jk_freeWorkArea() {
+int jk_freeWorkArea(void) {
   /* bug, p in the cloneP will not be deallocated.
      Nk in genDarray2 will not be deallocated.
   */
@@ -324,7 +324,7 @@ int jk_freeWorkArea() {
   JK_deallocate=0;
   return(0);
 }
-int jk_initializeWorkArea() {
+int jk_initializeWorkArea(void) {
   int i,j;
   JK_deallocate=1;
   xval(0,0);
@@ -477,7 +477,7 @@ static void ptrans(int P[M_nmx],int Pt[]) { /* Pt[M_m] */
 }
 
 #ifdef STANDALONE
-static int test_ptrans() {
+static int test_ptrans(void) {
   extern int M_m;
   int p[M_n0]={5,3,2};
   int pt[10];
@@ -675,7 +675,7 @@ static int printp2(int kappa[]) {
   return(0);
 }
 
-static int test_beta() {
+static int test_beta(void) {
   int kappa[M_n0]={2,1,0};
   int mu1[M_n0]={1,0,0};
   int mu2[M_n0]={1,1,0};
@@ -771,7 +771,7 @@ static double q3_5(double A[],double B[],int K[],int I) {
 }
 #endif
 #ifdef STANDALONE
-static void mtest4() {
+static void mtest4(void) {
   double A[1] = {1.5};
   double B[1]={6.5};
   int K[M_n0] = {3,2,0};
@@ -783,7 +783,7 @@ static void mtest4() {
   V2=qk(K,A,B)/qk(Ki,A,B);
   oxprintf("%lf== %lf?\n",V1,V2);
 }
-static void mtest4b() {
+static void mtest4b(void) {
   int K[M_n0]={3,2,0}; 
   int M[M_n0]={2,1,0}; 
   int N[M_n0]={2,0};
@@ -887,7 +887,7 @@ static int pListPartition2(int Less,int From,int To, int M) {
 /*
   Commands to do for each partition are given here.
 */
-static void pExec_0() {
+static void pExec_0(void) {
   if (Debug) {
     oxprintf("M_kap=");
     printp(M_kap);
@@ -934,7 +934,7 @@ static int pListHS2(int From,int To,int Kap[]) {
   return(1);
 }
 
-static void hsExec_0() {
+static void hsExec_0(void) {
   /* int i; */
   if(Debug) {oxprintf("hsExec: "); printp(HS_mu); oxprintf("\n");}
 }
@@ -1165,7 +1165,7 @@ static int genBeta(int Kap[]) {
   genBeta([2,1,1]);
 */
 #ifdef STANDALONE
-static int checkBeta1() {
+static int checkBeta1(void) {
   int Kap[3] = {2,2,0};
   int Kap2[3] = {2,1,0};
   int I;
@@ -1514,7 +1514,7 @@ double mh_t2(int J) {
 }
 
 #ifdef STANDALONE
-static int mtest1b() {
+static int mtest1b(void) {
   double A[1] = {1.5};
   double B[1] = {1.5+5};
   int I,N,M,J;
@@ -1718,13 +1718,13 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   return(ans);
 }
 
-static int usage() {
+static int usage(void) {
   oxprintfe("Usages:\n");
 #include "usage-jack-n.h"
   return(0);
 }
 
-static int setParamDefault() {
+static int setParamDefault(void) {
   int rank;
   int i;
   Mg = M_n_default ;

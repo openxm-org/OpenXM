@@ -1,8 +1,8 @@
 ## $OpenXM: OpenXM/src/hgm/mh/src/Makefile,v 1.21 2016/10/30 01:10:18 takayama Exp $
-OPT=-g -DSTANDALONE 
-OPT2=-g
-OPT3=-g -DSTANDALONE2
-OPT4=-g -DSTANDALONE -Wpedantic
+OPT=-g -DSTANDALONE -Wstrict-prototypes 
+OPT2=-g -Wstrict-prototypes 
+OPT3=-g -DSTANDALONE2 -Wstrict-prototypes 
+OPT4=-g -DSTANDALONE -Wpedantic -Wstrict-prototypes 
 #
 # For using AddressSanitizer, apt-get lib32asan0-dbg (for amd64). ulimit -v
 #

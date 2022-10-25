@@ -19,7 +19,7 @@ void mh_check_intr(int n);
 /* gcc evalnc.c -lgsl -lblas -lm */
 /* gcc evalnc.c `pkg-config --cflags gsl` `pkg-config --libs gsl` */
 
-int so3_func();
+int so3_func(double t, const double y[], double f[], void *params);
 void so3_nc(double a[3],double t0,double y[4]);
 void so3_evalByS(int deg,double a,double b,double c,double t,double f[4]);
 int so3_usage(void);
@@ -113,7 +113,7 @@ int so3_usage(void) {
 /* Evaluate normalization constant */
 double SO3_A[3];
 double SO3_R; /* rho */
-int so3_func();
+
 void so3_nc(double a[3],double t0,double y[4]) {
   int i;
   int deg;

@@ -359,7 +359,7 @@ int main(int argc,char *argv[]) {
   }
   return(0);
 }
-int main1() {
+int main1(void) {
   double beta[5]={1.0,2.0,3.0,4.0,5.0};
   struct cWishart *cw;
   int verbose=1;

@@ -45,7 +45,7 @@ static int mypower(int x,int n) {
   for (i=0; i<n; i++) a = a*x;
   return(a);
 }
-int mh_gopen_file() {
+int mh_gopen_file(void) {
   FILE *fp;
   char fname[1024];
   int i;
