@@ -40,7 +40,7 @@ void mh_rf_ef_type_2(double x, double *f, int rank_not_used, double *val, int n_
   extern int MH_deallocate;
   /* static double b[MH_M]; */
   static double *b;
-  static double bsum = 0;
+  /* static double bsum = 0; */
   static int m;
   /*
   static int bitSize[MH_RANK];
@@ -109,7 +109,7 @@ void mh_rf_ef_type_2(double x, double *f, int rank_not_used, double *val, int n_
     if(MH_Beta != NULL) for (i=0;i<MH_M;i++) b[i]=MH_Beta[i];
     else error_code("MH_Beta is null.");
 
-    bsum = 0; for (i=0; i<m; i++) bsum += b[i];
+    /* bsum = 0; for (i=0; i<m; i++) bsum += b[i]; */
 
     for (i=0; i<MH_RANK; i++) bitSize[i] = bitcount(i);
     for (i=0, k=0; i<=MH_M; i++) {

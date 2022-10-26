@@ -143,7 +143,7 @@ struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
     if (temp) mh_free(temp);
     if (ty) mh_free(ty);
     y = k1 = k2 = k3 = k4 = temp = ty = NULL;
-    initialized=0;
+    initialized=0;  result.x=0;/*dummy init to avoid warnings.*/
     return(result);
   }
   if (!initialized) {
