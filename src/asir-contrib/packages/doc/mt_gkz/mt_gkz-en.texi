@@ -776,6 +776,7 @@ Example:
 * mt_gkz.mytoric_ideal::
 * mt_gkz.cbase_by_euler::
 * mt_gkz.gkz_b::
+* mt_gkz.pf_ratsol_ml::
 @end menu
 
 @node some utility functions,,, utilities
@@ -794,6 +795,7 @@ Example:
 @node mt_gkz.mytoric_ideal,,, some utility functions
 @node mt_gkz.cbase_by_euler,,, some utility functions
 @node mt_gkz.gkz_b,,, some utility functions
+@node mt_gkz.pf_ratsol_ml,,, some utility functions
 
 @findex mt_gkz.reduce_by_toric
 @findex mt_gkz.tk_base_equal
@@ -893,6 +895,81 @@ dx4-Pf[0], dx5-Pf[1] are Pfaffian equations obtained by the Buchberger algorithm
 @item Refer to
 @ref{mt_gkz.regular_triangulation}
 @ref{mt_gkz.top_standard_pairs}
+@end table
+@comment ------------------------------------------------
+
+@comment -------------------------------------------------------------
+@node mt_gkz.pf_ratsol_ml,,, Some some utility functions
+@subsection @code{mt_gkz.pf_ratsol_ml}
+@comment --- 索引用キーワード
+@findex mt_gkz.pf_ratsol_ml
+
+@table @t
+@item mt_gkz.pf_ratsol_ml(@var{Pf},@var{V},@var{Param})
+:: It returns a Maple code to find rational solutions
+of d/dV[0]-Pf[0], d/dV[1]-Pf[1], ...
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+The name of the auto generated maple program.
+The default is ``auto-generated-pf-ratsol.ml''.
+@item Pf
+A list of Pfaffian matrices.
+@item V
+A list of independent variables.
+@item Param
+A list of parameter variables.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The option ntsetting=1 assumes the Maple libraries OreModules
+and IntegrableConnections are under
+$HOME/Math/Maple_lib
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: rational solutions of Pfaffian equation of two variables.
+The Pfaffian equation is for 
+@example
+[2529] F=sm1.mul(x*dx+y*dy+a,x*dx+1,[x,y,a])-x*(x*dx+1);
+x^2*dx^2+(y*x*dy-x^2+(a+2)*x)*dx+y*dy-x+a
+[2530] G=sm1.mul(x*dx+y*dy+a,y*dy+1,[x,y,a]);
+(y*x*dy+x)*dx+y^2*dy^2+(a+2)*y*dy+a
+@end example
+It has a rational solution 1/(x*y). 
+Input the following codes.
+@example
+import("mt_gkz.rr");
+Px=[[(x-a-1)/(x),0,(x-a+1)/(x^2)],[(-1)/(y),(-1)/(x),(-1)/(y*x)],[1,0,0]];
+Py=[[(-1)/(y),(-1)/(x),(-1)/(y*x)],[0,(-a-1)/(y),(-a+1)/(y^2)],[0,1,0]];
+mt_gkz.pf_ratsol_ml([ Px, Py ], [x,y],[a] );
+@end example
+Then, outputs are, e.g.,
+@example
+[3033] mt_gkz.pf_ratsol_ml([ Px, Py ], [x,y],[a] | ntsetting=1);
+auto-generated-pf-ratsol.ml
+
+
+#Load this program by read(`auto-generated-pf-ratsol.ml`);
+libname:="/home/nobuki/Math/Maple_lib", libname;
+with(OreModules);
+with(IntegrableConnections);
+with(linalg);
+C:=[Matrix([[(x-a-1)/(x),0,(x-a+1)/(x^2)],[(-1)/(y),(-1)/(x),(-1)/(y*x)],[1,0,0]]),
+ Matrix([[(-1)/(y),(-1)/(x),(-1)/(y*x)],[0,(-a-1)/(y),(-a+1)/(y^2)],[0,1,0]])];
+RatSols:=RationalSolutions(C,[x,y],['param',[a]]);
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.generate_maple_file_IC}
 @end table
 @comment ------------------------------------------------
 @*
@@ -1247,6 +1324,7 @@ They are aligned as (1,1), (1,2), (2,1) (2,2) from the top.
 @table @t
 @item Refer to
 @ref{mt_gkz.pfaff_eq}
+@ref{mt_gkz.pf_ratsol_ml}
 @end table
 @comment おわり. 
 
