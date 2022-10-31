@@ -38,16 +38,16 @@ patch: extract
 configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		if [ -z $TARGET_TYPE ]; then \
+		if [ -z "${TARGET_TYPE}" ]; then \
 			if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-			  make configure-cygwin ; \
+			    ${MAKE} configure-cygwin ; \
 			elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
-			  make configure-msys ; \
+			    ${MAKE} configure-msys ; \
 			else \
-			  make configure-others ; \
+			    ${MAKE} configure-others ; \
 			fi ; \
-	    	else \
-		  make configure-cross ; \
+	    else \
+		    ${MAKE} configure-cross ; \
 		fi ; \
 	fi
 	@touch work/.configure_done
