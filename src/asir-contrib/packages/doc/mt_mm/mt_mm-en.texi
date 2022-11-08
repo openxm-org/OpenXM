@@ -1,0 +1,710 @@
+%% $OpenXM$
+%% xetex mt_mm-en.texi   (.texi までつける. ) 
+%% @math{tex形式の数式} 
+%% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
+%% @tex{tex形式で書いたもの} 
+%%https://www.gnu.org/software/texinfo/manual/texinfo/html_node/_0040TeX-_0040LaTeX.html
+
+%% 英語版, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage en
+@c -*-texinfo-*-
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-mt_mm_man
+
+@comment --- タイトル ---
+@settitle GKZ hypergeometric system
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Macaulay matrix method for GKZ hypergeometric systems
+@subtitle Pfaffian system (Pfaff equation) and Restriction
+@subtitle Version 0.7
+@subtitle November 8, 2022
+
+@author  by S-J. Matsubara-Heo, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2022. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+
+@menu
+* About this document::
+* Pfaff equation::
+* Invariant subvector space::
+* Moser reduction::
+* Restriction::
+* Index::
+@end menu
+
+@comment ---------- New Chapter  ---------------
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
+
+This document explains Risa/Asir functions for Macaulay matrix method for GKZ hypergeometric systems
+(A-hypergeometric systems). @*    @comment 強制改行
+Loading the package:
+@example
+import("mt_mm.rr");
+@end example
+@noindent
+References cited in this document.
+@itemize @bullet
+@item [amp2022a] 
+V.Chestnov, F.Gasparotto, M.K.Mandal, P.Mastrolia, S.J.Matsubara-Heo, H.J.Munch, N.Takayama, Macaulay Matrix for Feynman Integrals: Linear Relations and Intersection Numbers, 
+@url{https://doi.org/10.1007/JHEP09(2022)18}.
+E-attachments can be obtainable at
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/amp-MM}
+@item [Barkatou2017]
+M.Barkatou, Symbolic Methods for Solving Systems of Linear Ordinary Differential
+Equations (tutorial slides).
+@url{https://www.impan.pl/~slawek/pisa/Barkatou_p.pdf}
+@end itemize
+
+
+
+@comment ---------- New Chapter  ---------------
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node Pfaff equation,,, Top
+@chapter Pfaff equation
+
+@menu
+* mt_mm.find_macaulay::
+@end menu
+
+@comment **********************************************************
+@comment ---function find_macaulay
+@node mt_mm.find_macaulay,,, Pfaff equation
+@section @code{mt_mm.find_macaulay}
+@comment --- 索引用キーワード
+@findex mt_mm.find_macaulay
+
+@table @t
+@item mt_mm.find_macaulay(@var{Ideal},@var{Std},@var{Xvars})
+:: It returns a Macaulay type matrix for the @var{Ideal} with respect to
+the standard basis @var{Std}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+Data for Macaulay matrix.
+@item Ideal
+Generators of an ideal. It should be a list of distributed polynomials.
+@item Std
+Standard basis of the ideal @var{Ideal}.
+It should be a list of distributed polynomials.
+@item Xvars
+Independent variables
+@item option_list
+Options are deg, p.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The data for Macaulay matrix is a list of length 4.
+The list is [M1,M2,Extra,Std].
+M1 and M2 are @math{C'_{\rm Ext}} and @math{C'_{\rm Std}}
+in the Section 4 of [amp2022a] respectively.
+Extra and Std are @math{{rm Ext}} and @math{{\rm Std}}
+in the Section 4 of [amp2022a] respectively.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: 
+Macaulay matrix of 
+@math{ x_1 \partial_1 + 2 x_2 \partial_2 -b_1, \partial_1^2-\partial_2}
+with respect to the standard monomials @math{1, \partial_2}.
+The PDE is the GKZ system for the 1 by 2 matrix @math{A=[1,2]}.
+@example
+/* We input the followings */
+Ideal=[x1*dx1+x2*dx2-b1,dx1^2-dx2]$
+Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
+Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+MData=mt_mm.find_macaulay(Id,Std,Xvars);
+P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+
+
+[3240] import("mt_mm.rr");
+0
+linsolv and rank_check_ff at /home/nobuki/bin are used.
+clean_tmp() to remove temporary data files starting with tmp-mm.
+Base field is Q(params). 
+Warning: computation over Q(params) may require huge memory space and time.
+[3538] Ideal=[x1*dx1+x2*dx2-b1,dx1^2-dx2]$
+Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
+Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+
+[3539] [3540] 
+[3541] [(x1)*<<1,0>>+(x2)*<<0,1>>+(-b1)*<<0,0>>,(1)*<<2,0>>+(-1)*<<0,1>>]
+[3542] MData=mt_mm.find_macaulay(Id,Std,Xvars);
+
+We use a probabilistic method for rank_check with P=65537
+Warning: prules are ignored.
+--- snip ---
+NT_info=[rank,[row, col]( of m=transposed MData[0]),indep_columns(L[2])]
+Rank=6
+The matrix is full rank.
+We use a probabilistic method to compute the rank of a matrix with entries of rational functions.
+The output is a macaulay matrix of degree 1
+To draw a picture of the rref of the Macaulay matrix, use Util/show_mat with tmp-mm-*-M-transposed*.bin
+[Std,Xvars] is stored in tmp-mm-9733-Std-Xvars.ab
+[ES,Xvars] is stored in tmp-mm-9733-Es-Xvars.ab
+[rank=6,[row,col]=[6,6] (size of t(M1)),Indep_cols] is stored in the variable NT_info.
+NT_info is stored in tmp-mm-9733-NT_info.ab
+MData is stored in tmp-mm-9733-mdata.ab
+[[[0,0,0,0,0,x1],[0,0,1,0,0,0],[0,0,0,x1,x2,0],[0,1,0,0,-1,0],
+ [0,0,x1,x2,0,-b1+1],[1,0,0,-1,0,0]],
+[[-b1,x2],[0,-1],[0,-b1+1],[0,0],[0,0],[0,0]],
+[(1)*<<3,0>>,(1)*<<2,1>>,(1)*<<2,0>>,(1)*<<1,1>>,(1)*<<0,2>>,(1)*<<1,0>>],
+[(1)*<<0,0>>,(1)*<<0,1>>]]
+
+[3543] P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+[[(b1)/(x1),(-x2)/(x1)],[(b1^2-b1)/(x1*x2),((-b1+1)*x2-x1^2)/(x1*x2)]]
+
+// d/dx1 - P1
+[3544] P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+[[0,1],[(-b1^2+b1)/(x2^2),((2*b1-2)*x2+x1^2)/(x2^2)]]
+// d/dx2 - P2
+@end example
+@noindent
+Homogenity is reduced by @code{mt_gkz.gkz_b}.
+@code{Id0} is an ODE.
+@example
+/* We input the followings. */
+A=[[1,2]]$ Beta=[b1]$ Sigma=[2]$
+Id0=mt_gkz.gkz_b(A,Beta,Sigma|partial=1)$
+Xvars=[x2]$
+Id=map(mt_mm.remove_redundancy,Id0,Xvars);
+Std=[1,dx2]$ Std=map(dp_ptod,Std,[dx2])$
+MData=mt_mm.find_macaulay(Id,Std,Xvars);
+P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+
+
+
+[3244] A=[[1,2]]$ Beta=[b1]$ Sigma=[2]$
+Id0=mt_gkz.gkz_b(A,Beta,Sigma|partial=1)$
+Xvars=[x2]$
+Id=map(mt_mm.remove_redundancy,Id0,Xvars);
+[3245] [3246] [3247] [3248] 
+[3249] [(x1^2)*<<2>>+(1/2*x1^3)*<<1>>+(-1/2*b1*x1^2)*<<0>>]
+      // This is the ODE. 
+
+[3252] Std=[1,dx2]$ Std=map(dp_ptod,Std,[dx2])$
+MData=mt_mm.find_macaulay(Id,Std,Xvars);
+
+[3253] [3254] We use a probabilistic method for rank_check with P=65537
+Warning: prules are ignored.
+--- snip ---
+NT_info=[rank,[row, col]( of m=transposed MData[0]),indep_columns(L[2])]
+Rank=2
+The matrix is full rank.
+We use a probabilistic method to compute the rank of a matrix with entries of rational functions.
+The output is a macaulay matrix of degree 1
+To draw a picture of the rref of the Macaulay matrix, use Util/show_mat with tmp-mm-*-M-transposed*.bin
+[Std,Xvars] is stored in tmp-mm-9823-Std-Xvars.ab
+[ES,Xvars] is stored in tmp-mm-9823-Es-Xvars.ab
+[rank=2,[row,col]=[2,2] (size of t(M1)),Indep_cols] is stored in the variable NT_info.
+NT_info is stored in tmp-mm-9823-NT_info.ab
+MData is stored in tmp-mm-9823-mdata.ab
+
+[[[0,x1^2],[x1^2,1/2*x1^3]],
+ [[-1/2*b1*x1^2,1/2*x1^3],[0,-1/2*b1*x1^2]],
+ [(1)*<<3>>,(1)*<<2>>],
+ [(1)*<<0>>,(1)*<<1>>]]
+[3255] P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+[[0,1],[1/2*b1,-1/2*x1]]
+// d/d<<1>> - P1
+[3256] 
+@end example
+@noindent
+When the parameters and independent variables are numbers, we can call @code{find_pfaffian_fast}.
+@example
+/* We input the followings. */
+A=[[1,2]]$ Beta=[1/2]$ Sigma=[2]$
+Id0=mt_gkz.gkz_b(A,Beta,Sigma|partial=1)$
+Xvars=[x2]$
+Id=map(mt_mm.remove_redundancy,Id0,Xvars)$
+Std=[1,dx2]$ Std=map(dp_ptod,Std,[dx2])$
+MData=mt_mm.find_macaulay(Id,Std,Xvars);
+P1=mt_mm.find_pfaffian_fast(MData,Xvars,1,mt_mm.get_indep_cols() | xrules=[[x1,1/3]]);
+
+--- snip ---
+[3300] Generate a data for linsolv.
+Sol rank=2
+cmd=time /home/nobuki/bin/linsolv   --vars tmp-mm-9823-linsolv-vars.txt  <tmp-mm-9823-linsolv.txt >tmp-mm-9823-linsolv-ans.txt
+--- snip ---
+#time of linsolv=0.00681901
+Time(find_pfaffian_fast)=0.002101 seconds
+[3304] P1;
+[[0,1],[1/4,-1/6]]
+@end example
+
+@*
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.find_pfaffian_fast}
+@ref{mt_mm.find_pfaffian}
+@end table
+@comment mt_mm.find_macaulay の説明おわり. あとはこれの繰り返し.
+
+@comment ---------- New Chapter  ---------------
+@node Invariant subvector space,,, Top
+@chapter Invariant subvector space
+
+@menu
+* mt_mm.ediv_set_field::
+@end menu
+
+@comment **********************************************************
+@comment ---function ediv_set_field
+@node mt_mm.ediv_set_field,,, Invariant subvector space
+@section @code{mt_mm.ediv_set_field}
+@comment --- 索引用キーワード
+@findex mt_mm.ediv_set_field
+
+@table @t
+@item mt_mm.ediv_set_field(@var{Mode})
+:: It sets the type of coefficient field.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item Mode
+When @var{Mode} is 1, the elementary divisor is factorized in @math{{\bf Q}[x]} (rational number coefficient polynomial ring).
+Here x can be changed by setting the global variable @var{InvX}
+by calling @code{mt_mm.set_InvX(X)}.
+When @var{Mode} is 0, the elementary divisor is factorized in @math{{\bf Q}(a,b,\ldots)[x]}
+where @math{a,b, \ldots} are parameter variables automatically determined
+from the input.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜@end itemize は箇条書き ---
+
+@comment --- @example〜@end example は実行例の表示 ---
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.mat_inv_space}
+@end table
+@comment ---end ediv_set_field
+
+@comment **********************************************************
+@comment ---function mat_inv_space
+@node mt_mm.mat_inv_space,,, Invariant subvector space
+@section @code{mt_mm.mat_inv_space}
+@comment --- 索引用キーワード
+@findex mt_mm.mat_inv_space
+
+@table @t
+@item mt_mm.mat_inv_space(@var{Mat})
+:: It returns sets of basis vectors of invariant subvector spaces of @var{Mat}
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of sets of basis vectors of invariant subvector spaces by the action of
+@var{Mat}.
+@item Mat
+A square matrix.
+@item ediv
+Option. When ediv=1, it returns [a list of sets of basis vectors,[ED,L,R]] where ED is the elementary divisor.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+Let @var{Mat} be a matrix of rational number entiries.
+When the characteristic polynomial of the matrix @var{Mat}
+can be factored over @math{{\bf Q}[x]} into first order polynomials,
+it returns bases of eigen vector spaces.
+In general, it returns bases of invariant subvector spaces 
+corresponding to irreducible factors of the characteristic polynomial.
+@item 
+x is the reserved variable of computing the elementary divisor of @var{Mat}.
+Then, x cannot be used as a parameter vector.
+@item
+Note that the returned basis does not give basis for the Jordan canonical form
+in general
+even when the characteristic polynomial is factored into first order polynomials.
+@item
+When When the option ediv=1 is given, it returns [a list of sets of basis vectors,[ED,L,R]].
+Note that that the format of return value is changed.
+L and R are matrices such that @math{L (x-A) R = D}
+where @math{A} is the argument @var{Mat} and @math{D} is the matrix ED
+whose diagonal consists of the elementary divisor.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: We have 3 invariant subvector spaces of the 3 by 3 matrix L below. 
+Then, the matrix can be diagonalized by them.
+@example
+[3118] import("invlin0.rr");
+Base field is Q.
+[3168] B=mt_mm.mat_inv_space(L=[[6,-3,-7],[-1,2,1],[5,-3,-6]]);
+[[[ -2/25 2/25 -2/25 ]],[[ 6/25 3/25 3/25 ]],[[ -1/25 0 -1/25 ]]]
+[3170] length(B);
+3
+[3171] L=newmat(3,3,L);
+[ 6 -3 -7 ]
+[ -1 2 1 ]
+[ 5 -3 -6 ]
+[3174] P=matrix_transpose(newmat(3,3,[vtol(B[0][0]),vtol(B[1][0]),vtol(B[2][0])]));
+[ -2/25 6/25 -1/25 ]
+[ 2/25 3/25 0 ]
+[ -2/25 3/25 -1/25 ]
+[3176] matrix_inverse(P)*L*P;
+[ 2 0 0 ]
+[ 0 1 0 ]
+[ 0 0 -1 ]
+[3177] map(print,check5(L))$ // The above can be done by check5.
+[[[ -2/25 2/25 -2/25 ]],[[ 6/25 3/25 3/25 ]],[[ -1/25 0 -1/25 ]]]
+// invariant subvector spaces.
+
+[ -2/25 6/25 -1/25 ]
+[ 2/25 3/25 0 ]
+[ -2/25 3/25 -1/25 ]
+// transformation matrix
+
+[ 2 0 0 ]
+[ 0 1 0 ]
+[ 0 0 -1 ]
+// diagonalized matrix
+
+[3178] B=mat_inv_space(L | ediv=1)$
+[3179] B[1][0];  // The elementary divisor is the diagonal.
+[ 1 0 0 ]
+[ 0 6/25 0 ]
+[ 0 0 x^3-2*x^2-x+2 ]
+[3180] fctr(B[1][0][2][2]);
+[[1,1],[x-2,1],[x-1,1],[x+1,1]]
+@end example
+
+@noindent
+Example: The characteristic polynomial is factored into @math{(x^2+1)^2}
+in @math{{\bf Q}[x]}. Then, we obtain two invariant subspaces.
+@example
+[3196] B=mt_mm.mat_inv_space([[0,-1,0,0],[1,0,0,0],[0,0,0,1],[0,0,-1,0]]);
+[[[ 1 0 0 0 ],[ 0 1 0 0 ]],[[ 0 0 1 0 ],[ 0 0 0 -1 ]]]
+[3197] length(B);
+2
+@end example
+
+@noindent
+Example: Block diagonalization. The matrix L is congruent to 
+@math{\pmatrix{1&0&0\cr 0&2&1\cr 0&0&2\cr}}.
+@example
+[3352] L=matrix_list_to_matrix([[4,0,1],[2,3,2],[0,-2,0]]);
+[ 4 0 1 ]
+[ 2 3 2 ]
+[ 0 -2 0 ]
+[3348] B=mt_mm.check5(L);
+[[[[ 4 6 -4 ]],[[ -3 -6 4 ],[ -8 -16 12 ]]],[ 4 -3 -8 ]
+[ 6 -6 -16 ]
+[ -4 4 12 ],[ 3 0 0 ]
+[ 0 0 -4 ]
+[ 0 1 4 ]]
+[3350] B[0];
+[[[ 4 6 -4 ]],[[ -3 -6 4 ],[ -8 -16 12 ]]]
+[3351] map(length,B[0]);
+[1,2]    
+//There are one dimensional and two dimensional invariant subspaces for L
+[3353] matrix_inverse(B[1])*L*B[1];
+[ 3 0 0 ]
+[ 0 0 -4 ]
+[ 0 1 4 ]
+[3354] B[2];
+[ 3 0 0 ]
+[ 0 0 -4 ]
+[ 0 1 4 ]
+// the matrix L is block diagonalized as 1 by 1 matrix and 2 by 2 matrix.
+[3355] 
+@end example
+
+@noindent
+Example: When the matrix contains parameters, you need to change the base field.
+L below is congruent to @math{\pmatrix{a&1\cr 0&1\cr}}.
+@example
+[3110] import("mt_mm.rr");
+[3111] mt_mm.ediv_set_field(0);
+Base field is Q(params). 
+Warning: computation over Q(params) may require huge memory space and time.
+0
+[3112] B=mt_mm.mat_inv_space(L=[[a-6,-8],[9/2,a+6]]);
+[[[ 1 0 ],[ a-6 9/2 ]]]
+[3113] length(B);
+1   // one invariant subvector space for the linear map L
+[3357] B=check5(L);
+[[[[ 1 0 ],[ a-6 9/2 ]]],[ 1 a-6 ]
+[ 0 9/2 ],[ 0 -a^2 ]
+[ 1 2*a ]]
+[3359] fctr(matrix_det(B[2]-x*matrix_identity_matrix(2)));
+[[1,1],[x-a,2]] // characteristic polynomial is (x-a)^2
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.ediv_set_field}
+@end table
+@comment ---end function mat_inv_space 
+
+@comment **********************************************************
+@comment ---function is_integral_difference_sol
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.is_integral_difference_sol,,, Invariant subvector space
+@section @code{mt_mm.is_integral_difference_sol}
+@comment --- 索引用キーワード
+@findex mt_mm.is_integral_difference_sol
+
+@table @t
+@item mt_mm.is_integral_difference_sol(@var{F1},@var{F2})
+:: Check if the irreducible polynomials @var{F1} and @var{F2} in x have
+a common solution with integral difference.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+If there is a common solution with integral difference, it returns
+[1,Y] where Y is an integer and x0+Y and x0 are solutions of @var{F1} and @var{F2} respectively.
+If there is no such solution, it returns 0.
+@item F1
+A polynomial in x.
+@item F2
+A polynomial in x.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+@var{x} is the default value of @var{InvX}. It can be changed by the function
+@code{mt_mm.set_InvX()}.
+@item 
+It called @code{poly_prime_dec} for the check.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: Two examples of irreducible polynomials over Q and Q(a,b).
+@example
+[2695] is_integral_difference_sol(x^2+1,(x+@i+1)*(x-@i+1)); 
+[1,-1]
+[2696] is_integral_difference_sol(x^2+(b/(a+1))^2,(x-(b/(a+1))*@i+3)*(x+(b/(a+1))*@i+3));
+[1,3]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.mat_inv_space}
+@ref{mt_mm.eDiv}
+@ref{mt_mm.set_InvX}
+@end table
+@comment ---end function is_integral_difference_sol 
+
+
+@comment ---------- New Chapter  ---------------
+@node Moser reduction,,, Top
+@chapter Moser reduction::
+
+@menu
+* mt_mm.moser_reduction::
+@end menu
+
+@comment **********************************************************
+@comment ---function moser_reduction
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.moser_reduction,,, Moser reduction
+@section @code{mt_mm.moser_reduction}
+@comment --- 索引用キーワード
+@findex mt_mm.moser_reduction
+
+@table @t
+@item mt_mm.moser_reduction(@var{A},@var{X})
+:: It returns the Moser reduced matrix of @var{A} with respect to @var{X}
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+Moser reduced matrix
+@item A
+Coefficient matrix of the ODE dF/d@var{X} - AF where F is an unknown vector valued function.
+@item X
+Independent variable of the ODE.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+It is an implementation of the Moser reduction algorithm presented in [Barkatou2017].
+The Moser reduction algorithm translates a differential equation with the regular
+singularity at the origin 
+into a form of the coefficient matrix has only the simple pole at the origin.
+We call the coefficient matrix the Moser reduced matrix.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: the following input outputs the Moser reduced form A2[0] of A.
+@example
+import("mt_mm.rr");
+A=newmat(4,4,[[-2/x,0,1/(x^2),0],
+              [x^2,-(x^2-1)/x,x^2,-x^3],
+              [0,x^(-2),x,0],
+              [x^2,1/x,0,-(x^2+1)/x]]);
+A2=mt_mm.moser_reduction(A,x);
+
+
+[3405] A2;
+[[ (-x^2-1)/(x) x^2 0 x ]
+[ 0 (-2)/(x) (1)/(x) 0 ]
+[ 0 0 (x^2-1)/(x) (1)/(x) ]
+[ -x 1 x (-x^2-1)/(x) ],[ 0 1 0 0 ]
+[ 0 0 0 x^2 ]
+[ 0 0 x 0 ]
+[ 1 0 0 0 ]]
+// A2[1] gives the Gauge transformation to obtain the Moser reduced form.
+[3406] A2[0]-mt_mm.gauge_transform(A,A2[1],x);
+[ 0 0 0 0 ]
+[ 0 0 0 0 ]
+[ 0 0 0 0 ]
+[ 0 0 0 0 ]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.gauge_transform}
+@end table
+@comment ---end function moser_reduction 
+
+
+@comment ---------- New Chapter  ---------------
+@node Restriction,,, Top
+@chapter Restriction::
+
+@menu
+* mt_mm.???::
+@end menu
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+@comment *********************************************************
+@comment ********* template
+@comment **********************************************************
+
+@comment **********************************************************
+@comment ---function pfaff_eq
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.pfaff_eq,,, Chapter_name
+@section @code{mt_mm.pfaff_eq}
+@comment --- 索引用キーワード
+@findex mt_mm.pfaff_eq
+
+@table @t
+@item mt_mm.pfaff_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX})
+:: It returns the Pfaff equation for the GKZ system defined by @var{A} and @var{Beta} with respect to cocycles defined by @var{Rvec}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of coefficients of the Pfaff equation with respect to the direction @var{DirX} 
+@item A
+the matrix A of the GKZ system.
+@item Beta
+???
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
+@verbatim
+verbatim も便利
+@end verbatim
+@item 
+???
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: Gauss hypergeometric system, see [amp2022a] example ??.
+@example
+[1883] import("mt_mm.rr");
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.pfaff_eq}
+@end table
+@comment ---end function pfaff_eq 
