@@ -1,0 +1,591 @@
+import("mt_gkz.rr");
+#define USE_MODULE
+#ifdef USE_MODULE
+module mt_mm$
+localf gauss_elim$
+localf my_unit_vect$
+localf my_vect_coef$
+localf kernel_basis$
+localf convenient_form$
+localf test_cf1$
+localf submatrix$
+localf cn$
+localf g_lambda$
+localf test_g_lambda$
+localf get_left_kernel_element$
+localf test_lke$
+localf v_order$
+localf dn_v_order$
+localf p_order$
+localf test_p_order$
+localf direct_sum$
+localf test_direct_sum$
+localf make_R1_matrix$
+localf test_make_R1_matrix$
+localf test_make_R1_matrix2$
+localf reduction_step$
+localf matrix_diff$
+localf gauge_transform$
+localf test_gauge_transform$
+localf moser_reduction$
+localf test_moser_reduction$
+localf check_moser_irreducibility$
+localf test_moser_reduction2$
+localf no3way_Pfaff$
+localf no3way_restriction$
+localf appell$
+localf vdiff$
+#endif
+
+
+//Gauss elimination
+//L=[Row reduced form,independent columns,transformation matrix]
+//L[0]==L[2]*M
+//The original matrix is destroyed.
+def gauss_elim(M){
+  if(type(M)!=6) printf("WARNING(gauss_elim):The input should be a matrix.\n");
+  else{
+    RL=size(M)[0];
+    CL=size(M)[1];
+    P=matrix_identity_matrix(RL);
+    Current_row=0;
+    Current_column=0;
+    Null=newvect(RL);
+    Indep_columns=[];
+    while((Current_row<RL)&&(Current_column<CL))
+      {
+    MT=matrix_transpose(M);
+    J=Current_column;
+    while((J<CL)&&(MT[J]==Null)){
+      J++;
+    }
+    if(J<CL){
+    I=Current_row;
+    while((I<RL)&&(M[I][J]==0)){
+      I++;
+    }
+    if(I<RL){
+    rowx(P,Current_row,I);
+    rowx(M,Current_row,I);
+    rowm(P,Current_row,1/M[Current_row][J]);
+    rowm(M,Current_row,1/M[Current_row][J]);
+    for(K=0;K<RL;K++){
+      if((K!=Current_row)&&(M[K][J]!=0)){
+        rowa(P,K,Current_row,-M[K][J]);
+	rowa(M,K,Current_row,-M[K][J]);
+      }
+    }
+    Current_row++;
+    Indep_columns=cons(J,Indep_columns);
+    }
+    }
+    M=red(M);
+    P=red(P);
+    Current_column=J+1;
+      }
+    return [M,reverse(Indep_columns),red(P)];
+  }
+}
+
+
+
+def my_unit_vect(N,K){
+  L=newvect(N);
+  L[K]=1;
+  return L;
+}
+
+
+def my_vect_coef(V,X){
+  L=[];
+  for(I=0;I<length(V);I++){
+    L=cons(coef(nm(V[I]),1,X)/dn(V[I]),L);
+  }
+  return reverse(L);
+}
+
+//kernel_basis produces a basis of the kernel of Mx where M is a row-reduced matrix and IR is the set of independent rows.
+def kernel_basis(IR,M){
+  LEN=length(M[0]);
+  X=mt_gkz.index_vars(mx,0,LEN-1|no_=1);
+  Rule=[];
+  V=M*newvect(LEN,X);
+  IIR=IR;
+  I=0;
+  while(length(IIR)>0){
+    Rule=cons([X[IIR[0]],(-1)*base_replace(V[I],[[X[IIR[0]],0]])],Rule);
+    I++;
+    IIR=cdr(IIR);
+  }
+  V=base_replace(X,Rule);
+  RX=mt_gkz.diff_set(X,mt_gkz.diff_set(X,vars(V)));
+  //Here, it is assumed that our matrix is free from parameters.
+  L=[];
+  while(length(RX)>0){
+    L=cons(my_vect_coef(V,RX[0]),L);
+    RX=cdr(RX);
+  }
+  return reverse(L);
+}
+
+
+/*
+Transform M into a convenient form
+A_11 O
+A_21 O
+where the size of A_11 is the rank of the matrix. 
+*/
+//M is supposed to be a square matrix.
+
+def convenient_form(M){
+  MM=matrix_clone(M);
+  L=gauss_elim(MM);
+  KB=kernel_basis(L[1],L[0]);
+  IR=L[1];
+  while(length(IR)>0){
+    KB=cons(vtol(my_unit_vect(length(M[0]),IR[0])),KB);
+    IR=cdr(IR);
+  }
+  KB=matrix_transpose(matrix_list_to_matrix(KB));
+  return [matrix_inverse(KB)*M*KB,KB,length(L[1])];
+}
+
+
+
+def test_cf1(){
+  M=newmat(3,3,[[1,2,3],[3,4,5],[5,6,7]]);
+  return convenient_form(M);
+}
+
+
+
+
+def submatrix(A,L1,L2){
+  M=newmat(length(L1),length(L2));
+  for(I=0;I<length(L1);I++){
+    for(J=0;J<length(L2);J++){
+      M[I][J]=A[L1[I]][L2[J]];
+    }
+  }
+  return M;
+}
+
+
+def cn(R){
+  L=[];
+  for(I=0;I<R;I++){
+    L=cons(I,L);
+  }
+  return reverse(L);
+}
+
+
+//The polynomial G_{Lambda} in the theory of Moser reduction.
+
+def g_lambda(A0,A1,R,Lambda){
+  if(size(A0)==size(A1)){
+  L=cn(R);
+  LL=cn(size(A0)[0]);
+  A11=submatrix(A0,L,L);
+  A21=submatrix(A0,mt_gkz.diff_set(LL,L),L);
+  A12=submatrix(A1,L,mt_gkz.diff_set(LL,L));
+  A22=submatrix(A1,mt_gkz.diff_set(LL,L),mt_gkz.diff_set(LL,L))+Lambda*matrix_identity_matrix(size(A1)[0]-R);
+  AL=append(matrix_matrix_to_list(A11),matrix_matrix_to_list(A21));
+  AR=append(matrix_matrix_to_list(A12),matrix_matrix_to_list(A22));
+  A=append(matrix_matrix_to_list(matrix_transpose(AL)),matrix_matrix_to_list(matrix_transpose(AR)));
+  return matrix_transpose(A);
+  }
+  else printf("size mismatch.\n"); return 0;
+}
+
+
+
+def test_g_lambda(){
+  A=newmat(4,4,[[-2/x,0,1/(x^2),0],[x^2,-(x^2-1)/x,x^2,-x^3],[0,x^(-2),x,0],[x^2,1/x,0,-(x^2+1)/x]]);
+  N=size(A)[0];
+  X=x;
+  P=p_order(A,X)-1;
+  A0=base_replace(red(X^(P+1)*A),[[X,0]]);
+  A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
+  R=matrix_rank(A0);
+  return g_lambda(A0,A1,R,s);
+}
+
+
+def get_left_kernel_element(A){
+  M=matrix_clone(A);
+  L=gauss_elim(M);
+  if(length(L[1])==size(A)[0]){
+    printf("The matrix is invertible.\n");
+    return 0;
+  }
+  else return my_unit_vect(size(A)[0],length(L[1]))*L[2];
+  }
+
+def test_lke(){
+  A=newmat(3,3,[[1,2,3],[3,4,5],[5,6,7]]);
+  return [A,get_left_kernel_element(A)];
+}
+
+
+def v_order(F,X){
+  I=0;
+  while(base_replace(F,[[X,0]])==0){
+    I++;
+    F=red(F/X);
+  }
+  return I;
+}
+
+
+def dn_v_order(P,X){
+  return v_order(dn(P),X);
+}
+
+//We assume that A has a pole in x.
+def p_order(A,X){
+  A=red(A);
+  //M=red(base_replace(A,[[X,1/my_v]]));
+  L=[];
+  for(I=0;I<size(A)[0];I++){
+    L=append(vtol(map(dn_v_order,A[I],X)),L);
+}
+  return mt_gkz.my_max(L);
+}
+
+
+def test_p_order(){
+  M=newmat(2,2,[[1/x,1],[0,1/(x^2)]]);
+  return p_order(M,x);
+}
+
+
+//Both M1 and M2 are square matrices.
+def direct_sum(M1,M2){
+  L1=size(M1)[0];
+  L2=size(M2)[0];
+  L=L1+L2;
+  M=[];
+  for(I=0;I<size(M1)[0];I++){
+    M=cons(append(vtol(M1[I]),vtol(newvect(L2))),M);
+  }
+  while(I<L){
+    M=cons(append(vtol(newvect(L1)),vtol(M2[I-L1])),M);
+    I++;
+  }
+  return matrix_list_to_matrix(reverse(M));
+}
+
+
+def test_direct_sum(){
+  A=newmat(2,2,[[a,b],[c,d]]);
+  B=newmat(3,3);
+  return direct_sum(A,B);
+}
+
+
+//length(V)=<N
+/*
+We want to construct the R1 matrix of the form
+1  0  ... 0    0 ... 0
+0  1  ... 0    0 ... 0
+..........       ...
+V0 V1 ... V[L] 0 ... 0
+0  0  ... 0    1 ... 0
+..........       ... 
+0  0  ... 0    0 ... 1
+ */
+def make_R1_matrix(V,N){
+  M=newmat(length(V),length(V));
+  for(I=0;I<length(V)-1;I++){
+    M[I][I]=1;
+  }
+  for(J=0;J<length(V);J++){
+    M[length(V)-1][J]=V[J];
+  }
+  return direct_sum(M,matrix_identity_matrix(N-length(V)));
+}
+
+
+def test_make_R1_matrix(){
+  V=ltov([a,b]);
+  return make_R1_matrix(V,3);
+}
+
+
+def test_make_R1_matrix2(){
+  V=ltov([a,b]);
+  return make_R1_matrix(V,2);
+}
+
+
+//場の理論ノートのMoser reductionのProposition 2に相当するステップ.
+//Reduction step
+//N=size(A)[0] --> N>R
+
+
+def reduction_step(A,P,X,R){
+  N=size(A)[0];
+  A0=base_replace(red(X^(P+1)*A),[[X,0]]);
+  A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
+  G0=g_lambda(A0,A1,R,0);
+  B=A-A0/(X^(P+1))-A1/(X^P);
+  A011=submatrix(A0,cn(R),cn(R));
+  U=append(matrix_matrix_to_list(matrix_transpose(A011)),matrix_matrix_to_list(matrix_transpose(submatrix(A1,cn(R),mt_gkz.diff_set(cn(N),cn(R))))));
+  U=matrix_transpose(U);
+  H=1;
+  while(matrix_rank(U)==R&&H<N-R){
+    V=get_left_kernel_element(G0);
+    V=newmat(1,length(V),[vtol(V)]);
+    I=N-H;
+    while(V[0][I]==0){
+      I=I-1;
+    }
+    rowx(colx(A0,I,N-H),I,N-H);
+    rowx(colx(A1,I,N-H),I,N-H);
+    rowx(colx(B,I,N-H),I,N-H);
+    colx(V,I,N-H);
+    R1=make_R1_matrix(V[0],N);
+    R1_inverse=matrix_inverse(R1);
+    A0=R1*A0*R1_inverse;
+    A1=R1*A1*R1_inverse;
+    B=R1*B*R1_inverse;
+    U=append(matrix_matrix_to_list(matrix_transpose(A011)),matrix_matrix_to_list(matrix_transpose(submatrix(A1,cn(R),mt_gkz.diff_set(cn(N-H),cn(R))))));
+    U=matrix_transpose(U);
+    G0=g_lambda(submatrix(A0,cn(N-H),cn(N-H)),submatrix(A1,cn(N-H),cn(N-H)),R,0);
+    H++;
+  }
+  return [A0/(X^(P+1))+A1/(X^P)+B,H];
+}
+
+
+
+def matrix_diff(M,X){
+  N=[];
+  for(I=0;I<size(M)[0];I++){
+    N=cons(vtol(map(diff,M[I],X)),N);
+    }
+  return matrix_list_to_matrix(reverse(N));
+}
+
+//gauge transform G^(-1)*{AG-dG/dX}
+
+def gauge_transform(A,G,X){
+  return red(matrix_inverse(G)*(A*G-matrix_diff(G,X)));
+}
+
+
+def test_gauge_transform(){
+  A=(1/(x^2))*newmat(2,2,[[0,0],[2,0]])+(1/x)*newmat(2,2,[[4,0],[0,-3]])+newmat(2,2,[[0,-4],[0,0]]);
+  T=newmat(2,2,[[x,0],[0,1]]);
+  return gauge_transform(A,T,x);
+}
+
+
+
+//Moser reduction with respect to a variable X.
+//We assume that A has a pole at X=0.
+
+def moser_reduction(A,X){
+  Transformation_matrix=matrix_identity_matrix(size(A)[0]);
+  P=p_order(A,X)-1;
+  A0=base_replace(red(X^(P+1)*A),[[X,0]]);
+  CF=convenient_form(A0);
+  Transformation_matrix=Transformation_matrix*CF[1];
+  A=matrix_inverse(CF[1])*A*CF[1];
+  A0=CF[0];//To convenient form
+  A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
+  R=CF[2];
+  G=g_lambda(A0,A1,R,my_v);
+  N=size(A)[0];
+  while(det(G)==0&&P>0){
+    M=append(matrix_matrix_to_list(matrix_transpose(submatrix(A0,cn(R),cn(R)))),matrix_matrix_to_list(matrix_transpose(submatrix(A1,cn(R),mt_gkz.diff_set(cn(N),cn(R))))));
+    // M^T=(A_0^(11)|A_1^(12))
+    if(matrix_rank(M)<R){
+      T=direct_sum(X*matrix_identity_matrix(R),matrix_identity_matrix(N-R));
+      A=gauge_transform(A,T,X);
+      Transformation_matrix=Transformation_matrix*T;
+    }
+    else{
+      L=reduction_step(A,P,X,R);
+      T=direct_sum(direct_sum(X*matrix_identity_matrix(R),matrix_identity_matrix(N-R-H)),X*matrix_identity_matrix(H));
+      A=gauge_transform(A,T,X);
+      Transformation_matrix=Transformation_matrix*T;
+    }
+  P=p_order(A,X)-1;
+  A0=base_replace(red(X^(P+1)*A),[[X,0]]);
+  CF=convenient_form(A0);
+  A=matrix_inverse(CF[1])*A*CF[1];
+  Transformation_matrix=Transformation_matrix*CF[1];
+  A0=CF[0];
+  A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
+  R=CF[2];
+  G=g_lambda(A0,A1,R,my_v);
+  }
+  return [A,Transformation_matrix];
+}
+
+
+
+def test_moser_reduction(){
+A=newmat(4,4,[[-2/x,0,1/(x^2),0],[x^2,-(x^2-1)/x,x^2,-x^3],[0,x^(-2),x,0],[x^2,1/x,0,-(x^2+1)/x]]);
+ return moser_reduction(A,x);
+}
+
+
+
+def check_moser_irreducibility(){
+  X=x;
+  A=newmat(4,4,[[-2-1/x,0,1/x,0],[x^(-2)-x^(-1),x-1,x^3+x^2-2*x+1/x,-3-x],[0,x^(-2),1/x-3,0],[-1/x,x+1,x^3+x^2+1/x,-x-4]]);
+  P=p_order(A,X)-1;
+  A0=base_replace(red(X^(P+1)*A),[[X,0]]);
+  CF=convenient_form(A0);
+  A=matrix_inverse(CF[1])*A*CF[1];
+  A0=CF[0];//一旦convenient formへ直す。
+  A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
+  R=CF[2];
+  G=g_lambda(A0,A1,R,my_v);
+  return det(G);
+}
+//これはMoser reducibleだが、Barkatouの例と違うぞ。。
+
+
+
+def test_moser_reduction2(){
+  A=newmat(4,4,[[4,x^3,-2*x^6,-x^6],[0,-1-1/x,1/x,0],[x^(-7),0,1/x-2,1/x],[x^(-5)+x^(-6),-x^(-2),x^2+x+x^(-2),-3]]);
+  return append(moser_reduction(matrix_clone(A),x),[A]);
+}
+//Moser irreducible example
+//gauge_transform(L[2],L[1],x)==red(L[0]);
+//1
+
+
+
+
+
+
+
+//No three way interaction model in algebraic statistics.
+//It corresponds to the case (2 elements) x (2 elements) x (3 elements)
+
+
+def no3way_Pfaff(){
+A=[[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1], [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0], [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]];
+T=mt_gkz.regular_triangulation(A,[]|order=0);
+RI=mt_gkz.gkz_b(A,mt_gkz.index_vars(b,1,10|no_=1),T[0]);
+yang.define_ring(["euler",[x1,x2]]);
+G=yang.buchberger(RI)$
+  return Pfaffian=yang.pfaffian([],G);
+}
+
+
+
+
+//The Pfaffian is residual in x1.
+//After restriction, it is no longer residual ---> need to employ Moser reduction.
+
+
+def no3way_restriction(){
+P=no3way_Pfaff();
+P=base_replace(P,assoc(mt_gkz.index_vars(b,1,10|no_=1),[1/3,1/5,1/7,1/11,1/13,1/17,1/19,1/23,1/29,1/31]));
+R1=base_replace((x1-1)*P[0],[[x1,1]]);
+L=gauss_elim(matrix_clone(R1));
+S=kernel_basis(L[1],L[0]);
+M=matrix_transpose(S);
+ANS=matrix_diff(M,x2)-base_replace(P[1],[[x1,1]])*M;
+LL=gauss_elim(matrix_clone(M));
+//Want to find a matrix C such that ANS=M*C
+C=red(LL[2]*ANS);
+C=matrix_matrix_to_list(C);
+C=cdr(cdr(reverse(C)));
+C=reverse(C);
+C=matrix_list_to_matrix(C);
+C=base_replace(C,[[x2,y+1]]);
+return moser_reduction(C,y);
+}
+//The dimension of the kernel is 7 = maximal likelihood degree!
+
+
+
+
+
+//Seva's question
+
+
+
+
+//appell() produces a Pfaffian system whose singular locus is { x1*x2*(x1-1)*(x2-1)*(x1-x2)=0}
+//appell() is a list [P1,P2] where each entry is the Pfaffian matrix in each direction.
+
+
+
+def appell(){
+  yang.verbose();
+  yang.define_ring(["partial",[x1,x2]]);
+  I=[dp_ptod(x1*(1-x1)*dx1^2+x2*(1-x1)*dx1*dx2+(c-(a+b1+1)*x1)*dx1-b1*x2*dx2-a*b1,[dx1,dx2]),dp_ptod(x2*(1-x2)*dx2^2+x1*(1-x2)*dx1*dx2+(c-(a+b2+1)*x2)*dx2-b2*x1*dx1-a*b2,[dx1,dx2])];
+  G=yang.buchberger(I);
+  return P=yang.pfaffian([],G);
+}
+
+
+
+
+def vdiff(V,X){
+  L=length(V);
+  for (I=0;I<L;I++){
+    V[I]=diff(V[I],X);
+  }
+  return V;
+}
+
+/*
+You can compute the restriction to x1=1 and then to x2=1.
+
+P=appell();
+R=base_replace((x1-1)*P[0],[[x1,1]]);
+R=gauss_elim(R);
+K=kernel_basis(R[1],R[0]);
+K=matrix_transpose(K);
+P2=base_replace(P[1],[[x1,1]]);
+L=map(diff,K,x2)-P2*K;
+L=red(L);
+P2_true=matrix_list_to_matrix([vtol(L[1]),vtol(L[2])]);
+base_replace((x2-1)*P2_true,[[x2,1]]);
+
+
+
+The answer is 
+[ a-c+b1+b2+1 b2*a ]
+[ 0 0 ]
+
+
+
+
+
+On the other hand, you can take the restriction to x2=1 and then to x1=1.
+
+
+P=appell();
+R=base_replace((x2-1)*P[1],[[x2,1]]);
+R=gauss_elim(R);
+K=kernel_basis(R[1],R[0]);
+K=matrix_transpose(K);
+P1=base_replace(P[0],[[x2,1]]);
+L=map(diff,K,x1)-P1*K;
+L=red(L);
+P1_true=matrix_list_to_matrix([vtol(L[1]),vtol(L[2])]);
+base_replace((x1-1)*P1_true,[[x1,1]]);
+
+
+Eventually, you get the same residue matrix
+[ a-c+b1+b2+1 b2*a ]
+[ 0 0 ]
+
+*/
+
+#ifdef USE_MODULE
+endmodule$
+#else
+#endif
+
+end$
