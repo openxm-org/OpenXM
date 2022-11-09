@@ -11,7 +11,7 @@ COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
-	all-oxmgraph all-pcc all-oxpari
+	all-oxmgraph all-pcc all-oxpari all-linsolv
 
 all-editline: install-util 
 	(cd editline; ${MAKE} all)
@@ -112,6 +112,8 @@ all-oxcdd: install-oxtoolkit
 
 all-oxpari: configure-oxpari
 	-(cd ox_pari; ${MAKE} all)
+all-linsolv: configure-linsolv
+	(cd linsolv ; ${MAKE} all)
 
 all-oxmgraph: configure-oxmgraph
 	-(cd oxmgraph; ${MAKE} all)
@@ -126,7 +128,7 @@ install: install-oxtags install-util install-asir install-gnuplot \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
 	 install-misc install-fep install-phcpack install-oxcdd \
-     install-oxmgraph install-pcc install-oxpari \
+     install-oxmgraph install-pcc install-oxpari install-linsolv \
 	install-asir-mode
 
 install-oxtags:
@@ -246,6 +248,9 @@ install-oxcdd: all-oxcdd
 install-oxpari: all-oxpari
 	-(cd ox_pari; ${MAKE} install)
 
+install-linsolv: all-linsolv
+	-(cd linsolv; ${MAKE} install)
+
 install-oxmgraph: all-oxmgraph
 	-(cd oxmgraph; ${MAKE} install)
 
@@ -332,6 +337,8 @@ configure-oxpari: install-oxtoolkit install-pari
 	(cd ox_pari; ./make-configure)
 configure-oxpari-static: install-oxtoolkit install-pari
 	(cd ox_pari; rm -f .configure_done ; ./make-configure --disable-shared)
+configure-linsolv:
+	(cd linsolv ; ./make-configure)
 
 configure-oxc: 
 	(cd oxc; ./make-configure)
