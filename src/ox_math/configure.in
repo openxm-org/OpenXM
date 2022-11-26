@@ -13,11 +13,15 @@ AC_CHECK_FUNC(socket, , [AC_CHECK_LIB(socket,socket)])
 AC_CHECK_FUNC(gethostbyname, , [AC_CHECK_LIB(nsl,gethostbyname)])
 
 AC_CANONICAL_SYSTEM
-case "$host_os" in
-linux*|freebsd*)
-	ml_system=Linux
+case "$host" in
+x86_64-*-linux*)
+	ml_system=Linux-x86-64
 	static_link_flags=-static
 	;;
+dnl linux*|freebsd*)
+dnl 	ml_system=Linux
+dnl 	static_link_flags=-static
+dnl 	;;
 osf)
 	ml_system=DEC-AXP
 	static_link_flags=

@@ -5,14 +5,17 @@ OpenXM_HOME=../..
 
 PREFIX    = @prefix@
 SYS       = @ml_system@
-ADDONSDIR = /usr/local/mathematica/AddOns/MathLink/DevelopersKits/${SYS}/CompilerAdditions
+# ENGINE = Mathematica
+ENGINE = WolframEngine
+# ADDONSDIR = /usr/local/mathematica/AddOns/MathLink/DevelopersKits/${SYS}/CompilerAdditions
+ADDONSDIR = /usr/local/Wolfram/${ENGINE}/13.1/SystemFiles/Links/MathLink/DeveloperKit/${SYS}/CompilerAdditions
 MPREP     = ${ADDONSDIR}/mprep
 
 LN        = @LN_S@
 CC        = @CC@
 DEFS      = @DEFS@
-CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
-LIBS      = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgc -L${ADDONSDIR} -lML -lm -lgmp
+CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include -fcommon
+LIBS      = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgc -L${ADDONSDIR} -lML64i4 -lm -lmpfr -lgmp
 # STATIC_LINK_FLAGS = @static_link_flags@
 TM_C      = math2.c int.c
 

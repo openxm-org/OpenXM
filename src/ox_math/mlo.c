@@ -35,6 +35,9 @@ static int ml_current_packet = -1;
 static double mathkernel_version;
 static char *mathkernel_versionstring = NULL;
 
+/* MLDisownString was replaced by MLReleaseString */
+#define MLDisownString(a,b) (MLReleaseString((a),(b)))
+
 /* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 

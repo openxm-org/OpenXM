@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
     ox_stderr_init(NULL);
 
     ss = new_sstack(20);
-    mathcap_init(VERSION, "math2ox");
+    mathcap_init(20001129, VERSION, "math2ox", NULL, NULL);
     
     MLMain(argc, argv);
 }

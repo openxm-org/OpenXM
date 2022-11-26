@@ -50,7 +50,7 @@ int main()
 
     ox_stderr_init(stderr);
     ml_init();
-    mathcap_init(VERSION, "ox_math");
+    mathcap_init(20030201, VERSION, "ox_math", NULL, NULL);
 
     sv = oxf_open(3);
     oxf_determine_byteorder_server(sv);
