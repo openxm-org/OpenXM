@@ -334,7 +334,8 @@ def reduction_step(A,P,X,R){
   U=append(matrix_matrix_to_list(matrix_transpose(A011)),matrix_matrix_to_list(matrix_transpose(submatrix(A1,cn(R),mt_gkz.diff_set(cn(N),cn(R))))));
   U=matrix_transpose(U);
   H=1;
-  while(matrix_rank(U)==R&&H<N-R){
+//NT  while(matrix_rank(U)==R&&H<N-R){
+  while(matrix_rank(poly_numerator(U))==R&&H<N-R){
     V=get_left_kernel_element(G0);
     V=newmat(1,length(V),[vtol(V)]);
     I=N-H;
@@ -398,10 +399,11 @@ def moser_reduction(A,X){
   R=CF[2];
   G=g_lambda(A0,A1,R,my_v);
   N=size(A)[0];
-  while(det(G)==0&&P>0){
+  while(matrix_det(G)==0&&P>0){
     M=append(matrix_matrix_to_list(matrix_transpose(submatrix(A0,cn(R),cn(R)))),matrix_matrix_to_list(matrix_transpose(submatrix(A1,cn(R),mt_gkz.diff_set(cn(N),cn(R))))));
     // M^T=(A_0^(11)|A_1^(12))
-    if(matrix_rank(M)<R){
+//NT    if(matrix_rank(M)<R){
+    if(matrix_rank(poly_numerator(M))<R){
       T=direct_sum(X*matrix_identity_matrix(R),matrix_identity_matrix(N-R));
       A=gauge_transform(A,T,X);
       Transformation_matrix=Transformation_matrix*T;
@@ -445,7 +447,7 @@ def check_moser_irreducibility(){
   A1=base_replace(red(X^(P)*(A-A0/(X^(P+1)))),[[X,0]]);
   R=CF[2];
   G=g_lambda(A0,A1,R,my_v);
-  return det(G);
+  return matrix_det(G);
 }
 //これはMoser reducibleだが、Barkatouの例と違うぞ。。
 

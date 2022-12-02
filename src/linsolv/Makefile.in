@@ -10,7 +10,7 @@ OBJS=calc.o ff.o z.o q.o main.o y.tab.o
 all: linsolv  rank_check_ff
 $(OBJS): lin.h
 linsolv: $(OBJS)
-	${CC} -g -o linsolv calc.o z.o q.o ff.o y.tab.o main.o -L${LDIR} -lgc -lgmp -lm
+	${CC} -g -static -o linsolv calc.o z.o q.o ff.o y.tab.o main.o -L${LDIR} -lgc -lgmp -lm
 y.tab.c: cparse.y
 	${MYYACC} -d cparse.y
 

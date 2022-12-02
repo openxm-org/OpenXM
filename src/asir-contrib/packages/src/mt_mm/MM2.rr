@@ -113,6 +113,7 @@ localf a_det$
 localf test9_for_paper$
 localf get_NT_info$
 localf get_indep_cols$
+localf get_NT_ES$
 
 static NT_MData;
 static NT_Debug;
@@ -122,6 +123,7 @@ static NT_info; /* [rank,[row, col](transposed m),indep_columns(L[2])]\n"); */
 static NT_timing; 
 static NT_std;
 static MT_mm_bin;
+static NT_ES;   /* [dx_i*Std | i ] */
 #else
 extern NT_MData;
 extern NT_Debug;
@@ -132,6 +134,7 @@ extern NT_info; /* [rank,[row, col](transposed m),indep_columns(L[2])]\n"); */
 extern NT_timing; 
 extern NT_std;
 extern MT_mm_bin;
+extern NT_ES; 
 #endif
 
 def init_mm() {
@@ -891,6 +894,7 @@ def find_macaulay(Id,Std,Xvars){
     EStd=cdr(EStd);
   }
   ES=reverse(ES);
+  NT_ES=ES;  
 //  Deg=0;  //[NT]
   MData=my_macaulay(Id,Std,Deg,length(Xvars));
   Prules=getopt(prules);
@@ -2502,6 +2506,7 @@ A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 /* 2022.10.16 */
 def get_NT_info() {  return NT_info; }
 def get_indep_cols() { return NT_info[2]; }
+def get_NT_ES() { return NT_ES; }
 
 #ifdef USE_MODULE
 endmodule$
