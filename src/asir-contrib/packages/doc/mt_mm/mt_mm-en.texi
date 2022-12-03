@@ -140,7 +140,7 @@ The data for Macaulay matrix is a list of length 4.
 The list is [M1,M2,Extra,Std].
 M1 and M2 are @math{C'_{\rm Ext}} and @math{C'_{\rm Std}}
 in the Section 4 of [amp2022a] respectively.
-Extra and Std are @math{{rm Ext}} and @math{{\rm Std}}
+Extra and Std are @math{{\rm Ext}} and @math{{\rm Std}}
 in the Section 4 of [amp2022a] respectively.
 @item 
 The global variable @var{NT_ES} stores all differentials of @var{Std}
@@ -158,13 +158,35 @@ with respect to the standard monomials @math{1, \partial_2}.
 The PDE is the GKZ system for the 1 by 2 matrix @math{A=[1,2]}.
 @example
 /* We input the followings */
-Ideal=[x1*dx1+x2*dx2-b1,dx1^2-dx2]$
+import("mt_mm.rr");
+Ideal=[x1*dx1+2*x2*dx2-b1,dx1^2-dx2]$
 Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
 Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
 MData=mt_mm.find_macaulay(Id,Std,Xvars);
 P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
 P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
 
+[3404] 
+--- snip ---
+[3405] [[(b1)/(x1),(-2*x2)/(x1)],
+        [(1/2*b1^2-1/2*b1)/(x1*x2),((-b1+1)*x2-1/2*x1^2)/(x1*x2)]]  // P1
+[3406] [[0,1],
+        [(-1/4*b1^2+1/4*b1)/(x2^2),((b1-3/2)*x2+1/4*x1^2)/(x2^2)]] // P2
+@end example
+@noindent
+Note that Macaulay matrix method might give a fake answer
+under some situations.
+For example, we input the following non-integrable system.
+In other words, the @var{Ideal} below is the trivial ideal.
+@example
+/* We input the followings */
+Ideal=[x1*dx1+x2*dx2-b1,dx1^2-dx2]$
+Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
+Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+MData=mt_mm.find_macaulay(Id,Std,Xvars);
+P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+nd_weyl_gr(Ideal,[x1,x2,dx1,dx2],0,0);
 
 [3240] import("mt_mm.rr");
 0
@@ -207,8 +229,11 @@ MData is stored in tmp-mm-9733-mdata.ab
 [3544] P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
 [[0,1],[(-b1^2+b1)/(x2^2),((2*b1-2)*x2+x1^2)/(x2^2)]]
 // d/dx2 - P2
+[2545] nd_weyl_gr(Ideal,[x1,x2,dx1,dx2],0,0);
+[-1]  // trivial ideal!
 @end example
 @noindent
+Let us go back to our running example.
 Homogenity is reduced by @code{mt_gkz.gkz_b}.
 @code{Id0} is an ODE.
 @example
