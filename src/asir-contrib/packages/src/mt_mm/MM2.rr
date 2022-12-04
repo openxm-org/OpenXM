@@ -114,6 +114,7 @@ localf test9_for_paper$
 localf get_NT_info$
 localf get_indep_cols$
 localf get_NT_ES$
+localf gen_es$
 
 static NT_MData;
 static NT_Debug;
@@ -543,6 +544,11 @@ def my_rearrange(L){
 //Macaulay matrix of degree Deg
 
 def my_macaulay(Id,Std,Deg,N){
+  if (type(getopt(restriction_var))>0) {
+    R=getopt(restriction_var);
+    Zero=vtol(newvect(length(R)));
+    Rule=assoc(R,Zero);
+  }else Rule=[];  //[NT]
   RM=my_monomials(Id,Deg,N);
   Rows=RM[0];
   Tot=append(my_rearrange(RM[1]),Std);
@@ -559,8 +565,8 @@ def my_macaulay(Id,Std,Deg,N){
       M2[I][J]=my_coeff(Std[J],Rows[I]);
     }
   }
-  M1=matrix_matrix_to_list(M1);
-  M2=matrix_matrix_to_list(M2);
+  M1=base_replace(matrix_matrix_to_list(M1),Rule);
+  M2=base_replace(matrix_matrix_to_list(M2),Rule);
   return [M1,M2,Ext,Std];
 }
 
@@ -857,6 +863,9 @@ def gauss_elim_explained(M){
 
 
 def find_macaulay(Id,Std,Xvars){
+  if (type(getopt(restriction_var))>0) {
+    Restriction_var=getopt(restriction_var);
+  }else Restriction_var=[]; //[NT]
   bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
   if (type(getopt(p))>0) NT_prime=getopt(p); //[NT]
   if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
@@ -870,33 +879,9 @@ def find_macaulay(Id,Std,Xvars){
      print("Warning: Input Ideal should be distributed poly. Changing the format.");
      Id = map(dp_ptod,Id,Dvars);
   }
-  E=map(dp_ptod,Xvars,Xvars);
-  P=0;
-  for(I=0;I<length(Xvars);I++){
-    for(J=0;J<length(Std);J++){
-      P=P+yang.multi(E[I],Std[J]);
-    }
-  }
-  /*
-  EStd=[];
-  for(I=0;I<length(Xvars);I++){
-    for(J=0;J<length(Std);J++){
-      EStd=cons(yang.multi(E[I],Std[J]),EStd);
-    }
-  }
-  EStd=reverse(EStd);
-//このままでは無駄を生み出す可能性あり。
-  */
-  EStd=my_terms(P);
-  ES=[];
-  while(EStd!=[]){
-    if(length(mt_gkz.diff_set([EStd[0]],Std))>0){ES=cons(EStd[0],ES);}
-    EStd=cdr(EStd);
-  }
-  ES=reverse(ES);
-  NT_ES=ES;  
+  NT_ES=ES=gen_es(Std,Xvars,Restriction_var);   //[NT]
 //  Deg=0;  //[NT]
-  MData=my_macaulay(Id,Std,Deg,length(Xvars));
+  MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
   Prules=getopt(prules);
   while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime)==0){//[NT]
     Deg++;
@@ -2507,6 +2492,30 @@ A=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 def get_NT_info() {  return NT_info; }
 def get_indep_cols() { return NT_info[2]; }
 def get_NT_ES() { return NT_ES; }
+/* 2022.12.3 */
+/* We assume that yang.define_ring() is already done. */
+def gen_es(Std,Xvars,Restriction_var) {
+  for (I=0; I<length(Std); I++) {
+    if (dp_rest(Std[I])!=0) error("Std must be a monomial.");
+    if (type(dp_hc(Std[I]))> 1) error("Std must not have variable coef.");
+  }
+  V=base_set_minus(Xvars,Restriction_var);
+  E=map(dp_ptod,V,Xvars);
+  P=0;
+  for(I=0;I<length(E);I++){
+    for(J=0;J<length(Std);J++){
+      P=P+yang.multi(E[I],Std[J]);
+    }
+  }
+  EStd=my_terms(P);
+  ES=[];
+  while(EStd!=[]){
+    if(length(mt_gkz.diff_set([EStd[0]],Std))>0){ES=cons(EStd[0],ES);}
+    EStd=cdr(EStd);
+  }
+  ES=reverse(ES);
+  return ES;
+}
 
 #ifdef USE_MODULE
 endmodule$
