@@ -115,6 +115,7 @@ localf get_NT_info$
 localf get_indep_cols$
 localf get_NT_ES$
 localf gen_es$
+localf verbose$
 
 static NT_MData;
 static NT_Debug;
@@ -125,6 +126,7 @@ static NT_timing;
 static NT_std;
 static MT_mm_bin;
 static NT_ES;   /* [dx_i*Std | i ] */
+static NT_Verbose;
 #else
 extern NT_MData;
 extern NT_Debug;
@@ -136,6 +138,7 @@ extern NT_timing;
 extern NT_std;
 extern MT_mm_bin;
 extern NT_ES; 
+extern NT_Verbose;
 #endif
 
 def init_mm() {
@@ -196,7 +199,7 @@ def rank_check(MData,ES,Xvars){
   return rank_check_ff(MData,ES,Xvars,P);
 
   /* The below will be obsoleted. */
-  if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=%a\n",ES); print(Xvars);}
+  if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=diff(Std)-Std=%a\n",ES); print(Xvars);}
   Check=0;
   N=0;
   for(I=0;I<length(ES);I++){
@@ -353,7 +356,7 @@ def if_is_0_ff(L,P){
 
 /* 2022.01.21 */
 def rank_check_ff(MData,ES,Xvars,Prime){
-  if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=%a\n",ES); print(Xvars);}
+  if (NT_Debug || NT_Verbose) {printf("rank_check_ff:MData[2]=%a\nrank_check_ff:MData[3]=%a\n",MData[2],MData[3]); printf("ES=diff(Std)-Std=%a\n",ES); print(Xvars);}
   Check=0;
   N=0;
   for(I=0;I<length(ES);I++){
@@ -550,8 +553,17 @@ def my_macaulay(Id,Std,Deg,N){
     Rule=assoc(R,Zero);
   }else Rule=[];  //[NT]
   RM=my_monomials(Id,Deg,N);
+  if (NT_Verbose) printf("my_macaulay:Rule=%a\n",Rule);
+  if (NT_Verbose) printf("my_macaulay:dp_hm with Rule of RM[0]=Rows=%a\n",map(dp_hm,base_replace(RM[0],Rule)));
+  if (length(Rule)>0) {
+    T_rows=map(dp_hm,base_replace(RM[0],Rule));;
+    for (I=0; I<length(T_rows); I++) {
+      if (T_rows[I]==0) error("Error: find_macaulay with restriction_var has not yet implemented for this case. Todo, factor T_rows[I] by a restriction variable before applying rules in my_monomials.");
+    }
+  }
   Rows=RM[0];
   Tot=append(my_rearrange(RM[1]),Std);
+  if (NT_Verbose) printf("my_macaulay:Tot=%a\n",Tot);
   Ext=mt_gkz.diff_set(Tot,Std);
   M1=newmat(length(Rows),length(Ext));
   for(I=0;I<length(Rows);I++){
@@ -867,7 +879,7 @@ def find_macaulay(Id,Std,Xvars){
     Restriction_var=getopt(restriction_var);
   }else Restriction_var=[]; //[NT]
   bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
-  if (type(getopt(p))>0) NT_prime=getopt(p); //[NT]
+  if (type(getopt(p))>=0) NT_prime=getopt(p); //[NT]
   if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
   yang.define_ring(["partial",Xvars]); //[NT]
   Dvars=poly_dvar(Xvars);
@@ -880,13 +892,15 @@ def find_macaulay(Id,Std,Xvars){
      Id = map(dp_ptod,Id,Dvars);
   }
   NT_ES=ES=gen_es(Std,Xvars,Restriction_var);   //[NT]
+  if (NT_Verbose) printf("NT_ES=ES=%a\n",ES);
+  if (NT_Verbose) printf("Std=%a\n",Std);
 //  Deg=0;  //[NT]
   MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
   Prules=getopt(prules);
   while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime)==0){//[NT]
     Deg++;
     printf("Computing the Macaulay matrix of degree %a\n",Deg);
-    MData=my_macaulay(Id,Std,Deg,length(Xvars));
+    MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
     printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
   }
   printf("We use a probabilistic method to compute the rank of a matrix with entries of rational functions.\n");
@@ -896,7 +910,7 @@ def find_macaulay(Id,Std,Xvars){
   printf("To draw a picture of the rref of the Macaulay matrix, use Util/show_mat with tmp-mm-*-M-transposed*.bin\n");
   printf("[Std,Xvars] is stored in %aStd-Xvars.ab\n",NT_prefix); 
   printf("[ES,Xvars] is stored in %aEs-Xvars.ab\n",NT_prefix); 
-  printf("[rank=%a,[row,col]=%a (size of t(M1)),Indep_cols] is stored in the variable NT_info.\n",NT_info[0],NT_info[1]); 
+  if (type(NT_info)>3) printf("[rank=%a,[row,col]=%a (size of t(M1)),Indep_cols] is stored in the variable NT_info.\n",NT_info[0],NT_info[1]); 
   bsave(NT_info,NT_prefix+"NT_info.ab"); 
   printf("NT_info is stored in %aNT_info.ab\n",NT_prefix); 
   bsave(MData,NT_prefix+"mdata.ab"); 
@@ -2515,6 +2529,10 @@ def gen_es(Std,Xvars,Restriction_var) {
   }
   ES=reverse(ES);
   return ES;
+}
+
+def verbose(Level) {
+  NT_Verbose=Level;			
 }
 
 #ifdef USE_MODULE
