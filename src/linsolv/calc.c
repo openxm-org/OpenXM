@@ -630,7 +630,7 @@ Node test1(Node x) {
 
 /* 2022.02.04 */
 int fmaxpos(Poly in[],int size) {
-  int pos=0;
+  int pos=-1;
   int mymax=-1;
   int i;
   for (i=0; i<size; i++) {
@@ -655,6 +655,7 @@ int triangulate(Poly in[],Poly done[],int size) {
   maxm=(in[maxpos])->m;
   if (maxm == 0) return 0;
   while (in_m > 0) {
+    if (maxpos < 0) break;
     if (Verbose) {
       fprintf(stderr,"%d/%d, maxpos(pivot pos)=%d, maxm(var-1)=%d. ",in_m,size,maxpos,maxm); fflush(NULL);
     }
