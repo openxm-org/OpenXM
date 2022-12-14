@@ -155,6 +155,7 @@ def init_mm() {
   Xm_noX=1;
   NT_Debug=0;
   NT_prime=pari(nextprime,2^16);
+  printf("NT_prime=%a for probalistic computation.\n",NT_prime);
   NT_prefix=sprintf("tmp-mm-%a-",getpid());
   print("clean_tmp() to remove temporary data files starting with tmp-mm.");
 }
@@ -359,14 +360,20 @@ def rank_check_ff(MData,ES,Xvars,Prime){
   if (NT_Debug || NT_Verbose) {printf("rank_check_ff:MData[2]=%a\nrank_check_ff:MData[3]=%a\n",MData[2],MData[3]); printf("ES=diff(Std)-Std=%a\n",ES); print(Xvars);}
   Check=0;
   N=0;
+  Missing = matrix_matrix_to_list(ES);
   for(I=0;I<length(ES);I++){
-    N=N+mt_gkz.if_I_in_S(ES[I],MData[2]);
+    if (mt_gkz.if_I_in_S(ES[I],MData[2])) {
+      N++;
+      Missing = base_set_minus(Missing,[ES[I]]);
+    }
   }
-  if(N==length(ES)){
+  if(N!=length(ES)){
+    printf("rank_check_ff: The column index of this Macaulay matrix does not contain all ES=diff(Std)-Std. Missing elements: %a. Degree of MM should be larger.\n",Missing);
+  }else{
     N=0;
     M=MData[0];
     NTvars=vars(M);
-    M=base_replace(M,assoc(NTvars,pnumvect(length(NTvars))));
+    M=base_replace_n(M,assoc(NTvars,pnumvect(length(NTvars))));
     printf("We use a probabilistic method for rank_check with P=%a\nWarning: prules are ignored.\n",Prime);
 
     ES2=newvect(length(ES));
@@ -550,13 +557,13 @@ def my_macaulay(Id,Std,Deg,N){
   if (type(getopt(restriction_var))>0) {
     R=getopt(restriction_var);
     Zero=vtol(newvect(length(R)));
-    Rule=assoc(R,Zero);
+    Rule=assoc(R,Zero);  // If it is not a zero rule, base_replace_n ->base_replace
   }else Rule=[];  //[NT]
   RM=my_monomials(Id,Deg,N);
   if (NT_Verbose) printf("my_macaulay:Rule=%a\n",Rule);
-  if (NT_Verbose) printf("my_macaulay:dp_hm with Rule of RM[0]=Rows=%a\n",map(dp_hm,base_replace(RM[0],Rule)));
   if (length(Rule)>0) {
-    T_rows=map(dp_hm,base_replace(RM[0],Rule));;
+    T_rows=map(dp_hm,base_replace_n(RM[0],Rule));;
+    if (NT_Verbose) printf("my_macaulay:dp_hm with Rule of RM[0]=Rows=%a\n",T_rows);
     for (I=0; I<length(T_rows); I++) {
       if (T_rows[I]==0) error("Error: find_macaulay with restriction_var has not yet implemented for this case. Todo, factor T_rows[I] by a restriction variable before applying rules in my_monomials.");
     }
@@ -577,8 +584,8 @@ def my_macaulay(Id,Std,Deg,N){
       M2[I][J]=my_coeff(Std[J],Rows[I]);
     }
   }
-  M1=base_replace(matrix_matrix_to_list(M1),Rule);
-  M2=base_replace(matrix_matrix_to_list(M2),Rule);
+  M1=base_replace_n(matrix_matrix_to_list(M1),Rule);
+  M2=base_replace_n(matrix_matrix_to_list(M2),Rule);
   return [M1,M2,Ext,Std];
 }
 
@@ -642,6 +649,7 @@ def pnumvect(Size) {
 //MData=[macaulay matrix1, macaulay matrix2, External monomials, Standard monomials]
 
 def rank_check_orig(MData,ES,Xvars){
+  print("rank_check_orig is running.");
   Check=0;
   N=0;
   for(I=0;I<length(ES);I++){
@@ -894,6 +902,7 @@ def find_macaulay(Id,Std,Xvars){
   NT_ES=ES=gen_es(Std,Xvars,Restriction_var);   //[NT]
   if (NT_Verbose) printf("NT_ES=ES=%a\n",ES);
   if (NT_Verbose) printf("Std=%a\n",Std);
+  if (NT_Verbose) printf("NT_prime=%a\n",NT_prime);
 //  Deg=0;  //[NT]
   MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
   Prules=getopt(prules);
