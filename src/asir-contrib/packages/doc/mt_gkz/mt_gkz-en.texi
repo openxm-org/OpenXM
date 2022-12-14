@@ -38,7 +38,7 @@
 @title GKZ hypergeometric system
 @subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
 @subtitle Version 1.0
-@subtitle October 22, 2022
+@subtitle December 15, 2022
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -96,6 +96,9 @@ and integer programming, Compositio Mathematica, 155 (1999), 185--204
 @item [SST2000]
 M.Saito, B.Sturmfels, N.Takayama, Groebner Deformations of Hypergeometric
 Differential Equations. Springer, 2000.
+@item [HNT]
+T.Hibi, K.Nishiyama, N.Takayama, Pfaffian systems of A-Hypergeometric equations I: bases of twisted cohomology groups. Advances in Mathematics, 306 (2017), 303--327.
+@uref{http://dx.doi.org/10.1016/j.aim.2016.10.021}
 @end itemize
 
 References for maple packages IntegrableConnections and OreMorphisms.
@@ -972,11 +975,90 @@ RatSols:=RationalSolutions(C,[x,y],['param',[a]]);
 @ref{mt_gkz.generate_maple_file_IC}
 @end table
 @comment ------------------------------------------------
+
+@comment ------------------------------------------------begin
+@node mt_gkz.cbase_by_euler,,, Some some utility functions
+@subsection @code{mt_gkz.cbase_by_euler}
+@comment --- 索引用キーワード
+@findex mt_gkz.cbase_by_euler
+
+@table @t
+@item mt_gkz.cbase_by_euler(@var{A})
+:: It returns a standard basis for the GKZ system 
+defined by @var{A}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+The list of a standard basis for the GKZ system defined by @var{A}.
+@item A
+the matrix A of the GKZ system.
+@item option w
+@var{w} is a weight vector (given by a list) for differential operators.
+@item option no_prob
+If it is set to 1, a probabilistic algorithm of setting b's to random numbers is not used.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+The returned list of differential operators (monomials) is a standard basis
+of the GKZ system and it also gives a cohomology basis
+by applying them to the integration kernel of the GKZ hypergeometric integral.
+@item 
+It is an implementation of the algorithm in [HNT] @url{http://dx.doi.org/10.1016/j.aim.2016.10.021} by Hibi-Nishiyama-Takayama.
+@item 
+The weight vector is used to obtain an initial ideal of the toric ideal
+for @var{A} and is also used to obtain a standard basis of
+a system of algebraic equations by [HNT].
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+Example: basis for A=[[1,1,1,1],[0,1,2,3]].
+@example
+import("mt_gkz.rr");
+A=[[1,1,1,1],[0,1,2,3]]$
+Std1=mt_gkz.cbase_by_euler(A);
+Std2=mt_gkz.cbase_by_euler(A | w=[0,0,1,1]);
+end$
+
+Outputs are, e.g.,
+
+[3079] A=[[1,1,1,1],[0,1,2,3]]$
+
+[3080] Std1=mt_gkz.cbase_by_euler(A);
+Gt=[-dx1*dx3+dx2^2,dx1*dx4-dx2*dx3,-dx2*dx4+dx3^2]
+T2     =[dx2^2,dx2*dx3,dx3^2]
+T2(new)=[dx2^2-dx2,dx2*dx3,dx3^2-dx3]
+E=[dx4+dx3+dx2+dx1-b_1,3*dx4+2*dx3+dx2-b_2]
+We use a probablistic method to determine the base.
+Note: dx1, dx2, ..., are the Euler operators
+[dx3,dx4,1]
+
+[3081] Std2=mt_gkz.cbase_by_euler(A | w=[0,0,1,1]);
+T2     =[dx2*dx3,dx1*dx3,dx1^2*dx4,dx3^2]
+T2(new)=[dx2*dx3,dx1*dx3,(dx1^2-dx1)*dx4,dx3^2-dx3]
+E=[dx4+dx3+dx2+dx1-b_1,3*dx4+2*dx3+dx2-b_2]
+We use a probablistic method to determine the base.
+Note: dx1, dx2, ..., are the Euler operators
+[dx2^2,dx2,1]
+[3082] 
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.mytoric_by_euler}
+@end table
+@comment ------------------------------------------------end
 @*
 @*
 
 @comment --- @example〜@end example は実行例の表示 ---
-For other function, we have not yet written manual entries. 
+For other functions, we have not yet written manual entries. 
 We only show examples on these. As for details, please see
 the source code.
 @example

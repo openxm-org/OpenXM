@@ -54,15 +54,20 @@ Example:
   mt_gkz.ctest7(3);
 */
 def cbase_by_euler(A) {
+  if (type(getopt(w))>0) Weight=getopt(w); else Weight=0;
   W=[[dx1, 1]]; /* dummy */
   T0=mytoric_by_euler(A,W);
   E=T0[0];
   T=T0[1];
   V=T0[2]; Vb=T0[3]; Vd=add_d(V); 
-  Gt=nd_gr(T,Vd,0,0);
-  printf("Gt=%a\n",Gt);
-  dp_ord(0); /* rev lex */
-  T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  if (Weight==0) {
+    Gt=nd_gr(T,Vd,0,0);
+    printf("Gt=%a\n",Gt);
+    dp_ord(0); /* rev lex */
+    T2=map(dp_ptod,Gt,Vd); T2=map(dp_ht,T2); T2=map(dp_dtop,T2,Vd);
+  }else{
+    T2=poly_initial(T | order=Weight, v=Vd);
+  }
   printf("T2     =%a\n",T2);
   T2 = map(mydistraction,T2,[V,V,Vd,Vd]);
   printf("T2(new)=%a\n",T2);
@@ -75,8 +80,14 @@ def cbase_by_euler(A) {
     Er=base_replace(E,genrule_p(Vb)); /* prob method */
     printf("We use a probablistic method to determine the base.\n");
   }
-  dp_ord(0);
-  G=nd_gr(append(Er,T2),Vd,0,0);  /* Er: linear Euler op, T2: distraction of init of Euler */
+  if (Weight==0) {
+    dp_ord(0);
+    G=nd_gr(append(Er,T2),Vd,0,0);  /* Er: linear Euler op, T2: distraction of init of Euler */
+  }else{
+    Omat=poly_weight_to_omatrix(Weight,Vd);
+    dp_ord(Omat);
+    G=nd_gr(append(Er,T2),Vd,0,Omat);
+  }
   G1=G;
   Gin = map(dp_ht,map(dp_ptod,G1,Vd)); Gin_p=map(dp_dtop,Gin,Vd);
   Std = dp_mbase(Gin); Std=map(dp_dtop,Std,Vd);
