@@ -116,6 +116,12 @@ localf get_indep_cols$
 localf get_NT_ES$
 localf gen_es$
 localf verbose$
+localf inv_assoc$
+localf inv_rule$
+localf gen_d_rule$
+localf check_d_rule$
+localf test1_gen_d_rule$
+localf range$
 
 static NT_MData;
 static NT_Debug;
@@ -2542,6 +2548,65 @@ def gen_es(Std,Xvars,Restriction_var) {
 
 def verbose(Level) {
   NT_Verbose=Level;			
+}
+
+/* 2022.12.16 */
+def inv_assoc(Rule) {
+  L=[]; R=[];
+  for (I=0; I<length(Rule); I++) {
+    L=cons(Rule[I][0],L);
+    R=cons(Rule[I][1],R);
+  }
+  return [reverse(L),reverse(R)];
+}
+def inv_rule(Rule,NewVars) {
+  Iv=inv_assoc(Rule);
+  L=Iv[0]; R=Iv[1];
+  Eq=[];
+  for (I=0; I<length(L); I++) {
+    Eq=cons(R[I]-L[I],Eq);
+  }
+  Inv_rule=poly_solve_linear(Eq,NewVars);
+  return Inv_rule;
+}
+def gen_d_rule(Xvars,NewVars,Inv_rule) {
+  if (type(Xvars)>3) {
+    Drule=map(gen_d_rule,Xvars,NewVars,Inv_rule);
+    check_d_rule(Xvars,NewVars,Inv_rule,Drule);
+    return Drule;
+  }
+  X=Xvars;
+  F=0;
+  for (J=0; J<length(NewVars); J++) {
+    Y=NewVars[J];
+    C=base_replace(Y,Inv_rule); C=diff(C,X);
+    F += C*poly_dvar(Y);
+  }
+  return [poly_dvar(X),F];
+}
+def check_d_rule(Xvars,NewVars,Inv_rule,Drule) {
+  N=length(Xvars);
+  if (N != length(NewVars)) error("length of vars");
+  if (N != length(Inv_rule)) error("length of Inv=rule");
+  if (N != length(Drule)) error("length of Drule");
+  if (base_intersection(Xvars,NewVars) != []) error("overlap of Xvars and NewVars");
+  if (!base_is_equal(qsort(NewVars),qsort(inv_assoc(Inv_rule)[0]))) error("Invalid Inv_rule");
+  if (!base_is_equal(qsort(vars(Inv_rule)),qsort(append(Xvars,NewVars)))) error("Invalid Inv_rule 2");
+  return 1;
+}
+def test1_gen_d_rule() {
+  Xvars=[x1,x2,x3];
+  Yvars=[y1,y2,y3];
+  Rule=[[x1,y1-y2],[x2,y1+y2],[x3,y3+1]];
+  Inv_rule=inv_rule(Rule,Yvars);
+  return [gen_d_rule(Xvars,Yvars,Inv_rule),Inv_rule];
+}
+def range(Start,Stop,Step) {
+  L=[];
+  for (I=Start; I<Stop; I+= Step) {
+    L = cons(I,L);
+  }
+  return reverse(L);
 }
 
 #ifdef USE_MODULE
