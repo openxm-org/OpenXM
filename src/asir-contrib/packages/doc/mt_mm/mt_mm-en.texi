@@ -38,7 +38,7 @@
 @title Macaulay matrix method for GKZ hypergeometric systems
 @subtitle Pfaffian system (Pfaff equation) and Restriction
 @subtitle Version 0.7
-@subtitle December 4, 2022
+@subtitle December 19, 2022
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -140,11 +140,39 @@ which constructs a Macaulay matrix to obtain Pfaffian equations for restriction.
 @itemize @bullet
 @item 
 The data for Macaulay matrix is a list of length 4.
-The list is [M1,M2,Extra,Std].
-M1 and M2 are @math{C'_{\rm Ext}} and @math{C'_{\rm Std}}
+The list is [M_1,M_2,Extra,Std].
+M_1 and M_2 are @math{M_{\rm Ext}} and @math{M_{\rm Std}}
 in the Section 4 of [amp2022a] respectively.
 Extra and Std are @math{{\rm Ext}} and @math{{\rm Std}}
 in the Section 4 of [amp2022a] respectively.
+@item 
+A Macaulay matrix is obtained by applying
+differential monomials @math{\partial^a}, |a|<=d
+to generators of the ideal @var{Ideal}
+where d is a (given) degree.
+In the default setting, the degree d is automatically
+increased until the Macaulay matrix is solvable.
+@item
+Here is a quick summary of the Section 4 of [amp2022a]. 
+Let Std be a column vector of a standard basis and Ext a column vector of differential monomials appearing the Macaulay matrix other than Std.
+When we have a Macaulay matrix of sufficiently
+large degree, there exists a matrix C of rational
+function entries satisfying the identity
+d_i Std - P_i*Std
+= C*(M_1*Ext + M_2*Std),
+which is 0 modulo @var{Ideal},
+where P_i is the Pfaffian matrix and d_i is
+the partial differential operator with respect
+to the i-th variable.
+d_i Std can be expressed as
+C'_1*Ext+C'_2*Std
+where C'_1 and C'_2 are a matrix with 0, 1 entries.
+It follows from the identity that we have
+C'_1=C*M_1
+and
+C'_2-P_i=C*M_2.
+Finding a matrix C, we obtain the Pfaffian matrix
+P_i.
 @item 
 The global variable @var{NT_ES} stores all differentials of @var{Std}
 (standard monomials) minus @var{Std} in the distributed polynomial format.
