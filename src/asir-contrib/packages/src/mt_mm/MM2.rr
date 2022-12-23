@@ -1,3 +1,4 @@
+// MM2.rr
 //Macaulay matrixを自作する。2021/12/9
 //現在のfind_macaulayの実装ではDegreeが上がるたびに下のMacaulay matrix を計算し直しているが、これは非効率的。
 
@@ -560,15 +561,23 @@ def my_rearrange(L){
 //Macaulay matrix of degree Deg
 
 def my_macaulay(Id,Std,Deg,N){
+  if ((type(getopt(restriction_var))>0) && (type(getopt(restriction_cond))>0)) {
+    error("Options restriction_var and restriction_cond are exclusive.");
+  }
+  Restriction_cond=0;
   if (type(getopt(restriction_var))>0) {
     R=getopt(restriction_var);
     Zero=vtol(newvect(length(R)));
     Rule=assoc(R,Zero);  // If it is not a zero rule, base_replace_n ->base_replace
+  }else if (type(getopt(restriction_cond))>0) {
+    Restriction_cond=getopt(restriction_cond);
+    Rule=Restriction_cond[1];
   }else Rule=[];  //[NT]
   RM=my_monomials(Id,Deg,N);
   if (NT_Verbose) printf("my_macaulay:Rule=%a\n",Rule);
   if (length(Rule)>0) {
-    T_rows=map(dp_hm,base_replace_n(RM[0],Rule));;
+    if (Restriction_cond == 0) T_rows=map(dp_hm,base_replace_n(RM[0],Rule));
+    else T_rows=map(dp_hm,base_replace(RM[0],Rule));
     if (NT_Verbose) printf("my_macaulay:dp_hm with Rule of RM[0]=Rows=%a\n",T_rows);
     for (I=0; I<length(T_rows); I++) {
       if (T_rows[I]==0) error("Error: find_macaulay with restriction_var has not yet implemented for this case. Todo, factor T_rows[I] by a restriction variable before applying rules in my_monomials.");
@@ -889,9 +898,17 @@ def gauss_elim_explained(M){
 
 
 def find_macaulay(Id,Std,Xvars){
+  if ((type(getopt(restriction_var))>0) && (type(getopt(restriction_cond))>0)) {
+    error("Options restriction_var and restriction_cond are exclusive.");
+  }
+  Restriction_cond=0;
   if (type(getopt(restriction_var))>0) {
     Restriction_var=getopt(restriction_var);
+  }else if (type(getopt(restriction_cond))>0) {
+    Restriction_cond=getopt(restriction_cond);
+    Restriction_var=base_set_minus(Xvars,Restriction_cond[0]);
   }else Restriction_var=[]; //[NT]
+
   bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
   if (type(getopt(p))>=0) NT_prime=getopt(p); //[NT]
   if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
@@ -909,6 +926,7 @@ def find_macaulay(Id,Std,Xvars){
   if (NT_Verbose) printf("NT_ES=ES=%a\n",ES);
   if (NT_Verbose) printf("Std=%a\n",Std);
   if (NT_Verbose) printf("NT_prime=%a\n",NT_prime);
+  if (NT_Verbose) printf("Restriction_var=%a\n",Restriction_var);
 //  Deg=0;  //[NT]
   MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
   Prules=getopt(prules);
@@ -925,7 +943,10 @@ def find_macaulay(Id,Std,Xvars){
   printf("To draw a picture of the rref of the Macaulay matrix, use Util/show_mat with tmp-mm-*-M-transposed*.bin\n");
   printf("[Std,Xvars] is stored in %aStd-Xvars.ab\n",NT_prefix); 
   printf("[ES,Xvars] is stored in %aEs-Xvars.ab\n",NT_prefix); 
-  if (type(NT_info)>3) printf("[rank=%a,[row,col]=%a (size of t(M1)),Indep_cols] is stored in the variable NT_info.\n",NT_info[0],NT_info[1]); 
+  if (type(NT_info)>3) {
+    NT_info=append(NT_info,[["my_macaulay","Id","Std",Deg,length(Xvars),getopt()]]);
+    printf("[rank=%a,[row,col]=%a (size of t(M1)),Indep_cols, args_for_my_macaulay] is stored in the variable NT_info.\n",NT_info[0],NT_info[1]);
+  }
   bsave(NT_info,NT_prefix+"NT_info.ab"); 
   printf("NT_info is stored in %aNT_info.ab\n",NT_prefix); 
   bsave(MData,NT_prefix+"mdata.ab"); 
