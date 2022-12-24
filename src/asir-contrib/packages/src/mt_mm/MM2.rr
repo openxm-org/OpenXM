@@ -123,6 +123,10 @@ localf gen_d_rule$
 localf check_d_rule$
 localf test1_gen_d_rule$
 localf range$
+localf my_macaulay_orig$
+localf gen_ext_std_index$
+localf row_to_M1M2$
+localf search_pos$
 
 static NT_MData;
 static NT_Debug;
@@ -557,10 +561,97 @@ def my_rearrange(L){
 }
 
 
+/* 2022.12.24  for more efficient my_macaulay() */
+def gen_ext_std_index(Ext,Std) {
+  Next=length(Ext);
+  Nstd=length(Std);
+  Index=newvect(Next+Nstd);
+  for (J=0; J<Next; J++) {
+    Index[J]=[Ext[J],1,J];
+  }
+  for (J=0, K=Next; J<Nstd; J++,K++) {
+    Index[K]=[Std[J],2,J];
+  }
+  qsort(Index);
+  return Index; /* sorted from small monomial to large monomial */
+}
+
+def row_to_M1M2(Rows,M1,M2,Index) {
+  Nrows=length(Rows);
+  for (I=0; I<Nrows; I++) {
+    F=Rows[I];
+    From = size(Index)[0]-1;
+    while (F) {
+      C=dp_hc(F); Mon=dp_ht(F); F=dp_rest(F);
+      Pos = search_pos(Mon,Index,From);
+      TT=Index[Pos];
+      if (TT[1]==1) M1[I][TT[2]]=C;
+      else M2[I][TT[2]]=C;
+      From = Pos-1;
+    }
+  }
+}
+
+def search_pos(Mon,Index,From) {
+  for (Pos=From; Pos >= 0; Pos--) {
+    if (Mon == Index[Pos][0]) return Pos;
+  }
+  error("search_pos: Current dp_ord and ord of the input operators are not compatible. It makes the computation very slow. Input generators by non-distributed polynomial.");
+}
 
 //Macaulay matrix of degree Deg
-
 def my_macaulay(Id,Std,Deg,N){
+  if ((type(getopt(restriction_var))>0) && (type(getopt(restriction_cond))>0)) {
+    error("Options restriction_var and restriction_cond are exclusive.");
+  }
+  Restriction_cond=0;
+  if (type(getopt(restriction_var))>0) {
+    R=getopt(restriction_var);
+    Zero=vtol(newvect(length(R)));
+    Rule=assoc(R,Zero);  // If it is not a zero rule, base_replace_n ->base_replace
+  }else if (type(getopt(restriction_cond))>0) {
+    Restriction_cond=getopt(restriction_cond);
+    Rule=Restriction_cond[1];
+  }else Rule=[];  //[NT]
+  RM=my_monomials(Id,Deg,N);
+  if (NT_Verbose) printf("my_macaulay:Rule=%a\n",Rule);
+  if (length(Rule)>0) {
+    if (Restriction_cond == 0) T_rows=map(dp_hm,base_replace_n(RM[0],Rule));
+    else T_rows=map(dp_hm,base_replace(RM[0],Rule));
+    if (NT_Verbose) printf("my_macaulay:dp_hm with Rule of RM[0]=Rows=%a\n",T_rows);
+    for (I=0; I<length(T_rows); I++) {
+      if (T_rows[I]==0) error("Error: find_macaulay with restriction_var has not yet implemented for this case. Todo, factor T_rows[I] by a restriction variable before applying rules in my_monomials.");
+    }
+  }
+  Rows=RM[0];
+  Tot=append(my_rearrange(RM[1]),Std);
+  if (NT_Verbose) printf("my_macaulay:Tot=%a\n",Tot);
+  Ext=mt_gkz.diff_set(Tot,Std);
+  M1=newmat(length(Rows),length(Ext));
+  M2=newmat(length(Rows),length(Std));
+  Index=gen_ext_std_index(Ext,Std);
+  row_to_M1M2(Rows,M1,M2,Index);
+  //NT_Debug = 256; 
+  if (NT_Debug == 256) {
+    printf("my_macaulay: checking row_to_M1M2\n");
+    for(I=0;I<length(Rows);I++){
+      for(J=0;J<length(Ext);J++){
+	if (M1[I][J]!=my_coeff(Ext[J],Rows[I])) error("Mistake in M1");
+      }
+    }
+    for(I=0;I<length(Rows);I++){
+      for(J=0;J<length(Std);J++){
+	if (M2[I][J]!=my_coeff(Std[J],Rows[I])) error("Mistake in M2");
+      }
+    }
+    printf("\nChecking is done.\n");
+  }
+  M1=base_replace_n(matrix_matrix_to_list(M1),Rule);
+  M2=base_replace_n(matrix_matrix_to_list(M2),Rule);
+  return [M1,M2,Ext,Std];
+}
+
+def my_macaulay_orig(Id,Std,Deg,N){
   if ((type(getopt(restriction_var))>0) && (type(getopt(restriction_cond))>0)) {
     error("Options restriction_var and restriction_cond are exclusive.");
   }
@@ -928,7 +1019,9 @@ def find_macaulay(Id,Std,Xvars){
   if (NT_Verbose) printf("NT_prime=%a\n",NT_prime);
   if (NT_Verbose) printf("Restriction_var=%a\n",Restriction_var);
 //  Deg=0;  //[NT]
+  printf("Computing the Macaulay matrix of degree %a\n",Deg);
   MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
+  printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
   Prules=getopt(prules);
   while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime)==0){//[NT]
     Deg++;
@@ -936,7 +1029,7 @@ def find_macaulay(Id,Std,Xvars){
     MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
     printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
   }
-  printf("We use a probabilistic method to compute the rank of a matrix with entries of rational functions.\n");
+  printf("We have used a probabilistic method to compute the rank of a matrix with entries of rational functions.\n");
   printf("The output is a macaulay matrix of degree %a\n",Deg);
 
   //[NT]
