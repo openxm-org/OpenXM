@@ -1,0 +1,848 @@
+#define USE_MODULE
+/*Ref: amp/Data2/2022-10-25-gkz-1L1M.rr
+*/
+#ifdef USE_MODULE
+
+#else
+import("mt_gkz.rr")$
+import("mt_mm.rr")$
+load("mt_mm/MoserReduction.rr")$
+load("mt_mm/MM2.rr")$ // for debug MM2.rr
+#endif
+
+#ifdef USE_MODULE
+module mt_mm;
+localf check_version$
+localf taka_base_range$
+localf taka_matrix_is_zero$
+localf base_range$
+localf matrix_is_zero$
+localf v_m$
+localf id_to_v_m$
+localf dshift$
+localf cons_generators$
+localf testr1_data$
+localf testr1$
+localf lt_module_top$
+localf lt_module_pot$
+localf holonomic_rank$
+localf holonomic_rank_of_last_component$
+localf test2r$
+localf testr3$
+localf testr4$
+localf omatrix_to_sm1_weight$
+localf dp_euler$
+localf f2pq$
+localf testr5$
+localf prune_zero_entry$
+localf testr6$
+localf test_rule1$
+localf testr7$
+localf testr7b$
+localf testr8$
+localf testr9$
+localf testr10$
+localf testr11$
+localf check_by_sm1$
+localf multi_dshift$
+localf my_multi_coef$
+localf check_multi_v_m$
+localf total_degree$
+localf multi_v_m$
+localf my_zeroq$
+localf remove_zerovec$
+localf ord_w$
+localf testr12$
+
+static NT_rest2_pos$
+#else
+extern NT_rest2_pos$
+Xm_noX=1$
+/* For fancy printing, e.g., print_xdvi_form(G_M0[0][1]) */
+quotetotex_env("conv_rule",7)$
+quotetotex_env("dp_vars_prefix","\\partial")$
+#endif
+
+def check_version() {
+  if (version() < 20221128) {
+    error("This program does not work on this version of asir, because of a bug of nd_weyl_gr. See https://github.com/openxm-org/OpenXM to upgrade.");
+  }
+}
+check_version()$
+
+def taka_base_range(Start,Stop) {
+  V=newvect(N=Stop-Start);
+  for (I=0; I<N; I++) {
+    V[I]=Start+I;
+  }
+  return vtol(V);
+}
+def taka_matrix_is_zero(M) {
+  if (type(M) < 4) return (M == 0);
+  if (type(M)==6) {
+    P=size(M)[0]; Q=size(M)[1];
+    for (I=0; I<P; I++) {
+      for (J=0; J<Q; J++) {
+	if (M[I][J] != 0) return 0;
+      }
+    }
+    return 1;
+  }   
+  if (type(M)==5) {
+    P=length(M);
+    for (I=0; I<P; I++) {
+      if (M[I] != 0) return 0;
+    }
+    return 1;
+  }
+  if (type(M)==4) {
+    P=length(M);
+    for (I=0; I<P; I++) {
+      if (!taka_matrix_is_zero(M[I])) return 0;
+    }
+    return 1;
+  }
+}
+def base_range(Start,Stop) {
+  return taka_base_range(Start,Stop | option_list=getopt());
+}
+def matrix_is_zero(M) {
+  return taka_matrix_is_zero(M | option_list=getopt());
+}
+/* 2022.11.23 */
+/*
+  v_{k}(L) in the paper. (It was v_m(L) before.)
+*/
+def v_m(L,M,Dx) {
+  if (type(Dx)==4) return multi_v_m(L,M,Dx);
+  if (deg(L,Dx) > M) error("M is small.");
+  Vec=newvect(M+1);
+  for (I=0; I<=deg(L,Dx); I++) {
+    Vec[M-I]=coef(L,I,Dx);
+  }
+  return vtol(Vec);
+}
+/*
+  map(v_m,Id)
+*/
+def id_to_v_m(Id,M,Dx) {
+  return map(v_m,Id,M,Dx);
+}
+
+/*&usage begin:
+ dshift(L,Dx,N,V,DV) returns [Dx^0*L, Dx^1*L, ..., Dx^(N-1)*L]
+ dshift(L,DxList,N,V,DV) returns [Op*L | |Op| < N] where Op's are monomials in DxList
+ example: 
+   dshift(x^2,3,Dx,[x],[dx]);
+   dshift(x*dx+y*dy+a*x^2*y,dx,3,[x,y],[dx,dy]);
+end:*/
+def dshift(L,N,Dx,V,DV) {
+  if (type(Dx)==4) return multi_dshift(L,N,Dx,V,DV);
+  VV=append(V,DV);
+  Ldp=dp_ptod(L,VV);
+  S=[];
+  for (I=0; I<N; I++) {
+    S=cons(dp_dtop(dp_weyl_mul(dp_ptod(Dx^I,VV),Ldp),VV),S);
+  }
+  return reverse(S);
+}
+
+/*&usage begin:
+  cons_generators(Id,M,XDx,VV) construct generators of the form
+  ( Dx^J Id[I] | ord Dx^J Id[I] <= M ) 
+  where Dx=XDx[1].
+  example:
+  cons_generators([dy,dx*dz],3,[x,dx],[x,y,z,dx,dy,dz]);
+  cons_generators([dy,dx*dz],3,[x,dx],[x,y,z,dx,dy,dz]);
+  cons_generators([dy,dx*dz],3,[x,dx],[x,y,z,dx,dy,dz] | novec=1);
+end:*/
+def cons_generators(Id,M,XDx,VV) {
+  if (type(getopt(not_zero))>0) MM=getopt(not_zero); // do not set x to 0.
+  else MM=0;
+  RangeX=base_range(0,idiv(length(VV),2));
+  RangeDx=base_range(idiv(length(VV),2),length(VV));
+  V=matrix_submatrix(VV,RangeX); DV=matrix_submatrix(VV,RangeDx);
+
+  Ans=[];
+  Dx=XDx[1];
+  for (I=0; I<length(Id); I++) {
+    Deg=ord_w(Id[I],XDx,[-1,1])[0];
+    T = dshift(Id[I],M-Deg+1,Dx,V,DV);
+    Ans=append(Ans,T);
+  }
+  if (MM==0) {
+    Ans=base_replace(Ans,[[XDx[0],0]]);
+    MM=M;
+  }
+  if (type(getopt(novec))>0) {
+    return Ans;
+  }else {
+    return id_to_v_m(Ans,MM,Dx);
+  }
+}
+
+def testr1_data() {
+  A=[[1,1,1,1,1,1],
+     [1,0,0,2,1,1],
+     [0,1,0,0,1,0],
+     [0,0,1,0,0,1]];
+  Beta=[b1,b2,b3,b4];
+  Id=mt_gkz.gkz_b(A,Beta,[1,2,3,4] | partial=1);
+  yang.define_ring(["partial",Xvars=[x5,x6]]);
+  Id=map(mt_mm.remove_redundancy,Id,Xvars);
+  Id=base_replace(Id,[[x5,x5+1]]);  /* to restrict to x5=1. */
+  Id_p=map(dp_dtop,Id,[dx5,dx6]);
+  yang.verbose();
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Pf=map(red,yang.pfaffian(map(dp_ptod,Std,Dvars=poly_dvar(Xvars)),G));
+  return [Id_p,Pf,Std];
+}
+
+def testr1() {
+  Data=testr1_data();
+  Id_p=Data[0]; 
+  V=[x5,x6]; DV=[dx5,dx6];
+  Id_v=cons_generators(Id_p,3,[x5,dx5],V,DV);
+  Id_v=base_replace(Id_v,[[x5,0]]);
+  G=nd_weyl_gr(Id_v,[x6,dx6],0,[1,0]);
+  return G;
+}
+//G=testr1();
+
+/*&usage begin:
+ lt_module_top(F,VV,Mat) returns the leading term (initial monomial) of the vector F.
+  The order for the polynomial ring is given by Matrix.
+  TOP (term over position) order is used.
+  Note that the coefficient is set to 1.
+  Max term (by dp) and position are returned.
+ example: 
+   lt_module_top([x^10*dx+y*dy^2+1,(x+y)*dy^3+y],[x,y,dx,dy],poly_r_omatrix(2));
+   lt_module_top([(x+y)*dy^3+y,0,x^10*dx+y*dy^2+1],[x,y,dx,dy],poly_r_omatrix(2));
+end:*/
+/*todo. Use
+  dpm_hp, dpm_ht, dpm_hm, dpm_hc, dpm_ltod([x^2,x*y],[x,y]). 
+  They are in builtin/dp.c
+  <<a,b:i>>
+*/
+def lt_module_top(F,VV,Mat) {
+  Mat = matrix_list_to_matrix(Mat);
+  N=length(F);
+  LT=newvect(N);
+  dp_ord(Mat);
+  for (I=0; I<N; I++) {
+    LT[I]=dp_ht(dp_ptod(F[I],VV));
+  }
+  Max=LT[0]; Pos=0;
+  for (I=1; I<N; I++) {
+    if (Max==LT[I]) continue;
+    if (dp_ht(Max+LT[I])==LT[I]) {
+      Max=LT[I]; Pos=I;
+    }
+  }
+  return [Max,Pos];
+}
+def lt_module_pot(F,VV,Mat) {
+  Mat = matrix_list_to_matrix(Mat);
+  N=length(F);
+  dp_ord(Mat);
+  for (I=0; I<N; I++) {
+    if (F[I] != 0) {
+      return [dp_ht(dp_ptod(F[I],VV)),I];
+    }
+  }
+  return [0,-1];
+}
+/* 2022.11.28 */
+/*&usage begin:
+ holonomic_rank(Id,VV);
+ example:
+  holonomic_rank([[a*x*dx^2,0],[0,y*dx*dy+b]],[x,y,dx,dy] | gb=1);
+  holonomic_rank([[a*x*dx^2,0],[dy,0],[0,y*dx*dy+b],[0,dx^2],[0,dy^3]],[x,y,dx,dy] | gb=1);
+  G=testr1()$ G0=base_replace(G,[[b1,1/2],[b2,1/3],[b3,1/5],[b4,1/7]]); holonomic_rank(G0,[x6,dx6]);
+end: */
+/*Ref: some trial codes and buggy codes are in misc-2022/11/amp/Data/trash.rr */
+def holonomic_rank(Id,VV) {
+  if (type(getopt(gb))>0) GB=1; else GB=0;
+  if (type(Id[0])<4) {
+    Id=map(cons,Id,[]);
+  }
+  RangeX=base_range(0,idiv(length(VV),2));
+  RangeDx=base_range(idiv(length(VV),2),length(VV));
+  V=matrix_submatrix(VV,RangeX); DV=matrix_submatrix(VV,RangeDx);
+  /* print([V,DV]); */
+  N=length(Id[0]); /* compute in the free-module D^N */  
+  Vone=newvect(length(V)); for (I=0; I<length(V); I++) Vone[I]=1;
+  Vone=vtol(Vone);
+  RuleX_to_1=assoc(V,Vone);
+  Mat=poly_r_omatrix(length(VV));
+  if (!GB) G=nd_weyl_gr(Id,VV,0,[0,Mat]);
+  else G=Id;
+  LT=map(lt_module_top,G,VV,Mat);
+  Mono=newvect(N); for (I=0; I<N; I++) Mono[I]=[];
+  for (I=0; I<length(LT); I++) {
+     Max=LT[I][0]; Pos=LT[I][1];
+     Mono[Pos]=cons(base_replace(dp_dtop(Max,VV),RuleX_to_1),Mono[Pos]);
+  }
+  // return Mono;
+  Rank=0; Std=newvect(N);
+  for (I=0; I<N; I++) {
+    if (length(Mono[I])==0) return [-1,Mono,vtol(Std)];
+    H=poly_hilbert_polynomial(Mono[I] | v=DV, sm1=1);
+    if (deg(H[0],h)>0) return [-1,Mono,vtol(Std)];
+    Rank += H[0]; 
+    Std[I] = map(dp_dtop,dp_mbase(map(dp_ptod,Mono[I],DV)),DV);
+  }
+  return [Rank,vtol(Mono),vtol(Std)];
+}
+
+/*
+  Use POT order. 
+  Evaluate the holonomic rank of the last component.
+  When there is no positive integral root and M of cons_generators is sufficiently large, 
+  it agrees with the holonomic rank of the restriction.
+*/
+def holonomic_rank_of_last_component(Id,VV) {
+  if (type(getopt(gb))>0) GB=1; else GB=0;
+  if (type(Id[0])<4) {
+    Id=map(cons,Id,[]);
+  }
+  RangeX=base_range(0,idiv(length(VV),2));
+  RangeDx=base_range(idiv(length(VV),2),length(VV));
+  V=matrix_submatrix(VV,RangeX); DV=matrix_submatrix(VV,RangeDx);
+  /* print([V,DV]); */
+  N=length(Id[0]); /* compute in the free-module D^N */  
+  Vone=newvect(length(V)); for (I=0; I<length(V); I++) Vone[I]=1;
+  Vone=vtol(Vone);
+  RuleX_to_1=assoc(V,Vone);
+  Mat=poly_r_omatrix(length(VV));
+  if (!GB) G=nd_weyl_gr(Id,VV,0,[1,Mat]);
+  else G=Id;
+  printf("GB=%a\n",G);
+  LT=map(lt_module_pot,G,VV,Mat);
+  Mono=newvect(N); for (I=0; I<N; I++) Mono[I]=[];
+  Last=N-1;
+  for (I=0; I<length(LT); I++) {
+     Max=LT[I][0]; Pos=LT[I][1];
+     Mono[Pos]=cons(base_replace(dp_dtop(Max,VV),RuleX_to_1),Mono[Pos]);
+  }
+  printf("Mono=%a\n",Mono);
+  Std=[];
+  if (length(Mono[Last])==0) return [-1,Mono[Last],Std];
+  H=poly_hilbert_polynomial(Mono[Last] | v=DV, sm1=1);
+  if (deg(H[0],h)>0) return [-1,Mono[Last],Std];
+  Rank = H[0]; 
+  Std = map(dp_dtop,dp_mbase(map(dp_ptod,Mono[Last],DV)),DV);
+  return [Rank,Mono[Last],Std];
+
+  Rank=0; Std=newvect(N);
+  for (I=0; I<N; I++) {
+    if (length(Mono[I])==0) return [-1,Mono,vtol(Std)];
+    H=poly_hilbert_polynomial(Mono[I] | v=DV, sm1=1);
+    if (deg(H[0],h)>0) return [-1,Mono,vtol(Std)];
+    Rank += H[0]; 
+    Std[I] = map(dp_dtop,dp_mbase(map(dp_ptod,Mono[I],DV)),DV);
+  }
+  return [Rank,vtol(Mono),vtol(Std)];
+}
+
+def test2r() {
+  Mat=newmat(4,4,[[0,0,1,1],[0,0,1,0],[1,1,0,0],[1,0,0,0]]);
+//  Mat = poly_r_omatrix(4);
+//  G=nd_weyl_gr([[dx^2+dy^2-a,0],[dx*dy-b],[0,c*dy]],[x,y,dx,dy],0,[0,Mat]);
+//  G=nd_weyl_gr([[dx^2+dy^2-a,0],[dx*dy-b],[0,c*dy],[0,dx^2]],[x,y,dx,dy],0,[0,Mat]);
+//  G=nd_weyl_gr([[dx^2,0],[dx*dy-1],[dy^2,0],[0,dy],[0,dx^2]],[x,y,dx,dy],0,[0,Mat]);
+  G=nd_gr([[x,0],[0,x]],[x],0,[0,newmat(1,1,[[1]])]);
+  print(G);  // ndl_matrix_compare : invalid matrix. issue 4.
+  G=nd_weyl_gr([dx,dy],[x,y,dx,dy],0,Mat);
+  print(G);
+  Mat=newmat(4,4,[[0,0,1,1],[0,0,1,0],[1,1,0,0],[1,0,0,0]]);
+  G=nd_weyl_gr([[dx,0],[dy,0],[0,dx],[0,dy]],[x,y,dx,dy],0,[0,Mat]);
+  print(G);
+  return holonomic_rank(G,[x,y,dx,dy]);
+}
+//test2r();
+
+def testr3() {
+  yang.define_ring(["partial",Xvars=[x,y]]);
+  Id=[dx^2+dy^2-4,dx*dy-1];
+  Id_d=map(dp_ptod,Id,[dx,dy]);
+  Id_vec=[[Id_d[0],0],[Id_d[1],0],[0,Id_d[0]]];
+  yang.verbose();
+  G=yang.buchberger(Id_vec);
+}
+//testr3();
+
+def testr4() {
+  Id=[[0,dx^2+dy^2-4],[1,dx*dy-1],[dy,0]];
+  G=sm1.gb([Id,[x,y]]);
+  print(G);
+  G=sm1.gb([Id,[x,y],[[dx,1,dy,1],[dy,-1],[x,1,y,1],[y,-1]]]);  
+  base_replace(G,[[h,1]]);
+}
+//testr4();
+
+def omatrix_to_sm1_weight(Mat,VV) {
+  if (type(Mat)==5) {
+    for (I=0,Count=0; I<length(Mat); I++) {
+      if (Mat[I] != 0) Count++;
+    }
+    W=newvect(2*Count);
+    for (I=0,Pos=0; I<length(Mat); I++) {
+      if (Mat[I] != 0) {
+        W[Pos]=VV[I]; Pos++;
+        W[Pos]=Mat[I]; Pos++;
+      }
+    }
+    return vtol(W);
+  }
+  if (type(Mat)==6) {
+    W=[];
+    M=size(Mat)[0];
+    for (I=0; I<M; I++) {
+      W = cons(omatrix_to_sm1_weight(Mat[I],VV),W);
+    }
+    return reverse(W);
+  }
+  return omatrix_to_sm1_weight(matrix_list_to_matrix(Mat),VV);
+}
+/*&usage begin:
+  omatrix_to_sm1_weight(Mat,VV) returns weight matrix in the format of sm1.gb
+  example:
+    omatrix_to_sm1_weight(poly_r_omatrix(3),[x,y,z,dx,dy,dz]);
+end:*/
+
+def dp_euler(N,Pos) {
+  if (type(getopt(euler))>0) Euler=1; else Euler=0;
+  E=newvect(2*N);
+  if (!Euler) E[Pos]=1; 
+  E[N+Pos]=1;
+  return dp_vtoe(E);
+}
+def f2pq(P,Q) {
+  if (type(getopt(euler))>0) Euler=1;  // expression by euler op
+  else Euler=0;
+  N=2;
+  VV=[x,y,dx,dy];
+  A=a;
+  B=newvect(N);
+  C=newvect(N);
+  for (K=0; K<N; K++) {
+    B[K]=base_var_list(util_v(b,[K]),2,P);
+    C[K]=base_var_list(util_v(c,[K]),1,Q);
+  }
+  Lx=newvect(Q+1);
+  Op=newvect(N);
+  for (K=0; K<N; K++) {
+    Lx[0]=dp_ptod(VV[N+K],VV);
+    for (I=0; I<length(C[K]); I++) {
+      Lx[I+1]=dp_euler(N,K | euler=Euler)+dp_ptod(C[K][I]-1,VV);
+    }
+    Mx=newvect(P);
+    Mx[0]=dp_ptod(A,VV);
+    for (I=0; I<N; I++) Mx[0] += dp_euler(N,I | euler=Euler);
+    for (I=0; I<length(B[K]); I++) {
+      Mx[I+1]=dp_euler(N,K | euler=Euler)+dp_ptod(B[K][I],VV);
+    }
+    if (MyVerbose) {
+      printf("Lx------\n"); map(print,Lx); 
+      printf("Mx------\n"); map(print,Mx); 
+    }
+    L=dp_ptod(1,VV);
+    for (I=0; I<length(Lx); I++) L=dp_weyl_mul(L,Lx[I]);
+    M=dp_ptod(1,VV);
+    for (I=0; I<length(Mx); I++) M=dp_weyl_mul(M,Mx[I]);
+    if (Euler) Op[K]=L-VV[K]*M;
+    else Op[K]=L-M;
+  }
+  return vtol(Op);
+}
+/*&usage begin:
+f2pq(P,Q) returns a system of differential equations for 
+ sum((a)_{m+n} prod_i((b0_i)_m (b1_i)_n) x^m y^n
+      /((1)_m (1)_n prod_j ((c0_j)_m (c1_j)_n))
+ where 0<= i < P, 0<= i < Q.
+ example: f2pq(3,2);
+end: */
+
+def testr5() {
+  F=f2pq(2,1);
+  print(F);
+  VV=[x,y,dx,dy];
+  F=map(dp_dtop,F,VV);
+  //nd_weyl_gr(F,VV,0,poly_r_omatrix(2));
+  printf("rank=%a\n",holonomic_rank(F,[x,y,dx,dy]));
+
+  Id=cons_generators(F,2,[x,dx],[x,y,dx,dy]);
+  My=base_replace(Id,[[x,0]]);
+  printf("My (module in y) = %a\n",My);
+  holonomic_rank(My,[y,dy]);
+}
+// testr5();
+/* 2022.11.29 */
+def prune_zero_entry(Id) {
+  N=length(Id[0]);
+  ZeroIndex=[];
+  for (I=0; I<N; I++) {
+    Flag=1;
+    for (J=0; J<length(Id); J++) {
+      if (Id[J][I] != 0) {
+	Flag=0;
+	break;
+      }
+    }
+    if (Flag) ZeroIndex=cons(I,ZeroIndex);
+  }
+  printf("ZeroIndex=%a\n",ZeroIndex);
+  SubIndex=base_set_minus(base_range(0,N),ZeroIndex);
+  NewId=[];
+  for (I=0; I<length(Id); I++) {
+    L=matrix_submatrix(Id[I],SubIndex);
+    if (!matrix_is_zero(L)) {
+      NewId=cons(L,NewId);
+    }
+  }
+  return [reverse(NewId),SubIndex];
+}
+
+def testr6(P,Q,Upto) {
+  F=f2pq(P,Q);
+  print(F);
+  VV=[x,y,dx,dy];
+  F=map(dp_dtop,F,VV);
+  //nd_weyl_gr(F,VV,0,poly_r_omatrix(2));
+  printf("rank=%a\n",holonomic_rank(F,[x,y,dx,dy]));
+
+  Id=cons_generators(F,Upto,[x,dx],[x,y,dx,dy]);
+  Id2=prune_zero_entry(base_replace(Id,[[x,0]]));
+  My=Id2[0];
+  printf("My (module in y) = %a\n",My);
+  holonomic_rank_of_last_component(My,[y,dy]);
+}
+//testr6(2,1,Upto=2);
+//testr6(3,2,Upto=2);
+
+/* 2022.11.30 */
+def test_rule1(P,Q) {
+  Prime=3;
+  Rule=[[a,1/Prime]];
+  BB=append(base_var_list(util_v(b,[0]),2,P),base_var_list(util_v(b,[1]),2,P));
+  CC=append(base_var_list(util_v(c,[0]),1,Q),base_var_list(util_v(c,[1]),1,Q));
+  BC=append(BB,CC);
+  for (I=0; I<length(BC); I++) {
+//    Prime=pari(nextprime,Prime);
+    Prime=pari(nextprime,Prime+1);
+    Rule=cons([BC[I],1/Prime],Rule);
+  }
+}
+def testr7(P,Q,Upto) {
+  if (type(getopt(param))>0) F=f2pq(P,Q);
+  else F=base_replace(f2pq(P,Q),Rule=test_rule1(P,Q));
+  VV=[x,y,dx,dy];
+  F=map(dp_dtop,F,VV);
+  printf("Rule=%a\n",Rule);
+  print("F = ");
+  map(print,F);
+  printf("rank=%a\n",holonomic_rank(F,VV));
+
+  Id=cons_generators(F,Upto,[x,dx],[x,y,dx,dy]);
+  Id2=prune_zero_entry(base_replace(Id,[[x,0]]));
+  My=Id2[0];
+  printf("My (module in y) = %a\n",My);
+  printf("Rank of My=%a\n",holonomic_rank(My,[y,dy]));
+  Rank=holonomic_rank_of_last_component(My,[y,dy]);
+  printf("Rank of last=%a\n",Rank);
+  return [Rank,My,nd_weyl_gr(My,[y,dy],0,[1,0])];
+}
+//testr7(3,2,Upto=3);
+
+// 2023.01.02
+def testr7b(P,Q,Upto) {
+  if (type(getopt(param))>0) F=f2pq(P,Q);
+  else F=base_replace(f2pq(P,Q),Rule=test_rule1(P,Q));
+  if (type(getopt(gb))>0) {
+    F_p=map(dp_dtop,F,[x,y,dx,dy]);
+    Param=base_set_minus(vars(F_p),[x,y,dx,dy]);
+    import("nk_restriction.rr");
+    GB=nk_restriction.generic_bfct_and_gr(F_p,[x,y],[dx,dy],[1,0] | param=Param);
+    printf("bf=%a and (-1,0,1,0) GB is\n",GB[0]);
+    map(print,GB[1]);
+    printf("---------------\n");
+    print(map(ord_w,GB[1],[x,y,dx,dy],[-1,0,1,0]));
+  }
+  F=[x*F[0],F[1]];
+  VV=[x,y,dx,dy];
+  F=map(dp_dtop,F,VV);
+  printf("Rule=%a\n",Rule);
+  print("F = ");
+  map(print,F);
+  printf("rank=%a\n",holonomic_rank(F,VV));
+
+  Id=cons_generators(F,Upto,[x,dx],[x,y,dx,dy]);
+  printf("Id=\n"); map(print,Id);
+  Id2=prune_zero_entry(base_replace(Id,[[x,0]]));
+  My=Id2[0];
+  printf("My (module in y) = %a\n",My);
+  printf("Rank of My=%a\n",holonomic_rank(My,[y,dy]));
+  Rank=holonomic_rank_of_last_component(My,[y,dy]);
+  printf("Rank of last=%a\n",Rank);
+  return [Rank,My,nd_weyl_gr(My,[y,dy],0,[1,0])];
+}
+//testr7b(3,2,Upto=3);
+//T=testr7b(2,1,1 | param=1);
+//T=testr7b(2,1,1 | gb=1);
+
+/* 2022.12.02 */
+def testr8(P,Q) {
+  printf("Data to get the residue matrix for f2pq.\n");
+  F=base_replace(f2pq(P,Q | euler=1),Rule=test_rule1(P,Q));
+  VV=[x,y,dx,dy];
+  printf("Rule=%a\n",Rule);
+  F=map(dp_dtop,F,VV);
+  Id=map(dp_ptod,F,[dx,dy]);
+
+  yang.define_ring(["euler",Xvars=[x,y]]);  
+  yang.verbose();
+  G=yang.buchberger(Id);
+  Std=yang.stdmon(G);
+  Pf=map(red,yang.pfaffian(map(dp_ptod,Std,Dvars=poly_dvar(Xvars)),G));
+  return [Id,Pf,Std];
+}
+/*
+T=testr8(3,2)$
+TT=T[1][0]$
+// "partial" では moser reduction が必要に. euler=1 で Euler op で表現.
+//TTT=mt_mm.moser_reduction(TT,x)$
+//T2=map(red,x*TTT[0])$
+T2=map(red,x*TT)$
+T3=base_replace(T2,[[x,0]]);
+*/
+
+def testr9() {
+  /* Try Macaulay matrix method  to find the restriction */
+  //Ideal=[x1*dx1+x2*dx2-b1,dx2-dx1^2]$
+  // nd_weyl_gr([x1*dx1+x2*dx2-b1,dx1^2-dx2],[x1,x2,dx1,dx2],0,0);
+  // returns [-1]
+  //Std=[]$ Xvars=[x1,x2]$
+  Ideal=[x1*dx1+x2*dx2-b1,dx1-dx2^2];
+  Std=[<<0,0>>]$ Xvars=[x1,x2];
+  Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+  MData=mt_mm.find_macaulay(Id,Std,Xvars | restriction_var=[x1]);
+  // P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+  P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+  return [P1,P2];
+  /* It seems to return a fake restriction.
+     The relations may be cleared if we compute up to higher order Macaulay matrix.
+  */
+}
+//testr9();
+//mt_mm.clean_tmp();
+
+def testr10() {
+  /* Try Macaulay matrix method  to find the restriction */
+  //Ideal=[x1*dx1+2*x2*dx2-b1,dx2-dx1^2]$
+  // nd_weyl_gr([x1*dx1+2*x2*dx2-b1,dx1^2-dx2],[x1,x2,dx1,dx2],0,0);
+  //Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
+  Ideal=[x1*dx1+2*x2*dx2-b1,dx2-dx1^2];
+  Std=[<<0,0>>]$ Xvars=[x1,x2];
+  Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+  MData=mt_mm.find_macaulay(Id,Std,Xvars | restriction_var=[x1]); 
+//  P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+  P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+  return P2;
+}
+//nk_restriction.restriction_ideal([x1*dx1+2*x2*dx2-1/3,dx2-dx1^2],[x1,x2],[dx1,dx2],[1,0]);
+// It returns x2*dx2-1/6  (perhaps, 2*x2*dx2-b1)
+//testr10();  // It works!
+
+def testr11(P,Q) {
+  /* Try Macaulay matrix method  to find the restriction */
+  Data=testr8(P,Q);
+  /* Euler op MM has not been implemented. */
+  printf("Std of %aF%a = %a\n",P,Q,Data[2]);
+  Xvars=[x,y]; Dvars=poly_dvar(Xvars);
+  Ideal=map(dp_dtop,f2pq(P,Q),append(Xvars,Dvars));
+//  Ideal=base_replace(Ideal,Rule=test_rule1(P,Q));
+  /* Std for ODE */
+  if (P>=Q+1) RR=P; else RR=Q+1;
+  Std=[]; for (I=0; I<RR; I++) Std=cons(dp_ptod(Dvars[1]^I,Dvars),Std);
+  Std=reverse(Std);
+  printf("Ideal=%a;\n",Ideal);
+  printf("Xvars=%a;\n",Xvars);
+  printf("Std=%a;\n",Std);
+  Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
+  MData=mt_mm.find_macaulay(Id,Std,Xvars | restriction_var=[x]); 
+  P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+  return [P2];
+}
+//testr11(2,1); 
+
+// 2023.01.02
+def check_by_sm1(Result, L1,L2,V) {
+  if (type(getopt(param))>0) {
+    V=append(V,getopt(param));
+  }
+  F=sm1.mul(L1,L2,V);			      
+  if (F != Result) error("check_by_sm1");
+}
+
+// 2023.01.01
+def multi_dshift(L,N,DxList,V,DV) {
+  F=1; for (I=0; I<length(DxList); I++) F += DxList[I];
+  F=F^(N-1);
+  VV=append(V,DV);
+  F = dp_ptod(F,VV);
+  Ldp=dp_ptod(L,VV);
+  S=[];
+  while (F != 0) {
+    S=cons(dp_dtop(dp_weyl_mul(dp_ht(F),Ldp),VV),S);
+    // check_by_sm1(S[0],dp_dtop(dp_ht(F),VV),L,V | param=[c1,c2]);
+    F=dp_rest(F);
+  }
+  return S;
+}
+//dshift(1,2,[dx,dy],[x,y],[dx,dy]);
+//dshift(x*y,2,[dx,dy],[x,y],[dx,dy]);
+//dshift(2*(x+c1)*dx+3*(y+c2)*dy-3,1,[dx,dy],[x,y],[dx,dy]);
+
+def my_multi_coef(L,M,Vlist) {
+  for (I=0; I<length(Vlist); I++) {
+    L=coef(L,deg(M,Vlist[I]),Vlist[I]);
+    if (L==0) return L;
+  }
+  return L;
+}
+/*
+my_multi_coef(a*x^3*y^2+b*x^3,x^3*y^2,[x,y]);
+my_multi_coef(a*x^3*y^2+b*x^3,x,[x,y]);
+my_multi_coef(a*x^3*y^2+b*x^3,x^3,[x,y]);
+my_multi_coef(a*x^3*y^2+b*x^3,1,[x,y]);
+my_multi_coef(((2*y+4)*dy+2)*dx^2+(3*x^2+6*x+3)*dy^2*dx+(6*x+6)*dy^2,dx^2*dy,[dx,dy])
+*/
+def check_multi_v_m(L,Vec) {
+  L2=matrix_inner_product(Vec,NT_rest2_pos);
+  if (L != L2) error("check_multi_v_m");
+}
+def total_degree(L,DxList) {
+  F=dp_ptod(L,DxList);
+  U=newvect(length(DxList));
+  for (I=0; I<length(DxList); I++) U[I]=1;
+  MaxDeg=0;
+  while (F!=0) {
+    D=matrix_inner_product(dp_etov(dp_ht(F)),U);
+    if (D > MaxDeg) MaxDeg=D;
+    F = dp_rest(F);
+  }
+  return MaxDeg;
+}
+def multi_v_m(L,M,DxList) {
+  dp_ord(0);
+  F=1; for (I=0; I<length(DxList); I++) F += DxList[I];
+  DegMax=total_degree(L,DxList);
+  F=F^DegMax;
+  VV=DxList;
+  F = dp_ptod(F,VV);
+  S=[];
+  NT_rest2_pos=[];
+  while (F != 0) {
+    Mon=dp_dtop(dp_ht(F),VV);
+    NT_rest2_pos=cons(Mon,NT_rest2_pos);
+    S=cons(my_multi_coef(L,Mon,DxList),S);
+    F=dp_rest(F);
+  }
+//  printf("L=%a\nS=%a\n",L,S);
+  NT_rest2_pos=append(vtol(newvect(M-length(NT_rest2_pos))),reverse(NT_rest2_pos));
+  if (length(S) > M) error("M is too small in multi_v_m");
+  Ans=newvect(M);
+  for (I=0; I<length(S); I++) Ans[I]=S[I];
+  Ans2=reverse(vtol(Ans));
+//  check_multi_v_m(L,Ans2);
+  return Ans2;
+}
+//T=dshift(x*y,2,[dx,dy],[x,y],[dx,dy]);
+//multi_v_m(T[1], 6, [dx,dy]);
+//multi_v_m(T[3], 6, [dx,dy]);
+//id_to_v_m(T=dshift(x*y,2,[dx,dy],[x,y],[dx,dy]), 6, [dx,dy]);
+//id_to_v_m(T=dshift(x*(y+c1),2,[dx,dy],[x,y],[dx,dy]), 7, [dx,dy]);
+
+def my_zeroq(L) {
+  if (type(L)<4) {
+    if (L==0) return 1; else return 0;
+  }
+  if (type(L)==4) {
+    for (I=0; I<length(L); I++) {
+      if (my_zeroq(L[I])) continue;
+      else return 0;
+    }
+    return 1;
+  }
+  error("Not supported.");
+}
+def remove_zerovec(L) {
+  Ans=[];
+  for (I=0; I<length(L); I++) {
+    if (!my_zeroq(L[I])) Ans=cons(L[I],Ans);
+  }
+  return reverse(Ans);
+}
+
+/*&usage begin:
+ ord_w(L,V,W)
+ example: ord_w(x*dx+1,[x,dx],[-1,1]);
+end:
+*/
+def ord_w(L,V,W) {
+  L=dp_ptod(L,V);
+  Ord=matrix_inner_product(dp_etov(dp_ht(L)),W);
+  Head=dp_ht(L);
+  L=dp_rest(L);
+  while (L!=0) {
+    Ord2=matrix_inner_product(dp_etov(dp_ht(L)),W);
+    if (Ord2 > Ord) {
+      Ord=Ord2;
+      Head=dp_ht(L);
+    }
+    L=dp_rest(L);
+  }
+  return [Ord,dp_dtop(Head,V)];
+}
+
+// 2023.01.03
+def testr12(Upto) {
+ /*
+  II=poly_ideal_intersection([x-1,y-1/2],[x^2+y^2-1,x-y],[x,y],0);
+  II2=cdr(II);  // II2 generates II.
+  II2=[2*y*x-1,x+2*y^2-y-1]  
+ */
+  F=[2*x*y*dx*dy-1,2*(y^2*dy^2+y*dy)+x*dx-y*dy-1];
+  VV=[x,y,dx,dy];
+
+  print("F = ");
+  map(print,F);
+  printf("rank=%a\n",holonomic_rank(F,VV));
+
+  import("nk_restriction.rr");
+  GB=nk_restriction.generic_bfct_and_gr(F,[x,y],[dx,dy],[1,0]);
+  printf("bf=%a and (-1,0,1,0) GB is\n",fctr(GB[0]));
+  map(print,GB[1]);
+  printf("---------------\n");
+  print(map(ord_w,GB[1],[x,y,dx,dy],[-1,0,1,0]));
+
+
+  Id=cons_generators(F,Upto,[x,dx],[x,y,dx,dy]);
+  Id2=prune_zero_entry(base_replace(Id,[[x,0]]));
+  My=Id2[0];
+  printf("My (module in y) = %a\n",My);
+  printf("Rank of My=%a\n",Rank=holonomic_rank(My,[y,dy]));
+  printf("Returns [Rank, generators of J, GB of J by POT]\n");
+  return [Rank,My,nd_weyl_gr(My,[y,dy],0,[1,0])];
+}
+//T=testr12(1);
+
+#ifdef USE_MODULE
+endmodule$
+#else
+
+#endif
+
+end$
