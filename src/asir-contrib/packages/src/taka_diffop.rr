@@ -42,6 +42,7 @@ def diff2euler1(F,X,T) {
 }
 
 def diff2euler(F,XL,TL) {
+  if (type(F) > 3) return map(diff2euler,F,XL,TL);
   L=[F,1];
   for (I=0; I<length(XL); I++) {
     L2=diff2euler1(L[0],XL[I],TL[I]);
