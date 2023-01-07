@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20221010), Copyright 2000-2022, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20230107), Copyright 2000-2023, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -204,7 +204,16 @@ def base_prune(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_prune(A,S);
 }
-
+/*&usage begin: base_range(Start,End | step=Step)
+ It returns a list numbers [Start, Start+Step, Start+2*Step, ..., Start+n*Step]
+ where Start+n*Step < End <= Start+(n+1)*Step
+ Default value of step is 1.
+ example: base_range(0,10);
+end: */
+def base_range(Start,End) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_range(Start,End | option_list=getopt());
+}
 /*&usage begin: base_rebuild_opt(Opt)
  It rebuilt the option list  {Opt}
  example: base_rebuild_opt([[key1,1],[key2,3]] | remove_keys=["key2"]);
@@ -400,6 +409,14 @@ def poly_dact(Op,F,XL) {
  (tx=x*dx, ty=y*dy). t stands for theta. When the return value is R, R[0]*R[1]=Op.  
  example: poly_diff2euler(dx^2-a*x,[x]);
 end: */
+/*&usage begin: poly_decompose_by_weight(F,V,W)
+  decompose F into homogeneous components with respect to the variable V with the weight W.
+  The return value is [[Min_ord,Max_ord],[component of Min_ord, ..., component of Max_ord]];
+ example: poly_decompose_by_weight(x^2*dx^2-x*(x*dx+y*dy+a),[x,y,dx,dy],[-1,-1,1,1]);
+end: */
+def poly_decompose_by_weight(F,V,W) {
+  return taka_poly_decompose_by_weight(F,V,W | option_list=getopt());
+}
 def poly_diff2euler(F,XL) {
   if (type(getopt(t))>0) TL=poly_dvar(XL | d=getopt(t));
   else TL=poly_dvar(XL | d=t);
@@ -905,6 +922,17 @@ def matrix_inner_product(A,B) {
   OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_inner_product(A,B);
 }
+
+/*&usage begin: matrix_is_zero(A)
+ If it is 0 matrix or 0 vector or list consisting of 0, then it returns 1
+ else it returns 0.
+ example: matrix_is_zero(newmat(2,3));
+end: */
+def matrix_is_zero(Mat) {
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return omatrix_is_zero(Mat | option_list=getopt());
+}
+  
 
 /*&usage begin: matrix_transpose(M)
  It returns the transpose of the matrix {M}.

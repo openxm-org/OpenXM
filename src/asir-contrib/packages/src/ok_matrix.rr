@@ -760,6 +760,15 @@ def ok_poly_to_matrix(F,Rule)
   return Ans;
 }
 
+def omatrix_is_zero(Mat) {
+  if (type(Mat) < 4) return (Mat==0);
+  if (type(Mat) > 6) error("Not implemented.");
+  if (type(Mat)==6) N=size(Mat)[0]; else N=length(Mat);
+  for (I=0; I<N; I++) {
+    if (!omatrix_is_zero(Mat[I])) return 0;
+  }
+  return 1;
+}
 
 Loaded_ok_matrix = 1 $
 end$

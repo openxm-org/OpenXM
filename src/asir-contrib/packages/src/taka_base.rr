@@ -494,6 +494,16 @@ def taka_base_preplace(S,Rule) {
   return S;
 }
 
+def taka_base_range(Start,End) {
+  if (type(getopt(step))>0) Step=getopt(step);
+  else Step=1;
+  R=[];
+  for (X=Start ; X < End; X += Step) {
+    R=cons(X,R);
+  }
+  return reverse(R);
+}
+
 Taka_base_loaded = 1$
 end$
 

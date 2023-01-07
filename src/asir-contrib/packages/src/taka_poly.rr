@@ -924,6 +924,32 @@ def taka_poly_numerator(F) {
   taka_poly_numerator([[1/x,1/y],newmat(2,2,[[1/a,1/2],[1/3,1/b]])]); 
 */
 
+def taka_poly_decompose_by_weight(F,V,W) {
+  if (type(F) == 3) error("rational input is not accepted.");
+  if (type(F) >=4 ) return map(taka_poly_decompose_by_weight,F,V,W);
+  if (F == 0) return [];
+  F_orig=F;
+  F=dp_ptod(F_orig,V);
+  Ord=[];
+  while (F != 0) {
+    T=matrix_inner_product(dp_etov(dp_ht(F)),W);
+    if (!base_memberq(T,Ord)) Ord=cons(T,Ord);
+    F = dp_rest(F);
+  }
+  Ord=qsort(Ord);
+  Min=Ord[0];
+  Max=Ord[length(Ord)-1];
+  Decomp=newvect(Max-Min+1);
+  F=dp_ptod(F_orig,V);
+  while (F != 0) {
+    T=matrix_inner_product(dp_etov(dp_ht(F)),W);
+    Decomp[T-Min] += dp_hm(F); 
+    F = dp_rest(F);
+  }
+  Decomp=map(dp_dtop,vtol(Decomp),V);
+  return [[Min,Max],Decomp];  
+}
+
 Taka_poly_loaded = 1$
 end$
 
