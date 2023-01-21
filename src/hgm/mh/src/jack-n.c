@@ -64,6 +64,7 @@ static int SAR_warning = 1;
 #define M_n0 3 /* used for tests. Must be equal to M_n */
 #define M_m_MAX 200
 #define M_nmx  M_m_MAX  /* maximal of M_n */
+#define SWORK_SIZE 1024
 
 static int A_LEN=-1;  /* (a_1, ..., a_p), A_LEN=p */
 static int B_LEN=-1;  /* (b_1,..., b_q),  B_LEN=q */
@@ -1598,7 +1599,7 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   extern double *Beta;
   extern int M_2n;
   extern int M_mh_t_success;
-  char swork[1024];
+  char swork[SWORK_SIZE];
   struct MH_RESULT *ans=NULL;
   struct SFILE *ofp = NULL;
   int idata=0;
@@ -1663,8 +1664,8 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
   /* Output by a file=stdout */
   ofp = mh_fopen("stdout","w",JK_byFile);
 
-  sprintf(swork,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
-  sprintf(swork,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
+  snprintf(swork,SWORK_SIZE,"%%%%Use --help option to see the help.\n"); mh_fputs(swork,ofp);
+  snprintf(swork,SWORK_SIZE,"%%%%Mapprox=%d\n",Mapprox); mh_fputs(swork,ofp);
   if (M_n != Mg) {
     myerror("Mg must be equal to M_n\n"); mh_exit(-1);
   }
@@ -1688,10 +1689,10 @@ struct MH_RESULT *jk_main2(int argc,char *argv[],int automode,double newX0g,int 
     return NULL;
   }
   if (imypower(2,M_n) != M_2n) {
-    sprintf(swork,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
+    snprintf(swork,SWORK_SIZE,"M_n=%d,M_2n=%d\n",M_n,M_2n); mh_fputs(swork,ofp);
     myerror("2^M_n != M_2n\n"); mh_exit(-1);
   }
-  sprintf(swork,"%%%%M_rel_error=%lg\n",M_rel_error); mh_fputs(swork,ofp);
+  snprintf(swork,SWORK_SIZE,"%%%%M_rel_error=%lg\n",M_rel_error); mh_fputs(swork,ofp);
   for (j=0; j<M_2n; j++) {
     Iv[j] = mh_t2(j);
   }
@@ -2105,117 +2106,117 @@ static int setParam(char *fname) {
 /* may remove */
 static int showParam_v1(struct SFILE *fp,int fd) {
   int rank,i;
-  char swork[1024];
+  char swork[SWORK_SIZE];
   if (fd) {
     fp = mh_fopen("stdout","w",1);
   }
   rank = imypower(2,Mg);
-  sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
   for (i=0; i<Mg; i++) {
-    sprintf(swork,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
   }
   if (*Ng >= 0) {
-    sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
   for (i=0; i<rank; i++) {
-    sprintf(swork,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
     if (Sample && (M_n == 2) && (X0g == 0.3)) {
-      sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
+      snprintf(swork,SWORK_SIZE,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
     }
   }
-  sprintf(swork,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
-  sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
-  sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
-  sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
   
-  sprintf(swork,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
-  sprintf(swork,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
-  sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
-  sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
-  sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
-  sprintf(swork,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#recommended_abserr\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
   if (M_recommended_relerr < MH_RELERR_DEFAULT) {
-    sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
   }
-  sprintf(swork,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
-  sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
-  sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
-  sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
-  sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
-  sprintf(swork,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
   for (i=0; i<A_LEN; i++) {
-    if (i != A_LEN-1) sprintf(swork," %lg,",A_pFq[i]); 
-    else sprintf(swork," %lg\n",A_pFq[i]); 
+    if (i != A_LEN-1) snprintf(swork,SWORK_SIZE," %lg,",A_pFq[i]); 
+    else snprintf(swork,SWORK_SIZE," %lg\n",A_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
   for (i=0; i<B_LEN; i++) {
-    if (i != B_LEN-1) sprintf(swork," %lg,",B_pFq[i]); 
-    else sprintf(swork," %lg\n",B_pFq[i]); 
+    if (i != B_LEN-1) snprintf(swork,SWORK_SIZE," %lg,",B_pFq[i]); 
+    else snprintf(swork,SWORK_SIZE," %lg\n",B_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
   return(0);
 }
 #endif
 /* version2.0 format */
 static int showParam(struct SFILE *fp,int fd) {
   int rank,i;
-  char swork[1024];
+  char swork[SWORK_SIZE];
   if (fd) {
     fp = mh_fopen("stdout","w",1);
   }
   rank = imypower(2,Mg);
-  sprintf(swork,"%s\n",VSTRING); mh_fputs(swork,fp);
-  sprintf(swork,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
-  sprintf(swork,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%s\n",VSTRING); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Mg=\n%d\n",Mg); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%p_pFq=%d, ",A_LEN); mh_fputs(swork,fp);
   for (i=0; i<A_LEN; i++) {
-    if (i != A_LEN-1) sprintf(swork," %lg,",A_pFq[i]); 
-    else sprintf(swork," %lg\n",A_pFq[i]); 
+    if (i != A_LEN-1) snprintf(swork,SWORK_SIZE," %lg,",A_pFq[i]); 
+    else snprintf(swork,SWORK_SIZE," %lg\n",A_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%q_pFq=%d, ",B_LEN); mh_fputs(swork,fp);
   for (i=0; i<B_LEN; i++) {
-    if (i != B_LEN-1) sprintf(swork," %lg,",B_pFq[i]); 
-    else sprintf(swork," %lg\n",B_pFq[i]); 
+    if (i != B_LEN-1) snprintf(swork,SWORK_SIZE," %lg,",B_pFq[i]); 
+    else snprintf(swork,SWORK_SIZE," %lg\n",B_pFq[i]); 
     mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
-  sprintf(swork,"%%Beta=\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%ef_type=%d\n",Ef_type); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Beta=\n"); mh_fputs(swork,fp);
   for (i=0; i<Mg; i++) {
-    sprintf(swork,"#Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"#Beta[%d]=\n%lf\n",i,Beta[i]); mh_fputs(swork,fp);
   }
   if (*Ng >= 0) {
-    sprintf(swork,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%Ng=\n%lf\n",*Ng); mh_fputs(swork,fp);
   }
-  sprintf(swork,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
-  sprintf(swork,"%%Iv=\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%X0g=\n%lf\n",X0g); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Iv=\n"); mh_fputs(swork,fp);
   for (i=0; i<rank; i++) {
-    sprintf(swork,"#Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"#Iv[%d]=\n%lg\n",i,Iv[i]); mh_fputs(swork,fp);
     if (Sample && (M_n == 2) && (X0g == 0.3)) {
-      sprintf(swork,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
+      snprintf(swork,SWORK_SIZE,"%%Iv[%d]-Iv2[%d]=%lg\n",i,i,Iv[i]-Iv2[i]); mh_fputs(swork,fp);
     }
   }
-  sprintf(swork,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
-  sprintf(swork,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
-  sprintf(swork,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
-  sprintf(swork,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Ef=\n%lg\n",Ef); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Hg=\n%lf\n",Hg); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Dp=\n%d\n",Dp);  mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%Xng=\n%lf\n",Xng);mh_fputs(swork,fp);
   
-  sprintf(swork,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
-  sprintf(swork,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
-  sprintf(swork,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
-  sprintf(swork,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
-  sprintf(swork,"#recommended_abserr\n"); mh_fputs(swork,fp);
-  sprintf(swork,"#abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"%%%% Optional paramters\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#success=%d\n",M_mh_t_success); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#automatic=%d\n",M_automatic); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#series_error=%lg\n",M_series_error); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#recommended_abserr\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#abserror=%lg\n",M_recommended_abserr); mh_fputs(swork,fp);
   if (M_recommended_relerr < MH_RELERR_DEFAULT) {
-    sprintf(swork,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
+    snprintf(swork,SWORK_SIZE,"%%relerror=%lg\n",M_recommended_relerr); mh_fputs(swork,fp);
   }
-  sprintf(swork,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
-  sprintf(swork,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
-  sprintf(swork,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
-  sprintf(swork,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
-  sprintf(swork,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#mh_t_value=%lg # Value of matrix hg at X0g.\n",M_mh_t_value); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"# M_m=%d  # Approximation degree of matrix hg.\n",M_m); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#beta_i_x_o2_max=%lg #max(|beta[i]*x|/2)\n",M_beta_i_x_o2_max); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"#beta_i_beta_j_min=%lg #min(|beta[i]-beta[j]|)\n",M_beta_i_beta_j_min); mh_fputs(swork,fp);
+  snprintf(swork,SWORK_SIZE,"# change # to %% to read as an optional parameter.\n"); mh_fputs(swork,fp);
   return(0);
 }
 

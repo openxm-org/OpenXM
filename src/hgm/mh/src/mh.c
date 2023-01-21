@@ -48,31 +48,31 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
   argv[2] = "--idata";
   fp = mh_fopen("","w",0);
   mh_fputs("%%Mg=\n",fp);
-  sprintf(swork,"%d\n",m); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%d\n",m); mh_fputs(swork,fp);
   rank = imypower(2,m);
   mh_fputs("%%Beta\n",fp);
   for (i=0; i<m; i++) {
-    sprintf(swork,"%lf\n",beta[i]); mh_fputs(swork,fp);
+    snprintf(swork,WSIZE,"%lf\n",beta[i]); mh_fputs(swork,fp);
   }
   mh_fputs("%%Ng=\n",fp); /* freedom param */
-  sprintf(swork,"%d\n",n); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%d\n",n); mh_fputs(swork,fp);
   mh_fputs("%%X0g=\n",fp); /* initial point */
-  sprintf(swork,"%lf\n",x0); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",x0); mh_fputs(swork,fp);
   mh_fputs("%%Iv\n",fp); /* initial values, dummy */
   for (i=0; i<rank; i++) mh_fputs("0.0\n",fp);
   mh_fputs("%%Ef=\n1.0\n",fp); /* Below are dummy values */
   if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
   mh_fputs("%%Hg=\n",fp); 
-  sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",h); mh_fputs(swork,fp);
   mh_fputs("%%Dp=\n",fp); 
-  sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%d\n",dp); mh_fputs(swork,fp);
   if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}
   mh_fputs("%%Xng=\n",fp);
-  sprintf(swork,"%lf\n",x); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",x); mh_fputs(swork,fp);
 
-  sprintf(swork,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
-  sprintf(swork,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
-  sprintf(swork,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
 
   comm = (char *)mh_malloc(fp->len +1);
   mh_outstr(comm,fp->len+1,fp);
@@ -81,7 +81,7 @@ struct cWishart *mh_cwishart_gen(int m,int n,double beta[],double x0,
 
   argv[4] = "--degree";
   argv[5] = (char *)mh_malloc(128);
-  sprintf(argv[5],"%d",approxDeg);
+  snprintf(argv[5],128,"%d",approxDeg);
 
   rp=jk_main(6,argv); 
   if (rp == NULL) {
@@ -186,41 +186,41 @@ struct cWishart *mh_pFq_gen(int m,
   fp = mh_fopen("","w",0);
   mh_fputs("%!version2.0\n",fp);
   mh_fputs("%Mg=\n",fp);
-  sprintf(swork,"%d\n",m); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%d\n",m); mh_fputs(swork,fp);
   rank = imypower(q+1,m);
 
-  sprintf(swork,"%%p_pFq=%d ",p); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%p_pFq=%d ",p); mh_fputs(swork,fp);
   for (i=0; i<p; i++) {
-    sprintf(swork,"%lg ",a[i]); mh_fputs(swork,fp);
+    snprintf(swork,WSIZE,"%lg ",a[i]); mh_fputs(swork,fp);
   }
   mh_fputs("\n",fp);
 
-  sprintf(swork,"%%q_pFq=%d ",q); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%q_pFq=%d ",q); mh_fputs(swork,fp);
   for (i=0; i<q; i++) {
-    sprintf(swork,"%lg ",b[i]); mh_fputs(swork,fp);
+    snprintf(swork,WSIZE,"%lg ",b[i]); mh_fputs(swork,fp);
   }
   mh_fputs("\n",fp);
 
-  sprintf(swork,"%%ef_type=%d\n",ef_type); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%ef_type=%d\n",ef_type); mh_fputs(swork,fp);
 
   mh_fputs("%Beta=\n",fp);
   for (i=0; i<m; i++) {
-    sprintf(swork,"%lf\n",beta[i]); mh_fputs(swork,fp);
+    snprintf(swork,WSIZE,"%lf\n",beta[i]); mh_fputs(swork,fp);
   }
   mh_fputs("%X0g=\n",fp); /* initial point */
-  sprintf(swork,"%lf\n",x0); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",x0); mh_fputs(swork,fp);
   if (h <= 0.0) {oxprintfe("h<=0.0, set to 0.1\n"); h=0.1;}
   mh_fputs("%Hg=\n",fp); 
-  sprintf(swork,"%lf\n",h); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",h); mh_fputs(swork,fp);
   mh_fputs("%Dp=\n",fp); 
-  sprintf(swork,"%d\n",dp); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%d\n",dp); mh_fputs(swork,fp);
   if (x <= x0) {oxprintfe("x <= x0, set to x=x0+10\n"); x=x0+10;}
   mh_fputs("%Xng=\n",fp);
-  sprintf(swork,"%lf\n",x); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%lf\n",x); mh_fputs(swork,fp);
 
-  sprintf(swork,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
-  sprintf(swork,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
-  sprintf(swork,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%automatic=%d\n",automatic); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%assigned_series_error=%lg\n",assigned_series_error); mh_fputs(swork,fp);
+  snprintf(swork,WSIZE,"%%show_autosteps=%d\n",verbose); mh_fputs(swork,fp);
 
   comm = (char *)mh_malloc(fp->len +1);
   mh_outstr(comm,fp->len+1,fp);
@@ -230,7 +230,7 @@ struct cWishart *mh_pFq_gen(int m,
 
   argv[4] = "--degree";
   argv[5] = (char *)mh_malloc(128);
-  sprintf(argv[5],"%d",approxDeg);
+  snprintf(argv[5],128,"%d",approxDeg);
 
   rp=jk_main(6,argv); 
   if (rp == NULL) {

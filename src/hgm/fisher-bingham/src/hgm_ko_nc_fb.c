@@ -19,6 +19,7 @@
 #define NEWINITIAL
 #define RANGE 1000
 /*#define DEBUG_INITIAL*/
+#define S_FNAME 1024
 
 struct list{
   double c;
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
   int maxdeg = 10;
   int i,j,k,M;
   FILE *fp;
-  char fname[1024];
+  char fname[S_FNAME];
   double **X, *Xy, *Y;
   int *weight;
 
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
   free(Y);
   free(weight);
 
-  sprintf(fname,"tmp-out-fb%dd.txt",dim);
+  snprintf(fname,S_FNAME,"tmp-out-fb%dd.txt",dim);
   fp = fopen(fname,"w");
   if (fp == NULL) {
     fprintf(stderr,"File open error.\n"); return(-1);

@@ -48,3 +48,4 @@ void mh_setB(double b[],int blen);
 
 typedef void (*MH_RF)(double x, double *f, int rank_not_used, double *val, int n_not_used);
 
+#define MH_SMAX  4096

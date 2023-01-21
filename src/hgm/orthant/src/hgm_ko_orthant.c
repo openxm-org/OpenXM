@@ -598,12 +598,12 @@ static void gen_data_random(int dim);
 #define CASE_GEN_DATA_TRI_DIAG 1
 #define CASE_GEN_DATA_SAME_NON_DIAG 2
 #define CASE_GEN_DATA_RANDOM 3
-
+#define S_LOG_FILE 100
 int main(int argc, char *argv[])
 {
   FILE *ifp = stdin, *ofp=stdout;
   int dim;
-  char log_file[100] = "log";
+  char log_file[S_LOG_FILE] = "log";
 
   int c;
   while (1) {
@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
 	oxprintfe( "Error: can not open %s.\n", optarg);
 	oxexit(EXIT_FAILURE);
       }
-      sprintf(log_file, "%s.log", optarg);
+      snprintf(log_file,S_LOG_FILE, "%s.log", optarg);
       ofp = fopen(log_file, "w");
       if(ofp == NULL){
 	oxprintfe( "Error: can not open %s.\n", log_file);

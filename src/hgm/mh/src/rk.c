@@ -18,6 +18,7 @@ extern MH_RF mh_rf;
 
 char *MH_Gfname;
 char *MH_Dfname;
+int MH_Dfname_len;
 extern int MH_Mg;
 extern double *MH_Beta; extern double *MH_Ng; extern double MH_X0g;
 extern int MH_RawName;
@@ -47,7 +48,7 @@ static int mypower(int x,int n) {
 }
 int mh_gopen_file(void) {
   FILE *fp;
-  char fname[1024];
+  char fname[MH_SMAX];
   int i;
   extern int MH_byFile;
   Gf=NULL;
@@ -63,11 +64,12 @@ int mh_gopen_file(void) {
   }
   if (MH_Dfname != NULL) {
     if (!MH_RawName) {
-      sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"-m%d-n%lf-x0%lf-b",MH_Mg,*MH_Ng,MH_X0g);
+      MH_Dfname_len = MH_SMAX-strlen(MH_Dfname);
+      snprintf(&(MH_Dfname[strlen(MH_Dfname)]),MH_Dfname_len,"-m%d-n%lf-x0%lf-b",MH_Mg,*MH_Ng,MH_X0g);
       for (i=0; i<MH_Mg; i++) {
-        sprintf(&(MH_Dfname[strlen(MH_Dfname)]),"%lf,",MH_Beta[i]);
+        snprintf(&(MH_Dfname[strlen(MH_Dfname)]),MH_Dfname_len,"%lf,",MH_Beta[i]);
       }
-      sprintf(&(MH_Dfname[strlen(MH_Dfname)]),".txt");
+      snprintf(&(MH_Dfname[strlen(MH_Dfname)]),MH_Dfname_len,".txt");
     }
     Df = mh_fopen(MH_Dfname,"w",MH_byFile);
     if (Df == NULL) {
@@ -83,7 +85,7 @@ int mh_gopen_file(void) {
     }
   }else return(1);
   if (MH_byFile) {
-    sprintf(fname,"%s-gp.txt",MH_Gfname);
+    snprintf(fname,MH_SMAX,"%s-gp.txt",MH_Gfname);
     fp = fopen(fname,"w");
     fprintf(fp,"set xrange [0:20]\n");
     fprintf(fp,"set yrange [0:1.2]\n");
@@ -113,8 +115,8 @@ static void show_v(double x,double *v, int n)
 
   if (MH_Dp <= 0) return;
   if ((counter % MH_Dp) != 0) { counter++; return;} else counter=1;
-  sprintf(swork,"%lf\n",x); mh_fputs(swork,Df);
-  for (i = 0; i < n; i++) {sprintf(swork," %le\n", v[i]); mh_fputs(swork,Df);}
+  snprintf(swork,MH_SSIZE,"%lf\n",x); mh_fputs(swork,Df);
+  for (i = 0; i < n; i++) {snprintf(swork,MH_SSIZE," %le\n", v[i]); mh_fputs(swork,Df);}
 }
 
 struct MH_RESULT mh_rkmain(double x0,double y0[],double xn)
@@ -163,7 +165,7 @@ if (MH_strategy == 0) {
   for (x = x0; (h>0?(x<xn):(x>xn)); x += h) {
     if (Df) show_v(x,y, MH_RANK);
     if (Gf) {
-      sprintf(swork,"%lf %le\n",x,y[0]);
+      snprintf(swork,MH_SSIZE,"%lf %le\n",x,y[0]);
       mh_fputs(swork,Gf);
     }
     /* Output 95% point */
@@ -229,7 +231,7 @@ if (MH_strategy == 0) {
     while (x < xn)  {
       if (Df) show_v(x,y, MH_RANK);
       if (Gf) {
-        sprintf(swork,"%lf %le\n",x,y[0]);
+        snprintf(swork,MH_SSIZE,"%lf %le\n",x,y[0]);
         mh_fputs(swork,Gf);
       }
       /* Output 95% point */

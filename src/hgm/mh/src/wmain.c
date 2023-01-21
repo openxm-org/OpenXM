@@ -8,7 +8,6 @@
 #include <string.h>
 #include "sfile.h"
 #include "mh.h"
-#define SMAX 4096
 #define inci(i) { i++; if (i >= argc) { oxprintfe("Option argument is not given.\n"); return(NULL); }}
 #define VSTRING "%!version2.0"
 int MH_deallocate=0;
@@ -129,11 +128,11 @@ struct MH_RESULT *mh_main(int argc,char *argv[]) {
       setParam(argv[i]); MH_Verbose=0;
     }else if (strcmp(argv[i],"--gnuplotf")==0) {
       inci(i);
-      MH_Gfname = (char *)mh_malloc(SMAX);
+      MH_Gfname = (char *)mh_malloc(MH_SMAX);
       strcpy(MH_Gfname,argv[i]);
     }else if (strcmp(argv[i],"--dataf")==0) {
       inci(i);
-      MH_Dfname = (char *)mh_malloc(SMAX);
+      MH_Dfname = (char *)mh_malloc(MH_SMAX);
       strcpy(MH_Dfname,argv[i]);
     }else if (strcmp(argv[i],"--xmax")==0) {
       inci(i);
@@ -250,7 +249,7 @@ static int setParamDefault(void) {
 static int next_old1(struct SFILE *sfp,char *s,char *msg) {
   s[0] = '%';
   while (s[0] == '%') {
-    if (!mh_fgets(s,SMAX,sfp)) {
+    if (!mh_fgets(s,MH_SMAX,sfp)) {
       oxprintfe("Data format error at %s\n",msg);
       mh_exit(-1);
     }
@@ -264,7 +263,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
   // int i;
   s[0] = '%';
   while ((s[0] == '%') || (s[0] == '#')) {
-    if (!mh_fgets(s,SMAX,sfp)) {
+    if (!mh_fgets(s,MH_SMAX,sfp)) {
       oxprintfe("Data format error at %s\n",msg);
       oxprintfe("Is it version 2.0 format? If so, add\n%s\nat the top.\n",VSTRING);
       mh_exit(-1);
@@ -287,7 +286,7 @@ static int next(struct SFILE *sfp,char *s,char *msg) {
 
 static int setParam(char *fname) {
   int rank=2;
-  char s[SMAX];
+  char s[MH_SMAX];
   struct SFILE *fp;
   int i;
   int version;
@@ -364,16 +363,16 @@ static int setParam(char *fname) {
 
   /* Reading the optional parameters */
  mh_myparse:
-  while ((tk = mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_EOF) {
+  while ((tk = mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_EOF) {
     /* expect ID */
     if (tk.type != MH_TOKEN_ID) {
       oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
     }
     if ((strcmp(s,"abserr")==0) || (strcmp(s,"abserror")==0)) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	MH_abserr = tk.dval;
       }else if (tk.type == MH_TOKEN_INT) {
 	MH_abserr = tk.ival;
@@ -383,10 +382,10 @@ static int setParam(char *fname) {
       continue;
     }
     if ((strcmp(s,"relerr")==0) || (strcmp(s,"relerror")==0)) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	MH_relerr = tk.dval;
       }else if (tk.type == MH_TOKEN_INT) {
 	MH_relerr = tk.dval;
@@ -396,10 +395,10 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"strategy")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_strategy = tk.ival;
@@ -407,16 +406,16 @@ static int setParam(char *fname) {
     }
     // Format: #p_pFq=2  1.5  3.2   override by new input format.
     if (strcmp(s,"p_pFq")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_P_pFq = tk.ival;
 	  mh_setA(NULL,tk.ival); /* allocate mem */
       for (i=0; i<MH_P_pFq; i++) { 
-	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	  MH_A_pFq[i] = tk.dval;
 	}else if (tk.type == MH_TOKEN_INT) {
 	  MH_A_pFq[i] = tk.ival;
@@ -427,16 +426,16 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"q_pFq")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_Q_pFq = tk.ival;
 	  mh_setB(NULL,tk.ival); /* allocate mem */
       for (i=0; i<MH_Q_pFq; i++) { 
-	if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+	if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 	  MH_B_pFq[i] = tk.dval;
 	}else if (tk.type == MH_TOKEN_INT) {
 	  MH_B_pFq[i] = tk.ival;
@@ -447,10 +446,10 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"ef_type")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_Ef_type = tk.ival;
@@ -458,10 +457,10 @@ static int setParam(char *fname) {
     }
 
     if (strcmp(s,"Mg")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_Mg = tk.ival;  MH_M = MH_Mg;
@@ -469,7 +468,7 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"Beta")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
 	  if (MH_Mg <= 0) {
@@ -477,7 +476,7 @@ static int setParam(char *fname) {
       }
       MH_Beta = (double *)mh_malloc(sizeof(double)*MH_Mg);
 	  for (i=0; i<MH_Mg; i++) {
-        if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+        if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
            MH_Beta[i] = tk.dval;
         }else if (tk.type == MH_TOKEN_INT) {
            MH_Beta[i] = tk.ival;
@@ -492,11 +491,11 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"Ng")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type== MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type== MH_TOKEN_DOUBLE) {
 		*MH_Ng = tk.dval;
       }else if (tk.type == MH_TOKEN_INT) {
         *MH_Ng = tk.ival;
@@ -506,10 +505,10 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"X0g")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		MH_X0g = tk.dval;
 	  }else if (tk.type == MH_TOKEN_INT) {
 		MH_X0g = tk.ival;
@@ -519,11 +518,11 @@ static int setParam(char *fname) {
       continue;
     }
 	if (strcmp(s,"Iv")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
 	  for (i=0; i<rank; i++) {
-        if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+        if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		  Iv[i] = tk.dval;
 		}else if (tk.type == MH_TOKEN_INT) {
 		  Iv[i] = tk.ival;
@@ -534,10 +533,10 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"Ef")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		Ef = tk.dval;
 	  }else if (tk.type == MH_TOKEN_INT) {
 		Ef = tk.ival;
@@ -547,10 +546,10 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"Hg")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		MH_Hg = tk.dval;
 	  }else if (tk.type == MH_TOKEN_INT) {
 		MH_Hg = tk.ival;
@@ -560,20 +559,20 @@ static int setParam(char *fname) {
       continue;
     }
     if (strcmp(s,"Dp")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type != MH_TOKEN_INT) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type != MH_TOKEN_INT) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
       MH_Dp = tk.dval;
       continue;
     }
     if (strcmp(s,"Xng")==0) {
-      if (mh_getoken(s,SMAX-1,fp).type != MH_TOKEN_EQ) {
+      if (mh_getoken(s,MH_SMAX-1,fp).type != MH_TOKEN_EQ) {
         oxprintfe("Syntax error at %s\n",s); mh_exit(-1);
       }
-      if ((tk=mh_getoken(s,SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
+      if ((tk=mh_getoken(s,MH_SMAX-1,fp)).type == MH_TOKEN_DOUBLE) {
 		Xng = tk.dval;
 	  }else if (tk.type == MH_TOKEN_INT) {
 		Xng = tk.ival;
