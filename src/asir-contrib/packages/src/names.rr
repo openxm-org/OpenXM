@@ -140,6 +140,15 @@ def base_intersection(A,B) {
   return taka_base_intersection(A,B);
 }
 
+/*&usage begin: base_ith(A,I)
+  It returns A[I].
+  example: R=[[x,10],[y,20]]; map(base_ith,R,0);
+end: */
+def base_ith(A,I) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_ith(A,I);
+}
+
 /*&usage begin: base_makelist(Obj,K,B,T)
  base_makelist generate a list from Obj where K runs in [B,T].
  Options are qt=1 (keep quote data), step (step size).
@@ -245,6 +254,15 @@ def base_replace_n(S,Rule) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace_n(S,Rule);
 }
+/*&usage begin: base_rest(L)
+  It returns cdr(L).
+  example: R=[[x,10,30],[y,20,40]]; map(base_rest,R);
+end: */
+def base_rest(L) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_rest(L);
+}
+
 /*&usage begin: base_preplace(S,Rule)
  It rewrites {S} by using the rule {Rule}. psubst is used instead of subst. 
  The replacement is not performed for function arguments.
