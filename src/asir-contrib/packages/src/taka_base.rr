@@ -103,7 +103,29 @@ def taka_base_replace_n(F,L) {
   }else return base_replace(F,L);
 }
 
+def taka_base_set_minus_faster(A,B) {
+  A=qsort(A); B=qsort(B);
+  Ans=[];
+  while (1) {
+    if (A==[]) return Ans;
+    if (B==[]) return append(Ans,A);
+    if (A[0]==B[0]) {
+      A=cdr(A); B=cdr(B); continue;
+    }
+    if (A[0] < B[0]) {Ans=cons(A[0],Ans); A=cdr(A);}
+    else if (A[0] > B[0]) B=cdr(B);
+  }
+  return qsort(Ans);
+}
+/* taka_base_set_minus_faster([4,3,2,2,1],[0,0,2,6]); */
+/* taka_base_set_minus_faster([4,3,2,2,1],[1,2,2,3,3,4,5]); */
+def taka_base_set_intersection(A,B) {
+  C=taka_base_set_minus_faster(A,B);
+  return taka_base_set_minus_faster(A,C); 
+}
+
 def taka_base_set_minus(A,B) {
+  if (type(getopt(bysort))>0) return taka_base_set_minus_faster(A,B);
   Ans = [ ];
   N = length(A);
   for (I=0; I<N; I++) {

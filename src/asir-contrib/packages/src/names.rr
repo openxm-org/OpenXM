@@ -282,7 +282,17 @@ $A \setminus B$
 end: */
 def base_set_minus(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
-  return taka_base_set_minus(A,B);
+  return taka_base_set_minus(A,B | option_list=getopt());
+}
+/*&usage begin: base_set_intersection(A,B)
+@tex
+$A \cap B$
+@end tex
+ example: base_set_intersection([1,2,3],[3,4,5]);
+end: */
+def base_set_intersection(A,B) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_set_intersection(A,B | option_list=getopt());
 }
 /*&usage begin: base_set_union(A,B)
 @tex
@@ -292,7 +302,7 @@ $A \cup B$
 end: */
 def base_set_union(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
-  return taka_base_set_union(A,B);
+  return taka_base_set_union(A,B | option_list=getopt());
 }
 /*&usage begin: base_subsetq(A,B)
 @tex
