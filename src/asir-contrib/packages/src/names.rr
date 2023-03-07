@@ -440,10 +440,10 @@ def poly_diff2euler(F,XL) {
   else TL=poly_dvar(XL | d=t);
   return tk_diff.diff2euler(F,XL,TL | option_list=getopt());
 }
-/*&usage begin: poly_dmult(Op1,Op2,XL)
+/*&usage begin: poly_dmul(Op1,Op2,XL)
  Multiply Op1 and Op2 in the Weyl algebra (the ring of differential operators).
  XL is a list of x variables.
- example: poly_dmult( x*dx+y*dy+a*x, x*y*dx*dy, [x,y]);
+ example: poly_dmul( x*dx+y*dy+a*x, x*y*dx*dy, [x,y]);
 end: */
 def poly_dmul(F,G,XL) {
   return tk_diff.dmul(F,G,XL | option_list=getopt());
