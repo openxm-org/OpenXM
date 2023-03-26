@@ -38,13 +38,13 @@
 @title Macaulay matrix method for GKZ hypergeometric systems
 @subtitle Pfaffian system (Pfaff equation) and Restriction
 @subtitle Version 0.7
-@subtitle December 23, 2022
+@subtitle March 26, 2023
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
 @vskip 0pt plus 1filll
 Copyright @copyright{} Risa/Asir committers
-2004--2022. All rights reserved.
+2004--2023. All rights reserved.
 @end titlepage
 
 @comment --- おまじない ---
@@ -86,6 +86,11 @@ V.Chestnov, F.Gasparotto, M.K.Mandal, P.Mastrolia, S.J.Matsubara-Heo, H.J.Munch,
 @url{https://doi.org/10.1007/JHEP09(2022)18}.
 E-attachments can be obtainable at
 @uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/amp-MM}
+@item [amp2023a] 
+V.Chestnov, F.Gasparotto, M.K.Mandal, P.Mastrolia, S.J.Matsubara-Heo, H.J.Munch, N.Takayama, Restrictions of Pfaffian Systems for Feynman Integrals.
+@url{In preparation}.
+E-attachments can be obtainable at
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/amp-Restriction}
 @item [Barkatou2017]
 M.Barkatou, Symbolic Methods for Solving Systems of Linear Ordinary Differential
 Equations (tutorial slides).
@@ -881,9 +886,197 @@ A2=mt_mm.moser_reduction(A,x);
 @chapter Restriction::
 
 @menu
-* mt_mm.???::
+* mt_mm.restriction_to_pt_::
+* mt_mm.v_by_eset::
 @end menu
 
+@comment **********************************************************
+@comment ---function restriction_to_pt_
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.restriction_to_pt_,,, Restriction
+@section @code{mt_mm.restriction_to_pt_}
+@comment --- 索引用キーワード
+@findex mt_mm.restriction_to_pt_
+
+@table @t
+@item mt_mm.restriction_to_pt_(@var{Ideal},@var{Gamma},@var{KK},@var{V})
+:: It returns the restriction of @var{Ideal} to the origin by a probabilistic method.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list R. R[0]: a basis of the restriction. R[1]: column indices for the basis.
+R[2]: a basis of @math{{\bf C}^{c(\gamma)}}. R[3]: echelon form of a matrix for the restriction.
+@item Ideal
+Generators of an ideal in the ring of differential operators
+@item Gamma
+Approximation parameter @math{\gamma} for the restriction.
+In order to obtain the exact answer,
+it must be larger than or equal to @math{{\rm max}(s_0,s_1)}
+where @math{s_0} is the maximal non-negative root of b-function
+and @math{s_1} is the maximal order with respect to (-1,1) weight
+of the Groebner basis of the @var{Ideal}
+@item KK
+Approximation parameter @math{k} for the restriction.
+This parameter must be larger than @math{\gamma}.
+If @math{k} is sufficiently large, this function returns the exact answer.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+This function is an implementation of the Algorithm 4.7.
+@item
+The echelon form is computed by rational arithmetic by default.
+When we give an option p=n, the echelon form is computed
+in the finite field of size pari(nextprime,n).
+@item
+When the option save_mem=1 is given, it becomes slower to save memory.
+@item
+Parameters in @var{Ideal} should be replaced to rational numbers.
+@item 
+@math{c(\gamma)} is the number of monomials whose total degree is less than
+or equal to @math{\gamma}.
+For example, mt_mm.eset(3,[x,y]) returns of monomials of dx and dy
+whose total degree is less than or equation to 3 and @math{c(3)=10}.
+@item 
+mt_mm.restriction_to_pt_by_linsolv accepts same argument and returns the result
+in the same format. It computes the echelon form by linsolv.
+When the option nproc=n is given, n processes are created to construct
+a matrix for the restriction from the ideal.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Restriction of the system of Appell F1.
+@example
+[2077] import("mt_mm.rr");
+[3599] Ideal=mt_mm.appell_F1();
+  [(-x^2+x)*dx^2+((-y*x+y)*dy+(-a-b1-1)*x+c)*dx-b1*y*dy-b1*a,
+   ((-y+1)*x*dy-b2*x)*dx+(-y^2+y)*dy^2+((-a-b2-1)*y+c)*dy-b2*a,
+   ((x-y)*dy-b2)*dx+b1*dy]
+[3600] Ideal2=base_replace(Ideal,[[a,1/2],[b1,1/3],[b2,1/5],[c,1/7]]);
+  [(-x^2+x)*dx^2+((-y*x+y)*dy-11/6*x+1/7)*dx-1/3*y*dy-1/6,
+   ((-y+1)*x*dy-1/5*x)*dx+(-y^2+y)*dy^2+(-17/10*y+1/7)*dy-1/10,
+   ((x-y)*dy-1/5)*dx+1/3*dy]
+[3601] T=mt_mm.restriction_to_pt_(Ideal2,3,4,[x,y] | p=10^10)$
+[3602] T[0];
+  [1]   // The basis of the restriction at the origin is {1}
+
+[3604] Ideal3=base_replace(Ideal2,[[x,x+2],[y,y+3]]);
+  [(-x^2-3*x-2)*dx^2+(((-y-3)*x-y-3)*dy-11/6*x-74/21)*dx+(-1/3*y-1)*dy-1/6,
+   (((-y-2)*x-2*y-4)*dy-1/5*x-2/5)*dx+(-y^2-5*y-6)*dy^2+(-17/10*y-347/70)*dy-1/10,
+   ((x-y-1)*dy-1/5)*dx+1/3*dy]
+[3605] T3=mt_mm.restriction_to_pt_(Ideal3,3,4,[x,y] | p=10^10)$
+[3606] T3[0];
+  [dx,dy,1]   // The basis of the restrition at (x,y)=(2,3)
+[3607] 
+@end example
+
+
+@noindent
+Rational restriction of the system of Appell F2 to x=0.
+The rank 2 system of ODE is stored in the variable P2.
+@example
+import("mt_mm.rr")$
+Ideal = [(-x^2+x)*dx^2+(-y*x)*dx*dy+((-a-b1-1)*x+c1)*dx-b1*y*dy-b1*a,
+         (-y^2+y)*dy^2+(-x*y)*dy*dx+((-a-b2-1)*y+c2)*dy-b2*x*dx-b2*a]$
+Xvars = [x,y]$
+//Rule for a probabilistic determination of RStd (Std for the restriction)
+Rule=[[y,y+1/3],[a,1/2],[b1,1/3],[b2,1/5],[c1,1/7],[c2,1/11]]$
+Ideal_p = base_replace(Ideal,Rule);
+RStd=mt_mm.restriction_to_pt_by_linsolv(Ideal_p,Gamma=2,KK=4,[x,y]);
+RStd=reverse(map(dp_ptod,RStd[0],[dx,dy]));
+Id = map(dp_ptod,Ideal,poly_dvar(Xvars))$
+MData = mt_mm.find_macaulay(Id,RStd,Xvars | restriction_var=[x]);
+P2 = mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
+end$
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.find_macaulay}
+@end table
+@comment ---end function restriction_to_pt_ 
+
+
+@comment **********************************************************
+@comment ---function v_by_eset
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.v_by_eset,,, Restriction
+@section @code{mt_mm.v_by_eset}
+@comment --- 索引用キーワード
+@findex mt_mm.v_by_eset
+
+@table @t
+@item mt_mm.v_by_eset(@var{L},@var{Eset},@var{V})
+:: It returns coefficients vector of @var{L} with respect to @var{Eset}
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list of coefficients of @var{L} with respect to @var{Eset}.
+@item L
+a differential operator.
+@item Eset
+a list of monomials of differential variable.
+@item V
+a list of variables.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+@var{Eset} must be sorted in the descending order.
+For example, [dx^2,dy*dx,dy^2,dx,dy,1] is OK, 
+but [1,dy,dx,dy^2,dy*dx,dx^2] is not accepted.
+@item
+It returns coefficients of @var{L} with respect to @var{Eset}.
+@item
+This function is used for the preprocess of the function mt_mm.restriction_to_pt_.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+@example
+[1883] import("mt_mm.rr");
+[3600] mt_mm.v_by_eset(x*dx+y*dy+a,reverse(mt_mm.eset(2,[x,y])),[x,y]);
+  [ 0 0 0 x y a ]
+
+[3601] Eset=mt_mm.eset(2,[x,y]);
+  [1,dy,dx,dy^2,dy*dx,dx^2]
+[3602] T=mt_mm.dshift_by_eset(x*dx+y*dy+a,Eset,[x,y]);
+  // Eset is applied to x*dx+y*dy+a and the result is
+ [x*dx+y*dy+a,
+  x*dy*dx+y*dy^2+(a+1)*dy,
+  x*dx^2+(y*dy+a+1)*dx,
+  x*dy^2*dx+y*dy^3+(a+2)*dy^2,
+  x*dy*dx^2+(y*dy^2+(a+2)*dy)*dx,
+  x*dx^3+(y*dy+a+2)*dx^2]
+
+[3603] T2=map(mt_mm.v_by_eset,T,reverse(mt_mm.eset(3,[x,y])),[x,y]);
+[[ 0 0 0 0 0 0 0 x y a ],[ 0 0 0 0 0 x y 0 a+1 0 ],
+ [ 0 0 0 0 x y 0 a+1 0 0 ],[ 0 0 x y 0 0 a+2 0 0 0 ],
+ [ 0 x y 0 0 a+2 0 0 0 0 ],[ x y 0 0 a+2 0 0 0 0 0 ]]
+[3604] 
+@end example
+
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.restriction_to_pt_}
+@end table
+@comment ---end function v_by_eset 
 
 @comment --- おまじない ---
 @node Index,,, Top
@@ -897,6 +1090,8 @@ A2=mt_mm.moser_reduction(A,x);
 @contents
 @bye
 @comment --- おまじない終り ---
+
+
 
 @comment *********************************************************
 @comment ********* template
@@ -931,7 +1126,7 @@ the matrix A of the GKZ system.
 @item 
 The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
 @verbatim
-verbatim も便利
+One can use verbatim.
 @end verbatim
 @item 
 ???
