@@ -68,7 +68,7 @@
 {  [ $PrintDollar$ [$PrintDollar$] system_variable %% save value
      [$PrintDollar$ 0] system_variable pop
      @@@.quiet 0 eq
-     {$sm1>$ print} { } ifelse
+     {$sm1>$ print [(flush)] extension pop} { } ifelse
      [(traceClearStack)] extension pop
    ] system_variable pop
 } def
