@@ -13,6 +13,7 @@ load("mt_mm/MM2.rr")$ // for debug MM2.rr
 #ifdef USE_MODULE
 module mt_mm;
 localf check_version$
+localf disable_check$
 localf taka_base_range$
 localf taka_matrix_is_zero$
 localf base_range$
@@ -55,8 +56,10 @@ localf ord_w$
 localf testr12$
 
 static NT_rest2_pos$
+static NT_rest3_nocheck$
 #else
 extern NT_rest2_pos$
+extern NT_rest3_nocheck$
 Xm_noX=1$
 /* For fancy printing, e.g., print_xdvi_form(G_M0[0][1]) */
 quotetotex_env("conv_rule",7)$
@@ -65,10 +68,13 @@ quotetotex_env("dp_vars_prefix","\\partial")$
 
 def check_version() {
   if (version() < 20221128) {
-    error("This program does not work on this version of asir, because of a bug of nd_weyl_gr. See https://github.com/openxm-org/OpenXM to upgrade.");
+    error("This program does not work on this version of asir, because of a bug of nd_weyl_gr. See https://github.com/openxm-org/OpenXM to upgrade. This check can be disabled by mt_mm.disable_check(1);");
   }
 }
-check_version()$
+def disable_check(Arg) {
+  NT_rest3_nocheck=Arg;
+}
+if (!NT_rest3_nocheck) check_version(); else print("No check of asir version.")$
 
 def taka_base_range(Start,Stop) {
   V=newvect(N=Stop-Start);

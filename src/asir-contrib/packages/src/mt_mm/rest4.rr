@@ -1,0 +1,672 @@
+#define USE_MODULE
+// restriction to the origin.
+
+#ifdef USE_MODULE
+module mt_mm;
+localf eset$
+localf v_by_eset_orig$
+localf myposition_from$
+localf v_by_eset$
+localf v_by_eset_save_to_mat$
+localf dshift_by_eset$
+localf ord_1$
+localf left_zero$
+localf submatrix_lower$
+localf tk_mul_factor$
+localf tk_lcm$
+localf tk_tmp_mul$
+localf tk_matrix_ptozp$
+localf indep_col$
+localf tk_sublist$
+localf restriction_to_pt_$
+localf test4r1$
+localf appell_F1$
+localf test4r2$
+localf linsolv0$
+localf eset_to_name$
+localf name_to_eset$
+localf by_name$
+localf by_name2$
+localf restriction_to_pt_by_linsolv$
+localf test5r2$
+localf test6_timing$
+localf build_JJ_in_parallel$
+localf test7$
+localf test8$
+localf init_static_rest4$
+
+static Message$
+static Use_v_by_eset_orig$
+static NT_t1$
+static NT_t2$
+static OX_asir$
+
+#else
+
+extern Debug$
+extern Message$
+extern Use_v_by_eset_orig$
+Debug=1$
+Message=1$
+Xm_noX=1$
+Use_v_by_eset_orig=0$
+extern NT_t1$
+extern NT_t2$
+extern OX_asir$
+
+/* from the module mt_mm */
+extern MT_mm_bin$
+extern NT_prefix$
+MT_mm_bin=getenv("OpenXM_HOME")+"/bin/mt_mm_bin"$
+NT_prefix=sprintf("tmp-mm-%a-",getpid())$
+
+#endif
+
+def init_static_rest4() {
+  Message=1;
+  Use_v_by_eset_orig=0;
+}
+
+//date:2023-02-17
+// E(\gamma)
+def eset(M,V) {
+  if (type(getopt(reverse))>0) Reverse=1; else Reverse=0;
+  if (M < 0) return [];
+  DV=poly_dvar(V);
+  F=1; for (I=0; I<length(DV); I++) F+= DV[I];
+  F=F^M;
+  F=dp_ptod(F,DV);
+  E=[];
+  while (F!=0) {
+    Mon=dp_dtop(dp_ht(F),DV);
+    E=cons(Mon,E);
+    F=dp_rest(F);
+  }
+  if (Reverse) return reverse(E);
+  return E;
+}
+/*
+eset(0,[x,y]);
+eset(2,[x,y]);
+eset(3,[x,y,z]);
+*/
+
+def v_by_eset_orig(L,Eset,V) {
+  if (type(L)>3) return map(v_by_eset_orig,L,Eset,V);
+  DV=poly_dvar(V);
+  if (Eset[0]==1) print("Warning: Eset should be reversed?");
+  L=dp_ptod(L,DV);
+  Vec=newvect(length(Eset));
+  while (L!=0) {
+    Mon=dp_dtop(dp_ht(L),DV);
+    C=dp_hc(L);
+    Pos=base_position(Mon,Eset);
+    if (Pos < 0) error("Eset is smaller.");
+    Vec[Pos]=C;
+    L=dp_rest(L);
+  }
+  return vtol(Vec);  
+}
+//date:2023-02-26
+def myposition_from(Mon,Eset,Pos) {
+  N=length(Eset);
+  for (I=Pos; I<N; I++) {
+    if (Mon == Eset[I]) return I;
+  }
+  return(-1);
+}
+/* It assumes that Eset is sorted. 
+   Eset should be transformed to a vector.
+*/
+def v_by_eset(L,Eset,V) {
+  if (Use_v_by_eset_orig) return v_by_eset_orig(L,Eset,V);
+  if (type(L)>3) return map(v_by_eset,L,Eset,V);
+  DV=poly_dvar(V);
+  if (Eset[0]==1) error("Eset should be sorted.");
+  L=dp_ptod(L,DV);
+  Vec=newvect(length(Eset));
+  Pos=0;
+  while (L!=0) {
+    Mon=dp_dtop(dp_ht(L),DV);
+    C=dp_hc(L);
+    Pos=myposition_from(Mon,Eset,Pos);
+    if (Pos < 0) {
+      printf("Warning. Eset is not sorted. Change to v_by_eset_orig.");
+      return v_by_eset_orig(L,Eset,V);
+    }
+    Vec[Pos]=C;
+    L=dp_rest(L);
+  }
+  return Vec;  
+}
+//v_by_eset(x*dx+y*(dx+dy)+a,reverse(eset(2,[x,y])),[x,y]);
+//v_by_eset_orig(x*dx+y*(dx+dy)+a,reverse(eset(2,[x,y])),[x,y]);
+
+//date: 2023-03-02
+def v_by_eset_save_to_mat(L,Eset,V,JJ3,StartRow) {
+  if (type(L)>3) {
+    for (I=0; I<length(L); I++) {
+      v_by_eset_save_to_mat(L[I],Eset,V,JJ3,StartRow);
+      StartRow--;
+    }
+    return 0;
+  }
+  DV=poly_dvar(V);
+  if (Eset[0]==1) error("Eset should be sorted.");
+  L=dp_ptod(L,DV);
+  Pos=0;
+  while (L!=0) {
+    Mon=dp_dtop(dp_ht(L),DV);
+    C=dp_hc(L);
+    Pos=myposition_from(Mon,Eset,Pos);
+    if (Pos < 0) {
+      error("Eset is not sorted. Change to v_by_eset_orig.");
+    }
+    JJ3[StartRow][Pos]=C;
+    L=dp_rest(L);
+  }
+  return 0;
+}
+
+
+def dshift_by_eset(L,Eset,V) {
+  if (type(L)>3) return map(dshift_by_eset,L,Eset,V);
+  if (type(L)==3) error("L must be a polynomial (rational polynomial is not accepted.)");
+  S=map(poly_dmul,Eset,L,V);
+}
+/*
+Eset=eset(2,[x,y]);
+T=dshift_by_eset(x*dx+y*dy,Eset,[x,y]);
+T2=map(v_by_eset,T,reverse(eset(3,[x,y])),[x,y]);
+*/
+
+//date:2023-02-18,  alg 4.8
+def ord_1(L,V) {
+  Ord=Small=-10^10;
+  if (L==0) return Small;
+  DV=poly_dvar(V);
+  F=dp_ptod(L,append(V,DV));
+  W=newvect(2*length(V)); 
+  for (I=0; I<length(V); I++) W[I]=-1;
+  for (I=length(V); I<2*length(V); I++) W[I]=1;
+  In=0;
+  while (F!=0) {
+    E=dp_etov(dp_ht(F));
+    Ord2=matrix_inner_product(E,W);
+    if (Ord2 >= Ord) {
+      Ord=Ord2; In += dp_hm(F);
+    }
+    F = dp_rest(F);
+  }
+  return Ord;  // In is not returned.
+}
+//ord_1(x*dx^2*dy+y*dy^10+2,[x,y]);
+
+def left_zero(L,N) {
+  for (I=0; I<N; I++) {
+    if (car(L)) return 0;
+    L=cdr(L);
+  }
+  return L;
+}
+def submatrix_lower(G,Cgamma) {
+  G=matrix_matrix_to_list(G);
+  M=length(G); N=length(G[0]);
+  Ans=[];
+  for (I=0; I<M; I++) {
+    F=left_zero(G[I],N-Cgamma);
+    if (F) Ans=cons(F,Ans);
+  }
+  return Ans;
+}
+
+def tk_mul_factor(F) {
+  if (F==0) return 1;
+  L=ptozp(F | factor=1);
+  return dn(L[1]);
+}
+def tk_lcm(A,B) {
+  return A*B/igcd(A,B);
+}
+def tk_tmp_mul(L,Fac) {
+  if (type(L)>3) return map(tk_tmp_mul,L,Fac);
+  return Fac*L;
+}
+def tk_matrix_ptozp(L) {
+  Fac=1;
+  if (type(L)<3) {
+    A=ptozp(L | factor=1);
+    Fac=dn(A[1]);
+    return [Fac*L,Fac]; 
+  }
+  L2 = base_flatten(L);
+  FF = map(tk_mul_factor,L2);
+  N=length(FF);
+  for (I=0; I<N; I++) {
+    Fac=tk_lcm(Fac,FF[I]);
+  }
+  return [tk_tmp_mul(L,Fac),Fac];
+}
+//T=tk_matrix_ptozp(T0=[[1/2,0,-1/3],[1/4*x,1/5,1/7]]); matrix_list_to_matrix(T0)-matrix_list_to_matrix(T[0])/T[1];
+def indep_col(Echelon) {
+  Col=[]; M=length(Echelon); N=length(Echelon[0]);
+  J=0;
+  for (I=0; I<M; I++) {
+    for (; J<N; J++) {
+      if (Echelon[I][J]) {J++; break;}
+      else Col=cons(J,Col);
+    }
+  }
+  for (; J<N; J++) Col=cons(J,Col);
+  reverse(Col);
+}
+//indep_col([[1,1,0,1,1],[0,0,1,1,1]]);
+//indep_col([[1,1,0,1,1],[0,0,1,1,1],[0,0,0,0,1]]);
+
+def tk_sublist(L,Idx) {
+  Ans=newvect(length(Idx));
+  for (I=0; I<length(Idx); I++) {
+    Ans[I]=L[Idx[I]];
+  }
+  return vtol(Ans);
+}
+
+/*
+  algorithm 4.8 (rest-overleaf). From line 3 to 5.
+  It returns JJ \cap C^c(gamma)
+
+  First return value is the list of independent coef position of series sol.
+*/
+def restriction_to_pt_(Id,Gamma,KK,V) {
+  if (type(getopt(save_mem))>0) Save_mem=1; else Save_mem=0;
+  if (type(getopt(p))>=0) {
+    if (type(getopt(p))>0) P = pari(nextprime,getopt(p)); else P=0;
+  }else P=0;
+//} else P=1000000007;  // default prime.
+  printf("P=%a\n",P);
+  if (P == 0) {
+     Save_mem=0;
+     printf("Warning: save_mem works only for p>0 case. save_mem is automatically set to 0.");
+  }
+  if (KK < Gamma) error("KK must be larger or equal to Gamma>=max(s0,s1), s0 max sol of bf, s1 max ord of (-w,w) gb.");
+  Id=map(ptozp,Id);
+  DV=poly_dvar(V);
+  Egamma = eset(Gamma,V);
+  Cgamma = length(Egamma);
+  IndexEset = matrix_list_to_matrix(eset(KK,V | reverse=1));
+  if (Message) printf("Size of IndexEset=%a\n",length(IndexEset));
+  JJ=[];
+  Rule=assoc(V,vtol(newvect(length(V))));
+  MatRowSize=0;
+  for (I=0; I<length(Id); I++) {
+     F=Id[I];
+     Ord=ord_1(F,V);
+     Eset=eset(KK-Ord,V);
+     F2=dshift_by_eset(F,Eset,V);
+     F3=base_prune(0,base_replace(F2,Rule));
+     MatRowSize += length(F3);
+     if (Save_mem) {
+       if (Message) printf("pass1 %a/%a, ",I,length(Id));
+       continue;
+     }
+     F4=v_by_eset(F3,IndexEset,V);
+     for (J=0; J<length(F4); J++) JJ=cons(F4[J],JJ);
+     if (Message) printf("%a/%a, ",I,length(Id));
+  }
+  if (Save_mem) {
+    JJ3=newmat(MatRowSize,length(IndexEset));
+    /* phase 2, date:2023-03-02 */
+    if (Message) printf("pass2: ");
+    StartRow=MatRowSize-1;
+    for (I=0; I<length(Id); I++) {
+      F=Id[I];
+      Ord=ord_1(F,V);
+      Eset=eset(KK-Ord,V);
+      F2=dshift_by_eset(F,Eset,V);
+      F3=base_prune(0,base_replace(F2,Rule));
+      v_by_eset_save_to_mat(F3,IndexEset,V,JJ3,StartRow);
+      StartRow -= length(F3);
+      if (Message) printf("%a/%a, ",I,length(Id));
+    }
+  }
+  if (Message) {
+    if (Save_mem) {
+      printf("\nSize of JJ3=%a\n",size(JJ3));
+    }else{
+      printf("\nSize of JJ=(%a,%a)\n",length(JJ),length(JJ[0]));
+    }
+  }
+  if (Message) printf("p=%a\n",P);
+  if (P) {
+    /* JJ2=tk_matrix_ptozp(JJ);
+    Fac=JJ2[1]; JJ2=JJ2[0];
+    */
+    Fac=1; 
+    if (!Save_mem) {
+      M=length(JJ); N=length(JJ[0]);
+      JJ2=map(vtol,JJ);JJ3=matrix_list_to_matrix(JJ2);
+    }else { TTT=size(JJ3); M=TTT[0]; N=TTT[1];}
+    G2=generic_gauss_elim_mod(NT_t1=JJ3,P);
+    if (Message) printf("Echelon form is obtained.\n");
+    if (Debug) {print(matrix_list_to_matrix(G2)); printf("p=%a\n\n",P);}
+    NT_t2=G2;
+    Base=vtol(G2[2]);
+    while (Base[0] < N-Cgamma) Base=cdr(Base);
+    Base2=newvect(length(Base));
+    for (I=0; I<length(Base); I++) Base2[I]=Base[I]-(N-Cgamma);
+    Base2=vtol(Base2); 
+  }else{
+    JJ=map(vtol,JJ);
+    G=nd_gr(JJ,DV,0,[1,0]);
+    if (Message) printf("Echelon form is obtained.\n");
+    if (Debug) {print(matrix_list_to_matrix(G)); printf("\n");}
+    G2=submatrix_lower(G,Cgamma);
+    if (Debug) {print(matrix_list_to_matrix(G2)); print();}
+    Base2=indep_col(G2);
+  }
+  Esym=reverse(Egamma);
+  Base3=tk_sublist(Esym,Base2);
+  return [Base3,Base2,Esym,G2];
+}
+//Gauss=base_replace(x*(1-x)*dx^2+(c-(a+b+1)*x)*dx-a*b,[[x,x+cc]])$
+
+//T=restriction_to_pt_([base_replace(Gauss,[[a,1/3],[b,1/5],[c,-5],[cc,1/2]])],6,8,[x]); 
+
+//T=restriction_to_pt_([base_replace(Gauss,[[a,1/3],[b,-5],[c,-5],[cc,0]])],6,8,[x]); 
+//T=restriction_to_pt_([base_replace(Gauss,[[a,1/3],[b,-5],[c,-5],[cc,0]])],6,8,[x] | p=10^5); 
+
+def test4r1() {
+  Id=[2*y*dx+3*x^2*dy, 2*x*dx+3*y*dy-3]; // (y^2-x^3)^(1/2). Ex 4.9
+  Id2=base_replace(Id,[[x,x+c1],[y,y+c2]]);
+  T=restriction_to_pt_(base_replace(Id2,[[c1,1],[c2,2]]),1,3,[x,y]);
+}
+//test4r1();
+
+//T=restriction_to_pt_([base_replace(Gauss,[[a,1/3],[b,-5],[c,-5],[cc,0]])],6,10,[x] | p=10^7); 
+
+def appell_F1() {
+  F1=[(-x^2+x)*dx^2+((-y*x+y)*dy+(-a-b1-1)*x+c)*dx-b1*y*dy-b1*a,((-y+1)*x*dy-b2*x)*dx+(-y^2+y)*dy^2+((-a-b2-1)*y+c)*dy-b2*a,((x-y)*dy-b2)*dx+b1*dy];
+  return F1;
+}
+
+def test4r2(A,C) {
+  Id=appell_F1();
+//  C1=1/2; C2=1/3;
+  C1=C2=0;
+  Id=base_replace(Id,[[a,A],[c,C],[b1,1/2],[b2,1/3],[x,x+C1],[y,y+C2]]);
+  return T=restriction_to_pt_(Id,3,4,[x,y] | option_list=getopt());
+}
+//T=test4r2(1/5,1/7); 
+//T=test4r2(-2,-2); 
+
+//T=test4r2(-2,-2 | p=0);
+//T=test4r2(-2,-2 | p=10^3, save_mem=1); 
+//T2=test4r2(-2,-2 | p=10^3, save_mem=0); 
+
+/* 2023.03.07 
+  Note: Do not use a* vars. They are automatically set to 0.
+*/
+def linsolv0(Eqn,Avars,C1vars) {
+  if (type(getopt(opt_linsolv))>0) Opt_linsolv=getopt(opt_linsolv);
+  else Opt_linsolv="";
+  if (type(getopt(check))>0) Check=getopt(check);
+  else Check=0;
+  if (type(getopt(p))>0) {
+    Opt_prime=sprintf("  --char %a ",getopt(p));
+  }else Opt_prime="";
+  Vars=append(Avars,C1vars);
+  Fp=open_file(FnameV=NT_prefix+"linsolv-vars.txt","w");
+  fprintf(Fp,"%a\n",Vars);
+  close_file(Fp);
+  Fp=open_file(FnameL=NT_prefix+"linsolv.txt","w");
+  fprintf(Fp,"R=E(%a);\nE(R);\n",Eqn);
+  close_file(Fp);
+  FnameAns=NT_prefix+"linsolv-ans.txt";
+  Cmd=sprintf("time %a/linsolv %a %a --vars %a  <%a >%a\n",MT_mm_bin,Opt_linsolv,Opt_prime,
+	      FnameV,FnameL,FnameAns);
+  printf("cmd=%a\n",Cmd);
+  T0=time();
+  print("Starting linsolv for E function");
+  shell(Cmd);
+  Cmd=sprintf("echo 'end$' >>%a",FnameAns);
+  shell(Cmd);
+  load(FnameAns); // Ans1 and InAns1
+  printf("#time of linsolv=%a\n",time()[3]-T0[3]);
+  DepVars=vars(InAns1);
+  IndepVars=base_set_minus(Vars,DepVars | bysort=1);
+  return [IndepVars,DepVars,Ans1];
+}
+//T=linsolv0([x1+x2+x3-b1,x1-x2-x3-b2],[x1,x2,x3],[b1,b2]);
+
+def eset_to_name(Mon,V) {
+  if (type(Mon)==5) {
+    Ans=newvect(N=length(Mon));
+    for (I=0; I<N; I++) Ans[I]=util_v(x,dp_etov(dp_ptod(Mon[I],V)));
+    return Ans;
+  }
+  Exp=dp_etov(dp_ptod(Mon,V));
+  return util_v(x,Exp);
+}
+def name_to_eset(Name,V) {
+  Exp=util_index(Name)[1];
+  return dp_dtop(dp_vtoe(Exp),V);
+}
+def by_name(F,DV) {
+  if (type(F)>3) return map(by_name,F,DV);
+  F=dp_ptod(F,DV);
+  G=0;
+  while (F != 0) {
+    Exp=dp_etov(F);
+    C=dp_hc(F);
+    G += C*util_v(x,Exp);
+    F=dp_rest(F);
+  }
+  return G;
+}
+def by_name2(Idx,F,V,KK,Rule) {
+  DV=poly_dvar(V);
+  Ord=ord_1(F,V);
+  Eset=eset(KK-Ord,V);
+  F2=dshift_by_eset(F,Eset,V); 
+  F3=base_prune(0,base_replace(F2,Rule)); 
+  G=by_name(F3,DV);
+  return [Idx,G];
+}
+
+//#define show_time(msg) {printf("%a:",msg); printf("%a\n",time()[0]-TTT0[0]); TTT0=time();}
+#define show_time(msg) ;
+def restriction_to_pt_by_linsolv(Id,Gamma,KK,V) {
+  TTT0=time();
+  if (type(getopt(param))>0) Param=getopt(param); else Param=[];
+  if (type(getopt(p))>0) P = pari(nextprime,getopt(p));
+  else P=1000000007;  // default prime.
+  if (type(getopt(nproc))>0) Nproc=getopt(nproc); else Nproc=0;
+  if (OX_asir && (Nproc>0)) {print("In ox_asir. Return"); return 0;}
+  printf("P=%a, Nproc=%a\n",P,Nproc);
+  if (KK < Gamma) error("KK must be larger or equal to Gamma>=max(s0,s1), s0 max sol of bf, s1 max ord of (-w,w) gb.");
+  Id=map(ptozp,Id); show_time("0");
+  DV=poly_dvar(V);
+  Egamma = eset(Gamma,V);
+  Cgamma = length(Egamma); 
+  IndexEset = matrix_list_to_matrix(eset(KK,V | reverse=1)); show_time("1");
+  IndexEsetName = vtol(IndexEsetName_v=map(eset_to_name,IndexEset,DV));
+  EgammaName=vtol(map(eset_to_name,Egamma,DV));
+  show_time("eset_to_name");
+  if (Message) printf("Size of IndexEset=%a\n",length(IndexEset));
+  JJ=[];
+  Rule=assoc(V,vtol(newvect(length(V))));
+  if (Nproc > 0) {
+    JJ=build_JJ_in_parallel(Nproc,Id,V,KK | option_list=getopt());
+  }else{
+    for (I=0; I<length(Id); I++) {
+      F=Id[I];
+      Ord=ord_1(F,V);
+      Eset=eset(KK-Ord,V);
+      F2=dshift_by_eset(F,Eset,V); show_time("dshift");
+      F3=base_prune(0,base_replace(F2,Rule)); show_time("prune");
+      F4=by_name(F3,DV);  show_time("by_name");
+      for (J=0; J<length(F4); J++) {
+	JJ=cons(F4[J],JJ);
+      }
+      if (Message) printf("%a/%a, ",I,length(Id));
+    }
+  }
+  if (Message) printf("p=%a\n",P);
+  if (Message) printf("size of JJ=%a\n",length(JJ));
+  R=linsolv0(JJ,IndexEsetName,Param | p=P);
+  Base3=map(name_to_eset,base_set_intersection(R[0],EgammaName),DV);
+  Esym=reverse(Egamma);
+  return [reverse(Base3),0,Esym,R[2]];
+  /*
+  Base3=tk_sublist(Esym,Base2);
+  return [Base3,Base2,Esym,G2];
+  */
+}
+//Gauss=base_replace(x*(1-x)*dx^2+(c-(a+b+1)*x)*dx-a*b,[[x,x+cc]])$
+//T=restriction_to_pt_by_linsolv([base_replace(Gauss,[[a,1/3],[b,1/5],[c,-5],[cc,1/2]])],6,8,[x]);  print(T)$
+//T=restriction_to_pt_by_linsolv([base_replace(Gauss,[[a,1/3],[b,-5],[c,-5],[cc,0]])],6,8,[x]);  print(T)$
+
+def test5r2(A,C) {
+  if (OX_asir) {print("In ox_asir. Return"); return 0;}
+  Id=appell_F1();
+  C1=C2=0;
+  Id=base_replace(Id,[[a,A],[c,C],[b1,1/2],[b2,1/3],[x,x+C1],[y,y+C2]]);
+  return T=restriction_to_pt_by_linsolv(Id,3,4,[x,y] | option_list=getopt());
+}
+//T=test4r2(1/5,1/7); T2=test5r2(1/5,1/7);
+//T=test4r2(-2,-2); T2=test5r2(-2,-2); 
+//T2=test5r2(-2,-2)$ 
+
+//date: 2023-03-09
+def test6_timing(Gamma,KK) {
+  V = [y8,y9,y10, y11,y12,y13,y14,y15,y16,y17,y18,y19,y20,y21,y22,y23,y24,r];
+  DV=poly_dvar(V);
+  TTT0=TTTT=time();
+  Egamma = eset(Gamma,V);
+  Cgamma = length(Egamma); 
+  IndexEset = matrix_list_to_matrix(eset(KK,V | reverse=1)); show_time("1");
+  printf("length(IndexEset)=%a\n",length(IndexEset));
+  IndexEsetName_v=map(eset_to_name,IndexEset,DV); 
+  show_time("IndexEset eset_to_name");
+  IndexEsetName = vtol(IndexEsetName_v);
+  show_time("vtol");
+  EgammaName=vtol(map(eset_to_name,Egamma,DV));
+  show_time("Egamma eset_to_name");
+  return time()[0]-TTTT[0];
+}
+// uncomment #define show_time(msg) above.
+//test6_timing(3,5);  // eset_to_name, 13s. 33,649
+//test6_timing(3,6);    // eset_to_name, 433s. 134,596 --> for で 419s すこし早い.
+
+def build_JJ_in_parallel(Nproc,Id,V,KK) {
+  //bsave([Nproc,Id,V,KK],"tmp-1.ab");
+  if (type(getopt(x))>0) X=getopt(x);  else X=0;
+  if (type(getopt(verbose))>0) Verbose=getopt(verbose); else Verbose=0;
+  if (Nproc > 0) {
+    Procs=newvect(Nproc);
+    Seeds=newvect(Nproc);
+    for (I=0; I<Nproc; I++) {
+      if (X) Procs[I]=ox_launch(0,"ox_asir");
+      else Procs[I]=ox_launch_nox(0,"ox_asir");
+    }
+    Procs=vtol(Procs);
+    for (I=0; I<Nproc; I++) {
+      ox_execute_string(Procs[I],"OX_asir=1;");
+      ox_execute_string(Procs[I],"load(\"rest4.rr\");");
+    }
+  }
+  if (Verbose) printf("Procs=%a\n",Procs);
+  DV=poly_dvar(V);
+  JJ=[];
+  Rule=assoc(V,vtol(newvect(length(V))));
+  if (Nproc <= 0) {
+    for (I=0; I<length(Id); I++) {
+      F=Id[I];
+      Ord=ord_1(F,V);
+      Eset=eset(KK-Ord,V);
+      F2=dshift_by_eset(F,Eset,V); 
+      F3=base_prune(0,base_replace(F2,Rule)); 
+      F4=by_name(F3,DV);  
+      for (J=0; J<length(F4); J++) {
+	JJ=cons(F4[J],JJ);
+      }
+    }
+    return JJ;
+  }
+  /* distributed computation */
+  Done=[]; NId=length(Id); 
+  ProcsState=newvect(Nproc); /* 0: idle. 1: in computation or send data ready*/
+  I=0;
+  while (1) {
+    AskProc=-1;
+    for (J=0; J<Nproc; J++) {
+      if ((ProcsState[J]==0)&&(I<NId)) {
+        ProcsState[J]=1; AskProc=Procs[J]; F=Id[I]; I++;
+	if (Verbose) printf("New AskProc=%a\n",AskProc);
+	break;
+      }
+    }
+    if (AskProc >= 0) {
+      ox_rpc(AskProc,"by_name2",I-1,F,V,KK,Rule);
+      ox_push_cmd(AskProc,258);
+    }
+    if (base_memberq(0,ProcsState) && (I<NId)) continue;  
+    Ready=ox_select(Procs,1);
+    if (Verbose) printf("Ready all=%a\n",Ready);
+    Ready=base_set_intersection(Ready,Procs);
+    if (Verbose) printf("Ready=%a\n",Ready);
+    for (K=0; K<length(Ready); K++) {
+      Ans=ox_get(Ready[K]);
+      for (Pidx=0; Pidx<Nproc; Pidx++) {
+        if (Procs[Pidx]==Ready[K]) {ProcsState[Pidx]=0;break;}
+      }
+      Done=cons(Ans[0],Done);
+      F4=Ans[1];
+      for (J=0; J<length(F4); J++) {
+	JJ=cons(F4[J],JJ);
+      }
+      printf("%a, remaining %a, ",Ans[0],NId-length(Done));
+      if (Verbose) printf(" ProcsState=%a, ",ProcsState);
+      break; // it reduces the number of idling processes.
+    }
+    if (length(Done)>=NId) {print(""); break;}
+  }
+  return JJ;
+}
+def test7(A,C) {
+  if (OX_asir) {print("In ox_asir. Return"); return 0;}
+  Id=appell_F1();
+  C1=C2=0;
+  Id=base_replace(Id,[[a,A],[c,C],[b1,1/2],[b2,1/3],[x,x+C1],[y,y+C2]]);
+  V=[x,y]; KK=2;
+  JJ0=build_JJ_in_parallel(0,Id,V,KK);
+  JJ=build_JJ_in_parallel(Nproc=3,Id,V,KK | x=1);
+  return [JJ0,JJ];
+}
+//if (!OX_asir) T=test7(-2,-2); else ;
+//T2=test5r2(-2,-2 | nproc=3, x=1, verbose=1)$ 
+
+def test8() {
+  if (OX_asir) {print("In ox_asir. Return"); return 0;}
+  D=bload("test8-for-rest4.ab");
+  /*
+   test8-for-rest4.ab is genetated by 
+   2023-03-09-2L_0M_doublebox_basis_by_linsolv_parallel.rr
+   RStd=restriction_to_pt_by_linsolv(Id_p,Gamma=3,KK=4,NewV | nproc=3, x=1)$ //test
+  */
+  //Nproc=D[0]; 
+  Nproc=4;
+  Id=D[1]; V=D[2]; KK=D[3];
+  build_JJ_in_parallel(Nproc,Id,V,KK | x=1, verbose=1);
+}
+//test8();
+
+#ifdef USE_MODULE
+endmodule$
+mt_mm.init_static_rest4()$
+
+//mt_mm.test4r2(1/5,1/7);
+
+#endif
+
+end$
