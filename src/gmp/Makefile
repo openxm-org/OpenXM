@@ -8,7 +8,7 @@ DISTNAME=gmp-6.2.1
 DISTFILES=${DISTNAME}.tar.bz2
 WRKSRC=work/${DISTNAME}
 #PATCHFILES = gmp.diff
-PATCHFILES = 
+PATCHFILES =  appleM1.diff
 
 all : build 
 
@@ -29,7 +29,7 @@ patch: extract
 	@if [ ! -f work/.patch_done ]; then \
         for i in ${PATCHFILES} "" ; do \
             if [ -f "$$i" ]; then \
-	            cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+	            cat $$i | (cd ${WRKSRC}; patch -p1) ; \
             fi ; \
         done ; \
 	fi
