@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Jan. 2023)
+ *          Toshio Oshima (Nov. 2007 - June. 2023)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -118,6 +118,7 @@ localf pf2kz$
 localf mext2$
 localf transm$
 localf vgen$
+localf kzext$
 localf mmc$
 localf lpgcd$
 localf mdivisor$
@@ -129,11 +130,13 @@ localf mykernel$
 localf myimage$
 localf mymod$
 localf mmod$
+localf lsum$
 localf ladd$
 localf lsub$
 localf lchange$
 localf llsize$
 localf llbase$
+localf llselect$
 localf llget$
 localf lcut$
 localf rev$
@@ -550,7 +553,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00230203"$
+Muldif.rr="00230707"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -4071,6 +4074,43 @@ def mdsimplify(L)
 	return L;
 }
 
+/*
+ (x,y,1,0,infty) : 
+ perm: [0,1]:x<->y, [1,2]:y<->1, [2,3]:1<->0, [3,4]:0<->infty
+ */
+def kzext(M)
+{
+		L=length(M);
+		for(S=0,N=1;N<50;N++){
+			 if((S+=N)==L||S==L+1) break;
+		}
+		if(N>=50) return 0;
+		N+=2;
+		MM=newmat(N,N);
+		TM=0;
+		for(TM=M,I=S=0;I<N-3;I++)
+			for(J=I+1;J<N-1;J++,TM=cdr(TM)) S+=(MM[I][J]=MM[J][I]=car(TM));
+		MM[N-3][N-2]=red(-S);
+		for(I=0;I<N-1;I++){
+			for(S=0,J=0;J<N-1;J++) if(I!=J) S+=MM[I][J];
+			MM[I][N-1]=MM[N-1][I]=red(-S);
+		}
+		T=getopt(perm);
+		if(type(T)==4) T=ltov(T);
+		if(type(T)!=5) return MM;  /* extended residue matrices */
+		if(length(T)==2){
+			V=newvect(N);
+			for(I=0;I<N;I++) V[I]=I;
+			V[T[0]]=T[1];V[T[1]]=T[0];
+			T=V;
+		}
+		if(length(T)!=N) return 0;
+		for(R=[],I=0;I<N-3;I++)
+			for(J=I+1;J<N-1;J++) R=cons(MM[T[I]][T[J]],R);
+		return reverse(R);
+}
+
+
 #if 1
 def m2mc(M,X)
 {
@@ -4091,6 +4131,8 @@ def m2mc(M,X)
 		N[0]=M[1];N[1]=M[0];N[2]=M[2];N[3]=M[4];N[4]=M[5];
 		M=vtol(N);
 	}
+	if(getopt(KZ)==1) KZ=1;
+	else KZ=0;
 	if(type(X)==7) X=[X];
 	Simp=getopt(simplify);
 	if(Simp!=0 && type(Simp)!=1) Simp=2;
@@ -4296,12 +4338,13 @@ def m2mc(M,X)
 	}
 	S=size(N[0])[0];
 	if(type(X)==4){
-		 for(I=0;I<3;I++){
-			 if(X[I] != 0)
-					N[I] = radd(N[I],X[I]);
-		 }
-		 if(length(X)==3||!X[3]) return N;
-		 X=X[3];
+		SS=length(X)-1;
+		for(I=SS-iand(SS,1);I>=0;I--){
+			if(X[I] != 0)
+			N[I] = radd(N[I],X[I]);
+		}
+		if(!iand(SS,1)||!X[SS]) return N;
+		X=X[SS];
 	}
 	MZ = newmat(S,S);
 	ME = mgen(S,0,[X],0);
@@ -4310,7 +4353,7 @@ def m2mc(M,X)
 	MM[1] = newbmat(3,3, [[MZ], [N[0],N[1]+ME,N[2]], [MZ]]);
 	MM[2] = newbmat(3,3, [[MZ], [MZ], [N[0],N[1],N[2]+ME]]);
 	MM[3] = newbmat(3,3, [[N[3]+N[1],-N[1]], [-N[0],radd(N[0],N[3])], [MZ,MZ,N[3]]]);
-	MM[4] = newbmat(3,3, [[N[4]], [MZ,N[4]+N[2],-N[2]], [MZ,-N[1],radd(N[4],N[1])]]);
+	MM[4] = newbmat(3,3, [[radd(N[4],N[2]),MZ,-N2], [MZ,N[4],MZ], [-N[0],MZ,radd(N[0],N[4])]]);
 	M0 = newbmat(3,3, [[N[0]], [MZ,N[1]], [MZ,MZ,N[2]]]);
 	M1 = radd(MM[0],MM[1]+MM[2]);
 	KE = append(mykernel(M0|opt=1),mykernel(M1|opt=1));
@@ -4853,13 +4896,13 @@ def lsort(L1,L2,T)
 		}else T=0;
 	}else K=0;
 	if(type(TT=T)==7)
-		T = findin(T,["cup","setminus","cap","reduce","sum","subst"]);
+		T = findin(T,["cup","setminus","cap","reduce","sum","subst","duplicate"]);
 	if(type(L2)==7&&T<0)
 		T=findin(TT,["put","get","sub"]);
 	if(K){		 /* [[..],..] */
 		if(K!=[]) KN=K[0];
-		if(L2==[]||L2=="sort"){ /* sort or deduce duplication */
-			if((T!=0&&T!=3)||length(K)!=1) return L1;
+		if(L2==[]||L2=="sort"){ /* sort or deduce/get duplication */
+			if((T!=0&&T!=3&&T!=6)||length(K)!=1||L1==[]) return L1;
 			if(KN<0){
 				KN=-KN-1;
 				F=-1;
@@ -4869,6 +4912,19 @@ def lsort(L1,L2,T)
 				R=[car(L1)];L1=cdr(L1);
 				for(;L1!=[];L1=cdr(L1)){
 					if(car(L1)[KN]!=car(R)[KN]) R=cons(car(L1),R);
+				}
+				L1=reverse(R);
+			}else if(T==6){
+				if(length(L1)<2) return [];
+				F=car(L1);
+				for(C=0,R=[],T=cdr(L1);T!=[];T=cdr(T)){
+					if(car(T)[KN]==F[KN]){
+						if(!C) R=cons(F,R);
+						R=cons(car(T),R);
+						C++;
+					}else{
+						F=car(T);C=0;
+					}
 				}
 				L1=reverse(R);
 			}
@@ -4892,10 +4948,13 @@ def lsort(L1,L2,T)
 				return reverse(R);
 			}
 		}else if(type(L2)==1||type(L2)==7){
-			if(L2==1||L2=="num"){
-				if(T==4) T=3;
+			if(L2==1||L2=="num"){;
+/* mycat(["IN",T,TT,car(K)]); */
+				if(T==4) T=3;  /* to be redifine */
+				T=findin(car(K),["put","get","sub","sum"]);
 				I=(length(K)<2)?(-1):K[1];
 				if(T==0||T==1||T==2||T==3){
+/* mycat(["in0",T]); */
 					S=F=CT=0;R=[];
 					if(K==[] || type((S=K[0]))==1 || S==0){
 						if(T==0||T==1||T==2){
@@ -4916,14 +4975,17 @@ def lsort(L1,L2,T)
 						else if(S=="+") F=3;
 						else return L1;
 					}
+/* mycat(["in", T]); */
 					for(R=[];L1!=[];L1=cdr(L1)){
 						L1T=car(L1);
-						if(F==1) V=call(S,(I<0)?L1T:L1T[I]);
+/* mycat([S,[(I<0)?L1T:L1T[I]]]); */
+						if(F==1) V=call(S,[(I<0)?L1T:L1T[I]]);
 						else if(F==2) V=calc((I<0)?L1T:L1T[I],S);
 						else if(F==3){
 							for(C=C1,V=0;C!=[];C=cdr(C))
 								if(type(X=L1T[car(C)])==1) V+=X;
 						}
+/* mycat([T,V]); */
 						if(T==0) R=cons(cons(V,L1T),R);
 						else if(T==1){
 							if(V) R=cons(L1T,R);
@@ -4933,6 +4995,7 @@ def lsort(L1,L2,T)
 							if(F==3) CT+=V;
 							else if(V) CT++;
 						}
+/* mycat(["Result",L1T," -> ", R]); */
 					}
 					return (T==3)?CT:reverse(R);
 				}else if(TT=="col"){
@@ -5359,6 +5422,74 @@ def lnsol(VV,L)
 	return lsol(VV,L);
 }
 
+def lsum(X)
+{
+	if(type(X)==4){
+		for(S=0,T=X;T!=[];T=cdr(T)) S+=car(T);
+	}else{
+		L=size(X);
+		for(S=I=0;I<L;I++) S+=X[I];
+	}
+	return S;
+}
+
+def llselect(X,KL,K)
+{
+	if(type(X)!=4||type(car(X))!=4) return 0;
+	if(length(car(X))>0 && type(car(X)[0])==4){
+		for(R=[],TX=X;TX!=[];TX=cdr(TX)) R=cons(llselect(car(TX),KL,K|option_lost=getopt()),R);
+		return reverse(R);
+	}
+	if(getopt(div)==1&&type(K)==4){
+		Opt=delopt(getopt(),"dvi");
+		for(R=[],T=X;K!=[];K=cdr(K)){
+			TR=llselect(T,KL,car(K)|option_list=Opt);
+			R=cons(TR[0],R);T=TR[1];
+		}
+		if(T!=[]) R=cons(T,R);
+		return reverse(R);
+	}
+	if(type(KL0=KL)==4 && length(KL)>1){
+		Cut=KL[1];KL=KL[0];
+	}else Cut=0;
+	if(K==0){
+		if(!isint(KL)) return 0;
+		for(R=[],T=X;T!=[];){
+			TK=car(T)[KL];
+			if(type(TK)==7 && Cut!=0) TK=str_cut(TK,Cut[0],Cut[1]);
+			TR=llselect(T,KL0,TK);
+			R=cons(TR[0],R);
+			if(length(T)<=length(TR[1])) return 0;
+			T=TR[1];
+		}
+		return reverse(R);
+	}
+	Val=getopt(val);
+	Eq=getopt(eq);
+	if(type(K)!=4) K=[K];
+	if(length(K)!=2) Eq=1;
+	for(S=R=[],T=X;T!=[];T=cdr(T)){
+		TX=car(T);
+		TK=TX[KL];
+		if(type(TK)==7){
+			if(Cut!=0) TK=str_cut(TK,Cut[0],Cut[1]);
+			if(Val==1) TK=eval_str(TK);
+		}
+		if(type(TK)==7){
+			if(findin(TK,K)>=0) S=cons(TX,S);
+			else R=cons(TX,R);
+		}else{
+			if(Eq==1){
+				if(findin(TK,K)>=0) S=cons(TX,S);
+				else  R=cons(TX,R);
+			}else{
+				if(TK>=K[0]&&TK<=K[1]) S=cons(TX,S);
+				else  R=cons(TX,R);
+			}
+		}
+	}
+	return [reverse(S),reverse(R)];
+}
 
 def ladd(X,Y,M)
 {
@@ -11466,8 +11597,10 @@ def mc2grs(G,P)
 						else S="A_{"+rtostr(T[0][0])+rtostr(T[0][1])+"}&"+S;
 					}
 					L=ltotex(R|opt="GRS",pre=S);
-					if(type(D=getopt(div))==1 || type(D)==4) L=divmattex(L,D);
-					if(Dvi>0) dviout(L|eq=0,keep=Keep);
+					if(type(D=getopt(div))==1 || type(D)==4){
+						L=divmattex(L,D);
+						if(Dvi>0) dviout(L|keep=Keep);
+					}else if(Dvi>0) dviout(L|eq=0,keep=Keep);
 				}
 				return L; /* get all spct */
 			}
@@ -11660,7 +11793,7 @@ def mc2grs(G,P)
 					for(S=[],J=4;J>=0;J--)
 						if(I!=J) S=cons(M[I][J],S);
 					R=chkspt(S|opt=2);
-					M[I][5]=((L=length(R))>1)?s2sp(R[L-2]|short=1):"";
+					M[I][5]=((L=length(R))>1)?"$"+s2sp(R[L-2]|short=1)+"$":"";
 				}
 			}
 			if(Dvi){
@@ -11722,7 +11855,7 @@ def mc2grs(G,P)
 			return -V;
 		}else if(F=="K0"){
 			P1=P[1];
-			return mc2grs(G,[ [0,0,P1[1],P1[0]-P1[1]],[0,0,-P1[0]] ]);
+			return mc2grs(G,[ [0,0,P1[1],-P1[0]-P1[1]],[0,0,P1[0]] ]);
 		}else if(F=="K1"){
 			G=mc2grs(G,["swap",[0,1]]);
 			G=mc2grs(G,["K0",P[1]]);
@@ -11733,11 +11866,11 @@ def mc2grs(G,P)
 			return mc2grs(G,["perm",[2,1,0,4,3]]);
 		}else if(F=="K2"){
 			P1=P[1];
-			return mc2grs(G,[ [0,P1[1],0,P1[0]-P1[1]],[0,0,-P1[0]] ]);
+			return mc2grs(G,[ [0,P1[1],0,-P1[0]-P1[1]],[0,P1[0],0] ]);
 		}else if(F=="K3"){
 			G=mc2grs(G,["swap",[0,1]]);
-			G=mc2grs(G,["K1",P[1]]);
-			return mc2grs(G,["swap",[0,1]]);
+			G=mc2grs(G,["K2",P[1]]);
+			return G=mc2grs(G,["swap",[0,1]]);
 		}else if(F=="K"){
 			G=mc2grs(0,[0,0,0]);
 			P1=P[1];
@@ -11754,13 +11887,28 @@ def mc2grs(G,P)
 				if(I==1) G=mc2grs(G,[[[1,2],-V0],[[2,3],V0]]);
 				else{
 					V1=makev([e,I]);
-					G=mc2grs(G,["K1",[V1,V0]]);
+					G=mc2grs(G,["K3",[V1,V0]]);
 				}
 			}
 			for(I=1;I<=P1[2];I++){
 				V0=makev([c,I]);
 				V1=makev([f,I]);
 				G=mc2grs(G,["K01",[V1,V0]]);
+			}
+			return G;
+		}else if(F=="I"){
+			G=mc2grs(0,[0,0,0]);
+			P1=P[1];
+			G=mc2grs(G,[[[0,1],-c],[[2,3],c]]);
+			for(I=1;I<P1[0];I++){
+				V0=makev([a,I]);
+				V1=makev([d,I]);
+				G=mc2grs(G,["K0",[V1,V0]]);
+			}
+			for(I=1;I<P1[1];I++){
+				V0=makev([b,I]);
+				V1=makev([e,I]);
+				G=mc2grs(G,["K3",[V1,V0]]);
 			}
 			return G;
 		}
