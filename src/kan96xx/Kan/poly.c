@@ -56,6 +56,7 @@ void KinitKan(void) {
   SmallRing.outputOrder = outputOrderForSmallRing;
   SmallRing.name = "SmallRingp";
   SmallRing.partialEcart = 0;
+  SmallRing.module_rank = 0;
 
   CurrentRingp = &SmallRing;
   initSyzRingp();

@@ -87,6 +87,10 @@ struct ring {
 
 /* To be used. */
   void *ringInInputForm;
+/* 2023.08.08 for module order */
+  int order_col_size;
+  int order_row_size;
+  int module_rank;
 };
 
 

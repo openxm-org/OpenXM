@@ -191,7 +191,12 @@ int uvGrade1(POLY f, int u[],int v[],int ds[],int dssize,int ei);
 struct arrayOfMonomialSyz schreyerSkelton(struct arrayOfPOLY g);
 struct monomialSyz *newMonomialSyz(void);
 struct arrayOfMonomialSyz enlargeArrayOfMonomialSyz(struct arrayOfMonomialSyz p);
-						    
+/* 2023.08.08 */
+int mmLarger_module_matrix(POLY ff,POLY gg);
+int *add_module_order(int n,int *ord_orig,int rank_of_module,int array_size,int pos_array[], int *weight_array[]);
+int *set_module_order(int n,int rank_of_module); /* for test */
+void  print_module_order(FILE *fp,int *order,int col_size,int row_size,int n);
+void init_module_matrix_mode(int rank_of_module);						    
 
 /* from gradedset.h */
 int (*grade)(POLY f);

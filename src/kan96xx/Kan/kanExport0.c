@@ -1905,9 +1905,9 @@ struct object KswitchFunction(ob1,ob2)
   }
   if (AvoidTheSameRing) {
     if (strcmp(KopString(ob1),"mmLarger") == 0 &&
-        strcmp(KopString(ob2),"matrix") != 0) {
+        ((strcmp(KopString(ob2),"matrix") != 0) && (strcmp(KopString(ob2),"module_matrix") != 0))) {
       fprintf(stderr,"mmLarger = %s",KopString(ob2));
-      errorKan1("%s\n","mmLarger can set only to matrix under AvoidTheSameRing == 1.");
+      errorKan1("%s\n","mmLarger can set only to matrix/module_matrix under AvoidTheSameRing == 1.");
     }
   }
   
