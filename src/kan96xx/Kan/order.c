@@ -960,7 +960,7 @@ int *set_module_order(int n,int rank_of_module) { /* for test */
     j=2*n-i; order[i*row_size+j]=-1;
   }
   // module weight
-  for (j=2*n; j<row_size; j++) order[n*row_size+j]=rank_of_module-(j-2*n);
+  for (j=2*n; j<row_size; j++) order[n*row_size+j]=(j-2*n)+1;
 
   for (j=1; j<n; j++) order[(n+1)*row_size+j]=1;
   for (i=n+2; i<row_size; i++) {
@@ -993,7 +993,7 @@ int *add_module_order(int n,int *ord_orig,int rank_of_module,int array_size,int 
       order[i*row_size]=0;
       if (weight_array[k_mod]==NULL) {
 	for (j=2*n; j<row_size; j++) {
-	  order[i*row_size+j] = rank_of_module-(j-2*n);
+	  order[i*row_size+j] = (j-2*n)+1; // last is larger
 	}
       }else{
 	for (j=0; j<row_size; j++) {
@@ -1023,6 +1023,7 @@ void init_module_matrix_mode(int rank_of_module) {
   n = rp->n;
   pos_array[0]=n;
   ord_orig = rp->order;
+  rp->order_orig = ord_orig;
   order = add_module_order(n,ord_orig,rank_of_module,array_size,pos_array,weight_array);
   rp->order = order;
   rp->order_row_size = 2*n+rank_of_module;

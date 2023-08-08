@@ -91,6 +91,7 @@ struct ring {
   int order_col_size;
   int order_row_size;
   int module_rank;
+  int *order_orig;
 };
 
 

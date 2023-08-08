@@ -3308,6 +3308,54 @@ struct object KsetAttribute(struct object ob,struct object key,struct object val
   return rob;
 }
 
+struct object KaddModuleOrder(struct object ob) {
+  struct ring *rp;
+  int *order;
+  int n;
+  int *ord_orig;
+  int rank_of_module;
+  int array_size;
+  int *pos_array;
+  int **weight_array;
+  int i,j;
+  struct object weight;
+  extern struct ring *CurrentRingp;
+  struct object rob;
+
+  rob = ob;
+  rp = CurrentRingp;
+  if (rp->module_rank < 1) {
+    errorKan1("%s\n","KaddModuleOrder(): (mmLarger) (module_matrix) switch_function has not been executed.");
+  }
+  n = rp->n;
+  ord_orig=rp->order_orig;
+
+  rank_of_module = KopInteger(getoa(ob,0));
+  array_size = (getoaSize(ob)-1)/2;
+  if (array_size==0) errorKan1("%s\n","Format error in KaddModuleOrder(): [rank_of_module pos1 weight1 pos2 wegith2 ...]");
+  pos_array=(int *)sGC_malloc(sizeof(int)*array_size);
+  weight_array=(int **) sGC_malloc(sizeof(int)*array_size);
+  for (i=0; i<array_size; i++) weight_array[i]=NULL;
+  for (i=0; i<array_size; i++) {
+    pos_array[i] = KopInteger(getoa(ob,1+2*i));
+    weight=getoa(ob,1+2*i+1);
+    if (isObjectArray(weight)) {
+      if (getoaSize(weight) != 2*n+rank_of_module) errorKan1("%s\n","Format error in KaddModuleOrder(): length of weight");
+      weight_array[i] = (int *) sGC_malloc(sizeof(int)*(2*n+rank_of_module));
+      for (j=0; j<2*n+rank_of_module; j++) {
+	weight_array[i][j] = KopInteger(getoa(weight,j));
+      }
+    }
+  }
+
+  order = add_module_order(n,ord_orig,rank_of_module,array_size,pos_array,weight_array);
+  rp->order = order;
+  rp->order_row_size = 2*n+rank_of_module;
+  rp->order_col_size = 2*n+array_size;
+  rp->module_rank = rank_of_module;
+  return rob;
+}
+
 /******************************************************************
      Error handler
 ******************************************************************/
