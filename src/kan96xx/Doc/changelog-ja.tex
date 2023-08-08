@@ -4,6 +4,7 @@
 \author{Nobuki Takayama}
 \date{}
 \usepackage{url}
+\def\pd#1{\partial_{#1}}
 \begin{document}
 \maketitle
 
@@ -977,6 +978,132 @@ polymake.data(polymake.POINTS([[1,0],[1,1]]),polymake.FACETS([[1,-1],[0,1]]),pol
 tfb 形式のデータは {\tt ox\_k0} が parse して, それを tree 形式に変換している.
 逆変換も {\tt ox\_k0} が行う
 (ソース {\tt polymake.sm1}, 関数 {\tt tfbToTree} を参照).
+
+\section{2023-08-08, addModuleOrder}
+
+module の順序としては POT order や TOP order があるが
+より一般な順序を行列で設定できるようにするための機能拡張.
+
+%%Ref: misc-2023/08/rest-comprehensive2/Notes, sm1
+$S$ を$n$変数多項式環(ワイル代数なども含めて考える)として,
+rank $m$ の $S$ free module $S^m$ を考える.
+$S^m$ の基底を
+\begin{eqnarray*}
+e_1 &=& (1,0,0,\ldots,0), \\
+e_2 &=& (0,1,0,\ldots,0), \\
+    & & \cdots, \\
+e_m &=& (0,0,0,\ldots,1)
+\end{eqnarray*}
+とおく.
+
+$W$ を $(n+m) \times (n+m)$ 行列として,
+$S^m$ の元 $y^\alpha e_i$ と $y^\beta e_j$ の大きさの比較を
+\begin{equation}
+y^\alpha e_i >_W y^\beta e_j \ 
+\Leftrightarrow \ 
+W \cdot (\alpha,e_i)^T >_{\rm lex} W \cdot (\beta,e_j)^T  
+\end{equation}
+で定義する.
+ここで $(\alpha,e_i)$ はふたつのベクトル $\alpha$ と $e_i$ をつないだ長さ
+$m+n$ の横ベクトルである. これを以下m指数と呼ぶ.
+
+\noindent
+{\bf 例}:
+$n=2, m=3$ の時 $x_1^2 x_2^3 e_2$ に対応するm指数は
+$$ (2,3,0,1,0), $$
+$x_1^5 x_2^4 e_3$ に対応するm指数は
+$$ (5,4,0,0,1). $$
+
+\bigbreak
+\noindent
+{\bf 応用}.
+2変数の Weyl 代数 $D$ を考える.
+$D^2$ に対して次の行列 $W$ を考える.
+$$ W=
+\left(
+\begin{array}{cccccc}
+ 0 & 0 & 1 & 1 & 0 & 0 \\
+ 0 & 0 & 0 & -1 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 1 & 2 \\
+ 1 & 1 & 0 & 0 & 0 & 0 \\
+ 0 & -1 & 0 & 0 & 0 & 0 \\
+\end{array}
+\right).
+$$
+ここで
+$x_1^{\alpha_1} x_2^{\alpha_2} \pd{1}^{\beta_1} \pd{2}^{\beta_2} e_1$
+のm指数は
+$$ (\alpha_1,\alpha_2,\beta_1,\beta_2,1,0), $$
+$x_1^{\alpha_1} x_2^{\alpha_2} \pd{1}^{\beta_1} \pd{2}^{\beta_2} e_2$
+のm指数は
+$$ (\alpha_1,\alpha_2,\beta_1,\beta_2,0,1) $$
+とする.
+この順序により $R^2$ のグレブナー基底を計算できる.
+
+
+上記の順序を定義する例をあげよう.
+オリジナルの weight matrix 
+{\footnotesize
+\begin{verbatim}
+  0   1   2   3   4   5   6   7
+  x3  x2  x1  x0  D3  D2  D1  D0
+  e_   x   y   H   E  Dx  Dy   h
+  DE   D   D   C   D   D   D   C
+   0   0   0   0   0   1   1   0
+   0   0   0   0   0   0  -1   0
+   1   0   0   0   0   0   0   0
+   0   1   1   1   1   1   1   0
+   0   0   0   0   0   0  -1   0
+   0   0   0   0   0  -1   0   0
+   0   0   0   0  -1   0   0   0
+   0   0   0  -1   0   0   0   0
+   0   0  -1   0   0   0   0   0
+   0   0   0   0   0   0   0   1
+\end{verbatim}
+}
+を
+{\footnotesize
+\begin{verbatim}
+          x   y   h         Dx  Dy
+  e_ | x(2)x(1)x(0) |    H Dx2 Dx1   h | for module
+   0 |    0   0   0 |    0   1   1   0 |    0   0
+   0 |    0   0   0 |    0   0  -1   0 |    0   0
+   0 |    0   0   0 |    0   0   0   0 |    1   2  <-- ここ
+   1 |    0   0   0 |    0   0   0   0 |    0   0
+   0 |    1   1   1 |    1   1   1   0 |    0   0
+   0 |    0   0   0 |    0   0  -1   0 |    0   0
+   0 |    0   0   0 |    0  -1   0   0 |    0   0
+   0 |    0   0   0 |   -1   0   0   0 |    0   0
+   0 |    0   0  -1 |    0   0   0   0 |    0   0
+\end{verbatim}
+}
+\noindent
+へ変更したい.
+以下コードを実行すればよい.
+{\footnotesize
+\begin{verbatim}
+[(x,y) ring_of_differential_operators
+  [[(Dx) 1 (Dy) 1] [(Dy) -1]] weight_vector 0] define_ring
+show_ring
+(mmLarger) (module_matrix) switch_function
+[(addModuleOrder) [2 2 [0 0 0 0 0 0 0 0 1 2]]] extension ::
+show_ring 
+[(Dx^2-x*h). (Dx-e_). (Dy). (Dy*e_).] /ff set
+[ff] groebner ::
+\end{verbatim}
+}
+sm1 においては $e_1$ は {\tt 1}, $e_2$ は {\tt e\_}, $e_3$ は ${\tt e\_}^2$,
+$e_4$ ${\tt e\_}^3$, ... と表現されている.
+{\tt addModuleOder} の引数は
+[moduleのrank, pos1, weight1] であるが,
+weight1 を weight matrix の pos1 番目に挿入せよ,
+という意味である.
+上記の 2 行目に weight1 が挿入されている.
+なお weight1 を 0 としておくと自動的に 1, 2, 3, ... なる weight が設定される.
+[moduleのrank, pos1,weight1, pos2,weight2, ...] と多数の weight vector を
+そうにゅうすることも可能.
+
+なおこの機能は微分作用素環でしかテストしてない.
 
 \end{document}
 
