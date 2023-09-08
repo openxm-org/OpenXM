@@ -1091,7 +1091,7 @@ int mmLarger_module_matrix(ff,gg)
   int col_size;
   int row_size;
   int module_rank;
-  int pos;
+  int posf,posg;
   
   if (ff == POLYNULL ) {
     if (gg == POLYNULL) return( 2 );
@@ -1131,8 +1131,9 @@ int mmLarger_module_matrix(ff,gg)
     for (k=0; k<2*N; k++) sum += exp[k]*Order[in2+k]; 
     //for (k=from[i]; k<to[i]; k++) sum += exp[k]*Order[in2+k];
     ////
-    pos=f->e[N-1].x;
-    sum += Order[in2+2*N+pos];
+    posf=f->e[N-1].x;
+    posg=g->e[N-1].x;
+    sum += Order[in2+2*N+posf]-Order[in2+2*N+posg];
 
     if (sum > 0) return(1);
     if (sum < 0) return(0);
