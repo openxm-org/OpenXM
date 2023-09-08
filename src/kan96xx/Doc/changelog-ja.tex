@@ -1105,7 +1105,7 @@ weight1 を weight matrix の pos1 番目に挿入せよ,
 
 なおこの機能は微分作用素環でしかテストしてない.
 
-\section{2023.09.08}
+\section{difftop, 2023.09.08}
 
 {\tt ring\_def} は {\tt KdataConversion} ({\tt dc}), {\tt KsystemVariable} を呼び出して {\tt CurrentRing} を変更する.
 ring 構造体の {\tt module\_rank} が 0 でない時は
@@ -1113,6 +1113,34 @@ ring 構造体の {\tt module\_rank} が 0 でない時は
 
 {\tt init\_module\_order\_matrix} の不適切な呼び出しを修正.
 {\tt POLYToString} が debug に便利. {\tt poly4.c}.
+
+{\footnotesize
+\begin{verbatim}
+/gb.verbose 1 def
+[(Verbose) 255] system_variable
+[ [[(Dx^2-Dy) (0)] [(x*Dx+2*y*Dy+1) (0)] [(Dx) (-1)]] (x,y) 
+   [[(Dx) 1 (Dy) 1]] difftop] gb /gg set gg pmat ;
+gg getRing ring_def show_ring print_switch_status
+(Dy+e_*Dx). ::
+gg get {init} map ::
+\end{verbatim}
+}
+
+{\tt difftop} は differential term order over position  の略.
+difftop は３つの引数 generators vars weightVector の変更はしないが
+{\tt gb.difftop} からはじまる {\tt gb} 用の大域変数を設定する.
+この設定により
+まず微分のみで大小比較, それから position という順序比較となる.
+たとえば, $\pd{x}>\pd{y}$ なる graded order の時,
+$ (\pd{x}^2, y^2\pd{x}^2)$ の先頭は $(\pd{x}^2,0)$,
+$ (\pd{x}^2, y^2\pd{x}^3)$ の先頭は $(0,\pd{x}^3)$,
+$ (\pd{x}^2, \pd{x}^2)$ の先頭は $(\pd{x}^2,0)$,
+$ (\pd{y}, \pd{x})$ の先頭は $(0,\pd{x})$.
+最後の例で 微分作用素の degree のみですぐ position をみるような順序だと,
+$ (\pd{y}, \pd{x})$ の先頭は $(\pd{y},0)$ となってしまう.
+
+
+
 
 \end{document}
 
