@@ -548,6 +548,7 @@ def isListOfVar(A) {
 
 
 def gb(A) {
+  if (type(getopt(difftop))>0) Difftop=1; else Difftop=0;
   SM1L_FIND_PROC(P);
   Dp = is_in_dp(getopt(),A);
   A=Dp[1]; Dp=Dp[0];
@@ -575,7 +576,14 @@ def gb(A) {
   if (type(getopt(needBack))>0) {
     sm1(P," [(needBack) 1] setAttributeList ");
   }
-  sm1(P," gb /tmpAsirSm1Gb set ");
+  /* sm1(P," message "); return ;*/
+  /* sm1.gb([[ [dx,1],[dy,1]],[x,y],[[dx,1,dy,1]]] | difftop=1); */
+  if (Difftop) {
+    sm1(P," gb_difftop /tmpAsirSm1Gb set ");
+  }else{
+    sm1(P," gb /tmpAsirSm1Gb set ");
+  }
+  /* sm1(P, " tmpAsirSm1Gb pmat "); */
   sm1(P,sprintf(" tmpAsirSm1Gb getRing /%a  set ",RingVar));
   sm1(P," tmpAsirSm1Gb ");
   if (Sorted) {
