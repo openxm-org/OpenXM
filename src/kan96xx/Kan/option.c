@@ -382,6 +382,10 @@ struct object KsystemVariable(ob)
     case SdollarSring:
       if (strcmp(ob1.lc.str,"CurrentRingp") == 0) {
         CurrentRingp = ob2.lc.ringp;
+	if (CurrentRingp->module_rank) {
+	  fprintf(stderr,"mmLarger is changed to module_matrix automatically by ring_def.\n");
+	  KswitchFunction(KpoString("mmLarger"),KpoString("module_matrix"));
+	}
         rob = KpoRingp(CurrentRingp);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");

@@ -43,6 +43,7 @@ int isSameComponent_x(f,g)
   MONOMIAL tg;
   int i;
 
+  //printf("%s, %s\n",POLYToString(f,'*',1),POLYToString(g,'*',1));
   if (f ISZERO) return(1);
   if (g ISZERO) return(1);
 

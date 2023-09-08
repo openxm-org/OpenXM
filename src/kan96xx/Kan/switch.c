@@ -18,7 +18,7 @@ char *F_isSameComponent = "???";
 
 void print_switch_status(void) {
   printf("------------------------------------\n");
-  printf("mmLarger [matrix,lexicographic,tower]          %s\n",F_mmLarger);
+  printf("mmLarger [matrix,lexicographic,tower,module_matrix]  %s\n",F_mmLarger);
   printf("mpMult   [poly,diff,difference]                %s\n",F_mpMult);
   printf("monomialAdd [poly]                             %s\n",F_monomialAdd);
   printf("red@      [standard,module1,module2,module1rev,ecart]\n");

@@ -198,7 +198,7 @@ void showRing(level,ringp)
     fprintf(fp,"]\n");
   }
   if (ringp->module_rank) {
-    print_module_order(fp,ringp->order,ringp->order_col_size,ringp->order_row_size,ringp->n);
+    print_module_order(fp,ringp->order,ringp->order_col_size,ringp->order_row_size,ringp->n,ringp);
     fprintf(fp,"\n");
   } else {fprintf(fp,"---  weight vectors ---\n");
     if (level) printOrder(ringp);
@@ -928,8 +928,20 @@ static void errorOrder(s)
   fprintf(stderr,"order.c: %s\n",s);
   exit(14);
 }
-void  print_module_order(FILE *fp,int *order,int col_size,int row_size,int n) {
-  int i,j;
+void  print_module_order(FILE *fp,int *order,int col_size,int row_size,int n,struct ring *ringp) {
+  int i,j,N;
+  char **TransX,**TransD;
+
+  /* print identifier names */
+  if (ringp != NULL) {
+    N=n;
+    TransX = ringp->x; TransD = ringp->D;
+    for (i=0; i<N; i++) fprintf(fp,"%4s",TransX[itox(i)]);
+    for (i=N; i<2*N; i++) fprintf(fp,"%4s",TransD[itod(i)]);
+    fprintf(fp,"\n");
+  }else{
+    fprintf(stderr,"Warning: rp == NULL in print_module_order\n"); 
+  }
   fprintf(fp,"  e_ | ");
   for (j=1; j<n; j++) fprintf(fp,"x(%1d)",n-1-j);
   fprintf(fp," | ");
@@ -967,7 +979,7 @@ int *set_module_order(int n,int rank_of_module) { /* for test */
     j = i-n-2; order[i*row_size+j]=-1;
   }
 
-  print_module_order(stdout,order,row_size,row_size,n);
+  print_module_order(stdout,order,row_size,row_size,n,NULL);
   return order;
 }
 /*
