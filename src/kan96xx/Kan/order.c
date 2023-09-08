@@ -1020,6 +1020,8 @@ void init_module_matrix_mode(int rank_of_module) {
   extern struct ring *CurrentRingp;
 
   rp = CurrentRingp;
+  if (rp->module_rank > 0) return ;
+  /* printf("init_module_matrix_mode\n"); */
   n = rp->n;
   pos_array[0]=n;
   ord_orig = rp->order;
