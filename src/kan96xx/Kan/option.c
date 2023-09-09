@@ -383,7 +383,7 @@ struct object KsystemVariable(ob)
       if (strcmp(ob1.lc.str,"CurrentRingp") == 0) {
         CurrentRingp = ob2.lc.ringp;
 	if (CurrentRingp->module_rank) {
-	  if (Verbose) warningKan("mmLarger is changed to module_matrix automatically by ring_def.\n");
+	  if (Verbose & 0x10000) warningKan("mmLarger is changed to module_matrix automatically by ring_def.\n");
 	  KswitchFunction(KpoString("mmLarger"),KpoString("module_matrix"));
 	}
         rob = KpoRingp(CurrentRingp);

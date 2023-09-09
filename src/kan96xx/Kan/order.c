@@ -995,12 +995,16 @@ int *add_module_order(int n,int *ord_orig,int rank_of_module,int array_size,int 
   int *order;
   int i,j,k_mod,k_orig;
   int row_size;
+  int col_size;
+  col_size=2*n+array_size;
   row_size=2*n+rank_of_module;
-  order=(int *)sGC_malloc(sizeof(int)*row_size*(2*n+array_size));
-  for (i=0; i<row_size*(2*n+array_size); i++) order[i]=0;
+  order=(int *)sGC_malloc(sizeof(int)*col_size*row_size);
+  for (i=0; i<row_size*col_size; i++) order[i]=0;
   //2023.08.08
+//  printf("array_size=%d\n",array_size);
+//  for (i=0; i<array_size; i++) printf("%d, ",pos_array[i]); printf(" ---pos_array\n");
   for (i=0; i<array_size; i++) order[pos_array[i]*row_size]=-1; // mark
-  for (i=0,k_mod=0,k_orig=0; i<2*n+array_size; i++) {
+  for (i=0,k_mod=0,k_orig=0; i<col_size; i++) {
     if (order[i*row_size]==-1) {
       order[i*row_size]=0;
       if (weight_array[k_mod]==NULL) {
@@ -1018,6 +1022,7 @@ int *add_module_order(int n,int *ord_orig,int rank_of_module,int array_size,int 
       k_orig++;
     }
   }
+//  for (i=0; i<col_size; i++) for (j=0; j<row_size; j++) {printf("%d, ",order[i*row_size+j]); if (j == row_size-1) putchar('\n');}
   return order;
 }
 

@@ -499,9 +499,9 @@ message-quiet
     } ifelse
     gb.difftop 1 eq {
       (mmLarger) (module_matrix) switch_function
+      %gb.difftop.addModuleOrder message
       [(addModuleOrder) gb.difftop.addModuleOrder] extension
-%      gb.difftop.addModuleOrder message
-%      show_ring
+       gb.verbose {show_ring} { } ifelse
     }{ } ifelse
     %%% Enf of the preprocess
 
@@ -552,7 +552,7 @@ message-quiet
 } def
 /gb_difftop {
   /arg1 set
-  [/gg /opt /gg2] pushVariables
+  [/gg /opt /gg2 /ff0] pushVariables
   [
    [arg1 0 get, arg1 1 get, arg1 2 get, difftop] gb /gg set
    gg pmat 

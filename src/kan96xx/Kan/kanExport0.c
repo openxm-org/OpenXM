@@ -3332,9 +3332,9 @@ struct object KaddModuleOrder(struct object ob) {
 
   rank_of_module = KopInteger(getoa(ob,0));
   array_size = (getoaSize(ob)-1)/2;
-  if (array_size==0) errorKan1("%s\n","Format error in KaddModuleOrder(): [rank_of_module pos1 weight1 pos2 wegith2 ...]");
+  if ((array_size==0) || ((getoaSize(ob)-1)%2 != 0)) errorKan1("%s\n","Format error in KaddModuleOrder(): [rank_of_module pos1 weight1 pos2 wegith2 ...]");
   pos_array=(int *)sGC_malloc(sizeof(int)*array_size);
-  weight_array=(int **) sGC_malloc(sizeof(int)*array_size);
+  weight_array=(int **) sGC_malloc(sizeof(int*)*(array_size));
   for (i=0; i<array_size; i++) weight_array[i]=NULL;
   for (i=0; i<array_size; i++) {
     pos_array[i] = KopInteger(getoa(ob,1+2*i));
@@ -3343,11 +3343,20 @@ struct object KaddModuleOrder(struct object ob) {
       if (getoaSize(weight) != 2*n+rank_of_module) errorKan1("%s\n","Format error in KaddModuleOrder(): length of weight");
       weight_array[i] = (int *) sGC_malloc(sizeof(int)*(2*n+rank_of_module));
       for (j=0; j<2*n+rank_of_module; j++) {
-	weight_array[i][j] = KopInteger(getoa(weight,j));
+	(weight_array[i])[j] = KopInteger(getoa(weight,j));
       }
     }
   }
-
+//  for (int ii=0; ii<array_size; ii++) printf("%d, ",pos_array[ii]); printf(" ***pos_array\n");
+  /*
+  for (i=0; i<array_size; i++) {
+    for (j=0; j<2*n+rank_of_module; j++) {
+      printf("weight_array[%d][%d]=%d, ",i,j,weight_array[i][j]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+  */
   order = add_module_order(n,ord_orig,rank_of_module,array_size,pos_array,weight_array);
   rp->order = order;
   rp->order_row_size = 2*n+rank_of_module;
