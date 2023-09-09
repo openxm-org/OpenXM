@@ -315,7 +315,10 @@ def toAsirForm(V) {
        }
        /*  */
        Vlist = map(strtov,V[1]);
-       return(dp_dtop(V[2],Vlist));
+       if (type(dp_hc(V[2]))==10) { // workaround for dp of int32 coef.
+         TT=eval_str(sprintf("%a",V[2]));
+         return dp_dtop(TT,Vlist);
+       }else return(dp_dtop(V[2],Vlist));
     } else {
        return(map(toAsirForm,V));
     }
