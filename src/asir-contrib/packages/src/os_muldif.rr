@@ -233,6 +233,7 @@ localf fresidue$
 localf mmulbys$
 localf appldo$
 localf appledo$
+localf psymbol$
 localf muldo$
 localf caldo$
 localf jacobian$
@@ -268,6 +269,7 @@ localf divdo$
 localf qdo$
 localf sqrtdo$
 localf ghg$
+localf ghg2$
 localf ev4s$
 localf b2e$
 localf sftpow$
@@ -287,6 +289,7 @@ localf seriesMc$
 localf seriesTaylor$
 localf mulpolyMod$
 localf solveEq$
+localf getSSE$
 localf res0$
 localf eqs2tex$
 localf baseODE$
@@ -303,6 +306,7 @@ localf soldif$
 localf chkexp$
 localf sqrtrat$
 localf getroot$
+localf eliminate$
 localf expat$
 localf polbyroot$
 localf polbyvalue$
@@ -6886,8 +6890,21 @@ def appledo(P,F,L)
 #endif
 }
 
+def psymbol(P,L)
+{
+	L=map(vweyl,L);
+	for(D=W=[];L!=[];L=cdr(L)){
+		D=cons(car(L)[1],D);W=cons(1,W);
+	}
+	return pweight(P,D,W)[0][1];
+}
+
 def caldo(P,L)
 {
+	if(isint(M=getopt(mono))){
+		if(M>0) P=[P];
+		if(M==2) P=[P];
+	}
 	for(R=0;P!=[];P=cdr(P)){
 		TP=car(P);
 		if(type(TP)<4){
@@ -6897,7 +6914,8 @@ def caldo(P,L)
 			S0=car(TP);
 			if(type(S0)==4){
 				TP0=S0;
-				for(S0=1,K=TP0[1];K>0;K--) S0=muldo(S0,TP0[0],L);
+				if(isint(K=TP0[1])) for(S0=1;K>0;K--) S0=muldo(S0,TP0[0],L);
+				else for(S0=1;K!=[];K=cdr(K)) S0=muldo(S0,TP0[0]+car(K),L);
 			}
 			S=muldo(S,S0,L);
 		}
@@ -7833,6 +7851,62 @@ def b2e(A,B,C,S,T)
  return (R4*dx^4-R3*dx^3-R2*dx^2-R1*dx-R0);
 }
 
+def ghg2(A,B)
+{
+	N=length(A)-1;
+	All=getopt(all);
+	if(getopt(symbol)==1){
+		for(TA=[];A!=[];A=cdr(A)){
+			for(T=[],I=car(A);I>0;I--) T=cons(0,T);
+			TA=cons(T,TA);
+		}
+		for(TB=[];B!=[];B=cdr(B)){
+			for(T=[],I=car(B);I>0;I--) T=cons(0,T);
+			TB=cons(T,TB);
+		}		
+		TA=reverse(TA);TB=reverse(TB);
+		if(All!=0) All=1;
+	}else{
+		for(TA=TB=[],I=N;I>=0;I--){
+			if(type(A[I])==4) TA=cons(A[I],TA); else TA=cons([A[I]],TA);
+			if(type(B[I])==4) TB=cons(B[I],TB); else TB=cons([B[I]],TB);
+		}
+	}
+	A=TA;B=TB;B=ptaffine(-1,B);
+	if(type(V=getopt(var))!=4){
+		if(N>4) return;
+		if(N==2) V=[y];
+		if(N==3) V=[y,z];
+		if(N==4) V=[y,z,w];
+		V=cons([x],V);
+	}
+	V=map(os_md.vweyl,V);
+	R=EV=[];
+	for(I=N-1;I>=0;I--) EV=cons(V[I][0]*V[I][1],EV);
+	E=lsum(EV);
+	for(I=0;I<N;I++){
+		L2=[-V[I][0],[EV[I],A[I]],[E,A[N]]];
+		L1=[[EV[I],B[I]],[E,B[N]]];
+		P=caldo([L1,L2],V);
+		if(getopt(raw)!=1 && findin(0,B[I])>=0) P=red(P/V[I][0]);
+		R=cons(P,R);
+	}
+	if(All==1){
+		for(I=0;I<N;I++){
+			for(J=I+1;J<N;J++){
+				L2=[-V[J][0],[EV[J],A[J]],[EV[I],B[I]]];
+				L1=[ V[I][0],[EV[I],A[I]],[EV[J],B[J]]];
+				P=caldo([L1,L2],V);
+				if(getopt(raw)!=1){
+					if(findin(0,B[I])>=0) P=red(P/V[I][0]);
+					if(findin(0,B[J])>=0) P=red(P/V[J][0]);
+				}
+				R=cons(P,R);
+			}
+		}
+	}
+	return reverse(R);
+}
 
 /*
 	T^m = T(T-1)....(T-m+1)
@@ -8077,6 +8151,65 @@ def solveEq(L,V)
 	R=reverse(R);
 	if(!F||H==1) return R;
 	return -4;
+}
+
+/*
+  eliminate(L,V,E)  : Lで生成される変数 V のイデアルから E を消去する
+*/
+def eliminate(L,V,E)
+{
+	for(R=[],TV=V;TV!=[];TV=cdr(TV)){
+		if(findin(car(TV),E)>= 0) continue;
+		R=cons(car(TV),R);
+	}
+	VL=append(E,reverse(R));
+	Gr=nd_gr(L,VL,0,[[0,length(E)],[0,length(VL)-length(E)]]);
+	for(R=[];Gr!=[];Gr=cdr(Gr))
+		if(lsort(vars(car(Gr)),E,"cap")==[]) R=cons(car(Gr),R);
+	return reverse(R);
+}
+
+/*
+　getSSE(L,V)       : Lで定義される方程式の特異点を求める
+     get="gr"       : グレブナー基底を求める
+     get="symbol"   : シンボルイデアルを求める
+     get="mono"     : （微分についての）モノミアルイデアルを求める
+     get="top"      : 初項を返す
+     get="base"     : 商の基底を返す　（ホロノミックのとき）
+     get="rank"     : ランクを計算する（ホロノミックのとき）
+ */
+def getSSE(L,V)
+{
+	Get=getopt(get);
+	V=map(vweyl,V);
+	LL=os_md.lpair(V,0); 
+	VL=LL[0];DL=LL[1];AL=append(VL,DL);
+	Len=length(VL);
+	Gr=nd_weyl_gr(L,AL,0,M=poly_r_omatrix(Len));
+	if(Get=="gr") return Gr;
+	Gsymbol=map(psymbol,Gr,V);
+	if(Get=="symbol") return  Gsymbol;
+	if(Get=="rank"||Get=="mono"||Get=="top"||Get=="base"){
+		for(G=Gsymbol,I=0;I<Len;I++) G=map(poly_in_w,G,AL,M[I]);
+		if(Get=="mono") return G;
+		G=gr(G,DL,0);
+		if(Get=="top") return G;
+		H=map(dp_ptod,G,DL);G=map(dp_dtop,dp_mbase(H),DL);
+		if(Get=="base") return G;
+		return length(G);
+	}
+	for(R=[],I=length(DL)-1;I>=0;I--)
+		R=cons(eliminate(subst(Gsymbol,DL[I],1),AL,DL),R);
+	for(SS=[],TR=R;TR!=[];TR=cdr(TR)){
+		if(length(TTR=car(TR))==0) continue;
+		if(length(TTR)>1){
+			os_md.mycat(R);return 1;
+		}
+		for(F=fctr(car(TTR));F!=[];F=cdr(F)){
+			for(TF=cdr(F);TF!=[];TF=cdr(TF)) SS=cons(car(TF)[0],SS);
+		}
+	}
+	return lsort(SS,[],"setminus");
 }
 
 /* Opt: f, var, ord, to, in, TeX */
@@ -19169,11 +19302,11 @@ def ptaffine(M,L)
 	}
 	if(F==0) return (Sft==0)?ptaffine(M,[L])[0]:ptaffine(M,[L]|shift=vtol(Sft))[0];
 	for(LO=[],LT=L; LT!=[]; LT=cdr(LT)){
-		if(((T=type(P=car(LT)))!=4 && T!=5)||type(P[0])>3) LO=cons(P,LO);
+		if(((T=type(P=car(LT)))!=4 && T!=5)||P==[]||type(P[0])>3) LO=cons(P,LO);
 		else{
 			if(T==4) P=ltov(P);
 			V=M*P;
-			if(Sft!=0) V+=Sft;
+			if(Sft!=0&&Sft!=ltov([0,0])) V+=Sft;
 			if(T==4) V=vtol(V);
 			LO=cons(V,LO);
 		}
