@@ -582,6 +582,7 @@ def gb(A) {
   /* sm1(P," message "); return ;*/
   /* sm1.gb([[ [dx,1],[dy,1]],[x,y],[[dx,1,dy,1]]] | difftop=1); */
   if (Difftop) {
+    if (length(A) != 3) error("difftop=1 requires 3 args, e.g., sm1.gb([[ [dx,1],[dy,1],[0,dx+dy]], [x,y], [[dx,1,dy,1]]] | difftop=1); ");
     sm1(P," gb_difftop /tmpAsirSm1Gb set ");
   }else{
     sm1(P," gb /tmpAsirSm1Gb set ");
