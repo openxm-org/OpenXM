@@ -733,8 +733,27 @@ $m' = x^{a'} y^{b'} \partial_x^{c'} \partial_y^{d'}$
 /*&C
 @example
 // computation in R^2
-[1834] F=[[dx^2-dy,0],[x*dx+2*y*dy+1/2,0],[dx,-1]];
+[1834] F=[[[dx^2-dy,0],[x*dx+2*y*dy+1/2,0]],[x,y],[[dx,1,dy,1]]];
 [1835] sm1.gb([F,[x,y],[[dx,1,dy,1]]] | difftop=1);
+@end example
+*/
+
+/*&en
+The behavior of sm1.gb is also controled by values of some sm1 global variables
+of sm1. 
+We give an example. Please see the manual of sm1 as for details.
+*/
+/*&ja
+sm1.gb の動作は一群のsm1大域変数変数でも制御される.
+下に例を挙げる. 詳しくは sm1 のマニュアルを参照.
+*/
+
+/*&C
+@example
+if ((P_sm1=sm1.get_Sm1_proc()) < 0) P_sm1=sm1.start();
+//sm1.sm1(P_sm1," 13 /gb.characteristic set ");
+sm1.sm1(P_sm1," [(TraceLift) 13] system_variable ");
+sm1.sm1(P_sm1," [(StopDegree) 27] /gb.options set ");
 @end example
 */
 
