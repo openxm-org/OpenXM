@@ -29,7 +29,7 @@ fetch:
 	if [ ! -f .fetch_done ]; then \
 	  rm -rf work ; \
 	  mkdir  work ; \
-	  (cd work ; cvs -d kerberos.math.kobe-u.ac.jp:/home/cvsroot/openxm checkout OpenXM OpenXM_contrib2) ; \
+	  (cd work ; git clone https://github.com/openxm-org/OpenXM ; git clone https://github.com/openxm-org/OpenXM_contrib2) ; \
 	fi
 	touch .fetch_done
 
