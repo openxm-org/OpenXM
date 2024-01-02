@@ -1064,16 +1064,13 @@ def mulsubst(F,L)
 	N = length(L);
 	if(N == 0)
 		return F;
-	if(type(L[0])!=4)	L=[L];
 	if(getopt(lpair)==1||(type(L[0])==4&&length(L[0])>2)) L=lpair(L[0],L[1]);
 	if(getopt(inv)==1){
 		for(R=[];L!=[];L=cdr(L)) R=cons([car(L)[1],car(L)[0]],R);
 		L=reverse(R);
 	}
 	if(length(L)==1)	return mysubst(F,L);
-	L1 = newvect(N);
-	for(J = 0; J < N ; J++)
-		L1[J] = uc();
+	L1=makenewv([F,L]|num=N);
 	L2 = newvect(N);
 	for(J = 0; J < N; J++){
 		S = L[J][1];
@@ -11872,12 +11869,14 @@ def mc2grs(G,P)
 				for(T=[],J=2;J>=0;J--){
 					V=anal2sp(LL[J],["get1",(I[0]<L[J][0])?1:2,car(Q)[1]]); /* an eigenvalue */
 					if(F=="rest"){
-						V=anal2sp(V,["+",-car(Q)[1]]);
+						if(J==2) V=anal2sp(V,["+",-car(Q)[1]]);
+/*
 						if(I[0]==0){
 							if(I[1]!=4){
 								if(L[J][1]!=4) V=anal2sp(V,["+",-car(Q)[1]]);
 							}else if (L[J][0]!=2&&L[J][1]!=2) V=anal2sp(V,["+",-car(Q)[1]]);
 						}else if(L[J][0]!=0) V=anal2sp(V,["+",-car(Q)[1]]);
+*/
 					}
 					T=cons(V,T);
 				}
@@ -12013,19 +12012,22 @@ def mc2grs(G,P)
 			return mc2grs(G,["swap",[0,1]]);
 		}
 		if(F=="K"){
+/*			FULL=getopt(full); */
 			G=mc2grs(0,[0,0,0]);
 			P1=P[1];
 			for(I=1;I<=P1[0];I++){
-				V0=makev([a,I]);
-				if(I==1) G=mc2grs(G,[[[0,2],-V0],[[2,3],V0]]);
+				V0=makev([a,I-1]);
+				if(I==1)
+					G=mc2grs(G,[[[0,2],-V0],[[2,3],V0]]);
 				else{
 					V1=makev([d,I]);
 					G=mc2grs(G,["K0",[V1,V0]]);
 				}
 			}
 			for(I=1;I<=P1[1];I++){
-				V0=makev([b,I]);
-				if(I==1) G=mc2grs(G,[[[1,2],-V0],[[2,3],V0]]);
+				V0=makev([b,I-1]);
+				if(I==1)
+					G=mc2grs(G,[[[1,2],-V0],[[2,3],V0]]);
 				else{
 					V1=makev([e,I]);
 					G=mc2grs(G,["K1",[V1,V0]]);
@@ -12033,7 +12035,7 @@ def mc2grs(G,P)
 			}
 			for(I=1;I<=P1[2];I++){
 				V0=makev([c,I]);
-				V1=makev([f,I]);
+				V1=makev([f,I]);  
 				G=mc2grs(G,["K01",[V1,V0]]);
 			}
 			return G;
