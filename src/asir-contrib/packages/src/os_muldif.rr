@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Oct. 2023)
+ *          Toshio Oshima (Nov. 2007 - Jan. 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -557,7 +557,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00231014"$
+Muldif.rr="00240108"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1054,22 +1054,74 @@ def m1div(M,N,L)
 		MC = mycoef(MM,Deg,DX)*DX^(Deg-1);
 		MS = radd(MC, MS);
 		MM = radd(MM, muldo(MC,radd(-DX,N),L));
- }
- return [MM, MS];
+ 	}
+ 	return [MM, MS];
 }
-
 
 def mulsubst(F,L)
 {
-	N = length(L);
-	if(N == 0)
+	if(length(L) == 0)
 		return F;
-	if(getopt(lpair)==1||(type(L[0])==4&&length(L[0])>2)) L=lpair(L[0],L[1]);
+	if(type(L[0])!=4)	L=[L];
+	if((Inv=getopt(conj))==1 || Inv==-1){
+		S=solveEq(L[1],L[0]|inv=1);
+		if(type(S)!=4) return S;
+		T=L[1];
+		if(Inv==-1){TL=T;T=S;S=TL;}
+		return mulsubst(T,[L[0],F,S]);
+	}
+	if(isint(Gen=getopt(generate))&&Gen!=0){
+		S=[[0]];
+		if(Gen<0){
+			Short=1;Gen=-Gen;
+		}else Short=0;
+		if(Gen==1) Gen=1000;
+		R1=[""];R=[F];TF=car(L);LL=length(L=cdr(L));I=1;
+		do{
+			ER=car(R1);
+			SR=car(TR=R);
+			do{
+				for(TL=L;TL!=[];TL=cdr(TL)){
+					if(type(car(TL)[0])!=4)
+						RR=mulsubst(car(TR),[TF,car(TL)]|lpair=1);
+					else RR=mulsubst(car(TR),car(TL)|lpair=1);
+					if(findin(RR,R)<0){
+						R=cons(RR,R);
+						I++;
+						S=cons([LL-length(TL)+1,length(TR)-1], S);
+					}
+				}
+				TR=cdr(TR);
+			}while(TR!=[]&&car(TR)!=ER&&I<=Gen);
+		}while(car(R)!=SR&&I<=Gen);
+		if(!Short){
+			SS=S=reverse(S);
+			for(RS=[];SS!=[];SS=cdr(SS)){
+				for(U=[],TS=car(SS);length(TS)==2;TS=S[TS[1]])
+					U=cons(car(TS),U);
+				RS=cons(reverse(U),RS);
+			}
+			S=RS;
+		}
+		return [reverse(R),reverse(S)];
+	}
+	if(getopt(lpair)==1){
+		if(length(L)!=2){
+			TF=car(L);
+			L=cdr(L);
+			for(R=F;L!=[];L=cdr(L)){
+				if(type(car(L)[0])!=4) R=mulsubst(R,[TF,car(L)]|lpair=1);
+				else R=mulsubst(R,car(L)|lpair=1);
+			}
+			return R;
+		}else  L=lpair(L[0],L[1]);
+	}else if(type(L[0])==4&&length(L[0])>2) L=lpair(L[0],L[1]);
 	if(getopt(inv)==1){
 		for(R=[];L!=[];L=cdr(L)) R=cons([car(L)[1],car(L)[0]],R);
 		L=reverse(R);
 	}
-	if(length(L)==1)	return mysubst(F,L);
+	if((N=length(L))==1)	return mysubst(F,L);
+	L1 = newvect(N);
 	L1=makenewv([F,L]|num=N);
 	L2 = newvect(N);
 	for(J = 0; J < N; J++){
@@ -11651,11 +11703,20 @@ def mc2grs(G,P)
 				if(TikZ==1&&Dvi!=-1) dviout(xyproc(R)|dviout=1,keep=Keep);
 				return R;
 			}
-			for(S="",L=[];G!=[];G=cdr(G)){
-				for(TL=[],TG=cdr(car(G));TG!=[];TG=cdr(TG)) TL=cons(car(TG)[0],TL);
+
+			TS=["01:23","01:24","01:34","02:13","02:14","02:34","03:12","03:14",
+				"03:24","04:12","04:13","04:23","12:34","13:24","14:23"];
+			FTT=(getopt(fig)==0)?1:0;
+			for(II=0,S="",L=[];G!=[];II++,G=cdr(G)){
+				for(TL=[],TG=cdr(car(G));TG!=[];TG=cdr(TG)) 
+					TL=cons(car(TG)[0],TL);
 				TL=msort(TL,[-1,0]);
 				if(Dvi){
 					if(S!="") S=S+",";
+					if(FTT){
+						if(II==5||II==10) S+="\\\\&";
+						S+="\\ "+TS[II]+"=";
+					}
 					for(I=J=0,T=append(TL,[[0]]);T!=[];T=cdr(T)){
 						if(car(T)==I) J++;
 						else{
@@ -12012,11 +12073,11 @@ def mc2grs(G,P)
 			return mc2grs(G,["swap",[0,1]]);
 		}
 		if(F=="K"){
-/*			FULL=getopt(full); */
+			if((FULL=getopt(null))!=1) FULL=0;
 			G=mc2grs(0,[0,0,0]);
 			P1=P[1];
 			for(I=1;I<=P1[0];I++){
-				V0=makev([a,I-1]);
+				V0=makev([a,I-FULL]);
 				if(I==1)
 					G=mc2grs(G,[[[0,2],-V0],[[2,3],V0]]);
 				else{
@@ -12025,7 +12086,7 @@ def mc2grs(G,P)
 				}
 			}
 			for(I=1;I<=P1[1];I++){
-				V0=makev([b,I-1]);
+				V0=makev([b,I-FULL]);
 				if(I==1)
 					G=mc2grs(G,[[[1,2],-V0],[[2,3],V0]]);
 				else{
