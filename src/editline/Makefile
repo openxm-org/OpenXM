@@ -8,7 +8,7 @@ MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=libedit-20210910-3.1
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
-PATCHFILES = 
+PATCHFILES = libedit.diff
 
 all : build
 
@@ -28,7 +28,7 @@ extract: fetch
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
         for i in ${PATCHFILES} ; do \
-	        cat $$i | (cd ${WRKSRC}; patch -p1) ; \
+	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
         done ; \
 	fi
 	@touch work/.patch_done
