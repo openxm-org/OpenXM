@@ -45,6 +45,7 @@ void setOrderByMatrix(order,n,c,l,omsize)
       Order[i*2*n+j] = order[i*2*n+j];
     }
   }
+  CurrentRingp->module_rank = 0;
 }
   
 void showRing(level,ringp) 
@@ -75,7 +76,7 @@ void showRing(level,ringp)
 
   fprintf(fp,"\n----------  the current ring ---- name: %s------\n",ringp->name);
   fprintf(fp,"Characteristic is %d. ",P);
-  fprintf(fp,"N0=%d N=%d NN=%d M=%d MM=%d L=%d LL=%d C=%d CC=%d omsize=%d\n",N0,N,NN,M,MM,L,LL,C,CC,ringp->orderMatrixSize);
+  fprintf(fp,"N0=%d N=%d NN=%d M=%d MM=%d L=%d LL=%d C=%d CC=%d omsize=%d module_rank=%d\n",N0,N,NN,M,MM,L,LL,C,CC,ringp->orderMatrixSize,ringp->module_rank);
   fprintf(fp,"\n");
 
   /* print identifier names */
@@ -196,8 +197,12 @@ void showRing(level,ringp)
     }
     fprintf(fp,"]\n");
   }
-  fprintf(fp,"---  weight vectors ---\n");
-  if (level) printOrder(ringp);
+  if (ringp->module_rank) {
+    print_module_order(fp,ringp->order,ringp->order_col_size,ringp->order_row_size,ringp->n,ringp);
+    fprintf(fp,"\n");
+  } else {fprintf(fp,"---  weight vectors ---\n");
+    if (level) printOrder(ringp);
+  }
 
   if (ringp->partialEcart) {
     fprintf(fp,"---  partialEcartGlobalVarX ---\n");
@@ -923,5 +928,221 @@ static void errorOrder(s)
   fprintf(stderr,"order.c: %s\n",s);
   exit(14);
 }
+void  print_module_order(FILE *fp,int *order,int col_size,int row_size,int n,struct ring *ringp) {
+  int i,j,N;
+  char **TransX,**TransD;
 
+  /* print identifier names */
+  if (ringp != NULL) {
+    N=n;
+    TransX = ringp->x; TransD = ringp->D;
+    for (i=0; i<N; i++) fprintf(fp,"%4s",TransX[itox(i)]);
+    for (i=N; i<2*N; i++) fprintf(fp,"%4s",TransD[itod(i)]);
+    fprintf(fp,"\n");
+  }else{
+    fprintf(stderr,"Warning: rp == NULL in print_module_order\n"); 
+  }
+  fprintf(fp,"  e_ | ");
+  for (j=1; j<n; j++) fprintf(fp,"x(%1d)",n-1-j);
+  fprintf(fp," | ");
+  fprintf(fp,"   H");
+  for (j=1; j<n-1; j++) fprintf(fp," Dx%1d",n-1-j);
+  fprintf(fp,"   h | for module\n");
+  for (i=0; i<col_size; i++) {
+    for (j=0; j<row_size; j++) {
+      if ((j==1) || (j == 2*n) || (j == n)) fprintf(fp," | ");
+      fprintf(fp,"%4d",order[i*row_size+j]);
+    }
+    fprintf(fp,"\n");
+  }
+}
+// 2023.08.07  test code.
+/* variables are x3,x2,x1,x0,D3,D2,D1,D0
+                 e_,x, y, H ,E, Dx,Dy,h
+*/
+int *set_module_order(int n,int rank_of_module) { /* for test */
+  int *order;
+  int i,j;
+  int row_size;
+  row_size=2*n+rank_of_module;
+  order=(int *)sGC_malloc(sizeof(int)*row_size*row_size);
+  for (i=0; i<row_size*row_size; i++) order[i]=0;
+  for (j=n; j<2*n; j++) order[j]=1;
+  for (i=1; i<n; i++) {
+    j=2*n-i; order[i*row_size+j]=-1;
+  }
+  // module weight
+  for (j=2*n; j<row_size; j++) order[n*row_size+j]=(j-2*n)+1;
+
+  for (j=1; j<n; j++) order[(n+1)*row_size+j]=1;
+  for (i=n+2; i<row_size; i++) {
+    j = i-n-2; order[i*row_size+j]=-1;
+  }
+
+  print_module_order(stdout,order,row_size,row_size,n,NULL);
+  return order;
+}
+/*
+ [rank_of_module, pos1, int* wt1, pos2, int* wt2, ...]
+ Arguments are
+ [rank_of_module, int array_size, int pos_array[], int *weight_array[]]
+ weight_array[i]==NULL means [rank, rank-1, ..., 1] 
+ add_module_order add weight vectors for modules.
+ Example:
+ rank_of_module=2,array_size=1, pos_array={4},weight_array={{2,1}}
+*/
+int *add_module_order(int n,int *ord_orig,int rank_of_module,int array_size,int pos_array[],int *weight_array[]) {
+  int *order;
+  int i,j,k_mod,k_orig;
+  int row_size;
+  int col_size;
+  col_size=2*n+array_size;
+  row_size=2*n+rank_of_module;
+  order=(int *)sGC_malloc(sizeof(int)*col_size*row_size);
+  for (i=0; i<row_size*col_size; i++) order[i]=0;
+  //2023.08.08
+//  printf("array_size=%d\n",array_size);
+//  for (i=0; i<array_size; i++) printf("%d, ",pos_array[i]); printf(" ---pos_array\n");
+  for (i=0; i<array_size; i++) order[pos_array[i]*row_size]=-1; // mark
+  for (i=0,k_mod=0,k_orig=0; i<col_size; i++) {
+    if (order[i*row_size]==-1) {
+      order[i*row_size]=0;
+      if (weight_array[k_mod]==NULL) {
+	for (j=2*n; j<row_size; j++) {
+	  order[i*row_size+j] = (j-2*n)+1; // last is larger
+	}
+      }else{
+	for (j=0; j<row_size; j++) {
+	  order[i*row_size+j] = weight_array[k_mod][j];
+	}
+      }
+      k_mod++;
+    }else{
+      for (j=0; j<2*n; j++) order[i*row_size+j] = ord_orig[k_orig*2*n+j];
+      k_orig++;
+    }
+  }
+//  for (i=0; i<col_size; i++) for (j=0; j<row_size; j++) {printf("%d, ",order[i*row_size+j]); if (j == row_size-1) putchar('\n');}
+  return order;
+}
+
+void init_module_matrix_mode(int rank_of_module) {
+  struct ring *rp;
+  int *order;
+  int n;
+  int *ord_orig;
+  int array_size=1;
+  static int pos_array[1];
+  static int *weight_array[1]={NULL};
+  extern struct ring *CurrentRingp;
+
+  rp = CurrentRingp;
+  if (rp->module_rank > 0) return ;
+  /* printf("init_module_matrix_mode\n"); */
+  n = rp->n;
+  pos_array[0]=n;
+  ord_orig = rp->order;
+  rp->order_orig = ord_orig;
+  order = add_module_order(n,ord_orig,rank_of_module,array_size,pos_array,weight_array);
+  rp->order = order;
+  rp->order_row_size = 2*n+rank_of_module;
+  rp->order_col_size = 2*n+array_size;
+  rp->module_rank = rank_of_module;
+}
+/*
+#define RANK_OF_MODULE 2
+int main() {
+  int *order;
+  int ord_orig[]={ // [(x,y) ring_of_differential_operators 0] define_ring show_ring
+ 1,0,0,0,0,0,0,0
+,0,1,1,1,1,1,1,0
+,0,0,0,0,0,0,-1,0
+,0,0,0,0,0,-1,0,0
+,0,0,0,0,-1,0,0,0
+,0,0,0,-1,0,0,0,0
+,0,0,-1,0,0,0,0,0
+,0,0,0,0,0,0,0,1};  // it works only when n=4
+  int rank_of_module=RANK_OF_MODULE;
+#define TMP_ADD_SIZE 2
+  int array_size=TMP_ADD_SIZE;
+  int pos_array[TMP_ADD_SIZE]={4,6};
+  int w1[]={0,0,0,0,1,1,1,1,3,4};
+  int *weight_array[TMP_ADD_SIZE]={NULL,w1};
+  int n=4;
+  order=set_module_order(n,RANK_OF_MODULE);
+  printf("\n");
+  order = add_module_order(n,ord_orig,rank_of_module,array_size,pos_array,weight_array);
+  print_module_order(stdout,order,n*2+TMP_ADD_SIZE,n*2+RANK_OF_MODULE,n);
+}
+*/
+
+int mmLarger_module_matrix(ff,gg)
+     POLY ff; POLY gg;
+{
+  int exp[2*N0]; /* exponents */
+  int i,k;
+  int sum,flag;
+  int *Order;
+  int N;
+  MONOMIAL f,g;
+  struct ring *rp;
+  int in2;
+  int *from, *to;
+  int omsize;
+  int dssize;
+  int dsn;
+  int *degreeShiftVector;
+  ////
+  int col_size;
+  int row_size;
+  int module_rank;
+  int posf,posg;
+  
+  if (ff == POLYNULL ) {
+    if (gg == POLYNULL) return( 2 );
+    else return( 0 );
+  }
+  if (gg == POLYNULL) {
+    if (ff == POLYNULL) return( 2 );
+    else return( 1 );
+  }
+  f = ff->m; g=gg->m;
+
+  rp = f->ringp;
+  Order = rp->order;
+  N = rp->n;
+  from = rp->from;
+  to = rp->to;
+  omsize = rp->orderMatrixSize;  // It is not used.
+  ////
+  col_size=rp->order_col_size;
+  row_size=rp->order_row_size;
+  module_rank=rp->module_rank; // ==row_size-2*(rp->n);
+
+  // Same monomial? 
+  flag = 1;
+  for (i=N-1,k=0; i>=0; i--,k++) {
+    exp[k] = (f->e[i].x) - (g->e[i].x);
+    exp[k+N] = (f->e[i].D) - (g->e[i].D);
+    if ((exp[k] != 0) || (exp[k+N] != 0)) flag =0;
+  }
+  if (flag==1) return(2);
+  /* sum > 0   <--->  f>g
+     sum < 0   <--->  f<g
+  */
+  ////
+  for (i=0; i< col_size; i++) {
+    sum = 0; in2 = i*row_size;
+    for (k=0; k<2*N; k++) sum += exp[k]*Order[in2+k]; 
+    //for (k=from[i]; k<to[i]; k++) sum += exp[k]*Order[in2+k];
+    ////
+    posf=f->e[N-1].x;
+    posg=g->e[N-1].x;
+    sum += Order[in2+2*N+posf]-Order[in2+2*N+posg];
+
+    if (sum > 0) return(1);
+    if (sum < 0) return(0);
+  }
+  return(2);
+}
 

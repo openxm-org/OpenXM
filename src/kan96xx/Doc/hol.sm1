@@ -291,6 +291,93 @@ message-quiet
   arg1
 } def
 
+% Construct a list for extension/addModuleOrder
+/difftop.addModuleOrder {
+  /arg1 set
+  [/nn /rank /ol /ii /startpos /jj] pushVariables
+  [
+    arg1 0 get /nn set   %% number of vars
+    arg1 1 get /rank set %% rank of the module
+    arg1 2 get /startpos set %% addModuleOrder start position
+    [rank,
+       1 1 << nn 1 sub >> {
+        /ii set
+       startpos 1 sub ii add
+       [ 1 1 << nn 2 add 2 mul, rank add >> {
+           /jj set
+           jj << nn 2 add 2 mul, ii sub >> eq {
+             -1
+           } { 0 } ifelse    
+         } for
+       ]
+      } for,
+      startpos ii add,
+      [ 1 1 << nn 2 add 2 mul, rank add >> {
+          /jj set
+          jj << nn 2 add 2 mul >> gt {
+%            0 << jj, nn 2 add 2 mul, sub >> sub
+             nn 2 add 2 mul, rank add, 1 add, jj sub 
+          }{ 0 } ifelse
+        } for 
+      ]
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+%[ [ 2 5 1] difftop.addModuleOrder ] message
+%[ [ 3 5 1] difftop.addModuleOrder ] message
+
+/gb.difftop 0 def
+/gb.difftop.rank 0 def
+/gb.difftop.addModuleOrder 0 def
+/difftop.reset {
+  /gb.difftop 0 def
+  /gb.difftop.rank 0 def
+  /gb.difftop.addModuleOrder 0 def
+} def
+% differentil term over position (difftop)
+% generators vars weightvec difftop generators vars weightvec 
+% Set global variables gb.difftop.*.
+% If gb.difftop==1 in gb, then call difftop.reset
+/difftop {
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [/aa /f /v /wv /typev /setarg /ndvar] pushVariables
+  [
+    /gb.difftop 1 def
+    /aa [arg1 arg2 arg3] def
+    aa { tag } map /typev set
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } {(generators vars weightvec for difftop---differential term over pos) error} ifelse
+    f gb.toMatrixOfString /f set
+    /gb.difftop.rank gb.itWasMatrix def  %% set module rank.
+    gb.difftop.rank 0 eq {
+      difftop.reset 
+      (difftop is for module gb) error
+    }{ } ifelse
+    [ v to_records /ndvar set] pop
+    [ndvar gb.difftop.rank, wv length] difftop.addModuleOrder /gb.difftop.addModuleOrder set
+    /arg1 aa def
+  ] pop
+  popVariables
+  arg1 0 get arg1 1 get arg1 2 get
+} def
+
+%%Ref: for debug, misc-2023/09/rest-comprehensive2/Data/hol2.sm1
+
 /gb.v 1 def
 /gb.verbose 0 def
 /gb.options [ ] def
@@ -405,10 +492,17 @@ message-quiet
       } ifelse
     } {
       %% Use the ring structre given by the input.
+      gb.difftop 1 eq {(Input ring structure cannot be used for difftop) error }{ }ifelse
       rr ring_def
       /wv rr gb.getWeight def
       wv gb.isTermOrder /termorder set
     } ifelse
+    gb.difftop 1 eq {
+      (mmLarger) (module_matrix) switch_function
+      %gb.difftop.addModuleOrder message
+      [(addModuleOrder) gb.difftop.addModuleOrder] extension
+       gb.verbose {show_ring} { } ifelse
+    }{ } ifelse
     %%% Enf of the preprocess
 
     termorder {
@@ -418,6 +512,7 @@ message-quiet
     } ifelse
     groebnerOptions gb.options mergeGroebnerOptions /groebnerOptions set
     gb.verbose { (groebnerOptions = ) messagen groebnerOptions message } { } ifelse
+%%    print_switch_status 
     termorder {
       f { {___ dehomogenize} map } map /f set
       [f groebnerOptions] groebner_sugar /ggall set ggall 0 get /gg set
@@ -433,6 +528,7 @@ message-quiet
     }{
       /ans [gg gg {wv 0 get weightv init} map] def
     }ifelse
+%%    gg message
 
     %% Postprocess : recover the matrix expression.
     mm {
@@ -451,6 +547,22 @@ message-quiet
     /arg1 ans def
   ] pop
   popEnv
+  popVariables
+  arg1
+} def
+/gb_difftop {
+  /arg1 set
+  [/gg /opt /gg2 /ff0] pushVariables
+  [
+   [arg1 0 get, arg1 1 get, arg1 2 get, difftop] gb /gg set
+   gg pmat 
+   getOptions /opt set
+   gg getRing ring_def
+   gg 0 get {init} map /gg2 set
+   gg gg2 append /gg set
+   opt restoreOptions
+   gg /arg1 set
+  ] pop 
   popVariables
   arg1
 } def
@@ -824,7 +936,28 @@ message-quiet
   $ [ [(x^10+y^10-1) (x^5*y^5 -1)] (x,y) $
   $     [ [ (x) 1 ] ]]  gb pmat ; $
   (  )
-  (cf. gb, groebner, groebner_sugar, syz. )
+  $Example 9: $
+  $[ [[(Dx^2-Dy) (0)] [(x*Dx+2*y*Dy+1) (0)] [(Dx) (-1)]] (x,y)$
+  $   [[(Dx) 1 (Dy) 1]] difftop] gb /gg set gg pmat ;   $
+  $ gg getRing ring_def show_ring print_switch_status ;$
+  (  )
+  (cf. gb, groebner, groebner_sugar, syz, difftop, gb_difftop. )
+]] putUsages
+[(difftop)
+ [(generators vars weightVec difftop generators vars weightVec )
+  (It sets global variables gb.difftop, gb.difftop.rank, gb.difftop.addModuleOrder.)
+  (difftop is an abbreviation of differential term order over position. See changelog-ja.tex on 2023.08.09)
+  (cf. gb)
+]] putUsages
+[(gb_difftop)
+ [(f v w gb_difftop [gb init_w init])
+  ( )
+  $Example 1: $
+  $[ [[(Dx^2-Dy) (0)] [(x*Dx+2*y*Dy+1) (0)] [(Dx) (-1)]] (x,y)$
+  $   [[(Dx) 1 (Dy) 1]]] gb_difftop /gg set gg pmat ;   $
+  $ show_ring print_switch_status ;$
+  (  )
+  (cf. gb)
 ]] putUsages
 
 [(pgb)

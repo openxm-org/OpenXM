@@ -1,0 +1,165 @@
+/*
+  ann for f_1^{s_1} ... f_d^{s_d}
+  multiple bfunction for it.  2023.12.31--2024.01.02
+*/
+#define USE_MODULE 1
+#ifdef USE_MODULE
+module ot_deRham$
+localf v_set$      // should be moved to poly_
+localf join_sets$  // should be moved to base_
+localf init_deRham$
+localf check_if_we_can_use_diff2euler$
+localf g_ideal0$
+localf m_ann$
+
+static Tmp_t$
+static Tmp_a$
+static Tmp_b$
+#else
+extern Tmp_t$
+extern Tmp_a$
+extern Tmp_b$
+#endif
+
+def init_deRham() {
+  //Tmp_t=tmp_t$ Tmp_a=tmp_a$ Tmp_b=tmp_b$
+  Tmp_t=t$ Tmp_a=a$ Tmp_b=b$
+}
+
+def v_set(V,From,To) {
+  Vvar=[];
+  for (I=From; I<=To; I++) Vvar=cons(util_v(V,[I]),Vvar);
+  return reverse(Vvar);
+}
+def join_sets(S) {
+  N=length(S);
+  S2=[];
+  for (I=0; I<N; I++) {
+    S2=append(S2,S[I]);
+  }
+  return S2;
+}
+
+def check_if_we_can_use_diff2euler(G,Tvar) {
+  if (type(G)>=4) {
+    for (I=0; I<length(G); I++) {
+      if (check_if_we_can_use_diff2euler(G[I],Tvar) < 0) return -1;
+    }
+    return 0;
+  }
+  DTvar=poly_dvar(Tvar);
+  N=length(Tvar);
+  V=append(Tvar,DTvar);
+  for (I=0; I<N; I++) {
+    W=newvect(2*N); W[I]=1; W[N+I]=-1; W=vtol(W);
+    if (poly_ord_w(G,V,W) > 0) return -1;
+  }
+  return 0;
+}
+
+/* Procedure 4.1 in [OT] */
+def g_ideal0(F,Xvar) {
+  if (type(getopt(param))>0) Param=getopt(param);
+  else Param=[];
+  D=length(F);
+  N=length(Xvar);
+  Tvar=v_set(Tmp_t,1,D);
+  DTvar=poly_dvar(Tvar);
+  DXvar=poly_dvar(Xvar);
+  
+  G=[];
+  for (J=0; J<D; J++) G=cons(Tvar[J]-F[J],G);
+  for (I=0; I<N; I++) {
+    H=DXvar[I];
+    for (J=0; J<D; J++) {
+       H += diff(F[J],Xvar[I])*DTvar[J]; 
+    }
+    G=cons(H,G);
+  }
+  G=reverse(G);
+  //print(G); return nd_weyl_gr(G,join_sets([Tvar,Xvar,DTvar,DXvar]),0,2);
+  Avar=v_set(Tmp_a,1,D);
+  Bvar=v_set(Tmp_b,1,D);
+  Rule=[]; 
+  for (I=0; I<D; I++) {
+    Rule=cons([Tvar[I],Tvar[I]*Avar[I]],Rule);
+    Rule=cons([DTvar[I],DTvar[I]*Bvar[I]],Rule);
+  }
+  G2=base_replace(G,Rule);
+  for (I=0; I<D; I++) G2=cons(Avar[I]*Bvar[I]-1,G2);
+
+  DAvar=poly_dvar(Avar);
+  DBvar=poly_dvar(Bvar);
+  G3=nd_weyl_gr(G2, join_sets([Avar,Bvar,Tvar,Xvar,DAvar,DBvar,DTvar,DXvar]),0,2);
+  //return G3;
+  G4=poly_elimination_ideal(G3,join_sets([Tvar,Xvar,DTvar,DXvar,Param]) | gb=1);  
+  //return G4;
+  if (check_if_we_can_use_diff2euler(G4,Tvar)<0) {
+    error("The current implementation of diff2euler does work for G4 with e.g., t, t^2*dt, ...");
+  }
+  G5=map(base_ith,poly_diff2euler(G4,Tvar),0);
+//  return G5;
+  TTDvar=map(base_ith,poly_diff2euler(DTvar,Tvar),0);
+  Svar0=v_set(s,1,D);
+  Svar=[]; for (I=0; I<D; I++) Svar=cons(-Svar0[I]-1,Svar);
+  Svar=reverse(Svar);  
+  G6=base_replace(G5,assoc(TTDvar,Svar));
+  return G6;
+}
+/*&usage begin:
+  m_ann(F,Xvar | param=Param) returns annihilating ideal for
+  F[0]^s0*F[1]^s1*F[2]^s2 ...
+  where s0, s1, ... are indeterminates and F is a list of polynomials
+  of variables Xvar (list). If F contains parameter coefficients, they must
+  be specified by the option param.
+  It is an implementation of the (slow) algorithm of OT-1999.
+  More efficient algorithm should be studied. 
+  example:
+    m_ann([x,y,z-x-y],[x,y] | param=[z]);
+    returns the annihilating ideal for x^s_1*y^s_2*(z-x-y)^s_3
+end: */
+def m_ann(F,Xvar) {
+  Opt=getopt();
+  return g_ideal0(F,Xvar | option_list=Opt);
+}
+
+init_deRham()$
+//T=g_ideal0([p1^2+p2^2],[p1,p2]);
+//T=g_ideal0([p1],[p1]);
+/*
+T=g_ideal0([p1,p1+1],[p1]);
+Rule=[[s_1,-15],[s_2,-11]]$ T=base_replace(T,Rule);
+red(map(poly_dact,T,base_replace((p1)^s_1*((p1+1)^s_2),Rule),[p1]));
+*/
+/*
+T=g_ideal0([x^2+x+1,(y-1)^2],[x,y]); 
+Rule=[[s_1,-15],[s_2,-11]]$ T=base_replace(T,Rule);
+red(map(poly_dact,T,base_replace((x^2+x+1)^s_1*((y-1)^(2*s_2)),Rule),[x,y]));
+*/
+
+/*
+T=g_ideal0([p1,p1+1,1-p1],[p1]);
+Rule=[[s_1,15],[s_2,-11],[s_3,-21]]$ T=base_replace(T,Rule);
+red(map(poly_dact,T,base_replace((p1)^s_1*((p1+1)^s_2)*(1-p1)^s_3,Rule),[p1]));
+*/
+
+/*
+T=g_ideal0([p1,z0+z1*p1+z2*p1^2],[p1] | param=[z0,z1,z2]);
+Rule=[[s_1,15],[s_2,-11]]$ T=base_replace(T,Rule);
+T2=red(map(poly_dact,T,base_replace((p1)^s_1*(z0+z1*p1+z2*p1^2)^s_2,Rule),[p1]));
+*/
+
+/*
+T=m_ann([p1,p2,z1-p1-p2],[p1,p2]|param=[z1]);
+Rule=[[s_1,2],[s_2,3],[s_3,-5]]$ T=base_replace(T,Rule);
+T2=red(map(poly_dact,T,base_replace(p1^s_1*p2^s_2*(z1-p1-p2)^s_3,Rule),[p1,p2]));
+*/
+
+#ifdef USE_MODULE
+endmodule$
+ot_deRham.init_deRham()$
+#else
+init_deRham()$
+#endif
+
+end$

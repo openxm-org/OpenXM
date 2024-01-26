@@ -511,7 +511,7 @@ x*dx+1
 @findex sm1.gb
 @findex sm1.gb_d
 @table @t
-@item sm1.gb([@var{f},@var{v},@var{w}]|proc=@var{p},sorted=@var{q},dehomogenize=@var{r},needBack=@var{n},ring_var=@var{r})
+@item sm1.gb([@var{f},@var{v},@var{w}]|proc=@var{p},sorted=@var{q},dehomogenize=@var{r},needBack=@var{n},ring_var=@var{r},difftop=1)
 ::  computes the Grobner basis of @var{f} in the ring of differential
 operators with the variable @var{v}.
 @item sm1.gb_d([@var{f},@var{v},@var{w}]|proc=@var{p})
@@ -563,6 +563,10 @@ List
 execute sm1.auto_reduce(1) before executing this function.
 @item When the needBack option @var{n} is 1, it returns the answer is a different format as [groebner basis,initial, gb,1,all,[groebner basis, backward transformation]]
 @item The default value of ring_var is ring_var_for_asir. The server ox_sm1 saves the ring structure used to the global this ring_var. See also reduction.
+@item When difftop=1, computation of the free module over the ring of differential operators over rational function coefficients is emulated.
+Other options cannot be used.
+difftop is an abbreviation of "differential term order over position".
+The retun value is [gb, init w.r.t. w, init].
 @end itemize
 */
 /*&ja
@@ -619,6 +623,10 @@ sm1.auto_reduce(1) を実行しておくこと.
 [groebner basis, initial, gb,1,all, [groebner basis, backward transformation]]
 で答えを戻す. (sm1 の getAttribute を参照)
 @item ring_var オプションの既定値は ring_var_for_asir である. sm1 はこの大域変数名で計算に用いた ring 構造体を保存する.  reduction を参照.
+@item difftop=1 の時, 有理式係数の微分作用素環上の自由加群での計算を遂行する.
+他の option との併用はできない. 
+difftop は differential term order over position の略.
+戻り値は [gb, init w.r.t w, init].
 @end itemize
 */
 /*&C
@@ -720,6 +728,32 @@ $m' = x^{a'} y^{b'} \partial_x^{c'} \partial_y^{d'}$
 @example
 [1834] sm1.gb([[dx^2-x,dx],[x]] | needBack=1);
 [[dx,dx^2-x,1],[dx,dx^2,1],gb,1,all,[[dx,dx^2-x,1],[[0,1],[1,0],[-dx,dx^2-x]]]]
+@end example
+*/
+/*&C
+@example
+// computation in R^2
+[1834] F=[[[dx^2-dy,0],[x*dx+2*y*dy+1/2,0]],[x,y],[[dx,1,dy,1]]];
+[1835] sm1.gb([F,[x,y],[[dx,1,dy,1]]] | difftop=1);
+@end example
+*/
+
+/*&en
+The behavior of sm1.gb is also controled by values of some sm1 global variables
+of sm1. 
+We give an example. Please see the manual of sm1 as for details.
+*/
+/*&ja
+sm1.gb の動作は一群のsm1大域変数変数でも制御される.
+下に例を挙げる. 詳しくは sm1 のマニュアルを参照.
+*/
+
+/*&C
+@example
+if ((P_sm1=sm1.get_Sm1_proc()) < 0) P_sm1=sm1.start();
+//sm1.sm1(P_sm1," 13 /gb.characteristic set ");
+sm1.sm1(P_sm1," [(TraceLift) 13] system_variable ");
+sm1.sm1(P_sm1," [(StopDegree) 27] /gb.options set ");
 @end example
 */
 

@@ -144,6 +144,7 @@ void Kusage2(fp,s)
     fppp(fp,"The first element of the obj1 should be the key word tag.\n");
     fppp(fp,"<< extension >> is used to install a new function to a system. cf.ext.c and plugin/\n");
     fppp(fp,"  [(parse) string] extension result-integer \n");
+    fppp(fp,"  [(addModuleOrder) [rank_of_module pos1 weight1 pos2 weight2 ...]] extension result-object ; Execute after (mmLarger) (module_matrix) switch_function \n");
     fppp(fp,"  [(chattr) num literal] extension result-object \n");
     fppp(fp,"  [(chattrs) num ] extension result-object \n");
     fppp(fp,"  [(date)] extension date-string \n");

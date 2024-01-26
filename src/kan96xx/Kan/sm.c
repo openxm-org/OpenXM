@@ -1,6 +1,6 @@
 /* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.29 2015/09/29 01:52:14 takayama Exp $ */
-#define DATE "2005/06/15"
-#define RELEASE "3.050615"    /* This "string" must be an increasing seq.*/
+#define DATE "2023/09/08"
+#define RELEASE "3.230908"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
                      VersionString for ox_sm1.
                  Change also OxVersion in plugin/oxmisc.c
@@ -81,7 +81,7 @@ int main(argc,argv)
   if (!Quiet) {
     fprintf(Fstack,"\n");
     fprintf(Fstack,"Kan/StackMachine1");
-    fprintf(Fstack,"                         1991 April --- 2004.\n");
+    fprintf(Fstack,"                         1991 April --- 2004(--2023).\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
             RELEASE);
     fprintf(Fstack,"gc %d.%d-%d (C) Boehm, Demers, Xerox, SGI, HP,\nGNU MP 4.1 (C) Free Software Foundation,\n",gc_version >>16, (gc_version >> 8)&0xff,gc_version & 0xff);

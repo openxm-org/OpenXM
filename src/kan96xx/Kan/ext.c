@@ -455,6 +455,9 @@ struct object Kextension(struct object obj)
 	for (i=0; i<KopInteger(obj1); i++) {
       putoa(rob,i,newObjectArray(KopInteger(obj2)));
 	}
+  }else if (strcmp(key,"addModuleOrder")==0) {
+    obj1 = getoa(obj,1);
+    rob = KaddModuleOrder(obj1);
   }else if (strcmp(key,"ooPower")==0) {
     if (size != 3) errorKan1("%s\n","[(ooPower) a b] extension.");
     obj1 = getoa(obj,1);

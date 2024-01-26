@@ -18,7 +18,7 @@ char *F_isSameComponent = "???";
 
 void print_switch_status(void) {
   printf("------------------------------------\n");
-  printf("mmLarger [matrix,lexicographic,tower]          %s\n",F_mmLarger);
+  printf("mmLarger [matrix,lexicographic,tower,module_matrix]  %s\n",F_mmLarger);
   printf("mpMult   [poly,diff,difference]                %s\n",F_mpMult);
   printf("monomialAdd [poly]                             %s\n",F_monomialAdd);
   printf("red@      [standard,module1,module2,module1rev,ecart]\n");
@@ -112,6 +112,10 @@ void switch_mmLarger(arg)
   } else if (strcmp(arg,"tower") == 0) {
     mmLarger = mmLarger_tower;
     F_mmLarger = "tower";
+  } else if (strcmp(arg,"module_matrix")==0) {
+    mmLarger = mmLarger_module_matrix;
+    F_mmLarger = "module_matrix";
+    init_module_matrix_mode(3); // default rank is 3.
   }else ;
 }
 

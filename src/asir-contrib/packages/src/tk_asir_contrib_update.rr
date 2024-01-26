@@ -77,8 +77,13 @@ def asir_contrib_update_win() {
   }
   if (type(getopt(clean)) <= 0) { } else { Clean=1;}
   if (!Update && !Clean) mymessage("Windows");
+#if 0
   MyCurl = "\""+getenv("ASIR_ROOTDIR")+"bin\\curl\""; 
   MyUnzip = "\""+getenv("ASIR_ROOTDIR")+"bin\\unzip\""; 
+#else
+  MyCurl = "\""+get_rootdir()+"\\bin\\curl\""; 
+  MyUnzip = "\""+get_rootdir()+"\\bin\\unzip\""; 
+#endif
   if (type(getopt(tmp))<=0) MyTmp = getenv("TEMP");
   else MyTmp = getopt(tmp);
   if (type(getopt(install_dir))<=0) InstallDir0=getenv("APPDATA")+"\\OpenXM";

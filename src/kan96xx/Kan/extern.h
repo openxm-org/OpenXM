@@ -231,6 +231,7 @@ struct object KsetOutputOrder(struct object obj,struct ring *rp);
 struct object KsetVariableNames(struct object obj,struct ring *rp);
 /* KgetRingInfo has not yet been implemented. */
 struct object KgetRingInfo(struct object ringObj, struct object ofunc);
+struct object KaddModuleOrder(struct object ob);
 
 /* :eval */
 struct object Keval(struct object obj);
