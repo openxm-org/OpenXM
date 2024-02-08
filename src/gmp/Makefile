@@ -43,6 +43,8 @@ configure : patch
 			    ${MAKE} configure-cygwin ; \
 			elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
 			    ${MAKE} configure-msys ; \
+			elif [  "`uname | sed -e 's/_.*$$//'`" = "Darwin" ] && [  "`uname -m`" = "x86_64" ]; then \
+			    ${MAKE} configure-darwin-x86-64 ; \
 			else \
 			    ${MAKE} configure-others ; \
 			fi ; \
@@ -58,6 +60,10 @@ configure-cygwin:
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx --build=x86_64-w64-mingw32  )
+configure-darwin-x86-64:
+	(cd ../..; tar xzvf src/gmp/libgmp-intelmac.tgz )
+	@touch work/.build_done
+	@touch work/.install_done
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx)
