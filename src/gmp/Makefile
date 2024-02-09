@@ -61,7 +61,9 @@ configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx --build=x86_64-w64-mingw32  )
 configure-darwin-x86-64:
-	(cd ../..; tar xzvf src/gmp/libgmp-intelmac.tgz )
+	(cd ../..; tar xzvf src/gmp/libgmp-intelmac.tgz; cd lib; a=`/bin/pwd`; \
+	sed -e s:__LIBDIR__:$$a: libgmp.la.tmpl > libgmp.la; \
+	sed -e s:__LIBDIR__:$$a: libgmpxx.la.tmpl > libgmpxx.la )
 	@touch work/.build_done
 	@touch work/.install_done
 configure-others:
