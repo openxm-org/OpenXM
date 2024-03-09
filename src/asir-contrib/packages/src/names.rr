@@ -405,6 +405,8 @@ def number_factor(X) { return(pari(factorint,X)); }
              number_float_to_rational(1.5234 | prec=14); 
 end: */
 def number_float_to_rational(X) { 
+/*  if (type(X)>3) return map(number_float_to_rational,X | option_list=getopt()); // bug, option cannot be passed by map */
+  if (type(X)>3) return map(number_float_to_rational,X);
   return oh_number.rats(X | option_list=getopt());
 }
 /*&usage begin: number_floor(X) example: number_floor(1.5); end: */
