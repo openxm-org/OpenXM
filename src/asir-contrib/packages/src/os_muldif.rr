@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Jan. 2024)
+ *          Toshio Oshima (Nov. 2007 - Mar. 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -56,6 +56,7 @@ localf mycat$
 localf mycat0$
 localf fcat$
 localf findin$
+localf lcount$
 localf countin$
 localf mycoef$
 localf mydiff$
@@ -77,16 +78,18 @@ localf monotos$
 localf minustos$
 localf monototex$
 localf vnext$
+localf pgen$
 localf ldict$
 localf ndict$
 localf nextsub$
 localf nextpart$
 localf transpart$
 localf getCatalan$
+localf symtournament$
 localf pg2tg$
-localf pg2tgb;
+localf pg2tgb$
 localf pgpart$
-localf xypg2tg;
+localf xypg2tg$
 localf trpos$
 localf sprod$
 localf sadj$
@@ -143,6 +146,8 @@ localf rev$
 localf qsortn$
 localf lsort$
 localf rsort$
+localf btree$
+localf spantree$
 localf lpair$
 localf lmax$
 localf lmin$
@@ -371,6 +376,7 @@ localf str_cut$
 localf str_str$
 localf str_subst$
 localf str_times$
+localf str2tab$
 localf str_tb$
 localf strip$
 localf i2hex$
@@ -421,7 +427,6 @@ localf mcvm$
 localf s2cspb$
 localf s2csp$
 localf partspt$
-localf pgen$
 localf diagm$
 localf mgen$
 localf madj$
@@ -495,6 +500,8 @@ localf xyang$
 localf xyoval$
 localf xypoch$
 localf xycircuit$
+localf xytournament$
+localf cmptournament$
 localf ptline$
 localf ptcommon$
 localf ptinversion$
@@ -520,6 +527,7 @@ localf ntable$
 localf keyin$
 localf mqsub$
 localf msort$
+localf l2min$
 #else
 extern Muldif.rr$
 extern TeXEq$
@@ -557,7 +565,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240112"$
+Muldif.rr="00240310"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -769,6 +777,22 @@ def findin(M,L)
 			if(L[I] == M) return I;
 	}else return -2;
 	return -1;
+}
+
+def lcount(L)
+{
+	L=qsort(L);
+	if (type(L)==5) L=vtol(L);
+	if(L==[]) return [];
+	T=car(L);L=cdr(L);M=1;
+	for(R=[];L!=[];L=cdr(L)){
+		if(T==car(L)) M++;
+		else{
+			R=cons([M,T],R);M=1;T=car(L);
+		}
+	}
+	if(M>0) R=cons([M,T],R);
+	return R;
 }
 
 def countin(S,M,L)
@@ -1062,20 +1086,37 @@ def mulsubst(F,L)
 {
 	if(length(L) == 0)
 		return F;
+	if(getopt(dform)==1){
+		K=length(L);
+		TR=newvect(K);
+		for(I=0;I<K;I++) TR[I]=makev(["d",L[0][I]]);
+		for(R=[],I=K-1;I>=0;I--){
+			S=L[1][I];
+			for(P=J=0;J<K;J++){
+				P+=mydiff(S,L[0][J])*TR[J];
+			}
+			R=cons(P,R);
+		}
+		F=mulsubst(F,L|lpair=1);
+		return mulsubst(F,[vtol(TR),R]|lpair=1);
+	}
 	if(type(L[0])!=4)	L=[L];
 	if((Inv=getopt(conj))==1 || Inv==-1){
 		S=solveEq(L[1],L[0]|inv=1);
 		if(type(S)!=4) return S;
 		T=L[1];
 		if(Inv==-1){TL=T;T=S;S=TL;}
-		return mulsubst(T,[L[0],F,S]);
+		if(type(F[0])!=4) return mulsubst(T,[L[0],F,S]|lpair=1);
+		for(R=[];F!=[];F=cdr(F))
+			R=cons(mulsubst(T,[L[0],car(F),S]|lpair=1),R);
+		return reverse(R);
 	}
 	if(isint(Gen=getopt(generate))&&Gen!=0){
 		S=[[0]];
 		if(Gen<0){
 			Short=1;Gen=-Gen;
 		}else Short=0;
-		if(Gen==1) Gen=1000;
+		if(Gen==1) Gen=160;
 		R1=[""];R=[F];TF=car(L);LL=length(L=cdr(L));I=1;
 		do{
 			ER=car(R1);
@@ -1103,6 +1144,8 @@ def mulsubst(F,L)
 			}
 			S=RS;
 		}
+		if(I>Gen) mycat(["over",Gen, "elements."]);
+		else mycat(["get", I, "elements."]);
 		return [reverse(R),reverse(S)];
 	}
 	if(getopt(lpair)==1){
@@ -1330,16 +1373,23 @@ def nextsub(L,N)
 
 def nextpart(L)
 {
-	if(car(L) <= 1)
-		return 0;
-	for(I = 0, L = reverse(L); car(L) == 1; L=cdr(L))
-		I++;
-	I += (K = car(L));
+	if(isint(L)){
+		if(L<1) return [0];
+		I=L;
+		if(!isint(K=getopt(max))|| K<1) K=I;
+		K++;L=[];
+	}else{
+		if(car(L) <= 1)
+			return 0;
+		for(I = 0, L = reverse(L); car(L) == 1; L=cdr(L))
+			I++;
+		I += (K = car(L));
+		L=cdr(L);
+	}
 	R = irem(I,--K);
 	R = (R==0)?[]:[R];
 	for(J = idiv(I,K); J > 0; J--)
 		R = cons(K,R);
-	L = cdr(L);
 	while(L!=[]){
 		R = cons(car(L), R);
 		L = cdr(L);
@@ -1490,6 +1540,7 @@ def dnorm(V)
 			else{
 				if((T=ctrl("bigfloat")?abs(car(V)):dabs(car(V)))>S) S=T;
 			}
+
 		}
 		return S;
 	}
@@ -1562,10 +1613,57 @@ def mulseries(V1,V2)
 
 def catalan(K)
 {
-	if(isint(K)) return catalan([K,K]);
+	if(isint(K))
+		return catalan([K,K]);
 	if(type(K)==4){
 		if(length(K)==2){
 			M=K[0];N=K[1];
+			if(M=="p"){
+				P=newvect(N+1);
+				P[0]=1;
+				for(K=1;K<=N;K++){
+					I=J=S=1;
+					do{
+						P[K]+=S*P[K-J];
+						if(I+J<=K){
+							P[K]+=S*P[K-J-I];
+						}
+						I++;S=-S;J=I*(3*I-1)/2;
+					}while(J<=K);
+				}
+				return P[N];
+			}
+			if(M=="B"){
+				if(N<=1){
+					if(N==1) return -1/2;
+					else if(N==0) return 1;
+					return 0;
+				}
+				if(iand(N,1)) return 0;
+				if(getopt(all)!=1){
+					for(J=B=0;J<=N;J++){
+						for(I=0;I<=J;I++){
+							V=catalan(["C",J,I])*I^N/(J+1);
+							if(iand(N-I,1)) B-=V;
+							else B+=V;
+						}
+					}
+					return B;
+				}
+				L=N/2;
+				V=newvect(L+1);V[0]=-1/2;
+				for(I=1;I<=L;I++){
+					P=1-I-1/2;
+					for(K=1;K<L;K++) P+=catalan(["C",2*I+1,2*K])*V[K];
+					V[I]=-P/(2*I+1);
+				}
+				return V;
+			}
+			if(M=="!") return fac(N);
+			if(M=="!!"){
+				if(iand(N,1)) return fac(N)/2^((N-1)/2)/fac((N-1)/2);
+				else return fac(N/2)*2^(N/2);
+			}
 			if(M<N||M<0||N<0) return 0;
 			if(N==0) return 1;
 			T=fac(M+N);
@@ -1573,7 +1671,7 @@ def catalan(K)
 		}
 		if(length(K)==3){
 			T=K[0];N=K[1];K=K[2];
-			if(T=="P"||T=="01"||T=="H"){
+			if(T=="P"||T=="C"||T=="H"){
 				if(T=="P") return fac(N)/fac(N-K);
 				if(T=="H") N+=K-1;
 				if(K<0||K>N) return 0;
@@ -1590,8 +1688,167 @@ def catalan(K)
 			}
 		}
 	}
+	mycat("catalan(?):\n n: Cn\ (Catalan number)\n [n,k]: a generalization\n [\"P\",n,k]: nPk\n [\"C\",n,k]: nCk\n [\"H\",n,k]: nHk\n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
 	return 0;
 }
+
+/*
+ symtournament(K|to=t);
+ K=#teams
+ # of single elimination tournaments of K-1 teams (modulo symmetry, teams are distinguished : error
+ t=1, "sym": # of types (teams are not distinguished)
+ t=2, "T"  : Representatives in tournament "((**)*)" etc
+ t="pair"  : # d-paisr, i-pairs
+ t=3, "01" : Representatives in 01列 [0,1,0,0,1,1] etc
+ 左右反転  : S=os_md.getCatalan(T,0|to="P");S=os_md.pgpart(S,["mirror",length(S)+2]);
+             S=os_md.getCatalan(S,0|to="01");
+
+ symtournament(N+1)[2]/sym2tournament(N)[2]/(N-1) -> 2？（単調増加で）
+ n!/2 <= 2^{n-2}(n-2)! < symtournament(n+1)[2] <= 2^{n-2}(n-1)!
+
+=> changes K=>K-1: K teams
+*/
+
+def symtournament(N)
+{
+  if(os_md.isint(T=getopt(to))||type(T)==7){
+	if(T==2||T=="T"||T==3||T=="01"||T=="pair"){
+		if(N==2) return T==2?["(**)"]:[[0,1]];
+		else if(N==1) return ["*"];
+/*
+		V[1]=[["*"]]; V[2]=[["(**)"]]; V[3]=[["((**)*)"]];
+        V[4]=[["(((**)*)*)"],["((**)(**))"]];
+*/
+#if 1
+		if(N<2) return [];
+		V=newvect(N+1);R=V[1]=["*"];
+		for(K=2;K<=N;K++){
+			for(R=[],I=1;2*I<=K;I++){
+				for(R0=V[I];R0!=[];R0=cdr(R0)){
+					for(R1=V[K-I];R1!=[];R1=cdr(R1)){
+						if(2*I!=K || car(R0)<=car(R1))
+							R=cons("("+car(R1)+car(R0)+")",R);
+					}
+				}
+			}
+			V[K]=reverse(R);
+		}
+#else
+		if(N<2){
+			if(N<1) return [];
+			if(N==1) return [["*"]];
+		}
+		for(R=[],I=1;2*I<=N;I++){
+			S0=symtournament(I|to=2);
+			S1=symtournament(N-I|to=2);
+			for(R0=S0;R0!=[];R0=cdr(R0)){
+				for(R1=S1;R1!=[];R1=cdr(R1)){
+					if(2*I!=N || car(R0)<=car(R1))
+						R=cons("("+car(R1)+car(R0)+")",R);
+				}
+			}
+		}
+#endif
+		if(T==3||T=="01"){
+			for(S=[];R!=[];R=cdr(R)) S=cons(getCatalan(car(R),N|to="01"),S);
+			return S;
+		}
+		if(T=="pair"){
+			for(S0=S1=0,I=3;I< N;I++){	/* subset */
+				T=fac(N)/fac(N-I);
+				for(J=2;J<I;J++) S0+=T/fac(J)/fac(I-J);
+			}
+			for(S1=0,I=4;I<=N;I++){	/* subset, disjoint */
+				T=fac(N)/fac(N-I);
+				for(J=2;2*J<=I;J++){
+					if(2*J<I) S1+=T/fac(J)/fac(I-J);
+					else S1+=T/fac(J)/fac(I-J)/2;
+				}
+			}
+/*
+
+			for(S3=0,I=4;I<=N;I++){   
+				T=fac(N)/fac(N-I);
+				for(J=2;2*J<=I;J++) S3+==T/fac(J)/fac(I-J);;
+			}
+*/
+			return [S0,S1,S0+S1];
+		}
+		return reverse(R);
+	}
+    if(N<=3) return N>0?1:0;
+    V=newvect(N+1);
+    V[1]=V[2]=1;
+	if(T=="all") T=4;
+	for(I=3;I<=N;I++){
+	  	if(T==4){
+			for(S=0,J=1;2*J<=I;J++){
+				if(2*J<I)  S+=catalan(["C",I,J])*V[J]*V[I-J];
+	 			else S+=catalan(["C",I,J])*V[J]^2/2;
+			}
+		}else{
+	 		for(S=0,J=1;2*J<=I;J++){
+        		if(2*J<I) S+=V[J]*V[I-J];
+        		else S+=V[J]*(V[J]+1)/2;
+ 	   	 	}
+		}
+		V[I]=S;
+	}
+    return getopt(verb)==1?V:S;
+  }
+/*
+	V[1]=[[0,1]];V[2]=[[1,1]];
+    V[3]=[[1,1]]; V[4]=[[1,1],[3,1]];V[5]=[[1,1],[2,1],[3,1]];V[6]=[[1,1],[2,2],[3,2],[4,1]];
+
+    V[I]*V[J]=第1成分の和と第2成分の積を集めて整理（I!=J）
+　　V[I]*V[I]=[第1成分の2倍+1と第2成分]と[第1成分の2倍と第2成分(第2成分-1)], 
+       [異なったものは上と同じ)
+    V[5]*V[1]=V[5]=[[1,1],[2,1],[3,1]]
+    V[4]*V[2]=V[4]で第1成分は+1 [[2,1],[4,1]]
+    V[3]*V[3]=[[3,1]]
+    合わせると [[1,1],[2,2],[3,2],[4,1]];
+*/
+	V=newvect(N+1);
+	V[1]=[[0,1]];/* V[2]=[[1,1]]; */
+	for(K=2;K<=N;K++){
+	  V[K]=[];
+	  for(I=1;2*I<=K;I++){
+		for(V0=V[I];V0!=[];V0=cdr(V0)){
+			T0=car(V0);
+			if(2*I==K){
+				V[K]=cons([2*T0[0]+1,T0[1]],V[K]);
+				if(T0[1]>1)
+					V[K]=cons([2*T0[0],T0[1]*(T0[1]-1)/2],V[K]);
+				V1=cdr(V0);
+			}else V1=V[K-I];
+			for(;V1!=[];V1=cdr(V1)){
+				T1=car(V1);
+				V[K]=cons([T0[0]+T1[0],T0[1]*T1[1]],V[K]);
+			}
+		}
+	  }
+	  V[K]=qsort(V[K]);
+	  for(I=-1,R=[],T=V[K];T!=[];T=cdr(T)){
+		J=car(T)[0];
+		if(I!=J){
+			R=cons(car(T),R);
+			I=J;
+		}else{
+			S=car(R)[1]+car(T)[1];
+			R=cons([I,S],cdr(R));
+		}
+      }
+	  V[K]=R;
+	}
+	if(getopt(verb)==1) return V[N];
+	K=fac(N);
+	for(S=SS=0,T=V[N];T!=[];T=cdr(T)){
+		S+=(K/2^car(T)[0])*car(T)[1];
+		SS+=car(T)[1];
+	}
+	return [SS,catalan(N-1),S];  /* # type & total */
+}
+
 
 def sort2(L)
 {
@@ -1779,6 +2036,121 @@ def getCatalan(X,N)
 	return R;
 }
 
+def cmptournament(S,T)
+{
+	HS=os_md.lmax([S[0][1],S[1][1]]);
+	HT=os_md.lmax([T[0][1],T[1][1]]);
+	if(HS<HT) return -1;
+	else if(HS>HT) return 1;
+	HS=S[0][0][0];HT=T[0][0][0];
+	if(HS<HT) return -1;
+	else if(HS>HT) return 1;
+	return 0;
+}
+
+/*
+  L=os_md.getCatalan(1,4|to="01");
+  load("tournament.rr");
+  xytournament(L,0|dviout=1);
+
+  N=4;
+  T=symtournament(N|to="T");
+  for(I=0;I<length(T);I++) xytournament(T[I],0|shift=0,dviout=1);
+
+  xytournament(L,V=[X,Y]|sfift=s,verb=1,dviout=1)
+  {X,Y]: unit measure in TiKZ (default: [0.2,0,2]
+  s: starting team number
+  s -> [s,y] : vertical position (default:Y)  
+*/
+def xytournament(L,V)
+{
+	XX=YY=0.2;
+	if(type(V)==4){
+		if(length(V)==1) V=[V[0],V[1]];
+		XX=V[0];YY=V[1];
+	}
+	SY=YY;
+	Sft=getopt(shift);
+	if(type(Sft)==4&&length(Sft)==2){
+		SY=Sft[1];Sft=Sft[0];
+	}
+	if(type(L)==7)
+		L=os_md.getCatalan(L,0|to="01");
+	LL=length(L)/2;
+	R=[[[1,1],0],[[0,0],0]];
+	for(I=2,TL=cdr(L);TL!=[];TL=cdr(TL)){
+		if(car(TL)==0){
+		 	R=cons([[I,I],0],R);
+			I++;
+		}else R=cons(0,R);
+	}
+	R=reverse(R);
+	K=length(R);
+	for(S=[];K>1;){
+		for(I=2;I<K;I++){
+			if(R[I]==0){
+				S0=R[I-2];
+				S1=R[I-1];
+				S=cons([S0,S1],S);
+				S2=[S0[0][0],S1[0][1]];
+				H=os_md.lmax([S0[1],S1[1]])+1;
+				break;
+			}
+		}
+		for(T=[],J=0;J<I-2;J++,R=cdr(R)) T=cons(car(R),T);
+		T=cons([S2,H],T);
+		R=cdr(R);R=cdr(R);R=cdr(R);
+		R=append(reverse(T),R);
+		K=length(R);
+	}
+/*  二本木の表示用
+	L=getCatalan(L|to="P");
+	T2=pgpart(L,["vertex",0]);
+	K=[[0,T2-1],[T2,LL-1]];
+	for(V=[],H=0;K!=[];H++){
+		for(SR=[],KK=K;KK!=[];KK=cdr(KK)){
+			K0=car(KK)[0];K1=car(KK)[1];
+			for(RR=R;RR!=[];RR=cdr(RR))
+				TR=car(RR);
+				if(car(TR)[0][0]!=K0) continue;
+				if(car(TR)[1][1]==K1) break;
+			}
+描く
+			V=cons(append(car(RR),[H]),V);
+			if(K0<car(TR)[0][1]) ))SR=cons([K0,car(TR)[0][1]],SR);
+			if(car(TR)[1][0]<K1) SR=cons([car(TR)[1][0],K1],SR);
+		}
+		K=SR;
+	}
+	S=V;
+*/
+	if(getopt(verb)==1) return reverse(S);
+
+
+	S=qsort(S,os_md.cmptournament);
+
+	Top=getopt(top);
+	for(T="",S=reverse(S);S!=[];S=cdr(S)){
+		S0=car(S)[0];S1=car(S)[1];
+		L0=S0[1];X0=S0[0][0]+S0[0][1];
+		L1=S1[1];X1=S1[0][0]+S1[0][1];
+		Y=os_md.lmax([L0,L1]);
+		T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,(Y+1)*YY])
+		  +"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+		if(Top==1){
+			T=T+os_md.xypos([(X0+X1)*XX/2,(Y+1)*YY])+"--"+os_md.xypos([(X0+X1)*XX/2,(Y+2)*YY])+"\n";
+			Top=0;
+		}
+	}
+	if(os_md.isint(Sft)) for(I=0;I<=LL;I++) T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(I+Sft)+ "$}\n";
+	S=os_md.texbegin("tikzpicture","\\draw\n"+T+";\n");
+	if(os_md.dviout0(-1|opt="TikZ")){
+		if((F=getopt(dviout))==1) os_md.dviout(S);
+		else if(F==-1) os_md.dviout(S|keep=1);
+	}
+	return S;
+}
+
 def xypg2tg(K)
 {
 	D=3.1416/2;Or=[0,0];Op="red";Every="";M=0.5;V=0.15;W=0.2;Num=St=Pr=F=0;Line=R=[];
@@ -1959,6 +2331,7 @@ def xypg2tg(K)
     ["del",I] : Iを潰す
 	["pair",I] : Iを通る対角線の他方
 	["pairb",I] : Iとつながった頂点（辺でのつながりを含む）
+    ["vertex",I] : [I-1,I] を一辺とする三角形の頂点
 	["mirror",K]：[I,J] -> [K-I,K-J]
     ["flip0",[I,J]] : [I,J] の他方の対角線
 	["flip",[I,J]]  : [I,J] でフリップ
@@ -2024,10 +2397,16 @@ def pgpart(K,F)
 				if(length(R)!=S-4) return 0;
 				return pgpart(R,0);
 			}
-			if(F[0]=="pair"||F[0]=="pairb"){
+			if(F[0]=="pair"||F[0]=="pairb"||F[0]=="vertex"){
 				for(R=[];K!=[];K=cdr(K)){
 					if(car(K)[0]==F[1]) R=cons(car(K)[1],R);
 					if(car(K)[1]==F[1]) R=cons(car(K)[0],R);
+				}
+				if(F[0]=="vertex"){
+					R=cons((F[1]+1)%S,R);
+					for(T=[];R!=[];R=cdr(R)) T=cons(car(R)<F[1]?car(R)+S:car(R),T);
+					for(I=-1;T!=[];T=cdr(T)) if(car(T)>I) I=car(T);
+					return I%S;
 				}
 				if(F[0]=="pairb"){
 					R=cons((F[1]+1)%S,R);R=cons((F[1]-1)%S,R);
@@ -4903,7 +5282,7 @@ def lcut(L,M,N)
 def llget(L,LL,LC)
 {
 	if(type(LL)==4){
-		LM=length(L);
+		LM=length(L); 
 		for(R=[];LL!=[];LL=cdr(LL)){
 			if(isint(TL=car(LL))) R=cons(TL,R);
 			else{
@@ -4938,6 +5317,267 @@ def llget(L,LL,LC)
 	return L;
 }
 
+def spantree(F,L,D)
+{
+	if(!isint(Lim=getopt(limit))) Lim=10000;
+	if(type(D)!=4 && length(D)<0) return 0;
+	if(type(Optim=getopt(optimize))!=4) Optim=[8,-4];
+	if(car(Optim)>0&&(Len=length(D)+2)>car(Optim)-2){
+		for(N=8;N<=Len;N*=2);
+		for(;Optim!=[] && Optim[0]>0 && Optim[0]<=N; Optim=cdr(Optim));
+		Optim=cons(N,Optim);
+	}
+	Opt=[["opt","init"],["optimize",Optim],["data",D]];
+	if(type(X=getopt(comp))==2) Opt=cons(["comp",X],Opt);
+	if(!isint(X=getopt(unit))||X<64) X=1024;;
+	V=btree(0,X|option_list=Opt);
+	Fop=getopt(fopt);
+	if(type(Fop)!=4||length(Fop)==0||type(Fop[0])!=4) Fop=[];
+	for(M=1,N=V[0][1];;){
+		for(TL=L;TL!=[];TL=cdr(TL))
+			for(I=M;I<N;I++){
+				T=call(F,[TL[0],V[I][0]]|option_list=Fop);
+				V=btree(T,V);
+			}
+		N2=V[0][1];
+		if(N==N2||N>Lim) break;
+		M=N;N=N2;
+	}
+	return N>Lim? [N,V]:V;
+}
+
+/*
+ * V[0] 0: Head
+ *      1: Next
+ *      2: End
+ *      3: Unit
+ *      4: Fn
+ *      5: Optimize
+ *      6: Depth
+ *      7: Deleted list
+ *      8: Reserved
+ */
+def btree(X,V)
+{
+	Ch=0;
+	if(type(Opt=getopt(opt))==7){
+		if(Opt=="del"){
+			if(!(R=btree(X,V|opt="check"))) return V;
+			V[T=R[0]][3]=0;
+			if(getopt(keep)==1) return V;
+			if(T==R[1]) F=0;
+			else F=(V[R[1]][1]==T)?1:2;
+			I=V[T][1];J=V[T][2];
+			if(!I){
+				if(F) V[R[1]][F]=J;
+				else V[0][0]=J;
+			}else{
+				if(!J){
+					if(F) V[R[1]][F]=I;
+					else V[0][0]=I;
+				}else{
+					for(L=K=J;V[L][1];){
+						K=L;
+						L=V[L][1];
+					}
+					V[K][1]=V[L][2];
+					V[L][1]=I;V[L][2]=J;
+					if(F) V[R[1]][F]=L;
+					else V[0][0]=L;
+				}
+			}
+			V[0][7]=cons(T,V[0][7]);
+			V[T]=0;
+			return V;
+		}
+		if(Opt=="num") return V[0][1]-length(V[0][7])-1;
+		if(Opt=="get"){
+			if(X==0){
+				for(R=[],I=L=V[0][1]-1;I>0;I--) if(V[I][3]>0) R=cons(V[I][0],R);
+				return R;
+			}
+			if(X==-2) return V[0][6];
+			if(V[0][1]==1) return [];
+			R=[];T=[0,V[0][0]];
+			if(isint(I=getopt(top))){
+				if(I>0 && I<V[0][1] && V[I]!=0) T=[0,I];
+				else return 0;
+			}
+			while(1){
+				I=T[1];
+				if(!car(T)){
+					T=cons(1,cdr(T));
+					if(V[I][1]){
+						T=cons(V[I][1],T);T=cons(0,T);
+					}
+				}else if(car(T)==1){
+					T=cons(2,cdr(T));
+					if(V[I][3]||X==2||X==3) R=cons(I,R);
+					if(V[I][2]){
+						T=cons(V[I][2],T);T=cons(0,T);
+					}
+				}else{
+					T=cdr(T);T=cdr(T);
+					if(T==[]){
+						if(X==-1) return reverse(R);
+						if(X==2) for(S=[];R!=[];R=cdr(R)) S=cons([V[car(R)][3],V[car(R)][0]],S);
+						else for(S=[];R!=[];R=cdr(R)) S=cons(V[car(R)][0],S);
+						return S;
+					}
+				}
+			}
+		}
+		if(Opt=="clear"){
+			for(I=V[0][1];I>0;I--) V[I]=0;
+				/* [1,1,V,U,Cp,[0],0,[],0]);  h,n,e,u,f,op,dp,de */
+			V[0][0]=V[0][1]=1;V[0][6]=0;V[0][7]=[];
+			return V;
+		}
+		if(Opt=="init"){
+			if(!isint(V)||V<8) V=U=128;
+			if(type(Cp=getopt(comp))!=2) Cp=0;
+			if(type(TD=Data=getopt(data))==4){
+				for(T=car(TD),TD=cdr(TD);TD!=[];TD=cdr(TD)){
+					if(T>=car(TD)) break;
+					T=car(TD);
+				}
+				if(TD!=[]){
+					if(!Cp) Data=qsort(Data);
+					else qsort(Data,Cp);
+				}
+				V+=length(Data);
+			}else Data=0;
+			W=newvect(V+2);
+			W[0]=ltov([1,1,V,U,Cp,[0],0,[],0]); 	/* h,n,e,u,f,op,dp,de */
+			if(type(T=getopt(fn))==2) W[0][4]==T; 
+			if(type(Op=getopt(optimize))==4) W[0][5]=Op;
+			else if(isint(Op) && Op>3) W[0][5]=[[Op,0]];
+			if(Data&&Data!=[]){
+				W[1]=ltov([Data[0],0,0,1]);
+				Data=cdr(Data);
+				for(I=1;Data!=[];Data=cdr(Data)){
+					if(car(W[I])!=car(Data)){
+						W[I][2]=I+1;
+						W[++I]=ltov([car(Data),0,0,1]);
+					}else W[I][3]++;
+				}
+				W[0][1]=I+1;
+				W=btree(0,W|opt="optimize");
+			}
+			return W;
+		}
+		if(Opt=="optimize"){
+
+/*
+               8
+　     4　　          12         2^2+I*2^3
+   2       6 　   10      14     2^1+I*2^2
+ 1   3   5   7  9   11  13  15   2^0+I*2^1
+
+ [1+I*(L-1)/(2^k-2): L=1,...,2^k-1)
+ 
+  2    2      3      3        4        4          5
+ 1 3  1  4  1   5  1   5    2   6    2   6     2    7
+        3    2 4    2 4 6  1 3 5 7  1 3 5  8  1 3  6  9
+                                          7      4   8
+*/
+			R=btree(-1,V|opt="get");
+			if((L=length(R))<3) return V;
+			R=ltov(cons(0,R));
+			for(I=1;I<=L;I++) V[I][1]=V[I][2]=0; 
+			for(D=2,M=4;M-1<=L;M*=2,D++);
+			M/=2;
+			if((P=(L-1)/(M-2))>2) P=2;  /* L=14, M=8, D=5 */ 
+			for(I=J=1;I<M;I++){  /* I:1,...,M-1, T:1,...,L */
+				T=floor(1+(I-1)*P);
+				if(T-J>1){
+					if(iand(1,I)) V[R[T]][1]=R[T-1];
+					else V[R[J]][2]=R[T-1];
+				}
+				J=T;
+			}
+			if(P==1) D--;
+			else if(T<L) V[R[T]][2]=R[L];
+			for(I=K=2;K<M;K*=2){
+			 	for(I=K;I<M;I+=2*K){
+					J=floor(1+(I-1)*P);
+					V[R[J]][1]=R[floor(1+(I-1-K/2)*P)];
+					V[R[J]][2]=R[floor(1+(I-1+K/2)*P)];
+			 }
+			}
+			V[0][0]=R[J];V[0][6]=D;
+			return V;
+		}
+		if(Opt=="info"){
+			T=V[0];
+			R=[" Head",T[0]," Next",T[1]," Size",T[2]," Unit",T[3]," Comp",T[4]," Optimize",T[5]," Depth",
+			T[6]," #",T[1]-length(T[7])-1];
+			return R;
+		}
+		if(Opt=="check") Ch=1;
+	}
+	KK=K=V[0][0]; /* classify */
+	if(V[K]==0){
+		if(Ch) return 0;
+		V[0][1]=2;V[0][7]=[];
+		V[1]=ltov([X,0,0,1]);
+		return V;
+	}
+	M=1;
+	if(!isint(Ad=getopt(add))) Ad=1;
+	while(1){
+		T=V[K];
+		if(V[0][4]) F=(*(V[0][4]))(car(T),X);
+		else if(T[0]==X) F=0;
+		else if(T[0]<X) F=1;
+		else F=-1;
+		if(!F){
+			if(Ch) return [K,KK];
+			T[3]=T[3]+Ad;
+			return V;
+		}
+		if(F<0){
+			KK=K;
+			if(T[1]>0){
+				M++;K=T[1];continue; 
+			}
+			if(Ch) return 0;
+			J=1;
+		}else{
+			KK=K;
+			if(T[2]>0){
+				M++;K=T[2]; continue;
+			}
+			if(Ch) return 0;
+			J=2;
+		}
+		if((T=V[0][7])!=[]){
+			I=car(T);
+			V[0][7]=cdr(T);
+			if(I!=K) V[K][J]=I;
+			V[I]=ltov([X,0,0,Ad]);
+		}else{
+			I=V[0][1];
+			if(I!=K) V[K][J]=I;
+			V[I]=ltov([X,0,0,1]);
+			if((V[0][1]=I+1)>V[0][2]){
+				W=newvect(V[0][3]);
+				V=ltov(append(vtol(V),vtol(W)));
+				V[0][2]+=V[0][3];
+			}
+			if(I==car(V[0][5])-2){
+				V=btree(0,V|opt="optimize");
+				if(length(V[0][5])>0){
+					V[0][5]=cdr(V[0][5]);
+					if(car(V[0][5])==-4) V[0][5]=cons(2*(I+2),V[0][5]);
+					else if(car(V[0][5])==-3) V[0][5]=cons(I+2+V[0][3],V[0][5]);
+				}
+			}
+		} 
+		if(M>V[0][6]) V[0][6]=M;
+		return V;
+	}
+}
 
 def lsort(L1,L2,T)
 {
@@ -5305,6 +5945,23 @@ def msort(L,S)
 	if(type(S[0])!=4) S=[S];
 	LQS=S;
 	return qsort(L,os_md.mqsub);
+}
+
+def l2min(L,P)
+{
+	F=0;LL=L;
+	if(type(L)==4){
+		F=1; L=ltov(L);
+	}
+	for(R=[],TP=P;TP!=[];TP=cdr(TP)) R=cons(L[car(TP)],R);
+	R=reverse(R);
+	if(type(F=getopt(cpm))==2) S=qsort(R,F);
+	else S=qsort(R);
+	if(getopt(check)==1) return (S==R)?0:1;
+	if(S==R) return LL;
+	for(R=[],TP=P;TP!=[];TP=cdr(TP),S=cdr(S)) L[car(TP)]=car(S);
+	if(F) L=vtol(L);
+	return L;
 }
 
 def lpair(A,B)
@@ -7960,7 +8617,7 @@ def ghg2(A,B)
 
 /*
 	T^m = T(T-1)....(T-m+1)
-	f(t) -> g(t)
+ 	f(t) -> g(t)
  
 	f(t)   = a_mt^m + ... + a_1t+a_0
 	g(x*dx) = a_m*x^m*dx^m + ... + a_1*x*dx+a_0
@@ -7969,10 +8626,11 @@ def ghg2(A,B)
  */
 def sftpow(X,I)
 {
-	 R = 1;
-	 for(J=0;J<I;J++)
+	if(I<0) return sftpowext(X,I,-1);
+	R = 1;
+	for(J=0;J<I;J++)
 		R *= X-J;
-	 return(R);
+	return(R);
 }
 
 /* 
@@ -7980,10 +8638,11 @@ def sftpow(X,I)
 */
 def sftpowext(X,I,K)
 {
-	 R = 1;
-	 for(J=0;J<I;J++)
+	if(I<0) return 1/sftpowext(X-K,-I,-K);
+	R = 1;
+	for(J=0;J<I;J++)
 		R *= X+K*J;
-	 return(R);
+	return(R);
 }
 
 def polinsft(F,A)
@@ -8039,13 +8698,40 @@ def seriesHG(A,B,X,N)
 		return S;
 	}
 	S=0;
+/*
+	L=length(X);
+	V=newvect(L+1);W=newvwct(L+1);
+	for(I=0;I<=L;I++) V[I]=N;
+	vgen(V,W,N|opt=0);
+	if(type(F=getopt(sign))!=4){
+		F=newvect(L+1);
+		for(I=0;I<=L;I++) F[I]=1;
+	}else F=ltov(cons(1,F);
+	do{
+		for(U=0,C=I=P=1;I<=L;I++){
+			C/=sftpowext(1,W[I+1],1);
+			U+=F[I]*W[I];
+ 			for(T=A[0];T!=[];T=cdr(T)) C*=sftpowext(car(T),S,1);
+ 			for(T=B[0];T!=[];T=cdr(T)) C/=sftpowext(car(T),S,1);
+			for(I=1;I<=L;I++){
+				for(T=A[I];T!=[];T=cdr(T)) C*=sftpowext(car(T),W[I],1);
+				for(T=B[I];T!=[];T=cdr(T)) C/=sftpowext(car(T),W[I],1);
+				P*=X[I-1]^W[I];
+			}
+		}
+		S+=red(C*P);
+	}while((W=vgen(V,W,N))!=0)
+	return red(S);
+*/
+	F=1;
+	if(getopt(neg)==1) F=-1;
 	for(K=0;K<=N;K++){
 		for(I=0;I<=N-K;I++){
 			C=1/sftpowext(1,I,1)/sftpowext(1,J,1);
-			for(T=A[0];T!=[];T=cdr(T)) C*=sftpowext(car(T),I+K,1);
+			for(T=A[0];T!=[];T=cdr(T)) C*=sftpowext(car(T),I+F*K,1);
 			for(T=A[1];T!=[];T=cdr(T)) C*=sftpowext(car(T),I,1);
 			for(T=A[2];T!=[];T=cdr(T)) C*=sftpowext(car(T),K,1);
-			for(T=B[0];T!=[];T=cdr(T)) C/=sftpowext(car(T),I+K,1);
+			for(T=B[0];T!=[];T=cdr(T)) C/=sftpowext(car(T),I+F*K,1);
 			for(T=B[1];T!=[];T=cdr(T)) C/=sftpowext(car(T),I,1);
 			for(T=B[2];T!=[];T=cdr(T)) C/=sftpowext(car(T),K,1);
 			S+=red(C*X[0]^I*X[1]^K);
@@ -8162,6 +8848,15 @@ def seriesTaylor(F,N,V)
 
 def mulpolyMod(P,Q,X,N)
 {
+	if(type(X)==4){
+		T=makenewv([P,Q]);
+		for(TX=X;TX!=[];TX=cdr(TX)){
+			P=mysubst(P,[car(TX),car(TX)*T]);
+			Q=mysubst(Q,[car(TX),car(TX)*T]);
+		}
+		R=mulpolyMod(P,Q,T,N);
+		return subst(R,T,1);
+	}
 	Red=(type(P)>2||type(Q)>2)?1:0;
 	for(I=R=0;I<=N;I++){
 		P0=mycoef(P,I,X);
@@ -8172,7 +8867,7 @@ def mulpolyMod(P,Q,X,N)
 	}
 	return R;
 }
-
+   
 def solveEq(L,V)
 {
 	Inv=0;K=length(V);
@@ -10141,6 +10836,7 @@ def substblock(P,X,Q,Y)
 		P = red(P - mycoef(P,M,X)*(Q-Y)*X^(M-N)/R);
 	return P;
 }
+
 
 def okuboetos(P,L)
 {
@@ -12924,6 +13620,30 @@ def str_times(S,N)
 	return S;
 }
 
+def str2tab(L,F)
+{
+	W=80;Sp=2;
+	if(type(F)==4){
+		W=F[0];Sp=F[1];
+	}
+	S=length(L);
+	V=newvect(S);
+	for(I=0,TL=L;TL=cdr(TL);TL=cdr(TL),I++) V[I]=str_len(car(TL));
+	for(I=K=0;I<S;I++) if(V[I]>K) K=V[I];
+	C=(W+Sp-1)%(K+Sp)+1; 
+	if(C<2) return 0;
+	H=(S-1)%C+1;
+	K+=Sp;
+	if(getopt(verb)==1)
+		return(["columns:",C,"  lows:",H,"  space:",Sp=W+Sp-K*C]);
+	Tb=str_tb(0,0);
+	for(I=0,TL=L;I<S;I++,TL=cdr(TL)){
+		if(!(I+1)%C) str_tb([car(TL),"\n"],Tb);
+		else str_tb([car(TL),str_times(" ",K-V[I])],Tb);
+	}
+	return str_tb(0,Tb);
+}
+
 def ssubgrs(M,L)
 {
 	if(type(L)==7) L=s2sp(L);
@@ -12968,7 +13688,7 @@ def r2os(S)
 		}
 		return "mat("+T+")\n";
 	}else if(type(S)==5){
-		for(T="",S=v2l(S);S!=[];S=cdr(S)){
+		for(T="",S=vtol(S);S!=[];S=cdr(S)){
 			if(T!="") T=T+","+r2os(car(S));
 			else T=r2os(car(S));
 		}
@@ -14100,7 +14820,7 @@ def show(P)
 		if((Sp=getopt(sp))==1 || Sp==2)
 			S=mtotex(P|lim=1,small=2,sp=Sp,null=1,mat="B");
 		else if(type(Var)==4 || type(Var)==7)
-			S=mtotex(P|lim=1,small=2,var=Var);
+			S=mtotex(P|lim=1,small=2,var=Var); 
 		else
 			S=mtotex(P|lim=1,small=2);
 		Size=size(P);
@@ -14122,7 +14842,7 @@ def show(P)
 		if(!isfctr(P)){
 			if(Raw) return my_tex_form(P);
 			else{
-				dviout(P); return;
+				dviout(P); return; 
 			}
 		}
 		if(Raw) return fctrtos(P|option_list=cons(["TeX",3],Opt));
@@ -14131,14 +14851,14 @@ def show(P)
 		F=0;N=length(getopt());
 		if(Raw) N--;
 		if(N==1){
-			if(type(Var=getopt(var))>1){
-				if(isvar(Var)) Var=[0,Var];
-				else if(type(Var)==4&&Var[0]!=0) Var=cons(0,Var);
-				else Var=0;
-			}else if(type(Var=getopt(eqs))!=4) Var=0;
-		}else if(N==0) Var=[];
-		else Var=0;
-		if(type(Var)==4){
+			if(type(VV=getopt(var))>1){  /* new var VV */
+				if(isvar(VV)) VV=[0,VV];
+				else if(type(VV)==4&&VV[0]!=0) VV=cons(0,VV);
+				else VV=0;
+			}else if(type(Ve=getopt(eqs))!=4) VV=0;
+		}else if(N==0) VV=[];
+		else VV=0;
+		if(type(VV)==4){
 			for(F=0,L=P;L!=[];L=cdr(L)){ /* */
 				if(type(car(L))==2) F+=nmono(car(L));
 				else{
@@ -14147,7 +14867,7 @@ def show(P)
 			}
 		}
 		if(F>50){
-			S=texbegin("align*",eqs2tex(P,Var));
+			S=texbegin("align*",eqs2tex(P,VV));
 			if(Raw) return S;
 			dviout(S);return;
 		}
@@ -16318,7 +17038,13 @@ def gamma(Z)
 def lngamma(Z)
 {
 	if(vars(Z=map(eval,Z))!=[]) return todf(os_md.lngamma,[Z]);
-    return (type(Z)==4)?pari(lngamma,Z[0],Z[1]):pari(lngamma,Z);
+ /*   return (type(Z)==4)?pari(lngamma,Z[0],Z[1]):pari(lngamma,Z);
+	if(type(Z)==1&&ntype(Z)==1&&Z>170){
+		F=ctrl("evalef");ctrl("evalef",1);
+		V=log(2@pi)/2+(z-1/2)*log(Z) 
+	} */
+	V=(type(Z)==4)?pari(gamma,Z[0],Z[1]):pari(gamma,Z); 
+	return eval(log(V));
 }
 
 def digamma(Z)
@@ -22300,6 +23026,7 @@ def unim(S)
 
 def pfrac(F,X)
 {
+	TeX=getopt(TeX);Dvi=getopt(dviout);
 	if(type(F)==6){
 		F=mtransbys(os_md.pfrac,F,[X]);
 		S=size(F);
@@ -22324,9 +23051,9 @@ def pfrac(F,X)
 			for(J=0;J<S[1];J++)
 				if(T[I][J]!=0) K=1;
 		if(!K) R=cdr(R);
-		if(getopt(TeX)==1||getopt(dviout)==1){
+		if(TeX==1||Dvi==1){
 			for(S="",TR=R;TR!=[];TR=cdr(TR)){
-mycat(TR);
+/* mycat(TR); */
 				if(S!="") S+="+";
 				M=mtotex(car(TR)[0]);
 				if(car(TR)[1]==1){
@@ -22345,10 +23072,31 @@ mycat(TR);
 		}
 		return R;
 	}
+	if(type(X)==4){
+		P=[F,1,1];
+		for(S=[],TX=X;TX!=[];TX=cdr(TX)){
+			Q=pfrac(P[0],car(TX));
+			if(type(Q)!=4){
+				P=[Q,1,1];break;
+			}
+			P=Q[0];
+			S=append(cdr(Q),S);
+		}
+		R=cons(P,S);
+		if(Dvi==1||TeX==1){
+			V=strtov("0");
+			for(S=L=0,RR=R;RR!=[];RR=cdr(RR),L++){
+				RT=car(RR);
+				S+=(RT[0]/RT[1]^RT[2])*V^L;
+			}
+			if(TeX!=1) fctrtos(S|var=[V,""],dviout=1);
+			else return fctrtos(S|var=[V,""],TeX=3,lim=0);
+		}
+		return R;
+	}
 	F = red(F);
 	FN = nm(F);
 	FD = dn(F);
-	TeX=getopt(TeX);Dvi=getopt(dviout);
 	if(mydeg(FD,X) == 0){
 		if(TeX==1||Dvi==1){
 			if(TeX!=1) fctrtos(F|var=X,dviout=1);
