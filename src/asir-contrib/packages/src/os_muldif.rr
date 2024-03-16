@@ -5333,11 +5333,14 @@ def spantree(F,L,D)
 	V=btree(0,X|option_list=Opt);
 	Fop=getopt(fopt);
 	if(type(Fop)!=4||length(Fop)==0||type(Fop[0])!=4) Fop=[];
+	if(type(F)!=4) F=[F];
 	for(M=1,N=V[0][1];;){
 		for(TL=L;TL!=[];TL=cdr(TL))
 			for(I=M;I<N;I++){
-				T=call(F,[TL[0],V[I][0]]|option_list=Fop);
-				V=btree(T,V);
+				for(TF=F;TF!=[];TF=cdr(F)){
+					T=call(car(TF),[TL[0],V[I][0]]|option_list=Fop);
+					V=btree(T,V);
+				}
 			}
 		N2=V[0][1];
 		if(N==N2||N>Lim) break;
