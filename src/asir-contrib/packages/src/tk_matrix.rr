@@ -5,6 +5,7 @@ localf kronecker_product;
 localf test_kronecker_product;
 localf row_matrix;
 localf stack;
+localf ones;
 
 def kronecker_product(A,B) {
   A=matrix_list_to_matrix(A);
@@ -53,6 +54,22 @@ def stack(A,B) {
   C=append(matrix_matrix_to_list(A),
            matrix_matrix_to_list(B));
   return matrix_list_to_matrix(C);
+}
+
+def ones(N) {
+  if (type(getopt(one)) >= 0) X=getopt(one); else X=1;
+  if (type(getopt(size))>0) Size=getopt(size); else Size=0;
+  if (Size==0) {
+    M=newvect(N); for (I=0; I<N; I++) M[I]=X; return M;
+  }else{
+    M=newmat(Size[0],Size[1]);
+    for (I=0; I<Size[0]; I++) {
+      for (J=0; J<Size[1]; J++) {
+        M[I][J]=X;
+      }
+    }
+    return M;
+  }
 }
 
 endmodule;

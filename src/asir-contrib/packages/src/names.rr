@@ -1120,6 +1120,16 @@ def matrix_row_matrix(L) {
   OX_LOADFILE(Loaded_ok_matrix,"tk_matrix.rr");
   return tk_matrix.row_matrix(L | option_list=getopt());
 }
+/*&usage begin: matrix_ones(N | one=m, size=[p,q])
+ It returns the vector [1 1 ... 1] of length N.
+ When one=m, it returns [m m ... m].
+ When size=[p,q] is given, N is ignored and returns p by q matrix with entries 1.
+ example: vtol(matrix_ones(3));  returns the list [1,1,1]
+end: */
+def matrix_ones(N) {
+  OX_LOADFILE(Loaded_ok_matrix,"tk_matrix.rr");
+  return tk_matrix.ones(N | option_list=getopt());
+}
 
 
 /* Canonical function names for graphic. cf. Mathematica/Graphic */
