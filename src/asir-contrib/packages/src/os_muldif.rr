@@ -367,6 +367,7 @@ localf cutgrs$
 localf mcgrs$
 localf mc2grs$
 localf mcmgrs$
+localf newKZmat$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -565,7 +566,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240310"$
+Muldif.rr="00240320"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2036,7 +2037,7 @@ def getCatalan(X,N)
 	return R;
 }
 
-def cmptournament(S,T)
+def cmptournament(S,T) /* called by xytournament() */
 {
 	HS=os_md.lmax([S[0][1],S[1][1]]);
 	HT=os_md.lmax([T[0][1],T[1][1]]);
@@ -2070,10 +2071,6 @@ def xytournament(L,V)
 		XX=V[0];YY=V[1];
 	}
 	SY=YY;
-	Sft=getopt(shift);
-	if(type(Sft)==4&&length(Sft)==2){
-		SY=Sft[1];Sft=Sft[0];
-	}
 	if(type(L)==7)
 		L=os_md.getCatalan(L,0|to="01");
 	LL=length(L)/2;
@@ -2114,8 +2111,7 @@ def xytournament(L,V)
 				TR=car(RR);
 				if(car(TR)[0][0]!=K0) continue;
 				if(car(TR)[1][1]==K1) break;
-			}
-•`‚­
+			}	
 			V=cons(append(car(RR),[H]),V);
 			if(K0<car(TR)[0][1]) ))SR=cons([K0,car(TR)[0][1]],SR);
 			if(car(TR)[1][0]<K1) SR=cons([car(TR)[1][0],K1],SR);
@@ -2129,20 +2125,63 @@ def xytournament(L,V)
 
 	S=qsort(S,os_md.cmptournament);
 
+	Sft=getopt(team);
+	if(type(Sft)==4&&length(Sft)==2){
+		SY=Sft[1];Sft=Sft[0];
+	}
 	Top=getopt(top);
+	Pos=-2;
+	Skip=0.5;
+	if(type(W=getopt(winner))==4){
+		if(length(W)==3) Skip=W[2];
+		else if(length(W)==2){
+			if(type(W[1])==4) Win=W[1];
+			else Skip=W[1];
+		}
+		W=W[0];
+	}
+	if(type(Win)!=4) Win=[];
+	for(T=[];Win!=[];Win=cdr(Win)){
+		T=cons([car(Win)[0]-1,car(Win)[1]-1],T);
+	}
+	Win=qsort(T);
+	if(isint(W)) Pos=W-1;
+	if(Pos==-1&&type(Sft)==4)
+		Pos=findin(0,Sft);
+	if(Pos>=0) Top=1;
+	SK=[[0,Skip],[-Skip,0]];
 	for(T="",S=reverse(S);S!=[];S=cdr(S)){
 		S0=car(S)[0];S1=car(S)[1];
 		L0=S0[1];X0=S0[0][0]+S0[0][1];
 		L1=S1[1];X1=S1[0][0]+S1[0][1];
+		X2=S0[0][0]+S1[0][1];
 		Y=os_md.lmax([L0,L1]);
-		T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,(Y+1)*YY])
-		  +"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+		if(Pos<0)
+			T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
+			+os_md.xypos([X1*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+		else{
+			F=0;
+			if(Pos>=S1[0][0]&&Pos<=S1[0][1]) F=1;
+			else if(Pos>=S0[0][0]&&Pos<=S0[0][1]) F=-1;
+			for(TW=Win;!F&&TW!=[];TW=cdr(TW)){
+				if(S0[0][0]!=car(TW)[0]) continue;
+				if(S1[0][1]==car(TW)[1]) F=1;
+			}
+			if(F!=1) F=0;
+			T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
+				+os_md.xypos([(X2+SK[F][0])*XX,(Y+1)*YY])+" "
+		  		+os_md.xypos([(X2+SK[F][1])*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,(Y+1)*YY])
+		  		+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+		}
 		if(Top==1){
-			T=T+os_md.xypos([(X0+X1)*XX/2,(Y+1)*YY])+"--"+os_md.xypos([(X0+X1)*XX/2,(Y+2)*YY])+"\n";
+			T=T+os_md.xypos([X2*XX,(Y+1)*YY])+"--"+os_md.xypos([X2*XX,(Y+2)*YY])+"\n";
 			Top=0;
 		}
 	}
-	if(os_md.isint(Sft)) for(I=0;I<=LL;I++) T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(I+Sft)+ "$}\n";
+	if(isint(Sft)) for(I=0;I<=LL;I++)
+		T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(I+Sft)+ "$}\n";
+	else if(type(Sft)==4) for(I=0;I<=LL;I++)
+		 T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(Sft[I])+ "$}\n";
 	S=os_md.texbegin("tikzpicture","\\draw\n"+T+";\n");
 	if(os_md.dviout0(-1|opt="TikZ")){
 		if((F=getopt(dviout))==1) os_md.dviout(S);
@@ -12977,6 +13016,50 @@ def mc2grs(G,P)
 		}
 	}
 	return mc2grs(G,"sort");
+}
+
+def newKZmat(K,L)
+{
+	if(type(L)==4&&type(car(L))<2){
+		if(length(L)==2){
+			L1=L[1];
+			if((L0=L[0])==0){
+				for(S="",I=1;I<=L1;I++) S=S+rtostr(I);
+				V0=makev([a,0,S]);
+				if(L1>1) V1=makev([a,S]);
+				else V1=0;
+				A=diagm(L1,[V0+mu]);
+				for(T=[],J=K;J>L1;J--)
+					T=cons(makev([a,0,J]),T);
+				for(B=[],I=0;I<L1;I++) B=cons(T,B);
+				B=newmat(L1,K-L1,B);
+				C=diagm(K-L1,[V1]);
+				return newbmat(2,2,[[A,B],[0,C]]);
+			}else{
+				if(L1<L0+1) return diagm(K,[0]);       
+				for(S="",I=L0;I<=L1;I++) S=S+rtostr(I);
+				V0=makev([a,0,S]);V1=makev([a,S]);
+				A=C=0;
+				if(L0>1) A=diagm(L0-1,[V1]);
+				for(T=[],I=L1;I>=L0;I--) T=cons(makev([a,0,I]),T);
+				for(B=[],I=L1;I>=L0;I--) B=cons(T,B);
+				S=L1-L0+1;
+				B=diagm(S,[V0])-newmat(S,S,B);
+				if(S=K-L1>0) C=diagm(S,[V1]);
+				if(A==0){
+					if(C==0) return B;
+					return newbmat(2,2,[[B,0],[0,C]]);
+				}
+				if(C==0) return newbmat(2,2,[[A,0],[0,B]]);
+				return newbmat(3,3,[[A,0,0],[0,B,0],[0,0,C]]);
+			}
+		}
+		return 0;
+	}
+	A=newmat(K,K);
+	for(I=0;I<K;L=cdr(L),I++)
+		for(TL=car(L);TL!=[];TL=cdr(TL)) A[car(TL)-1][I]=1;
+	return A;
 }
 
 def mcmgrs(G,P)
