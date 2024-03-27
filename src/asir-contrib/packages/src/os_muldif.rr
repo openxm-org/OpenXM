@@ -368,6 +368,7 @@ localf mcgrs$
 localf mc2grs$
 localf mcmgrs$
 localf newKZmat$
+localf midKZ$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -2120,16 +2121,16 @@ def xytournament(L,V)
 	}
 	S=V;
 */
-	if(getopt(verb)==1) return reverse(S);
-
-
 	S=qsort(S,os_md.cmptournament);
+
+	if(getopt(verb)==1) return S;
 
 	Sft=getopt(team);
 	if(type(Sft)==4&&length(Sft)==2){
 		SY=Sft[1];Sft=Sft[0];
 	}
 	Top=getopt(top);
+	if(Top!=0) Top=1;
 	Pos=-2;
 	Skip=0.5;
 	if(type(W=getopt(winner))==4){
@@ -13039,13 +13040,14 @@ def newKZmat(K,L)
 				if(L1<L0+1) return diagm(K,[0]);       
 				for(S="",I=L0;I<=L1;I++) S=S+rtostr(I);
 				V0=makev([a,0,S]);V1=makev([a,S]);
+				if(L1-L0==K-1&&getopt(verb)!=1) V0=0;
 				A=C=0;
 				if(L0>1) A=diagm(L0-1,[V1]);
 				for(T=[],I=L1;I>=L0;I--) T=cons(makev([a,0,I]),T);
 				for(B=[],I=L1;I>=L0;I--) B=cons(T,B);
 				S=L1-L0+1;
 				B=diagm(S,[V0])-newmat(S,S,B);
-				if(S=K-L1>0) C=diagm(S,[V1]);
+				if((S=K-L1)>0) C=diagm(S,[V1]);
 				if(A==0){
 					if(C==0) return B;
 					return newbmat(2,2,[[B,0],[0,C]]);
@@ -13060,6 +13062,28 @@ def newKZmat(K,L)
 	for(I=0;I<K;L=cdr(L),I++)
 		for(TL=car(L);TL!=[];TL=cdr(TL)) A[car(TL)-1][I]=1;
 	return A;
+}
+
+def midKZ(S,L,B)
+{
+	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
+		RA=cons(newKZmat(S,car(TL)),RA);
+	RA=reverse(RA);
+	U=newKZmat(S,B); V=myinv(U);
+	RB=os_md.madj(V,RA);
+	if(getopt(raw)==1) return [U,V,RA,RB];
+	S="U&=" + os_md.mtotex(U) + ",\\quad " + "V=U^{-1}=" + os_md.mtotex(V);
+	K=length(L);
+	for(I=0;I<K;I++){
+		J0=L[I][0];J1=L[I][1];
+		for(T="",J=J0;J<=J1;J++) T=T+rtostr(J);
+		S=S + "\\\\\n" + "\\tilde A_{" + T + "}&=" + os_md.mtotex(RA[I])
+		    + "\\to "  + os_md.mtotex(RB[I]);
+	}
+	S=str_subst(S,"a_","A_");
+	S=texbegin("align*",S);
+	if(getopt(dviout)==1) dviout(S);
+	return S;
 }
 
 def mcmgrs(G,P)
