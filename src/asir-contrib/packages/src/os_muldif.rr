@@ -13067,19 +13067,30 @@ def newKZmat(K,L)
 def midKZ(S,L,B)
 {
 	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
-		RA=cons(newKZmat(S,car(TL)),RA);
+		RA=cons(newKZmat(Size=S,car(TL)),RA);
 	RA=reverse(RA);
 	U=newKZmat(S,B); V=myinv(U);
 	RB=os_md.madj(V,RA);
 	if(getopt(raw)==1) return [U,V,RA,RB];
 	S="U&=" + os_md.mtotex(U) + ",\\quad " + "V=U^{-1}=" + os_md.mtotex(V);
 	K=length(L);
-	for(I=0;I<K;I++){
+	for(I=0,TT=[];I<K;I++){
 		J0=L[I][0];J1=L[I][1];
 		for(T="",J=J0;J<=J1;J++) T=T+rtostr(J);
-		S=S + "\\\\\n" + "\\tilde A_{" + T + "}&=" + os_md.mtotex(RA[I])
+		TT=cons(T="\\tilde A_{"+T+"}",TT);
+		S=S + "\\\\\n" + T + "&=" + os_md.mtotex(RA[I])
 		    + "\\to "  + os_md.mtotex(RB[I]);
 	}
+	K=length(TT);
+/*
+	for(SS="";I=0;I<K;I++){
+		SS=TT[I]+SS;
+		if(I!=0) SS=":"+SS;
+	}
+	SS="["+SS+"]&=";
+	for(I=0;I<S;I++){2
+	}
+*/
 	S=str_subst(S,"a_","A_");
 	S=texbegin("align*",S);
 	if(getopt(dviout)==1) dviout(S);
@@ -23295,7 +23306,7 @@ def cfrac(X,N)
 		if(Max){
 			M0=M[0][0];M1=M[1][0];
 			M=M*mat([Y,1],[1,0]);
-			if(M[0][0]>Max)	return M0/M1;
+			if(M[0][0]>Max||M[0][0]<-Max) return M0/M1;
 		}
 	}
 	return (Max==0)?reverse(F):M[0][0]/M[1][0];
