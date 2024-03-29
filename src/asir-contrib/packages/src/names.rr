@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20230107), Copyright 2000-2023, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240329), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -50,7 +50,8 @@ import("plucker.rr")$
 import("oxshell.rr")$
 import("taka_ahg.rr")$
 import("mt_graph.rr")$
-import("oh_number.rr")$
+/* import("oh_number.rr")$*/
+import("os_num.rr")$
 import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("nk_toric.rr")$
@@ -402,12 +403,11 @@ def number_eval(X) { return(taka_base_number_eval(X)); }
 def number_factor(X) { return(pari(factorint,X)); }
 /*&usage begin: number_float_to_rational(X) 
     example: number_float_to_rational(1.5234); 
-             number_float_to_rational(1.5234 | prec=14); 
+             number_setprec(30); //About 30 digits after the decimal point.  It also set setprec
 end: */
 def number_float_to_rational(X) { 
 /*  if (type(X)>3) return map(number_float_to_rational,X | option_list=getopt()); // bug, option cannot be passed by map */
-  if (type(X)>3) return map(number_float_to_rational,X);
-  return oh_number.rats(X | option_list=getopt());
+  return os_num.float_to_rational(X | option_list=getopt());
 }
 /*&usage begin: number_floor(X) example: number_floor(1.5); end: */
 def number_floor(X) { if ((type(X) <= 1) && (ntype(X) < 4)) return(pari(floor,X)); else {printf("Warning: number_floor(%a[invalid argument]) returns 0\n",X); return 0;}}
@@ -422,6 +422,18 @@ def number_n(Exp)  { NOT_YET; }  /* N [ ], numerical evaluator. */
 def number_round(X) { NOT_YET; }
 /*&usage begin: number_real_part(X) example: number_real_part(1+2*@@i); end: */
 def number_real_part(X) { return(taka_base_real_part(X)); }
+/*&usage begin: number_setprec(X)
+  When X is 0, it returns the current value of precision.
+  example:  number_setprec(30); 
+   number_float_to_rational(F) returns 
+   an approximation of F by a rational number with the accuracy
+   about 30 digits after the decimal point.  
+   It also calls setprec(30);
+ end:
+*/
+def number_setprec(Prec) {
+  return os_num.set_prec(Prec);
+}
 def number_sign(X) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */

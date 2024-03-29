@@ -1,0 +1,65 @@
+module os_num$
+static F2R_Prec$
+static F2R_Prec10$
+localf init_prec$
+localf set_prec$
+localf cfrac$
+localf float_to_rational$
+/* from os_muldif.rr 
+   |r-p/q|<1/q^2
+*/
+def cfrac(X,N)
+{
+  if(!ntype(X)&&N==0) N=2*dn(X)+1;
+  if(N<0) Max=N=-N;
+  Ng=(getopt(neg)==1)?1:0;
+  F=[Ng?ceil(X):floor(X)];
+  X=Ng?F[0]-X:X-F[0];
+  if(Max!=1) M=mat([F[0],1],[1,0]);
+  for(;N>0 && X!=0;N--){
+    X=1/X;
+    F=cons(Y=Ng?ceil(X):floor(X),F);
+    X=Ng?Y-X:X-Y;
+    if(Max){
+      M0=M[0][0];M1=M[1][0];
+      M=M*mat([Y,1],[1,0]);
+      if(M[0][0]>Max)	return M0/M1;
+    }
+  }
+  return (Max==0)?reverse(F):M[0][0]/M[1][0];
+}
+def init_prec(Prec) {
+  if (Prec < 2) return [F2R_Prec10,setprec()];
+  setprec(Prec);  /* also setprec for bigfloat */
+  F2R_Prec10=Prec;
+  Prec=idiv(Prec,2);
+  F2R_Prec=10^Prec;
+  return F2R_Prec10;
+}
+def set_prec(Prec) { return init_prec(Prec); }
+def float_to_rational(X) {
+  if (type(X)>=4) return map(float_to_rational,X);
+  if (X==0) return 0;
+  if (X<0) {Neg=1; X=-X;} else {Neg=0;}
+  if (X>1) {
+    Xint=floor(X);
+    X=X-Xint;
+  }else{
+    Xint=0;
+  }
+  Y=cfrac(X,-F2R_Prec)+Xint;
+  if (Neg) return(-Y); else return Y;
+}
+
+endmodule$
+os_num.init_prec(10)$
+
+/* os_num.cfrac(number_eval(@pi),-10^10); 
+X=os_num.float_to_rational(number_eval(@pi));
+setprec(100)$ 
+os_num.init_prec(90)$
+X2=os_num.float_to_rational(-number_eval(@pi))$
+number_eval(X2+@pi);
+*/
+
+end$
