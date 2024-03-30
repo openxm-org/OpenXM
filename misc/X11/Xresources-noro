@@ -1,0 +1,330 @@
+#define StaticGray 1
+#define GrayScale 2
+#define StaticColor 3
+#define PseudoColor 4
+#define TrueColor 5
+#define DirectColor 6
+
+/* 
+ *	Common Resources 
+ */
+
+#if 0
+#define rk24 -sony-fixed-medium-r-normal--24-170-100-100-c-120-jisx0201.1976-0
+#endif
+
+*jumpScroll:on
+KTerm*font:rk16
+KTerm*kanjiFont:kanji16
+KTerm*romanKanaFont:rk16
+KTerm*kanjiMode:euc
+KTermMotif*font:rk16
+KTermMotif*kanjiFont:kanji16
+KTermMotif*romanKanaFont:rk16
+KTermMotif*kanjiMode:euc
+XTerm.vt100.scrollBar: true
+XTerm.vt100.scrollbar.width: 8
+/* XTerm*locale:false */
+/* XTerm*font:rk16
+XTerm*locale:false */
+/* XTerm*font:rk24 */
+XTerm*utf8:1
+XTerm*wideChars:	true
+#if 0
+XTerm*font:	-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso10646-1
+XTerm*fontBold:	-misc-fixed-bold-r-semicondensed--13-120-75-75-c-60-iso10646-1
+#else
+XTerm*font:rk16
+#endif
+#if 0
+KTerm*VT100*translations: #override \
+	Shift<Key>delete: begin-conversion(_JAPANESE_CONVERSION)
+#endif
+
+#if 1
+KTerm*VT100*OpenIm: false
+#endif
+
+/*
+XTerm*VT100.geometry:56x21
+*/
+
+xterm-rogue*font:rogue-n
+xterm-rogue*boldFont:rogue-b
+
+kterm-14*Font:a14
+kterm-14*KanjiFont:k14
+kterm-14*RomanKanaFont:a14
+kterm-16*Font:rk16
+kterm-16*KanjiFont:kanji16
+kterm-16*RomanKanaFont:rk16
+kterm-24*Font:rk24
+kterm-24*KanjiFont:kanji24
+kterm-24*RomanKanaFont:rk24
+
+console*VT100.geometry:80x24-0+0
+
+console*title:console
+wizard*title:wizard
+geisha*title:geisha
+troll*title:troll
+nymph*title:nymph
+dragon*title:dragon
+vampire*title:vampire
+gnome*title:gnome
+iias*title:iias
+
+xclock*update:1
+xclock*geometry:80x80-0+0
+/* xclock*chime:true */
+
+/* 
+ *	Device Dependent Resources 
+ */
+
+#if (WIDTH==1600) /* Sun High Resolution Display */
+	KTerm*font:rk24
+	KTerm*kanjiFont:kanji24
+	KTerm*romanKanaFont:rk24
+	KTermMotif*font:rk24
+	KTermMotif*kanjiFont:kanji24
+	KTermMotif*romanKanaFont:rk24
+#endif
+
+/*
+ *	Color Definitions
+ */
+
+#ifdef COLOR
+/*	KTerm*Background:	#fff5b6 */
+/*	KTerm*VT100.Foreground:	black */
+/*	KTerm*Background:	bisque */
+/*	KTerm*VT100.Background:	WhiteSmoke */
+/*	KTermMotif*Background:	bisque */
+	local*Background:	WhiteSmoke
+	iyokan-0*Background:	FloralWhite
+	iyokan-1*Background:	MintCream
+	iyokan-2*Background:	PaleTurquoise
+	iyokan-3*Background:	SlateGray1
+	iyokan-4*Background:	LightYellow1
+	iyokan-5*Background:	ivory1
+	iyokan-6*Background:	snow1
+	iyokan-7*Background:	LightYellow
+	orange2-clone*Background:	LightBlue1
+	orange2*Background:	grey88
+#endif
+
+#if (CLASS == StaticGray && PLANES == 2)
+#if 0
+	KTerm*Background:	gray70
+	KTermMotif*Background:	gray70
+#endif
+#endif
+
+Vaders*BaseWait:               10
+Vaders*VaderWait:              300
+Vaders*SpacerWait:             50
+Vaders*ShotWait:               10
+Vaders*VshotWait:              30
+
+NEmacs*Font:	rk16
+NEmacs*KanjiFont:	k16
+
+/*
+Ghostscript*geometry: +0+0
+Ghostscript*xResolution: 78.909088
+Ghostscript*yResolution: 78.909088
+Ghostscript*xResolution: 300
+Ghostscript*yResolution: 300
+Ghostscript*xResolution: 80
+Ghostscript*yResolution: 80
+*/
+/*
+Ghostscript.xResolution: 78.9
+Ghostscript.yResolution: 78.9
+Ghostscript*xResolution: 100
+Ghostscript*yResolution: 100
+Ghostscript.xResolution: 78.9
+Ghostscript.yResolution: 78.9
+*/
+Ghostscript.xResolution: 75
+Ghostscript.yResolution: 75
+
+xbiff*background: gray70
+xbiff*update: 10
+
+xnemacs*font:rk16
+xnemacs*kfont:kanji16
+
+nemacs*font:rk16
+nemacs*kfont:kanji16
+
+swm*configuration:mwm
+Metafont*geometry: 400x400+0+0
+
+xdvi*ShapeWindow:false
+xdvi*gamma:1.9
+xdvi*expert:on
+xdvi*international: True
+xdvi*inputMethod: kinput2
+xdvi*preeditType: OverTheSpot,OffTheSpot,Root
+/* xdvi*ShrinkFactor:4 */
+
+kdraw*font1:*-courier-medium-r-*-80-75-*    Courier 8
+kdraw*font2:*-courier-medium-r-*-100-75-*   Courier 10
+kdraw*font3:*-courier-bold-r-*-120-75-*     Courier-Bold 12
+kdraw*font4:*-helvetica-medium-r-*-120-75-* Helvetica 12
+kdraw*font5:*-helvetica-medium-r-*-140-75-* Helvetica 14
+kdraw*font6:*-helvetica-bold-r-*-140-75-*   Helvetica-Bold 14
+kdraw*font7:*-helvetica-medium-o-*-140-75-* Helvetica-Oblique 14
+kdraw*font8:*-times-medium-r-*-120-75-*     Times-Roman 12
+kdraw*font9:*-times-medium-r-*-140-75-*     Times-Roman 14
+kdraw*font10:*-times-bold-r-*-140-75-*       Times-Bold 14
+kdraw*font11:*-times-medium-i-*-140-75-*     Times-Italic 14
+kdraw*font12:*-symbol-medium-r-*-80-75-*     Symbol 8
+kdraw*font13:*-symbol-medium-r-*-100-75-*     Symbol 10
+kdraw*font14:*-symbol-medium-r-*-120-75-*     Symbol 12
+kdraw*font15:*-symbol-medium-r-*-140-75-*     Symbol 14
+kdraw*font16:*-symbol-medium-r-*-180-75-*     Symbol 18
+kdraw*font17:*-symbol-medium-r-*-240-75-*     Symbol 24
+
+idraw*font1:*-courier-medium-r-*-80-75-*    Courier 8
+idraw*font2:*-courier-medium-r-*-100-75-*   Courier 10
+idraw*font3:*-courier-bold-r-*-120-75-*     Courier-Bold 12
+idraw*font4:*-helvetica-medium-r-*-120-75-* Helvetica 12
+idraw*font5:*-helvetica-medium-r-*-140-75-* Helvetica 14
+idraw*font6:*-helvetica-bold-r-*-140-75-*   Helvetica-Bold 14
+idraw*font7:*-helvetica-medium-o-*-140-75-* Helvetica-Oblique 14
+idraw*font8:*-times-medium-r-*-120-75-*     Times-Roman 12
+idraw*font9:*-times-medium-r-*-140-75-*     Times-Roman 14
+idraw*font10:*-times-bold-r-*-140-75-*       Times-Bold 14
+idraw*font11:*-times-medium-i-*-140-75-*     Times-Italic 14
+idraw*font12:*-symbol-medium-r-*-80-75-*     Symbol 8
+idraw*font13:*-symbol-medium-r-*-100-75-*     Symbol 10
+idraw*font14:*-symbol-medium-r-*-120-75-*     Symbol 12
+idraw*font15:*-symbol-medium-r-*-140-75-*     Symbol 14
+idraw*font16:*-symbol-medium-r-*-180-75-*     Symbol 18
+idraw*font17:*-symbol-medium-r-*-240-75-*     Symbol 24
+
+OpenWindows.SetInput: followmouse
+
+Mwm*fontList:*-helvetica-medium-r-*-140-75-*
+Mwm*keyboardFocusPolicy:pointer
+Mwm*XClock.clientDecoration:border
+Mwm*XBiff.clientDecoration:border
+
+
+Xwebster*display_scroller*display*font: 9x15
+Xwebster*fontList: 9x15
+
+/* plot*background:yellow */
+/* plot*shapeStyle:oval */
+#if 1
+plot*geometry:+100+100
+plot*form*resizable:False
+plot*form*background:orange
+plot*form*quit*background:red
+plot*form*wide*background:pink
+plot*form*precise*background:skyblue
+plot*form*formula*background:gold
+plot*form*noaxis*background:aquamarine
+plot*form*xcoord*background:khaki
+plot*form*ycoord*background:violet
+plot*form*level*background:plum
+plot*form*xdone*background:green
+plot*form*ydone*background:cyan1
+/*
+plot*dash:blue
+*/
+plot*upsidedown:on
+plot*reverse:off
+#endif
+/* plot*reverse:true */
+
+#if 0
+ox_xterm*iconic:on
+ox_xterm*scrollBar:on
+ox_xterm*saveLines:1000
+#endif
+
+#if 0
+plot*background:white
+#endif
+/* plot*shapeStyle:oval */
+x*Text.translations:	#override \n\
+	<Key>Return:	GetText() \n\
+	Ctrl<Key>C:	Intr()
+xipc*Text.translations:	#override \n\
+	<Key>Return:	GetText() \n\
+	Ctrl<Key>C:	Intr()
+xdvi*search*translations:	#override \n\
+	<Key>Return:	Search() \n\
+	Ctrl<Key>m:	Search()
+
+xdvi.mainTranslations: #override \n \
+<Key>j: down()\n\
+<Key>l: right()\n\
+<Key>h: left()\n\
+<Key>k: up()\n
+
+#if 0
+XCal.alarm.geometry:    =300x200+0+0
+XCal*MinStripWidth:     200
+XCal*Countdown:         10,0
+XCal*XcalendarCompat:   True
+XCal.form*height:       20
+XCal*font:              -adobe-helvetica-bold-r-normal--*-120-* 
+XCal*date.font:         -adobe-helvetica-bold-r-normal--*-120-* 
+XCal*info.font:         lucidasanstypewriter-bold-12
+XCal*label.font:                lucidasanstypewriter-bold-12
+XCal*newdate.Label:             Enter month & year
+#endif
+
+*msgwin.width:			480
+*msgwin.preferredPaneSize:	30
+*textwin.width:			480
+*textwin.preferredPaneSize:	200
+*textwin.allowResize:		True
+*textwin.autoFill:		True
+*textwin.wrap:		line
+/* *textwin.scrollVertical:	WhenNeeded */
+Xlog*textwin.scrollVertical:	Never
+Mwm*focusAutoRaise: False
+
+Netscape*inputMethod:  kinput2
+Netscape*international:  True
+Netscape*fontList:          \
+	-sony-fixed-medium-r-normal--16-*-*-*-*-*-iso8859-1;\
+	-*-fixed-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0;\
+	-sony-fixed-medium-r-normal--16-*-*-*-*-*-jisx0201.1976-0:
+
+gv*antialias:True
+*inputMethod: kinput2
+
+/* Emacs.Font: r12 */
+/* Emacs*geometry: 80x25 */
+Tgif.InitialFont: Ryumin
+Tgif.DoubleByteInputMethod: xim
+Tgif.SquareDoubleByteFonts: \n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,Ryumin-Light-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,Ryumin-Light-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,Ryumin-Light-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,Ryumin-Light-EUC-H\n\
+ \n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,GothicBBB-Medium-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,GothicBBB-Medium-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,GothicBBB-Medium-EUC-H\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,H,GothicBBB-Medium-EUC-H\n\
+ \n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,Ryumin-Light-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,Ryumin-Light-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,Ryumin-Light-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,Ryumin-Light-EUC-V\n\
+ \n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,GothicBBB-Medium-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,GothicBBB-Medium-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,GothicBBB-Medium-EUC-V\n\
+ -misc-fixed-medium-r-*--%d-*-*-*-*-*-jisx0208.1983-*,V,GothicBBB-Medium-EUC-V
+Tgif.MenuFontSet: a14,k14,r14
+Tgif.MsgFontSet: a14,k14,r14
+Tgif.BoldMsgFontSet: a14,k14,r14
