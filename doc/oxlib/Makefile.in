@@ -3,7 +3,13 @@ all : install-lib
 	make all-samples
 all-samples : test test1 test2 test3
 install-lib:
-	-(cd ../../lib ; ln -s ../../OpenXM_contrib2/asir2018/libasir.a .)
+	-if [ -f ../../OpenXM_contrib2/asir2018/libasir.a ]; then \
+	(cd ../../lib ; ln -s ../../OpenXM_contrib2/asir2018/.libs/libasir.a .); \
+	echo "libasir.a is used" ; \
+	else \
+	(cd ../../lib ; ln -s ../../OpenXM_contrib2/asir2018/.libs/libasir_X.a libasir.a); \
+	echo "libasir_X.a (with X) is used" ; \
+	fi
 ##
 ## make   
 ## make OpenXM_HOME=/usr/local/OpenXM
@@ -49,4 +55,4 @@ test1-tcp-rev: test1-tcp-rev.c
 
 
 clean :
-	rm -f test test1 test2 test3 *.o *~ *.a  a.out
+	rm -f test test1 test2 test3 *.o *~ *.a  a.out ../../lib/libasir.a
