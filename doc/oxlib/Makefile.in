@@ -13,30 +13,31 @@ OpenXM_HOME=../../../OpenXM
 LIBDIR=${OpenXM_HOME}/lib
 INCDIR=${OpenXM_HOME}/include
 
-ASIR_LIB=$(LIBDIR)/libasir.a
+ASIR_LIB=$(LIBDIR)/libasir_X.a
 ASIR_LIB_PARI_X=$(LIBDIR)/libasir_pari_X.a
 PARI_LIB=$(LIBDIR)/libpari.a
 GC=$(LIBDIR)/libasir-gc.a
+LIBEDIT=$(LIBDIR)/libedit.so
 #EXTRALIB=-lnsl -lsocket
 EXTRALIB=
-LOPT=-L/usr/X11R6/lib -L/opt/X11/lib -L${LIBDIR} -lmpfr -lmpc -lgmp -lm -lX11 -lXt -lXaw
+LOPT=-L/usr/X11R6/lib -L/opt/X11/lib -L${LIBDIR} -lpthread -lmpfr -lmpc -lgmp -lm -lX11 -lXt -lXaw
 
 INCLUDE=$(INCDIR)
 
 test1 : test1.o 
-	${CC} -o test1 test1.o $(ASIR_LIB) $(PARI_LIB) $(GC) $(EXTRALIB) $(LOPT)
+	${CC} -o test1 test1.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
 
 ## test2 : test2.o  
 test2 : test2.o 
-	${CC} -o test2 test2.o $(ASIR_LIB) $(PARI_LIB) $(GC) $(EXTRALIB) $(LOPT)
+	${CC} -o test2 test2.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
 
 ## test3 : test3.o  
 test3 : test3.o 
-	${CC} -o test3 test3.o $(ASIR_LIB) $(PARI_LIB) $(GC) $(EXTRALIB) $(LOPT)
+	${CC} -o test3 test3.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
 
 ## test : test.o  
 test : test.o 
-	${CC} -o test test.o $(ASIR_LIB) $(PARI_LIB) $(GC) $(EXTRALIB) $(LOPT)
+	${CC} -o test test.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
 test1-tcp-rev: test1-tcp-rev.c
 	${CC} -o test1-tcp-rev test1-tcp-rev.c 
 
