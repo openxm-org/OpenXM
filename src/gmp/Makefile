@@ -5,6 +5,7 @@ DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=gmp-6.2.1
+INTELMACFILE=libgmp-intelmac-6.3.0.tar.gz
 DISTFILES=${DISTNAME}.tar.bz2
 WRKSRC=work/${DISTNAME}
 #PATCHFILES = gmp.diff
@@ -16,6 +17,7 @@ fetch:
 	-mkdir work
 	@if [ ! -f work/.fetch_done ]; then \
 		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${INTELMACFILE} ${DISTDIR}; \
 	fi 
 	@touch work/.fetch_done
 
@@ -43,6 +45,8 @@ configure : patch
 			    ${MAKE} configure-cygwin ; \
 			elif [  "`uname | sed -e 's/_.*$$//'`" = "MSYS" ];  then \
 			    ${MAKE} configure-msys ; \
+			elif [  "`uname | sed -e 's/_.*$$//'`" = "Darwin" ] && [  "`uname -m`" = "x86_64" ]; then \
+			    ${MAKE} configure-darwin-x86-64 ; \
 			else \
 			    ${MAKE} configure-others ; \
 			fi ; \
@@ -58,6 +62,12 @@ configure-cygwin:
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx --build=x86_64-w64-mingw32  )
+configure-darwin-x86-64:
+	(cd ../..; tar xzvf ../OpenXM_dist/${INTELMACFILE}; cd lib; a=`/bin/pwd`; \
+	sed -e s:__LIBDIR__:$$a: libgmp.la.tmpl > libgmp.la; \
+	sed -e s:__LIBDIR__:$$a: libgmpxx.la.tmpl > libgmpxx.la )
+	@touch work/.build_done
+	@touch work/.install_done
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
 	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx)
