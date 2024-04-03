@@ -567,7 +567,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240320"$
+Muldif.rr="00240331"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -13071,27 +13071,80 @@ def midKZ(S,L,B)
 	RA=reverse(RA);
 	U=newKZmat(S,B); V=myinv(U);
 	RB=os_md.madj(V,RA);
+	K=length(L);RB=ltov(RB);
+	for(I=0;I<K;I++){
+		if((L0=car(L[I]))>0){
+			L1=L[I][1];
+			for(S="",J=L0,VV=0;J<=L1;J++){
+				S=S+rtostr(J);VV+=makev([a,0,J]);
+			}
+			V0=makev([a,0,S]);VV+=makev([a,S]);
+			TB=RB[I];
+			for(J=0;J<K;J++){
+				if(nmono(TB[J][J])>1){
+					W=subst(TB[J][J],V0,VV);
+					if(nmono(W)==1) TB[J][J]=W;
+				}
+			}
+		}
+	}
+	RB=vtol(RB);
 	if(getopt(raw)==1) return [U,V,RA,RB];
 	S="U&=" + os_md.mtotex(U) + ",\\quad " + "V=U^{-1}=" + os_md.mtotex(V);
+	S=S+",\\quad \\tilde A_* \\to V\\tilde A_*U";
 	K=length(L);
-	for(I=0,TT=[];I<K;I++){
+	for(TS=[],I=0;I<K;I++){
 		J0=L[I][0];J1=L[I][1];
 		for(T="",J=J0;J<=J1;J++) T=T+rtostr(J);
-		TT=cons(T="\\tilde A_{"+T+"}",TT);
-		S=S + "\\\\\n" + T + "&=" + os_md.mtotex(RA[I])
-		    + "\\to "  + os_md.mtotex(RB[I]);
+		TS=cons("\\tilde A_{" + T + "}",TS);
+		S=S + "\\\\\n" + car(TS) + "&=" + os_md.mtotex(RA[I]|var=0)
+		    + "\\to "  + os_md.mtotex(RB[I]|var=0);
 	}
-	K=length(TT);
-/*
-	for(SS="";I=0;I<K;I++){
-		SS=TT[I]+SS;
-		if(I!=0) SS=":"+SS;
+	TS=reverse(TS);
+	T="["+car(TS);
+	for(TS=cdr(TS);TS!=[];TS=cdr(TS)) T=T+":"+car(TS);
+	T=T+"]";
+	S=S+"\\\\\n"+T+"&=\\{";
+	for(I=0;I<Size;I++){
+		for(J=0;J<K;J++)
+			S=S+(!J? "[" : ":")+my_tex_form(RB[J][I][I]);
+		if(I<Size-1) S=S+"],";
+		else S=S+"]\\}";
 	}
-	SS="["+SS+"]&=";
-	for(I=0;I<S;I++){2
-	}
-*/
 	S=str_subst(S,"a_","A_");
+	for(TT=[],I=0;I<Size;I++){	/* L_{I+1} */
+		T0=rtostr(I+1);
+		if(I>8) T0="\\{"+T0+"\\}";
+		S=S+"\\\\\n"+T+"|_{\\mathcal L_"+T0+"}&=";
+		for(J=0;J<K;J++){
+			S=S+(!J? "[" : ":");
+			J0=L[J][0];J1=L[J][1];
+			for(T0="",II=J0;II<=J1;II++) T0=T0+rtostr(II);
+			if(!J0){
+				if(J1>1) for(T1="",II=1;II<=J1;II++) T1=T1+rtostr(II);
+				else T1="";
+			}else T1="0"+T0;
+			F=0;
+			if(!I) TT=cons(!J0?T1:T0,TT);
+			if(I>=J0-1&& I<J1) F=1;
+			if(!J0){
+				if(F) S=S+"A_{"+T0+"}+\\mu";
+				else  if(T1=="") S=S+"0";
+				else  S=S+"A_{"+T1+"}";
+			}
+			else S=S+"A_{"+(F? T1:T0)+"}";
+		}
+		S=S+"]|_{\\mathrm{ker}\\,A_{0" + rtostr(I+1) + "}}";
+	}
+	S=S+"\\\\\n"+T+"|_{\\mathcal L_\\infty}&=[";
+	for(I=0,TT=reverse(TT);TT!=[];I++,TT=cdr(TT)){
+		T=car(TT);
+		if(T=="") T="0";
+		else T="A_\{"+T+"\}";
+		if(I) S=S+":";
+		S=S+T;
+	}
+	S=S+"]|_{\\mathrm{ker}\\,(A_{0\\infty}-\\mu)}";
 	S=texbegin("align*",S);
 	if(getopt(dviout)==1) dviout(S);
 	return S;
@@ -15329,7 +15382,8 @@ def mtotex(M)
 	for(I=0; I<S[0]; I++){
 		for(J=0; J<S[1]; J++){
 			if(type(P=M[I][J])<=3){
-				if(P!=0 || Null == 0 || (Null==2 && I==J)){
+				if(Var==0) SS[I][J]=my_tex_form(P);
+				else if(P!=0 || Null == 0 || (Null==2 && I==J)){
 					if(type(V=getopt(pfrac))==2)
 						 SS[I][J]=pfrac(P,V|TeX=1);
 					else{
@@ -23306,7 +23360,7 @@ def cfrac(X,N)
 		if(Max){
 			M0=M[0][0];M1=M[1][0];
 			M=M*mat([Y,1],[1,0]);
-			if(M[0][0]>Max||M[0][0]<-Max) return M0/M1;
+			if(M[0][0]>Max)	return M0/M1;
 		}
 	}
 	return (Max==0)?reverse(F):M[0][0]/M[1][0];
