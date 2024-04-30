@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Mar. 2024)
+ *          Toshio Oshima (Nov. 2007 - April 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -72,6 +72,7 @@ localf pfctr$
 localf mymindeg$
 localf m1div$
 localf mulsubst$
+localf substnum$
 localf cmpsimple$
 localf simplify$
 localf monotos$
@@ -567,7 +568,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240331"$
+Muldif.rr="00240429"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1180,6 +1181,30 @@ def mulsubst(F,L)
 	for(J = 0; J < N; J++)
 		F = mysubst(F, [L1[J],L[J][0]]);
 	return F;
+}
+
+def substnum(L,U,V)
+{
+	if(type(L)==4){
+		L=ltov(L);VF=1;
+	}else if(type(L)==5) VF=0;
+	else return L;
+	if(type(Dep=getopt(depth))!=4){
+		if(isint(Dep)) Dep=[Dep];
+		else Dep=[0];
+	}
+	Dep=qsort(Dep);
+	if(car(Dep)!=0) Skip=1;
+	for(T=[],TD=cdr(Dep);TD!=[];TD=cdr(TD)) T=cons(car(TD)-1,T);
+	Dep=reverse(T);
+	for(K=length(L),I=0;I<K;I++){
+		X=L[I];
+		if(Dep!=[]&&(type(X)==4||type(X)==5)) L[I]=substnum(X,U,V|depth=Dep);
+		if(!Skip&&type(X)<4)
+			if((F=findin(X,U))>=0) L[I]=V[F];
+	}
+	if(VF) L=vtol(L);
+	return L;
 }
 
 def cmpsimple(P,Q)
@@ -1811,7 +1836,40 @@ def symtournament(N)
     çáÇÌÇπÇÈÇ∆ [[1,1],[2,2],[3,2],[4,1]];
 */
 	V=newvect(N+1);
-	V[1]=[[0,1]];/* V[2]=[[1,1]]; */
+	V[1]=[[1,1]];/* V[2]=[[1,1]]; */
+	for(K=2;K<=N;K++){
+	  V[K]=[];
+	  for(I=1;2*I<=K;I++){
+		for(V0=V[I];V0!=[];V0=cdr(V0)){
+			T0=car(V0);
+			if(2*I==K){
+				V[K]=cons([T0[0],T0[1]],V[K]);
+				if(T0[1]>1)
+					V[K]=cons([2*T0[0],T0[1]*(T0[1]-1)/2],V[K]);
+				V1=cdr(V0);
+			}else V1=V[K-I];
+			for(;V1!=[];V1=cdr(V1)){
+				T1=car(V1);
+				V[K]=cons([T0[0]+T1[0],T0[1]*T1[1]],V[K]);
+			}
+		}
+	  }
+	  V[K]=qsort(V[K]);
+	  for(I=-1,R=[],T=V[K];T!=[];T=cdr(T)){
+		J=car(T)[0];
+		if(I!=J){
+			R=cons(car(T),R);
+			I=J;
+		}else{
+			S=car(R)[1]+car(T)[1];
+			R=cons([I,S],cdr(R));
+		}
+      }
+	  V[K]=R;
+	}
+	W=V;
+	V=newvect(N+1);
+	V[1]=[[0,1]]; /* V[2]=[[1,1]]; */
 	for(K=2;K<=N;K++){
 	  V[K]=[];
 	  for(I=1;2*I<=K;I++){
@@ -1842,13 +1900,14 @@ def symtournament(N)
       }
 	  V[K]=R;
 	}
-	if(getopt(verb)==1) return V[N];
+	if(getopt(verb)==1) return [V[N],W[N]];
 	K=fac(N);
-	for(S=SS=0,T=V[N];T!=[];T=cdr(T)){
+	for(S=S1=0,T=V[N];T!=[];T=cdr(T)){
 		S+=(K/2^car(T)[0])*car(T)[1];
-		SS+=car(T)[1];
+		S1+=car(T)[1];
 	}
-	return [SS,catalan(N-1),S];  /* # type & total */
+	for(S2=0,T=W[N];T!=[];T=cdr(T)) S2+=car(T)[0]*car(T)[1];
+	return [S1,catalan(N-1),S,S2];  /* # type & total */
 }
 
 
@@ -2101,31 +2160,12 @@ def xytournament(L,V)
 		R=append(reverse(T),R);
 		K=length(R);
 	}
-/*  ìÒñ{ñÿÇÃï\é¶óp
-	L=getCatalan(L|to="P");
-	T2=pgpart(L,["vertex",0]);
-	K=[[0,T2-1],[T2,LL-1]];
-	for(V=[],H=0;K!=[];H++){
-		for(SR=[],KK=K;KK!=[];KK=cdr(KK)){
-			K0=car(KK)[0];K1=car(KK)[1];
-			for(RR=R;RR!=[];RR=cdr(RR))
-				TR=car(RR);
-				if(car(TR)[0][0]!=K0) continue;
-				if(car(TR)[1][1]==K1) break;
-			}	
-			V=cons(append(car(RR),[H]),V);
-			if(K0<car(TR)[0][1]) ))SR=cons([K0,car(TR)[0][1]],SR);
-			if(car(TR)[1][0]<K1) SR=cons([car(TR)[1][0],K1],SR);
-		}
-		K=SR;
-	}
-	S=V;
-*/
 	S=qsort(S,os_md.cmptournament);
 
-	if(getopt(verb)==1) return S;
-
-	Sft=getopt(team);
+	if((Verb=getopt(verb))==1) return S;
+	if(!isint(Verb)) Verb=0;
+	if((Rev=getopt(rev))!=1) Rev=0;
+	Sft=getopt(teams);
 	if(type(Sft)==4&&length(Sft)==2){
 		SY=Sft[1];Sft=Sft[0];
 	}
@@ -2142,15 +2182,14 @@ def xytournament(L,V)
 		W=W[0];
 	}
 	if(type(Win)!=4) Win=[];
-	for(T=[];Win!=[];Win=cdr(Win)){
+	for(T=[];Win!=[];Win=cdr(Win))
 		T=cons([car(Win)[0]-1,car(Win)[1]-1],T);
-	}
 	Win=qsort(T);
 	if(isint(W)) Pos=W-1;
 	if(Pos==-1&&type(Sft)==4)
 		Pos=findin(0,Sft);
 	if(Pos>=0) Top=1;
-	SK=[[0,Skip],[-Skip,0]];
+	SK=[[0,Skip],[-Skip,0]];RR=[];
 	for(T="",S=reverse(S);S!=[];S=cdr(S)){
 		S0=car(S)[0];S1=car(S)[1];
 		L0=S0[1];X0=S0[0][0]+S0[0][1];
@@ -2159,36 +2198,80 @@ def xytournament(L,V)
 		Y=os_md.lmax([L0,L1]);
 		if(Pos<0)
 			T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
-			+os_md.xypos([X1*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+			 +os_md.xypos([X1*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
 		else{
-			F=0;
-			if(Pos>=S1[0][0]&&Pos<=S1[0][1]) F=1;
-			else if(Pos>=S0[0][0]&&Pos<=S0[0][1]) F=-1;
+			F=0;FF=Rev?-1:1;
+			if(Pos>=S1[0][0]&&Pos<=S1[0][1]) FF=2;  /* right win */
+			else if(Pos>=S0[0][0]&&Pos<=S0[0][1]) FF=-2;
 			for(TW=Win;!F&&TW!=[];TW=cdr(TW)){
 				if(S0[0][0]!=car(TW)[0]) continue;
-				if(S1[0][1]==car(TW)[1]) F=1;
+				if(S1[0][1]==car(TW)[1]) FF=-FF;
 			}
-			if(F!=1) F=0;
-			T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
+			if(Verb){
+				RR=cons(append(car(S),[FF]),RR);
+				continue;
+			}
+			if(FF>0) F=1;
+			if(getopt(win) ==1&& (FF!=2&&FF!=-2))
+			 	T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
+			 	 +os_md.xypos([X1*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
+			else T=os_md.xypos([X0*XX,L0*YY])+"--"+os_md.xypos([X0*XX,(Y+1)*YY])+"--"
 				+os_md.xypos([(X2+SK[F][0])*XX,(Y+1)*YY])+" "
 		  		+os_md.xypos([(X2+SK[F][1])*XX,(Y+1)*YY])+"--"+os_md.xypos([X1*XX,(Y+1)*YY])
 		  		+"--"+os_md.xypos([X1*XX,L1*YY])+"\n"+T;
 		}
-		if(Top==1){
+		if(Top==1&&!Verb){
 			T=T+os_md.xypos([X2*XX,(Y+1)*YY])+"--"+os_md.xypos([X2*XX,(Y+2)*YY])+"\n";
 			Top=0;
 		}
 	}
-	if(isint(Sft)) for(I=0;I<=LL;I++)
-		T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(I+Sft)+ "$}\n";
-	else if(type(Sft)==4) for(I=0;I<=LL;I++)
-		 T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(Sft[I])+ "$}\n";
-	S=os_md.texbegin("tikzpicture","\\draw\n"+T+";\n");
-	if(os_md.dviout0(-1|opt="TikZ")){
-		if((F=getopt(dviout))==1) os_md.dviout(S);
-		else if(F==-1) os_md.dviout(S|keep=1);
+	if(!Verb){
+		if(isint(Sft)) for(I=0;I<=LL;I++)
+			T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(I+Sft)+ "$}\n";
+		else if(type(Sft)==4) for(I=0;I<=LL;I++)
+			T=T+"node at "+os_md.xypos([2*I*XX,-SY])+"{$"+rtostr(Sft[I])+ "$}\n";
+		S=os_md.texbegin("tikzpicture","\\draw\n"+T+";\n");
+		if(os_md.dviout0(-1|opt="TikZ")){
+			if((F=getopt(dviout))==1) os_md.dviout(S);
+			else if(F==-1) os_md.dviout(S|keep=1);
+		}
+		return S;
 	}
-	return S;
+	/* for midKZ() */
+	for(R0=[],TR=RR;TR!=[];TR=cdr(TR))
+	if(car(TR)[2]==2||car(TR)[2]==-2) R0=cons(car(TR),R0);
+	R0=qsort(R0,os_md.cmptournament);
+	RI=newvect(N=length(R0));NI=newvect(length(RR)+1);
+	for(I=J=0;I<N;I++){
+		F=R0[I][2]==2?0:1; X1=R0[I][F][0][0];X2=R0[I][F][0][1];
+		for(II=X1;II<=X2;II++) NI[II]=++J;
+		for(TR=RR, R=[];TR!=[];TR=cdr(TR))
+			if(car(TR)[0][0][0]>=X1&&car(TR)[0][0][0]<=X2 &&car(TR)[2]!=2&&car(TR)[2]!=-2)
+				R=cons(car(TR),R);  
+		RI[I]=reverse(qsort(R,os_md.cmptournament));
+	}
+	if(Verb==2) return [NI,R0,RI];
+		/* NI: label, R0: L0, RI: LI[] */
+	for(CL=CV=[],I=0;I<N;I++){	/* CL */
+		F=R0[I][2]>0?0:1; X1=NI[R0[I][F][0][0]];X2=NI[R0[I][F][0][1]];
+		for(TT=[],II=X2;II>=X1;II--) TT=cons(II,TT);
+		CV=cons(TT,CV);
+		for(L0=[],TR=RI[I];TR!=[];TR=cdr(TR)){
+			L0=cons([NI[car(TR)[0][0][0]],NI[car(TR)[1][0][1]]],L0);
+			F=car(TR)[2]>0?0:1; X1=NI[car(TR)[F][0][0]];X2=NI[car(TR)[F][0][1]];
+			for(TT=[],II=X2;II>=X1;II--) TT=cons(II,TT);
+			CV=cons(TT,CV);
+		}
+		if(Verb>3) L0=reverse(L0);
+		CL=append(L0,CL);
+		X1=R0[I][0][0][0];X2=R0[I][1][0][1];
+		if(I<N-1){
+			for(J=0,II=X1;II<=X2;II++) if(NI[II]>J) J=NI[II];
+			CL=cons([0,J],CL);
+		}
+	}
+	if(Verb<5) return [vtol(NI),reverse(CL),reverse(CV)];
+	return [vtol(NI),reverse(CL),reverse(CV),R0,RI];
 }
 
 def xypg2tg(K)
@@ -13081,18 +13164,21 @@ def midKZ(S,L,B)
 			V0=makev([a,0,S]);VV+=makev([a,S]);
 			TB=RB[I];
 			for(J=0;J<K;J++){
-				if(nmono(TB[J][J])>1){
-					W=subst(TB[J][J],V0,VV);
-					if(nmono(W)==1) TB[J][J]=W;
+			  for(JJ=0;JJ<=J;JJ++){
+				if(nmono(TB[J][JJ])>1){
+					W=subst(TB[J][JJ],V0,VV);
+					if(nmono(W)<=1){
+						TB[J][JJ]=W;
+					}
 				}
+			  }
 			}
 		}
 	}
 	RB=vtol(RB);
-	if(getopt(raw)==1) return [U,V,RA,RB];
+	if((Raw=getopt(raw))==1) return [U,V,RA,RB];
 	S="U&=" + os_md.mtotex(U) + ",\\quad " + "V=U^{-1}=" + os_md.mtotex(V);
 	S=S+",\\quad \\tilde A_* \\to V\\tilde A_*U";
-	K=length(L);
 	for(TS=[],I=0;I<K;I++){
 		J0=L[I][0];J1=L[I][1];
 		for(T="",J=J0;J<=J1;J++) T=T+rtostr(J);
@@ -13103,13 +13189,25 @@ def midKZ(S,L,B)
 	TS=reverse(TS);
 	T="["+car(TS);
 	for(TS=cdr(TS);TS!=[];TS=cdr(TS)) T=T+":"+car(TS);
-	T=T+"]";
-	S=S+"\\\\\n"+T+"&=\\{";
+	if(!isint(Skip=getopt(skip))) Skip=0;
+	if(Skip<0){
+		Skip=-Skip;FB=1;
+	}else FB=0;
+	if(Skip==1) S=T+"]&=\\{";
+	else if(Skip>1){
+		TT="\\mathcal A";S=TT+":\\!&="+T+"\]";
+		if(FB) S=S+"\\qquad" +rtostr(B);
+		S=S+"\\\\\n&=\\{";
+		T=TT;
+	}
+	else S=S+"\\\\\n"+T+"]&=\\{";
 	for(I=0;I<Size;I++){
 		for(J=0;J<K;J++)
 			S=S+(!J? "[" : ":")+my_tex_form(RB[J][I][I]);
-		if(I<Size-1) S=S+"],";
-		else S=S+"]\\}";
+		if(I<Size-1){
+			S=S+"],";
+			if(Skip>1 && (I+1)%Skip==0) S=S+"\\\\\n&\\quad\\ \\ \\,";
+		}else S=S+"]\\}";
 	}
 	S=str_subst(S,"a_","A_");
 	for(TT=[],I=0;I<Size;I++){	/* L_{I+1} */
@@ -13136,7 +13234,7 @@ def midKZ(S,L,B)
 		}
 		S=S+"]|_{\\mathrm{ker}\\,A_{0" + rtostr(I+1) + "}}";
 	}
-	S=S+"\\\\\n"+T+"|_{\\mathcal L_\\infty}&=[";
+	S=S+"\\\\\n"+T+"|_{\\mathcal L_\\infty}&=[";	/* L_infty */
 	for(I=0,TT=reverse(TT);TT!=[];I++,TT=cdr(TT)){
 		T=car(TT);
 		if(T=="") T="0";
