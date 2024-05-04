@@ -369,6 +369,7 @@ localf mcgrs$
 localf mc2grs$
 localf mcmgrs$
 localf newKZmat$
+localf midKZ0$
 localf midKZ$
 localf spslm$
 localf anal2sp$
@@ -379,6 +380,8 @@ localf str_cut$
 localf str_str$
 localf str_subst$
 localf str_times$
+localf str_addc$
+localf str_insert$
 localf str2tab$
 localf str_tb$
 localf strip$
@@ -568,7 +571,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240429"$
+Muldif.rr="00240502"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2252,26 +2255,26 @@ def xytournament(L,V)
 	}
 	if(Verb==2) return [NI,R0,RI];
 		/* NI: label, R0: L0, RI: LI[] */
-	for(CL=CV=[],I=0;I<N;I++){	/* CL */
+	for(CL=CV=CW=[],I=0;I<N;I++){	/* CL */
+		X1=R0[I][0][0][0];X2=R0[I][1][0][1];
+		for(J=0,II=X1;II<=X2;II++) if(NI[II]>J) J=NI[II];
 		F=R0[I][2]>0?0:1; X1=NI[R0[I][F][0][0]];X2=NI[R0[I][F][0][1]];
 		for(TT=[],II=X2;II>=X1;II--) TT=cons(II,TT);
-		CV=cons(TT,CV);
+		CV=cons(TT,CV);CW=cons([0,J],CW);
 		for(L0=[],TR=RI[I];TR!=[];TR=cdr(TR)){
 			L0=cons([NI[car(TR)[0][0][0]],NI[car(TR)[1][0][1]]],L0);
 			F=car(TR)[2]>0?0:1; X1=NI[car(TR)[F][0][0]];X2=NI[car(TR)[F][0][1]];
 			for(TT=[],II=X2;II>=X1;II--) TT=cons(II,TT);
-			CV=cons(TT,CV);
+			CV=cons(TT,CV);CW=cons([ NI[car(TR)[0][0][0]],NI[car(TR)[1][0][1]] ],CW);
 		}
-		if(Verb>3) L0=reverse(L0);
-		CL=append(L0,CL);
+		if(iand(Verb,8)==8) L0=reverse(L0);
+		if(iand(Verb,5)==4) CL=append(L0,CL);
 		X1=R0[I][0][0][0];X2=R0[I][1][0][1];
-		if(I<N-1){
-			for(J=0,II=X1;II<=X2;II++) if(NI[II]>J) J=NI[II];
-			CL=cons([0,J],CL);
-		}
+		if(I<N-1||iand(Verb,16)) CL=cons([0,J],CL);
+		if(iand(Verb,5)!=4) CL=append(L0,CL);
 	}
-	if(Verb<5) return [vtol(NI),reverse(CL),reverse(CV)];
-	return [vtol(NI),reverse(CL),reverse(CV),R0,RI];
+	if(Verb<32) return [vtol(NI),reverse(CL),reverse(CV),reverse(CW)];
+	return [vtol(NI),reverse(CL),reverse(CV),reverse(CW),R0,RI];
 }
 
 def xypg2tg(K)
@@ -2776,11 +2779,26 @@ def pg2tgb(K)
 
 def n2a(T)
 {
+	if(!isint(S=getopt(s))) S=0;
+	if(type(T)==4){
+		for(TT=[];T!=[];T=cdr(T)){
+			if(type(U=car(T))==4){
+				for(I=U[0];I<=U[1];I++) TT=cons(I,TT);
+			}else TT=cons(U,TT);
+		}
+		if(getopt(sort)==1){
+			TT=qsort(TT);
+			if(getopt(verb)==1) return TT;
+			TT=reverse(TT);
+		}else if(getopt(verb)==1) return reverse(TT);
+		for(T=[];TT!=[];TT=cdr(TT)) T=cons(n2a(car(TT)),T);
+		if(S==1) return asciitostr(T);
+		return T;
+	}
 	Opt=[40,41];M=61;
 	if(type(U=getopt(opt))==7){
 		Opt=strtoascii(U);
 	}
-	if(!isint(S=getopt(s))) S=0;
 	if(isint(N=getopt(m))&&N>8&&N<62) M=N;
 	if(T>M){
 		TR=[Opt[1]];
@@ -13147,12 +13165,53 @@ def newKZmat(K,L)
 	return A;
 }
 
-def midKZ(S,L,B)
+def midKZ0(A,B)
 {
+	L=length(A);
+	V=newmat(L+1,L);W=newmat(L+2,L);
+/*
+	if(B==0||(car(B)[0]!=0){
+		B=[];
+		VA=ltov(A);
+		for(I=J=0;J<L;J++){
+			if(car(A[J])!=0) continue;
+			B=cons([0,A[J][length(A[J])-1]],B);
+			for(;I<J;I++) B=cons([A[I][0],A[I][length(A[I])-1]],B);
+			I=J+1;
+		}
+		B=cons([0,L-1],B);
+		for(;I<L;I++) B=cons([A[I][0],A[I][length(A[I])-1]],B);
+		B=reverse(B);
+		return B;
+	}
+*/
+	B=ltov(B);
+	for(J=0;J<L;J++){
+		TA=A[J];X1=TA[0];X2=TA[length(TA)-1];
+		if(X1==0){
+			for(F=0,I=0;I<=L;I++){
+				if(B[I][0]==0) F=(B[I][1]<=X2)?1:0;
+				V[I][J]=F;
+				if(X2<I+1) W[I][J]=1;
+			}
+		}else{
+			for(I=0;I<=L;I++){
+				if(X1<=B[I][0]&&X2>=B[I][1]) V[I][J]=1;
+				if(X1<=I+1&&X2>=I+1) W[I][J]=1;
+			}
+		}
+		if(X1==0) W[L+1][J]=1;
+	}
+	return [V,W];
+}
+
+def midKZ(L,B)
+{
+	Size=length(L)+1;
 	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
-		RA=cons(newKZmat(Size=S,car(TL)),RA);
+		RA=cons(newKZmat(Size,car(TL)),RA);
 	RA=reverse(RA);
-	U=newKZmat(S,B); V=myinv(U);
+	U=newKZmat(Size,B); V=myinv(U);
 	RB=os_md.madj(V,RA);
 	K=length(L);RB=ltov(RB);
 	for(I=0;I<K;I++){
@@ -13167,9 +13226,7 @@ def midKZ(S,L,B)
 			  for(JJ=0;JJ<=J;JJ++){
 				if(nmono(TB[J][JJ])>1){
 					W=subst(TB[J][JJ],V0,VV);
-					if(nmono(W)<=1){
-						TB[J][JJ]=W;
-					}
+					if(nmono(W)<=1) TB[J][JJ]=W;
 				}
 			  }
 			}
@@ -13177,43 +13234,48 @@ def midKZ(S,L,B)
 	}
 	RB=vtol(RB);
 	if((Raw=getopt(raw))==1) return [U,V,RA,RB];
+	if(!isint(Kill=getopt(kill))) Kill=0;
 	S="U&=" + os_md.mtotex(U) + ",\\quad " + "V=U^{-1}=" + os_md.mtotex(V);
 	S=S+",\\quad \\tilde A_* \\to V\\tilde A_*U";
 	for(TS=[],I=0;I<K;I++){
 		J0=L[I][0];J1=L[I][1];
 		for(T="",J=J0;J<=J1;J++) T=T+rtostr(J);
 		TS=cons("\\tilde A_{" + T + "}",TS);
-		S=S + "\\\\\n" + car(TS) + "&=" + os_md.mtotex(RA[I]|var=0)
-		    + "\\to "  + os_md.mtotex(RB[I]|var=0);
+		S=S + "\\\\\n" + car(TS);
+		if(!iand(Kill,1)){
+			if(iand(Kill,2)) S=S+"&";
+			else S=S+"&=" + os_md.mtotex(RA[I]|var=0);
+			S=S+"\\to "  + os_md.mtotex(RB[I]|var=0);
+		}
 	}
 	TS=reverse(TS);
 	T="["+car(TS);
 	for(TS=cdr(TS);TS!=[];TS=cdr(TS)) T=T+":"+car(TS);
-	if(!isint(Skip=getopt(skip))) Skip=0;
-	if(Skip<0){
-		Skip=-Skip;FB=1;
-	}else FB=0;
-	if(Skip==1) S=T+"]&=\\{";
-	else if(Skip>1){
-		TT="\\mathcal A";S=TT+":\\!&="+T+"\]";
-		if(FB) S=S+"\\qquad" +rtostr(B);
-		S=S+"\\\\\n&=\\{";
-		T=TT;
+	Ad=0;
+	if(type(Skip=getopt(skip))==4){
+		Ad=Skip[1];Skip=car(Skip);
 	}
-	else S=S+"\\\\\n"+T+"]&=\\{";
+	if(!isint(Skip)) Skip=0;
+	if(iand(Kill,1)) S="";
+	else S=S+"\\\\\n";
+	if(iand(Kill,4)){
+		TT="\\mathcal A";
+		S=S+TT+":\\!&=" +T+ "\]\\qquad" +rtostr(B)+ "\\\\\n&=\\{";
+		T=TT;
+	}else S=S+T+"]&=\\{";
 	for(I=0;I<Size;I++){
 		for(J=0;J<K;J++)
 			S=S+(!J? "[" : ":")+my_tex_form(RB[J][I][I]);
 		if(I<Size-1){
 			S=S+"],";
-			if(Skip>1 && (I+1)%Skip==0) S=S+"\\\\\n&\\quad\\ \\ \\,";
+			if(Skip>0 && (I+Ad+1)%Skip==0) S=S+"\\\\\n&\\quad\\ \\ \\,";
 		}else S=S+"]\\}";
 	}
 	S=str_subst(S,"a_","A_");
 	for(TT=[],I=0;I<Size;I++){	/* L_{I+1} */
 		T0=rtostr(I+1);
 		if(I>8) T0="\\{"+T0+"\\}";
-		S=S+"\\\\\n"+T+"|_{\\mathcal L_"+T0+"}&=";
+		S=S+ "\\\\\n" +T+ "|_{\\mathcal L_" +T0+ "}&=";
 		for(J=0;J<K;J++){
 			S=S+(!J? "[" : ":");
 			J0=L[J][0];J1=L[J][1];
@@ -13226,11 +13288,11 @@ def midKZ(S,L,B)
 			if(!I) TT=cons(!J0?T1:T0,TT);
 			if(I>=J0-1&& I<J1) F=1;
 			if(!J0){
-				if(F) S=S+"A_{"+T0+"}+\\mu";
+				if(F) S=S+ "A_{"+T0+"}+\\mu";
 				else  if(T1=="") S=S+"0";
-				else  S=S+"A_{"+T1+"}";
+				else  S=S+ "A_{"+T1+"}";
 			}
-			else S=S+"A_{"+(F? T1:T0)+"}";
+			else S=S+ "A_{" + (F?T1:T0)+"}";
 		}
 		S=S+"]|_{\\mathrm{ker}\\,A_{0" + rtostr(I+1) + "}}";
 	}
@@ -13890,6 +13952,32 @@ def str_times(S,N)
 		return reverse(LT);
 	}
 	return S;
+}
+
+def str_addc(S,C,N)
+{
+	U=strtoascii(S);
+	if((F=getopt(tail))==1) U= reverse(U);
+	if(type(C)==7) V=strtoascii(C)[0];
+	else V=32;
+	for(I=N-length(U);I>0;I--) U=cons(V,U);
+	if(F==1) U=reverse(U);
+	return asciitostr(U);
+}
+
+def str_insert(S,U,T)
+{
+	if(getopt(transpose)==1) U=mtranspose(U);
+	Tb=str_tb(0,0);
+	if(type(T)==4 && type(car(T))==7) str_tb(car(T),Tb);
+	for(U!=[];U!=[];U=cdr(U)){
+		str_tb(car(TS=S),Tb);
+		for(TS=cdr(TS),TU=car(U);TS!=[];TU=cdr(TU),TS=cdr(TS)){
+			str_tb(car(TU),Tb);str_tb(car(TS),Tb);
+		}
+	}
+	if(type(T)==4 && length(T)>1 && type(T[1])==7) str_tb(T[1],Tb);
+	return str_tb(0,Tb);
 }
 
 def str2tab(L,F)
