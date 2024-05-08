@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240329), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240509), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -650,6 +650,13 @@ def poly_gr_w(F,V,W) {
  a Grobner basis in K(x)<dx>, |x|=|dx|=N.
  example: poly_r_omatrix(3);
  ref: poly_weight_to_omatrix(W,V);
+ When the option lex is given, the last lex variables are
+ compared firstly by the lexicographic order, e.g.,
+ poly_r_omatrix(4 | lex=2) is compared by the matrix
+  0 0 0 0   0 0 0 1
+  0 0 0 0   0 0 1 0
+  0 0 0 0   1 1 0 0
+  .... 
 end: */
 def poly_r_omatrix(N) { 
   Opt = getopt();
