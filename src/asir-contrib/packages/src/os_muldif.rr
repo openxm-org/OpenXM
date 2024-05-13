@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - April 2024)
+ *          Toshio Oshima (Nov. 2007 - May 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -45,6 +45,8 @@ static ID_PLOT$
 static Rand$
 static LQS$
 static SVORG$
+static ISort$
+static ISortF$
 localf spType2$
 localf erno$
 localf chkfun$
@@ -533,6 +535,8 @@ localf ntable$
 localf keyin$
 localf mqsub$
 localf msort$
+localf iqsub$
+localf isort$
 localf l2min$
 #else
 extern Muldif.rr$
@@ -571,7 +575,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240502"$
+Muldif.rr="00240512"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -581,6 +585,8 @@ XYcm=0$
 XYPrec=3$
 XYLim=4$
 Rand=0$
+ISortF=0$
+ISortF=0$
 DIROUT="%HOME%\\tex"$
 DVIOUTL="%ASIRROOT%\\bin\\risatex0.bat"$
 DVIOUTA="%ASIRROOT%\\bin\\risatex.bat"$
@@ -6091,6 +6097,27 @@ def msort(L,S)
 	return qsort(L,os_md.mqsub);
 }
 
+def iqsub(I,J)
+{
+	if(type(ISortF)<2){
+		if(ISort[I]<ISort[J]) return -ISortF;
+		return ISort[I]==ISort[J]? 0:ISortF;
+	}
+	return ISortF(ISort[I],ISort[J]);
+}
+
+def isort(L,F)
+{
+	if(type(L)==5) L=ltov(L);
+	ISort=L;
+	N=length(L);
+	V=newvect(N);
+	for(I=0;I<N;I++) V[I]=I;
+	ISortF=F;
+	qsort(V,os_md.iqsub);
+	return V;
+}
+
 def l2min(L,P)
 {
 	F=0;LL=L;
@@ -11534,7 +11561,7 @@ def spgen(MO)
 	}else{
 		L0=0; L1=MO+1;
 	}
-	if(M0<=0){
+	if(MO<=0){
 		MO=-MO;
 		if(iand(MO,1)==1) return [];
 		MO=MO/2;
@@ -13220,7 +13247,10 @@ def midKZ(L,B)
 			for(S="",J=L0,VV=0;J<=L1;J++){
 				S=S+rtostr(J);VV+=makev([a,0,J]);
 			}
-			V0=makev([a,0,S]);VV+=makev([a,S]);
+			VV+=makev([a,S]);
+			if(L1-L0+1==Size){
+				V0=makev([a,0,1]);VV=V0-VV;
+			}else V0=makev([a,0,S]);
 			TB=RB[I];
 			for(J=0;J<K;J++){
 			  for(JJ=0;JJ<=J;JJ++){
@@ -13306,7 +13336,8 @@ def midKZ(L,B)
 	}
 	S=S+"]|_{\\mathrm{ker}\\,(A_{0\\infty}-\\mu)}";
 	S=texbegin("align*",S);
-	if(getopt(dviout)==1) dviout(S);
+	if((DVI=getopt(dviout))==1) dviout(S);
+	if(DVI==-1) dviout(S|keep=1);
 	return S;
 }
 
