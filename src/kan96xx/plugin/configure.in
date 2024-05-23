@@ -1,8 +1,9 @@
 dnl  $OpenXM: OpenXM/src/kan96xx/plugin/configure.in,v 1.1 2003/09/02 03:24:50 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
-
-AC_INIT(file2.c)
+AC_INIT(file2.c,1.1)
+AC_PREREQ(2.72)
+AC_CANONICAL_TARGET
 AC_PROG_CC
 AC_PROG_RANLIB
 
@@ -17,5 +18,6 @@ fi
 
 AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(CFLAG2,[" -arch ppc -arch i386"]),AC_SUBST(CFLAG2,[" "]))
 
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
 
-AC_OUTPUT(Makefile)

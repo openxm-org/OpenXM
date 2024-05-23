@@ -2,7 +2,9 @@ dnl  $OpenXM: OpenXM/src/kan96xx/trans/configure.in,v 1.2 2003/12/04 07:54:51 ta
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
-AC_INIT(tree2polymake.c)
+AC_INIT(tree2polymake.c,1.1)
+AC_PREREQ(2.72)
+AC_CANONICAL_TARGET
 AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_YACC
@@ -20,5 +22,5 @@ if test "$ac_cv_func_dlopen" = no ; then
   AC_CHECK_LIB(dl,dlopen)
 fi
 
-
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
