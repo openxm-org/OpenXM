@@ -13315,8 +13315,6 @@ def midKZ(L,B)
 	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
 		RA=cons(newKZmat(Size,[car(TL)]),RA);
 	RA=reverse(RA);
-	for(BB=[];B!=[];B=cdr(B)) BB=cons([car(B)],BB);
-	B=reverse(BB);
 	U=newKZmat(Size,B|base=1); V=myinv(U);
 	RB=madj(V,RA);
 	K=length(L);RB=ltov(RB);
