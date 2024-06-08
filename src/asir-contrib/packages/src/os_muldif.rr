@@ -88,6 +88,7 @@ localf nextsub$
 localf nextpart$
 localf transpart$
 localf getCatalan$
+localf numtournament$
 localf symtournament$
 localf pg2tg$
 localf pg2tgb$
@@ -144,6 +145,7 @@ localf llsize$
 localf llbase$
 localf llselect$
 localf llget$
+localf lextn$
 localf lcut$
 localf rev$
 localf qsortn$
@@ -191,6 +193,7 @@ localf mysubst$
 localf sort2$
 localf n2a$
 localf evals$
+localf evalsint$
 localf myval$
 localf myeval$
 localf mydeval$
@@ -371,6 +374,7 @@ localf mcgrs$
 localf mc2grs$
 localf mcmgrs$
 localf newKZmat$
+localf newKZmatb$
 localf midKZ0$
 localf midKZ$
 localf spslm$
@@ -575,7 +579,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240512"$
+Muldif.rr="00240524"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1649,11 +1653,15 @@ def mulseries(V1,V2)
 
 def catalan(K)
 {
+	if(type(K)==7&&str_len(K)>1) K=evalsint(K);
 	if(isint(K))
 		return catalan([K,K]);
 	if(type(K)==4){
 		if(length(K)==2){
 			M=K[0];N=K[1];
+			if(type(N)==7){
+				K=M;M=N;N=K;
+			}
 			if(M=="p"){
 				P=newvect(N+1);
 				P[0]=1;
@@ -1707,6 +1715,9 @@ def catalan(K)
 		}
 		if(length(K)==3){
 			T=K[0];N=K[1];K=K[2];
+			if(type(N)==7){
+				M=T;T=N;N=M;
+			}
 			if(T=="P"||T=="C"||T=="H"){
 				if(T=="P") return fac(N)/fac(N-K);
 				if(T=="H") N+=K-1;
@@ -1724,8 +1735,27 @@ def catalan(K)
 			}
 		}
 	}
-	mycat("catalan(?):\n n: Cn\ (Catalan number)\n [n,k]: a generalization\n [\"P\",n,k]: nPk\n [\"C\",n,k]: nCk\n [\"H\",n,k]: nHk\n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
+	mycat("catalan(?):\n n:      Cn\ (Catalan number)\n [n,k]:  a generalization\n [\"!\",n]  [n,\"!\"]   \"n!\" \"10!\" etc.: n!\n [\"!!\",n] [n,\"!!\"]  \"n!!\": n!!\n [\"P\",n,k]  [n,\"P\",k] \"nPk\" : nPk\n [\"C\",n,k]  [n,\"C\",k] \"nCk\" : nCk\n [\"H\",n,k]  [n,\"H\",k] \"7H3\" etc. : nHk \n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
 	return 0;
+}
+
+def numtournament(M)
+{
+	T=newvect(M+1);W=newvect(M+1);U=newvect(M+1);V=newvect(M+1);R=newvect(M+1);X=newvect(M+1);
+	T[1]=W[1]=U[1]=V[1]=1;
+	for(N=2;N<=M;N++) for(K=1;K<N;K++) T[N]+=T[K]*T[N-K];
+	for(N=2;N<=M;N++){
+		for(K=1;K<N;K++) U[N]+=U[K]*U[N-K];
+		if(!iand(N,1)) U[N]+=U[N/2];
+		U[N]/=2;
+	}
+	for(N=2;N<=M;N++) for(K=1;K<N;K++) W[N]+=W[K]*U[N-K];
+	for(N=2;N<=M;N++)
+		for(K=1;K<N;K++) R[N]+=R[K]*T[N-K]+W[K]*W[N-K];
+	for(N=2;N<=M;N++) for(K=1;K<N;K++) V[N]+=V[K]*V[N-K]*catalan([N,"C",K])/2;
+	for(N=2;N<=M;N++) for(K=1;K<N;K++) X[N]+=W[K]*W[N-K];
+	mycat("[patterns, win types (distinguish winner), types, tournaments, win2 types (winner&runner-up), distinguished two]");
+	return [T,W,U,V,X,R];
 }
 
 /*
@@ -1801,13 +1831,6 @@ def symtournament(N)
 					else S1+=T/fac(J)/fac(I-J)/2;
 				}
 			}
-/*
-
-			for(S3=0,I=4;I<=N;I++){   
-				T=fac(N)/fac(N-I);
-				for(J=2;2*J<=I;J++) S3+==T/fac(J)/fac(I-J);;
-			}
-*/
 			return [S0,S1,S0+S1];
 		}
 		return reverse(R);
@@ -2681,7 +2704,7 @@ def pgpart(K,F)
 			R=cons([J,I],R);
 		}
 		T=pgpart(R,3);
-		if(imod(S,1))return T;
+		if(iand(S,1)) return T;		/* ? */
 		for(R=[];K!=[];K=cdr(K)){
 			I=(-car(K)[0])%S;
 			J=(-car(K)[1])%S;
@@ -5462,6 +5485,24 @@ def llget(L,LL,LC)
 	}
 	if(getopt(flat)==1) L=m2l(L|flat=1);
 	return L;
+}
+
+def lextn(L)
+{
+	for(R=[];L!=[];L=cdr(L)){
+		if(type(TL=car(L))==4&&length(TL)<3){
+			if(TL==[]) continue;
+			M=car(TL);
+			N=(length(TL)==1)?M:TL[1];
+			if(isint(M)&&isint(N)){
+				if(M>N){X=M;M=N;N=X;}
+				for(I=M;I<=N;I++) R=cons(I,R);
+				continue;
+			}
+		}
+		R=cons(TL,R);
+	}
+	return (getopt(uniq)==1)? lsort(R,[],1):reverse(R);
 }
 
 def spantree(F,L,D)
@@ -13147,48 +13188,84 @@ def mc2grs(G,P)
 	return mc2grs(G,"sort");
 }
 
+
 def newKZmat(K,L)
 {
-	if(type(L)==4&&type(car(L))<2){
-		if(length(L)==2){
-			L1=L[1];
-			if((L0=L[0])==0){
-				for(S="",I=1;I<=L1;I++) S=S+rtostr(I);
-				V0=makev([a,0,S]);
-				if(L1>1) V1=makev([a,S]);
-				else V1=0;
-				A=diagm(L1,[V0+mu]);
-				for(T=[],J=K;J>L1;J--)
-					T=cons(makev([a,0,J]),T);
-				for(B=[],I=0;I<L1;I++) B=cons(T,B);
-				B=newmat(L1,K-L1,B);
-				C=diagm(K-L1,[V1]);
-				return newbmat(2,2,[[A,B],[0,C]]);
-			}else{
-				if(L1<L0+1) return diagm(K,[0]);       
-				for(S="",I=L0;I<=L1;I++) S=S+rtostr(I);
-				V0=makev([a,0,S]);V1=makev([a,S]);
-				if(L1-L0==K-1&&getopt(verb)!=1) V0=0;
-				A=C=0;
-				if(L0>1) A=diagm(L0-1,[V1]);
-				for(T=[],I=L1;I>=L0;I--) T=cons(makev([a,0,I]),T);
-				for(B=[],I=L1;I>=L0;I--) B=cons(T,B);
-				S=L1-L0+1;
-				B=diagm(S,[V0])-newmat(S,S,B);
-				if((S=K-L1)>0) C=diagm(S,[V1]);
-				if(A==0){
-					if(C==0) return B;
-					return newbmat(2,2,[[B,0],[0,C]]);
-				}
-				if(C==0) return newbmat(2,2,[[A,0],[0,B]]);
-				return newbmat(3,3,[[A,0,0],[0,B,0],[0,0,C]]);
-			}
+	if(L==0){
+		R=newmat(K+1,K+1);
+		for(I=0;I<K;I++){
+			for(J=I+1;J<=K;J++)
+				R[I][J]=R[J][I]=newKZmat(K,[I,J]);
 		}
-		return 0;
+		return R;
+	}
+	if(!isint(Raw=getopt(raw))) Raw=0;
+	if(type(L)==4){
+		if(getopt(ext)!=1&&getopt(base)!=1) L=[L,[]];
+		for(R=[];L!=[];L=cdr(L)){
+			if(type(TL=car(L))!=4) TL=[TL];
+			R=cons(lextn(TL|uniq=1),R);
+		}
+		L=reverse(R);
+		if(length(L)==1||type(car(L))!=4) L=[L,[]];
+		if(Raw==-1) return getopt(ext)==1?L:car(L);
 	}
 	A=newmat(K,K);
-	for(I=0;I<K;L=cdr(L),I++)
-		for(TL=car(L);TL!=[];TL=cdr(TL)) A[car(TL)-1][I]=1;
+	if(getopt(base)==1){
+		if(length(L)!=K) return 0;
+		for(I=0;I<K;L=cdr(L),I++)
+			for(TL=car(L);TL!=[];TL=cdr(TL)) A[car(TL)-1][I]=1;
+		return A;
+	}
+	if(getopt(ext)==1){
+		Opt=delopt(getopt(),"ext");
+		LL=append(L[0],L[1]);
+		A=newKZmat(K,LL|option_list=Opt);
+		if(length(L[1])>1) A-=newKZmat(K,L[1]|option_list=Opt);
+		return A;
+	}
+	S=L[0];
+	if(S[0]==0) S=cdr(S);
+	if(length(S)>1||iand(Raw,2)){
+		if(iand(Raw,1)){
+			for(V=0,S1=S;S1!=[];S1=cdr(S1)){
+				for(S2=cdr(S1);S2!=[];S2=cdr(S2))
+					V+=makev([a,car(S1),car(S2)]);
+			}
+		}else V=makev(cons(a,S));
+		for(I=0;I<K;I++) A[I][I]=V;
+	}
+	for(M=L[0];M!=[];M=cdr(M)){
+		I=car(M);
+		if(length(M)>1){
+			for(N=cdr(M);N!=[];N=cdr(N)){
+				J=car(N);
+				if(I==0){
+					for(JJ=0;JJ<K;JJ++) A[J-1][JJ]+=makev([a,0,JJ+1]);
+					A[J-1][J-1]+=mu;
+				}else{
+					V=makev([a,0,I]);
+					A[J-1][J-1]+=V;A[J-1][I-1]-=V;
+					V=makev([a,0,J]);
+					A[I-1][I-1]+=V;A[I-1][J-1]-=V;
+				}
+			}
+		}
+	}
+	if(!iand(Raw,1)){
+		if(car(S=L[0])==0) S=cdr(S);
+		V=makev(cons(a,S));
+		X=X0=makev(cons(a,cons(0,S)));
+		for(T=S;T!=[];T=cdr(T)) X-=makev([a,0,car(T)]);
+		for(I=0;I<K;I++){
+			M=A[I][I];
+			if(nmono(M)>=2){
+				N=subst(M,V,X);
+				if(nmono(N)<=nmono(M)) A[I][I]=N;
+			}
+		}
+		if(!iand(Raw,2)&&length(S)==K) A=subst(A,X0,0);
+	}
 	return A;
 }
 
@@ -13236,10 +13313,10 @@ def midKZ(L,B)
 {
 	Size=length(L)+1;
 	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
-		RA=cons(newKZmat(Size,car(TL)),RA);
+		RA=cons(newKZmat(Size,[car(TL)]),RA);
 	RA=reverse(RA);
-	U=newKZmat(Size,B); V=myinv(U);
-	RB=os_md.madj(V,RA);
+	U=newKZmat(Size,B|base=1); V=myinv(U);
+	RB=madj(V,RA);
 	K=length(L);RB=ltov(RB);
 	for(I=0;I<K;I++){
 		if((L0=car(L[I]))>0){
@@ -17473,6 +17550,34 @@ def jell(Z)
 {
 	if(vars(Z=map(eval,V))>1) return todf(os_md.jell,[Z]);
     return (type(Z)==4)?pari(jell,Z[0],Z[1]):jell(jell,Z);
+}
+
+def evalsint(F)
+{
+	S=strtoascii(F);
+	for(R=SS=[],I=F=V=0;S!=[];S=cdr(S)){
+		T=car(S);
+		if(isnum(T)||(T==45&&!F&&length(S)>1&&isnum(S[1]))){
+			if(!F){
+				if(SS!=[]){
+					while(SS!=[]&&car(SS)<33) SS=cdr(SS);
+					R=cons(asciitostr(reverse(SS)),R);
+				}
+				SS=[];
+				F=(T==45)?-1:1;
+			}
+			if(T!=45) V=V*10+T-48;
+			continue;
+		}
+		if(F){
+			R=cons(F*V,R);
+			V=F=0;
+		}
+		if(SS!=[]||T>32) SS=cons(T,SS);
+	}
+	if(SS!=[])  R=cons(asciitostr(reverse(SS)),R);
+	else if(F)  R=cons(F*V,R);
+	return reverse(R);
 }
 
 def evals(F)
