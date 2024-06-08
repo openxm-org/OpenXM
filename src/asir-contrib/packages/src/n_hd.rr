@@ -21,6 +21,7 @@ def hd_sba(G0,V,P,Ord)
   if ( type(Weyl=getopt(weyl)) == -1 ) Weyl = 0;
   if ( type(Last=getopt(last)) == -1 ) Last = 0;
   if ( type(Fglm=getopt(fglm)) == -1 ) Fglm = 0;
+  if ( type(Dp=getopt(dp)) == -1 ) Dp = 0;
   Ord1 = Last ? [[0,length(V)-1],[0,1]] : Ord;
   ZeroDim = zero_dim(G0,V,0);
   if ( W ) dp_set_weight(W);
@@ -49,7 +50,11 @@ def hd_sba(G0,V,P,Ord)
       if ( P ) G2 = nd_gr(G1,V,P,Ord);
       else G2 = nd_gr_trace(G1,V,0,-1,Ord);
     }
-  } else
+    if ( Dp == 1 )
+      G2 = map(dp_ptod,G2,V);
+  } else if ( Dp == 1 )
+    G2 = G1;
+  else
     G2 = map(dp_dtop,G1,V);
   dp_set_weight(0);
   return G2;
@@ -104,6 +109,7 @@ def hd(G0,V,P,Ord)
   if ( Rev ) G0 = reverse(G0);
   if ( type(Last=getopt(last)) == -1 ) Last = 0;
   if ( type(Fglm=getopt(fglm)) == -1 ) Fglm = 0;
+  if ( type(Dp=getopt(dp)) == -1 ) Dp = 0;
   Ord1 = Last ? [[0,length(V)-1],[0,1]] : Ord;
   ZeroDim = zero_dim(G0,V,0);
   dp_set_weight(W);
@@ -137,7 +143,11 @@ def hd(G0,V,P,Ord)
       if ( P ) G2 = nd_gr(G1,V,P,Ord);
       else G2 = nd_gr_trace(G1,V,0,-1,Ord);
     }
-  } else
+    if ( Dp == 1 )
+      G2 = map(dp_ptod,G2,V);
+  } else if ( Dp == 1 )
+    G2 = G1;
+  else
     G2 = map(dp_dtop,G1,V);
   dp_ord(0);
   dp_set_weight(0);
