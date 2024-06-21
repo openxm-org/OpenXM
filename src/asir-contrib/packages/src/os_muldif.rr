@@ -47,6 +47,7 @@ static LQS$
 static SVORG$
 static ISort$
 static ISortF$
+localf midfamily$
 localf spType2$
 localf erno$
 localf chkfun$
@@ -58,6 +59,7 @@ localf mycat$
 localf mycat0$
 localf fcat$
 localf findin$
+localf lxor$
 localf lcount$
 localf countin$
 localf mycoef$
@@ -146,10 +148,15 @@ localf llbase$
 localf llselect$
 localf llget$
 localf lextn$
+localf llextn$
+localf llord$
+localf llsymred$
+localf fam2t$
 localf lcut$
 localf rev$
 localf qsortn$
 localf lsort$
+localf lmaxsub$
 localf rsort$
 localf btree$
 localf spantree$
@@ -352,6 +359,11 @@ localf israt$
 localf iscrat$
 localf isalpha$
 localf isnum$
+localf issub$
+localf isdisjoint$
+localf isdisjointfamily$
+localf iscommuteset$
+localf iscommutefamily$
 localf isalphanum$
 localf isdecimal$
 localf isvar$
@@ -359,6 +371,7 @@ localf isyes$
 localf isall$
 localf iscoef$
 localf iscombox$
+localf istournament$
 localf sproot$
 localf spgen$
 localf spbasic$
@@ -579,7 +592,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240524"$
+Muldif.rr="00240616"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -793,6 +806,17 @@ def findin(M,L)
 			if(L[I] == M) return I;
 	}else return -2;
 	return -1;
+}
+
+def lxor(X,L)
+{
+	for(R=[],F=0;L!=[];L=cdr(L)){
+		if(car(L)!=X) R=cons(car(L),R);
+		else F=1;
+	}
+	R=reverse(R);
+	if(!F) R=cons(X,R);
+	return R;
 }
 
 def lcount(L)
@@ -1208,7 +1232,8 @@ def substnum(L,U,V)
 	}
 	Dep=qsort(Dep);
 	if(car(Dep)!=0) Skip=1;
-	for(T=[],TD=cdr(Dep);TD!=[];TD=cdr(TD)) T=cons(car(TD)-1,T);
+	else Dep=cdr(Dep);
+	for(T=[],TD=Dep;TD!=[];TD=cdr(TD)) T=cons(car(TD)-1,T);
 	Dep=reverse(T);
 	for(K=length(L),I=0;I<K;I++){
 		X=L[I];
@@ -1739,6 +1764,32 @@ def catalan(K)
 	return 0;
 }
 
+def istournament(S)
+{
+	if(type(S)==7) L=strtoascii(S);
+	if(L==[]) return 1;
+	if(findin(48,L)>=0||findin(48,0)>=0){	/* 0 */
+		for(I=V=0,TL=L;TL!=[];TL=cdr(TL)){
+			if((T=car(TL))<33&&T>1) return 0;
+			if(T==48||T==0) V++;
+			else if(T!=49&&T!=1) return 0;
+			else if(--V<0) return 0;
+		}
+		return (!V)?1:0;
+	}else{
+		for(R=[];L!=[];L=cdr(L))
+			if(car(L)>32) R=cons(car(L),R);
+		R=reverse(R);
+		do{
+			K=length(R);
+			R=str_subst(R,"(**)","*"|raw=1);
+		}while(K!=length(R));
+		if(R==[42]) return 1;
+		if(getopt(verb)==1) return asciitostr(R);
+		return 0;
+	}
+}
+
 def numtournament(M)
 {
 	T=newvect(M+1);W=newvect(M+1);U=newvect(M+1);V=newvect(M+1);R=newvect(M+1);X=newvect(M+1);
@@ -2142,18 +2193,38 @@ def cmptournament(S,T) /* called by xytournament() */
 }
 
 /*
+def transtournament(L,P)
+{
+	V=ltov(strtoascii(L));
+	K=length(V);
+	if(isint(V)){
+		for(I=J=0;I<K;I++)
+			if(V[I]==42 && ++J==V) break;
+		if((I_0=I)==K) return L;
+		if(V[I-1]==40){
+			for(J=1,I++;I<K;I++){
+				if(V[I}==40) J++;
+				if(V[I]==41 && --J==0) break;
+			}
+			if(I==K) return L;
+			S=[I,I_0.I0-1];
+		}else{
+		}
+	}
+}
+*/
+
+/*
   L=os_md.getCatalan(1,4|to="01");
   load("tournament.rr");
   xytournament(L,0|dviout=1);
 
   N=4;
   T=symtournament(N|to="T");
-  for(I=0;I<length(T);I++) xytournament(T[I],0|shift=0,dviout=1);
+  for(I=0;I<length(T);I++) xytournament(T[I],0|dviout=1);
 
-  xytournament(L,V=[X,Y]|sfift=s,verb=1,dviout=1)
+  xytournament(L,V=[X,Y]|verb=1,dviout=1)
   {X,Y]: unit measure in TiKZ (default: [0.2,0,2]
-  s: starting team number
-  s -> [s,y] : vertical position (default:Y)  
 */
 def xytournament(L,V)
 {
@@ -2166,6 +2237,20 @@ def xytournament(L,V)
 	if(type(L)==7)
 		L=os_md.getCatalan(L,0|to="01");
 	LL=length(L)/2;
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	if((W=getopt(winner))=="all"&& Verb>1){ 	/* winner types */
+		Option=delopt(getopt(),["winner",dviout"]);
+ 		for(R=KR=[],S=T;S!=[];S=cdr(S)){
+   			for(W=0;W<=LL;W++){
+     			TR=os_md.xytournament(car(S),0|
+					option_list=cons(["winner",W+1],Option)); 
+    			if(os_md.findin(TR[1],KR)>=0) continue;
+				R=cons(cons(car(S),TR), R);
+    			KR=cons(TR[1],KR);
+   			}
+		}
+		return reverse(R);
+	}
 	R=[[[1,1],0],[[0,0],0]];
 	for(I=2,TL=cdr(L);TL!=[];TL=cdr(TL)){
 		if(car(TL)==0){
@@ -2193,9 +2278,20 @@ def xytournament(L,V)
 		K=length(R);
 	}
 	S=qsort(S,os_md.cmptournament);
-
-	if((Verb=getopt(verb))==1) return S;
-	if(!isint(Verb)) Verb=0;
+/*
+   S=[G1,G2,...], G=[G0,G1]= [[x00,x01],h0], [[x10,x11],h1] ]
+   G : a game betweens the winners of the game of teams [x00,x01] and that of [x10,x11]
+   h0, h1 : the level of the games Si0 and Si1
+   S : sorted by max(h0,h1), x00
+ */
+	if(Verb<0){
+		if(Verb==-2) return S;
+		if(Verb==-1){
+			for(R=[],TS=S;TS!=[];TS=cdr(TS))
+				R=cons([car(TS)[0][0][0],car(TS)[1][0][1]],R);
+			return reverse(R);
+		}
+	}
 	if((Rev=getopt(rev))!=1) Rev=0;
 	Sft=getopt(teams);
 	if(type(Sft)==4&&length(Sft)==2){
@@ -2205,7 +2301,7 @@ def xytournament(L,V)
 	if(Top!=0) Top=1;
 	Pos=-2;
 	Skip=0.5;
-	if(type(W=getopt(winner))==4){
+	if(type(W)==4){
 		if(length(W)==3) Skip=W[2];
 		else if(length(W)==2){
 			if(type(W[1])==4) Win=W[1];
@@ -2282,7 +2378,7 @@ def xytournament(L,V)
 				R=cons(car(TR),R);  
 		RI[I]=reverse(qsort(R,os_md.cmptournament));
 	}
-	if(Verb==2) return [NI,R0,RI];
+	if(Verb<0) return [NI,R0,RI];
 		/* NI: label, R0: L0, RI: LI[] */
 	for(CL=CV=CW=[],I=0;I<N;I++){	/* CL */
 		X1=R0[I][0][0][0];X2=R0[I][1][0][1];
@@ -2296,11 +2392,14 @@ def xytournament(L,V)
 			for(TT=[],II=X2;II>=X1;II--) TT=cons(II,TT);
 			CV=cons(TT,CV);CW=cons([ NI[car(TR)[0][0][0]],NI[car(TR)[1][0][1]] ],CW);
 		}
-		if(iand(Verb,8)==8) L0=reverse(L0);
-		if(iand(Verb,5)==4) CL=append(L0,CL);
+		if(iand(Verb,16)) L0=reverse(L0);
+		if(iand(Verb,8)) CL=append(L0,CL);
 		X1=R0[I][0][0][0];X2=R0[I][1][0][1];
-		if(I<N-1||iand(Verb,16)) CL=cons([0,J],CL);
-		if(iand(Verb,5)!=4) CL=append(L0,CL);
+		if(I<N-1||iand(Verb,2)) CL=cons([0,J],CL);	/* final game */
+		if(!iand(Verb,8)) CL=append(L0,CL);
+	}
+	if(iand(Verb,4)){
+		CL=llextn(CL);CW=llextn(CW);	/* flat expression */
 	}
 	if(Verb<32) return [vtol(NI),reverse(CL),reverse(CV),reverse(CW)];
 	return [vtol(NI),reverse(CL),reverse(CV),reverse(CW),R0,RI];
@@ -5489,6 +5588,7 @@ def llget(L,LL,LC)
 
 def lextn(L)
 {
+	if(type(L)!=4) return L;
 	for(R=[];L!=[];L=cdr(L)){
 		if(type(TL=car(L))==4&&length(TL)<3){
 			if(TL==[]) continue;
@@ -5503,6 +5603,17 @@ def lextn(L)
 		R=cons(TL,R);
 	}
 	return (getopt(uniq)==1)? lsort(R,[],1):reverse(R);
+}
+
+def llextn(L)
+{
+	if(type(L)!=4) return L;
+	if(type(car(L))!=4 && length(L)==2) return lextn([L]);
+	for(R=[],T=L;T!=[];T=cdr(T)){
+		if(type(car(T))!=4) return L;
+		R=cons(lextn([car(T)]),R);
+	}
+	return reverse(R);
 }
 
 def spantree(F,L,D)
@@ -5768,6 +5879,131 @@ def btree(X,V)
 		if(M>V[0][6]) V[0][6]=M;
 		return V;
 	}
+}
+
+def lmaxsub(L)
+{
+	if(getopt(min)==1){
+		L=reverse(L);
+		for(R=[];L!=[];L=cdr(L)){
+			T=car(L);
+			for(TL=cdr(L);TL!=[];TL=cdr(TL))
+				if(issub(car(TL),T)) break;
+			if(TL==[]) R=cons(T,R);
+		}
+	}else{
+		for(R=[];L!=[];L=cdr(L)){
+			T=car(L);
+			for(TL=cdr(L);TL!=[];TL=cdr(TL))
+				if(issub(T,car(TL))) break;
+			if(TL==[]) R=cons(T,R);
+		}
+	}
+	return reverse(R);
+}
+
+def fam2t(L,T,P)
+{
+	TT=T[P];
+	if(TT==[]) return ["(",L[P][0],L[P][1],")"];
+	T0=fam2t(L,T,car(TT));
+	if(length(TT)==1){
+		X=lsort(L[P],L[TT[0]],1);
+		R=append(T0,[car(X),")"]);
+		return cons("(",R);
+	}
+	T1=fam2t(L,T,TT[1]);
+	R=(length(T0)<length(T1)||T0>T1)?append(T1,T0):append(T0,T1);
+	R=append(R,[")"]);
+	return cons("(",R);
+}
+
+def llord(L)
+{
+	L=qsort(L);						/* can be change */
+	if(type(L)==4) L=ltov(L);
+	N=length(L);
+	S1=newvect(N);S2=newvect(N);
+	S1[0]=S2[0]=[];
+	for(I=1;I<N;I++){
+		S1[I]=S2[I]=[];
+		for(J=0;J<I;J++){
+			if(issub(L[J],L[I])){  /* can be change */
+				S1[I]=cons(J,S1[I]);
+				for(K=I-1;K>J;K--)
+					if(findin(J,S1[K])>=0) break;
+				if(K==J||I==J+1) S2[I]=cons(J,S2[I]);
+			}
+		}
+	}
+	for(S3=S4=[],I=FB=0;I<N;I++){
+		S3=append(S3,L[I]);S4=append(S4,S2[I]);
+		if(length(S2[I])>2) FB=1;
+	}
+	F=0;
+	S3=lsort(S3,[],1); /* all members */
+	K4=length(S4);
+	S4=lsort(S4,[],1);
+	K4-=length(S4);
+	S4=lsort(llextn([0,N-1]),S4,1); /* roots */
+	if(!isint(Verb=getopt(verb))||!Verb) return [L,S1,S2,S3,S4];
+	if(K4) F=2;						/* loops */
+	LL=vtol(L);
+	if(iscommutefamily(LL)) F+=1;	/* commuting family */
+	if(L[N-1]==S3) F+=4;			/* total set */
+	if(length(L[0])<2) F+=8;		/* one member */
+	if(L[0]==[]) F+=16;				/* empty set */
+	if(FB) F+=32;					/* not binary */
+	if(LL!=lsort(LL,[],1)) F+=64;	/* duplication */
+	for(I=0;I<N;I++){
+		if((T=lsort(L[I],[],1))!=L[I]){
+			F=ior(F,128);
+			if(length(T)!=length(L[I])) F=ior(F,256);
+		}
+	}
+	K=length(S3);
+	if(iand(F,1)){
+		K=length(S3);
+		if(iand(F,8)) K*=2;
+		if(!iand(F,4)) K--;
+		if(iand(F,16)) K++;
+		if(K-1==length(LL)) F+=512;
+	}
+	if(Verb==2||Verb==3){
+		S="";
+		if(iand(F,1)){
+			if(iand(F,512)) S="maximal ";
+			S+="commuting family of the set";
+			if(length(S4)==1) T=LL[car(S4)];
+			else if(length(S4)==2) T=[LL[S4[0]],LL[S4[1]]];
+			else T=S[4];
+			mycat ([S,S3,"with the root",T]);
+			if(!iand(F,4)) mycat("without unversat set");
+		}
+		S="";
+		if(iand(F,2)) S=" loops ";
+		if(iand(F,32)) S+=" not binary tree";
+		if(iand(F,128)) S+=" not sorted";
+		if(iand(F,256)) S+=" with multiplicity";
+		if(S!="") mycat(S);
+		if(F==517){
+			R=fam2t(L,S2,S4[0]);
+			if(Verb==2||(lmin(S3)>=0 && lmax(S3)<61)){
+				for(S=M=[],T=reverse(R);T!=[];T=cdr(T)){
+					if(type(TT=car(T))==7)
+						S=cons(TT=="("?40:41,S);
+					else{
+						S=cons(Verb==3?n2a(TT):42,S);
+						M=cons(TT,M);
+					}
+				}
+				R=asciitostr(S);
+			}
+			return [L,S1,S2,S3,S4,F,R,M];
+		}
+		return [L,S1,S2,S3,S4,F,pari(binary,F)];
+	}
+	return [L,S1,S2,S3,S4,F];
 }
 
 def lsort(L1,L2,T)
@@ -13191,7 +13427,7 @@ def mc2grs(G,P)
 
 def newKZmat(K,L)
 {
-	if(L==0){
+	if(L==0){			/* Convolution of All Aij */
 		R=newmat(K+1,K+1);
 		for(I=0;I<K;I++){
 			for(J=I+1;J<=K;J++)
@@ -13211,15 +13447,15 @@ def newKZmat(K,L)
 		if(Raw==-1) return getopt(ext)==1?L:car(L);
 	}
 	A=newmat(K,K);
-	if(getopt(base)==1){
+	if(getopt(base)==1){	/* base */
 		if(length(L)!=K) return 0;
 		for(I=0;I<K;L=cdr(L),I++)
 			for(TL=car(L);TL!=[];TL=cdr(TL)) A[car(TL)-1][I]=1;
 		return A;
 	}
-	if(getopt(ext)==1){
+	if(getopt(ext)==1){		/* relative */
 		Opt=delopt(getopt(),"ext");
-		LL=append(L[0],L[1]);
+		LL=lsort(append(L[0],L[1]),[],1);
 		A=newKZmat(K,LL|option_list=Opt);
 		if(length(L[1])>1) A-=newKZmat(K,L[1]|option_list=Opt);
 		return A;
@@ -13312,8 +13548,10 @@ def midKZ0(A,B)
 def midKZ(L,B)
 {
 	Size=length(L)+1;
+	for(F=0,TL=L;TL!=[];TL=cdr(TL))
+		if(length(car(TL))!=2) F=1;  /* check the format L */
 	for(RA=[],TL=L;TL!=[];TL=cdr(TL))
-		RA=cons(newKZmat(Size,[car(TL)]),RA);
+		RA=cons(newKZmat(Size,F?car(TL):[car(TL)]),RA);
 	RA=reverse(RA);
 	U=newKZmat(Size,B|base=1); V=myinv(U);
 	RB=madj(V,RA);
@@ -13417,6 +13655,181 @@ def midKZ(L,B)
 	if(DVI==-1) dviout(S|keep=1);
 	return S;
 }
+
+def issub(X,Y)
+{
+	Z=lsort(append(X,Y),[],1);
+	return (length(Y)==length(Z))?1:0;
+}
+
+def isdisjoint(X,Y)
+{
+	Z=lsort(append(X,Y),[],1);
+	return(length(X)+length(Y)==length(Z))?1:0;
+}
+
+def isdisjointfamily(L)
+{
+	for(R=[],S=0,TX=X;TX!=[];TX=cdr(TX)){
+		R=appens(car(TX),R);
+		S+=length(car(TX));
+	}
+	Z=lsort(R,[],1);
+	return Z==S?1:0;
+}
+
+def iscommuteset(X,Y)
+{
+	Z=lsort(append(X,Y),[],1);
+	X=length(X);Y=length(Y);Z=length(Z);
+	if(X+Y==Z||X==Z||Y==Z) return 1;
+}
+
+def iscommutefamily(L)
+{
+	for(TX=L;TX!=[];TX=cdr(TX)){
+		for(T=cdr(TX);T!=[];T=cdr(T))
+			if(!iscommuteset(car(TX),car(T))) return 0;
+	}
+	return 1;
+}
+
+
+def llsymred(L,S)
+{
+	if(type(S[0])>3){
+		for(TS=S;TS!=[];TS=cdr(TS)) L=llsymred(L,car(TS)|option_list=getopt());
+		return L;
+	}
+	Dep=1;
+	Sort=[0,0];
+	S=qsort(S);
+	WS=ltov(S);
+	VS=dupmat(WS);
+	if(length(VS)<2) return L;
+	for(R=[],TL=L;TL!=[];TL=cdr(TL)){
+		for(F=0;!F && vnext(VS)!=0;){
+			T=substnum(car(TL),WS,VS|depth=[0,1]);
+			if(Sort!=0) T=rsort(T,Sort[0],Sort[1]);
+			if(T<car(TL)) F=1;
+		}
+		if(!F) R=cons(car(TL),R);
+		VS=qsort(VS);
+	}
+	return reverse(R);
+}
+
+
+def midfamily(X,Y,Z,L)
+{
+	if(type(Z)==4) Z=lextn(Z|sort=2);
+	if(type(Fix=getopt(fix))!=4) Fix=[];
+	Fix=lextn(Fix|sort=2);
+	if(type(L0=car(L)[0])==4){
+		if(getopt(max)==1){
+			Opt=delopt(getopt(),"max");
+			R=midfamily(X,Y,Z,L|option_list=Opt);
+			return lmaxsub(R);
+		}
+		if((L0[0]=="b" || L0[0]=="B") && type(Z)==4){	 /* all basic residue matrices */
+			Z0=lsort(Z,Fix,1);
+			for(L=[],TZ=Z0;TZ!=[];TZ=cdr(TZ)){
+				for(T=cdr(TZ);T!=[];T=cdr(T))
+					L=cons([[car(TZ),car(T)]],L);
+				for(T=Fix;T!=[];T=cdr(T))
+					L=cons([sort2([car(TZ),car(T)])],L);
+				if(L0[0]=="B"){
+					L=cons([lsort(Z,[car(TZ)],1),Z],L);
+				}
+			}
+		}
+		if(type(L0=getopt(base))!=4||type(car(L0))!=4||type(car(L0)[0])!=4) L0=L;
+		if(getopt(mult)==1){
+			do{
+				L=midfamily(X,Y,Z,L0=L|base=L0,fix=Fix);
+			}while(length(L)>length(L0));
+			return L;
+		}
+		if((Vb=getopt(verb))!=1) Vb=0;
+		if(type(X)==4){
+			for(X=lextn(X);X!=[];X=cdr(X)) L=midfamily(car(X),Y,Z,L|base=L0,verb=Vb,fix=Fix);
+		}else if(type(Y)==4){
+			Y=lextn(Y);
+			for(Y=lextn(Y);Y!=[];Y=cdr(Y))
+				if(X!=car(Y)) L=midfamily(X,car(Y),Z,L|base=L0,verb=Vb,fix=Fix);
+		}else{		/* for a set of maximal commuting residues */
+			if(Y=="c"){
+#if 1
+				K=length(L0);
+				if(getopt(Raw)=1) M=newmat(K,K);
+				else M=0;
+				for(I=0;I<K;I++){
+					F1=findin(X,LI=L0[I])>=0?1:0;
+					for(R=[],J=0;J<K;J++){
+						F2=issub(L0[J],LI);
+						if(F1==F2) TR=LI;
+						else TR=lsort(lxor(X,LI),[],1);
+						if(length(TR)>1){
+							if(M!=0) M[J][I]=R;
+							R=cons(TR,R);
+						}
+					}
+					if(R!=[]&&findin(R,L)<0){
+						L=cons(R,L);
+						if(Vb) mycat([X,LI,"c",R,"->",R]);
+					}
+				}
+				if(M) return M;
+#else
+				for(TL=L0;TL!=[];TL=cdr(TL)){
+					for(R=[],TZ=L0;TZ!=[];TZ=cdr(TZ)){
+						if(issub(car(TZ),car(TL))) TR=car(TL);
+						else TR=lxor(X,car(TL));
+						if(length(TR)>1) R=cons(TR,R);
+					}
+					if(R!=[]&&findin(R,L)<0){
+						L=cons(R,L);
+						if(Vb) mycat([X,car(TL),"c",car(TZ),"->",R]);
+					}
+				}
+#endif
+			}else{
+				for(TL=L0;TL!=[];TL=cdr(TL)){
+					R=midfamily(X,Y,Z,car(TL)|fix=Fix);
+					if(findin(R,L)<0){
+						L=cons(R,L);
+						if(Vb) mycat([X,Y,":",car(TL),"->",R]);
+					}
+				}
+			}
+		}
+	}else if(X!=Y){	/* for a maximal commuting residues */
+		if(Y=="*"||Y=="+"){
+			Z=lsort(Z,[X],1);
+			for(R=[Z];L!=[];L=cdr(L)){
+				TL=lsort(car(L),[X],1);
+				if(length(TL)>1) R=cons(TL,R);
+			}
+			if(Y=="+"){
+				R=cons(Z,R);
+				if(length(Fix)>1) R=cons(Fix,R);
+			}
+		}else{
+			R=(getopt(c)==1)?[]:[sort2([X,Y])];
+			for(;L!=[];L=cdr(L)){
+				F=lsort(TL=car(L),[X,Y],2);
+				if(length(F)!=1) R=cons(TL,R);
+				else if(car(F)==X){
+					if(length(TL)>2) R=cons(lsort(TL,[X],1),R);
+				}
+				else R=cons(qsort(cons(X,TL)),R);
+			}
+		}
+		L=R;
+	}
+	return lsort(L,[],1);
+}
+
 
 def mcmgrs(G,P)
 {
@@ -15690,7 +16103,7 @@ def mtotex(M)
 			}else if(type(P)==6){
 				ST= mtotex(P|small=1,len=1);
 				SS[I][J]=ST[0];
-				L[I][J]=ST[1];
+				if(FL==1) L[I][J]=ST[1];
 			}else if(type(P)==7){
 				if(Rw==1)	SS[I][J]=P;
 				else		SS[I][J]="\\text{"+P+"\}";
