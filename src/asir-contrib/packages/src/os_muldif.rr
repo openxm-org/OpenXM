@@ -592,7 +592,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240616"$
+Muldif.rr="00240617"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -13429,9 +13429,10 @@ def newKZmat(K,L)
 {
 	if(L==0){			/* Convolution of All Aij */
 		R=newmat(K+1,K+1);
+		if(!isint(Raw=getopt(raw))) Raw=0;
 		for(I=0;I<K;I++){
 			for(J=I+1;J<=K;J++)
-				R[I][J]=R[J][I]=newKZmat(K,[I,J]);
+				R[I][J]=R[J][I]=newKZmat(K,[I,J]|raw=Raw);
 		}
 		return R;
 	}
@@ -13670,12 +13671,12 @@ def isdisjoint(X,Y)
 
 def isdisjointfamily(L)
 {
-	for(R=[],S=0,TX=X;TX!=[];TX=cdr(TX)){
-		R=appens(car(TX),R);
+	for(R=[],S=0,TX=L;TX!=[];TX=cdr(TX)){
+		R=append(car(TX),R);
 		S+=length(car(TX));
 	}
 	Z=lsort(R,[],1);
-	return Z==S?1:0;
+	return length(Z)==S?1:0;
 }
 
 def iscommuteset(X,Y)
