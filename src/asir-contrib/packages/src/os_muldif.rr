@@ -6419,10 +6419,14 @@ def lpair(A,B)
 			S=cons(car(A)[0],S);T=cons(car(A)[1],T);
 		}
 		return [reverse(S),reverse(T)];
-	}else{
+	}else if(type(A)==4){
 		for(R=[];A!=[];A=cdr(A),B=cdr(B))
 			R=cons([car(A),car(B)],R);
 		return reverse(R);
+	}else{
+		for(R=[],I=length(A)-1;I>=0;I--)
+			R=cons([A[I],B[I]],R);
+		return R;
 	}
 }
 
@@ -13703,6 +13707,10 @@ def llsymred(L,S)
 		return L;
 	}
 	Dep=1;
+	if(type(Dep=getopt(depth))!=4){
+		if(Dep=="var") Dep=0;
+		else Dep=[0,1];
+	}
 	Sort=[0,0];
 	S=qsort(S);
 	WS=ltov(S);
@@ -13710,7 +13718,7 @@ def llsymred(L,S)
 	if(length(VS)<2) return L;
 	for(R=[],TL=L;TL!=[];TL=cdr(TL)){
 		for(F=0;!F && vnext(VS)!=0;){
-			T=substnum(car(TL),WS,VS|depth=[0,1]);
+			T=Dep?substnum(car(TL),WS,VS|depth=Dep):mulsubst(car(TL),WS,VS|lpair=1);
 			if(Sort!=0) T=rsort(T,Sort[0],Sort[1]);
 			if(T<car(TL)) F=1;
 		}
