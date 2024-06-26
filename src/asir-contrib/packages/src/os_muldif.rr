@@ -2239,7 +2239,7 @@ def xytournament(L,V)
 	LL=length(L)/2;
 	if(!isint(Verb=getopt(verb))) Verb=0;
 	if((W=getopt(winner))=="all"&& Verb>1){ 	/* winner types */
-		Option=delopt(getopt(),["winner",dviout"]);
+		Option=delopt(getopt(),["winner","dviout"]);
  		for(R=KR=[],S=T;S!=[];S=cdr(S)){
    			for(W=0;W<=LL;W++){
      			TR=os_md.xytournament(car(S),0|
