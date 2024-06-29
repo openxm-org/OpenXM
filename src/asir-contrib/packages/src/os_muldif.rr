@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - May 2024)
+ *          Toshio Oshima (Nov. 2007 - June 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -47,7 +47,8 @@ static LQS$
 static SVORG$
 static ISort$
 static ISortF$
-localf midfamily$
+localf mcset$
+localf mcfamily$
 localf spType2$
 localf erno$
 localf chkfun$
@@ -150,6 +151,7 @@ localf llget$
 localf lextn$
 localf llextn$
 localf llord$
+localf llsymcheck$
 localf llsymred$
 localf fam2t$
 localf lcut$
@@ -592,7 +594,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240617"$
+Muldif.rr="00240626"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -13699,6 +13701,37 @@ def iscommutefamily(L)
 	return 1;
 }
 
+def llsymcheck(L,S)
+{
+	if(type(S[0])>3) S=[S];
+	if((Red=getopt(red))!=-1){
+		if(Red==1||Red==2){
+			for(;;){
+				R=llsymcheck(L,S|depth=getopt(depth),red=-Red);
+				if(length(R)==length(L)) return L;
+				L=R;
+			}
+		}
+		Red=0;
+	}
+	if(type(Dep=getopt(depth))!=4){
+		if(Dep=="var") Dep=0;
+		else Dep=[0,1];
+	}
+	for(F=0,R=TL=L;!F&&TL!=[];TL=cdr(TL)){
+		for(;!F&&S!=[];S=cdr(S)){
+			for(TS=car(S);!F&&length(TS)>1;T=cdr(TS)){
+				T=Dep?substnum(car(TL),[TS[0]],[TS[1]]|depth=Dep):
+					mulsubst(car(TL),[TS[0]],[TS[1]]|lpair=1);
+				if(findin(T,L)<0){
+					if(Red) R=cons(T,R);
+					else F=[car(TL),T];
+				}
+			}
+		}
+	}
+	return Red? llsort(R,[],1):F;
+}
 
 def llsymred(L,S)
 {
@@ -13729,7 +13762,15 @@ def llsymred(L,S)
 }
 
 
-def midfamily(X,Y,Z,L)
+def mcset(X,J,I)
+{
+	F=(findin(X,I)>=0)?1:0;
+	if(issub(J,I))
+		return  [F?I:qsort(cons(X,I)),F];
+	return [F?lsort(I,[X],1):I,0];
+}
+
+def mcfamily(X,Y,Z,L)
 {
 	if(type(Z)==4) Z=lextn(Z|sort=2);
 	if(type(Fix=getopt(fix))!=4) Fix=[];
@@ -13737,7 +13778,7 @@ def midfamily(X,Y,Z,L)
 	if(type(L0=car(L)[0])==4){
 		if(getopt(max)==1){
 			Opt=delopt(getopt(),"max");
-			R=midfamily(X,Y,Z,L|option_list=Opt);
+			R=mcfamily(X,Y,Z,L|option_list=Opt);
 			return lmaxsub(R);
 		}
 		if((L0[0]=="b" || L0[0]=="B") && type(Z)==4){	 /* all basic residue matrices */
@@ -13755,17 +13796,17 @@ def midfamily(X,Y,Z,L)
 		if(type(L0=getopt(base))!=4||type(car(L0))!=4||type(car(L0)[0])!=4) L0=L;
 		if(getopt(mult)==1){
 			do{
-				L=midfamily(X,Y,Z,L0=L|base=L0,fix=Fix);
+				L=mcfamily(X,Y,Z,L0=L|base=L0,fix=Fix);
 			}while(length(L)>length(L0));
 			return L;
 		}
 		if((Vb=getopt(verb))!=1) Vb=0;
 		if(type(X)==4){
-			for(X=lextn(X);X!=[];X=cdr(X)) L=midfamily(car(X),Y,Z,L|base=L0,verb=Vb,fix=Fix);
+			for(X=lextn(X);X!=[];X=cdr(X)) L=mcfamily(car(X),Y,Z,L|base=L0,verb=Vb,fix=Fix);
 		}else if(type(Y)==4){
 			Y=lextn(Y);
 			for(Y=lextn(Y);Y!=[];Y=cdr(Y))
-				if(X!=car(Y)) L=midfamily(X,car(Y),Z,L|base=L0,verb=Vb,fix=Fix);
+				if(X!=car(Y)) L=mcfamily(X,car(Y),Z,L|base=L0,verb=Vb,fix=Fix);
 		}else{		/* for a set of maximal commuting residues */
 			if(Y=="c"){
 #if 1
@@ -13804,7 +13845,7 @@ def midfamily(X,Y,Z,L)
 #endif
 			}else{
 				for(TL=L0;TL!=[];TL=cdr(TL)){
-					R=midfamily(X,Y,Z,car(TL)|fix=Fix);
+					R=mcfamily(X,Y,Z,car(TL)|fix=Fix);
 					if(findin(R,L)<0){
 						L=cons(R,L);
 						if(Vb) mycat([X,Y,":",car(TL),"->",R]);
