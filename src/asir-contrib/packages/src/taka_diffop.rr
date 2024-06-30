@@ -91,11 +91,14 @@ endmodule;
 
 module taka_dr1;
 
+localf init_dr1$
+localf set_xvar$
 localf diff2 $
 localf mult$
 localf in$
 localf in_coef$
 localf division$
+localf reduction$
 localf gcd$
 localf act$
 localf initANK$
@@ -112,6 +115,9 @@ localf test1 $
 localf ord0 $
 localf  pfq_infty $
 
+static Dx_$
+static X_$
+
 extern ANK $
 ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
 
@@ -119,15 +125,23 @@ ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
    Ring of differential operators with rational functions coefficients
    in one variables.
    R_1 = K < x, dx >
+   X_=x, Dx_=dx as default.
    ---------------------------------------------------------------------
 */
 
+def init_dr1() {
+  X_=x; Dx_=dx;
+}
+def set_xvar(X) {
+  X_=X; Dx_=poly_dvar(X);
+}
+
 /* cf. d_gcd.rr */
 def mult(F,G){
-	N=deg(nm(F),dx);
+	N=deg(nm(F),Dx_);
 	A=0;
 	for(K=0;K<=N;K++){
-		A=A+(1/fac(K))*diff2(F,dx,K)*diff2(G,x,K);
+		A=A+(1/fac(K))*diff2(F,Dx_,K)*diff2(G,X_,K);
 	}
 	return red(A);
 }
@@ -141,34 +155,38 @@ def diff2(F,G,K){
 
 def in(F) {
   Dn = dn(F); F=nm(F);
-  D = deg(F,dx);
-  C = coef(F,D,dx);
-  return( red(C*dx^D/Dn) );
+  D = deg(F,Dx_);
+  C = coef(F,D,Dx_);
+  return( red(C*Dx_^D/Dn) );
 }
 def in_coef(F) {
   Dn = dn(F); F=nm(F);
-  D = deg(F,dx);
-  C = coef(F,D,dx);
+  D = deg(F,Dx_);
+  C = coef(F,D,Dx_);
   return( red(C/Dn) );
 }
 
 def division(F,G) {
    Q = 0; R = F;
-   DegG = deg(nm(G),dx);
-   while ((R != 0) && (deg(nm(R),dx) >= DegG)) {
+   DegG = deg(nm(G),Dx_);
+   while ((R != 0) && (deg(nm(R),Dx_) >= DegG)) {
       /* D = red(in(R)/in(G));  It does not work for complex coef */
-      DegR = deg(nm(R),dx);
-      D = red(in_coef(R)/in_coef(G))*dx^(DegR-DegG);
+      DegR = deg(nm(R),Dx_);
+      D = red(in_coef(R)/in_coef(G))*Dx_^(DegR-DegG);
       Q = red(Q+D);
       R = red(R-mult(D,G));
    }
    return([Q,R]);
 }
 
+def reduction(F,G) {
+  return division(F,G);
+}
+
 
 def gcd(F,G) {
    S = 1; T = 0; SS=0; TT=1;
-   if (deg(nm(F),dx) > deg(nm(G),dx)) {
+   if (deg(nm(F),Dx_) > deg(nm(G),Dx_)) {
      Changed = 0;
    }else {
      T=F; F=G; G=T; Changed = 1;
@@ -190,10 +208,10 @@ def gcd(F,G) {
 def act(L,F) {
   D = dn(L);
   L = nm(L);
-  N = deg(L,dx);
+  N = deg(L,Dx_);
   R = 0;
   for (I=0; I<=N; I++) {
-   R += coef(L,I,dx)*diff2(F,x,I);
+   R += coef(L,I,Dx_)*diff2(F,X_,I);
   }
   return red(R/D);
 }
@@ -263,7 +281,7 @@ def euler2diff(F,Xlist,Tlist,Dlist) {
 def diff2euler(F,T) {
   DN = dn(F);
   F = nm(F);
-  F = dp_ptod(F,[x,dx]);
+  F = dp_ptod(F,[X_,Dx_]);
   R = 0;
   while (F != 0) {
     P=dp_hm(F);
@@ -271,13 +289,13 @@ def diff2euler(F,T) {
     E = dp_etov(P);
     R += dp_hc(P)*dp_vtoe(newvect(2,[E[0]-E[1],0]))*dp_poch(E[1]);
   }
-  R = dp_dtop(R,[x,T]);
+  R = dp_dtop(R,[X_,T]);
   R = eval_str(rtostr(R));
   DN2= dn(R);
   R = nm(R);
   /* factor out x */
-  M = root_multiplicity(R,x,0);
-  return [red(R/x^M),x^M/(DN*DN2)];
+  M = root_multiplicity(R,X_,0);
+  return [red(R/X_^M),X_^M/(DN*DN2)];
 }
 
 def dp_poch(K) {
@@ -335,7 +353,7 @@ def root_multiplicity(F,S,P) {
 def indicial(L) {
   /* indicial polynomial is a polynomial in x and s */
   L = diff2euler(L,s)[0];
-  L0 = subst(L,x,0);
+  L0 = subst(L,X_,0);
   return [L0,-(L-L0)];  /* inidicial and the rest */
 }
 
@@ -349,8 +367,8 @@ def indicial(L) {
   DONT USE THE VARIABLE atmp_ 
 ----------------------------------------------------- */
 def kcoef0(K,M,L,Prev) {
-  L0 = L[0];  D_L0 = euler2diff(L0,[x],[s],[dx]);
-  LR = L[1];  D_LR = euler2diff(LR,[x],[s],[dx]);
+  L0 = L[0];  D_L0 = euler2diff(L0,[X_],[s],[Dx_]);
+  LR = L[1];  D_LR = euler2diff(LR,[X_],[s],[Dx_]);
   V = [ ];
   F = 0;
   M0 = root_multiplicity(L0,s,K);  /* exclude starting terms */
@@ -362,12 +380,12 @@ def kcoef0(K,M,L,Prev) {
   /* print([M0,M,V,F]); */
   P0 = act(D_L0,F);
   P1 = act(D_LR,Prev);
-  P0=red(subst(P0,LOG,y)/x^K);
+  P0=red(subst(P0,LOG,y)/X_^K);
 /*
   P1=coef(subst(P1,LOG,y),K,x);
 */
   Ptmp = subst(P1,LOG,y);
-  P1=red(coef(nm(Ptmp),K,x)/dn(Ptmp));
+  P1=red(coef(nm(Ptmp),K,X_)/dn(Ptmp));
 
   #ifdef DEBUG
   print([P0,P1]);
@@ -392,7 +410,7 @@ def kcoef0(K,M,L,Prev) {
 
 /* testing  kcoef0 */
 def test1() {
-  L = euler2diff(s^2-x*(s+1/2)^2,[x],[s],[dx]);
+  L = euler2diff(s^2-X_*(s+1/2)^2,[X_],[s],[Dx_]);
   LL = indicial(L);
   F0 = 1;
   print(sprintf("Indicial = %a",LL));
@@ -414,6 +432,7 @@ def test1() {
   /*  cf. SST, p.23
     [1+(1/4)*x+(9/64)*x,
      log(x)+(-2*(1/2)^2+1 + 1/4*log(x))*x]
+     -2*(1/2)^2+1=1/2
   */
 }
 
@@ -456,7 +475,7 @@ def pfq_infty(A,B,N) {
   for (I=0; I<P; I++) {
     L1 = (-s+A[I])*L1;
   }
-  L = L1-x*L0;  /* operator at infty */
+  L = L1-X_*L0;  /* operator at infty */
 
   L1 = cdr(fctr(L1));
   M = length(L1);
@@ -494,9 +513,9 @@ def pfq_infty(A,B,N) {
       }
 
       #ifdef DEBUG
-      LLL = euler2diff(Le,[x],[s],[dx]);
+      LLL = euler2diff(Le,[X_],[s],[Dx_]);
       FFF = act(LLL,F0);
-      print(sprintf("order in x is %a",ord0(FFF,x)));
+      print(sprintf("order in x is %a",ord0(FFF,X_)));
       #endif      
 
       print("------------------------------");
@@ -505,13 +524,12 @@ def pfq_infty(A,B,N) {
 /*      debug; */
       #endif
 
-      Ans = cons([x^E,F0],Ans);
+      Ans = cons([X_^E,F0],Ans);
     }
   }
   return reverse(Ans);
 } 
-
-
 endmodule;
+taka_dr1.init_dr1()$
 
 end$
