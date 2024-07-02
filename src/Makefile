@@ -86,7 +86,7 @@ all-phcpack:
 	fi
 
 all-tigers:
-	(cd tigers; ${MAKE} all)
+	-(cd tigers; ${MAKE} all)
 
 all-fep:
 	-(cd ${OpenXM_contrib2}/fep; ${MAKE} all)
@@ -217,7 +217,7 @@ install-phcpack: all-phcpack
 	fi
 
 install-tigers: all-tigers
-	(cd tigers; ${MAKE} install)
+	-(cd tigers; ${MAKE} install)
 
 install-asir-contrib: configure-asir-contrib install-asir install-util \
                       install-asir-contrib-oxservers
