@@ -907,6 +907,36 @@ def taka_poly_coefficient(F,Deg,V) {
   return map(taka_poly_coefficient,F,Deg,V);
 }
 
+def taka_poly_coefficients_list(F,V) {
+  if  (type(F) < 2) return [F,1];
+  if  (type(F) == 2) {
+    Monom=[];
+    Clist=[];
+    F=dp_ptod(F,V);
+    while (F != 0) {
+      C=dp_hc(F); M=dp_dtop(dp_ht(F),V);
+      Clist=cons(C,Clist); Monom=cons(M,Monom);
+      F=dp_rest(F);
+    }
+    return [reverse(Clist),reverse(Monom)];
+  }
+  if  (type(F) == 3) {
+    DD=dn(F); NN=nm(F);
+    L=taka_poly_coefficients_list(NN,V);
+    N=length(L[0]);
+    Clist=[];
+    for (I=0; I<N; I++) {
+      Clist=cons(red(L[0][I]/DD),Clist);
+    }
+    return [reverse(Clist),L[1]];
+  }
+  return map(taka_poly_coefficients_list,F,V);
+}
+/*
+F=(x+2*c*y)^3/c;
+taka_poly_coefficients_list([F,2*F],[x,y]);
+*/
+
 def taka_poly_lcm(F) {
   G=1;
   N=length(F);

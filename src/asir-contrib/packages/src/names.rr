@@ -820,6 +820,18 @@ def poly_coefficient(F,Deg,V) {
   return taka_poly_coefficient(F,Deg,V | option_list=Opt);
 }
 
+/*&usage begin: poly_coefficients_list(F,V)
+ It returns the list of coefficients of F with respect to the variable list V.
+ F may be rational or list or vector.
+ example:
+  F=[(x+y+c*z)^2/c^2,(x-y+c*z)^2/c^3]$
+  poly_coefficients_list(F,[x,y,z]);
+end: */
+def poly_coefficients_list(F,V) {
+  Opt = getopt();
+  return taka_poly_coefficients_list(F,V | option_list=Opt);
+}
+
 /*&usage begin: poly_lcm(L)
  It returns the LCM of L[0], L[1], ...
  example:
