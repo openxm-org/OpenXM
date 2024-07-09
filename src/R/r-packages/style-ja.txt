@@ -1,48 +1,48 @@
-==== hgm $B%Q%C%1!<%8$N%9%?%$%k%,%$%I%i%$%s(B. ====
+==== hgm パッケージのスタイルガイドライン. ====
 
-= $B5-9f$NLsB+(B.
-$B0J2<(B pid_ $B$O:n@.<T$N<1JL;R$rI=$9(B.
-foo $B$OE,Ev$JL>A0$rI=$9(B.
-$BNc(B:
-tk_ $B$O(B $B9b;3(B, nk_ $B$OCf;3(B, ko_ $B$O>.;3(B, se_ $B$O@6(B.
+= 記号の約束.
+以下 pid_ は作成者の識別子を表す.
+foo は適当な名前を表す.
+例:
+tk_ は 高山, nk_ は中山, ko_ は小山, se_ は清.
 
-= $B%U%!%$%kL>(B
-- R $B$N%U%!%$%kL>$O(B  pid_foo.R $B$H$9$k(B.
-- C $B$N%U%!%$%kL>$O86B'<+M3$@$,(B, $B<B9T2DG=7A<0%W%m%0%i%`$NL>A0$O(B, hgm_foo $B$^$?$O(B,
-hgm_pid_foo $B$H$9$k(B.  
-$BNc(B: hgm_ko_normalizing_constant_of_fisher_bingham
+= ファイル名
+- R のファイル名は  pid_foo.R とする.
+- C のファイル名は原則自由だが, 実行可能形式プログラムの名前は, hgm_foo または,
+hgm_pid_foo とする.  
+例: hgm_ko_normalizing_constant_of_fisher_bingham
     hgm_ko_ncfb
     hgm_ko_orthant
     hgm_w-n
     hgm_jack-n
 
-= R $B$N4X?tL>(B
-- hgm $B%Q%C%1!<%8$N4X?t$O$9$Y$F(B hgm $B$G;O$^$j$D$.$K:n@.<T$N<1JL;R$,$/$k$b$N$H$9$k(B.
-$B$D$^$j(B hgm.pid.foo $B$H$9$k(B. foo $B$NItJ,$O(B R $B$NB>$N4X?tL>$r;29M$K$7$FBEEv$JL>A0$K$9$k(B.
-$BNc(B: hgm.tk.pwishart
-- $B$J$*(B, google $B$N(B R style $B$K=`5r$5$;$k$?$a(B  
-$B$?$H$($P(B, HgmTkPwishart<-hgm.tk.pwishart
-$B$r2C$($F$*$$$F$b$h$$(B.
-$BNc(B: hgm.ko.normalizingConstantOfFisherBingham
+= R の関数名
+- hgm パッケージの関数はすべて hgm で始まりつぎに作成者の識別子がくるものとする.
+つまり hgm.pid.foo とする. foo の部分は R の他の関数名を参考にして妥当な名前にする.
+例: hgm.tk.pwishart
+- なお, google の R style に準拠させるため  
+たとえば, HgmTkPwishart<-hgm.tk.pwishart
+を加えておいてもよい.
+例: hgm.ko.normalizingConstantOfFisherBingham
     hgm.ko.ncfb
     hgm.ko.ncorthant
 
-$BCm0U(B: pid $B$rI,$:2C$($k$3$H(B. $B$3$l$O(B,
-$B%U%!%$%k(B zhgm_names.R $B$K$*$$$F(B,
-$B$?$H$($P(B,
+注意: pid を必ず加えること. これは,
+ファイル zhgm_names.R において,
+たとえば,
 hgm.pwishart<-hgm.tk.pwishart
-$B$H(B pid $B$,$J$$L>A0$K4XO"$E$1$k(B.
-$B$3$l$OF1$85!G=$rJL$N?M$,3+H/$7$F$$$k>l9g$N(B conflict $B$rKI$0$?$a$G$"$k(B.
-$BF10l$N$b$N$,$"$k>l9g(B, top level $B$N4X?t$O(B method $B0z?t$G$I$l$+$rE,59A*$s$@$j$9$k(B.
+と pid がない名前に関連づける.
+これは同じ機能を別の人が開発している場合の conflict を防ぐためである.
+同一のものがある場合, top level の関数は method 引数でどれかを適宜選んだりする.
 
-$BNc(B: hgm.nk.hgd,  hgm.se.hgd $B$H(B hgd $B$r9T$&Fs$D$N<BAu$,$"$k(B.
+例: hgm.nk.hgd,  hgm.se.hgd と hgd を行う二つの実装がある.
 
-= C $B$N4X?tL>(B.
-$B30It$X8x3+$9$kI,MW$N$J$$4X?t$O$J$k$Y$/(B static $B4X?t@k8@$r$7$F$*$/(B.
-static $B@k8@$r$7$?4X?t$NL>A0$O<+M3$G$"$k(B.
-$B%i%$%V%i%j$X%j%s%/$7$?$"$H$N4X?tL>$*$h$SBg0hJQ?tL>$O(B, $B$+$J$i$:(B, $B$J$s$i$+$N(B
-$B<1JL;R$rA0$K$D$1$F$*$/(B.
-$BNc(B: mh_fput, MH_STRATEGY_DEFAULT
-$B$3$N>l9g$O(B mh_ $B$,<1JL;R$G$"$k(B.  pid_ $B$r<1JL;R$H$7$FMQ$$$F$b$h$$(B.
+= C の関数名.
+外部へ公開する必要のない関数はなるべく static 関数宣言をしておく.
+static 宣言をした関数の名前は自由である.
+ライブラリへリンクしたあとの関数名および大域変数名は, かならず, なんらかの
+識別子を前につけておく.
+例: mh_fput, MH_STRATEGY_DEFAULT
+この場合は mh_ が識別子である.  pid_ を識別子として用いてもよい.
 
  
