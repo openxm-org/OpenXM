@@ -11,293 +11,293 @@ static Cdd_Init, Cdd_Proc$
 static Cddgmp_Init, Cddgmp_Proc$
 
 def set_order_mat(M,S,E,O) {
-	if ( O == 0 ) {
-		for ( J = S; J < E; J++ ) M[S][J] = 1;
-		for ( I = S+1; I < E; I++ ) M[I][E-(I-S)] = -1;
-	} else if ( O == 1 ) {
-		for ( J = S; J < E; J++ ) M[S][J] = 1;
-		for ( I = S+1; I < E; I++ ) M[I][I-1] = 1;
-	} else if ( O == 2 )
-		for ( I = S; I < E; I++ ) M[I][I] = 1;
+  if ( O == 0 ) {
+    for ( J = S; J < E; J++ ) M[S][J] = 1;
+    for ( I = S+1; I < E; I++ ) M[I][E-(I-S)] = -1;
+  } else if ( O == 1 ) {
+    for ( J = S; J < E; J++ ) M[S][J] = 1;
+    for ( I = S+1; I < E; I++ ) M[I][I-1] = 1;
+  } else if ( O == 2 )
+    for ( I = S; I < E; I++ ) M[I][I] = 1;
 }
 
 def create_order_mat(N,O)
 {
-	M = matrix(N,N);
-	if ( O <= 2 )
-		set_order_mat(M,0,N,O);
-	else {
-		for ( T = O, S = 0; T != []; T = cdr(T) ) {
-			OT = car(T)[0]; ON = car(T)[1];
-			set_order_mat(M,S,S+ON,OT);
-			S += ON;
-		}
-	}
-	return M;
+  M = matrix(N,N);
+  if ( O <= 2 )
+    set_order_mat(M,0,N,O);
+  else {
+    for ( T = O, S = 0; T != []; T = cdr(T) ) {
+      OT = car(T)[0]; ON = car(T)[1];
+      set_order_mat(M,S,S+ON,OT);
+      S += ON;
+    }
+  }
+  return M;
 }
 
 def inner_product(V1,V2)
 {
-	if ( V1 == 0 || V2 == 0 ) return 0;
-	N = size(V1)[0];
-	for ( S = 0, I = 0; I < N; I++ )
-		S += V1[I]*V2[I];
-	return S;
+  if ( V1 == 0 || V2 == 0 ) return 0;
+  N = size(V1)[0];
+  for ( S = 0, I = 0; I < N; I++ )
+    S += V1[I]*V2[I];
+  return S;
 }
 
 def comp_order(V1,V2,W)
 {
-	N = size(W)[0];
-	for ( I = 0; I < N; I++ ) {
-		T1 = inner_product(V1,W[I]);
-		T2 = inner_product(V2,W[I]);
-		if ( T1 < T2 ) return -1;
-		else if ( T1 > T2 ) return 1;
-	}
-	return 0;
+  N = size(W)[0];
+  for ( I = 0; I < N; I++ ) {
+    T1 = inner_product(V1,W[I]);
+    T2 = inner_product(V2,W[I]);
+    if ( T1 < T2 ) return -1;
+    else if ( T1 > T2 ) return 1;
+  }
+  return 0;
 }
 
 def in_c12(V,W1,W2)
 {
-	T1 = comp_order(V,0,W1);
-	T2 = comp_order(V,0,W2);
-	if ( T1 > 0 && T2 < 0 ) return 1;
-	else return 0;
+  T1 = comp_order(V,0,W1);
+  T2 = comp_order(V,0,W2);
+  if ( T1 > 0 && T2 < 0 ) return 1;
+  else return 0;
 }
 
 /* U <= V according to facet preorder */
 
 def comp_facet_preorder(U,V,W1,W2)
 {
-	/* U = 0 <=> U = -infty, U = 1 <=> U = infty */
-	if ( U == 0 ) return 1;
-	if ( U == 1 ) return 0;
-	N = size(V)[0];
-	for ( I = 0; I < N; I++ ) {
-		Left = inner_product(W2[I],U)*V;
-		Right = inner_product(W2[I],V)*U;
-		R = comp_order(Left,Right,W1);
-		if ( R < 0 ) return 1;
-		else if ( R > 0 ) return 0;
-	}
-	return 1;
+  /* U = 0 <=> U = -infty, U = 1 <=> U = infty */
+  if ( U == 0 ) return 1;
+  if ( U == 1 ) return 0;
+  N = size(V)[0];
+  for ( I = 0; I < N; I++ ) {
+    Left = inner_product(W2[I],U)*V;
+    Right = inner_product(W2[I],V)*U;
+    R = comp_order(Left,Right,W1);
+    if ( R < 0 ) return 1;
+    else if ( R > 0 ) return 0;
+  }
+  return 1;
 }
 
 def compute_df(F,H)
 {
-	H = dp_etov(H);
-	for ( R = [], T = F; T; T = dp_rest(T) )
-		R = cons(H-dp_etov(T),R);
-	return reverse(R);
+  H = dp_etov(H);
+  for ( R = [], T = F; T; T = dp_rest(T) )
+    R = cons(H-dp_etov(T),R);
+  return reverse(R);
 }
 
 def dp_boundary(F)
 {
-	for ( M = [], T = F; T; T = dp_rest(T) )
-		M = cons(dp_hm(T),M);
-	M = ltov(M); N = length(M);
-	for ( I = 0; I < N; I++ ) {
-		for ( MI = M[I], J = I+1; J < N; J++ ) {
-			if ( dp_redble(M[J],MI) ) break;
-		}
-		if ( J < N ) M[I] = 0;
-	}
-	for ( R = 0, I = 0; I < N; I++ )
-		R += M[I];
-	return R;
+  for ( M = [], T = F; T; T = dp_rest(T) )
+    M = cons(dp_hm(T),M);
+  M = ltov(M); N = length(M);
+  for ( I = 0; I < N; I++ ) {
+    for ( MI = M[I], J = I+1; J < N; J++ ) {
+      if ( dp_redble(M[J],MI) ) break;
+    }
+    if ( J < N ) M[I] = 0;
+  }
+  for ( R = 0, I = 0; I < N; I++ )
+    R += M[I];
+  return R;
 }
 
 def compute_compat_weight(F,H)
 {
-	D = dp_compute_essential_df(F,H);
-	C = length(D[0]);
-	for ( I = 1; I < C; I++ ) {
-		V = vector(C);
-		V[I] = 1;
-		D = cons(vtol(V),D);
-	}
-	R = length(D);
-	if ( !Cdd_Init ) {
-		Cdd_Proc = ox_launch_nox(0,"ox_cdd");
-		Cdd_Init = 1;
-	}
-	ox_cmo_rpc(Cdd_Proc,"intpt",R,C,D);
-	Ret = ox_pop_cmo(Cdd_Proc);
-	V = vector(C-1);
-	for ( I = 1, D = 1; I < C; I++ ) {
-		V[I-1] = rint(Ret[I]/Ret[0]*100);
-	}
-	return V;	
+  D = dp_compute_essential_df(F,H);
+  C = length(D[0]);
+  for ( I = 1; I < C; I++ ) {
+    V = vector(C);
+    V[I] = 1;
+    D = cons(vtol(V),D);
+  }
+  R = length(D);
+  if ( !Cdd_Init ) {
+    Cdd_Proc = ox_launch_nox(0,"ox_cdd");
+    Cdd_Init = 1;
+  }
+  ox_cmo_rpc(Cdd_Proc,"intpt",R,C,D);
+  Ret = ox_pop_cmo(Cdd_Proc);
+  V = vector(C-1);
+  for ( I = 1, D = 1; I < C; I++ ) {
+    V[I-1] = rint(Ret[I]/Ret[0]*100);
+  }
+  return V;  
 }
 
 def compute_compat_weight_gmp(F,H)
 {
-	D = dp_compute_essential_df(F,H);
-	C = length(D[0]);
-	for ( I = 1; I < C; I++ ) {
-		V = vector(C);
-		V[I] = 1;
-		D = cons(vtol(V),D);
-	}
-	R = length(D);
-	if ( !Cddgmp_Init ) {
-		Cddgmp_Proc = ox_launch_nox(0,"ox_cddgmp");
-		Cddgmp_Init = 1;
-	}
-	ox_cmo_rpc(Cddgmp_Proc,"intpt",R,C,D);
-	Ret = ox_pop_cmo(Cdd_Procgmp);
-	V = vector(C-1);
-	for ( I = 1, D = 1; I < C; I++ ) {
-		V[I-1] = Ret[I];
-		D = ilcm(D,dn(Ret[I]));
-	}
-	V *= D;
-	return V;	
+  D = dp_compute_essential_df(F,H);
+  C = length(D[0]);
+  for ( I = 1; I < C; I++ ) {
+    V = vector(C);
+    V[I] = 1;
+    D = cons(vtol(V),D);
+  }
+  R = length(D);
+  if ( !Cddgmp_Init ) {
+    Cddgmp_Proc = ox_launch_nox(0,"ox_cddgmp");
+    Cddgmp_Init = 1;
+  }
+  ox_cmo_rpc(Cddgmp_Proc,"intpt",R,C,D);
+  Ret = ox_pop_cmo(Cdd_Procgmp);
+  V = vector(C-1);
+  for ( I = 1, D = 1; I < C; I++ ) {
+    V[I-1] = Ret[I];
+    D = ilcm(D,dn(Ret[I]));
+  }
+  V *= D;
+  return V;  
 }
 
 def compute_last_w(G,GH,W1,W2,W)
 {
-	N = length(G);
-	for ( Dg = [], I = 0; I < N; I++ )
-		Dg = append(compute_df(G[I],GH[I]),Dg);
-	for ( V = [], T = Dg; T != []; T = cdr(T) ) {
-		S = car(T);
-		if ( in_c12(S,W1,W2) && comp_facet_preorder(W,S,W1,W2) )
-			V = cons(S,V);
-	}
-	if ( V == [] ) return 1;
-	for ( T = V; T != []; T = cdr(T) ) {
-		S = car(T);
-		for ( U = V; U != []; U = cdr(U) ) {
-			if ( !comp_facet_preorder(S,car(U),W1,W2) )
-				break;
-		}
-		if ( U == [] )
-			return S;
-	}
-	error("compute_last_w : cannot happen");
+  N = length(G);
+  for ( Dg = [], I = 0; I < N; I++ )
+    Dg = append(compute_df(G[I],GH[I]),Dg);
+  for ( V = [], T = Dg; T != []; T = cdr(T) ) {
+    S = car(T);
+    if ( in_c12(S,W1,W2) && comp_facet_preorder(W,S,W1,W2) )
+      V = cons(S,V);
+  }
+  if ( V == [] ) return 1;
+  for ( T = V; T != []; T = cdr(T) ) {
+    S = car(T);
+    for ( U = V; U != []; U = cdr(U) ) {
+      if ( !comp_facet_preorder(S,car(U),W1,W2) )
+        break;
+    }
+    if ( U == [] )
+      return S;
+  }
+  error("compute_last_w : cannot happen");
 }
 
 def highest_w(G,GH,W1,W2,W)
 {
-	N = length(G);
-	In = vector(N);
-	for ( I = 0; I < N; I++ ) {
-		F = G[I];
-		H = dp_etov(GH[I]);
-		for ( R = 0, T = F; T; T = dp_rest(T) ) {
-			S = H-dp_etov(T);
-			if ( comp_facet_preorder(S,W,W1,W2) && comp_facet_preorder(W,S,W1,W2) )
-				R += dp_hm(T);
-		}
-		In[I] = R;
-	}
-	return In;
+  N = length(G);
+  In = vector(N);
+  for ( I = 0; I < N; I++ ) {
+    F = G[I];
+    H = dp_etov(GH[I]);
+    for ( R = 0, T = F; T; T = dp_rest(T) ) {
+      S = H-dp_etov(T);
+      if ( comp_facet_preorder(S,W,W1,W2) && comp_facet_preorder(W,S,W1,W2) )
+        R += dp_hm(T);
+    }
+    In[I] = R;
+  }
+  return In;
 }
 
 def mat_to_vlist(M)
 {
-	N = size(M)[0];
-	R = vector(N);
-	for ( I = 0; I < N; I++ )
-		R[I] = M[I];
-	return R;
+  N = size(M)[0];
+  R = vector(N);
+  for ( I = 0; I < N; I++ )
+    R[I] = M[I];
+  return R;
 }
 
 def porder(F,G)
 {
-	while ( 1 ) {
-		if ( !F ) {
-			if ( !G ) return 0;
-			else return -1;
-		} else if ( !G ) return 1;
-		else {
-			HF = dp_ht(F); HG = dp_ht(G);
-			if ( HF > HG ) return 1;
-			else if ( HF < HG ) return -1;
-			F = dp_rest(F); G = dp_rest(G);
-		}
-	}
+  while ( 1 ) {
+    if ( !F ) {
+      if ( !G ) return 0;
+      else return -1;
+    } else if ( !G ) return 1;
+    else {
+      HF = dp_ht(F); HG = dp_ht(G);
+      if ( HF > HG ) return 1;
+      else if ( HF < HG ) return -1;
+      F = dp_rest(F); G = dp_rest(G);
+    }
+  }
 }
 
 def nf_marked(B,G,PS,HPS)
 {
-	M = 1;
-	for ( D = 0; G; ) {
-		for ( U = 0, L = B; L != []; L = cdr(L) ) {
-			if ( dp_redble(G,H=HPS[car(L)]) > 0 ) {
-				R = PS[car(L)];
-				GCD = igcd(dp_hc(G),dp_hc(H));
-				CG = idiv(dp_hc(H),GCD); CR = idiv(dp_hc(G),GCD);
-				U = CG*G-dp_subd(G,H)*CR*R;
-				if ( !U )
-					return [D,M];
-				D *= CG; M *= CG;
-				break;
-			}
-		}
-		if ( U ) {
-			G = U;
-		} else {
-			D += dp_hm(G); G = dp_rest(G);
-		}
-	}
-	return [D,M];
+  M = 1;
+  for ( D = 0; G; ) {
+    for ( U = 0, L = B; L != []; L = cdr(L) ) {
+      if ( dp_redble(G,H=HPS[car(L)]) > 0 ) {
+        R = PS[car(L)];
+        GCD = igcd(dp_hc(G),dp_hc(H));
+        CG = idiv(dp_hc(H),GCD); CR = idiv(dp_hc(G),GCD);
+        U = CG*G-dp_subd(G,H)*CR*R;
+        if ( !U )
+          return [D,M];
+        D *= CG; M *= CG;
+        break;
+      }
+    }
+    if ( U ) {
+      G = U;
+    } else {
+      D += dp_hm(G); G = dp_rest(G);
+    }
+  }
+  return [D,M];
 }
 
 def appear(H,F)
 {
-	for ( ; F != []; F = cdr(F) )
-		if ( car(F) == H ) return 1;
-	return 0;
+  for ( ; F != []; F = cdr(F) )
+    if ( car(F) == H ) return 1;
+  return 0;
 }
 
 def nf_marked2(B,G,PS,HPS)
 {
-	M = 1;
-	Hist = [];
-	Post = 0;
-	for ( D = 0; G; ) {
-		for ( U = 0, Post1 = 0, L = B; L != []; L = cdr(L) ) {
-			if ( dp_redble(G,H=HPS[car(L)]) > 0 ) {
-				if ( appear(dp_ht(G),Hist) ) {
-					Post1 = dp_hm(G);
-					break;
-				}
-				R = PS[car(L)];
-				Hist = cons(dp_ht(G),Hist);
-				GCD = igcd(dp_hc(G),dp_hc(H));
-				CG = idiv(dp_hc(H),GCD); CR = idiv(dp_hc(G),GCD);
-				U = CG*G-dp_subd(G,H)*CR*R;
-				if ( !U )
-					return [D,Post,M];
-				D *= CG; M *= CG; Post *= CG;
-				break;
-			}
-		}
-		if ( U ) {
-			G = U;
-		} else if ( Post1 ) {
-			Post += Post1; G = dp_rest(G);
-		} else {
-			D += dp_hm(G); G = dp_rest(G);
-		}
-	}
-	return [D,Post,M];
+  M = 1;
+  Hist = [];
+  Post = 0;
+  for ( D = 0; G; ) {
+    for ( U = 0, Post1 = 0, L = B; L != []; L = cdr(L) ) {
+      if ( dp_redble(G,H=HPS[car(L)]) > 0 ) {
+        if ( appear(dp_ht(G),Hist) ) {
+          Post1 = dp_hm(G);
+          break;
+        }
+        R = PS[car(L)];
+        Hist = cons(dp_ht(G),Hist);
+        GCD = igcd(dp_hc(G),dp_hc(H));
+        CG = idiv(dp_hc(H),GCD); CR = idiv(dp_hc(G),GCD);
+        U = CG*G-dp_subd(G,H)*CR*R;
+        if ( !U )
+          return [D,Post,M];
+        D *= CG; M *= CG; Post *= CG;
+        break;
+      }
+    }
+    if ( U ) {
+      G = U;
+    } else if ( Post1 ) {
+      Post += Post1; G = dp_rest(G);
+    } else {
+      D += dp_hm(G); G = dp_rest(G);
+    }
+  }
+  return [D,Post,M];
 }
 
 def nf_marked_rec(B,G,PS,HPS)
 {
-	D = 0; M = 1;
-	while ( 1 ) {
-		L = nf_marked2(B,G,PS,HPS);
-		D1 = L[0]; P1 = L[1]; M1 = L[2];
-		/* M1*G = D1+P1 */
-		D = M1*D+D1;
-		M *= M1;
-		if ( !P1 ) return remove_cont([D,M]);
-		else G = P1;
-	}
+  D = 0; M = 1;
+  while ( 1 ) {
+    L = nf_marked2(B,G,PS,HPS);
+    D1 = L[0]; P1 = L[1]; M1 = L[2];
+    /* M1*G = D1+P1 */
+    D = M1*D+D1;
+    M *= M1;
+    if ( !P1 ) return remove_cont([D,M]);
+    else G = P1;
+  }
 }
 
 #if 0
@@ -305,245 +305,297 @@ def nf_marked_rec(B,G,PS,HPS)
 
 def comp_second(A,B)
 {
-	if ( A[1] > B[1] ) return 1;
-	else if ( A[1] < B[1] ) return -1;
-	else return 0;
+  if ( A[1] > B[1] ) return 1;
+  else if ( A[1] < B[1] ) return -1;
+  else return 0;
 }
 #else
 /* decreasing order */
 
 def comp_second(A,B)
 {
-	if ( A[1] > B[1] ) return -1;
-	else if ( A[1] < B[1] ) return 1;
-	else return 0;
+  if ( A[1] > B[1] ) return -1;
+  else if ( A[1] < B[1] ) return 1;
+  else return 0;
 }
 #endif
 
 def sort_by_order(G,GH)
 {
-	N = length(G);
-	V = vector(N);
-	for ( I = 0; I < N; I++ )
-		V[I] = [G[I],GH[I]];
-	V1 = qsort(V,noro_gw.comp_second);
-	for ( I = 0; I < N; I++ ) {
-		G[I] = V1[I][0]; GH[I] = V1[I][1];
-	}
+  N = length(G);
+  V = vector(N);
+  for ( I = 0; I < N; I++ )
+    V[I] = [G[I],GH[I]];
+  V1 = qsort(V,noro_gw.comp_second);
+  for ( I = 0; I < N; I++ ) {
+    G[I] = V1[I][0]; GH[I] = V1[I][1];
+  }
 
 }
 
-def generic_walk(G1,V,M1,M2)
+def generic_walk(G1,V,O1,O2)
 {
-	/* G is always a set of DP w.r.t. order W1 */
-	NV = length(V);
-	dp_ord(M1);
-	W1 = mat_to_vlist(M1);
-	W2 = mat_to_vlist(M2);
-	G = ltov(map(dp_ptod,G1,V));
-	GH = map(dp_hm,G);
-	dp_ord(M2);
-	G = ltov(map(dp_ptod,G1,V));
+  /* G is always a set of DP w.r.t. order W1 */
+  NV = length(V);
+  M1 = create_order_mat(NV,O1);
+  M2 = create_order_mat(NV,O2);
 
-	Tw = Tgb = Tcw = Tlift = Tred = 0;
-	Tnf = Tcont = 0;
-	W = 0;
-	Step = 0;
+  dp_ord(O1);
+  W1 = mat_to_vlist(M1);
+  W2 = mat_to_vlist(M2);
+  G = ltov(map(dp_ptod,G1,V));
+  GH = map(dp_hm,G);
+  dp_ord(O2);
+  G = ltov(map(dp_ptod,G1,V));
 
-	S2 = size(W2); R1 = S2[0]+1;
-	CW2 = matrix(R1,NV);
-	for ( I = 1; I < R1; I++ )
-		for ( J = 0; J < NV; J++ )
-			CW2[I][J] = W2[I-1][J];
-	CW = compute_compat_weight(G,GH);
-	for ( I = 0; I < NV; I++ )
-		CW2[0][I] = CW[I];
-	
-	while ( 1 ) {
-		print("step ",0); print(Step++);
+  Tw = Tgb = Tcw = Tlift = Tred = Trestart = 0;
+  Tnf = Tcont = 0;
+  W = 0;
+  Step = 0;
+
+  S2 = size(W2); R1 = S2[0]+1;
+  CW2 = matrix(R1,NV);
+  for ( I = 1; I < R1; I++ )
+    for ( J = 0; J < NV; J++ )
+      CW2[I][J] = W2[I-1][J];
+  CW = compute_compat_weight(G,GH);
+  for ( I = 0; I < NV; I++ )
+    CW2[0][I] = CW[I];
+  
+  while ( 1 ) {
+    print("step ",0); print(Step++);
 T0 = time()[0];
-		L = dp_compute_last_w(vtol(G),vtol(GH),W,M1,M2);
-		if ( !L ) {
-			print(["w",Tw,"gb",Tgb,"lift",Tlift,"cw",Tcw,"red",Tred]);
-			return vtol(map(dp_dtop,G,V));
-		}
-		W = L[0]; In = map(dp_dtop,L[1],V);
-		dp_ord(CW2); InVec = ltov(map(dp_ptod,In,V));
+    L = dp_compute_last_w(vtol(G),vtol(GH),W,M1,M2);
+    if ( !L ) {
+      print(["w",Tw,"gb",Tgb,"lift",Tlift,"cw",Tcw,"red",Tred,"restart",Trestart]);
+      return vtol(map(dp_dtop,G,V));
+    }
+    W = L[0]; In = L[1];
+    dp_ord(CW2); 
+    In = map(dp_sort,In);
+    InVec = ltov(In);
 Tw += time()[0]-T0;
 T0 = time()[0];
-		H = nd_gr(In,V,0,M2);
-		N = length(H);
-		H1 = vector(N);
-		HH1 = vector(N);
-
-		dp_ord(M2);
-		for ( I = 0; I < N; I++ )
-			HH1[I] = dp_hm(dp_ptod(H[I],V));
-		NG = length(G);
-		for ( Ind = [], I = 0; I < NG; I++ )
-			Ind = cons(I,Ind);
-		Ind = reverse(Ind);
+    H = nd_f4(In,V,0,M2|dp=1);
+    N = length(H);
+    H1 = vector(N);
+    dp_ord(O2);
+    H = map(dp_sort,H);
+    HH1 = ltov(map(dp_hm,H));
+    NG = length(G);
+    for ( Ind = [], I = 0; I < NG; I++ )
+      Ind = cons(I,Ind);
+    Ind = reverse(Ind);
 Tgb += time()[0]-T0;
 
-		dp_ord(CW2);
 T0 = time()[0];
-		G = map(dp_ptod,map(dp_dtop,G,V),V);
-		for ( I = 0; I < N; I++ ) {
-			F = dp_ptod(H[I],V);
-			T = dp_true_nf_and_quotient_marked(Ind,F,InVec,GH);
-			NF = T[0]; Den = T[1]; Q = T[2];
-			for ( J = 0, U = 0; J < NG; J++ )
-				U += Q[J]*G[J];
-			H1[I] = U;
-			HH1[I] = Den*HH1[I];
-		}
+    dp_ord(CW2);
+    H = map(dp_sort,H);
+    G = map(dp_sort,G);
+    for ( I = 0; I < N; I++ ) {
+      F = dp_sort(H[I]);
+      T = dp_true_nf_and_quotient_marked(Ind,F,InVec,GH);
+      NF = T[0]; Den = T[1]; Q = T[2];
+      for ( J = 0, U = 0; J < NG; J++ )
+        U += Q[J]*G[J];
+      H1[I] = U;
+      HH1[I] = Den*HH1[I];
+    }
 T1 = time()[0]; Tlift += T1-T0;
 
 T0 = time()[0];
-		CW = compute_compat_weight(H1,HH1);
-		for ( I = 0; I < NV; I++ )
-			CW2[0][I] = CW[I];
-		dp_ord(CW2);
-		H1 = map(dp_ptod,map(dp_dtop,H1,V),V);
-
-		sort_by_order(H1,HH1);
+#if 0
+    CW = compute_compat_weight(H1,HH1);
+    for ( I = 0; I < NV; I++ )
+      CW2[0][I] = CW[I];
+    dp_ord(CW2);
+    H1 = map(dp_sort,H1);
+    sort_by_order(H1,HH1);
+#endif
 Tcw += time()[0]-T0;
 
 T0 = time()[0];
-		for ( I = 0; I < N; I++ ) {
-			for ( Ind = [], J = 0; J < N; J++ )
-				if ( J != I ) Ind = cons(J,Ind);
-			Ind = reverse(Ind);
-			T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
-			HT = dp_ht(HH1[I]);
-			for ( S = S0 = T[0]; S; S = dp_rest(S) )
-				if ( dp_ht(S) == HT )
-					break;
-			if ( !S )
-				error("cannot happen");
-			H1[I] = S0;
-			HH1[I] = dp_hm(S);
-		}
+    dp_ord(O2);
+    H1 = map(dp_sort,H1);
+    H1sav = H1; HH1sav = HH1;
+    for ( I = 0; I < N; I++ ) {
+      for ( Ind = [], J = 0; J < N; J++ )
+        if ( J != I ) Ind = cons(J,Ind);
+      Ind = reverse(Ind);
+      T = dp_true_nf_marked_check(Ind,H1[I],H1,HH1);
+      if ( type(T[0]) < 0 ) break;
+      HT = dp_ht(HH1[I]);
+      for ( S = S0 = T[0]; S; S = dp_rest(S) )
+        if ( dp_ht(S) == HT )
+          break;
+      if ( !S )
+        error("cannot happen");
+      H1[I] = S0;
+      HH1[I] = dp_hm(S);
+    }
+    if ( I < N ) {
+T1 = time()[0];
+      print("restart");
+      H1 = H1sav; HH1 = HH1sav;
+      CW = compute_compat_weight(H1,HH1);
+      for ( I = 0; I < NV; I++ )
+        CW2[0][I] = CW[I];
+      dp_ord(CW2);
+      H1 = map(dp_sort,H1);
+      sort_by_order(H1,HH1);
+      
+      if ( map(dp_ht,H1) == map(dp_ht,HH1) ) {
+        print("compat");
+        for ( I = 0; I < N; I++ ) {
+          for ( Ind = [], J = 0; J < N; J++ )
+            if ( J != I ) Ind = cons(J,Ind);
+          Ind = reverse(Ind);
+          T = dp_true_nf(Ind,H1[I],H1,1);
+          HT = dp_ht(HH1[I]);
+          for ( S = S0 = T[0]; S; S = dp_rest(S) )
+            if ( dp_ht(S) == HT )
+              break;
+          if ( !S )
+            error("cannot happen");
+          H1[I] = S0;
+          HH1[I] = dp_hm(S);
+        }
+      } else {
+        for ( I = 0; I < N; I++ ) {
+          for ( Ind = [], J = 0; J < N; J++ )
+            if ( J != I ) Ind = cons(J,Ind);
+          Ind = reverse(Ind);
+          T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
+          HT = dp_ht(HH1[I]);
+          for ( S = S0 = T[0]; S; S = dp_rest(S) )
+            if ( dp_ht(S) == HT )
+              break;
+          if ( !S )
+            error("cannot happen");
+          H1[I] = S0;
+          HH1[I] = dp_hm(S);
+        }
+      }
+T2 = time()[0]; Trestart += T2-T1;
+    }
 T1 = time()[0]; Tred += T1-T0;
-		G = H1;
-		GH = HH1;
-	}
+    G = H1;
+    GH = HH1;
+  }
 }
 
 def generic_walk_mod(G1,V,M1,M2,Mod)
 {
-	/* G is always a set of DP w.r.t. order W1 */
-	setmod(Mod);
-	NV = length(V);
-	dp_ord(M1);
-	W1 = mat_to_vlist(M1);
-	W2 = mat_to_vlist(M2);
-	G = ltov(map(dp_mod,map(dp_ptod,G1,V),Mod,[]));
-	GH = map(dp_hm,G);
-	dp_ord(M2);
-	G = ltov(map(dp_mod,map(dp_ptod,G1,V),Mod,[]));
+  /* G is always a set of DP w.r.t. order W1 */
+  setmod(Mod);
+  NV = length(V);
+  dp_ord(M1);
+  W1 = mat_to_vlist(M1);
+  W2 = mat_to_vlist(M2);
+  G = ltov(map(dp_mod,map(dp_ptod,G1,V),Mod,[]));
+  GH = map(dp_hm,G);
+  dp_ord(M2);
+  G = ltov(map(dp_mod,map(dp_ptod,G1,V),Mod,[]));
 
-	Tw = Tgb = Tlift = Tred = 0;
-	Tnf = Tcont = 0;
-	W = 0;
-	Step = 0;
+  Tw = Tgb = Tlift = Tred = 0;
+  Tnf = Tcont = 0;
+  W = 0;
+  Step = 0;
 
-	S2 = size(W2); R1 = S2[0]+1;
-	CW2 = matrix(R1,NV);
-	for ( I = 1; I < R1; I++ )
-		for ( J = 0; J < NV; J++ )
-			CW2[I][J] = W2[I-1][J];
-	CW = compute_compat_weight(G,GH);
-	for ( I = 0; I < NV; I++ )
-		CW2[0][I] = CW[I];
+  S2 = size(W2); R1 = S2[0]+1;
+  CW2 = matrix(R1,NV);
+  for ( I = 1; I < R1; I++ )
+    for ( J = 0; J < NV; J++ )
+      CW2[I][J] = W2[I-1][J];
+  CW = compute_compat_weight(G,GH);
+  for ( I = 0; I < NV; I++ )
+    CW2[0][I] = CW[I];
 
-	while ( 1 ) {
-		print("step ",0); print(Step++);
+  while ( 1 ) {
+    print("step ",0); print(Step++);
 T0 = time()[0];
-		L = dp_compute_last_w(vtol(G),vtol(GH),W,M1,M2);
-		if ( !L ) {
-			 print(["w",Tw,"gb",Tgb,"lift",Tlift,"cw",Tcw,"red",Tred]);
-			return vtol(map(dp_dtop,G,V));
-		}
-		W = L[0]; In = map(dp_dtop,L[1],V);
-		dp_ord(CW2); InVec = ltov(map(dp_mod,map(dp_ptod,In,V),Mod,[]));
+    L = dp_compute_last_w(vtol(G),vtol(GH),W,M1,M2);
+    if ( !L ) {
+       print(["w",Tw,"gb",Tgb,"lift",Tlift,"cw",Tcw,"red",Tred]);
+      return vtol(map(dp_dtop,G,V));
+    }
+    W = L[0]; In = map(dp_dtop,L[1],V);
+    dp_ord(CW2); InVec = ltov(map(dp_mod,map(dp_ptod,In,V),Mod,[]));
 Tw += time()[0]-T0;
 T0 = time()[0];
-		H = nd_gr(In,V,Mod,M2);
-		N = length(H);
-		H1 = vector(N);
-		HH1 = vector(N);
+    H = nd_gr(In,V,Mod,M2);
+    N = length(H);
+    H1 = vector(N);
+    HH1 = vector(N);
 
-		dp_ord(M2);
-		for ( I = 0; I < N; I++ )
-			HH1[I] = dp_hm(dp_mod(dp_ptod(H[I],V),Mod,[]));
-		NG = length(G);
-		for ( Ind = [], I = 0; I < NG; I++ )
-			Ind = cons(I,Ind);
-		Ind = reverse(Ind);
+    dp_ord(M2);
+    for ( I = 0; I < N; I++ )
+      HH1[I] = dp_hm(dp_mod(dp_ptod(H[I],V),Mod,[]));
+    NG = length(G);
+    for ( Ind = [], I = 0; I < NG; I++ )
+      Ind = cons(I,Ind);
+    Ind = reverse(Ind);
 Tgb += time()[0]-T0;
 
-		dp_ord(CW2);
+    dp_ord(CW2);
 T0 = time()[0];
-		G = map(dp_mod,map(dp_ptod,map(dp_dtop,G,V),V),Mod,[]);
-		for ( I = 0; I < N; I++ ) {
-			F = dp_mod(dp_ptod(H[I],V),Mod,[]);
-			T = dp_true_nf_and_quotient_marked_mod(Ind,F,InVec,GH,Mod);
-			NF = T[0]; Den = T[1]; Q = T[2];
-			for ( J = 0, U = 0; J < NG; J++ )
-				U += Q[J]*G[J];
-			H1[I] = U;
-			HH1[I] = Den*HH1[I];
-		}
+    G = map(dp_mod,map(dp_ptod,map(dp_dtop,G,V),V),Mod,[]);
+    for ( I = 0; I < N; I++ ) {
+      F = dp_mod(dp_ptod(H[I],V),Mod,[]);
+      T = dp_true_nf_and_quotient_marked_mod(Ind,F,InVec,GH,Mod);
+      NF = T[0]; Den = T[1]; Q = T[2];
+      for ( J = 0, U = 0; J < NG; J++ )
+        U += Q[J]*G[J];
+      H1[I] = U;
+      HH1[I] = Den*HH1[I];
+    }
 T1 = time()[0]; Tlift += T1-T0;
 
 T0 = time()[0];
 CW = compute_compat_weight(H1,HH1);
-		for ( I = 0; I < NV; I++ )
-			CW2[0][I] = CW[I];
-		dp_ord(CW2);
+    for ( I = 0; I < NV; I++ )
+      CW2[0][I] = CW[I];
+    dp_ord(CW2);
 
-	H1 = map(dp_mod,map(dp_ptod,map(dp_dtop,H1,V),V),Mod,[]);
-	sort_by_order(H1,HH1);
+  H1 = map(dp_mod,map(dp_ptod,map(dp_dtop,H1,V),V),Mod,[]);
+  sort_by_order(H1,HH1);
 Tcw += time()[0]-T0;
 
 T0 = time()[0];
-		for ( I = 0; I < N; I++ ) {
-			for ( Ind = [], J = 0; J < N; J++ )
-				if ( J != I ) Ind = cons(J,Ind);
-			Ind = reverse(Ind);
-			T = dp_true_nf_marked_mod(Ind,H1[I],H1,HH1,Mod);
-			HT = dp_ht(HH1[I]);
-			for ( S = S0 = T[0]; S; S = dp_rest(S) )
-				if ( dp_ht(S) == HT )
-					break;
-			if ( !S )
-				error("cannot happen");
-			H1[I] = S0;
-			HH1[I] = dp_hm(S);
-		}
+    for ( I = 0; I < N; I++ ) {
+      for ( Ind = [], J = 0; J < N; J++ )
+        if ( J != I ) Ind = cons(J,Ind);
+      Ind = reverse(Ind);
+      T = dp_true_nf_marked_mod(Ind,H1[I],H1,HH1,Mod);
+      HT = dp_ht(HH1[I]);
+      for ( S = S0 = T[0]; S; S = dp_rest(S) )
+        if ( dp_ht(S) == HT )
+          break;
+      if ( !S )
+        error("cannot happen");
+      H1[I] = S0;
+      HH1[I] = dp_hm(S);
+    }
 T1 = time()[0]; Tred += T1-T0;
-		G = H1;
-		GH = HH1;
-	}
+    G = H1;
+    GH = HH1;
+  }
 }
 
 def gw(G,V,O1,O2)
 {
-	N = length(V);
-	W1 = create_order_mat(N,O1);
-	W2 = create_order_mat(N,O2);
-	R = generic_walk(G,V,W1,W2);
-	return R;
+  N = length(V);
+  R = generic_walk(G,V,O1,O2);
+  return R;
 }
 
 def gw_mod(G,V,O1,O2,Mod)
 {
-	N = length(V);
-	W1 = create_order_mat(N,O1);
-	W2 = create_order_mat(N,O2);
-	R = generic_walk_mod(G,V,W1,W2,Mod);
-	return R;
+  N = length(V);
+  W1 = create_order_mat(N,O1);
+  W2 = create_order_mat(N,O2);
+  R = generic_walk_mod(G,V,W1,W2,Mod);
+  return R;
 }
 
 endmodule$
