@@ -10,6 +10,7 @@
 #ifndef _STANDALONE
 #include <R_ext/BLAS.h>
 #include <R_ext/Lapack.h>
+#endif
 #ifndef FCONE
 #define FCONE
 #endif
@@ -164,7 +165,6 @@ sigma_mu2xy(double *sigma, double *mu, double *x, double *y)
   alpha = -0.5;
   dscal_(&dimdim, &alpha, x, &one);
 #else
-#endif
   F77_CALL(dcopy)(&dimdim, sigma, &one, x, &one);
   F77_CALL(dpotrf)("U", &dim, x, &dim, &info FCONE);
   F77_CALL(dpotri)("U", &dim, x, &dim, &info FCONE);
