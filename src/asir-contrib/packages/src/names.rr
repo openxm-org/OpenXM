@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240509), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240730), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -697,6 +697,17 @@ end: */
 def poly_ord_w(F,V,W) { 
   Opt = getopt();
   return taka_poly_ord_w(F,V,W | option_list=Opt);
+}
+
+/*&usage begin:
+ poly_replace_factor(F,Rule)
+ It factorizes F and replaces factors by the Rule. 
+ example: poly_replace_factor(2*x/((x-y)^3*y), [[x-y,s]]);
+   It returns 2*x/(s^3*y).
+end: */
+def poly_replace_factor(F,Rule) {
+  Opt=getopt();
+  return tk_poly_replace_factor(F,Rule | option_list=Opt);
 }
 
 

@@ -1006,6 +1006,54 @@ def taka_poly_decompose_by_weight(F,V,W) {
   return [[Max,Min],reverse(Decomp)];  
 }
 
+/* 2024.07.29 */
+def tk_poly_replace_factor1(P,F,G) {
+  if (P==0) return P;
+  E=0;
+  if (type(P) > 2) error("tk_poly_replace_factor1: P should be a polynomial.");
+  while (1) {
+    R=red(P/F); 
+    if (type(R)>2) break;
+    E++;
+    P=R;
+  } 
+  return P*G^E;
+}
+/*
+F=x^2+1; G=s;
+Plist=[0,1/2, F^1, F^2, F^2*(y-1)];
+map(tk_poly_replace_factor1,Plist,F,G);
+*/
+def tk_poly_replace_factor2(P,F,G) {
+  if (type(P)>3) {
+    return map(tk_poly_replace_factor2,P,F,G);
+  }
+  if (type(P)<3) {
+    return tk_poly_replace_factor1(P,F,G);
+  }
+  NP=tk_poly_replace_factor1(nm(P),F,G);
+  DP=tk_poly_replace_factor1(dn(P),F,G);
+  return red(NP/DP);
+}
+/*
+F=x^2+1; G=s;
+Plist=[0,1/2, 2*x/F^1, F/F^2, 3*y/(F^2*(y-1))];
+tk_poly_replace_factor2(Plist,F,G);
+*/
+def tk_poly_replace_factor(Obj,Rule) {
+  N=length(Rule);
+  for (I=0; I<N; I++) {
+    NewObj=tk_poly_replace_factor2(Obj,Rule[I][0],Rule[I][1]);
+    Obj=NewObj;
+  }
+  return Obj;
+}
+/*
+Rule=[[x^2+1,s],[y-1,t]];
+Plist=[0,1/2, 2*x/F^1, F/F^2, 3*y/(F^2*(y-1))];
+tk_poly_replace_factor(Plist,Rule);
+*/
+
 Taka_poly_loaded = 1$
 end$
 
