@@ -6,7 +6,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - June 2024)
+ *          Toshio Oshima (Nov. 2007 - Aug. 2024)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -377,6 +377,7 @@ localf istournament$
 localf sproot$
 localf spgen$
 localf spbasic$
+localf nextshort$
 localf chkspt$
 localf cterm$
 localf terms$
@@ -594,7 +595,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240626"$
+Muldif.rr="00240804"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -775,7 +776,8 @@ def fcat(S,X)
 		S=T;
 	}
 	R=output(S);
-	print(X);
+	if(isint(Del=getopt(delim))) print(X,Del);
+	else print(X);
 	output();
 	if(getopt(exe)==1) shell("\""+S+"\"");
 	return R;
@@ -11954,6 +11956,28 @@ def spgen(MO)
 	return LL;
 }
 
+
+def nextshort(V)
+{
+	L=length(V)-1;
+	S=V[L];R=[];
+	for(I=1;I<L;I++){
+		T=V[L-I];
+		S+=T;
+		if(S<=(T-1)*I){
+			for(K=0;K<L-I;K++) R=cons(V[K],R);
+			while(S>0){
+				M=(T-1<S)?T-1:S;
+				R=cons(M,R);
+				S-=M;
+			}
+			break;
+		}
+	}
+	return reverse(R);
+}
+
+
 def spbasic(Idx,D)
 {
 /*
@@ -11969,7 +11993,7 @@ def spbasic(Idx,D)
 @(-12,0)          28sec   4.2sec 0.64sec  291ŒÂ (182+76+?)
   (-14,0)          27sec  10.2sec 1.31sec  415ŒÂ (249+115+?)
   (-16,0)                 34.0sec 2.47sec  647ŒÂ (395+172+?) <- (-4,0)
-  (-18,0)                         4.42sec  883ŒÂ (521+243+?) <- (-2,0)
+  (-18,0)                         4.42sec  884ŒÂ (522+243+?) <- (-2,0)
   (-20,0)                         8.17sec 1186ŒÂ (680+345+?)
 */
 	Idx=-Idx;
@@ -12002,14 +12026,14 @@ def spbasic(Idx,D)
 		K=D%T;
 		if((T-K)*K<=Idx) break;
 	}
-	J=(T-K)*K;SJ=K^2+(D-K)*T;
+/*	J=(T-K)*K;SJ=K^2+(D-K)*T;  J?, SJ <- erace */
 	TV=K?[K]:[];
 	for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
 	for(I=0;I<L;I++){
-		SV[I]=2*D^2-(I+1)*(D^2-J)-Idx;
+/*		SV[I]=2*D^2-(I+1)*(D^2-J)-Idx; */
 		V[I]=TV;
 	}
-	if(SV[2]>0) return [];
+/*	if(SV[2]>0) return [];  */
 	if(D>Idx+2 && V[0][0]+V[1][0]>=D && V[1][0]>1){
 		T=V[1][0]-1;K=D%T;TV=K?[K]:[];
 		for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
@@ -12073,19 +12097,22 @@ def spbasic(Idx,D)
 			ST=car(V[K]);J=V[K][length(V[K])-1];S0+=(ST-J)*J;
 			if(S0>Idx) break;
 		}
-		if(S0>Idx && car(V[K])!=1){
-			ST=car(V[K]);
-			S0-=(ST-J)*J;
-			for(ST--;ST>0;ST--){
-				J=D%ST;
-				if(S0+(ST-J)*J <= Idx) break;
+		if(S0>Idx&&car(V[K])!=1){
+			if((W=nextshort(V[K]))!=[]){
+				for(J=K;J<L;J++) V[K]=W;
+			}else{
+				ST=car(V[K]);
+				S0-=(ST-J)*J;
+				for(ST--;ST>0;ST--){
+					J=D%ST;
+					if(S0+(ST-J)*J <= Idx) break;
+				}
+				V[K]=J?[J]:[];
+				for(J=D-J;J>0;J-=ST) V[K]=cons(ST,V[K]);
 			}
-			V[K]=J?[J]:[];
-			for(J=D-J;J>0;J-=ST) V[K]=cons(ST,V[K]);
 			for(J=K+1;J<L;J++) V[J]=V[K];
 			continue;
 		}
-
 		for(K=SS=0;K<L&&SS<=Idx;K++){
 			ST=car(V[K]);
 			for(S0=0,TV=cdr(V[K]);TV!=[];TV=cdr(TV)) S0+=(ST-car(TV))*car(TV);
@@ -13703,7 +13730,7 @@ def iscommutefamily(L)
 
 def llsymcheck(L,S)
 {
-	if(type(S[0])>3) S=[S];
+	if(type(S[0])<4) S=[S];
 	if((Red=getopt(red))!=-1){
 		if(Red==1||Red==2){
 			for(;;){
@@ -13718,11 +13745,13 @@ def llsymcheck(L,S)
 		if(Dep=="var") Dep=0;
 		else Dep=[0,1];
 	}
+	if(type(Sort=getopt(sort))!=4||Sort!=0) Sort=[0,0];
 	for(F=0,R=TL=L;!F&&TL!=[];TL=cdr(TL)){
 		for(;!F&&S!=[];S=cdr(S)){
-			for(TS=car(S);!F&&length(TS)>1;T=cdr(TS)){
-				T=Dep?substnum(car(TL),[TS[0]],[TS[1]]|depth=Dep):
-					mulsubst(car(TL),[TS[0]],[TS[1]]|lpair=1);
+			for(TS=car(S);!F&&length(TS)>1;TS=cdr(TS)){
+				T=Dep?substnum(car(TL),[TS[0],TS[1]],[TS[1],TS[0]]|depth=Dep):
+					mulsubst(car(TL),[TS[0],RS[1]],[TS[1],TS[0]]|lpair=1);
+				if(Sort!=0) T=rsort(T,Sort[0],Sort[1]);
 				if(findin(T,L)<0){
 					if(Red) R=cons(T,R);
 					else F=[car(TL),T];
@@ -13744,7 +13773,7 @@ def llsymred(L,S)
 		if(Dep=="var") Dep=0;
 		else Dep=[0,1];
 	}
-	Sort=[0,0];
+	if(type(Sort=getopt(sort))!=4||Sort!=0) Sort=[0,0];
 	S=qsort(S);
 	WS=ltov(S);
 	VS=dupmat(WS);
@@ -15605,12 +15634,12 @@ def tocsv(L)
 	}
 	S=str_tb(0,Tb);
 	if(type(EXE=getopt(exe))!=1&&EXE!=0&&type(EXE)!=7) return S;
-	if(type(F)!=7){
+	if(type(EXE)!=7){
 		fcat(-1,0);
 		F="risaout";
 		if(EXE>=2&&EXE<=9) F+=rtostr(EXE);
 		F=DIROUTD+F+".csv";
-	}else F=S;
+	}else F=EXE;
 	if(EXE!=0 && access(F)) remove_file(F);
 	fcat(F,S|exe=1);
 	return 1;
