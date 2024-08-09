@@ -1054,6 +1054,58 @@ Plist=[0,1/2, 2*x/F^1, F/F^2, 3*y/(F^2*(y-1))];
 tk_poly_replace_factor(Plist,Rule);
 */
 
+/*
+   II subset JJ ?
+*/
+def tk_poly_weyl_subsetq(II,JJ,V) {
+  if (type(getopt(verbose))>0) Verbose=1; else Verbose=0;
+  if (type(getopt(gb))>0) {
+    G=JJ;
+  }else{
+    G=nd_weyl_gr(JJ,V,0,0);
+  }
+  G_dp=newvect(length(G),map(dp_ptod,G,V));
+  IndexList=newvect(length(G));
+  for (I=0; I<length(G_dp); I++) IndexList[I]=I;
+  IndexList=reverse(vtol(IndexList));
+  N=length(II);
+  for (I=0; I<N; I++) {
+     F=dp_weyl_nf(IndexList,dp_ptod(II[I],V),G_dp,1);
+     if (F != 0) {
+       if (Verbose) {
+	 printf("%a-th : %a does not belong to the second ideal.\n",I,II[I]);
+       }
+       return 0;
+     }
+  }
+  return 1;
+}
+
+/*
+tk_poly_weyl_subsetq([x*dx-1,x*dx^2-1],[x*dx-1,y*dy-2],[x,y,dx,dy] | verbose=1);
+tk_poly_weyl_subsetq([x*dx-1,x*dx^2],[x*dx-1,y*dy-2],[x,y,dx,dy] | verbose=1);
+*/
+
+def tk_poly_subsetq(II,JJ,V) {
+  if (type(getopt(verbose))>0) Verbose=1; else Verbose=0;
+  if (type(getopt(gb))>0) {
+    G=JJ;
+  }else{
+    G=nd_gr(JJ,V,0,0);
+  }
+  N=length(II);
+  for (I=0; I<N; I++) {
+     F=p_nf(II[I],G,V,0);
+     if (F != 0) {
+       if (Verbose) {
+	 printf("%a-th : %a does not belong to the second ideal.\n",I,II[I]);
+       }
+       return 0;
+     }
+  }
+  return 1;
+}
+
 Taka_poly_loaded = 1$
 end$
 

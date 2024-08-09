@@ -737,6 +737,23 @@ def poly_sort(F) {
   return taka_quote_sort(F | option_list=Opt);
 }
 
+/*&usage begin: poly_subsetq(II,JJ,V)
+ If the ideal II is contained in the ideal JJ, it returns 1, else 0.
+ Options: gb=1 (if JJ is already a GB). verbose=1
+ example: poly_subsetq([x^2-1,(x-1)*(y-2)],[x-1,y-2],[x,y]);
+end: */
+def poly_subsetq(II,JJ,V) {
+  return tk_poly_subsetq(II,JJ,V | option_list=getopt());
+}
+/*&usage begin: poly_weyl_subsetq(II,JJ,V)
+ If the ideal II in the Weyl algebra is contained in the ideal JJ, it returns 1, else 0.
+ Options: gb=1 (if JJ is already a GB). verbose=1.
+ example: poly_weyl_subsetq([x*dx^2],[x*dx-1],[x,dx]);
+end: */
+def poly_weyl_subsetq(II,JJ,V) {
+  return tk_poly_weyl_subsetq(II,JJ,V | option_list=getopt());
+}
+
 /*&usage begin: poly_toric_ideal(A,V)
  It returns generators of the affine toric ideal defined by the matrix(list) A.
  V is the list of variables.
