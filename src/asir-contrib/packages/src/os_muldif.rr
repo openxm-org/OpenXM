@@ -375,9 +375,11 @@ localf iscoef$
 localf iscombox$
 localf istournament$
 localf sproot$
+localf mincod$
 localf spgen$
 localf spbasic$
 localf nextshort$
+localf nextcod$
 localf chkspt$
 localf cterm$
 localf terms$
@@ -11830,6 +11832,12 @@ def sproot(MP,T)
 	}
 }
 
+def mincod(D,T)
+{
+	K=D%T;
+	return D^2-T*(D-K)-K^2;
+}
+
 def spgen(MO)
 {
 	Eq=(getopt(eq)==1)?1:0;
@@ -11956,6 +11964,22 @@ def spgen(MO)
 	return LL;
 }
 
+/*
+ * Find smaller partition for V such that the square sum increases more than D-1
+ */
+def nextcod(V,D)
+{
+	K=length(V)-1;
+	for(S=T=0;K>=0; K--){
+		T+=(W=V[K]);S+=W^2;
+		if(W>2&&T^2-mincod(T,W-1)>=S+D){
+			R=nextpart(T|max=W-1);
+			for(--K;K>=0;K--) R=cons(V[K],R);
+			return R;
+		}
+	}
+	return [];
+}
 
 def nextshort(V)
 {
@@ -11977,7 +12001,6 @@ def nextshort(V)
 	return reverse(R);
 }
 
-
 def spbasic(Idx,D)
 {
 /*
@@ -11998,9 +12021,10 @@ def spbasic(Idx,D)
 */
 	Idx=-Idx;
 	if((Str=getopt(str))!=1) Str=0;
+	if((OP=getopt(opt))!=1) OP=0;
 	if(!isint(Idx)||!isint(Idx/2)||Idx<0||!isint(D)||D<0||D==1||D>3*Idx+6) return [];
 	if(D==0){
-		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str),R);
+		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str,opt=OP),R);
 		return R;
 	}
 	if(!Idx){
@@ -12020,70 +12044,56 @@ def spbasic(Idx,D)
 		}
 		if(iand(D,1)&&(D-3)/2>Idx) return [];
 	}else L=Idx/2+4;
-	V=newvect(L);SV=newvect(L);
+	V=newvect(L);
 	for(S1=[],I=0;I<D;I++) S1=cons(1,S1);
 	for(T=D-1;T>1;T--){
 		K=D%T;
 		if((T-K)*K<=Idx) break;
 	}
-/*	J=(T-K)*K;SJ=K^2+(D-K)*T;  J?, SJ <- erace */
-	TV=K?[K]:[];
-	for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
-	for(I=0;I<L;I++){
-/*		SV[I]=2*D^2-(I+1)*(D^2-J)-Idx; */
-		V[I]=TV;
-	}
-/*	if(SV[2]>0) return [];  */
-	if(D>Idx+2 && V[0][0]+V[1][0]>=D && V[1][0]>1){
-		T=V[1][0]-1;K=D%T;TV=K?[K]:[];
-		for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
-		V[1]=V[2]=TV;
-	}
+/*
+	NP=newvect(T+1);
+	for(I=1;I<=T;I++) NP[I]=nextpart(D|max=I);
+	TV=NP[T];
+*/
+	TV=nextpart(D|max=T);	/* NP[T];  */
+	for(I=0;I<L;I++) V[I]=TV;
 	for(R=[];;){
 		if(D>Idx+2){
-		 	if(3*V[0][0]<D) break;
-			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0){
-				K=D%T;TV=K?[K]:[];
-				for(I=(D-K)/T;I>0;I--) TV=cons(T,TV);
-				V[1]=V[2]=TV;
-			}
+			if(3*V[0][0]<D) break;
+			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0)
+				V[1]=V[2]=nextpart(D|max=T); /* NP[T]; */
  			S2=V[0][0]+V[1][0]+V[2][0]-D;
 			if(V[0][0]+2*V[1][0]<D ||(S2<0&&V[1][0]==1) ){
-				V[0]=V[1]=V[2]=nextpart(V[0]);
-				T=V[0][0];
-				T=D-2*T;
-				if(T==0){
-					V[1]=[D/2-1,1];
-					V[2]=S1;
-				}else if(T>0){
-					J=D%T;
-					K=J?[J]:[];
-					for(J=(D-J)/T;J>0;J--) K=cons(T,K);
-					V[2]=K;
-				}
+				if(V[0][0]==1) break;
+				V[0]=V[1]=V[2]=nextpart(D|max=V[0][0]-1);
 				continue;
 			}
 			if(S2<0||V[2][0]<=S2){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
-			}else if(S2>0){
-				T=V[2][0]-S2;J=D%T;
-				K=J?[J]:[];
-				for(J=(D-J)/T;J>0;J--) K=cons(T,K);
-				V[2]=K;
+			}else if(S2>0) V[2]=nextpart(D|max=V[2][0]-S2);
+		}
+
+/* Not much contribute
+if(mincod(D,V[0][0])+mincod(D,V[1][0])+mincod(D,V[2][0])-2*D^2>Idx){
+			J=-1;
+			if(V[1][0]>V[2][0]) J=1;
+			else if(V[0][0]>V[1][0]) J=0;
+			if(J>=0){
+				W=nextpart(V[J]);
+				for(I=J;I<L;I++) V[I]=W;
+				continue;
 			}
 		}
+*/ 
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
 			if(S>=0) break;
-		}
+		} 
 		if((I=IL)==L){  /* reducible i.e. IL=L && S<0 */
 			for(LL=L-1;LL>=0;LL--){
 				if((K=car(V[LL]))+S>0){
-					K+=S;
-					for(TV=[],TD=D;TD>=K;TD-=K) TV=cons(K,TV);
-					if(TD>0) V[LL]=append(TV,[TD]);
-					else V[LL]=TV;
+					V[LL]=nextpart(D|max=K+S);
 					break;
 				}else{
 					S+=K-1;
@@ -12094,23 +12104,14 @@ def spbasic(Idx,D)
 			continue;
 		}
 		for(S0=K=0;K<=IL;K++){
-			ST=car(V[K]);J=V[K][length(V[K])-1];S0+=(ST-J)*J;
+			ST=car(V[K]);
+			for(I=length(V[K])-1;I>0;I--) S0+=(ST-V[K][I])*V[K][I];
 			if(S0>Idx) break;
 		}
-		if(S0>Idx&&car(V[K])!=1){
-			if((W=nextshort(V[K]))!=[]){
-				for(J=K;J<L;J++) V[K]=W;
-			}else{
-				ST=car(V[K]);
-				S0-=(ST-J)*J;
-				for(ST--;ST>0;ST--){
-					J=D%ST;
-					if(S0+(ST-J)*J <= Idx) break;
-				}
-				V[K]=J?[J]:[];
-				for(J=D-J;J>0;J-=ST) V[K]=cons(ST,V[K]);
-			}
-			for(J=K+1;J<L;J++) V[J]=V[K];
+		if(!OP&&S0>Idx&&car(V[K])!=1){
+			if((W=nextcod(V[K],S0-Idx))==[])
+				W=nextpart(D|max=car(V[K])-1);
+			for(J=K;J<L;J++) V[J]=W;
 			continue;
 		}
 		for(K=SS=0;K<L&&SS<=Idx;K++){
@@ -12118,7 +12119,7 @@ def spbasic(Idx,D)
 			for(S0=0,TV=cdr(V[K]);TV!=[];TV=cdr(TV)) S0+=(ST-car(TV))*car(TV);
 			SS+=S0;
 		}
-		if(SS>Idx && K<=IL && K!=L){
+		if(!OP && SS>Idx && K<=IL && K!=L){
 			SS0=Idx-SS+S0;
 			for(TV=car(V[K]);TV>1;TV--){
 				U=D%TV;
@@ -12126,15 +12127,11 @@ def spbasic(Idx,D)
 			}
 			if(TV==car(V[K])){
 				K=K-1;
-				V[K]=nextpart(V[K]); /* to be improves */
-			}else{
-				V[K]=U?[U]:[];  /* to be improved */
-				for(J=D-U;J>0;J-=TV) V[K]=cons(TV,V[K]);
-			}
+				V[K]=nextpart(V[K]); /* to be improved */
+			}else V[K]=nextpart(D|max=TV);
 			for(J=K+1;J<L;J++) V[J]=V[K];
 			continue;
 		}
-
 		for(Ix=2*D^2+Idx,J=0;J<L;J++){
 			IxF=Ix;
 			for(Ix-=D^2,TV=V[J];TV!=[];TV=cdr(TV)) Ix+=car(TV)^2;
