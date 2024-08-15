@@ -597,7 +597,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240804"$
+Muldif.rr="00240812"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -11965,10 +11965,16 @@ def spgen(MO)
 }
 
 /*
- * Find smaller partition for V such that the square sum increases more than D-1
+ * Find smaller partition for V such that the square sum increases more than or equals to D
  */
 def nextcod(V,D)
 {
+	if(D<=0){
+		if(car(V)==1) return [];
+		for(D=0,TV=V;TV!=[];TV=cdr(TV)) D+=car(TV)^2;
+		V=nextpart(V);
+		for(TV=V;TV!=[];TV=cdr(TV)) D-=car(TV)^2;
+	}
 	K=length(V)-1;
 	for(S=T=0;K>=0; K--){
 		T+=(W=V[K]);S+=W^2;
@@ -12045,23 +12051,23 @@ def spbasic(Idx,D)
 		if(iand(D,1)&&(D-3)/2>Idx) return [];
 	}else L=Idx/2+4;
 	V=newvect(L);
-	for(S1=[],I=0;I<D;I++) S1=cons(1,S1);
 	for(T=D-1;T>1;T--){
 		K=D%T;
 		if((T-K)*K<=Idx) break;
 	}
-/*
+
 	NP=newvect(T+1);
 	for(I=1;I<=T;I++) NP[I]=nextpart(D|max=I);
+	S1=NP[1];
 	TV=NP[T];
-*/
+
 	TV=nextpart(D|max=T);	/* NP[T];  */
 	for(I=0;I<L;I++) V[I]=TV;
 	for(R=[];;){
 		if(D>Idx+2){
 			if(3*V[0][0]<D) break;
 			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0)
-				V[1]=V[2]=nextpart(D|max=T); /* NP[T]; */
+				V[1]=V[2]=NP[T]; /* nextpart(D|max=T); NP[T]; */
  			S2=V[0][0]+V[1][0]+V[2][0]-D;
 			if(V[0][0]+2*V[1][0]<D ||(S2<0&&V[1][0]==1) ){
 				if(V[0][0]==1) break;
@@ -12071,29 +12077,16 @@ def spbasic(Idx,D)
 			if(S2<0||V[2][0]<=S2){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
-			}else if(S2>0) V[2]=nextpart(D|max=V[2][0]-S2);
+			}else if(S2>0) V[2]=NP[V[2][0]-S2]; /* nextpart(D|max=V[2][0]-S2); */
 		}
-
-/* Not much contribute
-if(mincod(D,V[0][0])+mincod(D,V[1][0])+mincod(D,V[2][0])-2*D^2>Idx){
-			J=-1;
-			if(V[1][0]>V[2][0]) J=1;
-			else if(V[0][0]>V[1][0]) J=0;
-			if(J>=0){
-				W=nextpart(V[J]);
-				for(I=J;I<L;I++) V[I]=W;
-				continue;
-			}
-		}
-*/ 
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
 			if(S>=0) break;
 		} 
-		if((I=IL)==L){  /* reducible i.e. IL=L && S<0 */
+		if(IL==L){  /* reducible i.e. IL=L && S<0 */
 			for(LL=L-1;LL>=0;LL--){
 				if((K=car(V[LL]))+S>0){
-					V[LL]=nextpart(D|max=K+S);
+					V[LL]=NP[K+S]; /* nextpart(D|max=K+S); */
 					break;
 				}else{
 					S+=K-1;
@@ -12108,9 +12101,11 @@ if(mincod(D,V[0][0])+mincod(D,V[1][0])+mincod(D,V[2][0])-2*D^2>Idx){
 			for(I=length(V[K])-1;I>0;I--) S0+=(ST-V[K][I])*V[K][I];
 			if(S0>Idx) break;
 		}
-		if(!OP&&S0>Idx&&car(V[K])!=1){
-			if((W=nextcod(V[K],S0-Idx))==[])
-				W=nextpart(D|max=car(V[K])-1);
+		if(S0>Idx&&car(V[K])!=1){
+			for(;car(V[K])==1&&K>=0;K--);
+				if(K<0) break;
+				if((W=nextcod(V[K],S0-Idx))==[])
+				W=NP[car(V[K])-1]; /* nextpart(D|max=car(V[K])-1); */
 			for(J=K;J<L;J++) V[J]=W;
 			continue;
 		}
@@ -12119,16 +12114,13 @@ if(mincod(D,V[0][0])+mincod(D,V[1][0])+mincod(D,V[2][0])-2*D^2>Idx){
 			for(S0=0,TV=cdr(V[K]);TV!=[];TV=cdr(TV)) S0+=(ST-car(TV))*car(TV);
 			SS+=S0;
 		}
-		if(!OP && SS>Idx && K<=IL && K!=L){
-			SS0=Idx-SS+S0;
-			for(TV=car(V[K]);TV>1;TV--){
-				U=D%TV;
-				if((D-U)*U<=SS0) break;
-			}
-			if(TV==car(V[K])){
+		if(SS>Idx && K<=IL && K!=L){	/* not much difference */
+			W=nextcod(V[K],SS-Idx);
+			if(W!=[]) V[K]=W;
+			else{
 				K=K-1;
-				V[K]=nextpart(V[K]); /* to be improved */
-			}else V[K]=nextpart(D|max=TV);
+				V[K]=nextpart(V[K]); 
+			}
 			for(J=K+1;J<L;J++) V[J]=V[K];
 			continue;
 		}
@@ -12137,34 +12129,18 @@ if(mincod(D,V[0][0])+mincod(D,V[1][0])+mincod(D,V[2][0])-2*D^2>Idx){
 			for(Ix-=D^2,TV=V[J];TV!=[];TV=cdr(TV)) Ix+=car(TV)^2;
 			if(Ix<=0) break;
 		}
-		if(Ix==0&&(J>=I||IL==2)){
+		if(!Ix){		/* find */
 			for(TR=[],K=J;K>=0;K--) TR=cons(V[K],TR);
 			R=cons((Str==1)?s2sp(TR):TR,R);
 		}
-		if(J>=0 && J<L && Ix<=0){
+		if(Ix<0){ 		/* effective */
 			I=V[J][0];K=D%I;S0=(D-K)*I+K^2;
-			if(I>1&& IxF-D^2+S0<0){
-				for(V[J]=[],K=D-I;K>0;K--) V[J]=cons(1,V[J]);
-				V[J]=cons(I,V[J]);
-				V[J]=nextpart(V[J]);
-				for(I=J+1;I<L;I++) V[I]=V[J];
-				continue;
-			}
+			if(IxF-D^2+S0<0 && I>1) V[J]=S1;
 		}
-		if(J>=0 && J<L && Ix<=0 && car(V[J])>(U=V[J][length(V[J])-1])+1){
-			TV=reverse(V[J]);
-			for(S0=0,K=[];TV!=[];TV=cdr(TV),S0++){
-				if((I=car(TV))<U+2||(length(TV)>1&&S0<2)){
-					while(I-->0) K=cons(1,K);
-				}else K=cons(car(TV),K);
-			}
-			V[I=J]=K;
-		}else{
-			if(J>=L) J=L-1;
-			for(I=J;I>=0&&length(V[I])==D;I--);
-			if(I<0) break;
-		}
-		V[I]=nextpart(V[I]);			/* to be improved */
+		if(J>=L) J=L-1;
+		for(I=J;I>=0&&car(V[I])==1;I--);
+		if(I<0) break;
+		V[I]=nextpart(V[I]);
 		for(J=I+1;J<L;J++) V[J]=V[I];
 	}
 	return R; 
