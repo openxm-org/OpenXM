@@ -12007,8 +12007,6 @@ def nextshort(V)
 	return reverse(R);
 }
 
-def spbasic(Idx,D)
-{
 /*
   D<=3|Idx|+6,  D<=|Idx|+2 (p>3),  p<=|Idx|/2+4
   Idx=2*D^2-(D^2-\sum m_{j,\nu}^2); \sum(D-m_{j,1})>=2*D;
@@ -12025,12 +12023,13 @@ def spbasic(Idx,D)
   (-18,0)                         4.42sec  884ŒÂ (522+243+?) <- (-2,0)
   (-20,0)                         8.17sec 1186ŒÂ (680+345+?)
 */
+def spbasic(Idx,D)
+{
 	Idx=-Idx;
 	if((Str=getopt(str))!=1) Str=0;
-	if((OP=getopt(opt))!=1) OP=0;
 	if(!isint(Idx)||!isint(Idx/2)||Idx<0||!isint(D)||D<0||D==1||D>3*Idx+6) return [];
 	if(D==0){
-		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str,opt=OP),R);
+		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str),R);
 		return R;
 	}
 	if(!Idx){
@@ -12050,24 +12049,21 @@ def spbasic(Idx,D)
 		}
 		if(iand(D,1)&&(D-3)/2>Idx) return [];
 	}else L=Idx/2+4;
-	V=newvect(L);
 	for(T=D-1;T>1;T--){
 		K=D%T;
 		if((T-K)*K<=Idx) break;
 	}
 
+	V=newvect(L);
 	NP=newvect(T+1);
 	for(I=1;I<=T;I++) NP[I]=nextpart(D|max=I);
+	for(I=0;I<L;I++) V[I]=NP[T];
 	S1=NP[1];
-	TV=NP[T];
 
-	TV=nextpart(D|max=T);	/* NP[T];  */
-	for(I=0;I<L;I++) V[I]=TV;
 	for(R=[];;){
 		if(D>Idx+2){
 			if(3*V[0][0]<D) break;
-			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0)
-				V[1]=V[2]=NP[T]; /* nextpart(D|max=T); NP[T]; */
+			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0) V[1]=V[2]=NP[T];
  			S2=V[0][0]+V[1][0]+V[2][0]-D;
 			if(V[0][0]+2*V[1][0]<D ||(S2<0&&V[1][0]==1) ){
 				if(V[0][0]==1) break;
@@ -12077,16 +12073,16 @@ def spbasic(Idx,D)
 			if(S2<0||V[2][0]<=S2){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
-			}else if(S2>0) V[2]=NP[V[2][0]-S2]; /* nextpart(D|max=V[2][0]-S2); */
+			}else if(S2>0) V[2]=NP[V[2][0]-S2];
 		}
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
 			if(S>=0) break;
-		} 
-		if(IL==L){  /* reducible i.e. IL=L && S<0 */
+		}
+		if(S<0){  /* reducible i.e. IL=L && S<0 */
 			for(LL=L-1;LL>=0;LL--){
 				if((K=car(V[LL]))+S>0){
-					V[LL]=NP[K+S]; /* nextpart(D|max=K+S); */
+					V[LL]=NP[K+S];
 					break;
 				}else{
 					S+=K-1;
@@ -12094,6 +12090,7 @@ def spbasic(Idx,D)
 				}
 			}
 			if(LL<0) break;
+			for(I=LL;I<L;I++) V[I]=V[LL];
 			continue;
 		}
 		for(S0=K=0;K<=IL;K++){
@@ -12102,26 +12099,8 @@ def spbasic(Idx,D)
 			if(S0>Idx) break;
 		}
 		if(S0>Idx&&car(V[K])!=1){
-			for(;car(V[K])==1&&K>=0;K--);
-				if(K<0) break;
-				if((W=nextcod(V[K],S0-Idx))==[])
-				W=NP[car(V[K])-1]; /* nextpart(D|max=car(V[K])-1); */
+			if((W=nextcod(V[K],S0-Idx))==[]) W=NP[car(V[K])-1];
 			for(J=K;J<L;J++) V[J]=W;
-			continue;
-		}
-		for(K=SS=0;K<L&&SS<=Idx;K++){
-			ST=car(V[K]);
-			for(S0=0,TV=cdr(V[K]);TV!=[];TV=cdr(TV)) S0+=(ST-car(TV))*car(TV);
-			SS+=S0;
-		}
-		if(SS>Idx && K<=IL && K!=L){	/* not much difference */
-			W=nextcod(V[K],SS-Idx);
-			if(W!=[]) V[K]=W;
-			else{
-				K=K-1;
-				V[K]=nextpart(V[K]); 
-			}
-			for(J=K+1;J<L;J++) V[J]=V[K];
 			continue;
 		}
 		for(Ix=2*D^2+Idx,J=0;J<L;J++){
@@ -12129,14 +12108,11 @@ def spbasic(Idx,D)
 			for(Ix-=D^2,TV=V[J];TV!=[];TV=cdr(TV)) Ix+=car(TV)^2;
 			if(Ix<=0) break;
 		}
-		if(!Ix){		/* find */
+		if(!Ix&&J>=IL){		/* find */
 			for(TR=[],K=J;K>=0;K--) TR=cons(V[K],TR);
 			R=cons((Str==1)?s2sp(TR):TR,R);
 		}
-		if(Ix<0){ 		/* effective */
-			I=V[J][0];K=D%I;S0=(D-K)*I+K^2;
-			if(IxF-D^2+S0<0 && I>1) V[J]=S1;
-		}
+		if(Ix<0 && IxF-mincod(D,car(V[J]))<0) J--; 	/* effective */
 		if(J>=L) J=L-1;
 		for(I=J;I>=0&&car(V[I])==1;I--);
 		if(I<0) break;
