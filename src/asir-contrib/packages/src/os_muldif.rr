@@ -597,7 +597,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240812"$
+Muldif.rr="00240817"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -12047,13 +12047,12 @@ def spbasic(Idx,D)
 			R=[[D/2,D/2],[D/3,D/3,D/3],[D/6,D/6,D/6,D/6,D/6,D/6-1,1]];
 			return [(Str==1)?s2sp(R):R];
 		}
-		if(iand(D,1)&&(D-3)/2>Idx) return [];
+/*		if(iand(D,1)&&(D-3)/2>Idx) return [];  */
 	}else L=Idx/2+4;
 	for(T=D-1;T>1;T--){
 		K=D%T;
 		if((T-K)*K<=Idx) break;
 	}
-
 	V=newvect(L);
 	NP=newvect(T+1);
 	for(I=1;I<=T;I++) NP[I]=nextpart(D|max=I);
@@ -12064,16 +12063,16 @@ def spbasic(Idx,D)
 		if(D>Idx+2){
 			if(3*V[0][0]<D) break;
 			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0) V[1]=V[2]=NP[T];
- 			S2=V[0][0]+V[1][0]+V[2][0]-D;
-			if(V[0][0]+2*V[1][0]<D ||(S2<0&&V[1][0]==1) ){
+ 			S=D-V[0][0]-V[1][0]-V[2][0];
+			if(V[0][0]+2*V[1][0]<D ||(S>0&&V[1][0]==1) ){
 				if(V[0][0]==1) break;
 				V[0]=V[1]=V[2]=nextpart(D|max=V[0][0]-1);
 				continue;
 			}
-			if(S2<0||V[2][0]<=S2){
+			if(S>0||V[2][0]+S<0){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
-			}else if(S2>0) V[2]=NP[V[2][0]-S2];
+			}else if(S<0) V[2]=NP[V[2][0]+S];
 		}
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
@@ -12093,13 +12092,19 @@ def spbasic(Idx,D)
 			for(I=LL;I<L;I++) V[I]=V[LL];
 			continue;
 		}
-		for(S0=K=0;K<=IL;K++){
-			ST=car(V[K]);
-			for(I=length(V[K])-1;I>0;I--) S0+=(ST-V[K][I])*V[K][I];
-			if(S0>Idx) break;
+		for(SS=K=0;K<=IL;K++){
+			ST=car(V[K]);SS0=SS;
+			for(I=length(V[K])-1;I>0;I--) SS+=(ST-V[K][I])*V[K][I];
+			if(SS>Idx) break;
 		}
-		if(S0>Idx&&car(V[K])!=1){
-			if((W=nextcod(V[K],S0-Idx))==[]) W=NP[car(V[K])-1];
+		if(SS>Idx&&car(V[K])!=1){
+			if((W=nextcod(V[K],SS-Idx))==[]){
+				for(T=car(V[K])-1;T>0;T--){
+					J=D%T;
+					if(SS0+J*(T-J)<=Idx) break;
+				}
+				W=NP[T];
+			}
 			for(J=K;J<L;J++) V[J]=W;
 			continue;
 		}
