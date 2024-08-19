@@ -597,7 +597,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240817"$
+Muldif.rr="00240818"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -12066,7 +12066,7 @@ def spbasic(Idx,D)
  			S=D-V[0][0]-V[1][0]-V[2][0];
 			if(V[0][0]+2*V[1][0]<D ||(S>0&&V[1][0]==1) ){
 				if(V[0][0]==1) break;
-				V[0]=V[1]=V[2]=nextpart(D|max=V[0][0]-1);
+				V[0]=V[1]=V[2]=nextpart(V[0]);
 				continue;
 			}
 			if(S>0||V[2][0]+S<0){
