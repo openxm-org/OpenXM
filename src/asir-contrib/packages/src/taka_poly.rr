@@ -1062,6 +1062,7 @@ def tk_poly_weyl_subsetq(II,JJ,V) {
   if (type(getopt(gb))>0) {
     G=JJ;
   }else{
+    dp_ord(0);  /* it is necessary to make dp_weyl_nf work propery. */
     G=nd_weyl_gr(JJ,V,0,0);
   }
   G_dp=newvect(length(G),map(dp_ptod,G,V));
@@ -1091,6 +1092,7 @@ def tk_poly_subsetq(II,JJ,V) {
   if (type(getopt(gb))>0) {
     G=JJ;
   }else{
+    dp_ord(0); /* it is necessary to make dp_weyl_nf work propery. */
     G=nd_gr(JJ,V,0,0);
   }
   N=length(II);
@@ -1105,6 +1107,52 @@ def tk_poly_subsetq(II,JJ,V) {
   }
   return 1;
 }
+
+def tk_poly_weight_to_ord_matrix(Wvec) {
+  Tie=grevlex;
+  if (type(getopt(tie_breaker))>0) {
+    Tie=getopt(tie_breaker);
+  }
+  if ((length(Wvec)==0) || (type(Wvec[0])<4)) {
+    Wvec=[Wvec];
+  }
+  N=length(Wvec[0]);
+  M=length(Wvec);
+  if (N==0) {
+    N=length(Tie)-1;
+    M=0;
+  }
+  Mat=newmat(N+M,N);
+  for (I=0; I<M; I++) {
+    for (J=0; J<N; J++) {
+      Mat[I][J]=Wvec[I][J];
+    }
+  }
+  if (Tie==grevlex) {
+    /* tie breaker is a graded reverse lexicographic order */
+    for (I=0; I<N; I++) Mat[M][I]=1;
+    for (I=0; I<N-1; I++) {
+      Mat[M+1+I][N-1-I]=-1;
+    }
+  }else if (Tie==lex) {
+    for (I=0; I<N; I++) {
+      Mat[M+I][I]=1;
+    }
+  }else if (type(Tie)==4) {
+    if (Tie[0]==lex) {
+      Tie=cdr(Tie);
+      for (I=0; I<N; I++) {
+	Mat[M+I][Tie[I]]=1;
+      }
+    }else error("Unknown tie_breaker of list type");
+  }else error("Unknown tie_breaker");
+  return Mat;
+}
+/*
+Mat=tk_poly_weight_to_ord_matrix([1,1,1,1,0,1,1,1,1,0]);
+print("-----------")$
+Mat=tk_poly_weight_to_ord_matrix([]|tie_breaker=[lex,0,1,2,3,5,6,7,8,4,9]);
+*/
 
 Taka_poly_loaded = 1$
 end$

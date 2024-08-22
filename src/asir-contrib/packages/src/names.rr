@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240730), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240821), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -740,6 +740,8 @@ def poly_sort(F) {
 /*&usage begin: poly_subsetq(II,JJ,V)
  If the ideal II is contained in the ideal JJ, it returns 1, else 0.
  Options: gb=1 (if JJ is already a GB). verbose=1
+ Note that when gb=1, the order must not be changed since the GB of JJ was computed. Otherwise, this function does not give correct answer or stucks.
+ If gb=1 is not given, dp_ord(0) is executed in this function.
  example: poly_subsetq([x^2-1,(x-1)*(y-2)],[x-1,y-2],[x,y]);
 end: */
 def poly_subsetq(II,JJ,V) {
@@ -748,6 +750,8 @@ def poly_subsetq(II,JJ,V) {
 /*&usage begin: poly_weyl_subsetq(II,JJ,V)
  If the ideal II in the Weyl algebra is contained in the ideal JJ, it returns 1, else 0.
  Options: gb=1 (if JJ is already a GB). verbose=1.
+ Note that when gb=1, the order must not be changed since the GB of JJ was computed. Otherwise, this function does not give correct answer or stucks.
+ If gb=1 is not given, dp_ord(0) is executed in this function.
  example: poly_weyl_subsetq([x*dx^2],[x*dx-1],[x,dx]);
 end: */
 def poly_weyl_subsetq(II,JJ,V) {
@@ -771,6 +775,7 @@ def poly_toric_ideal(A,V) {
 }
 
 /*&usage begin: poly_weight_to_omatrix(W,V)
+ [obsoleted]
  It translates the weight vector {W} into a matrix, which is used to set
  the order in asir Grobner basis functions.
  {V} is the list of variables.
@@ -886,6 +891,19 @@ end: */
 def poly_numerator(L) {
   Opt = getopt();
   return taka_poly_numerator(L | option_list=Opt);
+}
+
+/*&usage begin: poly_weight_to_ord_matrix(W)
+   Weight vector W is transformed to a matrix defined order for dp_ord, nd_gr, ...
+   It is a new version of poly_weight_to_omatrix(W,V) [obsoleted]
+   Options: tie_breaker=[lex,n1,n2,n3,...] defines the lexcographic order x_n1,x_n2, x_n3, ... when variables are x_*
+   example:
+     Mat=poly_weight_to_ord_matrix([1,1,1,1,0,1,1,1,1,0]);
+     Mat=poly_weight_to_ord_matrix([]|tie_breaker=[lex,0,1,2,3,5,6,7,8,4,9]);
+end: */
+def poly_weight_to_ord_matrix(W) {
+  Opt=getopt();
+  return tk_poly_weight_to_ord_matrix(W | option_list=Opt);
 }
 
 
