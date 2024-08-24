@@ -11854,7 +11854,8 @@ def spgen(MO)
 	}else{
 		L0=0; L1=MO+1;
 	}
-	if(MO<=0){
+	if(MO<=0) return spbasic(MO,0|option_list=getopt());
+/* {
 		MO=-MO;
 		if(iand(MO,1)==1) return [];
 		MO=MO/2;
@@ -11878,6 +11879,7 @@ def spgen(MO)
 			return reverse(R);
 		}
 	}
+*/
 	MP=(L1<MO+1)?L1:MO+1;
 	LL=newvect(MO+1);
 	R=newvect(MP+2);
@@ -12014,41 +12016,46 @@ def nextshort(V)
   0<=(2*D-\sum(D-m_{j,1})})*D=\sum_(m_{j,1}-m_{j,\mu})*m_{j,\nu} -|Idx|
   (-2,0)                                    13ŒÂ (9+3+?)
   (-4,0)                                    37ŒÂ (25+9+?) 
-  (-6,0) :  8.5sec  ?sec          0.05sec   69ŒÂ (46+17+?)
-  (-8,0) : 97  sec  1sec          0.13sec  113ŒÂ (73+29+?)   <- (-2,0)
-  (-10,0):          4sec          0.27sec  198ŒÂ (127+50+?)
-@(-12,0)          28sec   4.2sec 0.64sec  291ŒÂ (182+76+?)
-  (-14,0)          27sec  10.2sec 1.31sec  415ŒÂ (249+115+?)
-  (-16,0)                 34.0sec 2.47sec  647ŒÂ (395+172+?) <- (-4,0)
-  (-18,0)                         4.42sec  884ŒÂ (522+243+?) <- (-2,0)
-  (-20,0)                         8.17sec 1186ŒÂ (680+345+?)
+  pt=k         :     #partitions  = k
+  pt=[k,l]  : k<= #partitions <= l
 */
 def spbasic(Idx,D)
 {
 	Idx=-Idx;
 	if((Str=getopt(str))!=1) Str=0;
-	if(!isint(Idx)||!isint(Idx/2)||Idx<0||!isint(D)||D<0||D==1||D>3*Idx+6) return [];
+	Tu0=Tu1=0;
+	if(type(Tu=getopt(pt))==4&&length(Tu)==2&&isint(car(Tu))){
+		Tu0=Tu[0];Tu1=Tu[1];
+	}else if(isint(Tu)) Tu0=Tu1=Tu;
+	if(Tu1<3) Tu1=0;
 	if(D==0){
-		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str),R);
+		for(R=[],D=3*Idx+6;D>=2;D--) R=append(spbasic(-Idx,D|str=Str,pt=[Tu0,Tu1]),R);
 		return R;
 	}
+	if(!Tu1) Tu1=Idx+4;
+	if(!isint(Idx)||!isint(Idx/2)||Idx<0||!isint(D)||D<0||D==1||D>3*Idx+6) return [];
 	if(!Idx){
 		R=0;
-		if(D==2) R="11,11,11,11";
-		if(D==3) R="111,111,111";
-		if(D==4) R="22,1111,1111";
-		if(D==6) R="33,222,111111";
+		if(D==2&&Tu0<5&&(Tu1>3)) R="11,11,11,11";
+		if(Tu0<4&&(Tu1>2)){
+			if(D==3) R="111,111,111";
+			if(D==4) R="22,1111,1111";
+			if(D==6) R="33,222,111111";
+		}
 		if(!R) return [];
 		return [(Str==1)?R:s2sp(R)];
 	}
 	if(D>Idx+2){
 		L=3;
 		if(D==3*Idx+6){
+			if(Tu0>3) return [];
 			R=[[D/2,D/2],[D/3,D/3,D/3],[D/6,D/6,D/6,D/6,D/6,D/6-1,1]];
 			return [(Str==1)?s2sp(R):R];
 		}
 /*		if(iand(D,1)&&(D-3)/2>Idx) return [];  */
 	}else L=Idx/2+4;
+	if(L>Tu1) L=Tu1;
+	if(Tu0>L||(Tu0>3&&D>Idx+2)) return [];
 	for(T=D-1;T>1;T--){
 		K=D%T;
 		if((T-K)*K<=Idx) break;
@@ -12060,16 +12067,16 @@ def spbasic(Idx,D)
 	S1=NP[1];
 
 	for(R=[];;){
-		if(D>Idx+2){
+		if(D>Idx+2 ||(L==3&&D>Idx)){
 			if(3*V[0][0]<D) break;
 			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0) V[1]=V[2]=NP[T];
  			S=D-V[0][0]-V[1][0]-V[2][0];
-			if(V[0][0]+2*V[1][0]<D ||(S>0&&V[1][0]==1) ){
+			if(V[0][0]+2*V[1][0]<D||(V[1][0]==1&&S)){
 				if(V[0][0]==1) break;
 				V[0]=V[1]=V[2]=nextpart(V[0]);
 				continue;
 			}
-			if(S>0||V[2][0]+S<0){
+			if(S>0||V[2][0]+S<1){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
 			}else if(S<0) V[2]=NP[V[2][0]+S];
@@ -12113,7 +12120,7 @@ def spbasic(Idx,D)
 			for(Ix-=D^2,TV=V[J];TV!=[];TV=cdr(TV)) Ix+=car(TV)^2;
 			if(Ix<=0) break;
 		}
-		if(!Ix&&J>=IL){		/* find */
+		if(!Ix&&J>=IL&&J>Tu0-2){		/* find */
 			for(TR=[],K=J;K>=0;K--) TR=cons(V[K],TR);
 			R=cons((Str==1)?s2sp(TR):TR,R);
 		}
