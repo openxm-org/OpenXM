@@ -597,7 +597,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240818"$
+Muldif.rr="00240826"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -11843,6 +11843,13 @@ def spgen(MO)
 	Eq=(getopt(eq)==1)?1:0;
 	Sp=getopt(sp);
 	if(type(Sp)==7) Sp=s2sp(Sp);
+	if(type(Sp)==4){
+		if(getopt(basic)==1) Sp=chkspt(Sp)[6];
+		TS=chkspt(Sp);
+		TP=TS[0]-TS[1];
+	}else{
+		TS=0;TP=1;
+	}
 	St=getopt(str);
 	LP=getopt(pt);
 	F=getopt(std);
@@ -11852,45 +11859,18 @@ def spgen(MO)
 	}else if(type(LP)==1){
 		L0=L1=LP;
 	}else{
-		L0=0; L1=MO+1;
+		L0=0; L1=MO+TP;
 	}
 	if(MO<=0) return spbasic(MO,0|option_list=getopt());
-/* {
-		MO=-MO;
-		if(iand(MO,1)==1) return [];
-		MO=MO/2;
-		B=spbasic(-2*MO,0|str=1);
-		if(L1<3) L1=MO+4; 
-		if(St!=1){
-			for(R=[]; B!=[]; B=cdr(B)){
-				RT= F?s2sp(car(B)|std=F): s2sp(car(B));
-				if(length(RT)<L0 || length(RT)>L1) continue;
-				R=cons(RT,R);
-			}
-			return reverse(R);
-		}else{
-			if(L0<=3 && L1>=MO+4) return B;
-			for(R=[]; B!=[]; B=cdr(B)){
-				RT=s2sp(T=car(B));
-				if(length(RT)<L0 || length(RT)>L1) continue;
-				if(F) T=s2sp(s2sp(T|std=K));
-				R=cons(T,R);
-			}
-			return reverse(R);
-		}
-	}
-*/
-	MP=(L1<MO+1)?L1:MO+1;
+	MP=(L1<MO+TP)?L1:MO+TP;
 	LL=newvect(MO+1);
-	R=newvect(MP+2);
-	R0=newvect(MP+2);
+	R=newvect(MP+TP);
+	R0=newvect(MP+TP);
 	for(I=1; I<=MO; I++) LL[I]=[];
-	if(type(Sp)==4){
-		if(getopt(basic)==1) Sp=chkspt(Sp[6]);
-		R=chkspt(Sp);
-		if(R[1]>MO) return 0;
-		LL[R[1]]=R;
-		K=R[1];
+	if(TS!=0){
+		if(TS[1]>MO) return 0;
+		LL[TS[1]]=[TS[6]];
+		K=TS[1];
 	}
 	if(K==1||type(Sp)!=4){
 		LL[1]=[[[1]]];
@@ -11951,7 +11931,7 @@ def spgen(MO)
 			}
 		}
 	}
-	if(L0>0 || L1<MO+1 || St==1 || F){
+	if(L0>0 || L1<MO+TP || St==1 || F){
 		for(J=1; J<=MO; J++){
 			for(RT=[],R=LL[J];R!=[];R=cdr(R)){
 				L=length(T=car(R));
@@ -12016,8 +11996,8 @@ def nextshort(V)
   0<=(2*D-\sum(D-m_{j,1})})*D=\sum_(m_{j,1}-m_{j,\mu})*m_{j,\nu} -|Idx|
   (-2,0)                                    13ŒÂ (9+3+?)
   (-4,0)                                    37ŒÂ (25+9+?) 
-  pt=k         :     #partitions  = k
-  pt=[k,l]  : k<= #partitions <= l
+  pt=k		:      #partitions  = k
+  pt=[k,l]	: k <= #partitions <= l
 */
 def spbasic(Idx,D)
 {
@@ -12038,9 +12018,9 @@ def spbasic(Idx,D)
 		R=0;
 		if(D==2&&Tu0<5&&(Tu1>3)) R="11,11,11,11";
 		if(Tu0<4&&(Tu1>2)){
-			if(D==3) R="111,111,111";
-			if(D==4) R="22,1111,1111";
-			if(D==6) R="33,222,111111";
+          if(D==3) R="111,111,111";
+          if(D==4) R="22,1111,1111";
+          if(D==6) R="33,222,111111";
 		}
 		if(!R) return [];
 		return [(Str==1)?R:s2sp(R)];
@@ -12052,8 +12032,10 @@ def spbasic(Idx,D)
 			R=[[D/2,D/2],[D/3,D/3,D/3],[D/6,D/6,D/6,D/6,D/6,D/6-1,1]];
 			return [(Str==1)?s2sp(R):R];
 		}
-/*		if(iand(D,1)&&(D-3)/2>Idx) return [];  */
-	}else L=Idx/2+4;
+		if(D>2*Idx+6) return [];
+	} 
+	else if(D>2) L=floor((Idx-2)/4)+5;
+	else L=Idx/2+4;
 	if(L>Tu1) L=Tu1;
 	if(Tu0>L||(Tu0>3&&D>Idx+2)) return [];
 	for(T=D-1;T>1;T--){
@@ -12065,21 +12047,20 @@ def spbasic(Idx,D)
 	for(I=1;I<=T;I++) NP[I]=nextpart(D|max=I);
 	for(I=0;I<L;I++) V[I]=NP[T];
 	S1=NP[1];
-
+	FS=(D>Idx+2 ||(L==3&&D>Idx))?1:0;
 	for(R=[];;){
-		if(D>Idx+2 ||(L==3&&D>Idx)){
-			if(3*V[0][0]<D) break;
-			if(V[0][0]+V[1][0]>=D && (T=D-V[0][0]-1)>0) V[1]=V[2]=NP[T];
- 			S=D-V[0][0]-V[1][0]-V[2][0];
-			if(V[0][0]+2*V[1][0]<D||(V[1][0]==1&&S)){
-				if(V[0][0]==1) break;
-				V[0]=V[1]=V[2]=nextpart(V[0]);
-				continue;
+		if(FS){
+			if(3*car(V[0])<D) break;
+			if(car(V[0])+car(V[1])>=D && (T=D-car(V[0])-1)>0) V[1]=V[2]=NP[T];
+ 			S=D-car(V[0])-car(V[1])-car(V[2]);
+			if(car(V[0])+2*car(V[1])<D||(car(V[1])==1&&S)){
+				if((V[0]=V[1]=V[2]=nextpart(V[0]))!=0) continue;
+				break;
 			}
-			if(S>0||V[2][0]+S<1){
+			if(S>0||car(V[2])+S<1){
 				V[1]=V[2]=nextpart(V[1]);
 				continue;
-			}else if(S<0) V[2]=NP[V[2][0]+S];
+			}else if(S<0) V[2]=NP[car(V[2])+S];
 		}
 		for(S=-2*D,IL=0;IL<L;IL++){
 			S+=D-car(V[IL]);
@@ -12125,7 +12106,7 @@ def spbasic(Idx,D)
 			R=cons((Str==1)?s2sp(TR):TR,R);
 		}
 		if(Ix<0 && IxF-mincod(D,car(V[J]))<0) J--; 	/* effective */
-		if(J>=L) J=L-1;
+		else if(J>=L) J=L-1;
 		for(I=J;I>=0&&car(V[I])==1;I--);
 		if(I<0) break;
 		V[I]=nextpart(V[I]);
