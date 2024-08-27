@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240821), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240828), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -904,6 +904,20 @@ end: */
 def poly_weight_to_ord_matrix(W) {
   Opt=getopt();
   return tk_poly_weight_to_ord_matrix(W | option_list=Opt);
+}
+
+/*&usage begin: poly_w_marking(Id,V,W)
+   The monomials x^a in Id is rewritten to x^a*t_w^(<a,w>+b).
+   <a,w> is the inner product and b is an intger to avoid negative powers of t_w.
+   Return: [w-marked polynomial, b]
+   Options: specify a name of homogenization variable by the option hvar. The default is t_w.
+   example:
+     poly_w_marking(x*dx^2+y*dy+a,[x,y,dx,dy],[-1,-1,1,1]);
+       [t_w*x*dx^2+y*dy+a,0]
+end: */
+def poly_w_marking(Id,V,W) {
+  Opt=getopt();
+  return tk_poly_w_marking(Id,V,W | option_list=Opt);
 }
 
 

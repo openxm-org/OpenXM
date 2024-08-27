@@ -1154,6 +1154,78 @@ print("-----------")$
 Mat=tk_poly_weight_to_ord_matrix([]|tie_breaker=[lex,0,1,2,3,5,6,7,8,4,9]);
 */
 
+def tk_poly_w_marking1(L,V,W) {
+  if (type(getopt(hvar))>0) Hvar=getopt(hvar);
+  else Hvar=t_w;
+  if (L==0) return L;
+  N = length(V);
+  W = matrix_matrix_to_list(W);
+  if (base_position(Hvar,V) >=0) error("invalid homogenization variable.");
+  W = cons(0,W);
+  WW=matrix_list_to_matrix(W);
+
+  Vall=cons(Hvar,V);
+  L=dp_ptod(L,Vall);
+  LH=0;
+  Min=min;
+  while (L) {
+    C=dp_hc(L); 
+    E=dp_etov(dp_ht(L));
+    if (E[0] != 0) error("w_marking");
+    E[0]=matrix_inner_product(WW,E);
+    if (type(Min)>1) Min=E[0];
+    if (E[0] < Min) Min=E[0];
+    LH += C*dp_vtoe(E);
+    L=dp_rest(L);
+  }
+  //printf("Min=%a, Vall=%a, LH=%a\n",Min,Vall,LH);
+  E=newvect(length(WW)); E[0]=-Min;
+  LH=dp_vtoe(E)*LH;
+  return [dp_dtop(LH,Vall),E[0]];
+}
+
+def tk_print_poly_in_t_w(F) {
+  Hvar=t_w;
+  if (type(F)>3) return map(print_poly_in_t_w,F);
+  D=deg(F,Hvar);
+  S="";
+  for (I=D; I>=0; I--) {
+    if (coef(F,I,Hvar) != 0) {
+      if (I != D) S+= " + ";
+      S += sprintf("(%a)*%a^%a",coef(F,I,Hvar),Hvar,I);
+    }
+  }
+  return S;
+}
+/*
+tk_poly_w_marking1(1,[x,y,z,dx,dy,dz],[-1,-1,0,1,1]);
+F0=dx*dy*dz+2*(a+c)*x*y+3*c*x*dx;
+tk_print_poly_in_t_w(F0h=tk_poly_w_marking1(F0,[x,y,z,dx,dy,dz],[-1,-1,0,1,1,0]));
+base_replace(F0h,[[t_w,1]]);
+*/
+def tk_poly_w_marking(Id,V,W) {
+  if (type(getopt(hvar))>0) Hvar=getopt(hvar);
+  else Hvar=t_w;
+  if (type(Id) < 4) return tk_poly_w_marking1(Id,V,W | option_list=getopt());
+  if (length(Id)==0) return [Id,0];
+  //L=map(tk_poly_w_marking1,Id,V,W | option_list=getopt());
+  L=map(tk_poly_w_marking1,Id,V,W);
+  Max=L[0][1];
+  for (I=1; I<length(L); I++) {
+    if (L[I][1] > Max) Max=L[I][1];
+  }
+  LL=[];
+  for (I=0; I<length(L); I++) {
+    LL = cons(L[I][0]*Hvar^(Max-L[I][1]),LL);
+  }
+  return [reverse(LL),Max];
+}
+/*
+F0=[dx*dy*dz+2*(a+c)*x*y+3*c*x*dx, dx^3-dy^3,x^3-x];
+tk_print_poly_in_t_w(F0h=tk_poly_w_marking(F0,[x,y,z,dx,dy,dz],[-1,-1,0,1,1,0]));
+base_replace(F0h,[[t_w,1]]);
+*/
+
 Taka_poly_loaded = 1$
 end$
 
