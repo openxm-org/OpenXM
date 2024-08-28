@@ -1043,6 +1043,7 @@ tk_poly_replace_factor2(Plist,F,G);
 def tk_poly_replace_factor(Obj,Rule) {
   N=length(Rule);
   for (I=0; I<N; I++) {
+    if (Rule[I][0] == 0) error("poly_replace_factor: 0 cannot be replaced.");
     NewObj=tk_poly_replace_factor2(Obj,Rule[I][0],Rule[I][1]);
     Obj=NewObj;
   }
