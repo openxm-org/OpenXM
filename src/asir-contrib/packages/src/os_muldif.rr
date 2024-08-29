@@ -12151,6 +12151,27 @@ def chkspt(M)
 	Opt= getopt(opt);
 	Mat= getopt(mat);
 	if(type(M)==7) M=s2sp(M);
+	if(type(M)==4&&length(M)>1&&type(car(M))<4&&type(M[1])==4){
+		for(R=[],TM=cdr(M);TM!=[];TM=cdr(TM)){
+			L=car(TM);
+			for(I=length(L)-1,TR=[L[I]];I>0;I--) TR=cons(L[I-1]-L[I],TR);
+			TR=cons(car(M)-L[0],TR);
+			R=cons(TR,R);
+		}
+		M=reverse(R);
+		if(Opt=="sp") return M;
+	}
+	if(Opt=="kac"){
+		M=fspt(M,0);
+		for(R=[];M!=[];M=cdr(M)){
+			for(S=N=0,TR=[],I=length(TM=car(M))-1;I>0;I--){
+				S+=TM[I];TR=cons(S,TR);
+			}
+			if(!N) N=S+TM[0];
+			R=cons(TR,R);
+		}
+		return cons(N,reverse(R));
+	}
 	if(type(Opt) >= 0&&Opt!="idx"){
 		if(type(Opt) == 7)
 			Opt = findin(Opt, ["sp","basic","construct","strip","short","long","sort","root"]);
