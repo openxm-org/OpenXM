@@ -463,7 +463,7 @@ void ox_close(OXFILE *sv)
 {
     send_ox_command(oxf_control(sv), SM_control_kill);
     sleep(2);
-    /* We wait thar an OpenXM server terminates. */
+    /* We wait until an OpenXM server terminates. */
     ox_printf("I have closed the connection to an Open XM server.\n");
 }
 

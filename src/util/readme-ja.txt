@@ -8,7 +8,7 @@ oxreplace:   文字列の置き換えを行なうツール.
              latex2html で作られたファイルに細工するのに使われている.
 oxweave:     一つのファイルに英語のドキュメントや日本語のドキュメント書いて
             おいてそれを oxweave で分解する. oxgentexi と組でも使う.
-            speficication や asir-contrib のマニュアルで使ってる.
+            specification や asir-contrib のマニュアルで使ってる.
 
 [oxgentexi]
   oxgentexi への入力は item という単位で管理されている.

@@ -41,7 +41,7 @@ static char *mathkernel_versionstring = NULL;
 /* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 
-/* MLINK is a indentifier of MathLink connection. */
+/* MLINK is an identifier of MathLink connection. */
 MLINK stdlink;
 
 static unsigned flag_ml_state = 0;

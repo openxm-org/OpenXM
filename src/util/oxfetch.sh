@@ -49,7 +49,7 @@ _check() {
         if [ "$key1" = "$key2" ] ; then
             echo "Checksum OK for $distfile".
         elif [ -z "$key1" ]; then 
-            echo "Warnig: no md5 checker."
+            echo "Warning: no md5 checker."
         else
             echo "Error: checksum mismatch for $distfile".
             exit 1

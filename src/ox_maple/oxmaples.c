@@ -134,7 +134,7 @@ oxmpl_add(oxstack_node **arg, int argc)
 	int i;
 	int len;
 
-printf("call funcion 'add'\n");
+printf("call function 'add'\n");
 	len = 0;
 	for (i = 0; i < argc; i++) {
 		convert_to_maple(arg[i]);
@@ -200,7 +200,7 @@ oxmpl_sleep(oxstack_node **arg, int argc)
 	mpz_t m;
 	cmo_error2 *err;
 
-printf("call funcion 'sleep'\n");
+printf("call function 'sleep'\n");
 	for (i = 0; i < argc; i++) {
 		if (arg[i]->c->tag != CMO_INT32 &&
 		    arg[i]->c->tag != CMO_ZZ) {
@@ -251,7 +251,7 @@ oxmpl_func(oxstack_node **arg, int argc)
 	ALGEB f;
 	int i;
 
-printf("call funcion 'func' argc=%d\n", argc);
+printf("call function 'func' argc=%d\n", argc);
 
 	if (arg[0]->c->tag != CMO_STRING) {
 		err = new_cmo_error2((cmo *)new_cmo_string("invalid 1st argument: not string"));

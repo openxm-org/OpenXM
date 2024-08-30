@@ -128,7 +128,7 @@ int OX_FD_ISSET(OXFILE *oxfp,OXFILE_set *s)
     return 0;
 }
 
-/* The argument `s' is a set of file descripters for reading */
+/* The argument `s' is a set of file descriptors for reading */
 OXFILE *oxf_select(OXFILE_set *s, struct timeval *tv)
 {
     int r;
@@ -228,7 +228,7 @@ static int receive_int32_lbo(OXFILE *oxfp)
 
 /* (1) getting the fd by socket(2).
    (2) preparing a buffer by fdopen(fd, "a+"). (not "w+")
-   (3) determing the byte order of the OX connection.
+   (3) determining the byte order of the OX connection.
    (4) setting function pointers by oxf_setopt().
 */
 OXFILE *oxf_open(int fd)

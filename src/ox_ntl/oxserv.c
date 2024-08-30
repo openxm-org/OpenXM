@@ -464,7 +464,7 @@ oxserv_sm_executeStringByLocalParser(void)
 /*****************************************************************************
  * -- SM_executeFunction --
  * pop s as a function name, pop n as the number of arguments and to execute a
- * local function s with n arguments poped from the stack.
+ * local function s with n arguments popped from the stack.
  *
  * suppose G_userExecuteFunction not equal NULL
  *

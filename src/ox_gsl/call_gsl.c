@@ -43,7 +43,7 @@ void  call_gsl_sf_lngamma_complex_e() {
   push(ans);
 }
 
-cmo *Func_x=NULL;  // function to evalute.
+cmo *Func_x=NULL;  // function to evaluate.
 cmo *Vlist=NULL;   // list of variables (not implemented yet).
 double f_x(double x,void *params) {
   double d;

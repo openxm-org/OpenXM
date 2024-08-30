@@ -65,7 +65,7 @@ int **redcheck(int row,int col,int **matrix,int *presult_row)
 	M->representation=dd_Generator;
 
 	if(debug_print>=2){
-		printf("Inputed Matrix : \n");
+		printf("Inputted Matrix : \n");
 		dd_WriteMatrix(stdout, M);
 
 		fprintf(stdout, "\nredundant rows:\n");

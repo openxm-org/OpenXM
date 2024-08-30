@@ -224,7 +224,7 @@ double get_double()
     myhandler("get_double: not a double",NULL,0,-1);
     return(NAN);
 }
-/* get_double() will be obsolted and will be replaced by cmo2double(c) */
+/* get_double() will be obsoleted and will be replaced by cmo2double(c) */
 double cmo2double(cmo *c)
 {
 #define mympz(c) (((cmo_zz *)c)->mpz)
@@ -295,7 +295,7 @@ double *get_double_list(int *length) {
   }
   return(d);
 }
-/* get_double_list will be obsolted and will be replaced by cmo2double_list() */
+/* get_double_list will be obsoleted and will be replaced by cmo2double_list() */
 double *cmo2double_list(int *length,cmo *c) {
   cmo *entry;
   cell *cellp;

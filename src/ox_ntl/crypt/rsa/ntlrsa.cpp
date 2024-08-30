@@ -112,7 +112,7 @@ NtlRsa::getBlockSize(const ZZ& n)
  *
  * PARAM : O : vec
  *       : I : null-terminate string.
- *       : I : k : lenth of modulus in octets > NtlRsa::PS_MIN + 3
+ *       : I : k : length of modulus in octets > NtlRsa::PS_MIN + 3
  *       :   :   : k is computed by RSAPublicKey-modulus
  *       : I : f : if (f) public_key else private_key
  * RETURN: size of encrypted data

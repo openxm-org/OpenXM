@@ -46,7 +46,7 @@ typedef struct mathcap {
     char  **opts;
 } mathcap;
 
-/* OpenXM File Descripter */
+/* OpenXM File Descriptor */
 typedef struct OXFILE{
     int fd;
     int (*send_int32)(struct OXFILE *oxfp, int int32);

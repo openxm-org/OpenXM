@@ -3,7 +3,7 @@
 
 /* 
    This module is a parser for OX/CMO expressions.
-   Some commnets are written in Japanese by using the EUC-JP coded 
+   Some comments are written in Japanese by using the EUC-JP coded 
    character set.
 */
 

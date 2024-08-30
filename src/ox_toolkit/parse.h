@@ -16,7 +16,7 @@ struct symbol {
 
 /* Remarks: a token, which is less than 256, means a one character token. */
 
-/* The followings are definitions of some tokens. */
+/* The following are definitions of some tokens. */
 #define T_DIGIT         257
 #define T_STRING        258
 #define T_MAGIC         2048
