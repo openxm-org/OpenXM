@@ -1,7 +1,7 @@
 /*	$Id$	*/
 
 /*
-* ##  origianl  #################################################
+* ##  original  #################################################
 MixedVol: Polynomial system mixed volume calculation program.
 * Version 1.0 Copyright (C) 2003  Tangan Gao, T. Y. Li, Xing Li, and Mengnien Wu.
 * ###############################################################

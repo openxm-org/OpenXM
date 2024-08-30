@@ -58,10 +58,10 @@ GEN cmo_zz_to_GEN(cmo_zz *c)
   len = ABSIZ(mpz);
   ptr = (long *)PTR(mpz);
   z = cgeti(len+2);
-  if ( with_gmp ) // least signifcant first
+  if ( with_gmp ) // least significant first
     for ( j = 0; j < len; j++ )
       z[j+2] = ptr[j];
-  else // most signifcant first
+  else // most significant first
     for ( j = 0; j < len; j++ )
       z[len-j+1] = ptr[j];
   setsigne(z,sgn);

@@ -65,7 +65,7 @@ void push_error(int errcode, cmo* pushback)
 
 /* 
 If error occurs, then
-an sm_* function, called by sm_run, pushes an error obect.
+an sm_* function, called by sm_run, pushes an error object.
 */
 void sm_popCMO()
 {

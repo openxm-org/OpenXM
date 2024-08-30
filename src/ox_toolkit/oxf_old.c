@@ -183,7 +183,7 @@ OXFILE *ox_start_insecure(char* host, short portControl, short portStream)
     ct = oxf_connect_active(host, portControl);
     /* ox は insecure のとき byte order の決定が正しくできないようだ... */
     /* oxf_determine_byteorder_client(ct); */
-    /* wainting 10 micro second. */
+    /* waiting 10 micro second. */
     usleep(10);
     st = oxf_connect_active(host, portStream);
     oxf_determine_byteorder_client(st);

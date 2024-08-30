@@ -1,7 +1,7 @@
 (* $OpenXM: OpenXM/src/ox_math/lib/beta.m,v 1.1 1999/12/17 04:01:35 ohara Exp $ *)
 
 (*
-This program reuires asir programs beta, igraph, sets;
+This program requires asir programs beta, igraph, sets;
 these files are in OpenXM/src/asir-contrib/packages/src/.
 you must add load("beta") to your .asirrc.
 
@@ -18,7 +18,7 @@ Out[3]= {{{t, -s + t}, {s}}, {{t}, {1 - s}}, {{-s + t}, {1 - s}}}
 
 ---
 We explains output above.
-the elements of ``Out[2]'' are a differntial form.
+the elements of ``Out[2]'' are a differential form.
 For example, {{t, -s + t}, {s}} means the following form:
 ( a_1 dlog(t) + a_2 dlog(-s+t) ) \wedge ( a_3 dlog(s) ),
 where a_1, a_2, a_3 are exponents.

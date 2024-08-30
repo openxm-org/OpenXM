@@ -144,14 +144,14 @@ static cmo_list *table_get_all(table *tbl)
     return list;
 }
 
-/* giving a permssion to send objects identified by the tag. */
+/* giving a permission to send objects identified by the tag. */
 __inline__
 static void table_allow(table *tbl, int tag)
 {
     table_ctl(tbl, tag, MATHCAP_FLAG_ALLOW);
 }
 
-/* taking a permssion to send objects identified by the tag. */
+/* taking a permission to send objects identified by the tag. */
 __inline__
 static void table_deny(table *tbl, int tag)
 {

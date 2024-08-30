@@ -330,7 +330,7 @@ DPRINTF(("mapleunknown @ convert_maple2cmo\n"));
 
 	}
 
-	return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("cant convert from mapleObj to CMO")));
+	return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("cannot convert from mapleObj to CMO")));
 
 }
 

@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
         output_verbatim(asir_copyright());
     }else {
         open_log(logfile);
-        sprintf(buffer, "This is Plugin Debuger with logging to %s.", logfile);
+        sprintf(buffer, "This is Plugin Debugger with logging to %s.", logfile);
         output_verbatim(buffer);
 		put_log("verbatim", buffer);
     }

@@ -50,7 +50,7 @@ int gopen()
     XSetBackground(glib_d, glib_gc, BlackPixel(glib_d, 0));
     XSetForeground(glib_d, glib_gc, WhitePixel(glib_d, 0));
 
-    /* intialize line attributes */
+    /* initialize line attributes */
     XSetLineAttributes(glib_d,glib_gc,1,LineSolid,CapButt,JoinMiter);
 }
 

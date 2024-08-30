@@ -52,7 +52,7 @@ void sm_state_clear_interrupting()
     ml_state_clear_all();
 }
 
-/* handling OpenXM singals */
+/* handling OpenXM signals */
 static void sm_sighandler()
 {
     sm_state_set_interrupting();

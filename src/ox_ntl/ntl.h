@@ -80,7 +80,7 @@ void	delete_cmon	(cmo *);
  * CONVERT
  *===========================================================================*/
 int		get_cmon_tag	(cmo *);
-cmo	*	convert_cmon	(cmo *);	/* convet local object to CMO */
+cmo	*	convert_cmon	(cmo *);	/* convert local object to CMO */
 
 cmo_zz		*ZZ_to_cmo_zz	(const ZZ &);
 int		 cmo_to_ZZ	(ZZ &, cmo *);

@@ -220,7 +220,7 @@ int sm_executeFunction()
       if ( code == e_MEM || code == e_STACK ) {
         sprintf(buf,"%s\nIncrease PARI stack by pari(allocatemem,size).",err);
       } else 
-        sprintf(buf,"An error occured in PARI :%s",err);
+        sprintf(buf,"An error occurred in PARI :%s",err);
       push((cmo*)make_error2(buf));
       pari_CATCH_reset();
       avma = av0;
