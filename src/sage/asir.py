@@ -1,7 +1,4 @@
 # $OpenXM: OpenXM/src/sage/asir.py,v 1.2 2019/03/06 02:38:33 takayama Exp $
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
 from sage.interfaces.expect import Expect, ExpectElement
 from sage.misc.misc import verbose
@@ -18,9 +15,8 @@ class Asir(Expect):
 
         sage: asir.evall("F=fctr(x^10-1)")    # optional - asir
     """
-
     def __init__(self, maxread=None, script_subdirectory=None, logfile=None,
-            server=None, server_tmpdir=None, seed=None, command=None):
+                 server=None, server_tmpdir=None, seed=None, command=None):
         """
         EXAMPLES::
 
@@ -28,30 +24,28 @@ class Asir(Expect):
             True
         """
         if command is None:
-            import os
             command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright'
         if server is None:
-            import os
             server = os.getenv('SAGE_ASIR_SERVER') or None
         Expect.__init__(self,
-                        name = 'asir',
+                        name='asir',
                         # We want the prompt sequence to be unique to avoid confusion with syntax error messages containing >>>
-                        prompt = 'asir>',
+                        prompt='asir>',
                         # We don't want any pagination of output
-                        command = 'openxm ox_texmacs --view sage --quiet --noCopyright',
-                        maxread = maxread,
-                        server = server,
-                        server_tmpdir = server_tmpdir,
-                        script_subdirectory = script_subdirectory,
-                        restart_on_ctrlc = False,
-                        verbose_start = False,
-                        logfile = logfile,
+                        command='openxm ox_texmacs --view sage --quiet --noCopyright',
+                        maxread=maxread,
+                        server=server,
+                        server_tmpdir=server_tmpdir,
+                        script_subdirectory=script_subdirectory,
+                        restart_on_ctrlc=False,
+                        verbose_start=False,
+                        logfile=logfile,
                         eval_using_file_cutoff=100)
         self._seed = seed
 
     def set_seed(self, seed=None):
         """
-        Not implemented. Sets the seed for the random number generator
+        Not implemented. Set the seed for the random number generator
         for this asir interpreter.
         """
         return 0
@@ -63,7 +57,7 @@ class Asir(Expect):
             sage: asir.__reduce__()
             (<function reduce_load_Asir at 0x...>, ())
         """
-        return reduce_load_Asir, tuple([])
+        return reduce_load_Asir, tuple()
 
     def _read_in_file_command(self, filename):
         """
@@ -73,7 +67,7 @@ class Asir(Expect):
             sage: asir._read_in_file_command(filename)
             'load("...");'
         """
-        return 'load("%s");'%filename
+        return 'load("%s");' % filename
 
     def _quit_string(self):
         """
@@ -86,7 +80,7 @@ class Asir(Expect):
 
     def _install_hints(self):
         """
-        Returns hints on how to install Asir.
+        Return hints on how to install Asir.
 
         EXAMPLES::
 
@@ -95,25 +89,28 @@ class Asir(Expect):
         """
         return """
         You must get the program "asir" and "ox_texmacs" in order to use Asir
-        from Sage.   You can read all about Asir at
+        from Sage. You can read all about Asir at
                 http://www.openxm.org
-        The command openxm must be in the search path.
+        The command "openxm" must be in the search path.
         """
-    def evall(self,cmd):
+    def evall(self, cmd):
         """
-        evalutes the argument immediately. The argument of eval is buffered 
+        Evaluate the argument immediately. The argument of eval is buffered 
         and ; should be added.
+
         EXAMPLES::
-          sage: asir.eval('1+2;'); asir.evall('3+3')
+
+            sage: asir.eval('1+2;'); asir.evall('3+3')
         """
         return self.eval(cmd+';;')
+
     def _eval_line(self, line, reformat=True, allow_use_file=False,
                    wait_for_prompt=True, restart_if_needed=False):
         """
         EXAMPLES::
 
             sage: print(asir._eval_line('2+2'))  #optional - asir
-              '4'
+            '4'
         """
         from pexpect.exceptions import EOF
         if not wait_for_prompt:
@@ -122,18 +119,18 @@ class Asir(Expect):
             return ''
         if self._expect is None:
             self._start()
-        if allow_use_file and len(line)>3000:
+        if allow_use_file and len(line) > 3000:
             return self._eval_line_using_file(line)
         try:
             E = self._expect
             # debug
             # self._synchronize(cmd='1+%s\n')
-            verbose("in = '%s'"%line,level=3)
+            verbose("in = '%s'" % line, level=3)
             E.sendline(line)
             E.expect(self._prompt)
             out = E.before
             # debug
-            verbose("out = '%s'"%out,level=3)
+            verbose("out = '%s'" % out, level=3)
         except EOF:
             if self._quit_string() in line:
                 return ''
@@ -149,7 +146,7 @@ class Asir(Expect):
             return ''
 
     def _keyboard_interrupt(self):
-        print("Ctrl-C: Interrupting %s..."%self)
+        print("Ctrl-C: Interrupting %s..." % self)
         if self._restart_on_ctrlc:
             try:
                 self._expect.close(force=1)
@@ -180,7 +177,7 @@ class Asir(Expect):
 
     def _start(self):
         """
-        Starts the Asir process.
+        Start the Asir process.
 
         EXAMPLES::
 
@@ -202,9 +199,9 @@ class Asir(Expect):
         EXAMPLES::
 
             sage: asir('0 == 1')  # optional - asir
-             0
+            0
             sage: asir('1 == 1')  # optional - asir
-             1
+            1
         """
         return '=='
 
@@ -213,7 +210,7 @@ class Asir(Expect):
         EXAMPLES::
 
             sage: asir('1 == 1')  # optional - asir
-             1
+            1
         """
         return '1'
 
@@ -222,7 +219,7 @@ class Asir(Expect):
         EXAMPLES::
 
             sage: asir('0 == 1')  # optional - asir
-             0
+            0
         """
         return '0'
 
@@ -236,10 +233,10 @@ class Asir(Expect):
             sage: asir.get('X') # optional - asir
             ' 2'
         """
-        cmd = '%s=%s'%(var,value)
+        cmd = '%s=%s' % (var, value)
         out = self.evall(cmd)
         if out.find("error") != -1 or out.find("Error") != -1:
-            raise TypeError("Error executing code in Asir\nCODE:\n\t%s\nAsir ERROR:\n\t%s"%(cmd, out))
+            raise TypeError("Error executing code in Asir\nCODE:\n\t%s\nAsir ERROR:\n\t%s" % (cmd, out))
 
     def get(self, var):
         """
@@ -251,7 +248,7 @@ class Asir(Expect):
             sage: asir.get('X') # optional - asir
             ' 2'
         """
-        s = self.evall('%s;'%var)
+        s = self.evall('%s;' % var)
         i = s.find('=')
         return s[i+1:]
 
@@ -259,8 +256,8 @@ class Asir(Expect):
         """
         Spawn a new Asir command-line session.
 
-        This requires that the optional asir program be installed and in
-        your PATH, but no optional Sage packages need be installed.
+        This requires that the optional ``asir`` program be installed and in
+        your ``PATH``, but no optional Sage packages need be installed.
 
         EXAMPLES::
 
@@ -275,11 +272,12 @@ class Asir(Expect):
         """
         asir_console()
 
-    def version(self):
+    def version(self) -> str:
         """
         Return the version of Asir.
+
         bug: it returns error because sage tries to set sage0=version();
-             insread of Sage0=version();
+             instead of Sage0=version();
         OUTPUT: string
 
         EXAMPLES::
@@ -287,7 +285,6 @@ class Asir(Expect):
             sage: v = asir.version()   # optional - asir
             sage: v                      # optional - asir; random
             '2.13.7'
-
         """
         return str(self("version()")).strip()
 
@@ -355,7 +352,7 @@ class AsirElement(ExpectElement):
 
     def _matrix_(self, R=None):
         r"""
-        Return Sage matrix from this asir element.
+        Return Sage matrix from this ``asir`` element.
 
         EXAMPLES::
 
@@ -490,12 +487,11 @@ class AsirElement(ExpectElement):
         """
         if self.isscalar():
             return self._scalar_()
-        elif self.isvector():
+        if self.isvector():
             return self._vector_()
-        elif self.ismatrix():
+        if self.ismatrix():
             return self._matrix_()
-        else:
-            raise NotImplementedError('asir type is not recognized')
+        raise NotImplementedError('asir type is not recognized')
 
 # An instance
 asir = Asir()
@@ -515,8 +511,8 @@ def asir_console():
     """
     Spawn a new Asir command-line session.
 
-    This requires that the optional asir program be installed and in
-    your PATH, but no optional Sage packages need be installed.
+    This requires that the optional ``asir`` program be installed and in
+    your ``PATH``, but no optional Sage packages need be installed.
 
     EXAMPLES::
 
@@ -536,18 +532,3 @@ def asir_console():
 #    os.system('openxm asir -quiet')
 
 
-def asir_version():
-    """
-    DEPRECATED: Return the version of Asir installed.
-
-    EXAMPLES::
-
-        sage: asir_version()    # optional - asir
-        doctest:...: DeprecationWarning: This has been deprecated. Use
-        asir.version() instead
-        See http://trac.sagemath.org/21135 for details.
-        '...'
-    """
-    from sage.misc.superseded import deprecation
-    deprecation(21135, "This has been deprecated. Use asir.version() instead")
-    return asir.version()
