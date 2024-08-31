@@ -1,7 +1,7 @@
 # $OpenXM: OpenXM/src/sage/asir.py,v 1.2 2019/03/06 02:38:33 takayama Exp $
 import os
 from sage.interfaces.expect import Expect, ExpectElement
-from sage.misc.misc import verbose
+from sage.misc.verbose import verbose
 
 ##Ref: @s/2018/09/20180907-sage-asir-proj, Using External Libraries and Interfaces
 ##Ref: /usr/lib/python2.7/dist-packages/sage/interfaces
