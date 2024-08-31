@@ -287,7 +287,7 @@ The k-th element of a free module is expressed as <<d0,d1,...:k>> (2017-08-31).
 (@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
 \E
 \BEG
-In the vesion before 2003, 
+In the version before 2003, 
 facilities for computing Groebner bases are 
 @code{dp_gr_main()}, @code{dp_gr_mod_main()}and @code{dp_gr_f_main()}.
 To call these functions, 
@@ -298,7 +298,7 @@ The facilities will be ready to use after you load the package by
 @code{load()}.  The package @samp{gr} is placed in the standard library
 directory of @b{Asir}.  
 
-In the current vesion, new functions such as @code{nd_gr}, @code{nd_f4} are available
+In the current version, new functions such as @code{nd_gr}, @code{nd_f4} are available
 and these function can compute Groebner bases more efficiently than old functions
 (@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
 \E
@@ -351,7 +351,7 @@ After homogenizing the input polynomials a candidate of the \gr basis
 is computed by trace-lifting. Then the candidate is dehomogenized and
 checked whether it is indeed a Groebner basis of the input.  Sugar
 strategy often causes intermediate coefficient swells.  It is
-empirically known that the combination of homogenization and supresses
+empirically known that the combination of homogenization and suppresses
 the swells for such cases.
 \E
 
@@ -395,7 +395,7 @@ See @fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}.
 と, 現在設定されているパラメタが, 名前と値のリストで返される. 
 \E
 \BEG
-One can cotrol a Groebner basis computation by setting various parameters.
+One can control a Groebner basis computation by setting various parameters.
 These parameters can be set and examined by a built-in function
 @code{dp_gr_flags()}. Without argument it returns the current settings.
 \E
@@ -495,7 +495,7 @@ is such that a newer reducer is used first.
 @item Print
 \JP on の場合, グレブナ基底計算の途中におけるさまざまな情報を表示する. 
 \BEG
-If `on', various informations during a Groebner basis computation is
+If `on', various information during a Groebner basis computation is
 displayed.
 \E
 
@@ -512,7 +512,7 @@ on で @code{Print} が off ならば, @code{Print} が on のとき表示さ
 れるデータの内, 集計データのみが表示される. 
 \E
 \BEG
-If `on', a summary of informations is shown after a Groebner basis
+If `on', a summary of information is shown after a Groebner basis
 computation. Note that the summary is always shown if @code{Print} is `on'.
 \E
 
@@ -574,7 +574,7 @@ and one should remove them by hand.
 
 @noindent
 \JP @code{Print} が 0 でない場合次のようなデータが表示される.
-\EG If @code{Print} is `on', the following informations are shown.
+\EG If @code{Print} is `on', the following information are shown.
 
 @example
 [93] gr(cyclic(4),[c0,c1,c2,c3],0)$
@@ -696,7 +696,7 @@ Sugar of the generated basis element
       
 @item M
 
-Magnitude of the genrated basis element (shown if @code{ShowMag} is `on'.)
+Magnitude of the generated basis element (shown if @code{ShowMag} is `on'.)
 \E
 @end table
 
@@ -706,10 +706,10 @@ Magnitude of the genrated basis element (shown if @code{ShowMag} is `on'.)
 (時間の表示において, 数字が 2 つあるものは, 計算時間と GC 時間のペアである.)
 \E
 \BEG
-The summary of the informations shown after a Groebner basis
+The summary of the information shown after a Groebner basis
 computation is as follows.  If a component shows timings and it
 contains two numbers, they are a pair of time for computation and time
-for garbage colection.
+for garbage collection.
 \E
 
 @table @code
@@ -809,11 +809,11 @@ Time for zero reductions in @code{NFM}
 
 @item PZ
 
-Time to remove integer contets
+Time to remove integer contents
 
 @item NP
 
-Time to compute remainders for coefficients of polynomials with coeffieints
+Time to compute remainders for coefficients of polynomials with coefficients
 in the rationals
 
 @item MP
@@ -967,7 +967,7 @@ various term ordering called elimination orderings.
 \E
 \BEG
 In this example @code{Oi} indicates 0, 1 or 2 and @code{Li} indicates
-the number of variables subject to the correspoinding orderings.
+the number of variables subject to the corresponding orderings.
 This specification means the following.
       
 The variable list is separated into sub lists from left to right where
@@ -983,7 +983,7 @@ is called an elimination ordering.
 @code{m} 列の実数行列 @code{M} が次の性質を持つとする. 
 \E
 \BEG
-Furthermore one can specify a term ordering by a matix.
+Furthermore one can specify a term ordering by a matrix.
 Suppose that a real @code{n}, @code{m} matrix @code{M} has the
 following properties.
 \E
@@ -992,7 +992,7 @@ following properties.
 @item
 \JP 長さ @code{m} の整数ベクトル @code{v} に対し @code{Mv=0} と @code{v=0} は同値. 
 \BEG
-For all integer verctors @code{v} of length @code{m} @code{Mv=0} is equivalent
+For all integer vectors @code{v} of length @code{m} @code{Mv=0} is equivalent
 to @code{v=0}.
 \E
 
@@ -1390,7 +1390,7 @@ not equal to 0, homogenization is used in each step.
 @samp{gr} で定義されている. これらについては個々の函数の説明を参照のこと. 
 \E
 \BEG
-For zero-dimensional systems, there are several fuctions to
+For zero-dimensional systems, there are several functions to
 compute the minimal polynomial of a polynomial and or a more compact
 representation for zeros of the system. They are all defined in @samp{gr}.
 Refer to the sections for each functions.
@@ -1480,7 +1480,7 @@ the non-commutativity of @code{D}.
 次の関数が用意してある. 
 \E
 \BEG
-The following functions are avilable for Groebner basis computation
+The following functions are available for Groebner basis computation
 in Weyl algebra:
 \E
 @code{dp_weyl_gr_main()},
@@ -1676,7 +1676,7 @@ CPU 時間であり, この函数の場合はほとんど通信のための時�
 These functions are defined in @samp{gr} in the standard library
 directory.
 @item
-Functions of which names contains gr are obsolted. 
+Functions of which names contains gr are obsoleted. 
 Functions of @code{nd_gr} families should be used (@fref{nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace}).
 @item 
 They compute a Groebner basis of a polynomial list @var{plist} with
@@ -1698,7 +1698,7 @@ the result obtained first. The results returned from both the process
 should be equal, but it is not known in advance which method is faster.
 Therefore this function is useful to reduce the actual elapsed time.
 @item 
-The CPU time shown after an exection of @code{dgr()} indicates
+The CPU time shown after an execution of @code{dgr()} indicates
 that of the master process, and most of the time corresponds to the time
 for communication.
 @item
@@ -1847,12 +1847,12 @@ directory.
 @code{lex_hensel()} and @code{lex_tl()} first compute a Groebner basis
 with respect to the variable order @var{vlist1} and the order type @var{order}.
 Then the Groebner basis is converted into a lex order Groebner basis
-with respect to the varable order @var{vlist2}.
+with respect to the variable order @var{vlist2}.
 @item 
 @code{tolex()} and @code{tolex_tl()} convert a Groebner basis @var{plist}
 with respect to the variable order @var{vlist1} and the order type @var{order}
 into a lex order Groebner basis
-with respect to the varable order @var{vlist2}.
+with respect to the variable order @var{vlist2}.
 @code{tolex_d()} does computations of basis elements in @code{tolex()}
 in parallel on the processes in a child process list @var{procs}.
 @item 
@@ -1902,7 +1902,7 @@ process with another @var{p}.
     
 If @var{G0} is zero-dimensional, starting from @var{G0},
 compute a Groebner basis @var{G1} with respect to an elimination order
-to eliminate variables other than the last varibale in @var{vlist2}.
+to eliminate variables other than the last variable in @var{vlist2}.
 Then compute a lex order Groebner basis stating from @var{G1}. These
 computations are done by trace lifting and the selection of a mudulus
 @var{p} is the same as in non zero-dimensional cases.
@@ -2519,7 +2519,7 @@ if  @code{p} is 0, and that over GF(p) if @code{p} is a prime.
 If @code{p} is 0 or 1, the trace algorithm is executed until it succeeds
 by using automatically chosen primes.
 If @code{p} a positive prime, 
-the trace is comuted over GF(p). 
+the trace is computed over GF(p). 
 If the trace algorithm fails 0 is returned.
 If @code{p} is negative, 
 the Groebner basis check and ideal-membership check are omitted.
@@ -2545,12 +2545,12 @@ If @var{s} is 1 then it means POT 1 (Position Over Term). @var{ord} is a term or
 @item
 @code{nd_weyl_gr}, @code{nd_weyl_gr_trace} are for Weyl algebra computation.
 @item
-Functions except for F4 related ones can handle rational coeffient cases.
+Functions except for F4 related ones can handle rational coefficient cases.
 @item
 In general these functions are more efficient than 
 @code{dp_gr_main}, @code{dp_gr_mod_main}, especially over finite fields.
 @item
-The fallowing options can be specified.
+The following options can be specified.
 @table @code
 @item homo
 If set to 1, the computation is done via homogenization. (only for @code{nd_gr} and @code{nd_f4})
@@ -2659,8 +2659,8 @@ afo
 @item dp_gr_flags([@var{list}])
 @itemx dp_gr_print([@var{i}])
 \JP :: 計算および表示用パラメタの設定, 参照
-\BEG :: Set and show various parameters for cotrolling computations 
-and showing informations.
+\BEG :: Set and show various parameters for controlling computations 
+and showing information.
 \E
 @end table
 
@@ -2724,7 +2724,7 @@ strings.
 @end table
 This functions is prepared to get quickly the value
 when a user defined function calling @code{dp_gr_main()} etc.
-uses the value as a flag for showing intermediate informations.
+uses the value as a flag for showing intermediate information.
 \E
 @end itemize
 
@@ -2898,7 +2898,7 @@ the top weight is not used in the tie breaker.
 
 @item
 @code{dp_weyl_set_weight} sets the weyl weigh=@var{weight}. It returns the current weyl weight.
-If a weyl weight w is set, in the comparsion by the term order type 11, a term order with 
+If a weyl weight w is set, in the comparison by the term order type 11, a term order with 
 the top weight=(-w,w) and the tie breaker=graded reverse lex is applied.
 \E
 @end itemize
@@ -3191,7 +3191,7 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @table @t
 @item dp_mod(@var{p},@var{mod},@var{subst})
 \JP :: 有理数係数分散表現多項式の有限体係数への変換
-\EG :: Converts a disributed polynomial into one with coefficients in a finite field.
+\EG :: Converts a distributed polynomial into one with coefficients in a finite field.
 @item dp_rat(@var{p})
 \JP :: 有限体係数分散表現多項式の有理数係数への変換
 \BEG
@@ -3274,7 +3274,7 @@ converting the coefficients into elements of a finite field.
 \EG :: Homogenize a distributed polynomial
 @item dp_dehomo(@var{dpoly})
 \JP :: 斉次分散表現多項式の非斉次化
-\EG :: Dehomogenize a homogenious distributed polynomial
+\EG :: Dehomogenize a homogeneous distributed polynomial
 @end table
 
 @table @var
@@ -4175,7 +4175,7 @@ K 上有限次元線形空間である K[X]/I の monomial による基底を求
 Assuming that @var{dplist} is a list of distributed polynomials which
 is a Groebner basis with respect to the current ordering type and
 that the ideal @var{I} generated by @var{dplist} in K[X] is zero-dimensional,
-this function computes the monomial basis of a finite dimenstional K-vector
+this function computes the monomial basis of a finite dimensional K-vector
 space K[X]/I.
 @item
 The number of elements in the monomial basis is equal to the
@@ -5042,7 +5042,7 @@ Each component is a Groebner basis and the corresponding term order
 is indicated by the global variables @code{PRIMAORD}, @code{PRIMEORD}
 respectively.
 @item
-@code{primadec} implements the primary decompostion algorithm 
+@code{primadec} implements the primary decomposition algorithm 
 in @code{[Shimoyama,Yokoyama]}.
 @item
 If one only wants to know the prime components of an ideal, then

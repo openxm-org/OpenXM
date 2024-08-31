@@ -40,7 +40,7 @@ def test2e() {
   printf("Fvec=%a\n",Fvec);
   C_X=mt_gkz.index_vars(x,1,length(A)+1 | no_=1);
   R32d = odiff_act(Fvec,F2,C_X);
-  printf("constant 1 is exected: %a\n", red(R32d/hgpoly_res(A,B+newvect(3,[0,1,0]),2)));
+  printf("constant 1 is expected: %a\n", red(R32d/hgpoly_res(A,B+newvect(3,[0,1,0]),2)));
 }
 
 // ff1(R,A,Beta,Ap,BF,C) で step-down の定数が正しいか調べる.
@@ -61,7 +61,7 @@ def test2f() {
   printf("Fvec=%a\n",Fvec);
   C_X=mt_gkz.index_vars(x,1,length(A)+1 | no_=1);
   R32d = odiff_act(Fvec,F2,C_X);  // step down operator を作用して同じhg poly が出てくるか?
-  printf("constant 1 is exected: %a\n", red(R32d/hgpoly_res(A,B-newvect(3,[0,1,1]),2)));  // R=[0,0,0,1] の場合.
+  printf("constant 1 is expected: %a\n", red(R32d/hgpoly_res(A,B-newvect(3,[0,1,1]),2)));  // R=[0,0,0,1] の場合.
 }
 //test2f();
 
@@ -89,7 +89,7 @@ def test2g() {
   Fvec = base_replace(Fvec,assoc(Beta,vtol(B)));
   C_X=mt_gkz.index_vars(x,1,length(A)+1 | no_=1);
   R32d = odiff_act(Fvec,F2,C_X);
-  printf("constant 1 is exected: %a\n", red(R32d/hgpoly_res(A,NewB,2)));
+  printf("constant 1 is expected: %a\n", red(R32d/hgpoly_res(A,NewB,2)));
 }
 
 

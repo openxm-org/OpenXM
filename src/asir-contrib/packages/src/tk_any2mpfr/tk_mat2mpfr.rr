@@ -133,7 +133,7 @@ def code_mat_fac_mpfr(MatRule) {
   Code=sprintf("/* Matrix factorial is stored in P=%a */",matrix_matrix_to_list(P));
   add_code(Code);
 //  Tmp = new_identity_matrix_mpfr(N);
-//  Code=sprintf("/* Matrix Tmp=%a is used to store M*P temporarly. You must not do P=M*P */",matrix_matrix_to_list(Tmp));
+//  Code=sprintf("/* Matrix Tmp=%a is used to store M*P temporarily. You must not do P=M*P */",matrix_matrix_to_list(Tmp));
 //  add_code(Code);
   add_code("for (i=0; i<n; i++) { /* begin for */"); Mpfr_indent++;
   init_code(Rule | var=V);
@@ -234,7 +234,7 @@ def test_template2(QQ,N,TT,HH,Times) {
   clear_all();
   Code_func=code_mat_fac_mpfr(QQ);
   Prolog=sprintf("#include <stdio.h>\n#include <stdlib.h>\n#include <mpfr.h>\n#define M %a\n#define N %a\n#define MPFR_PREC 64\n",N,N);
-  printf("Code generation is done. Evalute matrix factorial by asir... ");
+  printf("Code generation is done. Evaluate matrix factorial by asir... ");
   P_ans=mat_fac_by_asir(QQ,TT,HH2=number_eval(exp(0)*HH),Times | option_list=getopt());
   printf("\nDone.\n");
   print(P_ans);

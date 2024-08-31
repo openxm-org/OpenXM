@@ -96,9 +96,9 @@ def help()
 	print("conv: culcutate convex hull");
 	print("support: change polynomial to support polytopes");
 	print("np: change polynomial to Newton polytopes");
-	print("msum: calcutate Minkowski sum's all lattice(if conv option is 1 then it returns convex hull");
-	print("mvol: calcutate Mixed volume");
-	print("sres: calcutate Sparse resultant");
+	print("msum: calculate Minkowski sum's all lattice(if conv option is 1 then it returns convex hull");
+	print("mvol: calculate Mixed volume");
+	print("sres: calculate Sparse resultant");
 	print("sample: show sample commands");
 	print("help: help for some functions");
 	return "";
@@ -661,7 +661,7 @@ def msum_sub1i( Polytopes, P, K, V, Beta )
 def msum_sub1i2( Polytopes, P, K, V, Beta )
 {
 	/*	This function returns sub-result for Improved Mayan pyramid.
-		This function finds points in the Minkowski sum of input Polytopes when the first N-1 coordinates are fixed to the coordinates in P, and thier v-distance, which is bigger than "Beta".	*/
+		This function finds points in the Minkowski sum of input Polytopes when the first N-1 coordinates are fixed to the coordinates in P, and their v-distance, which is bigger than "Beta".	*/
 
 	R = [];
 	N = length( Polytopes );
@@ -864,7 +864,7 @@ def cnthdr( N, List )
 
 def listadd( A, B )
 {
-	/*	addtion of list like vector.
+	/*	addition of list like vector.
 		listadd( [1,2,3], [2,2,2] ) returns [3,4,5] .
 	*/
 	A = ltov( A );
@@ -1013,7 +1013,7 @@ def sres_main( Eql, Vdata, MV )
 					break;
 				}
 
-				/*	Pivot is in row P, so swith rows P and R.	*/
+				/*	Pivot is in row P, so switch rows P and R.	*/
 				if( P != R ){
 					Tmp = Matrix[P];
 					Matrix[P] = Matrix[R];
@@ -1141,7 +1141,7 @@ def nextuse( N, Vdata, Used )
 {
 	/*	This function returns list of [I,J] which should be used for next matrix.
 	where, I and J are index of Vdata[I][J][..].
-	Caution: this funcion overwrites a array "Used".	*/
+	Caution: this function overwrites a array "Used".	*/
 
 	Result = [];
 	LenVdata = map( length, Vdata );
@@ -1573,7 +1573,7 @@ def submatrix( Matrix )
 				break;
 			}
 
-			/*	swith columns K and MatCol-1	*/
+			/*	switch columns K and MatCol-1	*/
 			for(I=R;I<MatRow;I++){
 				Tmp = M[I][MatCol-1];
 				M[I][MatCol-1] = M[I][K];
@@ -1588,7 +1588,7 @@ def submatrix( Matrix )
 			continue;
 		}
 
-		/*	Pivot is in row P, so swith rows P and R.	*/
+		/*	Pivot is in row P, so switch rows P and R.	*/
 		if( P != R ){
 			for(J=K;J<MatCol;J++){
 				Tmp = M[P][J];

@@ -68,7 +68,7 @@ def eulerZ(Idx,Beta,X,F,Fdiff) {
   /* double check 2015.07.16   More efficient, but it is not used.
   I = Idx[0]; J = Idx[1];
   if (!((I==P-1) || (J==0)) EulerU=0;
-  eles if ((I==P-1) && (J==0)) EulerU=U*(Beta[0][P-1]-base_sum(Beta[1],0,1,Q-1));
+  else if ((I==P-1) && (J==0)) EulerU=U*(Beta[0][P-1]-base_sum(Beta[1],0,1,Q-1));
   else if (I==P-1) EulerU=U*Beta[1][J];
   else if (J==0) EulerU=U*Beta[0][I];
   */

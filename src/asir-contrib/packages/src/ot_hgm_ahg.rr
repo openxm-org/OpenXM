@@ -1007,7 +1007,7 @@ def rk_step_controller(Ctrl) {
 }
 
 def rk_step45(Call,FuncArgs,X,Y,H,Ctrl,Eval) {
-    /* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
+    /* see Numerical Recipes 3rd ed., section 17.2 (pp.910--921) */
     /* Dormand-Prince 4(5) parameters for embedded Runge-Kutta */
     C  = [0,0,1/5,3/10,4/5,8/9,1,1];
     B5 = [0, 35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0];
@@ -1034,7 +1034,7 @@ def rk_step45(Call,FuncArgs,X,Y,H,Ctrl,Eval) {
 }
 
 /* 5th order Runge-Kutta method with adaptive stepsize control */
-/* see Numerical Recipies 3rd ed., section 17.2 (pp.910--921) */
+/* see Numerical Recipes 3rd ed., section 17.2 (pp.910--921) */
 def runge_kutta_linear3(FuncArgs,Xs,Ys,Xe,H) {
     Eval = _getopt(deval,oh_number.deval);
     Safety = 9/10;

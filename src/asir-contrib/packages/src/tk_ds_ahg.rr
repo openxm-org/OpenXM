@@ -61,7 +61,7 @@ static DS2_d_vars$
 static DS2_b_vars$
 static DS2_base$ // base of the Pfaffian
 
-static DS2_CACHE_SIZE$  // size of the cach of contiguity, ...
+static DS2_CACHE_SIZE$  // size of the cache of contiguity, ...
 // Cache variables
 static DS2_contiguity_x_cache$ // contiguity_x = contiguity /. {x->DS2_p}
 static DS2_A_matrix_cache$
@@ -99,7 +99,7 @@ extern DS2_d_vars$
 extern DS2_b_vars$
 extern DS2_base$ // base of the Pfaffian
 
-extern DS2_CACHE_SIZE$  // size of the cach of contiguity, ...
+extern DS2_CACHE_SIZE$  // size of the cache of contiguity, ...
 // Cache variables
 extern DS2_contiguity_x_cache$ // contiguity_x = contiguity /. {x->DS2_p}
 extern DS2_A_matrix_cache$
@@ -242,7 +242,7 @@ def init_contiguity(A,P) {
     }
   } 
 
-  gmvector_cached(DS2_b); // obtain DS2_base by calling ot_hgm_ahg.evalution*
+  gmvector_cached(DS2_b); // obtain DS2_base by calling ot_hgm_ahg.evaluation*
   C=build_contiguity_0(A|base=DS2_base);
   DS2_gm_base=C[0];
   DS2_contiguity_x=C[1];
@@ -289,7 +289,7 @@ def gmvector_cached(B) {
   if (type(getopt(forced)) > 0) Forced=1;
   else Forced=0;
   if (length(B) != DS2_d) {
-    print("Not implented for new A and B.");
+    print("Not implemented for new A and B.");
     debug();
   }
   if (type(B) == 4) B=matrix_list_to_matrix(B);
@@ -375,7 +375,7 @@ def is_there_negative_elem(B) {
 }
 def build_A(A,B) 
 "build_A(A,B) derives new A with removing zero rows and cols.\
- [A_new,B_new,Col] Col is a substition map of cols (use DS2_col)\
+ [A_new,B_new,Col] Col is a substitution map of cols (use DS2_col)\
 Example: build_A([[1,1,0,0],[1,0,1,0],[0,1,0,1]],[1,0,2]);"
 {
   A_orig=A=matrix_list_to_matrix(A);

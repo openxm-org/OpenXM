@@ -729,7 +729,7 @@ def operator_shift(P,E)
     return dp_ptod(Q, T);
 }
 
-/* Leibnitz rule: P,Q */
+/* Leibniz rule: P,Q */
 def mul(P,Q) {
     return israt(Q)? mulr(P,Q): red(opr(multi(op(nm(P)),op(Q)))/dn(P));
 }
@@ -749,7 +749,7 @@ def mulL(L) {
     return R;
 }
 
-/* Leibnitz rule: P,Q: 分散表現多項式 */
+/* Leibniz rule: P,Q: 分散表現多項式 */
 def multi(P,Q) {
     return multi_DE(P,Q);
 }
@@ -1834,7 +1834,7 @@ def gkz_toric_sm1(GKZ)
     return map('car', T);
 }
 
-/* リスト F の定めるイデアルの(順序 O に関する)グレブナ基底の initail terms */
+/* リスト F の定めるイデアルの(順序 O に関する)グレブナ基底の initial terms */
 def initial_term_weight(F,O) {
     F = dp_gr_main(F | order=[O]);
     return dp_initial_term(F | order=[O]);
@@ -2101,7 +2101,7 @@ def eval_gamma(A,N,E)
 eval_gamma(A,N,E) ==> $\Gamma(A+N)^E$ or $\Pochhammer(A+N)^E$."
 {
     if (!isnum_int(N) || !isnum_int(E)) {
-        error("invlid arguments.");
+        error("invalid arguments.");
     }
     if (!isnum_int(A)) {
         return (N<0)? pochhammer(A+N,-N)^(-E): pochhammer(A,N)^E;

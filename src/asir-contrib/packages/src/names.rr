@@ -201,7 +201,7 @@ def base_product(Obj,K,B,T) {
   return taka_base_product(Obj,K,B,T | option_list=getopt());
 }
 
-/* change prompt. Not implemetned. */
+/* change prompt. Not implemented. */
 def base_prompt(P) {
   return(0);
 }
@@ -728,7 +728,7 @@ def poly_solve_linear(Eqs,V) {
 /*&usage begin: poly_sort(F|v,w,truncate)
  It expands {F} with a given variables {v}=V and a given weight {w}=W.
  It returns a quote object.
- If {trucate} option is set, the expansion is truncated at the given degree.
+ If {truncate} option is set, the expansion is truncated at the given degree.
  example: poly_sort((x-y-a)^3 | v=[x,y], w=[-1,-1])  
     returns a series expansion in terms of x and y.
 end: */
@@ -908,7 +908,7 @@ def poly_weight_to_ord_matrix(W) {
 
 /*&usage begin: poly_w_marking(Id,V,W)
    The monomials x^a in Id is rewritten to x^a*t_w^(<a,w>+b).
-   <a,w> is the inner product and b is an intger to avoid negative powers of t_w.
+   <a,w> is the inner product and b is an integer to avoid negative powers of t_w.
    Return: [w-marked polynomial, b]
    Options: specify a name of homogenization variable by the option hvar. The default is t_w.
    example:
@@ -1133,10 +1133,10 @@ def matrix_rank(M) {
 }
 /*&usage
 begin: matrix_rank_ff(Mat,P) 
-  It evalutes the rank of the matrix Mat by mod P.
+  It evaluates the rank of the matrix Mat by mod P.
   Entries may be rational numbers, and the inverse of the denominator D 
-  in F_P is properly computedd when P does not devide D,
-  but the case P devides D does not raise an error.
+  in F_P is properly computedd when P does not divide D,
+  but the case P divides D does not raise an error.
 end: */
 def matrix_rank_ff(Mat,P) {
   if (P > 2^28) {
@@ -1584,7 +1584,7 @@ end: */
 def util_docdir() { return tk_util_docdir(); }
 /*&usage util_docdir()
 It returns the document directory for asir-contrib.  When asir_contrib_update() is used, 
-it retuns the directory name where asir_contrib_update() uses.
+it returns the directory name where asir_contrib_update() uses.
 end:
 */
 def util_find_start() { return tk_util_find_start(|option_list=getopt()); }

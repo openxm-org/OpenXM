@@ -1,6 +1,6 @@
 /* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.10 2003/01/20 03:16:39 takayama Exp $ */
 
-/* Table. It should be moved to ??? in a fugure. Experimental */
+/* Table. It should be moved to ??? in a future. Experimental */
 #define Xm_eval_in_quote  0
 #define Xm_eval_in_series 0x100
 #define Xm_eval_in_num    0x200
@@ -332,7 +332,7 @@ def taka_pfp_runge_kutta(A,B,Z) {
   }
 
   if (imag(Z) == 0 && Z > 1) {
-     error("pfp_runge_kutta() cannot evalute the value on [1,infty]");
+     error("pfp_runge_kutta() cannot evaluate the value on [1,infty]");
   }
   /* Set the staring point X0 */
   X0 = eval(Z*0.3/number_abs(Z));
