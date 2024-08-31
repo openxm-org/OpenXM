@@ -1513,7 +1513,7 @@ def prob_by_hgm(M,N,PL,SL,X)
   if ( S ) {
     /* S=[M,N,PL,SL,Z,Z0,Q,PSL] */
     if ( M != S[0] || N != S[1] || PL != S[2] || SL != S[3] )
-      error("inconsitent setup data");
+      error("inconsistent setup data");
     Z = S[4]; Z0 = S[5]; Q = S[6]; PS = S[7];
   }
   A = (M+1)/2; C = (N+M+1)/2;
@@ -1675,7 +1675,7 @@ def prob_by_hgm_2f1(M,N1,N2,PL,Beta,X)
   A = (M+1)/2; Bb = (N1+N2)/2; C = (N1+M+1)/2;
   if ( S ) {
     if ( M != S[0] || N1 != S[1] || N2 != S[2] || PL != S[3] || Beta != S[4] )
-      error("inconsitent setup data");
+      error("inconsistent setup data");
     Z = S[5]; Z0 = S[6]; Q = S[7]; PS = S[8];
   }
   if ( !distinct_diag(Beta) ) error("eigenvaules must be distinct");

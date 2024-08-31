@@ -127,7 +127,7 @@ To execute a distributed computation by @b{OpenXM},
 one has to invoke @b{OpenXM} servers and to establish communications
 between the client and the servers. 
 @code{ox_launch()}, @code{ox_launch_nox()}, @code{ox_launch_generic()}
-are preprared for such purposes. Furthermore the following functions
+are prepared for such purposes. Furthermore the following functions
 are available.
 \E
 
@@ -157,7 +157,7 @@ server が実行し, 結果をスタックに積む.
 \E
 \BEG
 It requests a server to parse and execute a string 
-by the parser and the evaluater of the server.
+by the parser and the evaluator of the server.
 The result is pushed to the stack of the server.
 \E
 
@@ -1303,7 +1303,7 @@ stream buffers are assured to be empty.
 Even if a process is running, the execution is safely stopped.
 
 @item
-@code{ox_reset()} may be used prior to a distirbuted computation.
+@code{ox_reset()} may be used prior to a distributed computation.
 It can be also used to interrupt a distributed computation.
 
 @item
@@ -1314,7 +1314,7 @@ mode and pops up an window to input debug commands on X window system.
 
 @item
 @code{register_handler()} registers a function @var{func}().
-If @kbd{u} is specified on a keybord interrupt, @var{func}()
+If @kbd{u} is specified on a keyboard interrupt, @var{func}()
 is executed before returning the toplevel.
 If @code{ox_reset()} calls are included in @var{func}(),
 one can automatically reset @b{OpenXM} servers on a keyboard interrupt.
@@ -1571,7 +1571,7 @@ Usually @b{OX_SYNC_BALL} will be ignored by the peer.
 @table @t
 @item ox_get(@var{number}) 
 \JP :: プロセス識別子 @var{number} のプロセスからデータを受信する. 
-\EG :: Receives data form a process whose identifer is @var{number}.
+\EG :: Receives data form a process whose identifier is @var{number}.
 @end table
 
 @table @var
@@ -1597,7 +1597,7 @@ Usually @b{OX_SYNC_BALL} will be ignored by the peer.
 \E
 \BEG
 @item
-Receives data form a process whose identifer is @var{number}.
+Receives data form a process whose identifier is @var{number}.
 
 @item
 One may use this function with @code{ox_push_cmd}.
@@ -2306,7 +2306,7 @@ One can specifies the size of a canvas in pixel by
 supplying @var{geometry} option [@var{x},@var{y}]. The default size is
 [@code{300},@code{300}].
 This function pushes an integer value onto the stack of the OpenXM server.
-The value is used to distiguish the opened canvas and one has to pop
+The value is used to distinguish the opened canvas and one has to pop
 and maintain the value by @code{ox_pop_cmo} for subsequent calls of
 @code{draw_obj}.
 \E
@@ -2338,7 +2338,7 @@ If @var{pointorsegment} is [@var{x},@var{y}], it is regarded as a point.
 If @var{pointorsegment} is [@var{x},@var{y},@var{u},@var{v}], it is regarded
 as a line segment which connects [@var{x},@var{y}] and [@var{u},@var{v}].
 If @var{color} is specified, @var{color/65536} mod 256,
-@var{color/256} mod 256, @var{color} mod 256 are regarded as the vaules
+@var{color/256} mod 256, @var{color} mod 256 are regarded as the values
 of Red, Green, Blue (Max. 255) respectively.
 \E
 @item 

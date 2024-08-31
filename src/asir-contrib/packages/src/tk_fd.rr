@@ -2635,7 +2635,7 @@ def hgpoly_fd1(A,B,C) {
 
 /* fvect_poly for C <= 0 */
 def fvect_poly2(A,B,C,X) {
-  if (C > 0) error("C is postive.");
+  if (C > 0) error("C is positive.");
   M=length(B);
   if (type(X) == 4) X=newvect(length(X),X);
   Xrule = assoc(xvars(M),vtol(X));
@@ -2740,7 +2740,7 @@ ahvec_beta([3,1,2,0,3],[[1,1/2,1/3,1/5],[1,1,1,1]]|all=1);
 
 2014.08.26
 ahvec_beta([10,1,2,3,4],[[3,1,1,1],[1,1/2,1/3,1/5]]|all=1);
-returns "devision by 0".  Reason?
+returns "division by 0".  Reason?
 
 ahvec_abc(-6,[-2,-3],-4,[[1,1/2,1/3],[1,1,1]] | all=1);  
  -> 2014.08.27 it works.
@@ -2895,7 +2895,7 @@ def fd_hessian2(A,B,C,Xval) {
 	Hess0[I][I] = (Pfval[J][I+1]-(1/H_Alpha[I+1])*Grad0[I])*H_Alpha[I+1]/(Xval[I]-1);
       }
       /*
-           dx_i*F 's (i+1) the lement.     (x_i-1)/alpha_{i+1} dx_i*dx_i*F_D 
+           dx_i*F 's (i+1) the element.  (x_i-1)/alpha_{i+1} dx_i*dx_i*F_D 
                                       +1/alpha_{i+1} dx_i*F_D 
            Since dx_j*F=Pf[j]*F = Pfval[j], we do not need to differentiate  Pf.
            fd_hessian2() uses this method.

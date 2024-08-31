@@ -9,7 +9,7 @@ def get_pid() {
 }
 /* ox_work_dir() returns
    ~/OpenXM_tmp/pid
-   If this direcotry does not exists, it creates the directory.
+   If this directory does not exists, it creates the directory.
    If the environmental variable OpenXM_tmp is set, the value
    will be used.
 */
@@ -25,13 +25,13 @@ def ox_work_dir() {
   if (!Misc_ox_work_dir_created) {
     /* Unix dependent code to create a directory. */
     if (shell("test -d "+Work_home) != 0) {
-      print("Working direcotry "+Work_home+" will be created.");
+      print("Working directory "+Work_home+" will be created.");
       if (shell("mkdir "+Work_home) != 0) {
          error("Could not create the directory "+Work_home);
       }
     }
     if (shell("test -d "+Work) != 0) {
-      print("Working direcotry "+Work+" will be created.");
+      print("Working directory "+Work+" will be created.");
       if (shell("mkdir "+Work) != 0) {
          error("Could not create the directory "+Work);
       }

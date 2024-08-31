@@ -362,7 +362,7 @@ begin: qt.rest(Q)
   @item 2005.05.04, tkseries.expand の結果に対して,
               毎回 flatten_quote をやらないと左結合的にならないのは何故か?
               BUG 安定的に動作するかどうか不安.
-  @item 2005.05.04, いよいよ 係数と exponet ベクトルの取り出しを書く準備が完了.
+  @item 2005.05.04, いよいよ 係数と exponent ベクトルの取り出しを書く準備が完了.
   @item 2005.05.05, Q=a*b なら qt.rest(Q) = b となるように変更. 
             係数の取り出し, exponent ベクトルの取り出しにはこれが便利.
   @end itemize
@@ -379,7 +379,7 @@ end:
 
 begin: hc_etov(Q,V)
   quote {Q} を変数リスト {V} のモノミアルとみて, hc (leading coefficient)
-  と exponet ベクトルを quote 型で戻す.
+  と exponent ベクトルを quote 型で戻す.
  description:
   Q = hc*p1*p2* ... なる形を仮定. これ以外の形では動作保証なし.
  example:
@@ -745,7 +745,7 @@ begin: todo|
  例; 冪級数の計算を quote で実現.
         sort や expand は組み込みで.
 
- 例; Mathematica の Expand[], Toghether[] 相当のもの.
+ 例; Mathematica の Expand[], Together[] 相当のもの.
 
  例; D の掛け算を パターンマッチで実現.  
     holonomic 関数を係数とする微分作用素環での計算.

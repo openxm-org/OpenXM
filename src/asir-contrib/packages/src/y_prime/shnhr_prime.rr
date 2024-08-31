@@ -13,7 +13,7 @@
  *==========================================================================*/
 
 /*===================================================================*
- * [geneprime] Gnerate prime                                         *
+ * [geneprime] Generate prime                                         *
  *  2005.03.18                                                       *
  * [Input]                                                           *
  *  B : A natural number, B>1                                        *
@@ -205,7 +205,7 @@ def fbtest2(N,A,B){
  * [Example]                                              *
  *  ecpp_atmr(312319717);                                 *
  *                                                        *
- *  This function attempts to decide wheter N is prime or *
+ * This function attempts to decide whether N is prime or *
  * composite. If 0 is returned, then N is composite. If 1 *
  * is returned, then N is prime.                          *
  *========================================================*/
@@ -556,7 +556,7 @@ def nonsing1(A,B,P){
 	B=B%P;
 	D=(4*A^3+27*B^2) %P;
 	if(D==0){
-		/* Thie cubic is singular. */
+		/* This cubic is singular. */
 		return(0);
 	}
 	return(1);
@@ -904,7 +904,7 @@ def spowm(GX,M,FX,N){
  * [Example]                                             *
  *  sqrtgf(2,17)                                         *
  *                                                       *
- *  This functons returns X that is one of the solutions *
+ *  This function returns X that is one of the solutions *
  * to X^2%P=A.                                           *
  *=======================================================*/
 
@@ -920,7 +920,7 @@ def sqrtgf(A,P){
 		S=jsymbol(J,P);
 		T=T+1;
 		if(T==P){
-			error("sqrtgf : This case cann't occur.");
+			error("sqrtgf : This case cannot occur.");
 		}
 	}
 	F=x^2-J;
@@ -1049,7 +1049,7 @@ def mdfcrnsm(D,P){
 		B=A2%B;
 	}
 	
-	/* 6.[Final reprot] */
+	/* 6.[Final report] */
 	
 	T=4*P-B^2;
 	if(T%(-D)!=0){

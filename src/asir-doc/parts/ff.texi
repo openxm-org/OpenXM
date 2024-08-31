@@ -42,7 +42,7 @@ GF(@var{p}) の @var{n} 次拡大 GF(@var{p^n})
 \E
 \BEG
 On @b{Asir} GF(@var{p}), GF(2^@var{n}), GF(@var{p^n}) can be defined, where
-GF(@var{p}) is a finite prime field of charateristic @var{p},
+GF(@var{p}) is a finite prime field of characteristic @var{p},
 GF(2^@var{n}) is a finite field of characteristic 2 and
 GF(@var{p^n}) is a finite extension of GF(@var{p}). These are
 all defined by @code{setmod_ff()}.
@@ -304,7 +304,7 @@ To apply the above operations to a point [@var{x y}],
 [@var{x y 1}] should be used instead as an argument.
 The result of an operation is also represented by the projective 
 coordinate. As the third coordinate is not always equal to 1,
-one has to divide the first and the scond coordinate by the third
+one has to divide the first and the second coordinate by the third
 one to obtain the affine coordinate.
 \E
 
@@ -1118,7 +1118,7 @@ If a coefficient is already an element of the field,
 no conversion is done. If a coefficient is a positive integer,
 then its residue modulo @var{p^n} is expanded as @var{p}-adic integer,
 then @var{p} is substituted by @var{x}, finally the polynomial
-is converted to its correspoding logarithmic representation 
+is converted to its corresponding logarithmic representation 
 with respect to the primitive element.
 For example, GF(3^5) is represented as F(3)[@var{x}]/(@var{x^5+2*x+1}),
 and each element of the field is represented as @var{@@_k} 

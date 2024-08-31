@@ -227,7 +227,7 @@ def clone_mpfr(Obj,Fr_obj) {
   if ((V[0] != "ob") && (V[0] != "tmp")) error("clone_mpfr");
   R=register_obj(Obj);
   if (R[1] != 0) {
-    Code=sprintf("/*Note: The summation tmp_ var %a is not used becase obj %a is already evaluated. */",Fr_obj,Obj);
+    Code=sprintf("/*Note: The summation tmp_ var %a is not used because obj %a is already evaluated. */",Fr_obj,Obj);
     add_code(Code);
     return R;
   }
