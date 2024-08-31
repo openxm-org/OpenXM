@@ -2,10 +2,12 @@
 import os
 from sage.interfaces.expect import Expect, ExpectElement
 from sage.misc.verbose import verbose
+from sage.cpython.string import bytes_to_str
 
 ##Ref: @s/2018/09/20180907-sage-asir-proj, Using External Libraries and Interfaces
 ##Ref: /usr/lib/python2.7/dist-packages/sage/interfaces
 ##Usage: load("asir.py");
+
 
 class Asir(Expect):
     r"""
@@ -93,9 +95,10 @@ class Asir(Expect):
                 http://www.openxm.org
         The command "openxm" must be in the search path.
         """
+
     def evall(self, cmd):
         """
-        Evaluate the argument immediately. The argument of eval is buffered 
+        Evaluate the argument immediately. The argument of eval is buffered
         and ; should be added.
 
         EXAMPLES::
@@ -128,7 +131,7 @@ class Asir(Expect):
             verbose("in = '%s'" % line, level=3)
             E.sendline(line)
             E.expect(self._prompt)
-            out = E.before
+            out = bytes_to_str(E.before)
             # debug
             verbose("out = '%s'" % out, level=3)
         except EOF:
@@ -151,7 +154,7 @@ class Asir(Expect):
             try:
                 self._expect.close(force=1)
             except pexpect.ExceptionPexpect as msg:
-                raise RuntimeError( "THIS IS A BUG -- PLEASE REPORT. This should never happen.\n" + msg)
+                raise RuntimeError("THIS IS A BUG -- PLEASE REPORT. This should never happen.\n" + msg)
             self._start()
             raise KeyboardInterrupt("Restarting %s (WARNING: all variables defined in previous session are now invalid)"%self)
         else:
@@ -261,14 +264,14 @@ class Asir(Expect):
 
         EXAMPLES::
 
-            sage: asir_console()        
+            sage: asir_console()  # not tested
             This is Risa/Asir, ....
             ...
-            [nnnn] 2+3;
+            [...] 2+3;
             5
-            [nnnn] quit();
+            [...] quit();
 
-        quit(); exits the asir console and returns you to Sage.
+        The command ``quit();`` exits the ``asir`` console and returns you to Sage.
         """
         asir_console()
 
