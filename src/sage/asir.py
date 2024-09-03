@@ -17,6 +17,11 @@ class Asir(Expect):
 
         sage: asir.evall("F=fctr(x^10-1)")    # optional - asir
     """
+    NoLogWindow = ' '
+    OutputLimit =' '
+#    NoLogWindow = '--noLogWindow'
+#    OutputLimit = '--outputLimit 64000'
+
     def __init__(self, maxread=None, script_subdirectory=None, logfile=None,
                  server=None, server_tmpdir=None, seed=None, command=None):
         """
@@ -26,7 +31,7 @@ class Asir(Expect):
             True
         """
         if command is None:
-            command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright'
+            command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright'+' '+self.NoLogWindow+' '+self.OutputLimit
 ##Other options are --noLogWindow and --outputLimit size(in bytes)
         if server is None:
             server = os.getenv('SAGE_ASIR_SERVER') or None
@@ -35,7 +40,7 @@ class Asir(Expect):
                         # We want the prompt sequence to be unique to avoid confusion with syntax error messages containing >>>
                         prompt='asir>',
                         # We don't want any pagination of output
-                        command='openxm ox_texmacs --view sage --quiet --noCopyright',
+                        command='openxm ox_texmacs --view sage --quiet --noCopyright'+' '+self.NoLogWindow+' '+self.OutputLimit,
                         maxread=maxread,
                         server=server,
                         server_tmpdir=server_tmpdir,
