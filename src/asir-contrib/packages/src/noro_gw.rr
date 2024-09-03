@@ -376,6 +376,7 @@ T0 = time()[0];
     InVec = ltov(In);
 Tw += time()[0]-T0;
 T0 = time()[0];
+    dp_ord(0);
     H = nd_f4(In,V,0,M2|dp=1);
     N = length(H);
     H1 = vector(N);
@@ -418,95 +419,65 @@ T0 = time()[0];
     dp_ord(O2);
     H1 = map(dp_sort,H1);
     H1sav = H1; HH1sav = HH1;
-    if ( map(dp_ht,H1) == map(dp_ht,HH1) ) {
-      print("compat");
-      for ( I = 0; I < N; I++ ) {
-        for ( Ind = [], J = 0; J < N; J++ )
-          if ( J != I ) Ind = cons(J,Ind);
-        Ind = reverse(Ind);
-        T = dp_true_nf(Ind,H1[I],H1,1);
-        HT = dp_ht(HH1[I]);
-        for ( S = S0 = T[0]; S; S = dp_rest(S) )
-          if ( dp_ht(S) == HT )
-            break;
-        if ( !S )
-          error("cannot happen");
-        H1[I] = dp_ptozp(S0);
-        for ( T = H1[I]; T; T = dp_rest(T) )
-          if ( dp_ht(T) == HT ) {
-          HH1[I] = dp_hm(T); break;
-        }
-      }
-    } else {
-      for ( I = 0; I < N; I++ ) {
-        for ( Ind = [], J = 0; J < N; J++ )
-          if ( J != I ) Ind = cons(J,Ind);
-        Ind = reverse(Ind);
-        T = dp_true_nf_marked_check(Ind,H1[I],H1,HH1);
-        if ( type(T[0]) < 0 ) break;
-        HT = dp_ht(HH1[I]);
-        for ( S = S0 = T[0]; S; S = dp_rest(S) )
-          if ( dp_ht(S) == HT )
-            break;
-        if ( !S )
-          error("cannot happen");
-        H1[I] = dp_ptozp(S0);
-        for ( T = H1[I]; T; T = dp_rest(T) )
-          if ( dp_ht(T) == HT ) {
-          HH1[I] = dp_hm(T); break;
-        }
-      }
-      if ( I < N ) {
+    for ( I = 0; I < N; I++ ) {
+      for ( Ind = [], J = 0; J < N; J++ )
+        if ( J != I ) Ind = cons(J,Ind);
+      Ind = reverse(Ind);
+      T = dp_true_nf_marked_check(Ind,H1[I],H1,HH1);
+      if ( type(T[0]) < 0 ) break;
+      HT = dp_ht(HH1[I]);
+      for ( S = S0 = T[0]; S; S = dp_rest(S) )
+        if ( dp_ht(S) == HT )
+          break;
+      if ( !S )
+        error("cannot happen");
+      H1[I] = S0;
+      HH1[I] = dp_hm(S);
+    }
+    if ( I < N ) {
 T1 = time()[0];
-        print("restart");
-        H1 = H1sav; HH1 = HH1sav;
-        CW = compute_compat_weight(H1,HH1);
-        for ( I = 0; I < NV; I++ )
-          CW2[0][I] = CW[I];
-        dp_ord(CW2);
-        H1 = map(dp_sort,H1);
-        sort_by_order(H1,HH1);
-        
-        if ( map(dp_ht,H1) == map(dp_ht,HH1) ) {
-          print("compat");
-          for ( I = 0; I < N; I++ ) {
-            for ( Ind = [], J = 0; J < N; J++ )
-              if ( J != I ) Ind = cons(J,Ind);
-            Ind = reverse(Ind);
-            T = dp_true_nf(Ind,H1[I],H1,1);
-            HT = dp_ht(HH1[I]);
-            for ( S = S0 = T[0]; S; S = dp_rest(S) )
-              if ( dp_ht(S) == HT )
-                break;
-            if ( !S )
-              error("cannot happen");
-            H1[I] = dp_ptozp(S0);
-            for ( T = H1[I]; T; T = dp_rest(T) )
-              if ( dp_ht(T) == HT ) {
-              HH1[I] = dp_hm(T); break;
-            }
-          }
-        } else {
-          for ( I = 0; I < N; I++ ) {
-            for ( Ind = [], J = 0; J < N; J++ )
-              if ( J != I ) Ind = cons(J,Ind);
-            Ind = reverse(Ind);
-            T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
-            HT = dp_ht(HH1[I]);
-            for ( S = S0 = T[0]; S; S = dp_rest(S) )
-              if ( dp_ht(S) == HT )
-                break;
-            if ( !S )
-              error("cannot happen");
-            H1[I] = dp_ptozp(S0);
-            for ( T = H1[I]; T; T = dp_rest(T) )
-              if ( dp_ht(T) == HT ) {
-              HH1[I] = dp_hm(T); break;
-            }
-          }
+      print("restart");
+      H1 = H1sav; HH1 = HH1sav;
+      CW = compute_compat_weight(H1,HH1);
+      for ( I = 0; I < NV; I++ )
+        CW2[0][I] = CW[I];
+      dp_ord(CW2);
+      H1 = map(dp_sort,H1);
+      sort_by_order(H1,HH1);
+      
+      if ( map(dp_ht,H1) == map(dp_ht,HH1) ) {
+        print("compat");
+        for ( I = 0; I < N; I++ ) {
+          for ( Ind = [], J = 0; J < N; J++ )
+            if ( J != I ) Ind = cons(J,Ind);
+          Ind = reverse(Ind);
+          T = dp_true_nf(Ind,H1[I],H1,1);
+          HT = dp_ht(HH1[I]);
+          for ( S = S0 = T[0]; S; S = dp_rest(S) )
+            if ( dp_ht(S) == HT )
+              break;
+          if ( !S )
+            error("cannot happen");
+          H1[I] = S0;
+          HH1[I] = dp_hm(S);
         }
-T2 = time()[0]; Trestart += T2-T1;
+      } else {
+        for ( I = 0; I < N; I++ ) {
+          for ( Ind = [], J = 0; J < N; J++ )
+            if ( J != I ) Ind = cons(J,Ind);
+          Ind = reverse(Ind);
+          T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
+          HT = dp_ht(HH1[I]);
+          for ( S = S0 = T[0]; S; S = dp_rest(S) )
+            if ( dp_ht(S) == HT )
+              break;
+          if ( !S )
+            error("cannot happen");
+          H1[I] = S0;
+          HH1[I] = dp_hm(S);
+        }
       }
+T2 = time()[0]; Trestart += T2-T1;
     }
 T1 = time()[0]; Tred += T1-T0;
     G = H1;

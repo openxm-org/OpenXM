@@ -27,6 +27,7 @@ class Asir(Expect):
         """
         if command is None:
             command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright'
+##Other options are --noLogWindow and --outputLimit size(in bytes)
         if server is None:
             server = os.getenv('SAGE_ASIR_SERVER') or None
         Expect.__init__(self,
@@ -105,7 +106,7 @@ class Asir(Expect):
 
             sage: asir.eval('1+2;'); asir.evall('3+3')
         """
-        return self.eval(cmd+';;')
+        return self.eval(cmd+'; ;')
 
     def _eval_line(self, line, reformat=True, allow_use_file=False,
                    wait_for_prompt=True, restart_if_needed=False):
@@ -531,7 +532,7 @@ def asir_console():
     from sage.repl.rich_output.display_manager import get_display_manager
     if not get_display_manager().is_in_terminal():
         raise RuntimeError('Can use the console only in the terminal. Try %%asir magics instead.')
-    os.system('openxm fep asir')    # with asir prompt
+    os.system('openxm asir')    # with asir prompt
 #    os.system('openxm asir -quiet')
 
 
