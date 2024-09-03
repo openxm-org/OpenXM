@@ -701,7 +701,7 @@ def makenewv(L)
 	else if(isvar(V)) V=rtostr(V);
 	if(type(N=getopt(num))!=1) N=0;
 	Var=varargs(L|all=2);
-	for(XX=[],I=J=0;;I++){
+	for(XX=[],I=J=0; ;I++){
 		X=strtov(V+rtostr(I));
 		if(findin(X,Var)<0){
 			XX=cons(X,XX);
@@ -2052,7 +2052,7 @@ def getCatalan(X,N)
 		if(To=="#") return X;
 		Y=newvect(length(X));K=dupmat(X);
 		M=length(X);
-		for(R=[],I=F=0;;I++){
+		for(R=[],I=F=0; ;I++){
 			if(I>=M){
 				if(!F) break;
 				F=0;I=-1;continue;
@@ -2091,7 +2091,7 @@ def getCatalan(X,N)
 				for(I=0;I<N;I++) V[I]+=R[I];
 				return V;
 			}else{
-				for(K="(",I=0;;I){
+				for(K="(",I=0; ;I){
 					for(J=R[I];J>0;J--) K=K+")";
 					for(J=V[I];J>0;J--) K=K+"(";
 					if(++I<N) K=K+"*";
@@ -3457,7 +3457,7 @@ def mtoupper(MM, F)
 									Mul=Val; J=JT;	/* integer */
 								}
 								if(FF<3||(FF==3&&Val>0)){
-									for(JK=K+1;;){
+									for(JK=K+1; ;){
 										if(JK>=Size[1]-F){
 											J=JT;
 											FF=((Mul=Val)>0)?4:3;
@@ -3938,7 +3938,7 @@ def transm(M)
 	Line=["\\text{line}","\\text{col}"];
 	if((DVI=getopt(dviout)) !=1) DVI=0;
 	else dviout(M);
-	for(;;){
+	for(; ;){
 		print(L0=dupmat(car(L)));
 		Sz=size(L0);
 		S=keyin("? ");
@@ -4443,7 +4443,7 @@ def mdivisor(M,X)
 	}else if(type(V)!=5) V=0;
 
 	if(type(St=getopt(step))!=1) St=0;
-	for(FF=": start";;){
+	for(FF=": start"; ;){
 		if(St && V==0){
 			if(Tr){
 				mycat0([St,FF,"\n"],0);
@@ -4957,7 +4957,7 @@ def m2mc(M,X)
 				}
 				if(Show){
 					TL=["x","y","0","1","\\infty"];
-					for(S="",TR=R,I=0,J=1;;TR=cdr(TR)){
+					for(S="",TR=R,I=0,J=1; ;TR=cdr(TR)){
 						S+="A_{"+TL[I]+","+TL[J]+"}&="+mtotex(car(TR));
 						if(length(X)>2&&X[2]=="spt")
 							S+="&&"+ltotex(meigen(car(TR)|mult=1)|vec=1,TeX=1,opt="spt");
@@ -5634,12 +5634,12 @@ def spantree(F,L,D)
 	}
 	Opt=[["opt","init"],["optimize",Optim],["data",D]];
 	if(type(X=getopt(comp))==2) Opt=cons(["comp",X],Opt);
-	if(!isint(X=getopt(unit))||X<64) X=1024;;
+	if(!isint(X=getopt(unit))||X<64) X=1024; ;
 	V=btree(0,X|option_list=Opt);
 	Fop=getopt(fopt);
 	if(type(Fop)!=4||length(Fop)==0||type(Fop[0])!=4) Fop=[];
 	if(type(F)!=4) F=[F];
-	for(M=1,N=V[0][1];;){
+	for(M=1,N=V[0][1]; ;){
 		for(TL=L;TL!=[];TL=cdr(TL))
 			for(I=M;I<N;I++){
 				for(TF=F;TF!=[];TF=cdr(F)){
@@ -6352,7 +6352,7 @@ def mqsub(X,Y)
 				}else if(M==2){
 					LX=length(X0);LY=length(Y0);
 					L0=(LX<LY)?LX:LY;
-					for(I=0;;I++){
+					for(I=0; ;I++){
 						if(I==L0){
 							X0=LX;Y0=LY;break;
 						}
@@ -6524,7 +6524,7 @@ def ldev(L,S)
 {
 	M=abs(lmax(L));N=abs(lmin(L));
 	if(M<N) M=N;
-	for(C=0,LT=L;;C++){
+	for(C=0,LT=L; ;C++){
 		LT=ladd(LT,S,1);
 		MT=abs(lmax(LT));NT=abs(lmin(LT));
 		if(MT<NT) MT=NT;
@@ -6532,7 +6532,7 @@ def ldev(L,S)
 		M=MT;
 	}
 	if(!C){
-		for(C=0,LT=L;;C--){
+		for(C=0,LT=L; ;C--){
 			LT=ladd(LT,S,-1);
 			MT=abs(lmax(LT));NT=abs(lmin(LT));
 			if(MT<NT) MT=NT;
@@ -6863,7 +6863,7 @@ def mpower(M,N)
 		return(mpower(myinv(M), -N));
 	R = dupmat(M);
 	V=1;
-	for(V=1;;){
+	for(V=1; ;){
 		if(iand(N,1)){
 			V=map(red,R*V);
 			N--;
@@ -6950,7 +6950,7 @@ def texsp(P)
 	Q=strtoascii(P);
 	if((J=str_char(Q,0,92))<0 || (C=Q[L=str_len(P)-1])==32||C==41||C==125)
 		return P; 
-	for(;;){
+	for(; ;){
 		if((I=str_char(Q,J+1,92))<0) break;
 		J=I;
 	};
@@ -7243,7 +7243,7 @@ def texlim(S,Lim)
 		if(II<2){
 			F++;II=/* str_len(S) */ length(S)-1;
 		}
-		for(J=JJ=I+1;;JJ=K+1){
+		for(J=JJ=I+1; ;JJ=K+1){
 			K=str_char(S,JJ,43);	/* + */
 			if((K1=str_char(S,JJ,45))>2 && K1<K){	/* - */
 				if(S[K1-1]!=123 && S[K1-1]!=40) K=K1;	/* {, ( */
@@ -8468,7 +8468,7 @@ def transpdosub(P,LL,K)
 def transpdo(P,LL,K)
 {
 	if(type(K)==4&&type(K[0]==4)){
-		for(TK=K;;TK=cdr(TK)) if(!isint(car(TK))) break;
+		for(TK=K; ;TK=cdr(TK)) if(!isint(car(TK))) break;
 		if(TK==[]) K=transppow(LL,K);
 	}
 	if(type(K)==6) K=transppow(LL,K);
@@ -9204,7 +9204,7 @@ def evalred(F)
 	if(type(Opt)!=4){
 		 Opt=[];
 	}else if(length(Opt)==2 && type(Opt[0])!=4)	Opt=[Opt];
-	for(;;){
+	for(; ;){
 		G=mysubst(F,[[tan(0),0],[asin(0),0],[atan(0),0],[sinh(0),0],[tanh(0),0],
 			[log(1),0],[cosh(0),1],[exp(0),1]]);
 		for(Rep=Opt; Rep!=[]; Rep=cdr(Rep))
@@ -9248,7 +9248,7 @@ def seriesMc(F,N,V)
 	for(I=0;I<L;I++)
 		G[I+1]=eval(evalred(subst(G[I],V[I],0)|opt=Opt));
 	R=G[L];
-	for(;;){
+	for(; ;){
 		for(M=0,I=0;I<L;I++){
 			M+=P[I];
 			if(M==N) break;
@@ -12048,7 +12048,7 @@ def spbasic(Idx,D)
 	for(I=0;I<L;I++) V[I]=NP[T];
 	S1=NP[1];
 	FS=(D>Idx+2 ||(L==3&&D>Idx))?1:0;
-	for(R=[];;){
+	for(R=[]; ;){
 		if(FS){
 			if(3*car(V[0])<D) break;
 			if(car(V[0])+car(V[1])>=D && (T=D-car(V[0])-1)>0) V[1]=V[2]=NP[T];
@@ -12777,7 +12777,7 @@ def mc2grs(G,P)
 				I=L[0][0];J=L[0][1];
 				str_tb("[A_{"+rtostr(I[0])+rtostr(I[1])+"}:A_{"+rtostr(J[0])+rtostr(J[1])
 					+"}]&=\\left\\{",R);
-				for(L=cdr(L);;){
+				for(L=cdr(L); ;){
 					S=car(L);
 					str_tb("["+my_tex_form(S[1])+":"+my_tex_form(S[2])+"]",R);
 					if(S[0]!=1) str_tb("_{"+rtostr(S[0])+"}",R);
@@ -13002,7 +13002,7 @@ def mc2grs(G,P)
 				if(Dvi){
 					TB=str_tb(0,0);
 					if(F=="rest0"||F=="rest1"){
-						for(T=R;;){
+						for(T=R; ;){
 							TT=car(T);
 							S=rtostr(car(TT)[0])+rtostr(car(TT)[1]);
 							str_tb(["[",S,"]","&: "],TB);
@@ -13015,11 +13015,11 @@ def mc2grs(G,P)
 						}
 					}else{
 						TB=str_tb(0,0);
-						for(T=R;;){
+						for(T=R; ;){
 							TT=car(T);
 							S=rtostr(car(TT)[0])+rtostr(car(TT)[1]);
 							str_tb(["[",S,"]",":\\ "],TB);
-							for(TR=[],TT=cdr(TT);;){
+							for(TR=[],TT=cdr(TT); ;){
 								T0=car(TT);
 								str_tb(["&",my_tex_form(car(T0)),"&&\\to\\ \n",
 									ltotex(cdr(T0)|opt="GRS")],TB);
@@ -13696,7 +13696,7 @@ def llsymcheck(L,S)
 	if(type(S[0])<4) S=[S];
 	if((Red=getopt(red))!=-1){
 		if(Red==1||Red==2){
-			for(;;){
+			for(; ;){
 				R=llsymcheck(L,S|depth=getopt(depth),red=-Red);
 				if(length(R)==length(L)) return L;
 				L=R;
@@ -14001,7 +14001,7 @@ def mcmgrs(G,P)
 				str_tb("[A_{"+rtostr(I[0])+rtostr(I[1])+"}:A_{"+rtostr(J[0])+rtostr(J[1]),R);
 				if(length(J)==3) str_tb(rtostr(J[2]),R);
 				str_tb("}]&=\\left\\{",R);
-				for(L=cdr(L);;){
+				for(L=cdr(L); ;){
 					S=car(L);
 					str_tb("["+my_tex_form(S[1])+":"+my_tex_form(S[2])+"]",R);
 					if(S[0]!=1) str_tb("_{"+rtostr(S[0])+"}",R);
@@ -14372,7 +14372,7 @@ def str_pair(S,N,I,J)
 	}
 	if((SJIS=getopt(sjis))!=1) SJIS=0;
 	if((II!=0&&length(II)>1)||(JJ!=0&&length(JJ)>1)){
-		for(;;){
+		for(; ;){
 			MJ=str_str(S,N|top=JJ,sjis=SJIS);
 			if(MJ>=0){
 				MI=str_str(S,II|top=N,sjis=SJIS);
@@ -14766,7 +14766,7 @@ def evalma(S)
 		print("Mathematica text (terminated by ;) ?");
 		purge_stdin();
 		Tb=str_tb(0,0);
-		for(;;){
+		for(; ;){
 			S=get_line();
 			str_tb(S,Tb);
 			if(str_char(S,0,";")>=0) break;
@@ -15187,7 +15187,7 @@ def my_tex_form(S)
 		SS = cons(S[L],SS);
 	}
 	RT=getopt(root);
-	for(Top=0;;Top++){	/* ((x+1))^{y} , 1/y=2,3,...,9 */
+	for(Top=0; ;Top++){	/* ((x+1))^{y} , 1/y=2,3,...,9 */
 #if 1
 		P=str_str(SS,["))^","^{\\tfrac{1}"]|top=Top);
 		if(P[0]<0) break;
@@ -15849,7 +15849,7 @@ def show(P)
 				if(F2>0)	S=ltotex(P|opt=["cr","spts0"],str=1);
 				else	S=ltotex(P|opt=["cr","spts"]);
 			}else{
-				for(S="[";;){
+				for(S="["; ;){
 					S+=my_tex_form(car(P));
 					if((P=cdr(P))==[]){
 						S+="]";break;
@@ -16648,7 +16648,7 @@ def xylines(P)
 			PR=cons(P[1],PR);
 			P=cons(PT,reverse(PR));
 		}else if(Cl==-1) Cl=1;
-		for(L=P2=P3=0,PT=P;;){
+		for(L=P2=P3=0,PT=P; ;){
 			P1=P2;P2=P3;P3=P4;
 			P4=(PT==[])?0:car(PT);
 			if(PT==[] && (Cl==1 || P3==0)) break;
@@ -17422,7 +17422,7 @@ def xy2graph(F0,N,Lx,Ly,Lz,A,B)
 			}else{
 				J0=floor(J0); J1=ceil(J1); JD=-1;	/* fixed y:  x: dec => (x,z):(inc,inc) */
 			}
-			for(FF=1,J=J1;;J-=JD){
+			for(FF=1,J=J1; ;J-=JD){
 				V1=VT; 
 				VT=(X0+J*XD-A0)/A1;GG=mysubst(G,[x,VT]);
 				if(Cpx>=1) VV=myeval(GG);
@@ -19637,7 +19637,7 @@ def fsum(F,L)
 		L=cdr(L);
 	}else X=0;
 	V=(length(L)>2)?L[2]:1;
-	for(R=0,I=L[0];;I+=V){
+	for(R=0,I=L[0]; ;I+=V){
 		if(V==0||(I-L[1])*V>0) return R;
 		R+=(Sub==1)?subst(F,X?X:x,I):os_md.myfeval(F,X?[X,I]:I);
 	}
@@ -20121,7 +20121,7 @@ def ptcombezier(P,Q,T)
 		if(T<2) T=20;		/*  default */
 		return ptcombezier(P,Q,[0,0,1,T]);
 	}
-	V=T[2]/2;;
+	V=T[2]/2; ;
 	PB=tobezier(P|div=1);
 	PP=[ptbbox(PB[0]),ptbbox(PB[1])];
 	QB=tobezier(Q|div=1);
@@ -21883,7 +21883,7 @@ def ltotex(L)
 		if(!Strip)str_tb(xyproc(0),Out);
 	}else if(Op==12){	/* coord */
 		Out=str_tb("(",0);
-		for(LT=L;;){
+		for(LT=L; ;){
 			X=car(LT);
 			if(type(X)>3 || imag(X)==0)	str_tb(my_tex_form(X),Out);
 			else{
@@ -23119,7 +23119,7 @@ def s2cspb(L)
 		if(Sub>0){
 			I=str_char(L,0,"(");
 			if(I<0) return car(s2sp(L));
-			for(R=[];;){
+			for(R=[]; ;){
 				J=str_char(L,I,"(");
 				if(J<0) return reverse(R);
 				K=str_pair(L,J+1,"(",")");
@@ -23315,7 +23315,7 @@ def partspt(S,T)
 			R=reverse(R0);
 		}
 	}else{
-	  for(R=[];;){
+	  for(R=[]; ;){
 		for(I=J=P=0;I<L;I++){
 			P=VS[I];
 			X=100000;
@@ -23329,36 +23329,35 @@ def partspt(S,T)
 		if(!vnext(VT)) break;
 	  }
 	}
-	if(Op){
-		for(W=[];R!=[];R=cdr(R)){
-			for(I=0,S=VS[0],K=U=[],TR=car(R);TR!=[];TR=cdr(TR)){
-				K=cons(car(TR),K);
-				if(!(S-=car(K))){
-					U=cons([VS[I],reverse(K)],U);
-					K=[];
-					S=VS[++I];
-					if(I==L){
-						U=cons([S,cdr(TR)],U);
-						break;
-					}
+	for(W=[];R!=[];R=cdr(R)){
+		for(I=0,S=VS[0],K=U=[],TR=car(R);TR!=[];TR=cdr(TR)){
+			K=cons(car(TR),K);
+			if(!(S-=car(K))){
+				U=cons([VS[I],reverse(K)],U);
+				K=[];
+				S=VS[++I];
+				if(I==L){
+					U=cons([S,qsortn(cdr(TR))],U);
+					break;
 				}
 			}
-			W=cons(reverse(U),W);
 		}
-		R=W;
-		if(iand(Op,1)){
-			for(R=[];W!=[];W=cdr(W))
-				R=cons(reverse(qsort(car(W))),R);
-			R=lsort(R,[],1);
+		V=reverse(U);
+		if(V!=car(W)) W=cons(V,W);
+	}
+	W=R=lsort(W,[],1);
+	if(iand(Op,1)){
+		for(R=[];W!=[];W=cdr(W))
+			R=cons(reverse(qsort(car(W))),R);
+		R=lsort(R,[],1);
+	}
+	if(Op==3||Op==0){
+		for(W=[];R!=[];R=cdr(R)){
+			for(S=[],TR=car(R);TR!=[];TR=cdr(TR))
+				S=append(S,car(TR)[1]);
+			W=cons(S,W);
 		}
-		if(Op==3){
-			for(W=[];R!=[];R=cdr(R)){
-				for(S=[],TR=car(R);TR!=[];TR=cdr(TR))
-					S=append(S,car(TR)[1]);
-				W=cons(S,W);
-			}
-			R=reverse(W);
-		}
+		R=reverse(W);
 	}
 	return R;
 }
@@ -23534,7 +23533,7 @@ def pgen(L,VV)
 	if((Num=getopt(num))!=1) Num=0;
 	if((Sep=getopt(sep))!=1) Sep=0;
 	if(type(Shift=getopt(shift))!=1) Shift=0;
-	for(;;){
+	for(; ;){
 		for(PP=1,R=[],II=K-1; II>=0; II--){
 			R=cons(V[II]+Shift,R);
 			if(II>0 && Sep==1) R=cons("_",R);
@@ -24855,7 +24854,7 @@ def integrate(P,X)
 		V=pfargs(RR,X|level=1);
 		for(Var=[];V!=[];V=cdr(V)) Var=cons(car(V)[0],Var);
 		Var=reverse(Var);
-		if(!isint(J=getopt(frac))) J=0;;
+		if(!isint(J=getopt(frac))) J=0; ;
 		if(!iand(J,4)&&(!iand(J,2)||length(Var)==1)&&(iand(J,8)==8||ptype(RR,Var)==2)){
 			F=1;
 			if(iand(J,1)){
@@ -24885,7 +24884,7 @@ def integrate(P,X)
 				S0=strtoascii(S);	/* log(x)  ->  log|x| */
 				L=length(S0);
 				S2=str_tb(0,0);
-				for(I=0;;){
+				for(I=0; ;){
 					if(I>=L||(J=str_str(S0,S1|top=I+FT))<0){
 						S=str_tb(0,S2)+str_cut(S0,I,100000);
 						break;
@@ -25807,7 +25806,7 @@ def lft01(X,T)
 		U=newvect(K+3);
 		for(I=0;I<K+3;I++) U[I]=I;
 		for(S0=T[0],S1=T[1];S1!=[];S0=cdr(S0),S1=cdr(S1)){
-			for(J=0,TU=car(S0);;J++){
+			for(J=0,TU=car(S0); ;J++){
 				if(TU=="infty") T0=K+2;
 				else if(TU==0) T0=1; 
 				else if(TU==1) T0=2;
@@ -25987,7 +25986,7 @@ def ptype(P,L)
 def nthmodp(X,N,P)
 {
 	X=X%P;
-	for(Z=1;;){
+	for(Z=1; ;){
 		if((W=iand(N,1))==1)	Z=(Z*X)%P;
 		if((N=(N-W)/2)<=0)	return Z;
 		X=irem(X*X,P);
@@ -26053,7 +26052,7 @@ def rootmodp(X,P)
 	if(I==P3) return [];
 	W=nthmodp(Y,I,P);
 	Z=nthmodp(Y,P3,P);
-	for(I=0,R=[];;){
+	for(I=0,R=[]; ;){
 		R=cons(W,R);
 		if(++I>=G) break;
 		W=(W*Z)%P;
@@ -26122,7 +26121,7 @@ def powprimroot(P,N)
 	if((Log=getopt(log))==1||Log==2) FE=-1;
 	else if(Log==3){
 		FE=-2;
-		for(PP=1, L0=["$r$","$p/a$"];;){
+		for(PP=1, L0=["$r$","$p/a$"]; ;){
 			PP=pari(nextprime,PP+1);
 			if(PP>=P) break;
 			L0=cons(PP, L0);
