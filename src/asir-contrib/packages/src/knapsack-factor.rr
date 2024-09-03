@@ -880,7 +880,7 @@ ks_bound_for_root(F, X)
 			A = -A;
 
 		/* bit size */
-		for (B = 1;; B++) {
+		for (B = 1; ; B++) {
 			if (2^B > A)
 				break;
 		}
@@ -1118,7 +1118,7 @@ ks_extends_euclid_bi2(F1, F2)
         A2 = B1 = 0;
         A1 = B2 = 1;
 
-        for (;;) {
+        for (; ;) {
                 Q = idiv(F1, F2);
                 TMP = Q * F2;
                 F3 = F1 - TMP;
@@ -1462,7 +1462,7 @@ ks_pkn_geq(PN, BOUND, P, K)
 	}
 	I = K + 1;
 	LIST = [Q];
-	for (J = 1;; J++) {
+	for (J = 1; ; J++) {
 		S = P * car(LIST);
 		LIST = cons(S, LIST);
 		if (S > BOUND)
@@ -1668,7 +1668,7 @@ ks_lllasir(A0) {
 #endif
 	K = 1;
 	do {
-		for (;;) {
+		for (; ;) {
 			ks_red_lll(K, K - 1, N, M, A, LAM, D);
 #if PRINT_REPORT_LLL
 			print (["red(", K, K-1, ")"]);

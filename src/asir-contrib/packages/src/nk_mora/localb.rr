@@ -1864,7 +1864,7 @@ def localb_nf(F, VL, Ord1, Ord2, Vect, W, Deg, N)
 	print("Gr(J) :");
 	map(print_poly, G, VL, Ord1);
 
-	for (;;) {
+	for (; ;) {
 		for (I = 0; I <= Deg; I++) {
 			T = d_app_div(ss^I, G, VL, W, Ord1, N);
 			NF[I] = pick_td(T[1], VL, N);
@@ -1921,7 +1921,7 @@ def localb_nf2(F, VL, Ord1, Ord2, Vect, W, N)
 	NF = append(NF, [TT]);
 	I = 1;
 
-	for (;;) {
+	for (; ;) {
 		/* find the minimum i s.t. L_{i,N} \neq \{0\} */
 		while (size(S = sol_space(NF, I, VL))[0] == 1) {
 			print("L_{" + rtostr(I) + "," + rtostr(N) + "}");
