@@ -159,7 +159,11 @@ class Asir(Expect):
             self._start()
             raise KeyboardInterrupt("Restarting %s (WARNING: all variables defined in previous session are now invalid)"%self)
         else:
-            self._expect.send('\003') # control-c
+            E=self._expect
+            E.send('\003') # control-c
+            E.expect(self._prompt)
+            out=bytes_to_str(E.before)
+            print(out)
             raise KeyboardInterrupt("Ctrl-c pressed while running %s"%self)
 
     def quit(self, verbose=False):
