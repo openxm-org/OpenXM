@@ -26,3 +26,19 @@ mkdir ~/bin ; cp openxm ~/bin
 # Test if you can start the Risa/Asir
 openxm asir
 ```
+
+# Notes
+## Minor update
+For minor updates of Risa/Asir, the full build will not be necessary and do as follows.
+```
+cd OpenXM_contrib2
+git pull
+cd ../OpenXM
+git pull
+cd src/asir2018
+rm .*done
+make
+cd ..
+make install
+
+```
