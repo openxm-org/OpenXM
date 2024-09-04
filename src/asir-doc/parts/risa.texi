@@ -581,6 +581,13 @@ This option sets an upper limit of the heap size. The unit is Bytes.
 Note that the size is already limited by the value of @code{datasize}
 displayed by the command @code{limit} on UNIX.
 \E
+@item -nofep
+\BJP
+行編集機能を off にする.
+\E
+\BEG
+Turn off the line edit functionality.
+\E
 @end table
 
 \BJP
@@ -748,6 +755,8 @@ file written in @b{Asir}.
 @code{quit;} を入力することにより終了する. 入力は, @samp{;} または 
 @samp{$} までを一区切りとして評価される. @samp{;} のとき結果は表示され, 
 @samp{$} のとき表示されない. 
+なお asir version 20240903 以降は連続したセミコロン @samp{;;}
+は @samp{$} とみなされる. したがってたとえば @samp{for (;;)} と書くことはできない. @samp{for (; ;)} と書かないといけない(連続したセミコロンの間には空白を入れる).
 \E
 \BEG
 The prompt indicates the sequential number of your input commands to
@@ -761,6 +770,9 @@ A statement normally ends with its terminator
 The result will be displayed when the command, i.e. statement,
 is terminated by a @samp{;},
 and will not when terminated by a @samp{$}.
+Note that after asir version 20240903, consecutive semicolons @samp{;;}
+is considered as @samp{$}.
+Therefore, for example, you cannot write @samp{for (;;)}. You must write @samp{for (; ;)} (add a space between consecutive semicolons).
 \E
 
 @example
