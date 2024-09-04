@@ -816,8 +816,8 @@ def test2() {
 
 /* tr.check_pn の動作テスト */
 def test2b() {
-  Rule=[quote(sin(pn(x,qt.is_integer(x))*@pi)),["qt.zero"]]$
-  R0 = quote(1+sin(2*@pi)*sin(a*@pi));;
+  Rule=[quote(sin(pn(x,qt.is_integer(x))*@pi)),["qt.zero"]];
+  R0 = quote(1+sin(2*@pi)*sin(a*@pi));
   print(print_input_form(R0));
   R=tr.apply_rule1(R0,Rule[0],Rule[1]);
   return R;
