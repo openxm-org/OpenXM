@@ -20,7 +20,7 @@ all-nox: configure-nox
 	@touch ./.make_done
 
 install: all
-	(cd ${ASIR} ; touch */*.lo ; ${MAKE} install-openxm)
+	(cd ${ASIR} ; ${MAKE} install-openxm)
 
 install-nox: all-nox
 	(cd ${ASIR} ; ${MAKE} install-openxm)
