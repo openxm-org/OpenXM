@@ -394,11 +394,22 @@ def taka_poly_grobner_basis(I) {
   Opt = getopt();
   Opt = base_rebuild_opt(Opt | remove_keys=["order","v","str"]);
   II = I;
+  /* option PP */
+  if (type(PP=getopt(p))<0) PP=0;
+  /* option method */
+  if(type(Method=getopt(method))<0) Method=nd_gr_trace;
+  /* option homo for trace */
+  if (type(Homo=getopt(homo))<0) Homo=1;
+  /* option order_matrix */
+  if (type(Order_matrix=getopt(order_matrix)) < 0) Order_matrix=0;
+  else Order_matrix=matrix_list_to_matrix(Order_matrix);
   /* option order */
   Or = getopt(order);
   if (type(Or) == -1) {
     Or = 0;
   }
+  /* override Or */
+  if (Order_matrix != 0) Or=Order_matrix;
   /* option v */
   V = getopt(v);
   if (type(V) == -1) {
@@ -431,9 +442,15 @@ def taka_poly_grobner_basis(I) {
     R = new__poly_ring(V,Or,base_Q,0);
   }
   if (!Gb) {
-    Or = taka_poly_build_order(Or);
+    if (Order_matrix==0) {
+      Or = taka_poly_build_order(Or);
+    }
     /* print(V); print(Or);*/
-    G = nd_gr_trace(I,V,1,1,Or | option_list=Opt);
+    if ((Method==nd_gr_trace) || (Method==nd_weyl_gr_trace) || (Method==nd_f4_trace)) {
+      G = (*Method)(I,V,Homo,PP,Or | option_list=Opt);
+    }else{
+      G = (*Method)(I,V,PP,Or | option_list=Opt);
+    }
     if (QuoteIn) G = quote_to_quote(G);
   }else{
     G = II->Generators;

@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240828), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20240905), Copyright 2000-2024, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -533,6 +533,8 @@ def poly_expand(F) {
  description:
  The optional variable v is a list of variables which defines the ring 
  of polynomials.
+ Other Options; p (characteristic), homo, method (nd_gr_trace(default), nd_gr, nd_weyl_gr, nd_weyl_gr_trace, nd_f4, nd_f4_trace), order_matrix, order. See also  asir manual.
+ alias; poly_groebner_basis
  example: A = poly_grobner_basis([x^2+y^2-4,x*y-1]|order=2,v=[y,x],str=1);
           A->Generators;
           A->Ring->Variables;
@@ -544,6 +546,9 @@ def poly_grobner_basis(I) {
   Opt = getopt();
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
   return taka_poly_grobner_basis(I|option_list=Opt);
+}
+def poly_groebner_basis(I) {
+  return poly_grobner_basis(I|option_list=getopt());
 }
 /*&usage begin: poly_hilbert_polynomial(I|s,v,sm1)
  It returns the Hilbert polynomial of the poly_init(I).
