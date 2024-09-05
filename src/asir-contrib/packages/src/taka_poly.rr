@@ -567,9 +567,9 @@ def taka_poly_hilbert_polynomial(I) {
      G = I;
   }
   if (!Gb) {
-    C=poly_initial(G | v=V,order=0); 
+    C=poly_initial(G | option_list=append([["v",V],["order",0]],getopt()));
   }else{
-    C=poly_initial(G | v=V,order=0,gb=1);
+    C=poly_initial(G | option_list=append([["v",V],["order",0],["gb",1]],getopt()));
   }
   if (!base_is_asir2018() || (type(getopt(sm1))>0)) {
     H = sm1.hilbert([C,V]);
@@ -578,7 +578,7 @@ def taka_poly_hilbert_polynomial(I) {
     return [H,subst(F,h,S)];
   }
   A = dp_monomial_hilbert_poincare(C,V);
-  return base_replace([not_implemeted_yet,A[3],A[2],A[0],A[1]],[[t,S],[n,S]]);
+  return base_replace(["not_implemeted_yet. Try the option sm1=1",A[3],A[2],A[0],A[1]],[[t,S],[n,S]]);
 }
 
 def taka_poly_initial_aux(I) {
