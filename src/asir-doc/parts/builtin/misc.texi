@@ -187,6 +187,9 @@ EZGCD $B$N%"%k%4%j%:%`$N@ZBX$((B. $B%G%U%)%k%H$G(B 1 $B$G$"$j(B, $B$H$/$K
 ($B%G%U%)%k%HCM$O(B 1.)
 @xref{$BJ,;67W;;(B}.
 
+@item parallel_gc
+0 $B$N;~(B GC $B$O(B main thread $B$GF0$/(B. n $B$N;~(B GC $B$O(B n threads $B$GF0:n$9$k(B. ($B%G%U%)%k%HCM$O(B 0.)
+
 @item plot_by_bigfloat
 N $B$N$H$-(B, 10$B?J?t$G$N@:EY$r(B N $B7e$H$7$F(B, bigfloat $B$rMQ$$$F(B plot $B$r9T$&(B.
 ($B%G%U%)%k%H$G$O(B double $B$rMQ$$$F(B plot $B$r9T$&(B.)
@@ -325,6 +328,11 @@ of mathcap if ox_reset is implemented or not.
 When you use ox_pari, it is recommended to set this flag 1.
 (The default value is 0.)
 @xref{Distributed computation}.
+
+@item parallel_gc
+When the value is 0, GC works in the main thread. When the value is n, GC works in n threads. (Default value is 0.)
+
+
 @item plot_by_bigfloat
 If its value N is not equal to zero, then plotting is done by bigfloat.
 (The double numbers are used as the default.)
