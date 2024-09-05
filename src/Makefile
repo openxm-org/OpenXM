@@ -16,8 +16,9 @@ all: all-util all-gc all-asirgc all-gmp all-mpfr all-mpc all-mpfi all-asir all-g
 all-editline: install-util 
 	(cd editline; ${MAKE} all)
 
-all-gc: install-util 
-	(cd gc; ${MAKE} all)
+all-gc: all-asirgc
+#all-gc: install-util 
+#	(cd gc; ${MAKE} all)
 
 all-asirgc: install-util 
 	(cd asir-gc; ${MAKE} all)
@@ -145,8 +146,8 @@ install-util: install-util-bin install-util-lib
 install-editline: all-editline
 	(cd editline; ${MAKE} install)
 
-install-gc: all-gc
-	(cd gc; ${MAKE} install)
+install-gc: install-asirgc
+#	(cd gc; ${MAKE} install)
 
 install-asirgc: all-asirgc
 	(cd asir-gc; ${MAKE} install)
@@ -262,7 +263,7 @@ install-asir-mode:
 
 clean:
 	-rm ./.configure-links-done
-	-@for i in OpenMath asir-contrib asir-doc asir2000 asir2018 asir-gc gc gmp gnuplot \
+	-@for i in OpenMath asir-contrib asir-doc asir2000 asir2018 asir-gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
                oxmgraph pcc mpfr mpfi ox_cdd ox_pari \
 	           util ${OpenXM_contrib2}/fep ; do \
