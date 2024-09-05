@@ -18,7 +18,10 @@ all: configure
 	@touch .make_done
 
 install: all
-	(cd ${ASIR_GC} ; ${MAKE} install)
+	@if [ ! -f .install_done ]; then \
+		(cd ${ASIR_GC} ; ${MAKE} install); \
+	fi
+	@touch .install_done
 
 clean:
 	-(cd ${ASIR_GC} ; ${MAKE} clean)
