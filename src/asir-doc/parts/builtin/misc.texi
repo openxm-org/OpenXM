@@ -569,10 +569,10 @@ On Windows HTML-style help is available from the menu.
 
 @table @t
 @item time()
-\JP :: セッション開始から現在までの CPU 時間および GC 時間を表示する
+\JP :: セッション開始から現在までの CPU 時間を表示する
 \BEG
 :: Returns a four element list consisting of
-total CPU time, GC time, the elapsed time
+total CPU time, GC time(current version displays 0), the elapsed time
 and also total memory quantities requested
 from the start of current @b{Asir} session.
 \E
@@ -587,13 +587,13 @@ from the start of current @b{Asir} session.
 @itemize @bullet
 \BJP
 @item
-CPU 時間および GC 時間の表示に関するコマンドである. 
+CPU 時間および GC 時間(現在の版ではCPU時間に合算される)の表示に関するコマンドである. 
 @item
 GC 時間とは, ガーベジコレクタにより消費されたと見なされる時間, 
-CPU 時間は, 全体の CPU 時間から GC 時間を引いた残りで, 単位は秒である. 
+CPU 時間は, 全体の CPU 時間から GC 時間を引いた残りで, 単位は秒である. (現在の版ではCPU時間に合算されているため GC 時間は 0 と表示される)
 @item
 @code{time()} は引数なしで, セッション開始から現在までの CPU 時間, 
-GC 時間, 現在までに要求されたメモリののべ容量, およびセッション開始から
+GC 時間(0と表示), 現在までに要求されたメモリののべ容量, およびセッション開始から
 現在までの経過時間の表示をする. 
 すなわち, @code{[CPU 時間 (秒), GC 時間 (秒), メモリ量 (ワード), 経過時間 (秒)]}
 なるリストを返す. 1 ワードは通常 4 バイトである. 
@@ -616,13 +616,14 @@ on になっている場合には, トップレベルの文を一つの単位として,
 \E
 \BEG
 @item 
-These are commands regarding CPU time and GC time.
+These are commands regarding CPU time and GC time (the current version adds the GC time to the CPU time).
 @item 
 The GC time is the time regarded to spent by the garbage collector,
 and the CPU time is the time defined by subtracting the GC time from
 the total time consumed by command @b{Asir}.  Their unit is `second.'
+(The current version adds the GC time to the CPU time, then the GC time shows 0.)
 @item 
-Command @code{time()} returns total CPU time and GC time measured
+Command @code{time()} returns total CPU time and GC time (0 is displayed) measured
 from the start of current @b{Asir} session. It also returns the elapsed
 time. Time unit is `second.'
 Moreover, it returns total memory quantities in words
