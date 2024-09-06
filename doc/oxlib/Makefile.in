@@ -1,15 +1,7 @@
 # $OpenXM: OpenXM/doc/oxlib/Makefile.in,v 1.1 2018/03/28 05:09:38 takayama Exp $
-all : install-lib
-	make all-samples
-all-samples : test test1 test2 test3
-install-lib:
-	-if [ -f ../../OpenXM_contrib2/asir2018/libasir.a ]; then \
-	(cd ../../lib ; ln -s ../../OpenXM_contrib2/asir2018/.libs/libasir.a .); \
-	echo "libasir.a is used" ; \
-	else \
-	(cd ../../lib ; ln -s ../../OpenXM_contrib2/asir2018/.libs/libasir_X.a libasir.a); \
-	echo "libasir_X.a (with X) is used" ; \
-	fi
+all : all-samples
+all-samples : test test3
+all-samples-with-x : test_X test3_X
 ##
 ## make   
 ## make OpenXM_HOME=/usr/local/OpenXM
@@ -19,40 +11,46 @@ OpenXM_HOME=../../../OpenXM
 LIBDIR=${OpenXM_HOME}/lib
 INCDIR=${OpenXM_HOME}/include
 
-ASIR_LIB=$(LIBDIR)/libasir_X.a
-ASIR_LIB_PARI_X=$(LIBDIR)/libasir_pari_X.a
-PARI_LIB=$(LIBDIR)/libpari.a
-GC=$(LIBDIR)/libasir-gc.a
+ASIR_LIB=$(LIBDIR)/libasir.a
+ASIR_LIB_X=$(LIBDIR)/libasir_X.a
+GC=$(LIBDIR)/libgc.a
 LIBEDIT=$(LIBDIR)/libedit.so
 #EXTRALIB=-lnsl -lsocket
 EXTRALIB=
-LOPT=-L/usr/X11R6/lib -L/opt/X11/lib -L${LIBDIR} -lpthread -lmpfr -lmpc -lgmp -lm -lX11 -lXt -lXaw
+LOPT_X=-L/usr/X11R6/lib -L/opt/X11/lib -L${LIBDIR} -lpthread -lmpfr -lmpc -lgmp -lm -lX11 -lXt -lXaw
+LOPT=-L${LIBDIR} -lpthread -lmpfr -lmpc -lgmp -lm
 
 INCLUDE=$(INCDIR)
 
-test1 : test1.o 
-	${CC} -o test1 test1.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
-
-## test2 : test2.o  
-test2 : test2.o 
-	${CC} -o test2 test2.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
-
-## test3 : test3.o  
-test3 : test3.o 
-	${CC} -o test3 test3.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
-
 ## test : test.o  
 test : test.o 
-	${CC} -o test test.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT)
+	${CC} -o test test.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
+test_X : test.o 
+	${CC} -o test test.o $(ASIR_LIB_X) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+
+test1 : test1.o 
+	${CC} -o test1 test1.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
+
+test1_X : test1.o 
+	${CC} -o test1 test1.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+
+## test2 : test2.o  
+test2_X : test2.o 
+	${CC} -o test2 test2.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+
+## test3 : test3.o  
+test3_X : test3.o 
+	${CC} -o test3 test3.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+
+test3 : test3.o 
+	${CC} -o test3 test3.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
+
+
 test1-tcp-rev: test1-tcp-rev.c
 	${CC} -o test1-tcp-rev test1-tcp-rev.c 
 
 .c.o : hhh.h
 	${CC} $(CFLAGS) -I$(INCLUDE) -c -g $<
 
-
-
-
-
 clean :
-	rm -f test test1 test2 test3 *.o *~ *.a  a.out ../../lib/libasir.a
+	rm -f test test1 test2 test3 *.o *~ *.a  a.out test_X test1_X test2_X test3_X
