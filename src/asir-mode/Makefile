@@ -7,6 +7,7 @@ install:
 	install ${OpenXM_contrib2}/windows/post-msg-asirgui/asir-mode.el ${SHAREDIR}/emacs
 	install ${OpenXM_contrib2}/windows/post-msg-asirgui/asir-mode-v26.el.diff ${SHAREDIR}/emacs
 	install ${OpenXM_contrib2}/windows/post-msg-asirgui/asir-mode-v28.el ${SHAREDIR}/emacs
+	install ${OpenXM_contrib2}/windows/post-msg-asirgui/asir-mode-v29.el ${SHAREDIR}/emacs
 	install ./use-asir-mode-local.txt ${SHAREDIR}/emacs
 	install ./use-asir-mode.txt ${SHAREDIR}/emacs
 	install ./use-asir-mode.sh ${BINDIR}
