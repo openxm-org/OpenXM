@@ -1,5 +1,14 @@
 # $OpenXM: OpenXM/src/asir2018/Makefile,v 1.5 2022/09/07 03:20:07 ohara Exp $
 
+## Variables
+## TARGET: a target type for cross compiling
+## INTERVAL: turn on the interval arithmetric
+## STATICGMP: statically link the gmp library.
+## NOX: not support X11.
+
+## Example:
+## make install TARGET=amd64-unknown-freebsd14.1 NOX=yes
+
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -13,16 +22,7 @@ all: configure
 	fi
 	@touch ./.make_done
 
-all-nox: configure-nox
-	@if [ ! -f ./.make_done ]; then \
-		(cd ${ASIR} ; ${MAKE} all) \
-	fi
-	@touch ./.make_done
-
 install: all
-	(cd ${ASIR} ; ${MAKE} install-openxm)
-
-install-nox: all-nox
 	(cd ${ASIR} ; ${MAKE} install-openxm)
 
 clean:
@@ -36,49 +36,12 @@ fetch: install-pari install-asirgc
 
 configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
-		if [ -z "${TARGET_TYPE}" ]; then \
-		    (cd $(ASIR) ; \
-		    ./configure --enable-plot --enable-fep --prefix="`cd ../../OpenXM; pwd`") \
-		else \
-		    (cd $(ASIR) ; \
-		    ./configure --host=${TARGET_TYPE} --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
-		fi \
-	fi
-	@touch ./.configure_done
-
-configure-nox: fetch
-	@if [ ! -f ./.configure_done ]; then \
-		if [ -z "${TARGET_TYPE}" ]; then \
-		    (cd $(ASIR) ; \
-                    ./configure --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
-		else \
-		    (cd $(ASIR) ; \
-                    ./configure --host=${TARGET_TYPE} --disable-plot --prefix="`cd ../../OpenXM; pwd`") \
-		fi \
-	fi
-	@touch ./.configure_done
-
-configure-static: fetch
-	@if [ ! -f ./.configure_done ]; then \
-		if [ -z "${TARGET_TYPE}" ]; then \
-		    (cd $(ASIR) ; \
-                    ./configure --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
-		else \
-		    (cd $(ASIR) ; \
-                    ./configure --host=${TARGET_TYPE} --enable-static-gmp --enable-plot --prefix="`cd ../../OpenXM; pwd`") \
-		fi \
-	fi
-	@touch ./.configure_done
-
-configure-interval: fetch
-	@if [ ! -f ./.configure_done ]; then \
-		if [ -z "${TARGET_TYPE}" ]; then \
-		    (cd $(ASIR) ; \
-                    ./configure --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
-		else \
-		    (cd $(ASIR) ; \
-                    ./configure --host=${TARGET_TYPE} --enable-plot --enable-interval --prefix="`cd ../../OpenXM; pwd`") \
-		fi \
+		if [ ! -z "${NOX}" ]; then args="--disable-plot"; else args="--enable-plot"; fi; \
+		if [ ! -z "${TARGET}" ]; then args="$${args} --host=${TARGET}"; fi; \
+		if [ ! -z "${INTERVAL}" ]; then args="$${args} --enable-interval"; fi; \
+		if [ ! -z "${STATICGMP}" ]; then args="$${args} --enable-static-gmp"; fi; \
+	    (cd ${ASIR} ; echo ./configure $${args} --prefix="`cd ../../OpenXM; pwd`") > .configure_done ; \
+	    (cd ${ASIR} ; ./configure $${args} --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_done
 
