@@ -26,21 +26,21 @@ INCLUDE=$(INCDIR)
 test : test.o 
 	${CC} -o test test.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
 test_X : test.o 
-	${CC} -o test test.o $(ASIR_LIB_X) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+	${CC} -o test_X test.o $(ASIR_LIB_X) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
 
 test1 : test1.o 
 	${CC} -o test1 test1.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
 
 test1_X : test1.o 
-	${CC} -o test1 test1.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+	${CC} -o test1_X test1.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
 
 ## test2 : test2.o  
 test2_X : test2.o 
-	${CC} -o test2 test2.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+	${CC} -o test2_X test2.o $(ASIR_LIB_X) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
 
 ## test3 : test3.o  
 test3_X : test3.o 
-	${CC} -o test3 test3.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+	${CC} -o test3_X test3.o $(ASIR_LIB) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
 
 test3 : test3.o 
 	${CC} -o test3 test3.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
