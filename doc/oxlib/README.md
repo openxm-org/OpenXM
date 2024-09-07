@@ -15,14 +15,14 @@ Do a full build of OpenXM before doing below.
 ```
 cd OpenXM/src/asir2018
 make clean
-make NOX=y
+make NOX=y NOFEP=y
 make install    
-# libasir.a is installed. It does not contain X11 calls. asir without X11 is installed.
+# libasir.a is installed. It does not contain X11 nor editline calls. asir without X11 and editline is installed.
 
 make clean
 make
 make install  
-# Undo the installation of asir without X11
+# Undo the installation of asir without X11 and editline.
 
 cd ../../doc/oxlib
 ./configure
