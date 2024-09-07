@@ -38,7 +38,7 @@ fetch: install-pari install-asirgc
 configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		if [ ! -z "${NOX}" ]; then args="--disable-plot"; else args="--enable-plot"; fi; \
-		if [ ! -z "${NOFEP}" ];  then args="$${args} --enable-fep"; fi; \
+		if [ -z "${NOFEP}" ];  then args="$${args} --enable-fep"; fi; \
 		if [ ! -z "${TARGET}" ]; then args="$${args} --host=${TARGET}"; fi; \
 		if [ ! -z "${INTERVAL}" ]; then args="$${args} --enable-interval"; fi; \
 		if [ ! -z "${STATICGMP}" ]; then args="$${args} --enable-static-gmp"; fi; \
