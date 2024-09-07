@@ -1,12 +1,54 @@
 # $OpenXM: OpenXM/src/sage/asir.py,v 1.2 2019/03/06 02:38:33 takayama Exp $
 import os
-from sage.interfaces.expect import Expect, ExpectElement
-from sage.misc.verbose import verbose
-from sage.cpython.string import bytes_to_str
+import pexpect
 
-##Ref: @s/2018/09/20180907-sage-asir-proj, Using External Libraries and Interfaces
-##Ref: /usr/lib/python2.7/dist-packages/sage/interfaces
-##Usage: load("asir.py");
+from sage.cpython.string import bytes_to_str
+from sage.interfaces.expect import Expect, ExpectElement
+from sage.modules.free_module_element import vector
+from sage.matrix.matrix_space import MatrixSpace
+from sage.matrix.constructor import matrix
+from sage.misc.verbose import verbose
+#from sage.rings.cc import CC   
+from sage.rings.qqbar import QQbar
+from sage.rings.rational_field import QQ
+from sage.rings.real_mpfr import RR
+
+##Ref: @s/2018/09/20180907-sage-asir-proj, 
+##Using External Libraries and Interfaces
+
+
+# conversion according to OpenXM doc
+types = {-1: "void",
+         0: "nothing",
+         1: "number",
+         2: "polynomial",
+         3: "rational expression",
+         4: "list",
+         5: "vector",
+         6: "matrix",
+         7: "string",
+         8: "structure",
+         9: "distributed polynomial",
+         10: "32bit unsigned integer",
+         11: "error object",
+         12: "matrix over GF(2)",
+         13: "MATHCAP object",
+         14: "first order formula",
+         15: "matrix over GF(p)",
+         16: "byte array",
+         26: "distributed module polynomial",
+         }
+
+# http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/doc/asir2000/html-en/man/man_35.html#ntype
+number_types = {0: "rational",
+                1: "real",
+                2: "algebraic",
+                3: "real",
+                4: "complex",
+                5: "finitefield",
+                6: "finitefield",
+                7: "finitefield"
+                }
 
 
 class Asir(Expect):
@@ -31,7 +73,7 @@ class Asir(Expect):
             True
         """
         if command is None:
-            command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright'+' '+self.NoLogWindow+' '+self.OutputLimit
+            command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright --smallv_to_capitalv sage '+' '+self.NoLogWindow+' '+self.OutputLimit
 ##Other options are --noLogWindow and --outputLimit size(in bytes)
         if server is None:
             server = os.getenv('SAGE_ASIR_SERVER') or None
@@ -40,7 +82,7 @@ class Asir(Expect):
                         # We want the prompt sequence to be unique to avoid confusion with syntax error messages containing >>>
                         prompt='asir>',
                         # We don't want any pagination of output
-                        command='openxm ox_texmacs --view sage --quiet --noCopyright'+' '+self.NoLogWindow+' '+self.OutputLimit,
+                        command='openxm ox_texmacs --view sage --quiet --noCopyright --smallv_to_capitalv sage '+' '+self.NoLogWindow+' '+self.OutputLimit,
                         maxread=maxread,
                         server=server,
                         server_tmpdir=server_tmpdir,
@@ -314,54 +356,70 @@ class Asir(Expect):
 asir_functions = set()
 
 #Todo, the following class has not yet been implemented.
-#      These are sample interface with octave.
+# TODO the following class has not yet been fully implemented.
 class AsirElement(ExpectElement):
     def _get_sage_ring(self):
         r"""
         TESTS::
 
-            sage: asir('1')._get_sage_ring()  # optional - asir
-            Real Double Field
-            sage: asir('I')._get_sage_ring()  # optional - asir
+            sage: # optional - asir
+            sage: asir('1')._get_sage_ring()
+            Rational Field
+            sage: asir('@i')._get_sage_ring()
             Complex Double Field
-            sage: asir('[]')._get_sage_ring() # optional - asir
+            sage: asir('1.2')._get_sage_ring()
             Real Double Field
         """
-        if self.isinteger():
-            import sage.rings.integer_ring
-            return sage.rings.integer_ring.ZZ
-        elif self.isreal():
+        if self.asir_type() == 'rational':
+            import sage.rings.rational_field
+            return sage.rings.rational_field.QQ
+        if self.asir_type() == 'real':
             import sage.rings.real_double
             return sage.rings.real_double.RDF
-        elif self.iscomplex():
+        if self.asir_type() == 'complex':
             import sage.rings.complex_double
             return sage.rings.complex_double.CDF
-        else:
-            raise TypeError("no Sage ring associated to this element.")
+        if self.asir_type() == 'algebraic':
+            import sage.rings.qqbar
+            return sage.rings.qqbar.QQbar
+        if self.asir_type() == 'finitefield':
+            raise TypeError('finite fields are not handled yet')
+        if self.asir_type() == 'polynomial':
+            raise TypeError('polynomials are not handled yet')
+        if self.asir_type() == 'rational expression':
+            raise TypeError('rational expression are not handled yet')
+        raise TypeError("no Sage ring associated to this element.")
 
-    def __nonzero__(self):
+    def __bool__(self) -> bool:
         r"""
         Test whether this element is nonzero.
 
         EXAMPLES::
 
-            sage: bool(asir('0'))                 # optional - asir
+            sage: # optional - asir
+            sage: bool(asir('0'))
             False
-            sage: bool(asir('[]'))                # optional - asir
+            sage: bool(asir('[]'))
             False
-            sage: bool(asir('[0,0]'))             # optional - asir
-            False
-            sage: bool(asir('[0,0,0;0,0,0]'))     # optional - asir
+            sage: bool(asir('[0,0]'))
+            True
+            sage: bool(asir('newmat(3,2,[[0,0,0],[0,0,0]])'))
             False
 
-            sage: bool(asir('0.1'))               # optional - asir
+            sage: # optional - asir
+            sage: bool(asir('0.1'))
             True
-            sage: bool(asir('[0,1,0]'))           # optional - asir
+            sage: bool(asir('[0,1,0]'))
             True
-            sage: bool(asir('[0,0,-0.1;0,0,0]'))  # optional - asir
+            sage: bool(asir('newmat(3,2,[[0,0,-0.1],[0,0,0]])'))
             True
         """
-        return str(self) != ' [](0x0)' and any(x != '0' for x in str(self).split())
+        # TODO better
+        if self.asir_type() == 'list':
+            return int(self.length()) != 0
+
+        s = str(self)
+        return s != ' [](0x0)' and any(x != '0' for x in s.split())
 
     def _matrix_(self, R=None):
         r"""
@@ -369,43 +427,39 @@ class AsirElement(ExpectElement):
 
         EXAMPLES::
 
-            sage: A = asir('[1,2;3,4.5]')     # optional - asir
-            sage: matrix(A)                     # optional - asir
-            [1.0 2.0]
-            [3.0 4.5]
-            sage: _.base_ring()                 # optional - asir
-            Real Double Field
+            sage: # optional - asir
+            sage: A = asir('newmat(2,2,[[1,2],[3,9/2]])')
+            sage: matrix(A)
+            [  1   2]
+            [  3 9/2]
+            sage: _.base_ring()
+            Rational Field
 
-            sage: A = asir('[I,1;-1,0]')      # optional - asir
-            sage: matrix(A)                     # optional - asir
+            sage: # optional - asir
+            sage: A = asir('newmat(2,2,[[@i,1],[-1,0]])')
+            sage: matrix(A)
             [1.0*I   1.0]
             [ -1.0   0.0]
-            sage: _.base_ring()                 # optional - asir
+            sage: _.base_ring()
             Complex Double Field
 
-            sage: A = asir('[1,2;3,4]')       # optional - asir
-            sage: matrix(ZZ, A)                 # optional - asir
+            sage: # optional - asir
+            sage: A = asir('newmat(2,2,[[1,2],[3,4]])')
+            sage: matrix(ZZ, A)
             [1 2]
             [3 4]
-            sage: A = asir('[1,2;3,4.5]')     # optional - asir
-            sage: matrix(RR, A)                 # optional - asir
+            sage: A = asir('newmat(2,2,[[1,2],[3,4.5]])')
+            sage: matrix(RR, A)
             [1.00000000000000 2.00000000000000]
             [3.00000000000000 4.50000000000000]
         """
-        if not self.ismatrix():
-            raise TypeError('not an asir matrix')
+        nrows, ncols = self.size().sage()
+
+        w = [row.sage() for row in self]
+
         if R is None:
-            R = self._get_sage_ring()
+            return matrix(nrows, ncols, w)
 
-        s = str(self).strip('\n ')
-        w = [u.strip().split(' ') for u in s.split('\n')]
-        nrows = len(w)
-        ncols = len(w[0])
-
-        if self.iscomplex():
-            w = [[to_complex(x,R) for x in row] for row in w]
-
-        from sage.matrix.all import MatrixSpace
         return MatrixSpace(R, nrows, ncols)(w)
 
     def _vector_(self, R=None):
@@ -414,64 +468,55 @@ class AsirElement(ExpectElement):
 
         EXAMPLES::
 
-            sage: A = asir('[1,2,3,4]')       # optional - asir
-            sage: vector(ZZ, A)                 # optional - asir
+            sage: # optional - asir
+            sage: A = asir('[1,2,3,4]')
+            sage: vector(ZZ, A)
             (1, 2, 3, 4)
-            sage: A = asir('[1,2.3,4.5]')     # optional - asir
-            sage: vector(A)                     # optional - asir
-            (1.0, 2.3, 4.5)
-            sage: A = asir('[1,I]')           # optional - asir
-            sage: vector(A)                     # optional - asir
-            (1.0, 1.0*I)
+            sage: A = asir('[1,2.3,4.5]')
+            sage: vector(A)
+            (1.00000000000000, 2.30000000000000, 4.50000000000000)
+            sage: A = asir('[1,@i]')
+            sage: vector(A)
+            (1.00000000000000, 1.00000000000000*I)
         """
-        oc = self.parent()
-        if not self.isvector():
-            raise TypeError('not an asir vector')
+        w = [x.sage() for x in self]
         if R is None:
-            R = self._get_sage_ring()
-
-        s = str(self).strip('\n ')
-        w = s.strip().split(' ')
-        nrows = len(w)
-
-        if self.iscomplex():
-            w = [to_complex(x, R) for x in w]
-
+            return vector(w)
+        nrows = int(self.length())
         from sage.modules.free_module import FreeModule
         return FreeModule(R, nrows)(w)
 
-    def _scalar_(self):
-        """
-        Return Sage scalar from this asir element.
+    def asir_type(self):
+        try:
+            number = int(str(self.type()))
+        except ValueError:
+            number = int(str(self.type()).splitlines()[-1])
+        typ = types[number]
+        if typ != "number":
+            return typ
+        try:
+            number = int(str(self.ntype()))
+        except ValueError:
+            number = int(str(self.ntype()).splitlines()[-1])
+        return number_types[number]
 
-        EXAMPLES::
-
-            sage: A = asir('2833')      # optional - asir
-            sage: As = A.sage(); As       # optional - asir
-            2833.0
-            sage: As.parent()             # optional - asir
-            Real Double Field
-
-            sage: B = sqrt(A)             # optional - asir
-            sage: Bs = B.sage(); Bs       # optional - asir
-            53.2259
-            sage: Bs.parent()             # optional - asir
-            Real Double Field
-
-            sage: C = sqrt(-A)            # optional - asir
-            sage: Cs = C.sage(); Cs       # optional - asir
-            53.2259*I
-            sage: Cs.parent()             # optional - asir
-            Complex Double Field
-        """
-        if not self.isscalar():
-            raise TypeError("not an asir scalar")
-
-        R = self._get_sage_ring()
-        if self.iscomplex():
-            return to_complex(str(self), R)
+    def __iter__(self):
+        typ = self.asir_type()
+        if typ == "list":
+            L = int(self.length())
+            for i in range(L):
+                yield self[i]
+        elif typ == "vector":
+            L = int(self.length())
+            for i in range(L):
+                yield self[i]
+        elif typ == "matrix":
+            m, n = self.size()
+            m = int(m)
+            for i in range(m):
+                yield self[i]
         else:
-            return R(str(self))
+            raise TypeError(f'can iterate over lists, vectors, matrices, not {typ}')
 
     def _sage_(self):
         """
@@ -479,38 +524,61 @@ class AsirElement(ExpectElement):
 
         EXAMPLES::
 
-            sage: A = asir('2833')           # optional - asir
-            sage: A.sage()                     # optional - asir
-            2833.0
-            sage: B = sqrt(A)                  # optional - asir
-            sage: B.sage()                     # optional - asir
-            53.2259
-            sage: C = sqrt(-A)                 # optional - asir
-            sage: C.sage()                     # optional - asir
-            53.2259*I
-            sage: A = asir('[1,2,3,4]')      # optional - asir
-            sage: A.sage()                     # optional - asir
-            (1.0, 2.0, 3.0, 4.0)
-            sage: A = asir('[1,2.3,4.5]')    # optional - asir
-            sage: A.sage()                     # optional - asir
-            (1.0, 2.3, 4.5)
-            sage: A = asir('[1,2.3+I,4.5]')  # optional - asir
-            sage: A.sage()                     # optional - asir
-            (1.0, 2.3 + 1.0*I, 4.5)
+            sage: # optional - asir
+            sage: A = asir('2833')
+            sage: A.sage()
+            2833
+            sage: B = A**2
+            sage: B.sage()
+            8025889
+            sage: C = asir('3*@i')
+            sage: C.sage()
+            3.00000000000000*I
+            sage: A = asir('[1,2,3,4]')
+            sage: A.sage()
+            [1, 2, 3, 4]
+            sage: A = asir('[1,2.3,4.5]')
+            sage: A.sage()
+            [1, 2.30000000000000, 4.50000000000000]
+            sage: A = asir('[1,2.3*@i,4.5]')
+            sage: A.sage()
+            [1, 2.30000000000000*I, 4.50000000000000]
+
+            sage: # optional - asir
+            sage: A = asir('2833')
+            sage: As = A.sage(); As
+            2833
+            sage: As.parent()
+            Rational Field
         """
-        if self.isscalar():
-            return self._scalar_()
-        if self.isvector():
+        if self.asir_type() == "rational":
+            return QQ(str(self))
+        if self.asir_type() == "real":
+            return RR(str(self))
+        if self.asir_type() == "complex":
+            return CC((str(self.real()), str(self.imag())))
+        if self.asir_type() == "algebraic":
+            return QQbar(self)
+        if self.asir_type() == "finitefield":
+            raise NotImplementedError
+        if self.asir_type() == "vector":
             return self._vector_()
-        if self.ismatrix():
+        if self.asir_type() == "matrix":
             return self._matrix_()
-        raise NotImplementedError('asir type is not recognized')
+        if self.asir_type() == "list":
+            return [elt.sage() for elt in self]
+        raise NotImplementedError(f'asir type {self.asir_type()} is not yet recognized')
+
 
 # An instance
 asir = Asir()
 
+
 def reduce_load_Asir():
     """
+    Return the Asir interface object defined in
+    sage.interfaces.asir.
+
     EXAMPLES::
 
         sage: from sage.interfaces.asir import reduce_load_Asir
@@ -540,8 +608,7 @@ def asir_console():
     """
     from sage.repl.rich_output.display_manager import get_display_manager
     if not get_display_manager().is_in_terminal():
-        raise RuntimeError('Can use the console only in the terminal. Try %%asir magics instead.')
-    os.system('openxm asir')    # with asir prompt
-#    os.system('openxm asir -quiet')
-
-
+        raise RuntimeError('Can use the console only in the terminal. '
+                           'Try %%asir magics instead.')
+    os.system('openxm asir -nofep')    # with asir prompt
+#    os.system('openxm asir -nofep -quiet')

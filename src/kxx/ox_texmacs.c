@@ -23,7 +23,6 @@ void KSstart(); // kan96xx/Kan/datatype.h
 void KSstart_quiet(); // kan96xx/Kan/datatype.h
 int KSexecuteString(char *s); // kan96xx/Kan/datatype.h
 
-
 /*
 #define DEBUG 
 */
@@ -167,6 +166,8 @@ static int is_substr_of(char a[],char s[]);
 static void hexout(FILE *fp,char s[]);
 static int mystrncmp(char a[],char s[]);
 
+static int smallv_to_capitalv(char *s,char *key);
+
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -183,7 +184,9 @@ void main(int argc,char *argv[]) {
   char *openxm_home;
   char *asir_config;
   char *path;
-  int i;
+  int i,j;
+  int smallv2capitalv=0;
+  char *sagev;
 
 
   
@@ -254,6 +257,15 @@ void main(int argc,char *argv[]) {
       i++;
       Prompt[View] = (char *)sGC_malloc(strlen(argv[i])+2);
       strcpy(Prompt[View],argv[i]);
+    }else if (strcmp(argv[i],"--smallv_to_capitalv")==0) {
+      i++;
+      sagev = (char *)sGC_malloc(strlen(argv[i])+2);
+      /*{FILE *fp; fp=fopen("tmp-log.txt","w");fprintf(fp,"argv[i]=%s\n",argv[i]); fclose(fp);}*/
+      strcpy(sagev,argv[i]);
+      for (j=strlen(sagev)-1; j>=0; j--) {
+	if (sagev[j] <=' ') sagev[j]=0;
+      }
+      smallv2capitalv=1;
     }else{
       /* printv("Unknown option\n"); */
     }
@@ -327,6 +339,7 @@ void main(int argc,char *argv[]) {
 
     if (s == NULL) { irt = 1; continue; }
     if (!irt) printf("%s",Data_begin_v[View]);
+    if (smallv2capitalv) smallv_to_capitalv(s,sagev);
     /* Evaluate the input on the engine */
     KSexecuteString(" ox.engine oxclearstack ");
     KSexecuteString(" ox.engine ");
@@ -880,3 +893,18 @@ static int mystrncmp(char a[],char s[]) {
   return r;
 }
       
+static int smallv_to_capitalv(char *s,char *key) {
+  int m,n,i;
+  m = strlen(s);
+  n = strlen(key);
+  for (i=0; i<m; i++) {
+    if (s[i] == key[0]) {
+      if (strncmp(&(s[i]),key,n)==0) {
+	s[i] -= 0x20;
+	i += n-1;
+      }
+    }
+  }
+  /* printf("s=%s, key=%s\n",s,key); */
+  return 0;
+}
