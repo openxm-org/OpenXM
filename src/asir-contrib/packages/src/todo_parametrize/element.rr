@@ -171,7 +171,7 @@ def tdeg(F){
  Output: f(x,y) を斉次化して得られる斉次多項式F(x,y,z).
 */
 
-def homogenize(F){
+def td_homogenize(F){
     Vars=vars(F); L=length(Vars);
     for(I=0; I<L; I++){
 	V=Vars[I];
@@ -368,6 +368,6 @@ def lissajou(M,N){
     Y=subst(cs(N)[1],x,(1-t^2)/(1+t^2),y,2*t/(1+t^2));
     DX=dn(X); NX=nm(X); DY=dn(Y); NY=nm(Y);
     R=res(t,DX*x-NX,DY*y-NY);		/* R は既約か？ */
-    F=homogenize(fctr(R)[1][0]);
+    F=td_homogenize(fctr(R)[1][0]);
 }
 end$

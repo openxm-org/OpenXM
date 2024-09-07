@@ -89,7 +89,7 @@ def birat3(F,A){
     }
 
     Vars=vars_(Equx);
-    Gr=gr(Equx,Vars,2); L=length(Gr);
+    Gr=td_gr(Equx,Vars,2); L=length(Gr);
 
     for(X=H,J=L-1; J>=0; J--){
 	E=Gr[J]; V=var(E);
@@ -97,7 +97,7 @@ def birat3(F,A){
     }
 
     Vars=vars_(Equy);
-    Gr=gr(Equy,Vars,2); L=length(Gr);
+    Gr=td_gr(Equy,Vars,2); L=length(Gr);
 
     for(Y=H,J=L-1; J>=0; J--){
 	E=Gr[J]; V=var(E);
@@ -119,7 +119,7 @@ def birat3_gr(F,A){
     Q=coef(A,1,Vars[1]);
     R=coef(A,1,Vars[2]);
 
-    Gr=gr([F,R*u-P,R*v-Q,R*k-1],[k,y,x,u,v],2);
+    Gr=td_gr([F,R*u-P,R*v-Q,R*k-1],[k,y,x,u,v],2);
     L=length(Gr);
 
     for(I=0; I<L; I++)
@@ -212,7 +212,7 @@ def birat2(F,A){
     }
 
     Vars=vars_(Equx);
-    Gr=gr(Equx,Vars,2); L=length(Gr);
+    Gr=td_gr(Equx,Vars,2); L=length(Gr);
 
     for(X=H,J=L-1; J>=0; J--){
 	E=Gr[J]; V=var(E);
@@ -220,7 +220,7 @@ def birat2(F,A){
     }
 
     Vars=vars_(Equy);
-    Gr=gr(Equy,Vars,2); L=length(Gr);
+    Gr=td_gr(Equy,Vars,2); L=length(Gr);
 
     for(Y=H,J=L-1; J>=0; J--){
 	E=Gr[J]; V=var(E);
@@ -251,7 +251,7 @@ def birat2_gr(F,A){
     P=coef(A,0,t);
     Q=coef(A,1,t);
 
-    Gr=gr([F,Q*t-P,Q*k-1],[k,y,x,t],2);
+    Gr=td_gr([F,Q*t-P,Q*k-1],[k,y,x,t],2);
     L=length(Gr);
 
     for(I=0; I<L; I++)

@@ -23,7 +23,7 @@ def birat(F,A){
 
 	Vars=vars_(Equ);
 
-	Gr=gr(Equ,Vars,2); L=length(Gr);
+	Gr=td_gr(Equ,Vars,2); L=length(Gr);
 
 	for(I=L-1; I>=0; I--){
 	    E=Gr[I]; V=var(E);
@@ -233,7 +233,7 @@ def restriction(A,Ps){
     }
 
     Vars=vars_(Equ);
-    Gr=gr(Equ,Vars,2); L=length(Gr);
+    Gr=td_gr(Equ,Vars,2); L=length(Gr);
     for(I=L-1; I>=0; I--){
 	E=Gr[I]; V=var(E);
 	A=ptozp(subst(A,V,lzero(E,V)));
@@ -249,7 +249,7 @@ def restriction_ad(AN){
     }
 
     Vars=vars_(Equ);
-    Gr=gr(Equ,Vars,2); L=length(Gr);
+    Gr=td_gr(Equ,Vars,2); L=length(Gr);
     for(I=L-1; I>=0; I--){
 	E=Gr[I]; V=var(E);
 	A=ptozp(subst(A,V,lzero(E,V)));
@@ -281,7 +281,7 @@ def condition_m(F,P,M,Al){
 	    E=cons(defpoly(Al[I]),E);
 	    V=cons(algptorat(Al[I]),V);
 	}
-	Gr=gr(E,V,2); H=Gr[0];
+	Gr=td_gr(E,V,2); H=Gr[0];
 
 	for(I=1; I<=(M-1)+1; I++)
 	    for(J=I+1; J<=(M-1)+2; J++){
@@ -362,7 +362,7 @@ def ad(A,N){
     Equ=wnbh_ad(AN);
 
     Vars=vars_(Equ);
-    Gr=gr(Equ,Vars,2); L=length(Gr);
+    Gr=td_gr(Equ,Vars,2); L=length(Gr);
 
     for(I=L-1; I>=0; I--){
 	E=Gr[I]; V=var(E);

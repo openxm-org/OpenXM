@@ -19,7 +19,7 @@ def intpt(F){
 
     List=[G[0][1]-S[0],G[1][1]-S[1],G[2][1]-S[2]];
 
-    Gr=gr(List,[z,y,x],2);
+    Gr=td_gr(List,[z,y,x],2);
 
     X=Gr[0]; Y=Gr[1]; Z=Gr[2];
     Pt=[lzero(X,x),lzero(Y,y),lzero(Z,z)];
@@ -166,8 +166,7 @@ def pre_legendre(A,B,C){
 
 def legendre_(A,B,C){
     if(check_square_free(A*B*C)==-1)
-	return("***Arguments must be 
-		pairwise relatively prome and square free***");
+	return("***Arguments must be pairwise relatively prome and square free***");
 
     if(aRb(-A*B,C)==-1 || aRb(-B*C,A)==-1 || aRb(-C*A,B)==-1
 	|| (A>0 && B>0 && C>0) || (A<0 && B<0 && C<0))
