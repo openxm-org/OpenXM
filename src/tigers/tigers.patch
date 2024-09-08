@@ -1,6 +1,6 @@
 diff -urN TiGERS_0.9.orig/Makefile TiGERS_0.9/Makefile
---- TiGERS_0.9.orig/Makefile	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/Makefile	2020-11-01 10:49:33.000000000 +0900
+--- TiGERS_0.9.orig/Makefile	1999-06-12 07:05:52
++++ TiGERS_0.9/Makefile	2024-09-08 13:12:15
 @@ -2,7 +2,7 @@
  
  # specify compiler and compiler flags
@@ -10,29 +10,51 @@ diff -urN TiGERS_0.9.orig/Makefile TiGERS_0.9/Makefile
  CFLAGS = -O3
  
  Lib_Dirs = 
+@@ -16,6 +16,5 @@
+ objA = utime.o  exsearch.o call.o gset.o binomial.o utils.o Rsimp.o tigers.o matrices.o toric.o Ihermite.o
+ tigers: $(objA) ;
+ 	$(CC)  $(LDFLAGS)  $(objA)  -o tigers $(Lib_Dirs) $(Libs)
+-
+-
+-
++clean:
++	rm -f tigers $(objA)
 diff -urN TiGERS_0.9.orig/NOTE.txt TiGERS_0.9/NOTE.txt
---- TiGERS_0.9.orig/NOTE.txt	1970-01-01 09:00:00.000000000 +0900
-+++ TiGERS_0.9/NOTE.txt	2020-11-01 10:49:33.000000000 +0900
+--- TiGERS_0.9.orig/NOTE.txt	1970-01-01 09:00:00
++++ TiGERS_0.9/NOTE.txt	2024-09-08 13:08:17
 @@ -0,0 +1 @@
 +This is a working directory by NT.  1999, 6/26.
 diff -urN TiGERS_0.9.orig/README.change TiGERS_0.9/README.change
---- TiGERS_0.9.orig/README.change	1970-01-01 09:00:00.000000000 +0900
-+++ TiGERS_0.9/README.change	2020-11-01 10:49:33.000000000 +0900
+--- TiGERS_0.9.orig/README.change	1970-01-01 09:00:00
++++ TiGERS_0.9/README.change	2024-09-08 13:08:17
 @@ -0,0 +1 @@
 +The original source code of TiGERS is in OpenXM_contib/TiGERS_0.9.
+diff -urN TiGERS_0.9.orig/Rsimp.c TiGERS_0.9/Rsimp.c
+--- TiGERS_0.9.orig/Rsimp.c	1999-06-12 07:05:51
++++ TiGERS_0.9/Rsimp.c	2024-09-08 13:18:46
+@@ -63,7 +63,7 @@
+   free_ivector(LP_NonBasis);
+   free_vector(LP_t1);
+   free_vector(LP_t2);
+-  LP_M=LP_N=LP_MAX_M=LP_N=0;
++  LP_M=LP_N=LP_MAX_M=0;
+   LP_A=LP_Q=LP_R=0;
+   LP_B =LP_C=LP_X=LP_t1=LP_t2=0;
+   LP_Basis=LP_NonBasis = 0;
 diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
---- TiGERS_0.9.orig/binomial.c	1999-06-12 07:05:51.000000000 +0900
-+++ TiGERS_0.9/binomial.c	2020-11-01 10:49:33.000000000 +0900
-@@ -12,7 +12,7 @@
+--- TiGERS_0.9.orig/binomial.c	1999-06-12 07:05:51
++++ TiGERS_0.9/binomial.c	2024-09-08 13:17:58
+@@ -12,8 +12,8 @@
  #include<stdlib.h>
  #include "utils.h"
  #include "binomial.h"
--
 +extern int NT;
  
+-
  /*
  **-------------ring defs-----------------------------------------------------
-@@ -98,12 +98,21 @@
+ **
+@@ -98,13 +98,22 @@
  */
  void print_monomial(FILE *of, int *exps){
    int i,jk=0;
@@ -47,7 +69,7 @@ diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
 +    for (i=0; i<ring_N; i++) {
 +      fprintf(of,"%d",exps[i]);
 +      if (i != ring_N-1) fprintf(of," , ");
-+    }
+     }
 +    fprintf(of,"]");
 +  }else{
 +    for(i=0;i<ring_N;i++){
@@ -57,9 +79,19 @@ diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
 +	ring_putvar(of,i);
 +	if (exps[i]>1) fprintf(of,"^%d",exps[i]);
 +      }
-     }
++    }
    }
  }
+ 
+@@ -174,7 +183,7 @@
+ **    copy least common multiple of m1 and m2 into m3.
+ **
+ */
+-int monomial_lcm(monomial m1, monomial m2, monomial m3){
++void monomial_lcm(monomial m1, monomial m2, monomial m3){
+   int i;
+   for(i=0;i<ring_N;i++){
+     if (m1[i]>=m2[i]) m3[i]=m1[i];
 @@ -309,17 +318,33 @@
  **
  */
@@ -106,9 +138,9 @@ diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
  
  /*
 diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
---- TiGERS_0.9.orig/call.c	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/call.c	2020-11-01 10:49:33.000000000 +0900
-@@ -15,6 +15,8 @@
+--- TiGERS_0.9.orig/call.c	1999-06-12 07:05:52
++++ TiGERS_0.9/call.c	2024-09-08 13:16:52
+@@ -15,11 +15,12 @@
  #include "gset.h"
  #include "matrices.h"
  
@@ -117,7 +149,13 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
  /*
  ** write a description of program usage to stderr
  */
-@@ -68,7 +70,7 @@
+-usage(prog)
+-char *prog;
++void usage(char *prog)
+ {
+   static char *helpmsg[] = {
+   "Function: Enumerate all Groebner bases of a toric ideal I_A.",
+@@ -68,7 +69,7 @@
    exit(-1);
  }
  
@@ -126,16 +164,20 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
  extern int rsearch_cache;
  extern int print_tree;
  extern int  print_init;
-@@ -87,7 +89,7 @@
+@@ -87,10 +88,10 @@
  
  #define MATFOUND 1
  #define GSETFOUND 2
 -main(int argc, char **argv ){
-+main2(int argc, char **argv ){
++int main2(int argc, char **argv ){
   char *c,cc, *prog=argv[0], *ifname=0, *ofname=0;
   int tmp,acnt,stat=0,counter;
-  gset G1=0,gset_toric_ideal();
-@@ -100,6 +102,10 @@
+- gset G1=0,gset_toric_ideal();
++ gset G1=0;
+  int **M=0,Mn,Mm;
+  double tt;
+ 
+@@ -100,6 +101,10 @@
    print_tree=FALSE;
    print_init=FALSE;
  
@@ -146,7 +188,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
    /* parse command line */
    while (--argc > 0 && (*++argv)[0] == '-'){
      acnt=0;
-@@ -205,6 +211,29 @@
+@@ -205,6 +210,29 @@
     }
    }
  
@@ -176,7 +218,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
    /* output first GB if desired */
    fprintf(outfile,"%% starting GB:\n");
    fprintf(outfile,"R: %d\n",ring_N);
-@@ -314,15 +343,119 @@
+@@ -314,15 +342,120 @@
      return 0;
      }
    }
@@ -185,6 +227,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
    /* clean up */
    LP_free_space();
    if (G1!=0) gset_free(G1);
++  return 0; // dummy return
  }
  
  
@@ -214,7 +257,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  int i,j;
 +  int **M;
 +  int pt = 0;
-+
+ 
 +  /*  2 3 :
 +      1 1 1
 +      0 1 2
@@ -235,20 +278,20 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  
 +  return M;
 +}
-+
-+tiger_executeString_M(char *is) {
+ 
++void tiger_executeString_M(char *is) {
 +  char *c,cc, *prog="tigers", *ifname=0, *ofname=0;
 +  int tmp,acnt,stat=0,counter;
-+  gset G1=0,gset_toric_ideal();
++  gset G1=0;
 +  int **M=0,Mn,Mm;
 +  double tt;
-+
+ 
 +  /* initialize parameters */
 +  root_only=FALSE;
 +  rsearch_cache=TRUE;
 +  print_tree=FALSE;
 +  print_init=FALSE;
-+
+ 
 +  if ((M=imatrix_read_from_string(is,&Mm,&Mn))==0){
 +     fprintf(stderr,"%s: imatrix_read() failed\n",prog);
 +     exit(1);      
@@ -265,7 +308,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  if (stat==MATFOUND){
 +   G1=gset_toric_ideal(M,Mm,Mn);
 +  }
- 
++
 +  fprintf(outfile,"[\n");
 +  /* perform reverse search if desired*/  
 +  if (root_only==FALSE){
@@ -282,14 +325,14 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +      fprintf(outfile,"\n");
 +    }
 +  }
- 
++
 +  fprintf(outfile,"]\n");
 +  LP_free_space();
 +  if (G1!=0) gset_free(G1);
 +}
- 
- 
-+main(int argc, char *argv[]) { infile=stdin; outfile=stdout;
++
++
++int main(int argc, char *argv[]) { infile=stdin; outfile=stdout;
 +  if (argc > 1) {
 +    tiger_executeString_M(argv[1]);
 +  }else{
@@ -297,8 +340,8 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  }
 +}
 diff -urN TiGERS_0.9.orig/gset.c TiGERS_0.9/gset.c
---- TiGERS_0.9.orig/gset.c	1999-06-12 07:05:51.000000000 +0900
-+++ TiGERS_0.9/gset.c	2020-11-01 10:49:33.000000000 +0900
+--- TiGERS_0.9.orig/gset.c	1999-06-12 07:05:51
++++ TiGERS_0.9/gset.c	2024-09-08 13:15:30
 @@ -13,6 +13,7 @@
  #include "gset.h"
  #include "matrices.h"
@@ -334,10 +377,25 @@ diff -urN TiGERS_0.9.orig/gset.c TiGERS_0.9/gset.c
  }
  
  /*
+@@ -212,6 +222,7 @@
+       }
+    }
+    fprintf(stderr, "Warning BMreduce does not get to zero\n");
++   return 0;
+ }
+ 
+ 
 diff -urN TiGERS_0.9.orig/gset.h TiGERS_0.9/gset.h
---- TiGERS_0.9.orig/gset.h	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/gset.h	2020-11-01 10:59:44.000000000 +0900
-@@ -40,9 +40,17 @@
+--- TiGERS_0.9.orig/gset.h	1999-06-12 07:05:52
++++ TiGERS_0.9/gset.h	2024-09-08 13:14:15
+@@ -34,15 +34,23 @@
+ void gset_insert(gset g, binomial b);
+ binomial gset_downedge(gset g);
+ gset gset_flip(gset g1, binomial b);
+-void gset_autoreduce();
++void gset_autoreduce(gset);
+ int gset_isfacet(gset g,binomial b);
+ void gset_setfacets(gset g);
  gset gset_toric_ideal(int **,int,int);
  void gset_rgb(gset g, int (*comp)(monomial,monomial));
  
@@ -362,8 +420,8 @@ diff -urN TiGERS_0.9.orig/gset.h TiGERS_0.9/gset.h
 +void gset_facet_print(FILE *of,gset g);
 +int ihermite(int **S,int **U,int m, int n);
 diff -urN TiGERS_0.9.orig/memo.txt TiGERS_0.9/memo.txt
---- TiGERS_0.9.orig/memo.txt	1970-01-01 09:00:00.000000000 +0900
-+++ TiGERS_0.9/memo.txt	2020-11-01 10:49:33.000000000 +0900
+--- TiGERS_0.9.orig/memo.txt	1970-01-01 09:00:00
++++ TiGERS_0.9/memo.txt	2024-09-08 13:08:17
 @@ -0,0 +1,33 @@
 +Open XM 化は２とおりの方法があり.  1999, 6/26
 +一つは, 出力をパーサで理解する方法。
@@ -399,9 +457,9 @@ diff -urN TiGERS_0.9.orig/memo.txt TiGERS_0.9/memo.txt
 +---  よい経験になると思う.  この経験をプログラム作法として記録するのは
 +---  大事であろう. のこりは日本でやる.  あとは, 級数解の構成プログラム.
 diff -urN TiGERS_0.9.orig/tigers.c TiGERS_0.9/tigers.c
---- TiGERS_0.9.orig/tigers.c	1999-06-12 07:05:51.000000000 +0900
-+++ TiGERS_0.9/tigers.c	2020-11-01 10:49:33.000000000 +0900
-@@ -12,6 +12,7 @@
+--- TiGERS_0.9.orig/tigers.c	1999-06-12 07:05:51
++++ TiGERS_0.9/tigers.c	2024-09-08 13:08:17
+@@ -12,11 +12,12 @@
  #include "utils.h"
  #include "gset.h"
  int rsearch_cache=TRUE;
@@ -409,6 +467,12 @@ diff -urN TiGERS_0.9.orig/tigers.c TiGERS_0.9/tigers.c
  
  /* 
  ** Output initial ideals and numbers of facets at each stage.
+ */
+-FILE *outfile;
++extern FILE *outfile;
+ int print_init=TRUE;
+ int print_tree=TRUE;
+ 
 @@ -32,27 +33,31 @@
  #define max(a,b) (((a)>(b))?(a):(b))
  #define min(a,b) (((a)<(b))?(a):(b))
@@ -461,17 +525,20 @@ diff -urN TiGERS_0.9.orig/tigers.c TiGERS_0.9/tigers.c
    
  
 diff -urN TiGERS_0.9.orig/toric.c TiGERS_0.9/toric.c
---- TiGERS_0.9.orig/toric.c	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/toric.c	2020-11-01 10:49:33.000000000 +0900
-@@ -15,7 +15,7 @@
+--- TiGERS_0.9.orig/toric.c	1999-06-12 07:05:52
++++ TiGERS_0.9/toric.c	2024-09-08 13:14:26
+@@ -15,10 +15,10 @@
  #include "gset.h"
  #include "matrices.h"
  #include "Rsimp.h"
--
 +extern int NT;
  
  
  
+-
+ /*
+ ** void gset_compute_colon(gset g,int lv):
+ **    Compute deg rev lex rgb (lv least) for colon of g with variable lv.
 @@ -34,7 +34,10 @@
    int lold,jk;
  
@@ -484,27 +551,26 @@ diff -urN TiGERS_0.9.orig/toric.c TiGERS_0.9/toric.c
  
    /* set lex last variable to be lv */
    lold=ring_lv;
+@@ -65,7 +68,7 @@
+ gset gset_toric_ideal(int **M,int m, int n){
+    int i,j,jk,crk;
+    binomial b;
+-   int **V,**S,**new_imatrix();
++   int **V,**S,**new_imatrix(int,int);
+    gset g;
+  
+    /* set ring dimension*/
 diff -urN TiGERS_0.9.orig/utils.c TiGERS_0.9/utils.c
---- TiGERS_0.9.orig/utils.c	1999-06-12 07:05:52.000000000 +0900
-+++ TiGERS_0.9/utils.c	2020-11-01 10:59:09.000000000 +0900
-@@ -10,6 +10,7 @@
+--- TiGERS_0.9.orig/utils.c	1999-06-12 07:05:52
++++ TiGERS_0.9/utils.c	2024-09-08 13:18:17
+@@ -10,8 +10,9 @@
  */
  #include<stdio.h>
  #include<stdlib.h>
 +#include<ctype.h>
  
- int eatwhite(FILE *is){
+-int eatwhite(FILE *is){
++void eatwhite(FILE *is){
   int c;
-
---- TiGERS_0.9/tigers.c.orig	2021-11-16 11:59:40.619709584 +0900
-+++ TiGERS_0.9/tigers.c	2021-11-16 12:00:58.800452127 +0900
-@@ -17,7 +17,7 @@
- /* 
- ** Output initial ideals and numbers of facets at each stage.
- */
--FILE *outfile;
-+extern FILE *outfile;
- int print_init=TRUE;
- int print_tree=TRUE;
- 
-
+  while ((c=fgetc(is))!=EOF){
+   if (c=='%')  while ((c=fgetc(is))!=EOF && c!='\n');
