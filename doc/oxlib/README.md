@@ -27,7 +27,7 @@ make install
 cd ../../doc/oxlib
 ./configure
 make
-# It builds test and test3 
+# It builds test, test0 and test3 
 ```
 See the Makefile to build other tests.
 

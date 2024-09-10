@@ -1,7 +1,7 @@
 # $OpenXM: OpenXM/doc/oxlib/Makefile.in,v 1.1 2018/03/28 05:09:38 takayama Exp $
 all : all-samples
-all-samples : test test3
-all-samples-with-x : test_X test3_X
+all-samples : test test3 test0 
+all-samples-with-x : test_X test3_X test0_X
 ##
 ## make   
 ## make OpenXM_HOME=/usr/local/OpenXM
@@ -28,6 +28,11 @@ test : test.o
 test_X : test.o 
 	${CC} -o test_X test.o $(ASIR_LIB_X) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
 
+test0 : test0.o 
+	${CC} -o test0 test0.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
+test0_X : test0.o 
+	${CC} -o test0_X test0.o $(ASIR_LIB_X) $(PARI_LIB) $(LIBEDIT) $(GC) $(EXTRALIB) $(LOPT_X)
+
 test1 : test1.o 
 	${CC} -o test1 test1.o $(ASIR_LIB) $(GC) $(EXTRALIB) $(LOPT)
 
@@ -53,4 +58,4 @@ test1-tcp-rev: test1-tcp-rev.c
 	${CC} $(CFLAGS) -I$(INCLUDE) -c -g $<
 
 clean :
-	rm -f test test1 test2 test3 *.o *~ *.a  a.out test_X test1_X test2_X test3_X
+	rm -f test test0 test1 test2 test3 *.o *~ *.a  a.out test_X test1_X test2_X test3_X
