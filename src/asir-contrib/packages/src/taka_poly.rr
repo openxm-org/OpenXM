@@ -1244,6 +1244,55 @@ tk_print_poly_in_t_w(F0h=tk_poly_w_marking(F0,[x,y,z,dx,dy,dz],[-1,-1,0,1,1,0]))
 base_replace(F0h,[[t_w,1]]);
 */
 
+def tk_poly_coefficient_of_monomial(F,Mon,V) {
+  if (type(Mon) < 2) {
+    C=base_replace(F,assoc(V,vtol(newvect(length(V)))));
+    return C/Mon;
+  }
+  E=dp_etov(dp_ptod(Mon,V));
+  C=F;
+  for (I=0; I<length(E); I++) C=coef(C,E[I],V[I]);
+  return C;
+}
+def tk_poly_coefficients_of_monomial_list(F,VV) {
+  if (type(F)>3) return map(tk_poly_coefficients_of_monomial_list,F,VV);
+  V=vars(VV);
+  L=[];
+  while (VV != []) {
+    L=cons(tk_poly_coefficient_of_monomial(F,car(VV),V),L);
+    VV=cdr(VV);  
+  }
+  return reverse(L);
+}
+/*&usage begin: poly_coefficients_of_monomial_list(F,VV)
+ It returns the list of coefficients of F with respect to VV.
+example:
+tk_poly_coefficients_of_monomial_list(2+3*x+4*z,[1,x,y,z]);
+tk_poly_coefficients_of_monomial_list((x+z)^3+5*y,[1,x,y,z,x^2*z]);
+tk_poly_coefficients_of_monomial_list([(x+y)^3,x+y],[x,x^2,x^3,x^2*y,x*y^2,y^3]);
+end: */
+
+/*&usage begin: poly_construct_from_coefficients_of_monomial_list(L,VV)
+  It returns the inner product of L and VV.
+example:
+L=tk_poly_coefficients_of_monomial_list((x+y)^3,VV=[x,x^2,x^3,x^2*y,x*y^2,y^3]);
+poly_construct_from_coefficients_of_monomial_list(L,VV);
+
+T1=tk_poly_coefficients_of_monomial_list(T0=[(x+y)^3,2+3*x+4*y+5*z],VV=[1,x,y,z,x^3,x^2*y,x*y^2,y^3]);
+T2=tk_poly_construct_from_coefficients_of_monomial_list(T1,VV);
+end: */
+
+def tk_poly_construct_from_coefficients_of_monomial_list(L,VV) {
+  if (length(L)==0) return L;
+  if (type(L[0])>3) return map(tk_poly_construct_from_coefficients_of_monomial_list,L,VV);
+  return matrix_inner_product(L,VV);
+}
+/*
+T1=tk_poly_coefficients_of_monomial_list(T0=[(x+y)^3,2+3*x+4*y+5*z],VV=[1,x,y,z,x^3,x^2*y,x*y^2,y^3]);
+T2=tk_poly_construct_from_coefficients_of_monomial_list(T1,VV);
+*/
+
+
 Taka_poly_loaded = 1$
 end$
 
