@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20240905), Copyright 2000-2024, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20250117), Copyright 2000-2025, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -643,7 +643,7 @@ def poly_degree(I) {
  It returns the Grobner basis of F for the weight vector W.
  It is the second interface for poly_grobner_basis.
  example: poly_gr_w([x^2+y^2-1,x*y-1],[x,y],[1,0]);
- ref: poly_in_w, poly_grobner_bais
+ ref: poly_in_w, poly_grobner_basis
 end: */
 def poly_gr_w(F,V,W) { 
   Opt = getopt();
@@ -653,8 +653,8 @@ def poly_gr_w(F,V,W) {
 /*&usage begin: poly_r_omatrix(N)
  It gives a weight matrix, which is used to compute
  a Grobner basis in K(x)<dx>, |x|=|dx|=N.
+ ref: poly_weight_to_omatrix
  example: poly_r_omatrix(3);
- ref: poly_weight_to_omatrix(W,V);
  When the option lex is given, the last lex variables are
  compared firstly by the lexicographic order, e.g.,
  poly_r_omatrix(4 | lex=2) is compared by the matrix
@@ -674,7 +674,7 @@ def poly_r_omatrix(N) {
  F is s single polynomial or a list of polynomials. 
  This is a new interface of poly_in_w with shorter args.
  example: poly_in_w_([x^2+y^2-1,x*y-x] | v=[x,y],weight=[1,0]);
- ref: poly_weight_to_omatrix(W,V), poly_grobner_basis, poly_gr_w
+ ref: poly_weight_to_omatrix, poly_grobner_basis, poly_gr_w
 end: */
 def poly_in_w_(F) { 
   Opt = getopt();
@@ -686,7 +686,7 @@ def poly_in_w_(F) {
  for the weight vector given by order.
  F is s single polynomial or a list of polynomials. 
  example: poly_in_w([x^2+y^2-1,x*y-x] , [x,y], [1,0]);
- ref: poly_weight_to_omatrix(W,V), poly_grobner_basis, poly_gr_w, poly_in_w_
+ ref: poly_weight_to_omatrix, poly_grobner_basis, poly_gr_w, poly_in_w_
 end: */
 def poly_in_w(F,V,W) { 
   Opt = getopt();
@@ -766,7 +766,7 @@ def poly_weyl_subsetq(II,JJ,V) {
 /*&usage begin: poly_toric_ideal(A,V)
  It returns generators of the affine toric ideal defined by the matrix(list) A.
  V is the list of variables.
- option: nk_toric=1 (disable 4ti2)
+ options: nk_toric=1 (disable 4ti2)
  example: poly_toric_ideal([[1,1,1,1],[0,1,2,3]],base_var_list(x,0,3));
 end: */
 def poly_toric_ideal(A,V) {
@@ -871,7 +871,7 @@ def poly_coefficients_list(F,V) {
 }
 /*&usage begin: poly_coefficients_of_monomial_list(F,VV)
  It returns the list of coefficients of F with respect to a list of monomials VV.
- See also  poly_construct_from_coefficients_of_monomial_list(L,VV)
+ ref: poly_construct_from_coefficients_of_monomial_list
 example:
 poly_coefficients_of_monomial_list(2+3*x+4*z,[1,x,y,z]);
 poly_coefficients_of_monomial_list((x+z)^3+5*y,[1,x,y,z,x^2*z]);
@@ -884,7 +884,7 @@ def poly_coefficients_of_monomial_list(F,VV) {
 }
 /*&usage begin: poly_construct_from_coefficients_of_monomial_list(L,VV)
   It returns the inner product of L and VV.
-  See also poly_coefficients_of_monomial_list(F,VV)
+  ref: poly_coefficients_of_monomial_list
 example:
 L=tk_poly_coefficients_of_monomial_list((x+y)^3,VV=[x,x^2,x^3,x^2*y,x*y^2,y^3]);
 poly_construct_from_coefficients_of_monomial_list(L,VV);
@@ -937,7 +937,7 @@ def poly_weight_to_ord_matrix(W) {
 /*&usage begin: poly_w_marking(Id,V,W)
    The monomials x^a in Id is rewritten to x^a*t_w^(<a,w>+b).
    <a,w> is the inner product and b is an integer to avoid negative powers of t_w.
-   Return: [w-marked polynomial, b]
+   Return value is [w-marked polynomial, b]
    Options: specify a name of homogenization variable by the option hvar. The default is t_w.
    example:
      poly_w_marking(x*dx^2+y*dy+a,[x,y,dx,dy],[-1,-1,1,1]);
@@ -1391,7 +1391,7 @@ def print_xdvi_form(F) {
 
 /*&usage begin: print_pdf_form(S)
  It transforms {S} to a pdf file and previews the file.
- option:  nopreview=1 does not preview the PDF file. 
+ options:  nopreview=1 does not preview the PDF file. 
  example: print_pdf_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
  example: print_pdf_form(poly_factor(x^10-1));
  ref: print_tex_form, print_xdvi_form
