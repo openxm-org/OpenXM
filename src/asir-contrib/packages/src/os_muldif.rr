@@ -1,12 +1,11 @@
 /* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.97 2022/08/07 23:38:42 takayama Exp $ */
-/* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
- scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
-*/
+/* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html */
+
 #define USEMODULE 1
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Sep. 2024)
+ *          Toshio Oshima (Nov. 2007 - Jan. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -14,7 +13,7 @@
  *   "Tab = 4 column" is best
  */
 
-ord([zz,dz,dy,dx])$
+ord([zz,dz,dx])$
 
 #ifdef USEMODULE
 module os_md;
@@ -118,6 +117,7 @@ localf matrtop$
 localf mytrace$
 localf mydet$
 localf permanent$
+localf lperm$
 localf mperm$
 localf mtranspose$
 localf mtoupper$
@@ -125,15 +125,18 @@ localf mydet2$
 localf myrank$
 localf lext2$
 localf meigen$
+localf mmeigen$
 localf pf2kz$
 localf mext2$
 localf transm$
 localf vgen$
 localf kzext$
+localf integdlog$
 localf mmc$
 localf lpgcd$
 localf mdivisor$
 localf mdsimplify$
+localf mdsimpold$
 localf m2mc$
 localf easierpol$
 localf paracmpl$
@@ -371,6 +374,9 @@ localf iscommutefamily$
 localf isalphanum$
 localf isdecimal$
 localf isvar$
+localf islinear$
+localf issymmetric$
+localf iszeromat$
 localf isyes$
 localf isall$
 localf iscoef$
@@ -400,6 +406,10 @@ localf newKZmat$
 localf newKZmatb$
 localf midKZ0$
 localf midKZ$
+localf mcPfaff$
+localf adPfaff$
+localf trPfaff$
+localf showPfaff$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -469,7 +479,9 @@ localf comfamily$
 localf diagm$
 localf mgen$
 localf madj$
+localf mbracket$
 localf newbmat$
+localf mbadd$
 localf unim$
 localf pfrac$
 localf cfrac$
@@ -607,7 +619,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00241101"$
+Muldif.rr="00250114"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2351,8 +2363,11 @@ def xytournament(L,V)
 		T=cons([car(Win)[0]-1,car(Win)[1]-1],T);
 	Win=qsort(T);
 	if(isint(W)) Pos=W-1;
-	if(Pos==-1&&type(Sft)==4)
-		Pos=findin(0,Sft);
+	if(Pos==-1&&type(Sft)==4){
+		Pos=findin(W,Sft);
+		if(Pos<0) Pos=findin(0,Sft);
+		if(Pos<0) Pos=W;
+	}
 	if(Pos>=0) Top=1;
 	SK=[[0,Skip],[-Skip,0]];RR=[];
 	for(T="",S=reverse(S);S!=[];S=cdr(S)){
@@ -3343,6 +3358,17 @@ def permanent(M)
 	return V;
 }
 
+def lperm(V,P)
+{
+	S=length(V);
+	if(type(P)==5) P=vtol(P);
+	if(type(car(P))==4 && length(P)==1) P=vtol(trpos(car(P)[0],car(P)[1],S));
+	for(R=[];P!=[];P=cdr(P)) R=cons(V[car(P)],R);
+	R=reverse(R);
+	if(type(P)==5) R=ltov(P);
+	return R;
+}
+
 def mperm(M,P,Q)
 {
 	if(type(M) == 6){
@@ -3889,6 +3915,41 @@ def meigen(M)
 	return (F==1)?getroot(P,zz|mult=1):getroot(P,zz);
 }
 
+def mmeigen(L)
+{
+	if(type(L)==6) L=[L];
+	NN=diagm(S=size(L[0])[0],0);
+	for(L0=L;L0!=[];L0=cdr(L0)){
+		for(L1=cdr(L0);L1!=[];L1=cdr(L1)){
+			if(car(L0)*car(L1)-car(L1)*car(L0) != NN) return -1;
+		}
+	}
+	Len=length(L);
+	if(Len>1)
+	V=makenewv(L|num=Len-1);
+	M=dupmat(-car(L));
+	for(I=0;I<S;I++) M[I][I]+=zz;
+		for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
+		M-=car(TV)*car(L);
+	Det=mydet(M);
+	R=getroot(Det,zz|mult=1);
+	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
+		P=car(TR)[1];
+		if(mydeg(P,zz)>0){
+			RR=cons(car(TR),RR);
+			continue;
+		}
+		for(U=[],TV=reverse(V);TV!=[];TV=cdr(TV)){
+			U=cons(mycoef(P,1,car(TV)),U);
+			P=mycoef(P,0,car(TV));
+		}
+		U=cons(P,U);
+		U=cons(car(TR)[0],U);
+		RR=cons(U,RR);
+	}
+	return RR;
+}
+
 def lext2(L)
 {
 	if(length(L)==2){
@@ -4094,6 +4155,41 @@ def vgen(V,W,S)
 	if(SS>0)
 		return -1;
 	return(I==IM)?0:I;
+}
+
+def integdlog(F,X)
+{
+	if(type(F)!=4||type(X)!=4) return 0;
+	LF=length(F);LX=length(X);
+	M=newmat(LX,LF);
+	if(type(V=getopt(sub))!=4)
+		for(V=[],P=LF-1;P>=0;P--) V=cons(P,V);
+	V=ltov(V);
+	for(P=0;P<LF;P++)
+		for(TF=F[P],I=0;I<LX;I++) M[I][P]=mydiff(TF,X[I]);
+	for(R=[],I=0;I<LX-1;I++){
+		for(J=I+1;J<LX;J++){
+			for(TR=P=0;P<LF;P++){
+				if(!M[I][P]) continue;
+				for(Q=0;Q<LF;Q++){
+					if(P==Q) continue;
+					if(!M[J][Q]) continue;
+					if(P<Q) VV=makev([a,V[P],V[Q]]);
+					else VV=-makev([a,V[Q],V[P]]);
+					TR+=VV*M[I][P]*M[J][Q]/F[P]/F[Q];
+					TR=red(TR);
+				}
+			}
+TR=nm(TR);
+			R=cons(TR,R);
+		}
+	}
+return os_md.ptol(R,X|opt=0);
+	if(getopt(raw)!=1){
+  		R=os_md.ptol(R,X|opt=0);
+  		R=gr(R,vars(R),2);
+	}
+	return R;
 }
 
 def mmc(M,X)
@@ -4716,6 +4812,128 @@ def mdivisor(M,X)
 
 def mdsimplify(L)
 {
+	Count=0;
+	if(getopt(old)==1)
+		return mdsimpold(L|option_list=getopt());
+	SS=0;
+	if(type(L)==6){
+		L=[L]; SS=1;
+	}
+	if(type(L)==5){
+		SS=2;
+		L = vtol(L);
+	}
+	if(!isint(Verb=getopt(verb)) ) Verb=0;
+	SL=length(L);
+	S=size(L[0])[0];
+ 	DD=newvect(S);
+    for(I=0;I<S;I++) DD[I]=1;
+	L=ltov(L);
+	if(getopt(keep)==1) for(I=0;I<SL;I++) L[I]=dupmat(L[I]);
+		/* find factors of denominators */
+	for(R=[]; ;){
+		FM=newmat(S,S);
+		for(K=0;K<SL;K++){
+			M=L[K];
+			for(T=I=0;I<S;I++){
+				for(J=0;J<S;J++){
+					if(I==J) continue;
+					if(type(dn(M[I][J]))==1) continue;
+					F=fctr(dn(M[I][J]));
+					for(F=cdr(F);F!=[];F=cdr(F)){
+						if(findin(car(F)[0],R)>=0) continue;
+						T=car(F)[0];I=J=S;K=SL;break;
+					}
+				}
+			}
+		}
+		if(!T) break;
+			/* check factor T  can be simplified */
+		if(Verb) mycat(["checking factor:",T]);
+		for(I=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(I==J) continue;
+				for(K=F=0;K<SL;K++){
+					if(!(TM=L[K][I][J])) continue;
+					if(type(DN=dn(TM))>1){
+						for(P=1;DN;DN=tdiv(DN,T)) P--;
+					}else P=0;
+					DN=tdiv(nm(TM),T);
+					if(P<0&&DN!=0){
+						if(Verb) mycat(["redicible",K,[I,J],TM]);
+						L[K][I][J]=red(TM);
+						K--;continue;
+					}
+					for(;DN;DN=tdiv(DN,T)) P++;
+					if((TF=FM[I][J])==0) FM[I][J]=[P];
+					else if(TF[0]>P) FM[I][J]=[P];
+				}
+			}
+		}
+		if(Verb>1) mycat(["checking matrix:\n",FM]);
+		for(R1=R2=[],I=F=NN=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(type(FM[I][J])==4 && FM[I][J][0]<0){
+					NN-=FM[I][J][0];
+					if(FM[J][I]==0 || FM[J][I][0]>0){
+						if(findin(J,R1)>=0 || findin(I,R2)>=0) F++;
+						else{
+							if(findin(I,R1)<0 && findin(I,R2)<0) R1=cons(I,R1);
+							if(findin(J,R1)<0 && findin(J,R2)<0) R2=cons(J,R2);
+						}
+					}
+				}
+			}
+		}
+		FM2=dupmat(FM);
+		for(R3=R1;R3!=[];R3=cdr(R3)){
+			I=car(R3);
+			for(J=0;J<S;J++){
+				if(findin(J,R1)>=0) continue;
+				if(FM2[I][J]!=0) FM2[I][J]=[car(FM2[I][J])+1];
+				if(FM2[J][I]!=0) FM2[J][I]=[car(FM2[J][I])-1];
+			}
+		}
+		for(I=NN2=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(type(FM2[I][J])==4 && FM2[I][J][0]<0)
+					NN2-= FM2[I][J][0];
+			}
+		}
+		for(R2=[],I=S-1;I>=0;I--) if(findin(I,R1)<0) R2=cons(I,R2);
+		if(NN2>=NN){
+			/* desn't reduce */
+		if(Verb) mycat(["Stop for :", T]);
+			R=cons(T,R);
+			continue;
+		}
+		if(!NN2) R=cons(T,R);
+		if(Verb) mycat([NN,"->", NN2]);
+		for(;R1!=[];R1=cdr(R1)){
+			I=car(R1);
+			DD[I]=DD[I]*T;
+			for(R3=R2;R3!=[];R3=cdr(R3)){
+				J=car(R3);
+				for(K=0;K<SL;K++){
+					L[K][I][J]=red(L[K][I][J]*T);
+					L[K][J][I]=red(L[K][J][I]/T);
+				}
+			}
+		}
+	}
+	L=vtol(L);
+	if(SS==6) L=L[0];
+	else if(SS!=5) L=vtol(L);
+	if(getopt(show)==1) L=[L,DD];
+	return L;
+	if(SS==2) L=ltov(L);
+	if(SS==1) L=L[0];
+	if(getopt(show)==1) L=[L,DD];
+	return L;
+}
+
+def mdsimpold(L)
+{
 	T=getopt(type);
 	SS=0;
 	if(type(L)==6){
@@ -4727,31 +4945,6 @@ def mdsimplify(L)
 	}
 	M=car(L);
 	S=size(M)[0];
-#if 0
-	MN=newmat(S,S);
-	MD=newmat(S,S);
-	for(I=0;I<S;I++){
-		for(J=0;J<S;J++){
-			TN=0;TD=1;
-			for(PL=L;PL!=[];PL=cdr(PL)){
-				TM=red(car(PL)[I][J]);
-				TN=lgcd([TN,nm(TM)]|pol=1);
-				TD=llcm([TD,dn(TM)]|pol=1);
-			}
-			MN[I][J]=TM;
-			MD[I][J]=TN;
-		}
-	}
-	for(I=0;I<S;I++){
-		for(J=0;J<S;J++){
-			if(I==J||type(TD[I][J])<2||type(TN[J][I])<2) continue;
-			for(FC=cdr(fctr(TD[I][J]));FC!=[];){
-				TFC=car(FC);
-				if(type(red(TN[J][I]/TFC[0]))>2) continue;
-			}
-		}
-	}
-#endif
 	DD=newvect(S);
 	for(I=0; I<S; I++){
 		LN=RN=[];
@@ -6866,6 +7059,13 @@ def myinv(M)
 	return mperm(MM,0,[T,[T]]);
 }
 
+def mbracket(L)
+{
+	if(type(A=L[0])==4) A=mbracket(A);
+	if(type(B=L[1])==4) B=mbracket(B);
+	return A*B-B*A;
+}
+
 def madj(G,M)
 {
 	H=myinv(G);
@@ -6877,7 +7077,7 @@ def madj(G,M)
 		for(I=0;I<L;I++){
 			N[I]=rmul(rmul(G,M[I]),H);
 		}
-		if(type(N)==4) N=vtol(N);
+		if(type(M)==4) N=vtol(N);
 		return N;
 	}
 	return -1;
@@ -7214,7 +7414,7 @@ def fctrtos(P)
 			}
 			if(N > 0 && TeX != 1 && TeX != 2 && TeX != 3)
 				write_to_tb("*", S);
-			SS=(TeX>=1)?my_tex_form(P[J][0]):rtostr(P[J][0]);
+			SS=(TeX>=1)?my_tex_form(P[J][0])+" ":rtostr(P[J][0]);
 			N++;
 			if(P[J][1] != 1){		/* (log(x))^2 */
 				if(nmono(P[J][0])>1||
@@ -11182,6 +11382,15 @@ def dform(L,X)
 	if(type(L[0])!=4) L=[L];
 	if(type(X)==4) X=ltov(X);
 	M=length(X);
+	if(getopt(log)==1){
+		for(R=[];L!=[];L=cdr(L)){
+			T=car(L);T0=car(T);T=cdr(T);
+			T0/=car(T);
+			if(length(T)>1) T0/=T[1];
+			R=cons(cons(T0,T),R);
+		}
+		L=reverse(R);
+	}
 	if(length(car(L))==2){
 		R=newvect(M);
 		for(LL=L; LL!=[]; LL=cdr(LL)){
@@ -13818,6 +14027,310 @@ def midKZ(L,B)
 	return S;
 }
 
+def islinear(P,V)
+{
+	P=red(P);
+	if(lsort(vars(dn(P)),V,"cap") !=[]) return 0;
+	P=nm(P);
+	for(;V!=[];V=cdr(V)){
+		TV=car(V);
+		if(mydeg(P,TV)>1) return 0;
+		if(lsort(vars(mycoef(P,1,TV)),V,"cap))!=[]) return 0;
+		P=mycoef(P,0,TV);
+	}
+	if(P!=0 && getopt(homog)==1) return 0;
+	return 1;
+}
+
+def iszeromat(P)
+{
+	if(P==0) return 1;
+	if(type(P)!=6) return 0;
+	S=size(P);
+	for(I=0;I<S[0];I++)
+		for(J=0;J<S[1];J++) if(P[I][J]!=0) return 0;
+	return 1;
+}
+
+def issymmetric(P,V)
+{
+	for(;length(V)>1;V=cdr(V))
+		if(myswap(P,[V[0],V[1]])!=P) return 0;
+	return 1; 
+}
+
+def trPfaff(H,V,L)
+{
+	RH=H;
+	for(R=[];H!=[];H=cdr(H)){
+		P=red(mulsubst(car(H)[0],[V,L]|lpair=1));
+		if(!P){
+			mycat(["Singular ristriction:", car(H)[0]]);
+			return RH;
+		}
+		for(F=fctr(nm(P)),S=1; ;){
+			if(lsort(vars(Q=car(F)[0]),V,"cap")!=[]){
+				if(!islinear(Q,V)){
+					mycat([Q,"is not linearlized"]);
+					return 0;
+				}
+				for(TR=R;TR!=[];TR=cdr(TR)){
+					if(car(TR)[0]==Q){
+						M=car(TR)[1];
+						N=car(F)[1]*car(H)[1]*S;
+						SI=size(M)[0];SJ=size(M)[1];
+						for(I=0;I<SI;I++)
+							for(J=0;J<SJ;J++) M[I][J]+=N[I][J];
+						break;
+					}
+				}
+				if(TR==[]) R=cons([Q,car(F)[1]*car(H)[1]*S],R);
+			}
+			if((F=cdr(F))==[]){
+				if(S==-1) break;
+				S=-1;
+				F=fctr(dn(P));
+			}
+		}
+	}
+	return reverse(R);
+}
+
+def showPfaff(P)
+{
+	if(!isint(Type=getopt(type))) Type = 0;
+	Div=getopt(div);
+	if(iand(Type,4)==1||getopt(small)==1) Small=1;
+	else Small=0;
+	if(iand(Type,1)==0){
+		if(!isint(Div)||Div<2) Div=0;
+			/* show Pfaffian system */
+		V="u";II=length(P);
+		Out=string_to_tb(iand(Type,2)?" ":"\\hspace{-20pt}d"+V+"= \\Biggl(");
+		for(I=0;P!=[];I++,P=cdr(P)){
+			str_tb([(I>0)?" + ":" ",mtotex(car(P)[1]),"\\frac{d",monototex(car(P)[0]),"}{",
+			my_tex_form(car(P)[0])],Out);
+			if( I==II-1 || (Div&& (I==0||((I+1)%Div))) ) str_tb("}\n",Out);
+			else str_tb("}\n\\\\&\n",Out);
+		}
+		if(!iand(Type,2)) str_tb(["\\Biggr)",V,"\n"],Out);
+		S = str_tb(0,Out);
+		if(Small) S=smallmattex(S);
+		if(getopt(raw)!=1) show(S);
+		else S=show(S|raw=1);
+		return S;
+	}
+			/* show GRS */
+	for(S="",R=[],TH=P;TH!=[];TH=cdr(TH)){
+		if(R!=[]) S=S+"&";
+		S=S+rtostr(car(TH)[0]);
+		R=cons(car(TH)[1],R);
+	}
+	if(type(V=getopt(infty))==4){
+		for(;V!=[];V=cdr(V)){
+			Var=car(V);
+			for(M=0,TH=P;TH!=[];TH=cdr(TH))
+				if(Var==0||findin(Var,vars(car(TH)[0]))>=0) M=red(M+car(TH)[1]);
+			if(Var!=0) S=S+"&"+rtostr(Var)+"=\\infty";
+			else S=S+"&\\infty";
+			R=cons(-M,R);
+		}
+	}
+	S=S+"\\\\\n";
+	L=meigen(reverse(R)|mult=1);
+	T=ltotex(L|opt="GRS",pre=S);
+	if(isint(Div)&&Div>1) Div=[Div];
+	if(type(Div)==4&&length(Div)>0) T=divmattex(T,Div);
+	if(Small) T=smallmattex(T);
+	if(getopt(raw)!=1) dviout(T|eq=0);
+	return T;
+}
+
+def adPfaff(H,V,L)
+{
+	if(H!=[]&&type(H[0][1])!=6){
+		for(TH=[];H!=[];H=cdr(H)) TH=cons([car(H)[0],newmat(1,1,[[car(H)[1]]])],TH);
+		H=reverse(TH);
+	}
+	if(L==0||L==[]) return H;
+	if(H!=[]) S=size(H[0][1])[0];
+	else S=1;
+	if(type(L[0])==4){
+		for(;L!=[];L=cdr(L)) H=adPfaff(H,V,car(L));
+		return H;
+	}
+	if(L[1]==0) return H;
+	VP=lsort(vars(H0=L[0]),V,"cap");
+	if(VP==[]){
+		mycat([H0," has no variables in ", V]);
+		return H;
+	}
+	C0=mycoef(H0,1,car(VP));
+	for(R=[],F=0,TH=H;TH!=[];TH=cdr(TH)){
+		H1=car(TH)[0];
+		if(!F && C0*H1==mycoef(H1,1,car(VP))*H0){
+			M=mbadd(dupmat(car(TH)[1]),L[1],[0,S]);
+			R=cons([car(TH)[0],M],R);
+			F++;
+		}else R=cons(car(TH),R);
+	}
+	if(F) return reverse(R);
+	else return append(H,[[L[0],diagm(S,[L[1]])]]);
+}
+
+def mcPfaff(H,V,K)
+{
+	if(!isint(Raw=getopt(raw))) Raw=0;
+	if(!isint(Verb=getopt(verb))) Verb=Raw?1:0;
+	if(type(Ad=getopt(ad))==4){
+		if(Verb>0) mycat(["addition", Ad]);
+		 H=adPfaff(H,V,Ad);
+	}
+	if(type(car(K))==4){
+		Opt=delopt(getopt(),"ad");
+		for(;K!=[];K=cdr(K)){
+			if(Verb>0){
+				if(K[0]==0) mycat(["Ad:", cdr(K)]);
+				else if(K[0]==1) mycat( ["tr:",cdr(K)]); 
+			}
+			H=mcPfaff(H,V,car(K)|option_list=Opt);
+			if(Raw) break;
+		}
+		return H;
+	}
+	if(H!=[]&&type(H[0][1])!=6) H=adPfaff(H,V,0);
+	if(K==[]) return H;
+	if(K[0]==0){
+		if(Verb>0) mycat(["Ad:",cdr(K)]);
+		return addPfaff(H,V,cdr(K));
+	}
+	else if(K[0]==1){
+		if(Verv>0) mycat(["tr",cdr(K)]);
+		return trPfaff(H,V,cdr(K));
+	}
+	V0=car(K);S=size(H[0][1])[0];
+	if(length(K)>=3){
+		if(Verb>0) mycat(["Ad:",[K[0],K[2]]]);
+		H=adPfaff(H,V,[K[0],K[2]]);
+		TK=K;K=cdr(K);K=cdr(K);
+		K=cons(TK[1]-TK[2],K);
+		K=cons(TK[0],K);
+	}
+	for(LP=[],NH=0,TP=H;TP!=[];TP=cdr(TP),NH++)
+		if(findin(V0,vars(car(TP)))>=0) LP=cons(NH,LP);
+	NP=length(LP);SS=S*NP;
+	LP=reverse(LP);
+	RH=newvect(NH0=NH);
+	if(Verb>0) mycat(["middle convolution for",K[0],"with",K[1]]); 
+	for(I=0;I<NP;I++){
+		IH=LP[I];
+		M=newmat(SS,SS);
+		for(J=0;J<NP;J++){
+			mbadd(M,H[LP[J]][1],[S*I,S*J]);  /* <- ??? */
+			if(I==J) mbadd(M,K[1],[S*I,S*I+S]);
+			RH[IH]=[H[IH][0],M];
+		}
+	}
+	for(IH=0;IH<NH;IH++){
+		if(type(RH[IH])==4) continue;
+		M=newmat(SS,SS);
+		for(J=0;J<NP;J++) mbadd(M,H[IH][1],[S*J,S*J]);
+		RH[IH]=[H[IH][0],M];
+	}
+	for(I=FH=0;I<NP;I++){
+		for(J=I+1;J<NP;J++){
+			H1=H[LP[I]][0];H2=H[LP[J]][0];H3=H1*mycoef(H2,1,V0)-H2*mycoef(H1,1,V0);
+			VP=lsort(vars(H3),V,"cap");
+			if(VP==[]) continue;
+			V1=car(VP);C3=mycoef(H3,1,V1);
+			for(IH=F=0;IH<NH;IH++){
+				H0=RH[IH][0];
+				if(mycoef(H0,1,V0)) continue;
+				if(mycoef(H0,1,V1)*H3!=C3*H0) continue;
+				F++;
+				M=RH[IH][1];Q1=H[LP[I]][1];Q2=H[LP[J]][1];
+				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
+				mbadd(M,-Q1,[S*J,S*I]);mbadd(M,Q1,[S*J,S*J]);
+			}
+			if(!F){
+				FH++;
+				IH=NH;NH++;
+				R=newvect(NH);
+				for(IH=0;IH<NH-1;IH++) R[IH]=RH[IH];
+				FT=fctr(H3);
+				for(;FT!=[];FT=cdr(FT)){
+					if(lsort(vars(car(FT)[0]),V,"cap")!=[]){
+						H3=car(FT)[0];
+						break;
+					}
+				}
+				if(Verb>0) mycat(["Add hyperplane ", H3]);
+				R[IH]=[H3,newmat(SS,SS)];
+				M=R[IH][1];Q1=H[LP[I]][1];Q2=H[LP[J]][1];
+				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
+				mbadd(M,-Q1,[S*J,S*I]);mbadd(M,Q1,[S*J,S*J]);
+				RH=R;
+			}
+		}
+	}
+	if(Verb>1) mycat(["Convolution:\n",RH]);
+	if(Raw==1) return vtol(RH);
+	if(Verb>0) mycat("Calculate invariant subspace");
+	if(!isint(Simp=getopt(simplify))) Simp=0;
+//// mycat(["In",M0,M1,RH]);
+//// mycat(["R=",R,"RH=",RH]);
+//// mycat([M0,M1,RH]);
+	M0=diagm(S,[K[1]]);KE=[];
+	for(I=0;I<NP;I++){
+		M0=red(M0+H[LP[I]][1]);
+		for(T=mykernel(H[LP[I]][1]|opt=1);T!=[];T=cdr(T)){
+			TT=car(T);M1=newvect(SS);
+			for(II=0;II<S;II++) M1[I*S+II]=TT[II];
+			KE=cons(M1,KE);
+		}
+	}
+	for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
+		TT=car(T);M1=newvect(SS);
+		for(I=0;I<SS;I++) M1[I]=TT[I%NP];
+		KE=cons(M1,KE);
+	}
+	KE=reverse(KE);
+	if(Verb>1) mycat(["kernel:\n",KE]);
+	if(Rwa==2) return KE;
+	if(length(KE) != 0){
+		if(Verb>0) mycat("Calculate quotient");
+		KK = mtoupper(lv2m(KE),0);
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],mmod(RH[I][1],KK)];
+	}
+	if(Raw==3) return vtol(RH);
+	if(Verb>0)
+		mycat(["rank ", S, "->", SS, "->",size(RH[0][1])[0] ]);
+	if(Simp>=0){
+		if(Verb>0) mycat("Check better base");
+		if(Verb>1) mycat(RH);
+		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
+		MM = mdsimplify(MM|type=Simp);
+	}
+	if(Verb>1) mycat(["mc:\n",RH]);
+	if(Raw) return vtol(RH);
+	H=vtol(RH);
+		/* extra addition */
+	if(length(K)>=3){
+		if(Verb>0) mycat(["Ad:",[K[0],-K[1]-K[2]]]);
+		H=adPfaff(H,V,[K[0],-K[1]-K[2]]);
+	}
+		/* delete hypersurfaces without singularities */
+	S=size(H[0][1])[0];
+	for(R=[],TH=H;TH!=[];TH=cdr(TH)){
+		if(!iszeromat(car(TH)[1])) R=cons(car(TH),R);
+		else if(Verb>0) mycat(["Delete hyperplane ",car(TH)[0]]);
+	}
+	if(Verb>0 && NH0!=length(R)) mycat(["hyperplane",NH0,"->",length(R)]);
+	R=reverse(R);
+	if(Verb>1) mycat(["End:\n",R]);
+	return R;
+}
+
 def issub(X,Y)
 {
 	Z=lsort(append(X,Y),[],1);
@@ -13887,7 +14400,7 @@ def llsymcheck(L,S)
 			}
 		}
 	}
-	return Red? llsort(R,[],1):F;
+	return Red? lsort(R,[],1):F;
 }
 
 def llsymred(L,S)
@@ -15908,6 +16421,7 @@ def show(P)
 		dviout(S);return;
 	}
 	if(type(Var)<0) Var=getopt(var);
+	if(!Raw&&type(Title=getopt(title))==7) dviout(Title|keep=1);
 	if(T==6){
 		if((Sp=getopt(sp))==1 || Sp==2)
 			S=mtotex(P|lim=1,small=2,sp=Sp,null=1,mat="B");
@@ -23561,7 +24075,7 @@ def refinements(S)
 			}
 		}
 	}
-	for(CR=[],I=K-2;I>=0;I--) CR=append(CP[I],CR);;
+	for(CR=[],I=K-2;I>=0;I--) CR=append(CP[I],CR);
 	for(RR=[],TL=CR;TL!=[];TL=cdr(TL)){
 		for(U=[],T=car(TL)[0];T!=[];T=cdr(T)) U=cons(R[car(T)][2],U);
 		U=append(lchoose(car(TL)[1],VP),U);
@@ -24035,6 +24549,18 @@ def newbmat(M,N,R)
 		}
 	}
 	return M;
+}
+
+def mbadd(A,B,P)
+{
+	if(type(B)!=6){
+		for(I=P[0];I<P[1];I++) A[I][I]+=B;
+		return A;
+	}
+	S=size(B);
+	for(I=0;I<S[0];I++)
+		for(J=0;J<S[1];J++) A[P[0]+I][P[1]+J]+=B[I][J];
+	return A;
 }
 
 def unim(S)
