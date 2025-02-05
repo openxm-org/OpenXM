@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Jan. 2025)
+ *          Toshio Oshima (Nov. 2007 - Feb. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -409,6 +409,8 @@ localf midKZ$
 localf mcPfaff$
 localf adPfaff$
 localf trPfaff$
+localf brPfaff$
+localf ssPfaff$
 localf showPfaff$
 localf spslm$
 localf anal2sp$
@@ -619,7 +621,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250114"$
+Muldif.rr="00250201"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -3899,13 +3901,19 @@ def meigen(M)
 		}
 		return V;
 	}
-	F = getopt(mult);
+	if((F=getopt(mult))==2||F==3)
+		if(type(M)==6) M=[M];
 	if(type(M)==4 || type(M)==5){
 		II=length(M);
 		for(R=[],I=II-1; I>=0; I--){
-			if(F==1)
-				R=cons(meigen(M[I]|mult=1),R);
-			else
+			if(F==1||F==2||F==3){
+				TR=meigen(M[I]|mult=1);
+				if(F==2||F==3){
+					TR=car(chkspt([TR]|opt=1));
+					if(F==3) TR=s2sp([TR]);
+				}
+				R=cons(TR,R);
+			}else
 				R=cons(meigen(M[I]),R);
 		}
 		return R;
@@ -3930,7 +3938,7 @@ def mmeigen(L)
 	M=dupmat(-car(L));
 	for(I=0;I<S;I++) M[I][I]+=zz;
 		for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
-		M-=car(TV)*car(L);
+			M=red(M-car(TV)*car(L));
 	Det=mydet(M);
 	R=getroot(Det,zz|mult=1);
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
@@ -4922,12 +4930,8 @@ def mdsimplify(L)
 		}
 	}
 	L=vtol(L);
-	if(SS==6) L=L[0];
-	else if(SS!=5) L=vtol(L);
-	if(getopt(show)==1) L=[L,DD];
-	return L;
-	if(SS==2) L=ltov(L);
 	if(SS==1) L=L[0];
+	else if(SS!=2) L=vtol(L);
 	if(getopt(show)==1) L=[L,DD];
 	return L;
 }
@@ -5683,6 +5687,10 @@ def mmod(M,L)
 	S=size(M)[1];
 	MM=mtranspose(M);
 	VP = newvect(S);
+	if(getopt(toupper)==1){
+		if(type(L)==4) L=lv2m(L);
+		L=mtoupper(L,0);
+	}
 	if(type(L)==6)
 		L=m2lv(L);
 	for(CT = 0, LT = L; LT != []; LT = cdr(LT)){
@@ -14046,9 +14054,15 @@ def iszeromat(P)
 {
 	if(P==0) return 1;
 	if(type(P)!=6) return 0;
+	if(getopt(scalar)==1) D=P[0][0];
+	else D=0;
 	S=size(P);
-	for(I=0;I<S[0];I++)
-		for(J=0;J<S[1];J++) if(P[I][J]!=0) return 0;
+	for(I=0;I<S[0];I++){
+		for(J=0;J<S[1];J++)
+			if(I!=J){
+				if(P[I][J]!=0) return 0;
+			}else if(P[I][I]!=D) return 0; 
+	}
 	return 1;
 }
 
@@ -14065,7 +14079,7 @@ def trPfaff(H,V,L)
 	for(R=[];H!=[];H=cdr(H)){
 		P=red(mulsubst(car(H)[0],[V,L]|lpair=1));
 		if(!P){
-			mycat(["Singular ristriction:", car(H)[0]]);
+			mycat(["Singular restriction:", car(H)[0]]);
 			return RH;
 		}
 		for(F=fctr(nm(P)),S=1; ;){
@@ -14080,7 +14094,7 @@ def trPfaff(H,V,L)
 						N=car(F)[1]*car(H)[1]*S;
 						SI=size(M)[0];SJ=size(M)[1];
 						for(I=0;I<SI;I++)
-							for(J=0;J<SJ;J++) M[I][J]+=N[I][J];
+							for(J=0;J<SJ;J++) M[I][J]=red(M[I][J]+N[I][J]);
 						break;
 					}
 				}
@@ -14098,13 +14112,21 @@ def trPfaff(H,V,L)
 
 def showPfaff(P)
 {
-	if(!isint(Type=getopt(type))) Type = 0;
+	if(type(Type=getopt(type))==7){
+		Type=findin(Type,["equation","GRS","form","spct"]);
+		if(Type<0) Type=0;
+	}
+	if(!isint(Type) || Type<0 || Type>3) Type=0;
+	if(isvar(X=getopt(ODE))){
+		P=trPfaff(P,[X],[X]);
+		if(P==[]) return 0;
+	}else X=0;
 	Div=getopt(div);
-	if(iand(Type,4)==1||getopt(small)==1) Small=1;
-	else Small=0;
-	if(iand(Type,1)==0){
+	if(!isint(Raw=getopt(raw))) Raw=0;
+	if(getopt(small)==1) Small=1;
+
+	if(Type==0||Type==2){		/* equation or form */
 		if(!isint(Div)||Div<2) Div=0;
-			/* show Pfaffian system */
 		V="u";II=length(P);
 		Out=string_to_tb(iand(Type,2)?" ":"\\hspace{-20pt}d"+V+"= \\Biggl(");
 		for(I=0;P!=[];I++,P=cdr(P)){
@@ -14116,35 +14138,74 @@ def showPfaff(P)
 		if(!iand(Type,2)) str_tb(["\\Biggr)",V,"\n"],Out);
 		S = str_tb(0,Out);
 		if(Small) S=smallmattex(S);
-		if(getopt(raw)!=1) show(S);
-		else S=show(S|raw=1);
+		if(!Raw) show(S);
+		else if(Raw==-1) S=show(S|raw=1);
+		else S=P;
 		return S;
 	}
-			/* show GRS */
-	for(S="",R=[],TH=P;TH!=[];TH=cdr(TH)){
-		if(R!=[]) S=S+"&";
-		S=S+rtostr(car(TH)[0]);
-		R=cons(car(TH)[1],R);
-	}
-	if(type(V=getopt(infty))==4){
-		for(;V!=[];V=cdr(V)){
-			Var=car(V);
-			for(M=0,TH=P;TH!=[];TH=cdr(TH))
-				if(Var==0||findin(Var,vars(car(TH)[0]))>=0) M=red(M+car(TH)[1]);
-			if(Var!=0) S=S+"&"+rtostr(Var)+"=\\infty";
-			else S=S+"&\\infty";
-			R=cons(-M,R);
+
+	if(Type==1||Type==3){		/* GRS or spct */
+		if(X) V=[X];
+		else V=getopt(infty);
+		W=vars(lpair(P,0)[0]);
+		for(S="",R=RS=[],TH=P;TH!=[];TH=cdr(TH)){
+			if(R!=[]) S=S+"&";
+			TS=car(TH)[0];
+			if(X){				/* ODE */
+				C=mycoef(TS,1,X);
+				if(C){
+					TS=red(X-TS/C);
+					S=S+my_tex_form(X)+"="+my_tex_form(TS);
+				}else S=S+my_tex_form(TS)+"=0";
+			}
+			else{
+				C=(type(TS)==2)?cterm(TS):0;
+				S=S+my_tex_form(TS-C)+"="+my_tex_form(-C);
+			}
+			R=cons(car(TH)[1],R);
+			RS=cons(TS,RS);
 		}
+		if(type(V)==4){			/* infinite points */
+			for(;V!=[];V=cdr(V)){
+				Var=car(V);
+				for(M=0,TH=P;TH!=[];TH=cdr(TH))
+					if(Var==0||findin(Var,vars(car(TH)[0]))>=0) M=red(M+car(TH)[1]);
+				if(Var!=0){
+					S=S+"&"+rtostr(Var)+"=\\infty";
+					if(X) RS=cons("\\infty",RS);
+					else  RS=cons(rtostr(Var)+"=\\infty",RS);
+				}else{
+					S=S+"&\\infty";
+					RS=cons("\\infty",RS);
+				}
+				R=cons(-M,R);
+			}
+			RS=reverse(RS);
+		}
+		S=S+"\\\\\n";
+		L=meigen(reverse(R)|mult=1);
+		for(L1=L2=[],TL=L;TL!=[];TL=cdr(TL)){
+			L1=cons(chkspt([car(TL)]|opt="sp")[0],L1);
+			L2=cons(s2sp([car(L1)]),L2);
+		}
+		L1=reverse(L1);L2=reverse(L2);
+		if(Type==1) T=ltotex(L|opt="GRS",pre=S);
+		else{
+			R=RS;
+			if(X) R=cons(rtostr(X)+"="+rtostr(car(RS)),cdr(RS));
+			T=lv2m([R,L2]);
+			T=mtotex(T|raw=1,mat="B");
+		}
+		if(isint(Div)&&Div>1) Div=[Div];
+		if(type(Div)==4&&length(Div)>0) T=divmattex(T,Div);
+		if(Small) T=smallmattex(T);
+		if(!Raw) dviout(T|eq=0);
+		if(Raw==-1) return T;
+		if(Type==1) return lpair(RS,L);
+		return lpair(RS,L1);
 	}
-	S=S+"\\\\\n";
-	L=meigen(reverse(R)|mult=1);
-	T=ltotex(L|opt="GRS",pre=S);
-	if(isint(Div)&&Div>1) Div=[Div];
-	if(type(Div)==4&&length(Div)>0) T=divmattex(T,Div);
-	if(Small) T=smallmattex(T);
-	if(getopt(raw)!=1) dviout(T|eq=0);
-	return T;
 }
+
 
 def adPfaff(H,V,L)
 {
@@ -14178,6 +14239,83 @@ def adPfaff(H,V,L)
 	else return append(H,[[L[0],diagm(S,[L[1]])]]);
 }
 
+def brPfaff(H,V,B)
+{
+	Hb=B[0];Vb=B[1];Ev=B[2];S=size(car(H)[1])[0];
+	if(!Hb){
+		mycat(["Indicate a singular hyperplane in",lpair(H,0)[0]]);
+		return 0;
+	}
+	if(findin(Vb,vars(Hb))<0||findin(Vb,V)<0){
+		mycat(["Bad variable",Vb, "which should contained in", Hb, "and", V]);
+		return 0;
+	}
+	for(TH=H;TH!=[];TH=cdr(TH))
+		if(tdiv(car(TH)[0],Hb)!=0) break;
+	if(TH==[]){
+		mycat(["No hyperplane",Hb, "which shoulde be in",lpair(H,0)[0]]);
+		return 0;
+	}
+		/* eigenvalues and eigenvectors */
+	if(findin(zz,E=meigen(TH[0][1]|vec=1))>=0){
+		mycat("Can't get characteristic exponents");
+		return 0;
+	}
+		/* kernels */
+	LE=length(E);IE=-1;
+	for(I=J=0;I<LE;I++){
+		if(E[I][0]==Ev) IE=I;
+		J+=length(E[I][1]);
+	}
+	if(Ev!="all"&&Ev!="show"){
+		if(IE<0){
+			mycat(["cannot find exponent",Ev,"in",lpair(E,0)[0]]);
+			return 0;
+		}
+	}else IE=LE-1;
+	if(Ev=="show") return lpair(E,0)[0];
+	if(J!=S){
+		mycat("cannot get enough eigenspaces");
+		return 0;
+	}
+	for(RR=[];IE>=0;IE--){
+		for(K=[],I=0;I<LE;I++)
+			if(I!=IE) K=append(E[I][1],K);
+		K=mtoupper(lv2m(K),0);
+			/* intersection and residue matrix */
+		C0=mycoef(Hb,1,Vb);
+		for(R=[],TH=H;TH!=[];TH=cdr(TH)){
+			H0=car(TH)[0];
+			P=red(C0*H0-mycoef(H0,1,Vb)*Hb);
+			if(lsort(vars(P),V,"cap")==[]) continue;
+			F=fctr(nm(P));
+			if(!car(F)[0]) continue;
+			for(P=0,F=cdr(F);F!=[];F=cdr(F)){
+				if(lsort(vars(car(F)[0]),V,"cap")!=[]){
+					P=car(F)[0];
+					break;
+				}
+			}
+			R=cons([P,car(TH)[1]],R);
+		}
+		R=qsort(R); 	/* sort by singuratities */
+		for(HP=[],TR=R;TR!=[];TR=cdr(TR)){
+			if(HP!=[]&&car(HP)[0]==car(TR)[0]){
+				TH1=red(car(TR)[1]+car(HP)[1]);
+				HP=cdr(HP);
+				HP=cons([car(TR)[0],TH1],HP);
+			}else HP=cons([car(TR)[0],car(TR)[1]],HP);
+		}
+		/* restriction */
+		for(R=[],T=HP;T!=[];T=cdr(T)) R=cons(mmod(car(T)[1],K),R);
+		R=mdsimplify(reverse(R));
+		R=lpair(lpair(HP,0)[0],R);
+		if(Ev!="all") return R;
+		RR=cons([E[IE][0],R],RR);
+	}
+	return RR;
+}
+
 def mcPfaff(H,V,K)
 {
 	if(!isint(Raw=getopt(raw))) Raw=0;
@@ -14194,7 +14332,8 @@ def mcPfaff(H,V,K)
 				else if(K[0]==1) mycat( ["tr:",cdr(K)]); 
 			}
 			H=mcPfaff(H,V,car(K)|option_list=Opt);
-			if(Raw) break;
+			if(Raw||type(H)!=4||type(H[0])!=4||length(H[0])!=2||
+				type(H[0][0])>3||type(H[0][1])==4) break;
 		}
 		return H;
 	}
@@ -14202,7 +14341,7 @@ def mcPfaff(H,V,K)
 	if(K==[]) return H;
 	if(K[0]==0){
 		if(Verb>0) mycat(["Ad:",cdr(K)]);
-		return addPfaff(H,V,cdr(K));
+		return adPfaff(H,V,cdr(K));
 	}
 	else if(K[0]==1){
 		if(Verv>0) mycat(["tr",cdr(K)]);
@@ -14211,7 +14350,7 @@ def mcPfaff(H,V,K)
 	V0=car(K);S=size(H[0][1])[0];
 	if(length(K)>=3){
 		if(Verb>0) mycat(["Ad:",[K[0],K[2]]]);
-		H=adPfaff(H,V,[K[0],K[2]]);
+		H=adPfaff(H,V,[K[0],K[2]]|verb=Verb);
 		TK=K;K=cdr(K);K=cdr(K);
 		K=cons(TK[1]-TK[2],K);
 		K=cons(TK[0],K);
@@ -14221,7 +14360,9 @@ def mcPfaff(H,V,K)
 	NP=length(LP);SS=S*NP;
 	LP=reverse(LP);
 	RH=newvect(NH0=NH);
-	if(Verb>0) mycat(["middle convolution for",K[0],"with",K[1]]); 
+	if(Verb>0) mycat(["middle convolution by variable",K[0],"with parameter",K[1]]);
+	FM=lsort(vars(K[1]),vars(H),"setminus");
+	if(Verb>0 && FM!=[]) mycat(["which contains new parameter",car(FM)]); 
 	for(I=0;I<NP;I++){
 		IH=LP[I];
 		M=newmat(SS,SS);
@@ -14264,7 +14405,7 @@ def mcPfaff(H,V,K)
 						break;
 					}
 				}
-				if(Verb>0) mycat(["Add hyperplane ", H3]);
+				if(Verb>0) mycat(["Add hyperplan ", H3]);
 				R[IH]=[H3,newmat(SS,SS)];
 				M=R[IH][1];Q1=H[LP[I]][1];Q2=H[LP[J]][1];
 				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
@@ -14282,17 +14423,20 @@ def mcPfaff(H,V,K)
 //// mycat([M0,M1,RH]);
 	M0=diagm(S,[K[1]]);KE=[];
 	for(I=0;I<NP;I++){
-		M0=red(M0+H[LP[I]][1]);
+		if(FM==[]) M0=red(M0+H[LP[I]][1]);
 		for(T=mykernel(H[LP[I]][1]|opt=1);T!=[];T=cdr(T)){
 			TT=car(T);M1=newvect(SS);
 			for(II=0;II<S;II++) M1[I*S+II]=TT[II];
 			KE=cons(M1,KE);
 		}
 	}
-	for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
-		TT=car(T);M1=newvect(SS);
-		for(I=0;I<SS;I++) M1[I]=TT[I%NP];
-		KE=cons(M1,KE);
+	lsort(vars(K[1]),vars(H),"setminus");
+	if(FM==[]){
+		for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
+			TT=car(T);M1=newvect(SS);
+			for(I=0;I<SS;I++) M1[I]=TT[I%NP];
+			KE=cons(M1,KE);
+		}
 	}
 	KE=reverse(KE);
 	if(Verb>1) mycat(["kernel:\n",KE]);
@@ -14325,10 +14469,79 @@ def mcPfaff(H,V,K)
 		if(!iszeromat(car(TH)[1])) R=cons(car(TH),R);
 		else if(Verb>0) mycat(["Delete hyperplane ",car(TH)[0]]);
 	}
-	if(Verb>0 && NH0!=length(R)) mycat(["hyperplane",NH0,"->",length(R)]);
+	if(Verb>0 && NH0!=length(R)) mycat(["hyperplanes ",NH0,"->",length(R)]);
 	R=reverse(R);
 	if(Verb>1) mycat(["End:\n",R]);
 	return R;
+}
+
+def ssPfaff(H,V)
+{
+	if((Num=getopt(num))!=1) Num=0;
+	V=qsort(V);
+	if(type(car(H))==4&&length(car(H))==2){
+		H=lpair(H,0)[0];
+	}
+	H=ltov(H);LH=length(H);VH=newvect(LH);
+	for(I=0;I<LH;I++) VH[I]=lsort(vars(H[I]),V,"cap");
+	for(R=[],I=0;I<LH;I++){
+		if(VH[I]==[]) continue;
+		VI=car(VH[I]);
+		for(J=I+1;J<LH;J++){
+			if(VH[J]==[]) continue;
+				if(car(VH[J])<VI){
+					Q=H[J];V0=car(VH[J]);
+				}else{
+					Q=H[I];V0=VI;
+				}
+				P=red(mycoef(H[J],1,V0)*H[I]-mycoef(H[I],1,V0)*H[J]);
+				if(lsort(vars(P),V,"cap")==[]) continue;
+				for(F=cdr(fctr(nm(P)));F!=[];F=cdr(F)){
+					W=lsort(vars(car(F)[0]),V,"cap");
+					if(W!=[]){
+						P=car(F)[0];break;
+					}
+				}
+				V2=car(W);
+				Q=nm(red(mycoef(P,1,V2)*Q-mycoef(Q,1,V2)*P));
+				for(F=cdr(fctr(Q));F!=[];F=cdr(F)){
+					if(lsort(car(F),V,"cap")>=0){
+						R=cons([qsort([P,Q]), Num?[I,J]:[H[I],H[J]] ],R);
+
+						break;
+				}
+//mycat(["mid R",R]);
+			}
+		}
+	}
+	if(R==[]) return [];
+	R=qsort(R);RR=[car(R)];
+	for(R=cdr(R);R!=[];R=cdr(R)){
+		if(car(R)[0]==car(RR)[0]){
+			HH=lsort(car(RR)[1],car(R)[1],"cup");
+			RR=cons([car(R)[0],HH],cdr(RR));
+		}else RR=cons(car(R),RR);
+	}
+	for(R=[];RR!=[];RR=cdr(RR))
+		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
+	if(!Num && isvar(X=getopt(conv))&&findin(X,V)>=0){
+		for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
+			P=car(TR)[0][0];Q=car(TR)[0][1];
+			P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
+			if(P==0) continue;
+			for(F=fctr(nm(red(P)));F!=[];F=cdr(F)){
+				P=car(F[0]);
+				if(lsort(vars(P),V,"cap")!=[]) break;
+			}
+			if(F!=[]){
+				for(I=length(H)-1;I>=0;I--)
+					if(tdiv(H[I],P)!=0) break;
+				if(I<0) RR=cons(P,RR);
+			}
+		}
+		return lsort(RR,[],1);
+	}
+	return qsort(R);
 }
 
 def issub(X,Y)
