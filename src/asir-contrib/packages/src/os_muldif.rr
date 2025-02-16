@@ -157,6 +157,7 @@ localf llextn$
 localf llord$
 localf llsymcheck$
 localf llsymred$
+localf invvlmap$
 localf fam2t$
 localf lcut$
 localf rev$
@@ -412,6 +413,7 @@ localf trPfaff$
 localf brPfaff$
 localf ssPfaff$
 localf showPfaff$
+localf arHplane$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -621,7 +623,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250201"$
+Muldif.rr="00250207"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1526,6 +1528,11 @@ def transpart(L)
 
 def trpos(A,B,N)
 {
+	if(A==-1&&N>0){
+		S=newvect(N);
+		for(I=0;I<N;I++) S[I]=N-I-1;
+		return S;
+	}
 	if(!N){
 		N=(A<B)?B:A;
 		N++;
@@ -6156,23 +6163,29 @@ def fam2t(L,T,P)
 	return cons("(",R);
 }
 
+def invvlmap(V)
+{
+	S=length(V);
+	R=newvect(S);
+	for(I=0;I<S;I++) R[I]=[];
+	for(I=S-1;I>=0;I--){
+		for(T=V[I];T!=[];T=cdr(T)) R[car(T)]=cons(I,R[car(T)]);
+	}
+	return R;
+}
+
 def llord(L)
 {
-	L=qsort(L);						/* can be change */
+	if(getopt(sort)!=0) L=qsort(L);				/* can be change */
 	if(type(L)==4) L=ltov(L);
 	N=length(L);
 	S1=newvect(N);S2=newvect(N);
 	S1[0]=S2[0]=[];
 	for(I=1;I<N;I++){
-		S1[I]=S2[I]=[];
-		for(J=0;J<I;J++){
-			if(issub(L[J],L[I])){  /* can be change */
-				S1[I]=cons(J,S1[I]);
-				for(K=I-1;K>J;K--)
-					if(findin(J,S1[K])>=0) break;
-				if(K==J||I==J+1) S2[I]=cons(J,S2[I]);
-			}
-		}
+		for(S1[I]=[],J=0;J<I;J++)
+			if(issub(L[J],L[I])) S1[I]=cons(J,S1[I]);
+		for(TR=S2[I]=S1[I];TR!=[];TR=cdr(TR))
+			S2[I]=lsort(S2[I],S1[car(TR)],"setminus");
 	}
 	for(S3=S4=[],I=FB=0;I<N;I++){
 		S3=append(S3,L[I]);S4=append(S4,S2[I]);
@@ -14475,6 +14488,71 @@ def mcPfaff(H,V,K)
 	return R;
 }
 
+def arHplane(H,V)
+{
+	if((Num=getopt(num))!=1) Num=0;
+	/* set hyperplanes */
+	if(type(car(H))==4&&length(car(H))==2) H=lpair(H,0)[0];
+	LH=length(H);D=length(V)+1;
+	L=newvect(D+2);
+	for(J=0,L[0]=[],TH=H;TH!=[];J++,TH=cdr(TH)){
+		if(lsort(vars(P=car(TH)),V,"cap")==[]) continue;
+		for(R=[],TV=V;TV!=[];TV=cdr(TV)){
+			R=cons(C=mycoef(P,1,car(TV)),R);
+			P-=C*car(TV);
+		}
+		R=cons(-P,R);
+		R=ltov(reverse(R));
+		for(I=0;I<D;I++) if(R[I]!=0) break;
+		for(C=R[I];I<D;I++) R[I]/=C;
+		L[0]=cons(ltov([[R],[J]]),L[0]);
+	}
+	L0=L[0]=reverse(L[0]);
+
+	for(K=0;K<D;K++){
+		L[K+1]=[];
+		for(HK=L[K];HK!=[];HK=cdr(HK)){
+			TH=car(HK);
+			for(I=0;I<LH;I++){
+				if(findin(I,TH[1])>=0) continue;
+				M=append(TH[0],L0[I][0]);
+				M=mtoupper(lv2m(M),1|opt=2);
+				for(J=0;J<D;J++) if(M[K+1][J]!=0) break;
+				if(J==D-1) continue;
+				M=m2lv(M);
+				if(M==TH[0])
+					TH[1]=cons(I,TH[1]);
+				else{
+					for(TL=L[K+1];TL!=[];TL=cdr(TL))
+						if(car(TL)[0]==M) break;
+					if(TL==[])
+						L[K+1]=cons(ltov([M,cons(I,TH[1])]),L[K+1]);
+					else if(findin(I,car(TL)[1])<0) car(TL)[1]=cons(I,car(TL)[1]);
+				}
+			}
+		}
+		for(HK=L[K];HK!=[];HK=cdr(HK)){
+			TH=car(HK);
+			TH[1]=qsort(TH[1]);
+		}
+		if(K) L[K]=qsort(L[K]);
+	}
+	if(Num){
+		for(W=[],K=D-1;K>=0;K--) if(L[K]!=[]) W=cons(L[K],W);
+		return W;
+	}
+	VV=ltov(append(V,[-1]));
+	for(W=[],K=0;K<D;K++){
+		for(R=[],TL=L[K];TL!=[];TL=cdr(TL)){
+			for(R0=[],T=car(TL)[0];T!=[];T=cdr(T)) R0=cons(vprod(car(T),VV),R0);
+			for(R1=[],T=car(TL)[1];T!=[];T=cdr(T)) R1=cons(H[car(T)],R1);
+			R=cons([reverse(R0),reverse(R1)],R);
+		}
+		if(R!=[]) W=cons(reverse(R),W);
+	}
+	return reverse(W);
+}
+
 def ssPfaff(H,V)
 {
 	if((Num=getopt(num))!=1) Num=0;
@@ -14484,6 +14562,7 @@ def ssPfaff(H,V)
 	}
 	H=ltov(H);LH=length(H);VH=newvect(LH);
 	for(I=0;I<LH;I++) VH[I]=lsort(vars(H[I]),V,"cap");
+	/* get intersections */
 	for(R=[],I=0;I<LH;I++){
 		if(VH[I]==[]) continue;
 		VI=car(VH[I]);
@@ -14515,6 +14594,7 @@ def ssPfaff(H,V)
 		}
 	}
 	if(R==[]) return [];
+	/* arrange intersections */
 	R=qsort(R);RR=[car(R)];
 	for(R=cdr(R);R!=[];R=cdr(R)){
 		if(car(R)[0]==car(RR)[0]){
@@ -14524,24 +14604,24 @@ def ssPfaff(H,V)
 	}
 	for(R=[];RR!=[];RR=cdr(RR))
 		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
-	if(!Num && isvar(X=getopt(conv))&&findin(X,V)>=0){
-		for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
-			P=car(TR)[0][0];Q=car(TR)[0][1];
-			P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
-			if(P==0) continue;
-			for(F=fctr(nm(red(P)));F!=[];F=cdr(F)){
-				P=car(F[0]);
-				if(lsort(vars(P),V,"cap")!=[]) break;
-			}
-			if(F!=[]){
-				for(I=length(H)-1;I>=0;I--)
-					if(tdiv(H[I],P)!=0) break;
-				if(I<0) RR=cons(P,RR);
-			}
+	if(Num || !isvar(X=getopt(conv)) || findin(X,V)>=0)
+		return qsort(R);
+	/* get hyperplanes by convolution of X */
+	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
+		P=car(TR)[0][0];Q=car(TR)[0][1];
+		P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
+		if(P==0) continue;
+		for(F=fctr(nm(red(P)));F!=[];F=cdr(F)){
+			P=car(F[0]);
+			if(lsort(vars(P),V,"cap")!=[]) break;
 		}
-		return lsort(RR,[],1);
+		if(F!=[]){
+			for(I=length(H)-1;I>=0;I--)
+				if(tdiv(H[I],P)!=0) break;
+			if(I<0) RR=cons(P,RR);
+		}
 	}
-	return qsort(R);
+	return lsort(RR,[],1);
 }
 
 def issub(X,Y)
