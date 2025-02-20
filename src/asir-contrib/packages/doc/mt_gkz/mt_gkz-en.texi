@@ -86,7 +86,7 @@ Algorithms for Pfaffian Systems and Cohomology Intersection Numbers of Hypergeom
 Lecture Notes in Computer Science 12097 (2020), 73--84.
 Errata is posted on @uref{http://arxiv.org/abs/???}.
 E-attachments can be obtainable at
-@uref{http://www.math.kobe-u.ac.jp/OpenXM/Math/intersection2}
+@uref{https://www.math.kobe-u.ac.jp/OpenXM/Math/intersection2}
 @item [GM2020]
 Yoshiaki Goto, Saiei-Jaeyeong Matsubara-Heo,
 Homology and cohomology intersection numbers of GKZ systems, arXiv:2006.07848
@@ -98,7 +98,7 @@ M.Saito, B.Sturmfels, N.Takayama, Groebner Deformations of Hypergeometric
 Differential Equations. Springer, 2000.
 @item [HNT]
 T.Hibi, K.Nishiyama, N.Takayama, Pfaffian systems of A-Hypergeometric equations I: bases of twisted cohomology groups. Advances in Mathematics, 306 (2017), 303--327.
-@uref{http://dx.doi.org/10.1016/j.aim.2016.10.021}
+@uref{https://dx.doi.org/10.1016/j.aim.2016.10.021}
 @end itemize
 
 References for maple packages IntegrableConnections and OreMorphisms.
@@ -643,6 +643,7 @@ Fvec411d=[mt_gkz.dmul(dx1,Fvec411[0],[x1,x2,x3])];
 @menu
 * mt_gkz.bf::
 * mt_gkz.bf::
+* mt_gkz.get_bf_step_up::
 @end menu
 
 @node b function and facet polynomial,,, b function
@@ -709,7 +710,7 @@ Example:
 @comment ------ facet_poly
 @comment --- 個々の関数の説明 ---
 @comment --- section 名を正確に ---
-@node mt_gkz.facet_polyl,,, b function and facet polynomial
+@node mt_gkz.facet_poly,,, b function and facet polynomial
 @subsection @code{mt_gkz.facet_poly}
 @comment --- 索引用キーワード
 @findex mt_gkz.facet_poly
@@ -760,6 +761,65 @@ Example:
 @ref{mt_gkz.bf}
 @end table
 @comment おわり. 
+
+@comment ------ get_bf_step_up
+@comment --- 個々の関数の説明 ---
+@comment --- section 名を正確に ---
+@node mt_gkz.get_bf_step_up,,, b function and facet polynomial
+@subsection @code{mt_gkz.get_bf_step_up}
+@comment --- 索引用キーワード
+@findex mt_gkz.get_bf_step_up
+
+@table @t
+@item mt_gkz.get_bf_step_up(@var{A})
+:: It returns the set of b-functions and corresponding step-up operators
+for  @var{A}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+The first entry is a list of b-function for all direction.
+The second entry is a list of step-up operators (quasi inverse of step-down 
+operators dx_i's).
+@item A
+the matrix A of the GKZ system.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+It is an implementation of the algorithm to obtain contiguity relations
+in  
+[SST1999]
+M.Saito, B.Sturmfels, N.Takayama, Hypergeometric polynomials
+and integer programming, Compositio Mathematica, 155 (1999), 185--204.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+
+Example:
+@example
+[1883] import("mt_gkz.rr");;
+[3176]  A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]];;
+[3177] S=mt_gkz.get_bf_step_up(A); 
+  [[ s_1*s_2-s_1*s_3+s_1^2 s_1*s_3 s_2^2+(-s_3+s_1)*s_2 s_3*s_2 ],
+  [ x2*x3*dx4+x1*x3*dx3+x1*x2*dx2+x1^2*dx1+x1 
+    x2*x4*dx4+x1*x4*dx3+x2^2*dx2+x1*x2*dx1+x2 
+    x3*x4*dx4+x3^2*dx3+x1*x4*dx2+x1*x3*dx1+x3 
+    x4^2*dx4+x3*x4*dx3+x2*x4*dx2+x2*x3*dx1+x4 ]]
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_gkz.bf}
+@end table
+@comment おわり. 
+
+
 
 @comment ---------- New Chapter  ---------------
 @node utilities,,, Top
@@ -1009,7 +1069,7 @@ The returned list of differential operators (monomials) is a standard basis
 of the GKZ system and it also gives a cohomology basis
 by applying them to the integration kernel of the GKZ hypergeometric integral.
 @item 
-It is an implementation of the algorithm in [HNT] @url{http://dx.doi.org/10.1016/j.aim.2016.10.021} by Hibi-Nishiyama-Takayama.
+It is an implementation of the algorithm in [HNT] @url{https://dx.doi.org/10.1016/j.aim.2016.10.021} by Hibi-Nishiyama-Takayama.
 @item 
 The weight vector is used to obtain an initial ideal of the toric ideal
 for @var{A} and is also used to obtain a standard basis of
@@ -1124,7 +1184,7 @@ the source code.
 [3193] mt_gkz.cbase_by_euler(A=[[1,1,1,1],[0,1,3,4]]);
 // Cohomology basis of the GKZ system defined by A for generic beta. 
 // Basis is given by a set of Euler operators. 
-// It is an implementation of the algorithm in http://dx.doi.org/10.1016/j.aim.2016.10.021
+// It is an implementation of the algorithm in https://dx.doi.org/10.1016/j.aim.2016.10.021
 // beta is set by random numbers. Option: no_prob=1
 
 @end example
