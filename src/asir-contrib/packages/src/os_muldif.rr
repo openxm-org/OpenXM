@@ -14140,7 +14140,7 @@ def showPfaff(P)
 
 	if(Type==0||Type==2){		/* equation or form */
 		if(!isint(Div)||Div<2) Div=0;
-		V="u";II=length(P);
+		V="u";II=length(P0=P);
 		Out=string_to_tb(iand(Type,2)?" ":"\\hspace{-20pt}d"+V+"= \\Biggl(");
 		for(I=0;P!=[];I++,P=cdr(P)){
 			str_tb([(I>0)?" + ":" ",mtotex(car(P)[1]),"\\frac{d",monototex(car(P)[0]),"}{",
@@ -14153,7 +14153,7 @@ def showPfaff(P)
 		if(Small) S=smallmattex(S);
 		if(!Raw) show(S);
 		else if(Raw==-1) S=show(S|raw=1);
-		else S=P;
+		else S=P0;
 		return S;
 	}
 
@@ -14211,8 +14211,12 @@ def showPfaff(P)
 		}
 		if(isint(Div)&&Div>1) Div=[Div];
 		if(type(Div)==4&&length(Div)>0) T=divmattex(T,Div);
+		else Div=0;
 		if(Small) T=smallmattex(T);
-		if(!Raw) dviout(T|eq=0);
+		if(!Raw){
+			if(!Div) dviout(T|eq=0);
+			else	 dviout(T);
+		}
 		if(Raw==-1) return T;
 		if(Type==1) return lpair(RS,L);
 		return lpair(RS,L1);
@@ -14229,11 +14233,14 @@ def adPfaff(H,V,L)
 	if(L==0||L==[]) return H;
 	if(H!=[]) S=size(H[0][1])[0];
 	else S=1;
+	if((Top=getopt(top))!=1&&Top!=-1) Top=0;
 	if(type(L[0])==4){
-		for(;L!=[];L=cdr(L)) H=adPfaff(H,V,car(L));
+		for(;L!=[];L=cdr(L)) H=adPfaff(H,V,car(L)|top=Top);
 		return H;
 	}
-	if(L[1]==0) return H;
+	if(!Top &&length(L)==3) Top=L[2];
+	if(Top!=-1&&Top!=1) Top=0;
+	if(!Top&&L[1]==0) return H;
 	VP=lsort(vars(H0=L[0]),V,"cap");
 	if(VP==[]){
 		mycat([H0," has no variables in ", V]);
@@ -14243,13 +14250,18 @@ def adPfaff(H,V,L)
 	for(R=[],F=0,TH=H;TH!=[];TH=cdr(TH)){
 		H1=car(TH)[0];
 		if(!F && C0*H1==mycoef(H1,1,car(VP))*H0){
-			M=mbadd(dupmat(car(TH)[1]),L[1],[0,S]);
+			M=car(TH)[1];
+			if(L[1]) M=mbadd(dupmat(car(TH)[1]),L[1],[0,S]);
 			R=cons([car(TH)[0],M],R);
 			F++;
 		}else R=cons(car(TH),R);
 	}
 	if(F) return reverse(R);
-	else return append(H,[[L[0],diagm(S,[L[1]])]]);
+	else{
+		R=[L[0],diagm(S,[L[1]])];
+		if(Top==1) return cons(R,H);
+		else return append(H,[R]);
+	}
 }
 
 def brPfaff(H,V,B)
@@ -14391,7 +14403,7 @@ def mcPfaff(H,V,K)
 		for(J=0;J<NP;J++) mbadd(M,H[IH][1],[S*J,S*J]);
 		RH[IH]=[H[IH][0],M];
 	}
-	for(I=FH=0;I<NP;I++){
+	for(AdH=[],I=FH=0;I<NP;I++){
 		for(J=I+1;J<NP;J++){
 			H1=H[LP[I]][0];H2=H[LP[J]][0];H3=H1*mycoef(H2,1,V0)-H2*mycoef(H1,1,V0);
 			VP=lsort(vars(H3),V,"cap");
@@ -14410,7 +14422,6 @@ def mcPfaff(H,V,K)
 				FH++;
 				IH=NH;NH++;
 				R=newvect(NH);
-				for(IH=0;IH<NH-1;IH++) R[IH]=RH[IH];
 				FT=fctr(H3);
 				for(;FT!=[];FT=cdr(FT)){
 					if(lsort(vars(car(FT)[0]),V,"cap")!=[]){
@@ -14418,11 +14429,15 @@ def mcPfaff(H,V,K)
 						break;
 					}
 				}
-				if(Verb>0) mycat(["Add hyperplan ", H3]);
-				R[IH]=[H3,newmat(SS,SS)];
-				M=R[IH][1];Q1=H[LP[I]][1];Q2=H[LP[J]][1];
+				if(Verb>0) mycat(["Add hyperplane ", H3]);
+				AdH=cons(H3,AdH);
+				M=newmat(SS,SS);
+				Q1=H[LP[I]][1];Q2=H[LP[J]][1];
 				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
 				mbadd(M,-Q1,[S*J,S*I]);mbadd(M,Q1,[S*J,S*J]);
+				Top=getopt(top)==1?1:0;
+				for(IH=0;IH<NH-1;IH++) R[IH+Top]=RH[IH];
+				R[(1-Top)*IH]=[H3,M];
 				RH=R;
 			}
 		}
@@ -14476,10 +14491,11 @@ def mcPfaff(H,V,K)
 		if(Verb>0) mycat(["Ad:",[K[0],-K[1]-K[2]]]);
 		H=adPfaff(H,V,[K[0],-K[1]-K[2]]);
 	}
+	if(getopt(keep)==1&&AdH==[]) return H;
 		/* delete hypersurfaces without singularities */
-	S=size(H[0][1])[0];
 	for(R=[],TH=H;TH!=[];TH=cdr(TH)){
-		if(!iszeromat(car(TH)[1])) R=cons(car(TH),R);
+		if(!iszeromat(car(TH)[1]) || (getopt(keep)==1&&findin(car(TH)[0],AdH)<0))
+			R=cons(car(TH),R);
 		else if(Verb>0) mycat(["Delete hyperplane ",car(TH)[0]]);
 	}
 	if(Verb>0 && NH0!=length(R)) mycat(["hyperplanes ",NH0,"->",length(R)]);
