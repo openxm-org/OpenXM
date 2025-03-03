@@ -14056,7 +14056,7 @@ def islinear(P,V)
 	for(;V!=[];V=cdr(V)){
 		TV=car(V);
 		if(mydeg(P,TV)>1) return 0;
-		if(lsort(vars(mycoef(P,1,TV)),V,"cap))!=[]) return 0;
+		if(lsort(vars(mycoef(P,1,TV)),V,"cap")!=[]) return 0;
 		P=mycoef(P,0,TV);
 	}
 	if(P!=0 && getopt(homog)==1) return 0;
