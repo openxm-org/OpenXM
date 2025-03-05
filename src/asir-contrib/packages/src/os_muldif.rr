@@ -1,12 +1,11 @@
 /* $OpenXM: OpenXM/src/asir-contrib/packages/src/os_muldif.rr,v 1.97 2022/08/07 23:38:42 takayama Exp $ */
-/* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html
- scp os_muldif.[dp]* ${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
-*/
+/* The latest version will be at https://www.ms.u-tokyo.ac.jp/~oshima/index-j.html */
+
 #define USEMODULE 1
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Sep. 2024)
+ *          Toshio Oshima (Nov. 2007 - Feb. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -14,7 +13,7 @@
  *   "Tab = 4 column" is best
  */
 
-ord([zz,dz,dy,dx])$
+ord([zz,dz,dx])$
 
 #ifdef USEMODULE
 module os_md;
@@ -47,6 +46,7 @@ static LQS$
 static SVORG$
 static ISort$
 static ISortF$
+static MaxCom$
 localf mcset$
 localf mcfamily$
 localf spType2$
@@ -117,6 +117,7 @@ localf matrtop$
 localf mytrace$
 localf mydet$
 localf permanent$
+localf lperm$
 localf mperm$
 localf mtranspose$
 localf mtoupper$
@@ -124,15 +125,18 @@ localf mydet2$
 localf myrank$
 localf lext2$
 localf meigen$
+localf mmeigen$
 localf pf2kz$
 localf mext2$
 localf transm$
 localf vgen$
 localf kzext$
+localf integdlog$
 localf mmc$
 localf lpgcd$
 localf mdivisor$
 localf mdsimplify$
+localf mdsimpold$
 localf m2mc$
 localf easierpol$
 localf paracmpl$
@@ -153,11 +157,13 @@ localf llextn$
 localf llord$
 localf llsymcheck$
 localf llsymred$
+localf invvlmap$
 localf fam2t$
 localf lcut$
 localf rev$
 localf qsortn$
 localf lsort$
+localf lchoose$
 localf lmaxsub$
 localf rsort$
 localf btree$
@@ -369,6 +375,9 @@ localf iscommutefamily$
 localf isalphanum$
 localf isdecimal$
 localf isvar$
+localf islinear$
+localf issymmetric$
+localf iszeromat$
 localf isyes$
 localf isall$
 localf iscoef$
@@ -380,7 +389,10 @@ localf spgen$
 localf spbasic$
 localf nextshort$
 localf nextcod$
+localf csptb$
+localf ccspt$
 localf chkspt$
+localf chkcspt$
 localf cterm$
 localf terms$
 localf pterm$
@@ -395,6 +407,13 @@ localf newKZmat$
 localf newKZmatb$
 localf midKZ0$
 localf midKZ$
+localf mcPfaff$
+localf adPfaff$
+localf trPfaff$
+localf brPfaff$
+localf ssPfaff$
+localf showPfaff$
+localf arHplane$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -456,15 +475,22 @@ localf vConv$
 localf mcvm$
 localf s2cspb$
 localf s2csp$
+localf ldepth$
+localf refinements$
+localf refinement2$
 localf partspt$
+localf comfamily$
 localf diagm$
 localf mgen$
 localf madj$
+localf mbracket$
 localf newbmat$
+localf mbadd$
 localf unim$
 localf pfrac$
 localf cfrac$
 localf cfrac2n$
+localf nskew$
 localf sqrt2rat$
 localf s2sp$
 localf sp2grs$
@@ -597,7 +623,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00240904"$
+Muldif.rr="00250207"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -622,6 +648,7 @@ LFOPT=["very thin","thin","dotted","dashed"]$
 SVORG=["x","y","z","w","u","v","p","q","r","s"]$
 Canvas=[400,400]$
 LQS=[[1,0]]$
+MaxCom=newvect(2,[[],[[[0,1]]]])$
 
 ErMsg = newvect(3,[
  "irregal argument", /* 0 */
@@ -1338,21 +1365,41 @@ def minustos(S)
 
 def vnext(V)
 {
+	if((T=type(V))==4) V=ltov(V);
 	S = length(V);
-	for(I = S-1; I > 0; I--){
-		if(V[I-1] < V[I]){
-			V0 = V[I-1];
-			for(J = I+1; J < S; J++)
-				if(V0 >= V[J]) break;
-			V[I-1] = V[--J];
-			V[J] = V0;
-			for(J = S-1; I < J; I++, J--){
-				V0 = V[I];
-				V[I] = V[J];
+	if(getopt(rev)!=1){
+		for(I = S-1; I > 0; I--){
+			if(V[I-1] < V[I]){
+				V0 = V[I-1];
+				for(J = I+1; J < S; J++)
+					if(V0 >= V[J]) break;
+				V[I-1] = V[--J];
 				V[J] = V0;
+				for(J = S-1; I < J; I++, J--){
+					V0 = V[I];
+					V[I] = V[J];
+					V[J] = V0;
+				}
+				return (T==4)?vtol(V):1;
 			}
-			return 1;
 		}
+	}else{
+		for(I = S-1; I > 0; I--){
+			if(V[I-1] > V[I]){
+				V0 = V[I-1];
+				for(J = I+1; J < S; J++)
+					if(V0 <= V[J]) break;
+				V[I-1] = V[--J];
+				V[J] = V0;
+				for(J = S-1; I < J; I++, J--){
+					V0 = V[I];
+					V[I] = V[J];
+					V[J] = V0;
+				}
+				return (T==4)?vtol(V):1;
+			}
+		}
+
 	}
 	return 0;
 }
@@ -1481,6 +1528,11 @@ def transpart(L)
 
 def trpos(A,B,N)
 {
+	if(A==-1&&N>0){
+		S=newvect(N);
+		for(I=0;I<N;I++) S[I]=N-I-1;
+		return S;
+	}
 	if(!N){
 		N=(A<B)?B:A;
 		N++;
@@ -2320,8 +2372,11 @@ def xytournament(L,V)
 		T=cons([car(Win)[0]-1,car(Win)[1]-1],T);
 	Win=qsort(T);
 	if(isint(W)) Pos=W-1;
-	if(Pos==-1&&type(Sft)==4)
-		Pos=findin(0,Sft);
+	if(Pos==-1&&type(Sft)==4){
+		Pos=findin(W,Sft);
+		if(Pos<0) Pos=findin(0,Sft);
+		if(Pos<0) Pos=W;
+	}
 	if(Pos>=0) Top=1;
 	SK=[[0,Skip],[-Skip,0]];RR=[];
 	for(T="",S=reverse(S);S!=[];S=cdr(S)){
@@ -3312,6 +3367,17 @@ def permanent(M)
 	return V;
 }
 
+def lperm(V,P)
+{
+	S=length(V);
+	if(type(P)==5) P=vtol(P);
+	if(type(car(P))==4 && length(P)==1) P=vtol(trpos(car(P)[0],car(P)[1],S));
+	for(R=[];P!=[];P=cdr(P)) R=cons(V[car(P)],R);
+	R=reverse(R);
+	if(type(P)==5) R=ltov(P);
+	return R;
+}
+
 def mperm(M,P,Q)
 {
 	if(type(M) == 6){
@@ -3842,13 +3908,19 @@ def meigen(M)
 		}
 		return V;
 	}
-	F = getopt(mult);
+	if((F=getopt(mult))==2||F==3)
+		if(type(M)==6) M=[M];
 	if(type(M)==4 || type(M)==5){
 		II=length(M);
 		for(R=[],I=II-1; I>=0; I--){
-			if(F==1)
-				R=cons(meigen(M[I]|mult=1),R);
-			else
+			if(F==1||F==2||F==3){
+				TR=meigen(M[I]|mult=1);
+				if(F==2||F==3){
+					TR=car(chkspt([TR]|opt=1));
+					if(F==3) TR=s2sp([TR]);
+				}
+				R=cons(TR,R);
+			}else
 				R=cons(meigen(M[I]),R);
 		}
 		return R;
@@ -3856,6 +3928,41 @@ def meigen(M)
 	S = size(M)[0];
 	P = mydet2(mgen(S,0,[zz],0)-M);
 	return (F==1)?getroot(P,zz|mult=1):getroot(P,zz);
+}
+
+def mmeigen(L)
+{
+	if(type(L)==6) L=[L];
+	NN=diagm(S=size(L[0])[0],0);
+	for(L0=L;L0!=[];L0=cdr(L0)){
+		for(L1=cdr(L0);L1!=[];L1=cdr(L1)){
+			if(car(L0)*car(L1)-car(L1)*car(L0) != NN) return -1;
+		}
+	}
+	Len=length(L);
+	if(Len>1)
+	V=makenewv(L|num=Len-1);
+	M=dupmat(-car(L));
+	for(I=0;I<S;I++) M[I][I]+=zz;
+		for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
+			M=red(M-car(TV)*car(L));
+	Det=mydet(M);
+	R=getroot(Det,zz|mult=1);
+	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
+		P=car(TR)[1];
+		if(mydeg(P,zz)>0){
+			RR=cons(car(TR),RR);
+			continue;
+		}
+		for(U=[],TV=reverse(V);TV!=[];TV=cdr(TV)){
+			U=cons(mycoef(P,1,car(TV)),U);
+			P=mycoef(P,0,car(TV));
+		}
+		U=cons(P,U);
+		U=cons(car(TR)[0],U);
+		RR=cons(U,RR);
+	}
+	return RR;
 }
 
 def lext2(L)
@@ -4063,6 +4170,41 @@ def vgen(V,W,S)
 	if(SS>0)
 		return -1;
 	return(I==IM)?0:I;
+}
+
+def integdlog(F,X)
+{
+	if(type(F)!=4||type(X)!=4) return 0;
+	LF=length(F);LX=length(X);
+	M=newmat(LX,LF);
+	if(type(V=getopt(sub))!=4)
+		for(V=[],P=LF-1;P>=0;P--) V=cons(P,V);
+	V=ltov(V);
+	for(P=0;P<LF;P++)
+		for(TF=F[P],I=0;I<LX;I++) M[I][P]=mydiff(TF,X[I]);
+	for(R=[],I=0;I<LX-1;I++){
+		for(J=I+1;J<LX;J++){
+			for(TR=P=0;P<LF;P++){
+				if(!M[I][P]) continue;
+				for(Q=0;Q<LF;Q++){
+					if(P==Q) continue;
+					if(!M[J][Q]) continue;
+					if(P<Q) VV=makev([a,V[P],V[Q]]);
+					else VV=-makev([a,V[Q],V[P]]);
+					TR+=VV*M[I][P]*M[J][Q]/F[P]/F[Q];
+					TR=red(TR);
+				}
+			}
+TR=nm(TR);
+			R=cons(TR,R);
+		}
+	}
+return os_md.ptol(R,X|opt=0);
+	if(getopt(raw)!=1){
+  		R=os_md.ptol(R,X|opt=0);
+  		R=gr(R,vars(R),2);
+	}
+	return R;
 }
 
 def mmc(M,X)
@@ -4685,6 +4827,124 @@ def mdivisor(M,X)
 
 def mdsimplify(L)
 {
+	Count=0;
+	if(getopt(old)==1)
+		return mdsimpold(L|option_list=getopt());
+	SS=0;
+	if(type(L)==6){
+		L=[L]; SS=1;
+	}
+	if(type(L)==5){
+		SS=2;
+		L = vtol(L);
+	}
+	if(!isint(Verb=getopt(verb)) ) Verb=0;
+	SL=length(L);
+	S=size(L[0])[0];
+ 	DD=newvect(S);
+    for(I=0;I<S;I++) DD[I]=1;
+	L=ltov(L);
+	if(getopt(keep)==1) for(I=0;I<SL;I++) L[I]=dupmat(L[I]);
+		/* find factors of denominators */
+	for(R=[]; ;){
+		FM=newmat(S,S);
+		for(K=0;K<SL;K++){
+			M=L[K];
+			for(T=I=0;I<S;I++){
+				for(J=0;J<S;J++){
+					if(I==J) continue;
+					if(type(dn(M[I][J]))==1) continue;
+					F=fctr(dn(M[I][J]));
+					for(F=cdr(F);F!=[];F=cdr(F)){
+						if(findin(car(F)[0],R)>=0) continue;
+						T=car(F)[0];I=J=S;K=SL;break;
+					}
+				}
+			}
+		}
+		if(!T) break;
+			/* check factor T  can be simplified */
+		if(Verb) mycat(["checking factor:",T]);
+		for(I=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(I==J) continue;
+				for(K=F=0;K<SL;K++){
+					if(!(TM=L[K][I][J])) continue;
+					if(type(DN=dn(TM))>1){
+						for(P=1;DN;DN=tdiv(DN,T)) P--;
+					}else P=0;
+					DN=tdiv(nm(TM),T);
+					if(P<0&&DN!=0){
+						if(Verb) mycat(["redicible",K,[I,J],TM]);
+						L[K][I][J]=red(TM);
+						K--;continue;
+					}
+					for(;DN;DN=tdiv(DN,T)) P++;
+					if((TF=FM[I][J])==0) FM[I][J]=[P];
+					else if(TF[0]>P) FM[I][J]=[P];
+				}
+			}
+		}
+		if(Verb>1) mycat(["checking matrix:\n",FM]);
+		for(R1=R2=[],I=F=NN=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(type(FM[I][J])==4 && FM[I][J][0]<0){
+					NN-=FM[I][J][0];
+					if(FM[J][I]==0 || FM[J][I][0]>0){
+						if(findin(J,R1)>=0 || findin(I,R2)>=0) F++;
+						else{
+							if(findin(I,R1)<0 && findin(I,R2)<0) R1=cons(I,R1);
+							if(findin(J,R1)<0 && findin(J,R2)<0) R2=cons(J,R2);
+						}
+					}
+				}
+			}
+		}
+		FM2=dupmat(FM);
+		for(R3=R1;R3!=[];R3=cdr(R3)){
+			I=car(R3);
+			for(J=0;J<S;J++){
+				if(findin(J,R1)>=0) continue;
+				if(FM2[I][J]!=0) FM2[I][J]=[car(FM2[I][J])+1];
+				if(FM2[J][I]!=0) FM2[J][I]=[car(FM2[J][I])-1];
+			}
+		}
+		for(I=NN2=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(type(FM2[I][J])==4 && FM2[I][J][0]<0)
+					NN2-= FM2[I][J][0];
+			}
+		}
+		for(R2=[],I=S-1;I>=0;I--) if(findin(I,R1)<0) R2=cons(I,R2);
+		if(NN2>=NN){
+			/* desn't reduce */
+		if(Verb) mycat(["Stop for :", T]);
+			R=cons(T,R);
+			continue;
+		}
+		if(!NN2) R=cons(T,R);
+		if(Verb) mycat([NN,"->", NN2]);
+		for(;R1!=[];R1=cdr(R1)){
+			I=car(R1);
+			DD[I]=DD[I]*T;
+			for(R3=R2;R3!=[];R3=cdr(R3)){
+				J=car(R3);
+				for(K=0;K<SL;K++){
+					L[K][I][J]=red(L[K][I][J]*T);
+					L[K][J][I]=red(L[K][J][I]/T);
+				}
+			}
+		}
+	}
+	L=vtol(L);
+	if(SS==1) L=L[0];
+	else if(SS!=2) L=vtol(L);
+	if(getopt(show)==1) L=[L,DD];
+	return L;
+}
+
+def mdsimpold(L)
+{
 	T=getopt(type);
 	SS=0;
 	if(type(L)==6){
@@ -4696,31 +4956,6 @@ def mdsimplify(L)
 	}
 	M=car(L);
 	S=size(M)[0];
-#if 0
-	MN=newmat(S,S);
-	MD=newmat(S,S);
-	for(I=0;I<S;I++){
-		for(J=0;J<S;J++){
-			TN=0;TD=1;
-			for(PL=L;PL!=[];PL=cdr(PL)){
-				TM=red(car(PL)[I][J]);
-				TN=lgcd([TN,nm(TM)]|pol=1);
-				TD=llcm([TD,dn(TM)]|pol=1);
-			}
-			MN[I][J]=TM;
-			MD[I][J]=TN;
-		}
-	}
-	for(I=0;I<S;I++){
-		for(J=0;J<S;J++){
-			if(I==J||type(TD[I][J])<2||type(TN[J][I])<2) continue;
-			for(FC=cdr(fctr(TD[I][J]));FC!=[];){
-				TFC=car(FC);
-				if(type(red(TN[J][I]/TFC[0]))>2) continue;
-			}
-		}
-	}
-#endif
 	DD=newvect(S);
 	for(I=0; I<S; I++){
 		LN=RN=[];
@@ -5459,6 +5694,10 @@ def mmod(M,L)
 	S=size(M)[1];
 	MM=mtranspose(M);
 	VP = newvect(S);
+	if(getopt(toupper)==1){
+		if(type(L)==4) L=lv2m(L);
+		L=mtoupper(L,0);
+	}
 	if(type(L)==6)
 		L=m2lv(L);
 	for(CT = 0, LT = L; LT != []; LT = cdr(LT)){
@@ -5924,23 +6163,29 @@ def fam2t(L,T,P)
 	return cons("(",R);
 }
 
+def invvlmap(V)
+{
+	S=length(V);
+	R=newvect(S);
+	for(I=0;I<S;I++) R[I]=[];
+	for(I=S-1;I>=0;I--){
+		for(T=V[I];T!=[];T=cdr(T)) R[car(T)]=cons(I,R[car(T)]);
+	}
+	return R;
+}
+
 def llord(L)
 {
-	L=qsort(L);						/* can be change */
+	if(getopt(sort)!=0) L=qsort(L);				/* can be change */
 	if(type(L)==4) L=ltov(L);
 	N=length(L);
 	S1=newvect(N);S2=newvect(N);
 	S1[0]=S2[0]=[];
 	for(I=1;I<N;I++){
-		S1[I]=S2[I]=[];
-		for(J=0;J<I;J++){
-			if(issub(L[J],L[I])){  /* can be change */
-				S1[I]=cons(J,S1[I]);
-				for(K=I-1;K>J;K--)
-					if(findin(J,S1[K])>=0) break;
-				if(K==J||I==J+1) S2[I]=cons(J,S2[I]);
-			}
-		}
+		for(S1[I]=[],J=0;J<I;J++)
+			if(issub(L[J],L[I])) S1[I]=cons(J,S1[I]);
+		for(TR=S2[I]=S1[I];TR!=[];TR=cdr(TR))
+			S2[I]=lsort(S2[I],S1[car(TR)],"setminus");
 	}
 	for(S3=S4=[],I=FB=0;I<N;I++){
 		S3=append(S3,L[I]);S4=append(S4,S2[I]);
@@ -6835,6 +7080,13 @@ def myinv(M)
 	return mperm(MM,0,[T,[T]]);
 }
 
+def mbracket(L)
+{
+	if(type(A=L[0])==4) A=mbracket(A);
+	if(type(B=L[1])==4) B=mbracket(B);
+	return A*B-B*A;
+}
+
 def madj(G,M)
 {
 	H=myinv(G);
@@ -6846,7 +7098,7 @@ def madj(G,M)
 		for(I=0;I<L;I++){
 			N[I]=rmul(rmul(G,M[I]),H);
 		}
-		if(type(N)==4) N=vtol(N);
+		if(type(M)==4) N=vtol(N);
 		return N;
 	}
 	return -1;
@@ -7183,7 +7435,7 @@ def fctrtos(P)
 			}
 			if(N > 0 && TeX != 1 && TeX != 2 && TeX != 3)
 				write_to_tb("*", S);
-			SS=(TeX>=1)?my_tex_form(P[J][0]):rtostr(P[J][0]);
+			SS=(TeX>=1)?my_tex_form(P[J][0])+" ":rtostr(P[J][0]);
 			N++;
 			if(P[J][1] != 1){		/* (log(x))^2 */
 				if(nmono(P[J][0])>1||
@@ -11151,6 +11403,15 @@ def dform(L,X)
 	if(type(L[0])!=4) L=[L];
 	if(type(X)==4) X=ltov(X);
 	M=length(X);
+	if(getopt(log)==1){
+		for(R=[];L!=[];L=cdr(L)){
+			T=car(L);T0=car(T);T=cdr(T);
+			T0/=car(T);
+			if(length(T)>1) T0/=T[1];
+			R=cons(cons(T0,T),R);
+		}
+		L=reverse(R);
+	}
 	if(length(car(L))==2){
 		R=newvect(M);
 		for(LL=L; LL!=[]; LL=cdr(LL)){
@@ -12228,7 +12489,141 @@ def chkspt(M)
 	}
 	if(JM==1 && Mat!=1)
 		Fu -= OD - SSM/2;
+	if(getopt(dumb)==-1||getopt(show)==1){
+		mycat0(["points:\t",P,"\nrank:\t",OD,"\nindex:\t",SSM,
+		"\nreduct:\t",SM," at ",XM,"\t--> ",fspt(M,1),"\n"],0);
+		if(Fu) mycat0(["Fuchs:\t", Fu,"\n"],0);
+		return 1;
+	}
 	return [P, OD, SSM, Fu, SM, XM, fspt(M,1)];
+}
+
+def ccspt(L)
+{
+	if(type(L)!=4 || type(L[0])!=4) return 0;
+	if(type(L[0][0])==4&&type(L[0][0][0])!=4){
+		for(R=[];L!=[];L=cdr(L)) R=cons(ccspt(car(L)),R);
+		return reverse(R);
+	}
+	if(length(L)==1) return car(L);
+	while(length(L)>1){
+		T0=car(L);L=cdr(L);T1=car(L);L=cdr(L);
+		/* if(type(car(T0))==4) T0=car(T0); */
+		for(SS=0,R=[]; T1!=[];T1=cdr(T1)){
+			S1=car(T1);
+			for(S=0,U=[];T0!=[]&&S<S1;cdr(T0)){
+				if(type(S0=S2=car(T0))==4){
+					S0=car(S0);S2=T0[1];
+				}
+				S+=S0;
+				if(S0) U=cons(S2,U);
+			}
+			SS+=S;
+			if(U!=[]) R=cons([S,reverse(U)],R);
+		}
+		L=cons(R,L);
+	};
+	return reverse(car(L));
+}
+
+
+def csptb(L,F)
+{
+	if(type(car(L))!=4) return L;
+	for(R=[],TL=L;TL!=[];TL=cdr(TL)){
+		T1=car(TL)[1]; 
+		if(type(T1[0])==4&&length(T1[0])>1&&type(T1[0][1])==4)
+			T1=csptb(T1,F);
+		R=append(R, !F? calc(T1,["+",car(TL)[0]]):T1);
+	}
+	return R;
+}
+
+
+def chkcspt(S)
+{
+	if(str_chr(S,0,",")<0 && str_chr(S,0,"|")<0) S=s2csp(S|n=1);
+	if(type(S)==7) S=s2csp(S);
+	for(RR=PV=[],TS=S;TS!=[];TS=cdr(TS)){
+		for(TU=[],T=car(TS);T!=[];){
+			if(type(car(T))==4){
+				R=lpair(T,0);
+				T=R[0];R1=m2l(R[1]|flat=1);
+			}else R1=[];
+			TU=cons(T,TU);
+			T=R1;
+		}
+		RR=cons(TU,RR);
+		PV=cons(length(TU),PV);
+	}
+
+	R=reverse(RR);PV=reverse(PV);FR=m2l(R|flat=1);
+/*
+	for(T=RR;T!=[];T=cdr(T)){
+		TT=car(T);T0=U=car(TT);V=ltov(U);L=length(V);TV0=ltov(T0);
+		for(;TT!=[];TT=cdr(TT)){
+			TT0=car(TT);
+			K=cat(TT0);
+			for(I=0;I<L;I++){
+				V[I]+=K;
+			}
+		}
+	}
+*/
+	for(RR=RS=PV=[],TS=S;TS!=[];TS=cdr(TS)){
+		T=car(TS);
+		RS=cons(csptb(T,0),RS);
+		for(TU=[];T!=[];){
+			if(type(car(T))==4){
+				R=lpair(T,0);
+				T=R[0];R1=m2l(R[1]|flat=1);
+			}else R1=[];
+			TU=cons(T,TU);
+			T=R1;
+		}
+		RR=cons(TU,RR);
+		PV=cons(length(TU),PV);
+	}
+	R=reverse(RR);RS=reverse(RS);PV=reverse(PV);
+	FR=m2l(R|flat=1);SPT=chkspt(FR);
+
+	for(RM=[],D=0,T=RS;T!=[];T=cdr(T)){
+		for(TN=N=M=0,TT=car(T);TT!=[];TT=cdr(TT),TN++){
+			if(car(TT)>M){
+				N=TN;M=car(TT);
+			}
+		}
+		D+=M;
+		RM=cons([N,M],RM);
+	}
+	D-=(SPT[0]-2)*SPT[1];
+	RM=reverse(RM);
+
+	for(RD=[],TR=RR,TRM=RM;TR!=[];TR=cdr(TR),TRM=cdr(TRM)){
+		TM=car(TRM)[0]; T=car(TR);
+		for(Sm=I=0;I<TM;I++) Sm+=car(T)[I];
+		for(U=[];T!=[];T=cdr(T)){
+			for(TU=[],TS=F=0,TT=car(T);TT!=[];TT=cdr(TT)){
+				TS+=(M=car(TT));
+				if(!F&&TS>Sm){
+					M-=D;F=1;
+				}
+				if(M) TU=cons(M,TU);
+			}
+			if(TU!=[]) U=cons(reverse(TU),U);
+		}
+		if(U!=[]) RD=cons(reverse(U),RD);
+	}
+	RR=ccspt(RD);
+
+	if(getopt(show)==1){
+		mycat0([s2csp(S),"   ",s2csp(S|n=1),"\n"],0);
+		mycat0(["points:\t",length(R),"  with Poincare ranks  ",calc(PV,["-",1]),
+			"\nrank:\t",SPT[1],"\nindex:\t",SPT[2],
+			"\nreduct:\t",D," at ",lpair(RM,0)[0]," -> ",s2csp(RR),"   ",s2csp(RR|n=1),"\n"],0);
+		return 0;
+	}
+	return [length(R),calc(PV,["-",1]), SPT[1],SPT[2],D,lpair(RM,0)[0],s2csp(S),S,s2csp(RR),RR];
 }
 
 def cterm(P)
@@ -13653,6 +14048,598 @@ def midKZ(L,B)
 	return S;
 }
 
+def islinear(P,V)
+{
+	P=red(P);
+	if(lsort(vars(dn(P)),V,"cap") !=[]) return 0;
+	P=nm(P);
+	for(;V!=[];V=cdr(V)){
+		TV=car(V);
+		if(mydeg(P,TV)>1) return 0;
+		if(lsort(vars(mycoef(P,1,TV)),V,"cap")!=[]) return 0;
+		P=mycoef(P,0,TV);
+	}
+	if(P!=0 && getopt(homog)==1) return 0;
+	return 1;
+}
+
+def iszeromat(P)
+{
+	if(P==0) return 1;
+	if(type(P)!=6) return 0;
+	if(getopt(scalar)==1) D=P[0][0];
+	else D=0;
+	S=size(P);
+	for(I=0;I<S[0];I++){
+		for(J=0;J<S[1];J++)
+			if(I!=J){
+				if(P[I][J]!=0) return 0;
+			}else if(P[I][I]!=D) return 0; 
+	}
+	return 1;
+}
+
+def issymmetric(P,V)
+{
+	for(;length(V)>1;V=cdr(V))
+		if(myswap(P,[V[0],V[1]])!=P) return 0;
+	return 1; 
+}
+
+def trPfaff(H,V,L)
+{
+	RH=H;
+	for(R=[];H!=[];H=cdr(H)){
+		P=red(mulsubst(car(H)[0],[V,L]|lpair=1));
+		if(!P){
+			mycat(["Singular restriction:", car(H)[0]]);
+			return RH;
+		}
+		for(F=fctr(nm(P)),S=1; ;){
+			if(lsort(vars(Q=car(F)[0]),V,"cap")!=[]){
+				if(!islinear(Q,V)){
+					mycat([Q,"is not linearlized"]);
+					return 0;
+				}
+				for(TR=R;TR!=[];TR=cdr(TR)){
+					if(car(TR)[0]==Q){
+						M=car(TR)[1];
+						N=car(F)[1]*car(H)[1]*S;
+						SI=size(M)[0];SJ=size(M)[1];
+						for(I=0;I<SI;I++)
+							for(J=0;J<SJ;J++) M[I][J]=red(M[I][J]+N[I][J]);
+						break;
+					}
+				}
+				if(TR==[]) R=cons([Q,car(F)[1]*car(H)[1]*S],R);
+			}
+			if((F=cdr(F))==[]){
+				if(S==-1) break;
+				S=-1;
+				F=fctr(dn(P));
+			}
+		}
+	}
+	return reverse(R);
+}
+
+def showPfaff(P)
+{
+	if(type(Type=getopt(type))==7){
+		Type=findin(Type,["equation","GRS","form","spct"]);
+		if(Type<0) Type=0;
+	}
+	if(!isint(Type) || Type<0 || Type>3) Type=0;
+	if(isvar(X=getopt(ODE))){
+		P=trPfaff(P,[X],[X]);
+		if(P==[]) return 0;
+	}else X=0;
+	Div=getopt(div);
+	if(!isint(Raw=getopt(raw))) Raw=0;
+	if(getopt(small)==1) Small=1;
+
+	if(Type==0||Type==2){		/* equation or form */
+		if(!isint(Div)||Div<2) Div=0;
+		V="u";II=length(P0=P);
+		Out=string_to_tb(iand(Type,2)?" ":"\\hspace{-20pt}d"+V+"= \\Biggl(");
+		for(I=0;P!=[];I++,P=cdr(P)){
+			str_tb([(I>0)?" + ":" ",mtotex(car(P)[1]),"\\frac{d",monototex(car(P)[0]),"}{",
+			my_tex_form(car(P)[0])],Out);
+			if( I==II-1 || (Div&& (I==0||((I+1)%Div))) ) str_tb("}\n",Out);
+			else str_tb("}\n\\\\&\n",Out);
+		}
+		if(!iand(Type,2)) str_tb(["\\Biggr)",V,"\n"],Out);
+		S = str_tb(0,Out);
+		if(Small) S=smallmattex(S);
+		if(!Raw) show(S);
+		else if(Raw==-1) S=show(S|raw=1);
+		else S=P0;
+		return S;
+	}
+
+	if(Type==1||Type==3){		/* GRS or spct */
+		if(X) V=[X];
+		else V=getopt(infty);
+		W=vars(lpair(P,0)[0]);
+		for(S="",R=RS=[],TH=P;TH!=[];TH=cdr(TH)){
+			if(R!=[]) S=S+"&";
+			TS=car(TH)[0];
+			if(X){				/* ODE */
+				C=mycoef(TS,1,X);
+				if(C){
+					TS=red(X-TS/C);
+					S=S+my_tex_form(X)+"="+my_tex_form(TS);
+				}else S=S+my_tex_form(TS)+"=0";
+			}
+			else{
+				C=(type(TS)==2)?cterm(TS):0;
+				S=S+my_tex_form(TS-C)+"="+my_tex_form(-C);
+			}
+			R=cons(car(TH)[1],R);
+			RS=cons(TS,RS);
+		}
+		if(type(V)==4){			/* infinite points */
+			for(;V!=[];V=cdr(V)){
+				Var=car(V);
+				for(M=0,TH=P;TH!=[];TH=cdr(TH))
+					if(Var==0||findin(Var,vars(car(TH)[0]))>=0) M=red(M+car(TH)[1]);
+				if(Var!=0){
+					S=S+"&"+rtostr(Var)+"=\\infty";
+					if(X) RS=cons("\\infty",RS);
+					else  RS=cons(rtostr(Var)+"=\\infty",RS);
+				}else{
+					S=S+"&\\infty";
+					RS=cons("\\infty",RS);
+				}
+				R=cons(-M,R);
+			}
+			RS=reverse(RS);
+		}
+		S=S+"\\\\\n";
+		L=meigen(reverse(R)|mult=1);
+		for(L1=L2=[],TL=L;TL!=[];TL=cdr(TL)){
+			L1=cons(chkspt([car(TL)]|opt="sp")[0],L1);
+			L2=cons(s2sp([car(L1)]),L2);
+		}
+		L1=reverse(L1);L2=reverse(L2);
+		if(Type==1) T=ltotex(L|opt="GRS",pre=S);
+		else{
+			R=RS;
+			if(X) R=cons(rtostr(X)+"="+rtostr(car(RS)),cdr(RS));
+			T=lv2m([R,L2]);
+			T=mtotex(T|raw=1,mat="B");
+		}
+		if(isint(Div)&&Div>1) Div=[Div];
+		if(type(Div)==4&&length(Div)>0) T=divmattex(T,Div);
+		else Div=0;
+		if(Small) T=smallmattex(T);
+		if(!Raw){
+			if(!Div) dviout(T|eq=0);
+			else	 dviout(T);
+		}
+		if(Raw==-1) return T;
+		if(Type==1) return lpair(RS,L);
+		return lpair(RS,L1);
+	}
+}
+
+
+def adPfaff(H,V,L)
+{
+	if(H!=[]&&type(H[0][1])!=6){
+		for(TH=[];H!=[];H=cdr(H)) TH=cons([car(H)[0],newmat(1,1,[[car(H)[1]]])],TH);
+		H=reverse(TH);
+	}
+	if(L==0||L==[]) return H;
+	if(H!=[]) S=size(H[0][1])[0];
+	else S=1;
+	if((Top=getopt(top))!=1&&Top!=-1) Top=0;
+	if(type(L[0])==4){
+		for(;L!=[];L=cdr(L)) H=adPfaff(H,V,car(L)|top=Top);
+		return H;
+	}
+	if(!Top &&length(L)==3) Top=L[2];
+	if(Top!=-1&&Top!=1) Top=0;
+	if(!Top&&L[1]==0) return H;
+	VP=lsort(vars(H0=L[0]),V,"cap");
+	if(VP==[]){
+		mycat([H0," has no variables in ", V]);
+		return H;
+	}
+	C0=mycoef(H0,1,car(VP));
+	for(R=[],F=0,TH=H;TH!=[];TH=cdr(TH)){
+		H1=car(TH)[0];
+		if(!F && C0*H1==mycoef(H1,1,car(VP))*H0){
+			M=car(TH)[1];
+			if(L[1]) M=mbadd(dupmat(car(TH)[1]),L[1],[0,S]);
+			R=cons([car(TH)[0],M],R);
+			F++;
+		}else R=cons(car(TH),R);
+	}
+	if(F) return reverse(R);
+	else{
+		R=[L[0],diagm(S,[L[1]])];
+		if(Top==1) return cons(R,H);
+		else return append(H,[R]);
+	}
+}
+
+def brPfaff(H,V,B)
+{
+	Hb=B[0];Vb=B[1];Ev=B[2];S=size(car(H)[1])[0];
+	if(!Hb){
+		mycat(["Indicate a singular hyperplane in",lpair(H,0)[0]]);
+		return 0;
+	}
+	if(findin(Vb,vars(Hb))<0||findin(Vb,V)<0){
+		mycat(["Bad variable",Vb, "which should contained in", Hb, "and", V]);
+		return 0;
+	}
+	for(TH=H;TH!=[];TH=cdr(TH))
+		if(tdiv(car(TH)[0],Hb)!=0) break;
+	if(TH==[]){
+		mycat(["No hyperplane",Hb, "which shoulde be in",lpair(H,0)[0]]);
+		return 0;
+	}
+		/* eigenvalues and eigenvectors */
+	if(findin(zz,E=meigen(TH[0][1]|vec=1))>=0){
+		mycat("Can't get characteristic exponents");
+		return 0;
+	}
+		/* kernels */
+	LE=length(E);IE=-1;
+	for(I=J=0;I<LE;I++){
+		if(E[I][0]==Ev) IE=I;
+		J+=length(E[I][1]);
+	}
+	if(Ev!="all"&&Ev!="show"){
+		if(IE<0){
+			mycat(["cannot find exponent",Ev,"in",lpair(E,0)[0]]);
+			return 0;
+		}
+	}else IE=LE-1;
+	if(Ev=="show") return lpair(E,0)[0];
+	if(J!=S){
+		mycat("cannot get enough eigenspaces");
+		return 0;
+	}
+	for(RR=[];IE>=0;IE--){
+		for(K=[],I=0;I<LE;I++)
+			if(I!=IE) K=append(E[I][1],K);
+		K=mtoupper(lv2m(K),0);
+			/* intersection and residue matrix */
+		C0=mycoef(Hb,1,Vb);
+		for(R=[],TH=H;TH!=[];TH=cdr(TH)){
+			H0=car(TH)[0];
+			P=red(C0*H0-mycoef(H0,1,Vb)*Hb);
+			if(lsort(vars(P),V,"cap")==[]) continue;
+			F=fctr(nm(P));
+			if(!car(F)[0]) continue;
+			for(P=0,F=cdr(F);F!=[];F=cdr(F)){
+				if(lsort(vars(car(F)[0]),V,"cap")!=[]){
+					P=car(F)[0];
+					break;
+				}
+			}
+			R=cons([P,car(TH)[1]],R);
+		}
+		R=qsort(R); 	/* sort by singuratities */
+		for(HP=[],TR=R;TR!=[];TR=cdr(TR)){
+			if(HP!=[]&&car(HP)[0]==car(TR)[0]){
+				TH1=red(car(TR)[1]+car(HP)[1]);
+				HP=cdr(HP);
+				HP=cons([car(TR)[0],TH1],HP);
+			}else HP=cons([car(TR)[0],car(TR)[1]],HP);
+		}
+		/* restriction */
+		for(R=[],T=HP;T!=[];T=cdr(T)) R=cons(mmod(car(T)[1],K),R);
+		R=mdsimplify(reverse(R));
+		R=lpair(lpair(HP,0)[0],R);
+		if(Ev!="all") return R;
+		RR=cons([E[IE][0],R],RR);
+	}
+	return RR;
+}
+
+def mcPfaff(H,V,K)
+{
+	if(!isint(Raw=getopt(raw))) Raw=0;
+	if(!isint(Verb=getopt(verb))) Verb=Raw?1:0;
+	if(type(Ad=getopt(ad))==4){
+		if(Verb>0) mycat(["addition", Ad]);
+		 H=adPfaff(H,V,Ad);
+	}
+	if(type(car(K))==4){
+		Opt=delopt(getopt(),"ad");
+		for(;K!=[];K=cdr(K)){
+			if(Verb>0){
+				if(K[0]==0) mycat(["Ad:", cdr(K)]);
+				else if(K[0]==1) mycat( ["tr:",cdr(K)]); 
+			}
+			H=mcPfaff(H,V,car(K)|option_list=Opt);
+			if(Raw||type(H)!=4||type(H[0])!=4||length(H[0])!=2||
+				type(H[0][0])>3||type(H[0][1])==4) break;
+		}
+		return H;
+	}
+	if(H!=[]&&type(H[0][1])!=6) H=adPfaff(H,V,0);
+	if(K==[]) return H;
+	if(K[0]==0){
+		if(Verb>0) mycat(["Ad:",cdr(K)]);
+		return adPfaff(H,V,cdr(K));
+	}
+	else if(K[0]==1){
+		if(Verv>0) mycat(["tr",cdr(K)]);
+		return trPfaff(H,V,cdr(K));
+	}
+	V0=car(K);S=size(H[0][1])[0];
+	if(length(K)>=3){
+		if(Verb>0) mycat(["Ad:",[K[0],K[2]]]);
+		H=adPfaff(H,V,[K[0],K[2]]|verb=Verb);
+		TK=K;K=cdr(K);K=cdr(K);
+		K=cons(TK[1]-TK[2],K);
+		K=cons(TK[0],K);
+	}
+	for(LP=[],NH=0,TP=H;TP!=[];TP=cdr(TP),NH++)
+		if(findin(V0,vars(car(TP)))>=0) LP=cons(NH,LP);
+	NP=length(LP);SS=S*NP;
+	LP=reverse(LP);
+	RH=newvect(NH0=NH);
+	if(Verb>0) mycat(["middle convolution by variable",K[0],"with parameter",K[1]]);
+	FM=lsort(vars(K[1]),vars(H),"setminus");
+	if(Verb>0 && FM!=[]) mycat(["which contains new parameter",car(FM)]); 
+	for(I=0;I<NP;I++){
+		IH=LP[I];
+		M=newmat(SS,SS);
+		for(J=0;J<NP;J++){
+			mbadd(M,H[LP[J]][1],[S*I,S*J]);  /* <- ??? */
+			if(I==J) mbadd(M,K[1],[S*I,S*I+S]);
+			RH[IH]=[H[IH][0],M];
+		}
+	}
+	for(IH=0;IH<NH;IH++){
+		if(type(RH[IH])==4) continue;
+		M=newmat(SS,SS);
+		for(J=0;J<NP;J++) mbadd(M,H[IH][1],[S*J,S*J]);
+		RH[IH]=[H[IH][0],M];
+	}
+	for(AdH=[],I=FH=0;I<NP;I++){
+		for(J=I+1;J<NP;J++){
+			H1=H[LP[I]][0];H2=H[LP[J]][0];H3=H1*mycoef(H2,1,V0)-H2*mycoef(H1,1,V0);
+			VP=lsort(vars(H3),V,"cap");
+			if(VP==[]) continue;
+			V1=car(VP);C3=mycoef(H3,1,V1);
+			for(IH=F=0;IH<NH;IH++){
+				H0=RH[IH][0];
+				if(mycoef(H0,1,V0)) continue;
+				if(mycoef(H0,1,V1)*H3!=C3*H0) continue;
+				F++;
+				M=RH[IH][1];Q1=H[LP[I]][1];Q2=H[LP[J]][1];
+				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
+				mbadd(M,-Q1,[S*J,S*I]);mbadd(M,Q1,[S*J,S*J]);
+			}
+			if(!F){
+				FH++;
+				IH=NH;NH++;
+				R=newvect(NH);
+				FT=fctr(H3);
+				for(;FT!=[];FT=cdr(FT)){
+					if(lsort(vars(car(FT)[0]),V,"cap")!=[]){
+						H3=car(FT)[0];
+						break;
+					}
+				}
+				if(Verb>0) mycat(["Add hyperplane ", H3]);
+				AdH=cons(H3,AdH);
+				M=newmat(SS,SS);
+				Q1=H[LP[I]][1];Q2=H[LP[J]][1];
+				mbadd(M,Q2,[S*I,S*I]);mbadd(M,-Q2,[S*I,S*J]);
+				mbadd(M,-Q1,[S*J,S*I]);mbadd(M,Q1,[S*J,S*J]);
+				Top=getopt(top)==1?1:0;
+				for(IH=0;IH<NH-1;IH++) R[IH+Top]=RH[IH];
+				R[(1-Top)*IH]=[H3,M];
+				RH=R;
+			}
+		}
+	}
+	if(Verb>1) mycat(["Convolution:\n",RH]);
+	if(Raw==1) return vtol(RH);
+	if(Verb>0) mycat("Calculate invariant subspace");
+	if(!isint(Simp=getopt(simplify))) Simp=0;
+//// mycat(["In",M0,M1,RH]);
+//// mycat(["R=",R,"RH=",RH]);
+//// mycat([M0,M1,RH]);
+	M0=diagm(S,[K[1]]);KE=[];
+	for(I=0;I<NP;I++){
+		if(FM==[]) M0=red(M0+H[LP[I]][1]);
+		for(T=mykernel(H[LP[I]][1]|opt=1);T!=[];T=cdr(T)){
+			TT=car(T);M1=newvect(SS);
+			for(II=0;II<S;II++) M1[I*S+II]=TT[II];
+			KE=cons(M1,KE);
+		}
+	}
+	lsort(vars(K[1]),vars(H),"setminus");
+	if(FM==[]){
+		for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
+			TT=car(T);M1=newvect(SS);
+			for(I=0;I<SS;I++) M1[I]=TT[I%NP];
+			KE=cons(M1,KE);
+		}
+	}
+	KE=reverse(KE);
+	if(Verb>1) mycat(["kernel:\n",KE]);
+	if(Rwa==2) return KE;
+	if(length(KE) != 0){
+		if(Verb>0) mycat("Calculate quotient");
+		KK = mtoupper(lv2m(KE),0);
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],mmod(RH[I][1],KK)];
+	}
+	if(Raw==3) return vtol(RH);
+	if(Verb>0)
+		mycat(["rank ", S, "->", SS, "->",size(RH[0][1])[0] ]);
+	if(Simp>=0){
+		if(Verb>0) mycat("Check better base");
+		if(Verb>1) mycat(RH);
+		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
+		MM = mdsimplify(MM|type=Simp);
+	}
+	if(Verb>1) mycat(["mc:\n",RH]);
+	if(Raw) return vtol(RH);
+	H=vtol(RH);
+		/* extra addition */
+	if(length(K)>=3){
+		if(Verb>0) mycat(["Ad:",[K[0],-K[1]-K[2]]]);
+		H=adPfaff(H,V,[K[0],-K[1]-K[2]]);
+	}
+	if(getopt(keep)==1&&AdH==[]) return H;
+		/* delete hypersurfaces without singularities */
+	for(R=[],TH=H;TH!=[];TH=cdr(TH)){
+		if(!iszeromat(car(TH)[1]) || (getopt(keep)==1&&findin(car(TH)[0],AdH)<0))
+			R=cons(car(TH),R);
+		else if(Verb>0) mycat(["Delete hyperplane ",car(TH)[0]]);
+	}
+	if(Verb>0 && NH0!=length(R)) mycat(["hyperplanes ",NH0,"->",length(R)]);
+	R=reverse(R);
+	if(Verb>1) mycat(["End:\n",R]);
+	return R;
+}
+
+def arHplane(H,V)
+{
+	if((Num=getopt(num))!=1) Num=0;
+	/* set hyperplanes */
+	if(type(car(H))==4&&length(car(H))==2) H=lpair(H,0)[0];
+	LH=length(H);D=length(V)+1;
+	L=newvect(D+2);
+	for(J=0,L[0]=[],TH=H;TH!=[];J++,TH=cdr(TH)){
+		if(lsort(vars(P=car(TH)),V,"cap")==[]) continue;
+		for(R=[],TV=V;TV!=[];TV=cdr(TV)){
+			R=cons(C=mycoef(P,1,car(TV)),R);
+			P-=C*car(TV);
+		}
+		R=cons(-P,R);
+		R=ltov(reverse(R));
+		for(I=0;I<D;I++) if(R[I]!=0) break;
+		for(C=R[I];I<D;I++) R[I]/=C;
+		L[0]=cons(ltov([[R],[J]]),L[0]);
+	}
+	L0=L[0]=reverse(L[0]);
+
+	for(K=0;K<D;K++){
+		L[K+1]=[];
+		for(HK=L[K];HK!=[];HK=cdr(HK)){
+			TH=car(HK);
+			for(I=0;I<LH;I++){
+				if(findin(I,TH[1])>=0) continue;
+				M=append(TH[0],L0[I][0]);
+				M=mtoupper(lv2m(M),1|opt=2);
+				for(J=0;J<D;J++) if(M[K+1][J]!=0) break;
+				if(J==D-1) continue;
+				M=m2lv(M);
+				if(M==TH[0])
+					TH[1]=cons(I,TH[1]);
+				else{
+					for(TL=L[K+1];TL!=[];TL=cdr(TL))
+						if(car(TL)[0]==M) break;
+					if(TL==[])
+						L[K+1]=cons(ltov([M,cons(I,TH[1])]),L[K+1]);
+					else if(findin(I,car(TL)[1])<0) car(TL)[1]=cons(I,car(TL)[1]);
+				}
+			}
+		}
+		for(HK=L[K];HK!=[];HK=cdr(HK)){
+			TH=car(HK);
+			TH[1]=qsort(TH[1]);
+		}
+		if(K) L[K]=qsort(L[K]);
+	}
+	if(Num){
+		for(W=[],K=D-1;K>=0;K--) if(L[K]!=[]) W=cons(L[K],W);
+		return W;
+	}
+	VV=ltov(append(V,[-1]));
+	for(W=[],K=0;K<D;K++){
+		for(R=[],TL=L[K];TL!=[];TL=cdr(TL)){
+			for(R0=[],T=car(TL)[0];T!=[];T=cdr(T)) R0=cons(vprod(car(T),VV),R0);
+			for(R1=[],T=car(TL)[1];T!=[];T=cdr(T)) R1=cons(H[car(T)],R1);
+			R=cons([reverse(R0),reverse(R1)],R);
+		}
+		if(R!=[]) W=cons(reverse(R),W);
+	}
+	return reverse(W);
+}
+
+def ssPfaff(H,V)
+{
+	if((Num=getopt(num))!=1) Num=0;
+	V=qsort(V);
+	if(type(car(H))==4&&length(car(H))==2){
+		H=lpair(H,0)[0];
+	}
+	H=ltov(H);LH=length(H);VH=newvect(LH);
+	for(I=0;I<LH;I++) VH[I]=lsort(vars(H[I]),V,"cap");
+	/* get intersections */
+	for(R=[],I=0;I<LH;I++){
+		if(VH[I]==[]) continue;
+		VI=car(VH[I]);
+		for(J=I+1;J<LH;J++){
+			if(VH[J]==[]) continue;
+				if(car(VH[J])<VI){
+					Q=H[J];V0=car(VH[J]);
+				}else{
+					Q=H[I];V0=VI;
+				}
+				P=red(mycoef(H[J],1,V0)*H[I]-mycoef(H[I],1,V0)*H[J]);
+				if(lsort(vars(P),V,"cap")==[]) continue;
+				for(F=cdr(fctr(nm(P)));F!=[];F=cdr(F)){
+					W=lsort(vars(car(F)[0]),V,"cap");
+					if(W!=[]){
+						P=car(F)[0];break;
+					}
+				}
+				V2=car(W);
+				Q=nm(red(mycoef(P,1,V2)*Q-mycoef(Q,1,V2)*P));
+				for(F=cdr(fctr(Q));F!=[];F=cdr(F)){
+					if(lsort(car(F),V,"cap")>=0){
+						R=cons([qsort([P,Q]), Num?[I,J]:[H[I],H[J]] ],R);
+
+						break;
+				}
+//mycat(["mid R",R]);
+			}
+		}
+	}
+	if(R==[]) return [];
+	/* arrange intersections */
+	R=qsort(R);RR=[car(R)];
+	for(R=cdr(R);R!=[];R=cdr(R)){
+		if(car(R)[0]==car(RR)[0]){
+			HH=lsort(car(RR)[1],car(R)[1],"cup");
+			RR=cons([car(R)[0],HH],cdr(RR));
+		}else RR=cons(car(R),RR);
+	}
+	for(R=[];RR!=[];RR=cdr(RR))
+		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
+	if(Num || !isvar(X=getopt(conv)) || findin(X,V)>=0)
+		return qsort(R);
+	/* get hyperplanes by convolution of X */
+	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
+		P=car(TR)[0][0];Q=car(TR)[0][1];
+		P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
+		if(P==0) continue;
+		for(F=fctr(nm(red(P)));F!=[];F=cdr(F)){
+			P=car(F[0]);
+			if(lsort(vars(P),V,"cap")!=[]) break;
+		}
+		if(F!=[]){
+			for(I=length(H)-1;I>=0;I--)
+				if(tdiv(H[I],P)!=0) break;
+			if(I<0) RR=cons(P,RR);
+		}
+	}
+	return lsort(RR,[],1);
+}
+
 def issub(X,Y)
 {
 	Z=lsort(append(X,Y),[],1);
@@ -13722,7 +14709,7 @@ def llsymcheck(L,S)
 			}
 		}
 	}
-	return Red? llsort(R,[],1):F;
+	return Red? lsort(R,[],1):F;
 }
 
 def llsymred(L,S)
@@ -15676,15 +16663,19 @@ def readcsv(F)
 
 def getline(ID)
 {
-	if(isint(Maxlen=getopt(Max))>0) Maxlen=1024;
+	if(isint(Maxlen=getopt(Max))>0) Maxlen=2048;
 	if(type(CR=getopt(CR))!=4) CR=[13];
 	if(type(LF=getopt(LF))!=4) LF=[10];
+	if((F=getopt(keep))!=1) F=0;
 	S=[];
-	for(I=0; I<1023; I++){
+	for(I=0; I<Maxlen; I++){
 		C=get_byte(ID);
 		if(C<0) return 0;
 		if(findin(C,CR)>=0) continue;
-		if(findin(C,LF)>=0) break;
+		if(findin(C,LF)>=0){
+			if(F) S=cons(C,S);
+			break;
+		}
 		S=cons(C,S);
 	}
 	return asciitostr(reverse(S));
@@ -15739,6 +16730,7 @@ def show(P)
 		dviout(S);return;
 	}
 	if(type(Var)<0) Var=getopt(var);
+	if(!Raw&&type(Title=getopt(title))==7) dviout(Title|keep=1);
 	if(T==6){
 		if((Sp=getopt(sp))==1 || Sp==2)
 			S=mtotex(P|lim=1,small=2,sp=Sp,null=1,mat="B");
@@ -23118,7 +24110,25 @@ def s2cspb(L)
 	if(type(L)==7){
 		if(Sub>0){
 			I=str_char(L,0,"(");
-			if(I<0) return car(s2sp(L));
+			if(I<0){
+				if(str_chr(L,0," ")){
+					for(V=[],F=0,TV=strtoascii(L);TV!=[];TV=cdr(TV)){
+						if(isnum(C=car(TV))){
+							if(F==1){
+								TC=car(V);V=cons(40,cdr(V));V=cons(TC,V);
+							}
+							F++;
+						}else{
+							if(F>1) V=cons(41,V);
+							F=0;
+						}
+						V=cons(C,V);
+					}
+					if(F>1)  V=cons(41,V);
+					L=asciitostr(reverse(V));
+				}
+				return car(s2sp(L));
+			}
 			for(R=[]; ;){
 				J=str_char(L,I,"(");
 				if(J<0) return reverse(R);
@@ -23156,8 +24166,8 @@ def s2cspb(L)
 	return reverse(R);
 }
 
-/* ((1)(1)) ((1))   111|21|21  [[ [2,[ [1,[1]],[1,[1]] ]], [1,[[1,[1]]]] ]]  */
-/* (11)(1),111  111|21,111 [[[2,[1,1]],[1,[1]]],[1,1,1]]  */
+/* ((1)(1)) ((1))	111|21|21	[[ [2,[ [1,[1]],[1,[1]] ]], [1,[[1,[1]]]] ]]  */
+/* (1 1)(1),1 1 1   111|21,111	[[[2,[1,1]],[1,[1]]], [1,1,1]]  */
 def s2csp(S)
 {
 	if(type(S)!=7){
@@ -23199,7 +24209,7 @@ def s2csp(S)
 				TU=s2sp([T])+TU;
 				T=R1;
 			}
-				U=U+TU;
+			U=U+TU;
 		}
 		return U;
 	}
@@ -23243,42 +24253,155 @@ def s2csp(S)
 	return reverse(R);
 }
 
-/*
-def confspt(S)
+
+def ldepth(L)
 {
-	if(!isint(F=getopt(sub))) F=0;
-	N=length(S);
-	P=newmat(N,N);
-	for(I=0;I<N;I++){
-		if(S[I][I]) continue;
-		for(J=0;J<N;J++){
-			if(I==J) continue;
-			if(S[I]==S[J]){
-				P[I][I]++; P[J][J]--;
-			}
-			R=partsp(S[I],S[J]|opt=2);
-			if(R!=[]) P[I][J]=R;
-		}
-	}
-	for(TT=[];I=N-1;I--){
-		for(R=[],J=0;J<N;J++){
-			if(I==J) continue;
-			if(S[I][J]!=0) R=cons(J,R);
-		}
-		TT=cons(R,TT);
-	}
-	for(TP=I=0;I<N;I++) if(S[I][I]>=0) TP=cons([I],TP);
-	for(F=1;F;){
-		for(T=TP,F=0,S=length(car(TP));T!=[];T=cdr(T)){
-			if(length(T0=car(T))<S) break;
-			for(TT0=TT[car(T0)];TT0!=[];TT0=cdr(TT0)){
-				TP=cons(cons(car(TT0),T0),TP);
-				F=1;
-			}
-	}
-	
+	if(type(L)!=4) return 0;
+	for(D=0;L!=[];L=cdr(L))
+		if(type(car(L))==4 && (T=ldepth(car(L))) > D) D=T;
+	return D+1;
 }
+
+def refinement2(S,T)
+{
+	if(!isint(Opt=getopt(opt))) Opt=0;
+	if(length(S)<length(T) || S==[]) return iand(Opt,1)?0:[];
+	V=qsortn(S);
+	if(!iand(Opt,2)) T=qsortn(T);
+	FL=type(car(V))==4?1:0;
+	for(R=[];V!=0;V=vnext(V|rev=1)){
+		R0=[];
+		for(TS=V,TT=T,SS=ST=0;TT!=[];TT=cdr(TT)){
+			ST+=car(TT);TR=[];
+			while(SS<ST){
+				TR=cons(car(TS),TR);
+				SS+=FL?car(car(TS)):car(TS); 
+				TS=cdr(TS);
+			}
+			if(SS!=ST) break;
+			TR=reverse(TR);
+			/* 	[[3,[1,2]], [3,[3]]] -> [[3,[2,1]], [3,[3]]]  */
+			if(qsortn(TR)!=TR) break;
+			R0=cons([car(TT),TR],R0);
+		}
+		R0=reverse(R0);
+		if(TT==[]){
+			if(iand(Opt,1)) return 1;
+			/* [[[3,[3]], [3,[2,1]]] -> [[3,[2,1]], [3,[3]]] */
+			if(iand(Opt,2)||qsortn(R0)==R0) R=cons(R0,R);
+		}
+	}
+/*
+	if(length(R)>1&&!iand(Opt,2)){
+		RR=qsort(R);
+		R=[car(RR)];RR=cdr(RR);
+		for(;RR!=[];RR=cdr(RR))
+			if(car(RR)!=car(R)) R=cons(car(RR),R);
+	}
 */
+	return iand(Opt,1)?0:R;
+}
+
+def lchoose(M,L)
+{
+	for(R=[],I=length(L)-1;I>=0;I--)
+		for(J=M[I];J>0;J--) R=cons(L[I],R);
+	return R;
+}
+
+/* 
+VP[i] : vector (different) partitions (i=0,...,L-1)
+NP[i] : multiplicity of partitions (last are # partitions=sum NP[i].)
+W[nskew(i,j)] : a set (vector) of the list of refinements of the pair (VP[i], MV[j]) 
+    for (i,j) with i<j
+FV[i] : fundamental vector of length L+1 with FV[i][L]=1
+LP[i] : refinements of Poincare rank i+1 (vector) for a singular point
+R     :  flat of LP
+CP[K] : [ [[i_1,...,i_k],[j_1,...]], ]  : singular poins are R[i] and VP[j] with K=# i's
+CR    : flat of CP
+RR    : refinements (confluences) 
+*/
+def refinements(S)
+{
+	Opt=getopt(opt);
+	if(type(S)==7) S=s2sp(S);
+	for(V=[];S!=[];S=cdr(S)) V=cons(qsortn(car(S)),V);
+	V=VV=qsortn(V);LL=length(V);
+	for(TV=NP=[];V!=[];V=cdr(V)){
+		if(TV==[]||car(TV)!=car(V)){
+			TV=cons(car(V),TV);
+			NP=cons(1,NP);
+		}else{
+			I=car(NP);NP=cdr(NP);NP=cons(I+1,NP);
+		}
+	}
+	VP=ltov(reverse(TV));
+	NP=ltov(reverse(cons(LL,NP)));
+	L=length(VP);
+	WP=newvect(L*(L-1)/2);
+	LP=newvect(NP[L]+1);
+	LP[0]=[[[],newvect(L+1),[[]]]];
+	FV=newmat(L,L+1);
+	for(I=0;I<L;I++) FV[I][I]=FV[I][L]=1;
+	for(LP[1]=[],I=0;I<L;I++){
+		S=VP[I];
+		for(J=I;J<L;J++){
+			R=[];
+			if(I<J ||(I==J && NP[I]>1)) R=refinement2(S,VP[J]);
+			if(I<J) WP[nskew(I,J)]=(R!=[])?1:0;
+			for(;R!=[];R=cdr(R)) LP[1]=cons([[J,I],FV[I]+FV[J],car(R)],LP[1]);
+		}
+	}
+	if(Opt==-1) return [VP,NP,LP[1]];
+
+	for(K=2;LP[K-1]!=[];K++){
+		for(R=[],TL=LP[K-1],LP[K]=[];TL!=[];TL=cdr(TL)){
+			T=car(TL);I=T[0][0];
+			for(J=I;J<L;J++){
+				if(((I==J||WP[nskew(I,J)])) && T[1][J]<NP[J]){
+					R=refinement2(T[2],VP[J]);
+					for(;R!=[];R=cdr(R)) LP[K]=cons([cons(J,T[0]),T[1]+FV[J],car(R)],LP[K]);
+				}
+			}
+		}
+	}
+	if(Opt==-2) return [VP,NP,LP];
+	for(R=[],I=K-2;I>=0;I--) R=append(LP[I],R);
+	R=ltov(R);
+	if(Opt==-3) return [VP,NP,R];
+	IL=length(R);
+	CP=newvect(idiv(LL,2)+3);
+	CP[0]=[[[],NP]];CP[1]=[];
+	for(I=1;I<IL;I++) CP[1]=cons([[I],NP-R[I][1]],CP[1]);
+	for(K=2;CP[K-1]!=[];K++){
+		CP[K]=[];
+		for(TP=CP[K-1];TP!=[];TP=cdr(TP)){
+			T=car(TP);T1=T[1];
+			for(I=car(T)[0];I<IL;I++){
+				R1=R[I][1];
+				for(J=L-1;J>=0;J--) if(T1[J]<R1[J]) break;
+				if(J<0) CP[K]=cons([cons(I,car(T)),T1-R1],CP[K]);
+			}
+		}
+	}
+	for(CR=[],I=K-2;I>=0;I--) CR=append(CP[I],CR);
+	for(RR=[],TL=CR;TL!=[];TL=cdr(TL)){
+		for(U=[],T=car(TL)[0];T!=[];T=cdr(T)) U=cons(R[car(T)][2],U);
+		U=append(lchoose(car(TL)[1],VP),U);
+		RR=cons(U,RR);
+	}
+	RR=reverse(RR);
+	if(Opt==-4) return [VP,NP,R,CR,RR];
+	if(Opt=="s"){
+		for(S=[],TR=reverse(RR);TR!=[];TR=cdr(TR)) S=cons(s2csp(car(TR)),S);
+		return S;
+	}
+	if(Opt=="()"){
+		for(S=[],TR=reverse(RR);TR!=[];TR=cdr(TR)) S=cons(s2csp(car(TR)|n=1),S);
+		return S;
+	}
+	return RR;
+}
 
 
 def partspt(S,T)
@@ -23361,6 +24484,44 @@ def partspt(S,T)
 	}
 	return R;
 }
+
+def comfamily(N)
+{
+	if(N<=(L=length(MaxCom))){
+		if(N<1) N=1;
+		return MaxCom[N-1];
+	}
+	Com=newvect(N);
+	for(I=0;I<N;I++){
+		if(I<L){
+			Com[I]=MaxCom[I];
+			continue;
+		}
+		for(Com[I]=[],L=Com[I-1];L!=[];L=cdr(L)){
+			T=car(L);
+			for(R=[],J=0;J<I;J++){
+				R=cons([J,I],R);
+				for(S=T;S!=[];S=cdr(S)){
+					if(findin(J,car(S))>=0) R=cons(append(car(S),[I]),R);
+				else R=cons(car(S),R);
+				}
+				Com[I]=cons(qsort(R),Com[I]);R=[];
+			}
+			for(S=T;S!=[];S=cdr(S)){
+				R=cons(car(S),R);
+				for(SS=T;SS!=[];SS=cdr(SS)){
+					if(issub(car(S),car(SS))) R=cons(append(car(SS),[I]),R);
+					else R=cons(car(SS),R);
+				}
+				Com[I]=cons(qsort(R),Com[I]);R=[];
+			}
+		}
+		Com[I]=qsort(Com[I]);
+	}
+	MaxCom=Com;
+	return Com[N-1];
+}
+
 
 #if 0
 def confspt(S,T)
@@ -23697,6 +24858,18 @@ def newbmat(M,N,R)
 		}
 	}
 	return M;
+}
+
+def mbadd(A,B,P)
+{
+	if(type(B)!=6){
+		for(I=P[0];I<P[1];I++) A[I][I]+=B;
+		return A;
+	}
+	S=size(B);
+	for(I=0;I<S[0];I++)
+		for(J=0;J<S[1];J++) A[P[0]+I][P[1]+J]+=B[I][J];
+	return A;
 }
 
 def unim(S)
@@ -24374,6 +25547,14 @@ def cfrac2n(X)
 		V=T[0]>0?S[0]:S[1];
 	}
 	return V;
+}
+
+/* 0<=I < J */
+def nskew(I,J)
+{
+	if(isint(N=getopt(size)))
+		return I*(2*N-I-1)/2+J-I-1;
+	return (J-1)*J/2+I;
 }
 
 def s2sp(S)

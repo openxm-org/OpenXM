@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 int Debug = 0;
-#define VMAX 20
+#define VMAX 100
 #define LIMIT   65536
 #define ITEMMAX 1024
 struct item {

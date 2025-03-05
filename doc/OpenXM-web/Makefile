@@ -36,6 +36,7 @@ usage:
 	@echo "all-current (generates html files form texi etc and copy to web)"
 	@echo "all-current-index (no new generation of html files from texi etc, <all-current)"
 	@echo "all-current-spec"
+	@echo "all-FAQ (after generating files by oxweave in .. by hand)"
 all: all-stable all-ascm2001 all-current all-top all-current-spec
 	@echo "************************************************************"
 	@echo "* cp -r  /home/web/OpenXM/Current /home/web/OpenXM/x.y.z   *"
@@ -101,7 +102,8 @@ all-top: configure-dir
 	${RSYNC} people.html ${OXHOME}
 	(cd Screenshot ; ${RSYNC} *.html ${OXHOME})
 	${RSYNC} ${LOGOS} ${STABLE}
-
+all-FAQ: configure-dir
+	(cd ${OpenXM_doc} ; ${RSYNC} ${OXWEAVE_FILES_in_doc} ${CURRENT})
 clean:
 	-${RM} .[a-z]*done
 	-make -f Makefile-intro clean
