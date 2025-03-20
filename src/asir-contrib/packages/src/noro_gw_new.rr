@@ -422,7 +422,6 @@ T0 = time()[0];
       H1[I] = S0;
       HH1[I] = dp_hm(S);
     }
-    print("");
     if ( I < N ) {
 T1 = time()[0];
       print("restart");
@@ -438,7 +437,6 @@ T1 = time()[0];
           if ( !(I%10) ) print(".",2);
           NN[I] = dp_true_lnf(FF[I],UU[0],UU[1]);
         }
-        print("");
         for ( I = 0; I < N; I++ ) {
           NNI = NN[I];
           H1[I] = dp_ptozp(dp_hm(HH1[I])*NNI[1]+NNI[0]);
@@ -472,7 +470,7 @@ T1 = time()[0];
             H1[I] = S0;
             HH1[I] = dp_hm(S);
           }
-          print(".");
+          print(".",0);
         } else {
           for ( I = 0; I < N; I++ ) {
             if ( !(I%10) ) print(".",2);
@@ -489,12 +487,13 @@ T1 = time()[0];
             H1[I] = S0;
             HH1[I] = dp_hm(S);
           }
-          print(".");
+          print(".",0);
         }
      }
 T2 = time()[0]; Trestart += T2-T1;
     }
 T1 = time()[0]; Tred += T1-T0;
+    print(T1-T0);
     G = H1;
     GH = HH1;
   }
