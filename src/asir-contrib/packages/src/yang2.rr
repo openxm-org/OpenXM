@@ -1,0 +1,2370 @@
+/* -*- mode: C -*- */
+
+/* 
+   1. At first you must define a ring structure.
+      [1175] load("yang.rr");
+      [1522] yang.define_ring(["euler",[x],"difference",[[p,-1]]]);
+      [[x,p],[0,1],[0,-1],[dx,dp]]
+   2. Computation.
+      [1523] L1 = (x^2-p)*yang.mulL([dx,dx-1,dp]);
+      (x^2-p)*dp*dx^2+(-x^2+p)*dp*dx
+      [1524] yang.mul(dp,L1);
+      (x^2-p+1)*dp^2*dx^2+(-x^2+p-1)*dp^2*dx
+      [1525] yang.mul(dx,L1);
+      (x^2-p)*dp*dx^3+(x^2+p)*dp*dx^2-2*x^2*dp*dx
+ */
+
+/*
+Naming rule of functions of this module.
+<prefix>
+  act_     multiplication of operators.
+  action_  actions of operators to functions.
+
+<postfix>
+  _DE      accepts euler and (q-)differende operators.
+  _D       accepts only euler operators.
+*/
+
+#include <defs.h>
+
+import("yang_lib.rr") $
+
+#define EULER        0
+#define DIFFERENCE   1
+#define Q_DIFFERENCE 2
+#define PARTIAL      3
+
+#define isList(A)    (islist(A)||isvect(A))
+#define NM(A)        (isList(A)? ((A)[0]): (A))
+#define DN(A)        (isList(A)? ((A)[1]): (1))
+
+module yang;
+
+localf version;
+localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
+localf op_type, op_diff, op_var, op_op, op_match, op_nomatch, op_i;
+localf op_register, op, opr; 
+localf set_ring, new_ring;
+localf constant, operator_id, operator;
+localf modulo, modulo_list, left, right;
+localf verbose, quiet, message;
+localf spair_lcm, spair_compare, spair_sugar;
+localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
+localf partial_diff, partial_diff_list, partial_diff_dp_list, partial_diff_dp;
+localf operator_shift;
+localf act_theta_D, act_theta_DE, act_difference;
+localf mul, mulL;
+localf multi, multi_D, multi_DE, multiL;
+localf matmul;
+localf dp_coef_gcd, red1, red2, red3, red4, dp_dm, dp_nm, reducible;
+localf add_v, sub_v, multi_sv, addmul_sv;
+localf division, division_D, division_DE, reduction;
+localf spolynomial, spolynomial_D, spolynomial_DE;
+localf dp_revcmp, gr2rgr, buchberger; 
+localf division_s, division_s_D, division_s_DE, reduction_s;
+localf spolynomial_s, spolynomial_s_DE;
+localf dp_revcmp_s, gr2rgr_s, buchberger_s;
+localf gr, nf, nf_l, criterionF, criterionM, initial_term, in, stdmon;
+localf dp_matrix_form, matrix_form;
+localf dp_ltom, ltom, pfaffian, check_pfaffian, pf, pf_i;
+localf check_frac_expansion_before, check_frac_expansion_after;
+localf frac_expansion, sing_point, residue;
+localf extract_denom_poly, matrix_to_coef_matrix, pfaffian_to_coef_matrices;
+localf ispoly_of_vars;
+localf gkz_ring, define_gkz_ring, gkz, gkz_D, gkz_E;
+localf compute_toric_kernel, gkz_toric_partial, gkz_toric;
+localf gkz_toric_partial_sm1, gkz_toric_sm1;
+localf initial_term_weight, check_gkz_generic_weight, gkz_distraction;
+localf action_monomial_DE, action_DE, action;
+localf dp_length, dp_dtol, dp_ptol;
+localf dp_partial_to_euler_i, dp_partial_to_euler_term_i;
+localf dp_partial_to_euler, dp_partial_to_euler_term;
+localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
+localf gamma3;
+localf vector_to_rat;
+localf series, series_term, series_generic, series_algorithm1, series_algorithm2, series_algorithm3, series1, series1_5, series2, series3;
+localf compare_algorithm2;
+localf pattern, pattern_full, pattern_weight, all_integers;
+localf order_by_weight, terms_of_given_order;
+localf head_sum;
+localf const_part, action, commutator, weyl_adjoint, coefs;
+localf bin_to_pair, coef_deriv, determine_term, gkz_series, make_terms; 
+localf make_tree, s2poly, search_parent, series_to_sym, terms_to_series;
+localf toric_list;
+
+localf util_pd_to_euler;
+
+function ggamma(x);
+
+static Verbose, Ring, RingStack;
+if (RingStack == 0) {
+    RingStack = [];
+}else {
+}
+
+def version() {
+    RevStr = "$Revision$";
+    return sub_str(RevStr, 11, str_len(RevStr)-3);
+}
+
+/* --------------------------------
+   If RingDef is given by
+      ["euler",[x,y],"difference",[[a,1],[a,-1]], "q-difference", [[z,q]]],
+   then the variable Ring is set as
+      {[euler,[x,y],difference,[[a,1],[a,-1]],q-difference,[[z,q]]],[x,y,a,a,z],[0,0,1,1,2],[0,0,1,-1,q],[dx,dy,da,da_,dz]}.
+   -------------------------------- */
+
+/* Example:
+   yang.define_ring([x,y,z]);
+   yang.define_ring(["euler",[x,y],"difference",[p,q],"euler",[z]]);
+*/
+def define_ring(RingDef)
+"Example:\n   yang.define_ring([x,y,z]);\n   yang.define_ring([\"euler\",[x],\"difference\",[[p,-1]]]);\n   yang.define_ring([\"partial\",[s,t]]);"
+{
+    if (!islist(RingDef)) {
+        print("invalid ring data.\n");
+        return [];
+    }
+    if (!isstr(RingDef[0])) {
+        RingDef = ["euler", RingDef]; /* all operators are euler */
+    }
+    push_ring();
+    Ring = new_ring(RingDef);
+    while(RingDef!=[]) {
+        RingDef = parse_ringdef(RingDef);
+    }
+    return print_ring();
+}
+
+def set_ring(R, L) 
+{
+    R->ringdef = L[0];
+    R->v  = L[1];
+    R->f  = L[2];
+    R->d  = L[3];
+    R->op = L[4];
+    return R;
+}
+
+def new_ring(RingDef) {
+    return set_ring(newstruct(yang_ring), [RingDef, [], [], [], []]);
+}
+
+/*
+   Examples of RingDef:
+     ["euler",   [x,y]]
+     ["partial", [x,y]]
+     ["difference", [a,b]]
+     ["difference", [[a,1],[b,1]]]
+     ["q-difference", [[a,q]]]
+*/
+def parse_ringdef(RingDef) {
+    S    = RingDef[0];
+    VSet = RingDef[1];
+    N    = length(VSet);
+    F    = vtol(newvect(N));
+    if(S=="difference") {
+        D = map(right, VSet, 1);
+        F = map('std_=', F, DIFFERENCE);
+    }else if(S=="q-difference") {
+        D = map(right, VSet, q);
+        F = map('std_=', F, Q_DIFFERENCE);
+    }else if(S=="partial") {
+        D = vtol(newvect(N));
+        F = map('std_=', F, PARTIAL);
+    }else if(S=="euler" || S=="differential"){
+        D = vtol(newvect(N));
+    }else {
+        error("yang.define_ring(): invalid ring definition.");
+    }
+	VSet=map(left, VSet);
+    Ring->v  = append(Ring->v, VSet);
+    Ring->f  = append(Ring->f, F);
+    Ring->d  = append(Ring->d, D);
+    Ring->op = op_register(Ring->op, VSet);
+    return cddr(RingDef);
+}
+
+def print_ring()
+"Print the inner structure of the ring."
+{
+    return Ring;
+}
+
+def ring_size()
+"Get a number of operators of the ring."
+{
+    return length(Ring->v);
+}
+
+def push_ring()
+"Push the current ring definition to the stack."
+{
+    RingStack = cons(Ring, RingStack);
+}
+
+def pop_ring()
+"Pop a ring definition from the stack."
+{
+    if ((C = car(RingStack)) != []) {
+        Ring = C;
+        RingStack = cdr(RingStack);
+    }
+    return Ring;
+}
+
+def op_type(I)  {
+    return Ring->f[I];
+}
+
+def op_diff(I)  {
+    return Ring->d[I];
+}
+
+def op_var(I)  {
+    return Ring->v[I];
+}
+
+def op_op(I)  {
+    return Ring->op[I];
+}
+
+/* ある Type の作用素のみを取り出す */
+def op_match(P,Type) {
+    if (isdpoly(P)) {
+        H = dp_etov(dp_ht(P));
+        N = length(H);
+        for(I=0; I<N; I++) {
+            if (op_type(I) != Type) {
+                H[I]=0;
+            }
+        }
+        return dp_vtoe(H);
+    }
+    return 0;
+}
+
+/* ある Type でない作用素のみを取り出す.
+   Example: Ring->f == [0,0,1,2] のとき、
+   yang.op_nomatch(<<2,1,1,4>>,EULER) == <<0,0,1,4>>
+*/
+def op_nomatch(P,Type) {
+    if (isdpoly(P)) {
+        H = dp_etov(dp_ht(P));
+        N = length(H);
+        for(I=0; I<N; I++) {
+            if (op_type(I)==Type) {
+                H[I]=0;
+            }
+        }
+        return dp_vtoe(H);
+    }
+    return 0;
+}
+
+def operator_id(OP) {
+    N = ring_size();
+    if (isList(OP)) {
+        for(I=0; I<N && [op_var(I),op_diff(I)] != OP ; I++) {
+        }
+    }else {
+        for(I=0; I<N && op_var(I) != OP; I++) {
+        }
+    }
+    return (I<N)? I: -1;
+}
+
+def op_register(L, S) 
+"op_register([dx,dy],[z,z,u,v]) => [dx,dy,dz,dz_,du,dv]"
+{
+    if(isList(S[0])) {
+        S = map('car',S);
+    }
+    S = list_add_prefix("d", S);
+    L = reverse(L);
+    N = length(S);
+    for(I=0; I<N; I++) {
+        V = S[I];
+        while(base_memberq(V,L)) {
+            V = strtov(rtostr(V)+"_");
+        }
+        L = cons(V,L);
+    }
+    reverse(L);
+}
+
+def op_i(N,I) {
+    return dp_vtoe(vector_unit(N,I));
+}
+
+def operator(OP) {
+    N = ring_size();
+    I = operator_id(OP);
+    return op_i(N,I);
+}
+
+/* yang2 */
+def op(P)
+"op(dx1*dx2) => <<1,1>>, op(dx1*dx2/(x1+x+2)) => (1/(x1+x2))*<<1,1>>"
+{
+    if (isdpoly(P)) {
+        return P;
+    }else {
+        return (1/dn(P))*dp_ptod(nm(P),Ring->op);
+    }
+}
+
+/* yang2 */
+def opr(P) 
+"opr(<<1,1>>) => dx1*dx2"
+{
+    if (isdpoly(P)) {
+        return dp_dtop(P,Ring->op);
+    }else {
+        return P;
+    }
+}
+
+/* 下位互換性のため */
+def constant(A) {
+    return op(A);
+}
+
+def modulo(OP1, OP2) {
+    return multi(operator(OP1),operator(OP2)) - 1 ;
+}
+
+def modulo_list() {
+    N = ring_size();
+    EF = newvect(N);
+    L = [];
+    for(I=0; I<N; I++) {
+        for(J=I+1; J<N; J++) {
+            if (op_var(I)==op_var(J) && op_type(I)==op_type(J) &&
+                ((op_type(I)==DIFFERENCE && op_diff(I)+op_diff(J)==0)
+                 || (op_type(I)==Q_DIFFERENCE && op_diff(I)*op_diff(J)==1))) {
+                    EF[I]=EF[J]=1;
+                    L = cons(dp_vtoe(EF)-1, L);
+                    EF[I]=EF[J]=0;
+            }
+        }
+    }
+    return L;
+}
+
+def left(A) {
+    return (isList(A))? A[0]: A;
+}
+
+def right(A,B) {
+    return (isList(A))? A[1]: B;
+}
+
+def verbose() {
+    Verbose=1;
+}
+
+def quiet() {
+    Verbose=0;
+}
+
+def message(A) {
+    if (Verbose) {
+        print(A,2);
+    }
+}
+
+/* head term of S-polynomial pair */
+def spair_lcm(SP) {
+    P = SP[0];
+    Q = SP[1];
+    P=NM(P); Q=NM(Q);
+    return dp_lcm(P,Q);
+}
+
+/* comparison of S-pair. (昇順) */
+def spair_compare(P, Q) {
+    if (P[2]!=Q[2]) {
+        return (P[2]<Q[2])? -1: 1;
+    }
+    TP = spair_lcm(P);
+    TQ = spair_lcm(Q);
+    if (TP != TQ) {
+        return (TP<TQ)? -1: 1;
+    }
+    return 0;
+}
+
+/* sugar of S-pair. */
+def spair_sugar(P,Q) {
+    P=NM(P);
+    Q=NM(Q);
+    S1 = dp_sugar(P)*dp_td(Q);
+    S2 = dp_sugar(Q)*dp_td(P);
+    return (S1>S2)? S1: S2;
+}
+
+/** 有理式係数分散表現多項式: [Dpoly, Poly] **/
+
+/* 再帰表現多項式を N回 偏微分する*/
+def partial_diff(P, V, N) {
+    for (I=0; I<N; I++) {
+        P = diff(P, V);
+    }
+    return P;
+}
+
+/* 再帰表現多項式を 0...N 回 偏微分したものの配列(長さN+1)を返す */
+def partial_diff_list(P, V, N) {
+    L = newvect(N+1);
+    L[0] = P;
+    for (I=0; I<N; I++) {
+        L[I+1] = diff(L[I], V);
+    }
+    return L;
+}
+
+/* 分散表現多項式の係数を 0...N 回 偏微分したものの配列(長さN+1)を返す */
+def partial_diff_dp_list(P, V, N) {
+    if (isdpoly(P)) {
+        Q = newvect(N+1);
+        while(P!=0) {
+            Q += dp_ht(P)*partial_diff_list(dp_hc(P),V,N);
+            P  = dp_rest(P);
+        }
+    }else {
+        Q=partial_diff_list(P, V, N);
+    }
+    return Q;
+}
+
+/* 分散表現多項式の係数を N回 偏微分する*/
+def partial_diff_dp(P, V, N) {
+    if (isdpoly(P)) {
+        Q=0;
+        while(P!=0) {
+            Q+=partial_diff(dp_hc(P),V,N)*dp_ht(P);
+            P=dp_rest(P);
+        }
+    }else {
+        Q=partial_diff(P, V, N);
+    }
+    return Q;
+}
+
+/* yang2 */
+/* 再帰表現多項式を N回 オイラー微分する*/
+def euler_diff(P, V, N) {
+    for (I=0; I<N; I++) {
+        P = red(V*diff(P, V));
+    }
+    return P;
+}
+
+/* yang2 */
+/* 再帰表現多項式を 0...N 回 オイラー微分したものの配列(長さN+1)を返す */
+def euler_diff_list(P, V, N) {
+    L = newvect(N+1);
+    L[0] = P;
+    for (I=0; I<N; I++) {
+        L[I+1] = red(V*diff(L[I], V));
+    }
+    return L;
+}
+
+/* 分散表現多項式の係数を 0...N 回 オイラー微分したものの配列(長さN+1)を返す */
+def euler_diff_dp_list(P, V, N) {
+    if (isdpoly(P)) {
+        Q = newvect(N+1);
+        while(P!=0) {
+            Q += dp_ht(P)*euler_diff_list(dp_hc(P),V,N);
+            P  = dp_rest(P);
+        }
+    }else {
+        Q=euler_diff_list(P, V, N);
+    }
+    return Q;
+}
+
+/* 分散表現多項式の係数を N回 オイラー微分する*/
+def euler_diff_dp(P, V, N) {
+    if (isdpoly(P)) {
+        Q=0;
+        while(P!=0) {
+            Q+=euler_diff(dp_hc(P),V,N)*dp_ht(P);
+            P=dp_rest(P);
+        }
+    }else {
+        Q=euler_diff(P, V, N);
+    }
+    return Q;
+}
+
+/* オイラー微分作用素(単項式) E と微分作用素 Q の積 */
+def act_theta_D(E,Q) {
+    E = dp_etov(E);
+    N = length(E);
+    T = newvect(N);
+    for (I=0; I<N; I++) {
+        F=0;
+        LC = euler_diff_dp_list(Q,op_var(I),E[I]);
+        for (K=0; K<=E[I]; K++) {
+            T[I]=K;
+            F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+        }
+        T[I]=0;
+        Q=F;
+    }
+    return Q;
+}
+
+/* 微分/差分作用素(単項式) E と微分/差分作用素 Q の積 */
+def act_theta_DE(E,Q) {
+    E = dp_etov(E);
+    N = length(E);
+    T = newvect(N);
+    for (I=0; I<N; I++) {
+        if (op_type(I)==EULER) { /* オイラー微分 */
+            F=0;
+            LC = euler_diff_dp_list(Q,op_var(I),E[I]);
+            for (K=0; K<=E[I]; K++) {
+                T[I]=K;
+                F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+            }
+            Q=F;
+		}else if (op_type(I)==PARTIAL) { /* 偏微分 */
+            F=0;
+            LC = partial_diff_dp_list(Q,op_var(I),E[I]);
+            for (K=0; K<=E[I]; K++) {
+                T[I]=K;
+                F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+            }
+            Q=F;
+        }else if (op_type(I)==DIFFERENCE) { /* 差分 */
+            T[I]=E[I];
+            V = op_var(I); D = op_diff(I);
+            Q=base_replace(Q,[[V,V+D*E[I]]])*dp_vtoe(T);
+        }else if (op_type(I)==Q_DIFFERENCE) { /* q-差分 */
+            T[I]=E[I];
+            V = op_var(I); D = op_diff(I);
+            Q=base_replace(Q,[[V,V*D^E[I]]])*dp_vtoe(T);
+        }
+        T[I]=0;
+    }
+    return Q;
+}
+
+/* yang2 */
+/* DE の頭項の差分作用素のみを P に作用させる。*/
+def act_difference(DE,P) {
+    DE = op_match(DE,DIFFERENCE);
+    return dp_hc(act_theta_DE(DE, P));
+}
+
+/* 作用素の積 x^(-E) P(theta) x^E == P(theta+E) を求める。
+   ベクトル E の長さは yang の内部変数 Ring->v の長さと一致しなければならない。
+   また、x = x1 x2 ...も Ring->v と一致しなければならない。
+   したがってこの関数を用いるユーザは、
+   事前に yang の内部データ構造を確認していると仮定する。
+*/
+def operator_shift(P,E)
+"P: op., E: exp => x^(-E) P x^E "
+{
+    E = islist(E)? ltov(E): E;
+    N = ring_size();
+    T = list_indefinite("_t",0,N);
+    Q = dp_dtop(P, T);
+    Q = base_replace(Q, assoc(T, vtol(ltov(T)+E)));
+    return dp_ptod(Q, T);
+}
+
+/* yang2 */
+/* Leibniz rule: P,Q */
+def mul(P,Q) {
+    return red(opr(multi(op(nm(P)),op(Q)))/dn(P));
+}
+
+def mulL(L) {
+    N=length(L);
+    if(N==0) return 1;
+    R=L[0];
+    for(I=1; I<N; I++) {
+        R=yang.mul(R,L[I]);
+    }
+    return R;
+}
+
+/* Leibniz rule: P,Q: 分散表現多項式 */
+def multi(P,Q) {
+    return red(multi_DE(P,Q));
+}
+
+def multi_D(P,Q) {
+    if (isdpoly(P)) {
+        R=0;
+        while(P!=0) {
+            R += dp_hc(P)*act_theta_D(dp_ht(P),Q);
+            P = dp_rest(P);
+        }
+    }else {
+        R=P*Q;
+    }
+    return R;
+}
+
+/* 微分/差分 */
+def multi_DE(P,Q) {
+    if (isdpoly(P)) {
+        R=0;
+        while(P!=0) {
+            R += dp_hc(P)*act_theta_DE(dp_ht(P),Q);
+            P = dp_rest(P);
+        }
+    }else {
+        R=P*Q;
+    }
+    return R;
+}
+
+/*
+L: a list of distributed polynomials
+result: the product L[0]*L[1]*...*L[N-1]
+*/
+def multiL(L) 
+"[L0,L1,L2,...] => the product L0*L1*L2*..."
+{
+    R = 0;
+    N = length(L);
+    if (N>0) {
+        R = L[0];
+        for(I=1; I<N; I++) {
+            R = multi(R, L[I]);
+        }
+    }
+    return R;
+}
+
+def matmul(M1,M2) {
+    S1=size(M1);
+    S2=size(M2);
+    N1=S1[0];
+    N2=S2[1];
+    N=S1[1];
+    if (S1[1]!=S2[0]) {
+       error("invalid arguments");
+    }
+    R=newmat(N1,N2);
+    for(I=0; I<N1; I++) {
+        for(J=0; J<N2; J++) {
+            for(K=0; K<N; K++) {
+                R[I][J] += mul(M1[I][K],M2[K][J]);
+            }
+        }
+    }
+    return base_cancel(R);
+}
+
+/* 分散表現多項式の係数たちの gcd */
+def dp_coef_gcd(P) {
+    C = dp_hc(P);
+    for(P = dp_rest(P); P != 0; P = dp_rest(P)) {
+        C = gcd(C, dp_hc(P));
+    }
+    return C;
+}
+
+/* yang2: should be removed */
+/* 有理係数分散表現多項式を約分する */
+def red1(LP) {
+    if(isList(LP)) {
+        D = LP[1];
+        LP= LP[0];
+    }else {
+        return [red2(LP),1];
+    }
+
+    if(LP==0) {
+        return [0,1];
+    }
+    for(C = D, P = LP; P != 0; P = dp_rest(P)) {
+        C = gcd(C, dp_hc(P));
+    }
+    /* C == gcd(D, coefs(P)) */
+    for(Q = 0, P = LP; P != 0; P = dp_rest(P)) {
+        Q += sdiv(dp_hc(P),C)*dp_ht(P);
+    }
+    return [Q, sdiv(D,C)];
+}
+
+/* 分散表現多項式の係数から共通因子をくくりだす */
+def red2(DP) {
+    if(DP==0) {
+        return 0;
+    }
+    C = dp_coef_gcd(DP);
+    for(Q = 0; DP != 0; DP = dp_rest(DP)) {
+        Q += sdiv(dp_hc(DP),C)*dp_ht(DP);
+    }
+    return Q;
+}
+
+/* 分散表現多項式の係数から共通因子をくくりだす */
+def red3(DP) {
+    if(DP==0) {
+        return 0;
+    }
+    C = dp_coef_gcd(DP);
+    for(Q = 0; DP != 0; DP = dp_rest(DP)) {
+        Q += sdiv(dp_hc(DP),C)*dp_ht(DP);
+    }
+    return [Q,C];
+}
+
+/* 最高次の係数を 1 にする */
+def red4(DP) {
+	return red((1/dp_hc(DP))*DP);
+}
+
+/* 分散表現多項式の係数の分母たちの lcm */
+def dp_dm(P) {
+    C = dn(dp_hc(P));
+    for(P = dp_rest(P); P != 0; P = dp_rest(P)) {
+        C = lcm(C, dn(dp_hc(P)));
+    }
+    return C;
+}
+
+/* 分散表現多項式の係数を多項式にする */
+def dp_nm(P) {
+	P=red(P);
+	return red(dp_dm(P)*P);
+}
+
+/* yang2 */
+/* LP が LQ で簡約可能ならば 1 を返す */
+def reducible(LP,LQ) {
+    return dp_redble(LP,LQ);
+}
+
+/* P mod Q を求める */
+def division(P,Q) {
+    return division_DE(P,Q);
+}
+
+/* yang2 */
+def division_D(P,Q) {
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/(dp_hc(Q)));
+        R  = red(P - PP*multi(DQ,Q));
+    }
+    return R;
+}
+
+/* yang2 */
+def division_DE(P,Q) {
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/act_difference(DQ,dp_hc(Q)));
+        R  = red(P - PP*multi(DQ,Q));
+    }
+    return R;
+}
+
+/* 係数情報付き除算関数 */
+/* P = C*Q+R なる [R,C] を求める (R = P mod Q) */
+def division_s(P,Q) {
+    return division_s_DE(P,Q);
+}
+
+/* R = P - ((dp_hc(NM(P))/DN(P))*(1/dp_hc(NM(Q)))*DQ*S)*Q; */
+def division_s_D(P,Q) {
+    D = DN(P); P = NM(P);
+    S = DN(Q); Q = NM(Q);
+    R = P;
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/(dp_hc(Q)));
+        F  = nm(PP); G = dn(PP);
+        R  = [G*P - F*multi(DQ,Q),D*G];
+        R  = red1(R);
+        C  = [F*multi(DQ,S),D*G];
+        C  = red1(C);
+    }
+    return [R,C];
+}
+
+def division_s_DE(P,Q) {
+    D = DN(P); P = NM(P);
+    S = DN(Q); Q = NM(Q);
+    R = P;
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/act_difference(DQ,dp_hc(Q)));
+        F  = nm(PP); G = dn(PP);
+        R  = [G*P - F*multi(DQ,Q),D*G];
+        R  = red1(R);
+        C  = [F*multi(DQ,S),D*G];
+        C  = red1(C);
+    }
+    return [R,C];
+}
+
+/* 正規形を求める */
+def nf(F,Gr) {
+    if (isvoid(getopt(syzygy))) {
+        return opr(reduction(op(F),map(op,Gr)));
+    }
+    R = reduction_s(op(F),map(op,Gr));
+    NF = red(opr(R[0]));
+    Syz= map(opr,R[1]);
+    return [NF,Syz];
+}
+
+def nf_l(L,G) {
+    OPTS=getopt();
+    NFS=mapat(yang.nf,0,L,G|option_list=OPTS);
+    if (isvoid(getopt(syzygy))) {
+        return NFS;
+    }
+    SYZ=call(matr,map(list_second,NFS));
+    NFS=map('car',NFS);
+    return [NFS,SYZ];
+}
+
+/* yang2 */
+/* 分散表現多項式 F を 集合 G で簡約する */
+def reduction(F,G)
+{
+    Rem = 0;
+    while (F != 0) {
+/*      message("."); */
+        for (U = 0, L = G; L != []; L = cdr(L)) {
+            Red = car(L);
+            if (reducible(F,Red)) {
+/*              message("("+rtostr(dp_mag(F[0]))+")");
+                if(dp_mag(F[0])>300000) {
+                    F = red1(F);
+                }
+*/
+                F = division(F,Red);
+                if (F == 0) {
+                    return Rem;
+                }
+                U = 1;
+                break;
+            }
+        }
+        if (U == 0) {
+            H   = dp_hm(F);
+            F   = dp_rest(F);
+            Rem = Rem + H;
+        }
+    }
+    return Rem;
+}
+
+/* 分散表現多項式 F を 集合 G で簡約する
+   F = Rem + Q[0]*G[0] + ... Q[N-1]*G[N-1]
+   Output: [Rem, Q]
+ */
+def reduction_s(F,G) {
+    if (!isList(F)) F=[F,1];
+    N = length(G);
+    Q = newvect(N); /* quotient */
+    Rem = 0;
+    while (F[0] != 0) {
+        for (U = 0, I = 0; I < N; I++) {
+            Red = G[I];
+            if (reducible(F,Red)) {
+                FL = division_s(F,Red);
+                Q[I] = Q[I] + FL[1];
+                F  = FL[0];
+                if (F[0] == 0) {
+                    return [Rem,vtol(Q)];
+                }
+                U = 1;
+                break;
+            }
+        }
+        if (U == 0) {
+            H   = [dp_hm(F[0]),   F[1]];
+            F   = [dp_rest(F[0]), F[1]];
+            Rem = Rem + H;
+        }
+    }
+    return [Rem,vtol(Q)];
+}
+
+/* yang2 */
+/* V1,V2: vectors */
+def add_v(V1,V2) {
+	return V1+V2;
+}
+
+/* yang2 */
+def sub_v(V1,V2) {
+	return V1-V2;
+}
+
+/* S: scalar, V: vector */
+def multi_sv(S,V) {
+    return mapat(yang.multi_DE,1,S,V);
+}
+
+/* V = SL[0]*VL[0] + ... + SL[M-1]*VL[M-1] */
+def addmul_sv(SL,VL) {
+    M=length(VL);
+    N=length(VL[0]);
+    V=newvect(N);
+    for(J=0; J<M; J++) {
+        C=multi_sv(SL[J],VL[J]);
+        for(I=0; I<N; I++) {
+            V[I] = V[I] + C[I];
+        }
+    }
+    return V;
+}
+
+def spolynomial(P,Q) {
+    return spolynomial_DE(P,Q);
+}
+
+def spolynomial_D(P,Q)
+"Get S-porinomial of P and Q."
+{
+    P=NM(P);
+    Q=NM(Q);
+
+    LCM= dp_lcm(P,Q);
+    DP = dp_subd(LCM,dp_ht(P));
+    DQ = dp_subd(LCM,dp_ht(Q));
+    CP = dp_hc(P);
+    CQ = dp_hc(Q);
+    GCD= gcd(CP,CQ);
+
+    SP = sdiv(CQ,GCD)*multi(DP,P)
+        -sdiv(CP,GCD)*multi(DQ,Q);
+    return red2(SP);
+}
+
+/* 有理関数係数の微分/差分作用素の S 多項式を求める。
+   Remark:  P=(f/p)D^m, Q=(g/q)E^n のとき、S 多項式を
+   Sp(P,Q) := (g E^n p) P - ((E^n . f) D^m q) Q
+            = (g E^n f D^m ) - ((E^n . f) D^m g E^n )
+            = ((E^n . f ) g D^m E^n ) - ((E^n . f) D^m g E^n )
+   と定める。
+*/
+
+def spolynomial_DE(P,Q) {
+    LCM= dp_lcm(P,Q);
+    DP = dp_subd(LCM,dp_ht(P));
+    DQ = dp_subd(LCM,dp_ht(Q));
+    CP = act_difference(DP,dp_hc(P));
+    CQ = act_difference(DQ,dp_hc(Q));
+    SP = CQ*multi_DE(DP,P)-CP*multi_DE(DQ,Q);
+    return red(SP);
+}
+
+def spolynomial_s(P,Q) {
+    return spolynomial_s_DE(P,Q);
+}
+
+/* 係数情報付き S 多項式*/
+def spolynomial_s_DE(P,Q) {
+    DNP = DN(P); NMP=NM(P);
+    DNQ = DN(Q); NMQ=NM(Q);
+
+    LCM= dp_lcm(NMP,NMQ);
+    DP = dp_subd(LCM,dp_ht(NMP));
+    DQ = dp_subd(LCM,dp_ht(NMQ));
+    CP = act_difference(DP,dp_hc(NMP));
+    CQ = act_difference(DQ,dp_hc(NMQ));
+    GCD= gcd(CP,CQ);
+
+    C0 = sdiv(CQ,GCD);
+    C1 = -sdiv(CP,GCD);
+    SP = C0*multi_DE(DP,NMP)+C1*multi_DE(DQ,NMQ);
+    SP = red3(SP); CD = SP[1]; SP = SP[0];
+
+    C0 = red1([multi_DE(C0*DP,DN(P)),CD]);
+    C1 = red1([multi_DE(C1*DQ,DN(Q)),CD]);
+    Coef = [C0,C1];
+    /* Note: SP = Coef[0]*P + Coef[1]*Q */
+    return [SP,Coef];
+}
+
+/* Gebauer-Moeller's Criterion F */
+def criterionF(I,J,G) {
+    if (I>=J) {
+        return 1;
+    }
+    GJ = G[J]; GJ=NM(GJ);
+    GI = G[I]; GI=NM(GI);
+    TIJ = dp_lcm(GI,GJ);
+    for(K=0;K<I;K++) {
+        GK = G[K]; GK=NM(GK);
+        TKJ = dp_lcm(GK,GJ);
+        if (TIJ == TKJ) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Gebauer-Moeller's Criterion M */
+def criterionM(I,J,G) {
+    if (I>=J) {
+        return 1;
+    }
+    GJ = G[J]; GJ=NM(GJ);
+    GI = G[I]; GI=NM(GI);
+    TIJ = dp_lcm(GI,GJ);
+    for(K=0;K<J;K++) {
+        GK = G[K]; GK=NM(GK);
+        TKJ = dp_lcm(GK,GJ);
+        if (dp_redble(TIJ,TKJ) && TIJ != TKJ) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 降順で並べる */
+def dp_revcmp(P,Q) {
+    P=NM(P);
+    Q=NM(Q);
+    return (P==Q)? 0: ((P<Q)? 1: -1);
+}
+
+def dp_revcmp_s(P,Q) {
+    P=NM(P[0]);
+    Q=NM(Q[0]);
+    return (P==Q)? 0: ((P<Q)? 1: -1);
+}
+
+/*
+Input: (Groebner basis, Variables)
+Output: reduced Groebner basis
+*/
+def gr2rgr(G) {
+    G = qsort(G, yang.dp_revcmp);
+    RedGr = [];
+    while(G != []) {
+        H = car(G); G = cdr(G);
+        H = reduction(H,G);
+        if (H != 0) {
+            H = (1/dp_hc(H))*H; /* hc(H) == 1 */
+            RedGr = cons(H, RedGr);
+        }
+    }
+    return map(red,RedGr); /* 昇順 */
+}
+
+def gr2rgr_s(G, Syz) {
+    GS = qsort(assoc(G,Syz), yang.dp_revcmp_s);
+    G  = map('car', GS);
+    Syz= map(list_second, GS);
+    Gr = [];
+    Syzygy = [];
+    while(G != []) {
+        F = car(G); G = cdr(G);
+        S = car(Syz); Syz = cdr(Syz);
+        H = reduction_s(F,G); C = H[1]; H = H[0];
+        /* F = H + C[0]*G[0] + C[1]*G[1] + ... */
+        if (H[0] != 0) {
+            Nm = dp_hc(H[0]); 
+            Dn = H[1];
+            H  = red1([H[0], Nm]); /* H := (Dn/Nm)*H,   hc(H) == 1 */
+            Gr = cons(H, Gr);
+            if (C!=[]) {
+                S = sub_v(S,addmul_sv(C,Syz));
+            }
+            S = map(red,yang.multi_sv([Dn,Nm],S));
+            Syzygy = cons(S,Syzygy);
+        }
+    }
+    return [Gr,Syzygy]; /* 昇順 */
+}
+
+/* yang2 */
+/*
+Options:
+sm1=1     (sm1を用いてヒルベルト多項式を表示する)
+hilbert=H (ヒルベルト多項式がHに到達したら計算を打ち切る)
+weight=[W1,W2,...] (ウエイトベクトル, 未実装)
+*/
+/* from Asir-Book */
+def buchberger(G) {
+    UseSM1 = 0;
+    if (!isvoid(O=getopt(sm1))) {
+        UseSM1 = 1;
+        Hilbert = 0;
+    }
+    if (!isvoid(O=getopt(hilbert))) {
+        UseSM1 = 1;
+        Hilbert = O;
+    }
+    MaxSugar=0;
+    N = length(G);
+    Pairs = [];
+    for(J=N-1; J>=0; J--) {
+        for(I=J-1; I>=0; I--) {
+            if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
+                Pairs = cons([G[I],G[J],spair_sugar(G[I],G[J])],Pairs);
+            }
+        }
+    }
+    Pairs = qsort(Pairs, yang.spair_compare); /* sort by sugar */
+    while(Pairs != []) {
+/*      message(length(G)); */
+        K = car(Pairs);
+        Pairs = cdr(Pairs);
+        if(MaxSugar < K[2]) {
+            MaxSugar=K[2];
+            message(" "+rtostr(MaxSugar)+" ");
+        }
+        if (UseSM1) {
+            IN = map(dp_dtop,initial_term(G),Ring->v);
+            Sm1_hilbert = sm1.hilbert([IN,Ring->v]);
+            message("<"+rtostr(Sm1_hilbert)+">");
+            if (Sm1_hilbert == Hilbert) {
+                break;
+            }
+        }
+        SP = spolynomial(K[0],K[1]);
+        Rem = reduction(SP,G);
+        if (Rem != 0) {
+            message(".");
+            G = append(G, [Rem]);
+            L = [];
+            for(I=0; I<N; I++) {
+                if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
+                    L = cons([G[I],G[N],spair_sugar(G[I],G[N])],L);
+                }
+            }
+            Pairs = qsort(append(Pairs, L), yang.spair_compare); /* sort by sugar */
+            N++;
+        }else {
+            message("o");
+        }
+    }
+    message("\n");
+    G=gr2rgr(G); /* Reducing G a Groebner basis. */
+	G=map(dp_nm,G);
+    return G; /* Reducing G a Groebner basis. */
+}
+
+def buchberger_s(G) {
+    MaxSugar=0;
+    N = length(G);
+    Pairs = [];
+    for(J=N-1; J>=0; J--) {
+        for(I=J-1; I>=0; I--) {
+            if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
+                Pairs = cons([G[I],G[J],spair_sugar(G[I],G[J]),I,J],Pairs);
+            }
+        }
+    }
+    Syzygy= matrix_rows(constant(1)*matrix_identity_matrix(N));
+    Pairs = qsort(Pairs, yang.spair_compare); /* sort by sugar */
+    while(Pairs != []) {
+        K = car(Pairs); K0=K[3]; K1=K[4];
+        Pairs = cdr(Pairs);
+        if(MaxSugar < K[2]) {
+            MaxSugar=K[2];
+            message(" "+rtostr(MaxSugar)+" ");
+        }
+        SP = spolynomial_s(K[0],K[1]); SPC=SP[1]; SP=SP[0];
+        Rem = reduction_s(SP,G); RemC = Rem[1]; Rem = Rem[0];
+        if (Rem[0] != 0) {
+            message(".");
+            G = append(G, [Rem]);
+            /* C を SPC,RemC,Syzygy から計算 */
+            /* C1=SPC[0]*Syzygy[K0]+SPC[1]*Syzygy[K1] */
+            /* C2=RemC[0]*Syzygy[0]+...+RemC[N-1]*Syzygy[N-1] */
+            /* C = C1-C2 */
+            C1 = addmul_sv(SPC,[Syzygy[K0],Syzygy[K1]]);
+            C2 = addmul_sv(RemC,Syzygy);
+            C  = sub_v(C1,C2);
+            C  = map(red1,C);
+            Syzygy = append(Syzygy, [C]);
+            L = [];
+            for(I=0; I<N; I++) {
+                if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
+                    L = cons([G[I],G[N],spair_sugar(G[I],G[N]),I,N],L);
+                }
+            }
+            Pairs = qsort(append(Pairs, L), yang.spair_compare); /* sort by sugar */
+            N++;
+        }else {
+            message("o");
+        }
+    }
+    message("\n");
+    return gr2rgr_s(G,Syzygy); /* Reducing G a Groebner basis. */
+}
+
+def gr(F) {
+    OPTS=getopt();
+    if (isvoid(getopt(syzygy))) {
+        return map(opr,buchberger(map(op,F)|option_list=OPTS));
+    }
+    R=buchberger_s(map(op,F)|option_list=OPTS);
+    G=map(opr,R[0]); 
+    Syzygy=mapat('map',1,yang.opr,R[1]);
+    return [G,Syzygy];
+}
+
+/* it returns in(G) */
+def initial_term(Gr) {
+    L = [];
+    N = length(Gr);
+    for(I=0; I<N; I++) {
+        P = Gr[I];
+        P = NM(P);
+        if (isdpoly(P)) {
+            L = cons(dp_ht(P),L) ;
+        }
+    }
+    return L;
+}
+
+/* it returns in(G) */
+def in(Gr)
+"Get initial terms of a Groebner base."
+{
+	return map(opr, initial_term(map(op,Gr)));
+}
+
+def stdmon(Gr)
+"Get standard monomial of a Groebner base."
+{
+    return map(opr, dp_mbase(initial_term(map(op, Gr))));
+}
+
+/* --------------------------------
+   Following functions for computing of pfaffian forms
+
+/*  分散有理式(正規形)のリストLPを行列に変換する。LMは標準モノミアルのリスト。
+    Example:
+    [12] LP=[[<<1,0>>+a*<<0,0>>,b],<<0,1>>,[<<0,0>>,c]];
+    [[(1)*<<1,0>>+(a)*<<0,0>>,b],(1)*<<0,1>>,[(1)*<<0,0>>,c]]
+    [13] LM=[<<1,0>>,<<0,1>>,<<0,0>>];
+    [(1)*<<1,0>>,(1)*<<0,1>>,(1)*<<0,0>>]
+    [14] dp_ltom(LP,LM);
+    [ (1)/(b) 0 (a)/(b) ]
+    [ 0 1 0 ]
+    [ 0 0 (1)/(c) ]
+*/
+
+def dp_ltom(LP, LM) {
+    N = length(LP);
+    M = length(LM);
+    Mat = newmat(N,M);
+    for(I=0; I<N; I++) {
+        if(isList(LP[I])) {
+            D = LP[I][1];
+            P = LP[I][0];
+        }else {
+            D = 1;
+            P = LP[I];
+        }
+        for(J=0; J<M; J++) {
+            for(Q = P; Q != 0; Q = dp_rest(Q)) {
+                if (dp_ht(Q) == LM[J]) {
+                    Mat[I][J] = red(dp_hc(Q)/D);
+                    break;
+                }
+            }
+        }
+    }
+    return Mat;
+}
+
+def ltom(L,B) {
+    if (!isList(B[0]) && !isdpoly(B[0])) {
+        L = map(op,L);
+        B = map(op,B);
+    }
+    return dp_ltom(L,B);
+}
+
+def pf(Base,Gr) {
+    Base = map(op,Base);
+    Gr   = map(op,Gr);
+    return pfaffian(Base,Gr);
+}
+
+/* incomplete pfaffian system */
+def pf_i(Base,Gr,S) {
+    Stdmon=stdmon(Gr);
+    C=nf_l(Base,Gr|syzygy=1);
+    D=C[1];
+    C=ltom(C[0],Stdmon);
+    Ci=matrix_inverse(C);
+
+    N=ring_size();
+    P=newvect(N);
+    for(J=0; J<N; J++) {
+        X  = op_var(J);
+        DX = op_op(J);
+        DX_Stdmon = mapat(yang.mul,1,DX,Stdmon);
+        A  = nf_l(DX_Stdmon,Gr|syzygy=1);
+        B  = A[1];
+        A  = ltom(A[0],Stdmon);
+
+        DC = mapat(yang.action,1,op(DX),C);
+        A  = base_cancel((1/X)*((DC + C*A)*Ci));
+        B  = matmul((1/X)*(C*B+mapat(yang.mul,1,DX,D))-A*D,S);
+        B  = base_cancel(B);
+        P[J]=[A,B];
+        A=0; B=0;
+    }
+    return vtol(P);
+}
+
+/* Let Gr be a reduced Groebner basis and Base a set of monomials.
+   Then the return value L gives a Pfaffian system
+   {d - (L[0]*dVSet[0] + ... + L[M-1]*dVSet[M-1])} U = 0,
+   where L[J] are N*N-matrices. */
+/* Base: Pfaffian を計算したいモノミアル(空のとき標準モノミアルを使う)
+   Gr: グレブナ基底 */
+def pfaffian(Base,Gr) {
+    StdMon = dp_mbase(initial_term(Gr)); /* see yang.stdmon() */
+    if (Base==[]) {
+        Base = StdMon;
+    }
+    Nf= map(reduction,Base,Gr); /* normal form of Base. */
+    S = dp_ltom(Nf,StdMon); /* 行列表現 */
+    S = matrix_inverse(S); 
+    M = ring_size();
+    L = newvect(M);
+    for(J=0; J<M; J++) {
+		OP = op_i(M,J);
+		if(op_type(J)==EULER) { /* オイラー微分作用素から偏微分作用素に */
+			OP=(1/op_var(J))*OP;
+		}
+        P = mapat(yang.multi,1,OP,Base); 
+        P = map(reduction,P,Gr); /* normal form */
+        P = dp_ltom(P,StdMon);   /* 行列表現 */
+        L[J] = base_cancel(P*S);
+    }
+    return L;
+}
+
+/* 行列表現を求める */
+def dp_matrix_form(L,Gr)
+"usage: yang.dp_matrix_form([<<1,0,1>>, [<<0,1,1>>,x*z]],Gr|base=B);"
+{
+	StdMon=dp_mbase(initial_term(Gr));
+	L = map(reduction,L,Gr); /* normal form */
+    M = dp_ltom(L,StdMon);   /* 行列表現 */
+	if (!isvoid(B=getopt(base))) {
+		B = map(reduction,B,Gr); /* normal form */
+		T = dp_ltom(B,StdMon);   /* 行列表現 */
+		M = base_cancel(M*matrix_inverse(T));
+	}
+	return M;
+}
+
+def matrix_form(L,Gr)
+"usage: yang.matrix_form([dx^2, dx/(x)],Gr|base=[1,dx]);"
+{
+    L  = map(op,L); Gr = map(op,Gr);
+	if (!isvoid(B=getopt(base))) {
+		B=map(op,B);
+		return dp_matrix_form(L,Gr|base=B);
+	}
+	return dp_matrix_form(L,Gr);
+}
+
+/* length(Pf) == length(VSet) */
+/* Check dP - P*P = 0 */
+def check_pfaffian(Pf,VSet) {
+    L = [];
+    N = length(Pf);
+    for(I=0; I<N; I++) {
+        for(J=0; J<I; J++) {
+            A = map(diff,Pf[I],VSet[J]) - map(diff,Pf[J],VSet[I])
+                + (Pf[I]*Pf[J] - Pf[J]*Pf[I]);
+            L = cons(map(red, A), L);
+        }
+    }
+    return L;
+}
+
+/* 有理式 F が一次分数展開出来そうならば 1 を返す。
+   この関数では、一次分数展開するためには、
+   「分母が変数 V の(無平方な)一次式に分解できる」
+   が成り立たなければならない。'
+*/
+
+def check_frac_expansion_before(F, V) {
+    if (!ispoly(V) || !israt(F)) {
+        return 0;
+    }
+    for(L=cdr(fctr(dn(F))); (G=car(L))!= []; L = cdr(L)) {
+        Deg = deg(G[0],V);
+        if (Deg>0 && (Deg>1 || G[1]>1)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+def check_frac_expansion_after(F, Q) {
+    G = 0;
+    for(G=0; (A = car(Q)) != []; Q = cdr(Q)) {
+        G = G + A[0]/A[1];
+    }
+    return (F-G)==0;
+}
+
+/*  有理式 F を一次分数展開する。成功すればリストを返す。
+    Example:
+    [100] F = ((-a-b1)*x^2+((a+b1-b2)*y+c)*x+(-c+b2)*y) / (x*(x-1)*(x-y));
+    [101] frac_expansion(F,x);
+    [[-b2,x-y],[-a+c-b1,x-1],[-c+b2,x]]
+*/
+
+def frac_expansion(F, V) {
+    if (check_frac_expansion_before(F, V) == 0) {
+        return F;
+    }
+    Q = [];
+    Coef = 1;
+    for(L=cdr(fctr(dn(F))); (G=car(L))!= []; L = cdr(L)) {
+        H = G[0];
+        Deg = deg(H,V);
+        if (Deg>0) {
+            RR = residue(F, H, V);
+            Q = cons(RR, Q);
+        }
+    }
+    if (check_frac_expansion_after(F, Q)) {
+        return Q;
+    }
+    return F;
+}
+
+/* F: linear form, V: a variable
+   example:
+   [1095] sing_point(x-y+1,x);
+   y-1
+*/
+def sing_point(F, V) {
+    return base_replace(-F/coef(F,1,V),[[V,0]]);
+}
+
+/* H==0 上で高々1位の極をもつときに留数を求める
+   example:
+   [1135] residue(F,x-1,x);
+   [(1)/(y),x-1]
+ */
+
+def residue(F, H, V) {
+    Point = sing_point(H,V);
+    R = base_replace(red(F*H), [[V, Point]]);
+    return [R,H];
+}
+
+/* 多項式の係数を整数化する */
+def extract_denom_poly(P) {
+    V=vars(P);
+    DP=dp_ptod(P,V);
+    for(LCM = dn(dp_hc(DP)), DP = dp_rest(DP); DP != 0; DP = dp_rest(DP)) {
+        LCM = ilcm(LCM, dn(dp_hc(DP)));
+    }
+    return [LCM*P,LCM];
+}
+
+/* 行列 M の各成分は VSet の変数の斉次一次式  */
+def matrix_to_coef_matrix(M,VSet) {
+    L = extract_denom(M);
+    N = length(VSet);
+    LL = [];
+    for (I=0; I<N; I++) {
+        LL = append(LL,[base_flatten(map(coef,L[0],1,VSet[I]))]);
+    }
+    LL = (1/L[1])*matrix_transpose(matrix_list_to_matrix(LL));
+    LL = map(red, LL);
+    return LL;
+}
+
+def pfaffian_to_coef_matrices(Pfaffian, S, Rule) {
+    LL = map(mpair,Pfaffian,S,Rule);
+    return map(matrix_to_coef_matrix,LL,base_flatten(S));
+}
+
+/* 多項式 P がリスト V の不定元を含めば 1, それ以外で 0. */
+def ispoly_of_vars(P, V)
+{
+    C = dp_ptod(P,V);
+    return C != 0 && vector_sum(dp_etov(dp_ht(C))) != 0;
+}
+
+/* --------------------------------
+   Following functions for A-Hypergeometric Differntial-Difference systems
+   -------------------------------- */
+
+def gkz_ring(GKZ) {
+    DX = list_indefinite("x",1,length(GKZ[0][0]));
+    DB = assoc(GKZ[1],[-1]);
+    return ["euler",DX,"difference",DB];
+}
+
+def define_gkz_ring(GKZ) {
+    return define_ring(gkz_ring(GKZ));
+}
+
+/* A 超幾何微分差分方程式系 */
+/* Example:
+A = [[1,1,1],[0,1,2]] $
+B = [b1,b2] $
+yang.define_gkz_ring([A,B]);
+yang.gkz([A,B]);
+*/
+def gkz(GKZ) {
+    return [append(gkz_D(GKZ), gkz_E(GKZ)), gkz_ring(GKZ)[1]];
+}
+
+/* A 超幾何系からトーリック項を除いたもの(微分系) */
+def gkz_D(GKZ) {
+    A = GKZ[0]; B = GKZ[1];
+    Col = length(A); Row = length(A[0]);
+    N = ring_size();
+    L = newvect(Col);
+    for(I=0; I<Col; I++) {
+        L[I]=0;
+        for(J=0; J<Row; J++) {
+            L[I] += A[I][J]*op_i(N,J);
+        }
+        L[I] -= B[I];
+    }
+    return vtol(L);
+}
+
+/* A 超幾何系に付随する差分系 */
+def gkz_E(GKZ) {
+    A   = GKZ[0]; B = GKZ[1];
+    Col = length(A); Row = length(A[0]);
+    L = newvect(Row);
+    Size = ring_size();
+    for(J=0; J<Row; J++) {
+        E = newvect(Size);
+        for(I=0; I<Col; I++) {
+            E[operator_id(B[I])] = A[I][J];
+        }
+        L[J] = op_i(Size,J)-op_var(J)*dp_vtoe(E);
+    }
+    return vtol(L);
+}
+
+/* B. Sturmfels, "Groebner Bases and Convex Ploytopes", AMS, 1995.
+   p.32, Algorithm 4.5 */
+def compute_toric_kernel(GKZ)
+"Example: GKZ=[ [[2,5,8]], [b1] ];\
+compute_toric_kernel(GKZ) => [[-_x0^4+_x2,_x2*_x0-_x1^2],[_x0,_x1,_x2,_t1]]"
+{
+    A=GKZ[0];
+    D=length(A); N=length(A[0]);
+    X = list_indefinite("_x",0,N);
+    T = list_indefinite("_t",0,D+1);
+    for (P = 1, F = T; F != []; F = cdr(F)) {
+        P *= car(F);
+    }
+    L = [P-1];
+    for(I = 0; I < N; I++) {
+        VL = vector_split(matrix_column_nth(A,I));
+        A_pos = VL[0]; A_neg = VL[1];
+        for(Pos = X[I], Neg = 1, J = 0; J < D; J++) {
+            Pos *= T[J]^(A_pos[J]);
+            Neg *= T[J]^(-A_neg[J]);
+        }
+        L = cons(Pos-Neg, L);
+    }
+    V = append(T,X);
+    O = [ base_flatten(assoc(T,[100])), base_flatten(assoc(X,[1])) ];
+    Gr = dp_gr_main(L | v=V,order=O);
+
+    for(L = []; Gr != []; Gr = cdr(Gr)) {
+        C = car(Gr);
+        if ( !ispoly_of_vars(C,T) ) {
+            L = cons(C, L);
+        }
+    }
+    return [L,append(X,cdr(T))];
+}
+
+/* A 超幾何微分方程式のトーリック項を偏微分作用素で書いたもの */
+def gkz_toric_partial(GKZ)
+"gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
+{
+    LL = compute_toric_kernel(GKZ);
+    return map(dp_ptod, LL[0], LL[1]); /* gkz_ring() の返す構造を仮定 */
+}
+
+/* A 超幾何微分方程式のトーリック項をオイラー作用素で書いたもの */
+def gkz_toric(GKZ)
+"gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
+{
+    T = map(dp_partial_to_euler, gkz_toric_partial(GKZ));
+    return map('car', T);
+}
+
+def gkz_toric_partial_sm1(GKZ)
+"Using sm1 engine, gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
+{
+    N = length(GKZ[0]);
+    Toric = sm1.gkz(GKZ)[0];
+    for (I=0; I<N; I++) {
+        Toric = cdr(Toric);
+    }
+    N = length(GKZ[0][0]) + length(GKZ[1]);
+    return map(dp_ptod, Toric, list_indefinite("dx",1,N));
+}
+
+def gkz_toric_sm1(GKZ)
+"Using sm1 engine, gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
+{
+    T = map(dp_partial_to_euler, gkz_toric_partial_sm1(GKZ));
+    return map('car', T);
+}
+
+/* リスト F の定めるイデアルの(順序 O に関する)グレブナ基底の initial terms */
+def initial_term_weight(F,O) {
+    F = dp_gr_main(F | order=[O]);
+    return dp_initial_term(F | order=[O]);
+}
+
+def check_gkz_generic_weight(GKZ, W) {
+    IN = initial_term_weight(gkz_toric_partial(GKZ), W);
+    for( ; IN != []; IN = cdr(IN)) {
+        if (dp_rest(car(IN)) != 0) {
+            return 0; /* W is a non-generic weight ! */
+        }
+    }
+    return 1;
+}
+
+def gkz_distraction(GKZ)
+"gkz_distraction(GKZ|weight=Vector)"
+{
+    A=GKZ[0];
+    N=length(A[0]);
+    D=length(A);
+    V  = list_indefinite("x",0,N+D);
+    if(isvoid(W=getopt(weight))) {
+        W = vtol(vector_const(N,1));
+    }
+    IN_P  = initial_term_weight(gkz_toric_partial(GKZ), W);
+    IN_E  = map('car', map(dp_partial_to_euler, IN_P));
+    GKZ_D = gkz_D(GKZ);
+    Eq    = map(dp_dtop, append(IN_E, GKZ_D), V);
+    V     = vtol(vector_shorten(N,V));
+    Pri   = primadec(Eq, V);
+
+    if (0) {
+    /* outputs for debugging */
+        print("in(I_A)(partial) = " +rtostr(IN_P) );
+        print("in(I_A)(euler)   = " +rtostr(IN_E) );
+        print("GKZ_D(euler)     = " +rtostr(GKZ_D));
+        print("Distraction      = " +rtostr(Eq)   );
+        print("Primadec         = " +rtostr(Pri)  );
+    }
+
+    for (Sol = []; Pri != []; Pri = cdr(Pri)) {
+        C = car(Pri)[1];
+        C = poly_solve_linear(C, V);
+        C = map(list_second, C);
+        Sol = cons(C,Sol);
+    }
+    return Sol;
+}
+
+/* Example:
+[air:~/gm]asir
+This is Risa/Asir, Version 20030402 (Kobe Distribution).
+Loading ~/.asirrc
+[913] load("gm.rr")$
+[922] P=(x^2+y)*<<1,1>>-x*<<0,2>> $
+[923] Q=y*<<0,2>> $
+[924] yang.define_ring([x,y]) $
+[925] yang.multi(P,Q);
+(y*x^2+y^2)*<<1,3>>+(-y*x)*<<0,4>>+(y*x^2+y^2)*<<1,2>>+(-2*y*x)*<<0,3>>+(-y*x)*<<0,2>>
+*/
+
+/* 微分/差分作用素(単項式) E を多項式 P に作用させる */
+def action_monomial_DE(E, P) {
+    E = dp_etov(E);
+    N = length(E);
+    for (I=0; I<N; I++) {
+        if (op_type(I)==EULER) { /* オイラー微分 */
+            P = euler_diff(P,op_var(I),E[I]);
+        }else if (op_type(I)==PARTIAL) { /* 偏微分 */
+            P = partial_diff(P,op_var(I),E[I]);
+        }else if (op_type(I)==DIFFERENCE) { /* 差分 */
+            P = base_replace(P,[[ op_var(I), op_var(I)+op_diff(I)*E[I] ]]);
+        }else if (op_type(I)==Q_DIFFERENCE) { /* q-差分 */
+            P = base_replace(P,[[ op_var(I), op_var(I)*op_diff(I)^E[I] ]]);
+        }
+    }
+    return P;
+}
+
+/* 微分/差分作用素 P を多項式 F に作用させる */
+def action_DE(P, F) {
+    for(Q = 0; P != 0; P = dp_rest(P)) {
+        Q += dp_hc(P)*action_monomial_DE(dp_ht(P),F);
+    }
+    return Q;
+}
+
+def action(P,F) {
+    return action_DE(P,F);
+}
+
+/* 分散多項式の長さ */
+def dp_length(P) {
+    local I;
+    for(I = 0; P != 0; P = dp_rest(P), I++) {
+    }
+    return I;
+}
+
+/* 分散多項式を associated list に変換 */
+def dp_dtol(P) {
+    for(L = []; P != 0; P = dp_rest(P)) {
+        L = cons([dp_hc(P),dp_ht(P)], L);
+    }
+    return reverse(L);
+}
+
+/* 再帰多項式(有理式)を associated list に変換 */
+def dp_ptol(P,V)
+"dp_ptol(x+y/t,[x,y]) => [[1,[1 0]],[1/t,[0 1]]]"
+{
+    Dn = dp_ptod(dn(P),V);
+    C = dp_hc(Dn);
+    DnE = dp_etov(Dn);
+    if (dp_rest(Dn) != 0) {
+        error("illeagal argument.");
+    }
+    for(L = [], P = dp_ptod(nm(P),V); P != 0; P = dp_rest(P)) {
+        L = cons([red(dp_hc(P)/C), dp_etov(P)-DnE],L);
+    }
+    return reverse(L);
+}
+
+/* --------------------------------
+   偏微分作用素をオイラー作用素に変換する
+   -------------------------------- */
+
+def util_pd_to_euler(L,V)
+"Example: yang.util_pd_to_euler([dx^2+x^2, dx+dy], [x,y]);"
+{
+	N = length(L);
+	define_ring(V);
+	Ret = newvect(N);
+	for(I=0; I<N; I++) {
+		DP=op(L[I]); Nm=NM(DP); Dn=DN(DP);
+		Ret[I]=red(opr(dp_partial_to_euler(Nm))/Dn);
+	}
+	Ret=vtol(Ret);
+	pop_ring();
+	return Ret;
+}
+
+/* I 番目の作用素を変換.  F: 分散多項式 */
+def dp_partial_to_euler_i(F,I)
+"Example: if [op_var(0),op_type(0)] == [x,EULER], then \n \
+yang.dp_partial_to_euler_i(<<2,0>>+<<0,2>>,0) ==> \
+[<<2,0>>-<<1,0>>+(x^2)*<<0,2>>,x^2]"
+{
+    R = 0;
+    for( ; F != 0; F = dp_rest(F)) {
+        H = dp_partial_to_euler_term_i(dp_hm(F),I);
+        R = R + H;
+    }
+    return R;
+}
+
+def dp_partial_to_euler_term_i(T,I)
+{
+    E = dp_etov(T);
+    N = E[I];
+    if (op_type(I) != EULER || N == 0) {
+        return [T,1];
+    }
+    R = red(dp_hc(T)/(op_var(I)^N));
+    M = op_i(length(E),I);
+    for(S=1, J=0; J<N; J++) {
+        S = multi(S, M-J);
+    }
+    E[I]=0;
+    return [nm(R)*S*dp_vtoe(E), dn(R)];
+}
+
+/* 全ての作用素を変換.  F: 分散多項式 */
+def dp_partial_to_euler(F) {
+    R = 0;
+    for( ; F != 0; F = dp_rest(F)) {
+        H = dp_partial_to_euler_term(dp_hm(F));
+        R = R + H;
+    }
+    return R;
+}
+
+def dp_partial_to_euler_term(T) {
+    B = op_nomatch(T,EULER);
+    E = dp_etov(op_match(T,EULER));
+    Len = length(E);
+    C = dp_hc(T);
+    S = dp_vtoe(newvect(Len));
+    D = 1;
+    for(I=0; I<Len; I++) {
+        N = E[I];
+        if (N != 0) {
+            M = op_i(Len,I);
+            for(J=0; J<N; J++) {
+                S = multi(S, M-J);
+            }
+            D *= op_var(I)^N;
+        }
+    }
+    C = red(C/D);
+    return [nm(C)*S*B, dn(C)];
+}
+
+/* --------------------------------
+   Following functions for Hypergeometric series.
+   -------------------------------- */
+
+/*
+length(Index) <= length(AT)==length(car(A))
+Example:
+A = [[1,1,1],[0,1,2]]; AT = [b1,0,b2]; Index=[1];
+yang.a2k(A,AT,Index) => [ [1/2*_k0,-_k0,1/2*_k0], [_k0] ]
+*/
+
+def a2k(A, AT, Index) {
+    K  = list_indefinite("k",0,length(Index));
+    U  = list_indefinite("__",0,length(AT));
+    Eq = vtol(matrix_list_to_matrix(A)*ltov(U));
+    for(KK=K; KK != []; KK=cdr(KK),Index=cdr(Index)) {
+        I  = car(Index);
+        E  = U[I]+AT[I]-car(KK);
+        Eq = cons(E, Eq);
+    }
+    return [map(list_second, poly_solve_linear(Eq, U)), K];
+}
+
+/* 入力: 多項式のリスト AT,  変数のリスト B
+   出力: AT のインデックス I のリスト s.t. AT[I] は B を含まない.
+*/
+def sigma(AT, B) {
+    for(L = [], I = 0; AT != []; AT = cdr(AT), I++) {
+        if ( !ispoly_of_vars(car(AT),B) ) {
+            L = cons(I, L);
+        }
+    }
+    return reverse(L);
+}
+
+def gen_gamma(AV,KV)
+"gen_gamma([a1,a2,a3],[n1,n2,n3]) ==> [[a1,n1+1,-1],[a2,n2+1,-1],[a3,n3+1,-1]]"
+{
+    if (isvect(AV)) AV = vtol(AV);
+    One = vector_const(length(AV),1);
+    KV = vtol((isvect(KV)? KV: ltov(KV))+One);
+    return map(append, assoc(AV,KV), [-1]);
+}
+
+/* N >= 0 */
+def pochhammer(A,N) {
+    P=1;
+    for(I=0; I<N; I++) {
+        P *= (A+I);
+    }
+    return P;
+}
+
+/* Arguments N and E are integers.
+if A is an integer, then the return value is $\Gamma(A+N)^E$.
+if A is not, then the value is $(\Gamma(A+N)/\Gamma(A))^E$.
+*/
+def eval_gamma(A,N,E)
+"Evaluate Gamma factors using Pochhammer symbols.\n\
+eval_gamma(A,N,E) ==> $\Gamma(A+N)^E$ or $\Pochhammer(A+N)^E$."
+{
+    if (!isnum_int(N) || !isnum_int(E)) {
+        error("invalid arguments.");
+    }
+    if (!isnum_int(A)) {
+        return (N<0)? pochhammer(A+N,-N)^(-E): pochhammer(A,N)^E;
+    }else {
+        A+=N;
+        if (A<=0) {
+            return (E<0)? 0: error("invalid argument. (pole)");
+        }
+        return fac(A-1)^E;
+    }
+}
+
+def gamma1(L)
+"[u, [a1,n1,e1],[a2,n2,e2]] => u*eval_gamma1(a1,n1,e1)*eval_gamma1(a2,n2,e2)"
+{
+    for(G=1 ; L != []; L=cdr(L)) {
+        LL = car(L);
+        G *= (islist(LL))? call(yang.eval_gamma,LL): LL;
+    }
+    return G;
+}
+
+def gamma2(L)
+"[u, [a1,n1,e1],[a2,n2,e2]] => u*(ggamma(a1+n1)^e1)*(ggamma(a2+n2)^e2)"
+{
+    for(G=1 ; L != []; L=cdr(L)) {
+        LL = car(L);
+        G *= (islist(LL))? ggamma(LL[0]+LL[1])^LL[2]: LL;
+    }
+    return G;
+}
+
+def gamma3(L)
+"[u, [a1,n1,e1],[a2,n2,e2]] => u*(ggamma(a1+n1)^e1)*(ggamma(a2+n2)^e2)"
+{
+    for(G=1 ; L != []; L=cdr(L)) {
+        LL = car(L);
+        if (islist(LL)) {
+            N = LL[0]+LL[1];
+            LL = (isnum_int(N) && (N > 0))? fac(N-1)^LL[2]: ggamma(N)^LL[2];
+        }
+        G *= LL;
+    }
+    return G;
+}
+
+/* GKZ = [A,B] */
+
+def series(MaxDeg, GKZ, W, AT) {
+    if (type(getopt(term)) != -1) {
+        return series_term(GKZ, AT);
+    }
+    Strategy = getopt(strategy);
+    if (type(Strategy) == -1) Strategy=2;
+    return series_generic(MaxDeg, GKZ, W, AT, Strategy);
+}
+
+/* 出力: 級数の一般項 F.
+   F[0]*x^F[1] が パラメータ F[2] に関する一般項になる.
+*/
+def series_term(GKZ, AT) {
+    LenAT = length(AT);
+    Index = sigma(AT, GKZ[1]);
+    LenIndex = length(Index);
+    U = a2k(GKZ[0], AT, Index);
+    F = [ltov(AT),[[gen_gamma(AT,U[0]), U[0], U[1]]]];
+    return F;
+}
+
+def series_generic(MaxDeg, GKZ, W, AT, Strategy) {
+    LenAT = length(AT);
+    Index = sigma(AT, GKZ[1]);
+    LenIndex = length(Index);
+    U = a2k(GKZ[0], AT, Index);
+    K = U[1]; U = U[0];
+    F = [];
+    for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
+        K0 = car(Ks);
+        U0 = ltov(base_replace(U, assoc(K, K0)));
+        IP = matrix_inner_product(U0, W);
+        if(IP >= 0 && all_integers(U0)) {
+            C = gen_gamma(AT,U0);
+            F = cons([K0, IP, C, U0], F);
+        }
+    }
+    if (Strategy==1) F = reverse(F);
+    if (Strategy==2) F = qsort(F, yang.compare_algorithm2);
+    if (Strategy==3) F = qsort(map(head_sum, F));
+    return [ltov(AT),map(cddr,F)];
+    /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
+}
+
+def head_sum(L) {
+    return cons(list_sum(car(L)),cdr(L));
+}
+
+def compare_algorithm2(A,B) {
+    I = (A[1]==B[1])? 0: 1;
+    A = A[I]; B = B[I];
+    return (A<B)? -1: (A>B)? 1: 0;
+}
+
+def vector_to_rat(E,V,N) {
+    for(P = 1, I = 0; I < N; I++) {
+        P *= V[I]^E[I];
+    }
+    return P;
+}
+
+/* Series: series() の出力 */
+def series1(Series) {
+    AT = Series[0];
+    Series = Series[1];
+/*  Series = cddr(Series); */
+    N = length(car(Series)[1]);
+    V = list_indefinite("x",1,N);
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma1(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
+}
+
+/* Series: series() の出力 */
+def series1_5(Series) {
+    AT = Series[0];
+    Series = Series[1];
+/*  Series = cddr(Series); */
+    N = length(car(Series)[1]);
+    V = list_indefinite("x",1,N); /* !!! */
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma1(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    return [AT,L];
+}
+
+/* Series: series() の出力 */
+def series2(Series) {
+    AT = Series[0];
+    Series = Series[1];
+    N = length(car(Series)[1]);
+    V = list_indefinite("x",1,N);
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma2(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
+}
+
+/* Series: series() の出力 */
+def series3(Series) {
+    AT = Series[0];
+    Series = Series[1];
+    N = length(car(Series)[1]);
+    V = list_indefinite("x",1,N);
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma3(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
+}
+
+def pattern(M, N)
+"Example: pattern(3,2) => [[3,0],[2,1],[1,2],[0,3]]"
+{
+    V = list_indefinite("u",0,N);
+    for(L = [], F = dp_ptod(list_sum(V)^M, V); F != 0; F = dp_rest(F)) {
+        L = cons(vtol(dp_etov(dp_ht(F))), L);
+    }
+    return reverse(L);
+}
+
+def pattern_full(M, N)
+"Example: pattern_full(3,2) => \
+[[0,0],[0,1],[1,0],[0,2],[1,1],[2,0],[0,3],[1,2],[2,1],[3,0]]"
+{
+    V = list_indefinite("u",0,N);
+    G = list_sum(V);
+    for(F = 0, I = 0; I <= M; I++) {
+        F += G^I;
+    }
+    for(L = [], F = dp_ptod(F, V); F != 0; F = dp_rest(F)) {
+        L = cons(vtol(dp_etov(dp_ht(F))), L);
+    }
+    return L;
+}
+
+static PatternCache;
+/* 
+PatternCache is used by pattern_weight() and has a structure as
+[Length, Max,Pattern, Max].
+If M=4 and C=[3,2,1], then PatternCache is the following list:
+[3,4,[[[4,0,0],12],[[3,1,0],11],[[2,2,0],10],[[1,3,0],9],[[0,4,0],8],[[3,0,1],10],[[2,1,1],9],[[1,2,1],8],[[0,3,1],7],[[2,0,2],8],[[1,1,2],7],[[0,2,2],6],[[1,0,3],6],[[0,1,3],5],[[0,0,4],4],[[3,0,0],9],[[2,1,0],8],[[1,2,0],7],[[0,3,0],6],[[2,0,1],7],[[1,1,1],6],[[0,2,1],5],[[1,0,2],5],[[0,1,2],4],[[0,0,3],3],[[2,0,0],6],[[1,1,0],5],[[0,2,0],4],[[1,0,1],4],[[0,1,1],3],[[0,0,2],2],[[1,0,0],3],[[0,1,0],2],[[0,0,1],1],[[0,0,0],0]]]
+*/
+
+def pattern_weight(M,C) {
+    N = length(C);
+    if (!islist(PatternCache) || PatternCache[0] != N) {
+        for(P=[],I=0; I<=M; I++) {
+            Pat = pattern(I,N);
+            P = append(assoc(Pat,map(matrix_inner_product,Pat,C)),P);
+        }
+        PatternCache = [N,M,P];
+    }else if (PatternCache[1] < M) {
+        for(P=PatternCache[2],I=PatternCache[1]+1; I<=M; I++) {
+            Pat = pattern(I,N);
+            P = append(assoc(Pat,map(matrix_inner_product,Pat,C)),P);
+        }
+        PatternCache = [N,M,P];
+    }
+    print(PatternCache);
+    for(L=[], P=PatternCache[2]; P != []; P = cdr(P)) {
+        H = car(P);
+        if(H[1]==M) {
+            L=cons(H[0],L);
+        }
+    }
+    return L;
+}
+
+/* ベクトル V の全ての要素が整数ならば 1, それ以外で 0. */
+def all_integers(V) {
+    Len = length(V);
+    for(I=0; I<Len; I++) {
+        N = V[I];
+        if(!isnum_int(N)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+def order_by_weight(P,W,V) {
+    if (P==0) return "-infinity";
+    W = isvect(W)? W: ltov(W);
+    P = dp_ptol(P,V);
+    H = car(P)[1];
+    Min = matrix_inner_product(H,W);
+    for (P = cdr(P); P != []; P = cdr(P)) {
+        H = car(P)[1];
+        Cur = matrix_inner_product(H,W);
+        Min = MIN(Min,Cur);
+    }
+    return Min;
+}
+
+def terms_of_given_order(P,Order,W,V) {
+    Q = [];
+    for(P = dp_ptol(P,V); P != []; P = cdr(P)) {
+        H = car(P)[1];
+        I = matrix_inner_product(H,W);
+        if (I==Order) {
+            Q = cons(car(P),Q);
+        }
+    }
+    return Q;
+}
+
+/* from sr.rr */
+
+#define nodeToRoute(Node)  ((Node)[0])
+#define nodeToTerm(Node)   ((Node)[1])
+#define new_vector(V)      ((V)+newvect(length(V)))
+
+def gkz_series(GKZ,W,Deg) {
+    yang.define_gkz_ring(GKZ);
+    T=map(ltov,yang.gkz_distraction(GKZ|weight=W));
+    print(length(T));
+    print(T);
+    IAGr=toric_list(GKZ,W);
+    print(IAGr); /* debug */
+    N=length(T);
+    print("--")$
+    for(S=[],I=0;I<N;I++) {
+        TTx=make_terms(T[I],IAGr,Deg);
+        S=cons(terms_to_series(TTx),S);
+    }
+    return S;
+}
+
+def terms_to_series(Terms) {
+    H=Terms[0]; Terms=Terms[1];
+    for(S=[]; Terms!=[]; Terms=cdr(Terms)) {
+        for(Level=car(Terms); Level!=[]; Level=cdr(Level)) {
+            Node=car(Level);
+            S=cons(nodeToTerm(Node),S);
+        }
+    }
+    return [H,reverse(S)];
+}
+
+def bin_to_pair(Bin,V,W) {
+    DP = dp_ptod(Bin, V);
+    A = dp_etov(dp_ht(DP)); AC = dp_hc(DP); DP = dp_rest(DP);
+    B = dp_etov(dp_ht(DP)); BC = dp_hc(DP); DP = dp_rest(DP);
+    if (DP == 0) {
+        AW=matrix_inner_product(A,W);
+        BW=matrix_inner_product(B,W);
+        return (AW>BW)? [A,B]: [B,A];
+    }
+    return 0;
+}
+
+/* all U[I] >= 0 */
+def coef_deriv(M,U) {
+    N = length(M);
+    for(A=1,I=0; I<N; I++) {
+        for(J=U[I],K=M[I]; J>0; J--,K--) {
+            A *= K;
+        }
+    }
+    return A;
+}
+
+def toric_list(GKZ,W) {
+    IA = yang.compute_toric_kernel(GKZ);
+    N=length(GKZ[0][0]);
+    for(V=[],L=IA[1];N>0;N--,L=cdr(L)) {
+        V=cons(car(L),V);
+    }
+    V=reverse(V);
+    Gr=dp_gr_main(IA[0]|v=V,order=[W]);
+    return map(bin_to_pair,Gr,V,W);
+}
+
+/*
+Input: Start,IAGr,W
+  Start: vector
+  IAGr: a list of pairs of vector.
+  W: weight vector
+*/
+def make_terms(Start,IAGr,Depth) {
+/** Local:
+    N := length of IAGr
+    S := [NodeList, NodeList, NodeList, ...]
+    NodeList := [Node, Node, ... ]
+    Node  := (vector)[Leaf, Term]
+    Tree  := [LeafList, LeafList, LeafList, ...]
+    LeafList := [Leaf, Leaf, ... ]
+    Leaf  := (N-dim. vector)
+ **/
+    N=length(IAGr);
+    M=length(car(IAGr)[0]);
+    Tree=make_tree(Depth,N);
+    S=[Prev=[[ltov(car(car(Tree))),[1,newvect(M)]]]];
+    for(Tree=cdr(Tree); Tree!=[]; Tree=cdr(Tree)) {
+        Cur=[];
+        for(C=car(Tree); C!=[]; C=cdr(C)) {
+            Leaf=ltov(car(C));
+            CC=search_parent(Leaf,Prev,N);
+            Term=determine_term(CC[0],Start,IAGr[CC[1]]);
+            Cur=cons([Leaf,Term],Cur);
+        }
+        S=cons(Prev=reverse(Cur),S);
+    }
+    return [Start,reverse(S)];
+}
+
+def search_parent(Leaf,Prev,N) {
+    for(I=0; I<N && Leaf[I]==0; I++) {
+    }
+    Parent=new_vector(Leaf); Parent[I]--;
+    for(; Prev !=[]; Prev=cdr(Prev)) {
+        C = car(Prev);
+        if (nodeToRoute(C)==Parent) {
+            return [nodeToTerm(C),I];
+        }
+    }
+}
+
+/* determine Coef as Coef (D^{UP} . X^{NU+M+(UP-UM)}) = (D^{UM} . X^{NU+M}) */
+def determine_term(P,NU,UL) {
+    C = P[0]; M = P[1];
+    UP = UL[0]; UM = UL[1];
+    L = M+UP-UM;
+    if (C==0) return [0,L];
+    A = coef_deriv(NU+L, UP);
+    B = coef_deriv(NU+M, UM);
+    return [(B*C)/A, L];
+}
+
+def make_tree(Depth,Dim) {
+    Tree = [];
+    for(I=0; I<=Depth; I++) {
+        Tree = cons(yang.pattern(I,Dim),Tree);
+    }
+    return reverse(Tree);
+}
+
+def series_to_sym(S) {
+    H=S[0]; N=length(H);
+    V=list_indefinite("x",1,N);
+    H=dp_dtop(dp_vtoe(H),V);
+    for(S=S[1],L=[]; S!=[]; S=cdr(S)) {
+        T=car(S);
+        L=cons([T[0],dp_dtop(dp_vtoe(T[1]),V)],L);
+    }
+    return [H,reverse(L)];
+}
+
+def s2poly(S) {
+    S=series_to_sym(S);
+    H=S[0]; T=0;
+    for(S=S[1]; S!=[]; S=cdr(S)){
+        Term=car(S);
+        T+=Term[0]*Term[1];
+    }
+    return H*T;
+}
+
+def const_part(F) {
+    return base_replace(F,assoc(Ring->op,[0]));
+}
+
+def action(G,Func) {
+    return const_part(mul(G,Func));
+}
+
+def commutator(P,Q) {
+    return mul(P,Q)-mul(Q,P);
+}
+
+def weyl_adjoint(F) {
+    Dn=dn(F); F=nm(F);
+    DF=op(F);
+    for(Ad=0; DF!=0; DF=dp_rest(DF)) {
+        Sign=irem(dp_td(DF),2)==0? 1: -1;
+        Ad+=Sign*yang.multi(dp_ht(DF),dp_hc(DF));
+    }
+    return red(mul(opr(Ad),1/Dn));
+}
+
+def coefs(F) {
+    Dn=1;
+    F=yang.op(F);
+    if(type(F)==type([])) {
+        Dn=F[1];
+        F=F[0];
+    }
+    for(L=[]; F!=0; F=dp_rest(F)) {
+        L=cons(red(dp_hc(F)/Dn),L);
+    }
+    return reverse(L);
+}
+
+endmodule;
+
+end$
