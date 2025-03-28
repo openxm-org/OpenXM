@@ -1,72 +1,86 @@
-Debian etch (32bit, legacy, orange)  $B$G@8@.$9$k;~$O(B, debian/control $B$+$i(B java $B4XO"$N(B
-build depend $B$r0l;~:o=|$9$k(B. 
-fe:MathLibre-i386 $B$X(B copy $B$5$l$k(B.  OpenXM/bin/use-asir-mode.sh $B$b$"$j(B.
+Debian etch (32bit, legacy, orange)  で生成する時は, debian/control から java 関連の
+build depend を一時削除する. 
+fe:MathLibre-i386 へ copy される.  OpenXM/bin/use-asir-mode.sh もあり.
 2016.06.01
 ;;
-Todo: Makefile-fix,  cf. misc-2005/A2/knoppix-2006/Makefile-asir,  .TeXmacs $B4XO"(B.
+Todo: Makefile-fix,  cf. misc-2005/A2/knoppix-2006/Makefile-asir,  .TeXmacs 関連.
 
-$BCm0U(B: debian/openxm.postrm $B$G$O(B, $B$b$H$b$H$N(B openxm*.deb $B$G%$%s%9%H!<%k$5$l$?0J30$N$b$N$r>C$9(B. OpenXM/bin $B$,99?7$5$l$?$iCm0U(B.
-     (bin/oxfetch.sh $B0J30(B)  cf. /var/lib/dpkg/info/openxm.*
+注意: debian/openxm.postrm では, もともとの openxm*.deb でインストールされた以外のものを消す. OpenXM/bin が更新されたら注意.
+     (bin/oxfetch.sh 以外)  cf. /var/lib/dpkg/info/openxm.*
  
-Q. $B%Q%C%1!<%8$r?7$7$/$7$?$$(B.
-A.  orange (32bit, etch),  orange3m (64bit) $B$G:n6H(B. (orange3c $B$G$O(B asir $B$N(B shared library $B$^$o$j$GJQ$K$J$k(B. ldd $B$NCM$,JQ(B. 2016.02.12)
-    $B8E$$(B version $B$G:n@.$7$?J}$,$h$j$*$*$$%^%7%s$G;H$($k(B.
-   0.  [MathLibre $B$G$O(B java-package java-common, openjdk-11-jdk 2016.02.12->2020.02.19
-        (apt-get install sun-java5-jdk (unstable) $B$r$7$F$*$/(B --> jessie $B$K$O$J$$(B. )
-        dpkg-dev, debhelper, fakeroot, texi2html, freeglut3-dev $B$bI,MW(B. 
-        dpkg  --list | grep freeglut3 $BEy$GD4$Y$k(B.
-        nkf, texinfo $BEy$O(B knoppix/math $B$J$i(BOK $B$@$,G0$N$?$a3NG'(B.
+Q. パッケージを新しくしたい.
+A.  orange (32bit, etch),  orange3m (64bit) で作業. (orange3c では asir の shared library まわりで変になる. ldd の値が変. 2016.02.12)
+    古い version で作成した方がよりおおいマシンで使える.
+   0.  [MathLibre では java-package java-common, openjdk-11-jdk 2016.02.12->2020.02.19
+        (apt-get install sun-java5-jdk (unstable) をしておく --> jessie にはない. )
+        dpkg-dev, debhelper, fakeroot, texi2html, freeglut3-dev も必要. 
+        dpkg  --list | grep freeglut3 等で調べる.
+        nkf, texinfo 等は knoppix/math ならOK だが念のため確認.
                dpkg --list | grep texinfo
-        dvipdfmx $B$,$&$^$/$&$4$/$3$H(B. xpdf-japanese (xpdf-reader) --> evince $B$X(B.
+        dvipdfmx がうまくうごくこと. xpdf-japanese (xpdf-reader) --> evince へ.
        ]
-       [OpenXM/rc/webasir $B$r;H$&$J$i(B pstoimg $B$,I,MW(B. 
-        apt-get install latex2html (non-free). latex2html $B$,2u$l$F$$$?$i(B, $BL>A0$rJQ$($F$7$^$&(B. jarticle-->article $B$GF0$/$O$:(B ]
-       [knoppix/math: gpg --key-gen $B$G(B .gnupg $B$K(B changelog $B$KBP1~$9$k(B 
-                      e-mail address $B$N80$r:n@.$7$F$*$/(B. 
-         ~/.gnupg $B$r(B orange2 $BEy$+$i%3%T!<$7$F$*$/(B.
+       [OpenXM/rc/webasir を使うなら pstoimg が必要. 
+        apt-get install latex2html (non-free). latex2html が壊れていたら, 名前を変えてしまう. jarticle-->article で動くはず ]
+       [knoppix/math: gpg --key-gen で .gnupg に changelog に対応する 
+                      e-mail address の鍵を作成しておく. 
+         ~/.gnupg を orange2 等からコピーしておく.
        ]
        << Etch: waiting for lock on .... random_seed ==> dpkg-buildpackage -uc -us (add option of no signature) 
-       $BKt$O(B export GNUPGHOME=nfs $B$G$J$$(B directory $B$N(B .gnupg $B$7$F(B,
-       debian@math.kobe-u.ac.jp $B$G%5%$%s(B. -uc -us $B$O$H$k(B.>>
+       又は export GNUPGHOME=nfs でない directory の .gnupg して,
+       debian@math.kobe-u.ac.jp でサイン. -uc -us はとる.>>
  
-   1. $B$9$Y$F$N:n6H$O(B 
-       source ./dot.bashrc      (./$B$rIU$1$k$N$r$o$9$l$J$$$3$H(B)
-      $B$r$7$F$+$i(B. ($B0lIt9b;3MQ(B)
-      [ 2016.02.12  /usr/lib $B$b(B LD_LIBRARY_PATH $B$X2C$($F$*$+$J$$$H$&$^$/9T$+$J$$(B.
-         ldd asir ($BM}M3$OITL@(B). dot.bashrc $BJQ99:Q(B. ]
-      export GNUPGHOME=/private/taka/.gnupg $BEy$bK:$l$:$K(B.
+   1. すべての作業は 
+       source ./dot.bashrc      (./を付けるのをわすれないこと)
+      をしてから. (一部高山用)
+      [ 2016.02.12  /usr/lib も LD_LIBRARY_PATH へ加えておかないとうまく行かない.
+         ldd asir (理由は不明). dot.bashrc 変更済. ]
+      export GNUPGHOME=/private/taka/.gnupg 等も忘れずに.
       cvs-passwd/gpg-debian.txt.asc
-      export LC_ALL=C   $B$,(B sign $B$KI,MW(B. (2020.02.19)
-      $B8E$$(B package $B$O(B Old $B$X0\F0$7$F$*$/$3$H(B. $BJQ$J%U%!%$%k$K%5%$%s$5$l$k(B. 2020.02.19
+      export LC_ALL=C   が sign に必要. (2020.02.19)
+      古い package は Old へ移動しておくこと. 変なファイルにサインされる. 2020.02.19
 
-   2. debian/changelog $B$r=$@5(B.  date $B$O(B rfc822 format $B$r<i$k;v(B.
-        ( dpkg-parsechangelog  $B$G(B check.
-          $B=pL>$9$k$K$O(B, mail address $B$r(B gnupg $B$N$b$N$HF10l$K(B.  cvs-passwd/gpg-debian.txt.asc )
-     debian/files $B$O>C$9(B?
-   3. Makefile $B$N(B VERSION $B$rJQ99(B. $B%3%a%s%H$K$"$kB>$N%U%!%$%k$N(B VERSION $B$bJQ99(B.
-         make update-version $B$r;H$&$H$$$$$+$b(B.
-      major version up $B$G$O(B debian/control $B$b(B.
+   2. debian/changelog を修正.  date は rfc822 format を守る事.
+        ( dpkg-parsechangelog  で check.
+          署名するには, mail address を gnupg のものと同一に.  cvs-passwd/gpg-debian.txt.asc )
+     debian/files は消す?
+   3. Makefile の VERSION を変更. コメントにある他のファイルの VERSION も変更.
+         make update-version を使うといいかも.
+      major version up では debian/control も.
    4. make clean
    5. make
      [knoppix/math:  make USER=taka ]
-     << tar: file changed as we read it. 1.17 $B$h$j%(%i!<%3!<%I$rLa$9(B. dpkg-deb
-        make $B$r$b$&0lEY$d$k$H(B, $B$3$N%(%i!<$,$G$J$/$J$k(B. $B2<$N(BR$B;2>H(B. >>
-    (orange $B$G$O(B openjdk-7-jdk --> sun-java5-jdk, libtinfo-dev $B$J$N$G(B
-     debian/control $B$r=q$-D>$7$F(B, commit $B$;$:(B, build $B$,=*$o$C$?$i(B rcvs update $B$G85$XLa$9(B)
+     << tar: file changed as we read it. 1.17 よりエラーコードを戻す. dpkg-deb
+        make をもう一度やると, このエラーがでなくなる. 下のR参照. >>
+    (orange では openjdk-7-jdk --> sun-java5-jdk, libtinfo-dev なので
+     debian/control を書き直して, commit せず, build が終わったら rcvs update で元へ戻す)
    6. make copy-tar-ball-and-asir
      [knoppix/math:  make USER=taka copy-tar-ball-and-asir]
-   (7. orange2 $B$G(B /root/bin/mirror-pub
-       http://fe.math.kobe-u.ac.jp/KnoppixMath $B$N8E$$(B deb $B$r(B Attic $B$X(B.
-       KnoppixMath $B$G(B Update-apt.sh (http://fe.math.kobe-u.ac.jp/KnoppixMath)
+   (7. orange2 で /root/bin/mirror-pub
+       http://fe.math.kobe-u.ac.jp/KnoppixMath の古い deb を Attic へ.
+       KnoppixMath で Update-apt.sh (http://fe.math.kobe-u.ac.jp/KnoppixMath)
    )
 
-   8. www.math.kobe-u.ac.jp/deb2 debian repository$B$X$N(B upload $BJ}K!$O(B misc-2019/A2/debian/inst-dinstall.txt
-     $B$r;2>H(B.
-R. make $B$N:G8e$G(B,  Debian2 $B$,JQ99$5$l$?$H$+$$$C$F%(%i!<$,$G$?$i(B, $B$b$&0lEY(B
-   make $B$9$l$PNI$$(B.
-   (or  ./deb package  ../deb package $B$r(B rm $B$7$F:FEY(B make.)
+   8. www.math.kobe-u.ac.jp/deb2 debian repositoryへの upload 方法は misc-2019/A2/debian/inst-dinstall.txt
+     を参照.
+  
+  以下上記ファイルの要約と注意.
+  注意1: orange2:/home/web/deb2/unstable の古い版は手動で消えるので fe:/usr/local/www/data/MathLibre-amd64-20?? に deb package などを backup しておく.
+  注意 2: 1.3.3-10 の場合の例.
+  ../Debian2 に openxm_1.3.3-10* が作られる. 特にソースの tar.gzがあるか確認.  
+  ● Repository への upload 法.
+   orange3m$ dput -c ~/.dput.cf orange3m openxm_1.3.3-10_amd64.changes 
+ しないといけない. これではじめて imcomming に copy される.
+  そのあと 
+    ssh mathlibre@orange3m 
+    mini-dinstall -b 
+    (電子署名パスワードは cvs-passwd/mathlibre.txt.asc を参照)
 
-   FTBFS package $B$K$J$k$h(B. $B$O$H$j$"$($:L5;k(B. 2016.02.12
+----------------------------
+R. make の最後で,  Debian2 が変更されたとかいってエラーがでたら, もう一度
+   make すれば良い.
+   (or  ./deb package  ../deb package を rm して再度 make.)
+
+   FTBFS package になるよ. はとりあえず無視. 2016.02.12
    (Fails to Build From Source)
  or
   dpkg-buildpackage: info: full upload; Debian-native package (full source is included)
@@ -76,160 +90,160 @@ R. make $B$N:G8e$G(B,  Debian2 $B$,JQ99$5$l$?$H$+$$$C$F%(%i!<$,$G$?$i(B, $B
 
   dpkg-buildpackage: error: failed to sign .dsc file
   make: *** [Makefile:21: build-package] Error 25
-  $B$H%(%i!<$,=P$?>l9g$O(B (2020.02.19)
+  とエラーが出た場合は (2020.02.19)
   
   cd .. ; debsign -k debian@math.kobe-u.ac.jp openxm*.changes
-  $B$G(B signature $B$r2C$($k(B.
+  で signature を加える.
  or [2020.02.25]
-  1.3.3-3 $B$N@8@.Cf$K(B 1.3.3-2 $B$N(B buildinfo $B$rMW5a$5$l$?$H$-$O(B, $B$3$l$r(B .. $B$K$*$$$F$*$/(B.  --> 2021.07.27  debian/files $B$rJT=8(B. $B$3$3$K$3$N%U%!%$%kL>$,$"$k(B.
+  1.3.3-3 の生成中に 1.3.3-2 の buildinfo を要求されたときは, これを .. においておく.  --> 2021.07.27  debian/files を編集. ここにこのファイル名がある.
 
   dpkg-genchanges  >../openxm_1.3.3-3_amd64.changes
 dpkg-genchanges: error: cannot fstat file ../openxm_1.3.3-2_amd64.buildinfo: No such file or directory
 dpkg-buildpackage: error: dpkg-genchanges subprocess returned exit status 255
 
 
-Q. signfile openxm_1.3.3-2.dsc  $B$G(B sign $B$,$G$-$J$$$H%(%i!<(B 2020.02.19
-A. export LC_ALL=C $B$H$7$F$*$/$H2?8N$+(B OK.
+Q. signfile openxm_1.3.3-2.dsc  で sign ができないとエラー 2020.02.19
+A. export LC_ALL=C としておくと何故か OK.
 
-Q. $B3F%9%F%C%W$G$O2?$r$d$C$F$$$^$9$+(B? $BCm0U;v9`$O(B?
+Q. 各ステップでは何をやっていますか? 注意事項は?
 A. 
    1. source dot.bashrc 
-   2. debian/changelog $B$r=$@5(B.  date $B$O(B rfc822 format $B$r<i$k;v(B.
-   3. Makefile $B$N(B VERSION $B$rJQ99(B. $B%3%a%s%H$K$"$kB>$N%U%!%$%k$N(B VERSION $B$bJQ99(B.
-         VERSION $B$O(B OpenXM/download/version.txt $B$H$7$F%3%T!<$5$l$k(B.
-         $BJ8Kv$N6uGrEy2C$($J$$$h$&$K(B.
-         version $B$O(B $B%@%&%s%m!<%I$9$k%U%!%$%kL>$KH?1G$5$l$k(B.
+   2. debian/changelog を修正.  date は rfc822 format を守る事.
+   3. Makefile の VERSION を変更. コメントにある他のファイルの VERSION も変更.
+         VERSION は OpenXM/download/version.txt としてコピーされる.
+         文末の空白等加えないように.
+         version は ダウンロードするファイル名に反映される.
    4. make clean
    5. make
         fetch : work/OpenXM, work/OpenXM_contrib2
-        build: work/OpenXM $B$GI8=`E*$J(B OpenXM $B$r(B make install
-        build-knoppix: OpenXM/bin/asir $B$,(B /home/knoppix/.asir-tmp/asir $B$X$N(B symbolic link $B$K(B.
-                    OpenXM/lib/asir/FLL $B$N%i%$%V%i%j$b(B.
-                    asir-port.sh, asir-install.sh $B$r%$%s%9%H!<%k(B.
-                    tar $B$r:n@.(B. md5 $B$r(B work/OpenXM/lib/asir $B$X(B.
+        build: work/OpenXM で標準的な OpenXM を make install
+        build-knoppix: OpenXM/bin/asir が /home/knoppix/.asir-tmp/asir への symbolic link に.
+                    OpenXM/lib/asir/FLL のライブラリも.
+                    asir-port.sh, asir-install.sh をインストール.
+                    tar を作成. md5 を work/OpenXM/lib/asir へ.
         make-tar-ball-2: 
-            work/OpenXM $B$r(B tar ball $B$K(B.
-            tar $B$9$k(B directory $B$O(B Makefile $B$r$_$h(B.
-            exclude-files.txt $B$K=|$/%U%!%$%k$,(B.
-            md5 $B$r(B OpenXM/download $B$X(B.
-        build: deb $B$r@8@.(B.
-            $B$3$N%W%m%;%9$O(B, OpenXM/download/*.md5 $B$,M?$($l$F$$$l$PB>$H$OFHN)(B. 
+            work/OpenXM を tar ball に.
+            tar する directory は Makefile をみよ.
+            exclude-files.txt に除くファイルが.
+            md5 を OpenXM/download へ.
+        build: deb を生成.
+            このプロセスは, OpenXM/download/*.md5 が与えれていれば他とは独立. 
    6. make copy-tar-ball-and-asir
 
             openxm*.deb,
-            openxm-binary*.tar.gz  ($BK\BN(B)
+            openxm-binary*.tar.gz  (本体)
             asir*
-     $B$r(B ftp $B%5!<%P$X%3%T!<$9$k(B.
+     を ftp サーバへコピーする.
 
-   (7. orange2 $B$G(B /root/bin/mirror.ftp)
+   (7. orange2 で /root/bin/mirror.ftp)
  
 
-Q. openxm-binary*.tar.gz $B$r%$%s%9%H!<%k$9$k;EAH$_$O(B?
+Q. openxm-binary*.tar.gz をインストールする仕組みは?
 A. OpenXM/download/openxm-install.sh (OpenXM/bin/opennxm-install.sh)
-   $B$,(B oxfetch.sh $B$G(B openxm-binary*.tar.gz  $B$r%M%C%H%o!<%/%$%s%9%H!<%k$7$^$9(B.
-   $HOME/OpenXM_tmp (/root/OpenXM_tmp ) $B$K(B openxm-binary*tar.gz $B$,0l;~$*$+$l$^$9(B.
-   $B$3$N%9%/%j%W%H$O(B,  Debian/openxm.postinst $B$h$j5/F0$5$l$F$$$^$9(B.
+   が oxfetch.sh で openxm-binary*.tar.gz  をネットワークインストールします.
+   $HOME/OpenXM_tmp (/root/OpenXM_tmp ) に openxm-binary*tar.gz が一時おかれます.
+   このスクリプトは,  Debian/openxm.postinst より起動されています.
 
-Q. OpenXM $BItJ,$N=$@5$N$_$,$"$j$^$9(B.
+Q. OpenXM 部分の修正のみがあります.
 A. 
    rm -f .fetch_done
-   work/OpenXM $B0J2<$r=$@5(B.  ($BI,MW$,$"$l$P(B kerberos $B$X(B commit)
+   work/OpenXM 以下を修正.  (必要があれば kerberos へ commit)
    make
    make copy-tar-ball-and-asir
    
-   md5 $B$rL5;k$9$k>l9g$O(B openxm*deb $B$N=$@5$OITMW(B.
+   md5 を無視する場合は openxm*deb の修正は不要.
 
-   openxm*deb $B$O(B oxfetch.sh, openxm-install.sh ($B$H(B  OpenXM/download/*md5 )
-  $B$N=$@5$N;~$N$_=$@5(B.
+   openxm*deb は oxfetch.sh, openxm-install.sh (と  OpenXM/download/*md5 )
+  の修正の時のみ修正.
 
-Q. openxm*deb $B$N$_=$@5$7$?$$(B.
+Q. openxm*deb のみ修正したい.
 A. make build-deb
 
 
-Q. $B%Q%C%1!<%8$N%F%9%H(B.  
-  ($B3+H/<T$N4D6-$G$O(B orange. source dot.bashrc $B$7$F$+$i(B export OpenXM_HOME= )
+Q. パッケージのテスト.  
+  (開発者の環境では orange. source dot.bashrc してから export OpenXM_HOME= )
 A. 
-  $B%$%s%9%H!<%k(B.
-   ln -s $B=q$-9~$a$k>l=j(B  /home/knoppix/.asir-tmp
+  インストール.
+   ln -s 書き込める場所  /home/knoppix/.asir-tmp
    rm -rf /home/knoppix/.asir-tmp/*
    sudo dpkg --install openxm*.deb
 
-  $B<B9T(B.
+  実行.
    openxm asir-port.sh
 
-  $B:o=|(B.
+  削除.
    sudo dpkg --purge openxm
 
 
- $B$J$*(B package $B$N%$%s%9%H!<%k$G;O$a$N<ALd$K(B no $B$HEz$($?>l9g(B,
- openxm-binary*.tar.gz $B$,%$%s%9%H!<%k$5$l$^$;$s(B. 
- $B%$%s%9%H!<%k$9$k$K$O(B,
+ なお package のインストールで始めの質問に no と答えた場合,
+ openxm-binary*.tar.gz がインストールされません. 
+ インストールするには,
     sudo update-menus
     sudo OpenXM_HOME=/usr/local/OpenXM /usr/local/OpenXM/download/openxm-install.sh
     sudo OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh
 
-Q. kde $B$N(B menu $B$r(B /usr/lib/menu/openxm-binary $B$+$i(B /usr/lib/menu/openxm $B$KJQ99$7$?$$(B.
+Q. kde の menu を /usr/lib/menu/openxm-binary から /usr/lib/menu/openxm に変更したい.
 A. 
-   work/OpenXM $B0J2<$K$O$9$G$K(B package build $B$r$7$?%3%s%Q%$%k:Q$_$N%=!<%9$,E83+$5$l$F$$$k$H2>Dj(B.
+   work/OpenXM 以下にはすでに package build をしたコンパイル済みのソースが展開されていると仮定.
 
-  OpenXM/rc/kde/openxm-binary-knoppix $B$r(B debian/rules $B$N(B install $B%?!<%2%C%H$G(B deb $B%Q%C%1!<%8$K(B
-  $B%3%T!<$7$F$$$k(B.
-  work/OpenXM/rc/kde/openxm-knoppix $B$r2C$($F(B. cvs $B$G(Badd.
+  OpenXM/rc/kde/openxm-binary-knoppix を debian/rules の install ターゲットで deb パッケージに
+  コピーしている.
+  work/OpenXM/rc/kde/openxm-knoppix を加えて. cvs でadd.
 
  (1) debian/changelog, Makefile, OpenXM/deoanload/Makefile work/OpenXM/src/asir-port/Makefile
-     $B$N(B minior version $B$r>e$2$k(B.
- (2) debian/rules $B$G(B openxm $B$r(B /usr/lib/menu $B$X%3%T!<$9$k$h$&$K@_DjJQ99(B.
- (3) Binary file $B$d%$%s%9%H!<%k$5$l$k%i%$%V%i%j$K$OJQ99$J$$$N$G(B, Full build $B$OI,MW$J$$(B.
-     Knoppix $BFH<+$NJQ99$J$N$G(B, 
+     の minior version を上げる.
+ (2) debian/rules で openxm を /usr/lib/menu へコピーするように設定変更.
+ (3) Binary file やインストールされるライブラリには変更ないので, Full build は必要ない.
+     Knoppix 独自の変更なので, 
 
      rm .build-knoppix_done .make-tar-ball*done
 
-     make  $B$G(B OK.
+     make  で OK.
 
- (4) make copy-tar-ball-and-asir   (orange2 $B$G(B /root/bin/mirror.ftp)
+ (4) make copy-tar-ball-and-asir   (orange2 で /root/bin/mirror.ftp)
 
- $B$"$H$O%F%9%H(B. $B$&$^$/$$$+$J$$$H$-$O(B, $B=$@5$N$"$H(B (3) $B$K$b$I$C$F7+$jJV$9(B.
+ あとはテスト. うまくいかないときは, 修正のあと (3) にもどって繰り返す.
 
- (5) $B$3$N(B directory $B$G(B commit
-     cd work/OpenXM $B$GI,MW$J$b$N$r(B commit.  
+ (5) この directory で commit
+     cd work/OpenXM で必要なものを commit.  
 
- (*) OpenXM/download/version.txt $B$O(B work/OpenXM/src/asir-port $B$N(B Makefile $B$G@8@.$5$l$k(B.
+ (*) OpenXM/download/version.txt は work/OpenXM/src/asir-port の Makefile で生成される.
 
-Q. deb file $B$KF~$C$F$k$b$N$r$H$j$@$7$?$$(B.  deb $B2rE`(B
+Q. deb file に入ってるものをとりだしたい.  deb 解凍
 A. 
    dpkg-deb --extract xxxyyy.deb  tmp-any
    dpkg-deb --control xxxyyy.deb
 
-Q. rm -f .build* .make* ; make $B$G(B asir $B$r(B work/OpenXM/bin $B$X%3%T!<$9$k$H$3$m$G(B,
-  $B%(%i!<$r$*$3$7$^$9(B. [2006-02-11]
-A. work/OpenXM/bin/asir $B$,(B /home/knoppix/.asir-tmp $B$X$N%j%s%/$H$J$C$F$k$N$,860x$G(B
-   $B$7$g$&(B.
-   $B$^$:(B
+Q. rm -f .build* .make* ; make で asir を work/OpenXM/bin へコピーするところで,
+  エラーをおこします. [2006-02-11]
+A. work/OpenXM/bin/asir が /home/knoppix/.asir-tmp へのリンクとなってるのが原因で
+   しょう.
+   まず
    (cd work/OpenXM/asir/asir-port ; make uninstall-for-knoppix)
-   $B$r$7$F2<$5$$(B.
+   をして下さい.
 
-Q.  work/OpenXM/src/asir-contrib/packages/doc $B$r99?7$7$^$7$?(B.
-A.  $B$^$:(B rm work/OpenXM/asir/asir-contrib/packages/doc/.*done $B$7$F$+$i(B make $B$7$F2<$5$$(B.
+Q.  work/OpenXM/src/asir-contrib/packages/doc を更新しました.
+A.  まず rm work/OpenXM/asir/asir-contrib/packages/doc/.*done してから make して下さい.
 
 
-Q. work/OpenXM/src/asir-doc/extract_func.c $B$,99?7$5$l$?(B.
-   work/OpenXM_contrib2/asir2000/ $B$,99?7$5$l$?(B.
+Q. work/OpenXM/src/asir-doc/extract_func.c が更新された.
+   work/OpenXM_contrib2/asir2000/ が更新された.
 A. rm .build*done .make*done
    (cd work/OpenXM/src/asir2000 ; rm .make*done .install*done)
    (cd work/OpenXM/src/asir-contrib/packages/doc ; rm .install*done)
    make 
    make copy-tar-ball-and-asir
-  # $B%F%9%H$O0J2<$N$h$&$K$7$F$b$G$-$k(B.
+  # テストは以下のようにしてもできる.
   #(cd work/OpenXM/src/asir-port ; make uninstall-for-knoppix)
-  #(cd work/OpenXM/rc ; make ; source dot.bashrc ; openxm asir $B$J$I(B)
+  #(cd work/OpenXM/rc ; make ; source dot.bashrc ; openxm asir など)
 
-Q. openxm asir-port.sh  --> $B%U%!%$%k$,$J$$$H$$$o$l$^$9(B.
-A. /usr/local/bin/openxm $B$,@5$7$/@8@.$5$l$F$$$J$$$+$i$G$"$m$&(B.
-  (cd work/OpenXM/rc ; make clean) $B$7$F$+$i(B, tar ball $B$r@8@.(B.
-  [ Makefile $B$b$=$N$h$&$K99?7$7$?(B. 
+Q. openxm asir-port.sh  --> ファイルがないといわれます.
+A. /usr/local/bin/openxm が正しく生成されていないからであろう.
+  (cd work/OpenXM/rc ; make clean) してから, tar ball を生成.
+  [ Makefile もそのように更新した. 
     rm .make*tar*done  ; make ; make copy-tar-ball-and-asir ]
 
-Q. asir $B$N%=!<%9%3!<%I$KJQ99$,$"$C$?(B.
+Q. asir のソースコードに変更があった.
 A. rm -f work/OpenXM/src/asir2000/.make_done
    (cd work; rcvs update OpenXM_contrib2/asir2000)
    rm -f .build*done  .make-tar*
@@ -237,18 +251,18 @@ A. rm -f work/OpenXM/src/asir2000/.make_done
    make copy-tar-ball-and-asir
 
 
-Q. openxm $B$N:o=|(B, $B99?7$,$&$^$/$$$-$^$;$s(B.
-A. license $B4XO"$GFC<l$J9=B$$N$?$a(B, apt-get upgrade $B$O$G$-$^$;$s(B.
+Q. openxm の削除, 更新がうまくいきません.
+A. license 関連で特殊な構造のため, apt-get upgrade はできません.
 
-   $B$^$:(B openxm package $B$r:o=|$7$^$9(B.
-   (a) sudo dpkg --remove openxm ($B$^$?$O(B sudo dpkg --purge openxm)
+   まず openxm package を削除します.
+   (a) sudo dpkg --remove openxm (または sudo dpkg --purge openxm)
    (b) sudo rm -rf ~/OpenXM_tmp  ~/.asir-tmp
 
-   $B$3$l$i$r$*$3$J$C$?$"$H$G$J$$$H(B, 
+   これらをおこなったあとでないと, 
    apt-get install openxm
-   $B$d(B 
+   や 
    dpkg --install  openxm*deb 
-   $B$O$&$^$/$$$-$^$;$s(B.
+   はうまくいきません.
 
 
    To update package, please do as follows.
@@ -261,35 +275,35 @@ A. license $B4XO"$GFC<l$J9=B$$N$?$a(B, apt-get upgrade $B$O$G$-$^$;$s(B.
    "apt-get update openxm" will not work, because of a special structure
    of the package due to a license restriction.
 
-Q. tar $B$,(B file changed as we read it. $B$H$$$&%(%i!<$r=PNO$7$F;_$^$j$^$9(B.
-A. $B$b$&0lEY(B make $B$7$F2<$5$$(B. ($BESCf$+$i$b$&0lEY;O$a$k$H$&$^$/$$$-$^$9(B.)
+Q. tar が file changed as we read it. というエラーを出力して止まります.
+A. もう一度 make して下さい. (途中からもう一度始めるとうまくいきます.)
 
-Q. emacs $B$NCf$G(B make $B$9$k$H$&$^$/$$$-$^$;$s(B.
-A. make fetch $B$N$_(B, $BIaDL$N(B shell $B$G$d$C$F2<$5$$(B.
+Q. emacs の中で make するとうまくいきません.
+A. make fetch のみ, 普通の shell でやって下さい.
 
 
-Q. Debian file $B$N2rE`(B.
+Q. Debian file の解凍.
 
 A. mkdir tmp  
    dpkg-deb -x  xxx.deb  tmp
 
-Q. Cache $B$N>C5n(B. Cache $B$N>uBVI=<((B
+Q. Cache の消去. Cache の状態表示
 A. rm /var/cache/apt/archives/xxx.deb
    apt-cache show openxm
    apt-cache showpg openxm
-   $B$J$I(B.
+   など.
 
-Q. *.deb $B$N@8@.$N(B debug  2019.02.19
-A. $B:#2s$O(B *.deb $B$KA4It$N%U%!%$%k$,4^$^$l$J$$%H%i%V%k$,(B.  fakeroot make -f Makefile-alien binary-arch $B$rMQ$$$F2r7h:v$rC5$7$?(B.
+Q. *.deb の生成の debug  2019.02.19
+A. 今回は *.deb に全部のファイルが含まれないトラブルが.  fakeroot make -f Makefile-alien binary-arch を用いて解決策を探した.
 
-   $B7k6I(B cp $B$G(B debian/tmp/usr $B$r6/0z$K(B debian/openxm $B$X%3%T!<(B.
+   結局 cp で debian/tmp/usr を強引に debian/openxm へコピー.
    fakeroot make -f debian/rules binary-arch 
-   $B$G:n@.%F%9%H(B.
-   dpkg -c ../*.deb  $B$GCf?H$,$"$k$+3NG'(B.
+   で作成テスト.
+   dpkg -c ../*.deb  で中身があるか確認.
 
-   gnupg $B$N(B $BHkL)80$O(B, $B$I$&$d$i0lHVL\$N$b$N$r7h$aBG$A$G;H$&$N$G(B, /private/taka/.gnupg $B$K$O(B
+   gnupg の 秘密鍵は, どうやら一番目のものを決め打ちで使うので, /private/taka/.gnupg には
    debian@math.kobe-u.ac.jp
-   $B$N80$7$+$*$+$J$$$3$H$K$7$?(B. 
+   の鍵しかおかないことにした. 
 
 $OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.35 2020/02/25 02:38:59 takayama Exp $
 
