@@ -68,13 +68,15 @@ A.  orange (32bit, etch),  orange3m (64bit) で作業. (orange3c では asir の
   注意1: orange2:/home/web/deb2/unstable の古い版は手動で消えるので fe:/usr/local/www/data/MathLibre-amd64-20?? に deb package などを backup しておく.
   注意 2: 1.3.3-10 の場合の例.
   ../Debian2 に openxm_1.3.3-10* が作られる. 特にソースの tar.gzがあるか確認.  
-  ● Repository への upload 法.
-   orange3m$ dput -c ~/.dput.cf orange3m openxm_1.3.3-10_amd64.changes 
+  ● Repository への upload 法. (Debian2 folder では実行しない)
+   orange3m:OpenXM/misc/packages/Linux$ dput -c ~/.dput.cf orange3m openxm_1.3.3-10_amd64.changes 
  しないといけない. これではじめて imcomming に copy される.
   そのあと 
     ssh mathlibre@orange3m 
     mini-dinstall -b 
     (電子署名パスワードは cvs-passwd/mathlibre.txt.asc を参照)
+
+   /home/web/deb2/unstable に upload したファイルあり.
 
 ----------------------------
 R. make の最後で,  Debian2 が変更されたとかいってエラーがでたら, もう一度
