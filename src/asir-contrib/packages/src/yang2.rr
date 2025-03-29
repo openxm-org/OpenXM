@@ -37,6 +37,7 @@ import("yang_lib.rr") $
 #define isList(A)    (islist(A)||isvect(A))
 #define NM(A)        (isList(A)? ((A)[0]): (A))
 #define DN(A)        (isList(A)? ((A)[1]): (1))
+#define DPM_HC(P)    (dp_hc(dpm_hc((P))))
 
 module yang;
 
@@ -44,27 +45,39 @@ localf version;
 localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
 localf op_type, op_diff, op_var, op_op, op_match, op_nomatch, op_i;
 localf op_register, op, opr; 
+localf m_op, m_opr;
 localf set_ring, new_ring;
 localf constant, operator_id, operator;
 localf modulo, modulo_list, left, right;
 localf verbose, quiet, message;
 localf spair_lcm, spair_compare, spair_sugar;
+localf m_spair_lcm, m_spair_compare, m_spair_sugar;
 localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
+localf euler_diff_dpm_list, euler_diff_dpm;
 localf partial_diff, partial_diff_list, partial_diff_dp_list, partial_diff_dp;
+localf partial_diff_dpm_list, partial_diff_dpm;
 localf operator_shift;
-localf act_theta_D, act_theta_DE, act_difference;
+localf act_op_D, act_op_DE, act_difference;
+localf act_m_op;
 localf mul, mulL;
+localf m_mul;
 localf multi, multi_D, multi_DE, multiL;
+localf m_multi;
 localf matmul;
 localf dp_coef_gcd, red1, red2, red3, red4, dp_dm, dp_nm, reducible;
+localf dpm_dm, dpm_nm, m_reducible;
 localf add_v, sub_v, multi_sv, addmul_sv;
 localf division, division_D, division_DE, reduction;
+localf m_division, m_reduction;
 localf spolynomial, spolynomial_D, spolynomial_DE;
+localf m_spolynomial;
 localf dp_revcmp, gr2rgr, buchberger; 
+localf m_gr2rgr, m_buchberger; 
 localf division_s, division_s_D, division_s_DE, reduction_s;
 localf spolynomial_s, spolynomial_s_DE;
 localf dp_revcmp_s, gr2rgr_s, buchberger_s;
-localf gr, nf, nf_l, criterionF, criterionM, initial_term, in, stdmon;
+localf gr, nf, nf_l, criterionF, criterionM, criterionFM, initial_term, in, stdmon;
+localf m_gr, m_criterionFM;
 localf dp_matrix_form, matrix_form;
 localf dp_ltom, ltom, pfaffian, check_pfaffian, pf, pf_i;
 localf check_frac_expansion_before, check_frac_expansion_after;
@@ -177,7 +190,7 @@ def parse_ringdef(RingDef) {
     }else {
         error("yang.define_ring(): invalid ring definition.");
     }
-	VSet=map(left, VSet);
+    VSet=map(left, VSet);
     Ring->v  = append(Ring->v, VSet);
     Ring->f  = append(Ring->f, F);
     Ring->d  = append(Ring->d, D);
@@ -325,6 +338,18 @@ def opr(P)
     }
 }
 
+def m_op(PL)
+"m_op([dx1*dx2,2*dx1-dx2]) => (1)*<<1,1:1>>+(2)*<<1,0:2>>-(1)*<<0,1:2>>"
+{
+    return dpm_ltod(vtol(PL),Ring->op);
+}
+
+def m_opr(P)
+"m_opr((1)*<<1,1:1>>+(2)*<<1,0:2>>-(1)*<<0,1:2>>) => [dx1*dx2,-dx2+2*dx1]"
+{
+    return dpm_dtol(P,Ring->op);
+}
+
 /* 下位互換性のため */
 def constant(A) {
     return op(A);
@@ -374,14 +399,13 @@ def message(A) {
     }
 }
 
+/* yang2: yet */
 /* head term of S-polynomial pair */
 def spair_lcm(SP) {
-    P = SP[0];
-    Q = SP[1];
-    P=NM(P); Q=NM(Q);
-    return dp_lcm(P,Q);
+    return dp_lcm(SP[0],SP[1]);
 }
 
+/* yang2: yet */
 /* comparison of S-pair. (昇順) */
 def spair_compare(P, Q) {
     if (P[2]!=Q[2]) {
@@ -395,10 +419,38 @@ def spair_compare(P, Q) {
     return 0;
 }
 
+/* yang2: yet */
 /* sugar of S-pair. */
 def spair_sugar(P,Q) {
-    P=NM(P);
-    Q=NM(Q);
+    S1 = dp_sugar(P)*dp_td(Q);
+    S2 = dp_sugar(Q)*dp_td(P);
+    return (S1>S2)? S1: S2;
+}
+
+/* yang2: yet */
+/* head term of S-polynomial pair */
+def m_spair_lcm(SP) {
+    return dp_lcm(dpm_hc(SP[0]),dpm_hc(SP[1]));
+}
+
+/* yang2: yet */
+/* comparison of S-pair. (昇順) */
+def m_spair_compare(SP,SQ) {
+    if (SP[2]!=SQ[2]) {
+        return (SP[2]<SQ[2])? -1: 1;
+    }
+    TP = m_spair_lcm(SP);
+    TQ = m_spair_lcm(SQ);
+    if (TP != TQ) {
+        return (TP<TQ)? -1: 1;
+    }
+    return 0;
+}
+
+/* yang2: yet */
+/* sugar of S-pair. */
+def m_spair_sugar(P,Q) {
+	return 0;
     S1 = dp_sugar(P)*dp_td(Q);
     S2 = dp_sugar(Q)*dp_td(P);
     return (S1>S2)? S1: S2;
@@ -452,6 +504,26 @@ def partial_diff_dp(P, V, N) {
     return Q;
 }
 
+/* 加群分散表現多項式の係数を 0...N 回 偏微分したものの配列(長さN+1)を返す */
+def partial_diff_dpm_list(P, V, N) {
+    Q = newvect(N+1);
+    while(P!=0) {
+        Q += dpm_ht(P)*partial_diff_list(DPM_HC(P),V,N);
+        P  = dpm_rest(P);
+    }
+    return Q;
+}
+
+/* 加群分散表現多項式の係数を N回 偏微分する*/
+def partial_diff_dpm(P, V, N) {
+    Q=0;
+    while(P!=0) {
+        Q += partial_diff(DPM_HC(P),V,N)*dpm_ht(P);
+        P  = dpm_rest(P);
+    }
+    return Q;
+}
+
 /* yang2 */
 /* 再帰表現多項式を N回 オイラー微分する*/
 def euler_diff(P, V, N) {
@@ -500,8 +572,28 @@ def euler_diff_dp(P, V, N) {
     return Q;
 }
 
+/* 加群分散表現多項式の係数を 0...N 回 オイラー微分したものの配列(長さN+1)を返す */
+def euler_diff_dpm_list(P, V, N) {
+    Q = newvect(N+1);
+    while(P!=0) {
+        Q += dpm_ht(P)*euler_diff_list(DPM_HC(P),V,N);
+        P  = dpm_rest(P);
+    }
+    return Q;
+}
+
+/* 加群分散表現多項式の係数を N回 オイラー微分する*/
+def euler_diff_dpm(P, V, N) {
+    Q=0;
+    while(P!=0) {
+        Q += euler_diff(DPM_HC(P),V,N)*dpm_ht(P);
+        P  = dpm_rest(P);
+    }
+    return Q;
+}
+
 /* オイラー微分作用素(単項式) E と微分作用素 Q の積 */
-def act_theta_D(E,Q) {
+def act_op_D(E,Q) {
     E = dp_etov(E);
     N = length(E);
     T = newvect(N);
@@ -519,7 +611,7 @@ def act_theta_D(E,Q) {
 }
 
 /* 微分/差分作用素(単項式) E と微分/差分作用素 Q の積 */
-def act_theta_DE(E,Q) {
+def act_op_DE(E,Q) {
     E = dp_etov(E);
     N = length(E);
     T = newvect(N);
@@ -532,7 +624,7 @@ def act_theta_DE(E,Q) {
                 F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
             }
             Q=F;
-		}else if (op_type(I)==PARTIAL) { /* 偏微分 */
+        }else if (op_type(I)==PARTIAL) { /* 偏微分 */
             F=0;
             LC = partial_diff_dp_list(Q,op_var(I),E[I]);
             for (K=0; K<=E[I]; K++) {
@@ -555,10 +647,47 @@ def act_theta_DE(E,Q) {
 }
 
 /* yang2 */
+/* 作用素(単項式) E と加群作用素(多項式) Q の積 */
+def act_m_op(E,Q) {
+    E = dp_etov(E);
+    N = length(E);
+    T = newvect(N);
+    for (I=0; I<N; I++) {
+        if (op_type(I)==EULER) { /* オイラー微分 */
+            F=0;
+            LC = euler_diff_dpm_list(Q,op_var(I),E[I]);
+            for (K=0; K<=E[I]; K++) {
+                T[I]=K;
+                F += dp_vtoe(T)*linalg.binomial_coef(E[I],K)*LC[E[I]-K];
+            }
+            Q=F;
+        }else if (op_type(I)==PARTIAL) { /* 偏微分 */
+            F=0;
+            LC = partial_diff_dpm_list(Q,op_var(I),E[I]);
+            for (K=0; K<=E[I]; K++) {
+                T[I]=K;
+                F += dp_vtoe(T)*linalg.binomial_coef(E[I],K)*LC[E[I]-K];
+            }
+            Q=F;
+        }else if (op_type(I)==DIFFERENCE) { /* 差分 */
+            T[I]=E[I];
+            V = op_var(I); D = op_diff(I);
+            Q=dp_vtoe(T)*base_replace(Q,[[V,V+D*E[I]]]);
+        }else if (op_type(I)==Q_DIFFERENCE) { /* q-差分 */
+            T[I]=E[I];
+            V = op_var(I); D = op_diff(I);
+            Q=dp_vtoe(T)*base_replace(Q,[[V,V*D^E[I]]]);
+        }
+        T[I]=0;
+    }
+    return Q;
+}
+
+/* yang2 */
 /* DE の頭項の差分作用素のみを P に作用させる。*/
 def act_difference(DE,P) {
     DE = op_match(DE,DIFFERENCE);
-    return dp_hc(act_theta_DE(DE, P));
+    return dp_hc(act_op_DE(DE, P));
 }
 
 /* 作用素の積 x^(-E) P(theta) x^E == P(theta+E) を求める。
@@ -581,6 +710,9 @@ def operator_shift(P,E)
 /* yang2 */
 /* Leibniz rule: P,Q */
 def mul(P,Q) {
+	if(isList(Q)) { /* Q is an element of a module. */
+		return map(red,m_opr(m_multi(op(P),m_op(Q))));
+	}
     return red(opr(multi(op(nm(P)),op(Q)))/dn(P));
 }
 
@@ -594,6 +726,10 @@ def mulL(L) {
     return R;
 }
 
+def m_mul(P,Q) {
+    return map(red,m_opr(m_multi(op(P),m_op(Q))));
+}
+
 /* Leibniz rule: P,Q: 分散表現多項式 */
 def multi(P,Q) {
     return red(multi_DE(P,Q));
@@ -603,7 +739,7 @@ def multi_D(P,Q) {
     if (isdpoly(P)) {
         R=0;
         while(P!=0) {
-            R += dp_hc(P)*act_theta_D(dp_ht(P),Q);
+            R += dp_hc(P)*act_op_D(dp_ht(P),Q);
             P = dp_rest(P);
         }
     }else {
@@ -617,11 +753,21 @@ def multi_DE(P,Q) {
     if (isdpoly(P)) {
         R=0;
         while(P!=0) {
-            R += dp_hc(P)*act_theta_DE(dp_ht(P),Q);
+            R += dp_hc(P)*act_op_DE(dp_ht(P),Q);
             P = dp_rest(P);
         }
     }else {
         R=P*Q;
+    }
+    return R;
+}
+
+/* 作用素 P と加群作用素 Q の積 */
+def m_multi(P,Q) {
+    R=0;
+    while(P!=0) {
+        R += dp_hc(P)*act_m_op(dp_ht(P),Q);
+        P = dp_rest(P);
     }
     return R;
 }
@@ -722,7 +868,7 @@ def red3(DP) {
 
 /* 最高次の係数を 1 にする */
 def red4(DP) {
-	return red((1/dp_hc(DP))*DP);
+    return red((1/dp_hc(DP))*DP);
 }
 
 /* 分散表現多項式の係数の分母たちの lcm */
@@ -734,16 +880,37 @@ def dp_dm(P) {
     return C;
 }
 
+/* 加群分散表現多項式の係数の分母たちの lcm */
+def dpm_dm(P) {
+    C = dn(DPM_HC(P));
+    for(P = dpm_rest(P); P != 0; P = dpm_rest(P)) {
+        C = lcm(C, dn(DPM_HC(P)));
+    }
+    return C;
+}
+
 /* 分散表現多項式の係数を多項式にする */
 def dp_nm(P) {
-	P=red(P);
-	return red(dp_dm(P)*P);
+    P=red(P);
+    return red(dp_dm(P)*P);
+}
+
+/* 加群分散表現多項式の係数を多項式にする */
+def dpm_nm(P) {
+    P=red(P);
+    return red(dpm_dm(P)*P);
 }
 
 /* yang2 */
 /* LP が LQ で簡約可能ならば 1 を返す */
 def reducible(LP,LQ) {
     return dp_redble(LP,LQ);
+}
+
+/* yang2 */
+/* LP が LQ で簡約可能ならば 1 を返す */
+def m_reducible(LP,LQ) {
+    return dpm_redble(LP,LQ);
 }
 
 /* P mod Q を求める */
@@ -767,6 +934,17 @@ def division_DE(P,Q) {
         DQ = dp_subd(P,Q);
         PP = red(dp_hc(P)/act_difference(DQ,dp_hc(Q)));
         R  = red(P - PP*multi(DQ,Q));
+    }
+    return R;
+}
+
+/* yang2 */
+def m_division(P,Q) {
+	R=0;
+    if (dpm_redble(P,Q)) {
+        DQ = dp_subd(dpm_hc(P),dpm_hc(Q));
+        PP = red(DPM_HC(P)/act_difference(DQ,DPM_HC(Q)));
+        R  = red(P - PP*m_multi(DQ,Q));
     }
     return R;
 }
@@ -864,6 +1042,38 @@ def reduction(F,G)
     return Rem;
 }
 
+/* yang2 */
+/* 加群分散表現多項式 F を 集合 G で簡約する */
+def m_reduction(F,G)
+{
+    Rem = 0;
+    while (F != 0) {
+/*      message("."); */
+        for (U = 0, L = G; L != []; L = cdr(L)) {
+            Red = car(L);
+            if (m_reducible(F,Red)) {
+/*              message("("+rtostr(dp_mag(F[0]))+")");
+                if(dp_mag(F[0])>300000) {
+                    F = red1(F);
+                }
+*/
+                F = m_division(F,Red);
+                if (F == 0) {
+                    return Rem;
+                }
+                U = 1;
+                break;
+            }
+        }
+        if (U == 0) {
+            H   = dpm_hm(F);
+            F   = dpm_rest(F);
+            Rem = Rem + H;
+        }
+    }
+    return Rem;
+}
+
 /* 分散表現多項式 F を 集合 G で簡約する
    F = Rem + Q[0]*G[0] + ... Q[N-1]*G[N-1]
    Output: [Rem, Q]
@@ -899,12 +1109,12 @@ def reduction_s(F,G) {
 /* yang2 */
 /* V1,V2: vectors */
 def add_v(V1,V2) {
-	return V1+V2;
+    return V1+V2;
 }
 
 /* yang2 */
 def sub_v(V1,V2) {
-	return V1-V2;
+    return V1-V2;
 }
 
 /* S: scalar, V: vector */
@@ -927,35 +1137,23 @@ def addmul_sv(SL,VL) {
 }
 
 def spolynomial(P,Q) {
-    return spolynomial_DE(P,Q);
+	return spolynomial_DE(P,Q);
 }
 
 def spolynomial_D(P,Q)
 "Get S-porinomial of P and Q."
 {
-    P=NM(P);
-    Q=NM(Q);
-
     LCM= dp_lcm(P,Q);
     DP = dp_subd(LCM,dp_ht(P));
     DQ = dp_subd(LCM,dp_ht(Q));
     CP = dp_hc(P);
     CQ = dp_hc(Q);
-    GCD= gcd(CP,CQ);
 
-    SP = sdiv(CQ,GCD)*multi(DP,P)
-        -sdiv(CP,GCD)*multi(DQ,Q);
-    return red2(SP);
+    SP = CQ*multi_D(DP,P)-CP*multi_D(DQ,Q);
+    return red(SP);
 }
 
-/* 有理関数係数の微分/差分作用素の S 多項式を求める。
-   Remark:  P=(f/p)D^m, Q=(g/q)E^n のとき、S 多項式を
-   Sp(P,Q) := (g E^n p) P - ((E^n . f) D^m q) Q
-            = (g E^n f D^m ) - ((E^n . f) D^m g E^n )
-            = ((E^n . f ) g D^m E^n ) - ((E^n . f) D^m g E^n )
-   と定める。
-*/
-
+/* 有理関数係数の微分/差分作用素の S 多項式を求める。*/
 def spolynomial_DE(P,Q) {
     LCM= dp_lcm(P,Q);
     DP = dp_subd(LCM,dp_ht(P));
@@ -964,6 +1162,17 @@ def spolynomial_DE(P,Q) {
     CQ = act_difference(DQ,dp_hc(Q));
     SP = CQ*multi_DE(DP,P)-CP*multi_DE(DQ,Q);
     return red(SP);
+}
+
+/* yang2 */
+def m_spolynomial(P,Q) {
+    if(dpm_pos(P)!=dpm_pos(Q)) {
+        return 0;
+    }
+    L=dpm_sp(P,Q|coef=1);
+    SP=act_m_op(L[1],P)-act_m_op(L[2],Q);
+	return SP;
+//    return red(SP);
 }
 
 def spolynomial_s(P,Q) {
@@ -999,11 +1208,11 @@ def criterionF(I,J,G) {
     if (I>=J) {
         return 1;
     }
-    GJ = G[J]; GJ=NM(GJ);
-    GI = G[I]; GI=NM(GI);
+    GJ = G[J];
+    GI = G[I];
     TIJ = dp_lcm(GI,GJ);
     for(K=0;K<I;K++) {
-        GK = G[K]; GK=NM(GK);
+        GK = G[K];
         TKJ = dp_lcm(GK,GJ);
         if (TIJ == TKJ) {
             return 1;
@@ -1017,11 +1226,11 @@ def criterionM(I,J,G) {
     if (I>=J) {
         return 1;
     }
-    GJ = G[J]; GJ=NM(GJ);
-    GI = G[I]; GI=NM(GI);
+    GJ = G[J];
+    GI = G[I];
     TIJ = dp_lcm(GI,GJ);
     for(K=0;K<J;K++) {
-        GK = G[K]; GK=NM(GK);
+        GK = G[K];
         TKJ = dp_lcm(GK,GJ);
         if (dp_redble(TIJ,TKJ) && TIJ != TKJ) {
             return 1;
@@ -1030,16 +1239,72 @@ def criterionM(I,J,G) {
     return 0;
 }
 
+/* Gebauer-Moeller's Criterion F & M */
+def criterionFM(I,J,G) {
+    if (I>=J) {
+        return 1;
+    }
+    GJ = G[J];
+    GI = G[I];
+    TIJ = dp_lcm(GI,GJ);
+    for(K=0;K<I;K++) {
+        GK = G[K];
+        TKJ = dp_lcm(GK,GJ);
+        if (TIJ == TKJ || dp_redble(TIJ,TKJ)) {
+            return 1;
+        }
+    }
+    for(K=I;K<J;K++) {
+        GK = G[K];
+        TKJ = dp_lcm(GK,GJ);
+        if (TIJ != TKJ && dp_redble(TIJ,TKJ)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Gebauer-Moeller's Criterion F & M */
+def m_criterionFM(I,J,G) {
+	PI = dpm_pos(G[I]);
+	PJ = dpm_pos(G[I]);
+    if (I>=J || PI!=PJ) {
+        return 1;
+    }
+    GJ = dpm_hc(G[J]);
+    GI = dpm_hc(G[I]);
+    TIJ = dp_lcm(GI,GJ);
+    for(K=0;K<I;K++) {
+        PK = dpm_pos(G[K]); 
+        if(PI==PK) {
+            GK = dpm_hc(G[K]);
+            TKJ = dp_lcm(GK,GJ);
+            if (TIJ == TKJ || dp_redble(TIJ,TKJ)) {
+                return 1;
+            }
+        }
+    }
+    for(K=I;K<J;K++) {
+        PK = dpm_pos(G[K]); 
+        if(PI==PK) {
+            GK = dpm_hc(G[K]);
+            TKJ = dp_lcm(GK,GJ);
+            if (TIJ != TKJ && dp_redble(TIJ,TKJ)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /* 降順で並べる */
 def dp_revcmp(P,Q) {
-    P=NM(P);
-    Q=NM(Q);
     return (P==Q)? 0: ((P<Q)? 1: -1);
 }
 
 def dp_revcmp_s(P,Q) {
-    P=NM(P[0]);
-    Q=NM(Q[0]);
+    P=P[0];
+    Q=Q[0];
     return (P==Q)? 0: ((P<Q)? 1: -1);
 }
 
@@ -1055,6 +1320,20 @@ def gr2rgr(G) {
         H = reduction(H,G);
         if (H != 0) {
             H = (1/dp_hc(H))*H; /* hc(H) == 1 */
+            RedGr = cons(H, RedGr);
+        }
+    }
+    return map(red,RedGr); /* 昇順 */
+}
+
+def m_gr2rgr(G) {
+    G = qsort(G, yang.dp_revcmp);
+    RedGr = [];
+    while(G != []) {
+        H = car(G); G = cdr(G);
+        H = m_reduction(H,G);
+        if (H != 0) {
+            H = (1/DPM_HC(H))*H; /* hc(H) == 1 */
             RedGr = cons(H, RedGr);
         }
     }
@@ -1151,7 +1430,7 @@ def buchberger(G) {
     }
     message("\n");
     G=gr2rgr(G); /* Reducing G a Groebner basis. */
-	G=map(dp_nm,G);
+    G=map(dp_nm,G);
     return G; /* Reducing G a Groebner basis. */
 }
 
@@ -1205,6 +1484,66 @@ def buchberger_s(G) {
     return gr2rgr_s(G,Syzygy); /* Reducing G a Groebner basis. */
 }
 
+def m_buchberger(G) {
+    UseSM1 = 0;
+    if (!isvoid(O=getopt(sm1))) {
+        UseSM1 = 1;
+        Hilbert = 0;
+    }
+    if (!isvoid(O=getopt(hilbert))) {
+        UseSM1 = 1;
+        Hilbert = O;
+    }
+    MaxSugar=0;
+    N = length(G);
+    Pairs = [];
+    for(J=N-1; J>=0; J--) {
+        for(I=J-1; I>=0; I--) {
+            if (dpm_pos(G[I])==dpm_pos(G[J]) && !m_criterionFM(I,J,G)) {
+                Pairs = cons([G[I],G[J],m_spair_sugar(G[I],G[J])],Pairs);
+            }
+        }
+    }
+    Pairs = qsort(Pairs, yang.m_spair_compare); /* sort by sugar */
+    while(Pairs != []) {
+/*      message(length(G)); */
+        K = car(Pairs);
+        Pairs = cdr(Pairs);
+        if(MaxSugar < K[2]) {
+            MaxSugar=K[2];
+            message(" "+rtostr(MaxSugar)+" ");
+        }
+        if (UseSM1) {
+            IN = map(dp_dtop,initial_term(G),Ring->v);
+            Sm1_hilbert = sm1.hilbert([IN,Ring->v]);
+            message("<"+rtostr(Sm1_hilbert)+">");
+            if (Sm1_hilbert == Hilbert) {
+                break;
+            }
+        }
+        SP = m_spolynomial(K[0],K[1]);
+        Rem = m_reduction(SP,G);
+        if (Rem != 0) {
+            message(".");
+            G = append(G, [Rem]);
+            L = [];
+            for(I=0; I<N; I++) {
+                if (dpm_pos(G[I])==dpm_pos(G[N]) && !m_criterionFM(I,N,G)) {
+                    L = cons([G[I],G[N],m_spair_sugar(G[I],G[N])],L);
+                }
+            }
+            Pairs = qsort(append(Pairs, L), yang.m_spair_compare); /* sort by sugar */
+            N++;
+        }else {
+            message("o");
+        }
+    }
+    message("\n");
+    G=m_gr2rgr(G); /* Reducing G a Groebner basis. */
+    G=map(dpm_nm,G);
+    return G; /* Reducing G a Groebner basis. */
+}
+
 def gr(F) {
     OPTS=getopt();
     if (isvoid(getopt(syzygy))) {
@@ -1214,6 +1553,10 @@ def gr(F) {
     G=map(opr,R[0]); 
     Syzygy=mapat('map',1,yang.opr,R[1]);
     return [G,Syzygy];
+}
+
+def m_gr(F) {
+	return map(m_opr,m_buchberger(map(m_op,F)));
 }
 
 /* it returns in(G) */
@@ -1234,7 +1577,7 @@ def initial_term(Gr) {
 def in(Gr)
 "Get initial terms of a Groebner base."
 {
-	return map(opr, initial_term(map(op,Gr)));
+    return map(opr, initial_term(map(op,Gr)));
 }
 
 def stdmon(Gr)
@@ -1341,10 +1684,10 @@ def pfaffian(Base,Gr) {
     M = ring_size();
     L = newvect(M);
     for(J=0; J<M; J++) {
-		OP = op_i(M,J);
-		if(op_type(J)==EULER) { /* オイラー微分作用素から偏微分作用素に */
-			OP=(1/op_var(J))*OP;
-		}
+        OP = op_i(M,J);
+        if(op_type(J)==EULER) { /* オイラー微分作用素から偏微分作用素に */
+            OP=(1/op_var(J))*OP;
+        }
         P = mapat(yang.multi,1,OP,Base); 
         P = map(reduction,P,Gr); /* normal form */
         P = dp_ltom(P,StdMon);   /* 行列表現 */
@@ -1357,26 +1700,26 @@ def pfaffian(Base,Gr) {
 def dp_matrix_form(L,Gr)
 "usage: yang.dp_matrix_form([<<1,0,1>>, [<<0,1,1>>,x*z]],Gr|base=B);"
 {
-	StdMon=dp_mbase(initial_term(Gr));
-	L = map(reduction,L,Gr); /* normal form */
+    StdMon=dp_mbase(initial_term(Gr));
+    L = map(reduction,L,Gr); /* normal form */
     M = dp_ltom(L,StdMon);   /* 行列表現 */
-	if (!isvoid(B=getopt(base))) {
-		B = map(reduction,B,Gr); /* normal form */
-		T = dp_ltom(B,StdMon);   /* 行列表現 */
-		M = base_cancel(M*matrix_inverse(T));
-	}
-	return M;
+    if (!isvoid(B=getopt(base))) {
+        B = map(reduction,B,Gr); /* normal form */
+        T = dp_ltom(B,StdMon);   /* 行列表現 */
+        M = base_cancel(M*matrix_inverse(T));
+    }
+    return M;
 }
 
 def matrix_form(L,Gr)
 "usage: yang.matrix_form([dx^2, dx/(x)],Gr|base=[1,dx]);"
 {
     L  = map(op,L); Gr = map(op,Gr);
-	if (!isvoid(B=getopt(base))) {
-		B=map(op,B);
-		return dp_matrix_form(L,Gr|base=B);
-	}
-	return dp_matrix_form(L,Gr);
+    if (!isvoid(B=getopt(base))) {
+        B=map(op,B);
+        return dp_matrix_form(L,Gr|base=B);
+    }
+    return dp_matrix_form(L,Gr);
 }
 
 /* length(Pf) == length(VSet) */
@@ -1764,16 +2107,16 @@ def dp_ptol(P,V)
 def util_pd_to_euler(L,V)
 "Example: yang.util_pd_to_euler([dx^2+x^2, dx+dy], [x,y]);"
 {
-	N = length(L);
-	define_ring(V);
-	Ret = newvect(N);
-	for(I=0; I<N; I++) {
-		DP=op(L[I]); Nm=NM(DP); Dn=DN(DP);
-		Ret[I]=red(opr(dp_partial_to_euler(Nm))/Dn);
-	}
-	Ret=vtol(Ret);
-	pop_ring();
-	return Ret;
+    N = length(L);
+    define_ring(V);
+    Ret = newvect(N);
+    for(I=0; I<N; I++) {
+        DP=op(L[I]); Nm=NM(DP); Dn=DN(DP);
+        Ret[I]=red(opr(dp_partial_to_euler(Nm))/Dn);
+    }
+    Ret=vtol(Ret);
+    pop_ring();
+    return Ret;
 }
 
 /* I 番目の作用素を変換.  F: 分散多項式 */
