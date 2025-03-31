@@ -612,8 +612,10 @@ def taka_poly_initial_aux(I) {
     G = poly_grobner_basis(I | option_list=Opt);
   }else G=I;
 
+  Ord_orig=dp_ord();
   dp_ord(taka_poly_build_order(Or));
   G2 = map(dp_ptod,G,V);
+  dp_ord(Ord_orig);
   return([G2,V,Or]);
 }
 def taka_poly_initial(I) {
@@ -665,12 +667,16 @@ def taka_poly_initial_term(F) {
     Weight = 0;
   }
   if (Weight == 0) {
+    Ord_orig=dp_ord();
      dp_ord(Order);
      G = dp_ptod(F,V);
      T = dp_hm(G);
 
-     return [dp_dtop(T,V)];
+     Ans=[dp_dtop(T,V)];
+     dp_ord(Ord_orig);
+     return Ans;
   }else {
+    Ord_orig=dp_ord();
      dp_ord(taka_poly_weight_vector(Weight,V));
      G = dp_ptod(F,V);
      C = 0;  T = 0;
@@ -682,7 +688,9 @@ def taka_poly_initial_term(F) {
        T += dp_hm(G);
        G = G-dp_hm(G);
      }
-     return [dp_dtop(T,V),D];
+     dp_ord(Ord_orig);
+     Ans=[dp_dtop(T,V),D];
+     return Ans;
   }
 }
 
@@ -720,8 +728,10 @@ def taka_poly_degree(F) {
 
   if (F == 0) return 0;
   if (type(F) != DPOLYNOMIAL) {
+    Ord_orig=dp_ord();
     dp_ord(taka_poly_weight_vector(Weight,V));
     F = dp_ptod(F,V);
+    dp_ord(Ord_orig);
   }
   if (type(Weight) != VECTOR) {
     Weight = newvect(N,Weight);
@@ -1077,6 +1087,7 @@ tk_poly_replace_factor(Plist,Rule);
 */
 def tk_poly_weyl_subsetq(II,JJ,V) {
   if (type(getopt(verbose))>0) Verbose=1; else Verbose=0;
+  Ord_orig=dp_ord();
   if (type(getopt(gb))>0) {
     G=JJ;
   }else{
@@ -1094,9 +1105,11 @@ def tk_poly_weyl_subsetq(II,JJ,V) {
        if (Verbose) {
 	 printf("%a-th : %a does not belong to the second ideal.\n",I,II[I]);
        }
+       dp_ord(Ord_orig);
        return 0;
      }
   }
+  dp_ord(Ord_orig);
   return 1;
 }
 
@@ -1107,6 +1120,7 @@ tk_poly_weyl_subsetq([x*dx-1,x*dx^2],[x*dx-1,y*dy-2],[x,y,dx,dy] | verbose=1);
 
 def tk_poly_subsetq(II,JJ,V) {
   if (type(getopt(verbose))>0) Verbose=1; else Verbose=0;
+  Ord_orig=dp_ord();
   if (type(getopt(gb))>0) {
     G=JJ;
   }else{
@@ -1120,9 +1134,11 @@ def tk_poly_subsetq(II,JJ,V) {
        if (Verbose) {
 	 printf("%a-th : %a does not belong to the second ideal.\n",I,II[I]);
        }
+       dp_ord(Ord_orig);
        return 0;
      }
   }
+  dp_ord(Ord_orig);
   return 1;
 }
 
