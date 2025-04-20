@@ -1,6 +1,11 @@
 /* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.39 2022/07/14 01:07:43 takayama Exp $ */
 #include "tags.h"
 
+extern Taka_poly_global_ord$
+extern Taka_poly_global_ord_ptr$
+Taka_poly_global_ord=newvect(100)$ 
+Taka_poly_global_ord_ptr=0$
+
 /*  tests
  F=[x^2+y^2+z^2-1,x*y+y*z+z*x-1,x*y*z-1];
  poly_grobner_basis(F);
@@ -640,6 +645,7 @@ def taka_poly_initial_term(F) {
   V = getopt(v);
   Order = getopt(order);
   Weight = getopt(weight);
+  if (type(Weight)==5) Weight=vtol(Weight);
   if (type(F) == STRUCT) {
     if (struct_type(F) == POLY_POLYNOMIAL) {
       VV = F->Ring->Variables;
@@ -1308,6 +1314,27 @@ T1=tk_poly_coefficients_of_monomial_list(T0=[(x+y)^3,2+3*x+4*y+5*z],VV=[1,x,y,z,
 T2=tk_poly_construct_from_coefficients_of_monomial_list(T1,VV);
 */
 
+def taka_poly_is_linear(F,V) {
+  if (type(F)>3) {
+    for (I=0; I<length(F); I++) {
+      if (!taka_poly_is_linear(F[I],V)) return 0;
+    }
+    return 1;
+  }
+  Deg=taka_poly_ord_w(F,V,matrix_ones(length(V)));
+  if (Deg > 1) return 0;
+  return 1;
+}
+
+def taka_poly_push_ord(Ord) {
+  Taka_poly_global_ord[Taka_poly_global_ord_ptr]=dp_ord();
+  Taka_poly_global_ord_ptr++;
+  dp_ord(Ord);
+}
+def taka_poly_pop_ord() {
+  Taka_poly_global_ord_ptr--;
+  dp_ord(Taka_poly_global_ord[Taka_poly_global_ord_ptr]);
+}
 
 Taka_poly_loaded = 1$
 end$

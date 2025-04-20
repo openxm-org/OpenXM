@@ -563,6 +563,14 @@ def poly_hilbert_polynomial(I)  {
   return taka_poly_hilbert_polynomial(I|option_list=getopt());
 }
 
+/*&usage begin: poly_is_linear(F,V)
+ example: poly_is_linear([x+t*y-1],[x,y]);
+end: */
+def poly_is_linear(F,V) {
+  OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  return taka_poly_is_linear(F,V | option_list=getopt());
+}
+
 /*&usage begin: poly_in(I|order,v)
  It is an alias of poly_initial().
  example: poly_in([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
@@ -805,6 +813,19 @@ def poly_prime_dec(I,V) {
   Opt = getopt();
   return noro_pd.prime_dec(I,V | option_list=Opt);
 }
+	   
+/*&usage begin: poly_push_ord(Ord)
+  Save the current value of dp_ord and set dp_ord({Ord}).
+end: */
+def poly_push_ord(Ord) {
+  taka_poly_push_ord(Ord);		      
+}
+/*&usage begin: poly_pop_ord()
+  Restore the order saved by poly_push_ord.
+end: */
+def poly_pop_ord() {
+  taka_poly_pop_ord();
+}		    
 
 /*&usage begin: poly_ideal_intersection(I,J,V,Ord)
  It computes the intersection of the ideal {I} and {J}
