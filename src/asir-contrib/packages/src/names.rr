@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20250117), Copyright 2000-2025, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20250423), Copyright 2000-2025, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -34,6 +34,7 @@ import("datatype.rr")$
 #include "tags.h"
 /* Include a standard library. It should be included
    in a different place in a future. */
+import("tk_asir_contrib_update.rr")$
 import("sm1.rr")$
 import("gnuplot.rr")$
 import("tigers.rr")$
@@ -60,7 +61,6 @@ import("tk_polymake.rr")$
 import("tk_matrix.rr")$
 import("tk_c_form.rr")$
 import("taka_diffop.rr")$
-import("tk_asir_contrib_update.rr")$
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
 }else{;}
