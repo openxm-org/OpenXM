@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20250117), Copyright 2000-2025, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20250423), Copyright 2000-2025, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -34,6 +34,7 @@ import("datatype.rr")$
 #include "tags.h"
 /* Include a standard library. It should be included
    in a different place in a future. */
+import("tk_asir_contrib_update.rr")$
 import("sm1.rr")$
 import("gnuplot.rr")$
 import("tigers.rr")$
@@ -51,16 +52,15 @@ import("oxshell.rr")$
 import("taka_ahg.rr")$
 import("mt_graph.rr")$
 /* import("oh_number.rr")$*/
-import("os_num.rr")$
+/* import("os_num.rr")$  // moved to the last, dirty trick */
 import("nn_ndbf.rr")$
 import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("nk_toric.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
-import("tk_matrix.rr")$
-import("tk_c_form.rr")$
+/* import("tk_matrix.rr")$ // moved to the last, dirty trick */
+/* import("tk_c_form.rr")$ // moved to the last, dirty trick */
 import("taka_diffop.rr")$
-import("tk_asir_contrib_update.rr")$
 if ((version() >=20160401) && (sysinfo()[0] == "windows"))  {
   import("oxpari-win.rr")$
 }else{;}
@@ -84,7 +84,7 @@ ox_loadfile_(Loaded_ok_matrix,"ok_matrix.rr")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
 ox_loadfile_(Loaded_glib,"glib")$
-ox_loadfile_(Loaded_tk_c_form,"tk_c_form.rr")$
+/* ox_loadfile_(Loaded_tk_c_form,"tk_c_form.rr")$ // in default */
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
@@ -1659,6 +1659,11 @@ example:
   util_damepathq(T2);
   end: */
 def util_damepathq(S) { return tk_util_damepathq(S|option_list=getopt()); }
+
+/* dirty trick for windows. lazy load */
+import("os_num.rr")$ 
+import("tk_matrix.rr")$ 
+import("tk_c_form.rr")$ 
 
 end$
 
