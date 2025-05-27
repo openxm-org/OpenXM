@@ -15,6 +15,7 @@ localf diff2euler1$
 localf diff2euler$
 localf dact$
 localf dmul$
+localf dmul_matrix$
 def euler2diff(F,XL,TL) {
   DXL=poly_dvar(XL);
   return taka_dr1.euler2diff(F,XL,TL,DXL);
@@ -78,13 +79,46 @@ def dact(L,F,XL) {
   printf("actdiff=%a\n",red(dact(L0,F0,V0)-odiff_act(L0,F0,V0)));
 */
 def dmul(F,G,XL) {
+  if ((type(F)>3) || (type(G)>3)) return dmul_matrix(F,G,XL); 
   if ((F==0) || (G==0)) return 0;
   if ((dn(F) != 1) || (dn(G) != 1)) error("dmul works only for polynomial differential operators.");
   DXL=poly_dvar(XL);
   V=append(XL,DXL);
+  Ord_orig=dp_ord();
+  dp_ord(0);
   F=dp_ptod(F,V); G=dp_ptod(G,V);
   R=dp_weyl_mul(F,G);
-  return dp_dtop(R,V);
+  Ans=dp_dtop(R,V);
+  dp_ord(Ord_orig);
+  return Ans;
+}
+def dmul_matrix(F,G,XL) {
+  /* translate all objects to matrix objects */
+  if (type(F)==4) F=matrix_list_to_matrix(F);
+  if (type(G)==4) G=matrix_list_to_matrix(G);
+  if (type(F)==5) F=matrix_list_to_matrix([vtol(F)]);
+  if (type(G)==5) G=matrix_list_to_matrix([vtol(G)]);
+  Fsize=size(F); Gsize=size(G);
+  if (Fsize[1] != Gsize[0]) {
+    if (Fsize[1] == Gsize[1]) G=matrix_transpose(G);
+    else if (Fsize[0] == Gsize[0]) F=matrix_transpose(F);
+    else {
+      print("Matrix size mismatch."); debug();
+    }
+  }
+  Fsize=size(F); Gsize=size(G);
+  Ans=newmat(Fsize[0],Gsize[1]);
+  for (I=0; I<Fsize[0]; I++) {
+    for (J=0; J<Gsize[1]; J++) {
+      Ans[I][J]=0;
+      for (K=0; K<Fsize[1]; K++) {
+        Ans[I][J] += dmul(F[I][K],G[K][J],XL);
+      }
+    }
+  }
+  if (size(Ans)==[1,1]) return Ans[0][0];
+  if (size(Ans)[0]==1) return Ans[0];
+  return Ans;
 }
 endmodule;
 

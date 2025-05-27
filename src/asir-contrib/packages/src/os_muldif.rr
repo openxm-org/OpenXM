@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Feb. 2025)
+ *          Toshio Oshima (Nov. 2007 - Mar. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -414,6 +414,7 @@ localf brPfaff$
 localf ssPfaff$
 localf showPfaff$
 localf arHplane$
+localf exarHplane$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -623,7 +624,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250207"$
+Muldif.rr="00250308"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -14089,6 +14090,26 @@ def issymmetric(P,V)
 def trPfaff(H,V,L)
 {
 	RH=H;
+	if(type(L)==2){
+		VC=newvect(K=length(V));
+		NV=newvect(K);
+		J=-1;
+		for(I=0;I<K;I++){
+			if(!(C=mycoef(L,1,V[I]))){
+				NV[I]=0;
+				continue;
+			}else if(J<-1){
+				J=I;NV[I]=V[I];C0=C;
+				continue;
+			}else{
+				NV[I]=V[I]+C/C0*V[J];continue;
+			}
+		}
+		if(J<-1) return 0;
+		L=vtol(NV);
+		H=trPfaff(H,V,L);
+		V=L=[V[J]];
+	}
 	for(R=[];H!=[];H=cdr(H)){
 		P=red(mulsubst(car(H)[0],[V,L]|lpair=1));
 		if(!P){
@@ -14130,7 +14151,8 @@ def showPfaff(P)
 		if(Type<0) Type=0;
 	}
 	if(!isint(Type) || Type<0 || Type>3) Type=0;
-	if(isvar(X=getopt(ODE))){
+	X=getopt(ODE);
+	if(isvar(X)){
 		P=trPfaff(P,[X],[X]);
 		if(P==[]) return 0;
 	}else X=0;
@@ -14638,6 +14660,31 @@ def ssPfaff(H,V)
 		}
 	}
 	return lsort(RR,[],1);
+}
+
+def exarHplane(L,T)
+{
+	K=length(L);
+	if(type(T)==7) T=findin(T,["A","1","B","D"]);
+	R=[];
+	if(T==0||T==2||T==3){
+		for(I=0;I<K;I++){
+			if(T==2) R=cons(L[I],R);
+			for(J=I+1;J<K;J++){
+				R=cons(L[I]-L[J],R);
+				if(T>=2) R=cons(L[I]+L[J],R);
+			}
+		}
+	}else if(T==1){
+		V=newvect(K);
+		for(I=0;I<K;I++) V[I]=2^I;
+		M=2^K;
+		for(I=1;I<M;I++){
+			for(J=S=0;J<K;J++) if(iand(I,V[J])) S+=L[J];
+			R=cons(S,R);
+		}
+	}
+	return reverse(R);
 }
 
 def issub(X,Y)
@@ -16335,6 +16382,7 @@ def divmattex(S,T)
 				if(L[I][car(TT)]!=0) St=str_tb(L[I][car(TT)],St);
 			}
 			if(I<S0-1) St=str_tb("\\\\",St);
+			else if(J<2) St=str_tb("%",St);
 			St=str_tb("\n",St);
 		}
 		if(length(T)>1)
