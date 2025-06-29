@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Mar. 2025)
+ *          Toshio Oshima (Nov. 2007 - June. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -415,6 +415,7 @@ localf ssPfaff$
 localf showPfaff$
 localf arHplane$
 localf exarHplane$
+localf perpHplane$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -624,7 +625,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250308"$
+Muldif.rr="00250625"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1819,7 +1820,7 @@ def catalan(K)
 			}
 		}
 	}
-	mycat("catalan(?):\n n:      Cn\ (Catalan number)\n [n,k]:  a generalization\n [\"!\",n]  [n,\"!\"]   \"n!\" \"10!\" etc.: n!\n [\"!!\",n] [n,\"!!\"]  \"n!!\": n!!\n [\"P\",n,k]  [n,\"P\",k] \"nPk\" : nPk\n [\"C\",n,k]  [n,\"C\",k] \"nCk\" : nCk\n [\"H\",n,k]  [n,\"H\",k] \"7H3\" etc. : nHk \n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
+	mycat("catalan(?):\n n:      Cn\ (Catalan number)\n [n,k]:  a generalization\n [1,n,k]: stirling number of the first kind\n [2,n,k]: stirling number of the second kind\n [\"!\",n]  [n,\"!\"]   \"n!\" \"10!\" etc.: n!\n [\"!!\",n] [n,\"!!\"]  \"n!!\": n!!\n [\"P\",n,k]  [n,\"P\",k] \"nPk\" : nPk\n [\"C\",n,k]  [n,\"C\",k] \"nCk\" : nCk\n [\"H\",n,k]  [n,\"H\",k] \"7H3\" etc. : nHk \n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
 	return 0;
 }
 
@@ -3945,8 +3946,8 @@ def mmeigen(L)
 	V=makenewv(L|num=Len-1);
 	M=dupmat(-car(L));
 	for(I=0;I<S;I++) M[I][I]+=zz;
-		for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
-			M=red(M-car(TV)*car(L));
+	for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
+		M=red(M-car(TV)*car(L));
 	Det=mydet(M);
 	R=getroot(Det,zz|mult=1);
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
@@ -8468,10 +8469,19 @@ def mce(P,L,V,R)
 	X = L[0]; DX = L[1];
 	P=red(P);
 	if(findin(DX,dn(P))>=0) return 0;
-	PP=fctr(nm(P));
-	for(P=1;PP!=[];PP=cdr(PP)){
-		TP=car(PP);
-		if(findin(DX,vars(TP[0]))>=0) P*=TP[0]^TP[1];
+	if((Red=getopt(red))==1){
+		PP=fctr(nm(P));
+		for(P=1;PP!=[];PP=cdr(PP)){
+			TP=car(PP);
+			if(findin(DX,vars(TP[0]))>=0) P*=TP[0]^TP[1];
+		}
+	}else if(type(Red)==4){
+		
+		PP=fctr(nm(P));
+		for(P=1;PP!=[];PP=cdr(PP)){
+			TP=car(PP);
+			if(lsort(Red,vars(TP[0]),2)!=[]) P*=TP[0]^TP[1];
+		}
 	}
 	P = sftexp(laplace1(P,L),L,V,R|option_list=getopt());
 	return laplace(P,L);
@@ -9281,7 +9291,7 @@ def ghg2(A,B)
 		for(TB=[];B!=[];B=cdr(B)){
 			for(T=[],I=car(B);I>0;I--) T=cons(0,T);
 			TB=cons(T,TB);
-		}		
+		}
 		TA=reverse(TA);TB=reverse(TB);
 		if(All!=0) All=1;
 	}else{
@@ -9296,11 +9306,14 @@ def ghg2(A,B)
 		if(N==2) V=[y];
 		if(N==3) V=[y,z];
 		if(N==4) V=[y,z,w];
+		if(N==5) V=[y,z,w,u];
+		if(N==6) V=[y,z,w,u,v];
 		V=cons([x],V);
 	}
 	V=map(os_md.vweyl,V);
 	R=EV=[];
-	for(I=N-1;I>=0;I--) EV=cons(V[I][0]*V[I][1],EV);
+	if(get(euler)==1)  EV=cons(V[I][0]*V[I][1],EV);
+	else for(I=N-1;I>=0;I--) EV=cons(V[I][0]*V[I][1],EV);
 	E=lsum(EV);
 	for(I=0;I<N;I++){
 		L2=[-V[I][0],[EV[I],A[I]],[E,A[N]]];
@@ -9633,6 +9646,7 @@ def eliminate(L,V,E)
      get="top"      : 初項を返す
      get="base"     : 商の基底を返す　（ホロノミックのとき）
      get="rank"     : ランクを計算する（ホロノミックのとき）
+	 ode=1			: 最初の変数についてのODEを求める
  */
 def getSSE(L,V)
 {
@@ -9641,7 +9655,14 @@ def getSSE(L,V)
 	LL=os_md.lpair(V,0); 
 	VL=LL[0];DL=LL[1];AL=append(VL,DL);
 	Len=length(VL);
-	Gr=nd_weyl_gr(L,AL,0,M=poly_r_omatrix(Len));
+	if(type(M=getopt(order))<4){
+		M=poly_r_omatrix(Len);
+		if(getopt(ode)==1){
+			M[0][Len]=0;
+			M[Len][Len]=1;
+		}
+	}
+	Gr=nd_weyl_gr(L,AL,0,M);
 	if(Get=="gr") return Gr;
 	Gsymbol=map(psymbol,Gr,V);
 	if(Get=="symbol") return  Gsymbol;
@@ -11460,9 +11481,8 @@ def polinvsym(P,Q,Sym)
 {
 	N  = length(Q);
 	T  = polbyroot(Q,zz);
-	for(I = 1; I <= N; I++){
+	for(I = 1; I <= N; I++)
 		P = mysubst(P,[makev([Sym,I]), (-1)^I*coef(T,N-I,zz)]);
-	}
 	return P;
 }
 
@@ -14531,11 +14551,12 @@ def arHplane(H,V)
 	if((Num=getopt(num))!=1) Num=0;
 	/* set hyperplanes */
 	if(type(car(H))==4&&length(car(H))==2) H=lpair(H,0)[0];
+	for(TH=reverse(H),H=[];TH!=[];TH=cdr(TH))
+		if(lsort(vars(car(TH)),V,"cap")!=[]) H=cons(car(TH),H);
 	LH=length(H);D=length(V)+1;
 	L=newvect(D+2);
 	for(J=0,L[0]=[],TH=H;TH!=[];J++,TH=cdr(TH)){
-		if(lsort(vars(P=car(TH)),V,"cap")==[]) continue;
-		for(R=[],TV=V;TV!=[];TV=cdr(TV)){
+		for(R=[],TV=V,P=car(TH);TV!=[];TV=cdr(TV)){
 			R=cons(C=mycoef(P,1,car(TV)),R);
 			P-=C*car(TV);
 		}
@@ -14591,6 +14612,27 @@ def arHplane(H,V)
 	return reverse(W);
 }
 
+def perpHplane(H,R,V)
+{
+	U=[];
+	if(type(H)!=4){
+		for(TR=car(R);TR!=[];TR=cdr(TR)){
+			if((K=car(TR)[1])==H) continue;
+			for(T=R[1];T!=[];T=cdr(T)){
+				L=car(T)[1];
+				if(length(L)==2&&(findin(H,L))>=0&&(I=findin(K,L))>=0) U=cons(L[I],U);
+			}
+		}
+		return reverse(U);
+	}
+	for(I=0;H!=[];I++,H=cdr(H)){
+		S=perpHplane(car(H),R,V);
+		if(!I) U=S;
+		else U=lsort(U,S,1);
+	}
+	return S;
+}
+
 def ssPfaff(H,V)
 {
 	if((Num=getopt(num))!=1) Num=0;
@@ -14642,7 +14684,7 @@ def ssPfaff(H,V)
 	}
 	for(R=[];RR!=[];RR=cdr(RR))
 		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
-	if(Num || !isvar(X=getopt(conv)) || findin(X,V)>=0)
+	if(Num || !isvar(X=getopt(conv)) || findin(X,V)<0)
 		return qsort(R);
 	/* get hyperplanes by convolution of X */
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
@@ -14655,7 +14697,7 @@ def ssPfaff(H,V)
 		}
 		if(F!=[]){
 			for(I=length(H)-1;I>=0;I--)
-				if(tdiv(H[I],P)!=0) break;
+				if(tdiv(nm(H[I]),P)!=0) break;
 			if(I<0) RR=cons(P,RR);
 		}
 	}
@@ -23804,7 +23846,7 @@ def getbygrs(M, TT)
 			AI = car(ALT)[0];
 			if(type(AI) != 4) continue;
 			V = ltov(AI);
-			if(V[0] != 0) P = mc(P,x,V[0]);
+			if(V[0] != 0) P = mc(P,x,V[0]|red=1);
 			for(I = 1; I < NP; I++){
 				if(V[I] != 0)
 					P = sftexp(P,x,L[I],-V[I]);
@@ -23834,7 +23876,7 @@ def mcop(P,M,S)
 	for(MT=M;MT!=[];MT=cdr(MT)){
 		T=car(MT);
 		if(T[0]!=0)
-			P=mc(P,V[0],T[0]);
+			P=mc(P,V[0],T[0]|option_list=getopt());
 		for(TT=cdr(T),ST=cdr(S);ST!=[];TT=cdr(TT),ST=cdr(ST))
 			if(car(TT)!=0) P=sftpexp(P,V,S[0]-ST[0],-car(TT));
 	}
@@ -23992,7 +24034,7 @@ def shiftop(M,S)
 	}
 	if(Raw==2||Raw==3||Raw==4){
 		R=mygcd(QQ,P,[x,dx]);  /* R[0]=R[1]*QQ + R[2]*P */
-		Q1=red(R[0]/R[2]);
+		Q1=(R[2]!=0)?red(R[0]/R[2]):R[0];
 		for(Q=1,RR=cdr(fctr(nm(Q1))); RR!=[]; RR=cdr(RR)){
 			VT=vars(car(RR)[0]);
 			if(findin(x,VT)<0){
