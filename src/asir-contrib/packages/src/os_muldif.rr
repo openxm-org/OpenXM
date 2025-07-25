@@ -14510,7 +14510,7 @@ def mcPfaff(H,V,K)
 	}
 	KE=reverse(KE);
 	if(Verb>1) mycat(["kernel:\n",KE]);
-	if(Rwa==2) return KE;
+	if(Raw==2) return KE;
 	if(length(KE) != 0){
 		if(Verb>0) mycat("Calculate quotient");
 		KK = mtoupper(lv2m(KE),0);
@@ -14524,6 +14524,29 @@ def mcPfaff(H,V,K)
 		if(Verb>1) mycat(RH);
 		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
 		MM = mdsimplify(MM|type=Simp);
+
+		/* symmetry for 3F2 */
+		if(size(RH[0][1])[0]==3){
+			for(I=D=0;I<NH;I++){
+				for(MT=MM[I][0],J=1;J<3;J++){
+					if(MT[J]==0) continue;
+					if(type(MT[J])>2){
+						D=-1; break;
+					}
+					if(!D) D=MT[J];
+					else D=gcd(D,MT[J]);
+					if(D==1) break;
+				}
+			}
+			if(type(D)==2){
+				for(I=0;I<NH;I++){
+					for(J=1;J<3;J++){
+						MM[I][0][J]=red(MM[I][0][J]/D);
+						MM[I][J][0]=MM[I][J][0]*D;
+					}
+				}
+			}
+		}
 	}
 	if(Verb>1) mycat(["mc:\n",RH]);
 	if(Raw) return vtol(RH);
@@ -14684,9 +14707,12 @@ def ssPfaff(H,V)
 	}
 	for(R=[];RR!=[];RR=cdr(RR))
 		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
-	if(Num || !isvar(X=getopt(conv)) || findin(X,V)<0)
+	Conv=getopt(conv);
+	X=(type(Conv)==4)?Conv[0]:Conv;
+	if(Num || !isvar(X) || findin(X,V)<0)
 		return qsort(R);
 	/* get hyperplanes by convolution of X */
+	if(type(Conv)!=4&&type(G=getopt(how))!=2) G=0;
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
 		P=car(TR)[0][0];Q=car(TR)[0][1];
 		P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
@@ -14695,13 +14721,20 @@ def ssPfaff(H,V)
 			P=car(F[0]);
 			if(lsort(vars(P),V,"cap")!=[]) break;
 		}
+		if(P==G) return car(TR)[1];
 		if(F!=[]){
 			for(I=length(H)-1;I>=0;I--)
 				if(tdiv(nm(H[I]),P)!=0) break;
 			if(I<0) RR=cons(P,RR);
 		}
 	}
-	return lsort(RR,[],1);
+	if(G!=0) return [];
+	if(type(Conv)!=4) return lsort(RR,[],1);
+	for(;;){
+		H=lsort(RR,vtol(H),"cup");
+		if((Conv=cdr(Conv))==[]) return H;
+		RR=ssPfaff(H,V|conv=Conv[0]);
+	}
 }
 
 def exarHplane(L,T)
