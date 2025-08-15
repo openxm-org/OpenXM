@@ -252,17 +252,17 @@ class Asir extends OX {
   def OnTimer() {
     local a;
     a = this;
-    a.executeString("K0_timer=time();");
+    a.executeString("K0_timer=time()$");
     a.popString();
-    a.executeString("K0_timer_CPU=K0_timer[0];");
+    a.executeString("K0_timer_CPU=K0_timer[0]$");
     a.popString();
-    a.executeString("K0_timer_GC=K0_timer[1];");
+    a.executeString("K0_timer_GC=K0_timer[1]$");
     a.popString();
   }
   def OffTimer() {
     local a;
     a = this;
-    a.executeString("map(rtostr,[time()[0]-K0_timer_CPU,time()[1]-K0_timer_GC]);");
+    a.executeString("map(rtostr,[time()[0]-K0_timer_CPU,time()[1]-K0_timer_GC])$");
     return(a.popCMO());
   }
 }
