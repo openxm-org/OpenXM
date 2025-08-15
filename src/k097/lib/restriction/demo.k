@@ -4,11 +4,11 @@ load["restriction.k"];;
 load("../ox/ox.k");;
 
 def demoSendAsirCommand(a) {
-  a.executeString("load(\"bfct\");");
-  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }; ");
-  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}; ");
+  a.executeString("load(\"bfct\")$");
+  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }$ ");
+  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}$ ");
 }
 
 if (Boundp("NoX")) {

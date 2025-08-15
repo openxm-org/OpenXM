@@ -187,11 +187,11 @@ class OX extends OXcontrol {
      }
      one = IntegerToSm1Integer(1);
      sm1(" getVlist2 toString /comm set ");
-     comm = AddString(["OxVlist=",comm,";"]);
+     comm = AddString(["OxVlist=",comm,"$"]);
      this.pushCMO(comm);
      this.pushCMD(SM_executeStringByLocalParser);
 
-     this.pushCMO("print(OxVlist);");
+     this.pushCMO("print(OxVlist)$");
      this.pushCMD(SM_executeStringByLocalParser);
 
      n = Length(ar);
