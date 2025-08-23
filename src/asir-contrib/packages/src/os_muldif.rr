@@ -144,6 +144,7 @@ localf mykernel$
 localf myimage$
 localf mymod$
 localf mmod$
+localf mvadj$
 localf mrest$
 localf lexp$
 localf lsum$
@@ -187,6 +188,7 @@ localf c2m$
 localf m2diag$
 localf myinv$
 localf madjust$
+localf mbase$
 localf mpower$
 localf mrot$
 localf texlen$
@@ -4831,7 +4833,6 @@ def mdivisor(M,X)
 
 def mdsimplify(L)
 {
-	Count=0;
 	if(getopt(old)==1)
 		return mdsimpold(L|option_list=getopt());
 	SS=0;
@@ -4922,7 +4923,7 @@ def mdsimplify(L)
 		for(R2=[],I=S-1;I>=0;I--) if(findin(I,R1)<0) R2=cons(I,R2);
 		if(NN2>=NN){
 			/* desn't reduce */
-		if(Verb) mycat(["Stop for :", T]);
+			if(Verb) mycat(["Stop for :", T]);
 			R=cons(T,R);
 			continue;
 		}
@@ -4940,6 +4941,21 @@ def mdsimplify(L)
 			}
 		}
 	}
+/*  can be prime ? */
+/*
+	for(K=F=0;K<SL&&F!=-1;K++){
+		for(I=0;I<S&&F!=-1;I++){
+			for(J=0;J<S&&F!=-1;J++){
+				if(type(P=L[K][I][J])==3) F=-1;
+				if(!F&&type(P)==2)
+					if(length(fctr(P))>3) F=[K,I,J];
+			}
+		}
+	}
+	if(type(F)==4){
+‡‚Éfactor–ˆ‚É‘f‚É‹ß‚Ã‚¯‚é
+	}
+*/
 	L=vtol(L);
 	if(SS==1) L=L[0];
 	else if(SS!=2) L=vtol(L);
@@ -5150,6 +5166,11 @@ def m2mc(M,X)
 			else if(Keep!=1) dviout(" ");
 			return M;
 		}
+		if(X[0]=="plane"){
+			if(length(X)>1&&X[1]=="extend") return lpair([x-z,x-y,x-w,y-z,y-w,z-w], 
+				[X[0],X[1],X[2],X[3],X[4],-X[0]-X[1]-X[2]-X[3]-X[4]]);
+			return lpair([x,x-y,x-1,y,y-1],vtol(M));
+		}
 		Show=0;
 		if(length(X)>1){
 			if(X[1]=="dviout") Show=2;
@@ -5158,9 +5179,10 @@ def m2mc(M,X)
 		if(X[0]=="GRS"||X[0]=="GRSC"||X[0]=="sp"||X[0]=="extend"){
 			Y=radd(-M[0],-M[1]-M[2]);YZ=radd(Y,-M[3]-M[4]);
 			if(X[0]=="extend"||X[0]=="extend0"){
-				if(X[0]=="extend")
+				if(X[0]=="extend"){
 					R=[M[0],M[1],M[2],Y, M[3],M[4],radd(-M[1],-M[3]-M[4]),
 						radd(Y,-M[3]-M[4]),radd(M[1],M[2]+M[4]), radd(M[1],M[0]+M[3])];
+				}
 				if(length(X)>1){
 					if(X[1]=="eigen"){
 						L=["x,0","x,y","x,1","x,\\infty","y,0","y,1","y,\\infty",
@@ -5318,262 +5340,9 @@ def m2mc(M,X)
 	mycat([
 "m2mc(m,t) or m2mc(m,[t,s])\t Calculation of Pfaff system of two variables\n",
 " m : list of 5 residue mat. or GRS/spc for rigid 4 singular points\n",
-" t : [a0,ay,a1,c], swap, GRS, GRSC, extend (eigen), sp, irreducible, pair, pairs, Pfaff, All\n",
-" s : TeX, dviout, GRSC\n",
-" option : swap, small, simplify, operator, int\n",
-" Ex: m2mc(\"21,21,21,21\",\"All\")\n"
-]);
-		return 0;
-	}
-	if(type(M)==7) M=s2sp(M);
-	if(type(M)==4&&type(M[0])==6&&length(M)==10){
-		N=newvect(5);
-		N[0]=M[1];N[1]=M[0];N[2]=M[2];N[3]=M[4];N[4]=M[5];
-		M=vtol(N);
-	}
-	if(getopt(KZ)==1) KZ=1;
-	else KZ=0;
-	if(type(X)==7) X=[X];
-	Simp=getopt(simplify);
-	if(Simp!=0 && type(Simp)!=1) Simp=2;
-	Small=(getopt(small)==1)?1:0;
-	if(type(M[0])==4){  
-		if(type(M[0][0])==1){ /* spectral type */
-			XX=getopt(dep);
-			if(type(XX)!=4 || type(XX[0])>1) XX=[1,length(M[0])];
-			M=sp2grs(M,[d,a,b,c],[XX[0],XX[1],-2]|mat=1);
-			if(XX[0]>1 && XX[1]<2) XX=[XX[0],2];
-			if(getopt(int)!=0){
-				T=M[XX[0]-1][XX[1]-1][1];
-				for(V=vars(T);V!=[];V=cdr(V)){
-					F=coef(T,1,car(V));
-					if(type(F)==1 && dn(F)>1)
-					 M = subst(M,car(V),dn(F)*car(V));
-				}
-			}
-			V=vars(M);
-			if(findin(d1,V)>=0 && findin(d2,V)<0 && findin(d3,V)<0)
-				M=subst(M,d1,d);
-		}
-		RC=chkspt(M|mat=1);
-		if(RC[2] != 2 || RC[3] != 0){ /* rigidity idx and Fuchs cond */
-			erno(0);return 0;
-		}
-		R=getbygrs(M,1|mat=1);
-		if(getopt(anal)==1) return R;	/* called by mc2grs() */
-		Z=newmat(1,1,[[0]]);
-		N=[Z,Z,Z,Z,Z];
-		for(RR=R; RR!=[]; RR=cdr(RR)){
-			RT=car(RR)[0];
-			if(type(RT)==4){
-				if(RT[0]!=0) N=m2mc(N,RT[0]|simplify=Simp);
-				N=m2mc(N,[RT[1],RT[2],RT[3]]|simplify=Simp);
-			}
-		}
-		if(type(X)==4 && type(X[0])==7)
-			return m2mc(N,X|keep=Keep,small=Small);
-		return N;
-	}
-	if(type(X)==4 && type(X[0])==7){
-		Keep=(getopt(keep)==1)?1:0;
-		if(X[0]=="All"){
-			dviout("Riemann scheme"|keep=1);
-			m2mc(M,[(findin("GRSC",X)>=0)?"GRSC":"GRS","dviout"]|keep=1);
-			dviout("Spectral types : "|keep=1);
-			m2mc(M,["sp","dviout"]|keep=1);
-			dviout("\\\\\nBy the decompositions"|keep=1);
-			R=m2mc(M,["pairs","dviout"]|keep=1);
-			for(R0=R1=[],I=1; R!=[]; I++, R=cdr(R)){
-				for(S=0,RR=car(R)[1][0];RR!=[]; RR=cdr(RR)) S+=RR[0];
-				if(S==0) R0=cons(I,R0);
-				else if(S<0) R1=cons(I,R1);
-			}
-			S="irreducibility\\ $"+((length(R0)==0)?"\\Leftrightarrow":"\\Leftarrow")
-				+"\\ \\emptyset=\\mathbb Z\\cap$";
-			dviout(S|keep=1);
-			m2mc(M,["irreducible","dviout"]|keep=1);
-			if(R0!=[])
-				dviout(ltotex(reverse(R0))|eq=0,keep=1,
-				 title="The following conditions may not be necessary for the irreducibility.");
-			if(R1!=[])
-				dviout(ltotex(reverse(R1))|eq=0,keep=1,title="The following conditions can be omitted.");
-			if(getopt(operator)!=0){
-				dviout("The equation in a Pfaff form is"|keep=1);
-				m2mc(M,["Pfaff","dviout"]|keep=Keep,small=Small);
-			}
-			else if(Keep!=1) dviout(" ");
-			return M;
-		}
-		Show=0;
-		if(length(X)>1){
-			if(X[1]=="dviout") Show=2;
-			if(X[1]=="TeX") Show=1;
-		}
-		if(X[0]=="GRS"||X[0]=="GRSC"||X[0]=="sp"||X[0]=="extend"){
-			Y=radd(-M[0],-M[1]-M[2]);YZ=radd(Y,-M[3]-M[4]);
-			if(X[0]=="extend"||X[0]=="extend0"){
-				if(X[0]=="extend")
-					R=[M[1],M[0],M[2],Y, M[3],M[4],radd(-M[1],-M[3]-M[4]),
-						radd(Y,-M[3]-M[4]),radd(M[1],M[2]+M[4]), radd(M[0],M[1]+M[3])];
-				if(length(X)>1){
-					if(X[1]=="eigen"){
-						L=["x,y","x,0","x,1","x,\\infty","y,0","y,1","y,\\infty",
-							"0,1","0,\\infty","1,\\infty"];
-						U="\\\\\n";S="";
-						for(TR=R,TL=L;TR!=[];TL=cdr(TL),TR=cdr(TR)){
-							if(length(TL)==1) U="\n";
-							S+="A_{"+car(TL)+"}&\\rightarrow\ "
-								+meigen(car(TR)|vec=1,TeX=1,sep=[":","\\quad"])+U;
-						}
-						return S;
-					}
-					if(type(X[1])==4){
-						TL=[x,y,0,1,2];
-						for(T=TL,TO=[];T!=[];T=cdr(TL)){
-							J=findin(TL[J],X[1][0]);
-							if(J<0) return 0;
-							TO=cons(X[1][1][J],TO);
-						}
-						TO=reverse(TO);
-						for(T=[],I=0;I<4;I++)
-							for(J=I+1;J<5;J++) T=cons([TL[I],TL[J]],T);
-						T=reverse(T);
-						for(R=[],I=0;I<4;I++){
-							for(J=I+1;J<5;J++){
-								K=findin([TO[I],T0[J]],T);
-								if(K<0) K=findin([TO[J],T0[I]],T);
-								R=cons(R[K],R);
-							}
-						}
-						return reverse(R);
-					}
-				}
-				if(Show){
-					TL=["x","y","0","1","\\infty"];
-					for(S="",TR=R,I=0,J=1; ;TR=cdr(TR)){
-						S+="A_{"+TL[I]+","+TL[J]+"}&="+mtotex(car(TR));
-						if(length(X)>2&&X[2]=="spt")
-							S+="&&"+ltotex(meigen(car(TR)|mult=1)|vec=1,TeX=1,opt="spt");
-						if(J++==4){
-							if(I++==3) break;
-							J=I+1;
-						}
-						S+="\\\\\n";
-					}
-					return S;
-				}
-				return R;
-			}
-			if(X[0]!="GRSC"){
-				L=meigen([M[0],M[1],M[2],M[3],M[4],Y,radd(-M[0],-M[3]-M[4]),radd(Y,-M[3]-M[4])]|mult=1);
-				if(X[0]=="sp"){
-					L=chkspt(L|opt="sp");
-					V=[L[1],L[0],L[2],L[5]]; W=[L[1],L[3],L[4],L[6]];
-					if(Show==2) dviout(s2sp(V)+" : "+s2sp(W)|keep=Keep);
-					return [V,W];
-				}
-				S="x=0&x=y&x=1&y=0&y=1&x=\\infty&y=\\infty&x=y=\\infty\\\\\n";
-			}else{
-				L=meigen([M[0],M[1],M[2],M[3],M[4],Y,radd(-M[1],-M[3]-M[4]),radd(Y,-M[3]-M[4]),
-					radd(M[0],M[1]+M[3]),radd(M[1],M[2]+M[4])]|mult=1);
-				S="x:0&x:y&x:1&y:0&y:1&x:\\infty&y:\\infty&0:1&1:\\infty&0:\\infty\\\\\n";
-			}
-			T=ltotex(L|opt="GRS",pre=S,small=Small);
-			if(Show==2) dviout(T|eq=0,keep=Keep);
-			if(Show==1) L=T;
-			return L;
-		}
-		if(X[0]=="Pfaff"){
-			S=ltotex(M|opt=["Pfaff",u,x,x-y,x-1,y,y-1],small=Small);
-			if(Show==2) dviout(S|eq=0,keep=Keep);
-			return S;
-		}
-		if(X[0]=="irreducible"){
-			L=meigen([M[0],M[1],M[2],radd(-M[0],-M[1]-M[2])]|mult=1);
-			S=getbygrs(L,10|mat=1);
-			if(Show==2) dviout(ltotex(S)|eq=0,keep=Keep);
-			return S;
-		}
-		if(X[0]=="pairs"||X[0]=="pair"){
-			L=meigen([M[0],M[1],M[2],radd(-M[0],-M[1]-M[2])]|mult=1);
-			S=chkspt(L|opt=0);
-			V=(Show==2)?1:0;
-			S=sproot(L,X[0]|dviout=V,keep=Keep);
-			return S;
-		}
-		if(X[0]=="swap"){
-			Swap=getopt(swap);
-			if(type(Swap)<1 || Swap==1)
-				return newvect(5,[M[3],M[1],M[4],M[0],M[2]]);
-			if(Swap==2)
-				return newvect(5,[radd(M[0],M[1]+M[3]),M[4],M[2],radd(-M[1],-M[3]-M[4]),M[1]]);
-			if(type(Swap)==4 && length(Swap)==3){
-				MX=radd(-M[0],-M[1]-M[2]); MY=radd(-M[3],-M[1]-M[4]);
-				if(Swap[0]==1){
-					MX0=M[2];MY0=M[4];
-				}
-				else if(Swap[0]==2){
-					MX0=MX;MY0=MY;
-				}else{
-					MX0=M[0];MY0=M[3];
-				}
-				if(Swap[1]==1){
-					MX1=M[2];MY1=M[4];
-				}
-				else if(Swap[1]==2){
-					MX1=MX;MY1=MY;
-				}else{
-					MX1=M[0];MY1=M[3];
-				}
-				return newvect(5,MX0,M[1],MX1,MY0,MY1);
-			}
-		}
-		return 0;
-	}
-	if(getopt(swap)==1)
-		 return m2mc(m2mc(m2mc(M,"swap"),X),"swap");
-	N=newvect(5);
-	for(I=0;I<5;I++){
-		if(type(T=M[I])<4) T=diagm(1,[T]);
-		N[I]=T;
-	}
-	S=size(N[0])[0];
-	if(type(X)==4){
-		SS=length(X)-1;
-		for(I=SS-iand(SS,1);I>=0;I--){
-			if(X[I] != 0)
-			N[I] = radd(N[I],X[I]);
-		}
-		if(!iand(SS,1)||!X[SS]) return N;
-		X=X[SS];
-	}
-	MZ = newmat(S,S);
-	ME = mgen(S,0,[X],0);
-	MM = newvect(5);
-	MM[0] = newbmat(3,3, [[N[0]+ME,N[1],N[2]], [MZ], [MZ]]);
-	MM[1] = newbmat(3,3, [[MZ], [N[0],N[1]+ME,N[2]], [MZ]]);
-	MM[2] = newbmat(3,3, [[MZ], [MZ], [N[0],N[1],N[2]+ME]]);
-	MM[3] = newbmat(3,3, [[N[3]+N[1],-N[1]], [-N[0],radd(N[0],N[3])], [MZ,MZ,N[3]]]);
-	MM[4] = newbmat(3,3, [[radd(N[4],N[2]),MZ,-N[2]], [MZ,N[4],MZ], [-N[0],MZ,radd(N[0],N[4])]]);
-	M0 = newbmat(3,3, [[N[0]], [MZ,N[1]], [MZ,MZ,N[2]]]);
-	M1 = radd(MM[0],MM[1]+MM[2]);
-	KE = append(mykernel(M0|opt=1),mykernel(M1|opt=1));
-	if(length(KE) == 0) return MM;
-	KK = mtoupper(lv2m(KE),0);
-	for(I=0;I<5;I++) MM[I] = mmod(MM[I],KK);
-	if(Simp!=0) MM = mdsimplify(MM|type=Simp);
-	return MM;
-}
-
-def m2mc(M,X)
-{
-	if(type(M)<2){
-	mycat([
-"m2mc(m,t) or m2mc(m,[t,s])\t Calculation of Pfaff system of two variables\n",
-" m : list of 5 residue mat. or GRS/spc for rigid 4 singular points\n",
 " t : [a0,ay,a1,c], swap, GRS, GRSC, sp, irreducible, pair, pairs, Pfaff, All\n",
 " s : TeX, dviout, GRSC\n",
-" option : swap, small, simplify, operator, int\n",
+" option : swap, small, simplify, operator, int, plane\n",
 " Ex: m2mc(\"21,21,21,21\",\"All\")\n"
 ]);
 		return 0;
@@ -5972,6 +5741,51 @@ def mymod(V,L)
 		return W;
 	}
 	return V;
+}
+
+def mbase(M)
+{
+	S=size(M);
+	for(L0=L1=[],I=S[0]-1;I>=0;I--){
+		for(F=0,J=S[1]-1;!F&&J>=0;J--)
+			if(type(M[I][J])>1) F=1;
+		if(!F) L0=cons(M[I],L0);
+		else L1=cons(M[I],L1);
+	}
+	L=mtoupper(lv2m(L0),0);
+	T=size(L0);
+	for(K=[],I=0;I<T[0];I++){
+		for(J=0;J<T[1];J++){
+			if(L[I][J]){
+				K=cons(J,K);
+				break;
+			}
+		}
+	}
+	K=reverse(K);
+	for(K1=[],I=S[1]-1;I>=0;I--)
+		if(findin(I,K)<0) K1=cons(I,K1);
+	K1=append(K,K1);
+	U=mgen(S[1],"perm",K1,0);
+	LL=lv2m(append(L,L1));
+	LL=mtranspose(madj(U,mtranspose(LL)));
+	return [LL,K1];
+}
+
+def mvadj(G,M,L)
+{
+	if(type(M)==4) S=size(M[0])[1];
+	else S=size(M[0]);
+	if(type(G)==4&&length(G)==S)
+		G=mgen(S,"perm",G,0);
+	if(type(G)==6){
+		M=madj(G,M);
+		if(type(L)>3){
+			if(type(L)==4) L=lv2m(L);
+			L=mtranspose(G*mtranspose(L));
+		}
+	}
+	return [M,L];
 }
 
 def mmod(M,L)
@@ -13144,7 +12958,7 @@ def mcgrs(G, R)
 		if(RT==0) continue;
 		VP = newvect(L+1); GV = ltov(G);	/* middle convolution */
 		for(I = S = OD = 0; I <= L; I++){
-			RTT = (I==0)?(Mat-RT):0;
+			RTT = (I==0)?(RT-Mat):0;
 			VP[I] = -1;
 			for(J = M = K = 0, GT = GV[I]; GT != []; GT = cdr(GT), J++){
 				if(I == 0)
@@ -14518,8 +14332,8 @@ def showPfaff(P)
 				}
 				R=cons(-M,R);
 			}
-			RS=reverse(RS);
 		}
+		RS=reverse(RS);
 		S=S+"\\\\\n";
 		L=meigen(reverse(R)|mult=1);
 		for(L1=L2=[],TL=L;TL!=[];TL=cdr(TL)){
@@ -14687,6 +14501,7 @@ def mcPfaff(H,V,K)
 		}
 		return H;
 	}
+	if(type(H)==7) H=m2mc(H,"plane");
 	if(H!=[]&&type(H[0][1])!=6) H=adPfaff(H,V,0);
 	if(K==[]) return H;
 	if(K[0]==0){
@@ -14775,10 +14590,8 @@ def mcPfaff(H,V,K)
 //// mycat(["R=",R,"RH=",RH]);
 //// mycat([M0,M1,RH]);
 	M0=diagm(S,[K[1]]);KE=[];
-	if(Raw==2){
-		KV=newvect(NP+1);
-		for(I=0;I<NP;I++) KV[I]=[];
-	}
+	KV=newvect(NP+1);
+	for(I=0;I<=NP;I++) KV[I]=[];
 	for(I=0;I<NP;I++){
 		if(FM==[]) M0=red(M0+H[LP[I]][1]);
 		for(T=mykernel(H[LP[I]][1]|opt=1);T!=[];T=cdr(T)){
@@ -14791,12 +14604,34 @@ def mcPfaff(H,V,K)
 	if(FM==[]){
 		for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
 			TT=car(T);M1=newvect(SS);
-			for(I=0;I<SS;I++) M1[I]=TT[I%NP];
-			if(Raw==2) KV[NP]=cons(M1,KV[I]);
-			else KE=cons(M1,KE);
+			for(I=0;I<SS;I++) M1[I]=TT[I%S];
+			KV[NP]=cons(M1,KV[NP]);
+			KE=cons(M1,KE);
 		}
 	}
 	if(Raw==2) return [RH,LP,KV];
+/*
+	for(KK=[],I=0;I<=NP;I++){
+			for(F=0,T=KV[I];!F&&T!=[];T=cdr(T)){
+				for(J=0;J<SS;J++)
+					if(type(car(T))>=2){
+						F=1;break;
+					}
+			}
+			if(!F) KK=append(KV[I],KK);
+		}
+	}
+	if(KK!=[]){
+		KK = mtoupper(lv2m(KE),0);
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],mmod(RH[I][1],KK)];
+		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
+		MM = mdsimplify(MM|type=Simp,show=1);
+		if(verb>1) mycat(["by using", MM[1]]);
+		MM=MM[0];
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],MM[I]];
+		return RH;
+	}
+*/
 	KE=reverse(KE);
 	if(Verb>1) mycat(["kernel:\n",KE]);
 	if(length(KE) != 0){
@@ -14811,7 +14646,9 @@ def mcPfaff(H,V,K)
 		if(Verb>0) mycat("Check better base");
 		if(Verb>1) mycat(RH);
 		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
-		MM = mdsimplify(MM|type=Simp);
+		MM = mdsimplify(MM|type=Simp,show=1);
+		if(verb>1) mycat(["by using", MM[1]]);
+		MM=MM[0];
 
 		/* symmetry for 3F2 */
 		if(size(RH[0][1])[0]==3){
