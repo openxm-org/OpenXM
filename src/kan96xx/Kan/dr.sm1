@@ -3,7 +3,7 @@
 %% This file is error clean.
 
 @@@.quiet {   }
-{ (macro package : dr.sm1,   9/26,1995 --- Version 09/22, 2013. ) message } ifelse
+{ (macro package : dr.sm1,   9/26,1995 --- Version 08/23, 2025. ) message } ifelse
 
 /ctrlC-hook {
 %%% define your own routing in case of error.
@@ -4582,6 +4582,47 @@ $ [ff ff] fromVectors :: $
   ] pop
   popVariables
 } def
+
+/dvar {
+  /arg1 set
+  [/xx /ans] pushVariables
+  [
+    /xx arg1 def
+    xx (type?) dc 6 eq {
+      xx {dvar} map /ans set
+    } {
+      [@@@.Dsymbol , xx toString ] cat /ans set
+    } ifelse  
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(dvar)
+[ ($xvar or list_of_xvars$ dvar $dvar or list_of_dvars$)
+  $Example: [(x) (y)] dvar ::$
+  $          [(Dx) (Dy)]$ 
+  (The value of @@@.Dsymbol is used.)
+]] putUsages
+
+%% getvNamesC, getvNamesCR
+/listOfXvars {
+  [/vv /n /ans] pushVariables
+  [
+    getvNamesC /vv set
+    /n vv length def
+    [0 , 1, n 2 idiv 1 sub { /i set , vv i get } for]  /ans set
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(listOfXvars)
+[(listOfXvars $list of first half of variables of the current ring$)
+ $Example: [(x,y) ring_of_differential_operators 0] define_ring ; listOfXvars ::$
+ $           [(e_) (x) (y) (H)]$
+ (cf. getvNamesC, show_ring)
+]] putUsages
 
 ;
 
