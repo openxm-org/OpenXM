@@ -163,9 +163,32 @@ def Sintegration(gg,v,intv) {
   return(Ans);
 }
 HelpAdd(["Sintegration",
-[ "Sintegration(gg,v,intv) evaluates the dimensions of all integrations of",
+[ "Ans=Sintegration(gg,v,intv) gives the cohomology group",
+  "of the integration (complex) of",
   "gg along the list of variables intv. Here, v is a list of variables.",
   "Interation variables intv must be in the first part of v.",
-  "Sintegration uses the function Srestall.",
-  "Example: RingD(\"x,t\"); Sintegration([Dt-(3*t^2-x),Dx+t],[t,x],[t]):"
+  "Ans[1] gives the cohomology groups.",
+  "When v=intv, Ans[0] gives the dimension of the cohomology groups.",
+  "Sintegration uses the function Srestall. cf. Srestriction",
+  "Example: RingD(\"x,t\"); II=Sintegration([Dt-(3*t^2-x),Dx+t],[t,x],[t]); II:"
+]]);
+
+def Srestriction(ii,v,restv) {
+  restv = Map(restv,"ToString");
+  sm1(" v dvar /dvars set ");
+  sm1(" ii { v dvars join, laplace0 } map /gg set "); 
+  Ans=Sintegration(gg,v,restv);
+  return(Ans);
+}
+HelpAdd(["Srestriction",
+[ "Ans=Srestriction(gg,v,restv) gives the cohomology group ",
+  "of the restriction (complex) of",
+  "gg along the list of variables restv. Here, v is a list of variables.",
+  "Restriction variables restv must be in the first part of v.",
+  "Ans[1] gives the cohomology groups.",
+  "Eliminate module base 1,e_,e_^2, ... in Ans[1,0,1] by the order 1>e_>e_^2>...,",
+  "  then the restriction ideal is obtained.",
+  "When v=restv, Ans[0] gives the dimension of the cohomology groups.",
+  "Srestriction uses the function Sintegration.",
+  "Example: RingD(\"x,y\"); R=Srestriction([x*Dx-1,y*Dy-1],[x,y],[x]); R:"
 ]]);
