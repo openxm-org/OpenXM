@@ -581,6 +581,7 @@ HelpAdd(["QuoteMode",
   "Example 2: polymake=\"polymake\"; ",
   "         QuoteMode(1); polymake.foo(1,2): ",
   "QuoteMode(0) turns off the quotemode."],
+ ["number"],
  ["Tag"],
  "Change into the quote mode."
 ]);

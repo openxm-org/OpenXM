@@ -11,6 +11,8 @@
 
 */
 
+load["lib/all.k"];;
+
 /* It is for category == null */
 def foo() {
   local n,i,j,key,s,aaa,ref,keys,shortDesc,category;
