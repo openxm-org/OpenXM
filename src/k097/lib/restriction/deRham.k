@@ -6,7 +6,7 @@ Require: restriction.k, ox.k
 generic_bfct(ii,vv,dd,ww);
    ex.
     RingD("x,y");
-    generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]):/
+    generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]):
 DeRham2(f);    
 DeRham3(f);
 */
@@ -68,6 +68,19 @@ def generic_bfct(ii,vv,dd,ww) {
   ans =asir_generic_bfct(asssssir,ii,vv,dd,ww);
   return(ans);
 }
+
+HelpAdd(["generic_bfct",
+[ "generic_bfct(ii,vv,dd,ww) gives the b-function of the ideal ii for the weight vector ww.",
+  "vv is a list of variables and dd is a list of D-variables.",
+  "It calls ox_asir and returns a string",
+  "Example: RingD(\"x,y\"); f=generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]); Println(f);",
+  "      RingD(\"s\"); ff=ReParse(f); Factor(ff);"
+],
+["ii","vv","dd","ww"],
+["Factor", "Srestriction", "Sintegration"],
+"b-function for a weight vector"
+]);
+
 
 /* usage: misc/tmp/complex-ja.texi */
 def ChangeRing(f) {
@@ -378,3 +391,16 @@ def DeRham4(f) {
   Print("Answer is ");Println(Ans[0]);
   return(Ans);
 }
+
+HelpAdd(["DeRham4",
+[ "DeRham4(f) gives the dimensions of de Rham cohomology groups of C^4-V(f)",
+  "f (string) is a polynomial in Z[x,y,z,www]",
+  "DeRham2 is for Z[x,y], DeRham3 is for Z[x,y,z]",
+  "Example: c=DeRham4(\"x^3+y^2+z^2+www^2-1\"); c:",
+  "         It will take more than 10 minutes. Answer will be [2,0,0,1,1]",
+  "                           standing for dim of [H^4,H^3,H^2,H^1,H^0]."
+],
+["f"],
+["ToString", "Sintegration"],
+"de Rham cohomology groups of the complement of the zero set of a polynomial"
+]);

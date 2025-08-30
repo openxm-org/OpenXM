@@ -232,6 +232,21 @@ def DeRham3WithAsir(f) {
    nonquasi2(9,10);
 */
 
+HelpAdd(["nonquasi2",
+[ "nonquasi2(p,q) computes the dimensions of de Rham cohomology groups",
+  "of C^2-V(f) where f = x^p+y^q+x*y^(q-1)",
+  "It is a bench mark problem by F.J.Castro-Jimenez and J.M.Ucha.",
+  "Example: load[\"lib/all.k\"];; load[\"lib/restriction/demo.k\"];",
+  "         nonquasi2(4,5);",
+  "         nonquasi2(4,10);",
+  "         nonquasi2(9,10);  /* It will take long time */"
+],
+["p","q"],
+["Sintegration","DeRham4"],
+"de Rham cohomology groups of the complement of V(x^p+y^1+x*y^(q-1))"
+]);
+
+
    P2 = [
      "x^3-y^2",
      "y^2-x^3-x-1",
