@@ -22,53 +22,14 @@ HelpAdd(["Srestall",
   "cf. Bfroots1(ii,vv)"
 ]]);
 
-def DeRham2(f) {
-  local s;
-  s = ToString(f);
-  II = Sannfs(f,"x,y");
-  Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
-  pp = Map(II,"Spoly");
-  Res = Sminimal(pp);
-  Res0 = Res[0];
-  Println("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y");
-  Println("Step3: computing the cohomology of the truncated complex.");
-  Print("Roots and b-function are "); Println(R);
-  R0 = R[0];
-  Ans=Srestall(Res0, ["x", "y"], ["x", "y"],R0[Length(R0)-1]);
-  Print("Answer is "); Println(Ans[0]);
-  return(Ans);
-}
-
-def DeRham3(f) {
-  local s;
-  s = ToString(f);
-  II = Sannfs(f,"x,y,z");
-  Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /II set ");
-  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
-  pp = Map(II,"Spoly");
-  Res = Sminimal(pp);
-  Res0 = Res[0];
-  Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y,z");
-  Println("Step3: computing the cohomology of the truncated complex.");
-  Print("Roots and b-function are "); Println(R);
-  R0 = R[0];
-  Ans=Srestall(Res0, ["x", "y", "z"],  ["x", "y", "z"],R0[Length(R0)-1] );
-  Print("Answer is ");Println(Ans[0]);
-  return(Ans);
-}
 
 def DeRham1(f) {
   local s;
   s = ToString(f);
   II = Sannfs(f,"x");
   Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (Dx) ] laplace0 } map /II set ");
-  Sweyl("x",[["x",-1,"Dx",1]]);
+  sm1(" II 0 get { [(x) (x) dvar ] laplace0 } map /II set ");
+  Sweyl("x",[["x",-1,Dvar("x"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -93,8 +54,8 @@ def nonquasi(p,q) {
   sm1(" ans 0 get (ring) dc ring_def ");
   sm1("[ ans { [[(s). (-1).]] replace } map ] /II set ");
   Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  sm1(" II 0 get { [(x) (y) [(x) (y)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y",[["x",-1,"y",-1,Dvar("x"),1,Dvar("y"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];

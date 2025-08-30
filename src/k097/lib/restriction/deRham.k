@@ -11,6 +11,31 @@ DeRham2(f);
 DeRham3(f);
 */
 
+def Dvar(x) {
+  local xstr,dx,dx;
+  if (Tag(x)==6) {  /* list */
+    return(Map(x,"Dvar"));
+  }
+  if (Tag(x) != 5) { /* not a string */
+     xstr= ToString(x);
+     sm1(" xstr dvar /dx set");
+     dx=ReParse(dx);
+     return(dx);
+  }
+  sm1(" x dvar /dx set");
+  return(dx);
+}
+HelpAdd(["Dvar",
+[ "Dvar(v) gives dvars standing for v.",
+  "vv is a list of variables",
+  "Example: RingD(\"x,y\"); Dvar([x,y]):",
+  "         Dvar(\"z\"): Dvar([\"z\",\"s\"]):"
+],
+["v"],
+["UseSmallD", "@@@.Dsymbol"],
+"differential operator variables standing for space variables."
+]);
+
 def demoSendAsirCommand(a) {
   a.executeString("load(\"bfct\")$");
   a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
@@ -195,8 +220,8 @@ def DeRham2(f) {
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  sm1(" II  { [(x) (y)] [(x) (y) ] dvar join laplace0 } map /II set ");
+  Sweyl("x,y",[["x",-1,"y",-1,Dvar("x"),1,Dvar("y"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -223,8 +248,8 @@ def DeRham3(f) {
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /II set ");
-  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
+  sm1(" II  { [(x) (y) (z)] [(x) (y) (z)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,Dvar("x"),1,Dvar("y"),1,Dvar("z"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -372,8 +397,8 @@ def DeRham4(f) {
   s = ToString(f);
   II = asirAnn0XYZWWW(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (z) (www) (Dx) (Dy) (Dz) (Dwww)] laplace0 } map /II set ");
-  Sweyl("x,y,z,www",[["x",-1,"y",-1,"z",-1,"www",-1,"Dx",1,"Dy",1,"Dz",1,"Dwww",1]]);
+  sm1(" II  { [(x) (y) (z) (www)] [(x) (y) (z) (www)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y,z,www",[["x",-1,"y",-1,"z",-1,"www",-1,Dvar("x"),1,Dvar("y"),1,Dvar("z"),1,Dvar("www"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
