@@ -98,8 +98,9 @@ mybackup :
 	(cd ../.. ; rsync  -avz  -e "ssh -l taka" --exclude '*~' --exclude 'k0' --exclude 'd0' --exclude '*.o' --exclude 'help' k097 lemon.math.sci.kobe-u.ac.jp:tmp/tmp-backup)
 
 OX_other-docs=${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
-k0-man-en.pdf: k0-man-en.texi
-	ptex k0-man-en ; dvipdfmx k0-man-en
+k0-man-en.pdf: 
+	(make clean ; make all)
+	ptex k0-man-en.texi ; dvipdfmx k0-man-en
 copy-web: k0-man-en.pdf html-en
 	rsync -avz k0-man-en.pdf ${OX_other-docs}
 	rsync -avz html-en ${OX_other-docs}/k0-html-en

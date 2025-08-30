@@ -393,9 +393,9 @@ def DeRham4(f) {
 }
 
 HelpAdd(["DeRham4",
-[ "DeRham4(f) gives the dimensions of de Rham cohomology groups of C^4-V(f)",
-  "f (string) is a polynomial in Z[x,y,z,www]",
-  "DeRham2 is for Z[x,y], DeRham3 is for Z[x,y,z]",
+[ "DeRham4(f) gives the dimensions of de Rham cohomology groups of C^4-V(f).",
+  "f (string) is a polynomial in Z[x,y,z,www].",
+  "DeRham2 is for Z[x,y], DeRham3 is for Z[x,y,z].",
   "Example: c=DeRham4(\"x^3+y^2+z^2+www^2-1\"); c:",
   "         It will take more than 10 minutes. Answer will be [2,0,0,1,1]",
   "                           standing for dim of [H^4,H^3,H^2,H^1,H^0]."
