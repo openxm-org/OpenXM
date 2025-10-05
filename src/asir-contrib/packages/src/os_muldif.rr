@@ -631,7 +631,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250829"$
+Muldif.rr="00250921"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -4925,7 +4925,7 @@ def mdsimplify(L)
 		for(R2=[],I=S-1;I>=0;I--) if(findin(I,R1)<0) R2=cons(I,R2);
 		if(NN2>=NN){
 			/* desn't reduce */
-			if(Verb) mycat(["Stop for :", T]);
+			if(Verb) mycat([" stop for :", T]);
 			R=cons(T,R);
 			FN+=NN;
 			continue;
@@ -5042,9 +5042,9 @@ def mdsimplify(L)
 			}
 		}
 	}
-	if(verb){
+	if(Verb){
 		for(I=0;I<S;I++) if(DD[I]!=1) break;
-		if(I!=S) mycat([" arranged by",DD]);
+		if(I!=S) mycat([" scaled by",DD]);
 	}
 	L=vtol(L);
 	if(SS==1) L=L[0];
@@ -14435,6 +14435,21 @@ def trPfaff(H,V,L)
 
 def showPfaff(P)
 {
+	if(!P){
+		mycat([
+	"showPfaff(p|type=k,raw=r,div=d,small=1,infty=[xi,...],ODE=x)\n",
+		" k=0 (default): show Pfaffian equation p\n",
+		" k=\"form\"     : only differential form\n",
+		" k=\"GRS\"      : generelized Riemann scheme\n",
+		" k=\"spect\"    : spectral type\n",
+		"  xi      : xi=infinity (xi=0 : generic infinity)\n",
+		"  ODE=x   : ODE as varible x\n",
+		"  d       : newline for each d-terms\n",
+		"  small=1 : use small matrix\n",
+		"  raw=1   : data, raw=-1, Tex source"
+	]);
+		return 0;
+	}
 	if(type(Type=getopt(type))==7){
 		Type=findin(Type,["equation","GRS","form","spct"]);
 		if(Type<0) Type=0;
@@ -14577,6 +14592,17 @@ def adPfaff(H,V,L)
 
 def brPfaff(H,V,B)
 {
+	if(!H){
+	mycat([
+		"brPfaff(p,v,[h,v0,e]) : boundary value of Pfaffian equation p with a list v of variables\n",
+		" h  : singular hypersurface   (h=0 : show singular hypersurfaces)\n",
+		" v0 : variable to be excluded\n",
+		" e  : characteristic exponent\n",
+		"    = []    : show all the exponents for h\n",
+		"    = \"all\" : all the boundary equations" 
+		]);
+		return 0;
+	}
 	Hb=B[0];Vb=B[1];Ev=B[2];S=size(car(H)[1])[0];
 	if(!Hb){
 		mycat(["Indicate a singular hyperplane in",lpair(H,0)[0]]);
@@ -14660,11 +14686,11 @@ def mcPfaff(H,V,K)
 " p : list of pairs of hypersurface and residue matrix\n",
 " v : list of variables\n",
 " c : [x,e] middle convolution for the variable x with parameter c\n",
-"     [0,[x-1,a],[x-y,b],...] addition by (x-1)^a (x-y)^b ...\n",
+"     [0,[x-1,a],[x-y,b],...] addition by (x-1)^a (x-y)^b ...           (0 can be \"ad\")\n",
 "     [x,a,b] Ad(x^(-b)) mc(x,b-a) Ad(x^a)\n",
-"     [1,w] coordiate transformation [v1,v2,...] -> [w1,w2,...]\n",
+"     [1,w1,w2,...] coordiate transformation [v1,v2,...] -> [w1,w2,...] (1 can be \"tr\")\n",
 "\tc may be a list of a sequence [c1,c2,...] of the above\n", 
-"     a string corresponding to a rigid spectral type for x, \"21,21,21,21\"\n",
+"     a string corresponding to a rigid spectral type for x with v=1,2, \"21,21,21,21\"\n",
 "option : top, keep, simplify, adj, verb, raw"]);
 		return 0;};
 	if(!isint(Raw=getopt(raw))) Raw=0;
@@ -14700,11 +14726,11 @@ def mcPfaff(H,V,K)
 	}
 	if(H!=[]&&type(H[0][1])!=6) H=adPfaff(H,V,0);
 	if(K==[]) return H;
-	if(K[0]==0){
+	if(K[0]==0||K[0]=="ad"){
 		if(Verb>0) mycat(["Ad:",cdr(K)]);
 		return adPfaff(H,V,cdr(K));
 	}
-	else if(K[0]==1){
+	else if(K[0]==1||K[0]=="tr"){
 		if(Verv>0) mycat(["tr",cdr(K)]);
 		return trPfaff(H,V,cdr(K));
 	}
@@ -14847,7 +14873,7 @@ def mcPfaff(H,V,K)
 				TT=mvadj(Adj,MM,KE);
 				MM=TT[0];KE=TT[1];
 			}
-			if(Verb>0) mycat0(["base arrangement ",Adj,\n"],0);
+			if(Verb>0) mycat0(["base arrangement ",Adj,"\n"],0);
 			for(IH=NH-1;IH>=0;IH--) RH[IH]=[RH[IH][0],MM[IH]];
 		}
 		if(type(KE)!=6) KE=lv2m(KE);
@@ -14864,7 +14890,7 @@ def mcPfaff(H,V,K)
 		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
 		Opt=[["show",1]];
 		if(Verb) Opt=cons(["verb",1],Opt);
-		if'iand(Simp,4) Opt=cons(["simplify",1],Opt);
+		if(iand(Simp,4)) Opt=cons(["simplify",1],Opt);
 		MM = mdsimplify(MM|option_list=Opt);
 		if(Verb>1) mycat(["by using ", Adj, MM[1]]);
 		MM=MM[0];
@@ -15075,7 +15101,7 @@ def ssPfaff(H,V)
 	}
 	if(G!=0) return [];
 	if(type(Conv)!=4) return lsort(RR,[],1);
-	for(;;){
+	for(; ;){
 		H=lsort(RR,vtol(H),"cup");
 		if((Conv=cdr(Conv))==[]) return H;
 		RR=ssPfaff(H,V|conv=Conv[0]);
@@ -25152,8 +25178,25 @@ def confexp(S)
 		return E;
 	}
 	if(type(S[0])==4){
-		for(E=[];S!=[];S=cdr(S)) E=cons(confexp(car(S),E));
-		return reverse(E);
+		E=newvect(L=length(S));
+		if(getopt(inv)!=1){
+			for(I=0;I<L;I++){
+				for(J=0,P=1;J<=I;J++){
+					if(J) P*=S[I][0]-S[J-1][0];
+					E[J]+=P*S[I][1];
+				}
+			}
+			for(R=[],--L;L>=0;L--) R=cons(red(E[L]),R);
+			return R;
+		}
+		for(I=0;I<L;I++){
+			for(J=0;J<=I;J++){
+				for(P=1,K=0;K<=I;K++)
+					if(K!=J) P*=S[J][0]-S[K][0];
+				E[J]=red(E[J]+S[I][1]/P);
+			}
+		}
+		return vtol(E);
 	}
 	V=x;E=[];
 	for(P=0,Q=[],ST=S;ST!=[];ST=cdr(ST)){
