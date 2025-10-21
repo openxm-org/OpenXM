@@ -1,0 +1,23 @@
+\documentclass{jarticle}
+\begin{document}
+
+\section{2025.08.30, Adding a help message}
+
+\begin{verbatim}
+cd $OpenXM_HOME/src/k097/Doc
+openxm fep k0
+load["lib/all.k"];;
+load["genhelp.k"];;
+\end{verbatim}
+
+{\tt AddHelp} の引数にエラーがあるとエラーが出る.
+help message は大域変数 {\tt Helplist} に格納されてる.
+
+{\tt USER} にユーザ名を設定して
+\begin{verabtim}
+openxm make copy-web
+\end{verbatim}
+で OpenXM の web document へ k0-man-en (自動生成) を rsync.
+
+
+\end{document}

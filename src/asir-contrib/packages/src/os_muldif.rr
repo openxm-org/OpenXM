@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Mar. 2025)
+ *          Toshio Oshima (Nov. 2007 - Aug. 2025)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -137,6 +137,7 @@ localf lpgcd$
 localf mdivisor$
 localf mdsimplify$
 localf mdsimpold$
+localf gbase$
 localf m2mc$
 localf easierpol$
 localf paracmpl$
@@ -144,6 +145,9 @@ localf mykernel$
 localf myimage$
 localf mymod$
 localf mmod$
+localf mvadj$
+localf mrest$
+localf lexp$
 localf lsum$
 localf ladd$
 localf lsub$
@@ -185,6 +189,7 @@ localf c2m$
 localf m2diag$
 localf myinv$
 localf madjust$
+localf mbase$
 localf mpower$
 localf mrot$
 localf texlen$
@@ -325,6 +330,7 @@ localf evalred$
 localf toeul$
 localf fromeul$
 localf toeul0$
+localf showeul$
 localf fromeul0$
 localf sftexp$
 localf fractrans$
@@ -415,6 +421,7 @@ localf ssPfaff$
 localf showPfaff$
 localf arHplane$
 localf exarHplane$
+localf perpHplane$
 localf spslm$
 localf anal2sp$
 localf delopt$
@@ -624,7 +631,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00250308"$
+Muldif.rr="00250921"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -1819,7 +1826,7 @@ def catalan(K)
 			}
 		}
 	}
-	mycat("catalan(?):\n n:      Cn\ (Catalan number)\n [n,k]:  a generalization\n [\"!\",n]  [n,\"!\"]   \"n!\" \"10!\" etc.: n!\n [\"!!\",n] [n,\"!!\"]  \"n!!\": n!!\n [\"P\",n,k]  [n,\"P\",k] \"nPk\" : nPk\n [\"C\",n,k]  [n,\"C\",k] \"nCk\" : nCk\n [\"H\",n,k]  [n,\"H\",k] \"7H3\" etc. : nHk \n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
+	mycat("catalan(?):\n n:      Cn\ (Catalan number)\n [n,k]:  a generalization\n [1,n,k]: stirling number of the first kind\n [2,n,k]: stirling number of the second kind\n [\"!\",n]  [n,\"!\"]   \"n!\" \"10!\" etc.: n!\n [\"!!\",n] [n,\"!!\"]  \"n!!\": n!!\n [\"P\",n,k]  [n,\"P\",k] \"nPk\" : nPk\n [\"C\",n,k]  [n,\"C\",k] \"nCk\" : nCk\n [\"H\",n,k]  [n,\"H\",k] \"7H3\" etc. : nHk \n [\"p\",n]: p(n)\ \ (partition number)\n [\"B\",n]: Bn\ \ (Bernuille number)");
 	return 0;
 }
 
@@ -3945,8 +3952,8 @@ def mmeigen(L)
 	V=makenewv(L|num=Len-1);
 	M=dupmat(-car(L));
 	for(I=0;I<S;I++) M[I][I]+=zz;
-		for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
-			M=red(M-car(TV)*car(L));
+	for(L=cdr(L),TV=V;L!=[];L=cdr(L),TV=cdr(V))
+		M=red(M-car(TV)*car(L));
 	Det=mydet(M);
 	R=getroot(Det,zz|mult=1);
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
@@ -4828,10 +4835,9 @@ def mdivisor(M,X)
 
 def mdsimplify(L)
 {
-	Count=0;
 	if(getopt(old)==1)
 		return mdsimpold(L|option_list=getopt());
-	SS=0;
+	SS=FN=0;
 	if(type(L)==6){
 		L=[L]; SS=1;
 	}
@@ -4865,7 +4871,7 @@ def mdsimplify(L)
 		}
 		if(!T) break;
 			/* check factor T  can be simplified */
-		if(Verb) mycat(["checking factor:",T]);
+		if(Verb>1) mycat(["checking factor:",T]);
 		for(I=0;I<S;I++){
 			for(J=0;J<S;J++){
 				if(I==J) continue;
@@ -4919,12 +4925,13 @@ def mdsimplify(L)
 		for(R2=[],I=S-1;I>=0;I--) if(findin(I,R1)<0) R2=cons(I,R2);
 		if(NN2>=NN){
 			/* desn't reduce */
-		if(Verb) mycat(["Stop for :", T]);
+			if(Verb) mycat([" stop for :", T]);
 			R=cons(T,R);
+			FN+=NN;
 			continue;
 		}
 		if(!NN2) R=cons(T,R);
-		if(Verb) mycat([NN,"->", NN2]);
+		if(Verb) mycat([" reducing denominators",NN,"->", NN2]);
 		for(;R1!=[];R1=cdr(R1)){
 			I=car(R1);
 			DD[I]=DD[I]*T;
@@ -4936,6 +4943,108 @@ def mdsimplify(L)
 				}
 			}
 		}
+	}
+
+	if(getopt(lin)!=0){
+		U=newmat(S,S);V=newmat(S,S); /* U:GCD, V:LCM */
+		for(I=0;I<S;I++){
+			for(J=0;J<S;J++){
+				if(I==J) continue;
+				for(MM=[],K=0;K<SL;K++){
+					MM=cons(L[K][I][J],MM);
+					if(type(car(MM))>2){
+						I=J=S+1;break;
+					}
+					if(!car(MM)) MM=cdr(MM);
+				}
+				if(MM==[])
+					U[I][J]=V[I][J]=0;
+				else if(I<S){
+					U[I][J]=lgcd(MM|poly=1);V[I][J]=red(llcm(MM|poly=1)/U[I][J]);
+				}
+			}
+		}
+		if(I==S){	/* polybomial elements */
+			for(Fct=[],I=0;I<S;I++){
+				for(J=0;J<S;J++){
+					if(type(U[I][J])==2){
+						T=fctr(U[I][J]);
+						for(T=cdr(T);T!=[];T=cdr(T))
+							Fct=cons(car(T)[0],Fct);
+					}
+				}
+			}
+			Fct=lsort(Fct,[],1);
+			for(FE=CC=0;!FE&&CC<16;){
+				for(T=Fct;T!=[]&&!FE;T=cdr(T)){
+					F=car(T);
+					W=newmat(S,S);
+					for(I=0;I<S;I++){
+						for(J=0;J<S;J++){
+							if(I==J) continue;
+							C=0;
+							if(U[I][J]){
+								if(!(R=tdiv(U[I][J],F))){
+									C=(type(U[I][J])==1&&type(V[I][J])<2)?-1:-2;
+								}else{
+									C=1;
+									if(type(V[I][J])>1) C++;
+									else if(type(R)>1) C++;
+								}
+								W[I][J]=C;
+							}
+						}
+					}
+					for(I=0;I<S&&!FE;I++){
+
+						for(VC=VL=FC=FL=J=0;J<S;J++){
+							if((WT=W[J][I])>0) VC+=WT;
+							else FC+=WT;
+							if((WT=W[I][J])>0) VL+=WT;
+							else FL+=WT;
+						}
+						if(!FC&&VC+FL>0){
+							if(Verb) mycat([" ",I,"th columnn devided by",F]);
+							FE=1;
+							for(J=0;J<S;J++){
+								if(I!=J){
+									U[J][I]=red(U[J][I]/F);
+									U[I][J]*=F;
+									for(K=0;K<SL;K++){
+										L[K][J][I]=red(L[K][J][I]/F);
+										L[K][I][J]*=F;
+									}
+								}
+							}
+							DD[I]*=F;
+						}
+						else if(!FL&&VL+FC>0){	/* I-th line */
+							FE=1;
+							if(Verb) mycat([" ",I,"th line devided by",F]);
+							for(J=0;J<S;J++){
+								if(I!=J){
+									U[I][J]=red(U[I][J]/F);
+									U[J][I]*=F;
+									for(K=0;K<SL;K++){
+										L[K][I][J]=red(L[K][I][J]/F);
+										L[K][J][I]*=F;
+									}
+								}
+							}
+							DD[I]=red(DD[I]/F);
+						}
+					}
+				}
+				if(FE){
+					CC++;FE=0;
+				}
+				else FE=1;
+			}
+		}
+	}
+	if(Verb){
+		for(I=0;I<S;I++) if(DD[I]!=1) break;
+		if(I!=S) mycat([" scaled by",DD]);
 	}
 	L=vtol(L);
 	if(SS==1) L=L[0];
@@ -5053,7 +5162,6 @@ def kzext(M)
 		return reverse(R);
 }
 
-
 #if 1
 def m2mc(M,X)
 {
@@ -5061,9 +5169,9 @@ def m2mc(M,X)
 	mycat([
 "m2mc(m,t) or m2mc(m,[t,s])\t Calculation of Pfaff system of two variables\n",
 " m : list of 5 residue mat. or GRS/spc for rigid 4 singular points\n",
-" t : [a0,ay,a1,c], swap, GRS, GRSC, extend (eigen), sp, irreducible, pair, pairs, Pfaff, All\n",
+" t : [ay,a0,a1,c], swap, GRS, GRSC, extend (eigen), sp, irreducible, pair, pairs, Pfaff, All\n",
 " s : TeX, dviout, GRSC\n",
-" option : swap, small, simplify, operator, int\n",
+" option : swap, small, simplify, operator, int, plane, verb\n",
 " Ex: m2mc(\"21,21,21,21\",\"All\")\n"
 ]);
 		return 0;
@@ -5076,10 +5184,12 @@ def m2mc(M,X)
 	}
 	if(getopt(KZ)==1) KZ=1;
 	else KZ=0;
+	if(type(Adj=getopt(adj))!=4&&type(Adj)!=6) Adj=0;
 	if(type(X)==7) X=[X];
-	Simp=getopt(simplify);
-	if(Simp!=0 && type(Simp)!=1) Simp=2;
+	if(type(Simp=getopt(simplify))==4) Adj=Simp;
+	if(Simp!=0 && Simp!=2) Simp=1;
 	Small=(getopt(small)==1)?1:0;
+	if(!isint(Verb=getopt(verb))) Verb=0;
 	if(type(M[0])==4){  
 		if(type(M[0][0])==1){ /* spectral type */
 			XX=getopt(dep);
@@ -5106,11 +5216,22 @@ def m2mc(M,X)
 		if(getopt(anal)==1) return R;	/* called by mc2grs() */
 		Z=newmat(1,1,[[0]]);
 		N=[Z,Z,Z,Z,Z];
+		Opt=[["simplify",Simp],["verb",Verb]];
 		for(RR=R; RR!=[]; RR=cdr(RR)){
 			RT=car(RR)[0];
 			if(type(RT)==4){
-				if(RT[0]!=0) N=m2mc(N,RT[0]|simplify=Simp);
-				N=m2mc(N,[RT[1],RT[2],RT[3]]|simplify=Simp);
+				Ad0=(length(RR)==1)?Adj:0;
+				if(Verb){
+					if(RT[0]) mycat0(["mc ", RT[0]],1);
+					S=[];
+					if(RT[3]) S=append([" (x-1)^(",RT[3],")"],S);
+					if(RT[2]) S=append([" (x-y)^(",RT[2],")"],S);
+					if(RT[1]) S=append([" x^(",RT[1],")"],S);
+					if(S!=[]) mycat0(cons("Ad",S),1);
+				}
+				if(length(RR)==1&&Adj!=0) Opt=cons(["adj",Adj],Opt);
+				if(RT[0]!=0) N=m2mc(N,RT[0]|option_list=Opt);
+				N=m2mc(N,[RT[1],RT[2],RT[3]]|option_list=Opt);
 			}
 		}
 		if(type(X)==4 && type(X[0])==7)
@@ -5147,6 +5268,11 @@ def m2mc(M,X)
 			else if(Keep!=1) dviout(" ");
 			return M;
 		}
+		if(X[0]=="plane"){
+			if(length(X)>1&&X[1]=="extend") return lpair([x-z,x-y,x-w,y-z,y-w,z-w], 
+				[X[0],X[1],X[2],X[3],X[4],-X[0]-X[1]-X[2]-X[3]-X[4]]);
+			return lpair([x,x-y,x-1,y,y-1],vtol(M));
+		}
 		Show=0;
 		if(length(X)>1){
 			if(X[1]=="dviout") Show=2;
@@ -5155,12 +5281,13 @@ def m2mc(M,X)
 		if(X[0]=="GRS"||X[0]=="GRSC"||X[0]=="sp"||X[0]=="extend"){
 			Y=radd(-M[0],-M[1]-M[2]);YZ=radd(Y,-M[3]-M[4]);
 			if(X[0]=="extend"||X[0]=="extend0"){
-				if(X[0]=="extend")
-					R=[M[1],M[0],M[2],Y, M[3],M[4],radd(-M[1],-M[3]-M[4]),
-						radd(Y,-M[3]-M[4]),radd(M[1],M[2]+M[4]), radd(M[0],M[1]+M[3])];
+				if(X[0]=="extend"){
+					R=[M[0],M[1],M[2],Y, M[3],M[4],radd(-M[1],-M[3]-M[4]),
+						radd(Y,-M[3]-M[4]),radd(M[1],M[2]+M[4]), radd(M[1],M[0]+M[3])];
+				}
 				if(length(X)>1){
 					if(X[1]=="eigen"){
-						L=["x,y","x,0","x,1","x,\\infty","y,0","y,1","y,\\infty",
+						L=["x,0","x,y","x,1","x,\\infty","y,0","y,1","y,\\infty",
 							"0,1","0,\\infty","1,\\infty"];
 						U="\\\\\n";S="";
 						for(TR=R,TL=L;TR!=[];TL=cdr(TL),TR=cdr(TR)){
@@ -5293,21 +5420,39 @@ def m2mc(M,X)
 	MZ = newmat(S,S);
 	ME = mgen(S,0,[X],0);
 	MM = newvect(5);
-	MM[0] = newbmat(3,3, [[N[0]+ME,N[1],N[2]], [MZ], [MZ]]);
-	MM[1] = newbmat(3,3, [[MZ], [N[0],N[1]+ME,N[2]], [MZ]]);
-	MM[2] = newbmat(3,3, [[MZ], [MZ], [N[0],N[1],N[2]+ME]]);
-	MM[3] = newbmat(3,3, [[N[3]+N[1],-N[1]], [-N[0],radd(N[0],N[3])], [MZ,MZ,N[3]]]);
-	MM[4] = newbmat(3,3, [[radd(N[4],N[2]),MZ,-N[2]], [MZ,N[4],MZ], [-N[0],MZ,radd(N[0],N[4])]]);
+	MM[0] = newbmat(3,3, [[N[0]+ME,N[1],N[2]], [MZ], [MZ]]);	/* Ax */
+	MM[1] = newbmat(3,3, [[MZ], [N[0],N[1]+ME,N[2]], [MZ]]);	/* Axy */
+	MM[2] = newbmat(3,3, [[MZ], [MZ], [N[0],N[1],N[2]+ME]]);	/* Ax1 */
+	MM[3] = newbmat(3,3, [[N[3]+N[1],-N[1]], [-N[0],radd(N[0],N[3])], [MZ,MZ,N[3]]]);	/* Ay */
+	MM[4] = newbmat(3,3, [[N[4],MZ,MZ], [MZ,radd(N[4],N[2]),-N[2]],[MZ,-N[1],radd(N[1],N[4])]]); /*Ay1 */
 	M0 = newbmat(3,3, [[N[0]], [MZ,N[1]], [MZ,MZ,N[2]]]);
-	M1 = radd(MM[0],MM[1]+MM[2]);
+	M1 = radd(MM[0],MM[1]+MM[2]);								/* AxI */
 	KE = append(mykernel(M0|opt=1),mykernel(M1|opt=1));
 	if(length(KE) == 0) return MM;
-	KK = mtoupper(lv2m(KE),0);
+
+	if(Simp){
+		if(!Adj){
+			TT=gbase(MM,KE);
+			MM=TT[0];KE=TT[1];Adj=TT[2];
+		}else{
+			TT=mvadj(Adj,MM,KE);
+			MM=T[0];KE=T[1];
+		}
+		if(Simp==2&&Adj!=0) mycat0(["translated by ",Adj,"\n",lv2m(KE),"\n\n"],0);
+	}
+
+	if((Opt=getopt(opt))==1){
+		KE=mbase(lv2m(KE));
+		for(I=0;I<5;I++) MM[I] = madj(KE[1],MM[I]);
+		KK=mtoupper(KE[0],0);
+	}else
+		KK = mtoupper(lv2m(KE),0);
 	for(I=0;I<5;I++) MM[I] = mmod(MM[I],KK);
 	if(Simp!=0) MM = mdsimplify(MM|type=Simp);
 	return MM;
 }
 #else
+
 def m2mc(M,X)
 {
 	if(type(M)<2){
@@ -5316,7 +5461,7 @@ def m2mc(M,X)
 " m : list of 5 residue mat. or GRS/spc for rigid 4 singular points\n",
 " t : [a0,ay,a1,c], swap, GRS, GRSC, sp, irreducible, pair, pairs, Pfaff, All\n",
 " s : TeX, dviout, GRSC\n",
-" option : swap, small, simplify, operator, int\n",
+" option : swap, small, simplify, operator, int, plane\n",
 " Ex: m2mc(\"21,21,21,21\",\"All\")\n"
 ]);
 		return 0;
@@ -5330,7 +5475,7 @@ def m2mc(M,X)
 		if(type(M[0][0])==1){ /* spectral type */
 			XX=getopt(dep);
 			if(type(XX)!=4 || type(XX[0])>1) XX=[1,length(M[0])];
-			M=sp2grs(M,[d,a,b,c],[XX[0],XX[1],-2]|mat=1);
+			M=sp2grs(M,[d,a,b,c],[XX[0],XX[1],-2]|mat=1);	/* determine GRS */
 			if(XX[0]>1 && XX[1]<2) XX=[XX[0],2];
 			if(getopt(int)!=0){
 				T=M[XX[0]-1][XX[1]-1][1];
@@ -5404,7 +5549,8 @@ def m2mc(M,X)
 				return [M[1],M[0],M[2],Y, M[3],M[4],radd(-M[1],-M[3]-M[4]),
 					radd(Y,-M[3]-M[4]),radd(M[1],M[2]+M[4]), radd(M[0],M[1]+M[3])];
 			if(X[0]!="GRSC"){
-				L=meigen([M[0],M[1],M[2],M[3],M[4],Y,radd(-M[1],-M[3]-M[4]),radd(Y,-M[3]-M[4])]|mult=1);
+				L=meigen([M[0],M[1],M[2],M[3],M[4],Y,radd(-M[1],-M[3]-M[4]),radd(Y,-M[3]-M[4])]
+					|mult=1);
 				if(X[0]=="sp"){
 					L=chkspt(L|opt="sp");
 					V=[L[1],L[0],L[2],L[5]]; W=[L[1],L[3],L[4],L[6]];
@@ -5640,6 +5786,32 @@ def mykernel(M)
 	return R;
 }
 
+def lexp(L,M)
+{
+	if(type(L)==5) L=vtol(L);
+	N=append(M,[L]);
+	N=lv2m(N);S=size(N);S0=S[0]-1;
+	U=mtoupper(N,-1)[S0];
+	for(I=0;I<S[1];I++) if(U[I]) return 0;
+	V=U[S[1]];
+	C=mycoef(V,S0,zz);
+	if(!C) return -1;
+	for(R=[],I=S0-1;I>=0;I--) R=cons(red(-mycoef(V,I,zz)/C),R);
+	return R;
+}
+
+def mrest(L,M)
+{
+	L=lv2m(M)*transpose(L);
+	N=mtoll(L);
+	for(R=[],TL=N;TL!=[];TL!=[]){
+		R=cons(lexp(car(TL),M),R);
+		if(type(car(R))!=4) return 0;
+	}
+	return transpose(lv2m(reverse(R)));
+}
+
+
 def myimage(M)
 {
 	if(getopt(opt) == 1)
@@ -5688,6 +5860,91 @@ def mymod(V,L)
 		return W;
 	}
 	return V;
+}
+
+def	gbase(MM,KE)
+{
+	S=length(KE[0]);Ad=0;
+	for(KE0=KE1=[],K=KE;K!=[];K=cdr(K)){
+		for(T=car(K),I=0;I<S;I++) if(type(T[I])>1) break;
+		if(I==S) KE0=cons(T,KE0);
+		else KE1=cons(T,KE1);
+	}
+	if(KE1!=[]){
+		for(Ad=[],I=S-1;I>=0;I--){
+			for(T=reverse(KE1);T!=[];T=cdr(T)){
+				if(type(car(T)[I])>1){
+					Ad=cons(I,Ad);break;
+				}
+			}
+		}
+		Ad1=lsort(lextn([[0,S-1]]),Ad,"setminus");
+		Ad=append(Ad1,Ad);
+		KE=append(KE0,KE1);
+		if(type(Ad0=getopt(adj))==4 && length(Ad0)==S) Ad=Ad0;
+		T=mvadj(Ad,MM,KE);
+		KE=T[1];MM=T[0];	/* KE: matrix */
+	}
+	return [MM,KE,Ad];
+}
+
+def mbase(M)
+{
+	S=size(M);
+	for(L0=L1=[],I=S[0]-1;I>=0;I--){
+		for(F=0,J=S[1]-1;!F&&J>=0;J--)
+			if(type(M[I][J])>1) F=1;
+		if(!F) L0=cons(M[I],L0);
+		else L1=cons(M[I],L1);
+	}
+	L=mtoupper(lv2m(L0),0);
+	T=size(L);
+	for(K=[],I=0;I<T[0];I++){
+		for(J=0;J<T[1];J++){
+			if(L[I][J]){
+				K=cons(J,K);
+				break;
+			}
+		}
+	}
+	K=reverse(K);
+	for(K1=[],I=S[1]-1;I>=0;I--)
+		if(findin(I,K)<0) K1=cons(I,K1);
+	if((Rev=getopt(rev))==1) K1=reverse(K1);
+	if(type(Rev)==4){
+		for(R=[],T=Rev;T!=[];T=cdr(T))
+			if(car(T)>=0&&car(T)<length(K1)) R=cons(car(T),R);
+		if(length(R)==length(K1)){
+			for(RR=[],T=R;T!=[];T=cdr(T)) RR=cons(K1[car(T)],RR);
+			K1=reverse(RR);
+		}
+	}
+	K2=append(K,K1);
+	U=mgen(S[1],"perm",K2,0);
+	LL=lv2m(append(m2lv(L),L1));
+	LL=mtranspose(U*mtranspose(LL));
+	LL=mtoupper(LL,S[1]-length(K));
+	return [LL,U];
+}
+
+/* M is matrix or list of matrices  */
+/* G is a matrix of size S or a permutation */
+def mvadj(G,M,L)
+{
+	TL=type(L);
+	if(type(M)==6) S=size(M)[1];
+	else S=size(M[0])[0];
+	if(type(G)==4&&length(G)==S)
+		G=mgen(S,"perm",G,0);
+	if(type(G)==6){
+		M=madj(G,M);
+		if(type(L)>3){
+			if(TL==4) L=lv2m(L);
+			L=mtranspose(G*mtranspose(L));
+		}
+		if(TL==4) L=m2lv(L);
+	}
+	return [M,L];
 }
 
 def mmod(M,L)
@@ -8468,10 +8725,19 @@ def mce(P,L,V,R)
 	X = L[0]; DX = L[1];
 	P=red(P);
 	if(findin(DX,dn(P))>=0) return 0;
-	PP=fctr(nm(P));
-	for(P=1;PP!=[];PP=cdr(PP)){
-		TP=car(PP);
-		if(findin(DX,vars(TP[0]))>=0) P*=TP[0]^TP[1];
+	if((Red=getopt(red))==1){
+		PP=fctr(nm(P));
+		for(P=1;PP!=[];PP=cdr(PP)){
+			TP=car(PP);
+			if(findin(DX,vars(TP[0]))>=0) P*=TP[0]^TP[1];
+		}
+	}else if(type(Red)==4){
+		
+		PP=fctr(nm(P));
+		for(P=1;PP!=[];PP=cdr(PP)){
+			TP=car(PP);
+			if(lsort(Red,vars(TP[0]),2)!=[]) P*=TP[0]^TP[1];
+		}
 	}
 	P = sftexp(laplace1(P,L),L,V,R|option_list=getopt());
 	return laplace(P,L);
@@ -9281,7 +9547,7 @@ def ghg2(A,B)
 		for(TB=[];B!=[];B=cdr(B)){
 			for(T=[],I=car(B);I>0;I--) T=cons(0,T);
 			TB=cons(T,TB);
-		}		
+		}
 		TA=reverse(TA);TB=reverse(TB);
 		if(All!=0) All=1;
 	}else{
@@ -9296,11 +9562,14 @@ def ghg2(A,B)
 		if(N==2) V=[y];
 		if(N==3) V=[y,z];
 		if(N==4) V=[y,z,w];
+		if(N==5) V=[y,z,w,u];
+		if(N==6) V=[y,z,w,u,v];
 		V=cons([x],V);
 	}
 	V=map(os_md.vweyl,V);
 	R=EV=[];
-	for(I=N-1;I>=0;I--) EV=cons(V[I][0]*V[I][1],EV);
+	if(getopt(euler)==1)  EV=cons(V[I][0]*V[I][1],EV);
+	else for(I=N-1;I>=0;I--) EV=cons(V[I][0]*V[I][1],EV);
 	E=lsum(EV);
 	for(I=0;I<N;I++){
 		L2=[-V[I][0],[EV[I],A[I]],[E,A[N]]];
@@ -9633,6 +9902,7 @@ def eliminate(L,V,E)
      get="top"      : 初項を返す
      get="base"     : 商の基底を返す　（ホロノミックのとき）
      get="rank"     : ランクを計算する（ホロノミックのとき）
+	 ode=1			: 最初の変数についてのODEを求める
  */
 def getSSE(L,V)
 {
@@ -9641,7 +9911,14 @@ def getSSE(L,V)
 	LL=os_md.lpair(V,0); 
 	VL=LL[0];DL=LL[1];AL=append(VL,DL);
 	Len=length(VL);
-	Gr=nd_weyl_gr(L,AL,0,M=poly_r_omatrix(Len));
+	if(type(M=getopt(order))<4){
+		M=poly_r_omatrix(Len);
+		if(getopt(ode)==1){
+			M[0][Len]=0;
+			M[Len][Len]=1;
+		}
+	}
+	Gr=nd_weyl_gr(L,AL,0,M);
 	if(Get=="gr") return Gr;
 	Gsymbol=map(psymbol,Gr,V);
 	if(Get=="symbol") return  Gsymbol;
@@ -10279,6 +10556,19 @@ def fromeul0(P,L)
 	return P;
 }
 
+def showeul(P,L)
+{
+	if(type(L)==4&&type(L[0])==4){
+		LL=reverse(L);
+		for(L=[];LL!=[];LL=cdr(LL)) L=cons(vweyl(car(LL)),L);
+	}else L=vweyl(L);
+	K=length(L);
+	for(W=[],I=0;I<K;I++){
+		W=cons(-1,W);W=cons(1,W);
+	}
+	Q=pweight(P,L,W);
+	return Q;
+}
 
 /*
 def topoldif(P,F,L)
@@ -11460,9 +11750,8 @@ def polinvsym(P,Q,Sym)
 {
 	N  = length(Q);
 	T  = polbyroot(Q,zz);
-	for(I = 1; I <= N; I++){
+	for(I = 1; I <= N; I++)
 		P = mysubst(P,[makev([Sym,I]), (-1)^I*coef(T,N-I,zz)]);
-	}
 	return P;
 }
 
@@ -12841,7 +13130,7 @@ def mcgrs(G, R)
 		if(RT==0) continue;
 		VP = newvect(L+1); GV = ltov(G);	/* middle convolution */
 		for(I = S = OD = 0; I <= L; I++){
-			RTT = (I==0)?(Mat-RT):0;
+			RTT = (I==0)?(RT-Mat):0;
 			VP[I] = -1;
 			for(J = M = K = 0, GT = GV[I]; GT != []; GT = cdr(GT), J++){
 				if(I == 0)
@@ -14146,6 +14435,21 @@ def trPfaff(H,V,L)
 
 def showPfaff(P)
 {
+	if(!P){
+		mycat([
+	"showPfaff(p|type=k,raw=r,div=d,small=1,infty=[xi,...],ODE=x)\n",
+		" k=0 (default): show Pfaffian equation p\n",
+		" k=\"form\"     : only differential form\n",
+		" k=\"GRS\"      : generelized Riemann scheme\n",
+		" k=\"spect\"    : spectral type\n",
+		"  xi      : xi=infinity (xi=0 : generic infinity)\n",
+		"  ODE=x   : ODE as varible x\n",
+		"  d       : newline for each d-terms\n",
+		"  small=1 : use small matrix\n",
+		"  raw=1   : data, raw=-1, Tex source"
+	]);
+		return 0;
+	}
 	if(type(Type=getopt(type))==7){
 		Type=findin(Type,["equation","GRS","form","spct"]);
 		if(Type<0) Type=0;
@@ -14215,8 +14519,8 @@ def showPfaff(P)
 				}
 				R=cons(-M,R);
 			}
-			RS=reverse(RS);
 		}
+		RS=reverse(RS);
 		S=S+"\\\\\n";
 		L=meigen(reverse(R)|mult=1);
 		for(L1=L2=[],TL=L;TL!=[];TL=cdr(TL)){
@@ -14288,6 +14592,17 @@ def adPfaff(H,V,L)
 
 def brPfaff(H,V,B)
 {
+	if(!H){
+	mycat([
+		"brPfaff(p,v,[h,v0,e]) : boundary value of Pfaffian equation p with a list v of variables\n",
+		" h  : singular hypersurface   (h=0 : show singular hypersurfaces)\n",
+		" v0 : variable to be excluded\n",
+		" e  : characteristic exponent\n",
+		"    = []    : show all the exponents for h\n",
+		"    = \"all\" : all the boundary equations" 
+		]);
+		return 0;
+	}
 	Hb=B[0];Vb=B[1];Ev=B[2];S=size(car(H)[1])[0];
 	if(!Hb){
 		mycat(["Indicate a singular hyperplane in",lpair(H,0)[0]]);
@@ -14365,20 +14680,45 @@ def brPfaff(H,V,B)
 
 def mcPfaff(H,V,K)
 {
+	if(H==0&&V==0&&K==0){
+		mycat([
+"mcPfaff(p,v,c)\tCalculation of Pfaffian system with hypersuface singularities\n",
+" p : list of pairs of hypersurface and residue matrix\n",
+" v : list of variables\n",
+" c : [x,e] middle convolution for the variable x with parameter c\n",
+"     [0,[x-1,a],[x-y,b],...] addition by (x-1)^a (x-y)^b ...           (0 can be \"ad\")\n",
+"     [x,a,b] Ad(x^(-b)) mc(x,b-a) Ad(x^a)\n",
+"     [1,w1,w2,...] coordiate transformation [v1,v2,...] -> [w1,w2,...] (1 can be \"tr\")\n",
+"\tc may be a list of a sequence [c1,c2,...] of the above\n", 
+"     a string corresponding to a rigid spectral type for x with v=1,2, \"21,21,21,21\"\n",
+"option : top, keep, simplify, adj, verb, raw"]);
+		return 0;};
 	if(!isint(Raw=getopt(raw))) Raw=0;
 	if(!isint(Verb=getopt(verb))) Verb=Raw?1:0;
 	if(type(Ad=getopt(ad))==4){
 		if(Verb>0) mycat(["addition", Ad]);
 		 H=adPfaff(H,V,Ad);
 	}
-	if(type(car(K))==4){
-		Opt=delopt(getopt(),"ad");
+	if(type(Adj=getopt(adj))!=4||type(Adj)!=6) Adj=0;
+	if(!isint(Simp=getopt(simplify))) Simp=15;
+	if(type(K)==7){		/* given spectral type */
+		if(type(V)!=7) V=(V!=2)?1:2;
+		if(!isint(Int=getopt(int))) Int=1;
+		K=mcmgrs(K,0|anal=1,Pfaff=V,int=Int);
+		for(V=[],TK=K;TK!=[];TK=cdr(TK))
+			if(!car(TK)[0]) V=append(lpair(cdr(car(TK)),0)[0],V);
+		if(type(V)!=7) V=vars(V);
+		H=[];
+	}
+	if(type(H)==7) H=m2mc(H,"plane");
+	if(type(car(K))==4){	/* list of operations */
+		Opt0=delopt(Opt=getopt(),"adj");
 		for(;K!=[];K=cdr(K)){
 			if(Verb>0){
 				if(K[0]==0) mycat(["Ad:", cdr(K)]);
 				else if(K[0]==1) mycat( ["tr:",cdr(K)]); 
 			}
-			H=mcPfaff(H,V,car(K)|option_list=Opt);
+			H=mcPfaff(H,V,car(K)|option_list=length(K)==1?Opt:Opt0);
 			if(Raw||type(H)!=4||type(H[0])!=4||length(H[0])!=2||
 				type(H[0][0])>3||type(H[0][1])==4) break;
 		}
@@ -14386,11 +14726,11 @@ def mcPfaff(H,V,K)
 	}
 	if(H!=[]&&type(H[0][1])!=6) H=adPfaff(H,V,0);
 	if(K==[]) return H;
-	if(K[0]==0){
+	if(K[0]==0||K[0]=="ad"){
 		if(Verb>0) mycat(["Ad:",cdr(K)]);
 		return adPfaff(H,V,cdr(K));
 	}
-	else if(K[0]==1){
+	else if(K[0]==1||K[0]=="tr"){
 		if(Verv>0) mycat(["tr",cdr(K)]);
 		return trPfaff(H,V,cdr(K));
 	}
@@ -14467,43 +14807,117 @@ def mcPfaff(H,V,K)
 	if(Verb>1) mycat(["Convolution:\n",RH]);
 	if(Raw==1) return vtol(RH);
 	if(Verb>0) mycat("Calculate invariant subspace");
-	if(!isint(Simp=getopt(simplify))) Simp=0;
 //// mycat(["In",M0,M1,RH]);
 //// mycat(["R=",R,"RH=",RH]);
 //// mycat([M0,M1,RH]);
 	M0=diagm(S,[K[1]]);KE=[];
+	KV=newvect(NP+1);
+	for(I=0;I<=NP;I++) KV[I]=[];
 	for(I=0;I<NP;I++){
 		if(FM==[]) M0=red(M0+H[LP[I]][1]);
 		for(T=mykernel(H[LP[I]][1]|opt=1);T!=[];T=cdr(T)){
 			TT=car(T);M1=newvect(SS);
 			for(II=0;II<S;II++) M1[I*S+II]=TT[II];
-			KE=cons(M1,KE);
+			if(Raw==2) KV[I]=cons(M1,KV[I]);
+			else KE=cons(M1,KE);
 		}
 	}
-	lsort(vars(K[1]),vars(H),"setminus");
 	if(FM==[]){
 		for(T=mykernel(M0|opt=1);T!=[];T=cdr(T)){
 			TT=car(T);M1=newvect(SS);
-			for(I=0;I<SS;I++) M1[I]=TT[I%NP];
+			for(I=0;I<SS;I++) M1[I]=TT[I%S];
+			KV[NP]=cons(M1,KV[NP]);
 			KE=cons(M1,KE);
 		}
 	}
+	if(Raw==2) return [RH,LP,KV];
+/*
+	for(KK=[],I=0;I<=NP;I++){
+			for(F=0,T=KV[I];!F&&T!=[];T=cdr(T)){
+				for(J=0;J<SS;J++)
+					if(type(car(T))>=2){
+						F=1;break;
+					}
+			}
+			if(!F) KK=append(KV[I],KK);
+		}
+	}
+	if(KK!=[]){
+		KK = mtoupper(lv2m(KE),0);
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],mmod(RH[I][1],KK)];
+		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
+		MM = mdsimplify(MM|show=1);
+		if(Verb>1) mycat(["by using", Adj, MM[1]]);
+		MM=MM[0];
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],MM[I]];
+		return RH;
+	}
+*/
 	KE=reverse(KE);
+
+	if(getopt(opt)==1){
+		KE=mbase(lv2m(KE));
+		for(I=0;I<NH;I++) RH[I] = [RH[I][0],madj(KE[1],RH[I][1])];
+		KE=m2lv(KE[0]);
+	}
+
 	if(Verb>1) mycat(["kernel:\n",KE]);
-	if(Rwa==2) return KE;
 	if(length(KE) != 0){
 		if(Verb>0) mycat("Calculate quotient");
-		KK = mtoupper(lv2m(KE),0);
+		if(iand(Simp,1)){
+			for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
+			if(!Adj){
+				TT=gbase(MM,KE);
+				MM=TT[0];KE=TT[1];Adj=TT[2];
+			}else{
+				TT=mvadj(Adj,MM,KE);
+				MM=TT[0];KE=TT[1];
+			}
+			if(Verb>0) mycat0(["base arrangement ",Adj,"\n"],0);
+			for(IH=NH-1;IH>=0;IH--) RH[IH]=[RH[IH][0],MM[IH]];
+		}
+		if(type(KE)!=6) KE=lv2m(KE);
+
+		KK = mtoupper(KE,0);
 		for(I=0;I<NH;I++) RH[I] = [RH[I][0],mmod(RH[I][1],KK)];
 	}
 	if(Raw==3) return vtol(RH);
 	if(Verb>0)
 		mycat(["rank ", S, "->", SS, "->",size(RH[0][1])[0] ]);
-	if(Simp>=0){
+	if(iand(Simp,7)){
 		if(Verb>0) mycat("Check better base");
 		if(Verb>1) mycat(RH);
 		for(MM=[],IH=NH-1;IH>=0;IH--) MM=cons(RH[IH][1],MM);
-		MM = mdsimplify(MM|type=Simp);
+		Opt=[["show",1]];
+		if(Verb) Opt=cons(["verb",1],Opt);
+		if(iand(Simp,4)) Opt=cons(["simplify",1],Opt);
+		MM = mdsimplify(MM|option_list=Opt);
+		if(Verb>1) mycat(["by using ", Adj, MM[1]]);
+		MM=MM[0];
+
+		/* symmetry for 3F2 */
+		if(size(RH[0][1])[0]==3){
+			for(I=D=0;I<NH;I++){
+				for(MT=MM[I][0],J=1;J<3;J++){
+					if(MT[J]==0) continue;
+					if(type(MT[J])>2){
+						D=-1; break;
+					}
+					if(!D) D=MT[J];
+					else D=gcd(D,MT[J]);
+					if(D==1) break;
+				}
+			}
+			if(type(D)==2){
+				for(I=0;I<NH;I++){
+					for(J=1;J<3;J++){
+						MM[I][0][J]=red(MM[I][0][J]/D);
+						MM[I][J][0]=MM[I][J][0]*D;
+					}
+				}
+			}
+		}
+
 	}
 	if(Verb>1) mycat(["mc:\n",RH]);
 	if(Raw) return vtol(RH);
@@ -14531,11 +14945,12 @@ def arHplane(H,V)
 	if((Num=getopt(num))!=1) Num=0;
 	/* set hyperplanes */
 	if(type(car(H))==4&&length(car(H))==2) H=lpair(H,0)[0];
+	for(TH=reverse(H),H=[];TH!=[];TH=cdr(TH))
+		if(lsort(vars(car(TH)),V,"cap")!=[]) H=cons(car(TH),H);
 	LH=length(H);D=length(V)+1;
 	L=newvect(D+2);
 	for(J=0,L[0]=[],TH=H;TH!=[];J++,TH=cdr(TH)){
-		if(lsort(vars(P=car(TH)),V,"cap")==[]) continue;
-		for(R=[],TV=V;TV!=[];TV=cdr(TV)){
+		for(R=[],TV=V,P=car(TH);TV!=[];TV=cdr(TV)){
 			R=cons(C=mycoef(P,1,car(TV)),R);
 			P-=C*car(TV);
 		}
@@ -14591,6 +15006,27 @@ def arHplane(H,V)
 	return reverse(W);
 }
 
+def perpHplane(H,R,V)
+{
+	U=[];
+	if(type(H)!=4){
+		for(TR=car(R);TR!=[];TR=cdr(TR)){
+			if((K=car(TR)[1])==H) continue;
+			for(T=R[1];T!=[];T=cdr(T)){
+				L=car(T)[1];
+				if(length(L)==2&&(findin(H,L))>=0&&(I=findin(K,L))>=0) U=cons(L[I],U);
+			}
+		}
+		return reverse(U);
+	}
+	for(I=0;H!=[];I++,H=cdr(H)){
+		S=perpHplane(car(H),R,V);
+		if(!I) U=S;
+		else U=lsort(U,S,1);
+	}
+	return S;
+}
+
 def ssPfaff(H,V)
 {
 	if((Num=getopt(num))!=1) Num=0;
@@ -14642,9 +15078,12 @@ def ssPfaff(H,V)
 	}
 	for(R=[];RR!=[];RR=cdr(RR))
 		R=cons([car(RR)[0],qsort(car(RR)[1])],R);
-	if(Num || !isvar(X=getopt(conv)) || findin(X,V)>=0)
+	Conv=getopt(conv);
+	X=(type(Conv)==4)?Conv[0]:Conv;
+	if(Num || !isvar(X) || findin(X,V)<0)
 		return qsort(R);
 	/* get hyperplanes by convolution of X */
+	if(type(Conv)!=4&&type(G=getopt(how))!=2) G=0;
 	for(RR=[],TR=R;TR!=[];TR=cdr(TR)){
 		P=car(TR)[0][0];Q=car(TR)[0][1];
 		P=mycoef(P,1,X)*Q-mycoef(Q,1,X)*P;
@@ -14653,13 +15092,20 @@ def ssPfaff(H,V)
 			P=car(F[0]);
 			if(lsort(vars(P),V,"cap")!=[]) break;
 		}
+		if(P==G) return car(TR)[1];
 		if(F!=[]){
 			for(I=length(H)-1;I>=0;I--)
-				if(tdiv(H[I],P)!=0) break;
+				if(tdiv(nm(H[I]),P)!=0) break;
 			if(I<0) RR=cons(P,RR);
 		}
 	}
-	return lsort(RR,[],1);
+	if(G!=0) return [];
+	if(type(Conv)!=4) return lsort(RR,[],1);
+	for(; ;){
+		H=lsort(RR,vtol(H),"cup");
+		if((Conv=cdr(Conv))==[]) return H;
+		RR=ssPfaff(H,V|conv=Conv[0]);
+	}
 }
 
 def exarHplane(L,T)
@@ -14906,7 +15352,6 @@ def mcfamily(X,Y,Z,L)
 	return lsort(L,[],1);
 }
 
-
 def mcmgrs(G,P)
 {
 	if(type(G)<2){
@@ -14929,21 +15374,42 @@ def mcmgrs(G,P)
 		}
 		return 0;
 	}
-	if(type(G)==7) G=os_md.s2sp(G);
+	if(type(G)==7) G=s2sp(G);
 	if(type(G)!=4||type(G[0])!=4) return 0;
 	if(type(G[0][0])!=4){			/* spectre type -> GRS */
-		G=s2sp(G|std=1);
+		if(getopt(std)==1) G=s2sp(G|std=1);	/* -> stabdard order */
 		L=length(G);
 		for(V=[],I=L-2;I>=0;I--) V=cons(makev([I+10]),V);
 		V=cons(makev([L+9]),V);
-		G=sp2grs(G,V,[1,length(G[0]),-1]|mat=1);
+		if((Int=getopt(int))!=1) Int=0;
+		G=sp2grs(G,V,[1,length(G[0]),-1]|mat=1,int=Int);
 		if(getopt(short)!=0){
 			V=append(cdr(V),[V[0]]);
 			G=shortv(G,V);
 		}
 		R=chkspt(G|mat=1);
 		if(R[2] != 2 || R[3] != 0 || !(R=getbygrs(G,1|mat=1))) return 0;
-		if(getopt(anal)==1) return R;	/* called by mcmgrs() */
+		if(getopt(anal)==1){
+			Pt=getopt(Pfaff);
+			if(L>5|| Pt==2) for(Pt=[],I=L-1;I>0;I--) Pt=cons(makev([x,I]),Pt);
+			else if(Pt==1){
+				if(L==3) Pt=[0,1];
+				else if(L==4) Pt=[0,y,1];
+				else if(L==5) Pt=[0,y,z,1];
+			}
+			if(type(Pt)==4&&length(Pt)==L-1){
+				for(RR=[],T=cdr(R);T!=[];T=cdr(T)){
+					TR=car(T)[0];
+					for(F=0,TT=[],I=L-1;I>0;I--){
+						if(TR[I]!=0) TT=cons([x-Pt[I-1],TR[I]],TT);
+					}
+					if(TR[0]!=0) RR=cons([x,TR[0]],RR);
+					if(TT!=[]) RR=cons(cons(0,TT),RR);
+				}
+				return reverse(RR);
+			}
+			return R;	/* called by mcmgrs() */
+		}
 		if(!(G=mcmgrs(L-2,0))) return 0;
 		for(R=cdr(R);R!=[];R=cdr(R)){
 			TR=car(R)[0];
@@ -23804,7 +24270,7 @@ def getbygrs(M, TT)
 			AI = car(ALT)[0];
 			if(type(AI) != 4) continue;
 			V = ltov(AI);
-			if(V[0] != 0) P = mc(P,x,V[0]);
+			if(V[0] != 0) P = mc(P,x,V[0]|red=1);
 			for(I = 1; I < NP; I++){
 				if(V[I] != 0)
 					P = sftexp(P,x,L[I],-V[I]);
@@ -23834,7 +24300,7 @@ def mcop(P,M,S)
 	for(MT=M;MT!=[];MT=cdr(MT)){
 		T=car(MT);
 		if(T[0]!=0)
-			P=mc(P,V[0],T[0]);
+			P=mc(P,V[0],T[0]|option_list=getopt());
 		for(TT=cdr(T),ST=cdr(S);ST!=[];TT=cdr(TT),ST=cdr(ST))
 			if(car(TT)!=0) P=sftpexp(P,V,S[0]-ST[0],-car(TT));
 	}
@@ -23992,7 +24458,7 @@ def shiftop(M,S)
 	}
 	if(Raw==2||Raw==3||Raw==4){
 		R=mygcd(QQ,P,[x,dx]);  /* R[0]=R[1]*QQ + R[2]*P */
-		Q1=red(R[0]/R[2]);
+		Q1=(R[2]!=0)?red(R[0]/R[2]):R[0];
 		for(Q=1,RR=cdr(fctr(nm(Q1))); RR!=[]; RR=cdr(RR)){
 			VT=vars(car(RR)[0]);
 			if(findin(x,VT)<0){
@@ -24712,8 +25178,25 @@ def confexp(S)
 		return E;
 	}
 	if(type(S[0])==4){
-		for(E=[];S!=[];S=cdr(S)) E=cons(confexp(car(S),E));
-		return reverse(E);
+		E=newvect(L=length(S));
+		if(getopt(inv)!=1){
+			for(I=0;I<L;I++){
+				for(J=0,P=1;J<=I;J++){
+					if(J) P*=S[I][0]-S[J-1][0];
+					E[J]+=P*S[I][1];
+				}
+			}
+			for(R=[],--L;L>=0;L--) R=cons(red(E[L]),R);
+			return R;
+		}
+		for(I=0;I<L;I++){
+			for(J=0;J<=I;J++){
+				for(P=1,K=0;K<=I;K++)
+					if(K!=J) P*=S[J][0]-S[K][0];
+				E[J]=red(E[J]+S[I][1]/P);
+			}
+		}
+		return vtol(E);
 	}
 	V=x;E=[];
 	for(P=0,Q=[],ST=S;ST!=[];ST=cdr(ST)){
@@ -25794,8 +26277,16 @@ def sp2grs(M,A,L)
 		AA = var(MM[L[0]-1][L[1]-1][1]);
 		if(AA==0)  AA=var(R[3]);
 		if(AA!=0 && (P = mycoef(R[3],1,AA))!=0){
-			 P = -mycoef(R[3], 0, AA)/P;
-			 MM = mysubst(MM,[AA,P]);
+			 Q = -mycoef(R[3], 0, AA)/P;
+			 MM = mysubst(MM,[AA,Q]);
+		}
+		if(getopt(int)==1){
+			if(type(P)==1&&P!=1&&P!=-1){
+				for(V=vars(Q);V!=[];V=cdr(V)){
+					T=dn(mycoef(Q,1,car(V)));
+					if(T!=1) MM=subst(MM,car(V),T*car(V));
+				}
+			}
 		}
 	}
 	return MM;

@@ -4,11 +4,11 @@ load["restriction.k"];;
 load("../ox/ox.k");;
 
 def demoSendAsirCommand(a) {
-  a.executeString("load(\"bfct\");");
-  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }; ");
-  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}; ");
+  a.executeString("load(\"bfct\")$");
+  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }$ ");
+  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}$ ");
 }
 
 if (Boundp("NoX")) {
@@ -231,6 +231,21 @@ def DeRham3WithAsir(f) {
    nonquasi2(8,9);
    nonquasi2(9,10);
 */
+
+HelpAdd(["nonquasi2",
+[ "nonquasi2(p,q) computes the dimensions of de Rham cohomology groups",
+  "of C^2-V(f) where f = x^p+y^q+x*y^(q-1)",
+  "It is a bench mark problem by F.J.Castro-Jimenez and J.M.Ucha.",
+  "Example: load[\"lib/all.k\"];; load[\"lib/restriction/demo.k\"];",
+  "         nonquasi2(4,5);",
+  "         nonquasi2(4,10);",
+  "         nonquasi2(9,10);  /* It will take long time */"
+],
+["p","q"],
+["Sintegration","DeRham4"],
+"de Rham cohomology groups of the complement of V(x^p+y^1+x*y^(q-1))"
+]);
+
 
    P2 = [
      "x^3-y^2",

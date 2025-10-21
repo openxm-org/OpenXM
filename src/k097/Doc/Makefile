@@ -3,8 +3,7 @@
 # all :   
 #      
 # Configure here.
-OpenXM_ROOT=$(HOME)/OpenXM
-OpenXM_HOME=${OpenXM_ROOT}
+OpenXM_ROOT=${OpenXM_HOME}
 #
 
 ASIRDOC=${OpenXM_ROOT}/src/asir-doc
@@ -92,8 +91,17 @@ clean :
 	-/bin/rm -rf $(HELP)
 	-/bin/rm -f  *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr 
 	-/bin/rm -f complex-en.texi complex-ja.texi standard-en.texi standard-ja.texi standard.texi standard-suppl-en.texi standard-suppl-ja.texi k0-man-en.texi k0-man-ja.texi
-	-/bin/rm -rf html-en html-ja
+	-/bin/rm -rf html-en html-ja k0-man-en.pdf
 
 
 mybackup :
 	(cd ../.. ; rsync  -avz  -e "ssh -l taka" --exclude '*~' --exclude 'k0' --exclude 'd0' --exclude '*.o' --exclude 'help' k097 lemon.math.sci.kobe-u.ac.jp:tmp/tmp-backup)
+
+OX_other-docs=${USER}@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/other-docs
+k0-man-en.pdf: 
+	(make clean ; make all)
+	ptex k0-man-en.texi ; dvipdfmx k0-man-en
+copy-web: k0-man-en.pdf html-en
+	rsync -avz k0-man-en.pdf ${OX_other-docs}
+	rsync -avz html-en ${OX_other-docs}/k0-html-en
+

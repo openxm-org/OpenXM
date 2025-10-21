@@ -6,17 +6,42 @@ Require: restriction.k, ox.k
 generic_bfct(ii,vv,dd,ww);
    ex.
     RingD("x,y");
-    generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]):/
+    generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]):
 DeRham2(f);    
 DeRham3(f);
 */
 
+def Dvar(x) {
+  local xstr,dx,dx;
+  if (Tag(x)==6) {  /* list */
+    return(Map(x,"Dvar"));
+  }
+  if (Tag(x) != 5) { /* not a string */
+     xstr= ToString(x);
+     sm1(" xstr dvar /dx set");
+     dx=ReParse(dx);
+     return(dx);
+  }
+  sm1(" x dvar /dx set");
+  return(dx);
+}
+HelpAdd(["Dvar",
+[ "Dvar(v) gives dvars standing for v.",
+  "vv is a list of variables",
+  "Example: RingD(\"x,y\"); Dvar([x,y]):",
+  "         Dvar(\"z\"): Dvar([\"z\",\"s\"]):"
+],
+["v"],
+["UseSmallD", "@@@.Dsymbol"],
+"differential operator variables standing for space variables."
+]);
+
 def demoSendAsirCommand(a) {
-  a.executeString("load(\"bfct\");");
-  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
-  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }; ");
-  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}; ");
+  a.executeString("load(\"bfct\")$");
+  a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }$ ");
+  a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }$ ");
+  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}$ ");
 }
 
 if (Boundp("NoX")) {
@@ -68,6 +93,19 @@ def generic_bfct(ii,vv,dd,ww) {
   ans =asir_generic_bfct(asssssir,ii,vv,dd,ww);
   return(ans);
 }
+
+HelpAdd(["generic_bfct",
+[ "generic_bfct(ii,vv,dd,ww) gives the b-function of the ideal ii for the weight vector ww.",
+  "vv is a list of variables and dd is a list of D-variables.",
+  "It calls ox_asir and returns a string",
+  "Example: RingD(\"x,y\"); f=generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]); Println(f);",
+  "      RingD(\"s\"); ff=ReParse(f); Factor(ff);"
+],
+["ii","vv","dd","ww"],
+["Factor", "Srestriction", "Sintegration"],
+"b-function for a weight vector"
+]);
+
 
 /* usage: misc/tmp/complex-ja.texi */
 def ChangeRing(f) {
@@ -182,8 +220,8 @@ def DeRham2(f) {
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  sm1(" II  { [(x) (y)] [(x) (y) ] dvar join laplace0 } map /II set ");
+  Sweyl("x,y",[["x",-1,"y",-1,Dvar("x"),1,Dvar("y"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -210,8 +248,8 @@ def DeRham3(f) {
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /II set ");
-  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
+  sm1(" II  { [(x) (y) (z)] [(x) (y) (z)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,Dvar("x"),1,Dvar("y"),1,Dvar("z"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -344,7 +382,7 @@ def asirAnn0XYZWWW(a,f) {
   local p,b,b0;
   RingD("x,y,z,www,s");  /* Fix!! See the definition of myann0www() */
   p = ToString(f);
-  a.executeString(" def myann0www(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,www,s,hh,ee,dx,dy,dz,dwww,ds,dhh])); }; ");
+  a.executeString(" def myann0www(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,www,s,hh,ee,dx,dy,dz,dwww,ds,dhh])); }$ ");
   b = a.rpc("myann0www",[p]);
   Print("Annhilating ideal of f^r is "); Println(b);
   return(b);
@@ -359,8 +397,8 @@ def DeRham4(f) {
   s = ToString(f);
   II = asirAnn0XYZWWW(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II  { [(x) (y) (z) (www) (Dx) (Dy) (Dz) (Dwww)] laplace0 } map /II set ");
-  Sweyl("x,y,z,www",[["x",-1,"y",-1,"z",-1,"www",-1,"Dx",1,"Dy",1,"Dz",1,"Dwww",1]]);
+  sm1(" II  { [(x) (y) (z) (www)] [(x) (y) (z) (www)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y,z,www",[["x",-1,"y",-1,"z",-1,"www",-1,Dvar("x"),1,Dvar("y"),1,Dvar("z"),1,Dvar("www"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -378,3 +416,16 @@ def DeRham4(f) {
   Print("Answer is ");Println(Ans[0]);
   return(Ans);
 }
+
+HelpAdd(["DeRham4",
+[ "DeRham4(f) gives the dimensions of de Rham cohomology groups of C^4-V(f).",
+  "f (string) is a polynomial in Z[x,y,z,www].",
+  "DeRham2 is for Z[x,y], DeRham3 is for Z[x,y,z].",
+  "Example: c=DeRham4(\"x^3+y^2+z^2+www^2-1\"); c:",
+  "         It will take more than 10 minutes. Answer will be [2,0,0,1,1]",
+  "                           standing for dim of [H^4,H^3,H^2,H^1,H^0]."
+],
+["f"],
+["ToString", "Sintegration"],
+"de Rham cohomology groups of the complement of the zero set of a polynomial"
+]);

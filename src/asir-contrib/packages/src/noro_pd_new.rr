@@ -480,7 +480,7 @@ def extract_qj(Q,V,QL,Rad,Mod,SI,Colon,Level)
 def power(A,I) { return A^I; }
 
 
-/* functions for computating a separating ideal  */
+/* functions for computating a separing ideal  */
 /* C=G:Q, Rad=rad(Q), return J s.t. Q cap (G+J) = G */
 
 def find_si0(C,G,Q,Rad,V,Ord) {
@@ -859,6 +859,7 @@ def prime_dec(B,V)
   if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
   if ( type(LexDec=getopt(lexdec)) == -1 ) LexDec = 0;
   if ( type(Rad=getopt(radical)) == -1 ) Rad = 0;
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   B = map(sq,B,Mod);
   if ( LexDec )
     PD = lex_predec1(B,V|mod=Mod);
@@ -870,7 +871,7 @@ def prime_dec(B,V)
   }
   R = []; RL = [];
   for ( T = PD; T != []; T = cdr(T) ) {
-    PDT = prime_dec_main(car(T),V|indep=Indep,mod=Mod,radical=Rad);
+    PDT = prime_dec_main(car(T),V|indep=Indep,mod=Mod,radical=Rad,first=First);
     if ( Rad ) {
       R = append(R,PDT[0]);
       GT = fast_gb(PDT[1],V,Mod,0);
@@ -923,9 +924,12 @@ def prime_dec_main(B,V)
   if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
   if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
   if ( type(Rad=getopt(radical)) == -1 ) Rad = 0;
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   G = fast_gb(B,V,Mod,0);
   if ( zero_dim(G,V,0) ) {
-    PD = zprimecomp(G,V,Indep|mod=Mod);
+    PD = zprimecomp(G,V,Indep|mod=Mod,first=First);
+    if ( First )
+      return PD;
     if ( Rad ) {
       Int = ideal_list_intersection(Indep?map(first,PD):PD,V,0|mod=Mod);
       return [PD,Int];
@@ -1062,19 +1066,23 @@ def lex_predec1(B,V)
 
 def zprimedec(B,V,Mod)
 {
-  L = partial_decomp(B,V,Mod);
+  if ( type(First=getopt(first)) == -1 ) First = 0;
+  L = partial_decomp(B,V,Mod|first=First);
   P = L[0]; NP = L[1];
   R = [];
   for ( ; P != []; P = cdr(P) ) R = cons(car(car(P)),R);
+  if ( First && P != [] ) return [car(P)];
   for ( T = NP; T != []; T = cdr(T) ) {
-    R1 = complete_decomp(car(T),V,Mod);
+    R1 = complete_decomp(car(T),V,Mod|first=First);
     R = append(R1,R);
+    if ( First ) return [car(R)];
   }
   return R;
 }
 
 def complete_decomp(GD,V,Mod)
 {
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   G = GD[0]; D = GD[1];
   W = vars(G);
   PV = setminus(W,V);
@@ -1091,12 +1099,14 @@ def complete_decomp(GD,V,Mod)
     G1 = fast_gb(cons(Mt,G),W,Mod,0);
     if ( PV != [] ) G1 = elim_gb(G1,V,PV,Mod,[[0,N],[0,PN]]);
     R = cons(G1,R);
+    if ( First ) return R;
   }
   return R;
 }
 
 def partial_decomp(B,V,Mod)
 {
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   Elim = (Elim=getopt(elim))&&type(Elim)!=-1 ? 1 : 0;
   N = length(V);
   W = vars(B);
@@ -1118,12 +1128,17 @@ def partial_decomp(B,V,Mod)
       NP1 = append(L[1],NP1);
     }
     NP = NP1;
+    if ( First ) {
+      if ( P != [] ) return [P,[]];
+      else NP = [car(NP1)];
+    }
   }
   return [P,NP];
 }
 
 def partial_decomp0(GD,V,PV,Ord,I,Mod)
 {
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   G = GD[0]; D = GD[1];
   N = length(V); PN = length(PV);
   W = append(V,PV);
@@ -1161,12 +1176,14 @@ def partial_decomp0(GD,V,PV,Ord,I,Mod)
       P = cons([Gelim,D1],P);
     else
       NP = cons([Gelim,D1],NP);
+    if ( First ) break;
   }
   return [P,NP];
 }
 
 def zprimecomp(G,V,Indep) {
   if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+  if ( type(First=getopt(first)) == -1 ) First = 0;
   W = maxindep(G,V,0|mod=Mod);
   V0 = setminus(V,W);
   V1 = append(V0,W);
@@ -1177,7 +1194,7 @@ def zprimecomp(G,V,Indep) {
 #else
   G1 = G;
 #endif
-  PD = zprimedec(G1,V0,Mod);
+  PD = zprimedec(G1,V0,Mod|first=First);
   dp_ord(0);
   R = [];
   for ( T = PD; T != []; T = cdr(T) ) {
@@ -1763,7 +1780,7 @@ def ideal_intersection_m(A,B,V,Ord)
   return G;
 }
 
-/* returns GB if F not in rad(G) */
+/* returns GB if F notin rad(G) */
 
 def radical_membership(F,G,V) {
   if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;

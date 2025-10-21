@@ -22,53 +22,14 @@ HelpAdd(["Srestall",
   "cf. Bfroots1(ii,vv)"
 ]]);
 
-def DeRham2(f) {
-  local s;
-  s = ToString(f);
-  II = Sannfs(f,"x,y");
-  Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
-  pp = Map(II,"Spoly");
-  Res = Sminimal(pp);
-  Res0 = Res[0];
-  Println("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y");
-  Println("Step3: computing the cohomology of the truncated complex.");
-  Print("Roots and b-function are "); Println(R);
-  R0 = R[0];
-  Ans=Srestall(Res0, ["x", "y"], ["x", "y"],R0[Length(R0)-1]);
-  Print("Answer is "); Println(Ans[0]);
-  return(Ans);
-}
-
-def DeRham3(f) {
-  local s;
-  s = ToString(f);
-  II = Sannfs(f,"x,y,z");
-  Print("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /II set ");
-  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
-  pp = Map(II,"Spoly");
-  Res = Sminimal(pp);
-  Res0 = Res[0];
-  Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y,z");
-  Println("Step3: computing the cohomology of the truncated complex.");
-  Print("Roots and b-function are "); Println(R);
-  R0 = R[0];
-  Ans=Srestall(Res0, ["x", "y", "z"],  ["x", "y", "z"],R0[Length(R0)-1] );
-  Print("Answer is ");Println(Ans[0]);
-  return(Ans);
-}
 
 def DeRham1(f) {
   local s;
   s = ToString(f);
   II = Sannfs(f,"x");
   Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (Dx) ] laplace0 } map /II set ");
-  Sweyl("x",[["x",-1,"Dx",1]]);
+  sm1(" II 0 get { [(x) (x) dvar ] laplace0 } map /II set ");
+  Sweyl("x",[["x",-1,Dvar("x"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -93,8 +54,8 @@ def nonquasi(p,q) {
   sm1(" ans 0 get (ring) dc ring_def ");
   sm1("[ ans { [[(s). (-1).]] replace } map ] /II set ");
   Println("Step 1: Annhilating ideal (II)"); Println(II);
-  sm1(" II 0 get { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  sm1(" II 0 get { [(x) (y) [(x) (y)] dvar join laplace0 } map /II set ");
+  Sweyl("x,y",[["x",-1,"y",-1,Dvar("x"),1,Dvar("y"),1]]);
   pp = Map(II,"Spoly");
   Res = Sminimal(pp);
   Res0 = Res[0];
@@ -163,9 +124,32 @@ def Sintegration(gg,v,intv) {
   return(Ans);
 }
 HelpAdd(["Sintegration",
-[ "Sintegration(gg,v,intv) evaluates the dimensions of all integrations of",
+[ "Ans=Sintegration(gg,v,intv) gives the cohomology group",
+  "of the integration (complex) of",
   "gg along the list of variables intv. Here, v is a list of variables.",
   "Interation variables intv must be in the first part of v.",
-  "Sintegration uses the function Srestall.",
-  "Example: RingD(\"x,t\"); Sintegration([Dt-(3*t^2-x),Dx+t],[t,x],[t]):"
+  "Ans[1] gives the cohomology groups.",
+  "When v=intv, Ans[0] gives the dimension of the cohomology groups.",
+  "Sintegration uses the function Srestall. cf. Srestriction",
+  "Example: RingD(\"x,t\"); II=Sintegration([Dt-(3*t^2-x),Dx+t],[t,x],[t]); II:"
+]]);
+
+def Srestriction(ii,v,restv) {
+  restv = Map(restv,"ToString");
+  sm1(" v dvar /dvars set ");
+  sm1(" ii { v dvars join, laplace0 } map /gg set "); 
+  Ans=Sintegration(gg,v,restv);
+  return(Ans);
+}
+HelpAdd(["Srestriction",
+[ "Ans=Srestriction(gg,v,restv) gives the cohomology group ",
+  "of the restriction (complex) of",
+  "gg along the list of variables restv. Here, v is a list of variables.",
+  "Restriction variables restv must be in the first part of v.",
+  "Ans[1] gives the cohomology groups.",
+  "Eliminate module base 1,e_,e_^2, ... in Ans[1,0,1] by the order 1>e_>e_^2>...,",
+  "  then the restriction ideal is obtained.",
+  "When v=restv, Ans[0] gives the dimension of the cohomology groups.",
+  "Srestriction uses the function Sintegration.",
+  "Example: RingD(\"x,y\"); R=Srestriction([x*Dx-1,y*Dy-1],[x,y],[x]); R:"
 ]]);

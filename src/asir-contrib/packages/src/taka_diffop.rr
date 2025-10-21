@@ -84,9 +84,13 @@ def dmul(F,G,XL) {
   if ((dn(F) != 1) || (dn(G) != 1)) error("dmul works only for polynomial differential operators.");
   DXL=poly_dvar(XL);
   V=append(XL,DXL);
+  Ord_orig=dp_ord();
+  dp_ord(0);
   F=dp_ptod(F,V); G=dp_ptod(G,V);
   R=dp_weyl_mul(F,G);
-  return dp_dtop(R,V);
+  Ans=dp_dtop(R,V);
+  dp_ord(Ord_orig);
+  return Ans;
 }
 def dmul_matrix(F,G,XL) {
   /* translate all objects to matrix objects */

@@ -58,10 +58,10 @@ configure : patch
 
 configure-cygwin:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure  --prefix=$$prefix --enable-cxx --enable-static --disable-shared)
+	(cd ${WRKSRC}; CC=${CC} CXX=${CXX} ./configure  --prefix=$$prefix --enable-cxx --enable-static --disable-shared)
 configure-msys:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx --build=x86_64-w64-mingw32  )
+	(cd ${WRKSRC}; CC=${CC}  CXX=${CXX} ./configure --prefix=$$prefix --enable-cxx --build=x86_64-w64-mingw32  )
 configure-darwin-x86-64:
 	(cd ../..; tar xzvf ../OpenXM_dist/${INTELMACFILE}; cd lib; a=`/bin/pwd`; \
 	sed -e s:__LIBDIR__:$$a: libgmp.la.tmpl > libgmp.la; \
@@ -70,14 +70,14 @@ configure-darwin-x86-64:
 	@touch work/.install_done
 configure-others:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure --prefix=$$prefix --enable-cxx)
+	(cd ${WRKSRC}; CC=${CC} CXX=${CXX} ./configure --prefix=$$prefix --enable-cxx)
 configure-cross:
 	prefix=`cd ${OpenXM_HOME}; pwd`  ; \
-	(cd ${WRKSRC}; CC=${CC} ./configure --host=${TARGET_TYPE} --prefix=$$prefix --enable-cxx)
+	(cd ${WRKSRC}; CC=${CC}  CXX=${CXX} ./configure --host=${TARGET_TYPE} --prefix=$$prefix --enable-cxx)
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
-		(cd ${WRKSRC} ; ${MAKE} CC=${CC}) ; \
+		(cd ${WRKSRC} ; ${MAKE} CC=${CC} CXX=${CXX})  ; \
 	fi
 	@touch work/.build_done
 

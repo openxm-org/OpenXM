@@ -65,13 +65,14 @@ class Asir(Expect):
 #    OutputLimit = '--outputLimit 64000'
 
     def __init__(self, maxread=None, script_subdirectory=None, logfile=None,
-                 server=None, server_tmpdir=None, seed=None, command=None):
+                 server=None, server_tmpdir=None, seed=None, command=None, noLogWindow=None):
         """
         EXAMPLES::
 
             sage: asir == loads(dumps(asir))
             True
         """
+        if noLogWindow != None: self.NoLogWindow = '--noLogWindow'
         if command is None:
             command = os.getenv('SAGE_ASIR_COMMAND') or 'openxm ox_texmacs --view sage --quiet --noCopyright --smallv_to_capitalv sage '+' '+self.NoLogWindow+' '+self.OutputLimit
 ##Other options are --noLogWindow and --outputLimit size(in bytes)
@@ -571,7 +572,8 @@ class AsirElement(ExpectElement):
 
 
 # An instance
-asir = Asir()
+if os.getenv('SAGE_ASIR_NoLogWindow'): asir=Asir(noLogWindow=True)
+else: asir = Asir()
 
 
 def reduce_load_Asir():

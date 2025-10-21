@@ -885,9 +885,9 @@ oxasir.verbose {
  asir.init.peer oxmathcap
  asir.init.peer oxsetmathcap 
  Xm_noX {
-   asir.init.peer (Xm_noX=1;) oxsubmit
+   asir.init.peer (Xm_noX=1$) oxsubmit
  }{  
-   asir.init.peer (Xm_noX=0;) oxsubmit
+   asir.init.peer (Xm_noX=0$) oxsubmit
  } ifelse
  (Ox103_loaded) boundp 
  {
@@ -926,10 +926,10 @@ oxasir.verbose {
       asir-comm oxasir.changeRing
     ] pop
     %%% Setting OxVlist to tell asir a way to change dist-poly <==> poly.
-    (OxVlist=) getVlist2 toString (;) 3 cat_n /comm set
+    (OxVlist=) getVlist2 toString ($) 3 cat_n /comm set
      %% comm message
      pid comm oxsubmit 
-     pid (print(OxVlist);) oxsubmit
+     pid (print(OxVlist)$) oxsubmit
 
 
      /n asir-comm length def
@@ -1705,7 +1705,7 @@ oxasir.verbose {
     } {  } ifelse
 
     [$dp_weyl_set_weight(newvect($  ww length toString $,$
-     ww toString $));$ ] cat /comm set
+     ww toString $));;$ ] cat /comm set
 
     verbose.wgr {
       comm message
@@ -1759,11 +1759,11 @@ oxasir.verbose {
         ox_asirConnectMethod
     } {  } ifelse
 
-    oxasir.ccc ( quotetotex_env("conv_rule",7); ) oxsubmit 
+    oxasir.ccc ( quotetotex_env("conv_rule",7)$ ) oxsubmit 
     oxasir.ccc oxpopcmo ;
 
     f print_tex_form.aux /f set 
-    [$ print_tex_form($,  f $); $] cat /comm set
+    [$ print_tex_form($,  f $);; $] cat /comm set
     oxasir.ccc comm oxsubmit 
     oxasir.ccc oxpopcmo /arg1 set
   ] pop
