@@ -139,11 +139,11 @@ static void print_cmo_bf(cmo_bf* c)
 static void print_cmo_tree(cmo_tree* c)
 {
     ox_printf(", ");
-    print_cmo(c->name);
+    print_cmo((cmo*)c->name);
     ox_printf(", ");
-    print_cmo(c->attributes);
+    print_cmo((cmo*)c->attributes);
     ox_printf(", ");
-    print_cmo(c->leaves);
+    print_cmo((cmo*)c->leaves);
     ox_printf(")");
 }
 

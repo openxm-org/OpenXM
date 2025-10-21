@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #if !defined(_MSC_VER)
 #include <sys/param.h>
 #else

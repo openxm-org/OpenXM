@@ -63,7 +63,7 @@ void pops(int n)
 int sm_mathcap()
 {
     mathcap_init(OX_XSAMPLE_VERSION, ID_STRING, "ox_Xsample", NULL, NULL);
-    push(oxf_cmo_mathcap(fd_rw));
+    push((cmo *)oxf_cmo_mathcap(fd_rw));
     return 0;
 }
 
@@ -80,7 +80,7 @@ int sm_popCMO()
 
 cmo_error2 *make_error2(int code)
 {
-    return new_cmo_int32(-1);
+    return (cmo_error2 *)new_cmo_int32(-1);
 }
 
 int get_i()
@@ -107,7 +107,7 @@ int my_setpixel()
     int x, y;
     get_xy(&x, &y);
     setpixel(x, y);
-    push(new_cmo_int32(0));
+    push((cmo *)new_cmo_int32(0));
 }
 
 int my_moveto()
@@ -115,7 +115,7 @@ int my_moveto()
     int x, y;
     get_xy(&x, &y);
     moveto(x, y);
-    push(new_cmo_int32(0));
+    push((cmo *)new_cmo_int32(0));
 }
 
 int my_lineto()
@@ -123,21 +123,21 @@ int my_lineto()
     int x, y;
     get_xy(&x, &y);
     lineto(x, y);
-    push(new_cmo_int32(0));
+    push((cmo *)new_cmo_int32(0));
 }
 
 int my_clear()
 {
     /* dummy */
     pop();
-    push(new_cmo_int32(0));
+    push((cmo *)new_cmo_int32(0));
 }
 
 int sm_executeFunction()
 {
     cmo_string *func = (cmo_string *)pop();
     if (func->tag != CMO_STRING) {
-        push(make_error2(0));
+        push((cmo *)make_error2(0));
         return -1;
     }
     if (strcmp(func->s, "setpixel") == 0) {
@@ -149,7 +149,7 @@ int sm_executeFunction()
     }else if (strcmp(func->s, "clear") == 0) {
         my_clear();
     }else {
-        push(make_error2(0));
+        push((cmo *)make_error2(0));
         return -1;
     }
 }
