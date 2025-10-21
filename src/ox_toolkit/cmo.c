@@ -357,7 +357,7 @@ cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
 
 cmo_indeterminate* new_cmo_indeterminate_set_name(char *variable)
 {
-	return new_cmo_indeterminate(new_cmo_string(variable));
+	return new_cmo_indeterminate((cmo *)new_cmo_string(variable));
 }
 
 cmo_distributed_polynomial* new_cmo_distributed_polynomial()
