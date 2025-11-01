@@ -1,0 +1,145 @@
+#define USE_MODULE 1
+#ifdef USE_MODULE
+module tk_hf;;
+/* hf is holonomic function (not distribution) 
+Ref: misc-2024/10/imi-hgm, misc-2025/10/hol-sum-prod
+*/ 
+localf init_hf;
+localf pf_to_ode;
+localf show_pp;
+localf pf_sum;
+localf pf_prod;
+
+static Debug;;
+#else
+extern Debug;;
+Debug=1;;
+#endif
+
+def init_hf(S){
+  Debug=S[0];
+}
+
+/*&usage begin: T=tk_hf.pf_to_ode(P,X)
+ Assume dF/dX=P*F.
+ T[0] is an ODE satisfied by F[0].
+ example: tk_hf.pf_to_ode([[0,1],[x,0]],x);   
+end: */
+
+def pf_to_ode(P,X) {
+  P=matrix_list_to_matrix(P);
+  Rank=size(P)[0];
+  if (Rank<2) poly_dvar(X)-P[0][0];
+  PP=newvect(Rank+1);
+  PP[0]=matrix_identity_matrix(Rank);
+  PP[1]=matrix_clone(P);
+  C=[util_v(c,[1]),util_v(c,[0])];
+  for (I=1; I<Rank; I++) {
+    PP[I+1]=map(diff,PP[I],X)+PP[I]*P;
+    PP[I+1]=map(red,PP[I+1]);
+    C=cons(util_v(c,[I+1]),C);
+  }
+  C=reverse(C);
+  if (Debug) show_pp(PP);
+
+  Ans=0; D=poly_dvar(X);
+  for (K=0; K<=Rank; K++) Ans += C[K]*D^K;
+  Eq=[]; 
+  for (J=0; J<Rank; J++) {
+    L=0;
+    for (K=0; K<=Rank; K++) {
+      L += PP[K][0][J]*C[K];
+    }
+    Eq=cons(nm(red(L)),Eq);
+  }
+  Sol=poly_solve_linear(Eq,C);
+  return [base_replace(Ans,Sol),Sol];
+}
+def show_pp(PP) {
+  N=length(PP);
+  for (I=0; I<N; I++) {print(PP[I]);print("---------------");}
+}
+/*
+T=pf_to_ode([[0,1],[x,0]],x);
+T2=pf_to_ode([[0,1,0],[0,0,1],[-a0/(x^2*(1-x)),-(a1*x+b1)/(x^2*(1-x)),-x*(a2*x+b2)/(x^2*(1-x))]],x);
+*/
+
+/* from misc-2024/10/imi-hgm/Data, imi-hgm/2024-11-18-pf-prod.tex */
+
+/*&usage begin: T=tk_hf.pf_sum(P,Q)
+ Assume dF/dX=P*F and dG/dX=Q*G
+ It returns a system dH/dX=T*H satisfied by H=[F[0]+G[0],F,G]^T where computation is done in the rational Weyl algebra.
+ example: T=tk_hf.pf_sum([[0,-1],[1,0]],[[0,1],[t,0]]);
+ ref: https://www.math.kobe-u.ac.jp/OpenXM/Current/doc/other-docs/tk_hol_sum_prod-ja.pdf
+end: */
+def pf_sum(P,Q) {
+  P=matrix_list_to_matrix(P);
+  Q=matrix_list_to_matrix(Q);
+  .r = size(P)[0];
+  .s = size(Q)[0];
+  R=newmat(.r+.s,.r+.s);
+  R[0][0]=Q[0][0];
+  R[0][1]=P[0][0]-Q[0][0];
+  for (J=1; J<.r; J++) {
+    R[0][J+1]=P[0][J];
+  }
+  for (J=1; J<.s; J++) {
+    R[0][.r+J]=Q[0][J];
+  }
+  for (I=0; I<.r; I++) for (J=0; J<.r; J++) {
+      R[I+1][J+1]=P[I][J];
+  }
+  for (I=1; I<.s; I++) {
+      R[.r+I][0]=Q[I][0];
+      R[.r+I][1]=-Q[I][0];
+      for (J=1; J<.s; J++) {
+	R[.r+I][.r+J]=Q[I][J];
+      }
+  }
+  return R;
+}
+
+/*
+T0=pf_sum([[p11,p12],[p21,p22]],[[q11,q12,q13],[q21,q22,q23],[q31,q32,q33]]);
+print("");;
+T=pf_sum([[0,-1],[1,0]],[[0,1],[t,0]]);
+*/
+/*&usage begin: T=tk_hf.pf_prod(P,Q)
+ Assume dF/dX=P*F and dG/dX=Q*G
+ It returns a system dH/dX=T*H satisfied by H=[F[0]*G[0],...]^T where computation is done in the rational Weyl algebra.
+ example: T=tk_hf.pf_sum([[0,-1],[1,0]],[[0,1],[t,0]]);
+          where F=[cos(t),sin(t)] and G=[airyAi(t),diff(airyAi(t))]
+ ref: https://www.math.kobe-u.ac.jp/OpenXM/Current/doc/other-docs/tk_hol_sum_prod-ja.pdf
+end: */
+def pf_prod(P,Q) {
+  P=matrix_list_to_matrix(P);
+  Q=matrix_list_to_matrix(Q);
+  .r = size(P)[0];
+  .s = size(Q)[0];
+  R=newmat(.r*.s,.r*.s);
+  for (K=0; K<.r; K++) for (L=0; L<.s; L++) {
+      for (I=0; I<.r; I++) for (J=0; J<.s; J++) {
+	  if ((K==I) && (L==J)) {
+	    R[K*.s+L][I*.s+J]=P[K][I]+Q[L][J];
+          }else if ((K==I) && (L!=J)) {
+	    R[K*.s+L][I*.s+J]=Q[L][J];
+	  }else if ((K!=I) && (L==J)) {
+	    R[K*.s+L][I*.s+J]=P[K][I];
+	  }else{
+	    R[K*.s+L][I*.s+J]=0;
+	  }
+      }
+  }
+  return R;
+}
+
+/*
+T=pf_prod([[0,-1],[1,0]],[[0,1],[x,0]]);
+*/
+
+#ifdef USE_MODULE
+init_hf([0]);;
+endmodule;;
+#endif
+
+end;;
