@@ -1,0 +1,90 @@
+%% $OpenXM$
+%% xetex gtt_ds-ja.texi   (.texi までつける. ) 
+%% @math{tex形式の数式} 
+%% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
+%% @tex{tex形式で書いたもの} 
+%%https://www.gnu.org/software/texinfo/manual/texinfo/html_node/_0040TeX-_0040LaTeX.html
+
+%% 日本語版 まだ書いてない, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage ja
+@c -*-texinfo-*-
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-gtt_ds_man
+
+@comment --- タイトル ---
+@settitle Direct sampler
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Direct sampler
+@subtitle Direct sampler by contiguity relations of GKZ hypergeometric systems
+@subtitle Version 0.1
+@subtitle November 3, 2025
+
+@author  by S.Mano, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2022. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+
+@menu
+* About this document::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
+
+英語版をまだ翻訳してない.
+英語版のマニュアル
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/en/gtt_ds-en.pdf},
+@uref{http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/en/gtt_ds-html/gtt_ds-en.html}
+を参照.
+
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye

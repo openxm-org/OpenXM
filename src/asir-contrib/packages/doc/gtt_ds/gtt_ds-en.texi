@@ -1,0 +1,473 @@
+%% $OpenXM$
+%% xetex gtt_ds-en.texi   (.texi までつける. ) 
+%%Ref: misc-2025/11/gtt_ds-man
+%% @math{tex形式の数式} 
+%% 参考: http://www.fan.gr.jp/~ring/doc/texinfo/texinfo-ja_14.html#SEC183
+%% @tex{tex形式で書いたもの} 
+%%https://www.gnu.org/software/texinfo/manual/texinfo/html_node/_0040TeX-_0040LaTeX.html
+
+%% 英語版, 以下コメントは @comment で始める.  \input texinfo 以降は普通の tex 命令は使えない.
+\input texinfo-ja
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@documentlanguage en
+@c -*-texinfo-*-
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-gtt_ds_man
+
+@comment --- タイトル ---
+@settitle Direct sampler
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Direct sampler
+@subtitle Direct sampler by contiguity relations of GKZ hypergeometric systems 
+@subtitle Version 0.1
+@subtitle November 3, 2025
+
+@author  by S.Mano, N.Takayama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004--2025. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+
+@menu
+* About this document::
+* Complex to A matrix::
+* Direct sampler of two way contigency table::
+* Index::
+@end menu
+
+@comment ---------- New Chapter  ---------------
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node About this document,,, Top
+@chapter About this document
+
+This document explains Risa/Asir functions for direct sampler 
+by contiguity relations of GKZ hypergeometric systems @*    @comment 強制改行
+Loading the package:
+@example
+import("gtt_ds.rr");
+@end example
+@noindent
+References cited in this document.
+@itemize @bullet
+@item [MT2021v2] S.Mano, N.Takayama, Algorithm for direct sampling from conditional distributions of toric models, version 2,
+@url{https://arxiv.org/abs/2110.14992}.
+@comment Ref: z-Done25/2025-10-22-win-desktop-整理/mano-takayama-ds-2110.14992v2.pdf
+@end itemize
+
+
+
+@comment ---------- New Chapter  ---------------
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node Simplicial complex to A matrix,,, Top
+@chapter Simplicial complex to A matrix
+
+@menu
+* gtt_ds.getA::
+@end menu
+
+@comment **********************************************************
+@comment ---function getA
+@node gtt_ds.getA,,, Simplicial complex to A matrix
+@section @code{gtt_ds.getA}
+@comment --- 索引用キーワード
+@findex gtt_ds.getA
+
+@table @t
+@item gtt_ds.getA(@var{Levels},@var{Facets})
+:: It returns a matrix A standings for a simplicial complex defined by @var{Facets} and the set of levels of each vertex @var{Levels}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+Matrix A to define a GKZ system.
+@item Levels
+Levels of each vertex of the simplicial complex @var{Facets}.
+@item Facets
+The set of facets of a simplicial complex.
+A facet is expressed by a 0, 1 vector.
+1 stands for the vertex of the position belongs to the facet and
+0 stands for the vertex of the position does not belong to the facet.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item 
+The following is an explanation of how facets are expressed by the varible
+@var{Facets}.
+Consider the simplicial complex of 4 vertices [123][134] (square with one diagonal line)
+@verbatim
+
+ 1      2
+ *------*
+ |\     |
+ | \    |
+ |  \   |
+ |   \  |
+ |    \ |
+ *------*
+ 4      3
+
+@end verbatim
+The facet 12 is expressed as @code{[1,1,0,0]},
+The facet 23 is expressed as @code{[0,1,1,0]},
+the facet 13 is expressed as @code{[1,0,1,0]}.
+The set of all facets is
+@code{[[1,1,0,0],[0,1,1,0],[1,0,1,0],[1,0,0,1],[0,0,1,1]]}.
+@item 
+The variable @var{Levels} is a set of levels of each vertex
+by pressed by numbers 1, 2, 3, ...
+For example, if we have four vertices and @var{Levels}
+is @code{[2,2,3,4]}, then the vertex 1 has the levels 1,2,
+the vertex 2 also has the levels 1,2,
+the vertex 3 has the levels 1,2,3,
+and the vertex 4 ahs the levels 1,2,3,4.
+@item 
+The rows of the matrix A is indexed by all levels of all facets.
+See page 4 of [MT2021v2], @math{ {\cal I}_F }. 
+Let us show an example by our four vertices simplicial complex above.
+Let F be the facet [13] and @var{Levels} @code{[2,2,3,4]}.
+Then, all levels of the facet F is
+@code{[1,0,1,0],[1,0,2,0],[1,0,3,0],[2,0,1,0],[2,0,2,0],[2,0,3,0]}.
+The rows of the matrix A is indexed by such index that runs over all facets.
+@item 
+For a graphical model, the set of facets are the set of cliques.
+@item
+The columns of the matrix A is indexed by all possible combinations
+of levels.
+See page 4 of [MT2021v2], @math{{cal I}_V}.
+For example, if @code{Levels=[2,4]}, then the column index is
+@code{[1,1],[1,2],[1,3],[1,4],[2,1],[2,2],[2,3],[2,4]}.
+@item 
+The matrix A is a 0-1 matrix. 
+If the row index and the column index matches on the facet F underlying the row index, the the entry of A is 1.
+@end itemize
+
+@comment Ref: z-Done25/2025-09-29-gtt_ds-getA-*.pdf or *my-note*
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: 
+Consider the simplicial complex [1][2] (independent two points)
+with @code{Levels=[2,2]}.
+Then, the rows of the matrix A is indexed by
+@code{[1,0],[2,0],[0,1],[0,2]}
+and the columns of the matrix A is indexed by 
+@code{[1,1],[1,2],[2,1],[2,2]}.
+The matrix A is
+@math{
+\pmatrix{1&1&0&0\cr
+         0&0&1&1\cr
+         1&0&1&0\cr
+         0&1&0&1\cr
+}
+}
+For example, [1,0],[1,1] matches (1?,11, replace 0 by the wild card ? and regard it a regular expression),
+[1,0],[1,2] also matches (1?,12), but
+[1,0],[0,1] does not match (1?,01).
+@example
+
+[2122] import("gtt_ds.rr");
+[4432] gtt_ds.getA([2,2],[[1,0],[0,1]]);
+[ 1 1 0 0 ]
+[ 0 0 1 1 ]
+[ 1 0 1 0 ]
+[ 0 1 0 1 ]
+@end example
+
+@*
+@noindent
+Example: 
+Consider the simplicial complex [1][2] (independent two points)
+with @code{Levels=[2,3]}.
+Then, the rows of the matrix A is indexed by
+@code{[1,0],[2,0],[0,1],[0,2],[0,3]}
+and the columns of the matrix A is indexed by 
+@code{[1,1],[1,2],[1,3],[2,1],[2,2],[2,3]}.
+The matrix A is
+@math{
+\pmatrix{
+1&  1&  1& 0& 0& 0 \cr
+0& 0& 0&  1&  1&  1 \cr
+ 1& 0& 0&  1& 0& 0 \cr
+0&  1& 0& 0&  1& 0 \cr
+0& 0&  1& 0& 0&  1 \cr
+}
+}
+@example
+
+[2122] import("gtt_ds.rr");
+[4432]  gtt_ds.getA([2,3],[[1,0],[0,1]]);
+[ 1 1 1 0 0 0 ]
+[ 0 0 0 1 1 1 ]
+[ 1 0 0 1 0 0 ]
+[ 0 1 0 0 1 0 ]
+[ 0 0 1 0 0 1 ]
+@end example
+
+@comment Prog: misc-2022/04/amp/Data/2022-01-01-n-pf-4cycle.rr
+@comment Prog: misc-2022/04/amp/Data/2021-12-17-4cycle.rr
+@comment Prog: Dropbox/tmp/2021-10-14-rem-nt-g-*mano*  from 19min
+@comment Ref: h-mle/mano, 2021-09-08-mano-direct-sampler
+@*
+@noindent
+Example: 
+Consider the simplicial complex [123][134]
+with @code{Levels=[2,2,3,4]}.
+For example,
+the row index [1,2,2,0] and the column index [1,1,1,1].
+They do not match (122? and 1111).
+The row index [1,2,2,0] and the column index [1,2,2,4].
+matches (122? and 1114).
+
+The row index [1,1,1,0] and the column index [1,1,1,1].
+matches (111? and 1111).
+The row index [1,1,1,0] and the column index [1,1,1,2].
+matches (111? and 1112).
+...
+The row index [1,1,1,0] and the column index [1,2,1,1].
+does not matche (111? and 1211).
+...
+The row index [1,1,1,0] and the column index [2,2,3,4].
+does not matche (111? and 2234).
+
+@example
+
+[2122] import("gtt_ds.rr");
+[4432] gtt_ds.getA([2,2,3,4],[[1,1,1,0],[1,0,1,1]]);
+[ 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+                         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+                         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+--- snip ---
+[ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+                         0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 ]
+@end example
+
+@*
+@noindent
+Example: 
+See pages 20, 21 of [MT2021v2].
+
+@example
+
+[2123] import("mt_mm.rr");
+[4432] gtt_ds.getA([2,2,2,2],[[1,1,1,0],[1,1,0,1]]);
+[ 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 ]
+[ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 ]
+[ 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 ]
+[ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 ]
+[ 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 ]
+@end example
+
+@*
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ds.direct_sampler}
+@end table
+@comment gtt_ds.getA の説明おわり. あとはこれの繰り返し.
+
+@comment ---------- New Chapter  ---------------
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node Direct sampler of two way contingency table,,, Top
+@chapter Direct sampler of two way contingency table
+
+@menu
+* gtt_ds.direct_sampler::
+@end menu
+
+@comment **********************************************************
+@comment ---function direct_sampler
+@node gtt_ds.direct_sampler,,, Direct sampler of two way contingency table
+@section @code{gtt_ds.direct_sampler}
+@comment --- 索引用キーワード
+@findex gtt_ds.direct_sampler
+
+
+@table @t
+@item gtt_ds.direct_sampler(@var{MarginalSum},@var{CellProb})
+:: It returns a sample contingency table.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+A sample contingency table. 
+@item MarginalSum
+Marginal sums of a two way contingency table.
+@item CellProb
+A list of probabilities of each cell of the table.
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item
+Repeating to call this function generates samples with integral entries
+with given marginal sums @var{MarginalSum}.
+@item 
+The function utilizes the package @code{gtt_ekn3.rr}
+to obtain contiguity relations for the GKZ hypergeometric systems
+(Aomoto-Gel'fand system) for two way contingency tables.
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: we consider @math{2 \times 3} contingency tables with
+the cell probability
+@math{
+\pmatrix{
+1& 1/2 & 1/3 \cr
+1& 1   & 1 \cr
+}
+},
+the row marginal sums @math{(5,6)},
+and the column marignal sums @math{(3,3,5)}.
+@example
+[1883] import("gtt_ds.rr");
+[4447] for (I=0; I<3; I++) 
+  printf("%a\n-----\n",gtt_ds.direct_sampler(MarginalSum,CellProb));  
+[ 2 0 3 ]
+[ 1 3 2 ]
+-----
+[ 2 2 1 ]
+[ 1 1 4 ]
+-----
+[ 2 0 3 ]
+[ 1 3 2 ]
+-----
+@end example
+
+@*
+Todo, install a function to obtain contiguity relations
+for a given matrix A. 
+Call this function with optional variable @code{a} (A matrix),
+@code{MarginalSum} is @math{\beta}.
+Refer to @code{mt_mm.rr} and latest isom-project codes.
+
+@* 
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ds.getA}
+@end table
+@comment ---end function direct_sampler
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+
+
+@comment *********************************************************
+@comment ********* template
+@comment **********************************************************
+
+@comment **********************************************************
+@comment ---function getA
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node gtt_ds.getA,,, Chapter_name
+@section @code{gtt_ds.getA}
+@comment --- 索引用キーワード
+@findex gtt_ds.getA
+
+@table @t
+@item gtt_ds.getA(@var{Levels},@var{Facets})
+:: It returns a matrix A defined by a simplicial complex with levels.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+matrix A
+@item A
+Level sets
+@item Beta
+???
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+The independent variables are @code{x1,x2,x3,...} (@math{x_1, x_2, x_3, \ldots}).
+@verbatim
+One can use verbatim.
+@end verbatim
+@item 
+???
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+Example: See [MT2021v2] example ??.
+@example
+[1883] import("gtt_ds.rr");
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{gtt_ds.direct_sampler}
+@end table
+@comment ---end function getA
