@@ -9,38 +9,38 @@
 \maketitle
 
 
-%%OpenXM/doc/Papers/rims-2003-12* $B$K(B oxshell, polymake
+%%OpenXM/doc/Papers/rims-2003-12* に oxshell, polymake
 
-\section{2004-02, port $B2=(B}
+\section{2004-02, port 化}
 
 \begin{enumerate}
-\item gmp $B$O%M%C%H%o!<%/$+$i%@%&%s%m!<%I$7$F%$%s%9%H!<%k$9$k$h$&$K$9$k(B.
-{\tt OpenXM\_contrib} $B$O$D$+$o$J$$(B.
+\item gmp はネットワークからダウンロードしてインストールするようにする.
+{\tt OpenXM\_contrib} はつかわない.
 \item {\tt OpenXM/src/gmp/Makefile-ports} 1.1--1.5,
 %%Mail/openxm-cvs.inbox 141
 \end{enumerate}
 
 \section{2004-02,  memory leak}
 \begin{enumerate}
-\item {\tt misc-2003/A2/bs-poly/bs2-leak.sm1} $B<B9T;~$K%/%i%$%"%s%H9=B$BN(B
-$B$,2u$l$k(B.  gmp 4.x $B$K$h$k%a%b%j%j!<%/$r5?$&$b(B, {\tt GC\_malloc} $B$r;H$&$Y$-$H$3$m$G(B
-{\tt malloc} $B$rMQ$$$F$$$?$N$G%a%b%j$,GK2u$5$l$F$$$?$HH=L@(B.
-{\tt malloc} $B$NCf$K%]%$%s%?$rF~$l$F$O$$$1$J$$(B.
-\item {\tt OpenXM/src/kan96xx} $B0J2<$N3F%U%!%$%k(B.
+\item {\tt misc-2003/A2/bs-poly/bs2-leak.sm1} 実行時にクライアント構造体
+が壊れる.  gmp 4.x によるメモリリークを疑うも, {\tt GC\_malloc} を使うべきところで
+{\tt malloc} を用いていたのでメモリが破壊されていたと判明.
+{\tt malloc} の中にポインタを入れてはいけない.
+\item {\tt OpenXM/src/kan96xx} 以下の各ファイル.
 {\tt Kan/kanExport1.c} 1.11,
 {\tt Kan/poly3.c} 1.7,
 {\tt Kan/shell.c} 1.11,
-{\tt plugin/file2.c} 1.9 ($B860x(B),
+{\tt plugin/file2.c} 1.9 (原因),
 {\tt plugin/oxKan0.h} 1.16,
-{\tt plugin/sm1Socket.c} 1.16 ($B860x(B).
+{\tt plugin/sm1Socket.c} 1.16 (原因).
 {\tt OpenXM/src/kxx/oxmain.c} 1.15.
 %%Mail/openxm-cvs.inbox 164 2004-2-23
 \end{enumerate}
 
 \section{2004-02, 03, ox\_texmacs}
 \begin{enumerate}
-\item sm1 $B$r4pAC$H$7$F(B ox\_texmacs $B$r:n$k(B.  {\tt -q} option $B$GM>7W$J(B
-$B%a%C%;!<%8$rI8=`=PNO$X=P$5$J$$$h$&$K$9$k(B.  $B<!$N%U%!%$%k$rJQ99(B.
+\item sm1 を基礎として ox\_texmacs を作る.  {\tt -q} option で余計な
+メッセージを標準出力へ出さないようにする.  次のファイルを変更.
 %%Mail/openxm-cvs.inbox 203, 204, 210, 213, 215, 220, 221, 222
 \item {\tt OpenXM/src/util/ox\_pathfinder.c} 1.18--1.19,
 {\tt OpenXM/src/util/ox\_pathfinder.h} 1.11,
@@ -50,58 +50,58 @@
 {\tt OpenXM/src/kan96xx/Kan/kanExport0.c} 1.21,
 {\tt OpenXM/src/kan96xx/plugin/mytcpio.c} 1.14.
 \item {\tt ox\_texmacs}. 
- {\tt OpenXM/src/kxx} $B0J2<$N<!$N%U%!%$%k$rJQ99(B.
+ {\tt OpenXM/src/kxx} 以下の次のファイルを変更.
 \item {\tt ox\_texmacs.c} 1.1--1.17,
 {\tt sample\_kanlib.c} 1.1,
-\item {\tt init-openxm.scm} $B$N:n@.(B ($B>.86(B).
+\item {\tt init-openxm.scm} の作成 (小原).
 \end{enumerate}
 
-\section{2004-03, ox $B5!G=$N6/2=(B}
+\section{2004-03, ox 機能の強化}
 \begin{enumerate}
-\item option $B$D$-$N4X?t$h$S$@$7(B.
-%%Mail/openxm-cvs.inbox 286, 288  $B$^$@=q$$$F$J$$(B
+\item option つきの関数よびだし.
+%%Mail/openxm-cvs.inbox 286, 288  まだ書いてない
 \end{enumerate}
 
-\section{2004-07, dhecart (2$B=EF1;~2=$K$h$k(B gb)}
+\section{2004-07, dhecart (2重同時化による gb)}
 \begin{enumerate}
-\item h[0,1](D) $B$G$N%0%l%V%J(B fan $B$N7W;;$N$?$a$N=`Hw(B.
+\item h[0,1](D) でのグレブナ fan の計算のための準備.
 \item Doc/dhecart.sm1,  dh.gb 
 %%Mail/openxm-cvs.inbox ??
 \end{enumerate}
 
-\section{2004-08-22, lcm, polylcm, gcd, polygcd, $B$=$NB>(B}
+\section{2004-08-22, lcm, polylcm, gcd, polygcd, その他}
 \begin{enumerate}
-\item polylcm, polygcd $B$O(B ox $B$rMQ$$$k(B.
-\item mpzext (lcm, gcd).  int32 $B$O(B universalNumber (mpz\_int) $B$X<+F0JQ49(B.
-\item ox.sm1 $B$O5/F0$N;~$+$i(B load $B$9$Y$-$@$,$^$@$d$C$F$J$$(B.
+\item polylcm, polygcd は ox を用いる.
+\item mpzext (lcm, gcd).  int32 は universalNumber (mpz\_int) へ自動変換.
+\item ox.sm1 は起動の時から load すべきだがまだやってない.
 %%Mail/openxm-cvs.inbox ??
-\item \verb@[(exponents) ...] gbext @ $B$G(B exponents $B$r<h$j=P$;$k(B. $B;O$a$NHG$O(B 8 $B7n:"(B.
-\item {\tt exponents} $B$N(Bformat $B$rJQ$($?(B. (9/5. cf.gfan.sm1, cone.sm1) \\
+\item \verb@[(exponents) ...] gbext @ で exponents を取り出せる. 始めの版は 8 月頃.
+\item {\tt exponents} のformat を変えた. (9/5. cf.gfan.sm1, cone.sm1) \\
 {\tt OpenXM/src/kan96xx/Kan/kanExport1.c} 1.16.
 \end{enumerate}
 
-\section{2004-08-31, weight $B%Y%/%H%k$G(B univNum $B$r<u$1<h$k(B}
+\section{2004-08-31, weight ベクトルで univNum を受け取る}
 \begin{enumerate}
-\item {\tt to\_int32}, {\tt Kto\_int32} $B$G(B univNum $B$r(B int32 $B$X(B.
-\item {\tt to\_int} $B$O(B {\tt to\_univNum} $B$KF1CM(B. $B$I$A$i$+$rGQ;_$7$h$&(B.
-\item $BFbIt4X?t$NJQ99(B: {\tt KordWsAll()}, {\tt KsetUpRing()}, {\tt oInitW()}
-\item $B%^%/%m(B: {\tt ord\_w}, {\tt weight\_vector}, {\tt s\_weight\_vector},
+\item {\tt to\_int32}, {\tt Kto\_int32} で univNum を int32 へ.
+\item {\tt to\_int} は {\tt to\_univNum} に同値. どちらかを廃止しよう.
+\item 内部関数の変更: {\tt KordWsAll()}, {\tt KsetUpRing()}, {\tt oInitW()}
+\item マクロ: {\tt ord\_w}, {\tt weight\_vector}, {\tt s\_weight\_vector},
 {\tt w\_to\_vec}, {\tt ecart.weight\_vector}, {\tt ord\_ws\_all}
-\item  $B%F%9%HJ}K!(B.  cvs-eventail/aux-cone.sm1 $B$N(B test7 $B$rMQ$$$k(B.
+\item  テスト方法.  cvs-eventail/aux-cone.sm1 の test7 を用いる.
 %%Mail/openxm-cvs.inbox ??
 \end{enumerate}
 
-\section{2004-09-5, error $B$*$h$S(B ctrl-C $B$G%^%/%m$N8F$S=P$7MzNr$rI=<((B(trace)}
+\section{2004-09-5, error および ctrl-C でマクロの呼び出し履歴を表示(trace)}
 \begin{enumerate}
-\item {\tt traceShowStack()} $B$r8F$S=P$9$H8F$S=P$7MzNr$,I=<($5$l$k(B.
-$BMzNr$rJ8;zNs$GLa$9(B.
-\item \verb@ ctrlC_hook @ $B$N<B9TCf$K%(%i!<$r$*$3$9$H(B, ox103\_reset $B$,(B
-$B$h$P$l(B, $B$3$l$,L58B%k!<%W$r@8$`(B. $B$3$l$rKI;_(B.
-\item {\tt executeToken} $B$9$kA0$K4X?t$NL>A0$r(B trace $BMQ$N%9%?%C%/(B
-{\tt TraceNameStack} $B$X(B push.
-$B<B9T$,$*$o$l$P(B pop $B$9$k$3$H$K$h$j(B, $BMzNrI=<($r%3%s%H%m!<%k(B.
-\item extension $B$GMzNr$N%/%j%"(B, $B6/@)I=<($,$G$-$k(B.
-\item ctrl-C $B$GMzNr$NI=<((B, $B%/%j%"$r$9$k(B. $B$3$l$O3F(B ox server $B$GBP=h$NI,MW$"$j(B.
+\item {\tt traceShowStack()} を呼び出すと呼び出し履歴が表示される.
+履歴を文字列で戻す.
+\item \verb@ ctrlC_hook @ の実行中にエラーをおこすと, ox103\_reset が
+よばれ, これが無限ループを生む. これを防止.
+\item {\tt executeToken} する前に関数の名前を trace 用のスタック
+{\tt TraceNameStack} へ push.
+実行がおわれば pop することにより, 履歴表示をコントロール.
+\item extension で履歴のクリア, 強制表示ができる.
+\item ctrl-C で履歴の表示, クリアをする. これは各 ox server で対処の必要あり.
 \item 
 {\tt OpenXM/src/kan96xx/Kan/ext.c} 1.24 \\
 {\tt OpenXM/src/kan96xx/Kan/kanExport0.c} 1.30 \\
@@ -113,37 +113,37 @@
 {\tt OpenXM/src/kxx/sample\_kanlib.c} 1.2
 \end{enumerate}
 
-\section{2004-09-05, EUC$BEy(B 8-bit $B$NL>A0$r<u$1IU$1$k(B}
+\section{2004-09-05, EUC等 8-bit の名前を受け付ける}
 \begin{enumerate}
-\item hash $BCM$N7W;;J}K!$K%P%0$,$"$C$?(B. hash $B$NCM$OIi$G$O$$$1$J$$(B.
+\item hash 値の計算方法にバグがあった. hash の値は負ではいけない.
 \item {\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.17
 \end{enumerate}
 
 
-\section{2004-09-05, $B%0%l%V%J(Bfan$B$N7W;;(B}
+\section{2004-09-05, グレブナfanの計算}
 \begin{enumerate}
-\item polymake $B$,I,MW(B.  9/1, 9/2, 9/3, 9/4 $B$N%N!<%H$b;2>H(B.
-\item OpenXM $B$N(B cvs $B$X$N(B commit $B$OBg$-$$6h@Z$j$G(B. 
-      $B:Y$+$$JQ99$O(B {\tt eventail/cone.sm1} $B$G(B.
+\item polymake が必要.  9/1, 9/2, 9/3, 9/4 のノートも参照.
+\item OpenXM の cvs への commit は大きい区切りで. 
+      細かい変更は {\tt eventail/cone.sm1} で.
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
 \end{enumerate}
 
-\section{2004-09-05, $B%0%l%V%J(Bfan$B$N7W;;(B}
+\section{2004-09-05, グレブナfanの計算}
 \begin{enumerate}
-\item polymake $B$,I,MW(B.  9/1, 9/2, 9/3, 9/4 $B$N%N!<%H$b;2>H(B.
-@s/2004/08/21-note.pdf $B$KJQ?tEy$N@bL@$"$j(B.
-\item OpenXM $B$N(B cvs $B$X$N(B commit $B$OBg$-$$6h@Z$j$G(B. 
-      $B:Y$+$$JQ99$O(B {\tt eventail/cone.sm1} $B$G(B.
+\item polymake が必要.  9/1, 9/2, 9/3, 9/4 のノートも参照.
+@s/2004/08/21-note.pdf に変数等の説明あり.
+\item OpenXM の cvs への commit は大きい区切りで. 
+      細かい変更は {\tt eventail/cone.sm1} で.
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
 \end{enumerate}
 
-\section{2004-09-09, 11, list $B$N6/2=(B}
+\section{2004-09-09, 11, list の強化}
 \begin{enumerate}
-\item array $B$N(B {\tt join} $B$r9T$&$H%a%b%j$NL5$@;H$$$,$O$2$7$$(B.
-list $B$N(B {\tt cons} $B$rF3F~(B.  rest $B$bF3F~(B. join $B$O;H$($k$,4m81(B.
+\item array の {\tt join} を行うとメモリの無だ使いがはげしい.
+list の {\tt cons} を導入.  rest も導入. join は使えるが危険.
 \item 
-{\tt arrayToList}, {\tt listToArray} : $BJQ494X?t$r=`Hw(B.
-\item {\tt get} $B$,%j%9%H$G$bF0$/$h$&$K(B.
+{\tt arrayToList}, {\tt listToArray} : 変換関数を準備.
+\item {\tt get} がリストでも動くように.
 \item {\tt Kan/dr.sm1} 1.35--1.36, 1.38 \\
 {\tt Kan/extern.h} 1.24--1.25 \\
 {\tt Kan/ext.c} 1.25 \\
@@ -155,42 +155,42 @@ list $B$N(B {\tt cons} $B$rF3F~(B.  rest $B$bF3F~(B. join $B$O;H$($k$,4m8
 {\tt Kan/usage.sm1} 1.9
 \end{enumerate}
 
-\section{2004-09-10, $B%3%s%^(B {\tt ,} $B$N07$$$NJQ99(B}
+\section{2004-09-10, コンマ {\tt ,} の扱いの変更}
 \begin{enumerate}
-\item  $B%3%s%^(B {\tt ,} $B$O$$$^$^$G%^%/%m$G$"$C$?$,(B, $B6uGr$H$7$F07$&$h$&$KJQ99$9$k(B.
-\item  $B%7%9%F%`$NJQ99$O0J2<$NDL$j(B. \\
+\item  コンマ {\tt ,} はいままでマクロであったが, 空白として扱うように変更する.
+\item  システムの変更は以下の通り. \\
 {\tt Kan/scanner.c} 1.5--1.6 \\
 {\tt Kan/scanner2.c} 1.4--1.5 \\
 {\tt Kan/dr.sm1} 1.37 \\
 {\tt Kan/smacro.sm1} 1.6 
-\item $B$=$NB>$O%i%$%V%i%jFbIt$G(B {\tt ,,} $B$r(B {\tt \_\_} $B$X(B,
-{\tt ,,,} $B$r(B {\tt \_\_\_} $B$XJQ99$7$?(B.
+\item その他はライブラリ内部で {\tt ,,} を {\tt \_\_} へ,
+{\tt ,,,} を {\tt \_\_\_} へ変更した.
 \end{enumerate}
 
-\section{2004-09-11,12, infix operator $B$rF3F~(B}
+\section{2004-09-11,12, infix operator を導入}
 \begin{enumerate}
-\item {\tt getattr} $B$r2C$($?(B (step 1). 
-\item {\tt attr} $B$K(B {\tt ATTR\_INFIX} $BB0@-(B bit $B$rN)$F$F(B,
-infix operator $B$H$9$k(B.
-\item {\tt attr} $B$N(B PROTECT $BB0@-$r(B bit $B$G=hM}$9$k$h$&$KJQ99(B (step 2).
-$B%F%9%H$O(B {\tt k0} $B$G(B
+\item {\tt getattr} を加えた (step 1). 
+\item {\tt attr} に {\tt ATTR\_INFIX} 属性 bit を立てて,
+infix operator とする.
+\item {\tt attr} の PROTECT 属性を bit で処理するように変更 (step 2).
+テストは {\tt k0} で
 \begin{verbatim}
 sm1(" [(getattr) /cons] extension :: ");
 cons = 1;
 \end{verbatim}
-Warning $B$,I=<($5$l$k$+(B?
-\item infix $BB0@-$,$"$k$H$-(B, {\tt getokenSM(GET)} $B$G<!$N(B token $B$rFI$_9~$_(B
-$B$=$l$r(B {\tt executeToken} $B$7$F$+$i(B, infix $BB0@-$N$"$k%^%/%m$r<B9T$9$l$P(B
-$B$$$$$+$H$$$&$H(B, $B$=$l$G$O(B top level  $B$N=hM}$7$+$G$-$J$$(B.
-$B$?$H$($P(B, tokenArray $B$r=gHV$K=hM}$7$F$$$k$h$&$J>l9g$O$@$a(B.
-$B$h$C$F(B, {\tt executeToken} $B$NLa$jCM$N(B status $B$NCM$r(B
-$BMQ$$$k(B.  status $B$O(B {\tt loop} $B$+$i(B {\tt exit} $B$9$k$H$-$K$b;H$o$l$F$$$k(B
-$B$N$G(B, status $B$NH=DjJ}K!$r8+D>$9I,MW$,$"$k(B.
+Warning が表示されるか?
+\item infix 属性があるとき, {\tt getokenSM(GET)} で次の token を読み込み
+それを {\tt executeToken} してから, infix 属性のあるマクロを実行すれば
+いいかというと, それでは top level  の処理しかできない.
+たとえば, tokenArray を順番に処理しているような場合はだめ.
+よって, {\tt executeToken} の戻り値の status の値を
+用いる.  status は {\tt loop} から {\tt exit} するときにも使われている
+ので, status の判定方法を見直す必要がある.
 \end{enumerate}
 
-\section{2004-09-13, $BItJ,E*$J(B ecart division}
+\section{2004-09-13, 部分的な ecart division}
 
-\noindent Debug $BMQ$N%G!<%?(B 1.
+\noindent Debug 用のデータ 1.
 {\footnotesize \begin{verbatim}
 [ [( (x Dx)^2 + (y Dy)^2 -1) ] (x,y) 
   [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] 
@@ -201,7 +201,7 @@ ff getRing ring_def show_ring
 \end{verbatim}
 }
 
-\noindent Debug $BMQ$N%G!<%?(B 2.
+\noindent Debug 用のデータ 2.
 {\footnotesize \begin{verbatim}
 /ecart.checkOrder { 1 } def
 [(DebugReductionEcart) 3] system_variable
@@ -218,42 +218,42 @@ ff getRing ring_def show_ring
 (x*y*z) std ecartd.reduction
 \end{verbatim}
 }
-GlobalVarX $B$NJQ?t$K$D$$$F$O(B local order $B$G$O$$$1$J$$(B.
-$BL58B%k!<%W$H$J$k(B.
-{\tt ecart.checkOrder} $B$b=q$-D>$5$J$$$H$$$1$J$$(B.
+GlobalVarX の変数については local order ではいけない.
+無限ループとなる.
+{\tt ecart.checkOrder} も書き直さないといけない.
 
 \begin{enumerate}
-\item \verb@ ringp->partialEcart @ $B$O(B int $B$NG[Ns(B
-\verb@ ringp->partialEcartGlobalVarX @ $B$ND9$5(B.
-$B$3$NG[Ns$K(B local $B$G$J$$JQ?t(B (first weight $B$,(B non-negative $B$J(B x $BJQ?t(B) $B$N%j%9%H$rF~$l$k(B.
-{\tt ecartGetEllPartial()} $B$GMxMQ$5$l$k(B.
-\item Todo: ring $B$N%a%s%P(B {\tt ringInInputForm} $B$N3hMQ(B. ( weight vector $B$d(B
-input $B7A<0$N(B ring $B$r(B object $B$H$7$F3JG<(B.
-\item Todo: {\tt KgetRingInfo} $B$r<BAu$9$k(B. index $B$+$i(B $BJQ?t(B, $BJQ?t$+$i(B index $BEy(B.
+\item \verb@ ringp->partialEcart @ は int の配列
+\verb@ ringp->partialEcartGlobalVarX @ の長さ.
+この配列に local でない変数 (first weight が non-negative な x 変数) のリストを入れる.
+{\tt ecartGetEllPartial()} で利用される.
+\item Todo: ring のメンバ {\tt ringInInputForm} の活用. ( weight vector や
+input 形式の ring を object として格納.
+\item Todo: {\tt KgetRingInfo} を実装する. index から 変数, 変数から index 等.
 \end{enumerate}
 
-\section{2004-09, {\tt ATTR\_EXPORT} $B$H(B {\tt RestrictedMode}}
+\section{2004-09, {\tt ATTR\_EXPORT} と {\tt RestrictedMode}}
 
 \noindent
-$B8=:_$N(B RestrictedMode $B$K$O0J2<$N@H<e@-$,$"$k(B (2004.9.19).
+現在の RestrictedMode には以下の脆弱性がある (2004.9.19).
 \begin{verbatim}
 (cohom.sm1) run
 [(or_attr) 8 /gb] extension 
 [(or_attr) 8 /;] extension ;
 [(RestrictedMode) 1] system_variable ;
 [ [{(hello) message } ] (x,y) ] gb ;
-hello     <----  error $B$r5/$3$9A0$K(B {(hello) message} $B$,<B9T$5$l$F$7$^$&(B.
+hello     <----  error を起こす前に {(hello) message} が実行されてしまう.
 ERROR(sm): 
 << /name object def >>  or  << object /name set >>
 \end{verbatim}
-\noindent $B860x(B: 
-$B0z?t$K(B executableArray $B$rM?$($k$3$H$K$h$j(B, $BI>2A$,M^@)$5$l(B
-{\tt ATTR\_EXPORT} bit $B$,%;%C%H$5$l$?4X?t$NI>2A$,$O$8$^$C$F$+$i(B
-executableArray $B$,JQ?t(B {\tt arg1} $B$KBeF~$5$l(B, $B$=$NJQ?t$r(B scanner
-$B$,I>2A$9$k$3$H$K$h$j(B, executableArray $B$,I>2A$5$l$k(B.
+\noindent 原因: 
+引数に executableArray を与えることにより, 評価が抑制され
+{\tt ATTR\_EXPORT} bit がセットされた関数の評価がはじまってから
+executableArray が変数 {\tt arg1} に代入され, その変数を scanner
+が評価することにより, executableArray が評価される.
 
-\noindent $BBP:v(B:
-{\tt isThereExecutableArrayOnStack(ob)} $B$G%9%?%C%/$r8!::$9$k$h$&$K$9$k(B.
+\noindent 対策:
+{\tt isThereExecutableArrayOnStack(ob)} でスタックを検査するようにする.
 \begin{verbatim}
 (cohom.sm1) run
 [(or_attr) 8 /gb] extension 
@@ -263,7 +263,7 @@ executableArray $B$,JQ?t(B {\tt arg1} $B$KBeF~$5$l(B, $B$=$NJQ?t$r(B scann
 [ [{(hello) message } ] (x,y) ] gb ;
 \end{verbatim}
 
-$B%F%9%H(B 2 ($B$3$A$i$O@5>o$KF0$/$O$:(B).
+テスト 2 (こちらは正常に動くはず).
 \begin{verbatim}
 (ox.sm1) run
 [(or_attr) 8 /fctr] extension 
@@ -274,7 +274,7 @@ executableArray $B$,JQ?t(B {\tt arg1} $B$KBeF~$5$l(B, $B$=$NJQ?t$r(B scann
 [ (x^2-1) (x,y) ] fctr pmat ;
 \end{verbatim}
 
-\section{2004-11-23, POST $B%Y!<%9$N(B cgiPolymake $BEy(B}
+\section{2004-11-23, POST ベースの cgiPolymake 等}
 
 \begin{enumerate}
 \item 
@@ -285,8 +285,8 @@ executableArray $B$,JQ?t(B {\tt arg1} $B$KBeF~$5$l(B, $B$=$NJQ?t$r(B scann
 {\tt polymake/cgi/cgi-polymake.sh} 1.3 
 \end{enumerate}
 
-GET $B$G$O<uEO$7$G$-$k%G!<%?$NNL$K@)8B$,$"$k$?$a(B,
-POST $B%Y!<%9$KJQ99$7$?(B.
+GET では受渡しできるデータの量に制限があるため,
+POST ベースに変更した.
 \begin{verbatim}
 POST http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir.sh HTTP/0.9
 Content-length: 20
@@ -294,22 +294,22 @@ Content-length: 20
 oxMessageBody=2-1%0A
 \end{verbatim}
 
-POST $B$N%G!<%?$r$&$1$H$k$?$a(B,
+POST のデータをうけとるため,
 \verb@ [(read) fd size] extension @
-$B%7%9%F%`%3!<%k$r2C$($?(B.
+システムコールを加えた.
 
-$B%7%9%F%`%3!<%k(B {\tt perror} $B$rMQ$$$F(B,
-tcpip $B$N%(%i!<Ey$rI=<($9$k$h$&$K$7$?(B.
-{\tt eventail/data/test32.sm1} $B$NESCf$N%(%i!<$O(B,
-GET $B$G$O<uEO$7$G$-$k%G!<%?$NNL$K@)8B$,$"$k$?$a(B
-$B5/$-$?$h$&$G$"$k$,(B, $BE,@Z$J%(%i!<%a%C%;!<%8$,$J$/$F(B
-$B860x$N5fL@$K;~4V$,$+$+$C$?H?>J(B.
+システムコール {\tt perror} を用いて,
+tcpip のエラー等を表示するようにした.
+{\tt eventail/data/test32.sm1} の途中のエラーは,
+GET では受渡しできるデータの量に制限があるため
+起きたようであるが, 適切なエラーメッセージがなくて
+原因の究明に時間がかかった反省.
 
-{\tt misc-2004/11/cgi} $B$b;2>H$N$3$H(B.
-Risa/Asir $B$N(B \verb@ set_secure_mode @ , \verb@ set_secure_flag @
-$B$K$bBP1~Cf(B.
+{\tt misc-2004/11/cgi} も参照のこと.
+Risa/Asir の \verb@ set_secure_mode @ , \verb@ set_secure_flag @
+にも対応中.
 
-\section{2004-12-16, gnuplot v4 $B$X$NBP1~(B.}
+\section{2004-12-16, gnuplot v4 への対応.}
 
 \begin{enumerate}
 \item 1.3-1.4     OpenXM/src/kan96xx/Doc/gnuplot.sm1 
@@ -320,15 +320,15 @@ Risa/Asir $B$N(B \verb@ set_secure_mode @ , \verb@ set_secure_flag @
 \item 1.15        OpenXM/src/asir-contrib/packages/src/gnuplot
 \end{enumerate}
 
-gnuplot $B$G(B mouse  $B$rMxMQ$G$-$k$h$&$K$7$?$$(B.
-$B$=$N$?$a(B, gnuplot $B$r(B batch mode $B$G$J$/(B,
-interactive mode $B$GMxMQ$G$-$k$h$&$K$7$?(B.
-http://www.gnuplot.info $B$K$"$C$?(B, $B%5%s%W%k%W%m%0%i%`(B
+gnuplot で mouse  を利用できるようにしたい.
+そのため, gnuplot を batch mode でなく,
+interactive mode で利用できるようにした.
+http://www.gnuplot.info にあった, サンプルプログラム
 {\tt gpReadMouseTest.c} ({\tt misc-2004/12/misc}) 
-$B$r;29M$K(B mkfifo, popen $BEy$rMQ$$$F<BAu$7$?(B.
-mkfifo, popen $BEy$N%7%9%F%`%3!<%k$O(B plugin-file2 $B$X2C$($?(B.
+を参考に mkfifo, popen 等を用いて実装した.
+mkfifo, popen 等のシステムコールは plugin-file2 へ加えた.
 
-sm1 $B$G$d$k%F%9%H$N<j=g$O0J2<$N$H$*$j(B.
+sm1 でやるテストの手順は以下のとおり.
 \begin{verbatim}
  (gnuplot.sm1) run
  plotstart.aux
@@ -336,57 +336,57 @@ sm1 $B$G$d$k%F%9%H$N<j=g$O0J2<$N$H$*$j(B.
  plotstop.aux
 \end{verbatim}
 
-Windows, Debian package $B$N(B build $B$N%F%9%H$O$^$@(B.
-({\tt gnuplot4ox} $B$O(B {\tt gnuplot} $B$K(B. {\tt gnuplot\_x11} $B$O(B {\tt libexec}
-$B$N2<$X(B install $B$5$l$k$?$a(B.)
+Windows, Debian package の build のテストはまだ.
+({\tt gnuplot4ox} は {\tt gnuplot} に. {\tt gnuplot\_x11} は {\tt libexec}
+の下へ install されるため.)
 
-Bug: {\tt plot\_dots} $B$G(B, $B7W;;$7$J$,$iI=<($9$k$H$$$&J}K!$,$&$^$/$$$+$J$$(B.
-$BBg$-$J%G!<%?$rEO$9$H$&$^$/F0$+$J$$(B. cf. {\tt heat()}.
+Bug: {\tt plot\_dots} で, 計算しながら表示するという方法がうまくいかない.
+大きなデータを渡すとうまく動かない. cf. {\tt heat()}.
 
-\section{2005-01-23, EUC$BEy(B 8-bit $B$NL>A0$r<u$1IU$1$k(B. bug fix}
+\section{2005-01-23, EUC等 8-bit の名前を受け付ける. bug fix}
 \begin{enumerate}
-\item scanner2 $B$N(B bug $B$K$h$j(B, $B%H%C%W%l%Y%k0J30$G$O(B 8 bit $B$NL>A0$r$&$1$D$1(B
-    $B$J$+$C$?(B.
+\item scanner2 の bug により, トップレベル以外では 8 bit の名前をうけつけ
+    なかった.
 \item {\tt OpenXM/src/kan96xx/Kan/scanner2.c} 1.7
 \end{enumerate}
 
 \section{2005-02-28, ox, bug fix}
 
 \begin{enumerate}
-\item Engine $B$N$_$r(B quit  $B$9$k$H(B control server $B$,;D$k%P%0(B.
-$B2r7h(B: oxmain.c $B$G(B  SIGCHLD $B$r<u$1<h$k$h$&$K$7$?(B.
-\item Engine $B$r(B quit $B$7$F$7$^$C$?$"$H(B, Engine $B$G%G!<%?$r$*$/$m$&$H$9$k$H(B,
-SIGPIPE $B$G(B $B%/%i%$%"%s%H$,=*N;$7$F$7$^$&%P%0(B.
+\item Engine のみを quit  すると control server が残るバグ.
+解決: oxmain.c で  SIGCHLD を受け取るようにした.
+\item Engine を quit してしまったあと, Engine でデータをおくろうとすると,
+SIGPIPE で クライアントが終了してしまうバグ.
 \begin{verbatim}
   (ox.sm1) run
   sm1connectr
   oxsm1.ccc (quit) oxsubmit
-  oxsm1.ccc oxpopcmo --> $B%/%i%$%"%s%H=*N;(B.
+  oxsm1.ccc oxpopcmo --> クライアント終了.
 \end{verbatim}
-$B$^$@40A4$K2r7h$7$F$J$$(B. 
-ox texmacs $B$,@5$7$/F0:n$9$k$N$+MW%F%9%H(B.
+まだ完全に解決してない. 
+ox texmacs が正しく動作するのか要テスト.
 \end{enumerate}
 
 \section{2005-06-9, 16, attribute, options.}
 \begin{enumerate}
-\item  $BA4$F$N(B object $B$K(B attr (attribute field) $B$r$D$1$?(B.
-$B8zN($K4X$9$kD4::$O(B {\tt misc-2005/06/gfan/test1.sm1} (taka).
-$B;~4VE*8zN($K$D$$$F$O$"$^$jLdBj$J$$(B.
-\item $B9=B$BN$N(B {\tt attr} $B%U%#!<%k%I$r=i4|2=$9$k$?$a(B {\tt OINIT} $B%^%/%m$r(B
-$B2C$($?(B. {\tt stackm.h}
-$B=i4|2=$,$J$$$H(B segfault $B$9$k>l9g$b(B.
-\item {\tt @s/2005/06/16-note.pdf} (taka) $B$K3+H/%a%b$"$j(B.
-\item {\tt attr} $B$r(B {\tt groebner}, {\tt gb} $BEy$G3hMQ$9$k(B.
+\item  全ての object に attr (attribute field) をつけた.
+効率に関する調査は {\tt misc-2005/06/gfan/test1.sm1} (taka).
+時間的効率についてはあまり問題ない.
+\item 構造体の {\tt attr} フィールドを初期化するため {\tt OINIT} マクロを
+加えた. {\tt stackm.h}
+初期化がないと segfault する場合も.
+\item {\tt @s/2005/06/16-note.pdf} (taka) に開発メモあり.
+\item {\tt attr} を {\tt groebner}, {\tt gb} 等で活用する.
 \end{enumerate}
 
-$B%=!<%9$NJQ99$OB?4t$K$o$?$k$N$G0lIt$N$_5-$9(B.
+ソースの変更は多岐にわたるので一部のみ記す.
 \begin{enumerate}
-\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.49,  {\tt setAttribute} $BEy$N%^%/%m(B.
-\item {\tt OpenXM/src/kan96xx/kan/gb.c} 1.10,11, {\tt groebner} $B$,(B attr $B$G(B gb $B$+$I$&$+$N>pJs$rLa$9(B.
-\item {\tt OpenXM/src/kan96xx/Doc/hol.sm1} 1.23,  gb, pgb, gb\_h $B$,(B option $B$r(B attr $B$G<u$1<h$l$k$h$&$K$9$kJQ99(B.
+\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.49,  {\tt setAttribute} 等のマクロ.
+\item {\tt OpenXM/src/kan96xx/kan/gb.c} 1.10,11, {\tt groebner} が attr で gb かどうかの情報を戻す.
+\item {\tt OpenXM/src/kan96xx/Doc/hol.sm1} 1.23,  gb, pgb, gb\_h が option を attr で受け取れるようにする変更.
 \end{enumerate}
 
-$BNc(B:
+例:
 {\footnotesize
 \begin{verbatim}
   ob key getAttribute value
@@ -420,13 +420,13 @@ ox texmacs $B$,@5$7$/F0:n$9$k$N$+MW%F%9%H(B.
 
 \section{2005-07-07, gfan.sm1}
 \begin{enumerate}
-\item  Collar-Kalkbrener-Moll $B$N%"%k%4%j%:%`$r<BAu$7$?(B.
+\item  Collar-Kalkbrener-Moll のアルゴリズムを実装した.
 \item {\tt getNextCone}, {\tt ckmFlip}
-\item {\tt cone.ckmFlip} $B$,(B 1 $B$N;~(B CKM $B%"%k%4%j%:%`$rMQ$$$k(B.
-\item  {\tt cone.DhH} $B$,(B 1 $B$N;~(B $\partial x = x \partial + hH$,
-0 $B$N;~(B $\partial x = x \partial + h^2$ $B$rA*Br(B.
+\item {\tt cone.ckmFlip} が 1 の時 CKM アルゴリズムを用いる.
+\item  {\tt cone.DhH} が 1 の時 $\partial x = x \partial + hH$,
+0 の時 $\partial x = x \partial + h^2$ を選択.
 {\tt cone.gb}, {\tt cone.reduction}, {\tt cone.gb\_gr}.
-\item $B4XO"$9$k(B sm1 $BK\BN$NJQ99(B.
+\item 関連する sm1 本体の変更.
 \item {\tt eventail/data/test35.sm1}, {\tt test36.sm1}.
 \end{enumerate}
 
@@ -436,42 +436,42 @@ ox texmacs $B$,@5$7$/F0:n$9$k$N$+MW%F%9%H(B.
 
 \section{2005-07-18, Error Message}
 \begin{enumerate}
-\item  $B%5!<%P$O%(%i!<$N0LCV$*$h$S%(%i!<$N0LCV$G$NFI$_9~$_%G!<%?$r(B
-XML $B7A<0$GAw$k(B.
+\item  サーバはエラーの位置およびエラーの位置での読み込みデータを
+XML 形式で送る.
 \begin{verbatim}
  (ox.sm1) run  sm1connectr
  oxsm1.ccc (1 shell) oxsubmit 
  oxsm1.ccc oxpopcmo  ::
 \end{verbatim}
-\item {\tt scanner.c}, {\tt scanner2.c} $B$G(B {\tt ScannerBuf} $B$K(B
- $BFI$_9~$s$@%G!<%?$r=q$-9~$`(B.
-\item {\tt stackmachineError()} $B$G(B 
- $BBg0hJQ?t(B {\tt MsgStackTrace}, {\tt MsgSourceTrace} $B$K=q$-9~$s$G$*$/(B.
-\item {\tt kxx/sm1stackmachine.c} $B$N(B {\tt Sm1\_pushError2} $B$G(B,
-$B>e$NBg0hJQ?t$K@_Dj$5$l$?%a%C%;!<%8$r$b$H$K(B,  error package
-$B$NJ8;zNs$K(B XML $B7A<0$G(B error message $B$r=q$/(B.
+\item {\tt scanner.c}, {\tt scanner2.c} で {\tt ScannerBuf} に
+ 読み込んだデータを書き込む.
+\item {\tt stackmachineError()} で 
+ 大域変数 {\tt MsgStackTrace}, {\tt MsgSourceTrace} に書き込んでおく.
+\item {\tt kxx/sm1stackmachine.c} の {\tt Sm1\_pushError2} で,
+上の大域変数に設定されたメッセージをもとに,  error package
+の文字列に XML 形式で error message を書く.
 \item \verb@ [(traceShowScannerBuf)] extension :: @
-\item Todo: {\tt executeToken} $B$NCf$^$G$_$J$$$H(B, $B$9$G$KDj5A$5$l$?4X?t$N$I$N0LCV$G%(%i!<$r5/$3$7$?$N$+$,$o$+$i$J$$(B.
+\item Todo: {\tt executeToken} の中までみないと, すでに定義された関数のどの位置でエラーを起こしたのかがわからない.
 \end{enumerate}
 
 \section{2006-01-26, -engineLogToStdout}
 \begin{enumerate}
-\item   engine $B$r(B xterm $BFbIt$GF0$+$5$J$$$G8F$S=P$7$?%W%m%0%i%`(B
-$B$NI8=`=PNO$X$D$J$$$@$^$^F0$+$9(B.
+\item   engine を xterm 内部で動かさないで呼び出したプログラム
+の標準出力へつないだまま動かす.
 \begin{verbatim}
  (ox.sm1) run 
  /Xm_engineLogToStdout 1 def
  asirconnectr 
  ((x-2)^2). fctr ::
 \end{verbatim}
-\item   cfep $B$X$NBP1~(B.
+\item   cfep への対応.
 \begin{verbatim}
   ox_texmacs --view cfep --engineLogToStdout
   ox_texmacs --view debug --engineLogToStdout
 \end{verbatim}
 \end{enumerate}
 
-$B%=!<%9$NJQ99(B.
+ソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.46
 \item {\tt OpenXM/src/kxx/ox\_texmacs.c} 1.26
@@ -479,33 +479,33 @@ XML $B7A<0$GAw$k(B.
 \item {\tt OpenXM/src/util/ox\_pathfinder.c, h} 1.30
 \end{enumerate}
 
-\section{2006-01-30, class $B$N(B body $B$rF@$k(B.}
+\section{2006-01-30, class の body を得る.}
 \begin{verbatim}
-[1,2,3] (error) dc /ff set  %%CLASSNAME_ERROR_PACKET $B$r@8@.(B. body$B$O(B[1,2,3]
-ff (body) dc   %% [class$B$N%?%0HV9f(B, class $B$N(B body object] $B$rLa$9(B.
+[1,2,3] (error) dc /ff set  %%CLASSNAME_ERROR_PACKET を生成. bodyは[1,2,3]
+ff (body) dc   %% [classのタグ番号, class の body object] を戻す.
 --> [1,2,3]
 \end{verbatim}
-$B4XO"(B. {\tt KnewErrorPacketObj()}
+関連. {\tt KnewErrorPacketObj()}
 
-$B%=!<%9$NJQ99(B.
+ソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Kan/kclass.c} 1.6
 \end{enumerate}
 
-\section{2006-02-01, $B?7$7$$(B error packet}
+\section{2006-02-01, 新しい error packet}
 \begin{verbatim}
 (ox.sm1) run
 sm1connectr
 oxsm1.ccc (1 shell) oxsubmit
 oxsm1.ccc oxpopcmo ::
 \end{verbatim}
-\verb@ errorPacket (body) dc 3 get  @ $B$,(B
-$B%j%9%H(B($B%-!<%o!<%I(B,$BCM(B)$B$H$J$k(B. $B>l=j(B(where)$B$dM}M3(B(reason),
-$B=hM}7O$K$h$C$F$O(B, line $B$d(B parse error $B$N>l=j(B.
-$B4XO";v9`(B: misc-2005/A1/cfep.
+\verb@ errorPacket (body) dc 3 get  @ が
+リスト(キーワード,値)となる. 場所(where)や理由(reason),
+処理系によっては, line や parse error の場所.
+関連事項: misc-2005/A1/cfep.
 {\tt oxclearstack}. 
 
-ox\_texmacs $B$G(B tunnel channel 0 $B$X(B cfep $BMQ$N%(%i!<L?Na$rAw$k(B.
+ox\_texmacs で tunnel channel 0 へ cfep 用のエラー命令を送る.
 ({\tt outputStringToTunnel()})
 \begin{verbatim}
 ox_texmacs --view debug
@@ -514,7 +514,7 @@ ox_texmacs --view debug
 \end{verbatim}
 
 
-$B%=!<%9$NJQ99(B.
+ソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.34
 \item {\tt OpenXM/src/kan96xx/Doc/ox.sm1}  1.48
@@ -523,32 +523,32 @@ ox_texmacs --view debug
 \item {\tt OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw} 1.6
 \end{enumerate}
 
-\section{2006-02-04, $B%a%C%;!<%8$N(B localization (ox$BMQ(B)}
-$B%*%j%8%J%k(B {\tt misc-2005/A1/cfep/packages/misc}.
+\section{2006-02-04, メッセージの localization (ox用)}
+オリジナル {\tt misc-2005/A1/cfep/packages/misc}.
 \begin{verbatim}
 /localizedString.file (Resource/sm1-ja_JP.eucJP.sm1) def
-localizedString.load              %% $B<-=q$r%m!<%I$9$k(B.
+localizedString.load              %% 辞書をロードする.
 [(parse) (ox.sm1) pushfile] extension
 sm1connectr 
 oxsm1.ccc ( hoge ) oxsubmit 
 oxsm1.ccc oxpopcmo /e1 set
-e1 translateErrorForCfep message  %% $B%(%i!<(B obj $B$NK]Lu(B
+e1 translateErrorForCfep message  %% エラー obj の翻訳
 \end{verbatim}
-$B%(%i!<(B object $B$N9=B$(B.
-[serial, $B6&DL%(%i!<HV9f(B, message, core]
-$B6uMs$N$H$-$O(B, $-1$ $B$+(B null object.
+エラー object の構造.
+[serial, 共通エラー番号, message, core]
+空欄のときは, $-1$ か null object.
 
-$B%=!<%9$NJQ99(B.
+ソースの変更.
 \begin{enumerate}
-\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.53,  localizedString $B$rDI2C(B.
-\item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.52,  translateErrorForCfep $B$r=$@5(B
-\item {\tt OpenXM/src/kan96xx/Doc/Resource}  $BK]Lu$N$?$a$N%j%=!<%9(B.
-\item {\tt OpenXM/src/kxx/Makefile.in} 1.36, Resource $B$r%3%T!<(B.
+\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.53,  localizedString を追加.
+\item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.52,  translateErrorForCfep を修正
+\item {\tt OpenXM/src/kan96xx/Doc/Resource}  翻訳のためのリソース.
+\item {\tt OpenXM/src/kxx/Makefile.in} 1.36, Resource をコピー.
 \end{enumerate}
 
-\section{2006-02-04, {\tt -authEncoding file} $B$N<BAu(B}
+\section{2006-02-04, {\tt -authEncoding file} の実装}
 
-OX-RFC-104 $B$N(B {\tt -authEncoding file} $B$r<BAu(B.
+OX-RFC-104 の {\tt -authEncoding file} を実装.
 \begin{verbatim}
 ~/.openxm/tmp.opt/c.txt   -->  1435  (Do not put the newline character.)
 ~/.openxm/tmp.opt/d.txt   -->  1234
@@ -558,12 +558,12 @@ ox -ox ox_sm1 -authEncoding file -passControl c.txt -passData d.txt
                               data ctrl  ctrl    data
 \end{verbatim}
 
-cfep $B$G(B MyOpenGLView $B$N(B event $BF~NOMQ$N(B delegate ox server ``ox\_nextevent''
-$B$O(B ox\_asir  $B$N%5!<%P$G$"$k(B.
-``ox\_nextevent'' $B$O(B 
-MyOpenGLView $B$+$i(B NSPipe, NSTask $B$rMQ$$$F(B MyOpenGLView $B$N=PNO$r(B
-stdin $B$G<u?.$G$-$k>uBV$G$J$$$H$$$1$J$$(B.
-MyOpenGLView $B$O(B {\tt ox} $B$rMQ$$$F(B{\tt ox\_asir} $B$h$j$N=gJ}8~@\B3$r$^$DM=Dj(B.
+cfep で MyOpenGLView の event 入力用の delegate ox server ``ox\_nextevent''
+は ox\_asir  のサーバである.
+``ox\_nextevent'' は 
+MyOpenGLView から NSPipe, NSTask を用いて MyOpenGLView の出力を
+stdin で受信できる状態でないといけない.
+MyOpenGLView は {\tt ox} を用いて{\tt ox\_asir} よりの順方向接続をまつ予定.
 \begin{enumerate}
 \item {\tt OpenXM/src/kxx/oxmain.c} 1.22
 \end{enumerate}
@@ -580,9 +580,9 @@ MyOpenGLView $B$O(B {\tt ox} $B$rMQ$$$F(B{\tt ox\_asir} $B$h$j$N=gJ}8~@\B3$
 
 {\tt makeDsmall()}.
 
-\verb@ [(UseDsmall) 1] system_variable @ $B$G(B
-$B=PNO$N;~$@$1(B D $B$,>.J8;z$K$J$k(B.
-asir \verb@ print_tex_form @ $B$r8F$S=P$9$?$aF3F~(B.
+\verb@ [(UseDsmall) 1] system_variable @ で
+出力の時だけ D が小文字になる.
+asir \verb@ print_tex_form @ を呼び出すため導入.
 
 \section{2007-6-3,  mgkz}
 \begin{enumerate}
@@ -590,24 +590,24 @@ asir \verb@ print_tex_form @ $B$r8F$S=P$9$?$aF3F~(B.
 \item {\tt OpenXM/src/kan96xx/Doc/printhelp.sm1} 1.9
 \end{enumerate}
 	
-mgkz ($B%a%bE*$J?t3X%N!<%H$O(B misc-2006/04) $B%3%^%s%I$rDI2C(B.
-Modified A-hypergeometric system $B$r@8@.(B.
-printhelp.sm1 $B$K(B $B%-!<%o!<%I(B mgkz $B$rDI2C(B.
+mgkz (メモ的な数学ノートは misc-2006/04) コマンドを追加.
+Modified A-hypergeometric system を生成.
+printhelp.sm1 に キーワード mgkz を追加.
 
-$B%W%m%0%i%`:n@.J}K!$N%a%b(B.
-$B$^$:(B, gkz $B$r(B mgkz $B$H$7$F%3%T!<(B.
-\verb@ (  ) error @ $B$r%W%m%0%i%`$N3FItJ,$KF~$l$J$,$i(B,
-[ ] mgkz $B$r<B9T$7$F(B, debug.
-$B$9$k$HJQ?t$NCM$r4Q;!$G$-$F4JC1(B.
+プログラム作成方法のメモ.
+まず, gkz を mgkz としてコピー.
+\verb@ (  ) error @ をプログラムの各部分に入れながら,
+[ ] mgkz を実行して, debug.
+すると変数の値を観察できて簡単.
 
 \section{2009-8-26,  gfan}
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.13 
 \end{enumerate}
 
-Grobner cone $B$G(B $B@~7?6u4V$r=|$$$?$b$N$N(B
-$B<!85$,(B $1$ or $0$ $B$N;~$O@5$7$/F0:n$7$J$$(B.
-$B$3$N;~$K(B $B%(%i!<%a%C%;!<%8$r=P$9(B.
+Grobner cone で 線型空間を除いたものの
+次元が $1$ or $0$ の時は正しく動作しない.
+この時に エラーメッセージを出す.
 (cf. taka: i-hg/crest09/Prog/fan1.sm1, fan2.sm1)
 
 \section{2009-9-4,  gfan}
@@ -618,86 +618,86 @@ Grobner cone $B$G(B $B@~7?6u4V$r=|$$$?$b$N$N(B
 \item {\tt OpenXM/src/kan96xx/trans/data} 
 \end{enumerate}
 
-gfan.sm1 package $B$O(B polymake 2.0 $B$N=PNO$KBP$7$F$O@5$7$/F0:n$9$k(B.
-$B$7$+$7(B 2.2, 2.3 $B$KBP$7$FF0:n$7$J$$(B.
-{\tt trans/data/data1b.txt} $B$O(B 2.0 $B$N=PNO(B,
-{\tt trans/data/data1.txt} $B$O(B 2.3 $B$N=PNO(B,
-$BF~NO(B property $B$O(B INEQUALITIES $B$G(B FACETS $B$r(B $B=PNO(B property $B$H$7$F$$$k(B.
+gfan.sm1 package は polymake 2.0 の出力に対しては正しく動作する.
+しかし 2.2, 2.3 に対して動作しない.
+{\tt trans/data/data1b.txt} は 2.0 の出力,
+{\tt trans/data/data1.txt} は 2.3 の出力,
+入力 property は INEQUALITIES で FACETS を 出力 property としている.
 
-{\tt trans/data/data2.txt} $B$O4JC1$JNc(B.
+{\tt trans/data/data2.txt} は簡単な例.
 
-2.3 $B$G$O(B VERTICES $B$,(B UNDEF $B$H$J$k(B. $B$3$l$r@5$7$/(B parse $B$9$k$h$&$K(B polymake2tfb $B$r(B
-$BJQ99$7$?(B.
+2.3 では VERTICES が UNDEF となる. これを正しく parse するように polymake2tfb を
+変更した.
 \begin{verbatim}
  ./polymake2tfb <data/data1.txt
 \end{verbatim}
-VERTICES $B$N=PNO$,$J$$$N$G(B, gfan.sm1 $B$G;H$($J$$(B.
-gfan $B$O(B web service $B$r(B default $B$H8F$V$h$&$K$7$?(B.
+VERTICES の出力がないので, gfan.sm1 で使えない.
+gfan は web service を default と呼ぶようにした.
 
-\verb@ (gfan) usage ; @ $B$,(B gfan $B$K$D$$$F$N@bL@$r=PNO$9$k$h$&$K$7$?(B.
+\verb@ (gfan) usage ; @ が gfan についての説明を出力するようにした.
 
-debug $BMQ$KJXMx$J%3%^%s%I(B.
+debug 用に便利なコマンド.
 \begin{verbatim}
  oxshell.facets([[1,0,0],[1,2,0],[1,0,3],[1,1,1]]); 
- sm1.sm1(0,"/doPolymake load message ");   OoHG $B$rFI$s$G$$$k$+(B, $B$$$J$$$+(B?
+ sm1.sm1(0,"/doPolymake load message ");   OoHG を読んでいるか, いないか?
 
- [(keep_tmp_files) (1) ] oxshell   $B:n6H%U%!%$%k$r(B /tmp  or $TMP $B$KJ]B8(B.
+ [(keep_tmp_files) (1) ] oxshell   作業ファイルを /tmp  or $TMP に保存.
  rr (UNDEF) getNode ::
  i-hg/crest09/Prog/fan*.sm1 (private)
 \end{verbatim}
 %$
 
-$B4X78$"$k(Bfiles.
+関係あるfiles.
 Doc/cgi.sm1, trans/, 
 
-oxshell $B$G(B polymake $B$r<B9T(B. $B=PNO$r(B tfb $B$KJQ49(B. $B$3$l$r(B sm1 object $B$K(B
-k0 server $B$GJQ49(B ({\tt QuoteMode(1); }.
+oxshell で polymake を実行. 出力を tfb に変換. これを sm1 object に
+k0 server で変換 ({\tt QuoteMode(1); }.
 
-trans/polymake.sm1 $B$O(B, $BAH$_9~$_%^%/%m$H$J$k(B.
-doPolymake $B$O(B local $B$N$b$N$r8F$V(B.
+trans/polymake.sm1 は, 組み込みマクロとなる.
+doPolymake は local のものを呼ぶ.
 
 \section{2012-9-16,  syz}
 
-syz $B$,B8:_$7$J$$>l9g$K(B syz (hol.sm1) $B$,(B warning $B$r=PNO$9$k7o(B.
-getRing $B$r(B $B6u%j%9%H$KBP$7$F$d$C$F$$$k$3$H$,860x(B.
-kanExport0.c $B$N(B data\_conversion $B$N(B key $B$r=PNO$9$k$3$H$K$h$j(B debug. 
+syz が存在しない場合に syz (hol.sm1) が warning を出力する件.
+getRing を 空リストに対してやっていることが原因.
+kanExport0.c の data\_conversion の key を出力することにより debug. 
 
 \section{2012-10-29, doPolymake}
 
-doPolymake $B$N;EAH$_$r8+$F(B, $B=hM}$N(B bug $B$r=$@5$9$kM=Dj(B.
-shell.c $B$K(B help $B$rDI2C(B.
+doPolymake の仕組みを見て, 処理の bug を修正する予定.
+shell.c に help を追加.
 \begin{verbatim}
   [(parse) (cgi.sm1) pushfile] extension
   /doPolymake {doPolymake.OoHG} def
   [(keep_tmp_files) (1)] oxshell
  /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell
 \end{verbatim}
-{\tt \$TMP} $B$K(B $B:n6H%U%!%$%k$rJ]B8(B.
-{\tt kan96xx/trans} $B$G(B $B%G!<%?7A<0$NJQ49(B.
-$B:n6H%U%!%$%k$N@8@.$O(B 
+{\tt \$TMP} に 作業ファイルを保存.
+{\tt kan96xx/trans} で データ形式の変換.
+作業ファイルの生成は 
 {\tt generateTMPfiles()} ({\tt util/ox\_pathfinder.c}).
 
 \section{2013-09-20, doPolymake}
-bug fix. $BM-M}?t$r(B accept. oxshell $B$N%^%K%e%"%k$r99?7(B.
+bug fix. 有理数を accept. oxshell のマニュアルを更新.
 
-class $B$NMxMQK!$r;W$$=P$9(B.
+class の利用法を思い出す.
 \begin{verbatim}
  [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1/2]])))]
          doPolymake /rr set 
 rr 1 get /ff set
-ff (array) dc ::     % class $B$r(B array $B$XJQ49(B.
+ff (array) dc ::     % class を array へ変換.
 \end{verbatim}
-{\tt primitive.c} $B$G(B class $B$r(B search.
-KclassDataConversion() $B4X?t$rFI$a$P$h$$$3$H$,$o$+$k(B.
-grep $B$9$k$H(B {\tt kclass.c} $B$rC5$;$P$$$$(B.
-$B$3$3$K(B tag $B$,$$$m$$$m$"$k(B.
-usage $B$K(B note-class $B$rDI2C(B.
+{\tt primitive.c} で class を search.
+KclassDataConversion() 関数を読めばよいことがわかる.
+grep すると {\tt kclass.c} を探せばいい.
+ここに tag がいろいろある.
+usage に note-class を追加.
 
 \section{2013-09-22, oxdecode\_post}
 
-mime $B7A<0$N(B post message $B$r(B URL encoding $B$KJQ49(B
-(mime $B$NH=DjEy$O8=>u$J$s$A$c$C$F(B).
-$B$3$l$G(B, reverse proxy $B7PM3$G$b@5>oF0:n(B.
+mime 形式の post message を URL encoding に変換
+(mime の判定等は現状なんちゃって).
+これで, reverse proxy 経由でも正常動作.
 
 \begin{verbatim}
 cat t.txt
@@ -720,11 +720,11 @@ attr(,"Content-Type")
 "text/plain"      "UTF-8" 
 \end{verbatim}
 
-{\tt cgiPolymake.log} $B$K(B 1 $B$rBeF~$7$F$*$/$H(B($B4{DjCM(B)
-sm1log $B$G(B /tmp/sm1log.txt $B$K(B post message $B$r5-O?(B.
-date $B4X?t$rDI2C(B.
+{\tt cgiPolymake.log} に 1 を代入しておくと(既定値)
+sm1log で /tmp/sm1log.txt に post message を記録.
+date 関数を追加.
 
-curl $B$rMQ$$$?8F$S=P$7$N%F%9%H(B.
+curl を用いた呼び出しのテスト.
 \begin{verbatim}
 (cgi.sm1) run
 /cgiQueryPolymake { cgiQueryPolymake.curl } def
@@ -733,56 +733,56 @@ ff doPolymake.OoHG /rr set
 \end{verbatim}
 
 \section{2013-09-25, usePolymake.*}
-polymake $B$N%9%$%C%A(B. version $B$K$h$j?6$kIq$$$,0c$&$N$GCm0U(B.
+polymake のスイッチ. version により振る舞いが違うので注意.
 
-$B3F<o(B log $B$N>l=j(B.
+各種 log の場所.
 \begin{enumerate}
-\item server side. {\tt /tmp/sm1log.txt}: cgi-post $B$N(B encoded $BJ8;zNs(B.
-\item server side.  cgi-polymake.sh $B$K(B tee $B$rDI2C$9$k$H(B, oxdecode\_post $BA0$NJ8;zNs$r(B
-$BJ]B8$G$-$k(B.
-\item client side. oxshell $B$G(B work file $B$r(B {\tt \$TMP} $B$K;D$9$K$O(B
-oxshell $B$N(B usage $B$r8+$F(B, keep\_tmp\_files $B$r;H$&(B.
-local $BHG$G$O(B {\tt @@@doPolymake.vars} $B$K5-O?$"$j(B.
-asir $B$G$O(B {\tt polymake.log()} $B$K3JG<(B.
-\item {\tt usePolymake.OoHG.curl} $B$N;~$O(B {\tt /tmp/sm1-q-cgi*.txt}
-$B$K(B cgi $B$KLd$$9g$o$;$k;~$NJ8;zNs$,3JG<$5$l$k(B.
+\item server side. {\tt /tmp/sm1log.txt}: cgi-post の encoded 文字列.
+\item server side.  cgi-polymake.sh に tee を追加すると, oxdecode\_post 前の文字列を
+保存できる.
+\item client side. oxshell で work file を {\tt \$TMP} に残すには
+oxshell の usage を見て, keep\_tmp\_files を使う.
+local 版では {\tt @@@doPolymake.vars} に記録あり.
+asir では {\tt polymake.log()} に格納.
+\item {\tt usePolymake.OoHG.curl} の時は {\tt /tmp/sm1-q-cgi*.txt}
+に cgi に問い合わせる時の文字列が格納される.
 \end{enumerate}
 
-$B$J$*(B mac $BHG$O(B error $B$G(B bus error $B$r5/$3$9>l9g$"$j(B. 
-$B%5%s%W%k(B code $B$O(B, {\tt misc-2013/09/genpos/mac.sm1}. 
-$B$3$l$O(B ticket.
+なお mac 版は error で bus error を起こす場合あり. 
+サンプル code は, {\tt misc-2013/09/genpos/mac.sm1}. 
+これは ticket.
 
-screenflow $B$K$h$k3P$(=q$-$O(B,
-fe $B$N(B {\tt /Movies/oxvh/2013-09-25-polymake}.
+screenflow による覚え書きは,
+fe の {\tt /Movies/oxvh/2013-09-25-polymake}.
 
 \section{2015-10-10, cygwin64, msys64}
 
-cygwin64, msys64 $BBP1~(B.
+cygwin64, msys64 対応.
 \begin{enumerate}
-\item gc $B$K$O(B patch. cygwin64 $B$N(B gc.h $B$O$9$G$K(B patch $B$,Ev$?$C$F$k(B.
-  $B$h$C$F(B gc $B$,99?7$5$l$?$i(B patch $B$OB?J,ITMW(B.
-\item sigsetjmp $B$r(B {\tt \_setjmp} $B$K$7$J$$$H$?$H$($P(B
-$BHyJ,:nMQAG4D$N3]$1;;$G(B segfault.  $B860x$O$h$/$o$+$i$:(B.
-\item string.h, stdlib.h $BEy$N(B prototype $B@k8@$r$7$F$*$+$J$$$H(B {\tt ox\_sm1} $B$,(B segfault.
-\item msys $B$G$O(B cmd.exe $B$,?7$7$$(B window $B$r3+$+$J$$$N$G(B($BFf(B), mintty $B$r;H$&(B.
+\item gc には patch. cygwin64 の gc.h はすでに patch が当たってる.
+  よって gc が更新されたら patch は多分不要.
+\item sigsetjmp を {\tt \_setjmp} にしないとたとえば
+微分作用素環の掛け算で segfault.  原因はよくわからず.
+\item string.h, stdlib.h 等の prototype 宣言をしておかないと {\tt ox\_sm1} が segfault.
+\item msys では cmd.exe が新しい window を開かないので(謎), mintty を使う.
 \end{enumerate}
-fe $B$N(B {\tt /Movies/archive} $B$N(B bandicam $B$K$b5-O?(B.
+fe の {\tt /Movies/archive} の bandicam にも記録.
 
-Todo, ctrl-C $B$,0lEY$7$+M-8z$G$J$$(B. sigaction $B$rMxMQ$9$k$Y$-(B?
+Todo, ctrl-C が一度しか有効でない. sigaction を利用するべき?
 
-{\tt ox\_sm1} $B$N(B segfault $B$N(B debug
+{\tt ox\_sm1} の segfault の debug
 {\tiny
 \begin{verbatim}
-  misc-2015/10/cygwin-for-sm1 $B$K(B
-  oxserver00-d.c Makefile-for-ox_sm1d tmp-o.txt $B$"$j(B.
-  tmp-o.txt $B$O(B ( (1).. (0).. div ) oxsubmit $B$G(B $B%(%i!<$r5/$3$9L?Na$r(B,
-  stream dump $B$7$?$b$N(B.  cf. (ox.sm1) run (extension-oxLog) usage
-  oxpipe.c $B$r(B oxserver00.c $B$XAH$_9~$s$@$b$N(B. gdb $BMQ(B.  ox_sm1d
+  misc-2015/10/cygwin-for-sm1 に
+  oxserver00-d.c Makefile-for-ox_sm1d tmp-o.txt あり.
+  tmp-o.txt は ( (1).. (0).. div ) oxsubmit で エラーを起こす命令を,
+  stream dump したもの.  cf. (ox.sm1) run (extension-oxLog) usage
+  oxpipe.c を oxserver00.c へ組み込んだもの. gdb 用.  ox_sm1d
   523  rm ox_sm1d
   525  make -f Makefile-for-ox_sm1d  ox_sm1d
   526  ./ox_sm1d <tmp-o.txt
 
-cygwin, msys $B$N(B gdb $B$O(B run <file $B$,=PMh$J$$$3$H$KCm0U(B.
+cygwin, msys の gdb は run <file が出来ないことに注意.
 $ gdb ./ox_sm1d
 GNU gdb (GDB) 7.9
 Copyright (C) 2015 Free Software Foundation, Inc.
@@ -812,7 +812,7 @@ Starting program: /home/Nobuki/OX4/OpenXM/src/kxx/ox_sm1d
 Breakpoint 1, main (argc=1, argv=0x24cb10) at oxserver00-d.c:37
 37      main(int argc, char *argv[]) {
 (gdb) call dup2(open("tmp-o.txt",0),0)
-// run <file $B$9$kBe$o$j(B. cf. stackoverflow  [cygwin gdb pipe]
+// run <file する代わり. cf. stackoverflow  [cygwin gdb pipe]
 $1 = 0
 (gdb) break Sm1_popErrorMessage
 Breakpoint 2 at 0x100402720: file sm1stackmachine.c, line 205.
@@ -882,7 +882,7 @@ Breakpoint 4, sGC_malloc (n=93) at stackmachine.c:1510
 $4 = 0x10049d084 "executeString: "
 (gdb) print e
 $5 = 0x6008d4d70 "\nERROR(kanExport[0|1].c): KisInvalidRational(): zero division. You have f/0."
-//  $B@5>o(B
+//  正常
 (gdb) continue
 Continuing.
      14 [main] ox_sm1d 11260 cygwin_exception::open_stackdumpfile: Dumping stack trace to ox_sm1d.exe.stackdump
@@ -894,28 +894,28 @@ Continuing.
 [Inferior 1 (process 11260) exited with code 0105400]
 (gdb) quit
 
-GC_malloc $B$d(B strcpy $BEy$,2x$7$$$H$K$i$`(B.
+GC_malloc や strcpy 等が怪しいとにらむ.
   
 
-  char * $B7O(B void * $B7O$N@k8@$J$7$,(B segfault $B$N860x(B?
-  strcpy $B$,JQ(B.
+  char * 系 void * 系の宣言なしが segfault の原因?
+  strcpy が変.
   
-  kxx/serversm.h $B$K(B
+  kxx/serversm.h に
 #include <string.h>
 void *sGC_malloc(int n);
-$B$r2C$($k(B.
-  ./ox_sm1d <tmp-o.txt  $B$,@5>o=*N;(B.
+を加える.
+  ./ox_sm1d <tmp-o.txt  が正常終了.
 \end{verbatim}
 } %% end tiny
 
 \noindent
-$B2r7h(B: OpenXM/src/util/mysig.c $B$K(B sigaction $B$rMQ$$$?(B signal emulation $B$r2C$($?(B.
-$B$3$l$K$h$j>e5-$N$h$&$J%H%i%V%k$O2r>C(B.
+解決: OpenXM/src/util/mysig.c に sigaction を用いた signal emulation を加えた.
+これにより上記のようなトラブルは解消.
 
-\section{doPolymake $B$N9=B$%a%b(B (2020.03.12)}
-doPolymake $B$K5/0x$9$k(B bug $B$r(B fix. $B$=$N;~$K(B doPolymake $B$NN.$l$rFI$_D>$7$?(B.
+\section{doPolymake の構造メモ (2020.03.12)}
+doPolymake に起因する bug を fix. その時に doPolymake の流れを読み直した.
 
-$B%F%9%HMQ$NF~NO(B(polymake $B$O(B $B%5!<%P!<$rMxMQ(B).
+テスト用の入力(polymake は サーバーを利用).
 {\tiny
 \begin{verbatim}
 export OX_XTERM_GEOMETRY=80x20+0+0
@@ -927,12 +927,12 @@ doPolymake /rr set ;
 rr ::
 \end{verbatim}
 }
-{\tt rr} $B$K$O(B sm1 $B$N(B class.tree $B%G!<%?$,3JG<$5$l$k(B.
-{\tt OX\_XTERM\_GEOMETRY} $B$r@_Dj$9$k$3$H$G(B ox server $B$,(B iconic $B$K$J$i$J$$(B.
-polymake $B$X(B OOHG $B$GLd$$9g$o$;$F$$$kK\BN$O(B,
-{\tt cgi.sm1} $B$N(B {\tt cgiQueryPolymake.curl}.
-$B$3$l$rFI$`$H;EAH$_$,$o$+$k(B.
-polymake http server $BB&$G$O<!$N%3!<%I(B(cgi-polymake.sh)$B$G(B post message $B$r<u<h$j(B, polymake $B$G7W;;$7$F(B, $B7k2L$rLa$9(B.
+{\tt rr} には sm1 の class.tree データが格納される.
+{\tt OX\_XTERM\_GEOMETRY} を設定することで ox server が iconic にならない.
+polymake へ OOHG で問い合わせている本体は,
+{\tt cgi.sm1} の {\tt cgiQueryPolymake.curl}.
+これを読むと仕組みがわかる.
+polymake http server 側では次のコード(cgi-polymake.sh)で post message を受取り, polymake で計算して, 結果を戻す.
 {\tiny
 \begin{verbatim}
 #!/bin/bash
@@ -948,77 +948,77 @@ exit 0
 : rm -f ${WFILE}
 \end{verbatim}
 }
-$BAw?.B&$N(B {\tt cgiQueryPolymake.curl} $B$O(B curl $B$N(B form option $B$rMQ$$$F(B
-post message $B$r$9$k(B.
-$B%-!<$O(B {\tt oxMessageBody} $B$G$"$k(B.
-$BAw$k(B form $B$O(B {\tt /tmp/sm1-q-cgi.txt???} $B$K@8@.$5$l$k(B.
-$B$3$3$G(B ??? $B$O(B pid $B$G$"$k(B.
-$B7k2L$r<u$1<h$C$?$i$3$N0l;~%U%!%$%k$O(B {\tt OpenXM\_tmp} $B4D6-JQ?t$G;XDj$5$l$k(B
-folder $B$X0\F0$5$l$k(B.
-{\rm /tmp/sm1-q-cgi*} $B$OF0:n%(%i!<Ey$K$h$j;D$k$3$H$,$"$k$N$GDj4|E*$K:o=|$9$k$3$H$,(B
-$BK>$^$7$$(B.
-{\tt cgiQueryPolymake.curl} $B$O(B polymake version 2 $B7A<0$N=PNO$rJ8;zNs$N(B list $B$H$7$FLa$9(B.
+送信側の {\tt cgiQueryPolymake.curl} は curl の form option を用いて
+post message をする.
+キーは {\tt oxMessageBody} である.
+送る form は {\tt /tmp/sm1-q-cgi.txt???} に生成される.
+ここで ??? は pid である.
+結果を受け取ったらこの一時ファイルは {\tt OpenXM\_tmp} 環境変数で指定される
+folder へ移動される.
+{\rm /tmp/sm1-q-cgi*} は動作エラー等により残ることがあるので定期的に削除することが
+望ましい.
+{\tt cgiQueryPolymake.curl} は polymake version 2 形式の出力を文字列の list として戻す.
 
-$B$3$l$r(B tree $B7A<0Ey$KJQ49$7$F$$$k$N$O(B {\tt kan96xx/trans} $BFb$N%=!<%9$G$"$k(B.
-$B$3$N%U%)%k%@$O%G!<%?7A<0$NJQ49Ey$N%F%9%H%1!<%9$H$7$F:n@.$5$l$?(B.
-$B9M$(J}$H$7$F$O(B,
+これを tree 形式等に変換しているのは {\tt kan96xx/trans} 内のソースである.
+このフォルダはデータ形式の変換等のテストケースとして作成された.
+考え方としては,
 \begin{center}
-\fbox{tree $B7A<0$N%G!<%?(B} $\Leftrightarrow$
-\fbox{tfb $B7A<0$N%G!<%?(B} $\Leftrightarrow$ \fbox{polymake $B7A<0(B} 
+\fbox{tree 形式のデータ} $\Leftrightarrow$
+\fbox{tfb 形式のデータ} $\Leftrightarrow$ \fbox{polymake 形式} 
 $\Leftrightarrow$ \fbox{polymake web server}
 \end{center}
-{\tt polymake2tfb} $B$O(B polymake version 2 $B$N%U%!%$%k$rF~NO$H$9$k$H(B
-tfb $B7A<0$N%G!<%?$r=PNO$9$k(B.
+{\tt polymake2tfb} は polymake version 2 のファイルを入力とすると
+tfb 形式のデータを出力する.
 {\tiny
 \begin{verbatim}
 polymake2tfb < ~/.OpenXM_tmp/sm1-q-cgi-out.txt37402
 polymake.data(polymake.POINTS([[1,0],[1,1]]),polymake.FACETS([[1,-1],[0,1]]),polymake.AFFINE_HULL())
 \end{verbatim}
 }
-tfb $B7A<0$N%G!<%?$O(B {\tt ox\_k0} $B$,(B parse $B$7$F(B, $B$=$l$r(B tree $B7A<0$KJQ49$7$F$$$k(B.
-$B5UJQ49$b(B {\tt ox\_k0} $B$,9T$&(B
-($B%=!<%9(B {\tt polymake.sm1}, $B4X?t(B {\tt tfbToTree} $B$r;2>H(B).
+tfb 形式のデータは {\tt ox\_k0} が parse して, それを tree 形式に変換している.
+逆変換も {\tt ox\_k0} が行う
+(ソース {\tt polymake.sm1}, 関数 {\tt tfbToTree} を参照).
 
 \section{2023-08-08, addModuleOrder}
 
-module $B$N=g=x$H$7$F$O(B POT order $B$d(B TOP order $B$,$"$k$,(B
-$B$h$j0lHL$J=g=x$r9TNs$G@_Dj$G$-$k$h$&$K$9$k$?$a$N5!G=3HD%(B.
+module の順序としては POT order や TOP order があるが
+より一般な順序を行列で設定できるようにするための機能拡張.
 
 %%Ref: misc-2023/08/rest-comprehensive2/Notes, sm1
-$S$ $B$r(B$n$$BJQ?tB?9`<04D(B($B%o%$%kBe?t$J$I$b4^$a$F9M$($k(B)$B$H$7$F(B,
-rank $m$ $B$N(B $S$ free module $S^m$ $B$r9M$($k(B.
-$S^m$ $B$N4pDl$r(B
+$S$ を$n$変数多項式環(ワイル代数なども含めて考える)として,
+rank $m$ の $S$ free module $S^m$ を考える.
+$S^m$ の基底を
 \begin{eqnarray*}
 e_1 &=& (1,0,0,\ldots,0), \\
 e_2 &=& (0,1,0,\ldots,0), \\
     & & \cdots, \\
 e_m &=& (0,0,0,\ldots,1)
 \end{eqnarray*}
-$B$H$*$/(B.
+とおく.
 
-$W$ $B$r(B $(n+m) \times (n+m)$ $B9TNs$H$7$F(B,
-$S^m$ $B$N85(B $y^\alpha e_i$ $B$H(B $y^\beta e_j$ $B$NBg$-$5$NHf3S$r(B
+$W$ を $(n+m) \times (n+m)$ 行列として,
+$S^m$ の元 $y^\alpha e_i$ と $y^\beta e_j$ の大きさの比較を
 \begin{equation}
 y^\alpha e_i >_W y^\beta e_j \ 
 \Leftrightarrow \ 
 W \cdot (\alpha,e_i)^T >_{\rm lex} W \cdot (\beta,e_j)^T  
 \end{equation}
-$B$GDj5A$9$k(B.
-$B$3$3$G(B $(\alpha,e_i)$ $B$O$U$?$D$N%Y%/%H%k(B $\alpha$ $B$H(B $e_i$ $B$r$D$J$$$@D9$5(B
-$m+n$ $B$N2#%Y%/%H%k$G$"$k(B. $B$3$l$r0J2<(Bm$B;X?t$H8F$V(B.
+で定義する.
+ここで $(\alpha,e_i)$ はふたつのベクトル $\alpha$ と $e_i$ をつないだ長さ
+$m+n$ の横ベクトルである. これを以下m指数と呼ぶ.
 
 \noindent
-{\bf $BNc(B}:
-$n=2, m=3$ $B$N;~(B $x_1^2 x_2^3 e_2$ $B$KBP1~$9$k(Bm$B;X?t$O(B
+{\bf 例}:
+$n=2, m=3$ の時 $x_1^2 x_2^3 e_2$ に対応するm指数は
 $$ (2,3,0,1,0), $$
-$x_1^5 x_2^4 e_3$ $B$KBP1~$9$k(Bm$B;X?t$O(B
+$x_1^5 x_2^4 e_3$ に対応するm指数は
 $$ (5,4,0,0,1). $$
 
 \bigbreak
 \noindent
-{\bf $B1~MQ(B}.
-2$BJQ?t$N(B Weyl $BBe?t(B $D$ $B$r9M$($k(B.
-$D^2$ $B$KBP$7$F<!$N9TNs(B $W$ $B$r9M$($k(B.
+{\bf 応用}.
+2変数の Weyl 代数 $D$ を考える.
+$D^2$ に対して次の行列 $W$ を考える.
 $$ W=
 \left(
 \begin{array}{cccccc}
@@ -1030,19 +1030,19 @@ $$ W=
 \end{array}
 \right).
 $$
-$B$3$3$G(B
+ここで
 $x_1^{\alpha_1} x_2^{\alpha_2} \pd{1}^{\beta_1} \pd{2}^{\beta_2} e_1$
-$B$N(Bm$B;X?t$O(B
+のm指数は
 $$ (\alpha_1,\alpha_2,\beta_1,\beta_2,1,0), $$
 $x_1^{\alpha_1} x_2^{\alpha_2} \pd{1}^{\beta_1} \pd{2}^{\beta_2} e_2$
-$B$N(Bm$B;X?t$O(B
+のm指数は
 $$ (\alpha_1,\alpha_2,\beta_1,\beta_2,0,1) $$
-$B$H$9$k(B.
-$B$3$N=g=x$K$h$j(B $R^2$ $B$N%0%l%V%J!<4pDl$r7W;;$G$-$k(B.
+とする.
+この順序により $R^2$ のグレブナー基底を計算できる.
 
 
-$B>e5-$N=g=x$rDj5A$9$kNc$r$"$2$h$&(B.
-$B%*%j%8%J%k$N(B weight matrix 
+上記の順序を定義する例をあげよう.
+オリジナルの weight matrix 
 {\footnotesize
 \begin{verbatim}
   0   1   2   3   4   5   6   7
@@ -1061,14 +1061,14 @@ $$ (\alpha_1,\alpha_2,\beta_1,\beta_2,0,1) $$
    0   0   0   0   0   0   0   1
 \end{verbatim}
 }
-$B$r(B
+を
 {\footnotesize
 \begin{verbatim}
           x   y   h         Dx  Dy
   e_ | x(2)x(1)x(0) |    H Dx2 Dx1   h | for module
    0 |    0   0   0 |    0   1   1   0 |    0   0
    0 |    0   0   0 |    0   0  -1   0 |    0   0
-   0 |    0   0   0 |    0   0   0   0 |    1   2  <-- $B$3$3(B
+   0 |    0   0   0 |    0   0   0   0 |    1   2  <-- ここ
    1 |    0   0   0 |    0   0   0   0 |    0   0
    0 |    1   1   1 |    1   1   1   0 |    0   0
    0 |    0   0   0 |    0   0  -1   0 |    0   0
@@ -1078,8 +1078,8 @@ $$ (\alpha_1,\alpha_2,\beta_1,\beta_2,0,1) $$
 \end{verbatim}
 }
 \noindent
-$B$XJQ99$7$?$$(B.
-$B0J2<%3!<%I$r<B9T$9$l$P$h$$(B.
+へ変更したい.
+以下コードを実行すればよい.
 {\footnotesize
 \begin{verbatim}
 [(x,y) ring_of_differential_operators
@@ -1092,18 +1092,18 @@ show_ring
 [ff] groebner ::
 \end{verbatim}
 }
-sm1 $B$K$*$$$F$O(B $e_1$ $B$O(B {\tt 1}, $e_2$ $B$O(B {\tt e\_}, $e_3$ $B$O(B ${\tt e\_}^2$,
-$e_4$ ${\tt e\_}^3$, ... $B$HI=8=$5$l$F$$$k(B.
-{\tt addModuleOder} $B$N0z?t$O(B
-[module$B$N(Brank, pos1, weight1] $B$G$"$k$,(B,
-weight1 $B$r(B weight matrix $B$N(B pos1 $BHVL\$KA^F~$;$h(B,
-$B$H$$$&0UL#$G$"$k(B.
-$B>e5-$N(B 2 $B9TL\$K(B weight1 $B$,A^F~$5$l$F$$$k(B.
-$B$J$*(B weight1 $B$r(B 0 $B$H$7$F$*$/$H<+F0E*$K(B 1, 2, 3, ... $B$J$k(B weight $B$,@_Dj$5$l$k(B.
-[module$B$N(Brank, pos1,weight1, pos2,weight2, ...] $B$HB??t$N(B weight vector $B$r(B
-$B$=$&$K$e$&$9$k$3$H$b2DG=(B.
+sm1 においては $e_1$ は {\tt 1}, $e_2$ は {\tt e\_}, $e_3$ は ${\tt e\_}^2$,
+$e_4$ ${\tt e\_}^3$, ... と表現されている.
+{\tt addModuleOder} の引数は
+[moduleのrank, pos1, weight1] であるが,
+weight1 を weight matrix の pos1 番目に挿入せよ,
+という意味である.
+上記の 2 行目に weight1 が挿入されている.
+なお weight1 を 0 としておくと自動的に 1, 2, 3, ... なる weight が設定される.
+[moduleのrank, pos1,weight1, pos2,weight2, ...] と多数の weight vector を
+そうにゅうすることも可能.
 
-$B$J$*$3$N5!G=$OHyJ,:nMQAG4D$G$7$+%F%9%H$7$F$J$$(B.
+なおこの機能は微分作用素環でしかテストしてない.
 
 {\tt mmLarger\_module\_matrix()}, 
 {\tt init\_module\_matrix\_mode()}, {\tt order.c}.
@@ -1112,12 +1112,12 @@ weight1 $B$r(B weight matrix $B$N(B pos1 $BHVL\$KA^F~$;$h(B,
 
 \section{difftop, 2023.09.08}
 
-{\tt ring\_def} $B$O(B {\tt KdataConversion} ({\tt dc}), {\tt KsystemVariable} $B$r8F$S=P$7$F(B {\tt CurrentRing} $B$rJQ99$9$k(B.
-ring $B9=B$BN$N(B {\tt module\_rank} $B$,(B 0 $B$G$J$$;~$O(B
-{\tt mmLarger} $B$r(B {\tt module\_matrix} $B$K<+F0JQ99(B.
+{\tt ring\_def} は {\tt KdataConversion} ({\tt dc}), {\tt KsystemVariable} を呼び出して {\tt CurrentRing} を変更する.
+ring 構造体の {\tt module\_rank} が 0 でない時は
+{\tt mmLarger} を {\tt module\_matrix} に自動変更.
 
-{\tt init\_module\_order\_matrix} $B$NITE,@Z$J8F$S=P$7$r=$@5(B.
-{\tt POLYToString} $B$,(B debug $B$KJXMx(B. {\tt poly4.c}.
+{\tt init\_module\_order\_matrix} の不適切な呼び出しを修正.
+{\tt POLYToString} が debug に便利. {\tt poly4.c}.
 
 {\footnotesize
 \begin{verbatim}
@@ -1131,22 +1131,33 @@ gg get {init} map ::
 \end{verbatim}
 }
 
-{\tt difftop} $B$O(B differential term order over position  $B$NN,(B.
-difftop $B$O#3$D$N0z?t(B generators vars weightVector $B$NJQ99$O$7$J$$$,(B
-{\tt gb.difftop} $B$+$i$O$8$^$k(B {\tt gb} $BMQ$NBg0hJQ?t$r@_Dj$9$k(B.
-$B$3$N@_Dj$K$h$j(B
-$B$^$:HyJ,$N$_$GBg>.Hf3S(B, $B$=$l$+$i(B position $B$H$$$&=g=xHf3S$H$J$k(B.
-$B$?$H$($P(B, $\pd{x}>\pd{y}$ $B$J$k(B graded order $B$N;~(B,
-$ (\pd{x}^2, y^2\pd{x}^2)$ $B$N@hF,$O(B $(\pd{x}^2,0)$,
-$ (\pd{x}^2, y^2\pd{x}^3)$ $B$N@hF,$O(B $(0,\pd{x}^3)$,
-$ (\pd{x}^2, \pd{x}^2)$ $B$N@hF,$O(B $(\pd{x}^2,0)$,
-$ (\pd{y}, \pd{x})$ $B$N@hF,$O(B $(0,\pd{x})$.
-$B:G8e$NNc$G(B $BHyJ,:nMQAG$N(B degree $B$N$_$G$9$0(B position $B$r$_$k$h$&$J=g=x$@$H(B,
-$ (\pd{y}, \pd{x})$ $B$N@hF,$O(B $(\pd{y},0)$ $B$H$J$C$F$7$^$&(B.
+{\tt difftop} は differential term order over position  の略.
+difftop は３つの引数 generators vars weightVector の変更はしないが
+{\tt gb.difftop} からはじまる {\tt gb} 用の大域変数を設定する.
+この設定により
+まず微分のみで大小比較, それから position という順序比較となる.
+たとえば, $\pd{x}>\pd{y}$ なる graded order の時,
+$ (\pd{x}^2, y^2\pd{x}^2)$ の先頭は $(\pd{x}^2,0)$,
+$ (\pd{x}^2, y^2\pd{x}^3)$ の先頭は $(0,\pd{x}^3)$,
+$ (\pd{x}^2, \pd{x}^2)$ の先頭は $(\pd{x}^2,0)$,
+$ (\pd{y}, \pd{x})$ の先頭は $(0,\pd{x})$.
+最後の例で 微分作用素の degree のみですぐ position をみるような順序だと,
+$ (\pd{y}, \pd{x})$ の先頭は $(\pd{y},0)$ となってしまう.
 
 {\tt hol.sm1}.
 
+\section{cgiasir.sm1, 2026.01.15}
 
+{\tt cgiasir.sm1} の変更.
+{\tt (http) cgiasir.setmode} \\
+{\tt Content-Type: text/html} が送信され,
+asir 関数の出力が html 形式だと解釈される.
+MathJax も利用可能となる.
+
+{\tt OpenXM/src/asir-port/cgi} にある
+cgi 用の shell script も参照.
+
+{\tt test2-cgi-asir.sh} で実行のテストをする.
 
 \end{document}
 

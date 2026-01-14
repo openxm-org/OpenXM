@@ -3,6 +3,18 @@
 [(parse) (ox.sm1) pushfile] extension
 [(parse) (cgi.sm1) pushfile] extension
 
+%
+/cgiasir_setmode {
+  /cgiasir.mode set
+} def 
+[(cgiasir_setmode)
+ [($http$ cgiasir_setmode, then asir output is interpreted as html strings. UTF8 encoding is assumed.)]
+] putUsages
+
+%% This is sent when (http) cgiasir_setmode. MathJax.
+/cgiasir.html.meta
+(<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0"> <script type="text/x-mathjax-config">  MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$']] } });</script><script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script> ) def
+
 % Default value of timer
 /cgiasir.tlimit (120) def
 % ------------------  set security flags of ox_asir.
@@ -106,10 +118,24 @@ def
    {  
      cgiAsir.errorMessage message  exit
    } ifelse  
-   cgi.body.http0 message 
+   cgiasir.mode (http) eq
+   {(Content-Type: text/html) message }
+   {cgi.body.http0 message   } ifelse
+    
    cgi.query_string cgiAsir.0 
    cgi.body cgiReplyInHttp0 /cgi.body.http set
+   cgiasir.mode (http) eq 
+   {
+     nl messagen (<html><meta http-equiv="Content-Type" name="viewport" content="text/html; charset=UTF-8; width=device-width"><body>) message
+     cgiasir.html.meta message
+   } {  } ifelse
+
    cgi.body.http message 
+
+   cgiasir.mode (http) eq 
+   {
+     (</body></html>) message
+   } { } ifelse
    exit
   } loop
   [(flush)] extension
@@ -182,7 +208,7 @@ def
     oxasir.ccc oxpopstring /cgi_body set
     % set for cgiReplyInHttp0
     /@@@stdout (NONE) def  /@@@stderr (NONE) def
-    /cgi.body cgi_body def    
+    /cgi.body cgi_body def
 } def
 
 /cgi.test2 {
