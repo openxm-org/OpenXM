@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20250423), Copyright 2000-2025, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20260131), Copyright 2000-2025, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -170,6 +170,14 @@ end: */
 def base_memberq(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_memberq(A,S);
+}
+/*&usage begin: base_pad_string(S,Len)
+ Add spaces to the string {S} so that the length of the string becomes {Len}.
+ example: base_pad_string((x-1)^3,30)+";";
+end: */
+def base_pad_string(S,Len) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_pad_string(S,Len);
 }
 /*&usage begin: base_permutation(L)
  It outputs all permutations of {L}.  BUG; it uses a slow algorithm.

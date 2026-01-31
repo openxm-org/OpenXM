@@ -127,6 +127,7 @@ localf my_macaulay_orig$
 localf gen_ext_std_index$
 localf row_to_M1M2$
 localf search_pos$
+localf get_NT_Deg_L$
 
 static NT_MData;
 static NT_Debug;
@@ -138,6 +139,7 @@ static NT_std;
 static MT_mm_bin;
 static NT_ES;   /* [dx_i*Std | i ] */
 static NT_Verbose;
+static NT_Deg_L;
 #else
 extern NT_MData;
 extern NT_Debug;
@@ -150,6 +152,7 @@ extern NT_std;
 extern MT_mm_bin;
 extern NT_ES; 
 extern NT_Verbose;
+extern NT_Deg_L;
 #endif
 
 def init_mm() {
@@ -479,21 +482,23 @@ def my_monomials(Id,Deg,N){
   L=map(dp_etov,L);//Deg次以下の全てのmonomialsを得る。
   L=reverse(L);
   Rows=[];
+  NT_Deg_L=[Deg,length(Rows),L];
   for(I=0;I<length(L);I++){
   for(J=0;J<length(Id);J++){
     Rows=cons(yang.multi(dp_vtoe(L[I]),Id[J]),Rows);
   }
   }
   Rows=reverse(Rows);
+  NT_Deg_L=[Deg,length(Rows),L];
   ML=map(my_terms,Rows);//MLはmonomial list
   Mons=[];
   for(I=0;I<length(ML);I++){
     Mons=append(Mons,ML[I]);
   }
   P=0;
-for(I=0;I<length(Mons);I++){
-P=P+Mons[I];
-}
+  for(I=0;I<length(Mons);I++){
+    P=P+Mons[I];
+  }
  return [Rows,my_terms(P)];
 }
 
@@ -2724,6 +2729,10 @@ def range(Start,Stop,Step) {
     L = cons(I,L);
   }
   return reverse(L);
+}
+
+def get_NT_Deg_L() {
+  return NT_Deg_L;
 }
 
 #ifdef USE_MODULE
