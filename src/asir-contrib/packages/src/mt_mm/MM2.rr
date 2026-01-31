@@ -1304,8 +1304,11 @@ def find_pfaffian_fast(MData,Xvars,Dir,Indep){
 
 #ifdef TEST
   if ((length(vars(M1))>0) || (length(vars(M2))>0)) {
-    printf("Warning. find_pfaffian_fast works only for linear polynomials. Calls find_pfaffian_orig\n");
-    return find_pfaffian_orig(MData,Xvars,Dir | option_list=getopt());
+    printf("Warning. find_pfaffian_fast works only for linear polynomials. Calls find_pfaffian with use_orig=1 option.\n");
+    printf("\nNote: Use xrules option to set numerical values to independent variables %a in order to make find_pfaffian_fast work.\n\n",Xvars);
+    Opt=base_rebuild_opt(getopt() | remove_keys=["use_orig"]);
+    printf("New opt is %a\n",cons(["use_orig",1],Opt));
+    return find_pfaffian(MData,Xvars,Dir | option_list=cons(["use_orig",1],Opt));
   }
 #endif
 
