@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Dec. 2025)
+ *          Toshio Oshima (Nov. 2007 - Jan. 2026)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -287,6 +287,9 @@ localf spharnad$
 localf spharnadcv$
 localf spharnadspan$
 localf spfundclass$
+localf spfundrel$
+localf spfundconf$
+localf spE8$   /* temp */
 localf vlconnect$
 localf spnexttop$
 localf spchangetop$
@@ -407,6 +410,8 @@ localf sproot$
 localf mincod$
 localf spgen$
 localf spbasic$
+localf exsp$
+localf sp2tab$
 localf nextshort$
 localf nextcod$
 localf csptb$
@@ -647,7 +652,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00260105"$
+Muldif.rr="00260127"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -8935,25 +8940,50 @@ def spchangetop(L,C)
 }
 
 /* basic=1: transform into basic form */
-/* ord=d : order may increases by d  */ 
+/* ord=d : order may increases by d   */
+/* base=? */ 
 def spharnadcv(L)
 {
 	if(getopt(raw)==1) Raw=1;
 	else Raw=0;
+	if(!isint(Verb=getopt(verb))) Verb=0;
 	if(type(L)==7){
 		Str=1;
 		L=s2sp(L);
 	}else Str=0;
-	if(getopt(basic)==1) Base=1;
-	else 0;
+	if(getopt(basic)==1) Basic=1;
+	else Basic=0;
 	/* mc */
-	if(!Raw&&isint(Mc=getopt(mc))&&Mc>0){
+	Mc=Mc0=0;
+	Mc=getopt(mc);
+	if(type(Mc)==4){
+		Mc0=Mc[1];Mc=Mc[0];
+	}
+	if(!isint(Mc)||Mc<1) Mc=0;
+	if(Mc){
 		D=lsum(car(L));
 		R=spgen(D+Mc|str=Str,std=-1,sp=L);
-		for(L=[],I=D;I<=D+Mc;I++) L=append(R[I],L);
+		for(L=[],I=D+Mc;I>=D+Mc0;I--) L=append(R[I],L);
 		Opt=delopt(getopt(),"mc");
-		for(R=[],TL=L;TL!=[];TL=cdr(TL))
-			R=lsort(R,spharnadcv(car(TL)|option_list=Opt),"cup");
+		R=Raw?[[],[]]:[];
+		if(Verb) mycat(["#mc",D+Mc0,"-",D+Mc,":",length(L)]);
+		for(C=0,TL=L;TL!=[];TL=cdr(TL)){
+			Rh=spharnadcv(car(TL)|option_list=Opt);
+			C+=length(Rh);
+			if(Raw){
+				for(Rh0=Rh[0],Rh1=Rh[1];Rh0!=[];Rh0=cdr(Rh0),Rh1=cdr(Rh1)){
+					if(findin(car(Rh0),R[0])>=0) continue;
+					if(Verb==2) mycat0([car(Rh0)," "],0);
+					R=[cons(car(Rh0),R[0]),cons(car(Rh1),R[1])];
+				}
+			}else{
+				R=lsort(RR=R,Rh,"cup");
+				if(Verb==2&&length(R)>length(RR))
+					mycat(["get",lsort(R,RR,"setminus"), "from", car(TL)]);
+			}
+		}
+		if(Verb) mycat(["# Harnad dual",C]);
+		if(Raw) R=[reverse(R[0]),reverse(R[1])];
 		return R;
 	}
 	K=length(L);
@@ -8993,7 +9023,7 @@ def spharnadcv(L)
 					for(H=R3,R3=[];H!=[];H=cdr(H))
 						R3=cons(qsortn(car(H)),R3);
 					R3=msort(R3,[2,-1]);
-					if(Base){
+					if(Basic){
 						R3=chkspt(R3|opt="basic");
 						for(T=reverse(R3),R3=[];T!=[];T=cdr(T)){
 							if(length(car(T))>1) R3=cons(car(T),R3);
@@ -9024,7 +9054,7 @@ def spharnadcv(L)
 def spharnadspan(L)
 {
 	for(I=K=0,Sp=[L],Rel=[];I>=0 && K<10000;){
-		R=spharnadcv(Sp[I]);
+		R=spharnadcv(Sp[I]|ord=0,basic=1);
 		I--;
 		for(;R!=[];R=cdr(R)){
 			if(findin(car(R),Sp)>=0) continue;
@@ -9035,21 +9065,29 @@ def spharnadspan(L)
 	return Sp;
 }
 
+/* M: index of rigidity, infty=1, comp=1 */
 def spfundclass(M)
 {
 	if(!isint(M)&&M>0&&M%2) return 0;
 	L=spbasic(M,0|str=1);
 	mycat(["Got",length(L),"specta"]);
+	if(!isint(Verb=getopt(verb))) Verb=0;
 	for(R=[],TL=L;TL!=[];TL=cdr(TL)){
 		TR=spharnadcv(T=car(TL)|ord=0,basic=1);
 		if((TR==[]||TR==[T])&&chkspt(T)[0]==3){
 			U=[2,4,8,16,24,36,48,64];
 			mycat0(["Checking ",T],0);
-			for(;U!=[];U=cdr(U)){
-				TR=spharnadcv(T|mc=car(U),basic=1);
+			if(Verb) mycat("");
+			for(Mc0=0,TU=U;TU!=[];TU=cdr(TU)){
+				TR=spharnadcv(T|mc=[car(TU),Mc0],basic=1,verb=Verb);
 				if(TR!=[] && TR!=[T]) break;
+				if(length(TU)==1&&getopt(infty)==1){
+					mycat0([" ",car(TU),"-"],0);
+					TU=[car(TU),idiv(car(TU)*4,3)];
+				}
+				Mc0=car(TU)+1;
 			}
-			if(U!=[]) mycat([" up to", car(U)]);
+			if(TU!=[]) mycat([" up to +", car(TU)]);
 			else mycat([" stopped at ",U[length(U)-1]]);
 		}
 		R=cons(cons(T,TR),R);
@@ -9075,17 +9113,154 @@ def spfundclass(M)
 	V1=vlconnect(SR|base=SR);
 	return[V0,V1];
 */
-	if(getopt(sort)!=1) return V0;
+	if((Comp=getopt(comp))==1) Sort=2;
+	else if((Sort=getopt(sort))!=1&&Sort!=2) return V0;
 	for(V1=[],V=V0;V!=[];V=cdr(V)){
 		for(R=[],TV=car(V);TV!=[];TV=cdr(TV)){
 			P=car(TV);D=chkspt(P);
 			R=cons([[D[1],D[0]],P],R);
 		}
+/* larger rank, smaller # sing points, larger total */ 
 		R=msort(R,[[-1,0,0,0],[1,0,0,1],[-1,0,1]]);
+		if(Sort==2) R=lpair(R,0)[1];
 		V1=cons(R,V1);
 	}
+/* larger #elements, larger total */
+	V1=msort(V1,[[-1,"len"],[-1,0]]);
+	if(Comp==1){
+		mycat("Check more relations");
+		V1=spfundrel(V1,[]|infty=1,verb=Verb);
+	}
+	mycat(["Get",length(V1),"classes" ]);
+	return V1;
+}
+
+/*
+  V : sorted (sort=2) classification 
+  check = 1 : aa,bbb,ccc... is not at top
+        = 2 : show top and last and # of elements
+        = 3 : show last if it has only 3 singular points
+		= 4 : analyze L
+  infty = 1 : search up to get the required relation
+  auto  = 0 : don't automatically add relations
+*/
+def spfundrel(V,L)
+{
+	if((C=getopt(check))==1||C==2||C==3||C==4){
+		if(C==4){
+			for(R=[],TL=L;TL!=[];TL=cdr(TL)){
+				for(TR=[],T=car(TL);T!=[];T=cdr(T)){
+					P=car(T);
+					for(I=0,TV=V;TV!=[];TV=cdr(TV),I++){
+						if(findin(P,car(TV))>=0){
+							TR=cons(I,TR);
+							break;
+						}
+					}
+					if(TL==[]) TR=cons(-1,TR);
+				}
+				TR=lsort(TR,[],1);
+				R=cons(TR,R);
+			}
+			R=reverse(R);
+			mycat(["connect",R]);
+			return R;
+		}
+		for(R=[],I=0,TV=V;TV!=[];I++,TV=cdr(TV)){
+			if(C>1){
+				if(C==2){
+					P=TV[0][0];L=s2sp(P);D=0;
+					for(J=length(L[0])-1;J>=0;J--) D+=L[0][J];
+					for(J=length(L)-1;J>=0;J--) D-=car(L[J]);
+					mycat([I,length(TV[0]), "\t",D,P, "\t", TV[0][length(TV[0])-1]]);
+					R=cons([I,length(TV[0]),P,TV[0][length(TV[0])-1]],R);
+				}else{
+					P=TV[0][length(TV[0])-1];PL=s2sp(P);
+					if(length(PL)==3){
+						mycat([I,P]);
+						R=cons([I,TV[0]],R);
+					} 
+				}
+				continue;
+			}
+			for(J=0,T=car(TV);T!=[];J++,T=cdr(T)){
+				P=car(T);PL=s2sp(P);F=0;
+				if(length(PL)==3&&length(PL[0])==2&&length(PL[1])==3){
+					if(J) F=1;
+				}else if(!J) F=1;
+				if(F){
+					mycat([I,J,length(TV[0]),P,ltov(TV[0])]);
+					R=cons(T,R);
+				}
+			}
+		}
+		return reverse(R);
+	}
+	Inf=getopt(infty);
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	if(getopt(auto)==0) NP=0;
+	else NP=2;  /* NP=0 => don't automatically add */
+	for(TV=V;TV!=[];TV=cdr(TV)){
+		if(length(T=car(TV))>NP) continue;
+		T=car(TV);PL=s2sp(P=car(T));
+		if(length(PL)==3&&length(PL[0])==2&&length(PL[1])==3) continue;
+		U=[8,16,24,36];
+		mycat0(["Checking ",P],0);
+		for(Mc0=0,TU=U;TU!=[];TU=cdr(TU)){
+			TR=spharnadcv(P|mc=[Mc=car(TU),Mc0],basic=1,verb=Verb);
+			if((TR=lsort(TR,T,1))!=[]){
+				L=cons(lsort([P],TR,"cup"),L);
+				break;
+			}
+			if(length(TU)==1&&Inf==1){
+				mycat0([" ",Mc,"-"],0);
+				TU=[car(TU),idiv(car(TU)*4,3)];
+			}
+			Mc0=Mc+1;
+		}
+		if(TU!=[]) mycat([" up to +", Mc]);
+		else mycat([" stopped at ",Mc]);
+	}
+	if((Sort=getopt(sort))!=1) Sort=2;
+	if(L!=[]) V=vlconnect(L|base=V);
+	for(V1=[];V!=[];V=cdr(V)){
+		for(R=[],TV=car(V);TV!=[];TV=cdr(TV)){
+			P=car(TV);D=chkspt(P);
+			R=cons([[D[1],D[0]],P],R);
+		}
+/* larger rank, smaller # sing points, larger total */ 
+		R=msort(R,[[-1,0,0,0],[1,0,0,1],[-1,0,1]]);
+		if(Sort==2) R=lpair(R,0)[1];
+		V1=cons(R,V1);
+	}
+/* larger #elements, larger total */
 	return msort(V1,[[-1,"len"],[-1,0]]);
 }
+
+def spfundconf(P,M)
+{
+	D=chkspt(P);
+	if(D[4]!=0) return 0;
+	D=D[1];
+	L=reverse(refinements(P|opt="s"));
+	R=spgen(D+M|str=Str,std=-1,sp=P);
+mycat([0,R]);
+	for(I=D+1;I<=D+M;I++){
+		TR=R[I];
+		for(T=TR;TR!=[];TR=cdr(TR)){
+mycat([1,car(TR)]);
+			TL=refinements(car(TR)|opt="s");
+mycat([2,ltov(TL)]);
+			for(TL=cdr(TL);TL!=[];TL=cdr(TL)){
+mycat([3,car(TL)]);
+				if(chkcspt(car(TL))[4]==0) L=cons(car(TL),L);
+mycat(["*"]);
+			}
+		}
+	}
+	return reverse(L);
+}
+
 
 def vlconnect(L)
 {
@@ -12820,7 +12995,7 @@ def spgen(MO)
 		L0=0; L1=MO+TP;
 	}
 	if(MO<=0) return spbasic(MO,0|option_list=getopt());
-	MP=(L1<MO+TP)?L1:MO+TP;
+	MP=MO+TP;
 	/* MO: max order, LP:#points - corrend order */
 	LL=newvect(MO+1);
 	R=newvect(MP);		/* MP maximal #points */
@@ -12903,6 +13078,49 @@ def spgen(MO)
 	}
 	if(Eq==1) return LL[MO];
 	return LL;
+}
+
+def sp2tab(L)
+{
+	if(type(Title=getopt(title))!=7) Title = "Title";
+	if(type(Head=Hd=getopt(head))!=7&&Head!=0) Head="";
+	else Head=Head+" ";
+	if(!isint(Short=getopt(short))) Short=0;
+	if(Short==1) Short=2;
+	if(!isint(Column=getopt(col))||Column<2) Column = 4;
+	if((Raw=getopt(raw))!=1) Raw=0;
+	if(type(car(L))==4&&type(car(L)[0])==7){
+		for(H=R=[],T=L;T!=[];T=cdr(T)){
+			TR=sp2tab(car(T)|col=Column,head=Head,short=Short);
+			R=append(R,TR);
+			H=cons(idiv(length(TR),Column),H);
+		}
+		for(HL=[0],H=reverse(H);H!=[];H=cdr(H))
+			HL=cons(car(HL)+car(H),HL);
+		R=[R,reverse(HL)];
+		if(Raw) return R;
+		S=ltotex([R[0]]|opt="tab",width=Column,align="l",title=Title,hline=R[1]);
+		if(getopt(dviout)==1) dviout(S);
+		return S;
+	}
+	R=[]; Sp="\\,\\ ";
+	for(TL=L;TL!=[];TL=cdr(TL)){
+		P=car(TL);
+		if(!Head){
+			R=cons(P,R);
+			continue;
+		}
+		D=chkspt(P=car(TL));
+		N=D[1];
+		SN=rtostr(N);
+		SN="{"+(D[0]>3?Head:"")+SN+"}:\\,";
+		if(N<10) SN=Sp+SN;
+		if(Short) P="$"+s2sp(P|short=Short,std=-1)+"$";
+		R=cons(SN+P,R);
+	}
+	if(T=length(L)%Column)
+		for(I=T;I<Column;I++) R=cons(" ",R);
+	return reverse(R);
 }
 
 /*
@@ -12994,7 +13212,6 @@ def spbasic(Idx,D)
 			if(Std) R=s2sp(R|std=Std);
 			return [(Str==1)?s2sp(R):R];
 		}
-		if(D>2*Idx+6) return [];
 	} 
 /*	else if(D>2) L=floor((Idx-2)/4)+5; */
 	else L=Idx/2+4;
@@ -13076,6 +13293,53 @@ def spbasic(Idx,D)
 		for(J=I+1;J<L;J++) V[J]=V[I];
 	}
 	return R; 
+}
+
+def exsp(P,M)
+{
+	if(!isint(M)||M<1) return 0;
+	R=T=[];
+	if(M==1) R0=[1,1]; else R0=[M,M-1,1];
+	K=idiv(M,2);
+	if(P=="Ga") for(I=0;I<M+3;I++) R=cons([1,1],R);
+	else if(P=="GT"){
+		for(I=0;I<2*M+4;I++) T=cons(1,T);
+		R=[[M+2,M+2],[M+1,M+1,2],T];
+	}else if(P=="FS"){
+		for(I=0;I<M+1;I++) T=cons(1,T);
+		R=[[M,1],[M,1],T,T];
+	}else if(P=="Sa"){
+		for(I=0;I<2*M;I++) T=cons(1,T);
+		R=[[2*M-1,1],[M,M],[M,M],T];
+	}else if(P=="D4")
+		R=[[M,M],[M,M],[M,M],R0];
+	else if(P=="E6")
+		R=[[M,M,M],[M,M,M],cons(M,R0)];
+	else if(P=="E7")
+		R=[[2*M,2*M],[M,M,M,M],append([M,M],R0)];
+	else if(P=="E8")
+		R=[[3*M,3*M],[2*M,2*M,2*M],append([M,M,M,M],R0)];
+	else if(M<2) return 0;
+	else if(P=="HG"){
+		for(I=0;I<M;I++) T=cons(1,T);
+		R=[[M-1,1],[M-1,1],T];
+	}else if(P=="EO"){
+		for(I=0;I<M;I++) T=cons(1,T);
+		if(M%2) R=[[K+1,K],[K,K,1],T];
+		else    R=[[K,K],[K,K-1,1],T];
+	}else if(P=="JP")
+		for(I=0;I<M+1;I++) R=cons([M-1,1],R);
+	else if(P=="P4"){
+		K=idiv(M,2);
+		if(M%2) R=[[K+1,K],[K+1,K],[K+1,K],[K+1,K]];
+		else    R=[[K+1,K-1],[K,K],[K,K],[K,K]];
+	}
+	else return 0;
+	if(getopt(str)==1){
+		if(!isint(Short=getopt(short))) Short=0;
+		R=s2sp(R|short=Short);
+	}
+	return R;
 }
 
 def spType2(L)
@@ -13327,6 +13591,7 @@ def chkcspt(S)
 	}
 	return [length(R),calc(PV,["-",1]), SPT[1],SPT[2],D,lpair(RM,0)[0],s2csp(S),S,s2csp(RR),RR];
 }
+
 
 def cterm(P)
 {
