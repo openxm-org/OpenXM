@@ -128,6 +128,7 @@ localf gen_ext_std_index$
 localf row_to_M1M2$
 localf search_pos$
 localf get_NT_Deg_L$
+localf nt_show_row_map$
 
 static NT_MData;
 static NT_Debug;
@@ -2734,6 +2735,39 @@ def range(Start,Stop,Step) {
 def get_NT_Deg_L() {
   return NT_Deg_L;
 }
+
+/* By gemini, 2026-01-31 */
+def nt_show_row_map(NumGenerators) {
+    Res = mt_mm.get_NT_Deg_L();
+    if (type(Res) <= 0 || length(Res) < 2) {
+        print("Error: NT_Deg_L is not set correctly. Run find_macaulay first.");
+        return;
+    }
+    
+    L = Res[2]; 
+    LenL = length(L);
+    
+    /* ヘッダーの表示 (base_pad_string を使用) */
+    Header = base_pad_string("RowIdx", 8) + "| " + base_pad_string("Operator (Exp)", 18) + "| " + base_pad_string("GenIdx", 8) + "| Description";
+    print(Header);
+    print("--------+-------------------+---------+------------");
+    
+    for (I = 0; I < LenL; I++) {
+        for (J = 0; J < NumGenerators; J++) {
+            RowIdx = I * NumGenerators + J;
+            Op = L[I];
+            
+            /* 列の構築 */
+            Line = base_pad_string(rtostr(RowIdx), 8) + "| ";
+            Line += base_pad_string(rtostr(Op), 18) + "| ";
+            Line += base_pad_string(rtostr(J), 8) + "| ";
+            Line += "D^" + rtostr(Op) + " * f_" + rtostr(J);
+            
+            print(Line);
+        }
+    }
+}
+
 
 #ifdef USE_MODULE
 endmodule$
