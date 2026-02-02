@@ -215,6 +215,27 @@ def
 
 /cgiReplyInHttp0 {
   /arg1 set
+  [/ss /sskv /tt] pushVariables
+  [
+    /ss arg1 def
+    [[(Content-Body) ss]
+%     [(Content-Type) (text/plain)]
+     @@@stdout (NONE) eq {
+     } {
+       [(oxshell-stdout) [(cgiStringToUrlEncoding) @@@stdout] extension]
+     } ifelse
+     @@@stderr (NONE) eq {
+     } {
+       [(oxshell-stderr) [(cgiStringToUrlEncoding) @@@stderr] extension]
+     } ifelse
+    ] /sskv set
+    [(cgiKeyValuePairToHttpString) sskv] extension /arg1 set
+  ] pop
+  arg1
+} def
+
+/cgiReplyInHttp0.orig {
+  /arg1 set
   [/ss /sskv] pushVariables
   [
     /ss arg1 def
