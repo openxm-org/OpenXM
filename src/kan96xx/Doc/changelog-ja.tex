@@ -1159,5 +1159,68 @@ cgi 用の shell script も参照.
 
 {\tt test2-cgi-asir.sh} で実行のテストをする.
 
+\section{2026.02.02, kstring.c を plugin へ加える}
+
+kstring.c は文字列処理の extension {\tt [(string) ...] extension} なる形式.
+まず出始めに, 正規表現で指定された文字列を削除する機能 {\tt (remove)} を実現.
+文字列 object の tag は歴史的理由で {\tt Sdollar}.
+今回から gemini pro に実装を手伝ってもらう.
+
+{\tt plugin/kstring.c} に処理本体.
+{\tt kstring.hh} に extension のインタフェースを以下のような形式で書く.
+
+\begin{verbatim}
+else if (strcmp(key,"string")==0) {
+  if (size != [  ] extension の [ ] の長さ) 
+    errorKan1("%s\n","usages....");
+  }
+  obj1 = getoa(obj,1);
+  ...
+  処理
+  rob = 戻り値
+  return rob 
+}
+\end{verbatim}
+
+\medbreak 
+\noindent 
+Q. {\tt kstring.c} で sm1 の object を使うには?  \\
+A. 
+\begin{verbatim}
+#include "../Kan/datatype.h"
+#include "../Kan/stackm.h"
+#include "../Kan/kclass.h"
+#include "../Kan/extern.h"
+\end{verbatim}
+\medbreak
+
+{\tt grep sample Makefile.in}  
+({\tt plugin/Makefile.in} のこと)
+として kstring を書くべき場所を探して書き込み, {\tt pllugin/kstring.a} が生成されるようにする.
+
+
+\medbreak
+\noindent  
+Q. *.hh ファイルの結合はどこで行われる? \\
+A.   {\tt kan96xx/Kan/Makefile.in PLUGIN\_EXT} に {\tt kstring.hh} を書いておくことで結合される.  
+
+
+\medbreak
+\noindent
+Q. plugin で定義した Kで始まる関数を sm1 本体の prototype 宣言に反映するには? \\
+A. {\tt kstring.h} で宣言しておいて, 
+   {\tt kan96xx/Kan/Makefile.in PLUGIN\_PROTOTYPE} に {\tt kstring.h} を加えることで結合される.
+   {\tt K}で始まる関数が sm1 から使われる習慣.
+   その他, {\tt kan96xx/Kan/Makefile.in} の コメント plugin module のところの変数に追加.
+
+\medbreak
+\noindent
+{\tt Kan/sm.c} の {\tt RELEASE} も変更.
+\begin{verbatim}
+cd kan96xx
+make distclean
+./make-configure
+make
+\end{verbatim}
 \end{document}
 

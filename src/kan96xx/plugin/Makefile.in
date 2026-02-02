@@ -19,7 +19,7 @@ RANLIB=@RANLIB@
 #CFLAGS+=-g -I${OpenXM_include} -I${Kan96xx}/Kan -D_BSD_SOURCE
 CFLAGS=@CFLAGS@ -g -I${OpenXM_include} -I${Kan96xx}/Kan -D_DEFAULT_SOURCE -D_BSD_SOURCE -fcommon
 
-all: configure cmo.a file2.a ox.a sample.a sm1Socket.a  oxxml.a oxcgi.a
+all: configure cmo.a file2.a ox.a sample.a sm1Socket.a  oxxml.a oxcgi.a kstring.a
 configure: Makefile
 
 Makefile: Makefile.in
@@ -108,6 +108,12 @@ oxcgi.a: oxcgi.o
 	${RANLIB} oxcgi.a
 
 oxcgi.o: oxcgi.h oxcgi.hh oxcgi.c
+
+kstring.a: kstring.o
+	${AR} ru kstring.a kstring.o
+	${RANLIB} kstring.a
+
+kstring.o: kstring.h kstring.hh kstring.c
 
 
 clean:
