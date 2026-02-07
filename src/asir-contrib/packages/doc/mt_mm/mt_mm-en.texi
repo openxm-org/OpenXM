@@ -229,7 +229,8 @@ Ideal=[x1*dx1+2*x2*dx2-b1,dx1^2-dx2]$
 Std=[<<0,0>>,<<0,1>>]$ Xvars=[x1,x2]$
 Id = map(dp_ptod,Ideal,poly_dvar(Xvars));
 MData=mt_mm.find_macaulay(Id,Std,Xvars);
-P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);
+P1=mt_mm.find_pfaffian(MData,Xvars,1 | use_orig=1);  
+      /*When x are symbols, add use_orig=1 option. */
 P2=mt_mm.find_pfaffian(MData,Xvars,2 | use_orig=1);
 
 [3404] 
@@ -534,6 +535,63 @@ x_1 \partial_1^3 + \partial_1^2 - 1/2 \partial_1}.
 @ref{mt_mm.find_macaulay}
 @end table
 @comment ---end function my_macaulay 
+
+@comment **********************************************************
+@comment ---function find_pfaffian
+@comment --- 個々の関数の説明, 上のcomment ２行はmanの編集に便利なのでこの形式で書く. ---
+@node mt_mm.find_pfaffian,,, Chapter_name
+@section @code{mt_mm.find_pfaffian}
+@comment --- 索引用キーワード
+@findex mt_mm.find_pfaffian
+
+@table @t
+@item mt_mm.find_pfaffian(@var{MData},@var{Xvars},@var{Dir}|use_orig=@var{S}, xrules=L)
+:: It constructs the Pfaffian matrix for the direction @var{Dir}.
+@end table
+
+@comment --- 引数の簡単な説明 --- 
+@table @var
+@item return
+a list, Pfaffian matrix P with respect to the variable @var{Xvars}[@var{Dir}-1].
+@item MData
+Output of find_macaulay function
+@item Xvars
+a list of x variables
+@item Dir
+The index of the direction. 
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize @bullet 〜 @end itemize は箇条書き ---
+@itemize @bullet
+@item 
+Let @math{x_i} be @var{Xvars}[{@var{Dir}-1}].
+@math{{\partial \over {\partial x_i}} - P} is the Pfaffian operator.
+Note that @var{Dir} starts from 1.
+@item 
+When @var{Xvars} are symbols, add use_orig=1 as the option.
+When use_orig=1 is not used, add the option
+xrules to specify numerical values of @var{Xvars} or replace
+symbols in the Macaulay matrix in @var{MData} by numerical values of them.
+@var{L} of xrules is, for example, of the form
+[[x1,1/5],[x2,1/2], ..., [xn,5/13]] in case @var{Xvars}=[x1,x2,...,xn].
+The function find_pfaffian_fast is called in this case and
+solving linear equations are more efficient when @var{Xvars} are numbers.
+Rational reconstruction methods can apply to reconstruct symbolic Pfaffian matrices (see [amp2022a], [amp2023a]).
+@end itemize
+
+@comment @* は強制改行.
+
+@comment --- @example〜@end example は実行例の表示 ---
+@noindent
+As to examples, we refer to find_macaulay.
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item Refer to
+@ref{mt_mm.find_macaulay}
+@end table
+@comment ---end function pfaff_eq 
 
 @comment ---------- New Chapter  ---------------
 @node Invariant subvector space,,, Top
