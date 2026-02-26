@@ -3,7 +3,7 @@ OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
-MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original: https://thrysoee.dk/editline/
 DISTNAME=libedit-20210910-3.1
 DISTFILES=${DISTNAME}.tar.gz

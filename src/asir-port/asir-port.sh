@@ -15,12 +15,12 @@ libmd=`cat $OpenXM_HOME/lib/asir/distinfo-asirlib.md5`
 #asirlib="http://www.math.kobe-u.ac.jp/pub/asir/tar.exe"
 #asirlibname="tar.exe"
 # 
-asir="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asir-$os-$version.gz"
+asir="https://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asir-$os-$version.gz"
 asirnamegunzip="asir-$os-$version"
 asirname="asir-$os-$version.gz"
-asirlib="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
+asirlib="https://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
 asirlibname="asirlib-$os-$version.tar.gz"
-ot="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
+ot="https://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
 otname="ox-texmacs-$os-$version.tar.gz"
 
 if [ $# = 1 ]; then

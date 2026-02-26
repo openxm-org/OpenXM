@@ -7,7 +7,7 @@ RANLIB=ranlib
 INSTALL_PROGRAM=install -c -s
 DISTNAME=TiGERS_0.9
 PATCH_FILE=tigers.patch
-MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE=https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DIST_SUFFIX=.taz
 DISTFILES=${DISTNAME}${DIST_SUFFIX}
 

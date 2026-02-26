@@ -1,7 +1,7 @@
 # $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.20 2015/02/21 06:20:36 ohara Exp $
 
 OpenXM_HOME = ../..
-MASTER_SITE = http://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
+MASTER_SITE = https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME    = gnuplot-5.4.0
 DISTFILES   = ${DISTNAME}.tar.gz
 DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist
