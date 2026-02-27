@@ -1,0 +1,158 @@
+/* Orig: llm-2025/Data/v5-codes/weyl-replace.rr by Risa/Asir programming gem v5.
+*/
+module tk_weyl_replace;;
+localf weyl_power;
+localf weyl_replace;
+localf run_auto_test;
+
+// 非可換乗算によるべき乗計算 (Xvars は空間変数のみのリスト)
+def weyl_power(Base, Exp, Xvars) {
+  if (Exp < 0) error("weyl_power, Exp is negative.");  
+  if (Exp == 0) {
+    return 1;
+  }
+  Res = 1;
+  for (I = 0; I < Exp; I++) {
+    if (Res == 1) {
+      Res = Base;
+    } else {
+      Res = poly_dmul(Res, Base, Xvars);
+    }
+  }
+  return Res;
+}
+
+// Weyl代数での変数置換 (同時置換対応版)
+def weyl_replace(Poly, Rules, V) {
+  if (type(Poly) <= 1) {
+    return Poly;
+  }
+  if (type(Poly)>=4) return map(weyl_replace,Poly,Rules,V);
+  if (type(Poly)==3) error("weyl_replace: argument must be a polynomial.");
+
+  Xvars=V;
+  V=append(Xvars,poly_dvar(V));
+    
+  // 大域的な変数順序を保存し、一時的にGraded Reverse Lexicographic(0)に変更
+  Ord_orig = dp_ord();
+  dp_ord(0);
+    
+  // 変数リストVに対応する置換先リスト(RepList)を事前生成 (ここで同時置換を確定)
+  RepList = newvect(length(V));
+  for (I = 0; I < length(V); I++) {
+    Var = V[I];
+    Rep = Var; 
+    for (J = 0; J < length(Rules); J++) {
+      if (Rules[J][0] == Var) {
+        Rep = Rules[J][1];
+      }
+    }
+    RepList[I] = Rep;
+  }
+    
+  // 分散多項式へ変換してモノミアル単位で処理
+  Dpoly = dp_ptod(Poly, V);
+  TotalRes = 0;
+    
+  while (Dpoly) {
+    C = dp_hc(Dpoly);
+    E = dp_etov(dp_ht(Dpoly));
+        
+    TermRes = 1;
+    // 空間変数のリスト順序 (x1, x2, ..., dx1, dx2, ...) で非可換乗算
+    for (I = 0; I < length(V); I++) {
+      if (E[I] > 0) {
+        Power = weyl_power(RepList[I], E[I], Xvars);
+        if (TermRes == 1) {
+          TermRes = Power;
+        } else {
+          TermRes = poly_dmul(TermRes, Power, Xvars);
+        }
+      }
+    }
+        
+    TotalRes = TotalRes + C * TermRes;
+    Dpoly = dp_rest(Dpoly);
+  }
+    
+  // 大域的な変数順序を元に戻す
+  dp_ord(Ord_orig);
+    
+  return TotalRes;
+}
+
+def run_auto_test() {
+  // 環境設定
+  Vlist = [x, y, dx, dy];
+  Xvars = [x, y];
+    
+  // 置換ルールの定義 (空間変数と微分作用素が入り混じる非自明な置換)
+  // x  -> x + dy
+  // dx -> dx + y
+  Rules = [[x, x + dy], [dx, dx + y]];
+    
+  printf("\n=== 自動テスト開始 (x^i * dx^j の置換検証) ===\n");
+    
+  SuccessCount = 0;
+  TotalCount = 0;
+  MaxDeg = 4;
+    
+  for (I = 0; I <= MaxDeg; I++) {
+    for (J = 0; J <= MaxDeg; J++) {
+      TotalCount = TotalCount + 1;
+            
+      // 対象となる多項式 Poly = x^I * dx^J を生成
+      Poly = (x^I) * (dx^J);
+            
+      // 1. weyl_replace による一括置換の計算
+      Ans = weyl_replace(Poly, Rules, Xvars);
+            
+      // 2. poly_dmul による手動計算 (愚直な展開)
+      Chk = 1;
+      // (x + dy) を I 回掛ける
+      for (K = 0; K < I; K++) {
+        if (Chk == 1) {
+          Chk = x + dy;
+        } else {
+          Chk = poly_dmul(Chk, x + dy, Xvars);
+        }
+      }
+      // (dx + y) を J 回掛ける
+      for (K = 0; K < J; K++) {
+        if (Chk == 1) {
+          Chk = dx + y;
+        } else {
+          Chk = poly_dmul(Chk, dx + y, Xvars);
+        }
+      }
+            
+      // 3. 引き算による検証
+      Diff = Ans - Chk;
+            
+      if (Diff == 0) {
+        SuccessCount = SuccessCount + 1;
+      } else {
+        // エラーが発生した場合のみ詳細を出力
+        printf("[Error] i=%a, j=%a の計算で不一致!\n", I, J);
+        printf("  Poly = %a\n", Poly);
+        printf("  weyl_replace: %a\n", Ans);
+        printf("  手動計算    : %a\n", Chk);
+        printf("  Diff        : %a\n", Diff);
+      }
+    }
+  }
+    
+  printf("テスト完了: %a / %a パターン成功\n", SuccessCount, TotalCount);
+  if (SuccessCount == TotalCount) {
+    printf("=> ALL PASSED! weyl_replace は完璧に動作しています。\n\n");
+  } else {
+    printf("=> FAILED! バグが潜んでいます。\n\n");
+  }
+    
+  return SuccessCount;
+}
+endmodule;;
+
+//tk_weyl_replace.run_auto_test();
+end;;
+

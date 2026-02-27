@@ -1,4 +1,5 @@
 /* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.39 2022/07/14 01:07:43 takayama Exp $ */
+import("tk_weyl_replace.rr")$
 #include "tags.h"
 
 extern Taka_poly_global_ord$
@@ -1335,6 +1336,8 @@ def taka_poly_pop_ord() {
   Taka_poly_global_ord_ptr--;
   dp_ord(Taka_poly_global_ord[Taka_poly_global_ord_ptr]);
 }
+
+
 
 Taka_poly_loaded = 1$
 end$
