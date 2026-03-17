@@ -96,7 +96,7 @@ def asir_contrib_update_win() {
     if (util_damepathq(InstallDir0)[0] ) error("Error: install_dir="+InstallDir0+" contains dame-moji.");
     if (util_damepathq(MyTmp)[0] ) error("Error: tmp="+MyTmp+" contains dame-moji.");
   }
-  if (type(getopt(url)) <=0) Url = "http://www.math.kobe-u.ac.jp/OpenXM/Current";
+  if (type(getopt(url)) <=0) Url = "https://www.math.kobe-u.ac.jp/OpenXM/Current";
   else Url=getopt(url);
   if (type(getopt(zip_files))<=0) ZipFiles = ["lib-asir-contrib.zip"];
   else ZipFiles=getopt(zip_files);
@@ -155,7 +155,7 @@ def asir_contrib_update_unix() {
   Trash=getenv("HOME");  /* bug, find .Trash */
   if (contain_space(InstallDir0)) error("Error: install_dir="+InstallDir0+" contains space characters.");
   if (contain_space(MyTmp)) error("Error: tmp="+MyTmp+" contains space characters");
-  if (type(getopt(url)) <=0) Url = "http://www.math.kobe-u.ac.jp/OpenXM/Current";
+  if (type(getopt(url)) <=0) Url = "https://www.math.kobe-u.ac.jp/OpenXM/Current";
   else Url=getopt(url);
   if (type(getopt(zip_files))<=0) ZipFiles = ["lib-asir-contrib.zip"];
   else ZipFiles=getopt(zip_files);

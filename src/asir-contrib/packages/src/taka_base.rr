@@ -85,6 +85,8 @@ def taka_subst(S,X,A) {
     if (type(A) != QUOTE) {
       A = quote_to_quote(A);
     }
+  }else if (type(S)==7) {
+    return S;  /* string case */
   }else{
     return(subst(S,X,A));
   }

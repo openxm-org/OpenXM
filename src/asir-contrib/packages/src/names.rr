@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20260131), Copyright 2000-2025, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20260228), Copyright 2000-2025, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -559,7 +559,7 @@ def poly_groebner_basis(I) {
   return poly_grobner_basis(I|option_list=getopt());
 }
 /*&usage begin: poly_hilbert_polynomial(I|s,v,sm1)
- It returns the Hilbert polynomial of the poly_init(I).
+ It returns the Hilbert polynomial of the poly_init(I). I must be a monomial ideal when the option sm1=1 is given.
  description:
  The optional variable v is a list of variables. sm1=1 forces to call sm1.
  [sum(H(k),{k,0,h}), H(h)] where H(h) is the number of degree h monomials when h>>0.
@@ -768,6 +768,14 @@ def poly_sort(F) {
 end: */
 def poly_subsetq(II,JJ,V) {
   return tk_poly_subsetq(II,JJ,V | option_list=getopt());
+}
+/*&usage begin: poly_weyl_replace(F,Rule,V)
+ It performs the replacement in F by Rule in the Weyl algebra.
+ Replacement rule is given by Rule. V is a list of space variables.
+ example: poly_weyl_replace(x*dx+y^2*dy^2,[[x,-dx],[dx,x],[y,-dy],[dy,y]],[x,y]);  (Laplace transformation)
+end: */
+def poly_weyl_replace(F,Rule,V) {
+  return tk_weyl_replace.weyl_replace(F,Rule,V);
 }
 /*&usage begin: poly_weyl_subsetq(II,JJ,V)
  If the ideal II in the Weyl algebra is contained in the ideal JJ, it returns 1, else 0.
@@ -1163,6 +1171,7 @@ def matrix_submatrix(M,Ind) {
 
 /*&usage begin: matrix_kernel(M)
  It returns the basis of the kernel of the matrix {M}.
+ The return value is [R, a list of kernel basis] where R the dimension of the kernel.
  example: matrix_kernel([[1,1,1,1],[0,1,3,4]]);
 end: */
 def matrix_kernel(M) {  
