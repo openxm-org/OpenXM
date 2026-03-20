@@ -335,6 +335,8 @@ def sort_by_order(G,GH)
 
 def generic_walk(G1,V,O1,O2)
 {
+  if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+  if ( Mod ) setmod(Mod);
   /* G is always a set of DP w.r.t. order W1 */
   IS_02 = (O1 == 0 && O2 == 2);
   NV = length(V);
@@ -346,8 +348,10 @@ def generic_walk(G1,V,O1,O2)
   W2 = mat_to_vlist(M2);
   G = ltov(map(dp_ptod,G1,V));
   GH = map(dp_hm,G);
+  if ( Mod ) GH = map(dp_mod,GH,Mod,[]);
   dp_ord(O2);
   G = ltov(map(dp_ptod,G1,V));
+  if ( Mod ) G = map(dp_mod,G,Mod,[]);
 
   Tw = Tgb = Tcw = Tlift = Tred = Trestart = 0;
   Tnf = Tcont = 0;
@@ -374,9 +378,13 @@ T0 = time()[0];
     print(L[0],2);
     W = L[0]; In = L[1];
     InVec = ltov(In);
+    if ( Mod ) {
+      In = map(dp_ptod,map(dp_dtop,In,V),V);
+      InVec = map(dp_mod,ltov(In),Mod,[]);
+    } 
 Tw += time()[0]-T0;
 T0 = time()[0];
-    H = nd_f4(In,V,0,M2|dp=1);
+    H = nd_f4(In,V,Mod,M2|dp=1);
     N = length(H);
     H1 = vector(N);
     dp_ord(O2);
@@ -392,7 +400,11 @@ T0 = time()[0];
     G = map(dp_sort,G);
     for ( I = 0; I < N; I++ ) {
       F = dp_sort(H[I]);
-      T = dp_true_nf_and_quotient_marked(Ind,F,InVec,GH);
+      if ( Mod ) {
+        F = dp_mod(F,Mod,[]);
+        T = dp_true_nf_and_quotient_marked_mod(Ind,F,InVec,GH,Mod);
+      } else
+        T = dp_true_nf_and_quotient_marked(Ind,F,InVec,GH);
       NF = T[0]; Den = T[1]; Q = T[2];
       for ( J = 0, U = 0; J < NG; J++ )
         U += Q[J]*G[J];
@@ -411,7 +423,10 @@ T0 = time()[0];
       for ( Ind = [], J = 0; J < N; J++ )
         if ( J != I ) Ind = cons(J,Ind);
       Ind = reverse(Ind);
-      T = dp_true_nf_marked_check(Ind,H1[I],H1,HH1);
+      if ( Mod )
+        T = dp_true_nf_marked_check_mod(Ind,H1[I],H1,HH1,Mod);
+      else
+        T = dp_true_nf_marked_check(Ind,H1[I],H1,HH1);
       if ( type(T[0]) < 0 ) break;
       HT = dp_ht(HH1[I]);
       for ( S = S0 = T[0]; S; S = dp_rest(S) )
@@ -435,11 +450,17 @@ T1 = time()[0];
         NN = vector(N);
         for ( I = 0; I < N; I++ ) {
           if ( !(I%10) ) print(".",2);
-          NN[I] = dp_true_lnf(FF[I],UU[0],UU[1]);
+          if ( Mod )
+            NN[I] = dp_true_lnf_mod(FF[I],UU[0],UU[1],Mod);
+          else
+            NN[I] = dp_true_lnf(FF[I],UU[0],UU[1]);
         }
         for ( I = 0; I < N; I++ ) {
           NNI = NN[I];
-          H1[I] = dp_ptozp(dp_hm(HH1[I])*NNI[1]+NNI[0]);
+          if ( Mod )
+            H1[I] = dp_hm(HH1[I])*NNI[1]+NNI[0];
+          else
+            H1[I] = dp_ptozp(dp_hm(HH1[I])*NNI[1]+NNI[0]);
           for ( T = H1[I]; dp_ht(T) != dp_ht(HH1[I]); T = dp_rest(T) ); 
           HH1[I] = dp_hm(T);
         }
@@ -459,8 +480,12 @@ T1 = time()[0];
             for ( Ind = [], J = 0; J < N; J++ )
               if ( J != I ) Ind = cons(J,Ind);
             Ind = reverse(Ind);
-            T = dp_nf(Ind,H1[I],H1,1);
-            T = dp_ptozp(T);
+            if ( Mod )
+              T = dp_nf_mod(Ind,H1[I],H1,1,Mod);
+            else {
+              T = dp_nf(Ind,H1[I],H1,1);
+              T = dp_ptozp(T);
+            }
             HT = dp_ht(HH1[I]);
             for ( S = S0 = T; S; S = dp_rest(S) )
               if ( dp_ht(S) == HT )
@@ -477,7 +502,10 @@ T1 = time()[0];
             for ( Ind = [], J = 0; J < N; J++ )
               if ( J != I ) Ind = cons(J,Ind);
             Ind = reverse(Ind);
-            T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
+            if ( Mod )
+              T = dp_true_nf_marked_mod(Ind,H1[I],H1,HH1,Mod);
+            else
+              T = dp_true_nf_marked(Ind,H1[I],H1,HH1);
             HT = dp_ht(HH1[I]);
             for ( S = S0 = T[0]; S; S = dp_rest(S) )
               if ( dp_ht(S) == HT )
@@ -599,17 +627,22 @@ T1 = time()[0]; Tred += T1-T0;
 
 def gw(G,V,O1,O2)
 {
+  if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
   N = length(V);
-  R = generic_walk(G,V,O1,O2);
+  R = generic_walk(G,V,O1,O2|mod=Mod);
   return R;
 }
 
 def gw_mod(G,V,O1,O2,Mod)
 {
   N = length(V);
+#if 0
   W1 = create_order_mat(N,O1);
   W2 = create_order_mat(N,O2);
   R = generic_walk_mod(G,V,W1,W2,Mod);
+#else
+  R = generic_walk(G,V,O1,O2|mod=Mod);
+#endif
   return R;
 }
 
