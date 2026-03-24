@@ -262,7 +262,7 @@ def in_ww_main(F,VW1,VW2)
     if ( Sba ) {
       GH = nd_weyl_sba(GH0,VDVH,0,11|sba_gbinput=[[],0,Wl],hpdata=MHP,top=0,nora=0);
     } else {
-      GH = nd_weyl_gr_trace(GH0,VDVH,0,-1,11|hpdata=MHP,top=1,nora=1);
+      GH = nd_weyl_gr_trace(GH0,VDVH,0,-1,11|hpdata=MHP,top=0,nora=0);
     }
     TTT2 = time()[0];
     print(["weyl gb",TTT1-TTT,TTT2-TTT1]);
@@ -304,7 +304,7 @@ def in_ww_main(F,VW1,VW2)
       }
       InData = [GIN2,VDV2,V2,DV2,WtV2];
   } else {
-    if ( 1 ) {
+    if ( 0 ) {
       dp_set_weight(WtV);
       GIN1 = nd_weyl_gr_postproc(GIN,VDV,0,0,0);
       InData = [GIN1,VDV,V,DV,WtV];
