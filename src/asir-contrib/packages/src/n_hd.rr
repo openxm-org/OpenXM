@@ -2,7 +2,7 @@ import("gr")$
 import("noro_gw_new.rr")$
 module n_hd$
 
-localf emat, hd, hd_trace, hd_sba, hd_sba_f4$
+localf emat, hd, hd_trace, hd_sba$
 
 def emat(N,W)
 {
@@ -53,19 +53,21 @@ def hd_sba(G0,V,P,Ord)
       else G2 = nd_weyl_gr_trace(G1,V,0,-1,Ord);
     } else if ( ZeroDim && P && Ord == 2 ) {
       G2 = tolexm(G1,V,Ord1,V,P);
-    } else if ( !P && Gw ) {
+    } else if ( Gw ) {
       dp_gr_print(0);
       T0=time();
-      G2 = noro_gw.gw(G1,V,Ord1,Ord);
+      G2 = noro_gw.gw(G1,V,Ord1,Ord|mod=P);
       T1=time();
       print(["gwtime",T1[0]-T0[0]]);
       dp_gr_print(1);
     } else {
       if ( P ) G2 = nd_gr(G1,V,P,Ord);
-      else {
-#if 0
+      else 
+      {
+#if 1
         G2 = nd_gr_trace(G1,V,0,-1,Ord);
 #else
+        // XXX
         G2 = nd_sba(G1,V,P,Ord|sba_gbinput=[[],Ord1,W],top=Top,nora=Nora,hpdata=D,
            gentrace=Trace,sba_dontsort=DontSort,dp=1);
 #endif
@@ -76,41 +78,6 @@ def hd_sba(G0,V,P,Ord)
   } else if ( Dp == 1 )
     G2 = G1;
   else
-    G2 = map(dp_dtop,G1,V);
-  dp_set_weight(0);
-  return G2;
-}
-
-def hd_sba_f4(G0,V,P,Ord)
-{
-  if ( type(Nora=getopt(nora)) == -1 ) Nora = 0;
-  if ( type(Top=getopt(top)) == -1 ) Top = 0;
-  if ( type(Trace=getopt(gentrace)) == -1 ) Trace = 0;
-  if ( type(DontSort=getopt(dontsort)) == -1 ) DontSort = 0;
-  if ( type(Rev=getopt(rev)) == -1 ) Rev = 0;
-  if ( type(W=getopt(weight)) == -1 ) W = 0;
-  if ( type(Last=getopt(last)) == -1 ) Last = 0;
-  Ord1 = Last ? [[0,length(V)-Last],[0,Last]] : Ord;
-  ZeroDim = zero_dim(G0,V,0);
-  if ( W ) dp_set_weight(W);
-  dp_ord(0);
-  D = dp_monomial_hilbert_poincare(G0,V);
-  G1 = nd_sba_f4(G0,V,P,Ord1|sba_gbinput=[[],0,W],top=Top,nora=Nora,hpdata=D,homo=1,
-   gentrace=Trace,sba_dontsort=DontSort,dp=1);
-  if ( Last ) {
-    H1 = map(dp_ht,G1);
-    G1 = map(dp_dtop,G1,V); 
-    dp_ord(Ord);
-    H = map(dp_ht,map(dp_ptod,G1,V));
-    if ( H == H1 )
-      G2 = G1;
-    else if ( ZeroDim && P && Ord == 2 ) {
-      G2 = tolexm(G1,V,Ord1,V,P);
-    } else {
-      if ( P ) G2 = nd_gr(G1,V,P,Ord);
-      else G2 = nd_gr_trace(G1,V,0,-1,Ord);
-    }
-  } else
     G2 = map(dp_dtop,G1,V);
   dp_set_weight(0);
   return G2;
@@ -160,10 +127,10 @@ def hd(G0,V,P,Ord)
       else G2 = nd_weyl_gr_trace(G1,V,0,-1,Ord);
     } else if ( ZeroDim && P && Ord == 2 ) {
       G2 = tolexm(G1,V,Ord1,V,P);
-    } else if ( !P && Gw ) {
+    } else if ( Gw ) {
       dp_gr_print(0);
       T0=time();
-      G2 = noro_gw.gw(G1,V,Ord1,Ord);
+      G2 = noro_gw.gw(G1,V,Ord1,Ord|mod=P);
       T1=time();
       print(["gwtime",T1[0]-T0[0]]);
       dp_gr_print(1);
