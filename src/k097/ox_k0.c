@@ -76,7 +76,7 @@ void nullserver(int fdStreamIn,int fdStreamOut) {
   ox_stream ostreamOut;
   char sreason[1024];
   extern int RestrictedMode, RestrictedMode_saved;
-  extern void controlResetHandler();
+  extern void controlResetHandler(int sig);
 #if defined(__CYGWIN__)
   extern sigjmp_buf EnvOfStackMachine;
 #else
@@ -246,7 +246,7 @@ int nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   int iresult;
   int message = 1;
   char *emsg;
-  extern void controlResetHandler();
+  extern void controlResetHandler(int sig);
 
   message = OXprintMessage;
   /* message_body */
@@ -353,8 +353,7 @@ int nullserver_simplest(int fd) {
 }
 
 
-void controlResetHandler(sig)
-     int sig;
+void controlResetHandler(int sig)
 {
   mysignal(sig,SIG_IGN);
   cancelAlarm();

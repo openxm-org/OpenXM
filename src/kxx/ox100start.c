@@ -80,7 +80,7 @@ void main(int argc,char *argv[]) {
 #define MYFORKCP_SIZE 100
 static int Myforkchildren[MYFORKCP_SIZE];
 static int Myforkcp=0;
-static void myforkwait() {
+static void myforkwait(int sig) {
   int status;
   int pid;
   int i,j;

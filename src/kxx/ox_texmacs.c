@@ -133,7 +133,7 @@ char *AsirInitFile = NULL;
 char *LanguageResource = NULL;
 int TM_quiet = 0;
 
-void ctrlC();
+void ctrlC(int sig);
 struct object KpoString(char *s);
 char *KSpopString(void);
 
