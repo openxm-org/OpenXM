@@ -27,7 +27,7 @@ int OX_P_stderr = -1;
 extern char **environ;
 
 static int getOStypei();
-static char *addSlash();
+static char *addSlash(char *s);
 static char *get_sm1_lib_path();
 static char *get_k0_lib_path();
 static char *get_ox_asir_path();
@@ -139,7 +139,7 @@ void *sGC_malloc(int s) { return (void *) malloc(s); }
 static int Myforkchildren[MYFORKCP_SIZE];
 static int Myforkcp=0;
 #if  (!defined(__MINGW32__)  && !defined(__MINGW64__))
-static void myforkwait() {
+static void myforkwait(int sig) {
   int status;
   int pid;
   int i,j;
@@ -250,7 +250,7 @@ int oxForkExecBlocked(char **argv) {
   }
 }
 #else
-static void myforkwait() {
+static void myforkwait(int sig) {
   fprintf(stderr,"ERROR: myforkwait is not implented in mingw\n");
   return;
 }

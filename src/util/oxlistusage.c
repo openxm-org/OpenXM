@@ -485,29 +485,25 @@ int readchar() {
   return(c);
 }
   
-void putchar0(c)
-  int c;
+void putchar0(int c)
 {
   if (c > 0) putchar(c);
 }
 
-void printf0(s)
-  char *s;
+void printf0(char *s)
 {
   int i = 0;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-void printf1(s)
-  char *s;
+void printf1(char *s)
 {
   int i = 0;
   /* putchar0('K'); */   /* do your own replacement */
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-int isReserved(s)
-  char *s;
+int isReserved(char *s)
 {
   char *r[] = {"auto","break","case","char","const","continue",
                "default","do","double","else","enum","extern",
@@ -543,8 +539,7 @@ int isReserved(s)
 
 }
 
-int shouldReplace(s)
-  char *s;
+int shouldReplace(char *s)
 {
   char *r[] = {"dummy"};
   int n = 1;
