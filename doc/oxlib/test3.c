@@ -4,8 +4,9 @@
 #include <asir/ca.h>
 #include <asir/ox.h>
 #include <signal.h>
+#include <ctype.h>
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char buf[BUFSIZ+1];
 	int c;
