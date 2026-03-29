@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include "hhh.h"
+#include <asir/ca.h>
+#include <asir/ox.h>
 
-main() {
+int main() {
 	char ibuf[BUFSIZ];
 	char s[BUFSIZ+30];
 	char *obuf;

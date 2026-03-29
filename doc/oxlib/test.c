@@ -1,8 +1,10 @@
 /* $OpenXM: OpenXM/doc/oxlib/test.c,v 1.4 2003/03/08 07:49:59 takayama Exp $ */
 #include <stdio.h>
 #include "hhh.h"
+#include <asir/ca.h>
+#include <asir/ox.h>
 
-main() {
+int main() {
 	char ibuf[BUFSIZ];
 	char *obuf;
 	int len,len0;
