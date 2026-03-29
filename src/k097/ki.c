@@ -99,8 +99,7 @@ int sendKan(int p) {
 }
 
 
-void pkkan(s)
-char *s;
+void pkkan(char *s)
 {
   char *t;
   if (strlen(s)+Kpt >= Ksize) {

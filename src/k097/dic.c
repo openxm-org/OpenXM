@@ -20,11 +20,11 @@ static void myerror(char *s) {
   fprintf(stderr,"%s",s);
 }
 
-int K00putUserDictionary(str,h0,h1,ob,cp)
-char *str;   /* key */
-int h0,h1;   /* Hash values of the key */
-objectp ob; /* value */
-struct context *cp;
+int K00putUserDictionary(char *str,int h0,int h1,objectp ob,struct context *cp)
+//char *str;   /* key */
+//int h0,h1;   /* Hash values of the key */
+//objectp ob; /* value */
+//struct context *cp;
 {
   int x,r;
   extern int K00Strict2;
@@ -63,11 +63,11 @@ struct context *cp;
   return(r);
 }
 
-objectp K00findUserDictionary(str,h0,h1,cp)   
+objectp K00findUserDictionary(char *str,int h0,int h1,struct context *cp)   
 /* returns K00NullObject, if there is no item. */
-char *str;    /* key */
-int h0,h1;    /* The hashing values of the key. */
-struct context *cp;
+//char *str;    /* key */
+//int h0,h1;    /* The hashing values of the key. */
+//struct context *cp;
 {
   int x;
   struct dictionary *dic;
@@ -88,12 +88,12 @@ struct context *cp;
 
 }
 
-objectp K00findUserDictionary0(str,h0,h1,cp)   
+objectp K00findUserDictionary0(char *str,int h0,int h1,struct context *cp)   
 /* returns K00NullObject, if there is no item. */
 /* This function does not look up the super class. */
-char *str;    /* key */
-int h0,h1;    /* The hashing values of the key. */
-struct context *cp;
+//char *str;    /* key */
+//int h0,h1;    /* The hashing values of the key. */
+//struct context *cp;
 {
   int x;
   struct dictionary *dic;
@@ -113,11 +113,11 @@ struct context *cp;
 
 }
 
-int K00putUserDictionary2(str,h0,h1,attr,cp)
-char *str;   /* key */
-int h0,h1;   /* Hash values of the key */
-int attr;    /* attribute field */
-struct context *cp;
+int K00putUserDictionary2(char *str,int h0,int h1,int attr,struct context *cp)
+//char *str;   /* key */
+//int h0,h1;   /* Hash values of the key */
+//int attr;    /* attribute field */
+//struct context *cp;
 {
   int x;
   int i;
@@ -148,8 +148,7 @@ struct context *cp;
 
 
 
-int K00hash0(str)
-char *str;
+int K00hash0(char *str)
 {
   int h=0;
   while (*str != '\0') {
@@ -159,8 +158,7 @@ char *str;
   return(h);
 }
 
-int K00hash1(str)
-char *str;
+int K00hash1(char *str)
 {
   return(8-(str[0]%8));
 }
@@ -289,7 +287,7 @@ void K00contextControl(actionOfContextControl ctl) {
   return;
 }
 
-void K00InitDic() {
+void K00InitDic(void) {
   extern struct context *K00CurrentContextp;
   extern struct context *K00PrimitiveContextp;
   char *start = "K00start";
@@ -422,7 +420,7 @@ int K00getIncetanceVariable(char *s) {
   }
 }
 
-void K00recoverFromError() {
+void K00recoverFromError(void) {
   K00toPrimitiveClass();
 }
 
@@ -453,13 +451,13 @@ int K00declareClass(char *name,char *supername) {
   return(0);
 }
 
-void K00toPrimitiveClass() {
+void K00toPrimitiveClass(void) {
   extern struct context *K00CurrentContextp;
   extern struct context *K00PrimitiveContextp;
   K00CurrentContextp = K00PrimitiveContextp;
 }
 
-char *K00getCurrentContextName() {
+char *K00getCurrentContextName(void) {
   extern struct context *K00CurrentContextp;
   if (!K00Initialized) {
     K00InitDic(); K00Initialized = 1;
@@ -474,13 +472,13 @@ void pkkanInteger(int k) {
 }
   
 
-void K00foo1() {
+void K00foo1(void) {
   extern struct context *K00CurrentContextp;
   extern int K00debug0;
   if (K00debug0) K00fprintContextAndDictionary(stderr,K00CurrentContextp);
 }
 
-void K00fooPrimitive() {
+void K00fooPrimitive(void) {
   extern struct context *K00PrimitiveContextp;
   extern int K00debug0;
   if (K00debug0) {

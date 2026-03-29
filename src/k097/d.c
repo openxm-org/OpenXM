@@ -675,7 +675,7 @@ char *readstring() {
 }
       
 
-int readchar() {
+int readchar(void) {
   int c;
   if (Replace) putchar0('\'');
   c = fsgetc(Inop); /* 'c.'   '\.c' */
@@ -703,29 +703,25 @@ int readchar() {
   return(c);
 }
   
-void putchar0(c)
-int c;
+void putchar0(int c)
 {
   if (c > 0) fputc(c,outfile);
 }
 
-void printf0(s)
-char *s;
+void printf0(char *s)
 {
   int i = 0;
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-void printf1(s)
-char *s;
+void printf1(char *s)
 {
   int i = 0;
   /* putchar0('K'); */   /* do your own replacement */
   while (s[i] != '\0') putchar0(s[i++]);
 }
 
-int isReserved(s)
-char *s;
+int isReserved(char *s)
 {
   char *r[] = {"auto","break","case","char","const","continue",
 		 "default","do","double","else","enum","extern",
@@ -761,8 +757,7 @@ char *s;
 
 }
 
-int shouldReplace(s)
-char *s;
+int shouldReplace(char *s)
 {
   char *r[] = {"dummy"};
   int n = 1;

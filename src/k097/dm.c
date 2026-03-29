@@ -26,8 +26,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void pkkan(s)
-char *s;
+void pkkan(char *s)
 {
   printf("%s",s);
 }
