@@ -23,7 +23,7 @@ int Quiet = 0;
 static int EngineLogToStdout = 0;
 extern char **environ;
 
-void main(int argc,char *argv[]) {
+int main(int argc,char *argv[]) {
   char *s;
   char s2[1024];
   char buf[1024];

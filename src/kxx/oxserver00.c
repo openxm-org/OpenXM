@@ -42,7 +42,7 @@ int JmpMessage = 0;
 extern int Lisplike;
 
 static char *getSuffix(char *s);
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   char *s;
   char *forAsir[] = {"callsm1.sm1","callsm1b.sm1"};
   char *gnuplot[] = {"callsm1.sm1","gnuplot.sm1"};

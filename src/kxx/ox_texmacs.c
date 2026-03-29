@@ -174,7 +174,7 @@ static int smallv_to_capitalv(char *s,char *key);
 */
 FILE *Dfp;
 
-void main(int argc,char *argv[]) {
+int main(int argc,char *argv[]) {
   char *s;
   char *r;
   char *sys;

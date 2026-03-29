@@ -74,8 +74,8 @@ FILE2 *fp2open(int fd) {
   fp2->readsize = 0;
   fp2->writepos = 0;
   fp2->limit = FILE2BSIZE;
-  fp2->readBuf = (char *) sGC_malloc(FILE2BSIZE);
-  fp2->writeBuf = (char *) sGC_malloc(FILE2BSIZE);
+  fp2->readBuf = (unsigned char *) sGC_malloc(FILE2BSIZE);
+  fp2->writeBuf = (unsigned char *) sGC_malloc(FILE2BSIZE);
   if ((fp2->readBuf == NULL) || (fp2->writeBuf == NULL)) {
 	fprintf(stderr,"fp2open. No more memory.\n");
 	return(NULL);
@@ -328,6 +328,7 @@ int fp2stopWatch(FILE2 *fp2)
   if (fp2->watchFile != stdout) {
     return(fclose(fp2->watchFile));
   }
+  return 0;
 }
   
 int fp2log(FILE2 *fp,FILE *incomming,FILE *outgoing) {
@@ -354,8 +355,8 @@ static int fp2fputcString(int c,FILE2 *fp2) {
 	return(-1);
   }
   newsize = (fp2->limit)*2;
-  newwrite = (char *)sGC_malloc(newsize);
-  newread = (char *)sGC_malloc(newsize);
+  newwrite = (unsigned char *)sGC_malloc(newsize);
+  newread = (unsigned char *)sGC_malloc(newsize);
   if ((newwrite == NULL) || (newread == NULL)) {
 	fprintf(stderr,"fp2fputcString: No more memory.\n");
 	return(-1);
@@ -381,6 +382,7 @@ char *fp2fcloseInString(FILE2 *fp2, int *sizep)
   }else{
 	fprintf(stderr,"fp2fcloseInString is called for a file stream that is not associated to a string.\n");
   }
+  return NULL;
 }
 
 int fp2fputs(char *s,FILE2 *fp) {
