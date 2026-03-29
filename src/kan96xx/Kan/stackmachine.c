@@ -791,7 +791,7 @@ void scanner() {
   struct tokens token;
   struct object ob = OINIT;
   extern int Quiet;
-  extern void ctrlC();
+  extern void ctrlC(int sig);
   int tmp, status;
   char *tmp2;
   extern int ErrorMessageMode;
@@ -908,10 +908,8 @@ void scanner() {
 }
 
 
-void ctrlC(sig)
-     int sig;
+void ctrlC(int sig)
 {
-  extern void ctrlC();
   extern int ErrorMessageMode;
   extern int SGClock;
   extern int UserCtrlC;
@@ -1211,7 +1209,7 @@ int KSexecuteString(s)
   extern int ErrorMessageMode;
   extern int KSPushEnvMode;
   jmp_buf saved_EnvOfStackMachine;
-  void (*sigfunc)();
+  void (*sigfunc)(int sig);
   int localCatchCtrlC ;
   extern int RestrictedMode, RestrictedMode_saved;
 

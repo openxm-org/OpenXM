@@ -32,7 +32,7 @@ extern char *MsgSourceTrace;
 static int Mychildren[MYCP_SIZE];
 static int Mycp = 0;
 static int Verbose_mywait = 0;
-static void mywait() {
+static void mywait(int c) {
   int status;
   int pid;
   int i,j;
@@ -118,14 +118,14 @@ struct object Kextension(struct object obj)
 #else
   extern jmp_buf EnvOfStackMachine;
 #endif
-  extern void ctrlC();
+  extern void ctrlC(int sig);
   extern int SigIgn;
   extern int DebugCMO;
   extern int OXprintMessage;
   struct stat buf;
   char **argv;
   FILE *fp;
-  void (*oldsig)();
+  void (*oldsig)(int c);
   extern int SecureMode;
   extern char *UD_str;
   extern int UD_attr;

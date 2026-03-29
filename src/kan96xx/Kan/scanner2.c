@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "datatype.h"
 #include "stackm.h"
 struct tokens lookupTokens(struct tokens t);
@@ -48,15 +49,15 @@ static int TypeSM = ID;
 
 /****************  end of declaration part of lexical analizer ******/
 
-static int getSM();
-static void putSM();
-static struct tokens flushSM();
-static int isSpaceSM();
-static int isDollarSM();
-static int isBraceSM();
-static int isKakkoSM();
-static int isSymbolSM();
-static struct tokens getokenSM2();
+static int getSM(void);
+static void putSM(int c);
+static struct tokens flushSM(void);
+static int isSpaceSM(int c);
+static int isDollarSM(int c);
+static int isBraceSM(int c);
+static int isKakkoSM(int c);
+static int isSymbolSM(int c);
+static struct tokens getokenSM2(actionType kind);
 
 void errorScanner2(char *str);
 
@@ -66,9 +67,7 @@ extern int ScannerPt;
 
 /****************  code part of lexical analizer ********************/
 
-struct tokens *decomposeToTokens(str,sizep)
-     char *str;
-     int *sizep;
+struct tokens *decomposeToTokens(char *str,int *sizep)
 {
   struct tokens *tArray;
   struct tokens token;
@@ -101,7 +100,7 @@ struct tokens *decomposeToTokens(str,sizep)
 
 
 
-static int getSM()
+static int getSM(void)
      /* get a letter from StringSM */
 {
   int c;
@@ -124,8 +123,7 @@ static int getSM()
   } else return(c);
 }
 
-static void putSM(c)
-     int c;
+static void putSM(int c)
      /* put a letter on BufSM */
 {
   char *new; int i;
@@ -144,7 +142,7 @@ static void putSM(c)
   }
 }
 
-static struct tokens flushSM()
+static struct tokens flushSM(void)
 {
   char *token;
   struct tokens r;
@@ -170,36 +168,31 @@ static struct tokens flushSM()
   return(r);
 }
 
-static int isSpaceSM(c)
-     int c;
+static int isSpaceSM(int c)
 {
   if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 
-static int isDollarSM(c)
-     int c;
+static int isDollarSM(int c)
 {
   if (c == '$') return(1);
   else return(0);
 }
 
-static int isBraceSM(c)
-     int c;
+static int isBraceSM(int c)
 {
   if (c == '{') return(1);
   else return(0);
 }
 
-static int isKakkoSM(c)
-     int c;
+static int isKakkoSM(int c)
 {
   if (c == '(') return(1);
   else return(0);
 }
 
-static int isSymbolSM(c)
-     int c;
+static int isSymbolSM(int c)
 {
   if ((c == '{') ||
       (c == '}') ||
@@ -211,13 +204,12 @@ static int isSymbolSM(c)
   else return(0);
 }
 
-static struct tokens getokenSM2(kind,str)
-     actionType kind;
-     char *str;
+static struct tokens getokenSM2(actionType kind)
 {
   static int c;
   static struct tokens rnull;
   int level;
+
   
   if (kind == INIT) {
     ScannerWhich = 2;
@@ -329,8 +321,7 @@ static struct tokens getokenSM2(kind,str)
 /*********** end of code part of lexical analizer ********************/
 
 
-void errorScanner2(str)
-     char *str;
+void errorScanner2(char *str)
 {
   fprintf(stderr,"Error (scanner2.c): %s\n",str);
   exit(10);

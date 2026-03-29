@@ -73,7 +73,7 @@ struct ring {
   int *from;
   int *to;
   struct ring *next;
-  POLY (*multiplication)();
+  POLY (*multiplication)(POLY f,POLY g);
   int schreyer;
   void *gbListTower;
   int *outputOrder;

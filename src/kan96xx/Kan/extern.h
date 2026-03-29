@@ -16,8 +16,8 @@ extern int Lookup[TYPES][TYPES];
 /* scanner.c */
 /*struct tokens getokenSM(actionType kind,char *str);
 struct tokens *decomposeToTokens(char *str,int *size);*/
-struct tokens getokenSM();
-struct tokens *decomposeToTokens();
+struct tokens getokenSM(actionType,...);
+struct tokens *decomposeToTokens(char *str,...);
 char *getLOAD_SM1_PATH();
 char *traceShowScannerBuf();
 

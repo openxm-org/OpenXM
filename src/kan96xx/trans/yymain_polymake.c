@@ -58,6 +58,6 @@ void *sGC_malloc(int n) {
   return GC_malloc(n);
 }
 
-void PMerror() {
+void PMerror(char *s) {
   fprintf(stderr,"Parse error. cf. yylex_polymake.c: PM_debug=1;\n");
 }

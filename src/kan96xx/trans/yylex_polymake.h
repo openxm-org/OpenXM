@@ -50,7 +50,7 @@ int PMlex();
 int PMlex_aux();
 int pmPreprocess();
 void warning_yylex_polymake(char *s);
-void PMerror();
+void PMerror(char *s);
 
 
 

@@ -61,16 +61,16 @@ static FILE * FileStack[FILESTACK_LIMIT];
 static int FileStackP = 0;
 /****************  end of declaration part of lexical analizer ******/
 
-static int getSM();
-static void putSM();
-static struct tokens flushSM();
-static int isSpaceSM();
-static int isDollarSM();
-static int isBraceSM();
-static int isKakkoSM();
-static int isSymbolSM();
-static int mygetchar();
-static int myungetchar();
+static int getSM(void);
+static void putSM(int c);
+static struct tokens flushSM(void);
+static int isSpaceSM(int c);
+static int isDollarSM(int c);
+static int isBraceSM(int c);
+static int isKakkoSM(int c);
+static int isSymbolSM(int c);
+static int mygetchar(void);
+static int myungetchar(int c);
 
 int ScannerWhich = 0;
 unsigned char ScannerBuf[SCANNERBUF_SIZE];
@@ -84,7 +84,7 @@ static mygetchar()
 }
 */
 
-static int mygetchar()
+static int mygetchar(void)
 { int c;
   c = getc(Cfp);
   if (c > 0) { /* ungetchar is ignored */
@@ -104,14 +104,13 @@ static int mygetchar()
 }
 
 
-static int myungetchar(c)
-     int c;
+static int myungetchar(int c)
 {
   return( ungetc(c,Cfp) );
 }
   
 /****************  code part of lexical analizer ********************/
-static int getSM()
+static int getSM(void)
      /* get a letter from StringSM */
 {
   int c;
@@ -130,8 +129,7 @@ static int getSM()
   } else return(c);
 }
 
-static void putSM(c)
-     int c;
+static void putSM(int c)
      /* put a letter on BufSM */
 {
   char *new; int i;
@@ -150,7 +148,7 @@ static void putSM(c)
   }
 }
 
-static struct tokens flushSM()
+static struct tokens flushSM(void)
 {
   char *token;
   struct tokens r;
@@ -176,36 +174,31 @@ static struct tokens flushSM()
   return(r);
 }
 
-static int isSpaceSM(c)
-     int c;
+static int isSpaceSM(int c)
 {
   if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 
-static int isDollarSM(c)
-     int c;
+static int isDollarSM(int c)
 {
   if (c == '$') return(1);
   else return(0);
 }
 
-static int isBraceSM(c)
-     int c;
+static int isBraceSM(int c)
 {
   if (c == '{') return(1);
   else return(0);
 }
 
-static int isKakkoSM(c)
-     int c;
+static int isKakkoSM(int c)
 {
   if (c == '(') return(1);
   else return(0);
 }
 
-static int isSymbolSM(c)
-     int c;
+static int isSymbolSM(int c)
 {
   if ((c == '{') ||
       (c == '}') ||
@@ -217,9 +210,7 @@ static int isSymbolSM(c)
   else return(0);
 }
 
-struct tokens getokenSM(kind,str)
-     actionType kind;
-     char *str;
+struct tokens getokenSM(actionType kind,char *str)
 {
   static int c;
   static struct tokens rnull;
@@ -300,7 +291,7 @@ struct tokens getokenSM(kind,str)
       }else { /* return to the previous file */
         fclose(Cfp); /* close the file */
         Cfp = FileStack[--FileStackP];
-        c = mygetchar(Cfp);
+        c = mygetchar();
       }
     } else if (isSpaceSM(c)) {
       if (ExistSM) {

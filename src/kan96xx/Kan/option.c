@@ -10,7 +10,7 @@
 #include <signal.h>
 #include "mysig.h"
 
-extern void ctrlC();
+extern void ctrlC(int sig);
 void warningOption(char *str);
 
 

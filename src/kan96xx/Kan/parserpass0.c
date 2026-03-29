@@ -12,8 +12,8 @@
 #include "datatype.h"
 #include "extern2.h"
 
-static int isSymbol0();
-static int isNumber0();
+static int isSymbol0(int c);
+static int isNumber0(int c);
 typedef enum {INIT,GET,PUT} actionType;
 
 struct tokens{
@@ -33,7 +33,7 @@ static char *Buf0 = Buf0org ;
 static int Buf0limit = BUF0LIMIT ;
 static int Exist0 = 0;
 
-static struct tokens getoken_pass0();
+static struct tokens getoken_pass0(actionType kind);
 static struct tokens flush();
 
 
@@ -47,8 +47,7 @@ static int get0()
   } else return(c);
 }
 
-static void put0(c)
-     int c;
+static void put0(int c)
      /* put a letter on Buf0 */
 {
   char *new; int i;
@@ -87,15 +86,13 @@ static struct tokens flush()
   return(r);
 }
 
-static int isSpace0(c)
-     int c;
+static int isSpace0(int c)
 {
   if (c <= ' ') return(1);
   else return(0);
 }
 
-static int isSymbol0(c)
-     int c;
+static int isSymbol0(int c)
 {
   if ((c == '+') ||
       (c == '-') ||
@@ -109,15 +106,13 @@ static int isSymbol0(c)
   else return(0);
 }
 
-static int isNumber0(c)
-     int c;
+static int isNumber0(int c)
 {
   if ((c>='0') && (c<='9')) return(1);
   else return(0);
 }
 
-static struct tokens getoken_pass0(kind)
-     actionType kind;
+static struct tokens getoken_pass0(actionType kind)
 {
   static int c;
   static struct tokens rnull;
@@ -173,9 +168,11 @@ static char Buftmp[STRBUFMAX];
 static char *Buf = Buftmp;
 static int Buflimit = STRBUFMAX;
 
-static int putstr(str,kind)
-     char str[]; /* string to be outputted */
-     actionType kind; /* kind is INIT or PUT */
+static int putstr(char str[],actionType kind)
+/*
+     char str[]; // string to be outputted 
+     actionType kind; // kind is INIT or PUT 
+*/
 {
   static int ptr;
   int i;
@@ -209,9 +206,7 @@ static int putstr(str,kind)
   
 
 
-char *str2strPass0(string,ringp)
-     char *string;
-     struct ring *ringp;
+char *str2strPass0(char *string,struct ring *ringp)
 {
 
   struct tokens ptoken;  /* previous token */

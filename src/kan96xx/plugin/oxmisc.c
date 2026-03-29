@@ -937,7 +937,7 @@ char *oxGenPass(void) {
 }
 
 
-static void cancelConnection() {
+static void cancelConnection(int sig) {
 #if defined(__CYGWIN__)
   extern sigjmp_buf MyEnv_oxmisc;
 #else
