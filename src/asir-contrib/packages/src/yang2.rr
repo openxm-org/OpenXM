@@ -2,7 +2,7 @@
 
 /* 
    1. At first you must define a ring structure.
-      [1175] load("yang.rr");
+      [1175] load("yang2.rr");
       [1522] yang.define_ring(["euler",[x],"difference",[[p,-1]]]);
       [[x,p],[0,1],[0,-1],[dx,dp]]
    2. Computation.
@@ -12,6 +12,16 @@
       (x^2-p+1)*dp^2*dx^2+(-x^2+p-1)*dp^2*dx
       [1525] yang.mul(dx,L1);
       (x^2-p)*dp*dx^3+(x^2+p)*dp*dx^2-2*x^2*dp*dx
+   3. Computation (module elements)
+      [2137] load("yang2.rr");
+      [2651] yang.define_ring(["euler",[x]]);
+      {[euler,[x]],[x],[0],[0],[dx]}
+      [2652] L=[[dx*(dx+1)-x*yang.mul(dx+1/2,x*dx+2),dx*dx-x],[(1-x)*dx*dx+x^2-1,dx-3]];
+      [[(-x^2+1)*dx^2+(-3/2*x^2-2*x+1)*dx-x,dx^2-x],[(-x+1)*dx^2+x^2-1,dx-3]]
+      [2653] yang.m_op(L[0]);
+      (-x^2+1)*<<2:1>>+(1)*<<2:2>>+(-3/2*x^2-2*x+1)*<<1:1>>+(-x)*<<0:1>>+(-x)*<<0:2>>
+      [2654] yang.m_gr(L);
+      [[(-3/2*x^2-2*x+1)*dx-x^3-x^2+1,dx^2+(-x-1)*dx+2*x+3],[(x-1)*dx^2-x^2+1,-dx+3]]    
  */
 
 /*
