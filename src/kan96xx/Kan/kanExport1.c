@@ -462,9 +462,7 @@ struct object gradedPolySetToGradedArray(struct gradedPolySet *gps,int keepRedun
 }
 
   
-struct object gradedPolySetToArray(gps,keepRedundant)
-     struct gradedPolySet *gps;
-     int keepRedundant;
+struct object gradedPolySetToArray(struct gradedPolySet *gps,int keepRedundant)
 {
   struct object ob = OINIT;
   struct object vec = OINIT;
