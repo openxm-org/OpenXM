@@ -20,7 +20,7 @@ fetch:
 
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
-	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xJvf -) ; \
 	fi 
 	@touch work/.extract_done
 
