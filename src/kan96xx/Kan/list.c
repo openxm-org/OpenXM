@@ -16,8 +16,7 @@ static void warningList(char *s);
    The null test is isNullList(struct object *).
 */
 
-struct object *newList(objp)
-     struct object *objp;
+struct object *newList(struct object *objp)
 {
   struct object *op;
   op = (struct object *)sGC_malloc(sizeof(struct object));
@@ -32,8 +31,7 @@ struct object *newList(objp)
   return(op);
 }
 
-int klength(objp)
-     struct object *objp;
+int klength(struct object *objp)
 {
   if (objp->tag != Slist) {
     warningList("use klength() for object-list.");
@@ -45,8 +43,7 @@ int klength(objp)
   }
 }
 
-struct object listToArray(objp)
-     struct object *objp;
+struct object listToArray(struct object *objp)
      /* This function copies only the top level of the list */
 {
   int n;
@@ -67,8 +64,7 @@ struct object listToArray(objp)
   return(ans);
 }
 
-struct object *arrayToList(obj)
-     struct object obj;
+struct object *arrayToList(struct object obj)
      /* obj.tag must be Sarray */
 {
   struct object *op;
@@ -86,8 +82,7 @@ struct object *arrayToList(obj)
   return(op);
 }
 
-struct object *vJoin(list1,list2)
-     struct object *list1,*list2;
+struct object *vJoin(struct object *list1,struct object *list2)
      /* Join[(a b), (c d)] ---> (a b c d) */
      /* Join [(),(a b)] ---> (a b) */
      /* We do not copy. NullList is express by (struct object *)NULL.
@@ -114,8 +109,7 @@ struct object *vJoin(list1,list2)
   }
 }
 
-struct object car(list)
-     struct object *list;
+struct object car(struct object *list)
 {
   if (list->tag != Slist) {
     warningList("car() is called for a non-list object.");
@@ -126,8 +120,7 @@ struct object car(list)
   return(*(list->lc.op));
 }
 
-struct object *cdr(list)
-     struct object *list;
+struct object *cdr(struct object *list)
 {
   if (list->tag != Slist) {
     warningList("cdr() is called for a non-list object.");
@@ -138,8 +131,7 @@ struct object *cdr(list)
 }
 
 
-static void printObjectList0(op,br)
-     struct object *op; int br;
+static void printObjectList0(struct object *op,int br)
 {
   if (op == NULL) return;
   if (isNullList(op)) return;
@@ -154,15 +146,12 @@ static void printObjectList0(op,br)
   }
 }
 
-void printObjectList(op)
-     struct object *op;
+void printObjectList(struct object *op)
 {
   printObjectList0(op,1);
 }
 
-int memberQ(list1,obj2)
-     struct object *list1;
-     struct object obj2;
+int memberQ(struct object *list1,struct object obj2)
      /* If obj2 is an member of list1, the functions the position.
    memberQ( (1 (2 3) 4), 4) ----> 3.
 */
@@ -177,15 +166,13 @@ int memberQ(list1,obj2)
   return(0);
 }
 
-static void errorList(str)
-     char *str;
+static void errorList(char *str)
 {
   fprintf(stderr,"list.c: %s\n",str);
   exit(10);
 }
 
-static void warningList(str)
-     char *str;
+static void warningList(char *str)
 {
   fprintf(stderr,"Warning. list.c: %s\n",str);
 }

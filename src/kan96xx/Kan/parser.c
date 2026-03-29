@@ -75,7 +75,7 @@ static int isAlphabetNum(int c);
 static void errorParser(char *s);
 
 
-static int push(tag,val) int tag; union valObject val; {
+static int push(int tag,union valObject val) {
   if (Spv<0) {
     errorParser(" parser.c stack underflow.\n");
   }
@@ -90,13 +90,13 @@ static int push(tag,val) int tag; union valObject val; {
   }
 }
 
-static int tpop() {
+static int tpop(void) {
   if (Spt<0) {
     errorParser(" parser.c stack underflow.\n");
   }
   return(TagStack[--Spt]);
 }
-static union valObject vpop() {
+static union valObject vpop(void) {
   if (Spv<0) {
     errorParser(" parser.c stack underflow.\n");
   }
@@ -105,9 +105,7 @@ static union valObject vpop() {
 /* Warning.  tpop() & vpop(). */
 
 
-POLY stringToPOLY(s,ringp) 
-     char *s;
-     struct ring *ringp;
+POLY stringToPOLY(char *s,struct ring *ringp) 
 { 
   /* call init() [ poly.c ] before you use strToPoly(). */
   POLY ppp;
@@ -175,13 +173,13 @@ POLY stringToPOLY(s,ringp)
   return( ppp );
 }
 
-static int mytolower(c) int c; {
+static int mytolower(int c)  {
   /*if (c>='A' && c<= 'Z') return( c + 0x20 );
     else return( c ); */
   return(c);   /* 1992/06/27  : do nothing now. ***/
 }
 
-static int getcharFromStr() {
+static int getcharFromStr(void) {
   if (String[StrPtr] != '\0')
     return(mytolower(String[StrPtr++]));  /* All symbols are changed to lower*/
   else
@@ -189,7 +187,7 @@ static int getcharFromStr() {
 }
 
   
-static int getoken() {
+static int getoken(void) {
   int i;
   if (Ch == '\0') return( -1 );
   while (isSpace(Ch)) Ch = getcharFromStr();
@@ -243,13 +241,13 @@ static int getoken() {
   
 }
 
-static void parse() {
+static void parse(void) {
   expr();
   if (Symbol == ';') return;
   else errorParser(" ; is expected.");
 }
 
-static  void expr() {
+static  void expr(void) {
   MP_INT *f,*g;
   int op;
   union valObject utmp;
@@ -328,7 +326,7 @@ static  void expr() {
   }
 }
 
-static void term() {
+static void term(void) {
   MP_INT *f,*g;
   int op;
   union valObject utmp;
@@ -433,7 +431,7 @@ static void term() {
   }
 }
 
-static void factor() {
+static void factor(void) {
   MP_INT *f,*g;
 
   int gtype, ftype;   /* data type.  NUM or POL */
@@ -486,7 +484,7 @@ static void factor() {
   }
 }
 
-static void monom() {
+static void monom(void) {
   union valObject utmp;
   struct object obj = OINIT;
   POLY f;
@@ -544,17 +542,17 @@ static void monom() {
 }
 
 
-static int isSpace(c) int c; {
+static int isSpace(int c)  {
   if (c == ' ' || c == '\t' || c == '\n') return( 1 );
   else return( 0 );
 }
 
-static int isDigit(c) int c; {
+static int isDigit(int c)  {
   if (c >='0' && c <= '9') return(1);
   else return(0);
 }
 
-static int isAlphabetNum(c) int c; {
+static int isAlphabetNum(int c)  {
   if (c>='A' && c<='Z') return(1);
   if (c>='a' && c<='z') return(1);
   if (c>='0' && c<='9') return(1);
@@ -564,7 +562,7 @@ static int isAlphabetNum(c) int c; {
     
   
 
-static void errorParser(s) char s[]; {
+static void errorParser(char s[])  {
   int i;
   extern char *GotoLabel;
   extern int GotoP;

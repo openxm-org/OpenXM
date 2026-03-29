@@ -11,9 +11,7 @@
 static void errorRationalFunction(char *str);
 static void warningRationalFunction(char *str);
 
-struct object KnewRationalFunction0(op1,op2)
-     objectp op1;
-     objectp op2;
+struct object KnewRationalFunction0(objectp op1,objectp op2)
 {
   struct object rob = OINIT;
   rob.tag = SrationalFunction;
@@ -24,8 +22,7 @@ struct object KnewRationalFunction0(op1,op2)
 }
 
   
-int KisZeroObject(op)
-     objectp op;
+int KisZeroObject(objectp op)
 {
   switch(op->tag) {
   case Spoly:
@@ -42,8 +39,7 @@ int KisZeroObject(op)
   }
 }
 
-objectp copyObjectp(op)
-     objectp op;
+objectp copyObjectp(objectp op)
 {
   objectp rop;
   rop = newObject();
@@ -51,15 +47,13 @@ objectp copyObjectp(op)
   return(rop);
 }
 
-void errorRationalFunction(str)
-     char *str;
+void errorRationalFunction(char *str)
 {
   fprintf(stderr,"Error(rat.c): %s\n",str);
   exit(20);
 }
 
-void warningRationalFunction(str)
-     char *str;
+void warningRationalFunction(char *str)
 {
   fprintf(stderr,"Warning(rat.c): %s\n",str);
 }

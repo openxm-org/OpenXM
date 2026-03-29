@@ -10,8 +10,7 @@
   (red@) (debug) switch_function
 */
 
-void Kusage(ob)
-     struct object ob;
+void Kusage(struct object ob)
 {
   char *s;
   printf("\n");
@@ -27,9 +26,7 @@ void Kusage(ob)
 
 #define fppp fprintf
 
-void Kusage2(fp,s)
-     FILE *fp;
-     char *s;
+void Kusage2(FILE *fp,char *s)
 {
   /*int n,i; fprintf(stderr,"\n%d: ",strlen(s));
     for (i=0; i<strlen(s); i++) fprintf(stderr," %x",s[i]);*/

@@ -104,13 +104,9 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
   return(f);
 }
 
-POLY reduction1_sugar(f,g,needSyz,c,h,sugarGrade)
-     POLY f;
-     POLY g;
-     int needSyz;
-     POLY *c; /* set */
-     POLY *h; /* set */
-     int sugarGrade;
+POLY reduction1_sugar(POLY f,POLY g,int needSyz,POLY *c,POLY *h,int sugarGrade)
+//     POLY *c; /* set */
+//     POLY *h; /* set */
      /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
@@ -163,8 +159,7 @@ POLY reduction1_sugar(f,g,needSyz,c,h,sugarGrade)
   return(f);
 }
 
-int grade_sugar(f)
-     POLY f;
+int grade_sugar(POLY f)
 {
   int r;
   int i,ans;

@@ -222,9 +222,7 @@ static int polyToInt(POLY f) {
 }
 
 
-static void shell(v,n)
-     int v[];
-     int n;
+static void shell(int v[],int n)
 {
   int gap,i,j,temp;
   
@@ -239,9 +237,7 @@ static void shell(v,n)
   }
 }
 
-static POLY ppifac(f,n)
-     POLY f;
-     int n;
+static POLY ppifac(POLY f,int n)
      /*  ppifac returns (f+n) (f+n-1) ... (f+1). */
 {
   POLY r;
@@ -261,9 +257,7 @@ static POLY ppifac(f,n)
 }
 
 
-static int isReducibleD1(f,g)
-     POLY f;
-     POLY g;
+static int isReducibleD1(POLY f,POLY g)
 {
   int i;
   for (i = M; i < NN; i++) {
@@ -279,8 +273,7 @@ static int isReducibleD1(f,g)
 
 
 static struct arrayOfPOLYold
-reduceMonomials(set)
-     struct arrayOfPOLYold set;
+reduceMonomials(struct arrayOfPOLYold set)
 {
   int *drop;  /* 1--> yes. drop set[i]. 0--> no. */
   int i,j;
@@ -330,12 +323,12 @@ reduceMonomials(set)
 }
   
       
-static int tryDecompose(set,i,j,vA,vWhich)
-     struct arrayOfPOLYold set;    /* input: monomials */
-     int     i,j;               /* decompose with respect to the (i,j)-th
-                                   variable: i=0-->x_j, i=1--->D_j */
-     int vA[];                  /* Return value: vA[0] is a_0, ... */
-     int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
+static int tryDecompose(struct arrayOfPOLYold set,int i,int j,int vA[],int vWhich[])
+//     struct arrayOfPOLYold set;    /* input: monomials */
+//     int     i,j;               /* decompose with respect to the (i,j)-th
+//                                   variable: i=0-->x_j, i=1--->D_j */
+//     int vA[];                  /* Return value: vA[0] is a_0, ... */
+//     int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
      /* set ---> x_j^(a_0) I_{a_0} + .... + x_j^{a_{p-1}} I_{a_{p-1}} */
      /* return value is p */
      /* tryDecompose is used to find the best decomposition. */
@@ -379,17 +372,17 @@ static int tryDecompose(set,i,j,vA,vWhich)
   return(p);
 }
 
-static struct arrayOfPOLYold getJA(a,set,vWhich,ja,ii,xd,ith)
+static struct arrayOfPOLYold getJA(int a,struct arrayOfPOLYold set,int *vWhich,struct arrayOfPOLYold ja,int ii,int xd,int ith)
      /* get J_{a_{i+1}} from J_{a_i}
    J_{a_{i+1}} = J_{a_i} \cup I_{a_{i+1}}
 */
-     int a;                  /* each a_i */
-struct arrayOfPOLYold set; /* polynomials */
-int *vWhich;            /* vWhich[0] is exponent a of set[0], .... */
-struct arrayOfPOLYold ja;  /* J_i */
-int ii;                 /* ii is i */
-int xd;                 /* xd == 0 --> x, xd == 1 --> D */
-int ith;                /* x_{ith} or D_{ith} is the best variable */
+//     int a;                  /* each a_i */
+//struct arrayOfPOLYold set; /* polynomials */
+//int *vWhich;            /* vWhich[0] is exponent a of set[0], .... */
+//struct arrayOfPOLYold ja;  /* J_i */
+//int ii;                 /* ii is i */
+//int xd;                 /* xd == 0 --> x, xd == 1 --> D */
+//int ith;                /* x_{ith} or D_{ith} is the best variable */
 {
   int size;
   struct arrayOfPOLYold input;
@@ -440,10 +433,7 @@ int ith;                /* x_{ith} or D_{ith} is the best variable */
 }
     
 
-static struct arrayOfPOLYold *getDecomposition(set,activeX,activeD)
-     struct arrayOfPOLYold set;
-     int activeX[N0];
-     int activeD[N0];
+static struct arrayOfPOLYold *getDecomposition(struct arrayOfPOLYold set,int activeX[N0],int activeD[N0])
 {
   int i;
   int size;
@@ -522,8 +512,7 @@ static struct arrayOfPOLYold *getDecomposition(set,activeX,activeD)
   }
 }
   
-static POLY hilbert1T(set)
-     struct arrayOfPOLYold set;
+static POLY hilbert1T(struct arrayOfPOLYold set)
      /* <<set>> must be reduced basis and each polynomial must have the length 1 */
      /* Unnecessary exponents should be set to zero. For example, f = x_{M-1} x_M
    is illegal input. It should be x_M ( M <= index <= NN ).
@@ -646,10 +635,7 @@ static POLY hilbert1T(set)
 }  
 
        
-POLY hilbert2(k,p,pArray)
-     POLY k; 
-     int p;
-     POLY pArray[];
+POLY hilbert2(POLY k,int p,POLY pArray[])
      /* This returns n! H(k,p,a^0, ..., a^{p-1}) */
      /* n = (NN-M); */
      /* Expample: hilbert2(xx(0,1),3,...) */
@@ -700,9 +686,7 @@ POLY hilbert2(k,p,pArray)
 
 
 #ifdef DEBUG2
-checkh(set,i)
-     struct arrayOfPOLYold set;
-     int i;
+checkh(struct arrayOfPOLYold set,int i)
 {
   if (pLength(getArrayOfPOLYold(set,i)) != 1) {
     printf("Size is %d.",pSize(getArrayOfPOLYold(set,i)));
@@ -713,11 +697,7 @@ checkh(set,i)
 #endif
 
 #ifdef DEBUG3
-outputDecomposition(p,activeX,activeD,ja)
-     int p;
-     int activeX[];
-     int activeD[];
-     struct arrayOfPOLYold ja[];
+outputDecomposition(int p,int activeX[],int activeD[],struct arrayOfPOLYold ja[])
 {
   int i;
   printf("\nActiveX: ");
@@ -742,8 +722,7 @@ outputDecomposition(p,activeX,activeD,ja)
   }
 }
 
-outputarrayOfPOLYold(set)
-     struct arrayOfPOLYold set;
+outputarrayOfPOLYold(struct arrayOfPOLYold set)
 {
   int i;
   for (i=0; i< set.n ; i++) {

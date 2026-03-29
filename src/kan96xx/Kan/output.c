@@ -19,9 +19,7 @@ struct outputQueue {
 };
 static void putstr(char *s,struct outputQueue *oq);
 
-static void putstr(s,oq)
-     char *s;
-     struct outputQueue *oq;
+static void putstr(char *s,struct outputQueue *oq)
 {
   int i;
   char **tmp;
@@ -53,10 +51,7 @@ static void putstr(s,oq)
 
 #define multStr(c) (c==' '?" ":(c=='\0'?"":"*"))
 
-char *POLYToString(f,multSym,brace)
-     POLY f;
-     int multSym;
-     int brace;
+char *POLYToString(POLY f,int multSym,int brace)
 {
   extern int Wrap;
   extern int UseDsmall;
@@ -222,15 +217,13 @@ char *POLYToString(f,multSym,brace)
   return(s);
 }
 
-char *KPOLYToString(f)
-     POLY f;
+char *KPOLYToString(POLY f)
 {
   extern int OutputStyle;
   return(POLYToString(f,OutputStyle,0));
 }
 
-int isOne(c)
-     struct coeff *c;
+int isOne(struct coeff *c)
 {
   switch(c->tag) {
   case INTEGER:
@@ -247,8 +240,7 @@ int isOne(c)
     errorCoeff("not yet");
   }
 }
-int isMinusOne(c)
-     struct coeff *c;
+int isMinusOne(struct coeff *c)
 {
   switch(c->tag) {
   case INTEGER:
@@ -265,8 +257,7 @@ int isMinusOne(c)
   }
 
 }
-int isNegative(c)
-     struct coeff *c;
+int isNegative(struct coeff *c)
 {
   switch(c->tag) {
   case INTEGER:
@@ -284,8 +275,7 @@ int isNegative(c)
   }
 }
 
-int isConstant(f)
-     POLY f;
+int isConstant(POLY f)
 {
   int i;
   int n;
@@ -309,8 +299,7 @@ int isConstantAll(POLY f)
   return 1;
 }
 
-void errorOutput(s)
-     char *s;
+void errorOutput(char *s)
 {
   fprintf(stderr,"Error(output.c):%s\n",s);
   exit(15);

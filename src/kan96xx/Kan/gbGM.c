@@ -71,8 +71,7 @@ int CountE;
 int CountI[2*N0];
 #endif
 
-struct polySet_gm newPolySet_gm(n)
-     int n;
+struct polySet_gm newPolySet_gm(int n)
 {
   struct polySet_gm g;
   int i;
@@ -87,8 +86,7 @@ struct polySet_gm newPolySet_gm(n)
   return(g);
 }
 
-struct pairSet newPairSet(n)
-     int n;
+struct pairSet newPairSet(int n)
 {
   struct pairSet g;
   int i;
@@ -103,8 +101,7 @@ struct pairSet newPairSet(n)
   return(g);
 }
 
-int pairSetSize(d)
-     struct pairSet d;
+int pairSetSize(struct pairSet d)
 {
   int s,i;
   s = 0;
@@ -114,8 +111,7 @@ int pairSetSize(d)
   return(s);
 }
 
-struct pairSet pairSetJoin(a,b)
-     struct pairSet a,b;
+struct pairSet pairSetJoin(struct pairSet a,struct pairSet b)
 {
   int m,n,k,i;
   struct pairSet ans;
@@ -138,8 +134,7 @@ struct pairSet pairSetJoin(a,b)
   return(ans);
 }
 
-struct polySet_gm enlargePolySet_gm(g)
-     struct polySet_gm g;
+struct polySet_gm enlargePolySet_gm(struct polySet_gm g)
 {
   int i;
   struct polySet_gm ans;
@@ -154,9 +149,7 @@ struct polySet_gm enlargePolySet_gm(g)
   return(ans);
 }
 
-struct pairSet deletePair_gm(d,index)
-     struct pairSet d;
-     int index;
+struct pairSet deletePair_gm(struct pairSet d,int index)
      /* delete d[index] */
 {
   int i;
@@ -168,8 +161,7 @@ struct pairSet deletePair_gm(d,index)
   return(d);
 }
 
-int minPair_gm(d)
-     struct pairSet d;
+int minPair_gm(struct pairSet d)
 {
   POLY min;
   int index,i;
@@ -184,11 +176,7 @@ int minPair_gm(d)
   return(index);
 }
 
-struct pairSet updatePair_gm(d,t,g,gt)
-     struct pairSet d;
-     int t;
-     struct polySet_gm g;
-     POLY gt;
+struct pairSet updatePair_gm(struct pairSet d,int t,struct polySet_gm g,POLY gt)
 {
   int i,j,k;
   struct pairSet new;
@@ -305,9 +293,7 @@ struct pairSet updatePair_gm(d,t,g,gt)
 }
 
 
-struct polySet_gm markRedundant_gm(g,j)
-     struct polySet_gm g;
-     int j;
+struct polySet_gm markRedundant_gm(struct polySet_gm g,int j)
      /* compare only with g[j] */
 {
   int i;
@@ -341,15 +327,7 @@ struct polySet_gm markRedundant_gm(g,j)
 
 
 
-struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly,gbCheck)
-     struct arrayOfPOLY *f;
-     int needBack;
-     int needSyz;
-     struct pair **grP;
-     int countDown;
-     int forceReduction;
-     int reduceOnly;
-     int gbCheck;
+struct gradedPolySet *groebner_gm(struct arrayOfPOLY *f,int needBack,int needSyz,struct pair **grP,int countDown,int forceReduction,int reduceOnly,int gbCheck)
 {
   int r;
   struct pair_gm top;
@@ -466,8 +444,7 @@ struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReductio
 }
 
 
-void outputPairSet(d)
-     struct pairSet d;
+void outputPairSet(struct pairSet d)
 { int i;
  printf("\nOutput struct pairSet. ");
  printf(".size=%d, .lim=%d :\n",d.size,d.lim);
@@ -478,8 +455,7 @@ void outputPairSet(d)
  printf("\n"); fflush(stdout);
 }
        
-void outputPolySet_gm(g)
-     struct polySet_gm g;
+void outputPolySet_gm(struct polySet_gm g)
 { int i;
  printf("\nOutput struct polySet_gm. ");
  printf(".size=%d, .lim=%d :\n",g.size,g.lim);
@@ -489,10 +465,7 @@ void outputPolySet_gm(g)
  printf("\n"); fflush(stdout);
 }
        
-int criterion1(f0,g0,lc0)
-     POLY f0;
-     POLY g0;
-     POLY lc0;
+int criterion1(POLY f0,POLY g0,POLY lc0)
 {
   /* This is used only for commutative case. */
   register int i;
@@ -512,10 +485,7 @@ int criterion1(f0,g0,lc0)
 }
 
 
-POLY mReductionBySet(f,s,size)
-     POLY f;
-     POLY *s;
-     int size;
+POLY mReductionBySet(POLY f,POLY *s,int size)
 {
   int reduced1;
   int i;
@@ -534,10 +504,7 @@ POLY mReductionBySet(f,s,size)
   return(f);
 }
 
-POLY mReductionCdrBySet(f,s,size)
-     POLY f;
-     POLY *s;
-     int size;
+POLY mReductionCdrBySet(POLY f,POLY *s,int size)
 {
   int reduced1;
   int i;
@@ -558,8 +525,7 @@ POLY mReductionCdrBySet(f,s,size)
 }
 
 
-void errorGBGM(s)
-     char *s;
+void errorGBGM(char *s)
 {
   fprintf(stderr,"Fatal error in yaGbasis.c: %s \n",s);
   exit(10);

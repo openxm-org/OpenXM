@@ -331,11 +331,8 @@ static void  ecartCheckSyz0_printinfo(POLY cf,POLY r_0,POLY syz,
 }
 
 
-POLY reduction_ecart(r,gset,needSyz,syzp)
-     POLY r;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+POLY reduction_ecart(POLY r,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   POLY rn;
   if (TraceLift && needSyz) {
@@ -368,11 +365,8 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
   Polynomials r and gset are assumed
   to be double homogenized (h-homogenized and s(H)-homogenized)
  */  
-static POLY reduction_ecart0(r,gset,needSyz,syzp)
-     POLY r;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+static POLY reduction_ecart0(POLY r,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -509,11 +503,8 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
   They are automatically s(H)-homogenized, and s is set to 1 
   when this function returns.
  */  
-static POLY reduction_ecart1(r,gset,needSyz,syzp)
-     POLY r;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+static POLY reduction_ecart1(POLY r,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -772,9 +763,7 @@ static struct ecartReducer ecartFindReducer_mod(POLY r,
   }
 }
 
-static POLY reduction_ecart1_mod(r,gset)
-     POLY r;
-     struct gradedPolySet *gset;
+static POLY reduction_ecart1_mod(POLY r,struct gradedPolySet *gset)
 {
   int reduced,reduced1,reduced2;
   int grd;

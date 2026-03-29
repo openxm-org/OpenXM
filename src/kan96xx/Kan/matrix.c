@@ -10,8 +10,7 @@
 #include "matrix.h"   /* ind() and ind2() are defined. */
 /* You must use n and n2. */
 
-struct arrayOfPOLY *aaAdd(aa,bb)
-     struct arrayOfPOLY *aa,*bb;
+struct arrayOfPOLY *aaAdd(struct arrayOfPOLY *aa,struct arrayOfPOLY *bb)
      /* this function has not been tested yet. */
 {
   int i;
@@ -33,8 +32,7 @@ struct arrayOfPOLY *aaAdd(aa,bb)
   return(ra);
 }
 
-struct matrixOfPOLY *aaMult(aa,bb)
-     struct matrixOfPOLY *aa,*bb;
+struct matrixOfPOLY *aaMult(struct matrixOfPOLY *aa,struct matrixOfPOLY *bb)
 {
   POLY *a;
   POLY *b;
@@ -69,8 +67,7 @@ struct matrixOfPOLY *aaMult(aa,bb)
   
   
 /****************  error handler ************************/
-void errorMatrix(str)
-     char *str;
+void errorMatrix(char *str)
 {
   fprintf(stderr,"matrix.c: %s\n",str);
   exit(10);
@@ -78,8 +75,7 @@ void errorMatrix(str)
 
 /********************************************************/
 
-struct arrayOfPOLY *newArrayOfPOLY(size)
-     int size;
+struct arrayOfPOLY *newArrayOfPOLY(int size)
      /* if size<=0, it returns [0,null]. */
 {
   struct arrayOfPOLY *ap;
@@ -95,8 +91,7 @@ struct arrayOfPOLY *newArrayOfPOLY(size)
   return(ap);
 }
 
-struct matrixOfPOLY *newMatrixOfPOLY(m,n)
-     int m,n;
+struct matrixOfPOLY *newMatrixOfPOLY(int m,int n)
      /* if size<=0, it returns [0,null]. */
 {
   struct matrixOfPOLY *ap;
@@ -113,9 +108,7 @@ struct matrixOfPOLY *newMatrixOfPOLY(m,n)
 }
 
 
-struct arrayOfPOLY *carrayToArrayOfPOLY(a,size)
-     POLY a[];
-     int size;
+struct arrayOfPOLY *carrayToArrayOfPOLY(POLY a[],int size)
      /* a[] is read only. */
 {
   struct arrayOfPOLY *ans;

@@ -22,9 +22,7 @@
 static void warningOrder(char *s);
 static void errorOrder(char *s);
 
-void setOrderByMatrix(order,n,c,l,omsize)
-     int order[];
-     int n,c,l,omsize;
+void setOrderByMatrix(int order[],int n,int c,int l,int omsize)
 {
   int i,j;
   int *Order;
@@ -48,9 +46,7 @@ void setOrderByMatrix(order,n,c,l,omsize)
   CurrentRingp->module_rank = 0;
 }
   
-void showRing(level,ringp) 
-     int level;
-     struct ring *ringp;
+void showRing(int level,struct ring *ringp) 
 {
   int i,j;
   FILE *fp;
@@ -239,8 +235,7 @@ if (isD(i))  D_{itod(i)}
    itod(N):N-1   dtoi(N-1):N ...
 */
 
-void printOrder(ringp)
-     struct ring *ringp;
+void printOrder(struct ring *ringp)
 {
   int i,j;
   FILE *fp;
@@ -353,8 +348,7 @@ struct object oGetOrderMatrix(struct ring *ringp)
 }
 
 
-int mmLarger_matrix(ff,gg)
-     POLY ff; POLY gg;
+int mmLarger_matrix(POLY ff,POLY gg)
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -422,8 +416,7 @@ int mmLarger_matrix(ff,gg)
 }
 
 /* This should be used in case of q */
-int mmLarger_qmatrix(ff,gg)
-     POLY ff; POLY gg;
+int mmLarger_qmatrix(POLY ff,POLY gg)
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -471,9 +464,7 @@ int mmLarger_qmatrix(ff,gg)
 }
 
 /* x(N-1)>x(N-2)>....>D(N-1)>....>D(0) */
-int mmLarger_pureLexicographic(f,g)
-     POLY f;
-     POLY g;
+int mmLarger_pureLexicographic(POLY f,POLY g)
 {
   int i,r;
   int n;
@@ -511,8 +502,7 @@ int mmLarger_pureLexicographic(f,g)
 }
 
 
-void setFromTo(ringp)
-     struct ring *ringp;
+void setFromTo(struct ring *ringp)
 {
   int n;
   int i,j,oasize;
@@ -543,8 +533,7 @@ void setFromTo(ringp)
 
 /* It ignores h and should be used with mmLarger_tower */
 /* cf. mmLarger_matrix.  h always must be checked at last. */
-static int mmLarger_matrix_schreyer(ff,gg)
-     POLY ff; POLY gg;
+static int mmLarger_matrix_schreyer(POLY ff,POLY gg)
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -916,14 +905,12 @@ struct object oRingToOXringStructure(struct ring *ringp)
   return(rob);
 }
 
-static void warningOrder(s)
-     char *s;
+static void warningOrder(char *s)
 {
   fprintf(stderr,"Warning in order.c: %s\n",s);
 }
 
-static void errorOrder(s)
-     char *s;
+static void errorOrder(char *s)
 {
   fprintf(stderr,"order.c: %s\n",s);
   exit(14);
@@ -1076,8 +1063,7 @@ int main() {
 }
 */
 
-int mmLarger_module_matrix(ff,gg)
-     POLY ff; POLY gg;
+int mmLarger_module_matrix(POLY ff,POLY gg)
 {
   int exp[2*N0]; /* exponents */
   int i,k;

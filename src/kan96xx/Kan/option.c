@@ -14,8 +14,8 @@ extern void ctrlC(int sig);
 void warningOption(char *str);
 
 
-struct object KsystemVariable(ob)
-     struct object ob; /* Sarray */
+struct object KsystemVariable(struct object ob)
+//     struct object ob; /* Sarray */
 {
   /* Don't forget to write the keys in usage.c */
   extern int PrintDollar;
@@ -472,8 +472,7 @@ struct object KsystemVariable(ob)
   return(rob);
 }
 
-void warningOption(str)
-     char *str;
+void warningOption(char *str)
 {
   fprintf(stderr,"Warning(option.c): %s\n",str);
 }

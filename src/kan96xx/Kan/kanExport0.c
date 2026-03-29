@@ -24,8 +24,7 @@ int WarningNoVectorVariable = 1;
 extern int QuoteMode;
 
 /** :arithmetic **/
-struct object KooAdd(ob1,ob2)
-     struct object ob1,ob2;
+struct object KooAdd(struct object ob1,struct object ob2)
 {
   extern struct ring *CurrentRingp;
   struct object rob = NullObject;
@@ -156,8 +155,7 @@ struct object KooAdd(ob1,ob2)
   return(rob);
 }
 
-struct object KooSub(ob1,ob2)
-     struct object ob1,ob2;
+struct object KooSub(struct object ob1,struct object ob2)
 {
   struct object rob = NullObject;
   POLY r;
@@ -289,8 +287,7 @@ struct object KooSub(ob1,ob2)
   return(rob);
 }
 
-struct object KooMult(ob1,ob2)
-     struct object ob1,ob2;
+struct object KooMult(struct object ob1,struct object ob2)
 {
   struct object rob = NullObject;
   POLY r;
@@ -438,8 +435,7 @@ struct object KooMult(ob1,ob2)
 
 
 
-struct object KoNegate(obj)
-     struct object obj;
+struct object KoNegate(struct object obj)
 {
   struct object rob = NullObject;
   extern struct ring SmallRing;
@@ -479,8 +475,7 @@ struct object KoNegate(obj)
   return(rob);
 }
     
-struct object KoInverse(obj)
-     struct object obj;
+struct object KoInverse(struct object obj)
 {
   struct object rob = NullObject;
   extern struct coeff *UniversalOne;
@@ -515,8 +510,7 @@ struct object KoInverse(obj)
 }
     
 
-static int isVector(ob)
-     struct object ob;
+static int isVector(struct object ob)
 {
   int i,n;
   n = getoaSize(ob);
@@ -526,9 +520,7 @@ static int isVector(ob)
   return(1);
 }
 
-static int isMatrix(ob,m,n)
-     struct object ob;
-     int m,n;
+static int isMatrix(struct object ob,int m,int n)
 {
   int i,j;
   for (i=0; i<m; i++) {
@@ -542,8 +534,7 @@ static int isMatrix(ob,m,n)
 }
 
 
-struct object KaoMult(aa,bb)
-     struct object aa,bb;
+struct object KaoMult(struct object aa,struct object bb)
      /* aa and bb is assumed to be array. */
 {
   int m,n,m2,n2; 
@@ -659,8 +650,7 @@ struct object KaoMult(aa,bb)
   return(rob);
 }
 
-struct object KooDiv(ob1,ob2)
-     struct object ob1,ob2;
+struct object KooDiv(struct object ob1,struct object ob2)
 {
   struct object rob = NullObject;
   switch (Lookup[ob1.tag][ob2.tag]) {
@@ -688,9 +678,7 @@ struct object KooDiv(ob1,ob2)
 }
 
 /* :relation */
-int KooEqualQ(obj1,obj2)
-     struct object obj1;
-     struct object obj2;
+int KooEqualQ(struct object obj1,struct object obj2)
 {
   struct object ob = OINIT;
   int i;
@@ -762,8 +750,7 @@ int KooEqualQ(obj1,obj2)
 }
       
 
-struct object KoIsPositive(ob1)
-     struct object ob1;
+struct object KoIsPositive(struct object ob1)
 {
   struct object rob = NullObject;
   switch (ob1.tag) {
@@ -777,9 +764,7 @@ struct object KoIsPositive(ob1)
   return(rob);
 }
 
-struct object KooGreater(obj1,obj2)
-     struct object obj1;
-     struct object obj2;
+struct object KooGreater(struct object obj1,struct object obj2)
 {
   struct object ob = OINIT;
   int tt;
@@ -833,9 +818,7 @@ struct object KooGreater(obj1,obj2)
   }
 }
       
-struct object KooLess(obj1,obj2)
-     struct object obj1;
-     struct object obj2;
+struct object KooLess(struct object obj1,struct object obj2)
 {
   struct object ob;
   int tt;
@@ -891,9 +874,7 @@ struct object KooLess(obj1,obj2)
       
 /* :conversion */
 
-struct object KdataConversion(obj,key)
-     struct object obj;
-     char *key;
+struct object KdataConversion(struct object obj,char *key)
 {
   char tmps[128]; /* Assume that double is not more than 128 digits */
   char intstr[100]; /* Assume that int is not more than 100 digits */
@@ -1263,32 +1244,28 @@ struct object Kto_int32(struct object ob) {
 }    
 /* conversion functions between primitive data and objects.
    If it's not time critical, it is recommended to use these functions */
-struct object KpoInteger(k)
-     int k;
+struct object KpoInteger(int k)
 {
   struct object obj = OINIT;
   obj.tag = Sinteger;
   obj.lc.ival = k; obj.rc.ival = 0;
   return(obj);
 }
-struct object KpoString(s)
-     char *s;
+struct object KpoString(char *s)
 {
   struct object obj = OINIT;
   obj.tag = Sdollar;
   obj.lc.str = s; obj.rc.ival = 0;
   return(obj);
 }
-struct object KpoPOLY(f)
-     POLY f;
+struct object KpoPOLY(POLY f)
 {
   struct object obj = OINIT;
   obj.tag = Spoly;
   obj.lc.poly = f; obj.rc.ival = 0;
   return(obj);
 }
-struct object KpoArrayOfPOLY(ap)
-     struct arrayOfPOLY *ap ;
+struct object KpoArrayOfPOLY(struct arrayOfPOLY *ap)
 {
   struct object obj = OINIT;
   obj.tag = SarrayOfPOLY;
@@ -1296,8 +1273,7 @@ struct object KpoArrayOfPOLY(ap)
   return(obj);
 }
 
-struct object KpoMatrixOfPOLY(mp)
-     struct matrixOfPOLY *mp ;
+struct object KpoMatrixOfPOLY(struct matrixOfPOLY *mp)
 {
   struct object obj = OINIT;
   obj.tag = SmatrixOfPOLY;
@@ -1305,8 +1281,7 @@ struct object KpoMatrixOfPOLY(mp)
   return(obj);
 }
 
-struct object KpoRingp(ringp)
-     struct ring *ringp;
+struct object KpoRingp(struct ring *ringp)
 {
   struct object obj = OINIT;
   obj.tag = Sring;
@@ -1314,16 +1289,14 @@ struct object KpoRingp(ringp)
   return(obj);
 }
 
-struct object KpoUniversalNumber(u)
-     struct coeff *u;
+struct object KpoUniversalNumber(struct coeff *u)
 {
   struct object obj = OINIT;
   obj.tag = SuniversalNumber;
   obj.lc.universalNumber = u;
   return(obj);
 }
-struct object KintToUniversalNumber(n)
-	 int n;
+struct object KintToUniversalNumber(int n)
 {
   struct object rob = OINIT;
   extern struct ring SmallRing;
@@ -1333,8 +1306,7 @@ struct object KintToUniversalNumber(n)
 }
 
 /*** conversion 2. Data conversions on arrays and matrices. ****/
-struct object arrayOfPOLYToArray(aa)
-     struct arrayOfPOLY *aa;
+struct object arrayOfPOLYToArray(struct arrayOfPOLY *aa)
 {
   POLY *a;
   int size;
@@ -1352,8 +1324,7 @@ struct object arrayOfPOLYToArray(aa)
   return( r );
 }
 
-struct object matrixOfPOLYToArray(pmat)
-     struct matrixOfPOLY *pmat;
+struct object matrixOfPOLYToArray(struct matrixOfPOLY *pmat)
 {
   struct object r = OINIT;
   struct object tmp = OINIT;
@@ -1373,8 +1344,7 @@ struct object matrixOfPOLYToArray(pmat)
   return(r);
 }
 
-struct arrayOfPOLY *arrayToArrayOfPOLY(oa)
-     struct object oa;
+struct arrayOfPOLY *arrayToArrayOfPOLY(struct object oa)
 {
   POLY *a;
   int size;
@@ -1398,8 +1368,7 @@ struct arrayOfPOLY *arrayToArrayOfPOLY(oa)
   return(ap);
 }
 
-struct matrixOfPOLY *arrayToMatrixOfPOLY(oa)
-     struct object oa;
+struct matrixOfPOLY *arrayToMatrixOfPOLY(struct object oa)
 {
   POLY *a;
   int m;
@@ -1438,11 +1407,7 @@ struct matrixOfPOLY *arrayToMatrixOfPOLY(oa)
 /* :misc */
 
 /* :ring    :kan */
-int objArrayToOrderMatrix(oA,order,n,oasize)
-     struct object oA;
-     int order[];
-     int n;
-     int oasize;
+int objArrayToOrderMatrix(struct object oA,int order[],int n,int oasize)
 {
   int size;
   int k,j;
@@ -1475,8 +1440,7 @@ int objArrayToOrderMatrix(oA,order,n,oasize)
   return(0);
 }
 
-int KsetOrderByObjArray(oA)
-     struct object oA;
+int KsetOrderByObjArray(struct object oA)
 {
   int *order;
   int n,c,l, oasize;
@@ -1503,8 +1467,7 @@ int KsetOrderByObjArray(oA)
   return(0);
 }
 
-static int checkRelations(c,l,m,n,cc,ll,mm,nn)
-     int c,l,m,n,cc,ll,mm,nn;
+static int checkRelations(int c,int l,int m,int n,int cc,int ll,int mm,int nn)
 {
   if (!(1<=c && c<=l && l<=m && m<=n)) return(1);
   if (!(cc<=ll && ll<=mm && mm<=nn && nn <= n)) return(1);
@@ -1524,8 +1487,7 @@ struct object KgetOrderMatrixOfCurrentRing()
 }
 
   
-int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
-     struct object ob1,ob2,ob3,ob4,ob5;
+int KsetUpRing(struct object ob1,struct object ob2,struct object ob3,struct object ob4,struct object ob5)
      /* ob1 = [x(0), ..., x(n-1)];
         ob2 = [D(0), ..., D(n-1)];
         ob3 = [p,c,l,m,n,cc,ll,mm,nn,next];
@@ -1593,7 +1555,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   m = getoa(ob3,3).lc.ival;  n = getoa(ob3,4).lc.ival;
   cc = getoa(ob3,5).lc.ival;  ll = getoa(ob3,6).lc.ival;
   mm = getoa(ob3,7).lc.ival;  nn = getoa(ob3,8).lc.ival;
-  if (checkRelations(c,l,m,n,cc,ll,mm,nn,n)) {
+  if (checkRelations(c,l,m,n,cc,ll,mm,nn)) {
     errorKan1("%s\n","1<=c<=l<=m<=n and cc<=c<=ll<=l<=mm<=m<=nn<=n \nand (cc<c or ll < l or mm < m or nn < n)  must be satisfied.");
   }
   if (getoaSize(ob2) != n || getoaSize(ob1) != n) {
@@ -1878,14 +1840,12 @@ struct object KsetVariableNames(struct object ob,struct ring *rp)
 
 
   
-void KshowRing(ringp)
-     struct ring *ringp;
+void KshowRing(struct ring *ringp)
 {
   showRing(1,ringp);
 }
 
-struct object KswitchFunction(ob1,ob2)
-     struct object ob1,ob2;
+struct object KswitchFunction(struct object ob1,struct object ob2)
 {
   char *ans ;
   struct object rob = OINIT;
@@ -1926,9 +1886,7 @@ void KprintSwitchStatus(void)
   print_switch_status();
 }
 
-struct object KoReplace(of,rule)
-     struct object of;
-     struct object rule;
+struct object KoReplace(struct object of,struct object rule)
 {
   struct object rob = OINIT;
   POLY f;
@@ -1987,9 +1945,7 @@ struct object KoReplace(of,rule)
 }
 
 
-struct object Kparts(f,v)
-     struct object f;
-     struct object v;
+struct object Kparts(struct object f,struct object v)
 {
   POLY ff;
   POLY vv;
@@ -2004,9 +1960,7 @@ struct object Kparts(f,v)
   return(obj);
 }
 
-struct object Kparts2(f,v)
-     struct object f;
-     struct object v;
+struct object Kparts2(struct object f,struct object v)
 {
   POLY ff;
   POLY vv;
@@ -2021,8 +1975,7 @@ struct object Kparts2(f,v)
 }
 
 
-struct object Kdegree(ob1,ob2)
-     struct object ob1,ob2;
+struct object Kdegree(struct object ob1,struct object ob2)
 {
   if (ob1.tag != Spoly || ob2.tag != Spoly)
     errorKan1("%s\n","The arguments must be polynomials.");
@@ -2030,8 +1983,7 @@ struct object Kdegree(ob1,ob2)
   return(KpoInteger(pDegreeWrtV(KopPOLY(ob1),KopPOLY(ob2))));
 }
 
-struct object KringMap(obj)
-     struct object obj;
+struct object KringMap(struct object obj)
 {
   extern struct ring *CurrentRingp;
   extern struct ring *SyzRingp;
@@ -2054,8 +2006,7 @@ struct object KringMap(obj)
 }
 
 
-struct object Ksp(ob1,ob2)
-     struct object ob1,ob2;
+struct object Ksp(struct object ob1,struct object ob2)
 {
   struct spValue sv;
   struct object rob = OINIT;
@@ -2075,8 +2026,7 @@ struct object Ksp(ob1,ob2)
   return(rob);
 }
   
-struct object Khead(ob)
-     struct object ob;
+struct object Khead(struct object ob)
 {
   if (ob.tag != Spoly) errorKan1("%s\n","Khead(): The argument should be a polynomial.");
   return(KpoPOLY(head( KopPOLY(ob))));
@@ -2084,8 +2034,7 @@ struct object Khead(ob)
   
 
 /* :eval */
-struct object Keval(obj)
-     struct object obj;
+struct object Keval(struct object obj)
 {
   char *key;
   int size;
@@ -2106,8 +2055,7 @@ struct object Keval(obj)
 }
   
 /* :Utilities */
-char *KremoveSpace(str)
-     char str[];
+char *KremoveSpace(char str[])
 {
   int size;
   int start;
@@ -2131,8 +2079,7 @@ char *KremoveSpace(str)
   return(s);
 }
 
-struct object KtoRecords(ob)
-     struct object ob;
+struct object KtoRecords(struct object ob)
 {
   struct object obj = OINIT;
   struct object tmp = OINIT;
@@ -2164,10 +2111,7 @@ struct object KtoRecords(ob)
   return(obj);
 }
 
-int KtoArgvbyCurryBrace(str,argv,limit)
-     char *str;
-     char *argv[];
-     int limit;
+int KtoArgvbyCurryBrace(char *str,char *argv[],int limit)
      /* This function returns argc */
      /* decompose into tokens by the separators
    { }, [ ], and characters of which code is less than SPACE.
@@ -2321,10 +2265,7 @@ struct object KstringToArgv2(struct object ob,struct object oseparator) {
   return(rob);
 }
 
-static void checkDuplicateName(xvars,dvars,n)
-     char *xvars[];
-     char *dvars[];
-     int n;
+static void checkDuplicateName(char *xvars[],char *dvars[],int n)
 {
   int i,j;
   char *names[N0*2];
@@ -2355,8 +2296,7 @@ struct object KooPower(struct object ob1,struct object ob2) {
 
 
 
-struct object KooDiv2(ob1,ob2)
-     struct object ob1,ob2;
+struct object KooDiv2(struct object ob1,struct object ob2)
 {
   struct object rob = NullObject;
   POLY f;
@@ -2446,8 +2386,7 @@ struct object KooDiv2(ob1,ob2)
     break;
 */
 
-int KisInvalidRational(op)
-     objectp op;
+int KisInvalidRational(objectp op)
 {
   extern struct coeff *UniversalZero;
   if (op->tag != SrationalFunction) return(0);
@@ -3369,9 +3308,7 @@ struct object KaddModuleOrder(struct object ob) {
      Error handler
 ******************************************************************/
 
-int errorKan1(str,message)
-     char *str;
-     char *message;
+int errorKan1(char *str,char *message)
 {
   extern char *GotoLabel;
   extern int GotoP;
@@ -3408,8 +3345,7 @@ int errorKan1(str,message)
 }
 
 
-int warningKan(str)
-     char *str;
+int warningKan(char *str)
 {
   extern int WarningMessageMode;
   extern int Strict;
@@ -3431,8 +3367,7 @@ int warningKan(str)
   return(0);
 }
 
-int warningKanNoStrictMode(str)
-     char *str; 
+int warningKanNoStrictMode(char *str)
 {
   extern int Strict;
   int t;

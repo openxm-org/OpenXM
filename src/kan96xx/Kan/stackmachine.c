@@ -117,8 +117,7 @@ struct object * newObject()
   return(r);
 }
 
-struct object newObjectArray(size) 
-     int size;
+struct object newObjectArray(int size) 
 {
   struct object rob = OINIT;
   struct object *op;
@@ -135,16 +134,16 @@ struct object newObjectArray(size)
   return(rob);
 }
 
-int isNullObject(obj)
-     struct object obj;
+int isNullObject(struct object obj)
 {
   if (obj.tag == 0) return(1);
   else return(0);
 }
 
-int putSystemDictionary(str,ob)
-     char *str;   /* key */
-     struct object ob; /* value */
+int putSystemDictionary(char *str,struct object ob)
+/*     char *str;   // key
+     struct object ob; // value 
+*/
 {
   int i;
   int j;
@@ -180,11 +179,11 @@ int putSystemDictionary(str,ob)
   return(Sdp-1);
 }
 
-int findSystemDictionary(str)   
+int findSystemDictionary(char *str)   
      /* only used for primitive functions */
      /* returns 0, if there is no item. */
      /* This function assumes that the dictionary is sorted by strcmp() */
-     char *str;    /* key */
+//     char *str;    /* key */
 {
   int first,last,rr,middle;
 
@@ -219,11 +218,11 @@ int findSystemDictionary(str)
   }
 }
 
-int putUserDictionary(str,h0,h1,ob,dic)
-     char *str;   /* key */
-     int h0,h1;   /* Hash values of the key */
-     struct object ob; /* value */
-     struct dictionary *dic;
+int putUserDictionary(char *str,int h0,int h1,struct object ob,struct dictionary *dic)
+//     char *str;   /* key */
+//     int h0,h1;   /* Hash values of the key */
+//     struct object ob; /* value */
+//     struct dictionary *dic;
 {
   int x,r;
   extern int Strict2;
@@ -267,11 +266,11 @@ struct object KputUserDictionary(char *str,struct object ob)
   return(KpoInteger(r));
 }
 
-struct object findUserDictionary(str,h0,h1,cp)   
+struct object findUserDictionary(char *str,int h0,int h1,struct context *cp)   
      /* returns NoObject, if there is no item. */
-     char *str;    /* key */
-     int h0,h1;    /* The hashing values of the key. */
-     struct context *cp;
+//     char *str;    /* key */
+//     int h0,h1;    /* The hashing values of the key. */
+//     struct context *cp;
 	 /* Set char *UD_str, int UD_attr (attributes) */
 {
   int x;
@@ -301,11 +300,11 @@ struct object KfindUserDictionary(char *str) {
   return(findUserDictionary(str,hash0(str),hash1(str),CurrentContextp));
 }
 
-int putUserDictionary2(str,h0,h1,attr,dic)
-     char *str;   /* key */
-     int h0,h1;   /* Hash values of the key */
-     int attr;    /* attribute field */
-     struct dictionary *dic;
+int putUserDictionary2(char *str,int h0,int h1,int attr,struct dictionary *dic)
+//     char *str;   /* key */
+//     int h0,h1;   /* Hash values of the key */
+//     int attr;    /* attribute field */
+//     struct dictionary *dic;
 {
   int x;
   int i;
@@ -338,9 +337,7 @@ int putUserDictionary2(str,h0,h1,attr,dic)
 }
 
 
-int putPrimitiveFunction(str,number)
-     char *str;
-     int number;
+int putPrimitiveFunction(char *str,int number)
 {
   struct object ob = OINIT;
   ob.tag = Soperator;
@@ -348,8 +345,7 @@ int putPrimitiveFunction(str,number)
   return(putSystemDictionary(str,ob));
 }
 
-struct tokens lookupTokens(t)
-     struct tokens t;
+struct tokens lookupTokens(struct tokens t)
 {
   struct object *left;
   struct object *right;
@@ -364,8 +360,8 @@ struct tokens lookupTokens(t)
   return(t);
 }
   
-struct object lookupLiteralString(s)
-     char *s; /* s must be a literal string */
+struct object lookupLiteralString(char *s)
+//     char *s; /* s must be a literal string */
 {
   struct object ob;
   ob.tag = Slist;
@@ -378,8 +374,7 @@ struct object lookupLiteralString(s)
 }
 
 
-int hash0(str)
-     char *str;
+int hash0(char *str)
 {
   int h=0;
   while (*str != '\0') {
@@ -389,8 +384,7 @@ int hash0(str)
   return(h);
 }
 
-int hash1(str)
-     char *str;
+int hash1(char *str)
 {
   return(8-((unsigned char)(str[0])%8));
 }
@@ -403,8 +397,7 @@ void hashInitialize(struct dictionary *dic)
   }
 }
 
-static int isInteger(str)
-     char *str;
+static int isInteger(char *str)
 {
   int i;
   int n;
@@ -424,8 +417,7 @@ static int isInteger(str)
   return(1);
 }
 
-static int strToInteger(str)
-     char *str;
+static int strToInteger(char *str)
 {
   int i;
   int n;
@@ -445,16 +437,13 @@ static int strToInteger(str)
   return(r);
 }
 
-static int power(s,i)
-     int s;
-     int i;
+static int power(int s,int i)
 {
   if (i == 0) return 1;
   else return( s*power(s,i-1) );
 }
 
-int Kpush(ob)
-     struct object ob;     
+int Kpush(struct object ob)
 {
   OperandStack[Osp++] = ob;
   if (Osp >= OspMax) {
@@ -474,8 +463,7 @@ struct object Kpop()
   }
 }
 
-struct object peek(k)
-     int k;
+struct object peek(int k)
 {
   if ((Osp-k-1) < 0) {
     return( NullObject );
@@ -649,8 +637,7 @@ void contextControl(actionOfContextControl ctl) {
 
     
 
-int isLiteral(str)
-     char *str;
+int isLiteral(char *str)
 {
   if (strlen(str) <2) return(0);
   else {
@@ -766,8 +753,7 @@ int showUserDictionary()
 }
   
 
-static struct object executableStringToExecutableArray(s)
-     char *s;
+static struct object executableStringToExecutableArray(char *s)
 {
   struct tokens *tokenArray;
   struct object ob = OINIT;
@@ -970,8 +956,7 @@ void ctrlC(int sig)
 #endif
 }
 
-int executeToken(token)
-     struct tokens token;
+int executeToken(struct tokens token)
 {      
   struct object ob = OINIT;
   int primitive;
@@ -1197,8 +1182,7 @@ int warningStackmachine(char *str)
 /* NOTE:  If you call this function and an error occured,
    you have to reset the jump buffer by setjmp(EnvOfStackMachine).
    cf. kxx/memo1.txt, kxx/stdserver00.c 1998, 2/6 */
-int KSexecuteString(s)
-     char *s;
+int KSexecuteString(char *s)
 {
   struct tokens token;
   struct object ob = OINIT;
@@ -1363,8 +1347,7 @@ struct object KSpop() {
   return(Kpop());
 }
 
-void KSpush(ob)
-     struct object ob;
+void KSpush(struct object ob)
 {
   Kpush(ob);
 }

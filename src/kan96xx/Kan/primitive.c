@@ -35,8 +35,7 @@ extern int QuoteMode;
 
 static char *operatorType(int i);
 
-static char *operatorType(type)
-     int type;
+static char *operatorType(int type)
 { int i;
  for (i=0; i<Sdp; i++) {
    if (type == (SystemDictionary[i]).obj.lc.ival) {
@@ -135,10 +134,7 @@ static char *operatorType(type)
 #define Stlimit 101
 #define Soxshell 102
 /***********************************************/
-void printObject(ob,nl,fp) 
-     struct object ob;
-     int nl;
-     FILE *fp;
+void printObject(struct object ob,int nl,FILE *fp) 
      /* print the object on the top of the stack. */
 {
 
@@ -313,10 +309,7 @@ void printObject(ob,nl,fp)
   if (nl) fprintf(fp,"\n");
 }
   
-void printObjectArray(ob,nl,fp)
-     struct object ob;
-     int nl;
-     FILE *fp;
+void printObjectArray(struct object ob,int nl,FILE *fp)
 {
   int size;
   int i;
@@ -425,8 +418,7 @@ void  KdefinePrimitiveFunctions() {
   putPrimitiveFunction("coeff",Scoeff2);
 }
 
-int executePrimitive(ob) 
-     struct object ob;
+int executePrimitive(struct object ob) 
 {
   struct object ob1 = OINIT;
   struct object ob2 = OINIT;

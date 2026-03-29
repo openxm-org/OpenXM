@@ -10,9 +10,7 @@
 static int DebugReduction = 0;
 
 
-int isReducible_module(f,g)
-     POLY f;
-     POLY g;
+int isReducible_module(POLY f,POLY g)
 {
   int n,i;
   MONOMIAL tf;
@@ -33,9 +31,7 @@ int isReducible_module(f,g)
 }
 
 
-int isSameComponent_x(f,g)
-     POLY f;
-     POLY g;
+int isSameComponent_x(POLY f,POLY g)
 {
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
@@ -78,9 +74,7 @@ int isSameComponent_x(f,g)
   return(1);
 }
 
-int isSameComponent_xd(f,g)
-     POLY f;
-     POLY g;
+int isSameComponent_xd(POLY f,POLY g)
 {
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
@@ -123,9 +117,7 @@ int isSameComponent_xd(f,g)
 }
 
 
-POLY lcm_module(f,g)
-     POLY f;
-     POLY g;
+POLY lcm_module(POLY f,POLY g)
 {
   MONOMIAL tf,tg;
   MONOMIAL lcm;
@@ -144,8 +136,7 @@ POLY lcm_module(f,g)
 }
 
 
-int grade_module1v(f)
-     POLY f;
+int grade_module1v(POLY f)
 {
   int r;
   int i;
@@ -189,8 +180,7 @@ int grade_module1v(f)
 }
 
 
-int grade_module1(f)
-     POLY f;
+int grade_module1(POLY f)
 {
   int r;
   int i;
@@ -223,8 +213,7 @@ int grade_module1(f)
 
 
 
-int grade_firstvec(f)   /* grading by the first vector and h */
-     POLY f;
+int grade_firstvec(POLY f)   /* grading by the first vector and h */
 {
   int r;
   int i,k;
@@ -255,8 +244,7 @@ int grade_firstvec(f)   /* grading by the first vector and h */
   return(r);
 }
 
-int eliminated(ff)
-     POLY ff;
+int eliminated(POLY ff)
 {
 #define RULEMAX 10
   int r;
@@ -327,8 +315,7 @@ int eliminated(ff)
 /* Grading by the weight vector (0,1). Note 2003.07.10 
    dGrade1 is the grade of the in(f).
 */
-int dGrade1(f)
-     POLY f;
+int dGrade1(POLY f)
 {
   int r;
   int i;
@@ -368,8 +355,7 @@ int dGrade1(f)
 
 /* Grading by the weight vector (0,1). Note 2003.07.10 
 */
-int dGrade(f)
-     POLY f;
+int dGrade(POLY f)
 {
   int r, first, t;
   if (f ISZERO) return(-1);

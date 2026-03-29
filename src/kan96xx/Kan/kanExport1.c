@@ -24,9 +24,7 @@ static struct object paddingVector(struct object ob, int table[], int m);
 static struct object unitVector(int pos, int size,struct ring *r);
 
 /** :kan, :ring */
-struct object Kreduction(f,set)
-     struct object f;
-     struct object set;
+struct object Kreduction(struct object f,struct object set)
 {
   POLY r;
   struct gradedPolySet *grG;
@@ -66,8 +64,7 @@ struct object Kreduction(f,set)
   return(rob);
 }
 
-struct object Kgroebner(ob)
-     struct object ob;
+struct object Kgroebner(struct object ob)
 {
   int needSyz = 0;
   int needBack = 0;
@@ -394,8 +391,7 @@ static struct object unitVector(int pos, int size,struct ring *r)
 #define INITGRADE 3
 #define INITSIZE 0
 
-struct gradedPolySet *arrayToGradedPolySet(ob)
-     struct object ob;
+struct gradedPolySet *arrayToGradedPolySet(struct object ob)
 {
   int n,i,grd,ind;
   POLY f;
@@ -424,9 +420,7 @@ struct gradedPolySet *arrayToGradedPolySet(ob)
 }
 
 
-struct object polySetToArray(ps,keepRedundant)
-     struct polySet *ps;
-     int keepRedundant;
+struct object polySetToArray(struct polySet *ps,int keepRedundant)
 {
   int n,i,j;
   struct object ob = OINIT;
@@ -451,9 +445,7 @@ struct object polySetToArray(ps,keepRedundant)
 }
 
 
-struct object gradedPolySetToGradedArray(gps,keepRedundant)
-     struct gradedPolySet *gps;
-     int keepRedundant;
+struct object gradedPolySetToGradedArray(struct gradedPolySet *gps,int keepRedundant)
 {
   struct object ob = OINIT;
   struct object vec = OINIT;
@@ -509,10 +501,7 @@ struct object gradedPolySetToArray(gps,keepRedundant)
   
 
 /* serial == -1  :  It's not in the marix input. */
-struct object syzPolyToArray(size,f,grG)
-     int size;
-     POLY f;
-     struct gradedPolySet *grG;
+struct object syzPolyToArray(int size,POLY f,struct gradedPolySet *grG)
 {
   struct object ob = OINIT;
   int i,g0,i0,serial;
@@ -538,8 +527,7 @@ struct object syzPolyToArray(size,f,grG)
   return(ob);
 }
 
-struct object getBackwardArray(grG)
-     struct gradedPolySet *grG;
+struct object getBackwardArray(struct gradedPolySet *grG)
 {
   /* use serial, del.  cf. getBackwardTransformation(). */
   int inputSize,outputSize;
@@ -571,8 +559,7 @@ struct object getBackwardArray(grG)
 }
 
 
-POLY arrayToPOLY(ob)
-     struct object ob;
+POLY arrayToPOLY(struct object ob)
 {
   int size,i;
   struct object f = OINIT;
@@ -613,8 +600,7 @@ POLY arrayToPOLY(ob)
   return(r);
 }
 
-struct object POLYToArray(ff)
-     POLY ff;
+struct object POLYToArray(POLY ff)
 {
   
   static int nn,mm,ll,cc,n,m,l,c;
@@ -667,8 +653,7 @@ struct object POLYToArray(ff)
   return(ob);
 }
 
-static int isThereh(f)
-     POLY f;
+static int isThereh(POLY f)
 {
   POLY t;
   if (f == 0) return(0);
@@ -680,9 +665,7 @@ static int isThereh(f)
   return(0);
 }
 
-struct object homogenizeObject(ob,gradep)
-     struct object ob;
-     int *gradep;
+struct object homogenizeObject(struct object ob,int *gradep)
 {
   struct object rob = OINIT;
   struct object ob1 = OINIT;
@@ -747,9 +730,7 @@ struct object homogenizeObject(ob,gradep)
   }
 }
 
-struct object homogenizeObject_vec(ob,gradep)
-     struct object ob;
-     int *gradep;
+struct object homogenizeObject_vec(struct object ob,int *gradep)
 {
   struct object rob = OINIT;
   struct object ob1 = OINIT;
@@ -927,8 +908,7 @@ struct object homogenizeObject_go(struct object ob,int *gradep) {
 }
 
 
-struct ring *oRingp(ob)
-     struct object ob;
+struct ring *oRingp(struct object ob)
 {
   struct ring *rp,*rptmp;
   int i,size;
@@ -954,8 +934,7 @@ struct ring *oRingp(ob)
   }
 }
 
-int oGrade(ob)
-     struct object ob;
+int oGrade(struct object ob)
 {
   int i,size;
   POLY f;
@@ -982,8 +961,7 @@ int oGrade(ob)
 }
 
 
-struct object oPrincipalPart(ob)
-     struct object ob;
+struct object oPrincipalPart(struct object ob)
 {
   POLY f;
   struct object rob = OINIT;
@@ -998,9 +976,7 @@ struct object oPrincipalPart(ob)
     break;
   }
 }
-struct object oInitW(ob,oWeight)
-     struct object ob;
-     struct object oWeight;
+struct object oInitW(struct object ob,struct object oWeight)
 {
   POLY f;
   struct object rob = OINIT;
@@ -1153,9 +1129,7 @@ struct object POLYtoObjArray(POLY f,int size) {
   return rob;
 }
 
-struct object KordWsAll(ob,oWeight)
-     struct object ob;
-     struct object oWeight;
+struct object KordWsAll(struct object ob,struct object oWeight)
 {
   POLY f;
   struct object rob = OINIT;

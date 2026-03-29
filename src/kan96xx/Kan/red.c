@@ -16,9 +16,7 @@ struct spValue spZero(void) {
   r.b = ZERO;
   return r;
 }
-struct spValue sp_gen(f,g)
-     POLY f;
-     POLY g;
+struct spValue sp_gen(POLY f,POLY g)
      /* the results may be rewritten. */
 {
   struct spValue r;
@@ -115,12 +113,9 @@ struct spValue sp_gen(f,g)
 }
     
 
-POLY reduction1_gen_debug(f,g,needSyz,c,h)
-     POLY f;
-     POLY g;
-     int needSyz;
-     POLY *c; /* set */
-     POLY *h; /* set */
+POLY reduction1_gen_debug(POLY f,POLY g,int needSyz,POLY *c,POLY *h)
+//     POLY *c; /* set */
+//     POLY *h; /* set */
      /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
@@ -209,12 +204,9 @@ POLY reduction1_gen_debug(f,g,needSyz,c,h)
   return(f);
 }
 
-POLY reduction1_gen(f,g,needSyz,c,h)
-     POLY f;
-     POLY g;
-     int needSyz;
-     POLY *c; /* set */
-     POLY *h; /* set */
+POLY reduction1_gen(POLY f,POLY g,int needSyz,POLY *c,POLY *h)
+//     POLY *c; /* set */
+//     POLY *h; /* set */
      /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
@@ -277,13 +269,9 @@ POLY reduction1_gen(f,g,needSyz,c,h)
   return(f);
 }
 
-POLY reduction1Cdr_gen(f,fs,g,needSyz,c,h)
-     POLY f;
-     POLY fs;
-     POLY g;
-     int needSyz;
-     POLY *c; /* set */
-     POLY *h; /* set */
+POLY reduction1Cdr_gen(POLY f,POLY fs,POLY g,int needSyz,POLY *c,POLY *h)
+//     POLY *c; /* set */
+//     POLY *h; /* set */
      /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
@@ -327,8 +315,7 @@ POLY reduction1Cdr_gen(f,fs,g,needSyz,c,h)
 
 
 /* for debug */
-int isOrdered(f)
-     POLY f;
+int isOrdered(POLY f)
 { POLY g;
  if (f ISZERO) return(1);
  g = f->next;
@@ -341,11 +328,8 @@ int isOrdered(f)
 }
 
 
-POLY reduction_gen(f,gset,needSyz,syzp)
-     POLY f;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+POLY reduction_gen(POLY f,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -424,11 +408,8 @@ POLY reduction_gen(f,gset,needSyz,syzp)
   return(f);
 }
 
-POLY reduction_gen_rev(f,gset,needSyz,syzp)
-     POLY f;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+POLY reduction_gen_rev(POLY f,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -479,11 +460,8 @@ POLY reduction_gen_rev(f,gset,needSyz,syzp)
   return(f);
 }
 
-POLY reductionCdr_gen(f,gset,needSyz,syzp)
-     POLY f;
-     struct gradedPolySet *gset;
-     int needSyz;
-     struct syz0 *syzp; /* set */
+POLY reductionCdr_gen(POLY f,struct gradedPolySet *gset,int needSyz,struct syz0 *syzp)
+//     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -538,9 +516,7 @@ POLY reductionCdr_gen(f,gset,needSyz,syzp)
   return(f);
 }
 
-int isReducible_gen(f,g)
-     POLY f;
-     POLY g;
+int isReducible_gen(POLY f,POLY g)
 {
   int n,i;
   MONOMIAL tf;
@@ -560,9 +536,7 @@ int isReducible_gen(f,g)
   return(1);
 }
 
-POLY isCdrReducible_gen(f,g)
-     POLY f;
-     POLY g;
+POLY isCdrReducible_gen(POLY f,POLY g)
 {
   while (f != POLYNULL) {
     if ((*isReducible)(f,g)) {
@@ -573,9 +547,7 @@ POLY isCdrReducible_gen(f,g)
   return(ZERO);
 }
 
-POLY lcm_gen(f,g)
-     POLY f;
-     POLY g;
+POLY lcm_gen(POLY f,POLY g)
 {
   MONOMIAL tf,tg;
   MONOMIAL lcm;
@@ -592,8 +564,7 @@ POLY lcm_gen(f,g)
   return(newCell(intToCoeff(1,tf->ringp),lcm));
 }
 
-int grade_gen(f)
-     POLY f;
+int grade_gen(POLY f)
 {
   int r;
   int i,n;
@@ -610,10 +581,7 @@ int grade_gen(f)
 }
 
 /* constructors */
-POLY toSyzPoly(cg,grd,index)
-     POLY cg;
-     int grd;
-     int index;
+POLY toSyzPoly(POLY cg,int grd,int index)
      /* the result is read only. */
 {
   extern struct ring *SyzRingp;
@@ -624,8 +592,7 @@ POLY toSyzPoly(cg,grd,index)
   return(r);
 }
 
-struct coeff *toSyzCoeff(f)
-     POLY f;
+struct coeff *toSyzCoeff(POLY f)
 {
   extern struct ring *SyzRingp;
   struct coeff *c;
@@ -636,7 +603,7 @@ struct coeff *toSyzCoeff(f)
   return(c);
 }
 
-void initSyzRingp() {
+void initSyzRingp(void) {
   extern struct ring *SyzRingp;
   extern struct ring *CurrentRingp;
   static char *x[]={"grade"};

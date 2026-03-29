@@ -8,8 +8,8 @@
 
 static POLY mapZmonom(POLY f,struct ring *ringp);
 
-POLY ppAdd(f,g)
-	 POLY f; POLY g;  /* The result is read only. */
+POLY ppAdd(POLY f,POLY g)
+//	 POLY f; POLY g;  /* The result is read only. */
 {
   POLY node;
   struct listPoly nod;
@@ -84,8 +84,8 @@ POLY ppAdd(f,g)
   return(node->next);
 }
 
-POLY ppSub(f,g)
-	 POLY f; POLY g;  /* The result is read only. */
+POLY ppSub(POLY f,POLY g)
+//	 POLY f; POLY g;  /* The result is read only. */
 {
   POLY h;
   struct coeff *c;
@@ -99,9 +99,7 @@ POLY ppSub(f,g)
 }
 
 
-POLY cpMult(c,f)
-	 struct coeff *c;
-	 POLY f;
+POLY cpMult(struct coeff *c,POLY f)
 {
   POLY node;
   struct listPoly nod;
@@ -125,8 +123,7 @@ POLY cpMult(c,f)
   return(node->next);
 }
 
-MONOMIAL monomialAdd_poly(m,m2)
-	 MONOMIAL m,m2;
+MONOMIAL monomialAdd_poly(MONOMIAL m,MONOMIAL m2)
 {
   extern int Msize;
   MONOMIAL f;
@@ -145,9 +142,7 @@ MONOMIAL monomialAdd_poly(m,m2)
 }
 
 /* Note that mpMult_poly is called from mmLarger_tower! */
-POLY mpMult_poly(f,g)
-	 POLY f;
-	 POLY g;
+POLY mpMult_poly(POLY f,POLY g)
 {
   POLY node;
   struct listPoly nod;
@@ -176,8 +171,7 @@ POLY mpMult_poly(f,g)
   return(node->next);
 }
 
-POLY ppMult_old(f,g)
-	 POLY f,g;
+POLY ppMult_old(POLY f,POLY g)
 {
   POLY r;
   POLY tmp;
@@ -190,8 +184,8 @@ POLY ppMult_old(f,g)
   return(r);
 }
 
-POLY ppAddv(f,g)
-	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
+POLY ppAddv(POLY f,POLY g)
+//	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
 {
   POLY node;
   struct listPoly nod;
@@ -264,9 +258,7 @@ POLY ppAddv(f,g)
   return(node->next);
 }
 
-POLY pPower(f,k)
-	 POLY f;
-	 int k;
+POLY pPower(POLY f,int k)
 {
   POLY r;
   int i,n;
@@ -296,9 +288,7 @@ POLY pPower(f,k)
   return(r);
 }
 
-POLY pPower_poly(f,k)
-	 POLY f;
-	 int k;
+POLY pPower_poly(POLY f,int k)
 {
   POLY r;
   int i,n;
@@ -328,9 +318,7 @@ POLY pPower_poly(f,k)
   return(r);
 }
 
-POLY modulop_trash(f,ringp)
-	 POLY f;
-	 struct ring *ringp;
+POLY modulop_trash(POLY f,struct ring *ringp)
 {
   int p;
   POLY h;
@@ -404,9 +392,7 @@ POLY modulop_trash(f,ringp)
       
 }
   
-POLY modulop(f,ringp)
-	 POLY f;
-	 struct ring *ringp;
+POLY modulop(POLY f,struct ring *ringp)
 	 /* Z[x] ---> R[x] where R=Z, Z/Zp, ringp->next. */
 {
   int p;
@@ -471,9 +457,7 @@ POLY modulop(f,ringp)
       
 }
   
-POLY modulopZ(f,pcoeff)
-	 POLY f;
-	 struct coeff *pcoeff;
+POLY modulopZ(POLY f,struct coeff *pcoeff)
 	 /* Z[x] ---> Z[x] , f ---> f mod pcoeff*/
 {
   int p;
@@ -535,9 +519,7 @@ POLY modulopZ(f,pcoeff)
       
 }
   
-struct pairOfPOLY quotientByNumber(f,pcoeff)
-	 POLY f;
-	 struct coeff *pcoeff;
+struct pairOfPOLY quotientByNumber(POLY f,struct coeff *pcoeff)
 	 /* Z[x] ---> Z[x],Z[x] ,  f = first*pcoeff + second */
 {
   int p;
@@ -631,9 +613,7 @@ struct pairOfPOLY quotientByNumber(f,pcoeff)
 }
   
 
-POLY modulo0(f,ringp)
-	 POLY f;
-	 struct ring *ringp;
+POLY modulo0(POLY f,struct ring *ringp)
 {
   int p;
   POLY h;
@@ -692,8 +672,7 @@ POLY modulo0(f,ringp)
 }
   
 
-struct object test(ob)  /* test3 */
-	 struct object ob;
+struct object test(struct object ob)  /* test3 */
 {
   struct object rob = OINIT;
   int k;
@@ -746,8 +725,7 @@ struct object test(ob)  /* test3 */
 }
 
 
-int pLength(f)
-	 POLY f;
+int pLength(POLY f)
 {
   int c=0;
   if (f ISZERO) return(0);
@@ -759,10 +737,10 @@ int pLength(f)
 }
 
 
-POLY ppAddv2(f,g,top,nexttop)
-	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
-	 POLY top;
-	 POLY *nexttop;
+POLY ppAddv2(POLY f,POLY g,POLY top,POLY *nexttop)
+//	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
+//	 POLY top;
+//	 POLY *nexttop;
 	 /* top is the starting address in the list f.
 		if top == POLYNULL, start from f.
 
@@ -875,8 +853,7 @@ POLY ppAddv2(f,g,top,nexttop)
   return(node->next);
 }
 
-POLY ppMult(f,g)
-	 POLY f,g;
+POLY ppMult(POLY f,POLY g)
 {
   POLY r;
   POLY tmp;
@@ -894,8 +871,7 @@ POLY ppMult(f,g)
   return(r);
 }
 
-POLY ppMult_poly(f,g)
-	 POLY f,g;
+POLY ppMult_poly(POLY f,POLY g)
 {
   POLY r;
   POLY tmp;
@@ -911,9 +887,9 @@ POLY ppMult_poly(f,g)
   return(r);
 }
 
-POLY mapZmonom(f,ringp)
-	 POLY f; /* assumes monomial. f \in Z[x] */
-	 struct ring *ringp;  /* R[x] */
+POLY mapZmonom(POLY f,struct ring *ringp)
+//	 POLY f; /* assumes monomial. f \in Z[x] */
+//	 struct ring *ringp;  /* R[x] */
 {
   struct ring *nextRing;
   struct ring nextRing0;

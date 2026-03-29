@@ -13,9 +13,7 @@ static int degreeOfInitWS(POLY f,int w[],int s[]);
 static int dDegree(POLY f);
 static POLY dHomogenize(POLY f);
 
-static void shell(v,n)
-     int v[];
-     int n;
+static void shell(int v[],int n)
 {
   int gap,i,j,temp;
   
@@ -31,9 +29,8 @@ static void shell(v,n)
 }
 
 
-struct matrixOfPOLY *parts(f,v)
-     POLY f;
-     POLY v;  /* v must be a single variable, e.g. x */
+struct matrixOfPOLY *parts(POLY f,POLY v)
+//     POLY v;  /* v must be a single variable, e.g. x */
 {
   struct matrixOfPOLY *evPoly;
   int vi = 0;  /* index of v */
@@ -118,9 +115,8 @@ struct matrixOfPOLY *parts(f,v)
   return(evPoly);
 }
       
-struct object parts2(f,v)
-     POLY f;
-     POLY v;  /* v must be a single variable, e.g. x */
+struct object parts2(POLY f,POLY v)
+//     POLY v;  /* v must be a single variable, e.g. x */
 {
   struct matrixOfPOLY *evPoly;
   int vi = 0;  /* index of v */
@@ -222,9 +218,7 @@ struct object parts2(f,v)
   return(rob);
 }
       
-int pDegreeWrtV(f,v)
-     POLY f;
-     POLY v;
+int pDegreeWrtV(POLY f,POLY v)
 {
   int vx = 1;
   int vi = 0;
@@ -303,8 +297,7 @@ int containVectorVariable(POLY f)
 
 }
 
-POLY homogenize(f)
-     POLY f;
+POLY homogenize(POLY f)
      /* homogenize by using (*grade)(f) */
 {
   POLY t;
@@ -339,8 +332,7 @@ POLY homogenize(f)
   return(f);
 }
 
-int isHomogenized(f)
-     POLY f;
+int isHomogenized(POLY f)
 {
   POLY t;
   extern int Homogenize_vec;
@@ -359,8 +351,7 @@ int isHomogenized(f)
   return(1);
 }
 
-int isHomogenized_vec(f)
-     POLY f;
+int isHomogenized_vec(POLY f)
 {
   /* This is not efficient version. *grade should be grade_module1v(). */
   POLY t;
@@ -383,8 +374,7 @@ int isHomogenized_vec(f)
   return(1);
 }
 
-static POLY dHomogenize(f)
-POLY f;
+static POLY dHomogenize(POLY f)
 {
   POLY t;
   int maxg, maxdg;
@@ -450,8 +440,7 @@ POLY f;
   return(f);
 }
 
-static int degreeOfPrincipalPart(f)
-     POLY f;
+static int degreeOfPrincipalPart(POLY f)
 {
   int n,i,dd;
   if (f ISZERO) return(0);
@@ -463,8 +452,7 @@ static int degreeOfPrincipalPart(f)
   return(dd);
 }
 
-static int dDegree(f)
-     POLY f;
+static int dDegree(POLY f)
 {
   int nn,i,dd,m;
   if (f ISZERO) return(0);
@@ -476,8 +464,7 @@ static int dDegree(f)
   return(dd);
 }
   
-POLY POLYToPrincipalPart(f)
-     POLY f;
+POLY POLYToPrincipalPart(POLY f)
 {
   POLY node;
   struct listPoly nod;
@@ -505,9 +492,7 @@ POLY POLYToPrincipalPart(f)
   return(node->next);
 }
 
-static int degreeOfInitW(f,w)
-     POLY f;
-     int w[];
+static int degreeOfInitW(POLY f,int w[])
 {
   int n,i,dd;
   if (f ISZERO) {
@@ -521,9 +506,8 @@ static int degreeOfInitW(f,w)
   return(dd);
 }
 
-POLY POLYToInitW(f,w)
-     POLY f;
-     int w[]; /* weight vector */
+POLY POLYToInitW(POLY f,int w[])
+//     int w[]; /* weight vector */
 {
   POLY h;
   POLY g;
@@ -551,10 +535,7 @@ POLY POLYToInitW(f,w)
   return(h);
 }
 
-static int degreeOfInitWS(f,w,s)
-     POLY f;
-     int w[];
-	 int s[];
+static int degreeOfInitWS(POLY f,int w[],int s[])
 {
   int n,i,dd;
   if (f ISZERO) {
@@ -570,10 +551,9 @@ static int degreeOfInitWS(f,w,s)
   return(dd);
 }
 
-POLY POLYToInitWS(f,w,s)
-     POLY f;
-     int w[]; /* weight vector */
-	 int s[]; /* shift vector */
+POLY POLYToInitWS(POLY f,int w[],int s[])
+//     int w[]; /* weight vector */
+//     int s[]; /* shift vector */
 {
   POLY h;
   POLY g;
@@ -601,10 +581,9 @@ POLY POLYToInitWS(f,w,s)
   return(h);
 }
 
-int ordWsAll(f,w,s)
-     POLY f;
-     int w[]; /* weight vector */
-	 int s[]; /* shift vector */
+int ordWsAll(POLY f,int w[],int s[])
+//     int w[]; /* weight vector */
+//     int s[]; /* shift vector */
 {
   int maxd;
   int dd;

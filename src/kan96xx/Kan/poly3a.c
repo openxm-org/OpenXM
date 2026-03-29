@@ -131,11 +131,8 @@ static void freeMultTable(struct multTable *mp) {
 }
 
   
-void makeTable_differential_difference(c,e,ringp,mt)
-     struct coeff *c; /* read only */
-     struct exps e[];
-     struct ring *ringp;
-     struct multTable *mt;
+void makeTable_differential_difference(struct coeff *c,struct exps e[],struct ring *ringp,struct multTable *mt)
+//     struct coeff *c; /* read only */
 {
   int i,j,k,p,q,deg,m,n,l,t;
   mt_declare_locals() 
@@ -226,11 +223,8 @@ void makeTable_differential_difference(c,e,ringp,mt)
 }
 
 
-void monomialMult_differential_difference(e,f,mt)
-     struct exps e[];
-     POLY f;
+void monomialMult_differential_difference(struct exps e[],POLY f,struct multTable *mt)
      /* (e) * f = [Plist] monomials  */
-     struct multTable *mt;
 {
 
   int n,k,c,l,q,i,m;

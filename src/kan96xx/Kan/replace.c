@@ -5,15 +5,15 @@
 
 static int badLRule(POLY set[],int num);
 
-POLY mReplace(mm,lSideX,rSideX,sizex,lSideD,rSideD,sized,commutative)
-     POLY mm;
-     int lSideX[];
-     POLY rSideX[];  /* Rule: a=lSideX[i], x_a ---> rSideX[i] */
-     int sizex;
-     int lSideD[];   /* Rule: b=lSideD[i], D_b ---> rSideD[i] */
-     POLY rSideD[];
-     int sized;
-     int commutative;
+POLY mReplace(POLY mm,int lSideX[],POLY rSideX[],int sizex,int lSideD[],POLY rSideD[],int sized,int commutative)
+//     POLY mm;
+//     int lSideX[];
+//     POLY rSideX[];  /* Rule: a=lSideX[i], x_a ---> rSideX[i] */
+//     int sizex;
+//     int lSideD[];   /* Rule: b=lSideD[i], D_b ---> rSideD[i] */
+//     POLY rSideD[];
+//     int sized;
+//     int commutative;
 {
   /* The function should be tuned by using a table. */
   POLY rp;
@@ -71,11 +71,8 @@ POLY mReplace(mm,lSideX,rSideX,sizex,lSideD,rSideD,sized,commutative)
 /*
   lRule[i] ---> rRule[i]
 */
-POLY replace(f,lRule,rRule,num)
-     POLY f;
-     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
-     POLY rRule[];
-     int num;
+POLY replace(POLY f,POLY lRule[],POLY rRule[],int num)
+//     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
 {
   POLY rSideX[N0];
   POLY rSideD[N0];
@@ -142,11 +139,8 @@ POLY replace(f,lRule,rRule,num)
       
 
 /* For the dirty trick of mpMult_difference */  
-POLY replace_poly(f,lRule,rRule,num)  
-     POLY f;
-     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
-     POLY rRule[];
-     int num;
+POLY replace_poly(POLY f,POLY lRule[],POLY rRule[],int num)  
+//     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
 {
   POLY rSideX[N0];
   POLY rSideD[N0];
@@ -212,9 +206,7 @@ POLY replace_poly(f,lRule,rRule,num)
 }
       
   
-static int badLRule(set,num)
-     POLY set[];
-     int num;
+static int badLRule(POLY set[],int num)
 { int i;
  for (i=0; i<num; i++) {
    if (set[0] ISZERO) {

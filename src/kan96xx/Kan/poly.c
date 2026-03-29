@@ -99,8 +99,7 @@ void sGC_free2(void *p,size_t size)
 #endif
 
 
-MONOMIAL newMonomial(ringp)
-     struct ring *ringp;
+MONOMIAL newMonomial(struct ring *ringp)
 {
   MONOMIAL f;
   extern int Msize;
@@ -118,8 +117,7 @@ MONOMIAL newMonomial(ringp)
 }
  
 
-MONOMIAL monomialCopy(m)
-     MONOMIAL m;
+MONOMIAL monomialCopy(MONOMIAL m)
 {
   extern int Msize;
   MONOMIAL f;
@@ -138,7 +136,7 @@ MONOMIAL monomialCopy(m)
 }
   
 
-struct coeff *newCoeff() {
+struct coeff *newCoeff(void) {
   struct coeff *cp;
   cp = (struct coeff *)sGC_malloc(sizeof (struct coeff));
   if (cp == (struct coeff *)NULL) errorPoly("No more memory.");
@@ -147,7 +145,7 @@ struct coeff *newCoeff() {
   return(cp);
 }
 
-MP_INT *newMP_INT() {
+MP_INT *newMP_INT(void) {
   MP_INT *ip;
   ip = (MP_INT *)sGC_malloc(sizeof(MP_INT));
   if (ip == (MP_INT *)NULL) errorPoly("No more memory.");
@@ -155,9 +153,7 @@ MP_INT *newMP_INT() {
   return(ip);
 }
 
-POLY newCell(c,mon)
-     struct coeff *c;
-     MONOMIAL mon;
+POLY newCell(struct coeff *c,MONOMIAL mon)
 {
   POLY ff;
   ff = (POLY) sGC_malloc(sizeof(struct listPoly));
@@ -169,9 +165,7 @@ POLY newCell(c,mon)
 }
 
 /* constructors */
-POLY cxx(c,i,k,ringp)
-     int c,i,k;
-     struct ring *ringp;
+POLY cxx(int c,int i,int k,struct ring *ringp)
      /*  c x_i^k where p is the characteristic. */
      /* New cell, monomial and coeff. */
 {
@@ -201,10 +195,7 @@ POLY cxx(c,i,k,ringp)
   }
 }
 
-POLY bxx(c,i,k,ringp)
-     MP_INT *c;     
-     int i,k;
-     struct ring *ringp;
+POLY bxx(MP_INT *c,int i,int k,struct ring *ringp)
      /*  c x_i^k.  c is not copied. */
 {
   /* new cell, monomial, coeff. MP_INT c is not copied. */
@@ -231,9 +222,7 @@ POLY bxx(c,i,k,ringp)
   }
 }
 
-POLY cdd(c,i,k,ringp)
-     int c,i,k;
-     struct ring *ringp;
+POLY cdd(int c,int i,int k,struct ring *ringp)
      /*  c D_i^k where p is the characteristic. */
      /* New cell, monomial and coeff. */
 {
@@ -265,8 +254,7 @@ POLY cdd(c,i,k,ringp)
 }
 
 
-POLY pCopy(f)
-     POLY f;
+POLY pCopy(POLY f)
 {
   POLY node;
   struct listPoly nod;
@@ -283,8 +271,7 @@ POLY pCopy(f)
   return(node->next);
 }
 
-POLY pcCopy(f)
-     POLY f;
+POLY pcCopy(POLY f)
 {
   
   POLY node;
@@ -304,8 +291,7 @@ POLY pcCopy(f)
   return(node->next);
 }
 
-POLY pmCopy(f)
-     POLY f;
+POLY pmCopy(POLY f)
 {
   POLY node;
   struct listPoly nod;
@@ -323,8 +309,7 @@ POLY pmCopy(f)
   return(node->next);
 }
 
-POLY pcmCopy(f)
-     POLY f;
+POLY pcmCopy(POLY f)
 {
   POLY node;
   struct listPoly nod;
@@ -342,8 +327,7 @@ POLY pcmCopy(f)
   return(node->next);
 }
 
-POLY head(f)
-     POLY f;
+POLY head(POLY f)
 {
   if (f == ZERO) return(f);
   else {
@@ -351,15 +335,13 @@ POLY head(f)
   }
 }
 
-void errorPoly(str)
-     char *str;
+void errorPoly(char *str)
 {
   fprintf(stderr,"Error(poly.c): %s\n",str);
   exit(20);
 }
 
-void warningPoly(str)
-     char *str;
+void warningPoly(char *str)
 {
   fprintf(stderr,"Warning(poly.c): %s\n",str);
 }

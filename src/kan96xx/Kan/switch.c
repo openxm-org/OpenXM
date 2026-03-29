@@ -33,9 +33,7 @@ void print_switch_status(void) {
    ex. $sp$ $so$ switch_function
  or    (report) (function) switch_function value(string)
 */
-char *switch_function(fun,arg)
-     char *fun;
-     char *arg;
+char *switch_function(char *fun,char *arg)
 {
   char *ans = NULL;
   if (strcmp(fun,"mmLarger")==0) {
@@ -100,8 +98,7 @@ void switch_init(void) {
   2. setOrderByMatrix().
 */
 
-void switch_mmLarger(arg)
-     char *arg;
+void switch_mmLarger(char *arg)
 {
   if (strcmp(arg,"matrix") == 0) {
     mmLarger = mmLarger_matrix;
@@ -123,8 +120,7 @@ void switch_mmLarger(arg)
   1. called from switch_init(), switch_function();
 */
 
-void switch_mpMult(arg)
-     char *arg;
+void switch_mpMult(char *arg)
 {
   if (strcmp(arg,"poly") == 0) {
     mpMult = mpMult_poly;
@@ -143,8 +139,7 @@ void switch_mpMult(arg)
   1. called from switch_init(), switch_function();
 */
 
-void switch_monomialAdd(arg)
-     char *arg;
+void switch_monomialAdd(char *arg)
 {
   if (strcmp(arg,"poly") == 0) {
     monomialAdd = monomialAdd_poly;
@@ -152,8 +147,7 @@ void switch_monomialAdd(arg)
   }else ;
 }
 
-void switch_red(arg)
-     char *arg;
+void switch_red(char *arg)
 {
   if (strcmp(arg,"standard") == 0) {
     switch_sp("standard");
@@ -226,8 +220,7 @@ void switch_red(arg)
   }else ;
 }
 
-void switch_groebner(arg)
-     char *arg;
+void switch_groebner(char *arg)
 {
   if (strcmp(arg,"standard") == 0) {
     groebner = groebner_gen;
@@ -239,8 +232,7 @@ void switch_groebner(arg)
 }
 
 /* called from switch_init */
-void switch_isSameComponent(arg)
-     char *arg;
+void switch_isSameComponent(char *arg)
 {
   if (strcmp(arg,"x") == 0) {
     isSameComponent = isSameComponent_x;
@@ -251,8 +243,7 @@ void switch_isSameComponent(arg)
   } else ;
 }
 
-void switch_sp(arg)
-     char *arg;
+void switch_sp(char *arg)
 {
   if (strcmp(arg,"standard") == 0) {
     sp = sp_gen;
@@ -261,8 +252,7 @@ void switch_sp(arg)
 }
 
 
-void switch_grade(arg)
-     char *arg;
+void switch_grade(char *arg)
 {
   if (strcmp(arg,"standard")==0) {
     grade = grade_gen;

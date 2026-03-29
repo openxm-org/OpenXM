@@ -19,8 +19,7 @@ static void printTag(coeffType t)
   }
 }
 
-char *intToString(i)
-     int i;
+char *intToString(int i)
 {
   char work[80];
   char *s;
@@ -31,8 +30,7 @@ char *intToString(i)
   return(s);
 }
 
-char *coeffToString(cp)
-     struct coeff *cp;
+char *coeffToString(struct coeff *cp)
 {
   char *s;
   switch(cp->tag) {
@@ -55,9 +53,7 @@ char *coeffToString(cp)
 }
 
 /* constructors */
-struct coeff *intToCoeff(i,ringp)
-     int i;
-     struct ring *ringp;
+struct coeff *intToCoeff(int i,struct ring *ringp)
 {
   struct coeff *c;
   int p;
@@ -80,9 +76,7 @@ struct coeff *intToCoeff(i,ringp)
   return(c);
 }
 
-struct coeff *mpintToCoeff(b,ringp)
-     MP_INT *b;
-     struct ring *ringp;
+struct coeff *mpintToCoeff(MP_INT *b,struct ring *ringp)
 {
   struct coeff *c;
   struct coeff *c2;
@@ -112,9 +106,7 @@ struct coeff *mpintToCoeff(b,ringp)
   }
 }
 
-struct coeff *polyToCoeff(f,ringp)
-     POLY f;
-     struct ring *ringp;
+struct coeff *polyToCoeff(POLY f,struct ring *ringp)
 {
   struct coeff *c;
   if (f ISZERO) {
@@ -134,9 +126,7 @@ struct coeff *polyToCoeff(f,ringp)
 }
 
 /* returns -c */
-struct coeff *coeffNeg(c,ringp)
-     struct coeff *c;
-     struct ring *ringp;
+struct coeff *coeffNeg(struct coeff *c,struct ring *ringp)
 {
   struct coeff *r;
   r = intToCoeff(-1,ringp);
@@ -144,8 +134,7 @@ struct coeff *coeffNeg(c,ringp)
   return(r);
 }
 
-int coeffToInt(cp)
-     struct coeff *cp;
+int coeffToInt(struct coeff *cp)
 {
   POLY f;
   switch(cp->tag) {
@@ -165,10 +154,7 @@ int coeffToInt(cp)
   }
 }
 
-void Cadd(r,a,b)
-     struct coeff *r;
-     struct coeff *a;
-     struct coeff *b;
+void Cadd(struct coeff *r,struct coeff *a,struct coeff *b)
 {
   int p;
   POLY f;
@@ -188,10 +174,7 @@ void Cadd(r,a,b)
   }
 }
 
-void Csub(r,a,b)
-     struct coeff *r;
-     struct coeff *a;
-     struct coeff *b;
+void Csub(struct coeff *r,struct coeff *a,struct coeff *b)
 {
   int p;
 
@@ -206,10 +189,7 @@ void Csub(r,a,b)
   }
 }
 
-void Cmult(r,a,b)
-     struct coeff *r;
-     struct coeff *a;
-     struct coeff *b;
+void Cmult(struct coeff *r,struct coeff *a,struct coeff *b)
 {
   int p;
   POLY f;
@@ -233,8 +213,7 @@ void Cmult(r,a,b)
   }
 }
 
-int isZero(a)
-     struct coeff *a;
+int isZero(struct coeff *a)
 {
   int r;
   if (a->tag == INTEGER) {
@@ -253,8 +232,7 @@ int isZero(a)
   }
 }
 
-struct coeff *coeffCopy(c)
-     struct coeff *c;
+struct coeff *coeffCopy(struct coeff *c)
      /* Deep copy */
 {
   struct coeff *r;
@@ -282,9 +260,7 @@ struct coeff *coeffCopy(c)
   return(r);
 }
 
-void CiiComb(r,p,q)
-     struct coeff *r;
-     int p,q;
+void CiiComb(struct coeff *r,int p,int q)
      /* r->val.bigp is read only. */
 {
   switch(r->tag) {
@@ -302,8 +278,7 @@ void CiiComb(r,p,q)
     
     
 
-MP_INT *BiiComb(p,q)
-     int p,q;
+MP_INT *BiiComb(int p,int q)
      /* It returns {p \choose q} when p>=0, 0<=q<=p.
         The value is read only. DON'T CHANGE IT.
         p=0         0                1
@@ -356,8 +331,7 @@ MP_INT *BiiComb(p,q)
   /*   ^^^^^^ No problem for the optimizer? */
 }
 
-int iiComb(p,q,P)
-     int p,q,P;
+int iiComb(int p,int q,int P)
 {
   /**
      foo[n_]:=Block[{p,q,ans},
@@ -412,8 +386,7 @@ int iiComb(p,q,P)
 }
 
 
-MP_INT *BiiPoch(p,q)
-     int p,q;
+MP_INT *BiiPoch(int p,int q)
 {
   /* It returns  p(p-1) ... (p-q+1) = [p,q] when p>=0 and 0<=q or
      p<0  and 0<=q.
@@ -536,7 +509,7 @@ MP_INT *BiiPoch(p,q)
 }
 
 
-int iiPoch(p,k,P) int p,k,P; /* p(p-1)...(p-k+1) */ {
+int iiPoch(int p,int k,int P)  /* p(p-1)...(p-k+1) */ {
   int r,i;
 
   /*
@@ -554,9 +527,7 @@ int iiPoch(p,k,P) int p,k,P; /* p(p-1)...(p-k+1) */ {
   return(r);
 }
 
-void CiiPoch(r,p,q)
-     struct coeff *r;
-     int p,q;
+void CiiPoch(struct coeff *r,int p,int q)
      /* r->val.bigp is read only. */
 {
   switch(r->tag) {
@@ -572,8 +543,7 @@ void CiiPoch(r,p,q)
   }
 }
 
-MP_INT *BiiPower(p,q)
-     int p,q;
+MP_INT *BiiPower(int p,int q)
      /* It returns  p^q.  q must be >=0.
         p^q = [p,q] = p*[p,q-1].
         The value is read only. DON'T CHANGE IT.
@@ -668,10 +638,8 @@ MP_INT *BiiPower(p,q)
   }
 }
 
-int iiPower(k,s,P)
-     int k;
-     int s;  /* k^s ,  s>=0*/
-     int P;
+int iiPower(int k,int s,int P)
+//     int s;  /* k^s ,  s>=0*/
 {
   int kk,r;
   r = 1;
@@ -681,9 +649,7 @@ int iiPower(k,s,P)
   return(r);
 }
 
-void CiiPower(r,p,q)
-     struct coeff *r;
-     int p,q;
+void CiiPower(struct coeff *r,int p,int q)
      /* r->val.bigp is read only. */
 {
   switch(r->tag) {
@@ -699,9 +665,7 @@ void CiiPower(r,p,q)
   }
 }
 
-struct coeff *stringToUniversalNumber(s,flagp)
-     char *s;
-     int *flagp;
+struct coeff *stringToUniversalNumber(char *s,int *flagp)
 {
   MP_INT *value;
   struct coeff * c;
@@ -713,25 +677,21 @@ struct coeff *stringToUniversalNumber(s,flagp)
   return(c);
 }
 
-struct coeff *newUniversalNumber(i)
-     int i;
+struct coeff *newUniversalNumber(int i)
 { extern struct ring *SmallRingp;
  struct coeff *c;
  c = intToCoeff(i,SmallRingp);
  return(c);
 }
 
-struct coeff *newUniversalNumber2(i)
-     MP_INT *i;
+struct coeff *newUniversalNumber2(MP_INT *i)
 { extern struct ring *SmallRingp;
  struct coeff *c;
  c = mpintToCoeff(i,SmallRingp);
  return(c);
 }
 
-int coeffEqual(a,b)
-     struct coeff *a;
-     struct coeff *b;
+int coeffEqual(struct coeff *a,struct coeff *b)
 {
   if (a->tag == INTEGER && b->tag == INTEGER) {
     return((a->val.i) == (b->val.i));
@@ -745,9 +705,7 @@ int coeffEqual(a,b)
   }
 }
 
-int coeffGreater(a,b)
-     struct coeff *a;
-     struct coeff *b;
+int coeffGreater(struct coeff *a,struct coeff *b)
 {
   if (a->tag == INTEGER && b->tag == INTEGER) {
     return((a->val.i) - (b->val.i));
@@ -761,10 +719,7 @@ int coeffGreater(a,b)
   }
 }
 
-void universalNumberDiv(r,a,b)
-     struct coeff *r;
-     struct coeff *a;
-     struct coeff *b;
+void universalNumberDiv(struct coeff *r,struct coeff *a,struct coeff *b)
 {
   if (a->tag == MP_INTEGER && b->tag == MP_INTEGER && r->tag == MP_INTEGER) {
     mpz_div(r->val.bigp,a->val.bigp,b->val.bigp);
@@ -774,9 +729,7 @@ void universalNumberDiv(r,a,b)
 }
 
 /* Note that it does not check if c is zero or not. cf isZero(). */
-POLY coeffToPoly(c,ringp)
-     struct coeff *c;
-     struct ring *ringp;
+POLY coeffToPoly(struct coeff *c,struct ring *ringp)
 { int p;
  struct coeff *tc;
 
@@ -793,16 +746,14 @@ POLY coeffToPoly(c,ringp)
    return(ZERO);
  }
 }
-void errorCoeff(str)
-     char *str;
+void errorCoeff(char *str)
 {
   fprintf(stderr,"Error(coeff.c): %s\n",str);
   fprintf(stderr,"Type in ctrl-\\");getchar();
   exit(15);
 }
 
-void warningCoeff(str)
-     char *str;
+void warningCoeff(char *str)
 {
   fprintf(stderr,"Warning(coeff.c): %s\n",str);
 }

@@ -42,10 +42,8 @@ void initT(void) {
     RListRoot[i] = newCell((struct coeff *)NULL,(MONOMIAL)NULL);
 }
   
-void makeTable(c,e,ringp)
-     struct coeff *c; /* read only */
-     struct exps e[];
-     struct ring *ringp;
+void makeTable(struct coeff *c,struct exps e[],struct ring *ringp)
+//     struct coeff *c; /* read only */
 {
   int i,j,k,p,q,deg,m,n;
   m = ringp->m; n = ringp->n;
@@ -94,9 +92,7 @@ void makeTable(c,e,ringp)
   }
 }
 
-void monomialMult_diff(e,f)
-     struct exps e[];
-     POLY f;
+void monomialMult_diff(struct exps e[],POLY f)
      /* (e) * f = [Plist] monomials  */
 {
 
@@ -264,7 +260,7 @@ POLY mpMult_difference_org(POLY f,POLY g)
   return(r);
 }
 
-void outputTable() {
+void outputTable(void) {
   int i,j;
   printf("Maxv = %d Plist=%d\n",Maxv,Plist);
   for (i=0; i<Maxv; i++) printf("%5d",V[i]);

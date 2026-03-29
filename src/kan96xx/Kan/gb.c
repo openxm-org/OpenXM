@@ -29,12 +29,12 @@ extern struct ring *TraceLift_ringmod;
 static int MaxLength[DMAX];
 static int SpNumber[DMAX];
 
-struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
-     struct gradedPairs *grD;  /* set of pairs */
-     POLY gt;                 /* new polynomial */
-     int gtGrade;
-     int t;
-     struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
+struct gradedPairs *updatePairs(struct gradedPairs *grD,POLY gt,int gtGrade,int t,struct gradedPolySet *grG)
+//     struct gradedPairs *grD;  /* set of pairs */
+//     POLY gt;                 /* new polynomial */
+//     int gtGrade;
+//     int t;
+//     struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
 {
   int gmax,newGrade;
   struct pair *node,*new,*inode,*jnode;
@@ -163,15 +163,8 @@ struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
   return(grD);
 }
 
-struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly,gbCheck)
-     struct arrayOfPOLY *f;
-     int needBack;
-     int needSyz;
-     struct pair **grP;  /* if (needSyz), it is set. */
-     int countDown;
-     int forceReduction;
-     int reduceOnly;
-     int gbCheck;
+struct gradedPolySet *groebner_gen(struct arrayOfPOLY *f,int needBack,int needSyz,struct pair **grP,int countDown,int forceReduction,int reduceOnly,int gbCheck)
+//     struct pair **grP;  /* if (needSyz), it is set. */
 {
   int r;
   struct gradedPolySet *g;

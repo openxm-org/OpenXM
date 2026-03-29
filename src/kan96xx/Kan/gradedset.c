@@ -8,8 +8,7 @@
 #define INITSIZE 2  /* 2 is for debug */
 static int Debug=0;
 
-struct polySet *newPolySet(n)
-     int n;
+struct polySet *newPolySet(int n)
 {
   struct polySet *g;
   int i;
@@ -36,8 +35,7 @@ struct polySet *newPolySet(n)
   return(g);
 }
 
-struct pair *newPair(prev)
-     struct pair *prev;
+struct pair *newPair(struct pair *prev)
 {
   struct pair *g;
   int i;
@@ -52,8 +50,7 @@ struct pair *newPair(prev)
   return(g);
 }
 
-struct gradedPolySet *newGradedPolySet(n)
-     int n;
+struct gradedPolySet *newGradedPolySet(int n)
 {
   struct gradedPolySet *g;
   g = (struct gradedPolySet *)sGC_malloc(sizeof(struct gradedPolySet));
@@ -68,8 +65,7 @@ struct gradedPolySet *newGradedPolySet(n)
   return(g);
 }
 
-struct gradedPairs *newGradedPairs(n)
-     int n;
+struct gradedPairs *newGradedPairs(int n)
 {
   struct gradedPairs *g;
   int i;
@@ -85,7 +81,7 @@ struct gradedPairs *newGradedPairs(n)
   return(g);
 }
 
-struct syz0 *newSyz0() {
+struct syz0 *newSyz0(void) {
   struct syz0 *r;
   r = (struct syz0 *)sGC_malloc(sizeof(struct syz0));
   if (r == (struct syz0 *)NULL) errorGradedSet("newSyz0(): No memory.");
@@ -93,8 +89,7 @@ struct syz0 *newSyz0() {
   return(r);
 }
   
-struct pair *pairCopy(node)
-     struct pair *node;
+struct pair *pairCopy(struct pair *node)
 {
   struct pair *r;
   r = newPair(node->prev);
@@ -102,9 +97,7 @@ struct pair *pairCopy(node)
   return(r);
 }
   
-struct gradedPairs *enlargeGradedPairs(size,grD)
-     int size;
-     struct gradedPairs *grD;
+struct gradedPairs *enlargeGradedPairs(int size,struct gradedPairs *grD)
 {
   struct gradedPairs *new;
   int i;
@@ -115,9 +108,7 @@ struct gradedPairs *enlargeGradedPairs(size,grD)
   return(new);
 }
 
-void insertPair(inode,before)
-     struct pair *inode;
-     struct pair *before;
+void insertPair(struct pair *inode,struct pair *before)
 {
   struct pair *q;
   inode = pairCopy(inode);
@@ -132,8 +123,7 @@ void insertPair(inode,before)
   }
 }
 
-struct pair *deletePair(p)
-     struct pair *p;
+struct pair *deletePair(struct pair *p)
 {
   struct pair *q;
   struct pair *r;
@@ -149,8 +139,7 @@ struct pair *deletePair(p)
   return(r);
 }
 
-struct pair *getPair_org(grD)
-     struct gradedPairs *grD;
+struct pair *getPair_org(struct gradedPairs *grD)
 {
   int gmax,i;
   struct pair *pair;
@@ -164,8 +153,7 @@ struct pair *getPair_org(grD)
   return((struct pair *)NULL);
 }
 
-struct pair *getPair(grD)
-     struct gradedPairs *grD;
+struct pair *getPair(struct gradedPairs *grD)
 {
   int gmax,i;
   struct pair *pair;
@@ -193,12 +181,7 @@ struct pair *getPair(grD)
 }
 
 
-void whereInG(g,fi,gradep,indexp,sugar)
-     struct gradedPolySet *g;
-     POLY fi;
-     int *gradep;
-     int *indexp;
-     int sugar;
+void whereInG(struct gradedPolySet *g,POLY fi,int *gradep,int *indexp,int sugar)
 {
   if (sugar) {
     if (*gradep < 0 ) {
@@ -222,14 +205,7 @@ void whereInG(g,fi,gradep,indexp,sugar)
   return;
 }
 
-struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
-     struct gradedPolySet *g;
-     POLY fi;
-     int grade;
-     int index;
-     struct syz0 *syz;
-     int mark;
-     int serial;
+struct gradedPolySet *putPolyInG(struct gradedPolySet *g,POLY fi,int grade,int index,struct syz0 *syz,int mark,int serial)
 {
   int i,j;
   struct polySet *polysNew;
@@ -292,11 +268,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
   return(g);
 }
 
-void markRedundant(g,fi,grade,index,sugar)
-     struct gradedPolySet *g;
-     POLY fi;
-     int grade,index;
-     int sugar;
+void markRedundant(struct gradedPolySet *g,POLY fi,int grade,int index,int sugar)
 {
   int i,j;
   struct polySet *ps;
@@ -315,9 +287,7 @@ void markRedundant(g,fi,grade,index,sugar)
   }
 }
 
-void markRedundant0(g,grade,index)
-     struct gradedPolySet *g;
-     int grade,index;
+void markRedundant0(struct gradedPolySet *g,int grade,int index)
 {
   int i,j;
   struct polySet *ps;
@@ -353,23 +323,19 @@ struct gradedPairs *putPairInGradedPairs(struct gradedPairs *grP,
   return(grP);
 }
   
-void errorGradedSet(s)
-     char *s;
+void errorGradedSet(char *s)
 {
   fprintf(stderr,"Error in gradedset.c, red.c, gb.c: %s\n",s);
   exit(23);
 }
 
-void warningGradedSet(s)
-     char *s;
+void warningGradedSet(char *s)
 {
   fprintf(stderr,"Warning in gradedset.c, red.c, gb.c: %s\n",s);
 }
 
 
-void outputGradedPolySet(grG,needSyz)
-     struct gradedPolySet *grG;
-     int needSyz;
+void outputGradedPolySet(struct gradedPolySet *grG,int needSyz)
 {
   int i,j;
   struct polySet *set;
@@ -395,8 +361,7 @@ void outputGradedPolySet(grG,needSyz)
   printf("================================\n\n");
 }
 
-int countGradedPolySet(grG)
-     struct gradedPolySet *grG;
+int countGradedPolySet(struct gradedPolySet *grG)
 {
   int i,j;
   struct polySet *set;
@@ -409,8 +374,7 @@ int countGradedPolySet(grG)
 }
 
 
-void outputGradedPairs(grP)
-     struct gradedPairs *grP;
+void outputGradedPairs(struct gradedPairs *grP)
 {
   int i,j;
   struct pair *pair;
@@ -429,8 +393,7 @@ void outputGradedPairs(grP)
   printf("============================\n\n");
 }
 
-void outputNode(pair)
-     struct pair *pair;
+void outputNode(struct pair *pair)
 {
   int i = 0;
   printf("=== list === \n");
@@ -449,8 +412,7 @@ void outputNode(pair)
 }
 
 
-int countPairs(grD)
-     struct gradedPairs *grD;
+int countPairs(struct gradedPairs *grD)
 {
   int i;
   int c;
@@ -467,8 +429,7 @@ int countPairs(grD)
   return(c);
 }
 
-struct gradedPolySet *gradedPolySetCopy(grG)
-     struct gradedPolySet *grG;
+struct gradedPolySet *gradedPolySetCopy(struct gradedPolySet *grG)
 {
   int i,j;
   struct polySet *ps,*psOld;

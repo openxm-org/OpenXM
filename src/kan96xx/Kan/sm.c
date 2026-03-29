@@ -32,9 +32,7 @@ extern int Quiet;
 extern char *VersionString;
 //extern unsigned int GC_version;
 
-int main(argc,argv) 
-     int argc;
-     char *argv[];
+int main(int argc,char *argv[]) 
 {
   int i;
   int gc_version;

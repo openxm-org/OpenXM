@@ -42,8 +42,7 @@ struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
 
 
 /* if (mark[j]), then the simplification is done. */
-void getBackwardTransformation(grG)
-     struct gradedPolySet *grG;
+void getBackwardTransformation(struct gradedPolySet *grG)
      /* grG->polys[i]->mark[j],syz[j] are modified. */
 {
   int i,j;
@@ -60,10 +59,7 @@ void getBackwardTransformation(grG)
   }
 }
 
-void simplifyBT(grd,index,grG)
-     int grd;
-     int index;
-     struct gradedPolySet *grG;
+void simplifyBT(int grd,int index,struct gradedPolySet *grG)
 {
   POLY s,r;
   int g0,i0;
@@ -89,10 +85,7 @@ void simplifyBT(grd,index,grG)
 }
 
 
-static POLY getFactor0(grG,grd,index)
-     struct gradedPolySet *grG;
-     int grd;
-     int index;
+static POLY getFactor0(struct gradedPolySet *grG,int grd,int index)
 {
   POLY ans;
   int i,j;
@@ -110,9 +103,7 @@ static POLY getFactor0(grG,grd,index)
   return(ans);
 }
 
-struct arrayOfPOLY *getSyzygy0(grG,zeroPairs)
-     struct gradedPolySet *grG;
-     struct pair *zeroPairs;
+struct arrayOfPOLY *getSyzygy0(struct gradedPolySet *grG,struct pair *zeroPairs)
 {
   struct pair *tmp;
   int size,k,i;
@@ -150,11 +141,7 @@ struct arrayOfPOLY *getSyzygy0(grG,zeroPairs)
   return(r);
 }
 
-struct matrixOfPOLY *getSyzygy(grG,zeroPairs,grBasesp,backwardMatp)
-     struct gradedPolySet *grG;
-     struct pair *zeroPairs;
-     struct gradedPolySet **grBasesp;
-     struct matrixOfPOLY **backwardMatp;
+struct matrixOfPOLY *getSyzygy(struct gradedPolySet *grG,struct pair *zeroPairs,struct gradedPolySet **grBasesp,struct matrixOfPOLY **backwardMatp)
 {
   int serial;
   int i,j,kk;
@@ -312,9 +299,7 @@ struct matrixOfPOLY *getSyzygy(grG,zeroPairs,grBasesp,backwardMatp)
 
 }
 
-POLY getSyzPolyFromSp(spij,grG)
-     struct pair *spij;
-     struct gradedPolySet *grG;
+POLY getSyzPolyFromSp(struct pair *spij,struct gradedPolySet *grG)
 {
   int ig,ii,jg,ji;
   POLY dk;
@@ -349,8 +334,7 @@ POLY getSyzPolyFromSp(spij,grG)
   return(ans);
 }
 
-static void clearMark(grG)
-     struct gradedPolySet *grG;
+static void clearMark(struct gradedPolySet *grG)
 {
   int i,j;
   struct polySet *ps;
@@ -363,10 +347,8 @@ static void clearMark(grG)
 }
 
 
-struct arrayOfPOLY *syzPolyToArrayOfPOLY(size,f,grG)
-     int size;
-     POLY f; /* f is in the SyzRingp */
-     struct gradedPolySet *grG;
+struct arrayOfPOLY *syzPolyToArrayOfPOLY(int size,POLY f,struct gradedPolySet *grG)
+//     POLY f; /* f is in the SyzRingp */
 {
   struct arrayOfPOLY *ap;
   int i,g0,i0,serial;
@@ -430,10 +412,10 @@ struct matrixOfPOLY *getBackwardMatrixOfPOLY(struct gradedPolySet *grG)
 }
 
 
-struct matrixOfPOLY *getNC(newG,n,grBases)
-     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
-     int n;                        /* The number of G. */
-     struct gradedPolySet *grBases; /* G (G-basis) is stored. */
+struct matrixOfPOLY *getNC(struct gradedPolySet *newG,int n,struct gradedPolySet *grBases)
+//     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
+//     int n;                        /* The number of G. */
+//     struct gradedPolySet *grBases; /* G (G-basis) is stored. */
 {
   int size,i,j,k,ii;
   struct matrixOfPOLY *mat;
@@ -466,8 +448,8 @@ struct matrixOfPOLY *getNC(newG,n,grBases)
   return(mat);
 }
   
-struct arrayOfPOLY *getDC(newG)
-     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
+struct arrayOfPOLY *getDC(struct gradedPolySet *newG)
+//     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
 {
   int size,i,j,k,ii;
   struct arrayOfPOLY *mat;
@@ -500,10 +482,7 @@ struct arrayOfPOLY *getDC(newG)
 
 
 /* Syzygy from E-CB */
-struct matrixOfPOLY *getSyzygy1(b,nc,dc)
-     struct matrixOfPOLY *b;
-     struct matrixOfPOLY *nc;
-     struct arrayOfPOLY *dc;
+struct matrixOfPOLY *getSyzygy1(struct matrixOfPOLY *b,struct matrixOfPOLY *nc,struct arrayOfPOLY *dc)
 {
   int m,n2,n;
   struct matrixOfPOLY *mat;
@@ -531,9 +510,7 @@ struct matrixOfPOLY *getSyzygy1(b,nc,dc)
   return(mat);
 }
 
-static int isZeroRow(mat,i)
-     struct matrixOfPOLY *mat;
-     int i;
+static int isZeroRow(struct matrixOfPOLY *mat,int i)
 {
   int n,j;
   n = mat->n;
@@ -543,16 +520,14 @@ static int isZeroRow(mat,i)
   return(1);
 }
 
-void errorSyz0(s)
-     char *s;
+void errorSyz0(char *s)
 {
   fprintf(stderr,"Error(syz0.c): %s \n",s);
   exit(10);
 }
     
                    
-static void printMatrixOfPOLY(mat)
-     struct matrixOfPOLY *mat;
+static void printMatrixOfPOLY(struct matrixOfPOLY *mat)
 {
   int n,m,i,j;
   POLY f;
@@ -567,8 +542,7 @@ static void printMatrixOfPOLY(mat)
   printf("\n\n");
 }
 
-static void printArrayOfPOLY(mat)
-     struct arrayOfPOLY *mat;
+static void printArrayOfPOLY(struct arrayOfPOLY *mat)
 {
   int n,m,i,j;
   POLY f;
