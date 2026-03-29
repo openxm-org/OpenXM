@@ -4,8 +4,8 @@ PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=mpc-1.0.3
-DISTFILES=${DISTNAME}.tar.gz
+DISTNAME=mpc-1.4.0
+DISTFILES=${DISTNAME}.tar.xz
 WRKSRC=work/${DISTNAME}
 PATCHFILES = 
 

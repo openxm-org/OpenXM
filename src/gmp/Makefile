@@ -4,12 +4,13 @@ PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=gmp-6.2.1
+DISTNAME=gmp-6.3.0
 INTELMACFILE=libgmp-intelmac-6.3.0.tar.gz
-DISTFILES=${DISTNAME}.tar.bz2
+DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
+PATCHFILES = 
 #PATCHFILES = gmp.diff
-PATCHFILES =  appleM1.diff
+#PATCHFILES =  appleM1.diff
 
 all : build 
 
@@ -85,7 +86,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		(cd ${WRKSRC} ; ${MAKE} install) ; \
-		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h fac_table.h ; do \
+		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h fac_table.h sieve_table.h; do \
 			cp ${WRKSRC}/$$i ${OpenXM_HOME}/include ; \
 		done ; \
 	fi
