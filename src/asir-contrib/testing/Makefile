@@ -8,6 +8,10 @@ t.texi: tr-ja.oxt
 	@echo "--------------------------------------------------"
 
 link-to-src:
+	@echo "Nothing to do"
+
+# The below may be removed.
+link-to-src-orig1:
 	-(cd ../packages/src ; rm -f noro_rewrite.rr; cp ../../testing/noro/new_rewrite.rr noro_rewrite.rr)
 	-(cd ../packages/src ; rm -f noro_de.rr; cp ../../testing/noro/de.rr noro_de.rr)
 	-(cd ../packages/src ; rm -f noro_gw.rr; cp ../../testing/noro/gw.rr noro_gw.rr)
