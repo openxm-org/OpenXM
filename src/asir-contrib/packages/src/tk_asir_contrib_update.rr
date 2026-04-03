@@ -81,7 +81,8 @@ def asir_contrib_update_win() {
   MyCurl = "\""+getenv("ASIR_ROOTDIR")+"bin\\curl\""; 
   MyUnzip = "\""+getenv("ASIR_ROOTDIR")+"bin\\unzip\""; 
 #else
-  MyCurl = "\""+get_rootdir()+"\\bin\\curl\""; 
+//  MyCurl = "\""+get_rootdir()+"\\bin\\curl\""; 
+  MyCurl = "curl.exe";
   MyUnzip = "\""+get_rootdir()+"\\bin\\unzip\""; 
 #endif
   if (type(getopt(tmp))<=0) MyTmp = getenv("TEMP");
