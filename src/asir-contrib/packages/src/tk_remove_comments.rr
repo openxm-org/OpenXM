@@ -1,0 +1,126 @@
+//#define RUN_TEST 1  // to run test code.
+
+/*
+Ref: gem-2026-04-08-discrete-QR-defusing.md
+*/
+
+module tk_remove_comments;
+localf remove_comments, remove_newline;
+
+def remove_comments(Str) {
+    L = strtoascii(Str);
+    Len = length(L);
+    Ans = [];
+    
+    // 状態管理変数
+    // 0: 通常状態
+    // 1: 行コメント (//) 状態
+    // 2: ブロックコメント (/* */) 状態
+    State = 0; 
+    
+    for (I = 0; I < Len; ) {
+        C = L[I];
+        
+        if (State == 0) {
+            // "end;;" の検出 (ASCII: e=101, n=110, d=100, ;=59)
+            if (C == 101 && I + 4 < Len) {
+                if (L[I+1] == 110 && L[I+2] == 100 && L[I+3] == 59 && L[I+4] == 59) {
+                    break; // end;; を検出したらループを抜けて以降を破棄
+                }
+            }
+            
+            // "/*" の検出 (ASCII: /=47, *=42)
+            if (C == 47 && I + 1 < Len && L[I+1] == 42) {
+                State = 2;
+                I += 2;
+                continue;
+            }
+            
+            // "//" の検出
+            if (C == 47 && I + 1 < Len && L[I+1] == 47) {
+                State = 1;
+                I += 2;
+                continue;
+            }
+            
+            // 通常の文字をリストに追加 (効率のため cons を使用)
+            Ans = cons(C, Ans);
+            I++;
+            
+        } else if (State == 1) {
+            // 行コメント状態: 改行 (ASCII: 10) が来るまで無視
+            if (C == 10) {
+                State = 0;
+                // 改行自体は残しておかないと前後のコードが繋がってしまうため残す
+                Ans = cons(C, Ans);
+            }
+            I++;
+            
+        } else if (State == 2) {
+            // ブロックコメント状態: "*/" が来るまで無視
+            if (C == 42 && I + 1 < Len && L[I+1] == 47) {
+                State = 0;
+                I += 2;
+            } else {
+                I++;
+            }
+        }
+    }
+    
+    // cons で逆順に積まれているため reverse で正しい順序に戻す
+    Ans = reverse(Ans);
+    
+    // リストを文字列に戻して返却
+    return asciitostr(Ans);
+}
+
+def remove_newline(Str) {
+  if (type(getopt(to_space))>0) To_space=1; else To_space=0;
+  L=strtoascii(Str);
+  Len = length(L);
+  Ans = [];
+  for (I=0; I<Len; I++) {
+    if ((L[I] == 0xa) || (L[I] == 0xd)) {
+      if (To_space) Ans=cons(0x20,Ans);
+      else continue;
+    }
+    Ans=cons(L[I],Ans);
+  }
+  Ans=reverse(Ans);
+  return asciitostr(Ans);
+}
+endmodule;;
+
+#ifdef RUN_TEST
+SourceCode = "def test() { // This is a line comment\n  X = 1; /* block \n comment */ Y = 2;\n return \"Hi!\";\n}\nend;;\n// This will be ignored";;
+
+CleanedCode = tk_remove_comments.remove_comments(SourceCode);;
+printf("Result:\n%a\n", CleanedCode);;
+
+TestCode=tk_remove_comments.remove_newline(CleanedCode)+";";;
+eval_str(TestCode);
+test();
+#endif
+
+end;;
+
+/*
+util_eval_file(Fname) を利用する前の確認.
+if (!module_definedp("tk_remove_comments")) {
+  printf("Error: asir-contrib is an old one. Please update it by asir_contrib_update(|update=1);\n");
+  error("The system is old to execute this file.");
+}else{ }
+*/
+
+/*
+S=util_read_file_as_a_string("input-ode.rr");;
+S2=tk_remove_comments.remove_comments(S);;
+util_write_string_to_a_file("t.txt",S2);  
+S3=tk_remove_comments.remove_newline(S2);
+ //tk_remove_comments.rr in num-ht6/Data
+ //todo util_write_string_to_a_file(S2,"t.txt") とすると asir が落ちる. 引数が反対.
+ //todo eval_str の引数は newline を含んではいけない?
+ //todo module_definedp
+ //todo cpp <input-ode.rr
+*/
+

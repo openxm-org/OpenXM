@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20260228), Copyright 2000-2025, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20260411), Copyright 2000-2026, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -58,6 +58,7 @@ import("nk_gfan_4ti2/nk_4ti2.rr")$
 import("nk_toric.rr")$
 import("noro_pd.rr")$
 import("tk_polymake.rr")$
+import("tk_remove_comments.rr")$
 /* import("tk_matrix.rr")$ // moved to the last, dirty trick */
 /* import("tk_c_form.rr")$ // moved to the last, dirty trick */
 import("taka_diffop.rr")$
@@ -1594,6 +1595,32 @@ def util_remove_cr(S) {
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
   return(taka_util_remove_cr(S));
 }
+/*&usage begin: util_remove_newline(S)
+ It removes cr/lf from {S}. {S} is a string.
+ Option to_space=1: cr/lf is replaced by space.
+end: */
+def util_remove_newline(S) {
+  return tk_remove_comments.remove_newline(S | option_list=getopt());
+}
+/*&usage begin: util_remove_comments(S)
+ It removes comments of the C language.
+ When end;; appears in the string {S}, it discard everying that follows.
+end: */
+def util_remove_comments(S) {
+  return tk_remove_comments.remove_comments(S | option_list=getopt());
+}
+/*&usage begin: util_eval_file(Fname)
+  It evaluates the file {Fname} as Risa/Asir code. cpp macros like #define are not accepted. C style comments and newlines are removed before applying eval_str.
+Note that load command does not accept huge polynomials (because of a limitation of some cpp's), but this command accepts huge polynomials.
+end: */
+def util_eval_file(Fname) {
+  S=util_read_file_as_a_string(Fname);
+  S2=util_remove_comments(S);
+  S3=util_remove_newline(S2 | to_space=1);
+  return eval_str(S3);
+}
+
+
 /* --------- util for poly --------------- */
 /*&usage begin: util_index(V)
   It returns the name part and the index part of {V}.
