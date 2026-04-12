@@ -4,6 +4,7 @@
 \author{Nobuki Takayama}
 \date{}
 \usepackage{url}
+\usepackage{color}
 \def\pd#1{\partial_{#1}}
 \begin{document}
 \maketitle
@@ -1235,6 +1236,30 @@ text/html で出力.
 そうでない場合は, plain text として出力.
 詳しくは
 cgiasir.sm1, test2-cgi-asir.sh などを参照 (in src/asir-port/cgi, src/kan96xx/Doc  )
+
+\section{2026.04.12, putUsage 内では extension, cat 他を利用してはならない}
+
+k0 で \verb@ load["lib/all.k"];; @ で 
+\begin{verbatim}
+ WARNING(sm): You rewrited the protected symbol obj.
+   ERROR(sm): 
+\end{verbatim}
+なる謎のエラーが発生. stringMode をつかわなければいい.
+
+\begin{verbatim}
+$(PLUGIN)/oxcgi.sm1 を除いたら正常動作.
+  [$  Example: [(cgiUrlEncodingToKeyValuePair) (https://www.openxm/org/?oxMessageBody=2-1$ $ hoge $  $0A)] extension :: $] cat
+   を除く.  
+
+  $  Example: [(cgiUrlEncodingToKeyValuePair) (https://www.openxm/org/?oxMessageBody=2-1@0A)] extension ::  @ should be replaced by percent.$  
+  に置き換えたら strictMode でも正常動作.
+\end{verbatim}
+
+\noindent
+{\color{red} Note: putUsage の説明分の作成にマクロを利用してはいけない.} \\
+マクロで obj が辞書に入り, attribute 2 の protect mode になるのが原因か? (todo, 詳しく調べる).
+参考: {\tt misc-2026/04/bug-k097/note-ja.txt}
+
 
 \end{document}
 
