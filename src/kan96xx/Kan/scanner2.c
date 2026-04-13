@@ -32,7 +32,7 @@ struct object lookupLiteralString(char *s);
 #define mygetchar()  getSM() 
 /* to use getSM()  ( input from StringSM ),
    setup  StringSM;
-   getokenSM(INIT);
+   getokenSM(INIT,NULL);
 */
 
 

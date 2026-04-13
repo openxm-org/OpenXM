@@ -786,7 +786,7 @@ void scanner() {
   int infixOn = 0;
   struct tokens infixToken;
   extern int RestrictedMode, RestrictedMode_saved;
-  getokenSM(INIT);
+  getokenSM(INIT,NULL);
   initSystemDictionary();
 
 #if defined(__CYGWIN__)
@@ -880,7 +880,7 @@ void scanner() {
       continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
-    token = getokenSM(GET); 
+    token = getokenSM(GET,NULL); 
     if ((status=executeToken(token)) < 0) break;
     /***if (status == 1) fprintf(stderr," --- exit --- \n");*/
     /* fprintf(stderr,"token.token=%s, status=%d, infixOn=%d\n",token.token,status,infixOn); */
@@ -947,7 +947,7 @@ void ctrlC(int sig)
     $(x0+1)^50$ $x1 x0 + x1^20$ 2 groebner_n
     It SOMETIMES makes core dump.
   */
-  getokenSM(INIT); /* It might fix the bug above. 1992/11/14 */
+  getokenSM(INIT,NULL); /* It might fix the bug above. 1992/11/14 */
   mysignal(SIGINT,ctrlC);
 #if defined(__CYGWIN__)
   MYSIGLONGJMP(EnvOfStackMachine,2);
@@ -1157,7 +1157,7 @@ void errorStackmachine(char *str)
     GotoP = 0;
   }
   stdOperandStack(); contextControl(CCRESTORE);
-  getokenSM(INIT); /* It might fix the bug. 1996/3/10 */
+  getokenSM(INIT,NULL); /* It might fix the bug. 1996/3/10 */
   /* fprintf(stderr,"Now, Long jump!\n"); */
   MYLONGJMP(EnvOfStackMachine,1);
 }
@@ -1309,7 +1309,7 @@ void KSstart() {
   extern int Quiet;
 
   stackmachine_init(); KinitKan();
-  getokenSM(INIT); initSystemDictionary();
+  getokenSM(INIT,NULL); initSystemDictionary();
 
   /* The following line may cause a core dump, if you do not setjmp properly
      after calling KSstart().*/

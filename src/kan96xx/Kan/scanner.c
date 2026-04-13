@@ -33,10 +33,10 @@ struct tokens{
 /* #define mygetchar()  getSM() */
 /* to use getSM()  ( input from StringSM ),
    setup  StringSM;
-   getokenSM(INIT);
+   getokenSM(INIT,NULL);
 */
 /* to use getchar(),
-   getokenSM(INIT);
+   getokenSM(INIT,NULL);
 */
 
 
@@ -230,7 +230,7 @@ struct tokens getokenSM(actionType kind,char *str)
 
     myungetchar('\n'); /* dummy */
     c = mygetchar();  /* Notice that you need at least on input to return
-                         from the getokenSM(INIT); ^^^^^^^^*/
+                         from the getokenSM(INIT,NULL); ^^^^^^^^*/
     rnull.token = (char *)NULL; rnull.kind = -1;
     return(rnull);
   }
@@ -387,11 +387,11 @@ main() {
   char input[1000];
   struct tokens r;
 
-  getokenSM(INIT);
-  r = getokenSM(GET);
+  getokenSM(INIT,NULL);
+  r = getokenSM(GET,NULL);
   while (r.token != (char *)NULL) {
     printf("%s     %d\n",r.token,r.kind);
-    r =getokenSM(GET);
+    r =getokenSM(GET,NULL);
   }
 
 }
@@ -401,7 +401,7 @@ main() {
   gets(input);
   StringSM = (char *)sGC_malloc((strlen(input)+2)*sizeof(char));
   strcpy(StringSM,input);
-  getokenSM(INIT);
+  getokenSM(INIT,NULL);
 */
   
 char *getLOAD_SM1_PATH() {
