@@ -28,6 +28,7 @@ clean:
 	@rm -f .make_done .configure_done .fetch_done
 
 distclean: clean
+	@rm -f .install_done
 
 fetch:
 	@if [ ! -f .fetch_done ]; then \
