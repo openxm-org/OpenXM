@@ -2,7 +2,7 @@
 # $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.9 2015/02/21 06:20:36 ohara Exp $
 
 MASTER_SITES="https://www.math.kobe-u.ac.jp/pub/OpenXM/misc/"
-fetch="wget --no-directories --passive-ftp --timestamping"
+fetch="wget --no-directories --timestamping"
 curl="curl --remote-name --remote-time"
 url=$1
 distdir=${2:-.}
