@@ -212,7 +212,7 @@ def rank_check(MData,ES,Xvars){
   if (type(getopt(p))>0) P=getopt(p);
   else return rank_check_orig(MData,ES,Xvars | option_list=getopt());
 
-  return rank_check_ff(MData,ES,Xvars,P);
+  return rank_check_ff(MData,ES,Xvars,P | option_list=getopt());
 
   /* The below will be obsoleted. */
   if (NT_Debug) {printf("MData[2],[3]=%a\n",cdr(cdr(MData))); printf("ES=diff(Std)-Std=%a\n",ES); print(Xvars);}
@@ -372,6 +372,11 @@ def if_is_0_ff(L,P){
 
 /* 2022.01.21 */
 def rank_check_ff(MData,ES,Xvars,Prime){
+  if (type(getopt(pnumvect))>0) {
+    Pnumvect=getopt(pnumvect);
+  }else{
+    Pnumvect=0;
+  }
   if (NT_Debug || NT_Verbose) {printf("rank_check_ff:MData[2]=%a\nrank_check_ff:MData[3]=%a\n",MData[2],MData[3]); printf("ES=diff(Std)-Std=%a\n",ES); print(Xvars);}
   Check=0;
   N=0;
@@ -388,8 +393,18 @@ def rank_check_ff(MData,ES,Xvars,Prime){
     N=0;
     M=MData[0];
     NTvars=vars(M);
-    M=base_replace_n(M,assoc(NTvars,pnumvect(length(NTvars))));
+    Pnumvect_rule=assoc(NTvars,pnumvect(length(NTvars)));
+    if (Pnumvect != 0) { // option is given.
+      if (length(NTvars) != length(Pnumvect)) {
+	printf("Warning. The length of option pnumvect does not agree with the length of NTvars=%a. We use the default rule.\n",length(NTvars));
+      }else {
+	Pnumvect_rule=assoc(NTvars,Pnumvect);
+      }
+    }
+	
+    M=base_replace_n(M,Pnumvect_rule);
     printf("We use a probabilistic method for rank_check with P=%a\nWarning: prules are ignored.\n",Prime);
+    printf("rank_check_ff: Indepent variables and parameters are specialized to %a\n",Pnumvect_rule);
 
     ES2=newvect(length(ES));
     for(I=0;I<length(ES);I++){
@@ -995,6 +1010,11 @@ def gauss_elim_explained(M){
 
 
 def find_macaulay(Id,Std,Xvars){
+  if (type(getopt(pnumvect))>0) {
+    Pnumvect=getopt(pnumvect);
+  }else{
+    Pnumvect=0;
+  }
   if ((type(getopt(restriction_var))>0) && (type(getopt(restriction_cond))>0)) {
     error("Options restriction_var and restriction_cond are exclusive.");
   }
@@ -1007,7 +1027,10 @@ def find_macaulay(Id,Std,Xvars){
   }else Restriction_var=[]; //[NT]
 
   bsave([Std,Xvars],NT_prefix+"Std-Xvars.ab"); //[NT]
-  if (type(getopt(p))>=0) NT_prime=getopt(p); //[NT]
+  if (type(getopt(p))>=0) {
+    NT_prime=getopt(p); //[NT]
+    printf("New NT_prime=%a for probabilistic computation.\n",NT_prime); //[NT]
+  }
   if (type(getopt(deg))>0) Deg=getopt(deg); else Deg=1; //[NT]
   yang.define_ring(["partial",Xvars]); //[NT]
   Dvars=poly_dvar(Xvars);
@@ -1029,7 +1052,7 @@ def find_macaulay(Id,Std,Xvars){
   MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
   printf("Checking the rank condition of the Macaulay matrix of degree %a\n",Deg);
   Prules=getopt(prules);
-  while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime)==0){//[NT]
+  while(rank_check(MData,ES,Xvars|prules=Prules,p=NT_prime,pnumvect=Pnumvect)==0){//[NT]
     Deg++;
     printf("Computing the Macaulay matrix of degree %a\n",Deg);
     MData=my_macaulay(Id,Std,Deg,length(Xvars) | option_list=getopt());
