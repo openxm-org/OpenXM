@@ -39,6 +39,7 @@
 @subtitle Pfaffian system (Pfaff equation), contiguity relations, cohomology intersection
 @subtitle Version 1.0
 @subtitle December 15, 2022
+@subtitle May 21, 2026 (minor update)
 
 @author  by S-J. Matsubara-Heo, N.Takayama
 @page
@@ -84,9 +85,11 @@ References cited in this document.
 Saiei-Jaeyeong Matsubara-Heo, Nobuki Takayama,
 Algorithms for Pfaffian Systems and Cohomology Intersection Numbers of Hypergeometric Integrals,
 Lecture Notes in Computer Science 12097 (2020), 73--84.
-Errata is posted on @uref{http://arxiv.org/abs/???}.
-E-attachments can be obtainable at
+E-attachments (paper, errata, sample codes) can be obtainable at
 @uref{https://www.math.kobe-u.ac.jp/OpenXM/Math/intersection2}
+@item [MT2019] 
+Saiei-Jaeyeong Matsubara-Heo, Nobuki Takayama,
+An algorithm of computing cohomology intersection number of hypergeometric integrals @uref{https://arxiv.org/abs/1904.01253}
 @item [GM2020]
 Yoshiaki Goto, Saiei-Jaeyeong Matsubara-Heo,
 Homology and cohomology intersection numbers of GKZ systems, arXiv:2006.07848
@@ -242,7 +245,7 @@ This option is disabled by mt_gkz.use_hilbert_driven(0);
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
-Example: Gauss hypergeometric system, see [GM2020] example ??.
+Example: Gauss hypergeometric system, see [GM2020] 4 Implementation and examples.
 @example
 [1883] import("mt_gkz.rr");
 [2657] PP=mt_gkz.pfaff_eq(A=[[1,1,0,0],[0,0,1,1],[0,1,0,1]],
@@ -263,6 +266,25 @@ Bfunctions=[s_1*s_2-s_1*s_3+s_1^2,s_1*s_3,s_2^2+(-s_3+s_1)*s_2,s_3*s_2]
 [ ((g2*x3+c-g2-1)*x4+(-c+g1+1)*x3-g1)/(x3*x4-x3^2) 
      ((g2*x3+c-g2-1)*x4+(-c+g1+g2+1)*x3)/(x3*x4-x3^2) ]
 @end example
+
+@comment --- 2026-05-21,   todo use @displaymath 
+The basis for the solution is an integral of the following form.
+@tex
+$$
+{\int_\Gamma h_1^{-g_1} h_2^{-g_2} x^c F(q) {{dx}\over{x}}}
+$$
+@end tex
+where @math{h_1=z_1+z_2 x} and @math{h_2=z_3+z_4 x}.
+For q, we take the following two options:
+For Rvec [1,0,0,0], @math{q=a_1=(1,0,0)^T, F(q)=h_1^{-1}} and
+for Rvec [0,0,1,0], @math{q=a_3=(0,1,0)^T, F(q)=h_2^{-1}}.
+@comment --- 2026-05-21, Ref: 05-d.txt, t=x/(1+x)
+When @math{g_1=\gamma-\beta, g_2=\alpha, c=\beta} and
+@math{\Gamma=(0,+\infty)}, the integral is proportional to 
+the Gauss hypergeometric function @math{{}_2F_1(\alpha,\beta,\gamma;z)}.
+The above equation can be obtained by applying the variable transformation 
+@math{t=x/(1+x)} to the Euler integral representation found on Wikipedia
+@uref{https://en.wikipedia.org/wiki/Hypergeometric_function}.
 
 @*
 
