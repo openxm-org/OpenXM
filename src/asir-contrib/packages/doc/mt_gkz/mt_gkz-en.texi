@@ -1355,8 +1355,21 @@ see @code{pfaff_eq}
 @itemize @bullet
 @item
 The secondary equation is originally a Pfaffian system for an unkwon @math{r} by @math{r} matrix @math{I} with @math{r=}length(Rvec). We set @math{Y=(I_{11},I_{12},...,I_{1r},I_{21},I_{22},...)^T}. Then, the secondary equation can be seen as a Pfaffian system @math{{dY\over dx_i}=A_iY} with DirX=@math{\{dx_i\}_i}. The function mt_gkz.secondary_eq(@var{A},@var{Beta},@var{Ap},@var{Rvec},@var{DirX}) outputs a list obtained by aligning the matrices @math{A_i}.
+@comment --- 2026-05-21
+@item 
+This function calculates secondary equations 
+@tex
+$$
+\partial_i I  - P_i^T I - I Q_i = 0
+$$
+@end tex
+for the Pfaffian matrix @math{P_i},
+which is determined by the cohomology basis specified by Rvec
+and the integral kernel given by Beta (see @ref{mt_gkz.pfaff_eq}), 
+and the Pfaffian matrix @math{Q_i}, which is determined by the cohomology basis specified by Rvec and the integral kernel given by -Beta.
 @item
-Let @math{F:=(\omega_i)_i} be a column vector whose entries are given by the cohomology classes specified by entries of Rvec. Then, @code{pfaff_eq} computes the Pfaffian matrices @math{P_i} so that @math{{dF\over dx_i}=P_iF}. If @math{Q_i} denotes the matrix obtained by replacing Beta by -Beta, we have @math{A_i=}@code{mt_gkz.kronecker_prd}(E,@math{P_i})+@code{mt_gkz.kronecker_prd}(@math{Q_i},E) where E is the identity matrix of size length(Rvec).
+Let @math{F:=(\omega_i)_i} be a column vector whose entries are given by the cohomology classes specified by entries of Rvec. Then, @code{pfaff_eq} computes the Pfaffian matrices @math{P_i} so that @math{{dF\over dx_i}=P_iF}. 
+If @math{Q_i} denotes the matrix obtained by replacing Beta by -Beta, we have @math{A_i=}@code{mt_gkz.kronecker_prd}(E,@math{P_i})+@code{mt_gkz.kronecker_prd}(@math{Q_i},E) where E is the identity matrix of size length(Rvec).
 @item Options xrule, shift, b_ideal,cg.
 Same as @code{pfaff_eq}.
 @end itemize
