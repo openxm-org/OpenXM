@@ -104,7 +104,7 @@ struct parif parif_tab[] = {
   {"quadgen",quadgen    ,1},
   {"quadpoly",quadpoly    ,1},
   {"recip",polrecip       ,1},
-  {"qfbred",qfbred       ,1},
+//  {"qfbred",qfbred       ,1},
   {"regula",quadregulator  ,1},
 //  {"rhoreal",rhoreal       ,1},
   {"sigma",sumdiv,1},
