@@ -549,6 +549,27 @@ def taka_base_pad_string(S,Len) {
   return S;
 }
 
+/* 2026.08.28 */
+def tk_base_truncate(Obj) {
+  Len=80;
+  if (type(getopt(len))>0) Len=getopt(len);
+  if (type(getopt(length))>0) Len=getopt(length);
+  if (type(Obj)==4) {
+    if (length(Obj) < Len) return map(tk_base_truncate_aux,Obj,Len);
+    else return tk_base_truncate_aux(Obj,Len);
+  }
+  return tk_base_truncate_aux(Obj,Len);
+}
+def tk_base_truncate_aux(Obj,Len) {
+  S=rtostr(Obj);
+  L=strtoascii(S); N=length(L);
+  if (N < Len) Len2=N; else Len2=Len;
+  L2=[];
+  for (I=0; I<Len2; I++) L2=cons(L[I],L2);
+  if (N < Len) return asciitostr(reverse(L2));
+  else return asciitostr(reverse(L2))+sprintf(" --- (%a letters truncated)",N-Len);
+}
+
 Taka_base_loaded = 1$
 end$
 

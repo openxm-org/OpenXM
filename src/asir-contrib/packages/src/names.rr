@@ -357,6 +357,16 @@ def base_sum(Obj,K,B,T) {
   return taka_base_sum(Obj,K,B,T | option_list=getopt());
 }
 
+/*&usage begin: base_truncate(Obj)
+ base_trucate(Obj | len=N) outputs Obj as a truncated string.
+ example: base_truncate([(x+2/3)^100, (x-2/3)^100]);
+ example: base_truncate((x+2/3)^100 | len=10);
+end: */
+def base_truncate(Obj) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return tk_base_truncate(Obj | option_list=getopt());
+}
+
 /*&usage begin: base_var_list(Name,B,T)
  base_var_list generate a list of variables Name+Index where Index runs on [B,T].
  example: base_var_list(x,0,10);
