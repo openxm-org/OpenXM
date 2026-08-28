@@ -54,7 +54,10 @@ localf a_root_sys_;
 localf a_perfect_graph;
 localf toric_ideal;
 localf test_toric_ideal;
+localf check_4ti2;
+localf init_nk_4ti2;
 
+static There_is_4ti2;
 /* Ruby 4ti2_rr.rb ¤ò»È¤¦ */
 
 /* 
@@ -624,10 +627,18 @@ def a_perfect_graph(N)
 
 def toric_ideal(A, VL)
 {
-	if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
-	G = groebner(A|quiet=Quiet);
-	G = map(v_to_binom, G, VL);
-	return G;	
+  if (!check_4ti2()) {
+    import("nk_toric.rr");
+    printf("Warning: groebner-4ti2 is not in the search path. nk_toric.toric_ideal is called instead of 4ti2. Negative entry in A is not allowed.\n");
+    I=nk_toric.toric_ideal(A);
+    V=base_var_list(x,1,length(A[0]));
+    I=base_replace(I,assoc(V,VL));
+    return I;
+  }
+  if ( type(Quiet=getopt(quiet)) == -1 ) Quiet = 0;
+  G = groebner(A|quiet=Quiet);
+  G = map(v_to_binom, G, VL);
+  return G;	
 }
 
 def test_toric_ideal()
@@ -635,6 +646,19 @@ def test_toric_ideal()
 	A = cont2(3,3);
 	VL = [x1,x2,x3,x4,x5,x6,x7,x8,x9];
 	return toric_ideal(A, VL);
+}
+
+def check_4ti2() {
+  if (There_is_4ti2 == 1) return 1;
+  if (There_is_4ti2 == 256) return 0;
+  Result=shell("which 4ti2-groebner");
+  if (Result) There_is_4ti2 = 256;
+  else There_is_4ti2 = 1;
+}
+
+def init_nk_4ti2() {
+  There_is_4ti2=0;
+  check_4ti2();
 }
 
 endmodule$
