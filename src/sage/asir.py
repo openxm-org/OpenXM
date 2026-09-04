@@ -119,7 +119,7 @@ class Asir(Expect):
             'load("...");'
         """
         with open(filename,'a') as f:
-            f.write('\nend$')
+            f.write(';\nend$')
         return 'load("%s");' % filename
 
     def _quit_string(self):
