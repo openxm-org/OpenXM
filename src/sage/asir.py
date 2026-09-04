@@ -118,6 +118,8 @@ class Asir(Expect):
             sage: asir._read_in_file_command(filename)
             'load("...");'
         """
+        with open(filename,'a') as f:
+            f.write('\nend$')
         return 'load("%s");' % filename
 
     def _quit_string(self):
