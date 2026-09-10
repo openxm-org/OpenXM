@@ -651,7 +651,11 @@ def test_toric_ideal()
 def check_4ti2() {
   if (There_is_4ti2 == 1) return 1;
   if (There_is_4ti2 == 256) return 0;
-  Result=shell("which 4ti2-groebner");
+  if (sysinfo()[0]=="windows") {
+    Result=256;
+  }else{
+    Result=shell("which 4ti2-groebner >/dev/null");
+  }
   if (Result) There_is_4ti2 = 256;
   else There_is_4ti2 = 1;
 }
