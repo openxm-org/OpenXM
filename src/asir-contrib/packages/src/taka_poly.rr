@@ -1337,6 +1337,46 @@ def taka_poly_pop_ord() {
   dp_ord(Taka_poly_global_ord[Taka_poly_global_ord_ptr]);
 }
 
+def taka_mult_num(F,Dn) {
+  if (type(F)<4) return F*Dn;
+  return map(taka_mult_num,F,Dn);
+}
+def taka_ptozp_without_dn(F) {
+  if (type(F)>3) return map(ptozp,F);
+  return ptozp(F);
+}
+
+def taka_ptozp_with_dn(F) {
+  if (F==0) return [0,1];
+  if (type(F)<4) {
+    G=ptozp(F);
+    Dn=red(G/F);
+    return [G,Dn];
+  }
+  FF=taka_ptozp_without_dn(F_flatten=base_flatten(F));
+  Dn=1;
+  for (I=0; I<length(FF); I++) {
+    if (FF[I] != 0) {
+      T=red(FF[I]/F_flatten[I]);
+      Dn=Dn*T/igcd(Dn,T);
+    }
+  }
+  if ((type(F) == 5) || (type(F)==6)) return [F*Dn, Dn];
+  Ans=taka_mult_num(F,Dn);
+  return [Ans,Dn];
+}
+def taka_ptozp(F) {
+  if (type(getopt(dn))>0) {
+    return taka_ptozp_with_dn(F);
+  }
+  return taka_ptozp_without_dn(F);
+}
+/*
+taka_ptozp(1/2*x-1/3);
+taka_ptozp(1/2*x-1/3 |dn=1);
+taka_ptozp([[1/2*x-1/3,1/2*x-1/3],[1/4*x^2-1/4]] |dn=1);
+taka_ptozp(matrix_list_to_matrix([[1/2*x-1/3,1/2*x-1/3],[1/4*x^2-1/4]]) |dn=1);
+*/
 
 
 Taka_poly_loaded = 1$

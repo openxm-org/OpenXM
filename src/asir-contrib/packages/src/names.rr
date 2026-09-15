@@ -5,7 +5,7 @@ import("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20260411), Copyright 2000-2026, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20260916), Copyright 2000-2026, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -841,6 +841,18 @@ def poly_prime_dec(I,V) {
   Opt = getopt();
   return noro_pd.prime_dec(I,V | option_list=Opt);
 }
+
+/*&usage begin: poly_ptozp(F)
+It returns a polynomial F2 with integer coefficients by multiplying a number Dn to F.
+When the option dn=1 is given, it returns [F2,Dn].
+F can be a list of polynomials.
+example: poly_ptozp([[1/2*x-1/3,1/2*x-1/3],[1/4*x]] | dn=1);
+end: */
+def poly_ptozp(F) {
+  Opt = getopt();
+  return taka_ptozp(F | option_list=Opt);
+}
+
 	   
 /*&usage begin: poly_push_ord(Ord)
   Save the current value of dp_ord and set dp_ord({Ord}).
