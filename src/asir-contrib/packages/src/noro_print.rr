@@ -160,6 +160,9 @@ def taka_tex_form_struct(S,Tb) {
   }
   else if (struct_type(S) == POLY_IDEAL) {
       taka_poly_tex_form_poly_ideal(S,Tb);
+  }
+  else if (struct_type(S) == TEX_STRING) {
+      write_to_tb(S->string,Tb);
   }else {
      Name = get_struct_name(S);
      taka_tex_form(Name,Tb);
@@ -227,11 +230,11 @@ def taka_dvi_form(S,Opt) {
   shell("rm -f "+File);
   output(File);
   if (!AMSTeX) {
-  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
+  S = "\\documentclass[12pt]{article} \\usepackage{xypic} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
       "$"+
       S + "$ \n \\end{document}\n";
   }else{
-  S = "\\documentclass[12pt]{article} \\usepackage{amsmath} \\usepackage{amssymb} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
+  S = "\\documentclass[12pt]{article} \\usepackage{amsmath} \\usepackage{amssymb} \\usepackage{xypic} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
       "$"+
       S + "$ \n \\end{document}\n";
   }

@@ -599,7 +599,7 @@ def taka_dvi_form(S,Opt) {
   File = File0+".tex";
   shell("rm -f "+File);
   output(File);
-  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\begin{document}\n"+
+  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\usepackage{xypic} \\begin{document}\n"+
       "$"+
       S + "$ \n \\end{document}\n";
   print(S);

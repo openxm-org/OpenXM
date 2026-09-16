@@ -22,3 +22,6 @@
 #define POLY_RING                struct_type("poly_ring")
 #define POLY_POLYNOMIAL          struct_type("poly_polynomial")
 #define POLY_IDEAL               struct_type("poly_ideal")
+
+#define TEX_STRING               struct_type("tex_string")
+
