@@ -1444,6 +1444,7 @@ def print_tex_form(F) {
  It transforms {S} to a xdvi file and previews the file by xdvi.
  example: print_xdvi_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
  example: print_xdvi_form(print_tex_form(1/2) | texstr=1);
+ example: T=newstruct(tex_string); T->string="$\\alpha+1$"; print_xdvi_form(T | no_dollar=1); // Addition of $ is suppressed.
  ref: print_tex_form, print_dvi_form
 end: */
 def print_xdvi_form(F) { 

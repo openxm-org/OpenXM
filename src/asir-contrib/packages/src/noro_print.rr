@@ -220,6 +220,11 @@ def taka_dp_print(F) {
 }
 
 def taka_dvi_form(S,Opt) {
+  if (type(getopt(no_dollar))>0) {
+    Dollar=" ";
+  }else{
+    Dollar="$";
+  }
   if (type(getopt(texstr))>0) {
     /* no translation */
   }else{
@@ -231,12 +236,12 @@ def taka_dvi_form(S,Opt) {
   output(File);
   if (!AMSTeX) {
   S = "\\documentclass[12pt]{article} \\usepackage{xypic} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
-      "$"+
-      S + "$ \n \\end{document}\n";
+      Dollar+
+      S + Dollar+" \n \\end{document}\n";
   }else{
   S = "\\documentclass[12pt]{article} \\usepackage{amsmath} \\usepackage{amssymb} \\usepackage{xypic} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
-      "$"+
-      S + "$ \n \\end{document}\n";
+      Dollar+
+      S + Dollar+" \n \\end{document}\n";
   }
   print(S);
   output();
