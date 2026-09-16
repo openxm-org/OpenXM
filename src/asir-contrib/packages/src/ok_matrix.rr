@@ -33,15 +33,19 @@ def omatrix_clone(M) {
   }
 }
 def omatrix_ltom(L) {
+  if (type(L)<4) return L;
+/*
   if (type(L) != 4 && type(L) != 5 && type(L) !=6) {
     error("parameter type error.");
   }
+*/
   if (type(L) == 5 || type(L) == 6) return L;
   if (type(L[0]) != 4) return omatrix_ltov(L);
   return newmat(length(L), length(L[0]), L);
 }
 
 def omatrix_mtol(M) {
+  if (type(M) < 4) return M;
   if (type(M) == 5) { /* vector case */
     return vtol(M);
   }
