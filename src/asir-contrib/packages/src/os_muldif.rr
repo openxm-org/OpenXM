@@ -5,7 +5,7 @@
 /* #undef USEMODULE */
 
 /*             os_muldif.rr (Library for Risa/Asir) 
- *          Toshio Oshima (Nov. 2007 - Mar. 2026)
+ *          Toshio Oshima (Nov. 2007 - Jun. 2026)
  *
  *   For polynomials and differential operators with coefficients
  *   in rational funtions (See os_muldif.pdf)
@@ -180,6 +180,8 @@ localf spantree$
 localf lpair$
 localf lmax$
 localf lmin$
+localf lmaxx$
+localf lminx$
 localf lgcd$
 localf llcm$
 localf ldev$
@@ -197,6 +199,7 @@ localf madjust$
 localf mbase$
 localf mpower$
 localf mrot$
+localf linprog$
 localf texlen$
 localf isdif$
 localf isfctr$
@@ -285,6 +288,8 @@ localf logsol$	/* new */
 localf mce$
 localf mcme$
 localf mc$
+localf spmcv$
+localf spmcr$
 localf spharnad$
 localf spharnadcv$
 localf spfundroot$
@@ -295,6 +300,12 @@ localf spsearchrel$	/* new */
 localf spfundconf$  /* new */
 localf spfunddiag$  /* new */
 localf spfundauto$  /* new */
+localf spto23$
+localf checkfund$
+localf getD4$
+localf getE6$
+localf getE7$
+localf spDEfromE8$
 localf vlconnect$
 localf spnexttop$
 localf spchangetop$
@@ -411,6 +422,7 @@ localf isall$
 localf iscoef$
 localf iscombox$
 localf istournament$
+localf ispos$
 localf sproot$
 localf mincod$
 localf spgen$
@@ -661,7 +673,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00260315"$
+Muldif.rr="00260729"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -745,7 +757,21 @@ def chkfun(Fu, Fi)
 def makev(L)
 {
 	S = "";
-	Num=getopt(num);
+	K=length(L);
+	if((Num=getopt(num))!=1) Num=0;
+	if(type(L[K-1])==4){
+		L=reverse(L);
+		TL=car(L);L=cdr(L);
+		if(!isint(I=car(TL))||!isint(J=TL[1])||I<0||I>J){
+			mycat([I,J]);
+			return [];
+		}
+		for(S=[];J>=I;J--){
+			V=reverse(cons(J,L));
+			S=cons(makev(V|num=Num),S);
+		}
+		return S;
+	}
 	while(length(L) > 0){
 		VL = car(L); L = cdr(L);
 		if(type(VL) == 7)
@@ -6919,7 +6945,19 @@ def mqsub(X,Y)
 		F=(T=car(L))[0];M=(T=cdr(T))[0];
 		X0=X;Y0=Y;
 		for(T=cdr(T);T!=[];T=cdr(T)){
+			if(length(X0)<=car(T)){
+				if(length(Y0)<=car(T)){
+					F=0;break;
+				}
+				else return -F;
+			}
+			if(length(Y0)<=car(T)) return F;
 			X0=X0[car(T)];Y0=Y0[car(T)];
+		}
+		if(!F) continue;
+		if(M==0){
+			if(X0==Y0) continue;
+			return (X0<Y0)?-F:F;
 		}
 		if(type(M)==1){
 			if(M==3){
@@ -6947,7 +6985,7 @@ def mqsub(X,Y)
 			X0=(*M)(X0,Y0);Y0=0;
 		}else if(type(M)==4&&length(M)==1){
 			X0=(*car(M))(X0);Y0=(*car(M))(Y0);
-		}
+		};
 		if(X0==Y0) continue;
 		return (X0<Y0)?-F:F;
 	}
@@ -7041,6 +7079,19 @@ def lmax(L)
 	return [];
 }
 
+def lmaxx(L,S)
+{
+	if(type(L)==4){
+		V=car(L);
+		while((L=cdr(L))!=[])
+			if(ispos(car(L)-V,S)>0) V=car(L);
+		return V;
+	}else if(type(L)==5||type(L)==6)
+		return lmax(m2l(L),S);
+	return [];
+}
+
+
 def lmin(L)
 {
 	if(type(L)==4){
@@ -7050,6 +7101,18 @@ def lmin(L)
 		return V;
 	}else if(type(L)==5||type(L)==6)
 		return lmin(m2l(L));
+	return [];
+}
+
+def lminx(L,S)
+{
+	if(type(L)==4){
+		V=car(L);
+		while((L=cdr(L))!=[])
+			if(ispos(V-car(L),S)>0) V=car(L);
+		return V;
+	}else if(type(L)==5||type(L)==6)
+		return lminx(m2l(L),S);
 	return [];
 }
 
@@ -7472,6 +7535,127 @@ def mpower(M,N)
 		R=map(red,R*R);
 	}
 	return V;
+}
+
+def	linprog(P,E)
+{
+	if(type(B=getopt(ext))!=4) B=[];
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	L=length(E);
+	if(L==2&&isvar(car(E))&&type(E[1])!=4){
+		L=1;E=[E];
+	}
+	if(!L||type(E[L-1])!=4||!os_md.isvar(V0=E[L-1][0])) V0=0;
+	if(type(V=getopt(var))!=4){
+		V=vars([P,E]);
+		VB=vars(B);
+		if(VB!=[]) V=lsort(V,VB,"setminus");
+		if(V0){
+			V=lsort(V,[V0],"setminus");
+			V=append(V,[V0]);
+		}
+	}
+	for(E0=[];E!=[];E=cdr(E)){
+		if(type(TE=car(E))==4) TE=TE[0]-TE[1];
+		E0=cons(TE,E0);
+	}
+	E=reverse(E0);
+	S=lsol(E,V);
+	for(L=[],TP=reverse(P);TP!=[];TP=cdr(TP)){
+		if(type(Q=car(TP))==4)
+			for(I=length(Q)-1;I>0;I--) L=cons(Q[I-1]-Q[I],L);
+		else L=cons(Q,L);
+	}
+	for(SE=[],I=0;I<length(S);I++){
+		L=subst(L,(S[I])[0],(S[I])[1]);
+		SE=cons(S[I][0],SE);
+	}
+	SV=lsort(V,SE,"setminus");
+	if(B==[]&&getopt(ext)==1){
+		B=[1,e_];VB=vars(B);
+		L=calc(L,["-",e_]);
+	}
+	EQ=newvect((N=length(SV))+2);
+	EQ[0]=[L];
+	for(I=1;I<=N;I++){
+		TV=SV[I-1];EQ[I]=[];
+		for(R=R1=R2=[],T=EQ[I-1][0];T!=[];T=cdr(T)){
+			C=coef(car(T),1,TV);
+			if(C>0) R2=cons(-car(T)/C+TV,R2);
+			else if(C<0) R1=cons(-car(T)/C+TV,R1);
+			else EQ[I]=cons(car(T),EQ[I]);
+		}
+		if(I<N){
+			for(T=R1;T!=[];T=cdr(T)){
+				for(T1=R2;T1!=[];T1=cdr(T1)){
+					T2=car(T)-car(T1);
+					if(type(T2)==1 && T2>0) continue;
+					EQ[I]=cons(car(T)-car(T1),EQ[I]);
+				}
+			}
+		}
+		EQ[I]=[EQ[I],R1,R2];
+	}
+	for(T=EQ[N][0];T!=[];T=cdr(T)){
+		if((T0=car(T))==0) F=0;
+		else if(type(T0)!=1){
+			RB=lsort(vars(T0),VB,"setminus");
+			if(RB!=[]) mycat(["Unknown condition", T0, "> 0"]);
+		}
+		else if(ispos(T0,B)<0){
+			mycat(["Cannot resolve", T0,"> 0"]);
+			if(!Verb) return [];
+			return EQ;
+		}
+	}
+	U=lminx(R1,B);V=lmaxx(R2,B);F=1;
+	if(U!=[]&&V!=[]){
+		if(ispos(V-U,B)>0){
+			mycat(["No solution ",U,"<",V]);
+			return Verb?EQ:[];
+		}
+		EQ[N+1]=[(U+V)/2,U,V];
+	}else EQ[N+1]=[[],U,V];
+	if(getopt(val)==1){
+		R=[cons(SV[N-1],EQ[N+1])];
+		RR=newvect(3);RS=newvect(3);
+		for(J=0;J<3;J++) RR[J]=(car(R)[J+1]==[])?[]:EQ;
+		for(J=0;J<3;J++) RS[J]=(car(R)[J+1]==[])?[]:S;
+		for(I=N-1;I>0;I--){
+			TR=car(R);
+			for(SS=[],J=2;J>=0;J--){
+				if(RR[J]==[]){
+					SS=cons([],SS);continue;
+				}
+				RR[J]=subst(RR[J],SV[I],TR[J+1]);
+				RS[J]=subst(RS[J],SV[I],TR[J+1]);
+				U=RR[J][I];
+				if(J==2) SS=cons(lmaxx(U[J],B),SS);
+				else if(J==1) SS=cons(lminx(U[J],B),SS);
+				else{
+					U2=lmaxx(U[2],B);U1=lminx(U[1],B); // ??
+					if(U1==U2) F=0;
+				 	SS=cons((U1+U2)/2,SS);
+				}
+			}
+			R=cons(cons(SV[I-1],SS),R);
+		}
+		if(length(S)!=0){
+			TR=car(R);
+			for(U=[],I=length(S)-1;I>=0;I--){
+        		for(U=[],J=2;J>=0;J--)
+          			U=cons(subst(RS[J][I][1],TR[0],TR[J+1]),U);
+				R=cons(cons(RS[0][I][0],U),R);
+			}
+		}
+		for(U=[],I=length(R[0])-1;I>=0;I--){
+			for(TU=[],J=0;J<length(R);J++) TU=cons(R[J][I],TU);
+			U=cons(TU,U);
+		}
+		R=cons(append(car(U),[F]),cdr(U));
+		return Verb?[SV,EQ,R]:R;
+	}
+	return Verb?[SV,EQ]:cons(SV,EQ[N+1]);
 }
 
 def texlen(S)
@@ -8855,6 +9039,84 @@ def mc(P,L,R)
 	return mce(P,L,0,R|option_list=getopt());
 }
 
+
+/* positive ? or negative under the order defined by V */
+def ispos(P,V)
+{
+	if(!P) return 0;
+	for(TV=V; TV!=[]; TV=cdr(TV)){
+		C=(car(TV)==1)?cterm(P):coef(P,1,car(TV));
+		if(!C) continue;
+		return C>0?1:-1;
+	}
+	return P>0?1:-1;
+}
+
+/* reduction of spectral type L under the order defined by V
+   V=[m1,m2,m3] => m1>>m2>>m3>>1
+   L may contains indeterminates
+   order is calculated by the exponents of the first point
+   mult=k : successive reduction up to k times */
+def spmcr(L,V)
+{
+	if(type(L)==7) L=s2sp(L);
+	if(isint(Mult=getopt(mult))){
+		if(Mult<1) Mult=128;
+		for(I=0,R=[[0,L]];I<Mult;I++){
+			if(!(S=spmcr(car(R)[1],V))) break;
+			R=cons(S,R);
+		}
+		return reverse(R);
+	}
+	P=length(L);
+	S=-(D=lsum(L[0]));
+	W=newvect(P);WW=newvect(P);
+	Rev=(getopt(rev)==1)?1:0;
+	for(I=0;I<P;I++){
+		for(J=1;J<length(L[I]);J++){
+			F=ispos(L[I][J]-L[I][W[I]],V);
+			if(F>0||(!F&&Rev)) W[I]=J;
+		}
+	}
+	for(I=0;I<P;I++) S+=L[I][W[I]];
+	if(ispos(S,V)<=0||ispos(D-S,V)<=0) return 0;
+	for(I=0;I<P;I++) WW[I]=W[I]+1;
+	return append([WW],spmcv(L,W|show=1));
+}
+
+/* L : spectral type by a list (allow indeterminates), M: mc_M
+   base=1 : top = 1 (default: 0)
+   show=1 : show d(m)            */
+def spmcv(L, M)
+{
+	if(type(L)==7) L=s2sp(L);
+	if(type(M)==4&&type(M[0])==4){
+		for(P=L;M!=[];M=cdr(M))
+			P=spmcv(P,car(M)|option_list=getopt());
+		return P;
+	}
+	if(!isint(Show=getopt(show))) Show=0;
+	if(!isint(Base=getopt(base))) Base=0;
+	if(type(car(L)[0])==4 && length(L)==2) L=car(L);
+	V=ltov(L);
+	N=length(V);
+	D=(2-N)*lsum(V[0]);
+	if(Base) M=calc(M,["-",Base]);
+	for(I=0;I<N;I++)
+		if(M[I]>=0&&M[I]<length(V[I])) D+=V[I][M[I]];
+	if(Show==-1) return D;
+	for(I=0;I<N;I++){
+		if(M[I]>=0&&M[I]<length(V[I])){
+			VI=ltov(V[I]);
+			VI[M[I]]-=D;
+			V[I]=vtol(VI);
+		}else V[I]=append(V[I],[-D]);
+	}
+	V=vtol(V);
+	if(Show==1) V=[V,D];
+	return V;
+}
+
 def spharnad(L)
 {
 	if(type(L)==7){
@@ -8907,6 +9169,77 @@ def spharnad(L)
 	if(Str==1) R=s2csp(R|n=1);
 	else if(Str) R=s2csp(R);
 	return R;
+}
+
+
+/*
+  Opt =1　： the multiplicity 0, 1, x will be at the end
+      =2　： not skip the first multiplicity even if it is < 2
+　Step=1  ： furst reduction and kill top 2
+      =3  :  to fundamental
+  to3=1   :  to (2,*,*)-type
+*/
+
+def	spto23(P)
+{
+	if(!isint(Opt=getopt(opt)))  Opt=0;
+	if(!isint(Step=getopt(step))) Step=0;
+	if(type(P)==7) P=s2sp(P);
+	D=lsum(car(P));
+	if(isint(Ord=getopt(ord))||type(Ord)==2) D=ord;
+	L=length(P);
+	if(!Opt) T=m2l(P|flat=1);
+	else for(T0=T1=[],I=L-1;I>=0;I--){
+		if(Opt==1){
+			for(T=[],U=P[I];U!=[]&&car(U)!=0&&car(U)!=1&&car(U)!=x;U=cdr(U))
+				T=cons(car(U),T);
+			T0=append(reverse(T),T0);T1=append(U,T1);
+		}else if(Opt==2 || !isint(car(P[I])) || car(P[I])>1){
+			T0=cons(car(P[I]),T0);T1=append(cdr(P[I]),T1);
+		}else T1=append(P[I],T1);
+		T=append(T0,T1);
+	}
+	if(getopt(to3)==1){
+		for(Q=[],I=0;I<L;I++) Q=cons(D,Q);
+		Q=[[(L-1)*D,D],Q,T];
+		if(Step) for(I=0;I<L;I++) Q=spmcv(Q,[0,I,I]);
+	}else if(iand(L,1)){
+		K=(L+1)/2;
+		Q=[[K*D,(K-1)*D],[(K-1)*D,(K-1)*D,D],T];
+		if(Step){
+			Q=spmcv(Q,[0,0,0]);
+			Q=spmcv(Q,[0,1,1]);
+		}
+	}else{
+		K=L/2;
+		Q=[[K*D,K*D],[K*D,(K-1)*D,D],T];
+		if(Step){
+			Q=spmcv(Q,[0,0,0]);
+			Q=spmcv(Q,[1,0,1]);
+		}
+	}
+	if(Step>1){
+		K=(getopt(to3)==1)?L:2;
+		for(QQ=Q[2],I=0;I<K;I++) QQ=cdr(QQ);
+ 		Q=[Q[0],Q[1],QQ];
+	}
+	if(getopt(red)==1 && isint(D)){
+		mycat(["  ",P,"\n->",Q]);
+		for(V=newvect(3); ; ){
+			V[0]=V[1]=V[2]=0;
+			S=-lsum(Q[0]);
+			for(I=0;I<3;I++){
+				for(J=1;J<length(Q[I]);J++)
+				if(Q[I][V[I]]<Q[I][J]) V[I]=J;
+			}
+			for(I=0;I<3;I++) S+=Q[I][V[I]];
+			if(S<=0) return spnormal(Q);
+			Q=spmcv(Q,V);
+			for(I=0;I<3;I++) V[I]++;
+			mycat(["mc",V,S,"->",Q]);
+		}
+	}
+	return Q;
 }
 
 #if 0
@@ -9111,24 +9444,6 @@ def spharnadcv(L)
 	return R;
 }
 
-#if 0
-def spfundroot(P)
-{
-	P=str_subst(P,"|",",");
-	Q=chkspt(P|opt="basic");
-	for(T=reverse(Q),Q=[];T!=[];T=cdr(T))
-		if(length(car(T))>1) Q=cons(car(T),Q);
-	if(Q==[]) return "1,1,1";
-	R=s2sp(Q);
-	if(lsum(Q[0])==1) return R;
-	for( ; ; ){
-		Q=spharnadcv(R|basic=1,conf=-1,up=1);
-		if(Q==[]) break;
-		R=car(Q);
-	}
-	return R;
-}
-#else
 def spfundroot(P)
 {
 	if(type(P)==7){
@@ -9147,7 +9462,7 @@ def spfundroot(P)
 		V=ltov(L);
 	}else{
 		D=lsum(P[0]);
-		for(TD=-D,R1=R2=[],I=0;I<3;I++){
+		for(TD=-D,R1=R2=[],I=0;I<length(P);I++){
 			T=cdr(P[I]);
 			if((J=lsum(T))>0){
 				R2=append(T,R2);R1=cons(J,R1);
@@ -9157,7 +9472,7 @@ def spfundroot(P)
 		R0=[TD,D];
 		V=ltov([qsortn(R0),qsortn(R1),qsortn(R2)]);
 	}
-	for(K=0; ;K++){	/* reduction */
+	for(K=0; ;K++){	/* reduction by mc */
 		if(K>100) return 0;
 		if((D=V[1][0]+V[2][0]-V[0][1])<=0) break;
 		for(I=0;I<3;I++){
@@ -9183,7 +9498,6 @@ def spfundroot(P)
 	L=vtol(V);
 	return spnormal(L);
 }
-#endif
 
 def spharnadspan(L)
 {
@@ -9506,22 +9820,32 @@ def spfundrel(V,L)
 				}
 			}else if(C==7){
 				N=D4=E6=E7=E8=0;
+				if(!I){
+					C4=C6=C7=C8=CC=CC3=CC4=CC5=0;
+				}
 				for(U=[],T=car(TV);T!=[];T=cdr(T)){
+					CC++;
 					P=car(T);PL=s2sp(P);F=0;
 					K=length(PL);
-					if(K>3) N++;
+					if(K>3){
+						N++;
+						if(K==5) CC5++;
+					}
 					if(K==4){
+						CC4++;
 						for(TF=0,K=0;K<4;K++) if(length(PL[K])>2) TF++;
 						if(TF<2) D4++;
 					}else if(K==3){
+						CC3++;
 						TF=[length(PL[0]),length(PL[1])];
 						if(TF==[2,3]) E8++;
 						else if(TF==[2,4]) E7++;
 						else if(TF==[3,3]) E6++;
 					}
 				}
+				C4+=D4;C6+=E6;C7+=E7;C8+=E8;
 				S=rtostr(length(car(TV)));S=str_addc(S,0,3);
-				mycat0([str_addc(rtostr(I),0,4|tail=1),S,":",N,"\tE8: ",E8,"\tE7: ",E7,"\tE6: ",E6,"\tD4: ",D4,"\n"],0);
+				mycat0([str_addc(rtostr(I),0,7|tail=1),S,":",N," \tE8: ",E8,"\tE7: ",E7,"\tE6: ",E6,"\tD4: ",D4,"\n"],0);
 				R=cons([I,[length(car(TV)),N,E8,E7,E6,D4]],R);
 				continue;
 			}else{	/* C=5,6 */
@@ -9547,6 +9871,9 @@ def spfundrel(V,L)
 			}
 		}
 		if(C==1&&R==[]) mycat("complete!");
+		if(C==7)
+			mycat(["idx =", chkspt(V[0][0])[2], " total", CC, ":", length(V), " 3pt", CC3, 
+			 " 4pt", CC4, " 5pt", CC5, " E8", C8, " E7", C7, " E6", C6, " D4", C4]);
 		return reverse(R);
 	}
 /* main part */
@@ -9633,6 +9960,199 @@ def spfundconf(P,M)
 	if(CC>0) mycat([C,"+",CC,"elements"]);
 	else mycat([C,"elements"]);
 	return reverse(R);
+}
+
+def getD4(P)
+{
+	if(type(P)==7) P=os_md.s2sp(P);
+	if(P[0][0]!=P[0][1]||P[1][0]!=P[1][1]||P[2][0]!=P[2][1]||P[0][0]!=P[1][0]+P[2][0]) return 0;
+	P1=P[0];P2=P[1];P3=P[2];
+	N=2*P2[0]-P3[2]-P3[3];M12=P3[0];M22=P2[0]-P3[0];M32=P2[0]-P3[2];
+	P3=cdr(cdr(P3));P3=cdr(cdr(P3));
+	Q=[P3];Q=cons([N-M32,M32],Q);Q=cons([N-M22,M22],Q);Q=cons([N-M12,M12],Q);
+	return s2sp(Q);
+}
+
+
+def spDEfromE8(P)
+{
+	if((Verb=getopt(verb))!=1) Verb=0;
+	if(type(P)==7) P=s2sp(P);
+	R=getD4(P);
+	R=(R!=0)?[R]:[];
+	return [getE7(P|verb=Verb),getE6(P|verb=Verb),R];
+}
+
+
+def checkfund(Q){
+	if(type(Q)==7) Q=os_md.s2sp(Q);
+	for(F=S=0,P=Q;P!=[];P=cdr(P)){
+		TP=car(P);S+=car(TP);
+		for(I=length(TP)-1;I>0;I--){
+			if(TP[I-1]<TP[I]) return 0;
+		}
+		if(length(P)>1){
+			for(I=0;I<length(TP);I++){
+				if(TP[I]>P[1][I]) break;
+				if(TP[I]<P[1][I]) return 0;
+			}
+		}
+	}
+	S-=(length(Q)-2)*lsum(car(Q));
+	return (S>0)?0:1;
+}
+
+def getE6(P)
+{
+	R=[];V=[];
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	if(type(P)==7) P=s2sp(P);
+	N=P[0][0]+P[0][1]-P[2][0]-P[2][1]-P[2][2];
+	if(P[1][0]==P[1][1]){
+		if(P[1][1]==P[1][2]){
+			M12=P[0][0]-P[1][0];M13=P[0][1]-P[1][0];M11=N-M12-M13;
+			M21=N-M11-P[2][2];M22=N-M11-P[2][1];M23=N-M11-P[2][0];
+			if(M12<M23 && M13<M23){
+				Q=cdr(P[2]);Q=cdr(cdr(Q));
+				Q=cons([M21,M22,M23],[Q]);
+				Q=cons([M11,M12,M13],Q);
+				if(checkfund(Q)){
+					R=cons(s2sp(Q),R);
+					if(Verb) V=cons(4,V);
+				}
+			}
+		}
+		if(P[0][1]==P[1][0]+P[2][0]){
+			N=P[0][0]+P[0][1]-P[2][0]-P[2][1]-P[2][2];
+			M13=P[2][0];M12=P[1][0]-M13;M11=N-M12-M13;
+			M23=P[1][2]-M13;M22=M12+M13-P[2][1];M21=N-M22-M23;
+			if(M23<=M12 && M12<M22 && M13<M23){
+				Q=cdr(P[2]);Q=cdr(cdr(Q));
+				Q=cons([M21,M22,M23],[Q]);
+				Q=cons([M11,M12,M13],Q);
+				if(checkfund(Q)){
+					R=cons(s2sp(Q),R);
+					if(Verb) V=cons(3,V);
+				}
+			}
+		}
+	}
+	if(P[0][0]==P[0][1] && P[0][1]==P[1][0]+P[2][0]){
+		M23=P[2][0];M13=P[1][2]-M23;M12=P[1][1]-M23;M11=N-M12-M13;
+		M22=M12+M13-P[2][1];M21=N-M22-M23;
+		if(M12<M22 && M13>=M23){
+			Q=cdr(P[2]);Q=cdr(cdr(Q));
+			Q=cons([M21,M22,M23],[Q]);
+			Q=cons([M11,M12,M13],Q);
+			if(checkfund(Q)){
+				R=cons(s2sp(Q),R);
+				if(Verb) V=cons(2,V);
+			}
+		}
+	}
+	if(P[2][0]==P[2][1] && P[0][1]==P[1][0]+P[2][0]){
+		M13=P[2][0];M12=P[1][0]-M13;M22=P[1][1]-M13;M23=P[1][2]-M13;
+		M11=N-M12-M13;M21=N-M22-M23;
+		if(M22<=M12 && M12 <= M21){
+			Q=cdr(P[2]);Q=cdr(cdr(Q));
+			Q=cons([M21,M22,M23],[Q]);
+			Q=cons([M11,M12,M13],Q);
+			if(checkfund(Q)){
+				R=cons(s2sp(Q),R);
+				if(Verb) V=cons(1,V);
+			}
+		}
+	}
+	L=length(P[2]);
+	for(I=2;I<L;I++){
+		if(P[2][I-1]==P[2][I] && P[2][I-2]==P[2][I] && (I==2||P[2][I-3]!=P[2][I])){
+			M13=P[2][I];M21=P[1][0]-M13;M22=P[1][1]-M13;M23=P[1][2]-M13;
+			M11=P[0][0]-2*M13;M12=P[0][1]-2*M13;
+			if(M21<M12){
+				for(Q=[],J=length(P[2])-1;J>=0;J--){
+					if(J==I) J-=2;
+					else Q=cons(P[2][J],Q);
+				}
+				Q=cons([M21,M22,M23],[Q]);
+				Q=cons([M11,M12,M13],Q);
+				if(checkfund(Q)){
+					R=cons(s2sp(Q),R);
+					if(Verb) V=cons(0,V);
+				}
+			}
+		}
+	}
+	if(Verb) R=cons(V,R);
+	return R;
+
+}
+
+
+def getE7(P)
+{
+	R=[];V=[];
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	if(type(P)==7) P=s2sp(P);
+	if(P[0][1]==P[1][0]+P[2][0]){
+		M24=P[2][0];M12=P[1][0];M22=P[1][1]-M24;M23=P[1][2]-M24;M21=M12-P[2][1];
+		N=M21+M22+M23+M24;M11=N-M12;
+		if(M11>=M22+M23 && M11<=M21+M23 && M11>=M21+M24){
+			Q=[cdr(cdr(P[2]))];
+			Q=cons([M21,M22,M23,M24],Q);
+			Q=cons([M11,M12],Q);
+			if(checkfund(Q)){
+				R=cons(s2sp(Q),R);
+				if(Verb) V=cons(3,V);
+			}
+		}
+	}
+	if(P[0][0]==P[0][1]){
+		M24=P[0][0]-P[1][0];M23=P[0][0]-P[1][1];M22=P[0][0]-P[1][2];
+		M12=P[0][0]-P[2][0];M11=P[0][0]-P[2][1];M21=M11+M12-M22-M23-M24;
+		if(M11<M21+M24){
+			Q=[cdr(cdr(P[2]))];
+			Q=cons([M21,M22,M23,M24],Q);
+			Q=cons([M11,M12],Q);
+			if(checkfund(Q)){
+				R=cons(s2sp(Q),R);
+				if(Verb) V=cons(2,V);
+			}
+		}
+	}
+	if(P[1][1]==P[1][0]||P[1][1]==P[1][2]){
+		M12=P[1][1];M22=M12-P[2][0];M21=M12-P[2][1];M23=P[0][0]-M12;M24=P[0][1]-M12;
+		M11=M21+M22+M23+M24-M12;
+		if(M11>M21+M23){
+			Q=[cdr(cdr(P[2]))];
+			Q=cons([M21,M22,M23,M24],Q);
+			Q=cons([M11,M12],Q);
+			if(checkfund(Q)){	/* necessary */
+				R=cons(s2sp(Q),R);
+				if(Verb) V=cons(1,V);
+			}
+		}
+	}
+	L=length(P[2]);
+	for(I=1;I<L;I++){
+		if(P[2][I-1]==P[2][I] && (I==1||P[2][I-2]!=P[2][I])){
+			M24=P[2][I];M11=P[0][0]-M24;M12=P[0][1]-M24;
+			M21=P[1][0]-M24;M22=P[1][1]-M24;M23=P[1][2]-M24;
+			if(M11<M22+M23){
+				for(Q=[],J=L-1;J>=0;J--){
+					if(J!=I&&J!=I-1) Q=cons(P[2][J],Q);
+				}
+				Q=[Q];
+				Q=cons([M21,M22,M23,M24],Q);
+				Q=cons([M11,M12],Q);
+				if(checkfund(Q)){
+					R=cons(s2sp(Q),R);
+					if(Verb) V=cons(0,V);
+				}
+			}
+		}
+	}
+	if(Verb) R=cons(V,R);
+	return R;
 }
 
 /* bf=1, pre=s, dviout=, scale=, bold= */
@@ -13269,11 +13789,15 @@ def isall(FN,M)
 
 def sproot(MP,T)
 {
-	if((I=str_chr(T,0,","))>0){
+	if((F=getopt(prod))!=1&&F!=2) F=0;
+	if(F||(I=str_chr(T,0,","))>0){
 		if(type(MP)==7) M=s2sp(MP);
+		else if (F) M=MP;
 		else M=chkspt(MP|opt=0);
-		if(I==length(M[0])){
-			N=s2sp(T);S=SM=SN=K=0;
+		if(F||I==length(M[0])){
+			if(type(T)!=4) N=s2sp(T);
+			else N=T;
+			S=SM=SN=K=0;
 			for(MM=M,NN=N;MM!=[];MM=cdr(MM),NN=cdr(NN),K++){
 				for(MT=car(MM),NT=car(NN);MT!=[];MT=cdr(MT),NT=cdr(NT)){
 					S+=car(MT)*car(NT);
@@ -13282,7 +13806,13 @@ def sproot(MP,T)
 					}
 				}
 			}
-			return S-(length(M)-2)*SM*SN;
+			V=S-(length(M)-2)*SM*SN;
+			if(F==2){
+				for(P=[],I=length(M)-1;I>=0;I--)
+					P=cons(os_md.ladd(N[I],M[I],-V),P);
+				return P;
+			}
+			return V;
 		}
 	}
 	MM=chkspt(MP|opt=7);
