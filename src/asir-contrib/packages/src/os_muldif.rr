@@ -673,7 +673,7 @@ extern AMSTeX$
 extern Glib_math_coordinate$
 extern Glib_canvas_x$
 extern Glib_canvas_y$
-Muldif.rr="00260729"$
+Muldif.rr="00261016"$
 AMSTeX=1$
 TeXEq=5$
 TeXLim=80$
@@ -2399,6 +2399,23 @@ def transtournament(L,P)
 */
 def xytournament(L,V)
 {
+	if(!isint(Verb=getopt(verb))) Verb=0;
+	if((W=getopt(winner))=="all"&& Verb>1){ 	/* winner types */
+		Option=delopt(getopt(),["winner","dviout"]);
+		if(type(L)==7 || (type(L)==4 && type(L[0])<2)) L=[L];
+ 		for(R=KR=[],S=L;S!=[];S=cdr(S)){
+			if(type(T=car(S))==7) T=os_md.getCatalan(T,0|to="01");
+			LL=length(T)/2;
+   			for(W=0;W<=LL;W++){
+     			TR=os_md.xytournament(T,0|
+					option_list=cons(["winner",W+1],Option)); 
+    			if(os_md.findin(TR[1],KR)>=0) continue;
+				R=cons(cons(T,TR), R);
+    			KR=cons(TR[1],KR);
+   			}
+		}
+		return reverse(R);
+	}
 	XX=YY=0.2;
 	if(type(V)==4){
 		if(length(V)==1) V=[V[0],V[1]];
@@ -2408,20 +2425,6 @@ def xytournament(L,V)
 	if(type(L)==7)
 		L=os_md.getCatalan(L,0|to="01");
 	LL=length(L)/2;
-	if(!isint(Verb=getopt(verb))) Verb=0;
-	if((W=getopt(winner))=="all"&& Verb>1){ 	/* winner types */
-		Option=delopt(getopt(),["winner","dviout"]);
- 		for(R=KR=[],S=T;S!=[];S=cdr(S)){
-   			for(W=0;W<=LL;W++){
-     			TR=os_md.xytournament(car(S),0|
-					option_list=cons(["winner",W+1],Option)); 
-    			if(os_md.findin(TR[1],KR)>=0) continue;
-				R=cons(cons(car(S),TR), R);
-    			KR=cons(TR[1],KR);
-   			}
-		}
-		return reverse(R);
-	}
 	R=[[[1,1],0],[[0,0],0]];
 	for(I=2,TL=cdr(L);TL!=[];TL=cdr(TL)){
 		if(car(TL)==0){
