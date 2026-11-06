@@ -1,0 +1,39 @@
+name: Send Commit Email
+
+on:
+  push:
+    branches:
+      - main   # masterブランチを使用している場合は master に変更してください
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # 以下は Gmail の場合の設定です。適宜 SMTP サーバー情報を書き換えてください。
+          server_address: air.s.kanazawa-u.ac.jp
+          server_port: 25
+          secure: false
+          
+          # メールの件名と送信先
+          subject: "[GitHub] Push to ${{ github.repository }} by ${{ github.actor }}"
+          to: openxm-at-git-all@air.s.kanazawa-u.ac.jp
+          from: GitHub Actions <noreply@github.com>
+          
+          # メール本文
+          body: |
+            New push to ${{ github.repository }} 
+            
+            実行者: ${{ github.actor }}
+            ブランチ: ${{ github.ref }}
+            
+            ▼ 変更内容の確認 (Compare)
+            ${{ github.event.compare }}
+            
+            ▼ コミット履歴
+            ${{ toJson(github.event.commits.*.message) }}
